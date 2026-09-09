@@ -1,0 +1,1127 @@
+{
+  "clusterRegistryVersion": "v2.3-customer-subscription",
+  "project": "Workin Ants",
+  "principle": "Deep Modules remain the source-of-truth architecture. Clusters are the presentation, planning, and controlled-context layer. v2.3 preserves the 10-cluster map while adding Customer / Buyer Profile and Track Subscription & Entitlement as primary foundation modules with explicit bridges into commerce, hiring, delivery, discovery, and privacy.",
+  "schemaDisplayRule": "Only show key parent/source schemas in the Bubble Map. Avoid showing every enum, join table, compliance term, event-detail table, or entitlement key as equal-weight bubbles. Track entitlements should display as a policy rail, not as local premium booleans.",
+  "clustersByType": {
+    "foundation": [
+      {
+        "clusterId": "CL-01",
+        "clusterName": "Identity, Authority, Consent & Entitlements",
+        "clusterType": "foundation_access_control_consent_entitlement_policy",
+        "purpose": "Establishes the account, actor branches, permissions, account security posture, consent/disclosure proof, and track entitlement policy before business workflows proceed.",
+        "includedDeepModules": [
+          "identity_access",
+          "role_authority",
+          "consent_disclosure",
+          "customer_buyer_profile",
+          "track_subscription_entitlement"
+        ],
+        "simpleInterfaceSentence": "Who is acting, under which profile/track, what can they do, and what consent or entitlement proof exists?",
+        "keySchemas": [
+          "User",
+          "UserRole",
+          "OrganizationMember",
+          "ThreadParticipant",
+          "ConsentLog",
+          "UserSecurityProfile",
+          "AuthProviderAccount",
+          "PasskeyCredential",
+          "StepUpChallenge",
+          "SensitiveActionSession",
+          "AccountRecoveryRequest",
+          "UserSecurityEvent",
+          "CustomerProfile",
+          "CandidateProfile",
+          "ProfessionalProfile",
+          "TrackPlan",
+          "TrackPlanPrice",
+          "TrackEntitlementDefinition",
+          "TrackPlanEntitlement",
+          "TrackSubscription",
+          "TrackEntitlementGrant",
+          "TrackUsageEvent",
+          "TrackUsageCounter",
+          "TrackSubscriptionEvent"
+        ],
+        "keyCompliances": [
+          "COPPA-style age gate",
+          "Passkey / WebAuthn credential boundary",
+          "Sensitive financial step-up MFA",
+          "Changed-phone account recovery",
+          "Consent/version proof",
+          "FCRA consent support",
+          "Calendar consent support",
+          "Push notification consent support",
+          "Healthcare consent support",
+          "Sweepstakes consent support",
+          "Gamification consent support",
+          "Customer-track identity separation",
+          "Customer marketplace access boundary",
+          "Subscription terms disclosure",
+          "Recurring billing authorization",
+          "Plan change terms",
+          "Commission terms",
+          "Buyer-side fee waiver proof",
+          "Priority scheduling entitlement proof",
+          "Candidate application-limit metering",
+          "Candidate search boost entitlement proof",
+          "Professional commission-rate snapshot support",
+          "Subscription provider boundary",
+          "Subscription billing record retention"
+        ],
+        "keyTechnologies": [
+          "Supabase Auth",
+          "OAuth 2.0",
+          "MFA",
+          "Passkeys / WebAuthn",
+          "Twilio Verify or equivalent SMS OTP provider",
+          "Rate limiting",
+          "Session management",
+          "Supabase RLS",
+          "Postgres helper functions",
+          "Server-side authorization utilities",
+          "Admin route guards",
+          "Consent UI",
+          "Terms/versioning system",
+          "IP hash utility",
+          "User-agent capture",
+          "Stripe Identity or Persona for recovery verification",
+          "Stripe Billing",
+          "Stripe Checkout",
+          "Stripe Customer Portal",
+          "Stripe webhook signature verification",
+          "Server-side entitlement lookup middleware",
+          "Server-side usage metering service",
+          "Monthly usage reset worker",
+          "Plan seeding script",
+          "Typesense reindex trigger for boost changes",
+          "Cron/queue worker for expiring subscriptions and grants"
+        ],
+        "inboundDependencies": [],
+        "outboundDependencies": [
+          "All workflow modules consume authenticated actor context",
+          "All protected workflows consume Role / Authority decisions",
+          "Compliance-sensitive workflows consume ConsentLog proof",
+          "CustomerProfile supplies buyer actor context to Gigs, Orders, Bookings, Digital Access, Reviews, and Disputes",
+          "Track Subscription & Entitlement supplies feature, perk, limit, boost, waiver, and commission decisions to consuming modules"
+        ],
+        "crossCuttingSupportRails": [
+          "Audit / Event Ledger",
+          "Notification",
+          "Privacy / Data Erasure",
+          "Admin Review / Compliance Hold",
+          "Track Subscription & Entitlement",
+          "Customer / Buyer Profile"
+        ],
+        "bubbleMapDisplayRecommendation": "Place as the base/foundation cluster. Show User as the account bubble; CustomerProfile, CandidateProfile, ProfessionalProfile, and OrganizationMember as actor-branch bubbles; ConsentLog as proof; TrackEntitlementGrant as the policy rail. Do not draw every entitlement key as a full bubble.",
+        "specialDisplayRule": {
+          "newPrimaryModules": [
+            "customer_buyer_profile",
+            "track_subscription_entitlement"
+          ],
+          "displayMode": "foundation_modules_with_cross_cluster_policy_rails",
+          "rule": "CustomerProfile is buyer actor truth. TrackSubscription and TrackEntitlementGrant are commercial policy truth. Feature modules consume them without storing local premium booleans."
+        }
+      }
+    ],
+    "discovery_public_surface": [
+      {
+        "clusterId": "CL-02",
+        "clusterName": "Discovery, Classification & Visibility",
+        "clusterType": "discovery_taxonomy_projection",
+        "purpose": "Controls accepted classification, AI suggestions, and public search projection.",
+        "includedDeepModules": [
+          "taxonomy_classification",
+          "ai_taxonomy",
+          "search_public_visibility"
+        ],
+        "simpleInterfaceSentence": "Classify platform objects, validate AI suggestions, and project approved objects into public discovery.",
+        "keySchemas": [
+          "TaxonomyDomain",
+          "TaxonomyCategory",
+          "TaxonomyTag",
+          "AiSuggestion",
+          "AiClassificationLog",
+          "SearchUpsertEvent",
+          "CandidateSearchProjection",
+          "TrackEntitlementGrant",
+          "TrackUsageEvent",
+          "TrustBadge"
+        ],
+        "keyCompliances": [
+          "Healthcare-sensitive category triggers",
+          "Verified-only / high-risk service gates",
+          "Search projection de-indexing",
+          "Privacy-safe public search",
+          "Fuzzy location search support",
+          "Moderation/public visibility removal support",
+          "Candidate search boost entitlement proof",
+          "Track-aware visibility boost projection",
+          "Search boost re-indexing after entitlement changes"
+        ],
+        "keyTechnologies": [
+          "Typesense",
+          "Search API",
+          "Index worker",
+          "Backfill worker",
+          "Search debug/admin viewer",
+          "AWS Bedrock",
+          "Prompt templates",
+          "JSON schema validation",
+          "Zod",
+          "Admin taxonomy manager",
+          "Admin review UI",
+          "Seed scripts",
+          "Tag normalization worker",
+          "Typesense boost metadata",
+          "Entitlement-aware reindex worker"
+        ],
+        "inboundDependencies": [
+          "Marketplace Supply",
+          "Gig / Demand",
+          "Organization Hiring",
+          "Candidate Application & Resume Privacy",
+          "Professional Eligibility",
+          "Trust Verification / Screening",
+          "Privacy / Data Erasure",
+          "Location Safety",
+          "Content Moderation & Legal Notice",
+          "Track Subscription & Entitlement"
+        ],
+        "outboundDependencies": [
+          "Public Offering discovery",
+          "Public Gig discovery",
+          "Public Job discovery",
+          "ProfessionalProfile discovery",
+          "Candidate search projection where allowed",
+          "Organization discovery",
+          "TrustBadge projection"
+        ],
+        "crossCuttingSupportRails": [
+          "Content Moderation",
+          "Privacy / Data Erasure",
+          "Location Safety",
+          "Observability / Ops",
+          "Admin Review / Compliance Hold",
+          "Track Subscription & Entitlement"
+        ],
+        "bubbleMapDisplayRecommendation": "Place as a public surface layer above the business-domain clusters. Show TaxonomyCategory, AiSuggestion, SearchUpsertEvent, and CandidateSearchProjection. Show TrackEntitlementGrant only as an input rail for search boosts."
+      }
+    ],
+    "core_marketplace_commerce": [
+      {
+        "clusterId": "CL-03",
+        "clusterName": "Professional Supply & Readiness",
+        "clusterType": "core_marketplace_supply_eligibility_regulated_readiness",
+        "purpose": "Controls whether a Professional can sell, publish Offerings, operate in regulated lanes, and receive money.",
+        "includedDeepModules": [
+          "professional_eligibility",
+          "trust_verification_screening",
+          "marketplace_supply",
+          "payment_payout_tax",
+          "healthcare_regulated_services"
+        ],
+        "simpleInterfaceSentence": "Can this ProfessionalProfile sell this Offering, pass required gates, and receive money?",
+        "keySchemas": [
+          "ProfessionalProfile",
+          "Offering",
+          "ServiceDetails",
+          "ProductDetails",
+          "CourseDetails",
+          "PricingTier",
+          "VerificationRequirement",
+          "VerificationCheck",
+          "VerificationConsent",
+          "FcraAdverseActionWorkflow",
+          "ProfessionalLicenseCredential",
+          "TrustBadge",
+          "HealthcareComplianceProfile",
+          "BaaAgreement",
+          "HealthcareDataBoundary",
+          "KycVerification",
+          "TaxProfile",
+          "TaxDocument",
+          "PayoutAccount",
+          "ProfessionalBalanceLedgerEntry",
+          "PayoutRequest",
+          "PayoutTransfer",
+          "SalesTaxCalculation",
+          "TrackSubscription",
+          "TrackEntitlementGrant",
+          "TrackUsageEvent",
+          "TrackPlanEntitlement"
+        ],
+        "keyCompliances": [
+          "KYC / AML payout gating",
+          "Processor-held funds / payout request",
+          "Tax reporting / 1099 readiness",
+          "Professional license verification",
+          "FCRA background-check workflow",
+          "DMV / MVR verification",
+          "Verified-only / high-risk service gates",
+          "HIPAA / HITECH healthcare lane",
+          "Admin PHI redaction support",
+          "Digital goods sales tax support",
+          "Professional selling entitlement",
+          "Professional commission-rate entitlement",
+          "Professional commission-rate snapshot support",
+          "Subscription provider boundary"
+        ],
+        "keyTechnologies": [
+          "Stripe",
+          "Stripe Connect",
+          "Stripe webhooks",
+          "Webhook signature verification",
+          "Stripe Tax",
+          "Avalara optional",
+          "Tax provider later",
+          "KYC provider later",
+          "Checkr or GoodHire",
+          "Evident ID or Certn",
+          "Vendor-hosted sensitive data collection",
+          "Admin verification dashboard",
+          "Healthcare BAA/e-sign provider webhook",
+          "API middleware redaction layer",
+          "Cloudflare R2 private storage",
+          "Next.js offering UI",
+          "Mux Video API through Video Infrastructure",
+          "AWS Bedrock for offering classification suggestions",
+          "Stripe Billing",
+          "Server-side entitlement lookup middleware",
+          "Plan seeding script"
+        ],
+        "inboundDependencies": [
+          "Identity, Authority & Consent",
+          "Discovery & Classification",
+          "Moderation, Holds, Audit & Ops",
+          "Privacy & Location Safety",
+          "Track Subscription & Entitlement"
+        ],
+        "outboundDependencies": [
+          "Demand, Order & Resolution",
+          "Scheduling, Media & Digital Delivery",
+          "Discovery & Classification",
+          "Messaging & Notification Rail",
+          "Incentives, Rewards & Prize Economy"
+        ],
+        "crossCuttingSupportRails": [
+          "Taxonomy & Classification",
+          "Payment / Payout / Tax",
+          "Healthcare / Regulated Services",
+          "Media / File Access",
+          "Search / Public Visibility",
+          "Admin Review / Compliance Hold",
+          "Audit / Event Ledger",
+          "Notification",
+          "Track Subscription & Entitlement"
+        ],
+        "bubbleMapDisplayRecommendation": "Make this one of the largest clusters. Put ProfessionalProfile in the center. Surround it with Offering, VerificationCheck, HealthcareComplianceProfile, PayoutAccount, PayoutRequest, and TrackEntitlementGrant. Show TrackEntitlementGrant as the source of professional selling access, commission rate, live streaming, custom domain, and internal ads.",
+        "specialDisplayRules": [
+          {
+            "moduleId": "payment_payout_tax",
+            "primaryCluster": "CL-03",
+            "displayMode": "primary_nested_module_with_bridge_to_CL-04",
+            "clusterFacet": "financial readiness gate",
+            "bridgeTo": "CL-04",
+            "bridgeLabel": "payment, sales tax, payout, refund, dispute-money effects"
+          },
+          {
+            "moduleId": "track_subscription_entitlement",
+            "primaryCluster": "CL-01",
+            "displayMode": "inbound_policy_rail",
+            "clusterFacet": "professional plan, seller access, commission, live streaming, custom domain, internal ads",
+            "bridgeFrom": "CL-01",
+            "bridgeLabel": "professional-track entitlement decisions",
+            "rule": "ProfessionalProfile owns seller actor lifecycle; Track Subscription & Entitlement owns plan and entitlement truth."
+          }
+        ]
+      },
+      {
+        "clusterId": "CL-04",
+        "clusterName": "Customer Demand, Order & Resolution",
+        "clusterType": "core_customer_demand_commerce_transaction_dispute",
+        "purpose": "Controls customer-created paid demand, accepted assignments, transaction truth, agreements, reviews, disputes, buyer fee-waiver snapshots, and professional commission snapshots.",
+        "includedDeepModules": [
+          "gig_demand",
+          "transaction_order",
+          "review_dispute"
+        ],
+        "simpleInterfaceSentence": "What CustomerProfile demand or purchase became an Order, what pricing policy was snapshotted, and what happened after?",
+        "keySchemas": [
+          "Gig",
+          "GigResponse",
+          "GigAssignment",
+          "Order",
+          "OrderEvent",
+          "OrderFile",
+          "Agreement",
+          "AgreementTemplate",
+          "AgreementElectronicConsent",
+          "AgreementSignature",
+          "AgreementDocumentSnapshot",
+          "AgreementAccessGrant",
+          "Review",
+          "Dispute",
+          "CustomerProfile",
+          "TrackSubscription",
+          "TrackEntitlementGrant",
+          "TrackUsageEvent",
+          "TrackUsageCounter"
+        ],
+        "keyCompliances": [
+          "Order as transaction truth",
+          "E-SIGN / UETA electronic agreement execution",
+          "Manual signature opt-out",
+          "Tamper-evident contract hash",
+          "Private archived contract storage",
+          "Dispute-triggered payout hold support",
+          "Refund status attachment",
+          "Customer-track identity separation",
+          "Customer marketplace access boundary",
+          "Buyer-side transaction-fee waiver proof",
+          "Professional commission-rate snapshot support",
+          "Track usage metering",
+          "Subscription terms support for paid buyer perks"
+        ],
+        "keyTechnologies": [
+          "Stripe webhook integration",
+          "Order state machine",
+          "Server-side order service",
+          "PDFKit",
+          "Puppeteer",
+          "Node.js crypto createHash('sha256')",
+          "Cloudflare R2 private bucket",
+          "@aws-sdk/client-s3",
+          "Server-side PDF generation worker",
+          "Server-side signed contract access route",
+          "Admin dispute dashboard",
+          "Stripe refund APIs",
+          "Notification system",
+          "Messaging integration",
+          "Audit/event logging",
+          "Stripe Billing",
+          "Server-side entitlement lookup middleware",
+          "Server-side usage metering service",
+          "Plan seeding script"
+        ],
+        "inboundDependencies": [
+          "Professional Supply & Readiness",
+          "Identity, Authority & Consent",
+          "Discovery & Classification",
+          "Customer / Buyer Profile",
+          "Track Subscription & Entitlement"
+        ],
+        "outboundDependencies": [
+          "Professional Supply & Readiness",
+          "Scheduling, Media & Digital Delivery",
+          "Messaging & Notification Rail",
+          "Moderation, Holds, Audit & Ops",
+          "Incentives, Rewards & Prize Economy"
+        ],
+        "crossCuttingSupportRails": [
+          "Payment / Payout / Tax bridge",
+          "Admin Review / Compliance Hold",
+          "Audit / Event Ledger",
+          "Notification",
+          "Messaging",
+          "Media / File Access",
+          "Privacy / Data Erasure",
+          "Customer / Buyer Profile",
+          "Track Subscription & Entitlement"
+        ],
+        "bubbleMapDisplayRecommendation": "Put Order as the dominant child bubble. Show CustomerProfile as the buyer actor bubble, GigAssignment as demand-to-order bridge, Agreement as contract proof, Review/Dispute as outcome bubbles, and TrackEntitlementGrant as the fee-waiver/commission snapshot input."
+      }
+    ],
+    "delivery_infrastructure": [
+      {
+        "clusterId": "CL-05",
+        "clusterName": "Scheduling, Media & Digital Delivery",
+        "clusterType": "delivery_infrastructure_access_grant_file_video_booking",
+        "purpose": "Delivers live services, priority scheduling, video rooms, course playback, downloadable products, private files, and digital access after order/payment/entitlement gates are established.",
+        "includedDeepModules": [
+          "booking_calendar",
+          "video_session",
+          "media_file_access",
+          "digital_goods_access"
+        ],
+        "simpleInterfaceSentence": "Once the platform says the actor is entitled, this cluster safely delivers the booking, session, file, video, or digital good.",
+        "keySchemas": [
+          "AvailabilityRule",
+          "CalendarConnection",
+          "BusyWindow",
+          "BookingHold",
+          "Booking",
+          "BookingSlotLock",
+          "BookingOrchestrationRun",
+          "BookingVideoRoom",
+          "JobInterviewVideoRoom",
+          "CourseVideoAsset",
+          "CourseVideoPlaybackGrant",
+          "ProcessedVideoProviderEvent",
+          "MediaAsset",
+          "MediaUploadPolicy",
+          "MediaUploadSession",
+          "MediaValidationResult",
+          "MediaScanResult",
+          "MediaProcessingResult",
+          "MediaAccessGrant",
+          "DigitalGoodsPolicy",
+          "DigitalDownloadAsset",
+          "DigitalDownloadGrant",
+          "DigitalDownloadEvent",
+          "DigitalGoodsTermsAcceptance",
+          "ChildDirectedContentDeclaration",
+          "MinorPrivacyControl",
+          "CourseAccessibilityAsset",
+          "CustomerProfile",
+          "TrackEntitlementGrant",
+          "TrackUsageEvent"
+        ],
+        "keyCompliances": [
+          "Cronofy calendar sync boundary",
+          "Calendar free/busy privacy boundary",
+          "Atomic double-booking prevention",
+          "Live video token access",
+          "Signed course playback",
+          "Private file storage",
+          "Secure upload controls",
+          "Malware scan / MIME validation",
+          "EXIF/GPS metadata scrubbing",
+          "Paid digital download access",
+          "Expiring download grants",
+          "Digital goods license/refund disclosure",
+          "Child-directed product controls",
+          "Course accessibility support",
+          "Priority scheduling entitlement proof",
+          "Live streaming entitlement gate",
+          "Customer-track digital access context"
+        ],
+        "keyTechnologies": [
+          "Cronofy",
+          "Nylas if chosen",
+          "Calendar webhooks",
+          "Timezone utilities",
+          "Postgres overlap/exclusion constraints",
+          "Postgres row-level transactions",
+          "Server-side idempotency keys",
+          "Daily.co",
+          "Agora SDK",
+          "Agora token server",
+          "Mux Video API",
+          "Mux signed playback / JWT playback access",
+          "Mux webhooks",
+          "Cloudflare R2",
+          "Cloudflare Workers",
+          "Presigned URLs",
+          "AWS SDK S3-compatible presigned URLs",
+          "file-type npm package",
+          "sharp",
+          "Optional ClamAV or malware scanning provider",
+          "Server-side entitlement checks",
+          "Short-lived signed URL generator",
+          "Server-side entitlement lookup middleware",
+          "Usage metering service"
+        ],
+        "inboundDependencies": [
+          "Professional Supply & Readiness",
+          "Demand, Order & Resolution",
+          "Organization Hiring & Candidate Pipeline",
+          "Identity, Authority & Consent",
+          "Privacy & Location Safety",
+          "Moderation, Holds, Audit & Ops",
+          "Customer / Buyer Profile",
+          "Track Subscription & Entitlement"
+        ],
+        "outboundDependencies": [
+          "Messaging & Notification Rail",
+          "Privacy & Location Safety",
+          "Moderation, Holds, Audit & Ops",
+          "Discovery & Classification"
+        ],
+        "crossCuttingSupportRails": [
+          "Identity & Authority",
+          "Consent & Disclosure",
+          "Privacy / Data Erasure",
+          "Healthcare / Regulated Services",
+          "Audit / Event Ledger",
+          "Notification",
+          "Observability / Ops",
+          "Track Subscription & Entitlement"
+        ],
+        "bubbleMapDisplayRecommendation": "Render as an infrastructure block, not a main business domain. Use Booking, BookingHold, BookingSlotLock, MediaAsset, CourseVideoAsset, and DigitalDownloadGrant as visible child bubbles. Show TrackEntitlementGrant as a small rail for priority scheduling and live-streaming access."
+      }
+    ],
+    "hiring_domain": [
+      {
+        "clusterId": "CL-06",
+        "clusterName": "Organization Hiring & Candidate Pipeline",
+        "clusterType": "hiring_domain_candidate_privacy_job_compliance",
+        "purpose": "Controls formal hiring: Organizations, Jobs, job compliance, CandidateProfiles, applications, resumes, interviews, candidate-track limits, search boosts, and application view tracking visibility.",
+        "includedDeepModules": [
+          "organization_hiring",
+          "job_compliance",
+          "candidate_application_resume_privacy",
+          "job_interview"
+        ],
+        "simpleInterfaceSentence": "An Organization posts a compliant Job; CandidateProfile applies under its track limits; resume access and interview scheduling stay privacy-safe.",
+        "keySchemas": [
+          "Organization",
+          "OrganizationMember",
+          "OrganizationFeatureAccess",
+          "OrganizationNotificationSetting",
+          "Job",
+          "JobComplianceRule",
+          "JobComplianceCheck",
+          "JobComplianceFinding",
+          "JobCompensationDisclosure",
+          "CandidateProfile",
+          "JobApplication",
+          "JobApplicationMedia",
+          "ResumeParseResult",
+          "ResumeAccessLog",
+          "CandidateSearchProjection",
+          "JobInterview",
+          "JobInterviewParticipant",
+          "JobInterviewEvent",
+          "TrackSubscription",
+          "TrackEntitlementGrant",
+          "TrackUsageEvent",
+          "TrackUsageCounter",
+          "JobApplicationViewEvent"
+        ],
+        "keyCompliances": [
+          "Job compliance review gate",
+          "Pay transparency proof",
+          "EEOC / Fair Chance finding provenance",
+          "Salary / benefits disclosure proof",
+          "Resume privacy",
+          "Authorized resume viewer",
+          "Resume parsing without automated hiring decision",
+          "Candidate search privacy projection",
+          "Append-only sensitive access audit support",
+          "Candidate application-limit metering",
+          "Candidate search boost entitlement proof",
+          "Candidate application view tracking entitlement",
+          "Subscription-gated candidate perks"
+        ],
+        "keyTechnologies": [
+          "Next.js organization dashboard",
+          "Supabase RLS membership policies",
+          "Typesense for public job/org search",
+          "Admin tools",
+          "Backend validators",
+          "Jurisdiction rules engine later",
+          "compromise npm package",
+          "natural npm package",
+          "Cloudflare R2 private bucket",
+          "Presigned URLs",
+          "pdf-parse",
+          "Resume text extraction worker",
+          "Timezone utilities",
+          "Video Session integration",
+          "Notification system",
+          "Audit logging",
+          "Server-side entitlement lookup middleware",
+          "Server-side usage metering service",
+          "Typesense reindex trigger for boost changes",
+          "Monthly usage reset worker"
+        ],
+        "inboundDependencies": [
+          "Identity, Authority & Consent",
+          "Discovery & Classification",
+          "Scheduling, Media & Digital Delivery",
+          "Moderation, Holds, Audit & Ops",
+          "Track Subscription & Entitlement"
+        ],
+        "outboundDependencies": [
+          "Discovery & Classification",
+          "Messaging & Notification Rail",
+          "Scheduling, Media & Digital Delivery",
+          "Privacy & Location Safety",
+          "Moderation, Holds, Audit & Ops"
+        ],
+        "crossCuttingSupportRails": [
+          "Role / Authority",
+          "Media / File Access",
+          "Messaging",
+          "Notification",
+          "Search / Public Visibility",
+          "Audit / Event Ledger",
+          "Privacy / Data Erasure",
+          "Admin Review / Compliance Hold",
+          "Track Subscription & Entitlement"
+        ],
+        "bubbleMapDisplayRecommendation": "Keep this as a separate hiring lane. Main visible bubbles: Organization, Job, CandidateProfile, JobApplication, ResumeAccessLog, JobInterview, and TrackUsageCounter for application limits. Do not mix Gig into this cluster."
+      }
+    ],
+    "communication_rails": [
+      {
+        "clusterId": "CL-07",
+        "clusterName": "Messaging & Notification Rail",
+        "clusterType": "cross_cutting_communication_rail",
+        "purpose": "Carries conversations and alerts across the platform without owning the business event that caused them.",
+        "includedDeepModules": ["messaging", "notification"],
+        "simpleInterfaceSentence": "Business modules create events; this cluster carries conversations and notifications about them.",
+        "keySchemas": [
+          "Thread",
+          "ThreadParticipant",
+          "Message",
+          "MessageMedia",
+          "Notification",
+          "NotificationSubscription",
+          "NotificationSubscriptionEvent",
+          "NotificationDelivery",
+          "TrackSubscriptionEvent",
+          "TrackEntitlementGrant"
+        ],
+        "keyCompliances": [
+          "Privacy-safe notification payloads",
+          "Web push disclosure",
+          "Push permission proof",
+          "Security alert notification",
+          "FCRA notification support",
+          "DMCA notification support",
+          "Healthcare message redaction support",
+          "GDPR / CCPA message erasure support",
+          "Subscription lifecycle notification support",
+          "Plan change notification support",
+          "Entitlement revocation notification support"
+        ],
+        "keyTechnologies": [
+          "Supabase Realtime",
+          "Postgres RLS",
+          "Message API",
+          "Media access integration",
+          "Abuse reporting hooks",
+          "Email provider",
+          "SMS provider",
+          "Web Push",
+          "W3C Push API",
+          "Web Notifications API",
+          "Service Worker API",
+          "Firebase Cloud Messaging",
+          "OneSignal optional",
+          "WonderPush optional",
+          "VAPID keys",
+          "PWA manifest.json",
+          "Notification click handler route"
+        ],
+        "inboundDependencies": [
+          "All business workflow modules",
+          "Identity, Authority & Consent",
+          "Privacy & Location Safety",
+          "Moderation, Holds, Audit & Ops",
+          "Track Subscription & Entitlement"
+        ],
+        "outboundDependencies": [
+          "Users",
+          "Organizations",
+          "Professionals",
+          "Candidates",
+          "Admins",
+          "Support workflows"
+        ],
+        "crossCuttingSupportRails": [
+          "Identity & Authority",
+          "Consent & Disclosure",
+          "Media / File Access",
+          "Privacy / Data Erasure",
+          "Healthcare / Regulated Services",
+          "Content Moderation",
+          "Audit / Event Ledger"
+        ],
+        "bubbleMapDisplayRecommendation": "Draw this as a horizontal rail across the map. Do not make it look like a domain. Visible child bubbles: Thread, Message, Notification, NotificationDelivery. Subscription and entitlement events may create notifications, but this rail does not own subscription truth."
+      }
+    ],
+    "privacy_safety_user_data_rights": [
+      {
+        "clusterId": "CL-08",
+        "clusterName": "Privacy & Location Safety",
+        "clusterType": "privacy_compliance_safety_control",
+        "purpose": "Controls privacy requests, erasure/export workflows, retention exemptions, customer profile privacy targets, subscription data targets, fuzzy public location, and exact-location reveal.",
+        "includedDeepModules": ["privacy_data_erasure", "location_safety"],
+        "simpleInterfaceSentence": "What must be erased, retained, exported, fuzzed, or revealed only after a gate?",
+        "keySchemas": [
+          "PrivacyRequest",
+          "DataErasureJob",
+          "DataErasureTarget",
+          "DataRetentionExemption",
+          "DataExportBundle",
+          "FuzzyLocationCache",
+          "LocationReveal",
+          "CustomerProfile",
+          "TrackSubscription",
+          "TrackEntitlementGrant",
+          "TrackUsageEvent",
+          "TrackUsageCounter",
+          "TrackSubscriptionEvent"
+        ],
+        "keyCompliances": [
+          "GDPR / CCPA privacy rights",
+          "Contract retention exemptions",
+          "Privacy erasure vs product deletion",
+          "Fuzzy geolocation",
+          "Exact location reveal gate",
+          "Safety-sensitive location access proof",
+          "Customer profile erasure targeting",
+          "Subscription data erasure targeting",
+          "Subscription billing record retention"
+        ],
+        "keyTechnologies": [
+          "Supabase/Postgres service-role erasure worker",
+          "Cloudflare R2 deletion API",
+          "Typesense delete-by-id",
+          "Queue worker",
+          "Object storage export bundle",
+          "Audit logging",
+          "Geocoding provider later",
+          "Location fuzzing utility",
+          "Server-side reveal gate",
+          "Map display integration"
+        ],
+        "inboundDependencies": [
+          "Identity, Authority & Consent",
+          "Demand, Order & Resolution",
+          "Scheduling, Media & Digital Delivery",
+          "Organization Hiring & Candidate Pipeline",
+          "Messaging & Notification Rail",
+          "Discovery & Classification",
+          "Customer / Buyer Profile",
+          "Track Subscription & Entitlement"
+        ],
+        "outboundDependencies": [
+          "Discovery & Classification",
+          "Scheduling, Media & Digital Delivery",
+          "Messaging & Notification Rail",
+          "Moderation, Holds, Audit & Ops",
+          "Professional Supply & Readiness",
+          "Organization Hiring & Candidate Pipeline"
+        ],
+        "crossCuttingSupportRails": [
+          "Audit / Event Ledger",
+          "Admin Review / Compliance Hold",
+          "Media / File Access",
+          "Search / Public Visibility",
+          "Observability / Ops",
+          "Track Subscription & Entitlement"
+        ],
+        "bubbleMapDisplayRecommendation": "Place as a compliance/safety guardrail cluster connected to Search, Booking, Order, Media, Messaging, Hiring, CustomerProfile, and TrackSubscription. Visible child bubbles: PrivacyRequest, DataErasureJob, DataRetentionExemption, FuzzyLocationCache, LocationReveal."
+      }
+    ],
+    "governance_moderation_operational_control": [
+      {
+        "clusterId": "CL-09",
+        "clusterName": "Moderation, Holds, Audit & Ops",
+        "clusterType": "governance_compliance_stop_sign_audit_observability",
+        "purpose": "Controls platform risk: reports, legal notices, moderation actions, reusable compliance holds, sensitive access logs, system incidents, and operational failures.",
+        "includedDeepModules": [
+          "content_moderation_legal_notice",
+          "admin_review_compliance_hold",
+          "audit_event_ledger",
+          "observability_ops"
+        ],
+        "simpleInterfaceSentence": "Stop what must stop, preserve proof, route review, and surface operational failures.",
+        "keySchemas": [
+          "Report",
+          "LegalNotice",
+          "ModerationCase",
+          "ModerationAction",
+          "ComplianceHold",
+          "AuditEvent",
+          "AccessAuditLog",
+          "SystemEvent",
+          "IntegrationFailure",
+          "QueueJob",
+          "OpsIncident",
+          "TrackSubscriptionEvent",
+          "TrackEntitlementGrant"
+        ],
+        "keyCompliances": [
+          "DMCA takedown / counter-notice",
+          "DSA notice-and-action readiness",
+          "Content freeze / public URL removal",
+          "Compliance hold as reusable stop sign",
+          "Append-only sensitive access audit",
+          "Admin PHI redaction support",
+          "Financial sensitive access audit",
+          "Contract access audit",
+          "Provider failure tracking",
+          "Webhook/indexing/queue observability",
+          "Subscription provider failure tracking",
+          "Entitlement suspension/revocation audit support",
+          "Subscription billing retention support"
+        ],
+        "keyTechnologies": [
+          "Admin moderation UI",
+          "Legal notice intake",
+          "Cloudflare R2 public URL revocation",
+          "Typesense de-index worker",
+          "Content hiding/reindex triggers",
+          "File access controls",
+          "Admin UI",
+          "Service-role server actions",
+          "Review queue dashboard",
+          "Structured logger",
+          "Sentry",
+          "Queue dashboard",
+          "Health routes",
+          "Metrics",
+          "Request IDs",
+          "Admin ops dashboard"
+        ],
+        "inboundDependencies": [
+          "All modules may create reports, holds, audit events, system events, integration failures, or queue jobs",
+          "Track Subscription & Entitlement"
+        ],
+        "outboundDependencies": [
+          "Professional Supply & Readiness",
+          "Demand, Order & Resolution",
+          "Scheduling, Media & Digital Delivery",
+          "Organization Hiring & Candidate Pipeline",
+          "Discovery & Classification",
+          "Messaging & Notification Rail",
+          "Incentives, Rewards & Prize Economy"
+        ],
+        "crossCuttingSupportRails": [
+          "Identity & Authority",
+          "Notification",
+          "Privacy / Data Erasure",
+          "Media / File Access",
+          "Search / Public Visibility",
+          "Payment / Payout / Tax",
+          "Track Subscription & Entitlement"
+        ],
+        "bubbleMapDisplayRecommendation": "Place as a control tower above the map. Make ComplianceHold the dominant child bubble. Draw lines from ComplianceHold to Professional Readiness, Orders, Payouts, Prize Winnings, Rewards, Moderation, Job Compliance, and Entitlement use."
+      }
+    ],
+    "incentive_ecosystem": [
+      {
+        "clusterId": "CL-10",
+        "clusterName": "Incentives, Rewards & Prize Economy",
+        "clusterType": "feature_ecosystem_prize_compliance_reward_ledger",
+        "purpose": "Controls points, challenges, leaderboards, rewards, sweepstakes entries, prize drawings, and prize/reward tax coordination.",
+        "includedDeepModules": ["sweepstakes_prize", "gamification_rewards"],
+        "simpleInterfaceSentence": "Reward engagement without accidentally turning points or purchases into illegal prize odds.",
+        "keySchemas": [
+          "GamificationProgram",
+          "GamificationRule",
+          "PointLedgerEntry",
+          "Challenge",
+          "ChallengeParticipant",
+          "Leaderboard",
+          "LeaderboardEntry",
+          "Reward",
+          "RewardRedemption",
+          "PrizeDrawing",
+          "SweepstakesEntryMethod",
+          "PrizeEntry",
+          "PrizeWinning",
+          "PrizeTaxYearSummary",
+          "TrackEntitlementGrant",
+          "TrackUsageEvent"
+        ],
+        "keyCompliances": [
+          "Sweepstakes / AMOE / no purchase necessary",
+          "No pay-to-win / no paid prize odds boost",
+          "Prize tax fulfillment lock",
+          "Gamification reward disclosure",
+          "Tax reporting support for rewards/prizes",
+          "Reward/prize entitlements must not create paid prize odds boost"
+        ],
+        "keyTechnologies": [
+          "Backend drawing worker",
+          "Random selection utility",
+          "Stripe webhook if purchase creates entry",
+          "Admin fulfillment UI",
+          "Tax provider if threshold requires",
+          "Tax review workflow",
+          "Backend points worker",
+          "Rules engine",
+          "Fraud detection worker",
+          "Admin rewards dashboard",
+          "Disclosure/consent versioning",
+          "Notification provider"
+        ],
+        "inboundDependencies": [
+          "Demand, Order & Resolution",
+          "Professional Supply & Readiness",
+          "Identity, Authority & Consent",
+          "Moderation, Holds, Audit & Ops",
+          "Track Subscription & Entitlement"
+        ],
+        "outboundDependencies": [
+          "Professional Supply & Readiness",
+          "Messaging & Notification Rail",
+          "Moderation, Holds, Audit & Ops"
+        ],
+        "crossCuttingSupportRails": [
+          "Consent & Disclosure",
+          "Payment / Payout / Tax",
+          "Admin Review / Compliance Hold",
+          "Notification",
+          "Audit / Event Ledger",
+          "Observability / Ops"
+        ],
+        "bubbleMapDisplayRecommendation": "Place as a side ecosystem cluster, not part of the central transaction spine. Keep PointLedgerEntry visually separate from PrizeEntry, RewardRedemption separate from PrizeWinning, and track entitlements separate from sweepstakes odds."
+      }
+    ]
+  },
+  "recommendedBubbleMapOrder": [
+    {
+      "typeGroup": "foundation",
+      "clusters": ["CL-01"]
+    },
+    {
+      "typeGroup": "public_surface",
+      "clusters": ["CL-02"]
+    },
+    {
+      "typeGroup": "core_business_domains",
+      "clusters": ["CL-03", "CL-04", "CL-06"]
+    },
+    {
+      "typeGroup": "delivery_infrastructure",
+      "clusters": ["CL-05"]
+    },
+    {
+      "typeGroup": "communication_rail",
+      "clusters": ["CL-07"]
+    },
+    {
+      "typeGroup": "compliance_governance_controls",
+      "clusters": ["CL-08", "CL-09"]
+    },
+    {
+      "typeGroup": "feature_ecosystem",
+      "clusters": ["CL-10"]
+    }
+  ],
+  "cleanVisualSpine": [
+    "CL-01 Identity, Authority, Consent & Entitlements",
+    "CL-02 Discovery, Classification & Visibility",
+    "CL-03 Professional Supply & Readiness",
+    "CL-04 Customer Demand, Order & Resolution",
+    "CL-05 Scheduling, Media & Digital Delivery",
+    "CL-07 Messaging & Notification Rail"
+  ],
+  "guardrailClusters": [
+    "CL-08 Privacy & Location Safety",
+    "CL-09 Moderation, Holds, Audit & Ops"
+  ],
+  "sideEcosystemClusters": ["CL-10 Incentives, Rewards & Prize Economy"],
+  "primaryBridgeRules": [
+    {
+      "fromCluster": "CL-03",
+      "toCluster": "CL-04",
+      "module": "payment_payout_tax",
+      "bridgeLabel": "payment, sales tax, payout, refund, dispute-money effects",
+      "rule": "payment_payout_tax is primarily nested in CL-03 as Professional financial readiness, but strongly bridges to CL-04 for transaction settlement effects."
+    },
+    {
+      "fromCluster": "CL-04",
+      "toCluster": "CL-05",
+      "module": "transaction_order",
+      "bridgeLabel": "paid entitlement unlocks booking, video, media, and digital access",
+      "rule": "Order remains transaction truth; delivery modules issue access only after entitlement is established."
+    },
+    {
+      "fromCluster": "CL-02",
+      "toCluster": "CL-03",
+      "module": "search_public_visibility",
+      "bridgeLabel": "active compliant supply becomes searchable",
+      "rule": "Search projects approved source truth; it does not own eligibility or business lifecycle."
+    },
+    {
+      "fromCluster": "CL-09",
+      "toCluster": "all_clusters",
+      "module": "admin_review_compliance_hold",
+      "bridgeLabel": "ComplianceHold reusable stop sign",
+      "rule": "ComplianceHold blocks actions without replacing the underlying compliance source of truth."
+    },
+    {
+      "fromCluster": "CL-01",
+      "toCluster": "CL-04",
+      "module": "customer_buyer_profile",
+      "bridgeLabel": "CustomerProfile is buyer actor for Gigs, Orders, Bookings, Reviews, and Disputes",
+      "rule": "User remains account/audit identity; CustomerProfile is the buyer/customer commercial actor."
+    },
+    {
+      "fromCluster": "CL-01",
+      "toCluster": "CL-04",
+      "module": "track_subscription_entitlement",
+      "bridgeLabel": "buyer fee waiver and professional commission policy snapshot onto Order",
+      "rule": "Track Entitlement supplies checkout decisions; Order snapshots the result and remains transaction truth."
+    },
+    {
+      "fromCluster": "CL-01",
+      "toCluster": "CL-06",
+      "module": "track_subscription_entitlement",
+      "bridgeLabel": "candidate application limits, search boost, and application view tracking",
+      "rule": "Candidate Application consumes entitlements; it does not own plan truth."
+    },
+    {
+      "fromCluster": "CL-01",
+      "toCluster": "CL-05",
+      "module": "track_subscription_entitlement",
+      "bridgeLabel": "priority scheduling, live-streaming access, and delivery entitlement checks",
+      "rule": "Delivery modules issue access only after Order/entitlement gates pass."
+    },
+    {
+      "fromCluster": "CL-01",
+      "toCluster": "CL-02",
+      "module": "track_subscription_entitlement",
+      "bridgeLabel": "candidate search boost re-indexing",
+      "rule": "Search consumes boost entitlement and projects it into Typesense; Search does not own boost truth."
+    },
+    {
+      "fromCluster": "CL-08",
+      "toCluster": "CL-01",
+      "module": "privacy_data_erasure",
+      "bridgeLabel": "customer profile and subscription erasure/retention targets",
+      "rule": "Privacy owns request/job/target lifecycle; Customer and Track modules execute or preserve according to retention rules."
+    }
+  ],
+  "moduleCoverage": {
+    "deepModuleCountFromCurrentRegistry": 34,
+    "uniqueIncludedModuleCount": 34,
+    "allDeepModulesCovered": true,
+    "missingDeepModules": [],
+    "newModulesAddedToClusters": [
+      {
+        "moduleId": "customer_buyer_profile",
+        "primaryCluster": "CL-01",
+        "displayMode": "actor_branch"
+      },
+      {
+        "moduleId": "track_subscription_entitlement",
+        "primaryCluster": "CL-01",
+        "displayMode": "commercial_policy_rail"
+      }
+    ]
+  },
+  "updatedClusterPlacementSummary": {
+    "customer_buyer_profile": {
+      "primaryCluster": "CL-01 Identity, Authority, Consent & Entitlements",
+      "secondaryBridges": [
+        "CL-04 Customer Demand, Order & Resolution",
+        "CL-05 Scheduling, Media & Digital Delivery",
+        "CL-08 Privacy & Location Safety"
+      ],
+      "reason": "CustomerProfile is an actor branch from User and supplies the buyer identity for commerce without owning Order/Gig/Booking lifecycles."
+    },
+    "track_subscription_entitlement": {
+      "primaryCluster": "CL-01 Identity, Authority, Consent & Entitlements",
+      "secondaryBridges": [
+        "CL-02 Discovery, Classification & Visibility",
+        "CL-03 Professional Supply & Readiness",
+        "CL-04 Customer Demand, Order & Resolution",
+        "CL-05 Scheduling, Media & Digital Delivery",
+        "CL-06 Organization Hiring & Candidate Pipeline",
+        "CL-08 Privacy & Location Safety",
+        "CL-09 Moderation, Holds, Audit & Ops"
+      ],
+      "reason": "Track Subscription & Entitlement is cross-cutting commercial policy truth. It should be visible as a rail, not duplicated into local premium flags."
+    }
+  }
+}

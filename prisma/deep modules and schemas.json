@@ -1,0 +1,4925 @@
+[
+  {
+    "id": "identity_access",
+    "name": "Identity & Access Module",
+    "moduleType": "capability_security",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "COPPA-style age gate",
+      "Enterprise identity provider boundary",
+      "Password non-storage / raw credential isolation",
+      "Sensitive financial step-up MFA",
+      "Passkey / WebAuthn biometric credential boundary",
+      "Changed-phone account recovery with identity verification",
+      "Security event audit trail"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "coppa_age_gate",
+        "label": "COPPA-style age gate",
+        "role": "primary",
+        "proofSchemas": [
+          "AgeGateAttempt",
+          "AgeGateBlock"
+        ]
+      },
+      {
+        "termId": "enterprise_identity_provider_boundary",
+        "label": "Enterprise identity provider boundary",
+        "role": "primary",
+        "proofSchemas": [
+          "AuthProviderAccount",
+          "UserSecurityProfile"
+        ]
+      },
+      {
+        "termId": "password_non_storage_raw_credential_isolation",
+        "label": "Password non-storage / raw credential isolation",
+        "role": "primary",
+        "proofSchemas": [
+          "AuthProviderAccount",
+          "UserSecurityEvent"
+        ]
+      },
+      {
+        "termId": "sensitive_financial_step_up_mfa",
+        "label": "Sensitive financial step-up MFA",
+        "role": "primary",
+        "proofSchemas": [
+          "StepUpChallenge",
+          "SensitiveActionSession",
+          "UserSecurityProfile",
+          "UserSecurityEvent"
+        ]
+      },
+      {
+        "termId": "passkey_webauthn_biometric_credential_boundary",
+        "label": "Passkey / WebAuthn biometric credential boundary",
+        "role": "primary",
+        "proofSchemas": [
+          "PasskeyCredential",
+          "UserSecurityProfile",
+          "UserSecurityEvent"
+        ]
+      },
+      {
+        "termId": "changed_phone_account_recovery_identity_verification",
+        "label": "Changed-phone account recovery with identity verification",
+        "role": "primary",
+        "proofSchemas": [
+          "AccountRecoveryRequest",
+          "UserSecurityProfile",
+          "UserSecurityEvent"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Base User identity",
+      "Authentication entry point",
+      "Login/session readiness",
+      "Account recovery path",
+      "MFA/passkey access path",
+      "Age gate before account creation",
+      "Underage block/cooldown decision",
+      "Authenticated actor context for sensitive actions",
+      "Hybrid auth provider account tracking",
+      "Passkey/WebAuthn registration state",
+      "Security profile state",
+      "SMS MFA challenge lifecycle",
+      "Sensitive action step-up challenge lifecycle",
+      "Sensitive action session grants",
+      "Changed-phone recovery request lifecycle",
+      "Security fallback policy after passkey failure",
+      "Security event proof trail"
+    ],
+    "doesNotOwn": [
+      "Organization permission interpretation",
+      "Professional selling eligibility",
+      "Candidate application lifecycle",
+      "Payment/payout eligibility",
+      "Business object ownership rules",
+      "Consent version proof",
+      "Raw password storage",
+      "Raw biometric storage",
+      "Payout ledger truth",
+      "Payout transfer execution",
+      "Tax profile truth",
+      "Notification delivery mechanics",
+      "Generic access audit ledger"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Role / Authority Module",
+      "Consent & Disclosure Module",
+      "Professional Eligibility Module",
+      "Organization Hiring Module",
+      "Candidate Application & Resume Privacy Module",
+      "Transaction / Order Module",
+      "Messaging Module",
+      "Notification Module",
+      "Admin Review / Compliance Hold Module",
+      "Track Subscription & Entitlement Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "User",
+      "UserRole",
+      "PlatformRole",
+      "AgeGateAttempt",
+      "AgeGateResult",
+      "AgeGateBlock",
+      "AuthProviderType",
+      "AuthCredentialStatus",
+      "UserSecurityTier",
+      "StepUpActionType",
+      "StepUpChallengeType",
+      "StepUpChallengeStatus",
+      "StepUpFailureReason",
+      "AccountRecoveryStatus",
+      "AccountRecoveryReason",
+      "AccountRecoveryIdentityProvider",
+      "SecurityEventType",
+      "UserSecurityProfile",
+      "AuthProviderAccount",
+      "PasskeyCredential",
+      "StepUpChallenge",
+      "SensitiveActionSession",
+      "AccountRecoveryRequest",
+      "UserSecurityEvent"
+    ],
+    "schemasReferenced": [
+      "ProfessionalProfile",
+      "TrackSubscription",
+      "TrackEntitlement",
+      "CandidateProfile",
+      "OrganizationMember",
+      "AuditEvent",
+      "NotificationSubscription",
+      "ConsentLog",
+      "Notification",
+      "NotificationDelivery",
+      "AccessAuditLog",
+      "ComplianceHold",
+      "ProfessionalBalanceLedgerEntry",
+      "PayoutAccount",
+      "TaxProfile",
+      "PayoutRequest",
+      "NotificationSubscription",
+      "NotificationSubscriptionEvent"
+    ],
+    "technologies": [
+      "Supabase Auth",
+      "OAuth",
+      "MFA",
+      "Passkeys / WebAuthn",
+      "Device-native biometric unlock through passkey flow",
+      "Rate limiting",
+      "Session management",
+      "OAuth 2.0 Google",
+      "OAuth 2.0 Apple",
+      "WebAuthn / Passkeys",
+      "Twilio Verify or equivalent SMS OTP provider",
+      "Upstash Redis or provider-managed OTP cache",
+      "Stripe Identity or Persona for recovery verification",
+      "Server-side step-up middleware"
+    ],
+    "peripheralChecks": [
+      "User owns account identity only; User does not own subscription-plan truth.",
+      "Do not create a User before age eligibility passes when age gate is active",
+      "Do not store full DOB unless legally reviewed",
+      "Every privileged workflow must start from authenticated User/system actor context",
+      "Business modules must not create their own user identity system",
+      "Never store raw passwords in app tables",
+      "Never store raw face, fingerprint, or biometric images",
+      "Store passkey credential references/metadata only",
+      "SMS OTP challenge must expire in 5 minutes",
+      "Recovery email token must expire in 15 minutes",
+      "Phone number replacement requires identity verification provider success",
+      "Sensitive financial routes must check active SensitiveActionSession or passkey-authenticated session",
+      "Repeated passkey failure should trigger fallback, not permanent lockout",
+      "Account settings should expose connected notification devices and allow users to revoke them.",
+      "Security-critical events may request urgent notifications, but Identity & Access does not own notification delivery.",
+      "Do not use push delivery as proof that a user saw a security warning."
+    ],
+    "overlapWarnings": [
+      "User is account identity only; do not overload User with seller, candidate, healthcare, or verification truth.",
+      "UserRole is structurally attached here, but permission interpretation belongs to Role / Authority.",
+      "Do not call processor-held payout views a Workin Ants wallet.",
+      "Do not reuse KycVerification for changed-phone account recovery; payout KYC and account recovery identity proof are different workflows.",
+      "Do not put OTP plaintext in Postgres.",
+      "Do not let frontend routes decide whether MFA is satisfied.",
+      "User session identity is not the same as notification device subscription.",
+      "A push token should not be used as authentication."
+    ]
+  },
+  {
+    "id": "role_authority",
+    "name": "Role / Authority Module",
+    "moduleType": "capability_security",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Append-only sensitive access audit"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "append_only_sensitive_access_audit",
+        "label": "Append-only sensitive access audit",
+        "role": "supporting",
+        "proofSchemas": [
+          "AccessAuditLog"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Platform permission interpretation",
+      "Organization membership authority",
+      "Thread participant authority",
+      "Admin/support authority boundaries",
+      "Server-side access decisions",
+      "Reusable access helper rules"
+    ],
+    "doesNotOwn": [
+      "Authentication itself",
+      "Payment state",
+      "Business lifecycle decisions",
+      "Compliance verification results",
+      "Healthcare redaction policy"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Organization Hiring Module",
+      "Candidate Application & Resume Privacy Module",
+      "Transaction / Order Module",
+      "Messaging Module",
+      "Media / File Access Module",
+      "Admin Review / Compliance Hold Module",
+      "Content Moderation & Legal Notice Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "OrganizationMember",
+      "OrganizationRole",
+      "ThreadParticipant"
+    ],
+    "schemasReferenced": [
+      "User",
+      "UserRole",
+      "PlatformRole",
+      "Organization",
+      "Order",
+      "JobApplication",
+      "JobInterview",
+      "ProfessionalProfile",
+      "CandidateProfile",
+      "AccessAuditLog"
+    ],
+    "technologies": [
+      "Supabase RLS",
+      "Postgres helper functions",
+      "Server-side authorization utilities",
+      "Admin route guards",
+      "Policy test suite"
+    ],
+    "peripheralChecks": [
+      "Check whether access is platform-scoped, organization-scoped, participant-scoped, or ownership-scoped",
+      "Do not encode broad permissions directly into feature-specific code",
+      "Org routes must check OrganizationMember role",
+      "Thread access must check ThreadParticipant"
+    ],
+    "overlapWarnings": [
+      "Role / Authority decides who may act; it does not decide whether a business action should be allowed by compliance.",
+      "Do not duplicate authorization logic inside Marketplace, Hiring, Messaging, or Media modules."
+    ],
+    "note": "UserRole and PlatformRole are structurally attached to Identity & Access, but Role / Authority owns permission interpretation."
+  },
+  {
+    "id": "consent_disclosure",
+    "name": "Consent & Disclosure Module",
+    "moduleType": "compliance",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "FCRA background-check workflow",
+      "Sweepstakes / AMOE / no purchase necessary",
+      "Gamification reward disclosure",
+      "HIPAA / HITECH healthcare lane",
+      "Passkey login disclosure",
+      "SMS MFA disclosure",
+      "Account recovery identity verification consent",
+      "Sensitive financial access disclosure",
+      "Electronic records consent",
+      "Electronic signature consent",
+      "Manual signature opt-out disclosure",
+      "Calendar sync authorization disclosure",
+      "Calendar free/busy access disclosure",
+      "Calendar disconnect notice",
+      "Web push notification disclosure",
+      "PWA install guidance disclosure"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "fcra_background_check_workflow",
+        "label": "FCRA background-check workflow",
+        "role": "supporting",
+        "proofSchemas": [
+          "ConsentLog"
+        ]
+      },
+      {
+        "termId": "sweepstakes_amoe_no_purchase_necessary",
+        "label": "Sweepstakes / AMOE / no purchase necessary",
+        "role": "supporting",
+        "proofSchemas": [
+          "ConsentLog"
+        ]
+      },
+      {
+        "termId": "gamification_reward_disclosure",
+        "label": "Gamification reward disclosure",
+        "role": "supporting",
+        "proofSchemas": [
+          "ConsentLog"
+        ]
+      },
+      {
+        "termId": "hipaa_hitech_healthcare_lane",
+        "label": "HIPAA / HITECH healthcare lane",
+        "role": "supporting",
+        "proofSchemas": [
+          "ConsentLog",
+          "BaaAgreement"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Consent/version proof",
+      "Terms acceptance",
+      "Privacy policy acceptance",
+      "Cookie consent",
+      "Marketing consent",
+      "Calendar sync consent",
+      "Sweepstakes rules consent",
+      "Gamification/reward consent",
+      "FCRA/background-check consent proof",
+      "Healthcare BAA/disclosure acceptance proof"
+    ],
+    "doesNotOwn": [
+      "The feature unlocked by consent",
+      "Privacy request lifecycle",
+      "Background-check workflow",
+      "Sweepstakes drawing logic",
+      "Gamification reward logic",
+      "Healthcare compliance status"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Identity & Access Module",
+      "Booking & Calendar Module",
+      "Notification Module",
+      "Sweepstakes / Prize Module",
+      "Healthcare / Regulated Services Module",
+      "Admin Review / Compliance Hold Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "ConsentLog",
+      "ConsentType",
+      "ConsentType.passkey_login",
+      "ConsentType.sms_mfa",
+      "ConsentType.sensitive_financial_access",
+      "ConsentType.account_recovery_identity_verification",
+      "ConsentType.phone_number_update",
+      "ConsentType.calendar_free_busy_access",
+      "ConsentType.calendar_writeback_access",
+      "ConsentType.calendar_disconnect_notice",
+      "ConsentType.web_push_notifications",
+      "ConsentType.pwa_install_guidance"
+    ],
+    "schemasReferenced": [
+      "User",
+      "CalendarConnection",
+      "PrizeDrawing",
+      "GamificationProgram",
+      "RewardRedemption",
+      "HealthcareComplianceProfile",
+      "VerificationCheck",
+      "BaaAgreement",
+      "AuditEvent",
+      "UserSecurityProfile",
+      "PasskeyCredential",
+      "StepUpChallenge",
+      "AccountRecoveryRequest",
+      "CalendarConnection",
+      "ProcessedCalendarEvent",
+      "NotificationSubscription",
+      "NotificationSubscriptionEvent"
+    ],
+    "technologies": [
+      "Consent UI",
+      "Terms/versioning system",
+      "IP hash utility",
+      "User-agent capture",
+      "Privacy request workflow",
+      "Admin consent history viewer"
+    ],
+    "peripheralChecks": [
+      "Record consent version, IP hash, user agent, and timestamp",
+      "Do not create one-off consent tables when ConsentLog can hold proof",
+      "FCRA consent must be standalone, not buried in Terms",
+      "Consent proves agreement; it does not prove eligibility",
+      "Passkey consent/disclosure should state Workin Ants does not store raw biometrics.",
+      "Recovery identity verification consent should be standalone before vendor flow.",
+      "Consent proves disclosure; it does not prove MFA or identity verification succeeded.",
+      "Calendar sync consent should be standalone before Cronofy connection.",
+      "Consent text should explain free/busy metadata boundaries.",
+      "Consent text should state users can disconnect calendar sync from account settings.",
+      "Consent proves disclosure; it does not prove the calendar connection is active.",
+      "Browser permission is device-level state; ConsentLog is platform disclosure proof.",
+      "Web push consent text should explain that notifications may appear outside the open website.",
+      "Users should be able to disable push notifications from account settings.",
+      "ConsentLog does not prove an active subscription; NotificationSubscription does."
+    ],
+    "overlapWarnings": [
+      "ConsentLog is not PrivacyRequest.",
+      "Consent acceptance is not a compliance decision.",
+      "Consent & Disclosure should not own erasure, verification, sweepstakes, reward, or healthcare lifecycles.",
+      "ConsentLog is proof. CalendarConnection is linked-calendar state.",
+      "Do not bury calendar provider access consent only inside general terms.",
+      "Do not treat a browser permission grant as acceptance of unrelated platform terms.",
+      "Do not bury push notification disclosure inside general Terms only."
+    ]
+  },
+  {
+    "id": "privacy_data_erasure",
+    "name": "Privacy / Data Erasure Module",
+    "moduleType": "compliance",
+    "buildStatus": "mvp_active_legal_gated",
+    "complianceMet": [
+      "GDPR / CCPA privacy rights",
+      "Contract retention exemptions"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "gdpr_ccpa_privacy_rights",
+        "label": "GDPR / CCPA privacy rights",
+        "role": "primary",
+        "proofSchemas": [
+          "PrivacyRequest",
+          "DataErasureJob",
+          "DataErasureTarget",
+          "DataRetentionExemption",
+          "DataExportBundle"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Privacy rights requests",
+      "Data access/export workflow",
+      "Data deletion/erasure workflow",
+      "Data correction/restriction workflow",
+      "Cross-service erasure orchestration",
+      "Retention exemptions",
+      "Personal-data anonymization where hard delete is blocked",
+      "Erasure/export proof trail"
+    ],
+    "doesNotOwn": [
+      "Consent acceptance",
+      "Authentication",
+      "Order/payment lifecycle",
+      "File storage mechanics",
+      "Messaging mechanics",
+      "Search engine mechanics",
+      "Tax/legal record retention laws"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Identity & Access Module",
+      "Media / File Access Module",
+      "Messaging Module",
+      "Video Session Module",
+      "Transaction / Order Module",
+      "Payment / Payout / Tax Module",
+      "Search / Public Visibility Module",
+      "Audit / Event Ledger Module",
+      "Observability / Ops Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "PrivacyRequest",
+      "PrivacyRequestType",
+      "PrivacyRequestStatus",
+      "DataErasureJob",
+      "DataErasureJobStatus",
+      "DataErasureTarget",
+      "DataErasureTargetType",
+      "DataErasureTargetStatus",
+      "DataRetentionExemption",
+      "DataRetentionExemptionReason",
+      "DataExportBundle",
+      "DataExportStatus"
+    ],
+    "schemasReferenced": [
+      "User",
+      "MediaAsset",
+      "Thread",
+      "Message",
+      "Order",
+      "PayoutTransfer",
+      "TaxProfile",
+      "AuditEvent",
+      "AccessAuditLog",
+      "SearchUpsertEvent",
+      "Agreement",
+      "AgreementDocumentSnapshot",
+      "AgreementSignature",
+      "AgreementElectronicConsent",
+      "DataRetentionExemption",
+      "MediaUploadSession",
+      "MediaValidationResult",
+      "MediaScanResult",
+      "MediaProcessingResult",
+      "MediaAccessGrant",
+      "MediaAccessEvent"
+    ],
+    "technologies": [
+      "Supabase/Postgres service-role erasure worker",
+      "Cloudflare R2 deletion API",
+      "Daily.co API/log deletion where available",
+      "Typesense delete-by-id",
+      "Queue worker",
+      "Object storage export bundle",
+      "Audit logging"
+    ],
+    "peripheralChecks": [
+      "Do not treat soft delete as legal erasure",
+      "Retain financial/tax/dispute/fraud/legal records where required",
+      "Anonymize retained records where possible",
+      "Delete private storage objects where allowed",
+      "De-index public search projections",
+      "Do not erase audit proof needed to prove erasure occurred",
+      "Signed agreements should usually be retained when legal/payment/dispute obligations require retention.",
+      "Privacy erasure may anonymize nonessential signer metadata while preserving contract/legal proof.",
+      "Do not hard-delete retention-locked contract PDFs during user erasure.",
+      "Original filenames may contain personal data and should be erased/anonymized where retention is not required.",
+      "Sensitive object keys should be deleted from R2 where erasure is allowed.",
+      "Scan/audit records may need retention exemptions for security_audit or legal_obligation.",
+      "EXIF/GPS data should be scrubbed before storage/public exposure to reduce privacy-erasure burden."
+    ],
+    "overlapWarnings": [
+      "PrivacyRequest belongs here, not Consent & Disclosure.",
+      "deletedAt is product deletion; erasedAt is privacy/legal erasure.",
+      "Feature modules execute erasure instructions; they do not own the privacy-rights workflow.",
+      "Privacy erasure does not override every contract retention obligation.",
+      "DataRetentionExemption should record contract_record or signature_record when agreement data cannot be erased.",
+      "Erasing MediaAsset metadata is not enough if the R2 object still exists.",
+      "Privacy Erasure orchestrates deletion; Media / File Access executes file/object deletion."
+    ]
+  },
+  {
+    "id": "taxonomy_classification",
+    "name": "Taxonomy & Classification Module",
+    "moduleType": "capability",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "HIPAA / HITECH healthcare lane",
+      "Verified-only jobs / high-risk service gates"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "hipaa_hitech_healthcare_lane",
+        "label": "HIPAA / HITECH healthcare lane",
+        "role": "supporting",
+        "proofSchemas": [
+          "TaxonomyCategory",
+          "TaxonomyTag"
+        ]
+      },
+      {
+        "termId": "verified_only_jobs_high_risk_service_gates",
+        "label": "Verified-only jobs / high-risk service gates",
+        "role": "supporting",
+        "proofSchemas": [
+          "TaxonomyCategory",
+          "TaxonomyTag",
+          "VerificationRequirement"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Controlled domain/category/tag structure",
+      "Search classification vocabulary",
+      "Entity classification consistency",
+      "Compliance-triggering category/tag flags",
+      "Accepted taxonomy truth",
+      "Tag normalization rules",
+      "Taxonomy admin controls"
+    ],
+    "doesNotOwn": [
+      "Search engine execution",
+      "AI suggestion generation",
+      "Business lifecycle of entities",
+      "Compliance approval decisions",
+      "Professional verification results"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Search / Public Visibility Module",
+      "Marketplace Supply Module",
+      "Gig / Demand Module",
+      "Organization Hiring Module",
+      "Candidate Application & Resume Privacy Module",
+      "Professional Eligibility Module",
+      "Healthcare / Regulated Services Module",
+      "AI Taxonomy Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "TaxonomyDomain",
+      "TaxonomyCategory",
+      "TaxonomyTag",
+      "ProfessionalCategory",
+      "ProfessionalTag",
+      "CandidateCategory",
+      "CandidateTag",
+      "OrganizationCategory",
+      "OrganizationTag",
+      "OfferingTag",
+      "GigTag",
+      "JobTag",
+      "TagSource"
+    ],
+    "schemasReferenced": [
+      "ProfessionalProfile",
+      "CandidateProfile",
+      "Organization",
+      "Offering",
+      "Gig",
+      "Job",
+      "SearchUpsertEvent",
+      "HealthcareComplianceProfile",
+      "VerificationRequirement",
+      "VerificationCheckType"
+    ],
+    "technologies": [
+      "AWS Bedrock for suggestions",
+      "Typesense facets",
+      "Admin taxonomy manager",
+      "Seed scripts",
+      "Schema validation",
+      "Tag normalization worker"
+    ],
+    "peripheralChecks": [
+      "Taxonomy can trigger healthcare, license, background-check, or location requirements",
+      "Accepted taxonomy changes must trigger SearchUpsertEvent",
+      "Do not let AI create uncontrolled tag sprawl",
+      "Do not hardcode compliance categories in random feature code"
+    ],
+    "overlapWarnings": [
+      "Taxonomy triggers gates but does not approve them.",
+      "AI Taxonomy suggests; Taxonomy & Classification owns final accepted terms.",
+      "Search uses taxonomy facets but does not own taxonomy truth."
+    ]
+  },
+  {
+    "id": "professional_eligibility",
+    "name": "Professional Eligibility Module",
+    "moduleType": "compliance_domain_gate",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Verified-only jobs / high-risk service gates",
+      "KYC / AML payout gating"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "verified_only_jobs_high_risk_service_gates",
+        "label": "Verified-only jobs / high-risk service gates",
+        "role": "supporting",
+        "proofSchemas": [
+          "ProfessionalProfile",
+          "VerificationCheck",
+          "TrustBadge",
+          "ComplianceHold"
+        ]
+      },
+      {
+        "termId": "kyc_aml_payout_gating",
+        "label": "KYC / AML payout gating",
+        "role": "supporting",
+        "proofSchemas": [
+          "KycVerification",
+          "PayoutAccount"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "ProfessionalProfile lifecycle",
+      "Professional selling readiness composition",
+      "Professional public visibility readiness",
+      "Offering publish eligibility gate",
+      "Gig response eligibility gate",
+      "Payout-readiness consumption",
+      "Healthcare-readiness consumption",
+      "Verification-readiness consumption",
+      "Compliance-hold consumption"
+    ],
+    "doesNotOwn": [
+      "KYC verification records",
+      "Tax profile records",
+      "Payout account records",
+      "Payout transfer execution",
+      "Healthcare compliance records",
+      "Background-check records",
+      "Trust badge issuance",
+      "ComplianceHold source of truth"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Marketplace Supply Module",
+      "Gig / Demand Module",
+      "Transaction / Order Module",
+      "Payment / Payout / Tax Module",
+      "Healthcare / Regulated Services Module",
+      "Search / Public Visibility Module",
+      "Admin Review / Compliance Hold Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "ProfessionalProfile",
+      "ProfileStatus"
+    ],
+    "schemasReferenced": [
+      "User",
+      "Offering",
+      "GigResponse",
+      "Order",
+      "TaxonomyCategory",
+      "TaxonomyTag",
+      "KycVerification",
+      "TaxProfile",
+      "PayoutAccount",
+      "PayoutTransfer",
+      "HealthcareComplianceProfile",
+      "VerificationCheck",
+      "VerificationRequirement",
+      "TrustBadge",
+      "ComplianceHold",
+      "SearchUpsertEvent",
+      "TrackSubscription",
+      "TrackEntitlementGrant",
+      "TrackUsageEvent"
+    ],
+    "technologies": [
+      "Stripe Connect",
+      "Stripe Identity or Persona later",
+      "Tax provider later",
+      "Admin review UI",
+      "Compliance hold engine",
+      "Webhook processor"
+    ],
+    "peripheralChecks": [
+      "ProfessionalProfile selling access may depend on active professional-track entitlement",
+      "Professional commision rate is consumed from TrackEntitlementGrant but snapshotted onto Order",
+      "User cannot sell directly; selling requires ProfessionalProfile",
+      "ProfessionalProfile should not become a dumping ground for compliance booleans",
+      "Public activation must compose readiness from payment, trust screening, healthcare, taxonomy, and holds",
+      "Payment completion does not equal professional eligibility"
+    ],
+    "overlapWarnings": [
+      "Professional Eligibility is a composer/gate, not the owner of every compliance proof.",
+      "KYC/tax/payout belong to Payment / Payout / Tax.",
+      "VerificationCheck/TrustBadge belong to Trust Verification / Screening.",
+      "HealthcareComplianceProfile belongs to Healthcare / Regulated Services."
+    ],
+    "note": "Professional Eligibility is a gate/composer. It consumes readiness from payment, healthcare, trust screening, taxonomy, and holds."
+  },
+  {
+    "id": "trust_verification_screening",
+    "name": "Trust Verification / Screening Module",
+    "moduleType": "compliance_trust_capability",
+    "buildStatus": "mvp_active_legal_gated",
+    "complianceMet": [
+      "FCRA background-check workflow",
+      "Professional license verification",
+      "DMV / MVR verification",
+      "Verified-only jobs / high-risk service gates"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "fcra_background_check_workflow",
+        "label": "FCRA background-check workflow",
+        "role": "primary",
+        "proofSchemas": [
+          "VerificationCheck",
+          "VerificationConsent",
+          "FcraAdverseActionWorkflow",
+          "ConsentLog"
+        ]
+      },
+      {
+        "termId": "professional_license_verification",
+        "label": "Professional license verification",
+        "role": "primary",
+        "proofSchemas": [
+          "ProfessionalLicenseCredential",
+          "VerificationCheck",
+          "VerificationRequirement"
+        ]
+      },
+      {
+        "termId": "dmv_mvr_verification",
+        "label": "DMV / MVR verification",
+        "role": "primary",
+        "proofSchemas": [
+          "VerificationCheck",
+          "VerificationRequirement",
+          "TrustBadge"
+        ]
+      },
+      {
+        "termId": "verified_only_jobs_high_risk_service_gates",
+        "label": "Verified-only jobs / high-risk service gates",
+        "role": "primary",
+        "proofSchemas": [
+          "VerificationRequirement",
+          "VerificationCheck",
+          "TrustBadge",
+          "ComplianceHold"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Verification requirement rules",
+      "Verification package/bundle configuration",
+      "Screening consent gating",
+      "Background-check vendor workflow",
+      "Professional license verification workflow",
+      "DMV/MVR check workflow",
+      "FCRA adverse-action workflow state",
+      "Verification expiration/recheck triggers",
+      "Trust badge issuance/revocation",
+      "Verified-only gate proof"
+    ],
+    "doesNotOwn": [
+      "Payment processing for screening fees",
+      "KYC/AML payout checks",
+      "Tax profile verification",
+      "Search ranking execution",
+      "Offering lifecycle",
+      "Job lifecycle",
+      "Legal interpretation of criminal records"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Professional Eligibility Module",
+      "Marketplace Supply Module",
+      "Gig / Demand Module",
+      "Organization Hiring Module",
+      "Candidate Application & Resume Privacy Module",
+      "Search / Public Visibility Module",
+      "Payment / Payout / Tax Module",
+      "Consent & Disclosure Module",
+      "Admin Review / Compliance Hold Module",
+      "Audit / Event Ledger Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "VerificationRequirement",
+      "VerificationRequirementTargetType",
+      "VerificationSubjectType",
+      "VerificationCheck",
+      "VerificationCheckType",
+      "VerificationCheckStatus",
+      "VerificationVendor",
+      "VerificationConsent",
+      "VerificationPackage",
+      "VerificationPackageItem",
+      "VerificationPackageType",
+      "VerificationPackageStatus",
+      "FcraAdverseActionWorkflow",
+      "FcraAdverseActionStatus",
+      "ProfessionalLicenseCredential",
+      "ProfessionalLicenseStatus",
+      "TrustBadge",
+      "TrustBadgeType",
+      "TrustBadgeStatus"
+    ],
+    "schemasReferenced": [
+      "User",
+      "ProfessionalProfile",
+      "CandidateProfile",
+      "Offering",
+      "Gig",
+      "Job",
+      "TaxonomyCategory",
+      "TaxonomyTag",
+      "ConsentLog",
+      "Order",
+      "ComplianceHold",
+      "SearchUpsertEvent",
+      "AuditEvent",
+      "MediaUploadPolicy",
+      "MediaUploadSession",
+      "MediaValidationResult",
+      "MediaScanResult",
+      "MediaAccessGrant"
+    ],
+    "technologies": [
+      "Checkr ",
+      " Certn",
+      "Stripe Checkout for screening fee if charged",
+      "Webhook processor",
+      "Vendor-hosted sensitive data collection",
+      "Admin verification dashboard",
+      "Queue worker for expiration/recheck"
+    ],
+    "peripheralChecks": [
+      "Do not store SSNs",
+      "Do not store full background reports",
+      "Use vendor-hosted sensitive data collection",
+      "Run checks only after standalone consent",
+      "Do not auto-ban immediately on failed check; use adverse-action workflow",
+      "Do not use is_verified as source of truth",
+      "TrustBadge is projection; VerificationCheck is truth",
+      "Bundle pricing must come from VerificationPackageItem, not hardcoded onboarding math",
+      "Professional ID/license uploads must use professional_government_id or professional_license_document contexts.",
+      "Professional ID/license files are capped at 5MB by upload policy.",
+      "ID/license files must remain private and should not be displayed publicly.",
+      "Verification vendor workflows should consume validated MediaAsset records or vendor-hosted collection links.",
+      "Do not store full sensitive ID images unless required and legally reviewed."
+    ],
+    "overlapWarnings": [
+      "Do not confuse Trust Verification with payout KYC.",
+      "Do not let Search own ranking boost truth.",
+      "Do not let ProfessionalProfile carry verification source-of-truth booleans.",
+      "Do not let Healthcare use this as a replacement for BAA/HIPAA readiness.",
+      "Media scan clean does not mean a professional license is verified.",
+      "File upload proof is not background-check proof.",
+      "Trust Verification owns the credential decision; Media / File Access owns the file safety pipeline."
+    ]
+  },
+  {
+    "id": "marketplace_supply",
+    "name": "Marketplace Supply Module",
+    "moduleType": "domain",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "HIPAA / HITECH healthcare lane",
+      "Verified-only jobs / high-risk service gates",
+      "Digital goods policy attachment",
+      "Child-directed product declaration support",
+      "Course accessibility requirement support"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "hipaa_hitech_healthcare_lane",
+        "label": "HIPAA / HITECH healthcare lane",
+        "role": "supporting",
+        "proofSchemas": [
+          "Offering",
+          "HealthcareComplianceProfile",
+          "HealthcareDataBoundary"
+        ]
+      },
+      {
+        "termId": "verified_only_jobs_high_risk_service_gates",
+        "label": "Verified-only jobs / high-risk service gates",
+        "role": "supporting",
+        "proofSchemas": [
+          "Offering",
+          "VerificationRequirement",
+          "VerificationCheck"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Professional-created offerings",
+      "Offering lifecycle",
+      "Service/Product/Course details",
+      "Pricing tiers",
+      "Offering presentation media joins",
+      "Offering taxonomy attachment",
+      "Offering publish/update workflow",
+      "Supply-side marketplace shape"
+    ],
+    "doesNotOwn": [
+      "Professional eligibility decision",
+      "Payment processing",
+      "Payout release",
+      "Order lifecycle after purchase",
+      "Search index execution",
+      "Healthcare compliance proof",
+      "Verification proof"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Transaction / Order Module",
+      "Search / Public Visibility Module",
+      "Media / File Access Module",
+      "Booking & Calendar Module",
+      "AI Taxonomy Module",
+      "Professional Eligibility Module",
+      "Healthcare / Regulated Services Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "Offering",
+      "OfferingKind",
+      "OfferingStatus",
+      "ServiceDetails",
+      "ServiceDeliveryMode",
+      "ProductDetails",
+      "ProductDeliveryMode",
+      "CourseDetails",
+      "CourseDeliveryMode",
+      "PricingTier",
+      "OfferingMedia",
+      "OfferingTag",
+      "DigitalGoodsPolicy",
+      "DigitalDownloadAsset",
+      "ChildDirectedContentDeclaration",
+      "MinorPrivacyControl",
+      "CourseAccessibilityAsset",
+      "SalesTaxLineItem"
+    ],
+    "schemasReferenced": [
+      "ProfessionalProfile",
+      "TaxonomyDomain",
+      "TaxonomyCategory",
+      "TaxonomyTag",
+      "MediaAsset",
+      "Order",
+      "SearchUpsertEvent",
+      "HealthcareComplianceProfile",
+      "HealthcareDataBoundary",
+      "DataSensitivity",
+      "VerificationRequirement",
+      "TrustBadge",
+      "CourseVideoAsset",
+      "CourseVideoPlaybackPolicy",
+      "CourseVideoAssetStatus"
+    ],
+    "technologies": [
+      "Next.js offering UI",
+      "Cloudflare R2",
+      "Typesense",
+      "AWS Bedrock",
+      "Stripe checkout route after purchase",
+      "Mux Video API through Video Infrastructure",
+      "Cloudflare R2 through Media / File Access"
+    ],
+    "peripheralChecks": [
+      "Check Professional Eligibility before public publish",
+      "Check taxonomy-triggered healthcare or verification gates before publish",
+      "Healthcare-sensitive offerings cannot go public until healthcare gates pass",
+      "High-risk offerings cannot go public until required verification passes",
+      "Do not embed payment logic inside Offering services",
+      "CourseDetails may reference CourseVideoAsset records, but does not own streaming-provider lifecycle.",
+      "A course Offering can be active only if required course video assets are ready or intentionally external.",
+      "Healthcare-sensitive course offerings must consume Healthcare / Regulated Services before public activation.",
+      "Downloadable ProductDetails should use DigitalDownloadAsset rather than relying only on one fileAssetId.",
+      "CourseDetails should reference CourseVideoAsset through Video Infrastructure and CourseAccessibilityAsset through Digital Goods Access.",
+      "Offerings with active DMCA/legal takedown should not be public or searchable.",
+      "Child-directed declarations should be required before publishing digital products/courses.",
+      "Digital goods policy must exist before checkout for downloadable or streaming digital offerings."
+    ],
+    "overlapWarnings": [
+      "Offering is supply truth, not compliance truth.",
+      "Marketplace Supply consumes Professional Eligibility; it should not duplicate eligibility logic.",
+      "OfferingMedia is offering display context; MediaAsset remains file truth.",
+      "Do not store provider playback IDs directly as CourseDetails truth if CourseVideoAsset exists.",
+      "Do not put signed playback URL generation inside Marketplace Supply.",
+      "Marketplace Supply owns offering shape, not paid download grant lifecycle.",
+      "CourseDetails owns course business shape, not Mux streaming state.",
+      "ProductDetails owns product business shape, not presigned download access."
+    ]
+  },
+  {
+    "id": "gig_demand",
+    "name": "Gig / Demand Module",
+    "moduleType": "domain",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Verified-only jobs / high-risk service gates"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "verified_only_jobs_high_risk_service_gates",
+        "label": "Verified-only jobs / high-risk service gates",
+        "role": "supporting",
+        "proofSchemas": [
+          "Gig",
+          "GigResponse",
+          "VerificationCheck",
+          "ComplianceHold"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "User-created paid requests",
+      "Gig lifecycle",
+      "Gig visibility",
+      "Professional responses to gigs",
+      "Accepted GigAssignment lifecycle",
+      "Demand-side marketplace flow",
+      "Gig media/tag joins"
+    ],
+    "doesNotOwn": [
+      "Offering lifecycle",
+      "Order payment truth",
+      "Payout release",
+      "Professional verification proof",
+      "Messaging infrastructure",
+      "Search infrastructure"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Transaction / Order Module",
+      "Professional Eligibility Module",
+      "Messaging Module",
+      "Notification Module",
+      "Search / Public Visibility Module",
+      "Payment / Payout / Tax Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "Gig",
+      "GigStatus",
+      "GigVisibility",
+      "GigResponse",
+      "GigResponseStatus",
+      "GigAssignment",
+      "GigAssignmentStatus",
+      "GigMedia",
+      "GigTag"
+    ],
+    "schemasReferenced": [
+      "User",
+      "ProfessionalProfile",
+      "Order",
+      "Thread",
+      "MediaAsset",
+      "TaxonomyDomain",
+      "TaxonomyCategory",
+      "TaxonomyTag",
+      "VerificationCheck",
+      "ComplianceHold"
+    ],
+    "technologies": [
+      "Next.js gig board",
+      "Typesense",
+      "Notification delivery",
+      "Messaging",
+      "Stripe after assignment becomes order"
+    ],
+    "peripheralChecks": [
+      "Do not treat Gig as Offering",
+      "Do not create Order until accepted assignment/payment path requires it",
+      "Check Professional eligibility before accepting commercial response",
+      "High-risk gigs may require verified professionals only",
+      "GigAssignment is accepted work relationship, not the payment processor record"
+    ],
+    "overlapWarnings": [
+      "Gig is demand/request truth; Offering is supply truth.",
+      "GigResponse is not JobApplication.",
+      "GigAssignment is not Order, though it may lead to Order."
+    ]
+  },
+  {
+    "id": "transaction_order",
+    "name": "Transaction / Order Module",
+    "moduleType": "domain",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Processor-held funds / payout request",
+      "Tax reporting / 1099 readiness",
+      "E-SIGN / UETA electronic agreement execution",
+      "Manual signature opt-out",
+      "Tamper-evident contract hash",
+      "Electronic contract retainability",
+      "Private archived contract storage"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "processor_held_funds_payout_request",
+        "label": "Processor-held funds / payout request",
+        "role": "supporting",
+        "proofSchemas": [
+          "Order",
+          "PayoutRequest",
+          "PayoutTransfer"
+        ]
+      },
+      {
+        "termId": "tax_reporting_1099_readiness",
+        "label": "Tax reporting / 1099 readiness",
+        "role": "supporting",
+        "proofSchemas": [
+          "Order",
+          "OrderEvent"
+        ]
+      },
+      {
+        "termId": "esign_ueta_electronic_agreement_execution",
+        "label": "E-SIGN / UETA electronic agreement execution",
+        "role": "primary",
+        "proofSchemas": [
+          "Agreement",
+          "AgreementElectronicConsent",
+          "AgreementSignature",
+          "AgreementEvent"
+        ]
+      },
+      {
+        "termId": "manual_signature_opt_out",
+        "label": "Manual signature opt-out",
+        "role": "primary",
+        "proofSchemas": [
+          "AgreementElectronicConsent",
+          "AgreementEvent"
+        ]
+      },
+      {
+        "termId": "tamper_evident_contract_hash",
+        "label": "Tamper-evident contract hash",
+        "role": "primary",
+        "proofSchemas": [
+          "AgreementDocumentSnapshot",
+          "AgreementEvent"
+        ]
+      },
+      {
+        "termId": "electronic_contract_retainability",
+        "label": "Electronic contract retainability",
+        "role": "primary",
+        "proofSchemas": [
+          "Agreement",
+          "AgreementDocumentSnapshot",
+          "AgreementAccessGrant",
+          "MediaAsset"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Paid transaction truth",
+      "Order source tracking",
+      "Order lifecycle",
+      "Order event ledger",
+      "Order files",
+      "Agreement attachment",
+      "Refund status attachment",
+      "Buyer/professional participant access",
+      "Review/dispute attachment point",
+      "Agreement template lifecycle",
+      "Order-attached agreement generation",
+      "Electronic agreement consent gate",
+      "Manual signature opt-out state",
+      "Agreement signature lifecycle",
+      "Final document snapshot lifecycle",
+      "Contract SHA-256 hash proof",
+      "Agreement event ledger",
+      "Order agreement gate before payment/booking/delivery where required",
+      "Agreement retention lock"
+    ],
+    "doesNotOwn": [
+      "Stripe as payment rail",
+      "Payout requests",
+      "Payout transfers",
+      "Video room mechanics",
+      "Calendar availability",
+      "File storage mechanics",
+      "Hiring workflows",
+      "Raw file storage mechanics",
+      "Generic media signed URL mechanics",
+      "General platform consent terms",
+      "Legal advice / contract drafting",
+      "External e-sign provider internals",
+      "Privacy erasure orchestration"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Payment / Payout / Tax Module",
+      "Booking & Calendar Module",
+      "Video Session Module",
+      "Media / File Access Module",
+      "Messaging Module",
+      "Review / Dispute Module",
+      "Admin Review / Compliance Hold Module",
+      "Notification Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "Order",
+      "OrderStatus",
+      "OrderSourceType",
+      "OrderEvent",
+      "OrderEventActor",
+      "OrderFile",
+      "FileRole",
+      "Agreement",
+      "AgreementStatus",
+      "RefundStatus",
+      "AgreementTemplate",
+      "AgreementTemplateStatus",
+      "AgreementGenerationEngine",
+      "AgreementDocumentStatus",
+      "AgreementSignatureRole",
+      "AgreementSignatureStatus",
+      "AgreementConsentStatus",
+      "AgreementConsentMethod",
+      "AgreementEventType",
+      "AgreementAccessGrantStatus",
+      "AgreementHashAlgorithm",
+      "AgreementElectronicConsent",
+      "AgreementSignature",
+      "AgreementDocumentSnapshot",
+      "AgreementEvent",
+      "AgreementAccessGrant",
+      "TrackSubscription",
+      "TrackEntitlementGrant",
+      "TrackUsageEvent"
+    ],
+    "schemasReferenced": [
+      "Offering",
+      "GigAssignment",
+      "User",
+      "ProfessionalProfile",
+      "MediaAsset",
+      "Review",
+      "Dispute",
+      "Thread",
+      "Booking",
+      "PayoutRequest",
+      "PayoutTransfer",
+      "ProcessedStripeEvent",
+      "Order",
+      "ConsentLog",
+      "AccessAuditLog",
+      "DataRetentionExemption",
+      "PrivacyRequest",
+      "BookingHold",
+      "Booking",
+      "BookingSlotLock",
+      "BookingOrchestrationRun",
+      "Agreement"
+    ],
+    "technologies": [
+      "Stripe webhook integration",
+      "Order state machine",
+      "Server-side order service",
+      "Audit/event logging",
+      "PDF/e-sign provider later",
+      "Puppeteer",
+      "AWS Lambda",
+      "Node.js crypto createHash('sha256')",
+      "Cloudflare R2 private bucket",
+      "@aws-sdk/client-s3",
+      "Server-side PDF generation worker",
+      "Server-side signed contract access route"
+    ],
+    "peripheralChecks": [
+      "Order must snapshot buyer fee wiaver and seller commission rate at the checkout/transaction time",
+      "Do not recalculate historical commission from a professional's current plan",
+      "Do not let client set payment/order status directly",
+      "Stripe/payment provider is rail, not Order truth",
+      "Agreement gates must be checked before payment where required",
+      "If live service is required, consume Booking & Calendar",
+      "Order should be retained for tax/payment/legal records",
+      "Do not finalize an agreement until required electronic consent is recorded or manual opt-out path is chosen.",
+      "Do not edit finalized PDFs in place; generate a new version or superseding agreement.",
+      "Hash finalized PDFs immediately after render and before/after storage verification.",
+      "Store visible audit footer hash, not raw sensitive data.",
+      "Signed agreements should be retention-locked and tied to legal/payment record exemptions.",
+      "Agreement.status must gate Order.status transitions when an agreement is required.",
+      "If an Order requires a live service slot, it must reference a valid BookingHold or Booking.",
+      "If an Order requires an Agreement, Booking confirmation should wait for Agreement gates where required.",
+      "Stripe payment authorization/capture is not payout authorization.",
+      "Order remains transaction truth; Booking remains scheduling truth."
+    ],
+    "overlapWarnings": [
+      "Order is transaction truth; ProcessedStripeEvent is webhook dedupe truth.",
+      "RefundStatus belongs with transaction/order state, not Dispute ownership.",
+      "OrderFile explains file role in transaction; MediaAsset owns file metadata/storage.",
+      "Agreement is not ConsentLog; ConsentLog proves disclosure acceptance while Agreement owns contract lifecycle.",
+      "MediaAsset stores the archived file; AgreementDocumentSnapshot owns contract document proof.",
+      "AgreementEvent is domain event truth; AccessAuditLog is sensitive access proof.",
+      "Do not treat a signature image URL as legal proof by itself.",
+      "Do not let Cronofy webhook directly mark Order paid.",
+      "Do not let Booking own payment truth.",
+      "Do not let Agreement generation live inside Booking services."
+    ]
+  },
+  {
+    "id": "payment_payout_tax",
+    "name": "Payment / Payout / Tax Module",
+    "moduleType": "capability_compliance",
+    "buildStatus": "mvp_active_legal_gated",
+    "complianceMet": [
+      "KYC / AML payout gating",
+      "Processor-held funds / payout request",
+      "Tax reporting / 1099 readiness",
+      "Prize tax fulfillment lock",
+      "Sensitive financial step-up MFA",
+      "Digital goods sales tax calculation",
+      "Marketplace facilitator tax collection posture",
+      "Digital tax transaction proof"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "kyc_aml_payout_gating",
+        "label": "KYC / AML payout gating",
+        "role": "primary",
+        "proofSchemas": [
+          "KycVerification",
+          "PayoutAccount",
+          "ProcessedStripeEvent",
+          "PayoutTransfer"
+        ]
+      },
+      {
+        "termId": "processor_held_funds_payout_request",
+        "label": "Processor-held funds / payout request",
+        "role": "primary",
+        "proofSchemas": [
+          "ProfessionalBalanceLedgerEntry",
+          "PayoutRequest",
+          "PayoutTransfer",
+          "ComplianceHold"
+        ]
+      },
+      {
+        "termId": "tax_reporting_1099_readiness",
+        "label": "Tax reporting / 1099 readiness",
+        "role": "primary",
+        "proofSchemas": [
+          "TaxProfile",
+          "TaxDocument",
+          "TaxYearEarningsSummary",
+          "TaxReportingSubmission",
+          "TaxReportingRecipient"
+        ]
+      },
+      {
+        "termId": "prize_tax_fulfillment_lock",
+        "label": "Prize tax fulfillment lock",
+        "role": "supporting",
+        "proofSchemas": [
+          "TaxProfile",
+          "TaxYearEarningsSummary",
+          "ComplianceHold"
+        ]
+      },
+      {
+        "termId": "digital_goods_sales_tax_calculation",
+        "label": "Digital goods sales tax calculation",
+        "role": "primary",
+        "proofSchemas": [
+          "SalesTaxCalculation",
+          "SalesTaxLineItem",
+          "SalesTaxTransaction"
+        ]
+      },
+      {
+        "termId": "marketplace_facilitator_tax_collection",
+        "label": "Marketplace facilitator tax collection posture",
+        "role": "primary",
+        "proofSchemas": [
+          "SalesTaxCalculation",
+          "SalesTaxLineItem",
+          "SalesTaxTransaction"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Payment provider webhook dedupe",
+      "KYC verification status tracking",
+      "Tax profile/document readiness",
+      "Tax year earnings summaries",
+      "Payout account readiness",
+      "Professional balance projection",
+      "Payout request workflow",
+      "Payout transfer attempts",
+      "Tax reporting submission/recipient readiness",
+      "Payout blocking based on holds/disputes/tax/KYC",
+      "Digital sales tax provider integration",
+      "Checkout tax calculation proof",
+      "Marketplace facilitator/deemed-seller liability role recording",
+      "Tax transaction recording/reversal",
+      "Buyer location fields needed for tax calculation",
+      "Digital product tax code mapping consumption"
+    ],
+    "doesNotOwn": [
+      "Order business lifecycle",
+      "Offering creation",
+      "Gig lifecycle",
+      "Dispute facts outside money movement",
+      "Prize drawing logic",
+      "Reward rules",
+      "Background-check decision",
+      "Healthcare decision",
+      "Digital file access",
+      "Download grants",
+      "Mux playback grants",
+      "Digital product/course lifecycle",
+      "DMCA disabling decisions",
+      "Child-directed privacy controls"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Transaction / Order Module",
+      "Professional Eligibility Module",
+      "Sweepstakes / Prize Module",
+      "Admin Review / Compliance Hold Module",
+      "Review / Dispute Module",
+      "Observability / Ops Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "ProcessedStripeEvent",
+      "KycVerification",
+      "KycStatus",
+      "TaxProfile",
+      "TaxProfileStatus",
+      "TaxDocument",
+      "TaxDocumentType",
+      "TaxYearEarningsSummary",
+      "PayoutAccount",
+      "PayoutAccountStatus",
+      "ProfessionalBalanceLedgerEntry",
+      "ProfessionalBalanceLedgerEntryType",
+      "PayoutRequest",
+      "PayoutRequestStatus",
+      "PayoutTransfer",
+      "PayoutTransferStatus",
+      "TaxReportingSubmission",
+      "TaxReportingRecipient",
+      "TaxReportingRegime",
+      "ProviderRequirementSnapshot",
+      "SalesTaxProvider",
+      "SalesTaxCalculationStatus",
+      "SalesTaxLineItemType",
+      "SalesTaxLiabilityRole",
+      "SalesTaxTransactionStatus",
+      "SalesTaxCalculation",
+      "SalesTaxLineItem",
+      "SalesTaxTransaction"
+    ],
+    "schemasReferenced": [
+      "User",
+      "ProfessionalProfile",
+      "Order",
+      "OrderEvent",
+      "ComplianceHold",
+      "Dispute",
+      "PrizeWinning",
+      "RewardRedemption",
+      "VerificationPackage",
+      "VerificationCheck",
+      "AuditEvent",
+      "UserSecurityProfile",
+      "SensitiveActionSession",
+      "StepUpChallenge",
+      "AccessAuditLog",
+      "Offering",
+      "PricingTier",
+      "DigitalGoodsPolicy"
+    ],
+    "technologies": [
+      "Stripe",
+      "Stripe Connect",
+      "Stripe webhooks",
+      "Webhook signature verification",
+      "Tax provider later",
+      "KYC provider later",
+      "Stripe Tax",
+      "Stripe Checkout automatic tax",
+      "Avalara optional",
+      "Provider tax-code mapping",
+      "Webhook transaction finalization"
+    ],
+    "peripheralChecks": [
+      "Do not process the same webhook twice",
+      "Do not trust client payment success redirects as truth",
+      "Do not let Workin Ants custody funds directly",
+      "Use processor-held available balance + payout request + payout transfer",
+      "Do not create Wallet or Escrow models",
+      "Do not hardcode tax thresholds or one tax form for all earnings",
+      "Screening fee payment does not mean screening passed",
+      "Before showing processor-held balance, payout account, tax dashboard, or payout request flow, require Identity & Access step-up approval.",
+      "Payment / Payout / Tax owns financial truth; Identity & Access owns MFA proof.",
+      "Opening sensitive payout/tax surfaces should create AccessAuditLog with DataSensitivity.financial.",
+      "Do not build custom state/local tax calculator.",
+      "Use buyer billing/shipping/customer location from checkout for tax calculation.",
+      "Record provider calculation IDs and finalized transaction IDs.",
+      "Sales tax is not the same as 1099/tax profile reporting.",
+      "Marketplace facilitator liability role must be recorded per transaction."
+    ],
+    "overlapWarnings": [
+      "Payment / Payout / Tax owns payout KYC; Trust Verification owns marketplace screening.",
+      "Do not call processor-held funds escrow unless legal counsel approves true escrow architecture.",
+      "ProfessionalBalanceLedgerEntry is an accounting projection, not money custody by Workin Ants.",
+      "PayoutRequest is professional intent; PayoutTransfer is processor execution.",
+      "Do not implement local MFA flags inside payout models.",
+      "Do not store bank/routing access state as generic UI state.",
+      "TaxProfile is seller tax identity/readiness; SalesTaxCalculation is buyer transaction tax calculation.",
+      "Payment / Payout / Tax owns tax proof, not file delivery.",
+      "Order remains transaction truth; tax provider is calculation rail."
+    ],
+    "note": "Payout model is processor-held available balance + payout request + payout transfer. Do not create Wallet or Escrow models."
+  },
+  {
+    "id": "booking_calendar",
+    "name": "Booking & Calendar Module",
+    "moduleType": "domain_capability_hybrid",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Fuzzy geolocation / exact location reveal",
+      "Cronofy calendar sync boundary",
+      "Calendar free/busy privacy boundary",
+      "Calendar sync consent proof",
+      "UTC scheduling storage",
+      "Atomic double-booking prevention",
+      "Calendar provider webhook dedupe",
+      "Booking downstream orchestration"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "fuzzy_geolocation_exact_location_reveal",
+        "label": "Fuzzy geolocation / exact location reveal",
+        "role": "supporting",
+        "proofSchemas": [
+          "Booking",
+          "LocationReveal",
+          "LocationRevealStatus"
+        ]
+      },
+      {
+        "termId": "cronofy_calendar_sync_boundary",
+        "label": "Cronofy calendar sync boundary",
+        "role": "primary",
+        "proofSchemas": [
+          "CalendarConnection",
+          "ProcessedCalendarEvent",
+          "BusyWindow"
+        ]
+      },
+      {
+        "termId": "calendar_free_busy_privacy_boundary",
+        "label": "Calendar free/busy privacy boundary",
+        "role": "primary",
+        "proofSchemas": [
+          "CalendarConnection",
+          "BusyWindow",
+          "ConsentLog"
+        ]
+      },
+      {
+        "termId": "atomic_double_booking_prevention",
+        "label": "Atomic double-booking prevention",
+        "role": "primary",
+        "proofSchemas": [
+          "BookingSlotLock",
+          "BookingHold",
+          "Booking"
+        ]
+      },
+      {
+        "termId": "booking_downstream_orchestration",
+        "label": "Booking downstream orchestration",
+        "role": "supporting",
+        "proofSchemas": [
+          "BookingOrchestrationRun",
+          "BookingOrchestrationStep"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Paid live-session scheduling attached to Orders",
+      "Availability rules",
+      "Busy windows",
+      "Calendar connections",
+      "Calendar sync direction",
+      "Booking holds",
+      "Booking lifecycle",
+      "Booking event ledger",
+      "Processed calendar webhook dedupe",
+      "Calendar writeback",
+      "Cronofy connection state",
+      "Cronofy account/calendar provider references",
+      "Calendar access mode tracking",
+      "Free/busy-only privacy boundary",
+      "UTC booking timestamp enforcement",
+      "Buyer/professional timezone display metadata",
+      "Atomic booking slot lock lifecycle",
+      "Booking confirmation orchestration record",
+      "Calendar provider webhook dedupe",
+      "Calendar writeback state",
+      "Booking-to-downstream module request tracking"
+    ],
+    "doesNotOwn": [
+      "Video room mechanics",
+      "Payment truth",
+      "Agreement generation",
+      "Job interview lifecycle",
+      "General auth",
+      "Location safety policy",
+      "Cal.com scheduling infrastructure",
+      "Video room creation mechanics",
+      "Contract PDF generation",
+      "Stripe payment truth",
+      "Payout authorization",
+      "Location reveal policy",
+      "Notification delivery mechanics"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Transaction / Order Module",
+      "Video Session Module",
+      "Notification Module",
+      "Messaging Module",
+      "Professional Eligibility Module",
+      "Location Safety Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "AvailabilityRule",
+      "AvailabilityRuleSource",
+      "CalendarConnection",
+      "CalendarConnectionStatus",
+      "CalendarSourceProvider",
+      "CalendarIntegrationProvider",
+      "CalendarSyncDirection",
+      "BusyWindow",
+      "BusyWindowSource",
+      "BookingHold",
+      "BookingHoldStatus",
+      "Booking",
+      "BookingStatus",
+      "BookingEvent",
+      "ProcessedCalendarEvent",
+      "CalendarEventSyncStatus",
+      "CalendarAccessMode",
+      "CalendarConnectionProviderStatus",
+      "BookingSlotLock",
+      "BookingSlotLockStatus",
+      "BookingOrchestrationRun",
+      "BookingOrchestrationStatus",
+      "BookingOrchestrationStep",
+      "BookingOrchestrationStepType",
+      "BookingOrchestrationStepStatus",
+      "CalendarProviderEventType",
+      "CalendarProviderEventStatus"
+    ],
+    "schemasReferenced": [
+      "Order",
+      "ProfessionalProfile",
+      "User",
+      "ConsentLog",
+      "Thread",
+      "Notification",
+      "AccessAuditLog",
+      "LocationRevealStatus",
+      "LocationPrecision",
+      "Order",
+      "Agreement",
+      "BookingVideoRoom",
+      "ConsentLog",
+      "AccessAuditLog",
+      "Notification",
+      "LocationReveal",
+      "Thread",
+      "TrackEntitlementGrant",
+      "TrackUsageEvent"
+    ],
+    "technologies": [
+      "Cronofy",
+      "Nylas if chosen",
+      "Calendar webhooks",
+      "Timezone utilities",
+      "Postgres overlap/exclusion constraints",
+      "Cronofy Calendar API",
+      "Cronofy Availability API",
+      "Cronofy Free/Busy access mode where possible",
+      "Cronofy Push Notifications / webhooks",
+      "Postgres row-level transactions",
+      "Postgres exclusion constraints for overlapping slots",
+      "date-fns-tz or Luxon for frontend display conversion",
+      "Server-side idempotency keys"
+    ],
+    "peripheralChecks": [
+      "Priority scheduling is a consumed entitlement, not a Booking-owned subscription state",
+      "Recheck availability server-side before confirmation",
+      "Check calendar_sync consent before external calendar connection",
+      "Do not create video rooms here; consume Video Session",
+      "Exact location reveal must consume Location Safety",
+      "Calendar webhooks must be deduped before side effects",
+      "Do not integrate Cal.com for MVP if Cronofy is the chosen provider.",
+      "Do not store local-time strings as booking truth.",
+      "Store DateTime in UTC; store IANA timezone only for display/context.",
+      "Do not store external calendar event descriptions, locations, or attendees for free/busy sync.",
+      "Create BookingHold and BookingSlotLock before payment confirmation path.",
+      "Confirm Booking only after Order and Agreement gates pass as required.",
+      "Reject overlapping slot lock conflicts with a clean Slot Unavailable error.",
+      "Deduplicate Cronofy webhooks before updating BusyWindow or Booking state.",
+      "Downstream video/agreement/notification actions must be idempotent."
+    ],
+    "overlapWarnings": [
+      "Booking is paid service scheduling; JobInterview is hiring-side scheduling.",
+      "Booking owns appointment lifecycle; Video Session owns room mechanics.",
+      "CalendarConnection requires consent proof but ConsentLog owns the proof.",
+      "Cronofy is calendar infrastructure, not booking source-of-truth.",
+      "Booking remains Workin Ants source-of-truth for paid service scheduling.",
+      "BookingOrchestrationRun records downstream requests; it does not own VideoRoom or Agreement truth.",
+      "ProcessedCalendarEvent is webhook dedupe truth, not AuditEvent.",
+      "ConsentLog owns consent proof; CalendarConnection owns the active linked calendar state."
+    ]
+  },
+  {
+    "id": "video_session",
+    "name": "Video Infrastructure Module",
+    "moduleType": "capability",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Append-only sensitive access audit",
+      "HIPAA / HITECH healthcare lane",
+      "Signed on-demand course video playback",
+      "Live video token access",
+      "Video provider webhook dedupe",
+      "Healthcare-capable video vendor gate",
+      "Video access audit",
+      "60-minute signed course playback token",
+      "Course accessibility asset attachment",
+      "BookingOrchestrationRun",
+      "BookingOrchestrationStep",
+      "Booking"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "append_only_sensitive_access_audit",
+        "label": "Append-only sensitive access audit",
+        "role": "supporting",
+        "proofSchemas": [
+          "AccessAuditLog"
+        ]
+      },
+      {
+        "termId": "hipaa_hitech_healthcare_lane",
+        "label": "HIPAA / HITECH healthcare lane",
+        "role": "supporting",
+        "proofSchemas": [
+          "HealthcareDataBoundary",
+          "AccessAuditLog"
+        ]
+      },
+      {
+        "termId": "signed_on_demand_course_video_playback",
+        "label": "Signed on-demand course video playback",
+        "role": "primary",
+        "proofSchemas": [
+          "CourseVideoAsset",
+          "CourseVideoPlaybackGrant",
+          "CourseVideoPlaybackEvent"
+        ]
+      },
+      {
+        "termId": "live_video_token_access",
+        "label": "Live video token access",
+        "role": "primary",
+        "proofSchemas": [
+          "BookingVideoRoom",
+          "JobInterviewVideoRoom"
+        ]
+      },
+      {
+        "termId": "video_provider_webhook_dedupe",
+        "label": "Video provider webhook dedupe",
+        "role": "primary",
+        "proofSchemas": [
+          "ProcessedVideoProviderEvent"
+        ]
+      },
+      {
+        "termId": "healthcare_capable_video_vendor_gate",
+        "label": "Healthcare-capable video vendor gate",
+        "role": "supporting",
+        "proofSchemas": [
+          "HealthcareDataBoundary",
+          "BaaAgreement",
+          "AccessAuditLog"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Platform-hosted video room records",
+      "Video provider selection",
+      "Provider room creation",
+      "Join URL/token generation",
+      "Participant-only room access",
+      "Room expiration",
+      "Video failure handling",
+      "Live video provider selection",
+      "AWS Chime SDK",
+      "Server-issued live video join tokens",
+      "Live room expiration/failure handling",
+      "Course video provider asset lifecycle",
+      "Mux/cloud video upload and processing state",
+      "Signed playback grant lifecycle",
+      "Course playback access events",
+      "Mux/Agora provider webhook dedupe",
+      "Video access audit hooks"
+    ],
+    "doesNotOwn": [
+      "Booking lifecycle",
+      "JobInterview lifecycle",
+      "Payment state",
+      "Hiring decisions",
+      "Calendar availability",
+      "Healthcare compliance decision",
+      "CourseDetails business lifecycle",
+      "Offering lifecycle",
+      "Raw source file storage truth",
+      "Order entitlement truth",
+      "Healthcare compliance approval",
+      "BAA legal approval",
+      "Course curriculum structure",
+      "Payment/purchase truth"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Booking & Calendar Module",
+      "Job Interview Module",
+      "Support Module later",
+      "Review / Dispute Module later",
+      "Healthcare / Regulated Services Module later"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "BookingVideoRoom",
+      "BookingVideoProvider",
+      "BookingVideoRoomStatus",
+      "JobInterviewVideoRoom",
+      "JobInterviewVideoProvider",
+      "JobInterviewVideoRoomStatus",
+      "CourseVideoProvider",
+      "CourseVideoAssetStatus",
+      "CourseVideoPlaybackPolicy",
+      "CourseVideoPlaybackGrantStatus",
+      "CourseVideoPlaybackEventType",
+      "VideoProviderEventProvider",
+      "VideoProviderEventStatus",
+      "CourseVideoAsset",
+      "CourseVideoPlaybackGrant",
+      "CourseVideoPlaybackEvent",
+      "ProcessedVideoProviderEvent"
+    ],
+    "schemasReferenced": [
+      "Booking",
+      "JobInterview",
+      "User",
+      "ProfessionalProfile",
+      "CandidateProfile",
+      "OrganizationMember",
+      "AccessAuditLog",
+      "Notification",
+      "Thread",
+      "CourseDetails",
+      "Offering",
+      "MediaAsset",
+      "Order",
+      "HealthcareDataBoundary",
+      "BaaAgreement",
+      "DataErasureTarget",
+      "PrivacyRequest",
+      "DigitalGoodsPolicy",
+      "CourseAccessibilityAsset",
+      "DigitalGoodsTermsAcceptance"
+    ],
+    "technologies": [
+      "Daily.co",
+      "Server-side join-token route",
+      "Daily webhooks",
+      "Optional HIPAA/BAA-capable configuration later",
+      "Agora SDK for live 1-on-1 video rooms",
+      "Agora token server",
+      "Agora webhooks",
+      "Mux Video API for on-demand course streaming",
+      "Mux signed playback / JWT playback access",
+      "Mux webhooks",
+      "Cloudflare R2 for raw/private source media",
+      "Server-side playback grant route",
+      "Append-only access audit hooks"
+    ],
+    "peripheralChecks": [
+      "Never allow public reusable room links",
+      "Parent module owns lifecycle; Video Session owns room mechanics",
+      "Healthcare video join-token requests must be access-audited",
+      "Use BAA/HIPAA-capable vendor path if healthcare lane is active",
+      "Do not build or host a custom video server for MVP.",
+      "Do not use permanent public URLs for paid course videos.",
+      "Course playback requires Order entitlement or explicit admin/test access.",
+      "CourseVideoAsset is streaming-provider truth; MediaAsset is raw/source file truth.",
+      "Mux/Agora webhooks must be deduped before side effects.",
+      "Healthcare-sensitive video must check healthcare boundaries and vendor/BAA readiness.",
+      "Do not let Booking or JobInterview create their own provider-specific video logic.",
+      "Do not store signed playback URLs as permanent truth; store hashes/proof metadata.",
+      "Signed playback token TTL should default to 60 minutes for paid streaming course videos.",
+      "Course video playback must check Order entitlement before granting token.",
+      "CourseAccessibilityAsset tracks captions/transcripts separately from video streaming asset state.",
+      "Do not expose raw .mp4 URLs.",
+      "Booking confirmation may request video room creation, but Video Infrastructure owns BookingVideoRoom.",
+      "Video room access should be tokenized and bounded by Booking start/end plus overtimeGraceMinutes.",
+      "If live provider is Agora, do not hardcode Daily-specific fields in Booking."
+    ],
+    "overlapWarnings": [
+      "Do not duplicate BookingVideoRoom and JobInterviewVideoRoom logic unnecessarily; consider future VideoSession consolidation.",
+      "Video links are access tokens, not public URLs.",
+      "Video Session should not decide whether a healthcare service may go live.",
+      "Live video rooms are not on-demand course videos.",
+      "Mux CourseVideoAsset is not MediaAsset.",
+      "CourseDetails owns course business structure; Video Infrastructure owns streaming delivery state.",
+      "Order owns purchase entitlement; CourseVideoPlaybackGrant proves short-lived playback access.",
+      "Healthcare determines whether the video lane is regulated; Video Infrastructure only enforces provider/access mechanics.",
+      "Mux streaming state is not downloadable file state.",
+      "Course accessibility assets are not the same as course video assets.",
+      "Digital Goods Access owns the product license/refund/access policy.",
+      "Booking owns appointment lifecycle; Video Infrastructure owns room mechanics.",
+      "Do not store a raw public video URL directly as Booking truth."
+    ],
+    "note": "Consider consolidating BookingVideoRoom and JobInterviewVideoRoom into a single VideoSession model after MVP shape stabilizes."
+  },
+  {
+    "id": "organization_hiring",
+    "name": "Organization Hiring Module",
+    "moduleType": "domain",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Verified-only jobs / high-risk service gates",
+      "Organization ATS feature access gate"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "verified_only_jobs_high_risk_service_gates",
+        "label": "Verified-only jobs / high-risk service gates",
+        "role": "supporting",
+        "proofSchemas": [
+          "Job",
+          "VerificationRequirement"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Organization lifecycle",
+      "Organization membership",
+      "Organization hiring dashboard",
+      "Job creation",
+      "Job lifecycle",
+      "Job visibility",
+      "Employment type",
+      "Organization notification settings",
+      "Organization taxonomy/media joins"
+    ],
+    "doesNotOwn": [
+      "Candidate identity",
+      "Resume privacy internals",
+      "Job compliance scan internals",
+      "Application lifecycle",
+      "Interview room mechanics",
+      "Global auth"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Job Compliance Module",
+      "Candidate Application & Resume Privacy Module",
+      "Job Interview Module",
+      "Notification Module",
+      "Messaging Module",
+      "Search / Public Visibility Module",
+      "Role / Authority Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "Organization",
+      "OrganizationStatus",
+      "OrganizationMember",
+      "OrganizationRole",
+      "Job",
+      "JobStatus",
+      "JobVisibility",
+      "EmploymentType",
+      "OrganizationNotificationSetting",
+      "OrganizationCategory",
+      "OrganizationTag",
+      "OrganizationMedia"
+    ],
+    "schemasReferenced": [
+      "User",
+      "CandidateProfile",
+      "JobApplication",
+      "JobComplianceCheck",
+      "Thread",
+      "Notification",
+      "TaxonomyDomain",
+      "TaxonomyCategory",
+      "TaxonomyTag",
+      "VerificationRequirement",
+      "MediaUploadPolicy",
+      "MediaUploadSession",
+      "MediaValidationResult",
+      "MediaProcessingResult",
+      "JobCompensationDisclosure",
+      "JobComplianceCheck",
+      "CandidateSearchProjection",
+      "ResumeAccessLog"
+    ],
+    "technologies": [
+      "Next.js organization dashboard",
+      "Supabase RLS membership policies",
+      "Typesense for public job/org search",
+      "Admin tools"
+    ],
+    "peripheralChecks": [
+      "Organization cannot sell Offerings",
+      "OrganizationMember role must be checked before org/job/admin actions",
+      "Route job publishing through Job Compliance",
+      "Verified-only jobs should consume Trust Verification requirements",
+      "Organization logo uploads must use MediaUploadContext.organization_logo.",
+      "Job graphic uploads must use MediaUploadContext.organization_job_graphic.",
+      "Organization images are capped at 2MB by upload policy.",
+      "Only image formats should be allowed for logos and job graphics.",
+      "Use processed/scrubbed public derivatives for public display.",
+      "Applicant tracker and resume viewer should be gated by OrganizationFeatureAccess if monetized.",
+      "Organization Hiring owns Job lifecycle, but Job Compliance owns publishing compliance findings.",
+      "OrganizationMember role must be checked before viewing applicants or resumes."
+    ],
+    "overlapWarnings": [
+      "Organization owns Job creation/lifecycle; Candidate Application owns applications.",
+      "Organization Hiring does not own job compliance findings.",
+      "OrganizationRole authority interpretation is shared with Role / Authority.",
+      "Organization Hiring owns the meaning of logos/job graphics; Media / File Access owns upload security and image scrubbing.",
+      "OrganizationFeatureAccess is not a full subscription system.",
+      "Do not let ATS UI bypass Candidate Application resume privacy checks."
+    ],
+    "note": [
+      "Verifying Organization identities follows standard KYC/AML practices. EIN, business ID, and other legal verifications are in scope for MVP.",
+      "Checkr",
+      "Legal Business Name, DBA, EIN, Business Type/Entity Classification, NAICS Industry Code, Official Corporate Address, Matching email domains, Active Corporate Website URL",
+      "Human responsbility: Full Legal Name and Title, Direct Corporate Phone Number, Individual Identity Verification(Checkr/Kyc)",
+      "Permissible Purpose and compliance agreement: Intended Permissible Purpose- Certifying under penalty of law that the reports are strictly used for Employment Purposes (W2 Hiring) + FCRA Compliance Mandate - Confirming they will obtain standalone written authorization from the candidate before ordering a check and will strictly follow the Adverse Action process if they deny a candidate based on check results"
+    ]
+  },
+  {
+    "id": "job_compliance",
+    "name": "Job Compliance Module",
+    "moduleType": "compliance",
+    "buildStatus": "mvp_active_legal_gated",
+    "complianceMet": [
+      "Verified-only jobs / high-risk service gates",
+      "Jurisdiction-aware pay transparency proof",
+      "Job compliance rule versioning",
+      "EEOC / Fair Chance finding provenance",
+      "Salary/benefits disclosure proof"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "verified_only_jobs_high_risk_service_gates",
+        "label": "Verified-only jobs / high-risk service gates",
+        "role": "supporting",
+        "proofSchemas": [
+          "JobComplianceCheck",
+          "ComplianceHold",
+          "VerificationRequirement"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Job publishing compliance gate",
+      "Pay transparency checks",
+      "EEOC language checks",
+      "Fair-chance/ban-the-box checks",
+      "Job compliance findings",
+      "Job compliance severity",
+      "Blocked/flagged job publication",
+      "Compliance proof for job publishing"
+    ],
+    "doesNotOwn": [
+      "Organization membership",
+      "Job display UI",
+      "Candidate applications",
+      "Resume storage",
+      "Search indexing execution",
+      "Background-check vendor workflow"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Organization Hiring Module",
+      "Search / Public Visibility Module",
+      "Admin Review / Compliance Hold Module",
+      "Notification Module",
+      "Audit / Event Ledger Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "JobComplianceCheck",
+      "JobComplianceFinding",
+      "JobComplianceStatus",
+      "JobComplianceCheckStatus",
+      "JobComplianceFindingType",
+      "JobComplianceSeverity",
+      "CompensationPeriod",
+      "JobComplianceRule",
+      "JobComplianceRuleType",
+      "JobComplianceRuleStatus",
+      "JobCompensationDisclosure",
+      "JobCompensationDisclosureStatus"
+    ],
+    "schemasReferenced": [
+      "Job",
+      "Organization",
+      "User",
+      "AuditEvent",
+      "Notification",
+      "ComplianceHold",
+      "SearchUpsertEvent",
+      "JobComplianceCheck",
+      "JobComplianceFinding",
+      "SearchUpsertEvent"
+    ],
+    "technologies": [
+      "Backend validators",
+      "compromise npm package",
+      "natural npm package",
+      "Admin review UI",
+      "Jurisdiction rules engine later",
+      "Jurisdiction rules table",
+      "Versioned compliance scanner rules",
+      "compromise",
+      "natural",
+      "Admin override workflow"
+    ],
+    "peripheralChecks": [
+      "Check all job text surfaces, not only description",
+      "Do not publish to search unless compliance passes or is allowed with warning",
+      "Store findings/proof rather than only blocking inline",
+      "Use ComplianceHold for admin stop signs when needed",
+      "Do not hardcode one nationwide salary rule without jurisdiction metadata.",
+      "For simplicity, Workin Ants may require compensation ranges on every public job, but still record which jurisdiction rule applied.",
+      "Store compliance finding provenance: rule key, version, source field, scanner, jurisdiction, and matched text hash.",
+      "Do not treat NLP scanner output as legal truth; route uncertain findings to admin review.",
+      "Search indexing must wait for JobComplianceStatus approval or allowed warning state."
+    ],
+    "overlapWarnings": [
+      "Job Compliance checks the posting; Trust Verification checks the person.",
+      "Do not mix job text compliance with candidate screening.",
+      "Search consumes compliance result but does not own it.",
+      "Job Compliance checks job-post content; it does not screen candidates.",
+      "Job Compliance can block publishing, but Organization Hiring owns the Job lifecycle.",
+      "Search consumes compliance result; Search does not decide compliance."
+    ]
+  },
+  {
+    "id": "candidate_application_resume_privacy",
+    "name": "Candidate Application & Resume Privacy Module",
+    "moduleType": "domain_compliance_hybrid",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Append-only sensitive access audit",
+      "Verified-only jobs / high-risk service gates",
+      "Privacy-safe candidate search projection",
+      "Resume parsing without automated hiring decision",
+      "Authorized resume inline viewer"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "append_only_sensitive_access_audit",
+        "label": "Append-only sensitive access audit",
+        "role": "supporting",
+        "proofSchemas": [
+          "ResumeAccessLog",
+          "AccessAuditLog"
+        ]
+      },
+      {
+        "termId": "verified_only_jobs_high_risk_service_gates",
+        "label": "Verified-only jobs / high-risk service gates",
+        "role": "supporting",
+        "proofSchemas": [
+          "JobApplication",
+          "VerificationCheck",
+          "TrustBadge"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "CandidateProfile lifecycle",
+      "JobApplication lifecycle",
+      "Application stage/status",
+      "Application attachments",
+      "Resume file attachment",
+      "Resume parsing result",
+      "Authorized resume view",
+      "Resume access logs",
+      "Candidate taxonomy/media joins"
+    ],
+    "doesNotOwn": [
+      "Organization job creation",
+      "Job compliance scanning",
+      "General MediaAsset storage",
+      "General search engine",
+      "Interview room creation",
+      "Background-check source of truth"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Organization Hiring Module",
+      "Job Interview Module",
+      "Search / Public Visibility Module",
+      "Media / File Access Module",
+      "Audit / Event Ledger Module",
+      "Notification Module",
+      "Role / Authority Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "CandidateProfile",
+      "JobApplication",
+      "JobApplicationStatus",
+      "JobApplicationStage",
+      "JobApplicationMedia",
+      "ResumeParseResult",
+      "ResumeParseStatus",
+      "ResumeAccessLog",
+      "ResumeAccessReason",
+      "CandidateCategory",
+      "CandidateTag",
+      "CandidateProfileMedia",
+      "CandidateSearchProjection",
+      "CandidateSearchProjectionStatus"
+    ],
+    "schemasReferenced": [
+      "Job",
+      "Organization",
+      "OrganizationMember",
+      "User",
+      "MediaAsset",
+      "Thread",
+      "Notification",
+      "AccessAuditLog",
+      "VerificationCheck",
+      "TrustBadge",
+      "MediaUploadPolicy",
+      "MediaUploadSession",
+      "MediaValidationResult",
+      "MediaAccessGrant",
+      "MediaAccessEvent",
+      "MediaAccessGrant",
+      "MediaAccessEvent",
+      "MediaUploadPolicy",
+      "ResumeParseResult",
+      "SearchUpsertEvent",
+      "TrackUsageCounter",
+      "TrackUsageEvent",
+      "TrackSubscription",
+      "TrackEntitlementGrant"
+    ],
+    "technologies": [
+      "Cloudflare R2 private bucket",
+      "Presigned URLs",
+      "pdf-parse",
+      "Resume text extraction worker",
+      "Typesense candidate/resume metadata search if allowed"
+    ],
+    "peripheralChecks": [
+      "Candidate application limits are checked through Track Subscription & Entitlement before JobApplication creation.",
+      "Premium Hunter view tracking is visible only when the candidate has the correct active entitlement.",
+      "Candidate search boosts are consumed from TrackEntitlementGrant and projected through Search.",
+      "Do not store resumes as public URLs",
+      "Check OrganizationMember authorization before resume URL generation",
+      "Resume parsing creates metadata, not automated hiring decisions",
+      "Verified-only jobs must check VerificationCheck/TrustBadge before application or advancement",
+      "Resume uploads must use MediaUploadContext.candidate_resume.",
+      "Resume/CV uploads are capped at 5MB by upload policy.",
+      "Allowed formats should be PDF and DOCX only, with server-side validation.",
+      "Resume files must remain private and accessible only through authorized resume workflow.",
+      "ResumeAccessLog records resume-specific access; MediaAccessGrant records signed file access mechanics.",
+      "Do not index raw resume text by default.",
+      "Resume parsing should create searchable skill/title metadata, not automated hiring decisions.",
+      "Resume viewer access should require OrganizationMember authority and JobApplication ownership check.",
+      "Every resume view should create ResumeAccessLog and may create AccessAuditLog.",
+      "CandidateProfile, not User, remains applicant identity."
+    ],
+    "overlapWarnings": [
+      "CandidateProfile is applicant identity; ProfessionalProfile is seller identity.",
+      "ResumeAccessLog is resume-specific; AccessAuditLog is broader sensitive access proof.",
+      "Candidate Application does not own VerificationCheck.",
+      "Candidate Application owns resume business meaning, not file security mechanics.",
+      "Do not parse or display resumes until MediaAsset.status=ready and scanStatus=clean.",
+      "ResumeParseResult is not a hiring recommendation.",
+      "CandidateSearchProjection is not raw resume truth.",
+      "MediaAccessGrant is generic file access mechanics; ResumeAccessLog is resume-specific proof."
+    ]
+  },
+  {
+    "id": "job_interview",
+    "name": "Job Interview Module",
+    "moduleType": "domain_capability_hybrid",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Append-only sensitive access audit"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "append_only_sensitive_access_audit",
+        "label": "Append-only sensitive access audit",
+        "role": "supporting",
+        "proofSchemas": [
+          "JobInterviewEvent",
+          "AccessAuditLog"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Hiring-side interview lifecycle",
+      "Interview scheduling state",
+      "Interview location type",
+      "Interview event ledger",
+      "Interview actor tracking",
+      "Interview linkage to JobApplication",
+      "Organization/candidate interview coordination"
+    ],
+    "doesNotOwn": [
+      "Booking lifecycle",
+      "Paid service scheduling",
+      "Video room mechanics",
+      "Calendar availability engine",
+      "Hiring compliance scan",
+      "Candidate resume privacy"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Organization Hiring Module",
+      "Candidate Application & Resume Privacy Module",
+      "Video Session Module",
+      "Notification Module",
+      "Messaging Module",
+      "Role / Authority Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "JobInterview",
+      "JobInterviewStatus",
+      "JobInterviewLocationType",
+      "JobInterviewEvent",
+      "JobInterviewEventActor"
+    ],
+    "schemasReferenced": [
+      "JobApplication",
+      "CandidateProfile",
+      "Organization",
+      "OrganizationMember",
+      "Thread",
+      "Notification",
+      "JobInterviewVideoRoom",
+      "AccessAuditLog"
+    ],
+    "technologies": [
+      "Next.js hiring dashboard",
+      "Timezone utilities",
+      "Notification system",
+      "Video Session integration",
+      "Audit logging"
+    ],
+    "peripheralChecks": [
+      "JobInterview is not Booking",
+      "Video Session owns interview room mechanics",
+      "OrganizationMember role must be checked before interview actions",
+      "Sensitive interview/video access should be auditable where required"
+    ],
+    "overlapWarnings": [
+      "Do not use Booking for hiring interviews.",
+      "Do not duplicate Video Session mechanics in JobInterview.",
+      "JobInterview belongs to hiring lane, not marketplace transaction lane."
+    ],
+    "note": "JobInterview owns hiring-side interview lifecycle. Video Session owns room mechanics."
+  },
+  {
+    "id": "messaging",
+    "name": "Messaging Module",
+    "moduleType": "capability",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Admin PHI redaction / zero-knowledge admin access",
+      "GDPR / CCPA privacy rights"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "admin_phi_redaction_zero_knowledge_admin_access",
+        "label": "Admin PHI redaction / zero-knowledge admin access",
+        "role": "supporting",
+        "proofSchemas": [
+          "Thread",
+          "Message",
+          "HealthcareAdminAccessPolicy",
+          "AccessAuditLog"
+        ]
+      },
+      {
+        "termId": "gdpr_ccpa_privacy_rights",
+        "label": "GDPR / CCPA privacy rights",
+        "role": "supporting",
+        "proofSchemas": [
+          "Message",
+          "Thread",
+          "PrivacyRequest"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Threads",
+      "Thread context",
+      "Thread participants",
+      "Messages",
+      "Message attachments",
+      "Context-bound conversations",
+      "Participant-based message access",
+      "Message deletion/erasure markers"
+    ],
+    "doesNotOwn": [
+      "Notification delivery",
+      "Email/SMS/push delivery",
+      "Order/job/gig/interview lifecycle",
+      "File storage itself",
+      "Healthcare redaction policy",
+      "Privacy erasure workflow"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Transaction / Order Module",
+      "Gig / Demand Module",
+      "Candidate Application & Resume Privacy Module",
+      "Job Interview Module",
+      "Review / Dispute Module",
+      "Content Moderation & Legal Notice Module",
+      "Admin Review / Compliance Hold Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "Thread",
+      "ThreadContextType",
+      "ThreadParticipant",
+      "Message",
+      "MessageMedia"
+    ],
+    "schemasReferenced": [
+      "User",
+      "Order",
+      "Gig",
+      "GigResponse",
+      "GigAssignment",
+      "JobApplication",
+      "JobInterview",
+      "MediaAsset",
+      "Notification",
+      "HealthcareDataBoundary",
+      "HealthcareAdminAccessPolicy",
+      "AccessAuditLog",
+      "PrivacyRequest"
+    ],
+    "technologies": [
+      "Supabase Realtime",
+      "Postgres RLS",
+      "Message API",
+      "Media access integration",
+      "Abuse reporting hooks"
+    ],
+    "peripheralChecks": [
+      "Only thread participants may read/write messages unless admin policy allows otherwise",
+      "Do not let modules create custom chat tables",
+      "Message attachments inherit thread access",
+      "Healthcare threads must redact/block admin payloads when required",
+      "Privacy erasure may anonymize/wipe message content"
+    ],
+    "overlapWarnings": [
+      "Messaging owns communication objects, not business workflows.",
+      "MessageMedia attaches files; MediaAsset owns file truth.",
+      "Healthcare policy decides redaction/blocking; Messaging applies it."
+    ]
+  },
+  {
+    "id": "notification",
+    "name": "Notification Module",
+    "moduleType": "capability",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "DMCA takedown / counter-notice",
+      "FCRA background-check workflow",
+      "Security alert notification",
+      "Account recovery email handshake",
+      "SMS MFA delivery",
+      "AWS Lambda for notifications",
+      "AWS SES",
+      "Service worker push handling",
+      "Push notification permission proof",
+      "iOS PWA push readiness",
+      "Push token rotation and dead-token cleanup",
+      "Privacy-safe notification payloads"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "dmca_takedown_counter_notice",
+        "label": "DMCA takedown / counter-notice",
+        "role": "supporting",
+        "proofSchemas": [
+          "Notification",
+          "NotificationDelivery"
+        ]
+      },
+      {
+        "termId": "fcra_background_check_workflow",
+        "label": "FCRA background-check workflow",
+        "role": "supporting",
+        "proofSchemas": [
+          "Notification",
+          "NotificationDelivery"
+        ]
+      },
+      {
+        "termId": "web_push_background_notification_delivery",
+        "label": "Web Push background notification delivery",
+        "role": "primary",
+        "proofSchemas": [
+          "Notification",
+          "NotificationSubscription",
+          "NotificationDelivery",
+          "NotificationSubscriptionEvent"
+        ]
+      },
+      {
+        "termId": "push_notification_permission_proof",
+        "label": "Push notification permission proof",
+        "role": "primary",
+        "proofSchemas": [
+          "NotificationSubscription",
+          "NotificationSubscriptionEvent",
+          "ConsentLog"
+        ]
+      },
+      {
+        "termId": "ios_pwa_push_readiness",
+        "label": "iOS PWA push readiness",
+        "role": "supporting",
+        "proofSchemas": [
+          "NotificationSubscription",
+          "NotificationSubscriptionEvent"
+        ]
+      },
+      {
+        "termId": "privacy_safe_notification_payloads",
+        "label": "Privacy-safe notification payloads",
+        "role": "primary",
+        "proofSchemas": [
+          "Notification",
+          "NotificationDelivery"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Notification records",
+      "Notification status",
+      "Notification channels",
+      "Notification priority",
+      "User push subscriptions",
+      "Delivery attempts",
+      "Delivery statuses",
+      "Workflow alert dispatch",
+      "Web Push subscription lifecycle",
+      "Browser notification permission state",
+      "Service worker registration proof",
+      "Push endpoint/token rotation tracking",
+      "Dead/revoked token cleanup",
+      "iOS PWA install-readiness tracking",
+      "Notification delivery attempt proof",
+      "Notification click/open/close event proof",
+      "Privacy-safe push payload shaping"
+    ],
+    "doesNotOwn": [
+      "The business event that caused the notification",
+      "Organization membership decisions",
+      "Message thread content",
+      "Email campaign strategy",
+      "Legal notice decision",
+      "Compliance hold decision",
+      "The booking/order/message/job/security event that caused the notification",
+      "Browser vendor push infrastructure",
+      "Apple/Google notification cloud internals",
+      "User device operating-system notification settings",
+      "Business workflow state",
+      "Message thread content"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "All workflow modules",
+      "Organization Hiring Module",
+      "Job Interview Module",
+      "Booking & Calendar Module",
+      "Transaction / Order Module",
+      "Admin Review / Compliance Hold Module",
+      "Content Moderation & Legal Notice Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "Notification",
+      "NotificationStatus",
+      "NotificationChannel",
+      "NotificationPriority",
+      "NotificationSubscription",
+      "NotificationSubscriptionProvider",
+      "NotificationPlatform",
+      "NotificationSubscriptionStatus",
+      "NotificationDelivery",
+      "NotificationDeliveryStatus",
+      "NotificationPermissionStatus",
+      "NotificationSubscriptionEventType",
+      "PwaInstallStatus",
+      "NotificationPayloadSensitivity",
+      "NotificationSubscriptionEvent"
+    ],
+    "schemasReferenced": [
+      "User",
+      "Organization",
+      "OrganizationMember",
+      "Order",
+      "JobApplication",
+      "Booking",
+      "JobInterview",
+      "ComplianceHold",
+      "ModerationCase",
+      "PrizeWinning",
+      "RewardRedemption",
+      "StepUpChallenge",
+      "AccountRecoveryRequest",
+      "UserSecurityEvent",
+      "ConsentLog",
+      "Booking",
+      "Order",
+      "Thread",
+      "Message",
+      "JobApplication",
+      "JobInterview",
+      "ComplianceHold",
+      "ModerationCase",
+      "UserSecurityEvent"
+    ],
+    "technologies": [
+      "Email provider",
+      "SMS provider",
+      "Web Push",
+      "FCM",
+      "OneSignal or WonderPush if chosen",
+      "Service worker",
+      "Twilio Verify or equivalent SMS OTP provider",
+      "Transactional email provider",
+      "Security alert templates",
+      "W3C Push API",
+      "Web Notifications API",
+      "Service Worker API",
+      "Firebase Cloud Messaging",
+      "OneSignal optional",
+      "WonderPush optional",
+      "VAPID keys",
+      "PWA manifest.json",
+      "apple-touch-icon",
+      "Notification click handler route"
+    ],
+    "peripheralChecks": [
+      "NotificationSubscription belongs to User",
+      "OrganizationNotificationSetting belongs to Organization Hiring but is consumed for routing",
+      "Do not duplicate notification delivery logic in feature modules",
+      "Sensitive notifications should avoid leaking PHI/private payloads",
+      "Send urgent email after phone number changes.",
+      "Send single-use recovery email link with 15-minute expiry.",
+      "Do not expose OTP or sensitive financial details in notification body.",
+      "Notification records delivery; Identity & Access owns the recovery/challenge state.",
+      "Do not send private message bodies, PHI, OTPs, financial details, tax data, resume details, or contract text inside push payloads.",
+      "Push notifications should use safe preview text and route users into authenticated app pages.",
+      "Do not create active subscriptions without permissionStatus=granted.",
+      "On iOS, guide users to install the PWA/home-screen app before expecting mobile web push behavior.",
+      "Handle pushsubscriptionchange and token refresh events.",
+      "Disable subscriptions after provider indicates the token/endpoint is invalid.",
+      "Use HTTPS-only action URLs.",
+      "Do not let feature modules send directly to FCM/OneSignal; they create Notification requests."
+    ],
+    "overlapWarnings": [
+      "Notification delivers messages about decisions; it does not own the decisions.",
+      "Do not put legal workflow state inside Notification.",
+      "Notifications should reference source objects, not replace them.",
+      "Notification is delivery truth, not business-event truth.",
+      "NotificationSubscription is device/channel reachability, not user identity.",
+      "NotificationDelivery is provider attempt proof, not guaranteed user attention.",
+      "A clicked notification is not the same as completing the underlying workflow.",
+      "PWA install state is device capability metadata, not account status."
+    ],
+    "note": "OrganizationNotificationSetting belongs to Organization Hiring, but Notification consumes it for routing."
+  },
+  {
+    "id": "media_file_access",
+    "name": "Media / File Access Module",
+    "moduleType": "capability_compliance_support",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Content freeze / public URL removal",
+      "Admin PHI redaction / zero-knowledge admin access",
+      "GDPR / CCPA privacy rights",
+      "Private digital file storage",
+      "Presigned URL file delivery support",
+      "No permanent public digital goods URLs",
+      "Private archived contract storage",
+      "Signed contract download access",
+      "Contract storage retention support",
+      "OWASP-style secure file upload controls",
+      "Binary MIME/signature inspection",
+      "Hard file size limit enforcement",
+      "Filename obfuscation",
+      "Image EXIF/GPS metadata scrubbing",
+      "Private sensitive file storage",
+      "Short-lived signed sensitive file access",
+      "Upload quarantine and scan proof"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "content_freeze_public_url_removal",
+        "label": "Content freeze / public URL removal",
+        "role": "supporting",
+        "proofSchemas": [
+          "MediaAsset",
+          "ModerationAction",
+          "LegalNotice"
+        ]
+      },
+      {
+        "termId": "admin_phi_redaction_zero_knowledge_admin_access",
+        "label": "Admin PHI redaction / zero-knowledge admin access",
+        "role": "supporting",
+        "proofSchemas": [
+          "MediaAsset",
+          "HealthcareDataBoundary",
+          "AccessAuditLog"
+        ]
+      },
+      {
+        "termId": "gdpr_ccpa_privacy_rights",
+        "label": "GDPR / CCPA privacy rights",
+        "role": "supporting",
+        "proofSchemas": [
+          "MediaAsset",
+          "DataErasureTarget"
+        ]
+      },
+      {
+        "termId": "secure_file_upload_controls",
+        "label": "OWASP-style secure file upload controls",
+        "role": "primary",
+        "proofSchemas": [
+          "MediaUploadPolicy",
+          "MediaUploadSession",
+          "MediaValidationResult",
+          "MediaScanResult",
+          "MediaProcessingResult",
+          "MediaAsset"
+        ]
+      },
+      {
+        "termId": "short_lived_sensitive_file_access",
+        "label": "Short-lived signed sensitive file access",
+        "role": "primary",
+        "proofSchemas": [
+          "MediaAccessGrant",
+          "MediaAccessEvent",
+          "AccessAuditLog"
+        ]
+      },
+      {
+        "termId": "image_metadata_privacy_scrub",
+        "label": "Image EXIF/GPS metadata scrubbing",
+        "role": "primary",
+        "proofSchemas": [
+          "MediaProcessingResult",
+          "MediaAsset"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "MediaAsset metadata",
+      "Upload rules",
+      "Private file storage access",
+      "Signed URL generation",
+      "Media lifecycle",
+      "Public/private URL rules",
+      "Base file access checks",
+      "Entity media join tables",
+      "Upload policy definitions by context",
+      "Server-side file size enforcement",
+      "Binary MIME/signature inspection",
+      "Allowed MIME/extension enforcement",
+      "Filename obfuscation and storage key generation",
+      "Quarantine-before-ready upload lifecycle",
+      "Malware scan result tracking",
+      "Image EXIF/GPS metadata scrubbing",
+      "Processed derivative creation",
+      "Sensitive file signed URL grant lifecycle",
+      "Media access event logging"
+    ],
+    "doesNotOwn": [
+      "Business meaning of each file",
+      "Order-specific file role",
+      "Resume-specific access decision",
+      "Message participant access",
+      "Moderation/legal decision",
+      "Privacy erasure workflow",
+      "Healthcare redaction policy",
+      "Resume application lifecycle",
+      "Professional verification decision",
+      "Organization job/logo business meaning",
+      "Agreement legal lifecycle",
+      "Digital goods purchase entitlement",
+      "Moderation/legal decision",
+      "Privacy request orchestration"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Marketplace Supply Module",
+      "Transaction / Order Module",
+      "Candidate Application & Resume Privacy Module",
+      "Messaging Module",
+      "Healthcare / Regulated Services Module",
+      "Content Moderation & Legal Notice Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "MediaAsset",
+      "MediaAssetStatus",
+      "UserMedia",
+      "ProfessionalProfileMedia",
+      "CandidateProfileMedia",
+      "OrganizationMedia",
+      "OfferingMedia",
+      "GigMedia",
+      "JobMedia",
+      "MessageMedia",
+      "MediaUploadContext",
+      "MediaStorageVisibility",
+      "MediaStorageBucketClass",
+      "MediaValidationStatus",
+      "MediaScanStatus",
+      "MediaProcessingStatus",
+      "MediaRejectionReason",
+      "MediaAccessGrantStatus",
+      "MediaAccessEventType",
+      "MediaProcessingActionType",
+      "MediaUploadPolicyStatus",
+      "MediaUploadPolicy",
+      "MediaUploadSession",
+      "MediaValidationResult",
+      "MediaScanResult",
+      "MediaProcessingResult",
+      "MediaAccessGrant",
+      "MediaAccessEvent"
+    ],
+    "schemasReferenced": [
+      "OrderFile",
+      "JobApplicationMedia",
+      "ResumeAccessLog",
+      "Agreement",
+      "ProductDetails",
+      "AccessAuditLog",
+      "Report",
+      "LegalNotice",
+      "ModerationAction",
+      "ModerationCase",
+      "HealthcareDataBoundary",
+      "HealthcareAdminAccessPolicy",
+      "DataErasureTarget",
+      "PrivacyRequest",
+      "CourseVideoAsset",
+      "CourseVideoPlaybackGrant",
+      "ProcessedVideoProviderEvent",
+      "DigitalDownloadAsset",
+      "DigitalDownloadGrant",
+      "DigitalDownloadEvent",
+      "CourseAccessibilityAsset",
+      "Agreement",
+      "AgreementDocumentSnapshot",
+      "AgreementAccessGrant",
+      "User",
+      "ProfessionalProfile",
+      "CandidateProfile",
+      "Organization",
+      "JobApplicationMedia",
+      "ResumeAccessLog",
+      "ProfessionalLicenseCredential",
+      "VerificationCheck",
+      "AgreementDocumentSnapshot",
+      "DigitalDownloadAsset",
+      "CourseAccessibilityAsset",
+      "AccessAuditLog",
+      "ModerationCase",
+      "PrivacyRequest"
+    ],
+    "technologies": [
+      "Cloudflare R2",
+      "Cloudflare Workers",
+      "Presigned URLs",
+      "MIME/type validation",
+      "File size validation",
+      "Virus scanning later",
+      "Cloudflare R2 private source storage",
+      "Presigned upload URLs for raw course media",
+      "Mux ingest source handoff",
+      "Cloudflare R2 private bucket",
+      "AWS SDK S3-compatible presigned URLs",
+      "Private object keys",
+      "Short-lived signed URL generation",
+      "Cloudflare R2 private contract bucket",
+      "@aws-sdk/client-s3",
+      "S3-compatible PutObject/GetObject",
+      "Short-lived signed URL generation",
+      "file-type npm package",
+      "sharp",
+      "Multer only as request parsing helper, not source of trust",
+      "@aws-sdk/client-s3",
+      "Cloudflare R2 private bucket",
+      "Cloudflare R2 public/processed asset bucket or CDN after scrub",
+      "UUIDv4 object key generator",
+      "Optional ClamAV or malware scanning provider",
+      "Server-side presigned URL route"
+    ],
+    "peripheralChecks": [
+      "Private files should not have permanent public URLs",
+      "Signed URLs must be short-lived",
+      "Business modules attach context through join tables",
+      "Moderation can request public URL removal, but Media executes URL/access change",
+      "Privacy erasure must delete storage objects where allowed",
+      "Healthcare files must block admin download URLs where policy requires",
+      "MediaAsset owns raw uploaded file metadata and R2 object location.",
+      "CourseVideoAsset owns streaming provider state after ingest.",
+      "Private raw source videos should not be exposed as permanent public URLs.",
+      "Deleting or erasing raw media may require separate provider deletion or anonymization target.",
+      "Cloudflare R2 stores the file; Digital Goods Access decides whether a buyer gets a grant.",
+      "Presigned URL generation must be server-side only.",
+      "Public direct URLs to paid files are forbidden.",
+      "Download URLs should expire after the grant TTL, defaulting to 24 hours.",
+      "DMCA public URL removal/access disabling is requested by Content Moderation and executed by Media/File Access plus Digital Goods Access.",
+      "Contract PDFs must not be stored in public directories.",
+      "MediaAsset owns file storage metadata; AgreementDocumentSnapshot owns contract hash/version proof.",
+      "Signed contract downloads must go through entitlement checks and access grants.",
+      "Do not delete retention-locked contract media during normal cleanup.",
+      "Never authorize upload based only on original extension or browser content-type.",
+      "Never use original filename as storage key.",
+      "Never save upload binaries to executable app/public directories.",
+      "Images must be scrubbed before public display or cross-user exposure.",
+      "Sensitive files require private bucket storage and signed URL access.",
+      "Default sensitive signed URL TTL should be 15 minutes.",
+      "New uploads should not become ready until validation and processing pass.",
+      "Rejected/infected files should remain quarantined or be deleted according to security policy."
+    ],
+    "overlapWarnings": [
+      "MediaAsset is file truth; join tables describe business context.",
+      "Media / File Access does not own resume, order, offering, or message business meaning.",
+      "Public URL removal is not the same as deleting evidence.",
+      "R2 object storage is not the streaming playback system.",
+      "MediaAsset is not a Mux asset.",
+      "Signed course playback belongs to Video Infrastructure, not generic file access.",
+      "MediaAsset is not buyer entitlement.",
+      "ProductDetails.fileAssetId is not sufficient access control.",
+      "Signed URL generation should not bypass Order and DigitalDownloadGrant checks.",
+      "MediaAsset.checksum is not enough contract proof by itself.",
+      "AgreementAccessGrant is not permanent ownership; it is a retrieval path for entitled parties.",
+      "MediaAsset is file truth; MediaUploadSession is upload attempt proof.",
+      "MediaValidationResult proves file-type validation; it is not moderation approval.",
+      "MediaScanResult is security scan proof; it is not Trust Verification proof.",
+      "Processed public images should be derivatives, not raw originals.",
+      "ResumeAccessLog remains resume-specific access proof; MediaAccessGrant is generic file access proof."
+    ]
+  },
+  {
+    "id": "search_public_visibility",
+    "name": "Search / Public Visibility Module",
+    "moduleType": "capability",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Content freeze / public URL removal",
+      "Fuzzy geolocation / exact location reveal",
+      "GDPR / CCPA privacy rights"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "content_freeze_public_url_removal",
+        "label": "Content freeze / public URL removal",
+        "role": "supporting",
+        "proofSchemas": [
+          "SearchUpsertEvent",
+          "ModerationAction"
+        ]
+      },
+      {
+        "termId": "fuzzy_geolocation_exact_location_reveal",
+        "label": "Fuzzy geolocation / exact location reveal",
+        "role": "supporting",
+        "proofSchemas": [
+          "FuzzyLocationCache",
+          "LocationPrecision"
+        ]
+      },
+      {
+        "termId": "gdpr_ccpa_privacy_rights",
+        "label": "GDPR / CCPA privacy rights",
+        "role": "supporting",
+        "proofSchemas": [
+          "SearchUpsertEvent",
+          "DataErasureJob"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "SearchUpsertEvent queue",
+      "Search entity type vocabulary",
+      "Public discovery projection",
+      "Search privacy filtering",
+      "Public/private visibility filtering",
+      "De-index/re-index workflows",
+      "Search backfill/debug support"
+    ],
+    "doesNotOwn": [
+      "Source-of-truth business data",
+      "Taxonomy definitions",
+      "Moderation decisions",
+      "Compliance decisions",
+      "Verification truth",
+      "Healthcare truth",
+      "Location truth"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Marketplace Supply Module",
+      "Gig / Demand Module",
+      "Organization Hiring Module",
+      "Candidate Application & Resume Privacy Module",
+      "Professional Eligibility Module",
+      "Taxonomy & Classification Module",
+      "Content Moderation & Legal Notice Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "SearchUpsertEvent",
+      "SearchEntityType"
+    ],
+    "schemasReferenced": [
+      "Offering",
+      "Gig",
+      "Job",
+      "Organization",
+      "ProfessionalProfile",
+      "CandidateProfile",
+      "TaxonomyDomain",
+      "TaxonomyCategory",
+      "TaxonomyTag",
+      "ModerationAction",
+      "JobComplianceCheck",
+      "FuzzyLocationCache",
+      "LocationPrecision",
+      "LocationRevealStatus",
+      "PrivacyRequest",
+      "DataErasureJob",
+      "TrustBadge",
+      "VerificationCheck",
+      "JobCompensationDisclosure",
+      "JobComplianceCheck",
+      "CandidateSearchProjection",
+      "TrackEntitlementGrant",
+      "TrackUsageEvent"
+    ],
+    "technologies": [
+      "Typesense",
+      "Index worker",
+      "Search API",
+      "Backfill worker",
+      "Search debug/admin viewer"
+    ],
+    "peripheralChecks": [
+      "Candidate ranking boosts must come from active entitlement grants and trigger SearchUpsertEvent when changed.",
+      "Typesense/search is projection, not source of truth",
+      "Do not index private or compliance-blocked data",
+      "Search visibility must react to moderation, compliance, verification, and erasure changes",
+      "Search documents should use fuzzy location only",
+      "Verified badges may affect ranking, but Search consumes TrustBadge/VerificationCheck",
+      "Public job feed should only index jobs that pass compliance visibility rules.",
+      "Public job feed may index title, organization, fuzzy/public location, and compensation range.",
+      "Do not index private application documents, raw resumes, or raw resume text.",
+      "Candidate search should use CandidateSearchProjection only where user privacy settings and organization access allow it."
+    ],
+    "overlapWarnings": [
+      "SearchUpsertEvent belongs here, not Audit or Observability.",
+      "Search ranking is not source-of-truth eligibility.",
+      "De-indexing content is not the same as deleting the underlying record.",
+      "Typesense is projection, not Job or Candidate truth.",
+      "Search should not become an applicant tracking system."
+    ]
+  },
+  {
+    "id": "review_dispute",
+    "name": "Review / Dispute Module",
+    "moduleType": "domain_compliance_support",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Processor-held funds / payout request"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "processor_held_funds_payout_request",
+        "label": "Processor-held funds / payout request",
+        "role": "supporting",
+        "proofSchemas": [
+          "Dispute",
+          "ComplianceHold",
+          "PayoutTransfer"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Post-order reviews",
+      "Review lifecycle",
+      "Professional reputation feedback",
+      "Dispute case lifecycle",
+      "Dispute resolution outcomes",
+      "Dispute-triggered payout hold request",
+      "Review/dispute notification hooks"
+    ],
+    "doesNotOwn": [
+      "Order payment processing",
+      "Payout execution",
+      "Refund execution internals",
+      "Moderation legal notices",
+      "Platform-wide admin shell",
+      "ComplianceHold source of truth"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Transaction / Order Module",
+      "Payment / Payout / Tax Module",
+      "Professional Eligibility Module",
+      "Search / Public Visibility Module",
+      "Admin Review / Compliance Hold Module",
+      "Notification Module",
+      "Audit / Event Ledger Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "Review",
+      "ReviewStatus",
+      "Dispute",
+      "DisputeStatus"
+    ],
+    "schemasReferenced": [
+      "Order",
+      "ProfessionalProfile",
+      "User",
+      "ComplianceHold",
+      "PayoutTransfer",
+      "RefundStatus",
+      "AuditEvent",
+      "Notification",
+      "Thread"
+    ],
+    "technologies": [
+      "Admin dispute dashboard",
+      "Stripe refund APIs",
+      "Notification system",
+      "Audit logging",
+      "Messaging integration"
+    ],
+    "peripheralChecks": [
+      "Review should stem from completed Order",
+      "Dispute may block payout but should not own payout logic",
+      "Use ComplianceHold to stop payout when needed",
+      "Moderation/legal issues should route to Content Moderation",
+      "RefundStatus belongs to Transaction / Order"
+    ],
+    "overlapWarnings": [
+      "Dispute is not LegalNotice.",
+      "Dispute can trigger holds but does not own holds.",
+      "Review/reputation should not become verification truth."
+    ],
+    "note": "RefundStatus belongs to Transaction / Order because refund state is attached to the transaction; Review / Dispute references it."
+  },
+  {
+    "id": "content_moderation_legal_notice",
+    "name": "Content Moderation & Legal Notice Module",
+    "moduleType": "compliance_ops",
+    "buildStatus": "mvp_active_legal_gated",
+    "complianceMet": [
+      "DMCA takedown / counter-notice",
+      "DSA notice-and-action readiness",
+      "Content freeze / public URL removal",
+      "Digital goods DMCA disable path",
+      "Course piracy report intake",
+      "Digital asset access freeze"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "dmca_takedown_counter_notice",
+        "label": "DMCA takedown / counter-notice",
+        "role": "primary",
+        "proofSchemas": [
+          "LegalNotice",
+          "ModerationCase",
+          "ModerationAction",
+          "Report"
+        ]
+      },
+      {
+        "termId": "dsa_notice_and_action_readiness",
+        "label": "DSA notice-and-action readiness",
+        "role": "primary",
+        "proofSchemas": [
+          "Report",
+          "LegalNotice",
+          "ModerationCase",
+          "ModerationAction"
+        ]
+      },
+      {
+        "termId": "content_freeze_public_url_removal",
+        "label": "Content freeze / public URL removal",
+        "role": "primary",
+        "proofSchemas": [
+          "ModerationAction",
+          "LegalNotice",
+          "MediaAsset",
+          "SearchUpsertEvent"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "User report intake",
+      "Legal notice intake",
+      "DMCA takedown/counter-notice records",
+      "DSA/illegal content report handling",
+      "Moderation case lifecycle",
+      "Moderation action records",
+      "Content freeze/hide/restore decisions",
+      "Public URL removal requests",
+      "Repeat infringer signal",
+      "Legal/admin review workflow"
+    ],
+    "doesNotOwn": [
+      "Generic admin dashboard shell",
+      "Payment lifecycle",
+      "Payout execution",
+      "User identity",
+      "File storage mechanics",
+      "Search engine mechanics",
+      "Offering/course/product lifecycle",
+      "Legal advice"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Search / Public Visibility Module",
+      "Media / File Access Module",
+      "Messaging Module",
+      "Marketplace Supply Module",
+      "Gig / Demand Module",
+      "Organization Hiring Module",
+      "Admin Review / Compliance Hold Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "Report",
+      "ReportReason",
+      "ReportStatus",
+      "ReportSource",
+      "LegalNotice",
+      "LegalNoticeType",
+      "LegalNoticeStatus",
+      "ModerationCase",
+      "ModerationCaseStatus",
+      "ModerationAction",
+      "ModerationActionType",
+      "ModerationTargetType"
+    ],
+    "schemasReferenced": [
+      "User",
+      "Offering",
+      "Gig",
+      "Job",
+      "Message",
+      "Thread",
+      "MediaAsset",
+      "ProfessionalProfile",
+      "Organization",
+      "CourseDetails",
+      "ProductDetails",
+      "AuditEvent",
+      "SearchUpsertEvent",
+      "ComplianceHold",
+      "PayoutTransfer",
+      "DigitalDownloadAsset",
+      "DigitalDownloadGrant",
+      "CourseVideoAsset",
+      "CourseVideoPlaybackGrant",
+      "CourseAccessibilityAsset"
+    ],
+    "technologies": [
+      "Admin moderation UI",
+      "Legal notice intake",
+      "Audit logs",
+      "Cloudflare R2 public URL revocation",
+      "Typesense de-index worker",
+      "Notification system",
+      "Content hiding/reindex triggers",
+      "File access controls"
+    ],
+    "peripheralChecks": [
+      "Do not rely on email inbox-only takedown handling",
+      "Formal LegalNotice is not the same as casual Report",
+      "Freeze and preserve evidence before destructive action",
+      "Public visibility changes must trigger SearchUpsertEvent",
+      "Public URL removal must be executed by Media / File Access",
+      "Payout pauses flow through ComplianceHold",
+      "A valid DMCA/legal notice can disable public Offering visibility, revoke download grants, and disable course playback.",
+      "Do not delete accused content immediately unless the legal/admin workflow explicitly requires it.",
+      "Preserve evidence before destructive action.",
+      "DMCA disables access through ModerationAction; Digital Goods and Video Infrastructure execute the actual access block."
+    ],
+    "overlapWarnings": [
+      "Moderation can request media/search changes but does not own MediaAsset or SearchUpsertEvent.",
+      "Moderation can trigger payout holds but does not own payout logic.",
+      "Do not delete accused content immediately unless legal/admin workflow explicitly requires it.",
+      "LegalNotice is legal workflow truth.",
+      "OfferingStatus.disabled_by_dmca is a public-visibility/access projection.",
+      "DigitalDownloadAsset.disabled_by_dmca is delivery/access state, not legal notice truth."
+    ],
+    "note": "What do we have in order to prevent priacy and double posting of content? Stealing other users digital products, courses, etc and posting them as their own intellectual property. We need to have a way to prevent this and also have a way to take down content that is stolen or pirated. This is a legal and compliance concern."
+  },
+  {
+    "id": "audit_event_ledger",
+    "name": "Audit / Event Ledger Module",
+    "moduleType": "capability_ops_compliance_support",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Append-only sensitive access audit",
+      "Admin PHI redaction / zero-knowledge admin access",
+      "Sensitive security audit",
+      "Financial sensitive access audit",
+      "Tamper-evident contract access audit",
+      "Contract download/view audit"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "append_only_sensitive_access_audit",
+        "label": "Append-only sensitive access audit",
+        "role": "primary",
+        "proofSchemas": [
+          "AccessAuditLog",
+          "AccessAuditAction"
+        ]
+      },
+      {
+        "termId": "admin_phi_redaction_zero_knowledge_admin_access",
+        "label": "Admin PHI redaction / zero-knowledge admin access",
+        "role": "supporting",
+        "proofSchemas": [
+          "AccessAuditLog",
+          "AccessAuditAction"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Generic AuditEvent records",
+      "Sensitive AccessAuditLog records",
+      "Access audit action vocabulary",
+      "Operational proof trails",
+      "Append-only sensitive access evidence",
+      "Cross-module actor/action/time proof",
+      "Admin audit viewer support"
+    ],
+    "doesNotOwn": [
+      "The business decision itself",
+      "OrderEvent lifecycle",
+      "BookingEvent lifecycle",
+      "JobInterviewEvent lifecycle",
+      "Webhook processing execution",
+      "Search indexing execution",
+      "Payment/calendar source-of-truth records"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "All compliance-sensitive modules",
+      "Transaction / Order Module",
+      "Booking & Calendar Module",
+      "Job Interview Module",
+      "Payment / Payout / Tax Module",
+      "Media / File Access Module",
+      "Admin Review / Compliance Hold Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "AuditEvent",
+      "AuditEventType",
+      "AuditEventActor",
+      "AccessAuditLog",
+      "AccessAuditAction"
+    ],
+    "schemasReferenced": [
+      "User",
+      "Order",
+      "Booking",
+      "JobInterview",
+      "MediaAsset",
+      "Thread",
+      "Message",
+      "SearchUpsertEvent",
+      "ProcessedStripeEvent",
+      "ProcessedCalendarEvent",
+      "UserSecurityEvent",
+      "AccessAuditLog",
+      "SensitiveActionSession",
+      "AccountRecoveryRequest",
+      "AgreementEvent",
+      "AgreementDocumentSnapshot",
+      "AgreementAccessGrant",
+      "AccessAuditLog"
+    ],
+    "technologies": [
+      "Structured logger",
+      "Webhook idempotency",
+      "Admin audit viewer",
+      "Sentry or logging platform",
+      "Queue diagnostics"
+    ],
+    "peripheralChecks": [
+      "If it matters legally, financially, or operationally, log it",
+      "Do not use events as source of truth where state belongs on primary objects",
+      "Sensitive access logs should not be editable/deletable by app/admin roles",
+      "Audit payloads must not expose secrets, PHI, card data, or unnecessary sensitive data",
+      "Financial sensitive reads should use AccessAuditLog with DataSensitivity.financial.",
+      "Security workflow events should be written through UserSecurityEvent and optionally mirrored to AuditEvent.",
+      "Do not store OTP payloads, raw biometric data, or raw identity documents in audit metadata.",
+      "AgreementEvent may use previousHash and entryHash for agreement-specific chain proof.",
+      "Agreement view/download/sign actions should create AccessAuditLog where sensitive or legally important.",
+      "Hash verification failures should create both AgreementEvent and AccessAuditLog."
+    ],
+    "overlapWarnings": [
+      "Audit owns generic proof trails, not domain event ledgers.",
+      "SearchUpsertEvent belongs to Search / Public Visibility.",
+      "ProcessedStripeEvent belongs to Payment / Payout / Tax.",
+      "ProcessedCalendarEvent belongs to Booking & Calendar.",
+      "AgreementEvent is the contract lifecycle ledger.",
+      "AccessAuditLog is sensitive access proof.",
+      "Do not dump entire PDF content into audit metadata."
+    ],
+    "desires": "Be able to track ghost accounts to clean house and remove them from the system. This is a privacy and security concern.",
+    "note": "Audit owns generic audit/access logs. Domain event ledgers stay with their parent domain module."
+  },
+  {
+    "id": "admin_review_compliance_hold",
+    "name": "Admin Review / Compliance Hold Module",
+    "moduleType": "ops_compliance",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Processor-held funds / payout request",
+      "Prize tax fulfillment lock",
+      "Verified-only jobs / high-risk service gates"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "processor_held_funds_payout_request",
+        "label": "Processor-held funds / payout request",
+        "role": "supporting",
+        "proofSchemas": [
+          "ComplianceHold",
+          "PayoutRequest",
+          "PayoutTransfer"
+        ]
+      },
+      {
+        "termId": "prize_tax_fulfillment_lock",
+        "label": "Prize tax fulfillment lock",
+        "role": "supporting",
+        "proofSchemas": [
+          "ComplianceHold",
+          "PrizeWinning"
+        ]
+      },
+      {
+        "termId": "verified_only_jobs_high_risk_service_gates",
+        "label": "Verified-only jobs / high-risk service gates",
+        "role": "supporting",
+        "proofSchemas": [
+          "ComplianceHold",
+          "VerificationCheck"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "ComplianceHold records",
+      "Hold reason vocabulary",
+      "Hold status lifecycle",
+      "Manual review queues",
+      "Admin blocks",
+      "Hold release decisions",
+      "Review escalation",
+      "Admin release proof"
+    ],
+    "doesNotOwn": [
+      "Every compliance rule",
+      "KYC provider decision",
+      "Background-check provider decision",
+      "Healthcare compliance decision",
+      "Payment provider execution",
+      "Job text scanner internals",
+      "Moderation case facts"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Payment / Payout / Tax Module",
+      "Professional Eligibility Module",
+      "Job Compliance Module",
+      "Content Moderation & Legal Notice Module",
+      "Review / Dispute Module",
+      "Healthcare / Regulated Services Module",
+      "Sweepstakes / Prize Module",
+      "Candidate Application & Resume Privacy Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "ComplianceHold",
+      "ComplianceHoldReason",
+      "ComplianceHoldStatus"
+    ],
+    "schemasReferenced": [
+      "User",
+      "ProfessionalProfile",
+      "Order",
+      "PayoutRequest",
+      "PayoutTransfer",
+      "PayoutAccount",
+      "ModerationCase",
+      "JobComplianceCheck",
+      "PrizeWinning",
+      "RewardRedemption",
+      "HealthcareComplianceProfile",
+      "KycVerification",
+      "TaxProfile",
+      "VerificationCheck",
+      "AuditEvent"
+    ],
+    "technologies": [
+      "Admin UI",
+      "Service-role server actions",
+      "Audit logs",
+      "Notification system",
+      "Review queue dashboard"
+    ],
+    "peripheralChecks": [
+      "ComplianceHold is the reusable stop sign; do not create one-off block systems",
+      "Every hold release should record actor, reason, and time",
+      "Check whether hold targets User, ProfessionalProfile, Order, payout, content, prize, reward, or verification",
+      "Feature modules may request holds but should not invent local hold models"
+    ],
+    "overlapWarnings": [
+      "Admin Review owns the stop sign, not the underlying compliance fact.",
+      "Do not duplicate hold fields across PayoutTransfer, PrizeWinning, Offering, or ProfessionalProfile without linking to ComplianceHold.",
+      "Hold release is not the same as compliance approval."
+    ]
+  },
+  {
+    "id": "sweepstakes_prize",
+    "name": "Sweepstakes / Prize Module",
+    "moduleType": "compliance_feature_ecosystem",
+    "buildStatus": "mvp_active_legal_gated",
+    "complianceMet": [
+      "Sweepstakes / AMOE / no purchase necessary",
+      "Prize tax fulfillment lock",
+      "No pay-to-win / no paid prize odds boost"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "sweepstakes_amoe_no_purchase_necessary",
+        "label": "Sweepstakes / AMOE / no purchase necessary",
+        "role": "primary",
+        "proofSchemas": [
+          "PrizeDrawing",
+          "SweepstakesEntryMethod",
+          "PrizeEntry",
+          "PrizeWinning"
+        ]
+      },
+      {
+        "termId": "prize_tax_fulfillment_lock",
+        "label": "Prize tax fulfillment lock",
+        "role": "primary",
+        "proofSchemas": [
+          "PrizeWinning",
+          "PrizeTaxYearSummary",
+          "TaxProfile",
+          "ComplianceHold"
+        ]
+      },
+      {
+        "termId": "no_pay_to_win_no_paid_prize_odds_boost",
+        "label": "No pay-to-win / no paid prize odds boost",
+        "role": "primary",
+        "proofSchemas": [
+          "PrizeEntry",
+          "SweepstakesEntryMethod",
+          "PointLedgerEntry"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Prize drawing lifecycle",
+      "Sweepstakes entry methods",
+      "Prize entry creation",
+      "AMOE/free-entry support",
+      "Entry source tracking",
+      "Prize winning records",
+      "Prize fair-market-value tracking",
+      "Prize fulfillment status",
+      "Prize tax gate coordination"
+    ],
+    "doesNotOwn": [
+      "Payment processing",
+      "Order lifecycle",
+      "Tax profile verification",
+      "Notification delivery",
+      "Gamification point rules",
+      "Legal drafting of official rules"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Transaction / Order Module",
+      "Consent & Disclosure Module",
+      "Payment / Payout / Tax Module",
+      "Notification Module",
+      "Admin Review / Compliance Hold Module",
+      "Audit / Event Ledger Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "PrizeDrawing",
+      "PrizeDrawingStatus",
+      "PrizeEntry",
+      "PrizeEntrySource",
+      "PrizeWinning",
+      "PrizeWinningStatus",
+      "PrizeTaxYearSummary",
+      "SweepstakesEntryMethod",
+      "SweepstakesEntryMethodType",
+      "SweepstakesEntryMethodStatus"
+    ],
+    "schemasReferenced": [
+      "User",
+      "Order",
+      "ConsentLog",
+      "TaxProfile",
+      "ComplianceHold",
+      "Notification",
+      "AuditEvent",
+      "RewardRedemption",
+      "GamificationProgram",
+      "PointLedgerEntry"
+    ],
+    "technologies": [
+      "Backend drawing worker",
+      "Random selection utility",
+      "Stripe webhook if purchase creates entry",
+      "Notification provider",
+      "Admin fulfillment UI",
+      "Tax provider if threshold requires",
+      "Tax review workflow"
+    ],
+    "peripheralChecks": [
+      "Do not make purchase the only entry path",
+      "Do not give paid entries better odds unless legally reviewed",
+      "If points create chance-based entries, AMOE still applies",
+      "Winner notification does not equal prize fulfillment",
+      "Tax-blocked prizes must not be fulfilled"
+    ],
+    "overlapWarnings": [
+      "PrizeEntry is not PointLedgerEntry.",
+      "PrizeWinning is not RewardRedemption.",
+      "Sweepstakes chance/prize logic must stay separate from gamification reward redemption.",
+      "Payment/tax module owns tax proof; Sweepstakes owns prize lifecycle."
+    ]
+  },
+  {
+    "id": "gamification_rewards",
+    "name": "Gamification / Rewards Module",
+    "moduleType": "feature_compliance",
+    "buildStatus": "mvp_active_legal_gated",
+    "complianceMet": [
+      "Gamification reward disclosure",
+      "No pay-to-win / no paid prize odds boost",
+      "Tax reporting / 1099 readiness"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "gamification_reward_disclosure",
+        "label": "Gamification reward disclosure",
+        "role": "primary",
+        "proofSchemas": [
+          "GamificationProgram",
+          "PointLedgerEntry",
+          "Reward",
+          "RewardRedemption",
+          "ConsentLog"
+        ]
+      },
+      {
+        "termId": "no_pay_to_win_no_paid_prize_odds_boost",
+        "label": "No pay-to-win / no paid prize odds boost",
+        "role": "primary",
+        "proofSchemas": [
+          "PointLedgerEntry",
+          "RewardRedemption",
+          "PrizeEntry",
+          "SweepstakesEntryMethod"
+        ]
+      },
+      {
+        "termId": "tax_reporting_1099_readiness",
+        "label": "Tax reporting / 1099 readiness",
+        "role": "supporting",
+        "proofSchemas": [
+          "RewardRedemption",
+          "TaxYearEarningsSummary"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Gamification program lifecycle",
+      "Point earning rules",
+      "Point spending rules",
+      "Point ledger",
+      "Challenge lifecycle",
+      "Leaderboard entries",
+      "Reward catalog",
+      "Reward redemption lifecycle",
+      "Reward fraud/audit flags",
+      "Reward disclosure coordination"
+    ],
+    "doesNotOwn": [
+      "Prize drawings",
+      "AMOE/free sweepstakes entry",
+      "Payment processing",
+      "Tax profile verification",
+      "1099 filing execution",
+      "Payout execution"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Sweepstakes / Prize Module",
+      "Payment / Payout / Tax Module",
+      "Professional Eligibility Module",
+      "Admin Review / Compliance Hold Module",
+      "Notification Module",
+      "Audit / Event Ledger Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "GamificationProgram",
+      "GamificationProgramStatus",
+      "GamificationRule",
+      "GamificationRuleTrigger",
+      "PointLedgerEntry",
+      "PointLedgerEntryType",
+      "PointLedgerEntrySource",
+      "Challenge",
+      "ChallengeStatus",
+      "ChallengeParticipant",
+      "Leaderboard",
+      "LeaderboardEntry",
+      "Reward",
+      "RewardType",
+      "RewardStatus",
+      "RewardRedemption",
+      "RewardRedemptionStatus"
+    ],
+    "schemasReferenced": [
+      "User",
+      "ProfessionalProfile",
+      "Order",
+      "Review",
+      "ConsentLog",
+      "TaxProfile",
+      "TaxYearEarningsSummary",
+      "PrizeTaxYearSummary",
+      "ComplianceHold",
+      "AuditEvent",
+      "Notification"
+    ],
+    "technologies": [
+      "Backend points worker",
+      "Rules engine",
+      "Fraud detection worker",
+      "Admin rewards dashboard",
+      "Tax provider/admin tax review workflow",
+      "Disclosure/consent versioning",
+      "Reward Logging Intake Form"
+    ],
+    "peripheralChecks": [
+      "Do not allow users to buy points",
+      "Do not use mutable point balance as source of truth",
+      "Every point earn/spend/reversal must be ledgered",
+      "Reward terms must be versioned through ConsentLog",
+      "Tax-reportable rewards must flow to Payment / Payout / Tax",
+      "Points must not become a paid-only chance-drawing entry mechanism"
+    ],
+    "overlapWarnings": [
+      "RewardRedemption is not PrizeWinning.",
+      "PointLedgerEntry is not PrizeEntry.",
+      "Gamification can feed Sweepstakes only if AMOE/no-purchase rules remain intact.",
+      "Do not hardcode 1099-NEC for every reward."
+    ]
+  },
+  {
+    "id": "healthcare_regulated_services",
+    "name": "Healthcare / Regulated Services Module",
+    "moduleType": "compliance",
+    "buildStatus": "mvp_active_legal_gated",
+    "complianceMet": [
+      "HIPAA / HITECH healthcare lane",
+      "Admin PHI redaction / zero-knowledge admin access"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "hipaa_hitech_healthcare_lane",
+        "label": "HIPAA / HITECH healthcare lane",
+        "role": "primary",
+        "proofSchemas": [
+          "HealthcareComplianceProfile",
+          "BaaAgreement",
+          "HealthcareDataBoundary",
+          "HealthcareAdminAccessPolicy",
+          "AccessAuditLog"
+        ]
+      },
+      {
+        "termId": "admin_phi_redaction_zero_knowledge_admin_access",
+        "label": "Admin PHI redaction / zero-knowledge admin access",
+        "role": "primary",
+        "proofSchemas": [
+          "HealthcareAdminAccessPolicy",
+          "HealthcareDataBoundary",
+          "AccessAuditLog"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Healthcare-sensitive lane eligibility",
+      "Healthcare compliance profile lifecycle",
+      "BAA agreement proof",
+      "Healthcare data boundaries",
+      "Healthcare-sensitive target marking",
+      "Admin healthcare access policy",
+      "Healthcare redaction/block decisions",
+      "Healthcare vendor readiness coordination",
+      "Healthcare lane public activation gate"
+    ],
+    "doesNotOwn": [
+      "General User identity",
+      "General file storage",
+      "General messaging",
+      "General video room mechanics",
+      "Taxonomy itself",
+      "Professional license verification",
+      "General audit log storage",
+      "Legal drafting of BAAs"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Professional Eligibility Module",
+      "Marketplace Supply Module",
+      "Transaction / Order Module",
+      "Booking & Calendar Module",
+      "Video Session Module",
+      "Media / File Access Module",
+      "Messaging Module",
+      "Search / Public Visibility Module",
+      "Audit / Event Ledger Module",
+      "Admin Review / Compliance Hold Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "HealthcareComplianceProfile",
+      "HealthcareComplianceStatus",
+      "HealthcareDataBoundary",
+      "HealthcareDataBoundaryTargetType",
+      "HealthcareAdminAccessPolicy",
+      "HealthcareAdminAccessMode",
+      "HealthcareAccessDecision",
+      "BaaAgreement",
+      "BaaAgreementStatus"
+    ],
+    "schemasReferenced": [
+      "User",
+      "ProfessionalProfile",
+      "Offering",
+      "TaxonomyCategory",
+      "Order",
+      "Booking",
+      "Thread",
+      "Message",
+      "MediaAsset",
+      "BookingVideoRoom",
+      "JobInterviewVideoRoom",
+      "ConsentLog",
+      "DataSensitivity",
+      "AccessAuditLog",
+      "AccessAuditAction",
+      "AuditEvent",
+      "CourseVideoAsset",
+      "CourseVideoPlaybackGrant",
+      "BookingVideoRoom",
+      "JobInterviewVideoRoom",
+      "ProcessedVideoProviderEvent"
+    ],
+    "technologies": [
+      "BAA/e-sign provider webhook",
+      "API middleware redaction layer",
+      "Cloudflare R2 private storage",
+      "Daily.co healthcare/BAA-capable configuration if used",
+      "AWS CloudWatch Logs or append-only Postgres audit table",
+      "Postgres REVOKE UPDATE/DELETE on audit table",
+      "Server-side access policy engine",
+      "Agora HIPAA/BAA-capable configuration if used for healthcare live video",
+      "Mux/vendor legal review for healthcare-sensitive on-demand video before activation"
+    ],
+    "peripheralChecks": [
+      "Do not put all users through HIPAA infrastructure",
+      "Do not use User.is_healthcare_provider as sole truth",
+      "Trigger healthcare lane from taxonomy/offering/professional context",
+      "Admin views must redact or block healthcare payloads",
+      "Every healthcare file/message/video access must create audit proof",
+      "Healthcare-sensitive offerings cannot go live until BAA/vendor/legal gates are ready",
+      "Healthcare-sensitive live video must use a provider path approved for healthcare/BAA requirements.",
+      "Healthcare-sensitive course video playback must create AccessAuditLog proof where required.",
+      "Do not assume every course video is healthcare-sensitive; trigger from taxonomy/offering/professional context.",
+      "Do not let Video Infrastructure decide healthcare eligibility."
+    ],
+    "overlapWarnings": [
+      "Healthcare owns healthcare-specific readiness and boundaries; Audit owns AccessAuditLog.",
+      "HealthcareComplianceProfile is not ProfessionalLicenseCredential.",
+      "BAA proof is not the same as background/license verification.",
+      "Healthcare policy should not be scattered across Messaging, Media, or Video.",
+      "BAA proof is not the same as video provider token access.",
+      "HealthcareDataBoundary marks sensitivity; Video Infrastructure enforces access mechanics."
+    ],
+    "note": "Healthcare owns healthcare-specific boundaries and policies. Shared sensitivity/audit primitives belong elsewhere."
+  },
+  {
+    "id": "location_safety",
+    "name": "Location Safety Module",
+    "moduleType": "compliance",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Fuzzy geolocation / exact location reveal"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "fuzzy_geolocation_exact_location_reveal",
+        "label": "Fuzzy geolocation / exact location reveal",
+        "role": "primary",
+        "proofSchemas": [
+          "FuzzyLocationCache",
+          "LocationReveal",
+          "LocationPrecision",
+          "LocationRevealStatus"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Location precision rules",
+      "Fuzzy public location projection",
+      "Exact/private location storage rules",
+      "Exact location reveal gates",
+      "Location reveal status",
+      "Location reveal records",
+      "Safety-sensitive location access proof",
+      "Map/search coordinate privacy"
+    ],
+    "doesNotOwn": [
+      "General profile content",
+      "Booking lifecycle",
+      "Order lifecycle",
+      "Search engine mechanics",
+      "Map provider mechanics",
+      "Address collection UI ownership"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Search / Public Visibility Module",
+      "Booking & Calendar Module",
+      "Transaction / Order Module",
+      "Marketplace Supply Module",
+      "Gig / Demand Module",
+      "Organization Hiring Module",
+      "Media / File Access Module",
+      "Audit / Event Ledger Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "LocationPrecision",
+      "LocationRevealStatus",
+      "LocationReveal",
+      "FuzzyLocationCache"
+    ],
+    "schemasReferenced": [
+      "User",
+      "ProfessionalProfile",
+      "CandidateProfile",
+      "Organization",
+      "Offering",
+      "Gig",
+      "Job",
+      "Booking",
+      "Order",
+      "SearchUpsertEvent",
+      "AuditEvent",
+      "AccessAuditLog"
+    ],
+    "technologies": [
+      "Geocoding provider later",
+      "Location fuzzing utility",
+      "Server-side reveal gate",
+      "Map display integration",
+      "Audit logging"
+    ],
+    "peripheralChecks": [
+      "Public search must not expose exact private locations by default",
+      "Exact location reveal must require a valid gate",
+      "Reveal events should be logged when safety-sensitive",
+      "Do not let map provider become source of truth for private coordinates",
+      "Use fuzzy coordinates for search/map projections"
+    ],
+    "overlapWarnings": [
+      "Location Safety owns precision/reveal policy; Search consumes fuzzy projections.",
+      "Booking may trigger exact reveal but does not own location safety policy.",
+      "LocationReveal is not AuditEvent, though reveal should be auditable."
+    ]
+  },
+  {
+    "id": "ai_taxonomy",
+    "name": "AI Taxonomy Module",
+    "moduleType": "capability",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Verified-only jobs / high-risk service gates"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "verified_only_jobs_high_risk_service_gates",
+        "label": "Verified-only jobs / high-risk service gates",
+        "role": "supporting",
+        "proofSchemas": [
+          "AiSuggestion",
+          "TaxonomyTag",
+          "VerificationRequirement"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "AI classification suggestions",
+      "AI tag/category suggestions",
+      "Skill extraction suggestions",
+      "Prompt/version logging",
+      "AI output validation",
+      "Suggestion confidence/metadata",
+      "Backfill suggestion workflows"
+    ],
+    "doesNotOwn": [
+      "Official taxonomy truth",
+      "Final admin/user acceptance",
+      "Search index execution",
+      "Automated employment decisions",
+      "Sensitive data policy"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Taxonomy & Classification Module",
+      "Marketplace Supply Module",
+      "Organization Hiring Module",
+      "Candidate Application & Resume Privacy Module",
+      "Search / Public Visibility Module",
+      "Admin Review / Compliance Hold Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "AiClassificationLog",
+      "AiSuggestion"
+    ],
+    "schemasReferenced": [
+      "TaxonomyDomain",
+      "TaxonomyCategory",
+      "TaxonomyTag",
+      "TagSource",
+      "Offering",
+      "Job",
+      "ProfessionalProfile",
+      "CandidateProfile",
+      "Organization",
+      "SearchUpsertEvent"
+    ],
+    "technologies": [
+      "AWS Bedrock",
+      "Prompt templates",
+      "JSON schema validation",
+      "Zod",
+      "Admin review UI",
+      "Worker/backfill process"
+    ],
+    "peripheralChecks": [
+      "AI suggests; Taxonomy owns final truth",
+      "Do not send sensitive/private candidate data unless necessary and allowed",
+      "Accepted suggestions should trigger SearchUpsertEvent",
+      "AI output must be validated before becoming taxonomy or search truth"
+    ],
+    "overlapWarnings": [
+      "AI Taxonomy is not Taxonomy & Classification.",
+      "AI suggestions are not accepted platform truth.",
+      "Do not use AI for automated hiring decisions without separate legal review."
+    ],
+    "note": "AI suggests. Taxonomy & Classification owns final accepted classification truth."
+  },
+  {
+    "id": "observability_ops",
+    "name": "Observability / Ops Module",
+    "moduleType": "ops_capability",
+    "buildStatus": "mvp_active",
+    "complianceMet": [
+      "Append-only sensitive access audit"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "append_only_sensitive_access_audit",
+        "label": "Append-only sensitive access audit",
+        "role": "supporting",
+        "proofSchemas": [
+          "AccessAuditLog",
+          "SystemEvent"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "SystemEvent records",
+      "Integration failure visibility",
+      "Queue job visibility",
+      "Ops incident tracking",
+      "Webhook failure visibility",
+      "Indexing lag visibility",
+      "Upload failure visibility",
+      "Calendar/payment failure visibility",
+      "Launch diagnostics"
+    ],
+    "doesNotOwn": [
+      "Business workflows themselves",
+      "User-facing product logic",
+      "Compliance decisions",
+      "Payment execution",
+      "Search execution",
+      "Audit proof source of truth"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "All modules"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "SystemEvent",
+      "IntegrationFailure",
+      "QueueJob",
+      "OpsIncident"
+    ],
+    "schemasReferenced": [
+      "AuditEvent",
+      "SearchUpsertEvent",
+      "ProcessedStripeEvent",
+      "ProcessedCalendarEvent",
+      "NotificationDelivery",
+      "All integration and workflow tables"
+    ],
+    "technologies": [
+      "Sentry",
+      "Structured logging",
+      "Queue dashboard",
+      "Health routes",
+      "Metrics",
+      "Request IDs",
+      "Admin ops dashboard"
+    ],
+    "peripheralChecks": [
+      "Failures should be visible before launch",
+      "Logs must not expose secrets, card data, PHI, SSNs, or sensitive candidate data",
+      "Every external integration should have observable failure states",
+      "Observability should reference source records, not replace them"
+    ],
+    "overlapWarnings": [
+      "Observability owns operational visibility, not legal/audit source-of-truth.",
+      "ProcessedStripeEvent remains Payment-owned.",
+      "ProcessedCalendarEvent remains Booking-owned.",
+      "SearchUpsertEvent remains Search-owned."
+    ],
+    "note": "Observability owns operational visibility, not business source-of-truth records."
+  },
+  {
+    "id": "digital_goods_access",
+    "name": "Digital Goods Access Module",
+    "moduleType": "domain_capability_compliance_hybrid",
+    "buildStatus": "mvp_active_legal_gated",
+    "complianceMet": [
+      "Paid digital download access",
+      "Signed / expiring downloadable file access",
+      "Digital goods license and refund disclosure",
+      "Digital goods file download audit",
+      "Child-directed product control support",
+      "Digital course accessibility support"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "paid_digital_download_access",
+        "label": "Paid digital download access",
+        "role": "primary",
+        "proofSchemas": [
+          "DigitalDownloadAsset",
+          "DigitalDownloadGrant",
+          "DigitalDownloadEvent",
+          "Order"
+        ]
+      },
+      {
+        "termId": "signed_expiring_downloadable_file_access",
+        "label": "Signed / expiring downloadable file access",
+        "role": "primary",
+        "proofSchemas": [
+          "DigitalDownloadGrant",
+          "DigitalDownloadEvent"
+        ]
+      },
+      {
+        "termId": "digital_goods_license_refund_disclosure",
+        "label": "Digital goods license and refund disclosure",
+        "role": "primary",
+        "proofSchemas": [
+          "DigitalGoodsPolicy",
+          "DigitalGoodsTermsAcceptance",
+          "ConsentLog"
+        ]
+      },
+      {
+        "termId": "child_directed_product_controls",
+        "label": "Child-directed product controls",
+        "role": "supporting",
+        "proofSchemas": [
+          "ChildDirectedContentDeclaration",
+          "MinorPrivacyControl"
+        ]
+      },
+      {
+        "termId": "digital_course_accessibility_support",
+        "label": "Digital course accessibility support",
+        "role": "supporting",
+        "proofSchemas": [
+          "CourseAccessibilityAsset"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Digital downloadable asset access lifecycle",
+      "Paid download grant lifecycle",
+      "Download URL generation proof",
+      "Download event logging",
+      "Digital product license policy attachment",
+      "Digital checkout disclosure acceptance proof",
+      "Digital product refund policy attachment",
+      "Child-directed product declaration record",
+      "Digital product privacy-control projection",
+      "Course caption/transcript/accessibility asset tracking"
+    ],
+    "doesNotOwn": [
+      "Offering lifecycle",
+      "Raw file storage mechanics",
+      "Video streaming provider lifecycle",
+      "Order payment truth",
+      "Stripe/Avalara tax calculation truth",
+      "DMCA/legal notice decision",
+      "General platform age gate",
+      "General UI accessibility"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Marketplace Supply Module",
+      "Transaction / Order Module",
+      "Media / File Access Module",
+      "Video Infrastructure Module",
+      "Payment / Payout / Tax Module",
+      "Consent & Disclosure Module",
+      "Content Moderation & Legal Notice Module",
+      "Privacy / Data Erasure Module",
+      "Search / Public Visibility Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "DigitalGoodsPolicy",
+      "DigitalGoodsLicenseType",
+      "DigitalGoodsRefundPolicyType",
+      "DigitalGoodsTermsAcceptance",
+      "DigitalDownloadAsset",
+      "DigitalDownloadAssetStatus",
+      "DigitalStorageProvider",
+      "DigitalDownloadGrant",
+      "DigitalDownloadGrantStatus",
+      "DigitalDownloadEvent",
+      "DigitalDownloadEventType",
+      "ChildDirectedContentDeclaration",
+      "ChildDirectedDeclarationStatus",
+      "MinorPrivacyControl",
+      "CourseAccessibilityAsset",
+      "AccessibilityAssetType",
+      "AccessibilityAssetStatus",
+      "ConsentType.electronic_records_consent",
+      "ConsentType.electronic_signature_consent",
+      "ConsentType.agreement_execution_consent",
+      "ConsentType.manual_signature_opt_out"
+    ],
+    "schemasReferenced": [
+      "Offering",
+      "ProductDetails",
+      "CourseDetails",
+      "CourseVideoAsset",
+      "MediaAsset",
+      "Order",
+      "PricingTier",
+      "User",
+      "ConsentLog",
+      "Report",
+      "LegalNotice",
+      "ModerationCase",
+      "ModerationAction",
+      "AccessAuditLog",
+      "AgreementElectronicConsent",
+      "AgreementSignature",
+      "Agreement"
+    ],
+    "technologies": [
+      "Cloudflare R2 private buckets",
+      "AWS SDK S3-compatible presigned URLs",
+      "Mux signed playback through Video Infrastructure",
+      "Stripe Checkout / Stripe Tax",
+      "Avalara optional",
+      "Server-side entitlement checks",
+      "Short-lived signed URL generator"
+    ],
+    "peripheralChecks": [
+      "Do not expose permanent public URLs for paid downloads.",
+      "Do not generate download grants until Order payment truth is paid/completed as required.",
+      "Do not treat ProductDetails.fileAssetId as enough access control.",
+      "Download grants must expire, defaulting to 24 hours.",
+      "Streaming course playback token TTL should default to 60 minutes.",
+      "If child-directed content is declared, public comments, targeted ads, and tracking cookies must be disabled or blocked for that product surface.",
+      "Accessibility files should be tracked separately from raw course videos.",
+      "DMCA disables access through moderation/legal workflow; Digital Goods executes access blocking.",
+      "Electronic signature consent should be versioned and separately provable.",
+      "ConsentLog proves disclosure acceptance; AgreementElectronicConsent ties that proof to a specific Agreement.",
+      "Manual opt-out must be recorded without blocking the user from the transaction path entirely."
+    ],
+    "overlapWarnings": [
+      "Digital Goods Access owns buyer access grants, not Offering truth.",
+      "Media / File Access owns file mechanics; Digital Goods owns paid digital entitlement and expiring download grants.",
+      "Video Infrastructure owns Mux streaming state; Digital Goods owns product/course purchase terms and access policy.",
+      "Payment / Payout / Tax owns tax calculation records, not digital product file access.",
+      "Content Moderation owns DMCA/legal decisions; Digital Goods applies access disablement.",
+      "Consent & Disclosure does not own the Agreement lifecycle.",
+      "AgreementElectronicConsent is the order-specific bridge between ConsentLog and Agreement."
+    ]
+  },
+  {
+    "id": "customer_buyer_profile",
+    "name": "Customer / Buyer Profile Module",
+    "moduleType": "domain_actor_profile",
+    "buildStatus": "mvp_active",
+    "purpose": "Create and maintain the default buyer / customer identity that branches from a User account and participates in marketplace commerce without polluting the base User model.",
+    "goal": "Ensure every signed-up User can operate as a CustomerProfile by default, while keeping buyer behavior, customer perks, gig posting, order participation, and customer-track entitlement consumption separate from authentication identity.",
+    "fulfillment": "Transforms a base User account into a usable customer-side marketplace actor that can browse, buy, post Gigs, schedule services, receive digital goods, and consume buyer-track perks.",
+    "complianceMet": [
+      "Customer-track identity separation",
+      "Buyer-side transaction-fee waiver eligibility",
+      "Priority scheduling entitlement consumption",
+      "Customer marketplace access boundary",
+      "Privacy / data erasure customer profile targeting",
+      "Location safety support for buyer-side service interactions",
+      "Subscription terms and recurring billing disclosure support"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "customer_track_identity_separation",
+        "label": "Customer-track identity separation",
+        "role": "primary",
+        "proofSchemas": [
+          "CustomerProfile",
+          "User"
+        ]
+      },
+      {
+        "termId": "buyer_side_transaction_fee_waiver",
+        "label": "Buyer-side transaction-fee waiver eligibility",
+        "role": "supporting",
+        "proofSchemas": [
+          "CustomerProfile",
+          "TrackEntitlementGrant",
+          "Order"
+        ]
+      },
+      {
+        "termId": "priority_scheduling_entitlement",
+        "label": "Priority scheduling entitlement consumption",
+        "role": "supporting",
+        "proofSchemas": [
+          "CustomerProfile",
+          "TrackEntitlementGrant",
+          "BookingHold",
+          "BookingSlotLock",
+          "Booking"
+        ]
+      },
+      {
+        "termId": "privacy_data_erasure_customer_profile_targeting",
+        "label": "Privacy / data erasure customer profile targeting",
+        "role": "supporting",
+        "proofSchemas": [
+          "CustomerProfile",
+          "PrivacyRequest",
+          "DataErasureTarget"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "CustomerProfile lifecycle",
+      "Default buyer profile creation after User signup",
+      "Customer profile status",
+      "Customer public/private buyer display identity",
+      "Buyer/customer account lane separation",
+      "Customer-side marketplace identity",
+      "Customer-owned Gig posting identity",
+      "Customer-side Order participant identity",
+      "Customer-side Booking participant identity",
+      "Customer-track entitlement consumption context",
+      "Customer-facing commerce history projection",
+      "Customer profile archive state"
+    ],
+    "doesNotOwn": [
+      "User authentication",
+      "Password/session/passkey/MFA state",
+      "Track plan definitions",
+      "Track subscription state",
+      "Entitlement grant truth",
+      "Payment provider truth",
+      "Order lifecycle truth",
+      "Gig lifecycle truth",
+      "Booking lifecycle truth",
+      "Digital download grant lifecycle",
+      "Course video playback grant lifecycle",
+      "Location reveal policy",
+      "Privacy request lifecycle",
+      "Search indexing execution",
+      "Notification delivery",
+      "Professional selling eligibility",
+      "Candidate application lifecycle",
+      "Organization hiring lifecycle"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Track Subscription & Entitlement Module",
+      "Gig / Demand Module",
+      "Transaction / Order Module",
+      "Booking & Calendar Module",
+      "Digital Goods Access Module",
+      "Video Infrastructure Module",
+      "Media / File Access Module",
+      "Messaging Module",
+      "Notification Module",
+      "Search / Public Visibility Module",
+      "Privacy / Data Erasure Module",
+      "Location Safety Module",
+      "Review / Dispute Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "CustomerProfile",
+      "ProfileStatus"
+    ],
+    "schemasReferenced": [
+      "User",
+      "Gig",
+      "GigAssignment",
+      "Order",
+      "Booking",
+      "BookingHold",
+      "BookingSlotLock",
+      "DigitalDownloadGrant",
+      "CourseVideoPlaybackGrant",
+      "TrackPlan",
+      "TrackSubscription",
+      "TrackEntitlementGrant",
+      "TrackUsageEvent",
+      "TrackUsageCounter",
+      "PrivacyRequest",
+      "DataErasureTarget",
+      "LocationReveal",
+      "FuzzyLocationCache",
+      "Thread",
+      "Message",
+      "Notification",
+      "MediaAsset",
+      "Review",
+      "Dispute",
+      "AccessAuditLog",
+      "SearchUpsertEvent"
+    ],
+    "technologies": [
+      "Supabase Auth consumed through User",
+      "Postgres / Prisma one-to-one profile relation",
+      "Server-side profile auto-provisioning after signup",
+      "Stripe Checkout consumed through Transaction / Order",
+      "Stripe Billing consumed through Track Subscription & Entitlement",
+      "Cronofy priority scheduling consumption through Booking & Calendar",
+      "Typesense customer-safe public projection if needed",
+      "Cloudflare R2 consumed through Media / File Access",
+      "Server-side entitlement lookup middleware"
+    ],
+    "peripheralChecks": [
+      "Create CustomerProfile automatically for every eligible User after account creation.",
+      "Do not require onboarding for CustomerProfile unless future compliance requires it.",
+      "Do not let User remain the source-of-truth buyer actor for new Orders.",
+      "Do not let User remain the source-of-truth Gig poster for new Gigs.",
+      "Keep buyerUserId or actorUserId on transactional records only for authentication/audit traceability.",
+      "CustomerProfile should become the commercial buyer identity for Orders, Gigs, BookingHolds, Bookings, and BookingSlotLocks.",
+      "CustomerProfile consumes buyer-track entitlements but does not own entitlement truth.",
+      "Hive Club fee waiver must be snapshotted on the Order, not recalculated later from the current subscription.",
+      "Priority scheduling must be consumed by Booking & Calendar, not implemented as a CustomerProfile boolean.",
+      "Do not store isHiveClub or isPremiumCustomer on CustomerProfile.",
+      "CustomerProfile deletion/erasure must route through Privacy / Data Erasure.",
+      "CustomerProfile should not own payment method or card data.",
+      "CustomerProfile is not the same as a Stripe Customer.",
+      "CustomerProfile should not be used for seller, candidate, or organization authority.",
+      "CustomerProfile may have profile/display metadata, but User remains login/account identity."
+    ],
+    "overlapWarnings": [
+      "CustomerProfile is buyer identity; User is account identity.",
+      "CustomerProfile is not CandidateProfile.",
+      "CustomerProfile is not ProfessionalProfile.",
+      "CustomerProfile is not Organization.",
+      "CustomerProfile is not Stripe Customer.",
+      "CustomerProfile owns the buyer actor lane, not payment processing.",
+      "CustomerProfile owns buyer identity, not Order lifecycle.",
+      "CustomerProfile owns customer-side context, not Gig lifecycle rules.",
+      "CustomerProfile consumes Track Entitlements; Track Subscription & Entitlement owns plans, subscriptions, grants, usage counters, and provider references.",
+      "Do not duplicate buyer fee waiver, commission, or application limit logic inside CustomerProfile.",
+      "Do not make CustomerProfile a dumping ground for marketplace history; Orders, Gigs, Bookings, Reviews, and Disputes remain owned by their modules."
+    ],
+    "simpleInterface": "Create or resolve the CustomerProfile for a User, then use that profile as the buyer-side actor for marketplace demand, purchasing, booking, and customer-track entitlement consumption.",
+    "clusterPlacement": {
+      "primaryCluster": "Actor, Access & Consent Cluster",
+      "secondaryBridgeClusters": [
+        "Demand, Order & Commercial Transaction Cluster",
+        "Scheduling, Communication & Live Interaction Cluster",
+        "Content, Media & Digital Access Cluster"
+      ]
+    }
+  },
+  {
+    "id": "track_subscription_entitlement",
+    "name": "Track Subscription & Entitlement Module",
+    "moduleType": "commercial_policy_capability",
+    "buildStatus": "mvp_active",
+    "purpose": "Own the pricing-track, subscription, entitlement, usage-limit, perk, commission, and feature-access policy layer for Customer, Candidate, and Professional tracks without polluting User, CustomerProfile, CandidateProfile, or ProfessionalProfile.",
+    "goal": "Allow one User account to hold independent plan states across multiple role tracks while every consuming module can ask a single entitlement layer whether a track actor has access to a feature, perk, limit, boost, waiver, or commission rate.",
+    "fulfillment": "Transforms plan configuration and provider subscription state into active, auditable entitlements that Candidate, Customer, and Professional workflows can consume safely.",
+    "complianceMet": [
+      "Subscription terms disclosure support",
+      "Recurring billing authorization support",
+      "Plan change terms support",
+      "Commission terms support",
+      "Buyer-side transaction-fee waiver proof",
+      "Priority scheduling entitlement proof",
+      "Candidate application-limit metering",
+      "Candidate search boost entitlement proof",
+      "Professional commission-rate snapshot support",
+      "Subscription provider boundary",
+      "Subscription billing record retention",
+      "Privacy / data erasure subscription targeting"
+    ],
+    "complianceSatisfied": [
+      {
+        "termId": "subscription_terms_disclosure",
+        "label": "Subscription terms disclosure support",
+        "role": "primary",
+        "proofSchemas": [
+          "TrackPlan",
+          "TrackSubscription",
+          "ConsentLog"
+        ]
+      },
+      {
+        "termId": "recurring_billing_authorization",
+        "label": "Recurring billing authorization support",
+        "role": "primary",
+        "proofSchemas": [
+          "TrackSubscription",
+          "TrackPlanPrice",
+          "TrackSubscriptionEvent",
+          "ConsentLog"
+        ]
+      },
+      {
+        "termId": "plan_change_terms",
+        "label": "Plan change terms support",
+        "role": "primary",
+        "proofSchemas": [
+          "TrackPlan",
+          "TrackSubscription",
+          "TrackSubscriptionEvent"
+        ]
+      },
+      {
+        "termId": "commission_terms",
+        "label": "Commission terms support",
+        "role": "primary",
+        "proofSchemas": [
+          "TrackPlanEntitlement",
+          "TrackEntitlementGrant",
+          "Order"
+        ]
+      },
+      {
+        "termId": "buyer_fee_waiver_proof",
+        "label": "Buyer-side transaction-fee waiver proof",
+        "role": "primary",
+        "proofSchemas": [
+          "TrackEntitlementGrant",
+          "TrackUsageEvent",
+          "Order"
+        ]
+      },
+      {
+        "termId": "candidate_application_limit_metering",
+        "label": "Candidate application-limit metering",
+        "role": "primary",
+        "proofSchemas": [
+          "TrackEntitlementGrant",
+          "TrackUsageEvent",
+          "TrackUsageCounter",
+          "JobApplication"
+        ]
+      },
+      {
+        "termId": "professional_commission_rate_snapshot",
+        "label": "Professional commission-rate snapshot support",
+        "role": "primary",
+        "proofSchemas": [
+          "TrackEntitlementGrant",
+          "TrackUsageEvent",
+          "Order"
+        ]
+      },
+      {
+        "termId": "privacy_data_erasure_subscription_targeting",
+        "label": "Privacy / data erasure subscription targeting",
+        "role": "supporting",
+        "proofSchemas": [
+          "TrackSubscription",
+          "TrackEntitlementGrant",
+          "TrackUsageEvent",
+          "TrackUsageCounter",
+          "TrackSubscriptionEvent",
+          "DataErasureTarget"
+        ]
+      }
+    ],
+    "ownsResponsibility": [
+      "Account track vocabulary",
+      "Plan catalog per account track",
+      "Plan lifecycle",
+      "Plan price/provider reference records",
+      "Subscription enrollment records",
+      "Subscription provider references",
+      "Subscription status lifecycle",
+      "Default free-track assignment",
+      "Entitlement definition vocabulary",
+      "Plan-to-entitlement mapping",
+      "Active entitlement grant lifecycle",
+      "Entitlement revocation/expiration/suspension",
+      "Usage event proof",
+      "Usage counters/projections",
+      "Application limit metering",
+      "Search boost entitlement proof",
+      "Buyer fee waiver entitlement proof",
+      "Priority scheduling entitlement proof",
+      "Professional commission-rate entitlement proof",
+      "Subscription event ledger",
+      "Feature-access lookup API",
+      "Track-aware plan seeding"
+    ],
+    "doesNotOwn": [
+      "User authentication",
+      "User session state",
+      "CustomerProfile lifecycle",
+      "CandidateProfile lifecycle",
+      "ProfessionalProfile lifecycle",
+      "Organization lifecycle",
+      "Order lifecycle truth",
+      "Gig lifecycle truth",
+      "JobApplication lifecycle truth",
+      "Booking lifecycle truth",
+      "Search indexing execution",
+      "Stripe payment success truth",
+      "Payout execution",
+      "Tax calculation",
+      "Digital download grant lifecycle",
+      "Course video playback grant lifecycle",
+      "Notification delivery",
+      "Consent proof lifecycle",
+      "Privacy request lifecycle",
+      "ComplianceHold lifecycle"
+    ],
+    "consumedByModulesDependentOnThisModule": [
+      "Customer / Buyer Profile Module",
+      "Candidate Application & Resume Privacy Module",
+      "Professional Eligibility Module",
+      "Marketplace Supply Module",
+      "Gig / Demand Module",
+      "Transaction / Order Module",
+      "Payment / Payout / Tax Module",
+      "Booking & Calendar Module",
+      "Search / Public Visibility Module",
+      "Video Infrastructure Module",
+      "Digital Goods Access Module",
+      "Notification Module",
+      "Privacy / Data Erasure Module",
+      "Consent & Disclosure Module",
+      "Admin Review / Compliance Hold Module",
+      "Observability / Ops Module"
+    ],
+    "schemasOwnedResponsibleForOver": [
+      "AccountTrack",
+      "TrackPlanStatus",
+      "TrackBillingModel",
+      "TrackBillingProvider",
+      "TrackSubscriptionStatus",
+      "TrackEntitlementValueType",
+      "TrackEntitlementGrantStatus",
+      "TrackUsageEventType",
+      "TrackUsagePeriod",
+      "TrackPlan",
+      "TrackPlanPrice",
+      "TrackEntitlementDefinition",
+      "TrackPlanEntitlement",
+      "TrackSubscription",
+      "TrackEntitlementGrant",
+      "TrackUsageEvent",
+      "TrackUsageCounter",
+      "TrackSubscriptionEvent"
+    ],
+    "schemasReferenced": [
+      "User",
+      "CustomerProfile",
+      "CandidateProfile",
+      "ProfessionalProfile",
+      "Order",
+      "Gig",
+      "GigAssignment",
+      "JobApplication",
+      "JobApplicationViewEvent",
+      "CandidateSearchProjection",
+      "SearchUpsertEvent",
+      "Booking",
+      "BookingHold",
+      "BookingSlotLock",
+      "CourseVideoAsset",
+      "BookingVideoRoom",
+      "DigitalDownloadGrant",
+      "CourseVideoPlaybackGrant",
+      "PayoutTransfer",
+      "ProfessionalBalanceLedgerEntry",
+      "ConsentLog",
+      "ConsentType",
+      "PrivacyRequest",
+      "DataErasureTarget",
+      "DataRetentionExemption",
+      "ComplianceHold",
+      "AccessAuditLog",
+      "Notification",
+      "SystemEvent",
+      "IntegrationFailure"
+    ],
+    "technologies": [
+      "Stripe Billing",
+      "Stripe Checkout",
+      "Stripe Customer Portal",
+      "Stripe webhook signature verification",
+      "Postgres / Prisma",
+      "Server-side entitlement lookup middleware",
+      "Server-side usage metering service",
+      "Monthly usage reset worker",
+      "Plan seeding script",
+      "Webhook idempotency processor",
+      "Typesense reindex trigger for boost changes",
+      "Cron/queue worker for expiring subscriptions and grants",
+      "Admin plan configuration UI later",
+      "Sentry / structured logging through Observability"
+    ],
+    "peripheralChecks": [
+      "Do not attach isPremium, isHiveClub, isProProvider, commissionRate, or applicationLimit booleans directly to User or profile models.",
+      "A User may hold different plans on different tracks at the same time.",
+      "TrackSubscription must point to exactly one relevant track profile when the subscription is profile-scoped.",
+      "Customer-track subscriptions attach to CustomerProfile.",
+      "Candidate-track subscriptions attach to CandidateProfile.",
+      "Professional-track subscriptions attach to ProfessionalProfile.",
+      "TrackPlan defines the commercial package; TrackEntitlementGrant is the active usable permission.",
+      "TrackUsageEvent is immutable proof of consumption.",
+      "TrackUsageCounter is a fast projection and must be rebuildable from usage events.",
+      "Default free plans should be seeded and assigned automatically where appropriate.",
+      "Stripe is the billing provider rail, not the entitlement source of truth.",
+      "Do not trust client-side Stripe redirects as subscription truth.",
+      "Only signed, verified provider webhooks should update paid subscription state.",
+      "Plan downgrades should expire/revoke affected grants without corrupting historical usage proof.",
+      "Professional commission rate must be snapshotted onto Order at transaction time.",
+      "Buyer fee waiver must be snapshotted onto Order at checkout time.",
+      "Candidate search boost changes must trigger SearchUpsertEvent for candidate_profile.",
+      "Priority scheduling should be consumed by Booking & Calendar and recorded on BookingHold or BookingSlotLock.",
+      "Application-limit checks must happen server-side before JobApplication creation.",
+      "Real-time application view tracking visibility is gated here, but the view-event lifecycle belongs to Candidate Application & Resume Privacy.",
+      "Live streaming entitlement should be vendor-neutral; do not hardcode AWS Chime into entitlement keys.",
+      "Subscription records may need retention exemptions for billing, fraud, tax, or dispute reasons.",
+      "ConsentLog proves subscription/recurring-billing disclosure; it does not prove subscription is active.",
+      "ComplianceHold may block entitlement use, but this module does not own hold lifecycle."
+    ],
+    "overlapWarnings": [
+      "Track Subscription & Entitlement owns plan and entitlement truth, not profile identity.",
+      "CustomerProfile is buyer actor truth; TrackSubscription is customer-plan enrollment truth.",
+      "CandidateProfile is applicant actor truth; TrackSubscription is candidate-plan enrollment truth.",
+      "ProfessionalProfile is seller actor truth; TrackSubscription is professional-plan enrollment truth.",
+      "Payment / Payout / Tax owns money movement, tax, payout, and Stripe payment events; Track Subscription owns commercial access policy.",
+      "Transaction / Order owns transaction truth; Track Subscription only supplies fee/commission/perk decisions to snapshot.",
+      "Search consumes boost entitlements but does not own boost truth.",
+      "Booking consumes priority scheduling entitlement but does not own entitlement truth.",
+      "Candidate Application consumes application-limit entitlements but does not own plan truth.",
+      "Video Infrastructure consumes live-streaming entitlement but does not own plan truth.",
+      "Digital Goods Access consumes buyer access/payment context but does not own subscription truth.",
+      "Do not use OrganizationFeatureAccess as the general subscription system.",
+      "Do not create separate candidate_subscription, customer_subscription, and professional_subscription tables unless the single track model proves insufficient.",
+      "Do not make Stripe subscription status the only source of access; mirror verified provider state into TrackSubscription and TrackEntitlementGrant."
+    ],
+    "simpleInterface": "Given a User plus optional CustomerProfile, CandidateProfile, or ProfessionalProfile, resolve the active track plan, active entitlement grants, usage counters, and current permission/perk decision for a requested feature.",
+    "clusterPlacement": {
+      "primaryCluster": "Actor, Access & Consent Cluster",
+      "secondaryBridgeClusters": [
+        "Demand, Order & Commercial Transaction Cluster",
+        "Hiring & Candidate Operations Cluster",
+        "Professional Trust & Regulated Readiness Cluster",
+        "Scheduling, Communication & Live Interaction Cluster",
+        "Discovery, Classification & Intelligence Cluster"
+      ]
+    }
+  }
+]
