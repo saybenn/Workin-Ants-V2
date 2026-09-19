@@ -3,9 +3,11 @@
 > **Module ID:** `payment_payout_tax`  
 > **Canonical registry name:** Payment / Payout / Tax Module  
 > **Primary Cluster:** CL-03 — Professional Supply & Readiness  
-> **Architecture dependency:** `context/payment_payout_tax/module-architecture.md`  
-> **Cluster plan dependency:** `context/professional-supply-readiness/build-plan.md`  
+> **Architecture dependency:** `context/clusters/professional supply & readiness/Payment Payout & Tax Module/payment-payout-tax-module-architecture.md`\
+> **Cluster plan dependency:** `context/clusters/professional supply & readiness/professional-supply-readiness-build-plan.md`\
 > **Plan status:** Ordered Module implementation plan; subordinate to Cluster sequencing and architecture
+
+**Repository context (CL-03-R021):** Read [context/context-map.md](<../../../context-map.md>) for authority by concern and verified artifact locations, [context/project-overview-v3.md](<../../../project-overview-v3.md>) for orientation, and [context/shared/shared-operations.md](<../../../shared/shared-operations.md>) for canonical operations. Root architecture, root build plan, code standards, and the progress tracker are missing; references to those prerequisites do not assert availability or authorize a substitute/global precedence rule.
 
 ## Core Principle
 
@@ -25,7 +27,7 @@ public / observable financial behavior
 
 A slice does not need a new UI to be real. For this Module, an observable result may be a provider-neutral onboarding contract, SH-019 decision, durable financial ledger effect, payout transfer, sales-tax proof, Order handoff, tax-reporting record, reconciliation worker, Privacy executor, or restricted financial setup/admin surface.
 
-This Module plan is intentionally narrower than the CL-03 build plan. It explains **how Payment's portion** of CL-03 Features 07, 09, 10, 11, 12, and 13 is implemented. It does not independently reorder Marketplace, Professional Eligibility, Trust, Healthcare, or neighboring Cluster work.
+This Module plan is intentionally narrower than the CL-03 build plan. It explains **how Payment's portion** of CL-03 Features 07, 09, 10, 10A, 11, 12, and 13 is implemented. It does not independently reorder Marketplace, Professional Eligibility, Trust, Healthcare, or neighboring Cluster work.
 
 ---
 
@@ -33,7 +35,7 @@ This Module plan is intentionally narrower than the CL-03 build plan. It explain
 
 1. Follow root Workin Ants architecture/code/security/data standards, Canonical Shared Operations, CL-03 architecture, and the Module architecture.
 2. Implement one numbered Module feature at a time. The next feature does not begin until the current feature's exit gate passes or is explicitly blocked and re-planned.
-3. This Module owns only the truth declared in `module-architecture.md`.
+3. This Module owns only the truth declared in `context/clusters/professional supply & readiness/Payment Payout & Tax Module/payment-payout-tax-module-architecture.md`.
 4. Consume ProfessionalProfile, Order, Dispute, Hold, Track, Prize, Reward, Digital Goods, Media, Privacy, Audit, Notification, and Ops through approved public contracts/events.
 5. Never write `Order`, `RefundStatus`, `OrderEvent`, `ProfessionalProfile`, Dispute, ComplianceHold, Prize, Reward, Search, Audit, Notification, Privacy, or Media source tables directly from Payment implementation.
 6. Reuse canonical Shared Operations by permanent `SH-###` identifier; do not create local aliases with independent semantics.
@@ -713,7 +715,7 @@ Implements the balance-foundation half of **CL-03 Feature 09 — Professional Ba
 
 - `appendProfessionalBalanceEffect` — internal/public-to-approved owner consumers as appropriate, never general client writable;
 - `getProfessionalBalanceProjection` — step-up protected professional/admin query;
-- `getFinancialHistory` extension for ledger history;
+- approved `getProfessionalBalanceProjection` and `getPayoutHistory` queries for the corresponding ledger/payout views; `getFinancialHistory` is not an approved facade and cannot be an implementation dependency unless Payment architecture first defines its scope, authorization, sensitive-access behavior, and response semantics (CL-03-R007);
 - reconciliation/admin command through restricted Ops interface if root product has one.
 
 No consumer receives a `setBalance` interface.
@@ -1126,7 +1128,7 @@ Implements the sales-tax calculation portion of **CL-03 Feature 10 — Payment a
 - SH-044/061/062/078/123.
 - **SH-120 remains unresolved and is not a dependency.**
 - **UD-16** calculation selection/finalization strategy must be constrained.
-- **UD-17** liability granularity must be constrained.
+- **CL-03-R015 / UD-17:** line-level liability evidence is mandatory when lines can differ; the current schema gap and exact persistence design must be addressed before mixed-liability production.
 - **UD-19** location provenance minimum must be approved enough for evidence.
 
 ### In Scope
@@ -1149,7 +1151,7 @@ Implements the sales-tax calculation portion of **CL-03 Feature 10 — Payment a
 - SH-120 platform implementation;
 - seller income/1099 TaxProfile logic;
 - changing Offering/DigitalGoodsPolicy/PricingTier;
-- complex mixed marketplace-facilitator/seller liability if UD-17 not resolved;
+- mixed marketplace-facilitator/seller liability until the required line-level evidence has approved persistence and migration coverage under UD-17;
 - partial refund/reversal.
 
 ### Module-Owned Data
@@ -1186,7 +1188,7 @@ Implements the sales-tax calculation portion of **CL-03 Feature 10 — Payment a
 - Payment chooses/validates the minimum location evidence required by its tax policy; it does not become public Location owner.
 - No silent currency conversion.
 - `TaxProfile` is excluded from transaction sales-tax calculation logic except where a separately approved exemption certificate workflow exists; none is established here.
-- **Constrained MVP for UD-17:** until line-item liability role exists/semantics are approved, only enable carts where the supported tax liability role is unambiguous at calculation/transaction level. Mixed-liability carts fail `unsupported` rather than pretending line-level proof.
+- **CL-03-R015 / UD-17:** Payment must preserve liability evidence per line when lines can differ. Until an approved field or immutable line-linked evidence structure and forward migration provide that proof, only carts with unambiguous supported liability may be enabled; mixed-liability carts fail `unsupported`. Transaction-level liability is not a substitute for line-level proof.
 - **Constrained MVP for UD-16:** caller must carry the specific calculation ID and Order version forward. Do not query “latest calculation” as authoritative final tax.
 
 ### Authorization / Compliance
@@ -1238,13 +1240,13 @@ Mostly consumed by CL-04 checkout. Payment may expose safe diagnostic evidence i
 - stale Order/version conflict;
 - seller TaxProfile separation regression;
 - location/telemetry privacy test;
-- mixed-liability unsupported test until UD-17 resolved;
+- mixed-liability unsupported test until approved line-level persistence exists; then verify differing line liability remains independently provable (CL-03-R015);
 - no custom tax-rate code path test/architecture check.
 
 ### Documentation Updates
 
 - Record constrained UD-16 calculation selection strategy.
-- Record UD-17 supported liability scope.
+- Record the CL-03-R015 line-level evidence requirement, UD-17 persistence gap, and supported liability scope.
 - Record minimum tax-location provenance under UD-19.
 - Document supported SalesTaxProvider/item types/jurisdictions for this feature.
 - Progress tracker update.
@@ -1502,7 +1504,7 @@ Implement Payment's canonical tax-reporting intake so approved source Modules ca
 
 ### Cluster Build-Plan Link
 
-This Module-owned work fulfills the CL-03 architecture's declared **CL-10 Prize / Rewards → Payment SH-118 bridge** and Payment's tax-reporting ownership. It is sequenced **after CL-03 Feature 10's Payment/Order bridge and before CL-03 Feature 13 production hardening**. It may be delivered during the Cluster's cross-cluster/governance phases but does **not** create or reorder a separate Cluster milestone.
+This Module-owned work fulfills the CL-03 architecture's declared **CL-10 Prize / Rewards → Payment SH-118 bridge** and participates in **CL-03 Feature 10A — Taxable-Value Intake and Tax-Reporting Coordination**, after Feature 10's Payment/Order bridge and before final hardening (CL-03-R017). This plan retains Payment's internal implementation sequence; the Cluster plan owns the coordination acceptance point.
 
 ### Dependencies
 
@@ -1510,7 +1512,7 @@ This Module-owned work fulfills the CL-03 architecture's declared **CL-10 Prize 
 - SH-117/118 and SH-044/045/046/047/048.
 - Source-owner public contracts/events for reportable Order earnings, PrizeWinning fair-market-value recognition, Reward recognition, or other approved sources.
 - TaxProfile current-subject lookup from Feature 03 for later readiness context; TaxProfile is not required merely to ingest a recognized source value.
-- **UD-14 TaxYearEarningsSummary grain must be resolved or constrained before production aggregation across multiple profiles/jurisdictions.**
+- **CL-03-R014 / UD-14:** minimum grain is tax subject + jurisdiction + tax year + currency, with durable source-event uniqueness/reversals. Current Prisma uniqueness is insufficient; exact subject representation and persistence/migration coverage remain prerequisites to production aggregation.
 - **UD-15 tax reporting rule source is not required to aggregate value, but is required to set authoritative `reportingRequired`/threshold claims.**
 
 ### In Scope
@@ -1568,7 +1570,7 @@ SH-118 minimum input:
 - **SH-045 — domain-event dedupe:** event-driven recognition producers.
 - **SH-046 — Payment outbox:** tax-summary/reporting-requirement facts when they materially change.
 - **SH-047/048 — jobs/retry:** reconciliation/backfill.
-- **SH-051 — DB lock** or transaction/unique equivalent for concurrent same subject/year/currency summary update.
+- **SH-051 — DB lock** or transaction/unique equivalent for concurrent same tax subject/jurisdiction/year/currency summary update.
 - **SH-034/038 — telemetry:** safe aggregation job metadata.
 - **SH-123 — owner reference validation** where source identity must be checked through owner contract. **No arbitrary polymorphic DB lookup.**
 
@@ -1593,7 +1595,7 @@ SH-118 minimum input:
 
 ### Database / Transaction Behavior
 
-Before implementation, resolve **UD-14** with an approved grain. Current schema unique `(userId, taxYear, currency)` implies one User/year/currency summary even though `professionalProfileId`, jurisdiction, and regime are present. If MVP uses that grain, explicitly prohibit multiple conflicting jurisdiction/regime rows from being assumed and document limitations. If the real requirement needs more dimensions, migrate the unique key after architecture approval.
+**CL-03-R014:** aggregation must distinguish tax subject + jurisdiction + tax year + currency and preserve durable source-event uniqueness/reversals. Current Prisma unique `(userId, taxYear, currency)` is insufficient and must not be accepted as the final grain or used to discard jurisdiction. UD-14 still requires Payment approval of exact tax-subject representation and persistence design, followed by an approved forward migration before production aggregation is claimed. This reconciliation changes documentation only.
 
 For each recognition:
 
@@ -1650,14 +1652,14 @@ Optional authorized tax-year summary/status read in professional/admin financial
 - currency/year boundaries for supported regime;
 - no Prize/Reward/Order lifecycle writes;
 - reconciliation dry-run/repair;
-- UD-14 constrained-grain conflict tests;
+- CL-03-R014 minimum-grain isolation tests across subjects, jurisdictions, years, and currencies, including duplicate source recognition and reversal replay; unresolved subject/persistence cases remain blocked under UD-14;
 - no hardcoded reporting threshold test when rule source absent;
 - authorization/audit for manual adjustment if enabled;
 - telemetry redaction.
 
 ### Documentation Updates
 
-- Resolve/document UD-14 supported summary grain.
+- Record CL-03-R014 minimum semantics and the remaining UD-14 subject-representation/persistence decisions; document migration coverage before production claims.
 - Document approved SH-118 source type registry and value-recognition contract.
 - Document whether `reportingRequired` remains disabled/pending until Feature 09 rule source.
 - Progress tracker update.
@@ -1673,7 +1675,7 @@ Optional authorized tax-year summary/status read in professional/admin financial
 
 ### Exit Gate
 
-Feature 08 passes when SH-118 is contract-tested across at least one representative source owner, aggregation/reversal/reconciliation is idempotent, UD-14's supported grain is explicit, and no unapproved tax threshold/source lifecycle logic has been introduced.
+Feature 08 passes for its approved scope when SH-118 is contract-tested across at least one representative source owner, aggregation/reversal/reconciliation is idempotent, tax subject/jurisdiction/year/currency separation is proven under CL-03-R014, and no unapproved tax threshold/source lifecycle logic has been introduced. Production aggregation additionally requires approved subject representation and persistence/migration coverage under UD-14; contract-only evidence cannot claim database readiness.
 
 ---
 
@@ -1696,7 +1698,7 @@ Depending on approved production scope:
 
 ### Cluster Build-Plan Link
 
-Completes the Module's declared tax-reporting / prize-tax responsibility during CL-03's cross-cluster/governance work. It is subordinate to the Cluster plan: automated filing is not a prerequisite for unrelated CL-03 features if legal/provider decisions are still gated, but **production claims for tax reporting must not exceed the approved Feature 09 scope**.
+Completes the Module's declared tax-reporting / prize-tax responsibility for the approved scope coordinated by **CL-03 Feature 10A** (CL-03-R017). It is subordinate to the Cluster plan: automated filing is not a prerequisite for unrelated CL-03 features if legal/provider decisions are still gated, but **production claims for tax reporting must not exceed the approved Feature 09 scope**.
 
 ### Dependencies
 

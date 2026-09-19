@@ -21,7 +21,7 @@
 - **Proposed Ruling** means a concrete decision required for coherent implementation but not yet accepted as source authority.
 - **Unresolved** means the evidence does not safely determine an implementation choice. A coding agent must stop or explicitly defer the affected scope.
 
-The Canonical Shared Operations Architecture currently supplies canonical names, not permanent `SH-###` identifiers. This document does not invent numeric IDs.
+The canonical `context/shared/shared-operations.md` registry supplies permanent SH IDs and names. References below use those existing identities; canonical ownership, boundaries, and Confirmed / Proposed ruling / Unresolved status remain unchanged. An ID reference does not approve a proposed operation or an unresolved implementation design.
 
 ---
 
@@ -102,7 +102,7 @@ The hold lifecycle is cross-cutting, while the facts that justify a hold are dis
 
 - `listComplianceReviewQueue` is a Hold-owned read projection over hold truth plus bounded owner summaries. It is not a separate universal review lifecycle.
 - No search projection is owned here.
-- No immutable evidence snapshot schema is currently confirmed for this Module. `preserveEvidenceSnapshot` is a **Proposed Ruling** shared mechanism; if adopted, this Module owns the decision meaning and reference, while Media owns bytes and shared cryptography owns hashing mechanics.
+- No immutable evidence snapshot schema is currently confirmed for this Module. SH-104 `preserveEvidenceSnapshot` is a **Proposed Ruling** shared mechanism; if adopted, this Module owns the decision meaning and reference, while Media owns bytes and shared cryptography owns hashing mechanics.
 
 ### Supported compliance role
 
@@ -144,9 +144,9 @@ Consumer-owned `blockedByHoldId` fields on `PayoutRequest`, `PayoutTransfer`, `P
 1. A hold is a stop sign, never the source compliance fact.
 2. Only this Module creates or changes `ComplianceHold.status`.
 3. Hold release is not KYC, tax, verification, dispute, moderation, healthcare, security, prize, reward, or job-compliance approval.
-4. Consumers ask `evaluateComplianceHold`; they do not infer applicability from raw rows, reason enum values, or local links.
+4. Consumers ask SH-011 `evaluateComplianceHold`; they do not infer applicability from raw rows, reason enum values, or local links.
 5. Requesters supply domain justification and source references; this Module validates structure and authority but does not re-adjudicate foreign domain truth.
-6. One hold has exactly one primary typed target if PR-CL09-04 is accepted; derived consumer associations do not create additional primary targets.
+6. CL-09-R006 confirms exactly one primary typed target per hold; derived consumer associations do not create additional primary targets. Physical target storage remains unresolved under PR-CL09-04/U-10.
 7. Reason and requested action scope are separate. A reason alone cannot define every blocked action.
 8. Retried commands produce effectively-once business effects through canonical idempotency and database concurrency primitives.
 9. Released/expired holds remain historical proof; no reopen or silent deletion is allowed under current confirmed policy.
@@ -275,12 +275,14 @@ Conditional files shown above are architecture placeholders only; their existenc
 
 ### 8.2 Required schema-alignment gate
 
+**CL-09-R006 — Confirmed Hold semantics.** One `ComplianceHold` represents one authoritative stop sign against exactly one typed target. The public contract carries target type/identity, controlled reason, explicit action/scope or equivalent applicability, requesting/source Module, source decision/evidence reference, requester actor/system context, semantic idempotency, and lifecycle state. Equivalent concurrent active requests must not create semantically duplicate stop signs. Consumers use SH-011 `evaluateComplianceHold` and retain their own lifecycle consequences. The exact database representation, equivalence-key/constraint design, expiry, durable reviewer claims, and escalation persistence remain unresolved; the three nullable target FKs are not the final general-purpose representation.
+
 CL-09 Feature 04 cannot implement the general hold API until the following are explicitly approved:
 
-- **PR-CL09-04 / U-10:** typed target representation and cardinality;
+- **PR-CL09-04 / U-10:** physical representation, target vocabulary, and migration strategy for the confirmed one-target contract;
 - **U-12:** creation/source provenance storage;
 - **U-14:** semantic equivalence, idempotency, and duplicate prevention;
-- reason/scope/action applicability contract needed by `evaluateComplianceHold`.
+- reason/scope/action applicability contract needed by SH-011 `evaluateComplianceHold`.
 
 The accepted design must provide, logically, even if physical names differ:
 
@@ -331,7 +333,7 @@ released / expired ──X──> active
 
 **Transition owner:** Admin Review / Compliance Hold Module only.
 
-**Triggers:** validated `releaseComplianceHold`; a future `expireComplianceHold` invoked manually or by approved deadline processing.
+**Triggers:** validated SH-013 `releaseComplianceHold`; a future `expireComplianceHold` invoked manually or by approved deadline processing.
 
 **Reopen/reversal:** prohibited under current confirmed rules. A newly justified stop requires a new hold with new provenance. Historical rows are not rewritten to `active`.
 
@@ -387,10 +389,10 @@ The exact reason-to-action-scope matrix is **Unresolved** and must be approved b
 
 | Command | Purpose | Actor/context and authoritative inputs | Preconditions | State written | Shared operations/effects | Idempotency and failures |
 | --- | --- | --- | --- | --- | --- | --- |
-| `requestComplianceHold` | Create or replay one authoritative active stop sign. | Authenticated/system actor; requesting Module; typed target; reason; requested scope; source decision and evidence refs; idempotency key; request/correlation IDs. | Approved target/provenance/semantic-key design; authority; target-owner validation; structurally credible source ref; valid reason/scope combination. | New `ComplianceHold(active)` and required provenance fields; transactional outbox if needed. | `resolveAuthenticatedActor`, `authorizeResourceAction`, `validateOwnedTargetReference`, `executeIdempotentCommand`, lock/concurrency primitive, `appendAuditEvent`, `publishDomainEvent`, optional `requestNotification`. | Equivalent retry returns original/existing result; non-equivalent key reuse conflicts; unsupported target/reason, forbidden actor, target unavailable, or source invalid rejects without a hold. |
-| `releaseComplianceHold` | End an active hold without changing the source-domain decision. | Hold ID; actor/system; structured release reason; source decision ref/version; idempotency key; expected version if adopted. | Hold exists and active; requester authorized; source owner supplied release-ready decision or is itself the authorized source; no conflicting terminal transition. | `status=released`, release actor/time/reason/source proof; outbox. | actor/authority/step-up where approved; idempotency; lock/CAS; lifecycle transition; audit; event; optional notification. | Same semantic retry returns committed release; already terminal with different basis conflicts; dependency unavailable retains active state and returns retryable failure. |
+| SH-012 `requestComplianceHold` | Create or replay one authoritative active stop sign. | Authenticated/system actor; requesting Module; typed target; reason; requested scope; source decision and evidence refs; idempotency key; request/correlation IDs. | Approved target/provenance/semantic-key design; authority; target-owner validation; structurally credible source ref; valid reason/scope combination. | New `ComplianceHold(active)` and required provenance fields; transactional outbox if needed. | SH-001 `resolveAuthenticatedActor`, SH-002 `authorizeResourceAction`, SH-123 `validateOwnedTargetReference`, SH-044 `executeIdempotentCommand`, lock/concurrency primitive, SH-029 `appendAuditEvent`, SH-046 `publishDomainEvent`, optional SH-041 `requestNotification`. | Equivalent retry returns original/existing result; non-equivalent key reuse conflicts; unsupported target/reason, forbidden actor, target unavailable, or source invalid rejects without a hold. |
+| SH-013 `releaseComplianceHold` | End an active hold without changing the source-domain decision. | Hold ID; actor/system; structured release reason; source decision ref/version; idempotency key; expected version if adopted. | Hold exists and active; requester authorized; source owner supplied release-ready decision or is itself the authorized source; no conflicting terminal transition. | `status=released`, release actor/time/reason/source proof; outbox. | actor/authority/step-up where approved; idempotency; lock/CAS; lifecycle transition; audit; event; optional notification. | Same semantic retry returns committed release; already terminal with different basis conflicts; dependency unavailable retains active state and returns retryable failure. |
 | `expireComplianceHold` | End an active hold under an approved expiry rule. | Hold ID; expiry basis; system/actor; idempotency; expected version. | **Disabled until U-13 is approved**; due condition verified; hold active. | `status=expired` plus approved expiry proof. | deadline scheduler/queue, idempotency, lock/CAS, lifecycle transition, audit/event/notification. | Same expiry replays; release/expiry race yields one winner; unknown due basis is manual review/permanent failure. |
-| `escalateComplianceReview` | Persist or request escalation for unresolved/high-risk hold review. | Hold ID; reviewer; escalation reason/destination/priority; expected version. | **Disabled until U-11 and review ownership/schema are approved.** | Approved Hold-owned review/escalation truth only; never foreign compliance truth. | authority, optional step-up, `claimWorkItem` if accepted, audit, notification. | Stale claim/conflict rejected; no generic review record may be improvised. |
+| `escalateComplianceReview` | Persist or request escalation for unresolved/high-risk hold review. | Hold ID; reviewer; escalation reason/destination/priority; expected version. | **Disabled until U-11 and review ownership/schema are approved.** | Approved Hold-owned review/escalation truth only; never foreign compliance truth. | authority, optional step-up, SH-054 `claimWorkItem` if accepted, audit, notification. | Stale claim/conflict rejected; no generic review record may be improvised. |
 
 Commands are server-side application services, not direct database utilities. Input DTO validation, authorization, idempotency, transaction, audit/event, and safe response behavior are mandatory parts of the command contract.
 
@@ -401,8 +403,8 @@ Commands are server-side application services, not direct database utilities. In
 | Query / decision | Consumers | Input | Result kind and content | Consumer must not infer |
 | --- | --- | --- | --- | --- |
 | `getComplianceHold` | Authorized source owners, admins/support, internal workflows | Hold ID + viewer context | Source-truth view with safe target, reason/status, provenance/release proof allowed to viewer | Underlying source condition is currently true; viewer may access source evidence; action is blocked without evaluating action scope |
-| `listActiveComplianceHolds` | Authorized Modules/admin UI | Typed target and optional safe filters/cursor | Paginated active hold truth | Reason alone defines blocked actions; direct results may replace `evaluateComplianceHold` |
-| `evaluateComplianceHold` | Any gated workflow | Typed target, named action/scope, actor/context, optional source version | Decision: allowed/denied/unavailable; applicable hold IDs, safe reason codes, scope, evaluation time, policy/source version, expiry/recheck only if approved | Underlying KYC/tax/etc. status; consumer may release hold; raw reason may be publicly exposed; a dependency failure means allowed |
+| `listActiveComplianceHolds` | Authorized Modules/admin UI | Typed target and optional safe filters/cursor | Paginated active hold truth | Reason alone defines blocked actions; direct results may replace SH-011 `evaluateComplianceHold` |
+| SH-011 `evaluateComplianceHold` | Any gated workflow | Typed target, named action/scope, actor/context, optional source version | Decision: allowed/denied/unavailable; applicable hold IDs, safe reason codes, scope, evaluation time, policy/source version, expiry/recheck only if approved | Underlying KYC/tax/etc. status; consumer may release hold; raw reason may be publicly exposed; a dependency failure means allowed |
 | `listComplianceReviewQueue` | Authorized hold reviewers/admin UI | Status/reason/age/target/source filters, cursor, viewer authority | Bounded queue projection over holds; assignment/lease only if approved and persisted | A derived list is a durable claim/assignment lifecycle |
 | `assembleComplianceReviewContext` | Authorized reviewer | Hold ID, viewer context, requested context sections | Hold truth plus owner-issued minimized/redacted source summaries and unavailable markers | This Module owns foreign facts or may bypass owner access rules |
 | `getHoldReleaseReadiness` | Release command/admin UI when an owner supplies a readiness query | Hold/source reference | Contextual fact: source owner says release-ready/not-ready/unavailable with evidence/version | This Module independently approved the source condition |
@@ -415,8 +417,8 @@ Stable gate reason families should distinguish at least active hold, dependency 
 
 ### Public commands
 
-- `requestComplianceHold`
-- `releaseComplianceHold`
+- SH-012 `requestComplianceHold`
+- SH-013 `releaseComplianceHold`
 - `expireComplianceHold` only after U-13 approval
 - `escalateComplianceReview` only after U-11/PR-CL09-06 approval
 
@@ -424,7 +426,7 @@ Stable gate reason families should distinguish at least active hold, dependency 
 
 - `getComplianceHold`
 - `listActiveComplianceHolds`
-- `evaluateComplianceHold`
+- SH-011 `evaluateComplianceHold`
 - protected `listComplianceReviewQueue`
 - protected `assembleComplianceReviewContext`
 
@@ -439,9 +441,9 @@ Permanent event identifiers are unresolved. Every event uses the canonical event
 
 ### Privacy executor
 
-- `enumerateSubjectData`
-- `evaluateRetentionRequirement`
-- `executePrivacyInstruction`
+- SH-096 `enumerateSubjectData`
+- SH-097 `evaluateRetentionRequirement`
+- SH-095 `executePrivacyInstruction`
 - Hold export serializer
 
 ### Provider-facing interfaces
@@ -456,16 +458,16 @@ Public DTOs must be schema-validated and versioned. Raw Prisma records, unrestri
 
 | Owning Module / capability | Interface consumed | Why/minimum information | Can block? | Must not be copied locally |
 | --- | --- | --- | --- | --- |
-| Identity & Access | `resolveAuthenticatedActor`; optionally `requireStepUpForSensitiveAction` | Trusted actor/system ID, assurance, request actor context | Yes for protected commands/reads | Session/MFA/security workflow |
-| Role / Authority | `authorizeResourceAction` | Decision for logical hold request/view/evaluate/release/review/escalate/export action plus resource facts | Yes | Role lookup/permission engine |
-| Each target owner | `validateOwnedTargetReference`; owner-specific `queryOwnerFacts` | Existence, source version, minimum relationship/sensitivity facts, supported target/action | Yes for create/review | Universal target repository or foreign Prisma read |
+| Identity & Access | SH-001 `resolveAuthenticatedActor`; optionally SH-014 `requireStepUpForSensitiveAction` | Trusted actor/system ID, assurance, request actor context | Yes for protected commands/reads | Session/MFA/security workflow |
+| Role / Authority | SH-002 `authorizeResourceAction` | Decision for logical hold request/view/evaluate/release/review/escalate/export action plus resource facts | Yes | Role lookup/permission engine |
+| Each target owner | SH-123 `validateOwnedTargetReference`; owner-specific SH-003 `queryOwnerFacts` | Existence, source version, minimum relationship/sensitivity facts, supported target/action | Yes for create/review | Universal target repository or foreign Prisma read |
 | Source compliance owner | Owner readiness/decision query or signed source decision reference | Source record ID/version, decision outcome, evidence refs, release-ready fact | Yes; fail closed for required creation/release validation | KYC/tax/verification/moderation/dispute/etc. policy |
-| Audit / Event Ledger | `appendAuditEvent`, `recordSensitiveAccess` | Safe action/access proof and receipt | A required audit failure blocks/rolls back where policy requires atomic proof | Audit/access tables and append-only mechanism |
-| Notification | `requestNotification` | Recipient facts/template key/safe variables/priority/sensitivity/idempotency | Normally no for hold truth; failure becomes observable/retryable delivery work | Channel/provider delivery |
+| Audit / Event Ledger | SH-029 `appendAuditEvent`, SH-030 `recordSensitiveAccess` | Safe action/access proof and receipt | A required audit failure blocks/rolls back where policy requires atomic proof | Audit/access tables and append-only mechanism |
+| Notification | SH-041 `requestNotification` | Recipient facts/template key/safe variables/priority/sensitivity/idempotency | Normally no for hold truth; failure becomes observable/retryable delivery work | Channel/provider delivery |
 | Observability / Ops | request context, logging, metrics, exception/failure/queue telemetry | Correlation and safe operational diagnostics | Optional telemetry may degrade; required operational job persistence may block async scheduling | Logger, Sentry, failure/queue/incident schemas |
 | Shared application infrastructure | idempotency, outbox/inbox, locks/CAS, lifecycle plumbing, queues/retries | Effectively-once command/event/job execution | Yes where required | Local idempotency/queue/outbox/lock packages |
 | Privacy / Data Erasure | Privacy instruction protocol and exemption reference | Authorized request/job/target, desired disposition, exemption ID if retained | Yes for privacy execution | Privacy orchestration/exemption truth |
-| Media / File Access | owner-authorized evidence access, if review evidence uses Media | Safe asset summary/signed short-lived access after owner policy | Yes for evidence access, not ordinary hold truth | File/storage/grant mechanics |
+| Context owner / Media / File Access | SH-026 `authorizeContextualResourceAccess` then Media-owned SH-087 `issueSignedMediaUrl`, if review evidence uses Media | Context owner authorizes first; Media provides protected short-lived access; SH-030 `recordSensitiveAccess` where policy requires | Yes for evidence access, not ordinary hold truth | File/storage/grant mechanics or a CL-09 signer |
 
 Direct dependency examples include Payment/Payout/Tax, Trust Verification, Professional Eligibility, Job Compliance, Content Moderation, Review/Dispute, Healthcare, Sweepstakes/Prize, Rewards, Candidate Privacy, Transaction/Order, and Identity/Security. Each supplies only its own public facts; none grants permission for a consolidated cross-domain repository.
 
@@ -476,7 +478,7 @@ Direct dependency examples include Payment/Payout/Tax, Trust Verification, Profe
 | Consumer | What it consumes | Permitted reaction | Prohibited coupling |
 | --- | --- | --- | --- |
 | Payment / Payout / Tax | request/evaluate/release; hold events | Stop or resume its own payout workflow; maintain an association to hold | Direct hold status writes; infer KYC/tax truth from reason |
-| Professional Eligibility | `evaluateComplianceHold` decision | Compose Hold decision into its own readiness | Duplicate hold/eligibility truth |
+| Professional Eligibility | SH-011 `evaluateComplianceHold` decision | Compose Hold decision into its own readiness | Duplicate hold/eligibility truth |
 | Job Compliance / Hiring | request/evaluate/release where approved | Stop owner action; route review | Candidate/job target use before U-10/U-15; foreign hold row writes |
 | Content Moderation & Legal Notice | request/evaluate/release and events | Request stop sign after moderation decision | Replace `ModerationCase`/`ModerationAction` with hold |
 | Review / Dispute | request/evaluate/release | Stop Order/payout action while dispute truth remains open | Treat hold as dispute lifecycle |
@@ -495,39 +497,41 @@ No outbound consumer may be mutated directly. Downstream projection, notificatio
 
 ## 15. Canonical Shared Operations Used
 
-No numeric shared-operation IDs are supplied. Names below are canonical.
+**CL-09-R016 — Protected evidence access.** The relevant context owner supplies SH-026 `authorizeContextualResourceAccess`; only after the required contextual authorization succeeds may Media / File Access provide SH-087 `issueSignedMediaUrl` for protected short-lived delivery. Where sensitivity/action policy requires proof, use SH-030 `recordSensitiveAccess`. Signing is not permission logic. CL-09 must not implement a signer, object-storage access service, or generic evidence-access bypass.
+
+The canonical `context/shared/shared-operations.md` registry supplies permanent SH IDs and names. References below use those existing identities; canonical ownership, boundaries, and Confirmed / Proposed ruling / Unresolved status remain unchanged. An ID reference does not approve a proposed operation or an unresolved implementation design.
 
 | Canonical operation | Meaning / owner / classification | Use and invocation point | Hold-local policy / expected result | Prohibited duplicates |
 | --- | --- | --- | --- | --- |
-| `resolveAuthenticatedActor` | Resolve trusted Workin Ants actor; Identity & Access; platform capability | Every protected command/query entry | Hold supplies attempted logical action; returns actor/system context | `currentUser`, `holdSession`, local auth middleware |
-| `authorizeResourceAction` | Permission decision; Role / Authority; canonical shared capability | After actor resolution, before protected hold read/mutation | Hold supplies resource/target/source relationship facts; returns allow/deny with reason | `isAdmin`, `requireAdmin`, `holdAdminAuth` |
-| `requireStepUpForSensitiveAction` | Fresh assurance; Identity & Access; platform security capability | Only for actions designated by approved security policy | Hold identifies high-risk action/target; returns valid assurance or challenge requirement | Local MFA/OTP/passkey checks |
-| `validateOwnedTargetReference` | Owner validates cross-Module target; target owner; shared contract/separate implementation | Before hold create and sensitive review composition | Hold defines supported target/action combinations; returns existence/version/safe facts | `findTargetByTypeAndId`, cross-domain Prisma repository |
-| `queryOwnerFacts` | Minimum source facts; each source Module; proposed shared contract | Review context and source-decision validation | Hold requests only needed fields; owner returns redacted/unavailable outcome | Foreign-model imports/joins |
-| `returnDecisionResult` | Stable decision envelope; shared contract/policy owner varies; Proposed Ruling | `evaluateComplianceHold` response | Hold owns active-hold applicability and reason namespace | Universal readiness/compliance engine |
-| `executeIdempotentCommand` | One business effect/replay original result; platform primitive | Every mutating public command | Hold defines request fingerprint, semantic identity, conflicts, replay result | `holdIdempotency`, `dedupeHold`, processed-event-as-command table |
-| `acquireAggregateLock` / `withOptimisticConcurrency` | Serialize or reject stale writes; shared persistence primitives | Equivalent create races and release/expiry/claim races | Hold defines semantic lock key and conflict behavior | In-memory mutex, ad hoc stale checks |
-| `transitionLifecycleState` | State-machine plumbing; shared mechanism/separate truth | Every Hold status transition | Hold owns allowed graph, actor/reason requirements, terminal behavior | Generic global lifecycle policy or direct status setter |
-| `publishDomainEvent` | Transactional outbox publication; platform primitive | Same transaction as authoritative hold change when consumers react | Hold owns event class, payload, privacy, emission condition | Fire-and-forget emitter |
-| `deduplicateDomainEvent` | Consumer inbox dedupe; platform primitive | Hold event handlers/reconciliation if added | Handler/version/effect remain local | Ad hoc event-dedupe map |
-| `appendAuditEvent` | Generic action proof; Audit / Event Ledger; platform audit capability | Hold create/release/expiry/escalation and material denial where policy requires | Hold supplies safe action/target/outcome/source refs; receives audit ID/time | `holdAudit`, `adminAuditLogger`, local audit table |
-| `recordSensitiveAccess` | Protected-access proof; Audit / Event Ledger; canonical shared capability | After owner decision for sensitive review/evidence reads, including deny/redact/block | Hold identifies safe context; source owner retains sensitivity/access decision | `reviewAccessLog`, `financialReviewLog`, `phiAdminLog` |
-| `requestNotification` | Submit safe alert; Notification; platform notification capability | After committed hold fact or review escalation | Hold owns trigger/recipient intent and safe variables; returns request ID | `sendHoldEmail`, `notifyReviewer`, SMS/push client |
-| `createRequestContext` | Correlation/trace/request propagation; Observability/platform primitive | Request/job/event entry | Safe identifiers only | Local correlation helper |
-| `writeStructuredLog` / `emitMetric` / `captureException` | Operational telemetry; Observability / Ops | Around commands, queries, jobs, unexpected failure | Hold owns safe operation outcome and low-cardinality dimensions | Logger/metrics/Sentry clients |
-| `sanitizeTelemetryMetadata` | Remove prohibited data; Observability + Audit policy | Before audit/telemetry transmission | Hold supplies sensitivity labels and allowlisted fields | Ad hoc redactor |
-| `recordIntegrationFailure` | Normalized dependency/worker failure; Observability / Ops | Owner-interface or async technical failure | Hold classifies retryability without changing business truth | `hold_failures` table |
-| `enqueueReliableJob` / `executeRetryWithBackoff` | Durable job and bounded retry; shared queue/platform | Approved expiry, privacy execution, notifications/event consumers if async | Hold owns payload, semantic key, retryability, completion meaning | `holdQueue`, handwritten retry loop |
-| `recordQueueTelemetry` | Queue execution visibility; Observability/queue infra | Worker claim/attempt/retry/dead-letter | Hold truth remains in `ComplianceHold` | Module queue ledger/dashboard backend |
-| `runDeadlineExpiration` | Scan due records and invoke owner transition; shared scheduler/queue | Only after U-13 establishes expiry | Hold owns due semantics and `expireComplianceHold`; returns batch result | Cron loop interpreting `createdAt` |
-| `claimWorkItem` | Transactional manual-review claim; proposed shared capability | Only after PR-CL09-06/U-11 | Hold owns reviewer eligibility, lease/escalation; returns claim/conflict | `claimReview`, `lockHold`, universal review case |
-| `enumerateSubjectData` | Discover owner-held subject data; each owner through Privacy contract | Privacy discovery | Hold returns its record refs/dispositions | Global DB crawler |
-| `evaluateRetentionRequirement` | Owner retention fact; Privacy records exemption | Before privacy erasure/anonymization | Hold owns fact/basis/minimum fields; returns required/allowed detail | Local retention table/`retainForever` |
-| `executePrivacyInstruction` | Owner-local privacy action; Privacy orchestrates | Privacy job target execution | Hold mutates only owned records and returns canonical outcome | Local privacy request/job |
-| `anonymizePersonalFields` | Versioned field-level anonymization; shared primitive/owner mapping | Approved hold anonymization | Hold defines field map/invariants/result proof | `scrubHold`, ad hoc SQL cleanup |
-| `preserveEvidenceSnapshot` | Immutable/retention-protected evidence; proposed shared mechanism | Only if approved for high-impact hold decision | Hold owns proof meaning; Media owns bytes; crypto owns hash | Generic Audit evidence blob, `holdEvidenceHash` helper |
+| SH-001 `resolveAuthenticatedActor` | Resolve trusted Workin Ants actor; Identity & Access; platform capability | Every protected command/query entry | Hold supplies attempted logical action; returns actor/system context | `currentUser`, `holdSession`, local auth middleware |
+| SH-002 `authorizeResourceAction` | Permission decision; Role / Authority; canonical shared capability | After actor resolution, before protected hold read/mutation | Hold supplies resource/target/source relationship facts; returns allow/deny with reason | `isAdmin`, `requireAdmin`, `holdAdminAuth` |
+| SH-014 `requireStepUpForSensitiveAction` | Fresh assurance; Identity & Access; platform security capability | Only for actions designated by approved security policy | Hold identifies high-risk action/target; returns valid assurance or challenge requirement | Local MFA/OTP/passkey checks |
+| SH-123 `validateOwnedTargetReference` | Owner validates cross-Module target; target owner; shared contract/separate implementation | Before hold create and sensitive review composition | Hold defines supported target/action combinations; returns existence/version/safe facts | `findTargetByTypeAndId`, cross-domain Prisma repository |
+| SH-003 `queryOwnerFacts` | Minimum source facts; each source Module; proposed shared contract | Review context and source-decision validation | Hold requests only needed fields; owner returns redacted/unavailable outcome | Foreign-model imports/joins |
+| SH-015 `returnDecisionResult` | Stable decision envelope; shared contract/policy owner varies; Proposed Ruling | SH-011 `evaluateComplianceHold` response | Hold owns active-hold applicability and reason namespace | Universal readiness/compliance engine |
+| SH-044 `executeIdempotentCommand` | One business effect/replay original result; platform primitive | Every mutating public command | Hold defines request fingerprint, semantic identity, conflicts, replay result | `holdIdempotency`, `dedupeHold`, processed-event-as-command table |
+| SH-051 `acquireAggregateLock` / SH-052 `withOptimisticConcurrency` | Serialize or reject stale writes; shared persistence primitives | Equivalent create races and release/expiry/claim races | Hold defines semantic lock key and conflict behavior | In-memory mutex, ad hoc stale checks |
+| SH-053 `transitionLifecycleState` | State-machine plumbing; shared mechanism/separate truth | Every Hold status transition | Hold owns allowed graph, actor/reason requirements, terminal behavior | Generic global lifecycle policy or direct status setter |
+| SH-046 `publishDomainEvent` | Transactional outbox publication; platform primitive | Same transaction as authoritative hold change when consumers react | Hold owns event class, payload, privacy, emission condition | Fire-and-forget emitter |
+| SH-045 `deduplicateDomainEvent` | Consumer inbox dedupe; platform primitive | Hold event handlers/reconciliation if added | Handler/version/effect remain local | Ad hoc event-dedupe map |
+| SH-029 `appendAuditEvent` | Generic action proof; Audit / Event Ledger; platform audit capability | Hold create/release/expiry/escalation and material denial where policy requires | Hold supplies safe action/target/outcome/source refs; receives audit ID/time | `holdAudit`, `adminAuditLogger`, local audit table |
+| SH-030 `recordSensitiveAccess` | Protected-access proof; Audit / Event Ledger; canonical shared capability | After owner decision for sensitive review/evidence reads, including deny/redact/block | Hold identifies safe context; source owner retains sensitivity/access decision | `reviewAccessLog`, `financialReviewLog`, `phiAdminLog` |
+| SH-041 `requestNotification` | Submit safe alert; Notification; platform notification capability | After committed hold fact or review escalation | Hold owns trigger/recipient intent and safe variables; returns request ID | `sendHoldEmail`, `notifyReviewer`, SMS/push client |
+| SH-032 `createRequestContext` | Correlation/trace/request propagation; Observability/platform primitive | Request/job/event entry | Safe identifiers only | Local correlation helper |
+| SH-033 `writeStructuredLog` / SH-036 `emitMetric` / SH-035 `captureException` | Operational telemetry; Observability / Ops | Around commands, queries, jobs, unexpected failure | Hold owns safe operation outcome and low-cardinality dimensions | Logger/metrics/Sentry clients |
+| SH-034 `sanitizeTelemetryMetadata` | Remove prohibited data; Observability + Audit policy | Before audit/telemetry transmission | Hold supplies sensitivity labels and allowlisted fields | Ad hoc redactor |
+| SH-037 `recordIntegrationFailure` | Normalized dependency/worker failure; Observability / Ops | Owner-interface or async technical failure | Hold classifies retryability without changing business truth | `hold_failures` table |
+| SH-047 `enqueueReliableJob` / SH-048 `executeRetryWithBackoff` | Durable job and bounded retry; shared queue/platform | Approved expiry, privacy execution, notifications/event consumers if async | Hold owns payload, semantic key, retryability, completion meaning | `holdQueue`, handwritten retry loop |
+| SH-038 `recordQueueTelemetry` | Queue execution visibility; Observability/queue infra | Worker claim/attempt/retry/dead-letter | Hold truth remains in `ComplianceHold` | Module queue ledger/dashboard backend |
+| SH-055 `runDeadlineExpiration` | Scan due records and invoke owner transition; shared scheduler/queue | Only after U-13 establishes expiry | Hold owns due semantics and `expireComplianceHold`; returns batch result | Cron loop interpreting `createdAt` |
+| SH-054 `claimWorkItem` | Transactional manual-review claim; proposed shared capability | Only after PR-CL09-06/U-11 | Hold owns reviewer eligibility, lease/escalation; returns claim/conflict | `claimReview`, `lockHold`, universal review case |
+| SH-096 `enumerateSubjectData` | Discover owner-held subject data; each owner through Privacy contract | Privacy discovery | Hold returns its record refs/dispositions | Global DB crawler |
+| SH-097 `evaluateRetentionRequirement` | Owner retention fact; Privacy records exemption | Before privacy erasure/anonymization | Hold owns fact/basis/minimum fields; returns required/allowed detail | Local retention table/`retainForever` |
+| SH-095 `executePrivacyInstruction` | Owner-local privacy action; Privacy orchestrates | Privacy job target execution | Hold mutates only owned records and returns canonical outcome | Local privacy request/job |
+| SH-098 `anonymizePersonalFields` | Versioned field-level anonymization; shared primitive/owner mapping | Approved hold anonymization | Hold defines field map/invariants/result proof | `scrubHold`, ad hoc SQL cleanup |
+| SH-104 `preserveEvidenceSnapshot` | Immutable/retention-protected evidence; proposed shared mechanism | Only if approved for high-impact hold decision | Hold owns proof meaning; Media owns bytes; crypto owns hash | Generic Audit evidence blob, `holdEvidenceHash` helper |
 
-`requestComplianceHold`, `evaluateComplianceHold`, and `releaseComplianceHold` are themselves canonical cross-cutting capabilities owned by this Module, not external operations it consumes.
+SH-012 `requestComplianceHold`, SH-011 `evaluateComplianceHold`, and SH-013 `releaseComplianceHold` are themselves canonical cross-cutting capabilities owned by this Module, not external operations it consumes.
 
 ---
 
@@ -553,13 +557,13 @@ No numeric shared-operation IDs are supplied. Names below are canonical.
 
 | Mechanism | Reused capability | Separate truth that remains |
 | --- | --- | --- |
-| Lifecycle plumbing | `transitionLifecycleState` | Hold transition graph, release/expiry proof, terminal semantics |
+| Lifecycle plumbing | SH-053 `transitionLifecycleState` | Hold transition graph, release/expiry proof, terminal semantics |
 | Idempotency/locks | command idempotency, Postgres locks/CAS | Hold semantic equivalence and conflict policy |
 | Outbox/inbox | event publication/deduplication | Hold event classes and consumer effects |
-| Append-only evidence | `appendAuditEvent`, `recordSensitiveAccess` | `ComplianceHold` lifecycle truth; source-domain histories |
-| Readiness response | `returnDecisionResult` shape if accepted | Hold applicability policy and reason codes; foreign readiness decisions |
-| Manual work claims | `claimWorkItem` if accepted | Hold review eligibility, assignment, escalation; moderation/job/health review truth remains separate |
-| Snapshots/hashing | `preserveEvidenceSnapshot`, canonical hashing if accepted | Hold decision evidence meaning and retention; Media bytes; Audit generic proof |
+| Append-only evidence | SH-029 `appendAuditEvent`, SH-030 `recordSensitiveAccess` | `ComplianceHold` lifecycle truth; source-domain histories |
+| Readiness response | SH-015 `returnDecisionResult` shape if accepted | Hold applicability policy and reason codes; foreign readiness decisions |
+| Manual work claims | SH-054 `claimWorkItem` if accepted | Hold review eligibility, assignment, escalation; moderation/job/health review truth remains separate |
+| Snapshots/hashing | SH-104 `preserveEvidenceSnapshot`, canonical hashing if accepted | Hold decision evidence meaning and retention; Media bytes; Audit generic proof |
 | Privacy execution | Privacy protocol and anonymization primitive | Hold field map/retention facts; Privacy request/exemption truth |
 | Queue/worker runner | durable jobs, retry, telemetry | Hold expiry rule and terminal transition; `QueueJob` is operational only |
 | Provider-event dedupe | Provider owners' shared pattern | No provider-event record exists here; source owners translate provider state before hold use |
@@ -571,11 +575,11 @@ Passing an authority, entitlement, consent, readiness, or hold gate never substi
 
 ## 18. Authentication and Authorization
 
-- Every protected entry resolves a trusted actor/system context through `resolveAuthenticatedActor`.
+- Every protected entry resolves a trusted actor/system context through SH-001 `resolveAuthenticatedActor`.
 - Anonymous hold creation, release, review, evidence access, and administrative list/detail access are prohibited. A narrowly public legal/report intake belongs to Moderation, not here.
-- Role / Authority evaluates permission through `authorizeResourceAction`; this Module supplies the logical action, hold ID, target, requesting/source Module, and safe relationship facts.
+- Role / Authority evaluates permission through SH-002 `authorizeResourceAction`; this Module supplies the logical action, hold ID, target, requesting/source Module, and safe relationship facts.
 - Logical actions include request, evaluate, view, review, release, expire, escalate, and export. Exact permission-key strings are owned by the Role / Authority registry and are **Unresolved** here; do not hardcode a second vocabulary.
-- `evaluateComplianceHold` may be callable by trusted internal Modules/system actors. User-facing callers receive only the minimum result needed for their own action.
+- SH-011 `evaluateComplianceHold` may be callable by trusted internal Modules/system actors. User-facing callers receive only the minimum result needed for their own action.
 - Admin/support status does not grant unrestricted access to financial, healthcare, resume, identity, security, legal, message, or private evidence. The source owner separately authorizes/redacts its review summary; sensitive access is audited.
 - A service role uses the same application command and invariants. It is not permission to write hold rows directly.
 - Step-up is available for high-impact release, evidence export, or sensitive review only if Identity/Security policy explicitly designates the action. No exact step-up matrix is confirmed.
@@ -609,7 +613,7 @@ This Module owns **no direct provider integration**.
 - Provider owners verify webhooks, deduplicate provider events, translate provider state, reconcile, retry, and retain credentials.
 - Hold commands consume only translated Workin Ants domain decisions or source references.
 - Provider-native statuses/errors must not appear in Hold public DTOs, reason mapping, or database enums.
-- A provider/source dependency failure becomes a normalized unavailable/retryable result and may be reported through `recordIntegrationFailure`; it never causes a silent release or fail-open gate.
+- A provider/source dependency failure becomes a normalized unavailable/retryable result and may be reported through SH-037 `recordIntegrationFailure`; it never causes a silent release or fail-open gate.
 
 ---
 
@@ -624,7 +628,7 @@ This Module owns **no direct provider integration**.
 | Hold expired | Approved expiry commits | Hold ID/version, target, expiry basis/ref, expiredAt |
 | Review escalated | Approved escalation truth commits | Hold/review ref, safe escalation reason/destination, occurredAt |
 
-Exact permanent event names are unresolved. Use `publishDomainEvent` and the common event envelope after names/contracts are accepted.
+Exact permanent event names are unresolved. Use SH-046 `publishDomainEvent` and the common event envelope after names/contracts are accepted.
 
 ### Rules
 
@@ -632,7 +636,7 @@ Exact permanent event names are unresolved. Use `publishDomainEvent` and the com
 - Payloads omit raw source evidence, PHI, resumes, tax/KYC detail, identity documents, message bodies, credentials, or provider payloads.
 - `aggregateType=ComplianceHold`; aggregate version or accepted source-version equivalent is required for ordering/conflict reasoning.
 - Correlation and causation link the source decision, command, audit request, notification, and downstream consumer work.
-- Consumers use `deduplicateDomainEvent`/transactional inbox and own their side effects.
+- Consumers use SH-045 `deduplicateDomainEvent`/transactional inbox and own their side effects.
 - An event states that a hold changed. It must not instruct a consumer to mark KYC approved, close a dispute, release a payout, or restore content.
 
 ---
@@ -656,7 +660,7 @@ No Module-owned scheduled worker is currently authorized for the base hold API.
 | Business truth updated | `ComplianceHold` only. |
 | Telemetry | Request/correlation ID, batch/attempt/outcome/duration; no sensitive payload. |
 
-Review queue display is a query, not a background job. Durable claim expiry/escalation work is not authorized until U-11 and `claimWorkItem` are accepted.
+Review queue display is a query, not a background job. Durable claim expiry/escalation work is not authorized until U-11 and SH-054 `claimWorkItem` are accepted.
 
 ---
 
@@ -694,9 +698,9 @@ The exact physical uniqueness/index/version design remains blocked by U-10/U-12/
 - A hold may own the business meaning of an evidence reference, but not the file.
 - Raw documents, screenshots, identity documents, resumes, PHI, message bodies, or provider payloads must not be copied into `note`, `releaseNote`, event payloads, audit metadata, or telemetry.
 - If evidence files are needed, the source/decision owner references a ready private `MediaAsset`; Media validates upload context, size/type/signature, malware state, processing readiness, and private/public status.
-- Reviewer access requires general authority, source-owner contextual authorization/redaction, Media-issued short-lived access, and `recordSensitiveAccess` where required.
+- Reviewer access requires general authority, source-owner contextual authorization/redaction, Media-issued short-lived access, and SH-030 `recordSensitiveAccess` where required.
 - This Module does not issue signed URLs, manage access grants, scan files, delete provider objects, or make a file public.
-- Immutable hold evidence snapshots are not authorized until `preserveEvidenceSnapshot` ownership, schema, retention, and hash meaning are approved.
+- Immutable hold evidence snapshots are not authorized until SH-104 `preserveEvidenceSnapshot` ownership, schema, retention, and hash meaning are approved.
 
 ---
 
@@ -704,7 +708,7 @@ The exact physical uniqueness/index/version design remains blocked by U-10/U-12/
 
 - `ComplianceHold` is source truth in PostgreSQL/Prisma, not a search document.
 - This Module owns no Typesense collection, `SearchUpsertEvent`, public search projection, or de-index worker.
-- A source Module may incorporate `evaluateComplianceHold` into its own public-readiness/source projection policy and then call Search's `requestSearchProjectionRefresh`.
+- A source Module may incorporate SH-011 `evaluateComplianceHold` into its own public-readiness/source projection policy and then call Search's SH-091 `requestSearchProjectionRefresh`.
 - Search must not scan Hold tables or interpret raw reason values to decide public visibility.
 - Hold created/released events may prompt a source owner to recompute its projection; that reaction remains consumer-owned and idempotent.
 - The Hold admin review queue is a bounded protected database projection, not public Search truth.
@@ -757,9 +761,9 @@ Enumerate holds where the subject is, as the approved schema permits:
 
 ### Privacy executor behavior
 
-- `enumerateSubjectData` returns stable Hold target references, sensitivity, supported dispositions, retention candidates, and export capability.
-- `evaluateRetentionRequirement` returns owner facts such as required/not required, reason code, policy/legal basis, `retainUntil` if known, minimum retained fields, permitted anonymization, and source reference. Privacy owns the exemption record.
-- `executePrivacyInstruction` supports approved erase, anonymize, restrict, export, retain, detach, skip, retryable failure, or terminal failure outcomes against Hold-owned data only.
+- SH-096 `enumerateSubjectData` returns stable Hold target references, sensitivity, supported dispositions, retention candidates, and export capability.
+- SH-097 `evaluateRetentionRequirement` returns owner facts such as required/not required, reason code, policy/legal basis, `retainUntil` if known, minimum retained fields, permitted anonymization, and source reference. Privacy owns the exemption record.
+- SH-095 `executePrivacyInstruction` supports approved erase, anonymize, restrict, export, retain, detach, skip, retryable failure, or terminal failure outcomes against Hold-owned data only.
 - Export serializer emits safe subject-relevant hold state/proof and omits other subjects' data, private source evidence, internal risk signals, secrets, and unrestricted notes.
 
 ### Retention rules
@@ -899,7 +903,7 @@ remediation/nextAction when safe
 
 - hold does not mutate source-domain truth;
 - release does not mark source approved;
-- consumer uses `evaluateComplianceHold`, not raw rows/local booleans;
+- consumer uses SH-011 `evaluateComplianceHold`, not raw rows/local booleans;
 - `admin_hold`/`other` require structured provenance;
 - fail-closed dependency behavior.
 
@@ -941,10 +945,10 @@ None inside this Module. Contract fakes verify that provider-owning Modules deli
 2. Only this Module creates or changes `ComplianceHold.status`.
 3. A hold never replaces the compliance/business record that justified it.
 4. Release never updates or implies approval of KYC, tax, payout, verification, adverse action, healthcare, job compliance, moderation, dispute, prize, reward, identity/security, Order, or other foreign truth.
-5. Consumers use `evaluateComplianceHold` for action applicability; raw hold rows and `blockedByHoldId` are insufficient.
+5. Consumers use SH-011 `evaluateComplianceHold` for action applicability; raw hold rows and `blockedByHoldId` are insufficient.
 6. A hold reason is not proof that the named condition currently exists.
 7. Reason and blocked action scope are distinct and must be evaluated by Hold-owned policy.
-8. Exactly one approved primary target is required once PR-CL09-04 is accepted; zero-target and ambiguous multi-target holds are invalid.
+8. Exactly one typed primary target is required by CL-09-R006; zero-target and ambiguous multi-target holds are invalid. This does not approve a physical schema representation.
 9. No general hold API is implemented before target, provenance, and semantic uniqueness decisions are accepted.
 10. Retried/concurrent equivalent requests cannot create uncontrolled duplicate active holds.
 11. Hold transitions are transaction-safe and database-concurrency-safe; in-memory locks are prohibited.
@@ -990,7 +994,7 @@ Do not generate:
 
 | ID | Decision | Why it matters / blocked scope |
 | --- | --- | --- |
-| U-10 / PR-CL09-04 | Exact typed target representation, target vocabulary, migration strategy, and cardinality | Blocks general `request/evaluateComplianceHold`; proposal is exactly one primary target |
+| U-10 / PR-CL09-04 | Physical typed-target representation, target vocabulary, and migration strategy | Blocks general Hold implementation; exactly one typed target is confirmed by CL-09-R006, not awaiting cardinality approval |
 | U-12 | Physical creation/source provenance fields and whether system actors need a dedicated representation | Blocks complete creation/release proof and schema contract |
 | U-14 | Semantic equivalence key, active uniqueness constraint, idempotency retention, and create-race result | Blocks safe concurrent creation |
 | Hold action scope | Stable action/scope vocabulary and reason/scope/action applicability matrix | Blocks production gate evaluation |
@@ -1001,7 +1005,7 @@ Do not generate:
 | Step-up matrix | Which hold review/release/export actions require fresh assurance | Blocks final high-risk action policy, not base contract stubs |
 | Event registry | Permanent event names, versions, aggregate version field, and consumer list | Blocks freezing public event identifiers |
 | Release/history proof | Whether enriched mutable hold fields + `AuditEvent` suffice or a Hold-owned immutable decision/history record is required | Blocks claims of full immutable lifecycle evidence |
-| Evidence snapshot | Whether Hold uses `preserveEvidenceSnapshot`, its schema, Media relation, hash meaning, and retention | Blocks immutable high-impact review evidence |
+| Evidence snapshot | Whether Hold uses SH-104 `preserveEvidenceSnapshot`, its schema, Media relation, hash meaning, and retention | Blocks immutable high-impact review evidence |
 | U-24 | Privacy target vocabulary and legal/financial/fraud/security retention bases/durations | Blocks production erasure/retention behavior |
 | Reason vocabulary review | Whether MFA/recovery/security/provider/adverse-action reasons duplicate foreign lifecycle state | Blocks casual expansion/use of these reasons, not current schema recognition |
 | Consumer association standard | Whether `blockedByHoldId` is merely local association/projection and how it is synchronized without becoming gate truth | Blocks standardization/backfill of consumer links |
@@ -1015,7 +1019,7 @@ Unresolved decisions must be accepted in root/Cluster/Module architecture before
 ### Binding confirmed rulings
 
 1. The Module owns `ComplianceHold`, `ComplianceHoldReason`, `ComplianceHoldStatus`, hold lifecycle policy, action applicability, and release proof meaning.
-2. `requestComplianceHold`, `evaluateComplianceHold`, and `releaseComplianceHold` are the canonical platform hold interfaces.
+2. SH-012 `requestComplianceHold`, SH-011 `evaluateComplianceHold`, and SH-013 `releaseComplianceHold` are the canonical platform hold interfaces.
 3. Source Modules own the conditions that justify creation or release; consumers own their reactions to a block decision.
 4. Hold release is not source approval; terminal hold history is retained.
 5. Cross-Module target/source context is consumed through owner interfaces with least privilege and redaction.
@@ -1025,10 +1029,10 @@ Unresolved decisions must be accepted in root/Cluster/Module architecture before
 
 ### Proposed rulings inherited or required
 
-- Adopt PR-CL09-04: one validated typed primary target per hold, replacing/augmenting the narrow nullable-FK design.
+- Approve the residual PR-CL09-04 physical target representation/migration design; CL-09-R006 already confirms one typed target and required semantic context.
 - Accept a concrete provenance/idempotency/semantic uniqueness design under U-12/U-14 before CL-09 Feature 04.
-- Use `claimWorkItem` only after PR-CL09-06/U-11; Hold retains review policy.
-- Use `preserveEvidenceSnapshot` only after proof ownership/schema/retention is approved.
+- Use SH-054 `claimWorkItem` only after PR-CL09-06/U-11; Hold retains review policy.
+- Use SH-104 `preserveEvidenceSnapshot` only after proof ownership/schema/retention is approved.
 
 ### Explicitly deferred
 

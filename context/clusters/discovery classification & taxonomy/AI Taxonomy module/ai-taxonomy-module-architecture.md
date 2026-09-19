@@ -5,9 +5,11 @@
 > **Module type:** `capability`  
 > **Build status:** `mvp_active`  
 > **Primary Cluster:** `CL-02 — Discovery, Classification & Visibility`  
-> **Repository target:** `context/modules/ai_taxonomy/module-architecture.md`  
+> **Repository target:** `context/clusters/discovery classification & taxonomy/AI Taxonomy module/ai-taxonomy-module-architecture.md`\
 > **Document status:** Implementation-grade Module architecture derived from the current Workin Ants evidence set; Proposed Rulings and Unresolved Decisions are explicitly labeled  
 > **Audience:** Coding agents, developers, reviewers, maintainers, architects, security/privacy reviewers, and administrators responsible for classification workflows
+
+Current coordination: [Cluster architecture](<../discovery-classification-architecture.md>) and [Cluster build plan](<../discovery-classification-build-plan.md>). Locate supporting artifacts through [context-map.md](<../../../context-map.md>); authority follows concern, not location or age. Root architecture/build-plan files are currently unavailable and do not supply enforceable phases.
 
 ---
 
@@ -15,7 +17,7 @@
 
 ### Relationship to root architecture
 
-This document is subordinate to the root Workin Ants architecture, project overview, code standards, current Prisma schema, and Canonical Shared Operations Registry. It narrows those rules to the `ai_taxonomy` Deep Module. It may not redefine authentication, authorization, taxonomy ownership, search ownership, privacy orchestration, audit, observability, or generic provider infrastructure.
+This document owns AI Module concerns under context-map.md; Prisma owns current structure, Shared Operations owns canonical contracts, and CL-02 owns collaboration. Root architecture is currently unavailable. It may not redefine authentication, authorization, taxonomy ownership, search ownership, privacy orchestration, audit, observability, or generic provider infrastructure.
 
 ### Relationship to Cluster architecture
 
@@ -24,7 +26,7 @@ This document is subordinate to the root Workin Ants architecture, project overv
 - `taxonomy_classification` — accepted controlled-vocabulary and classification truth;
 - `search_public_visibility` — public/authorized search projection truth and provider execution.
 
-The current evidence set confirms CL-02 through the Cluster Registry and root build-plan Phase 4. A dedicated current CL-02 `architecture.md` was not surfaced in the supplied evidence. Therefore this document inherits CL-02 coordination from the Cluster Registry, root build plan, and adjacent Taxonomy/Search Module extracts. If a dedicated CL-02 architecture is later supplied, conflicts must be reconciled before implementation; build progress must not silently choose a winner.
+The current CL-02 architecture and build plan are linked above. Module ownership/lifecycle and Cluster collaboration/sequence retain their separate authorities under context-map.md.
 
 ### Update rule
 
@@ -34,7 +36,7 @@ Update this file whenever a binding decision changes any of the following:
 - supported AI classification target types or purposes;
 - prompt/version or model-run provenance rules;
 - provider adapter ownership;
-- Taxonomy acceptance/rejection handoff;
+- SH-121 acceptance handoff and AI-owned proposal disposition;
 - candidate/privacy/healthcare provider-input policy;
 - backfill ownership or persistence;
 - public Module commands, queries, events, or Privacy executor contracts;
@@ -130,7 +132,7 @@ Taxonomy semantic validation
         ↓
 AiClassificationLog + proposed AiSuggestion records
         ↓
-Taxonomy-owned acceptance/rejection workflow
+SH-121 acceptance workflow; AI-owned proposal-only rejection
         ↓
 accepted Taxonomy truth
         ↓
@@ -232,7 +234,7 @@ This Module must not own or recreate the following.
 
 1. AI Taxonomy may **suggest** a high-risk/verification-sensitive category. Only accepted Taxonomy classification can trigger a requirement, and Trust Verification owns whether that requirement is satisfied.
 2. AI Taxonomy may **suggest** candidate skills. It must never decide whether to reject, rank, select, interview, offer, hire, or compensate a candidate.
-3. AI Taxonomy may record a suggestion as `accepted` or `rejected` only as a reflection of an authoritative Taxonomy decision; it must not make that decision itself.
+3. AI may record acceptance only after successful SH-121 accepted mutation by the contextual entity owner. Rejection/expiry/cancellation/supersession without accepted mutation remain AI proposal-lifecycle concerns and do not mutate Taxonomy, contextual joins, or Search (CL02-R003). Exact AI lifecycle/schema remains unapproved under U-CL02-04.
 4. AI Taxonomy must not request a public search refresh merely because a suggestion was generated.
 5. AI Taxonomy must not create uncontrolled taxonomy terms from provider prose.
 6. AI Taxonomy must not send raw private candidate data, PHI, or other sensitive source data because it is convenient.
@@ -327,7 +329,7 @@ app/admin/taxonomy/ai-suggestions/
 components/ai-taxonomy/
 ```
 
-The UI may render AI-owned run/suggestion evidence and call public commands/queries. Taxonomy-owned acceptance/rejection controls must invoke Taxonomy's workflow; the screen must not mutate taxonomy joins directly.
+The UI may render AI-owned run/suggestion evidence and call public commands/queries. Acceptance controls invoke confirmed SH-121; proposal-only rejection invokes AI-owned lifecycle behavior. The screen must not mutate taxonomy joins directly.
 
 ### Folders intentionally absent
 
@@ -554,10 +556,10 @@ proposed ──────────┼──→ rejected
 Rules:
 
 - `proposed` is the only creation state.
-- `accepted`/`rejected` reflect a Taxonomy-owned authoritative decision.
+- acceptance reflects successful SH-121 owner mutation; rejection without accepted mutation is AI-owned proposal disposition. These proposed status names/transition details still require U-CL02-04 approval.
 - `superseded` is AI-owned stale-proposal handling when a newer equivalent run makes an undecided proposal obsolete.
 - `invalidated` is used when a proposal cannot remain valid, for example the referenced term is no longer valid and no accepted decision exists.
-- `accepted`/`rejected` are terminal AI disposition records; AI Taxonomy must not reverse the accepted classification. If Taxonomy later changes accepted truth, that is a Taxonomy lifecycle/action and may produce a new AI-side annotation/event if required.
+- `accepted`/`rejected` are terminal AI disposition records; AI Taxonomy must not reverse the accepted classification. If accepted truth later changes, that is a Taxonomy canonical-term or contextual entity-owner assignment lifecycle/action and may produce a new AI-side annotation/event if required.
 - no provider response may directly set `accepted`.
 
 ### Event/history proof
@@ -591,7 +593,7 @@ Rules:
 
 **State written:** new `AiClassificationLog` in `queued`; no suggestion until worker validation succeeds.
 
-**Shared operations:** SH-001, SH-002, SH-003 where approved, SH-044, SH-047, SH-072, SH-077, SH-078, SH-032.
+**Shared operations:** SH-001, SH-002, SH-123 for target eligibility; SH-003 only for approved minimum owner facts; SH-044, SH-047, SH-072, SH-077, SH-078, SH-032.
 
 **Effects:** queue work; audit only if policy marks request material/sensitive; no search update.
 
@@ -639,19 +641,19 @@ Rules:
 
 ### `recordSuggestionDisposition` — **Proposed public/internal integration command**
 
-**Purpose:** Record on AI-owned proposal truth that the Taxonomy owner accepted or rejected a suggestion.
+**Purpose:** record acceptance on AI-owned proposal truth after SH-121 validation and successful accepted mutation by its owner. Proposal-only rejection remains an AI lifecycle concern, not a Taxonomy decision.
 
 **Actor/context:** trusted Taxonomy workflow/event consumer, not arbitrary UI.
 
-**Authoritative inputs:** suggestion ID, authoritative disposition, Taxonomy decision/event reference, decision time, optional safe reason code.
+**Authoritative inputs:** suggestion ID/version, idempotency context, successful accepted-mutation/decision reference, decision time, optional safe reason code; preserve canonical SH-121 inputs at its acceptance boundary.
 
-**Preconditions:** suggestion exists and is `proposed`; decision source is trusted and idempotent.
+**Preconditions:** approved AI lifecycle permits disposition; decision source is trusted/idempotent and accepted mutation has succeeded. Proposed exact statuses remain gated by U-CL02-04.
 
 **State written:** `AiSuggestion.status`, decision reference/reason/time only. It must not write Taxonomy joins.
 
 **Shared operations:** SH-045 if event-driven, SH-044, SH-052, SH-053.
 
-**Effects:** no Search refresh from this command. Taxonomy is responsible for requesting Search refresh when accepted truth changes.
+**Effects:** no Search refresh from this command. The owner whose accepted source truth changed requests SH-091. A failed mutation cannot be marked accepted; failed acknowledgement retries without repeating or reversing the accepted mutation.
 
 **Idempotency:** same authoritative decision replays safely; contradictory disposition returns conflict/manual review.
 
@@ -671,7 +673,7 @@ Rules:
 
 ### `getSuggestionForDecision`
 
-- **Consumers:** Taxonomy & Classification acceptance/rejection workflow.
+- **Consumers:** SH-121 acceptance workflow.
 - **Input:** suggestion ID.
 - **Result:** immutable proposal detail, target reference, suggested existing term or skill text, confidence, run provenance summary, current AI status.
 - **Returns:** decision evidence, not accepted classification.
@@ -786,6 +788,9 @@ The exact repository registration mechanism is owned by Privacy/platform integra
 
 ### Source-owner contract rule
 
+Confirmed **SH-123 `validateOwnedTargetReference`** is used wherever AI validates target existence/status/version or relationship eligibility. The target owner supplies that result and not-found/forbidden distinctions. Proposed SH-003 minimum owner facts do not substitute for SH-123; the richer owner-approved classification-input DTO remains a separate contract.
+
+
 A Registry entry under `schemasReferenced` is **not permission for direct Prisma access**. Rich classification input must come from an owner-approved DTO/query. SH-003 `queryOwnerFacts` is only for minimal relationship/ownership facts and must not become a universal polymorphic data repository.
 
 ---
@@ -794,7 +799,7 @@ A Registry entry under `schemasReferenced` is **not permission for direct Prisma
 
 ### Taxonomy & Classification
 
-Primary authoritative consumer. It may read `AiSuggestion`, revalidate the proposed term/path against current Taxonomy, and decide acceptance/rejection. Taxonomy owns the accepted term/join write.
+Confirmed SH-121 `applyAiSuggestion` is the canonical acceptance workflow: suggestion ID/version, target, selected canonical term, reviewer, reason, idempotency key, and audit evidence. Taxonomy owns canonical acceptance policy; the classified entity owner persists its assignment under CL02-R001. AI records acceptance only after mutation success; retries preserve the same version/idempotency context. Proposal-only rejection remains AI-owned. Local descriptive flow names do not replace SH-121.
 
 ### Marketplace Supply / Professional workflows
 
@@ -1094,7 +1099,7 @@ These are **Proposed** names, not binding contracts.
 
 ### Taxonomy disposition inbound event
 
-**Proposed Ruling PR-AI-09:** Prefer a Taxonomy-owned outbox fact after acceptance/rejection to drive `recordSuggestionDisposition`, rather than allowing Taxonomy code to update AI tables directly. The exact event name/schema remains to be agreed with Taxonomy. A delayed AI-side disposition must never roll back already accepted Taxonomy truth.
+**CL02-R003 approved choreography:** accepted mutation must succeed before AI `recordSuggestionDisposition`; a delayed acknowledgement retries without duplicating or reversing accepted truth. No Taxonomy/contextual-owner code directly updates AI tables. Proposal-only rejection remains AI-owned. PR-AI-09 transport preference remains proposed; direct command versus outbox delivery and exact event vocabulary/version are not selected here (U-AI-10 / U-CL02-13).
 
 ---
 
@@ -1547,7 +1552,7 @@ When UI and source modules exist:
 authorized actor requests suggestions
 → queued run visible
 → validated proposals appear
-→ Taxonomy accepts/rejects through its workflow
+→ SH-121 accepts through Taxonomy validation and contextual owner mutation; AI handles proposal-only rejection
 → AI proposal disposition updates
 → accepted classification triggers Search refresh through Search owner
 ```
@@ -1769,16 +1774,16 @@ An implementation that depends on U-AI-01 through U-AI-18 must either:
 
 Before implementing or modifying `ai_taxonomy`, an agent must read, in order:
 
-1. root `context/project-overview.md`;
-2. root `context/architecture.md`;
-3. root `context/code-standards.md`;
+1. root `context/project-overview-v3.md`;
+2. context-map.md authority by concern; root architecture is unavailable;
+3. repository instructions; the referenced code-standards document is unavailable;
 4. `context/shared/shared-operations.md` / current Canonical Shared Operations Registry;
-5. CL-02 architecture if present; otherwise current Cluster Registry CL-02 section;
-6. root/CL-02 build plan, especially Phase 4;
+5. current linked CL-02 architecture;
+6. current linked CL-02 build plan;
 7. this `module-architecture.md`;
 8. this Module's `implementation-plan.md`;
 9. relevant dependency public-interface sections, especially Taxonomy & Classification, Search / Public Visibility, Identity & Access, Role / Authority, source entity owners, Candidate Application & Resume Privacy, Healthcare / Regulated Services, Privacy / Data Erasure, Audit / Event Ledger, and Observability / Ops;
-10. current `context/progress-tracker.md`;
+10. available implementation/exit evidence; the referenced progress tracker is unavailable;
 11. current `schema.prisma` and migrations;
 12. provider/library documentation for Bedrock only when implementing the adapter.
 

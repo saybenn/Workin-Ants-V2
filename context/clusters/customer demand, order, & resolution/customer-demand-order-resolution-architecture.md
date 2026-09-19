@@ -6,6 +6,8 @@
 > **Document status:** Implementation-grade cluster architecture; confirmed rules are binding, proposed rulings require explicit acceptance, unresolved decisions remain non-authoritative  
 > **Primary modules:** `gig_demand`, `transaction_order`, `review_dispute`
 
+**Shared Operation status (CL-04-R015/R016):** exact SH IDs/names resolve to the canonical registry. SH-046 publication/outbox is Confirmed. SH-003 `queryOwnerFacts` and SH-015 `returnDecisionResult` remain Proposed ruling: use owner-specific fact/decision DTOs, not binding APIs dependent on those proposals. SH-054, SH-073, and SH-111, wherever referenced, remain Proposed ruling and conditional on separate approval. All other referenced registered operations retain their registry status and owner.
+
 ---
 
 ## 1. Document Status and Scope
@@ -357,7 +359,7 @@ src/
 - `AuditEvent`, `AccessAuditLog` — Audit / Event Ledger.
 - `PrivacyRequest`, `DataErasureTarget`, `DataRetentionExemption` — Privacy / Data Erasure.
 
-### Ownership conflicts resolved by source hierarchy
+### Ownership boundaries by concern
 
 The Deep Module Registry has historical claims that place Track records under Transaction / Order. The dedicated Track module and current Cluster Registry establish Track Subscription & Entitlement as commercial-policy owner. **Binding interpretation for CL-04:** Transaction / Order references Track truth and freezes only the downstream commercial effect on `Order`; it does not own Track lifecycle records.
 
@@ -391,7 +393,8 @@ The Deep Module Registry has historical claims that place Track records under Tr
 - **Transition authority:** Gig / Demand.
 - **Other Modules may:** Order/Dispute events may request/react to local assignment effects.
 - **Must not be confused with:** `Order`.
-- **Unresolved:** whether one Gig is single-award or multi-award; exact semantics of `disputed`; which completion events drive assignment/gig completion.
+- **Confirmed — CL-04-R002:** MVP Gigs are single-award: many responses, at most one accepted/current winning assignment per Gig. Competing acceptance commands must serialize. Database enforcement design remains a later approved schema/migration task; losing-response treatment, complete transition graphs, completion/dispute synchronization, and invitation authority remain unresolved. `invite_only` stays disabled.
+- **Unresolved:** exact semantics of `disputed`; which completion events drive assignment/gig completion.
 
 ### 9.4 Order
 
@@ -450,7 +453,7 @@ These contracts are architectural surfaces, not claims that code already exists.
 | `resolveAndSnapshotOrderPricing` | Transaction / Order | internal Order workflow | Freeze base price, fee waiver, commission and evidence. | source facts + Track decisions | immutable pricing snapshot | truth | future entitlement values. |
 | `applyPaymentConfirmationToOrder` | Transaction / Order | Payment / Payout / Tax | Apply verified provider-neutral payment result. | Order ID, translated result, idempotency | updated Order | truth | Stripe payload semantics. |
 | `applyRefundOutcomeToOrder` | Transaction / Order | Payment/Dispute | Attach verified refund result to Order truth. | Order ID, translated outcome | refund/order state | truth | provider refund state directly. |
-| `authorizeOrderEntitlement` | Transaction / Order | Booking, Media, Digital Goods, Video | Confirm current Order permits a delivery action. | Order ID, actor, action | allow/deny, reasons/evidence | decision | delivery-grant truth. |
+| SH-025 `authorizeOrderEntitlement` | Transaction / Order | Booking, Media, Digital Goods, Video | Confirm current Order permits a delivery action. | Order ID, actor, action | allow/deny, reasons/evidence | decision | delivery-grant truth. |
 | `instantiateAgreementForOrder` | Transaction / Order | Order workflow | Create Order-specific contract package. | Order, template version | Agreement | truth | generic consent. |
 | `recordAgreementElectronicConsent` | Transaction / Order | agreement UI | Record Order-specific execution consent/opt-out context with ConsentLog reference. | agreement, actor, proof ref | agreement consent state | truth/evidence | ConsentLog lifecycle. |
 | `recordAgreementSignature` | Transaction / Order | signer/provider adapter | Record signer execution proof. | agreement, signer/role, verified execution evidence | signature state | truth/evidence | provider envelope state. |
@@ -467,40 +470,40 @@ These contracts are architectural surfaces, not claims that code already exists.
 
 ## 11. Canonical Shared Operations Used by This Cluster
 
-The canonical registry currently standardizes operation names and ownership. No authoritative permanent `SH-###` identifiers are present in the supplied registry; therefore this document does **not invent IDs**.
+The [canonical registry](<../../shared/shared-operations.md>) provides permanent SH IDs, canonical owners, boundaries, and statuses. Use those exact entries without locally renaming, approving, or redefining them.
 
 | Canonical operation | Plain-English meaning | Canonical owner/class | CL-04 consumers | Reusable mechanism | Local policy that remains local | Invocation point | Must not be duplicated |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `resolveAuthenticatedActor` | Resolve trusted Workin Ants actor from valid session/system credential. | Identity & Access | all three | typed actor context | which domain action is attempted | every protected command | feature-local current-user/session helpers |
-| `authorizeResourceAction` | Decide whether actor may perform named action in proper scope. | Role / Authority | all three | typed authorization decision | Order/Gig/Review/Dispute relationship facts and action vocabulary | before protected read/write | local role-permission engines |
-| `resolveCustomerActor` | Resolve User into commercial CustomerProfile. | Customer / Buyer Profile | Gig, Order, Review/Dispute | buyer actor resolution | whether workflow requires active buyer profile | before buyer-domain commands | `User`-only buyer helper |
-| `resolveEntitlement` | Return effective fee waiver, commission, perk, limit, etc. | Track Subscription & Entitlement | Transaction / Order primarily | commercial-policy lookup | when snapshot is taken and how effect changes Order | order pricing freeze | local premium/waiver/commission policy |
-| `consumeMeteredEntitlement` | Atomically record permitted metered usage. | Track Subscription & Entitlement | Order where buyer perk usage is metered | atomic usage receipt | which transaction event counts | after authoritative transaction use | local quota counters |
-| `recordConsentProof` / `queryConsentProof` | Store/read generic versioned acceptance proof. | Consent & Disclosure | Transaction / Order agreement workflows | versioned proof | whether proof satisfies current Order action | before electronic execution | local generic consent tables |
-| `evaluateComplianceHold` | Return active reusable stop signs. | Admin Review / Compliance Hold | all three where action can be blocked | hold query | which target/action a hold blocks | before publish/accept/pay/refund/release/access | local `blocked` flags |
-| `requestComplianceHold` / `releaseComplianceHold` | Create/release authoritative platform stop sign. | Admin Review / Compliance Hold | Review/Dispute primarily | hold lifecycle command | dispute evidence and requested scope | dispute open/resolution | dispute-local payout-hold state |
-| `evaluateProfessionalReadiness` | Determine Professional may perform named selling action. | Professional Eligibility | Gig / Demand; Order where seller gate needed | readiness decision | Gig response/acceptance or Order action requiring it | response submit/accept and selected Order transitions | raw cross-table readiness reconstruction |
-| `validateTaxonomyAssignment` / `resolveTaxonomyRequirements` | Validate accepted taxonomy and derive requirement triggers. | Taxonomy & Classification | Gig / Demand | canonical classification | whether Gig publish requires classification | Gig publish/update | local tag cleaners/requirement maps |
-| `authorizeOrderEntitlement` | Confirm Order permits requested delivery/access action. | Transaction / Order | downstream CL-05 and Media contexts | source transaction decision | action-specific entitlement | delivery/access request | delivery modules inferring payment from provider |
-| `appendAuditEvent` | Append generic significant-action proof. | Audit / Event Ledger | all three | generic audit write | which actions warrant audit and safe metadata | after/beside significant actions | custom audit tables replacing domain events |
-| `recordSensitiveAccess` | Record protected file/contract/evidence access. | Audit / Event Ledger | Transaction / Order; Review/Dispute | access audit | sensitivity and contextual entitlement | agreement/evidence access | local access-log substitutes where generic rail applies |
-| `appendDomainLifecycleEvent` | Reuse append-only persistence mechanics for domain event ledgers. | shared persistence mechanism | Order/Agreement; future Gig/Dispute if approved | insert-only transaction hook | event names and lifecycle meaning | same transaction as aggregate write | one universal lifecycle ledger |
-| `executeIdempotentCommand` | Make retries produce one semantic business effect. | platform primitive | all three | key/fingerprint/result replay | command identity/conflict/replay semantics | create/accept/pay/refund/dispute commands | per-feature idempotency implementations |
-| `acquireAggregateLock` / `withOptimisticConcurrency` | Prevent conflicting concurrent state changes. | platform primitive | Gig acceptance, Order transitions, Dispute resolution | DB locking/CAS | lock key and conflict semantics | critical transitions | in-memory mutex or bespoke lock tables |
-| `transitionLifecycleState` | Reuse state-machine plumbing while owner supplies graph. | shared mechanism / separate truth | all three | transition validation/update hook | legal transition graph | every lifecycle mutation | generic policy table owning all statuses |
-| `publishDomainEvent` | Reliably publish owner-defined event after commit. | platform outbox | all three | transactional outbox/envelope | event meaning/payload/privacy | after committed transitions | ad hoc fire-and-forget events |
-| `deduplicateDomainEvent` | Prevent duplicate consumer side effects. | event infrastructure | all consumers | inbox claim | handler identity and side effect | event handlers | custom processed-event logic for ordinary domain events |
-| `enqueueReliableJob` / `executeRetryWithBackoff` | Run asynchronous work with retries/leases/dead-letter. | queue infrastructure | expiration, PDF, hash verification, reconciliation | worker shell | payload and terminal business meaning | background jobs | custom queue systems |
-| `runDeadlineExpiration` | Find expired records and invoke owner transition. | shared scheduler | Gig, agreement grants | scheduler batching | what expiry means | `closesAt`, grant expiry | scheduler owning domain status |
-| `requestNotification` | Request alert through Notification owner. | Notification | all three | delivery command | event meaning/recipients | lifecycle events | direct email/SMS/push dispatch |
+| SH-001 `resolveAuthenticatedActor` | Resolve trusted Workin Ants actor from valid session/system credential. | Identity & Access | all three | typed actor context | which domain action is attempted | every protected command | feature-local current-user/session helpers |
+| SH-002 `authorizeResourceAction` | Decide whether actor may perform named action in proper scope. | Role / Authority | all three | typed authorization decision | Order/Gig/Review/Dispute relationship facts and action vocabulary | before protected read/write | local role-permission engines |
+| SH-004 `resolveCustomerActor` | Resolve User into commercial CustomerProfile. | Customer / Buyer Profile | Gig, Order, Review/Dispute | buyer actor resolution | whether workflow requires active buyer profile | before buyer-domain commands | `User`-only buyer helper |
+| SH-005 `resolveEntitlement` | Return effective fee waiver, commission, perk, limit, etc. | Track Subscription & Entitlement | Transaction / Order primarily | commercial-policy lookup | when snapshot is taken and how effect changes Order | order pricing freeze | local premium/waiver/commission policy |
+| SH-006 `consumeMeteredEntitlement` | Atomically record permitted metered usage. | Track Subscription & Entitlement | Order where buyer perk usage is metered | atomic usage receipt | which transaction event counts | after authoritative transaction use | local quota counters |
+| SH-007 `recordConsentProof` / SH-008 `queryConsentProof` | Store/read generic versioned acceptance proof. | Consent & Disclosure | Transaction / Order agreement workflows | versioned proof | whether proof satisfies current Order action | before electronic execution | local generic consent tables |
+| SH-011 `evaluateComplianceHold` | Return active reusable stop signs. | Admin Review / Compliance Hold | all three where action can be blocked | hold query | which target/action a hold blocks | before publish/accept/pay/refund/release/access | local `blocked` flags |
+| SH-012 `requestComplianceHold` / SH-013 `releaseComplianceHold` | Create/release authoritative platform stop sign. | Admin Review / Compliance Hold | Review/Dispute primarily | hold lifecycle command | dispute evidence and requested scope | dispute open/resolution | dispute-local payout-hold state |
+| SH-016 `evaluateProfessionalReadiness` | Determine Professional may perform named selling action. | Professional Eligibility | Gig / Demand; Order where seller gate needed | readiness decision | Gig response/acceptance or Order action requiring it | response submit/accept and selected Order transitions | raw cross-table readiness reconstruction |
+| SH-023 `validateTaxonomyAssignment` / SH-022 `resolveTaxonomyRequirements` | Validate accepted taxonomy and derive requirement triggers. | Taxonomy & Classification | Gig / Demand | canonical classification | whether Gig publish requires classification | Gig publish/update | local tag cleaners/requirement maps |
+| SH-025 `authorizeOrderEntitlement` | Confirm Order permits requested delivery/access action. | Transaction / Order | downstream CL-05 and Media contexts | source transaction decision | action-specific entitlement | delivery/access request | delivery modules inferring payment from provider |
+| SH-029 `appendAuditEvent` | Append generic significant-action proof. | Audit / Event Ledger | all three | generic audit write | which actions warrant audit and safe metadata | after/beside significant actions | custom audit tables replacing domain events |
+| SH-030 `recordSensitiveAccess` | Record protected file/contract/evidence access. | Audit / Event Ledger | Transaction / Order; Review/Dispute | access audit | sensitivity and contextual entitlement | agreement/evidence access | local access-log substitutes where generic rail applies |
+| SH-031 `appendDomainLifecycleEvent` | Reuse append-only persistence mechanics for domain event ledgers. | shared persistence mechanism | Order/Agreement; future Gig/Dispute if approved | insert-only transaction hook | event names and lifecycle meaning | same transaction as aggregate write | one universal lifecycle ledger |
+| SH-044 `executeIdempotentCommand` | Make retries produce one semantic business effect. | platform primitive | all three | key/fingerprint/result replay | command identity/conflict/replay semantics | create/accept/pay/refund/dispute commands | per-feature idempotency implementations |
+| SH-051 `acquireAggregateLock` / SH-052 `withOptimisticConcurrency` | Prevent conflicting concurrent state changes. | platform primitive | Gig acceptance, Order transitions, Dispute resolution | DB locking/CAS | lock key and conflict semantics | critical transitions | in-memory mutex or bespoke lock tables |
+| SH-053 `transitionLifecycleState` | Reuse state-machine plumbing while owner supplies graph. | shared mechanism / separate truth | all three | transition validation/update hook | legal transition graph | every lifecycle mutation | generic policy table owning all statuses |
+| SH-046 `publishDomainEvent` | Reliably publish owner-defined event after commit. | platform outbox | all three | transactional outbox/envelope | event meaning/payload/privacy | after committed transitions | ad hoc fire-and-forget events |
+| SH-045 `deduplicateDomainEvent` | Prevent duplicate consumer side effects. | event infrastructure | all consumers | inbox claim | handler identity and side effect | event handlers | custom processed-event logic for ordinary domain events |
+| SH-047 `enqueueReliableJob` / SH-048 `executeRetryWithBackoff` | Run asynchronous work with retries/leases/dead-letter. | queue infrastructure | expiration, PDF, hash verification, reconciliation | worker shell | payload and terminal business meaning | background jobs | custom queue systems |
+| SH-055 `runDeadlineExpiration` | Find expired records and invoke owner transition. | shared scheduler | Gig, agreement grants | scheduler batching | what expiry means | `closesAt`, grant expiry | scheduler owning domain status |
+| SH-041 `requestNotification` | Request alert through Notification owner. | Notification | all three | delivery command | event meaning/recipients | lifecycle events | direct email/SMS/push dispatch |
 | Search refresh/public projection command | Request Search owner to index/update/remove projection. | Search / Public Visibility public interface | Gig; review/reputation effects | projection request | source public-readiness facts | source change | Typesense client in CL-04 |
 | Media signed-access/file operations | Validate and issue storage access through Media owner. | Media / File Access public interfaces | Gig, Order, Review/Dispute | file mechanics | contextual business entitlement | attachment/access flow | direct R2/S3 signed URL code |
-| `createRequestContext`, `writeStructuredLog`, `recordIntegrationFailure` | Correlate and observe execution without replacing domain truth. | Observability / Ops | all three | request IDs/logging/failure rail | domain failure state | all sync/async/provider boundaries | custom observability clients |
+| SH-032 `createRequestContext`, SH-033 `writeStructuredLog`, SH-037 `recordIntegrationFailure` | Correlate and observe execution without replacing domain truth. | Observability / Ops | all three | request IDs/logging/failure rail | domain failure state | all sync/async/provider boundaries | custom observability clients |
 
 ### Classification reminders
 
-- `resolveAuthenticatedActor`, idempotency, concurrency, outbox, queue, crypto/hashing infrastructure are **platform primitives/capabilities**.
-- `authorizeOrderEntitlement`, readiness queries, Track resolution, Search refresh are **Module public interfaces**.
+- SH-001 `resolveAuthenticatedActor`, idempotency, concurrency, outbox, queue, crypto/hashing infrastructure are **platform primitives/capabilities**.
+- SH-025 `authorizeOrderEntitlement`, readiness queries, Track resolution, Search refresh are **Module public interfaces**.
 - transition plumbing is **shared mechanism / separate truth**.
 - decision response shapes may be **shared contract / separate policy**.
 - Stripe/e-sign adapters are **provider-adapter patterns**, owned by the appropriate provider-owning Module.
@@ -597,6 +600,8 @@ Order requires agreement
 → Order pre-payment/pre-delivery gate may advance
 ```
 
+**Approved reputation handoff (CL-04-R005):** Review / Dispute owns Review inclusion and aggregate calculation. It supplies its owner-issued reputation result/facts for a ProfessionalProfile through the explicit Module contract: target ProfessionalProfile ID, derived ratingAverage/ratingCount, and source/projection version evidence. Professional Eligibility consumes that result, owns writes to its `ProfessionalProfile.ratingAverage`/`ratingCount`, and supplies the resulting Professional projection to Search. Review / Dispute must not mutate the ProfessionalProfile repository. SH-115 supplies shared projection/version/replay mechanics, not Review policy or Profile ownership. Dependency failure leaves Review truth committed and projection work retryable; exact transport/API naming is not newly selected here.
+
 ### 12.7 Completed Order produces Review
 
 ```text
@@ -606,10 +611,13 @@ Order completed
 → buyer submits review
 → Review truth written
 → publication/moderation policy applied
-→ reputation projection recalculated
-→ Search refresh requested through Search
+→ Review / Dispute calculates authoritative reputation result
+→ Professional Eligibility consumes the result and writes its derived ProfessionalProfile fields
+→ Search consumes the resulting Professional projection
 → notification/reward consumers react
 ```
+
+**Approved refund coordination (CL-04-R001).** Review / Dispute adjudicates → Transaction / Order coordinates SH-108 `requestOrderRefund` → Payment / Payout / Tax executes the provider refund → Order applies the verified provider-neutral result to RefundStatus/Order → Review / Dispute consumes settlement. Review / Dispute must not call Payment's refund executor directly.
 
 ### 12.8 Dispute with refund outcome
 
@@ -618,7 +626,8 @@ authorized participant opens Dispute
 → Review / Dispute writes Dispute
 → requests ComplianceHold
 → Order enters transaction dispute effect through public command
-→ admin/reviewer adjudicates resolved_refund
+→ admin/reviewer adjudicates resolved_refund with required SH-014 assurance
+→ Transaction / Order receives the decision and coordinates SH-108 requestOrderRefund
 → Payment / Payout / Tax executes refund
 → verified refund result
 → Transaction / Order updates RefundStatus / Order effect
@@ -633,15 +642,15 @@ authorized participant opens Dispute
 
 | Source | Destination | Transfer | Authoritative owner | Interface/event | Forbidden coupling |
 | --- | --- | --- | --- | --- | --- |
-| CL-01 Customer / Buyer Profile | CL-04 | CustomerProfile buyer context | Customer Profile | `resolveCustomerActor` / profile query | storing buyer policy on User or recreating CustomerProfile |
-| CL-01 Track Subscription & Entitlement | Transaction / Order | buyer fee waiver, seller commission, usage receipt | Track | `resolveEntitlement`, `consumeMeteredEntitlement` | local premium/commission/waiver truth |
+| CL-01 Customer / Buyer Profile | CL-04 | CustomerProfile buyer context | Customer Profile | SH-004 `resolveCustomerActor` / profile query | storing buyer policy on User or recreating CustomerProfile |
+| CL-01 Track Subscription & Entitlement | Transaction / Order | buyer fee waiver, seller commission, usage receipt | Track | SH-005 `resolveEntitlement`, SH-006 `consumeMeteredEntitlement` | local premium/commission/waiver truth |
 | CL-01 Identity/Authority/Consent | CL-04 | actor, permission decision, generic consent proof | respective owners | canonical shared interfaces | local auth/authz/consent engines |
 | CL-02 Taxonomy | Gig / Demand | category/domain/tag validity and requirement triggers | Taxonomy | public validation query | copied taxonomy tables/rules |
 | CL-02 Search | Gig/Review effects | projection request | Search | Search refresh/upsert interface | direct Typesense writes |
 | CL-03 Marketplace Supply | Transaction / Order | Offering checkout source and pricing tier facts | Marketplace Supply | immutable checkout source query | Order repository reading Offering internals |
-| CL-03 Professional Eligibility | Gig/Order | selling readiness decision | Professional Eligibility | `evaluateProfessionalReadiness` | raw compliance joins in CL-04 |
+| CL-03 Professional Eligibility | Gig/Order | selling readiness decision | Professional Eligibility | SH-016 `evaluateProfessionalReadiness` | raw compliance joins in CL-04 |
 | CL-03 Payment/Payout/Tax | Order/Dispute | payment, sales tax, refund, payout effects | Payment/Payout/Tax for rail; Order for transaction effect | provider-neutral commands/events | Stripe webhook handling in CL-04 |
-| CL-05 Delivery | Transaction / Order | delivery request/result; Order entitlement | Order + delivery owner | `authorizeOrderEntitlement`, delivery events | Order owning Booking/Media/Video lifecycles |
+| CL-05 Delivery | Transaction / Order | delivery request/result; Order entitlement | Order + delivery owner | SH-025 `authorizeOrderEntitlement`, delivery events | Order owning Booking/Media/Video lifecycles |
 | CL-07 Messaging/Notification | all CL-04 | communication context and alerts | Messaging/Notification | context-thread and notification interfaces | direct provider dispatch |
 | CL-08 Privacy/Location | CL-04 | erasure instructions, retention decisions, fuzzy/exact location gates | Privacy/Location owners | executor contracts | feature-owned privacy workflow or coordinate fuzzing |
 | CL-09 Holds/Audit/Ops/Moderation | CL-04 | holds, audit, access logs, moderation decisions, ops failures | CL-09 Modules | public commands/events | local hold/audit/moderation/incident systems |
@@ -651,10 +660,10 @@ authorized participant opens Dispute
 
 ## 14. Authentication and Authorization
 
-- Every protected operation starts from `resolveAuthenticatedActor`.
+- Every protected operation starts from SH-001 `resolveAuthenticatedActor`.
 - Buyer-domain commands resolve `CustomerProfile`; authentication User ID may be retained for actor/audit trace.
 - Professional commands use `ProfessionalProfile` plus authenticated User actor context.
-- `authorizeResourceAction` interprets authority. CL-04 supplies relationship facts:
+- SH-002 `authorizeResourceAction` interprets authority. CL-04 supplies relationship facts:
   - Gig poster/customer relationship;
   - GigResponse Professional ownership;
   - Order buyer/seller participant relationship;
@@ -662,7 +671,7 @@ authorized participant opens Dispute
   - Dispute participant/admin relation;
   - Agreement signer/participant relation.
 - Admin/support roles are not blanket permission to read contracts, private evidence, or sensitive files. Contextual access decisions and sensitive-access audit still apply.
-- Sensitive financial operations may require `requireStepUpForSensitiveAction` when root policy classifies them as high risk.
+- Sensitive financial operations may require SH-014 `requireStepUpForSensitiveAction` when root policy classifies them as high risk.
 - Authorization must be server-side. Frontend route state is not permission proof.
 
 ---
@@ -729,7 +738,7 @@ Exact names and payloads belong to owners.
 
 ### Transactional outbox
 
-Use canonical `publishDomainEvent` with a transactional outbox whenever committed state must reliably trigger external work. Do not emit network calls inside the owner transaction as the only delivery mechanism.
+Use canonical SH-046 `publishDomainEvent` with a transactional outbox whenever committed state must reliably trigger external work. Do not emit network calls inside the owner transaction as the only delivery mechanism.
 
 ### Jobs
 
@@ -817,7 +826,7 @@ Transaction / Order
 
 ### Operational failures
 
-Provider failures use Observability / Ops `recordIntegrationFailure` and owner-local workflow state where business meaning requires it.
+Provider failures use Observability / Ops SH-037 `recordIntegrationFailure` and owner-local workflow state where business meaning requires it.
 
 ---
 
@@ -859,7 +868,7 @@ Current schema evidence is insufficient for a dedicated DisputeEvidence model. U
 
 ### Sensitive access
 
-Viewing/downloading finalized agreements or dispute evidence should use `recordSensitiveAccess` with minimized metadata.
+Viewing/downloading finalized agreements or dispute evidence should use SH-030 `recordSensitiveAccess` with minimized metadata.
 
 ---
 
@@ -1009,7 +1018,7 @@ At minimum:
 5. agreement-required Order cannot cross gated transition until agreement satisfied.
 6. completed Order → eligible review.
 7. dispute open → hold requested, not locally created.
-8. resolved refund → Payment execution → Order refund effect → dispute close.
+8. resolved refund → Order SH-108 coordination → Payment execution → Order refund effect → Dispute settlement/finality under its approved rules.
 
 ### Provider adapter tests
 
@@ -1082,7 +1091,7 @@ Critical journeys:
 30. Provider payload types do not become domain DTOs.
 31. Domain events are published only after authoritative writes commit.
 32. Sensitive contract/dispute payloads are minimized in logs, audit metadata, events, and analytics.
-33. Unresolved transition, actor, cardinality, and retention questions must not be decided implicitly by whichever feature is implemented first.
+33. Unresolved transitions, historical actor migration, physical assignment enforcement, and retention questions must not be decided implicitly by whichever feature is implemented first.
 
 ---
 
@@ -1090,8 +1099,8 @@ Critical journeys:
 
 Coding agents must not create CL-04-local versions of:
 
-- `currentUser`, `requireUser`, or session-to-actor utilities that duplicate `resolveAuthenticatedActor`;
-- Gig/Order/Dispute-specific generic RBAC engines that duplicate `authorizeResourceAction`;
+- `currentUser`, `requireUser`, or session-to-actor utilities that duplicate SH-001 `resolveAuthenticatedActor`;
+- Gig/Order/Dispute-specific generic RBAC engines that duplicate SH-002 `authorizeResourceAction`;
 - `customerFromUser` logic outside Customer / Buyer Profile;
 - local `isPremium`, `hasFeeWaiver`, `commissionRateForPlan`, usage counters, or entitlement tables;
 - `isVerifiedProfessional`, `canRespondToGig` logic that rebuilds Professional Eligibility;
@@ -1112,30 +1121,51 @@ Coding agents must not create CL-04-local versions of:
 
 ---
 
+**Confirmed commercial freeze boundary (CL-04-R003):** resolve authoritative source and Track entitlement decisions, then freeze source pricing, buyer fee-waiver effect, seller commission effect, and supporting Track grant/evidence references before Agreement execution or payment initiation. An initial/draft Order may exist before freeze. Frozen effects must never be recomputed from later subscription state.
+
+**Confirmed actor semantics (CL-04-R007):** CustomerProfile is required semantic buyer identity for new CL-04 buyer-domain records; User remains authenticated account/audit identity. After CustomerProfile migration, Gig/GigAssignment/Order buyer ownership must not be authorized from User ID alone. A Review author resolves to the Order's buyer CustomerProfile. Dispute opener proof must distinguish customer, professional, and privileged/admin initiation with an unambiguous typed domain actor; this representation requirement does not approve which actors may open a Dispute. Historical backfill, permanent legacy-User reference semantics, and the physical typed-opener schema remain unresolved.
+
+**Binding source invariant (CL-04-R008):** `sourceType=offering` requires non-null `offeringId` and null `gigAssignmentId`; `sourceType=gig_assignment` requires non-null `gigAssignmentId` and null `offeringId`. Neither, both, or a mismatched discriminator is invalid. Transaction / Order must enforce this in domain validation and a later approved database constraint/migration. Current schema does not yet enforce it; this pass makes no schema change.
+
+**Mandatory durable Dispute proof (CL-04-R010):** persist the authorized adjudicator, decision, basis/reason, decision timestamp, refund amount/basis where applicable, idempotency/correlation identity, hold request/release correlation, settlement/refund correlation, and whether required downstream steps are pending or completed. This domain proof must survive retries/outages. Generic AuditEvent, QueueJob, or mutable `adminNotes` cannot substitute for it. The final decision/event/workflow persistence design remains unresolved and must be approved before production adjudication.
+
+**Binding retention boundary (CL-04-R011):** hard deletion of an Order must not cascade-delete retained transaction, Agreement, Review, Dispute, or domain-history evidence without owner-specific Privacy/retention evaluation. Privacy issues the instruction; each owner enumerates its targets, evaluates retention/exemption facts, erases/anonymizes eligible data, preserves/minimizes retained evidence, and returns proof to Privacy. Database cascades must not provide an alternate destructive path. Existing cascade behavior requires a later approved database correction; legal retention durations remain unresolved.
+
+**Confirmed sensitive-action gate (CL-04-R021):** refund/release adjudication or actions that cause or authorize financial movement require SH-014 `requireStepUpForSensitiveAction`, owned by Identity & Access. This gate does not approve finality, grant TTL/reuse/renewal, manual-signature procedure, non-payout hold effects, signer anonymization, or retention periods. Optional external e-sign adoption must not block the provider-neutral Agreement domain.
+
+### Approved local Shared Operation mappings
+
+- SH-107 `createChargeableOrder` — Confirmed; Transaction / Order owns creation. `createOrderFromOffering` and `createOrderFromGigAssignment` are typed source-specific specializations of this responsibility, not separate creation engines.
+- SH-109 `snapshotExternalDecision` — Confirmed; Order freezes external Track decision/evidence while Track retains current policy truth.
+- SH-110 `createDomainSnapshot` — Confirmed; Order owns immutable source/commercial snapshots where the registered semantics apply.
+- SH-026 `authorizeContextualResourceAccess` — Confirmed; the context owner decides Agreement/Dispute business access; Media retains signed transport mechanics.
+- SH-125 `recordDomainAccessEvent` — Confirmed; Agreement/domain access proof remains separate from generic AccessAuditLog.
+- SH-111 `renderDocument` — Proposed ruling, conditional future shared normalization; not a required confirmed dependency. Transaction / Order retains its owner-local/provider-neutral rendering workflow until separate Shared Operations approval.
+
 ## 26. Deferred / Unresolved Decisions
 
 | Question | Why unresolved | Evidence missing/conflict | Blocks |
 | --- | --- | --- | --- |
-| Are Gigs single-award or multi-award? | Schema permits multiple assignments; product wording often implies selected Professional. | explicit product ruling | DB constraint and acceptance semantics. |
+| How is the approved single-award MVP invariant enforced in the database? | At most one accepted/current winning assignment is binding; current schema permits multiple assignments. | later enforcement design/migration | database readiness, not award-cardinality policy |
 | What are exact Gig/GigResponse/GigAssignment transition graphs? | Enums exist without legal transition matrices. | owner-approved transition policy | mutation implementation beyond safe draft/create foundations. |
 | What do Gig `completed`, Assignment `completed`, and Order `completed` each mean? | Three lifecycles can overlap. | workflow semantic ruling | completion propagation, reviews/payout triggers. |
 | How is `invite_only` enforced? | Visibility enum exists; no invitation/audience schema found. | audience owner/schema | enabling invite-only mode. |
-| Does CustomerProfile become non-null for new Gig/Assignment/Order records? | Current schema has optional CustomerProfile alongside User IDs; new architecture says CustomerProfile is buyer truth. | migration/backfill policy | final schema constraints. |
+| How are CustomerProfile references physically enforced/backfilled? | CustomerProfile is required semantic identity for new buyer-domain records under CL-04-R007; current fields remain nullable. | historical backfill/legacy User semantics | physical migration and final schema constraints |
 | What are legacy `posterUserId` / `buyerUserId` semantics? | Could be actor snapshots, relations, or migration remnants. | migration and audit decision | schema cleanup/authorization implementation. |
 | What is exact Order transition matrix per source/delivery kind? | vocabulary exists; legal paths not supplied. | Transaction / Order ruling | transition service and E2E acceptance. |
-| Exactly when is Order commercial policy frozen? | Evidence requires snapshot but exact boundary is not explicit. | accepted rule: Order create vs payment initiation vs agreement lock | pricing snapshot implementation. |
-| What DB rule enforces “exactly one valid Order source”? | source type exists; structural XOR enforcement not confirmed. | schema decision | migration/constraint. |
+| Commercial snapshot boundary | Confirmed CL-04-R003: resolve source/Track decisions and freeze before Agreement execution/payment initiation; draft Order may precede freeze. | Detailed fee/tax/proceeds meanings remain unresolved. | affected commercial calculation, not freeze ordering |
+| Order source XOR implementation | CL-04-R008 approves domain validation plus database enforcement matching `sourceType`. | approved migration/constraint implementation | database readiness; source invariant is binding |
 | Agreement supersession/provider fields: what exact schema supports them? | operations are evidenced but detailed provider-neutral shape may be incomplete. | schema/provider decision | advanced supersession/e-sign provider integration. |
 | What is valid Review rating scale? | `Int` exists without constraint. | product rule | review submission. |
 | Is Review published automatically or moderated from `pending`? | default pending exists; policy absent. | moderation/reputation rule | publication automation. |
 | Can a Review be edited? | no explicit revision/history policy. | product/audit rule | edit feature; initial create can proceed without edit. |
-| What actor schema identifies Review author? | CustomerProfile is buyer truth but current reviewer fields are optional/incomplete. | migration/schema ruling | production review write. |
+| How is the approved Review-author identity persisted/backfilled? | Review author resolves to the Order buyer CustomerProfile under CL-04-R007. | physical migration/history treatment | production schema readiness |
 | Who may open a Dispute and how is opener represented? | `openedById` is ambiguous. | participant actor model | production dispute write. |
 | Is there one lifetime Dispute per Order or a reopenable case? | `orderId @unique`; semantics absent. | product/legal rule | reopen/episode behavior. |
 | What evidence model does Dispute own? | no dedicated evidence schema confirmed. | evidence-reference schema decision | richer evidence intake; basic references may be deferred. |
 | What is `resolved_*` versus `closed` semantics? | statuses exist without settlement-finality rule. | lifecycle ruling | close automation. |
 | Which CL-04 records require retention exemptions and for how long? | legal obligations are identified but durations are not architecture evidence. | legal/retention policy | destructive erasure and purge jobs. |
-| Which actions require step-up authentication? | sensitive financial boundary exists platform-wide but per-action matrix not supplied. | root security policy | exact enforcement on refund/admin financial actions. |
+| Other sensitive-action rules | Refund/release actions causing or authorizing financial movement require SH-014. | remaining action-specific policy | actions outside the approved financial gate |
 
 No coding agent may silently convert these rows into binding architecture.
 
@@ -1160,13 +1190,16 @@ No coding agent may silently convert these rows into binding architecture.
 13. Audit/observability remain supplemental evidence/operations, not business truth.
 14. Canonical shared operations and platform primitives must be reused.
 
+### Confirmed reconciliation rulings
+
+- **Confirmed CL-04-R007:** new buyer-domain records require CustomerProfile semantically; User remains account/audit identity. Historical backfill and long-term legacy references are unresolved.
+- **Confirmed SH-046 (not a proposal):** CL-04 uses transactional outbox events for cross-Module effects.
+
 ### Proposed rulings requiring explicit acceptance before schema/API commitment
 
-1. New CL-04 buyer-domain writes should require CustomerProfile and preserve User IDs only as authenticated actor/audit references where useful.
-2. Transaction / Order should consume immutable public source DTOs from Gig / Demand and Marketplace Supply rather than read their repositories directly.
-3. Response acceptance, Order creation, and dispute resolution should use canonical DB concurrency + idempotency primitives.
-4. CL-04 should use transactional outbox events for cross-Module effects.
-5. Review/dispute production schemas should be strengthened before implementation where current actor/evidence fields are ambiguous.
+1. Transaction / Order should consume immutable public source DTOs from Gig / Demand and Marketplace Supply rather than read their repositories directly.
+2. Response acceptance, Order creation, and dispute resolution should use canonical DB concurrency + idempotency primitives.
+3. Review/dispute production schemas should be strengthened before implementation where current actor/evidence fields are ambiguous.
 
 ---
 
@@ -1174,16 +1207,16 @@ No coding agent may silently convert these rows into binding architecture.
 
 Before changing CL-04, an implementation agent must read, in order:
 
-1. root `project-overview.md`;
-2. root `architecture.md`;
-3. root `code-standards.md`;
+1. [context map](<../../context-map.md>) and its authority-by-concern/path guidance;
+2. [current project overview](<../../project-overview-v3.md>);
+3. available concern-specific architecture and standards; root architecture/build plan and `code-standards.md` are currently missing, not available prerequisites;
 4. Canonical Shared Operations Registry;
 5. this Cluster `architecture.md`;
 6. this Cluster `build-plan.md`;
 7. target Module architecture;
 8. target Module implementation plan;
 9. relevant dependency Module public-interface sections;
-10. `progress-tracker.md`.
+10. progress evidence if available; a dedicated `progress-tracker.md` is currently missing.
 
 For a feature touching payment, entitlement, media, privacy, search, holds, or notification, the agent must also read the owning dependency Module’s public contracts and any provider/library documentation relevant to that boundary.
 

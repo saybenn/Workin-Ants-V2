@@ -3,9 +3,9 @@
 > **Module ID:** `customer_buyer_profile`  
 > **Module:** Customer / Buyer Profile Module  
 > **Primary Cluster:** `CL-01 — Identity, Authority, Consent & Entitlements`  
-> **Repository target:** `context/modules/customer_buyer_profile/implementation-plan.md`  
+> **Repository target:** `context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-implementation-plan.md`\
 > **Companion architecture:** this Module `module-architecture.md`  
-> **Parent plan:** CL-01 `build-plan.md`  
+> **Parent plan:** CL-01 `context/clusters/identity, authority, & consent/identity-authority-consent-build-plan.md`\
 > **Implementation posture:** dependency-first MVP work. This plan narrows CL-01 work into Customer-owned slices and must not independently advance or redefine Cluster sequencing.
 
 ---
@@ -105,13 +105,13 @@ The following must be resolved before the corresponding production behavior is e
 
 | Gate | Required before |
 | --- | --- |
-| `U-CL01-01` ProfileStatus enum owner | enum-level schema ownership/migration changes |
-| `U-CL01-02` CustomerProfile transition matrix/open-obligation semantics | full status/archive/restore commands |
-| `U-CL01-03` final provisioning orchestration timing | final signup event/request wiring; owner command itself can be built first |
-| `U-CL01-04` CustomerProfile ID cutover rule | mandatory downstream actor references/backfill enforcement |
-| `U-CL01-05` User vs CustomerProfile display/location/avatar precedence | production edits/sync for affected overlapping fields |
-| `U-CL01-06` public CustomerProfile visibility | public page or Search projection |
-| `U-CL01-07` Review/Dispute actor reference | Review/Dispute schema migration |
+| `U-CL01-20` ProfileStatus enum owner | enum-level schema ownership/migration changes |
+| `U-CL01-21` CustomerProfile transition matrix/open-obligation semantics | full status/archive/restore commands |
+| `U-CL01-18` final provisioning orchestration timing | final signup event/request wiring; owner command itself can be built first |
+| `U-CL01-19` CustomerProfile ID cutover rule | mandatory downstream actor references/backfill enforcement |
+| `U-CL01-22` User vs CustomerProfile display/location/avatar precedence | production edits/sync for affected overlapping fields |
+| `U-CL01-22` public CustomerProfile visibility | public page or Search projection |
+| `Review/Dispute direct CustomerProfile reference decision` | Review/Dispute schema migration |
 | `CBP-U-01` avatar relation shape | schema FK/generalized attachment migration; validation-based UUID attachment can proceed without it |
 | `CBP-U-04` Customer privacy disposition/retention map | destructive privacy delete/anonymize behavior |
 
@@ -134,7 +134,7 @@ Establish the Customer Module boundary in code, validate the existing CustomerPr
 
 ### Cluster Build-Plan Link
 
-Supports **CL-01 Feature 05 — Customer actor provisioning/resolution** by creating the Module-owned contract/source foundation required for that Cluster slice. It does not independently advance the Cluster beyond Feature 05.
+Supports **CL-01 Feature 06 — Default CustomerProfile Provisioning and Buyer Actor Resolution** by creating the Module-owned contract/source foundation required for that Cluster slice. It does not independently advance the Cluster beyond Feature 06.
 
 ### Dependencies
 
@@ -295,7 +295,7 @@ Make every eligible User idempotently resolvable to at most one CustomerProfile 
 
 ### Cluster Build-Plan Link
 
-Direct implementation decomposition of **CL-01 Feature 05 — Customer actor provisioning/resolution**.
+Direct implementation decomposition of **CL-01 Feature 06 — Default CustomerProfile Provisioning and Buyer Actor Resolution**.
 
 ### Dependencies
 
@@ -304,9 +304,9 @@ Direct implementation decomposition of **CL-01 Feature 05 — Customer actor pro
 - Identity public User existence/eligibility facts;
 - User-provisioned event or explicit post-signup command boundary;
 - SH-044/045/046/047/048;
-- architecture gate `U-CL01-03` for final production trigger choice.
+- architecture gate `U-CL01-18` for final production trigger choice.
 
-The owner command and backfill can be implemented before `U-CL01-03`; final signup wiring cannot.
+The owner command can be developed before final signup wiring is selected under `U-CL01-18`. Existing-user backfill remains gated on an approved Identity-owned enumeration/query/stream contract for User existence and eligibility, including cursor and failure behavior. Customer must not scan or reinterpret Identity-owned User persistence, substitute SH-001 actor resolution or SH-096 privacy enumeration, or invent that missing contract.
 
 ### In Scope
 
@@ -314,7 +314,7 @@ The owner command and backfill can be implemented before `U-CL01-03`; final sign
 - SH-004 `resolveCustomerActor` implementation;
 - `assertCustomerActorConsistency` implementation;
 - safe owner/admin `getCustomerProfile` query using existing authority boundary;
-- event consumer shell if the approved path is event-based, but production wiring remains gated until U-CL01-03;
+- event consumer shell if the approved path is event-based, but production wiring remains gated until U-CL01-18;
 - existing-user backfill worker using approved Identity query/stream contract;
 - mismatch/conflict reporting;
 - idempotency/concurrency behavior.
@@ -398,7 +398,7 @@ getCustomerProfile({ requester, profileId|userId, purpose })
 
 ### Events / Jobs
 
-**Possible inbound:** Identity User-provisioned event, once U-CL01-03 chooses event orchestration.
+**Possible inbound:** Identity User-provisioned event, once U-CL01-18 chooses event orchestration.
 
 **Possible outbound:** minimized CustomerProfile-provisioned event through SH-046 if Track/other consumers demonstrably require durable notification.
 
@@ -439,7 +439,7 @@ A minimal profile/account verification surface is optional if the root applicati
 
 ### Documentation Updates
 
-- if `U-CL01-03` is resolved while implementing, update Module and CL-01 architecture before final production wiring;
+- if `U-CL01-18` is resolved while implementing, update Module and CL-01 architecture before final production wiring;
 - document final orchestration (same request/outbox/worker) and event name/version if enabled;
 - update progress tracker and public contract reference.
 
@@ -449,7 +449,7 @@ A minimal profile/account verification surface is optional if the root applicati
 - duplicate/replayed work cannot create duplicate profiles;
 - a mismatched User/Profile pair is rejected;
 - provisioning has no Track dependency;
-- backfill is resumable and exception-safe;
+- the Identity-owned existing-user fact/enumeration contract is approved before backfill is implemented; backfill is resumable and exception-safe;
 - consumers can use SH-004 without reading CustomerProfile directly;
 - no commercial/foreign truth is added to CustomerProfile.
 
@@ -458,9 +458,9 @@ A minimal profile/account verification surface is optional if the root applicati
 Before Feature 03:
 
 - all Feature 02 unit/contract/database/concurrency/backfill tests pass;
-- the CL-01 Feature 05 exit conditions are satisfied for Customer-owned work;
+- the CL-01 Feature 06 exit conditions are satisfied for Customer-owned work;
 - typecheck/lint/build pass;
-- unresolved `U-CL01-03` is either resolved for production wiring or the final orchestration remains explicitly disabled/stubbed;
+- unresolved `U-CL01-18` is either resolved for production wiring or the final orchestration remains explicitly disabled/stubbed;
 - progress tracker is current.
 
 ---
@@ -483,7 +483,7 @@ Allow authorized self/admin updates of explicitly approved Customer-owned profil
 
 ### Cluster Build-Plan Link
 
-Direct decomposition of **CL-01 Feature 06 — CustomerProfile Protected Management and Avatar Boundary**.
+Direct decomposition of **CL-01 Feature 07 — CustomerProfile Maintenance, Status-Safe Access, and Media Boundary**.
 
 ### Dependencies
 
@@ -491,7 +491,7 @@ Direct decomposition of **CL-01 Feature 06 — CustomerProfile Protected Managem
 - CL-01 Role authorization foundation;
 - Media public contracts/test double;
 - SH-090 contextual attachment contract;
-- `U-CL01-05` must be resolved for each overlapping display/location field enabled for editing;
+- `U-CL01-22` must be resolved for each overlapping display/location field enabled for editing;
 - `CBP-U-01` is not required for validation-based raw UUID attachment, but is required before a schema relation migration.
 
 ### In Scope
@@ -629,7 +629,7 @@ An admin/support view must be purpose-limited and authorized.
 - stale expected version → conflict with safe reload/retry response;
 - invalid/unready/unsafe MediaAsset → validation denial;
 - Media unavailable → avatar change unavailable; do not attach by UUID anyway;
-- profile public-view request → not supported while U-CL01-06 unresolved;
+- profile public-view request → not supported while U-CL01-22 unresolved;
 - post-commit notification/audit/ops transient failure → follow owner side-effect policy; never fabricate rollback unless audit atomicity is explicitly required.
 
 ### Tests
@@ -649,7 +649,7 @@ An admin/support view must be purpose-limited and authorized.
 
 ### Documentation Updates
 
-If `U-CL01-05` is resolved, update both Cluster and Module architecture with:
+If `U-CL01-22` is resolved, update both Cluster and Module architecture with:
 
 - field authority;
 - copy-on-create/sync policy;
@@ -671,10 +671,10 @@ If CBP-U-01 is resolved into a schema relation, update architecture before the m
 
 Before Feature 04 or cross-Cluster cutover work:
 
-- CL-01 Feature 06 Customer-owned exit conditions pass;
+- CL-01 Feature 07 Customer-owned exit conditions pass;
 - all Feature 03 authorization/Media/concurrency tests pass;
 - typecheck/lint/build pass;
-- U-CL01-05 status is accurately documented;
+- U-CL01-22 status is accurately documented;
 - no public Search projection was emitted;
 - progress tracker is updated.
 
@@ -684,7 +684,7 @@ Before Feature 04 or cross-Cluster cutover work:
 
 ## 04 CustomerProfile Status, Pause/Suspension, Archive, and Restore
 
-> **Execution gate:** This feature is planned because the Module owns CustomerProfile lifecycle, but it must **not** start production implementation until `U-CL01-01` and `U-CL01-02` are resolved and the CL-01 plan explicitly schedules the gated completion of Customer profile lifecycle work. This feature does not independently move CL-01 sequencing.
+> **Execution gate:** This feature is planned because the Module owns CustomerProfile lifecycle, but it must **not** start production implementation until `U-CL01-20` and `U-CL01-21` are resolved and the CL-01 plan explicitly schedules the gated completion of Customer profile lifecycle work. This feature does not independently move CL-01 sequencing.
 
 ### Objective
 
@@ -702,12 +702,12 @@ After architecture approval:
 
 ### Cluster Build-Plan Link
 
-Completes the lifecycle portion intentionally deferred by **CL-01 Feature 06**. It may run only after the Cluster architecture resolves the status matrix and permits this extension; it must complete before any downstream cutover that assumes status semantics.
+Completes the lifecycle portion intentionally deferred by **CL-01 Feature 07**. It may run only after the Cluster architecture resolves the status matrix and permits this extension; it must complete before any downstream cutover that assumes status semantics.
 
 ### Dependencies
 
 - Module Feature 03;
-- **required architecture rulings:** U-CL01-01, U-CL01-02;
+- **required architecture rulings:** U-CL01-20, U-CL01-21;
 - owner-facts contracts from Order/Booking/Review-Dispute as required by the approved transition policy;
 - SH-002 authorization;
 - SH-011 hold decision if specified;
@@ -730,7 +730,7 @@ Only after approval:
 
 ### Out of Scope
 
-- changing the shared ProfileStatus enum unless U-CL01-01 specifically approves a Customer-owned schema change;
+- changing the shared ProfileStatus enum unless U-CL01-20 specifically approves a Customer-owned schema change;
 - creating/closing Orders, Bookings, Gigs, Reviews, Disputes;
 - creating/releasing ComplianceHold;
 - deleting the User;
@@ -870,7 +870,7 @@ After implementation, update progress and public interface docs.
 
 Feature 04 is complete only when:
 
-- U-CL01-01/U-CL01-02 are resolved and documentation is updated first;
+- U-CL01-20/U-CL01-21 are resolved and documentation is updated first;
 - complete transition/authorization/concurrency tests pass;
 - no foreign lifecycle write exists;
 - no hold/profile-status mirroring exists;
@@ -891,7 +891,7 @@ Prove the Customer actor boundary with Gig / Demand, Transaction / Order, and Bo
 
 ### Observable Result
 
-After `U-CL01-04` is approved:
+After `U-CL01-19` is approved:
 
 - a test customer can initiate representative Gig/Order/Booking owner commands with one validated CustomerProfile actor;
 - mismatched User/Profile pairs are rejected before destination write;
@@ -901,12 +901,12 @@ After `U-CL01-04` is approved:
 
 ### Cluster Build-Plan Link
 
-Direct Customer-owned contribution to **CL-01 Feature 13 — Customer Actor Cutover for Customer-Side Business Records** and the corresponding CL-04/CL-05 contract proof.
+Direct Customer-owned contribution to **CL-01 Feature 14 — Customer Actor Cutover Contracts for Commerce and Delivery** and the corresponding CL-04/CL-05 contract proof.
 
 ### Dependencies
 
 - Module Features 02–03; Feature 04 only if the destination policy explicitly depends on approved Customer status semantics;
-- **U-CL01-04 resolved** before mandatory cutover enforcement;
+- **U-CL01-19 resolved** before mandatory cutover enforcement;
 - Gig, Order, Booking public create/validation contracts;
 - destination-owner migration/backfill plans;
 - SH-003 owner-facts contracts where needed;
@@ -933,7 +933,7 @@ Outside Customer Module but required as Cluster dependencies:
 
 - Customer repository writes to Gig/GigAssignment/Order/BookingHold/BookingSlotLock/Booking;
 - destination schema migration files owned solely from Customer code;
-- Review/Dispute direct CustomerProfile FK until U-CL01-07;
+- Review/Dispute direct CustomerProfile FK until Review/Dispute direct CustomerProfile reference decision;
 - fee-waiver or priority policy;
 - payment state;
 - public search;
@@ -981,7 +981,7 @@ The destination interface receives Customer actor facts; Customer does not wrap 
 - Customer is authoritative for `User ↔ CustomerProfile` mapping.
 - Destination owner is authoritative for whether and where to store the CustomerProfile reference.
 - When both IDs are present, they must match before destination mutation.
-- New-record cutover rule comes from U-CL01-04; Customer does not decide nullability alone.
+- New-record cutover rule comes from U-CL01-19; Customer does not decide nullability alone.
 - Legacy records that lack a CustomerProfile reference are handled by destination migration policy.
 - If a historical record cannot be mapped unambiguously, report exception/manual review; do not infer from display name/email/location.
 - Customer status is returned as a fact, but destination owner must not invent Customer status semantics beyond the approved Customer public contract.
@@ -1051,7 +1051,7 @@ No new Customer UI is required. Use existing Gig/Order/Booking surfaces for inte
 
 Before enforcing cutover:
 
-- resolve U-CL01-04 in CL-01 and affected destination architectures;
+- resolve U-CL01-19 in CL-01 and affected destination architectures;
 - document which records require both User and CustomerProfile and why;
 - document migration/backfill ownership per destination;
 - update public interface versions if DTO requirements change.
@@ -1069,8 +1069,8 @@ Before enforcing cutover:
 
 Before Feature 06:
 
-- U-CL01-04 is resolved and documented for every enabled destination;
-- Customer-owned contribution to CL-01 Feature 13 contract tests passes;
+- U-CL01-19 is resolved and documented for every enabled destination;
+- Customer-owned contribution to CL-01 Feature 14 contract tests passes;
 - Gig/Order/Booking positive and negative contract tests pass;
 - backfill/reconciliation is resumable and exception-safe;
 - no Customer direct foreign write is required to make integration tests pass;
@@ -1098,7 +1098,7 @@ Make CustomerProfile fully participate in Privacy-owned export/erasure/retention
 
 ### Cluster Build-Plan Link
 
-Direct Customer-owned contribution to **CL-01 Feature 15 — Privacy, Holds, Audit, Notification, and Operational Support Bridges**.
+Direct Customer-owned contribution to **CL-01 Feature 16 — Privacy, Holds, Audit, Notification, and Operational Support Bridges**.
 
 ### Dependencies
 
@@ -1299,7 +1299,7 @@ Before destructive behavior:
 
 Before hardening Feature 07:
 
-- Customer contribution to CL-01 Feature 15 passes privacy/support contract tests;
+- Customer contribution to CL-01 Feature 16 passes privacy/support contract tests;
 - destructive paths are either architecture-approved and fully tested or remain disabled;
 - no local privacy/audit/hold/notification/ops duplicate exists;
 - sensitive data logging scan passes;
@@ -1328,7 +1328,7 @@ Prove the Customer Module is safe under retries, race conditions, legacy migrati
 
 ### Cluster Build-Plan Link
 
-Customer-owned portion of **CL-01 Feature 16 — Security, Concurrency, Reconciliation, Backfill, and Production Hardening**. It also verifies the Customer boundaries established in CL-01 Features 05, 06, 13, and 15.
+Customer-owned portion of **CL-01 Feature 17 — Backfills, Reconciliation, and Migration Safety** and **Feature 18 — Security, Privacy, Concurrency, and Production Readiness Hardening**. It also verifies the Customer boundaries established in CL-01 Features 06, 07, 14, and 16.
 
 ### Dependencies
 
@@ -1364,7 +1364,7 @@ Customer-owned portion of **CL-01 Feature 16 — Security, Concurrency, Reconcil
 - organization commercial plans;
 - new provider choice;
 - refactoring Gig/Order/Booking simply to make Customer cleaner;
-- Review/Dispute direct CustomerProfile migration unless U-CL01-07 has been separately approved and scheduled.
+- Review/Dispute direct CustomerProfile migration unless Review/Dispute direct CustomerProfile reference decision has been separately approved and scheduled.
 
 ### Module-Owned Data
 
@@ -1664,9 +1664,9 @@ Feature 04 remains explicitly gated until the Cluster architecture resolves its 
 
 Before implementing each numbered feature:
 
-1. Read root `project-overview.md` and root architecture/standards.
+1. Read `context/project-overview-v3.md` and root architecture/standards.
 2. Read the Canonical Shared Operations Registry.
-3. Read CL-01 `architecture.md` and `build-plan.md`.
+3. Read CL-01 `context/clusters/identity, authority, & consent/identity-authority-consent-architecture.md` and `build-plan.md`.
 4. Read this Module architecture and implementation plan.
 5. Read the public-interface sections for direct dependencies named by the feature.
 6. Inspect the current Prisma schema/migrations for affected Customer data.

@@ -3,7 +3,7 @@
 > **Module ID:** `candidate_application_resume_privacy`  
 > **Module:** Candidate Application & Resume Privacy Module  
 > **Primary Cluster:** `CL-06 Organization Hiring & Candidate Pipeline`  
-> **Repository target:** `context/modules/candidate_application_resume_privacy/implementation-plan.md`  
+> **Repository target:** `context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-implementation-plan.md`\
 > **Authority:** this Module `module-architecture.md`, CL-06 `architecture.md`, and CL-06 `build-plan.md`  
 > **Implementation posture:** greenfield/MVP implementation planning against current Workin Ants schema and architecture evidence; unresolved architecture remains disabled or blocked rather than guessed
 
@@ -31,6 +31,8 @@ A slice with no UI must still leave a concrete observable result: a stable publi
 ---
 
 ## Build Rules
+
+The [Shared Operations registry](../../../shared/shared-operations.md) governs permanent IDs, canonical names, owners, classifications and statuses. Registered use points below carry verified IDs/statuses. Proposed ruling entries may support planning and owner-specific interfaces/mechanisms, but cross-platform SH API/schema commitment requires separate explicit approval; any exit gate relying on that shared API must verify approval. Unresolved entries must not be silently implemented or replaced locally. The approved Job Compliance publication envelope does not approve a proposed shared decision envelope.
 
 1. Follow root Workin Ants architecture/code standards, Canonical Shared Operations, CL-06 architecture/build plan, and this Module architecture.
 2. Implement only Candidate Application & Resume Privacy truth declared by `module-architecture.md`.
@@ -62,8 +64,8 @@ A slice with no UI must still leave a concrete observable result: a stable publi
 
 The following must exist before any production Candidate feature is enabled:
 
-- authenticated actor context / `resolveAuthenticatedActor`;
-- Role / Authority decision interface / `authorizeResourceAction`;
+- authenticated actor context / SH-001 `resolveAuthenticatedActor` (Confirmed);
+- Role / Authority decision interface / SH-002 `authorizeResourceAction` (Confirmed);
 - Prisma migration/transaction layer;
 - runtime validation standard;
 - canonical idempotency primitive;
@@ -71,7 +73,7 @@ The following must exist before any production Candidate feature is enabled:
 - transactional outbox/inbox;
 - reliable queue/retry/dead-letter infrastructure;
 - structured logging/request/correlation IDs;
-- Audit API including `recordSensitiveAccess`;
+- Audit API including SH-030 `recordSensitiveAccess` (Confirmed);
 - RLS infrastructure and policy-test harness.
 
 ### Hard cross-Module interfaces by feature
@@ -79,15 +81,15 @@ The following must exist before any production Candidate feature is enabled:
 | Dependency | Required for |
 |---|---|
 | Organization Hiring owner facts / Job eligibility context | application submission, recruiter reads, resume authorization |
-| Job Compliance / public Job state contract | production application eligibility where Cluster policy requires it |
-| Track `resolveEntitlement` + `consumeMeteredEntitlement` | Feature 05 application quota, Feature 09 perks |
+| Organization Hiring application-eligibility context | normal production submission; no direct Candidate → Job Compliance evaluation/read |
+| Track SH-005 `resolveEntitlement` (Confirmed) + SH-006 `consumeMeteredEntitlement` (Confirmed) | Feature 05 application quota, Feature 09 perks |
 | Trust requirement/readiness API | verified-only application gates |
 | ComplianceHold evaluation | application/transition/access gates as approved |
 | Media validation/scan/attach/grant/signed URL APIs | Features 02–04 and 08 |
 | Search projection refresh/removal contract | Feature 09, privacy integration |
 | Notification request contract | application lifecycle effects |
-| Messaging `ensureContextThread` | optional application conversation effect |
-| Privacy target protocol | Feature 10 |
+| Messaging SH-113 `ensureContextThread` (Confirmed) | optional application conversation effect |
+| Privacy target protocol | Feature 11 |
 | Job Interview application-context contract | Feature 10 integration handoff |
 
 ### Interfaces that may be contract-stubbed initially
@@ -99,12 +101,12 @@ Before the corresponding integration feature, a neighboring owner may be represe
 Production implementation must respect these blockers:
 
 - **U-CL06-08:** CandidateCategory/CandidateTag attach/detach persistence owner.
-- **U-CL06-09:** `CandidateProfile.resumeUrl`, `trustScore`, `verifiedAt`, `verificationExpiresAt` semantics.
+- **U-CL06-09:** Candidate field non-authority is binding; only later cleanup/deprecation remains undecided.
 - **U-CL06-10:** candidate visibility/search participation.
 - **U-CL06-11:** JobApplication transition/event semantics.
 - **U-CL06-12:** JobApplicationViewEvent/view-summary semantics.
 - **U-CL06-13:** ResumeAccessLog semantics and raw extracted-text retention/encryption.
-- **U-CL06-17:** malformed Prisma relation placement around JobApplication and JobApplicationViewEvent.
+- U-CL06-17's placement claim is retired; R008's semantic relation discrepancy and the project migration-baseline question remain separate.
 - **U-CL06-04:** Organization ATS commercial entitlement if monetized applicant tracker/resume viewer/candidate search is enabled.
 - **U-CARP-01:** CandidateSearchProjection cardinality/versioning.
 - **U-CARP-02:** parse retry provenance.
@@ -113,6 +115,12 @@ Production implementation must respect these blockers:
 A feature may implement safe non-production scaffolding around an unresolved area only when the behavior remains disabled/fail-closed and the unresolved question is not encoded as de facto policy.
 
 ---
+
+**Approved execution order (CL-06-R006):** retain feature IDs but execute 01 → 02 → 05 → 03 → 04 → 06 onward. Application creation and its matching application-media link precede parse requests and worker execution. Upload alone never creates ResumeParseResult.
+
+### Public concurrency prerequisite — CL-06-R020
+
+Public mutation contracts use an owner-issued opaque `expectedConcurrencyToken`. The owner returns the token, atomically compares it through SH-052 `withOptimisticConcurrency` (Confirmed), and rejects stale tokens. Consumers do not assume a universal integer `version` or `updatedAt` field. JobApplication, mutable Job Compliance finding/review, JobInterview and any parent-versus-child token backing remain unresolved where no representation is approved; no version column is ordered here.
 
 # Phase 1 — Contract and Source-of-Truth Foundation
 
@@ -124,11 +132,11 @@ Establish the Candidate Application module boundary in code, stabilize owner-spe
 
 ### Observable Result
 
-The codebase has a Candidate Application module shell with public command/query/event/privacy contracts, runtime schemas, owner repositories limited to Candidate-owned records, and a Prisma schema that parses/migrates cleanly around `JobApplication` and `JobApplicationViewEvent` after U-CL06-17 verification.
+The codebase has a Candidate Application module shell with public command/query/event/privacy contracts, runtime schemas, owner repositories limited to Candidate-owned records, and a Prisma schema that parses/migrates cleanly around `JobApplication` and `JobApplicationViewEvent` without assuming the retired U-CL06-17 placement defect; overall validation and the project migration baseline still require evidence.
 
 ### Cluster Build-Plan Link
 
-Preparatory slice for CL-06 Phase 2 Features **04–08**; directly resolves the technical prerequisite named by **U-CL06-17** before those migrations.
+Preparatory slice for CL-06 Phase 2 Features **04–08**; checks current schema evidence independently of the retired U-CL06-17 claim; R008 and the project migration baseline are separate database-pass prerequisites.
 
 ### Dependencies
 
@@ -137,7 +145,7 @@ Preparatory slice for CL-06 Phase 2 Features **04–08**; directly resolves the 
 - Prisma migration tooling;
 - canonical shared operation contracts;
 - CL-06 public-interface table;
-- architecture confirmation for the exact U-CL06-17 relation correction.
+- current schema validation evidence; no obsolete U-CL06-17 relation-placement repair;
 
 ### In Scope
 
@@ -145,9 +153,9 @@ Preparatory slice for CL-06 Phase 2 Features **04–08**; directly resolves the 
 - define public DTOs for CandidateProfile, JobApplication, resume access, projection, view insights, and privacy executor;
 - define public command/query names without implementing all business behavior yet;
 - define owner repository interfaces that access only Candidate-owned tables;
-- verify/fix misplaced `jobApplicationViewEvents` and `organizations` relation lines in Prisma once U-CL06-17 is confirmed as structural defect;
+- verify current schema without moving relation lines on the basis of retired U-CL06-17; flag the R008 many-to-many relation for a later approved schema pass;
 - add schema parsing/migration tests;
-- isolate/mark non-authoritative fields (`resumeUrl`, verification-looking fields) in code so no feature uses them as source truth before U-CL06-09;
+- isolate/mark non-authoritative fields (`resumeUrl`, verification-looking fields) in code so no feature uses them as source truth; CL-06-R010 confirms their non-authority;
 - preserve unresolved CandidateCategory/Tag write placement rather than creating a repository for them.
 
 ### Out of Scope
@@ -168,7 +176,7 @@ Preparatory slice for CL-06 Phase 2 Features **04–08**; directly resolves the 
 - `ResumeParseResult` mapping;
 - `ResumeAccessLog` mapping;
 - `CandidateSearchProjection` mapping;
-- proposed `JobApplicationViewEvent` mapping only after U-CL06-17 repair, without activating U-CL06-12 semantics.
+- Candidate-owned `JobApplicationViewEvent` with at most one Organization context; do not activate unresolved U-CL06-12 view-summary semantics or use the extra many-to-many relation as truth;
 
 ### Public Interfaces
 
@@ -194,18 +202,18 @@ getResumeParseResult
 getCandidateSearchProjection
 getApplicationViewInsights
 getApplicationInterviewContext
-enumerateSubjectData
-executePrivacyInstruction
+SH-096 enumerateSubjectData (Confirmed)
+SH-095 executePrivacyInstruction (Confirmed)
 ```
 
 No consumer is allowed to import Candidate repositories instead of these contracts.
 
 ### Shared Operations Used
 
-- `executeIdempotentCommand` — canonical owner: platform application infrastructure; used for future command contract shape. Do not create `candidateIdempotency.ts`.
-- `withOptimisticConcurrency` — canonical owner: shared persistence; establish expected-version DTO pattern. Do not hand-roll stale-update logic.
-- `publishDomainEvent` — canonical owner: platform outbox; establish event envelope types. Do not implement fire-and-forget local events.
-- `returnDecisionResult` — Proposed shared contract; define compatibility only, do not treat its policy as approved generic readiness truth.
+- SH-044 `executeIdempotentCommand` (Confirmed) — canonical owner: platform application infrastructure; used for future command contract shape. Do not create `candidateIdempotency.ts`.
+- SH-052 `withOptimisticConcurrency` (Confirmed) — canonical owner: shared persistence; establish owner-issued opaque expected-concurrency-token DTO pattern. Do not hand-roll stale-update logic.
+- SH-046 `publishDomainEvent` (Confirmed) — canonical owner: platform outbox; establish event envelope types. Do not implement fire-and-forget local events.
+- SH-015 `returnDecisionResult` (Proposed ruling) — Proposed shared contract; define compatibility only, do not treat its policy as approved generic readiness truth.
 
 ### Domain Logic
 
@@ -220,7 +228,7 @@ No end-user behavior is enabled. Public contracts include actor/action context s
 
 ### Database / Transaction Behavior
 
-- schema must parse after relation repair;
+- verify current schema parsing without assuming the retired U-CL06-17 relation-placement defect;
 - preserve `CandidateProfile.userId @unique`;
 - preserve `JobApplication @@unique([jobId,candidateProfileId])`;
 - preserve media composite keys and ResumeParseResult uniqueness;
@@ -241,7 +249,7 @@ None.
 
 ### Failure Behavior
 
-- schema defect unresolved → migration generation remains blocked;
+- an actual schema-validation failure → report the observed defect and block affected migration generation; do not assume retired U-CL06-17 is the cause;
 - ambiguous ownership → no code path created;
 - contract incompatibility with existing root standards → update context before implementation.
 
@@ -255,7 +263,7 @@ None.
 
 ### Documentation Updates
 
-- update this Module architecture if U-CL06-17 or any field semantics are formally settled;
+- retain the retired U-CL06-17 status and update architecture only when remaining schema/field semantics are formally settled;
 - record any new public contract naming decision;
 - update progress tracker.
 
@@ -269,7 +277,7 @@ None.
 
 ### Exit Gate
 
-PASS only if Prisma generation/migration rehearsal succeeds for the repaired area, public contracts/runtime schemas compile, no unresolved business ruling was encoded, no cross-domain repository shortcut exists, and typecheck/lint/unit/schema checks pass.
+PASS only if Prisma generation/migration rehearsal succeeds for the relevant current schema, without assuming a U-CL06-17 repair, public contracts/runtime schemas compile, no unresolved business ruling was encoded, no cross-domain repository shortcut exists, and typecheck/lint/unit/schema checks pass.
 
 ---
 
@@ -292,10 +300,10 @@ Supports CL-06 Feature **04 CandidateProfile and Secure Resume Intake**.
 ### Dependencies
 
 - Feature 01;
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction` / candidate ownership policy;
-- Media `validateUploadedFile`, `scanFileForMalware`, `attachValidatedMedia` contracts;
-- U-CL06-09 resolved before production uses any overlapping direct/projection fields;
+- SH-001 `resolveAuthenticatedActor` (Confirmed);
+- SH-002 `authorizeResourceAction` (Confirmed) / candidate ownership policy;
+- Media SH-082 `validateUploadedFile` (Confirmed), SH-083 `scanFileForMalware` (Confirmed), SH-090 `attachValidatedMedia` (Confirmed) contracts;
+- enforce confirmed non-authority of resumeUrl/local verification fields; later cleanup/deprecation remains unresolved;
 - U-CARP-03 resolved before ad hoc media-role strings become production API vocabulary.
 
 ### In Scope
@@ -335,13 +343,15 @@ Supports CL-06 Feature **04 CandidateProfile and Secure Resume Intake**.
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor` — Identity; resolve User actor. Local policy: CandidateProfile belongs to that User. Prohibited duplicate: `currentCandidateUser.ts`.
-- `authorizeResourceAction` — Role / Authority; authorize profile actions. Local policy: ownership/resource facts. Prohibited duplicate: local generic permission engine.
-- `executeIdempotentCommand` — platform; CandidateProfile creation and media attach commands. Local policy: semantic command key. Prohibited duplicate: local idempotency table.
-- `withOptimisticConcurrency` — shared persistence; profile edits. Local policy: stale edit behavior.
-- `validateUploadedFile` / `scanFileForMalware` — Media; file safety. Local policy: whether the validated asset may be used as candidate media. Prohibited duplicate: resume/file validator.
-- `attachValidatedMedia` — context owner + Media contract; persist CandidateProfileMedia after ready/valid result. Prohibited duplicate: direct storage/object mutation.
-- `publishDomainEvent` — outbox; profile/media change events. Local policy: event meaning/payload.
+CandidateProfile creation uses SH-114 `provisionOneToOneProfile` (Confirmed) for idempotent one-to-one provisioning; Candidate owns opt-in/defaults and lifecycle.
+
+- SH-001 `resolveAuthenticatedActor` (Confirmed) — Identity; resolve User actor. Local policy: CandidateProfile belongs to that User. Prohibited duplicate: `currentCandidateUser.ts`.
+- SH-002 `authorizeResourceAction` (Confirmed) — Role / Authority; authorize profile actions. Local policy: ownership/resource facts. Prohibited duplicate: local generic permission engine.
+- SH-044 `executeIdempotentCommand` (Confirmed) — platform; CandidateProfile creation and media attach commands. Local policy: semantic command key. Prohibited duplicate: local idempotency table.
+- SH-052 `withOptimisticConcurrency` (Confirmed) — shared persistence; profile edits. Local policy: stale edit behavior.
+- SH-082 `validateUploadedFile` (Confirmed) / SH-083 `scanFileForMalware` (Confirmed) — Media; file safety. Local policy: whether the validated asset may be used as candidate media. Prohibited duplicate: resume/file validator.
+- SH-090 `attachValidatedMedia` (Confirmed) — context owner + Media contract; persist CandidateProfileMedia after ready/valid result. Prohibited duplicate: direct storage/object mutation.
+- SH-046 `publishDomainEvent` (Confirmed) — outbox; profile/media change events. Local policy: event meaning/payload.
 
 ### Domain Logic
 
@@ -414,7 +424,7 @@ None. Media provider/storage is external to this Module.
 
 ### Documentation Updates
 
-If U-CL06-09 or CandidateProfile transition policy is resolved during this feature, update `module-architecture.md` first and record migration/deprecation behavior.
+If the remaining U-CL06-09 cleanup/deprecation question or CandidateProfile transition policy is resolved during this feature, update `module-architecture.md` first and record migration/deprecation behavior. CL-06-R010's field non-authority is already binding.
 
 ### Acceptance Criteria
 
@@ -430,6 +440,169 @@ PASS only if candidate identity and private media-context workflows work end-to-
 
 ---
 
+# Phase 3 — Application Submission, Post-Submission Parsing, and Candidate Self-Service
+
+## 05 Atomic Application Eligibility and Submission
+
+### Objective
+
+Allow a CandidateProfile to submit exactly one application to an eligible Job without exceeding Track application limits under concurrent/retried requests.
+
+### Observable Result
+
+The apply flow returns a stable eligibility decision, creates one `JobApplication(status=submitted, stage=new_)` only when all gates pass, consumes the Track allowance exactly once for the logical submission, and produces a durable receipt/event.
+
+### Cluster Build-Plan Link
+
+Implements the Candidate-owned core of CL-06 Feature **05 Atomic Application Eligibility, Quota, and Submission**.
+
+### Dependencies
+
+- Features 01–02; parsing Features 03–04 are downstream and are not prerequisites for submission;
+- Organization Hiring `getJobApplicationEligibilityContext`;
+- Track SH-005 `resolveEntitlement` (Confirmed) + SH-006 `consumeMeteredEntitlement` (Confirmed);
+- Trust SH-017 `resolveVerificationRequirements` (Confirmed) + SH-018 `evaluateVerificationReadiness` (Confirmed);
+- SH-011 `evaluateComplianceHold` (Confirmed);
+- Media attachment readiness;
+- U-CL06-11 sufficient to confirm creation/withdraw semantics;
+- approved race-safe cross-owner application/Track usage protocol.
+
+### In Scope
+
+- `evaluateApplicationEligibility`;
+- `submitJobApplication`;
+- application form/receipt;
+- duplicate prevention;
+- Track usage consumption/reconciliation;
+- verified-only gate;
+- Hold gate;
+- validated attachment links;
+- application submitted event;
+- Notification request;
+- optional Messaging thread request if Cluster workflow enables it.
+
+### Out of Scope
+
+- recruiter pipeline transitions;
+- application view events;
+- resume viewing;
+- candidate search;
+- interview creation.
+
+### Module-Owned Data
+
+- `JobApplication`;
+- `JobApplicationMedia` relations included in submission only when already validated/approved;
+- local outbox facts.
+
+### Public Interfaces
+
+- `evaluateApplicationEligibility`;
+- `submitJobApplication`;
+- `listCandidateApplications`.
+
+### Shared Operations Used
+
+- SH-001 `resolveAuthenticatedActor` (Confirmed) — candidate actor.
+- SH-002 `authorizeResourceAction` (Confirmed) — candidate owns CandidateProfile/action.
+- SH-011 `evaluateComplianceHold` (Confirmed) — stop-sign decision; no local blocked flag.
+- SH-005 `resolveEntitlement` (Confirmed) — inspect application allowance.
+- SH-006 `consumeMeteredEntitlement` (Confirmed) — atomically consume allowed quantity/usage receipt.
+- SH-017 `resolveVerificationRequirements` (Confirmed) / SH-018 `evaluateVerificationReadiness` (Confirmed) — verified-only gate.
+- SH-044 `executeIdempotentCommand` (Confirmed) — logical submission identity.
+- SH-051 `acquireAggregateLock` (Confirmed) / transaction primitive — application/quota race.
+- SH-046 `publishDomainEvent` (Confirmed) — `application.submitted`.
+- SH-041 `requestNotification` (Confirmed) — downstream delivery.
+- SH-113 `ensureContextThread` (Confirmed) — optional Messaging handoff, never local Thread write.
+
+### Domain Logic
+
+A submission is allowed only if all approved conditions pass:
+
+```text
+CandidateProfile usable
+AND Job is accepting applications according to Organization Hiring facts
+AND no duplicate JobApplication
+AND applicable ComplianceHold does not block
+AND Track application allowance can be consumed
+AND verified-only requirements pass when applicable
+AND required attachments are ready/clean
+AND request is valid and authorized
+```
+
+Normal submission does not independently read or reevaluate Job Compliance. `getJobApplicationEligibilityContext` fails closed unless current authoritative Job state permits applications; later Compliance decisions are applied by Organization Hiring and Candidate consumes Job owner state/events. A future direct dependency needs an explicit new Cluster policy.
+
+The Module defines the business point at which the application counts for Track usage. Track owns the usage event/counter itself.
+
+### Authorization / Compliance
+
+- candidate actor must own CandidateProfile;
+- verified-only status comes from Trust, not CandidateProfile fields;
+- no local plan/premium flag;
+- dependency unavailable fails closed/unavailable rather than bypassing quota/verification.
+
+### Database / Transaction Behavior
+
+- unique `(jobId,candidateProfileId)` is the final duplicate guard;
+- semantic idempotency key binds the logical application and Track consume operation;
+- if root architecture permits one transaction across owner services, use it only through approved owner participation; otherwise persist/reconcile explicit saga state/result without direct Track table writes;
+- local JobApplication/outbox commit is atomic;
+- duplicate retry returns prior result/receipt.
+
+### Events / Jobs
+
+- `application.submitted` outbox event;
+- Notification/Messaging consumers dedupe;
+- reconciliation job only if cross-owner Track/application outcome can be partial.
+
+### Provider Integration
+
+None.
+
+### UI / Admin Surface
+
+- apply form;
+- allow/deny/remediation reasons;
+- remaining quota if Track contract permits display;
+- success receipt/application list.
+
+### Failure Behavior
+
+- validation → no write;
+- unauthorized → no write;
+- duplicate → existing application/conflict per command semantics;
+- quota exhausted → no application;
+- Trust/Hold denial → no application;
+- Track unavailable → no permissive application;
+- partial Track/application outcome → explicit reconciliation path, never silent double-charge/double-consume.
+
+### Tests
+
+- eligibility policy matrix;
+- Organization Job-state contract;
+- Track allowance/consume contract;
+- verified-only Trust contract;
+- Hold denial;
+- simultaneous duplicate submissions;
+- quota boundary concurrency;
+- idempotency replay;
+- partial cross-owner reconciliation;
+- E2E apply flow.
+
+### Documentation Updates
+
+If the cross-owner atomic protocol settles a binding rule, record it in Module architecture and Track/Candidate public contracts.
+
+### Acceptance Criteria
+
+One logical submission creates one JobApplication and one qualifying Track usage receipt at most; all gates are server-side and cannot be bypassed.
+
+### Exit Gate
+
+PASS only if duplicate application and quota overrun are impossible under concurrency/replay, Trust/Hold/Track unavailability cannot bypass gates, application/usage reconciliation is tested, and full unit/integration/contract/E2E checks pass.
+
+---
+
 ## 03 Secure Resume Attachment and Parse Request
 
 ### Objective
@@ -442,11 +615,11 @@ A PDF/DOCX resume uploaded under an approved resume context can be attached and 
 
 ### Cluster Build-Plan Link
 
-Supports the first half of CL-06 Feature **04 CandidateProfile and Secure Resume Intake**.
+Supports the post-submission parsing stage of CL-06 Feature **05 Atomic Application Eligibility, Quota, and Submission**, after Module Feature 05 has created the application and matching application-media relationship.
 
 ### Dependencies
 
-- Features 01–02;
+- Features 01–02 and 05; the JobApplication and matching JobApplicationMedia must exist before parse creation;
 - Media upload policy for `candidate_resume` / `candidate_cv`;
 - Media readiness/scan query;
 - shared queue/idempotency;
@@ -482,10 +655,10 @@ Supports the first half of CL-06 Feature **04 CandidateProfile and Secure Resume
 
 ### Shared Operations Used
 
-- Media `validateUploadedFile`, `scanFileForMalware`, `attachValidatedMedia` — verify file policy/safety; no local MIME/malware code.
-- `executeIdempotentCommand` — one logical attach/parse request.
-- `enqueueReliableJob` — durable parse job; no local queue framework.
-- `publishDomainEvent` — `resume.parse_requested` after local record exists.
+- Media SH-082 `validateUploadedFile` (Confirmed), SH-083 `scanFileForMalware` (Confirmed), SH-090 `attachValidatedMedia` (Confirmed) — verify file policy/safety; no local MIME/malware code.
+- SH-044 `executeIdempotentCommand` (Confirmed) — one logical attach/parse request.
+- SH-047 `enqueueReliableJob` (Confirmed) — durable parse job; no local queue framework.
+- SH-046 `publishDomainEvent` (Confirmed) — `resume.parse_requested` after local record exists.
 
 ### Domain Logic
 
@@ -567,7 +740,7 @@ A pending parse job moves through processing to completed/failed/skipped as appr
 
 ### Cluster Build-Plan Link
 
-Completes CL-06 Feature **04 CandidateProfile and Secure Resume Intake**.
+Completes the post-submission parsing stage of CL-06 Feature **05**, after Module Features 05 and 03.
 
 ### Dependencies
 
@@ -611,11 +784,11 @@ Completes CL-06 Feature **04 CandidateProfile and Secure Resume Intake**.
 
 ### Shared Operations Used
 
-- `enqueueReliableJob` — durable worker;
-- `executeRetryWithBackoff` — transient retries;
-- `executeIdempotentCommand` — retry command if exposed;
+- SH-047 `enqueueReliableJob` (Confirmed) — durable worker;
+- SH-048 `executeRetryWithBackoff` (Confirmed) — transient retries;
+- SH-044 `executeIdempotentCommand` (Confirmed) — retry command if exposed;
 - Ops logging/failure APIs — operational state only;
-- `publishDomainEvent` — completed/failed facts.
+- SH-046 `publishDomainEvent` (Confirmed) — completed/failed facts.
 
 ### Domain Logic
 
@@ -691,166 +864,6 @@ PASS only if PDF/DOCX fixtures parse through the port, retry/dead-letter behavio
 
 ---
 
-# Phase 3 — Application Eligibility, Quota, and Candidate Self-Service
-
-## 05 Atomic Application Eligibility and Submission
-
-### Objective
-
-Allow a CandidateProfile to submit exactly one application to an eligible Job without exceeding Track application limits under concurrent/retried requests.
-
-### Observable Result
-
-The apply flow returns a stable eligibility decision, creates one `JobApplication(status=submitted, stage=new_)` only when all gates pass, consumes the Track allowance exactly once for the logical submission, and produces a durable receipt/event.
-
-### Cluster Build-Plan Link
-
-Implements the Candidate-owned core of CL-06 Feature **05 Atomic Application Eligibility, Quota, and Submission**.
-
-### Dependencies
-
-- Features 01–04 as applicable;
-- Organization Hiring `getJobApplicationEligibilityContext`;
-- Track `resolveEntitlement` + `consumeMeteredEntitlement`;
-- Trust `resolveVerificationRequirements` + `evaluateVerificationReadiness`;
-- `evaluateComplianceHold`;
-- Media attachment readiness;
-- U-CL06-11 sufficient to confirm creation/withdraw semantics;
-- approved race-safe cross-owner application/Track usage protocol.
-
-### In Scope
-
-- `evaluateApplicationEligibility`;
-- `submitJobApplication`;
-- application form/receipt;
-- duplicate prevention;
-- Track usage consumption/reconciliation;
-- verified-only gate;
-- Hold gate;
-- validated attachment links;
-- application submitted event;
-- Notification request;
-- optional Messaging thread request if Cluster workflow enables it.
-
-### Out of Scope
-
-- recruiter pipeline transitions;
-- application view events;
-- resume viewing;
-- candidate search;
-- interview creation.
-
-### Module-Owned Data
-
-- `JobApplication`;
-- `JobApplicationMedia` relations included in submission only when already validated/approved;
-- local outbox facts.
-
-### Public Interfaces
-
-- `evaluateApplicationEligibility`;
-- `submitJobApplication`;
-- `listCandidateApplications`.
-
-### Shared Operations Used
-
-- `resolveAuthenticatedActor` — candidate actor.
-- `authorizeResourceAction` — candidate owns CandidateProfile/action.
-- `evaluateComplianceHold` — stop-sign decision; no local blocked flag.
-- `resolveEntitlement` — inspect application allowance.
-- `consumeMeteredEntitlement` — atomically consume allowed quantity/usage receipt.
-- `resolveVerificationRequirements` / `evaluateVerificationReadiness` — verified-only gate.
-- `executeIdempotentCommand` — logical submission identity.
-- `acquireAggregateLock` / transaction primitive — application/quota race.
-- `publishDomainEvent` — `application.submitted`.
-- `requestNotification` — downstream delivery.
-- `ensureContextThread` — optional Messaging handoff, never local Thread write.
-
-### Domain Logic
-
-A submission is allowed only if all approved conditions pass:
-
-```text
-CandidateProfile usable
-AND Job is accepting applications according to Organization Hiring facts
-AND no duplicate JobApplication
-AND applicable ComplianceHold does not block
-AND Track application allowance can be consumed
-AND verified-only requirements pass when applicable
-AND required attachments are ready/clean
-AND request is valid and authorized
-```
-
-The Module defines the business point at which the application counts for Track usage. Track owns the usage event/counter itself.
-
-### Authorization / Compliance
-
-- candidate actor must own CandidateProfile;
-- verified-only status comes from Trust, not CandidateProfile fields;
-- no local plan/premium flag;
-- dependency unavailable fails closed/unavailable rather than bypassing quota/verification.
-
-### Database / Transaction Behavior
-
-- unique `(jobId,candidateProfileId)` is the final duplicate guard;
-- semantic idempotency key binds the logical application and Track consume operation;
-- if root architecture permits one transaction across owner services, use it only through approved owner participation; otherwise persist/reconcile explicit saga state/result without direct Track table writes;
-- local JobApplication/outbox commit is atomic;
-- duplicate retry returns prior result/receipt.
-
-### Events / Jobs
-
-- `application.submitted` outbox event;
-- Notification/Messaging consumers dedupe;
-- reconciliation job only if cross-owner Track/application outcome can be partial.
-
-### Provider Integration
-
-None.
-
-### UI / Admin Surface
-
-- apply form;
-- allow/deny/remediation reasons;
-- remaining quota if Track contract permits display;
-- success receipt/application list.
-
-### Failure Behavior
-
-- validation → no write;
-- unauthorized → no write;
-- duplicate → existing application/conflict per command semantics;
-- quota exhausted → no application;
-- Trust/Hold denial → no application;
-- Track unavailable → no permissive application;
-- partial Track/application outcome → explicit reconciliation path, never silent double-charge/double-consume.
-
-### Tests
-
-- eligibility policy matrix;
-- Organization Job-state contract;
-- Track allowance/consume contract;
-- verified-only Trust contract;
-- Hold denial;
-- simultaneous duplicate submissions;
-- quota boundary concurrency;
-- idempotency replay;
-- partial cross-owner reconciliation;
-- E2E apply flow.
-
-### Documentation Updates
-
-If the cross-owner atomic protocol settles a binding rule, record it in Module architecture and Track/Candidate public contracts.
-
-### Acceptance Criteria
-
-One logical submission creates one JobApplication and one qualifying Track usage receipt at most; all gates are server-side and cannot be bypassed.
-
-### Exit Gate
-
-PASS only if duplicate application and quota overrun are impossible under concurrency/replay, Trust/Hold/Track unavailability cannot bypass gates, application/usage reconciliation is tested, and full unit/integration/contract/E2E checks pass.
-
----
 
 ## 06 Candidate Application Self-Service and Withdrawal
 
@@ -903,10 +916,10 @@ Completes Candidate self-service within CL-06 Feature **05** and prepares CL-06 
 ### Shared Operations Used
 
 - actor/authority;
-- `transitionLifecycleState` — plumbing only; local withdrawal graph remains Candidate-owned;
-- `withOptimisticConcurrency` — stale withdrawal race;
-- `publishDomainEvent` — `application.withdrawn`;
-- `requestNotification` — safe candidate/org notice.
+- SH-053 `transitionLifecycleState` (Confirmed) — plumbing only; local withdrawal graph remains Candidate-owned;
+- SH-052 `withOptimisticConcurrency` (Confirmed) — stale withdrawal race;
+- SH-046 `publishDomainEvent` (Confirmed) — `application.withdrawn`;
+- SH-041 `requestNotification` (Confirmed) — safe candidate/org notice.
 
 ### Domain Logic
 
@@ -991,7 +1004,7 @@ Implements CL-06 Feature **06 Recruiter Applicant Views, View Events, and Pipeli
 - Role / Authority;
 - U-CL06-11 approved transition matrix/event requirements;
 - U-CL06-12 approved view semantics;
-- U-CL06-17 schema repair;
+- valid schema evidence independent of retired U-CL06-17; R008 semantic relation correction remains for a later database pass;
 - Notification/Audit contracts as required.
 
 ### In Scope
@@ -1031,14 +1044,16 @@ Implements CL-06 Feature **06 Recruiter Applicant Views, View Events, and Pipeli
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction` — org-scope authority;
+Use SH-076 `normalizeAndHashIdentifier` (Confirmed) for approved IP/identifier evidence; Candidate owns capture policy and view-event meaning.
+
+- SH-001 `resolveAuthenticatedActor` (Confirmed);
+- SH-002 `authorizeResourceAction` (Confirmed) — org-scope authority;
 - owner-facts query from Organization Hiring;
-- `transitionLifecycleState` — shared plumbing, Candidate-owned graph;
-- `withOptimisticConcurrency` / `acquireAggregateLock` — stale/concurrent pipeline mutations;
-- `publishDomainEvent`;
-- `appendAuditEvent` when root policy requires;
-- `requestNotification`.
+- SH-053 `transitionLifecycleState` (Confirmed) — shared plumbing, Candidate-owned graph;
+- SH-052 `withOptimisticConcurrency` (Confirmed) / SH-051 `acquireAggregateLock` (Confirmed) — stale/concurrent pipeline mutations;
+- SH-046 `publishDomainEvent` (Confirmed);
+- SH-029 `appendAuditEvent` (Confirmed) when root policy requires;
+- SH-041 `requestNotification` (Confirmed).
 
 ### Domain Logic
 
@@ -1134,7 +1149,7 @@ Implements CL-06 Feature **07 Contextual Resume Access and Sensitive Access Proo
 
 - Feature 07;
 - Media temporary-grant/signed URL interfaces;
-- Audit `recordSensitiveAccess`;
+- Audit SH-030 `recordSensitiveAccess` (Confirmed);
 - U-CL06-13 approved access-event semantics;
 - U-CL06-04 only if organization resume viewer is monetized;
 - Role / Authority and Organization owner facts.
@@ -1171,16 +1186,18 @@ Implements CL-06 Feature **07 Contextual Resume Access and Sensitive Access Proo
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
+Use SH-125 `recordDomainAccessEvent` (Confirmed) for ResumeAccessLog/domain proof append and SH-076 `normalizeAndHashIdentifier` (Confirmed) for approved access metadata. Candidate retains event semantics and authorization.
+
+- SH-001 `resolveAuthenticatedActor` (Confirmed);
+- SH-002 `authorizeResourceAction` (Confirmed);
 - Organization owner facts;
 - Media readiness query;
-- `manageTemporaryAccessGrant` — Media/shared grant mechanism;
-- `issueSignedMediaUrl` — Media;
-- `recordSensitiveAccess` — Audit;
-- `executeIdempotentCommand` — access request replay;
+- SH-088 `manageTemporaryAccessGrant` (Confirmed) — Media/shared grant mechanism;
+- SH-087 `issueSignedMediaUrl` (Confirmed) — Media;
+- SH-030 `recordSensitiveAccess` (Confirmed) — Audit;
+- SH-044 `executeIdempotentCommand` (Confirmed) — access request replay;
 - shared IP hashing/minimization primitive;
-- `appendAuditEvent` where policy requires.
+- SH-029 `appendAuditEvent` (Confirmed) where policy requires.
 
 Local policy remains: exact application↔Job↔Organization relation, media attachment relation, allowed ResumeAccessReason, and candidate privacy context.
 
@@ -1292,7 +1309,7 @@ Implements CL-06 Feature **08 Candidate Search Projection and Candidate Perks**.
 - U-CL06-10 approved visibility/search participation;
 - U-CARP-01 approved projection cardinality/versioning;
 - Search refresh/removal contract;
-- Track `resolveEntitlement`;
+- Track SH-005 `resolveEntitlement` (Confirmed);
 - U-CL06-12 for application-view insight source semantics;
 - Privacy target protocol.
 
@@ -1331,13 +1348,13 @@ Implements CL-06 Feature **08 Candidate Search Projection and Candidate Perks**.
 
 ### Shared Operations Used
 
-- `buildSourceProjection` — shared pattern, Candidate local implementation;
-- `resolveEntitlement` — Track boost/view perk;
-- `requestSearchProjectionRefresh` — Search public interface;
-- `enqueueReliableJob` / retry — projection work;
-- `publishDomainEvent` / event dedupe;
+- SH-094 `buildSourceProjection` (Confirmed) — shared pattern, Candidate local implementation;
+- SH-005 `resolveEntitlement` (Confirmed) — Track boost/view perk;
+- SH-091 `requestSearchProjectionRefresh` (Confirmed) — Search public interface;
+- SH-047 `enqueueReliableJob` (Confirmed) / retry — projection work;
+- SH-046 `publishDomainEvent` (Confirmed) / event dedupe;
 - Privacy protocols for hide/erase;
-- `withOptimisticConcurrency` — projection version race.
+- SH-052 `withOptimisticConcurrency` (Confirmed) — projection version race.
 
 ### Domain Logic
 
@@ -1448,7 +1465,7 @@ Supports CL-06 Features **09–11** from the Candidate Application side and cont
 - resume `interview_review` path reuse;
 - applicant-summary DTO for Organization Hiring;
 - Notification request payload mapping;
-- optional `ensureContextThread` after application commit;
+- optional SH-113 `ensureContextThread` (Confirmed) after application commit;
 - contract/version tests.
 
 ### Out of Scope
@@ -1474,12 +1491,12 @@ No new core schema required. Existing CandidateProfile/JobApplication/ResumeAcce
 
 ### Shared Operations Used
 
-- `queryOwnerFacts` pattern — Candidate exposes minimal owner facts, no universal repository;
-- `publishDomainEvent` / `deduplicateDomainEvent`;
-- `requestNotification`;
-- `ensureContextThread`;
-- `recordSensitiveAccess` via resume review path;
-- `executeIdempotentCommand` for externally requested owner mutations.
+- SH-003 `queryOwnerFacts` (Proposed ruling) pattern — Candidate exposes minimal owner facts, no universal repository;
+- SH-046 `publishDomainEvent` (Confirmed) / SH-045 `deduplicateDomainEvent` (Confirmed);
+- SH-041 `requestNotification` (Confirmed);
+- SH-113 `ensureContextThread` (Confirmed);
+- SH-030 `recordSensitiveAccess` (Confirmed) via resume review path;
+- SH-044 `executeIdempotentCommand` (Confirmed) for externally requested owner mutations.
 
 ### Domain Logic
 
@@ -1501,7 +1518,7 @@ No new core schema required. Existing CandidateProfile/JobApplication/ResumeAcce
 - no cross-domain transaction that directly writes JobInterview/Thread/Notification tables;
 - Candidate mutation/outbox atomic;
 - consumers dedupe events;
-- externally requested Candidate command uses idempotency key and expected version.
+- externally requested Candidate command uses idempotency key and owner-issued opaque expectedConcurrencyToken.
 
 ### Events / Jobs
 
@@ -1575,7 +1592,7 @@ Implements Candidate-owned portion of CL-06 Feature **13 Privacy Executors, Rete
 ### Dependencies
 
 - all enabled Candidate features;
-- Privacy `enumerateSubjectData`, `executePrivacyInstruction`, `evaluateRetentionRequirement` protocol;
+- Privacy SH-096 `enumerateSubjectData` (Confirmed), SH-095 `executePrivacyInstruction` (Confirmed), SH-097 `evaluateRetentionRequirement` (Confirmed) protocol;
 - Media deletion/revocation contract;
 - Search removal contract;
 - Audit/Ops;
@@ -1584,8 +1601,8 @@ Implements Candidate-owned portion of CL-06 Feature **13 Privacy Executors, Rete
 
 ### In Scope
 
-- `enumerateSubjectData` implementation;
-- `executePrivacyInstruction` implementation;
+- SH-096 `enumerateSubjectData` (Confirmed) implementation;
+- SH-095 `executePrivacyInstruction` (Confirmed) implementation;
 - candidate data export serializer;
 - anonymization/erasure/restriction mappings;
 - CandidateSearchProjection hide/erase + Search removal request;
@@ -1618,20 +1635,20 @@ Potentially all Candidate-owned personal-data records:
 
 ### Public Interfaces
 
-- `enumerateSubjectData`;
-- `executePrivacyInstruction`;
+- SH-096 `enumerateSubjectData` (Confirmed);
+- SH-095 `executePrivacyInstruction` (Confirmed);
 - owner retention-facts response;
 - export contribution contract.
 
 ### Shared Operations Used
 
-- `enumerateSubjectData` — Privacy protocol, local implementation;
-- `executePrivacyInstruction` — Privacy protocol, local implementation;
-- `evaluateRetentionRequirement` — owner facts + Privacy exemption lifecycle;
-- `anonymizePersonalFields` — shared mechanism with Candidate field map;
-- `requestSearchProjectionRefresh`/removal — Search;
+- SH-096 `enumerateSubjectData` (Confirmed) — Privacy protocol, local implementation;
+- SH-095 `executePrivacyInstruction` (Confirmed) — Privacy protocol, local implementation;
+- SH-097 `evaluateRetentionRequirement` (Confirmed) — owner facts + Privacy exemption lifecycle;
+- SH-098 `anonymizePersonalFields` (Confirmed) — shared mechanism with Candidate field map;
+- SH-091 `requestSearchProjectionRefresh` (Confirmed)/removal — Search;
 - Media deletion/revocation owner commands;
-- `appendAuditEvent` for destructive execution where required;
+- SH-029 `appendAuditEvent` (Confirmed) for destructive execution where required;
 - queue/retry/dead-letter/Ops.
 
 ### Domain Logic
@@ -1713,7 +1730,7 @@ Prove the complete Candidate Application module against all critical neighboring
 
 ### Observable Result
 
-The Candidate path works with real interfaces or versioned fixtures for Identity, Role, Organization Hiring, Job Compliance, Track, Trust, Holds, Media, Search, Audit, Notification, Messaging, Privacy, Ops, and Job Interview; unavailable neighbors never trigger permissive fallback or direct DB shortcuts.
+The Candidate path works with real interfaces or versioned fixtures for Identity, Role, Organization Hiring, Track, Trust, Holds, Media, Search, Audit, Notification, Messaging, Privacy, Ops, and Job Interview; unavailable neighbors never trigger permissive fallback or direct DB shortcuts.
 
 ### Cluster Build-Plan Link
 
@@ -1810,7 +1827,7 @@ No new product UI required.
 - critical E2E:
 
 ```text
-CandidateProfile → private resume → parse → application
+CandidateProfile → private resume upload → application + application-media link → parse
 Recruiter → applicant detail → view event → pipeline transition
 Recruiter/Interview → contextual resume access
 Candidate search source projection → Search fixture
@@ -2004,7 +2021,7 @@ Minimum required boundaries:
 Identity actor → Candidate protected action
 Candidate owner facts → Role / Authority
 Organization Hiring Job facts → application eligibility
-Job Compliance/public Job state → application availability as required
+Job Compliance decision → Organization Hiring applies Job lifecycle/eligibility → Candidate consumes fail-closed Organization context; no normal direct Compliance read/evaluation
 Track allowance → Candidate application submission
 Track perk/boost → candidate insight/search effect
 Trust readiness → verified-only application gate
@@ -2052,15 +2069,15 @@ Hardening must not create a generic hiring source-of-truth table, global readine
 | **Phase** | **Name** | **Features** |
 |---|---|---|
 | 1 | Contract and Source-of-Truth Foundation | 01 |
-| 2 | Candidate Identity and Secure Resume Intake | 02–04 |
-| 3 | Application Eligibility, Quota, and Candidate Self-Service | 05–06 |
+| 2 | Candidate Identity and Secure Resume Intake | 02 |
+| 3 | Application Submission, Post-Submission Parsing, and Candidate Self-Service | 05 → 03 → 04 → 06 |
 | 4 | Recruiter Pipeline and Sensitive Resume Access | 07–08 |
 | 5 | Candidate Search Projection and Entitlement-Gated Perks | 09 |
 | 6 | Cross-Module Hiring Handoffs | 10 |
 | 7 | Privacy, Retention, and Cross-Cluster Contract Proof | 11–12 |
 | 8 | Hardening and Production Verification | 13 |
 
-**Total numbered features: 13.**
+**Total numbered features: 13.** Feature IDs are retained for reference stability. Execution order is **01 → 02 → 05 → 03 → 04 → 06 → 07 → 08 → 09 → 10 → 11 → 12 → 13**. The prior feature exit gate means the previous feature in this sequence. CL-06 Feature 04 completes upload/profile intake only; CL-06 Feature 05 runs submission first, then the parsing stage.
 
 ---
 

@@ -2,10 +2,12 @@
 
 > **Cluster ID:** `CL-02`  
 > **Cluster:** Discovery, Classification & Visibility  
-> **Repository target:** `context/clusters/discovery-classification-visibility/build-plan.md`  
+> **Repository target:** `context/clusters/discovery classification & taxonomy/discovery-classification-build-plan.md`\
 > **Companion architecture:** this Cluster `architecture.md`  
 > **Modules:** `taxonomy_classification`, `ai_taxonomy`, `search_public_visibility`  
-> **Implementation posture:** greenfield MVP planning against the current Workin Ants architecture and Prisma evidence. Unresolved taxonomy-join ownership, AI source schemas/lifecycles, Search queue semantics, candidate-search policy, AI privacy retention, and provider-contract decisions must remain gated rather than being guessed in code.
+> **Implementation posture:** greenfield MVP planning against the current Workin Ants architecture and Prisma evidence. Approved contextual join ownership and Search durable-work semantics apply; unresolved AI source schemas/lifecycles, Search physical persistence, candidate-search policy, AI privacy retention, and provider-contract decisions must remain gated rather than being guessed in code.
+
+Current coordination: [Cluster architecture](<discovery-classification-architecture.md>) and [Cluster build plan](<discovery-classification-build-plan.md>). Locate supporting artifacts through [context-map.md](<../../context-map.md>); authority follows concern, not location or age. Root architecture/build-plan files are currently unavailable and do not supply enforceable phases.
 
 ---
 
@@ -42,7 +44,7 @@ A capability does not need artificial UI. If a user-facing surface is not approp
 
 ## Build Rules
 
-1. Follow root `project-overview.md`, root `architecture.md`, root `code-standards.md`, the Canonical Shared Operations Registry, and this Cluster architecture.
+1. Follow `context/project-overview-v3.md` (orientation; see context map), root `architecture.md`, root `code-standards.md`, the Canonical Shared Operations Registry, and this Cluster architecture.
 2. Do not expand CL-02 into business-object lifecycle ownership, hiring decisions, compliance approval, verification, healthcare, location policy, moderation, privacy orchestration, entitlement policy, or a general AI platform.
 3. Do not redesign Deep Module ownership for implementation convenience.
 4. Reuse canonical SH operations. If one is missing, implement/fix it in the canonical owner or use its approved contract fake; do not create a CL-02-local substitute.
@@ -170,12 +172,12 @@ The following do **not** block Feature 01:
 
 | Gate | Must be resolved before | Reason |
 |---|---|---|
-| `U-CL02-08` / PR-CL02-03 Search refresh semantics | Feature 02 | defines what `SearchUpsertEvent.processed` means and how delete/failure behaves |
+| `U-CL02-08` physical Search work representation | Production persistence/worker; Feature 02 remains a fake-writer contract harness | CL02-R008 approves durable semantics, not fields/enums or the choice to expand/replace SearchUpsertEvent |
 | `U-CL02-09` initial Typesense collection/document strategy | Feature 03 | provider schema cannot be silently invented |
 | `U-CL02-04` AI Prisma records/statuses | Feature 04 | AI source truth must exist before provider output is persisted |
 | `U-CL02-12` SH-065 implementation placement | Feature 05 production adapter | provider port owner is currently Proposed |
-| `U-CL02-01/02` taxonomy join owner + metadata semantics | Feature 07 | prevents duplicate repositories and ambiguous accepted classification |
-| `U-CL02-05` AI disposition protocol | Feature 08 | prevents split lifecycle / unsafe dual write |
+| `U-CL02-02` applicable join metadata semantics | Feature 07 | Ownership is resolved by CL02-R001; metadata meaning remains unresolved |
+| CL02-R003 SH-121 handoff; U-CL02-04 exact AI lifecycle and U-CL02-13 events if used | Feature 08 | Owner mutation must succeed before AI acceptance disposition; retries must not duplicate assignments |
 | `U-CL02-10` candidate authority/privacy/entitlement contract | Feature 10 | protected candidate search cannot guess access |
 | `U-CL02-11` AI retention/privacy policy | Feature 13 production readiness | sensitive AI records require explicit retention behavior |
 | `U-CL02-16` User search policy | any User indexing | default remains disabled |
@@ -360,7 +362,7 @@ Make SH-091 the only supported way for source owners to request Search convergen
 - duplicate/retried requests do not create unsafe duplicate provider effects;
 - an admin/debug endpoint can show pending/processed Search refresh work;
 - a worker can claim a refresh request using a fake provider without direct foreign-table coupling;
-- deletion is represented by “refresh to current truth,” not a second local deindex queue, once PR-CL02-03 is approved.
+- deletion is represented by “refresh to current truth,” not a second local deindex queue, under the approved CL02-R008 semantic boundary, subject to separate persistence design.
 
 ### Owning Module(s)
 
@@ -371,9 +373,9 @@ Make SH-091 the only supported way for source owners to request Search convergen
 
 - Feature 01;
 - `SearchUpsertEvent`, `SearchEntityType`;
-- explicit approval of `U-CL02-08` / PR-CL02-03;
+- approved CL02-R008 durable-work requirements; separate Search persistence design/migration approval before production persistence/worker use;
 - SH-044, SH-047, SH-048, SH-032–038;
-- initial SH-094 source-projection contract implemented for Taxonomy only.
+- Taxonomy SH-094 source-projection and owner-issued SH-024 readiness contracts; Search must not infer readiness from Taxonomy fields. Any parent/effective-activity-dependent behavior remains gated by U-CL02-07.
 
 ### Shared Operations Used
 
@@ -392,13 +394,9 @@ Primary:
 - `SearchUpsertEvent`;
 - `SearchEntityType`.
 
-Under PR-CL02-03:
+Under approved CL02-R008, Search owns durable SH-091 request identity/context, source version/currentness, idempotency, requester, action, claimability, completion, retry/operator failure, and stale/superseded outcomes. Generic queue infrastructure owns transport, attempts, backoff, and dead-letter mechanics, not the sole Search currentness/outcome truth.
 
-- `processed=false` means current refresh work has not successfully converged;
-- `processed=true` + `processedAt` means the worker successfully converged the provider projection to the source truth it evaluated;
-- queue attempts/retries/dead-letter state are not duplicated in this table.
-
-If the architecture review rejects this interpretation, stop and update schema/architecture before implementation.
+The current `processed` Boolean is insufficient for the final production lifecycle. Expanding or replacing SearchUpsertEvent is deliberately undecided. Feature 02 remains a fake-writer contract/queue harness; production persistence and workers wait for the separate Search database design and the Module provider gate.
 
 ### Public Interfaces
 
@@ -409,7 +407,7 @@ If the architecture review rejects this interpretation, stop and update schema/a
 
 ### Logic
 
-1. validate Search entity type/ID/reason;
+1. validate the complete SH-091 request: `entityType`, `entityId`, `action`, `reason`, `sourceVersion`, `requesterModule`, and `idempotencyKey`;
 2. idempotently create a Search-owned refresh event;
 3. enqueue work;
 4. worker resolves current source projection through owner interface;
@@ -472,7 +470,7 @@ No user-facing search UI is required yet.
 
 ### Exit Gate
 
-- `U-CL02-08` is resolved and architecture updated;
+- CL02-R008 semantic contract is covered by harness tests; physical Search persistence remains a separately approved prerequisite for production;
 - all refresh creation passes only through SH-091;
 - queue attempt metadata is not duplicated into a local Search queue framework;
 - a taxonomy refresh can be created, processed through a fake writer, and inspected;
@@ -938,6 +936,8 @@ Support bounded review and backfill workflows over AI-owned proposal truth, incl
 
 ### Dependencies
 
+Backfill is target-specific, not generalized production completion. Each enabled target requires completed AI persistence and structured provider/output foundations, an owner classification-input contract, sensitivity/minimization policy, SH-123 target validation, and all applicable AP Feature 11/source-integration prerequisites (CL02-R013). Targets missing any prerequisite remain disabled; broader backfill completes only after their mapped integrations.
+
 - Feature 05;
 - approved suggestion lifecycle from Feature 04;
 - SH-047/048, SH-054 only if reviewer claims are required and approved, SH-011/012 only for explicit hold cases, SH-029/037/038.
@@ -1029,6 +1029,8 @@ AI review/backfill admin:
 
 ### Exit Gate
 
+- record exactly which targets passed applicable AP/source-owner gates; this feature does not certify generalized multi-target production backfill;
+
 - bounded backfill can run safely and resume without duplicate proposal effects;
 - review queue exposes only authorized/minimized data;
 - no automatic acceptance or Search write exists;
@@ -1039,7 +1041,7 @@ AI review/backfill admin:
 
 # Phase 3 — Accepted Entity Classification and AI-to-Truth Handoff
 
-Phase 3 is intentionally architecture-gated. It must not begin until the join-owner and AI-disposition rulings are approved.
+Phase 3 follows approved CL02-R001 join ownership and CL02-R003 SH-121 choreography. Applicable join metadata, exact AI lifecycle/schema, and any event vocabulary remain gated; approval of ownership does not approve those details.
 
 ## 07 Entity Classification Attachment Ownership and Manual Classification
 
@@ -1063,21 +1065,21 @@ For at least one representative entity owner:
 ### Owning Module(s)
 
 - Taxonomy & Classification — validation/semantics;
-- contextual entity Module — join lifecycle **if PR-CL02-01 is approved**;
+- contextual entity Module — join create/update/delete/privacy lifecycle under approved CL02-R001;
 - Search — projection refresh request truth only.
 
 ### Dependencies
 
 - Features 01–06;
-- `U-CL02-01` and `U-CL02-02` resolved;
+- CL02-R001 owner mapping applied; `U-CL02-02` resolved for any exposed join metadata;
 - representative source Module public contract;
-- SH-023, SH-022, SH-091, SH-003 if approved, SH-044/051/052.
+- SH-023, SH-022, SH-091, SH-123; SH-003 only for approved minimum owner facts; SH-044/051/052.
 
 ### Shared Operations Used
 
 - **SH-023.** Taxonomy validates before join write. Local policy: hierarchy/active/compatibility.
 - **SH-022.** Taxonomy returns requirement triggers after accepted assignment. Does not assert satisfaction.
-- **SH-003 `queryOwnerFacts` — Proposed.** Read minimum entity facts needed to validate context. No any-entity repository.
+- **SH-003 `queryOwnerFacts` — Proposed.** Minimum relationship facts only; not target eligibility. Use confirmed **SH-123 `validateOwnedTargetReference`** through the target owner for existence/version/status and relationship eligibility. No any-entity repository.
 - **SH-091.** Source owner requests Search convergence after its accepted classification changes.
 - **SH-044/051/052.** Idempotency/concurrency around assignment mutations.
 - **SH-029.** Audit material admin overrides when policy requires.
@@ -1174,7 +1176,7 @@ Do not create a Cluster-wide entity editor.
 
 ### Exit Gate
 
-- `U-CL02-01/02` are resolved and ownership matrix is committed to architecture;
+- CL02-R001 owner mapping is enforced and applicable `U-CL02-02` metadata semantics are resolved;
 - representative accepted classification works end to end;
 - static/code review proves only the approved owner mutates the join;
 - invalid/inactive assignment is rejected;
@@ -1204,14 +1206,14 @@ Turn a reviewable AI proposal into accepted classification only through an expli
 ### Owning Module(s)
 
 - AI Taxonomy — suggestion record/disposition acknowledgement;
-- Taxonomy & Classification — acceptance/rejection decision and taxonomy semantics;
+- Taxonomy & Classification — canonical acceptance policy and taxonomy semantics through SH-121; proposal-only rejection remains AI-owned;
 - contextual source Module — join write under approved ownership;
 - Search — projection refresh.
 
 ### Dependencies
 
 - Feature 07;
-- `U-CL02-05` resolved; PR-CL02-02 approved;
+- confirmed SH-121 `applyAiSuggestion` and approved CL02-R003 choreography;
 - approved suggestion status/disposition contract;
 - SH-002, SH-023, SH-044, SH-046, SH-051/052, SH-091.
 
@@ -1245,12 +1247,12 @@ Do not store acceptance only in:
 
 ### Public Interfaces
 
-- Taxonomy `decideAiClassificationSuggestion`;
-- AI `acknowledgeSuggestionDecision`;
+- confirmed SH-121 `applyAiSuggestion`;
+- AI `recordSuggestionDisposition` after successful accepted mutation;
 - representative source classification command;
 - SH-091.
 
-Exact names may vary but ownership cannot.
+SH-121 retains its canonical name and requires suggestion ID/version, target, selected canonical term, reviewer, reason, idempotency key, and audit evidence. Descriptive local names do not replace it. Initial acceptance is restricted to existing canonical IDs; novel proposals remain review-only under U-CL02-15.
 
 ### Logic
 
@@ -1269,11 +1271,11 @@ Exact names may vary but ownership cannot.
 
 **Rejection:**
 
-1. authorize;
-2. record Taxonomy decision;
-3. acknowledge AI rejection;
-4. no accepted classification write;
-5. no Search refresh unless existing accepted classification was separately changed.
+1. authorize the AI proposal-lifecycle action;
+2. AI Taxonomy records the rejection under its approved lifecycle;
+3. do not mutate accepted Taxonomy truth, contextual joins, or Search.
+
+Acceptance must not mark AI disposition accepted until the contextual owner's mutation succeeds. Retry with the same suggestion version/idempotency context; a failed AI acknowledgement retries only the missing handoff, without duplicating or reversing accepted classification. Exact lifecycle/status approval remains U-CL02-04.
 
 ### UI / Administrative Surface
 
@@ -1326,7 +1328,7 @@ Review screen:
 ### Out of Scope
 
 - automated high-confidence acceptance;
-- novel-term auto creation unless `U-CL02-15` separately resolved;
+- all novel canonical-term creation/activation in the initial AI-acceptance path, including reviewer-approved creation; future support remains gated by `U-CL02-15`;
 - broad multi-entity backfill acceptance;
 - hiring decisions.
 
@@ -1515,6 +1517,8 @@ Allow an authorized Organization actor to search privacy-safe candidate projecti
 ### Dependencies
 
 - Feature 09;
+- Feature 11 prerequisite-contract slice and SP Feature 09 enforcement contract/anti-resurrection proof, before this feature exits;
+- Candidate projection/privacy eligibility, requester/Organization authority, applicable commercial entitlement, public/protected readiness, and applicable hold/moderation exclusions are available synchronously;
 - `U-CL02-10` resolved;
 - Candidate projection contract;
 - Organization authority contract;
@@ -1626,6 +1630,8 @@ Organization candidate-search UI/API:
 
 ### Exit Gate
 
+- Feature 11 prerequisite-contract slice is complete; later reaction wiring is not a substitute for synchronous permission/enforcement checks;
+
 - `U-CL02-10` is resolved/documented;
 - protected search enforces organization authority, Candidate privacy, and Track policy;
 - raw resume/application content is absent;
@@ -1638,6 +1644,8 @@ Organization candidate-search UI/API:
 ## 11 Moderation, Privacy, Holds, Location, and Readiness Reaction Contracts
 
 Prove that authoritative external decisions can remove/restore CL-02 discovery without transferring their lifecycles into Search.
+
+**Approved execution split (CL02-R014):** complete the prerequisite-contract slice after Feature 09 and before Feature 10: Candidate privacy/projection eligibility, Organization/requester authority, applicable entitlement, readiness, and applicable hold/moderation exclusion, including SP Feature 09 contract tests. Later asynchronous deindex/reindex and owner-orchestrator reaction integration may follow Feature 10. U-CL02-10 remains unresolved for exact protected-search composition.
 
 ### Objective
 
@@ -1664,7 +1672,7 @@ Make public/protected Search react correctly to moderation, privacy, holds, read
 
 ### Dependencies
 
-- Features 09–10;
+- Feature 09 for the prerequisite-contract slice; Feature 10 only for later protected-surface reaction integration;
 - SH-095–098;
 - SH-103;
 - SH-011;
@@ -1796,6 +1804,8 @@ Do not expose sensitive moderation/legal detail publicly.
 ---
 
 # Phase 5 — Reconciliation, Privacy, and Production Hardening
+
+Taxonomy-impact enumeration (CL02-R007): Taxonomy identifies changed canonical terms; each contextual entity owner supplies its affected entity IDs. Neither Taxonomy nor Search scans foreign joins. Feature 12 fanout requires those owner contracts and preserves U-CL02-13 for exact event vocabulary/version.
 
 ## 12 Search Reconciliation, Backfill, Debug, and Performance
 
@@ -2110,6 +2120,16 @@ Run repository typecheck, lint, unit/integration tests, production build, and E2
 
 ---
 
+## AI source-integration coordination (CL02-R015)
+
+| AI Module feature | Cluster coordination | External prerequisites and exit evidence |
+| --- | --- | --- |
+| AP 08 Professional/Offering integration | Feature 09 | Professional and Offering owners provide versioned, approved classification-input DTOs and target validation; sensitivity/minimization and AP 07 handoff prerequisites pass; record owner contract/integration test evidence. |
+| AP 09 Organization/Job integration | Feature 09 | Organization Hiring supplies approved Organization/Job classification inputs and target validation; Job Compliance remains separate; record AP prerequisites and source-version/privacy contract tests. |
+| AP 10 Candidate integration | Feature 10 | Candidate owner supplies an explicitly safe AI classification-input contract and target validation, with approved privacy/retention prerequisites; record AP integration evidence separately from protected Search projection evidence. |
+
+These AI inputs are distinct from SH-094 Search projections. Feature 06 backfill may use only targets already meeting applicable AP prerequisites; Feature 12 broader backfill uses the completed mappings above. Cluster completion must name any deferred source integration and must not imply TP Feature 10 internal normalization maintenance is complete. No duplicate Cluster maintenance feature is introduced.
+
 ## Cross-Cluster Integration Phase
 
 **Phase 4 is the required Cross-Cluster Integration Phase.**
@@ -2169,6 +2189,8 @@ It does not add new product scope.
 **Total numbered features: 13**
 
 ---
+
+Approved partial ordering: Features 01–09 → Feature 11 prerequisite contracts → Feature 10 → remaining Feature 11 reaction integration → Features 12–13. This explicit split does not weaken SP Feature 10 prerequisites.
 
 ## Phase Execution Pattern
 

@@ -3,11 +3,13 @@
 > **Module ID:** `sweepstakes_prize`  
 > **Module:** Sweepstakes / Prize Module  
 > **Primary Cluster:** `CL-10` — Incentives, Rewards & Prize Economy  
-> **Repository target:** `context/modules/sweepstakes_prize/implementation-plan.md`  
-> **Companion:** this Module `module-architecture.md`, CL-10 `architecture.md` and `build-plan.md`, root Workin Ants context, Canonical Shared Operations Registry  
+> **Repository target:** `context/clusters/incentives, rewards & prize economy/sweepstakes-module/sweepstakes-prize-implementation-plan.md`\
+> **Companion:** [Module architecture](<sweepstakes-prize-module-architecture.md>), [CL-10 architecture](<../incentives-rewards-prize-economy-cluster-architecture.md>), [CL-10 build plan](<../incentives-rewards-prize-economy-cluster-build-plan.md>), context-map routing, Canonical Shared Operations Registry\
 > **Implementation posture:** Greenfield/MVP planning against current Prisma/architecture evidence. Legal-gated production behavior remains disabled until its named architecture/legal blockers are resolved.
 
 ---
+
+**Context routing and availability:** Follow [context/context-map.md](<../../../context-map.md>) for authority by concern and actual artifact paths; use [context/project-overview-v3.md](<../../../project-overview-v3.md>) as the overview entry point. Root architecture/build plan, `context/code-standards.md`, and the dedicated progress tracker are unavailable in the current context inventory. References below to those artifacts or their standards are conditional prerequisites, not evidence of an existing global sequence or approval. Do not invent missing root decisions or artifacts.
 
 ## Core Principle
 
@@ -33,7 +35,7 @@ Draft/configuration behavior may be built before legal approval. Production acti
 
 ## Build Rules
 
-1. Follow root architecture, root code standards, Canonical Shared Operations, CL-10 architecture, and CL-10 build plan.
+1. Follow `context/context-map.md` for concern-specific authority, the canonical Shared Operations registry, and the applicable Cluster/Module architecture and sequencing plans. Root architecture/code standards remain unavailable conditional prerequisites.
 2. This Module owns only PrizeDrawing, SweepstakesEntryMethod, PrizeEntry, PrizeWinning, PrizeTaxYearSummary, owned enums, and owner policies defined in `module-architecture.md`.
 3. Consume other Modules through approved public commands/queries/events. Direct cross-domain Prisma reads are not the default.
 4. Reuse canonical SH-### operations; do not create feature-local auth, consent, hold, tax, notification, audit, queue, retry, idempotency, lock, crypto, privacy, or telemetry infrastructure.
@@ -93,6 +95,12 @@ If a canonical operation is not yet implemented, feature development may use a c
 - Admin Review / Compliance Hold query/request contract.
 - Notification request contract for production communications.
 - Privacy / Data Erasure owner protocol before production privacy completion.
+
+### Production provider readiness (CL-10-R007 / CL-10-R013)
+
+This prerequisite applies to every affected production feature exit gate below. SH-009 `resolveActiveConsentVersion` and SH-029 `appendAuditEvent` remain Confirmed, but actual active-version resolution and durable audit proof require their provider architecture blockers to be resolved (Consent U-CL01-08; Audit U-17). Contract fakes can pass isolated contract tests, not production exit gates. Record contract-test readiness separately from production readiness for Consent, Audit, Hold, Tax, and every other required provider capability.
+
+Hold-dependent production behavior additionally requires the Hold owner's approved target/action applicability and safe creation contracts before SH-011/012 integration is production-ready. `blockedByHoldId` is an association/evidence link, never current gate truth. Evaluate through SH-011; dependency unavailable must not become allow. The CL-10 owner performs its own resulting lifecycle transition; do not create a local hold table/evaluator or change the Hold owner's architecture here.
 
 ### Dependencies that may initially be stubbed
 
@@ -607,6 +615,8 @@ If U-CL10-09 is resolved, update Module/Cluster architecture and Prisma relation
 
 #### Exit Gate
 
+Hold-dependent production behavior is BLOCKED until the approved Hold target/action applicability and creation contracts and real provider capability are available; the production provider readiness prerequisite above applies (CL-10-R007). Required Consent/Audit providers must satisfy the production-readiness prerequisite.
+
 All unit/contract/integration/concurrency/E2E free-entry tests pass and DB fixtures prove configured limits cannot be exceeded under simultaneous requests.
 
 ---
@@ -751,6 +761,8 @@ If source event naming/version or PR-CL10-01 is finalized, update Module/Cluster
 - AMOE/equivalent odds remain enforced.
 
 #### Exit Gate
+
+Purchase-triggered production methods require the approved and available bilateral Order/Payment source contract. Unapproved source-event fixtures prove isolated tests only; no direct cross-domain Prisma reads, polling, or Sweepstakes Stripe webhook may replace the bridge (CL-10-R004). Hold-dependent production behavior is BLOCKED until the approved Hold target/action applicability and creation contracts and real provider capability are available; the production provider readiness prerequisite above applies (CL-10-R007).
 
 Real or contract-complete source owner event tests pass, including replay/concurrency. Purchase-triggered methods remain disabled in production until the source contract and PR-CL10-01 are approved.
 
@@ -1073,6 +1085,8 @@ Record the final run-proof and selected-entry linkage design in Module architect
 
 #### Exit Gate
 
+Any hold-gated winner-selection/approval path must satisfy the approved Hold contract and real provider readiness prerequisite (CL-10-R007). Required Audit proof must use the actual provider capability (CL-10-R013).
+
 All concurrency/recovery/compliance/security tests pass. A forced post-commit retry demonstrably returns the original result without another selection call.
 
 ---
@@ -1099,6 +1113,8 @@ Carry PrizeWinning through approved tax/hold/confirmation/fulfillment transition
 Directly implements **CL-10 Feature 09 — Prize Tax Summary, Hold Gate, and Fulfillment Lifecycle**.
 
 #### Dependencies
+
+- Approved CL-10-R009 jurisdiction/grain interpretation before production SH-117 aggregation; no single-jurisdiction assumption or schema change is authorized here.
 
 - Feature 06;
 - SH-019, 011, 012, 117, 118, 041, 047, 048, 037, 029, 030, 044, 053;
@@ -1169,7 +1185,7 @@ External references only:
 - `approved → fulfilled` requires approved fulfillment evidence/reference;
 - Notification success is never fulfillment evidence;
 - recognized FMV comes from PrizeWinning snapshot, not mutable PrizeDrawing value;
-- SH-117 update/rebuild keys by user+taxYear+currency;
+- current PrizeTaxYearSummary uniqueness is user+taxYear+currency, which does not establish SH-117 jurisdiction-aware aggregation; production updates/rebuilds remain blocked pending CL-10-R009;
 - SH-118 uses source PrizeWinning ID and valuation evidence/idempotency;
 - `forfeited`/`cancelled` only according to approved official rules/legal policy;
 - completed/forfeited/cancelled evidence is retained according to Privacy/legal policy.
@@ -1261,6 +1277,12 @@ If U-CL10-12 or fulfillment evidence/provider architecture is resolved, update M
 
 #### Exit Gate
 
+Production SH-117 aggregation and jurisdiction-sensitive annual reporting remain BLOCKED pending CL-10-R009; no single-jurisdiction or schema solution is selected.
+
+Production tax-sensitive fulfillment requires approved tax-specific SH-019 usage with Payment; generic financial readiness is not reward/prize tax clearance. SH-118 reporting requires the source owner's approved recognition point and required subject, value/currency, jurisdiction, source identity, date, valuation evidence, and idempotency contract. Keep unresolved paths disabled (CL-10-R005).
+
+Hold-dependent production behavior is BLOCKED until the approved Hold target/action applicability and creation contracts and real provider capability are available; the production provider readiness prerequisite above applies (CL-10-R007).
+
 All tax/hold/aggregate/idempotency/security tests pass for the exact enabled jurisdiction/fulfillment scope. Any unsupported provider/legal branch remains disabled and explicitly documented.
 
 ---
@@ -1271,7 +1293,7 @@ All tax/hold/aggregate/idempotency/security tests pass for the exact enabled jur
 
 #### Objective
 
-Replace Sweepstakes contract fakes with real neighboring Module interfaces where available, implement the Privacy owner protocol for Sweepstakes data, and prove normal workflows contain no direct cross-domain persistence coupling.
+Replace Sweepstakes contract fakes with real neighboring Module capabilities required by the enabled production scope, implement the Privacy owner protocol for Sweepstakes data, and prove normal workflows contain no direct cross-domain persistence coupling. Isolated contract tests may use fakes; missing required providers keep the production exit gate blocked (CL-10-R013).
 
 #### Observable Result
 
@@ -1287,14 +1309,16 @@ Sweepstakes-specific implementation of **CL-10 Feature 10 — Cross-Cluster Inte
 
 #### Dependencies
 
+- The owner target/executor contract in Module architecture Section 28 (CL-10-R015); unresolved registration/disposition details block their production execution.
+
 - Features 01–07;
-- production-ready or contract-complete neighboring interfaces;
+- real production-ready neighboring capabilities for enabled production flows; contract-complete fakes support isolated tests only (CL-10-R013);
 - SH-095, 096, 097, 098;
 - actual root observability/audit/notification implementations or stable public contracts.
 
 #### In Scope
 
-- replace mocks/fakes with real SH-001/002/008/009/011/012/019/041/118 contracts where available;
+- replace mocks/fakes with real SH-001/002/008/009/011/012/019/041/118 capabilities wherever required by enabled production flows; provider unavailability remains a production blocker;
 - real Order/payment-owner qualifying event contract;
 - Privacy subject-data enumerator;
 - Privacy instruction executor;
@@ -1417,6 +1441,8 @@ Update public-interface docs if real neighboring contracts differ from placehold
 - contract/E2E tests pass.
 
 #### Exit Gate
+
+Production Privacy coverage requires the owner-specific Section 28 target contract: approved target registration/identity and source-version strategy; subject-scoped descriptors/serialization; SH-097 facts; approved per-target SH-095/098 actions; canonical retained/skipped/failure/results with idempotency and evidence. Contract tests must reject unsupported owner/target mappings and prove no generic crawler or local Privacy workflow. CL-10-R014 retention dispositions and CL-10-R015 bilateral target details remain unresolved until approved. Real Consent/Audit/Hold/Tax and other required providers must satisfy production-readiness gates; contract fakes do not satisfy this production gate (CL-10-R013).
 
 Feature passes when real contract integration and Privacy tests pass for all production-enabled Sweepstakes flows and architecture-boundary checks report no forbidden dependencies.
 

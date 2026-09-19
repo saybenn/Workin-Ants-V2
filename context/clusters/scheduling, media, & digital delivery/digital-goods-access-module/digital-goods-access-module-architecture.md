@@ -399,7 +399,7 @@ Do not create:
 
 **Retention:** deleting an Offering currently cascades to this record. Production deletion must be reviewed against retained terms/access evidence before relying on cascade behavior.
 
-**Binding interpretation:** `DigitalGoodsPolicy` is current policy configuration, not the immutable legal-text store. The exact historical text/version must remain reproducible from the approved version source plus the acceptance hash. If the approved Consent/version catalog cannot supply that requirement, architecture must add a specific immutable policy snapshot rather than silently using mutable UI copy.
+**Binding interpretation (R016):** `DigitalGoodsPolicy` is current policy configuration, not the immutable legal-text store. The text owner must preserve exact immutable historical content. Generic Consent-owned disclosures come from the Consent version catalog; Digital Goods-specific license/refund/access text remains Digital Goods-owned unless explicitly classified as Consent-owned disclosure. A linked ConsentLog does not imply storage of contextual Digital Goods text, and `acceptedTextHash` alone cannot reconstruct it. The owner-controlled persistence/retrieval mechanism remains unresolved; production legal-content activation stays blocked until that source exists.
 
 ### 8.2 `DigitalGoodsTermsAcceptance`
 
@@ -661,12 +661,12 @@ rejected ─→ new/replacement review path; never silently ready
 
 ### `issueDigitalDownloadAccess`
 
-- **Purpose:** validate current grant and obtain a Media-owned short-lived signed URL.
+- **Purpose:** validate current grant, supply Digital Goods-owned SH-026 contextual authorization, and call Media’s public composite `requestMediaAccess` for a short-lived credential or typed denial. Media validates its readiness/grant proof and invokes SH-087 internally; no second public signing call is assumed.
 - **Actor:** authenticated grant owner.
 - **Inputs:** grant ID/secure token if enabled, asset ID, request context, idempotency key for the access attempt.
 - **Preconditions:** grant active and unexpired; actor binding; asset ready; current Order still qualifies where policy requires; usage available; no applicable hold/moderation block.
 - **Writes:** atomic grant usage fields/status and `DigitalDownloadEvent`; generic audit through owner interface.
-- **Shared operations:** SH-001, SH-011, SH-025, SH-030, SH-044, SH-051/057, SH-087, SH-088, SH-125, SH-032/034/037.
+- **Shared operations:** SH-001, SH-011, SH-025, SH-026, SH-030, SH-044, SH-051/057, SH-087 (inside Media requestMediaAccess), SH-088, SH-125, SH-032/034/037.
 - **Effects:** returns URL only after Media approves/signs; may publish access fact only if a downstream workflow explicitly needs it.
 - **Failures:** expired, revoked, exhausted, wrong actor, asset disabled, Order no longer entitled, Media temporary failure.
 
@@ -711,7 +711,7 @@ rejected ─→ new/replacement review path; never silently ready
 - **Purpose:** create the accessibility-semantic record around a safe Media asset or required placeholder.
 - **Actor:** authorized seller/admin/system workflow.
 - **Inputs:** Offering/course/video refs, MediaAsset if supplied, type/language/default/required flags.
-- **Preconditions:** valid owner targets; Media ready when a file is attached.
+- **Preconditions:** valid owner targets; Media ready when a file is attached. When `courseVideoAssetId` is supplied, consume Video `getCourseVideoProcessingStatus` owner-validated relationship facts and verify the expected course/Offering before attachment. `CourseDetails.offeringId` is canonical; Video `courseDetailsId` identifies it and any present redundant `offeringId` must equal it. Digital Goods never queries the Video repository.
 - **Writes:** `CourseAccessibilityAsset`.
 - **Shared operations:** SH-001, SH-002, SH-044, SH-090, SH-123.
 - **Failures:** target mismatch, invalid file context, duplicate default conflict, unauthorized waiver/review state.
@@ -730,6 +730,7 @@ rejected ─→ new/replacement review path; never silently ready
 
 | Query / decision | Consumers | Result type | Meaning | Consumer must not infer |
 | --- | --- | --- | --- | --- |
+| `authorizeContextualResourceAccess` | Video; Media/file access workflow | SH-026 contextual decision | owner-controlled playback/file allow/deny, safe reason, applicable policy/acceptance evidence, freshness/expiry, delivery constraints | Order truth, Video/Media readiness, or permission to interpret Digital Goods rows |
 | `getDigitalGoodsPolicy` | Marketplace, checkout, Order, seller UI | source truth | current policy configuration/version refs | legal text validity or Offering status |
 | `getDigitalGoodsTermsAcceptance` | Order, Dispute, support/compliance | evidence | acceptance status, versions, hash, links | generic consent completeness for unrelated workflows |
 | `getDigitalDownloadReadiness` | Marketplace, checkout | readiness decision | whether required download assets are locally ready and why | Media safety details beyond returned evidence; Offering publish truth |
@@ -738,6 +739,14 @@ rejected ─→ new/replacement review path; never silently ready
 | `getDigitalDeliveryEvidence` | Order, Dispute, support, Privacy/compliance | evidence | acceptance/grant/event evidence with safe references | refund adjudication outcome |
 | `getMinorPrivacyControls` | product surfaces | projection | effective Digital Goods control projection for a known target | User age or legal compliance completion |
 | `getCourseAccessibilityReadiness` | Marketplace, Video, course UI | readiness decision | required/ready/missing/failed/waived/not-required accessibility facts | course-video provider readiness or general UI accessibility compliance |
+
+### Digital Goods contextual authorization — SH-026
+
+`authorizeContextualResourceAccess` is Digital Goods’ owner-controlled contextual decision for Media/file access and course playback. It applies Digital Goods-owned policy/acceptance meaning to the actor, target, and requested action using authoritative facts; it does not replace SH-025 Order entitlement, Media readiness, or Video readiness.
+
+For course playback, the result supplies allow/deny, a safe reason, applicable Digital Goods policy/acceptance evidence references, evaluation freshness/expiry where applicable, and owner-defined delivery constraints relevant to playback. Video combines this decision with SH-025 and Video readiness plus applicable authority/healthcare/hold gates. Video must not read or interpret raw Digital Goods policy rows. The decision does not issue a Video grant or credential, and unresolved legal/alternate-access policy remains gated.
+
+For file access, Digital Goods supplies its contextual decision and grant evidence to Media’s composite `requestMediaAccess`; Media retains its own gates, grant/proof, and internal SH-087 signing.
 
 ### Stable decision reason codes
 
@@ -790,6 +799,7 @@ Consumers must not branch on provider-native errors.
 
 ### Public queries
 
+- `authorizeContextualResourceAccess` — Digital Goods-owned SH-026 playback/file decision
 - `getDigitalGoodsPolicy`
 - `getDigitalGoodsTermsAcceptance`
 - `getDigitalDownloadReadiness`
@@ -853,8 +863,8 @@ None are owned by Digital Goods for the normal MVP path.
 | Marketplace Supply | SH-123 owner-specific target validation | verify Offering/Product/Course exists and relationship is eligible | IDs, kind/status/version, ownership facts | yes | Offering repository/lifecycle |
 | Transaction / Order | SH-025 `authorizeOrderEntitlement` | normal purchased delivery basis | Order state, buyer/item relationship, refund/dispute effects | yes | payment/Order interpretation |
 | Consent & Disclosure | SH-007/008/009 | generic versioned proof and active consent version | proof ID/type/version/validity | yes when required | ConsentLog or consent catalog |
-| Media / File Access | SH-090 + SH-087 + Media readiness query | attach safe file and issue signed object access | MediaAsset ID/readiness/action/TTL | yes | file validation/storage/signing |
-| Video Session | owner facts for `CourseVideoAsset` | accessibility association/readiness context | video asset ID/status/source refs | yes for video-specific relation | Mux/provider logic |
+| Media / File Access | Media readiness query + public composite `requestMediaAccess` (SH-087 internal) | validate file readiness and deliver after Digital Goods authorization; Digital Goods owns contextual SH-090 attachment | MediaAsset ID/readiness/action/TTL and contextual decision/grant evidence | yes | file validation/storage/signing |
+| Video Session | `getCourseVideoProcessingStatus` owner-validated relationship facts | validate accessibility association to expected course/Offering | asset ID/status, canonical courseDetailsId (= CourseDetails.offeringId / owning Offering), redundant offeringId equality, safe source refs | yes for video-specific relation | direct Video repository access or Mux/provider logic |
 | Admin Review / Compliance Hold | SH-011 | reusable stop sign | applicable hold IDs/reasons/expiry | yes | local blocked flags |
 | Content Moderation & Legal Notice | SH-103 | authoritative disable/restore/revoke instruction | action/case ID, target, action type | yes | DMCA/legal decision |
 | Privacy / Data Erasure | SH-095–097 protocol | subject inventory, erase/anonymize/revoke/retain execution | target/disposition/retention decision | yes | privacy workflow |
@@ -881,7 +891,7 @@ Do not add a parallel buyer identity or silently infer CustomerProfile from arbi
 | Marketplace Supply | policy existence/version, download readiness, child declaration/control readiness, accessibility readiness | publish/checkout readiness composition | directly mutate Digital Goods records |
 | Transaction / Order | terms evidence and delivery evidence | checkout/fulfillment/refund/dispute workflow | infer download state from Media/provider |
 | Media / File Access | validated contextual authorization/grant request | issue temporary signed object URL | infer Order entitlement from Digital Goods table alone |
-| Video Session | digital policy/accessibility facts | course delivery/presentation integration | make Digital Goods policy decisions |
+| Video Session | Digital Goods SH-026 `authorizeContextualResourceAccess` playback decision and accessibility facts | combine owner decision/evidence/constraints with SH-025 and Video readiness | interpret raw Digital Goods policy or make Digital Goods policy decisions |
 | Payment / Payout / Tax | digital item classification/policy facts if tax owner requests them | provider tax calculation | use download grant as payment truth |
 | Consent & Disclosure | context/version needed for generic consent | record/query generic proof | replace DigitalGoodsTermsAcceptance |
 | Content Moderation | execution acknowledgment/current target state | moderation workflow progress | direct Prisma update into Digital Goods |
@@ -1035,11 +1045,20 @@ Only Digital Goods-relevant SH operations are listed. The canonical registry rem
 - **Local policy:** canonical input and what hash/token proves.
 - **Do not build:** `acceptanceHash.ts`, `downloadToken.ts`, custom crypto.
 
+### SH-026 — `authorizeContextualResourceAccess`
+- **Owner:** relevant context owner; Digital Goods implements digital file/playback context.
+- **Status:** Confirmed.
+- **Class:** shared contract; separate implementations.
+- **Invocation:** before Media `requestMediaAccess` and when Video evaluates course-playback permission.
+- **Result:** allow/deny, safe reason, applicable policy/acceptance evidence, freshness/expiry where applicable, owner-defined delivery constraints.
+- **Boundary:** Role authority, SH-025 entitlement, healthcare/hold gates, and Media/Video resource mechanics remain separate.
+- **Do not build:** a universal contextual entitlement engine or direct cross-Module repository checks.
+
 ### SH-087 — `issueSignedMediaUrl`
 - **Owner:** Media / File Access
 - **Class:** canonical media capability
 - **Why:** private object delivery after Digital Goods authorization.
-- **Invocation:** final technical-delivery step of `issueDigitalDownloadAccess`.
+- **Invocation:** Media invokes SH-087 internally when Digital Goods calls the public composite `requestMediaAccess` with its contextual authorization/grant evidence; Digital Goods does not call a second public signer.
 - **Local policy:** Digital Goods grant/order/usage validity supplied to Media.
 - **Expected result:** bounded signed URL + expiry/evidence reference.
 - **Do not build:** R2/S3 presigner, permanent URL service.
@@ -1175,7 +1194,7 @@ The exact CL-05 step-up matrix is unresolved. If root security policy later mark
 | buyer identity | Customer Profile | SH-004 | purchased grant/listing | buyer context must match Order/access principal |
 | Order entitlement | Transaction / Order | SH-025 | grant issue and current purchased access | qualifying item/participant/refund/dispute must allow action |
 | digital terms proof | Consent + Digital Goods | SH-007/008 + local acceptance query | grant/access where required | approved version proof + contextual acceptance required |
-| Media readiness | Media | SH-090/readiness + SH-087 | asset registration and signed delivery | asset must be safe/ready; Media signs |
+| Media readiness | Media; Digital Goods owns contextual attachment | Media readiness / `requestMediaAccess` (SH-087 internal); Digital Goods SH-090 | asset registration and delivery | Media validates/signs; contextual owner validates attachment meaning |
 | ComplianceHold | Hold owner | SH-011 | mapped grant/access/admin actions | applicable hold denies or triggers owner-local revocation/freeze |
 | moderation/legal | Moderation | SH-103 | disable/restore/revoke | execute only authoritative action; do not adjudicate |
 | plan entitlement | Track Entitlement | SH-005 conditional | only explicitly plan-gated digital perk | no effect unless concrete entitlement is defined |
@@ -1193,7 +1212,7 @@ Digital Goods Access owns **no direct external provider client** for normal down
 
 ```text
 Digital Goods access decision
-→ SH-087 Media/File Access signed URL
+→ Media requestMediaAccess receives Digital Goods contextual authorization and invokes SH-087 internally
 → Media provider adapter
 → Cloudflare R2 / approved object storage
 ```
@@ -1336,7 +1355,7 @@ The backing Media asset must have an approved upload context suitable for `digit
 
 ### Signed access
 
-`issueDigitalDownloadAccess` authorizes the business action, then invokes SH-087. Media re-checks its own readiness/freeze/erasure conditions before signing.
+`issueDigitalDownloadAccess` obtains the Digital Goods-owned SH-026 business-context decision, then calls Media `requestMediaAccess` with that decision and grant evidence. Media re-checks its own readiness/freeze/erasure and Media grant requirements, records its proof, invokes SH-087 internally, and returns a short-lived credential or typed denial. No separate consumer-facing signing call is assumed.
 
 ### Sensitive access logging
 
@@ -1737,7 +1756,7 @@ Current schema cascade paths may erase policy/assets/grants/events when an Offer
 
 ### 35.9 Immutable legal text source
 
-`DigitalGoodsPolicy` stores version identifiers, not an immutable text body. Confirm that the Consent/version catalog or another approved source can reproduce the exact accepted license/refund/immediate-access content. If not, add an explicit immutable snapshot through architecture decision.
+`DigitalGoodsPolicy` stores version identifiers, not an immutable text body. Digital Goods owns historical contextual license/refund/access content unless explicitly classified as Consent-owned disclosure; generic Consent-owned text comes from its catalog. A linked ConsentLog or acceptedTextHash alone is insufficient. The immutable owner-controlled persistence/retrieval mechanism remains unresolved and blocks production legal-content activation; no storage design is selected here.
 
 ### 35.10 CustomerProfile persistence on Digital Goods records
 
@@ -1761,7 +1780,7 @@ The exact Digital Goods admin/destructive operations requiring SH-014 are not de
 - Consent & Disclosure owns `ConsentType`, active consent versions, and `ConsentLog`.
 - Marketplace Supply owns Offering/Product/Course business lifecycle.
 - Transaction / Order owns normal purchase entitlement, payment/refund/dispute transaction truth.
-- Media / File Access owns file safety, storage, and signed-object access. Digital Goods must call SH-087 rather than sign R2/S3 URLs.
+- Media / File Access owns file safety, storage, and signed-object access. Digital Goods calls Media `requestMediaAccess`; Media invokes SH-087 internally. Digital Goods never signs R2/S3 URLs or assumes a second public signing API.
 - Video Session owns Mux/course-video provider state and playback grants.
 - Digital Goods temporary grants remain separate from every other temporary-grant record.
 - DigitalDownloadEvent remains separate from generic audit and Media access evidence.

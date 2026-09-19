@@ -3,9 +3,11 @@
 > **Module ID:** `marketplace_supply`  
 > **Module name:** Marketplace Supply Module  
 > **Primary Cluster:** CL-03 — Professional Supply & Readiness  
-> **Repository target:** `context/marketplace_supply/implementation-plan.md`  
-> **Architecture dependency:** `context/marketplace_supply/module-architecture.md`  
+> **Repository target:** `context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-implementation-plan.md`\
+> **Architecture dependency:** `context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-architecture.md`\
 > **Plan status:** Ordered Module implementation roadmap; subordinate to root architecture and CL-03 build plan; does not redefine ownership.
+
+**Repository context (CL-03-R021):** Read [context/context-map.md](<../../../context-map.md>) for authority by concern and verified artifact locations, [context/project-overview-v3.md](<../../../project-overview-v3.md>) for orientation, and [context/shared/shared-operations.md](<../../../shared/shared-operations.md>) for canonical operations. Root architecture, root build plan, code standards, and the progress tracker are missing; references to those prerequisites do not assert availability or authorize a substitute/global precedence rule.
 
 ## Core Principle
 
@@ -30,7 +32,7 @@ This Module plan follows the Cluster sequence. It primarily implements Marketpla
 
 1. Follow root Workin Ants project overview, architecture, code standards, Canonical Shared Operations, CL-03 architecture, and CL-03 build plan.
 2. Implement one numbered Marketplace feature at a time. The next feature starts only after the current exit gate passes.
-3. Marketplace Supply owns only the truth declared in `module-architecture.md`.
+3. Marketplace Supply owns only the truth declared in `context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-architecture.md`.
 4. Consume foreign truth through approved public interfaces/events. Do not introduce direct cross-Module repositories as an implementation shortcut.
 5. Reuse canonical SH operations by permanent ID. Do not recreate aliases locally.
 6. Validate every mutation server-side and authorize it through SH-001/SH-002.
@@ -116,7 +118,7 @@ A stub does not transfer ownership. The public contract must remain owner-shaped
 - **U-14:** overlapping visibility signals — no independent `isPublic` behavior.
 - **U-15:** bundle composition — bundle path disabled.
 - **U-16:** stored `priceFromCents` semantics — calculate at read time unless approved otherwise.
-- Module MA-U-01 through MA-U-05 from `module-architecture.md` constrain unsupported lifecycle/retention/kind-change cases.
+- Module MA-U-01 through MA-U-05 from `context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-architecture.md` constrain unsupported lifecycle/retention/kind-change cases.
 
 ---
 
@@ -899,7 +901,7 @@ No Search provider job here; event/outbox enables Feature 06 handoff.
 
 ### Exit Gate
 
-Feature 05 passes only when CL-03 Feature 08 conditions are satisfied for Marketplace: U-01 is resolved, all implemented transitions are concurrency/idempotency tested, and the blocked→publish journey works without direct foreign DB access. Feature 06 may not claim public supply integration until this gate passes.
+Feature 05 passes the Offering publication transition slice only: U-01 is resolved, all implemented transitions are concurrency/idempotency tested, and the blocked→publish journey works without direct foreign DB access. It is a prerequisite to local Feature 06 and does not close CL-03 Feature 08. Local Feature 06 must also complete reliable Search-request handoff and required integration tests before the full Cluster Feature 08 gate can pass (CL-03-R018).
 
 ---
 
@@ -921,7 +923,7 @@ Connect active Marketplace source truth to Search and neighboring commerce/deliv
 
 ### Cluster Build-Plan Link
 
-- **Completes:** CL-03 Feature 08 Search handoff.
+- **Completes:** CL-03 Feature 08 Search handoff after the local Feature 05 publication slice; the Cluster gate closes only after both slices and required Search-request/integration tests pass (CL-03-R018).
 - **Directly supports:** CL-03 Feature 11 — Readiness Change Propagation and Neighboring-Cluster Integration.
 
 ### Dependencies
@@ -1148,7 +1150,7 @@ Make Marketplace Supply react reliably to changes in seller readiness, taxonomy 
 
 Potential consumed event categories:
 
-- professional readiness changed;
+- underlying dependency-owner changes only where an approved producer contract supplies them; no assumed `ProfessionalReadinessChanged` event (CL-03-R005);
 - taxonomy assignment/requirements changed;
 - hold applied/released;
 - moderation action authorized/reversed;
@@ -1157,7 +1159,7 @@ Potential consumed event categories:
 - Course video readiness changed;
 - entitlement changed where it affects Marketplace action/public readiness.
 
-Exact event names are dependency-owned and must come from their public contracts.
+Exact event names are dependency-owned and must come from their public contracts. The replacement producer/consumer handoff for downstream Offering consequences remains unresolved under CL-03-R005; do not invent an event or infer a producer commitment from this reevaluation feature.
 
 ### Failure Behavior
 

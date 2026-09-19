@@ -8,7 +8,7 @@
 
 This document defines what the Job Compliance Module owns, what it may transform, the stable interfaces it exposes, the dependencies it may consume, and the responsibilities it must never absorb. It is intentionally narrower than the CL-06 architecture.
 
-The current evidence set establishes the Module boundary but leaves three production-publication decisions unresolved: **U-CL06-05 effective decision semantics, U-CL06-06 historical rule-set/source proof, and U-CL06-07 `CompensationPeriod` / `EmploymentType.contract` semantics**. Those decisions are explicitly carried below and must not be silently resolved in code.
+The current evidence set establishes the Module boundary but leaves **U-CL06-05 effective decision semantics and U-CL06-07 `CompensationPeriod` / `EmploymentType.contract` semantics** unresolved. U-CL06-06 is now a binding historical-evidence invariant whose persistence design/implementation remains for a later approved database pass. None of the remaining choices may be silently resolved in code.
 
 ## 1. Module Header
 
@@ -19,7 +19,7 @@ The current evidence set establishes the Module boundary but leaves three produc
 | Module type | `compliance` |
 | Build status | `mvp_active_legal_gated` |
 | Primary Cluster | CL-06 — Organization Hiring & Candidate Pipeline |
-| Document status | Implementation-grade architecture; production publication remains blocked by U-CL06-05/06/07 |
+| Document status | Implementation-grade architecture; production publication remains blocked by unresolved U-CL06-05/07 policy and unimplemented binding U-CL06-06 proof |
 | Intended audience | Coding agents, developers, reviewers, maintainers, compliance reviewers, and CL-06 integrators |
 | Relationship to root architecture | Root architecture owns platform-wide lifecycle, security, privacy, provider, event, and source-of-truth rules. This file may specialize those rules only for Job Compliance. |
 | Relationship to Cluster architecture | CL-06 owns coordination and sequencing only. This Module owns Job Compliance truth and policy. Cluster decisions remain superior where they constrain cross-Module boundaries. |
@@ -55,7 +55,7 @@ The Module must support:
 ### What enters
 
 - an authenticated or trusted system actor context;
-- a Job identifier and expected source version, or an Organization Hiring-issued authoritative Job compliance input DTO;
+- a Job identifier and owner-issued opaque expectedConcurrencyToken for the source revision, or an Organization Hiring-issued authoritative Job compliance input DTO;
 - Organization/Job relationship facts exposed through Organization Hiring’s public interface;
 - Job text and structured fields that are in scope for posting compliance;
 - compensation facts owned by Organization Hiring;
@@ -145,7 +145,7 @@ The Module **does not** own `JobStatus`, `JobVisibility`, Job publication timest
 - **Finding/provenance truth:** `JobComplianceFinding`.
 - **Current compensation-disclosure proof:** `JobCompensationDisclosure`.
 - **Effective public decision:** returned by Job Compliance from its own current evidence; exact source/precedence remains U-CL06-05 until approved.
-- **Historical evaluation proof:** required but current Prisma does not yet provide sufficient legal-grade source/rule-set reproducibility for a zero-finding check. U-CL06-06 must settle the exact record/field design.
+- **Historical evaluation proof:** required but current Prisma does not yet provide sufficient legal-grade source/rule-set reproducibility for a zero-finding check. The invariant is binding; exact record/field design still requires later explicit approval.
 
 ### 3.5 Domain events and ledgers owned
 
@@ -183,7 +183,7 @@ Confirmed proof includes:
 - compensation disclosure rule key/version and jurisdiction;
 - reviewer identity/time where present.
 
-**Missing binding proof:** exact source-version and full applied-rule-set proof for a zero-finding evaluation. A production implementation may not invent this schema. See PR-JC-02 and U-CL06-06.
+**Binding proof requirement not yet represented by current schema:** exact source-version and full applied-rule-set proof for a zero-finding evaluation. A production implementation may not invent this schema. See PR-JC-02 and U-CL06-06.
 
 ### 3.8 Policies and invariants owned
 
@@ -331,7 +331,7 @@ src/modules/job-compliance/
 
 Rules:
 
-- `scanners/` contains Job Compliance interpretation/mapping only. The generic tokenizer/pattern engine is the canonical `runPatternScanner` mechanism outside this Module.
+- `scanners/` contains Job Compliance interpretation/mapping only. The generic tokenizer/pattern engine is the canonical SH-081 `runPatternScanner` (Proposed ruling) mechanism outside this Module.
 - `persistence/` may access only Job Compliance-owned tables. Organization Hiring data is obtained through its public owner-facts/input interface.
 - `admin/` is restricted to the rule/review/override surface genuinely owned by Job Compliance. The Organization Job detail/publication UI remains Organization Hiring-owned.
 - Do not create a `providers/` folder unless a future architecture decision gives Job Compliance ownership of an external provider integration. `compromise` and `natural` are libraries behind shared scanner mechanics, not provider truth.
@@ -407,14 +407,14 @@ Rules:
 
 **Concurrency concerns:**
 
-- evaluation must be tied to an opaque Organization Hiring `sourceVersion`/expected version;
+- evaluation must be tied to an opaque Organization Hiring `sourceVersion`/owner-issued opaque expectedConcurrencyToken;
 - stale results may not supersede a result for a newer Job source version;
 - duplicate semantic evaluations must be idempotent;
 - review resolution against an already superseded or already resolved check must return conflict.
 
 **Retention/privacy:** reviewer identity and summary may be personal/sensitive. Raw matched Job text should not be copied into `summary`.
 
-**Current proof gap:** the schema does not record the full applied rule set or an authoritative Job source version. `checkedTextHash` alone cannot prove which rules were evaluated in a zero-finding result. U-CL06-06 blocks production-grade reproducibility.
+**Current proof gap:** the schema does not record the full applied rule set or an authoritative Job source version. `checkedTextHash` alone cannot prove which rules were evaluated in a zero-finding result. The unimplemented binding U-CL06-06 proof invariant blocks production-grade reproducibility.
 
 ### 8.3 `JobComplianceFinding`
 
@@ -481,11 +481,13 @@ No implementation may arbitrarily choose different meanings for these duplicates
 
 Job Compliance consumes the minimum Job facts required for evaluation through Organization Hiring’s public contract. It must not import a Job repository directly.
 
-Important fields currently relevant to evaluation include title, description, employment type, domain/category, location/city/state/country, remote flag, compensation range/currency/period, and source-state/version context. Exact included fields are governed by the Job Compliance canonicalization policy.
+Important fields currently relevant to evaluation include title, description, employment type, domain/category, location/city/state/country, remote flag, compensation range/currency/period, and source-state/version context. Exact included fields are governed by Job Compliance canonicalization policy and supplied by the Organization-owned compliance-input snapshot. Missing authoritative compensation/benefit source mappings remain unresolved; JobCompensationDisclosure cannot originate those business facts.
 
 ### 8.6 Required historical proof not yet modeled
 
-**U-CL06-06 is blocking.** Before production implementation, architecture must define a Job Compliance-owned immutable evaluation proof sufficient to answer:
+**Binding invariant — CL-06-R007 / U-CL06-06.** Every production-grade evaluation SHALL preserve immutable exact evaluated-input proof (a canonical snapshot or an immutable source-version reference from which the exact payload can be reconstructed) plus its hash, and the complete identities/versions of every applied rule, including zero-finding approvals. Scanner version, evaluation time and material normalized jurisdiction input remain traceable after Job edits and rule changes. The persistence representation, retention details and schema/migrations require a later approved database pass; no schema design is selected here.
+
+The proof must answer:
 
 - exactly which Job source version/snapshot was evaluated;
 - which canonicalization version was used;
@@ -606,7 +608,7 @@ Under the CL-06 Proposed Ruling, this is an Organization Hiring-owned mirror of 
 **Authoritative inputs:**
 
 - `jobId`;
-- `expectedSourceVersion` (opaque owner version, current implementation may use owner-issued `updatedAt` until a dedicated version exists);
+- `expectedConcurrencyToken` (opaque token issued by Organization Hiring for the exact source revision; consumers do not select its backing);
 - trigger reason: publication request, material edit, rule-change rescan, admin rescan, or equivalent approved vocabulary;
 - idempotency key;
 - correlation/causation IDs.
@@ -616,11 +618,11 @@ Under the CL-06 Proposed Ruling, this is an Organization Hiring-owned mirror of 
 - actor resolved;
 - requested action authorized;
 - Organization Hiring confirms Job exists and is eligible to be evaluated;
-- production evaluation requires U-CL06-05/06/07 resolution.
+- production evaluation requires resolved U-CL06-05/07 policy and approved implemented persistence satisfying binding U-CL06-06.
 
 **State written:** canonical idempotency receipt and durable queue work; Module source records are written by evaluation worker/service, not by a route handler.
 
-**Shared operations:** `resolveAuthenticatedActor`, `authorizeResourceAction`, `executeIdempotentCommand`, `enqueueReliableJob`.
+**Shared operations:** SH-001 `resolveAuthenticatedActor` (Confirmed), SH-002 `authorizeResourceAction` (Confirmed), SH-044 `executeIdempotentCommand` (Confirmed), SH-047 `enqueueReliableJob` (Confirmed).
 
 **Effects:** evaluation job; optional `job_compliance.evaluation_requested` is not required as a domain event because the request itself is a command. If recorded, it must be an operational/workflow fact, not an outcome.
 
@@ -634,13 +636,13 @@ Under the CL-06 Proposed Ruling, this is an Organization Hiring-owned mirror of 
 
 **Actor/context:** authorized compliance reviewer/admin through Role / Authority.
 
-**Inputs:** check ID, expected check version/updatedAt, review outcome, reason, optional finding-level resolutions, idempotency key.
+**Inputs:** check ID, owner-issued opaque expectedConcurrencyToken for the review aggregate, review outcome, reason, optional finding-level resolutions, idempotency key.
 
 **Preconditions:** check is current enough for review, status is `needs_review`, Job source has not invalidated the check according to source-version policy.
 
 **State written:** reviewed fields/check status; finding resolution fields if part of the command.
 
-**Shared operations:** actor/authority, idempotency, optimistic concurrency, `appendAuditEvent`, `publishDomainEvent`, optional `requestNotification`.
+**Shared operations:** actor/authority, idempotency, optimistic concurrency, SH-029 `appendAuditEvent` (Confirmed), SH-046 `publishDomainEvent` (Confirmed), optional SH-041 `requestNotification` (Confirmed).
 
 **Events:** `job_compliance.review_resolved`; `job_compliance.decision_changed` if effective decision changes.
 
@@ -652,13 +654,13 @@ Under the CL-06 Proposed Ruling, this is an Organization Hiring-owned mirror of 
 
 **Actor/context:** privileged reviewer/admin.
 
-**Inputs:** finding ID, expected version/context, override reason, desired resolution effect, idempotency key.
+**Inputs:** finding ID, owner-issued opaque expectedConcurrencyToken/context, override reason, desired resolution effect, idempotency key.
 
 **Preconditions:** finding belongs to reviewable/current check; actor authorized; reason required.
 
 **State written:** `adminOverride`, `adminOverrideReason`, `resolvedAt`, related check decision as allowed by review policy.
 
-**Shared operations:** actor/authority, idempotency, concurrency, `appendAuditEvent`, `publishDomainEvent`.
+**Shared operations:** actor/authority, idempotency, concurrency, SH-029 `appendAuditEvent` (Confirmed), SH-046 `publishDomainEvent` (Confirmed).
 
 **Failure modes:** stale/already resolved finding, invalid target state, unauthorized, superseded check.
 
@@ -668,13 +670,13 @@ Under the CL-06 Proposed Ruling, this is an Organization Hiring-owned mirror of 
 
 **Actor/context:** privileged rule administrator.
 
-**Inputs:** rule ID/key/version, effective date, expected rule version, idempotency key.
+**Inputs:** rule ID/key/version, effective date, owner-issued opaque expectedConcurrencyToken for the rule mutation, idempotency key.
 
 **Preconditions:** rule is draft; rule config validates; version is unique; effective-version policy has no prohibited overlap.
 
 **State written:** rule status/effective fields.
 
-**Shared operations:** `manageVersionedRules`, actor/authority, idempotency, concurrency, audit, outbox.
+**Shared operations:** SH-080 `manageVersionedRules` (Confirmed), actor/authority, idempotency, concurrency, audit, outbox.
 
 **Events/jobs:** `job_compliance.rule_activated`; enqueue affected-Job rescan only according to approved rescan policy.
 
@@ -706,13 +708,13 @@ Under the CL-06 Proposed Ruling, this is an Organization Hiring-owned mirror of 
 
 ## 11. Queries / Decisions
 
-### 11.1 `evaluateJobCompliance`
+### 11.1 SH-021 `evaluateJobCompliance` (Confirmed)
 
 **Consumers:** evaluation worker, Organization Hiring integration, contract tests.
 
 **Input:** authoritative `JobComplianceInputDTO` with source version, canonical Job facts, normalized jurisdiction/context, trigger, and rule-resolution context.
 
-**Result:** shared `DecisionResult` plus check/evidence references.
+**Result:** Job Compliance-owned `DecisionResult` plus check/evidence references. Proposed SH-015 `returnDecisionResult` (Proposed ruling) is not required approval for this owner-specific envelope.
 
 **Returns:** Job Compliance decision/evidence, not Job lifecycle.
 
@@ -724,7 +726,7 @@ Under the CL-06 Proposed Ruling, this is an Organization Hiring-owned mirror of 
 
 **Consumers:** Organization Hiring, authorized admin/review surfaces, Search only as an owner decision input where the Search contract requires it.
 
-**Input:** `jobId`, optional expected source version.
+**Input:** `jobId`, optional owner-issued opaque expectedConcurrencyToken for the source revision.
 
 **Result:** current effective Job Compliance `DecisionResult`, check ID, disclosure status, evidence refs, source/rule-set versions/fingerprint, evaluatedAt, and staleness indicator.
 
@@ -787,7 +789,7 @@ Other Modules should consume the following boundary instead of reading Job Compl
 
 ### Public queries / decisions
 
-- `evaluateJobCompliance`
+- SH-021 `evaluateJobCompliance` (Confirmed)
 - `getJobPublicationComplianceDecision`
 - `getJobComplianceReport`
 - `getApplicableJobComplianceRequirements`
@@ -805,9 +807,9 @@ Other Modules should consume the following boundary instead of reading Job Compl
 
 ### Privacy executor
 
-- `enumerateSubjectData` implementation for Job Compliance-owned records
-- `executePrivacyInstruction` implementation for Job Compliance-owned records
-- owner facts for `evaluateRetentionRequirement`
+- SH-096 `enumerateSubjectData` (Confirmed) implementation for Job Compliance-owned records
+- SH-095 `executePrivacyInstruction` (Confirmed) implementation for Job Compliance-owned records
+- owner facts for SH-097 `evaluateRetentionRequirement` (Confirmed)
 
 ### Provider-facing interfaces
 
@@ -817,14 +819,15 @@ None owned at present. The scanner consumes shared scanner mechanics, not an ext
 
 | Owning Module / capability | Public operation/interface consumed | Why required | Minimum information | Can block? | Must not copy locally |
 |---|---|---|---|---|---|
-| Identity & Access | `resolveAuthenticatedActor` | establish trusted human/system actor | actor ID, actor type, assurance/session context | Yes for protected human actions | auth/session helpers |
-| Role / Authority | `authorizeResourceAction` | authorize evaluation request, report read, review, override, rule admin | action, resource IDs, Organization owner facts, actor | Yes | org/admin role interpretation |
-| Organization Hiring | `getOrganizationHiringContext` or approved Job Compliance input contract | authoritative Job/Organization facts and opaque source version | Job ID, org ID, status, version, text/structured fields required for compliance | Yes if missing/stale/ineligible | Job repository, Job lifecycle policy |
-| Taxonomy & Classification | `resolveTaxonomyRequirements` / `validateTaxonomyAssignment` where rule applicability depends on taxonomy | accepted classification/context facts | canonical IDs and relevant requirement triggers | May force review/unavailable if required context cannot be resolved | taxonomy copies/hardcoded terms |
-| Shared jurisdiction capability | `normalizeJurisdictionContext` (currently unresolved owner) | normalize country/state/city/remote evidence | normalized jurisdiction DTO + evidence/confidence | Yes for jurisdiction-dependent production rules | local geo normalization library as policy truth |
-| Admin Review / Compliance Hold | `requestComplianceHold`, optionally `evaluateComplianceHold` for review context | request reusable admin stop sign when needed | target, reason, evidence refs, scope | Hold may block final publication, but final hold composition belongs Organization Hiring | local blocked table |
-| Audit / Event Ledger | `appendAuditEvent` | privileged rule/review/override proof | actor, action, target, evidence refs, reason, correlation | Audit transaction policy may fail the privileged action | local AuditEvent |
-| Notification | `requestNotification` only for Job Compliance-owned admin/review intent | alert reviewers/admins without owning delivery | safe template intent, recipients/recipient facts, Job/check IDs | Delivery failure must not rewrite compliance truth | email/SMS/push code |
+| Identity & Access | SH-001 `resolveAuthenticatedActor` (Confirmed) | establish trusted human/system actor | actor ID, actor type, assurance/session context | Yes for protected human actions | auth/session helpers |
+| Role / Authority | SH-002 `authorizeResourceAction` (Confirmed) | authorize evaluation request, report read, review, override, rule admin | action, resource IDs, Organization owner facts, actor | Yes | org/admin role interpretation |
+| Organization Hiring | dedicated compliance-input snapshot contract | exact source input and source revision/token | Job ID, authoritative Job facts and taxonomy/location/business-compensation references | Yes if required source is missing/stale/ineligible | direct Organization repository access or disclosure evidence as originating business truth |
+| Organization Hiring | scoped/cursor compliance rescan-enumeration contract | enumerate eligible Jobs by rule/jurisdiction/effective scope | eligible Job IDs, source revision/token, pagination cursor | Yes if unavailable | direct Organization repository enumeration |
+| Taxonomy & Classification | SH-022 `resolveTaxonomyRequirements` (Confirmed) / SH-023 `validateTaxonomyAssignment` (Confirmed) where rule applicability depends on taxonomy | accepted classification/context facts | canonical IDs and relevant requirement triggers | May force review/unavailable if required context cannot be resolved | taxonomy copies/hardcoded terms |
+| Shared jurisdiction capability | SH-120 `normalizeJurisdictionContext` (Unresolved) (currently unresolved owner) | normalize country/state/city/remote evidence | normalized jurisdiction DTO + evidence/confidence | Yes for jurisdiction-dependent production rules | local geo normalization library as policy truth |
+| Admin Review / Compliance Hold | SH-012 `requestComplianceHold` (Confirmed), optionally SH-011 `evaluateComplianceHold` (Confirmed) for review context | request reusable admin stop sign when needed | target, reason, evidence refs, scope | Hold may block final publication, but final hold composition belongs Organization Hiring | local blocked table |
+| Audit / Event Ledger | SH-029 `appendAuditEvent` (Confirmed) | privileged rule/review/override proof | actor, action, target, evidence refs, reason, correlation | Audit transaction policy may fail the privileged action | local AuditEvent |
+| Notification | SH-041 `requestNotification` (Confirmed) only for Job Compliance-owned admin/review intent | alert reviewers/admins without owning delivery | safe template intent, recipients/recipient facts, Job/check IDs | Delivery failure must not rewrite compliance truth | email/SMS/push code |
 | Privacy / Data Erasure | privacy target request/result protocol | execute legal instruction on owned records | subject/target/disposition, privacy IDs, idempotency | Yes for destructive action safety | PrivacyRequest/DataErasureJob |
 | Observability / Ops | structured logging, queue telemetry, operational-failure interface | surface scanner/worker failures | correlation ID, safe error category, source refs | No business decision ownership | SystemEvent/IntegrationFailure tables |
 | Shared platform | idempotency, queue/retry, outbox/inbox, locks/concurrency, canonical text/hash, versioning, scanner | durable/replay-safe execution | operation-specific payloads | Yes when unavailable; fail explicitly | local infrastructure copies |
@@ -867,32 +870,32 @@ Consumes technical worker/scanner failure telemetry only. Ops records never beco
 
 ## 15. Canonical Shared Operations Used
 
-The supplied Canonical Shared Operations Architecture uses canonical operation names rather than SH-### identifiers. Those lowerCamelCase names are the identifiers used here.
+The [Shared Operations registry](../../../shared/shared-operations.md) governs permanent IDs, canonical names, owners, classifications and statuses. Registered use points below carry verified IDs/statuses. Proposed ruling entries may support planning and owner-specific interfaces/mechanisms, but cross-platform SH API/schema commitment requires separate explicit approval; any exit gate relying on that shared API must verify approval. Unresolved entries must not be silently implemented or replaced locally. The approved Job Compliance publication envelope does not approve a proposed shared decision envelope.
 
 | Canonical operation | Classification / owner | Why Job Compliance uses it | Invocation point | Local policy that remains Job Compliance-owned | Expected result | Prohibited duplicate names |
 |---|---|---|---|---|---|---|
-| `resolveAuthenticatedActor` | Platform capability — Identity & Access | trusted actor context | public human command/query entry | what Job Compliance action is attempted | typed actor context | `getCurrentUser`, `jobComplianceAuth`, `requireUser` |
-| `authorizeResourceAction` | Cross-cutting capability — Role / Authority | reviewer/admin/org action authorization | before protected command/report read | action vocabulary + resource facts | typed allow/deny decision | `canReviewJob`, `canManageComplianceRules`, `jobPermission` |
-| `queryOwnerFacts` | Shared contract; source owner implementation | obtain minimal Job/Organization facts | evaluation and authorization | which Job fields compliance needs | owner DTO with source version | cross-domain Prisma repository |
-| `normalizeJurisdictionContext` | Cross-cutting capability — owner unresolved | jurisdiction-dependent rule input | before rule resolution | which jurisdiction evidence is sufficient | normalized jurisdiction DTO or validation failure | `stateRuleResolver`, local address normalizer |
-| `buildCanonicalTextSnapshot` | Cross-cutting primitive | deterministic evaluation input | before hash/scanner | included Job fields and canonicalization version | normalized ordered snapshot | `jobTextBuilder`, `normalizeJobText` |
-| `hashCanonicalPayload` | Platform cryptographic primitive | source/rule-set integrity and provenance | after canonicalization | what the hash proves | stable digest + purpose/version | `jobHash`, `sha256Helper` |
-| `manageVersionedRules` | Shared mechanism; separate policy | version lifecycle/effective resolution | rule admin and evaluation | employment rule meaning, jurisdiction, severity | effective rule versions / transition result | generic Job Compliance rule engine |
-| `runPatternScanner` | Shared scanner mechanism; policy owner unresolved | raw deterministic match generation | evaluation | employment interpretation/severity/decision | raw structured matches, offsets, scanner version | `eeocScanner`, `salaryScanner`, `nlpService` runtime |
-| `returnDecisionResult` | Shared contract; separate policy | stable decision envelope | public decision queries | Job Compliance reason codes and precedence | allowed/denied/warning/review/unavailable + evidence | universal readiness engine |
-| `executeIdempotentCommand` | Platform primitive | replay-safe commands | request, review, override, rule lifecycle | semantic key and replay result | claimed/existing result | local idempotency table/helper |
-| `enqueueReliableJob` | Platform queue primitive | durable evaluation/rescan work | request and rule activation | job payload/meaning | durable job receipt | local queue client/framework |
-| `executeRetryWithBackoff` | Platform queue primitive | retry transient scanner/dependency failures | worker | retryable vs permanent/review classification | retry/dead-letter outcome | custom retry loop |
-| `acquireAggregateLock` / `withOptimisticConcurrency` | Platform persistence primitives | prevent stale/double updates | rule review/evaluation application | aggregate key/conflict semantics | lock/CAS result | in-memory mutex/ad-hoc lock table |
-| `publishDomainEvent` | Platform outbox primitive | reliable owner event publication | source transaction | event names/payload/emission condition | outbox record/event ID | fire-and-forget event bus call |
-| `deduplicateDomainEvent` | Platform inbox primitive | exactly-once domain effect at consumers/workers | event consumer | handler semantics | inbox claim/result | local processed-event table |
-| `appendAuditEvent` | Audit capability | privileged action proof | rule/review/override/hold request | what action is auditable | AuditEvent reference | `jobAudit`, local audit table |
-| `requestComplianceHold` | Hold capability | create reusable admin stop sign where policy calls for it | review/escalation | when compliance warrants hold request | hold command result | `jobComplianceBlock`, local hold flag |
-| `requestNotification` | Notification capability | reviewer/admin notification intent | after committed owner event | safe message intent | notification request result | direct SES/SMS/push sender |
-| `enumerateSubjectData` | Privacy protocol | declare owned subject data | Privacy fulfillment | local inventory mapping | stable target enumeration | local privacy workflow |
-| `executePrivacyInstruction` | Privacy protocol | erase/anonymize/restrict/export/retain owned records | Privacy worker call | Job Compliance record mutation | standard privacy target result | local DataErasureJob |
-| `evaluateRetentionRequirement` | Privacy protocol | determine whether proof must remain | before destructive mutation | compliance proof facts/minimum fields | retain decision facts for Privacy exemption | local retention-exemption table |
-| `anonymizePersonalFields` | Cross-cutting privacy capability | scrub personal fields while preserving proof | approved privacy disposition | field map/invariants | anonymization result | custom global scrubber |
+| SH-001 `resolveAuthenticatedActor` (Confirmed) | Platform capability — Identity & Access | trusted actor context | public human command/query entry | what Job Compliance action is attempted | typed actor context | `getCurrentUser`, `jobComplianceAuth`, `requireUser` |
+| SH-002 `authorizeResourceAction` (Confirmed) | Cross-cutting capability — Role / Authority | reviewer/admin/org action authorization | before protected command/report read | action vocabulary + resource facts | typed allow/deny decision | `canReviewJob`, `canManageComplianceRules`, `jobPermission` |
+| SH-003 `queryOwnerFacts` (Proposed ruling) | Shared contract; separate implementations — Each source Module | obtain minimal Job/Organization facts | evaluation and authorization | which Job fields compliance needs | owner DTO with source version | cross-domain Prisma repository |
+| SH-120 `normalizeJurisdictionContext` (Unresolved) | Cross-cutting capability — Shared commerce/location capability ownership unresolved | jurisdiction-dependent rule input | before rule resolution | which jurisdiction evidence is sufficient | normalized jurisdiction DTO or validation failure | `stateRuleResolver`, local address normalizer |
+| SH-077 `buildCanonicalTextSnapshot` (Confirmed) | Cross-cutting primitive — Shared text canonicalization mechanism | deterministic evaluation input | before hash/scanner | included Job fields and canonicalization version | normalized ordered snapshot | `jobTextBuilder`, `normalizeJobText` |
+| SH-072 `hashCanonicalPayload` (Confirmed) | Platform primitive — Shared security/cryptography capability | source/rule-set integrity and provenance | after canonicalization | what the hash proves | stable digest + purpose/version | `jobHash`, `sha256Helper` |
+| SH-080 `manageVersionedRules` (Confirmed) | Shared mechanism; separate policy — Each policy Module using shared versioning mechanism | version lifecycle/effective resolution | rule admin and evaluation | employment rule meaning, jurisdiction, severity | effective rule versions / transition result | generic Job Compliance rule engine |
+| SH-081 `runPatternScanner` (Proposed ruling) | Cross-cutting capability — Shared scanner mechanism; policy owner unresolved | raw deterministic match generation | evaluation | employment interpretation/severity/decision | raw structured matches, offsets, scanner version | `eeocScanner`, `salaryScanner`, `nlpService` runtime |
+| SH-015 `returnDecisionResult` (Proposed ruling) | Shared contract; separate policy — Shared contract; policy owner varies | stable decision envelope | public decision queries | Job Compliance reason codes and precedence | allowed/denied/warning/review/unavailable + evidence | universal readiness engine |
+| SH-044 `executeIdempotentCommand` (Confirmed) | Platform primitive — Platform application infrastructure | replay-safe commands | request, review, override, rule lifecycle | semantic key and replay result | claimed/existing result | local idempotency table/helper |
+| SH-047 `enqueueReliableJob` (Confirmed) | Platform primitive — Shared queue infrastructure | durable evaluation/rescan work | request and rule activation | job payload/meaning | durable job receipt | local queue client/framework |
+| SH-048 `executeRetryWithBackoff` (Confirmed) | Platform primitive — Shared queue/platform infrastructure | retry transient scanner/dependency failures | worker | retryable vs permanent/review classification | retry/dead-letter outcome | custom retry loop |
+| SH-051 `acquireAggregateLock` (Confirmed) / SH-052 `withOptimisticConcurrency` (Confirmed) | Platform primitive — Shared persistence infrastructure | prevent stale/double updates | rule review/evaluation application | aggregate key/conflict semantics | lock/CAS result | in-memory mutex/ad-hoc lock table |
+| SH-046 `publishDomainEvent` (Confirmed) | Platform primitive — Platform event/outbox infrastructure | reliable owner event publication | source transaction | event names/payload/emission condition | outbox record/event ID | fire-and-forget event bus call |
+| SH-045 `deduplicateDomainEvent` (Confirmed) | Platform primitive — Platform event infrastructure; consumer owns inbox | exactly-once domain effect at consumers/workers | event consumer | handler semantics | inbox claim/result | local processed-event table |
+| SH-029 `appendAuditEvent` (Confirmed) | Platform audit capability — Audit / Event Ledger | privileged action proof | rule/review/override/hold request | what action is auditable | AuditEvent reference | `jobAudit`, local audit table |
+| SH-012 `requestComplianceHold` (Confirmed) | Cross-cutting capability — Admin Review / Compliance Hold | create reusable admin stop sign where policy calls for it | review/escalation | when compliance warrants hold request | hold command result | `jobComplianceBlock`, local hold flag |
+| SH-041 `requestNotification` (Confirmed) | Platform notification capability — Notification | reviewer/admin notification intent | after committed owner event | safe message intent | notification request result | direct SES/SMS/push sender |
+| SH-096 `enumerateSubjectData` (Confirmed) | Cross-cutting protocol — Each data-owning Module through Privacy-defined interface | declare owned subject data | Privacy fulfillment | local inventory mapping | stable target enumeration | local privacy workflow |
+| SH-095 `executePrivacyInstruction` (Confirmed) | Cross-cutting protocol — Privacy orchestrates; each data owner executes | erase/anonymize/restrict/export/retain owned records | Privacy worker call | Job Compliance record mutation | standard privacy target result | local DataErasureJob |
+| SH-097 `evaluateRetentionRequirement` (Confirmed) | Cross-cutting protocol — Data owner supplies facts; Privacy records exemption | determine whether proof must remain | before destructive mutation | compliance proof facts/minimum fields | retain decision facts for Privacy exemption | local retention-exemption table |
+| SH-098 `anonymizePersonalFields` (Confirmed) | Cross-cutting capability — Shared primitive; record owner supplies mapping | scrub personal fields while preserving proof | approved privacy disposition | field map/invariants | anonymization result | custom global scrubber |
 
 ## 16. Module-Internal Operations
 
@@ -910,10 +913,10 @@ The supplied Canonical Shared Operations Architecture uses canonical operation n
 
 ## 17. Shared Mechanism / Separate Truth Rules
 
-1. **Versioning:** `manageVersionedRules` supplies immutable/effective-date mechanics; `JobComplianceRule` remains Job Compliance truth.
-2. **Scanner:** `runPatternScanner` supplies tokenization/pattern matching; `JobComplianceFinding` type/severity/legal meaning remains Job Compliance truth.
+1. **Versioning:** SH-080 `manageVersionedRules` (Confirmed) supplies immutable/effective-date mechanics; `JobComplianceRule` remains Job Compliance truth.
+2. **Scanner:** SH-081 `runPatternScanner` (Proposed ruling) supplies tokenization/pattern matching; `JobComplianceFinding` type/severity/legal meaning remains Job Compliance truth.
 3. **Canonicalization/hash:** shared primitives normalize/hash; the included Job fields and what the digest proves remain Job Compliance policy.
-4. **DecisionResult:** result shape is shared; Job Compliance reason codes and decision precedence remain local.
+4. **DecisionResult:** the publication envelope is Job Compliance-owned; adoption of proposed SH-015 `returnDecisionResult` (Proposed ruling) requires separate SH approval and does not transfer reason codes or precedence.
 5. **Idempotency:** shared claim/replay storage is platform truth; the semantic identity of an evaluation/review/rule command is Job Compliance-defined.
 6. **Lifecycle plumbing:** shared state-transition helpers may validate generic mechanics; rule/check/finding transition graphs remain local.
 7. **Events:** outbox/inbox mechanics are shared; Job Compliance owns event vocabulary and emission conditions.
@@ -925,11 +928,11 @@ The supplied Canonical Shared Operations Architecture uses canonical operation n
 
 ### Authenticated actor requirement
 
-All human-facing mutations and non-public evidence reads begin with `resolveAuthenticatedActor`. Workers use a scoped trusted system actor/capability and carry original correlation/actor context when available.
+All human-facing mutations and non-public evidence reads begin with SH-001 `resolveAuthenticatedActor` (Confirmed). Workers use a scoped trusted system actor/capability and carry original correlation/actor context when available.
 
 ### Role / Authority operations
 
-Use `authorizeResourceAction`; do not hardcode organization or platform roles in route/actions.
+Use SH-002 `authorizeResourceAction` (Confirmed); do not hardcode organization or platform roles in route/actions.
 
 Recommended Module action vocabulary for Role / Authority mapping:
 
@@ -959,14 +962,14 @@ Rule management, review, override, and broad compliance evidence access are priv
 
 ### Step-up
 
-No Job Compliance-specific step-up requirement is confirmed. If root security policy later classifies rule activation or legal override as step-up-sensitive, consume `requireStepUpForSensitiveAction`; do not create a local MFA flag.
+No Job Compliance-specific step-up requirement is confirmed. If root security policy later classifies rule activation or legal override as step-up-sensitive, consume SH-014 `requireStepUpForSensitiveAction` (Confirmed); do not create a local MFA flag.
 
 ## 19. Compliance / Readiness / Entitlement Gates
 
 ### Gate: Job posting compliance
 
 - **Underlying truth owner:** Job Compliance.
-- **Public query:** `evaluateJobCompliance` / `getJobPublicationComplianceDecision`.
+- **Public query:** SH-021 `evaluateJobCompliance` (Confirmed) / `getJobPublicationComplianceDecision`.
 - **Action gated:** Organization Hiring public Job publication.
 - **Local composition:** Job Compliance evaluates only posting compliance evidence.
 - **Result:** `DecisionResult`.
@@ -974,7 +977,7 @@ No Job Compliance-specific step-up requirement is confirmed. If root security po
 ### Gate: reusable ComplianceHold
 
 - **Underlying truth owner:** Admin Review / Compliance Hold.
-- **Operation:** `evaluateComplianceHold` belongs to the final action owner, normally Organization Hiring for publication.
+- **Operation:** SH-011 `evaluateComplianceHold` (Confirmed) belongs to the final action owner, normally Organization Hiring for publication.
 - **Job Compliance use:** may request a hold when a compliance review requires an administrative stop sign.
 - **Resulting decision:** a hold may block publication but must not be encoded as `JobComplianceCheck.status` unless the Job Compliance evidence independently supports that status.
 
@@ -992,7 +995,7 @@ No candidate or professional Track entitlement is part of core Job Compliance ev
 
 Job Compliance currently owns **no external provider integration**.
 
-`compromise` and `natural` are implementation libraries for text analysis/scanning, not legal authorities and not Workin Ants source-of-truth providers. Their execution should sit behind the canonical `runPatternScanner` mechanism.
+`compromise` and `natural` are implementation libraries for text analysis/scanning, not legal authorities and not Workin Ants source-of-truth providers. Their execution should sit behind the canonical SH-081 `runPatternScanner` (Proposed ruling) mechanism.
 
 Required boundary:
 
@@ -1067,11 +1070,11 @@ Use the canonical event envelope:
 
 **Purpose:** execute requested compliance evaluation durably.
 
-**Input:** job ID, expected source version, trigger, idempotency/correlation IDs.
+**Input:** job ID, owner-issued opaque expectedConcurrencyToken for the source revision, trigger, idempotency/correlation IDs.
 
 **Owner:** Job Compliance; queue mechanics shared.
 
-**Idempotency key:** semantic key based on Job ID + source version + architecture-approved rule-set/canonicalization identity + trigger class. Exact fingerprint cannot be final until U-CL06-06.
+**Idempotency key:** semantic key based on Job ID + source version + architecture-approved rule-set/canonicalization identity + trigger class. Exact persisted fingerprint representation requires the later approved implementation of binding U-CL06-06.
 
 **Retryable failures:** transient queue/dependency/scanner-runtime errors.
 
@@ -1089,7 +1092,7 @@ Use the canonical event envelope:
 
 **Input:** rule key/version/scope + cursor/checkpoint.
 
-**Owner:** Job Compliance for affected-rule semantics; Organization Hiring exposes Job source facts/query boundary; queue mechanics shared.
+**Owner:** Job Compliance for affected-rule semantics; consume Organization Hiring's scoped/cursor rescan-enumeration contract for eligible Job IDs/source tokens, then its exact compliance-input snapshot per Job. Organization retains Job facts; queue mechanics remain shared.
 
 **Idempotency:** rule transition ID + Job source version.
 
@@ -1105,7 +1108,11 @@ Use the canonical event envelope:
 
 Do not invent an external rule-feed poller or scheduled legal-update fetcher. Rule activation occurs through explicit admin/version lifecycle until architecture defines another source.
 
+Normal Candidate submission is not a direct consumer of Compliance evaluation/read interfaces. Organization Hiring receives/applies changed decisions to Job lifecycle/application eligibility; Candidate consumes the fail-closed Organization eligibility context and Job owner state/events.
+
 ## 23. Concurrency and Idempotency
+
+Public mutation contracts use an owner-issued opaque `expectedConcurrencyToken`. The owner returns the token, atomically compares it through SH-052 `withOptimisticConcurrency` (Confirmed), and rejects stale tokens. Consumers do not assume a universal integer `version` or `updatedAt` field. JobApplication, mutable Job Compliance finding/review, JobInterview and any parent-versus-child token backing remain unresolved where no representation is approved; no version column is ordered here.
 
 ### Races to prevent
 
@@ -1143,9 +1150,9 @@ Privileged review/override should atomically persist:
 
 ### Strategy
 
-- use `executeIdempotentCommand` for command replay;
-- use `withOptimisticConcurrency` on mutable rule/check/finding/disclosure records;
-- use `acquireAggregateLock` or database transaction/advisory lock for conflicting evaluation/rule operations when optimistic control is insufficient;
+- use SH-044 `executeIdempotentCommand` (Confirmed) for command replay;
+- use SH-052 `withOptimisticConcurrency` (Confirmed) on mutable rule/check/finding/disclosure records;
+- use SH-051 `acquireAggregateLock` (Confirmed) or database transaction/advisory lock for conflicting evaluation/rule operations when optimistic control is insufficient;
 - do not use in-memory mutexes.
 
 ### Replay result
@@ -1228,7 +1235,7 @@ These records explain the Job Compliance decision.
 
 ### Generic AuditEvent
 
-Use `appendAuditEvent` for privileged human actions such as:
+Use SH-029 `appendAuditEvent` (Confirmed) for privileged human actions such as:
 
 - rule create/activate/retire/disable;
 - manual review resolution;
@@ -1238,7 +1245,7 @@ Use `appendAuditEvent` for privileged human actions such as:
 
 ### AccessAuditLog
 
-No Job Compliance-specific sensitive-access action is currently confirmed. If matched-text/report access is classified as sensitive under root policy, use `recordSensitiveAccess`; do not create a local access log.
+No Job Compliance-specific sensitive-access action is currently confirmed. If matched-text/report access is classified as sensitive under root policy, use SH-030 `recordSensitiveAccess` (Confirmed); do not create a local access log.
 
 ### Separation rule
 
@@ -1260,14 +1267,14 @@ Potential personal data in Job Compliance-owned records includes:
 
 ### Privacy executor
 
-Job Compliance must implement the Privacy-defined `enumerateSubjectData` and `executePrivacyInstruction` contracts for its own records only.
+Job Compliance must implement the Privacy-defined SH-096 `enumerateSubjectData` (Confirmed) and SH-095 `executePrivacyInstruction` (Confirmed) contracts for its own records only.
 
 ### Retention
 
 The supplied evidence does not define a final legal retention period for Job Compliance proof. Therefore:
 
 - do not hard-delete compliance proof by default;
-- call/participate in `evaluateRetentionRequirement`;
+- call/participate in SH-097 `evaluateRetentionRequirement` (Confirmed);
 - Privacy owns any `DataRetentionExemption` record;
 - retained data must be minimized to the least fields required by the approved basis.
 
@@ -1370,7 +1377,7 @@ Use stable categories such as:
 
 ### DecisionResult
 
-Use the canonical shared decision envelope:
+Use the Job Compliance-owned publication decision envelope below. This owner-specific interface is approved by CL-06-R004; it does not approve proposed SH-015 `returnDecisionResult` (Proposed ruling):
 
 ```text
 decision:
@@ -1420,7 +1427,7 @@ Do not return raw `compromise`/`natural` errors, stack traces, rule JSON, or mat
 
 ### Public contract tests
 
-- `evaluateJobCompliance` DecisionResult shape;
+- SH-021 `evaluateJobCompliance` (Confirmed) DecisionResult shape;
 - Organization Hiring Job input/source-version DTO;
 - report privacy shaping;
 - event envelope versions;
@@ -1432,7 +1439,7 @@ Do not return raw `compromise`/`natural` errors, stack traces, rule JSON, or mat
 - check/findings transaction;
 - one disclosure per Job;
 - stale evaluation cannot overwrite newer disclosure;
-- approved historical rule/source proof once U-CL06-06 is resolved;
+- approved historical rule/source proof under the binding U-CL06-06 invariant once its persistence design is approved;
 - outbox atomicity.
 
 ### Authorization tests
@@ -1455,7 +1462,7 @@ At minimum:
 - immigration/citizenship wording;
 - protected-class and overly broad proxy findings;
 - uncertain scanner match routes to review;
-- zero-finding pass records all applied rules after U-CL06-06 resolution;
+- zero-finding pass records all applied rules under binding U-CL06-06;
 - identical source+rule versions reproduce the same result.
 
 ### Idempotency/concurrency tests
@@ -1535,7 +1542,7 @@ Organization Job draft
 24. Privacy owns privacy orchestration and retention exemption records; this Module mutates only its own records.
 25. Ops records are diagnostic, not compliance source truth.
 26. No external legal/provider integration is introduced without an architecture update.
-27. Production Job publication does not proceed until U-CL06-05/06/07 are resolved and reflected in architecture.
+27. Production Job publication does not proceed until U-CL06-05/07 policy is resolved and binding U-CL06-06 proof has approved implemented persistence.
 
 ## 34. Prohibited Duplicate Implementations
 
@@ -1554,7 +1561,7 @@ Do not create any of the following inside `src/modules/job-compliance`:
 - `mutex.ts`, in-memory locks, local generic lock table;
 - `sha256.ts`, `jobHash.ts`, local crypto helper;
 - `textNormalizer.ts`, `jobTextBuilder.ts` implementing canonicalization mechanics;
-- `eeocScanner.ts`, `fairChanceScanner.ts`, `salaryScanner.ts` as independent scanner runtimes bypassing `runPatternScanner`;
+- `eeocScanner.ts`, `fairChanceScanner.ts`, `salaryScanner.ts` as independent scanner runtimes bypassing SH-081 `runPatternScanner` (Proposed ruling);
 - a generic `ruleEngine.ts` that owns non-Job policy;
 - a universal `complianceGate.ts`/`hiringReadinessEngine.ts` that absorbs Hold/Trust/Authority/Search policy;
 - candidate background-check or Checkr/Certn clients;
@@ -1586,11 +1593,9 @@ This proposal is not binding until approved and reflected in CL-06/root context.
 
 ### U-CL06-06 — Historical rule-set/source proof
 
-**Question:** how does a zero-finding result prove which rules and exact source state were evaluated after later changes?
+**Resolved invariant (CL-06-R007):** Every production-grade evaluation SHALL preserve immutable exact evaluated-input proof (a canonical snapshot or an immutable source-version reference from which the exact payload can be reconstructed) plus its hash, and the complete identities/versions of every applied rule, including zero-finding approvals. Scanner version, evaluation time and material normalized jurisdiction input remain traceable after Job edits and rule changes. The persistence representation, retention details and schema/migrations require a later approved database pass; no schema design is selected here.
 
-**Blocks:** legal-grade reproducibility and Cluster Feature 02 exit gate.
-
-**Proposed Ruling PR-JC-02:** Job Compliance should own immutable evaluation proof attached to each check, sufficient to preserve source version/canonical input identity, canonicalization version, normalized jurisdiction context, every applied rule key/version, rule-set fingerprint, scanner version, and compensation-disclosure evaluation identity. The exact schema may be a check-attached snapshot plus applied-rule rows or an equivalent normalized design. The model/field names, retention, and whether exact canonical text is stored or referenced must be explicitly approved before migration.
+**Still blocks:** production reproducibility and Cluster Feature 02 until that invariant has an approved implemented persistence design. PR-JC-02's evidence requirement is binding; its prior representation options do not select schema, retention or storage design.
 
 ### U-CL06-07 — `CompensationPeriod` ownership and `EmploymentType.contract`
 
@@ -1614,7 +1619,7 @@ No final Job Compliance proof-retention schedule is supplied. Privacy dispositio
 
 ### Jurisdiction capability owner
 
-`normalizeJurisdictionContext` is canonical but its platform owner is unresolved. Job Compliance must consume the approved shared interface rather than become its de facto platform owner.
+SH-120 `normalizeJurisdictionContext` (Unresolved) is canonical but its platform owner is unresolved. Job Compliance must consume the approved shared interface rather than become its de facto platform owner.
 
 ## 36. Architecture Decision Summary
 
@@ -1632,12 +1637,12 @@ No final Job Compliance proof-retention schedule is supplied. Privacy dispositio
 - Scanner libraries are not legal authority or source truth.
 - Canonical text/hash/scanner/version/idempotency/queue/retry/concurrency/event mechanisms are shared and must not be duplicated.
 - Technical evaluation failure is not an approval or legal rejection.
-- Production Job publication is blocked until U-CL06-05/06/07 are resolved.
+- Production Job publication is blocked until U-CL06-05/07 policy is resolved and binding U-CL06-06 proof has approved implemented persistence.
 
 ### Proposed rulings awaiting approval
 
 - PR-JC-01 effective decision/mirror/hold separation and warning/failed mapping.
-- PR-JC-02 immutable historical evaluation proof requirement and shape category.
+- Historical proof persistence representation and retention details remain for a later approved pass; PR-JC-02's evidence invariant itself is binding.
 - PR-JC-03 Organization Hiring as structural owner of `CompensationPeriod`.
 
 ## 37. Coding-Agent Usage
@@ -1655,6 +1660,6 @@ Before implementing any Job Compliance feature, the coding agent must read, in o
 9. public-interface sections for Organization Hiring, Role / Authority, Taxonomy, Holds, Audit, Notification, Privacy, Search, and Ops as relevant to the feature;
 10. progress tracker;
 11. current Prisma schema/migrations;
-12. the architecture decision records resolving U-CL06-05/06/07 and any later blockers relevant to the feature.
+12. the architecture decisions resolving U-CL06-05/07 policy, approving persistence satisfying binding U-CL06-06, and resolving any later blockers relevant to the feature.
 
 Before coding, confirm the prior numbered feature’s exit gate and write the required feature implementation specification. If implementation discovers a binding ownership/schema/lifecycle/public-contract change, stop and update architecture before continuing.

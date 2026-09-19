@@ -5,7 +5,7 @@
 > **Module type:** `domain_actor_profile`  
 > **Build status:** `mvp_active`  
 > **Primary Cluster:** `CL-01 — Identity, Authority, Consent & Entitlements`  
-> **Repository target:** `context/modules/customer_buyer_profile/module-architecture.md`  
+> **Repository target:** `context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-module-architecture.md`\
 > **Document status:** Implementation-grade target Module architecture for the Workin Ants MVP  
 > **Audience:** coding agents, developers, reviewers, maintainers, security/privacy reviewers, and architecture reviewers
 
@@ -135,12 +135,12 @@ archived
 
 The Module **owns the meaning and transition policy of these values when applied to `CustomerProfile`** under CL-01 Proposed Ruling `PR-CL01-03`.
 
-The ownership of the shared `ProfileStatus` enum definition itself is **Unresolved (`U-CL01-01`)** because the current registry and glossary conflict. Coding agents must not claim the enum definition for this Module or migrate it merely to make ownership cleaner.
+The ownership of the shared `ProfileStatus` enum definition itself is **Unresolved (`U-CL01-20`)** because the current registry and glossary conflict. Coding agents must not claim the enum definition for this Module or migrate it merely to make ownership cleaner.
 
 ### 3.3 Lifecycles owned
 
 - CustomerProfile existence/provisioning lifecycle.
-- CustomerProfile-specific status lifecycle, **but production transitions beyond initial `active` creation remain architecture-gated by `U-CL01-02`**.
+- CustomerProfile-specific status lifecycle, **but production transitions beyond initial `active` creation remain architecture-gated by `U-CL01-21`**.
 - CustomerProfile archive/restore semantics, once the transition matrix is approved.
 
 ### 3.4 Source-of-truth records
@@ -194,7 +194,7 @@ Customer / Buyer Profile owns:
 - User/Profile consistency rules;
 - which CustomerProfile fields are editable by self/admin after precedence decisions are approved;
 - avatar attachment context after Media validates the asset;
-- CustomerProfile-specific status transitions once `U-CL01-02` is resolved;
+- CustomerProfile-specific status transitions once `U-CL01-21` is resolved;
 - Customer-owned privacy field mapping and execution behavior under Privacy instructions.
 
 ---
@@ -253,7 +253,7 @@ Concrete prohibitions:
 7. **Commercial policy never lives on CustomerProfile.** Use Track public interfaces.
 8. **Historical commercial effects stay with the consumer.** Order fee-waiver and Booking priority results are consumer-owned snapshots.
 9. **MediaAsset is file truth.** Customer owns only avatar attachment meaning.
-10. **Public visibility is fail-closed.** No public CustomerProfile search/index/page is enabled until `U-CL01-06` is resolved and the Cluster/root architecture is updated.
+10. **Public visibility is fail-closed.** No public CustomerProfile search/index/page is enabled until `U-CL01-22` is resolved and the Cluster/root architecture is updated.
 11. **Privacy orchestrates; Customer executes.** The Module handles only its own fields/reference effects.
 12. **Status is not a ComplianceHold.** `suspended` or other profile status cannot become a mirror of a platform hold without an explicit approved rule.
 13. **No broad generic ProfileService.** Shared profile plumbing may be reused, but CustomerProfile rules stay in this Module.
@@ -356,7 +356,7 @@ The Customer Module owns only the consistency rule. The destination Modules own 
 
 ### 8.3 Review/Dispute
 
-Current Review/Dispute models still use User/Order-based actor references. Whether they should receive direct CustomerProfile references is `U-CL01-07`; do not add them from this Module plan.
+Current Review/Dispute models still use User/Order-based actor references. Whether they should receive direct CustomerProfile references is `Review/Dispute direct CustomerProfile reference decision`; do not add them from this Module plan.
 
 ---
 
@@ -387,7 +387,7 @@ draft | active | paused | suspended | archived
 
 **Transition owner:** Customer / Buyer Profile for CustomerProfile-specific transition policy.
 
-**Valid transitions:** **Unresolved (`U-CL01-02`)**.
+**Valid transitions:** **Unresolved (`U-CL01-21`)**.
 
 **Triggers:** owner/admin commands, and potentially privacy/archive instructions after policy approval. A ComplianceHold does not automatically transition status unless a separate Customer command/policy explicitly says so.
 
@@ -408,7 +408,7 @@ draft | active | paused | suspended | archived
 
 ### 9.3 Architecture gate
 
-Production `changeCustomerProfileStatus`, `archiveCustomerProfile`, and `restoreCustomerProfile` commands remain disabled until `U-CL01-01`/`U-CL01-02` and the open-obligation semantics are resolved in architecture.
+Production `changeCustomerProfileStatus`, `archiveCustomerProfile`, and `restoreCustomerProfile` commands remain disabled until `U-CL01-20`/`U-CL01-21` and the open-obligation semantics are resolved in architecture.
 
 ---
 
@@ -431,7 +431,7 @@ Production `changeCustomerProfileStatus`, `archiveCustomerProfile`, and `restore
 - **Purpose:** mutate only approved Customer-owned display/coarse-location fields.
 - **Actor/context:** authenticated owner or authorized admin/support actor.
 - **Inputs:** profile ID, allowlisted patch, expected version/timestamp, reason for admin change where policy requires.
-- **Preconditions:** SH-001 actor resolution, SH-002 authorization, `U-CL01-05` field-precedence ruling for each editable field.
+- **Preconditions:** SH-001 actor resolution, SH-002 authorization, `U-CL01-22` field-precedence ruling for each editable field.
 - **Writes:** CustomerProfile fields only.
 - **Shared operations:** SH-001, SH-002, SH-044, SH-052, SH-029 where material.
 - **Effects:** optional profile-updated event/notification request when product policy requires.
@@ -454,7 +454,7 @@ Production `changeCustomerProfileStatus`, `archiveCustomerProfile`, and `restore
 
 - **Status:** architecture-gated.
 - **Purpose:** apply one approved CustomerProfile state transition.
-- **Preconditions:** `U-CL01-01` and `U-CL01-02` resolved, open-obligation policy approved, authorization/step-up if required.
+- **Preconditions:** `U-CL01-20` and `U-CL01-21` resolved, open-obligation policy approved, authorization/step-up if required.
 - **Writes:** `status` and any approved lifecycle timestamps in one transaction.
 - **Shared operations:** SH-053 lifecycle transition mechanism, SH-052 concurrency, SH-029 audit, SH-046 event as required.
 - **Failure:** unsupported transition must return a stable conflict/denial; never “force” status.
@@ -511,7 +511,7 @@ Implements SH-096 and returns only Customer-owned subject data/references. It mu
 
 ### Deferred queries
 
-- Customer public profile view — disabled until `U-CL01-06`.
+- Customer public profile view — disabled until `U-CL01-22`.
 - Customer commerce-history aggregate — owner unresolved; do not implement as a Customer source projection yet.
 
 ---
@@ -521,7 +521,7 @@ Implements SH-096 and returns only Customer-owned subject data/references. It mu
 ### Public commands
 
 - `provisionDefaultCustomerProfile`
-- `updateCustomerProfileIdentity` — only for fields approved by `U-CL01-05` resolution
+- `updateCustomerProfileIdentity` — only for fields approved by `U-CL01-22` resolution
 - `setCustomerProfileAvatar`
 - `changeCustomerProfileStatus` — disabled until lifecycle architecture gate resolves
 - `archiveCustomerProfile` — disabled until lifecycle architecture gate resolves
@@ -631,7 +631,7 @@ Only operations materially relevant to this Module are listed.
 | **SH-048 `executeRetryWithBackoff`** | Platform primitive | bounded retry | worker dependency failure | retryable vs terminal classification | retry/dead-letter result | local retry loop |
 | **SH-051 `acquireAggregateLock`** | Platform persistence primitive | optional serialization of race-prone Customer mutations | only where DB uniqueness/upsert is insufficient | lock key = Customer/User aggregate | lock execution result | in-memory mutex |
 | **SH-052 `withOptimisticConcurrency`** | Platform persistence primitive | prevent lost profile updates/status changes | metadata/status mutation | expected version/timestamp | success/conflict | ad hoc stale-write handling |
-| **SH-053 `transitionLifecycleState`** | Shared mechanism / separate truth | implement approved CustomerProfile transition matrix | status command after U-CL01-02 | Customer transition policy | valid transition/result | generic profile lifecycle service |
+| **SH-053 `transitionLifecycleState`** | Shared mechanism / separate truth | implement approved CustomerProfile transition matrix | status command after U-CL01-21 | Customer transition policy | valid transition/result | generic profile lifecycle service |
 | **SH-082/083/084** | Media capabilities — Media / File Access | validation/scan/scrub as Media requires | avatar upload pipeline, not Customer implementation | Customer only requires a ready attachable asset | Media safety result | avatar validator/scanner |
 | **SH-087 `issueSignedMediaUrl`** | Media capability | display private avatar when needed | profile rendering | whether requester may view avatar context | short-lived Media access result | `customerAvatarPresign.ts` |
 | **SH-090 `attachValidatedMedia`** | Shared contract / separate contextual truth | attach validated MediaAsset as avatar | avatar command | actor may attach this asset to this profile | contextual attachment decision/write | profile-local file lifecycle |
@@ -643,7 +643,7 @@ Only operations materially relevant to this Module are listed.
 
 ### Deferred, not currently invoked
 
-- **SH-091 `requestSearchProjectionRefresh`** and **SH-094 `buildSourceProjection`** are not used for CustomerProfile while `U-CL01-06` / PR-CL01-05 keeps public Customer indexing disabled.
+- **SH-091 `requestSearchProjectionRefresh`** and **SH-094 `buildSourceProjection`** are not used for CustomerProfile while `U-CL01-22` / PR-CL01-05 keeps public Customer indexing disabled.
 - **SH-005 `resolveEntitlement`** is normally consumed by the downstream business action owner. Customer must not wrap it into a local premium service merely because the Customer actor is the subject.
 
 ---
@@ -854,7 +854,7 @@ Use SH-052 with an expected version token. The current schema has `updatedAt` bu
 
 ### Status race
 
-No production status mutation until `U-CL01-02` is resolved. Once enabled, current status/version must be checked atomically in the owner transaction.
+No production status mutation until `U-CL01-21` is resolved. Once enabled, current status/version must be checked atomically in the owner transaction.
 
 ### Backfill replay
 
@@ -907,7 +907,7 @@ Display access uses Media's SH-087. Customer never returns a permanent private s
 
 ### Current ruling
 
-CustomerProfile public search/indexing is disabled under CL-01 `PR-CL01-05` until `U-CL01-06` resolves:
+CustomerProfile public search/indexing is disabled under CL-01 `PR-CL01-05` until `U-CL01-22` resolves:
 
 - legitimate public product need;
 - visibility lifecycle;
@@ -1193,19 +1193,19 @@ None owned. Use contract tests against Media/Identity/Privacy test doubles and t
 9. Customer does not own auth/session/passkey/MFA/recovery logic.
 10. Customer does not own generic permission logic.
 11. CustomerProfile status is not a mirror of ComplianceHold.
-12. Full CustomerProfile status transitions remain disabled until `U-CL01-02` is resolved.
-13. The shared `ProfileStatus` enum definition must not be claimed/migrated by this Module until `U-CL01-01` resolves.
-14. User↔CustomerProfile metadata must not be bidirectionally synchronized until `U-CL01-05` resolves field precedence.
+12. Full CustomerProfile status transitions remain disabled until `U-CL01-21` is resolved.
+13. The shared `ProfileStatus` enum definition must not be claimed/migrated by this Module until `U-CL01-20` resolves.
+14. User↔CustomerProfile metadata must not be bidirectionally synchronized until `U-CL01-22` resolves field precedence.
 15. `avatarMediaId` does not make Customer the MediaAsset owner.
 16. Avatar attachment cannot bypass Media readiness/safety validation.
 17. Customer never generates signed media URLs directly.
-18. Public CustomerProfile indexing/search is disabled until `U-CL01-06` is resolved.
+18. Public CustomerProfile indexing/search is disabled until `U-CL01-22` is resolved.
 19. Customer never writes Typesense/SearchUpsertEvent directly.
 20. Customer does not create PrivacyRequest/DataErasureJob/DataErasureTarget/DataRetentionExemption.
 21. Privacy instructions affect only Customer-owned data; foreign obligations remain with their owners.
 22. Production User hard-delete must not cascade away CustomerProfile before approved Privacy/retention execution.
 23. Customer commerce history must not be copied into CustomerProfile as lifecycle truth.
-24. Review/Dispute direct CustomerProfile references must not be added until `U-CL01-07` resolves.
+24. Review/Dispute direct CustomerProfile references must not be added until `Review/Dispute direct CustomerProfile reference decision` resolves.
 25. Generic AuditEvent/AccessAuditLog and Ops records never replace Customer source truth.
 26. Shared idempotency, event, queue, locking, media, audit, privacy, and notification mechanisms are reused, never rebuilt locally.
 27. No external provider client belongs in this Module under the current architecture.
@@ -1269,13 +1269,13 @@ These are implementation gates, not invitations to improvise.
 
 | ID | Decision | Blocks / consequence |
 | --- | --- | --- |
-| **U-CL01-01** | Who owns the shared `ProfileStatus` enum definition? | enum-level schema ownership/comment changes; does not remove Customer transition ownership for its record |
-| **U-CL01-02** | Exact CustomerProfile transition matrix for draft/active/paused/suspended/archived, actor rights, terminal/reopen rules, and open-obligation effects | production status/archive/restore commands |
-| **U-CL01-03** | Final provisioning trigger: same request, outbox consumer, or worker? | final signup orchestration; standalone idempotent provision command can be built now |
-| **U-CL01-04** | When is `customerProfileId` mandatory for new Gig/Order/Booking-side records? | downstream cutover, nullability/index migrations, backfill enforcement |
-| **U-CL01-05** | Which source is authoritative for duplicated User vs CustomerProfile display/location/avatar data? | field editing/sync/copy-on-create behavior |
-| **U-CL01-06** | Are CustomerProfiles publicly discoverable, and what fields/visibility/moderation/privacy rules apply? | any public profile/search projection |
-| **U-CL01-07** | Should Review/Dispute store direct CustomerProfile references? | Review/Dispute schema migrations only |
+| **U-CL01-20** | Who owns the shared `ProfileStatus` enum definition? | enum-level schema ownership/comment changes; does not remove Customer transition ownership for its record |
+| **U-CL01-21** | Exact CustomerProfile transition matrix for draft/active/paused/suspended/archived, actor rights, terminal/reopen rules, and open-obligation effects | production status/archive/restore commands |
+| **U-CL01-18** | Final provisioning trigger: same request, outbox consumer, or worker? | final signup orchestration; standalone idempotent provision command can be built now |
+| **U-CL01-19** | When is `customerProfileId` mandatory for new Gig/Order/Booking-side records? | downstream cutover, nullability/index migrations, backfill enforcement |
+| **U-CL01-22** | Which source is authoritative for duplicated User vs CustomerProfile display/location/avatar data? | field editing/sync/copy-on-create behavior |
+| **U-CL01-22** | Are CustomerProfiles publicly discoverable, and what fields/visibility/moderation/privacy rules apply? | any public profile/search projection |
+| **Review/Dispute direct CustomerProfile reference decision** | Should Review/Dispute store direct CustomerProfile references? | Review/Dispute schema migrations only |
 | **CBP-U-01** | Does `avatarMediaId` remain validated UUID reference, become FK, or use a generalized attachment model? | schema relation migration; attachment command can use Media validation without changing schema |
 | **CBP-U-02** | Does Customer need durable lifecycle history beyond outbox/audit, and if so what record owns it? | any new CustomerProfile event table |
 | **CBP-U-03** | Who owns the cross-Module customer commerce-history aggregate/read model? | durable aggregate/query implementation |
@@ -1325,16 +1325,16 @@ These are implementation gates, not invitations to improvise.
 
 Before implementing or changing this Module, read in order:
 
-1. root `context/project-overview.md`;
-2. root `context/architecture.md`;
-3. root `context/code-standards.md`;
+1. root `context/project-overview-v3.md`;
+2. root `context/architecture.md` (**currently missing**; see `context/context-map.md`);
+3. root `context/code-standards.md` (**currently missing**; see `context/context-map.md`);
 4. `context/shared/shared-operations.md`;
-5. CL-01 `architecture.md`;
-6. CL-01 `build-plan.md`;
+5. CL-01 `context/clusters/identity, authority, & consent/identity-authority-consent-architecture.md`;
+6. CL-01 `context/clusters/identity, authority, & consent/identity-authority-consent-build-plan.md`;
 7. this `module-architecture.md`;
 8. this Module `implementation-plan.md`;
 9. relevant dependency public-interface sections, especially Identity & Access, Role / Authority, Media / File Access, Privacy / Data Erasure, Audit / Event Ledger, Admin Review / Compliance Hold, Track Subscription & Entitlement, Gig / Demand, Transaction / Order, and Booking & Calendar;
-10. the current `progress-tracker.md`;
+10. `progress-tracker.md` (**currently missing**; see `context/context-map.md`);
 11. the current Prisma schema and migrations before any data-structure change.
 
 If code, schema comments, registry text, or context files conflict:

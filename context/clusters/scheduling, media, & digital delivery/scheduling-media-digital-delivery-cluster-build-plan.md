@@ -169,6 +169,8 @@ A reusable upload surface or internal development/admin test surface can:
 
 ### Dependencies
 
+- SH-080 `manageVersionedRules` for immutable MediaUploadPolicy versions. Current schema is insufficient; a later approved schema/migration must support effective versions and stable applied-version evidence before production policy-version behavior is complete. Contract fixtures may precede that migration.
+
 - root auth/authority/runtime validation;
 - Prisma/Postgres;
 - durable queue;
@@ -177,6 +179,8 @@ A reusable upload surface or internal development/admin test surface can:
 - scanner test adapter if production scanner is not selected.
 
 ### Shared Operations Used
+
+- **SH-080 `manageVersionedRules` — Media policy using shared versioning mechanism.** Resolve the effective upload-policy version and preserve its historical meaning; never mutate applied policy history in place.
 
 - **SH-001 `resolveAuthenticatedActor` — Identity & Access.** Use to establish uploader. Local policy: MediaUploadContext and policy selection. Do not build `mediaAuth.ts`.
 - **SH-002 `authorizeResourceAction` — Role / Authority.** Use before upload-session creation. Local policy: permitted upload action/context. Do not build a Media permission engine.
@@ -357,7 +361,7 @@ MediaAccessGrant and MediaAccessEvent show the technical access lifecycle, and s
 ### Public Interfaces
 
 - `requestMediaAccess`;
-- SH-087 `issueSignedMediaUrl` implementation;
+- Media-internal SH-087 `issueSignedMediaUrl` implementation behind public composite `requestMediaAccess`; consumers do not call a second public signer;
 - `revokeMediaAccessGrant` owner command using SH-089 pattern.
 
 ### Logic
@@ -537,6 +541,8 @@ Do not create or fork `ConsentType` or `ConsentLog` in Digital Goods.
 
 ### Exit Gate
 
+- production legal-content activation remains blocked until immutable owner-controlled historical text is available: Consent supplies generic Consent-owned disclosures, while Digital Goods owns contextual license/refund/access text unless explicitly classified otherwise. A linked ConsentLog and acceptedTextHash do not alone preserve that content; its persistence/retrieval mechanism remains unresolved.
+
 - historical acceptance evidence is immutable and version-specific;
 - Digital Goods does not own/fork ConsentType/ConsentLog;
 - stale/unauthorized acceptance is rejected;
@@ -662,6 +668,8 @@ A buyer with an eligible Order can see a purchased download, receive an expiring
 
 ### Exit Gate
 
+- use/consumption tests exercise explicit test policy only until owner rules are approved; no common CL-05 meaning of `used`, automatic issuance-as-consumption, or production `final_after_access` threshold is inferred.
+
 - only an eligible Order can produce normal purchased access;
 - a ready DigitalDownloadAsset still cannot be fetched without a valid grant;
 - max-download race test cannot exceed configured maximum;
@@ -727,7 +735,7 @@ A seller/admin can:
 - `reviewChildDirectedDeclaration`;
 - `getMinorPrivacyControls`;
 - `registerCourseAccessibilityAsset`;
-- `updateAccessibilityAssetState` only through Digital Goods owner logic.
+- `updateCourseAccessibilityAssetState` only through Digital Goods owner logic.
 
 ### Logic
 
@@ -809,6 +817,8 @@ A course creator/admin can register a ready source video and observe processing 
 - **Digital Goods:** product/course access terms and accessibility policy.
 
 ### Dependencies
+
+- Production source-ingest transport remains unresolved. Media must authorize and mediate a bounded handoff; Video owns purpose-minimized provider ingest without direct R2 access or permanent source URLs. Test/fake ingest is permitted while that decision is pending.
 
 - Features 01–03 and preferably Feature 05 for accessibility metadata integration;
 - Mux adapter/test adapter;
@@ -911,6 +921,8 @@ A course creator/admin can register a ready source video and observe processing 
 - complimentary/library playback without approved alternate entitlement.
 
 ### Exit Gate
+
+- fake-adapter proof does not complete the production ingest adapter; its exit remains blocked until the Media-to-Video transport contract is approved.
 
 - ready Media source produces one Video-owned provider asset through the adapter;
 - duplicate ingest/webhooks cannot duplicate effects;
@@ -1097,7 +1109,7 @@ A buyer/professional can observe Booking confirmation, cancellation, reschedule,
 - `getBooking` / owner-facts query;
 - `cancelBooking`;
 - `rescheduleBooking`;
-- `completeBooking` / `markNoShow` according to authorized workflow.
+- `completeBooking` / `markBookingNoShow` according to authorized workflow.
 
 ### Logic
 
@@ -1432,6 +1444,9 @@ A confirmed video Booking receives a room setup status. The buyer and profession
 
 ### Dependencies
 
+- Booking `getBookingOwnerFacts` must supply current Booking ID/version or freshness marker, status, scheduled start/end, authorized participants, and `overtimeGraceMinutes`. Video uses that value, never a local default, room-state inference, or direct Booking repository read. SH-003 remains Proposed; this is an owner-query contract.
+- Video-owned persistent append-only live-access evidence is a schema prerequisite for the live-delivery exit; the model name/design belongs to a later schema pass.
+
 - Features 08 and 10;
 - Video live-provider port;
 - current Proposed provider decision: Daily.co MVP adapter, or approved replacement;
@@ -1468,7 +1483,7 @@ A confirmed video Booking receives a room setup status. The buyer and profession
 ### Logic
 
 - request arrives from Booking orchestration or authorized system command;
-- query Booking owner facts: confirmed/video type/start/end/participants/cancellation;
+- query current Booking owner facts: ID/version or freshness marker, status/video type, scheduled start/end, authorized participants, overtimeGraceMinutes, and cancellation;
 - evaluate healthcare and track gates where applicable;
 - create one pending BookingVideoRoom and provider resource idempotently;
 - translate result to active/failed;
@@ -1532,7 +1547,7 @@ A confirmed video Booking receives a room setup status. The buyer and profession
 - only authorized participants in the valid time window receive credentials;
 - duplicate provisioning produces one Video-owned room;
 - provider failure is visible without corrupting Booking state;
-- sensitive access audit and domain access evidence are both present when required;
+- successful and denied live credential issuance persist Video-owned append-only domain evidence (room, parent, actor/participant, action/decision, relevant provider, expiry/window, time/request correlation); SH-030 sensitive audit is supplemental and cannot replace it;
 - live provider decision is recorded in architecture/progress before production enablement.
 
 ---
@@ -1572,6 +1587,8 @@ A qualifying JobInterview can receive a Video-owned room. Candidate/interviewer 
 - SH-030 / SH-125 — join audit/domain evidence.
 
 ### Data / Schema
+
+- Video-owned persistent append-only live-access evidence, with the same minimum fields as Feature 11, must cover successful and denied Interview credential issuance; its approved schema/migration is a prerequisite, not created by this plan.
 
 - `JobInterviewVideoRoom`, provider/status enums;
 - no Booking, BookingHold, BookingSlotLock, or BookingEvent writes.
@@ -1628,6 +1645,8 @@ Owned by CL-06 hiring UI; CL-05 supplies reusable join/status view model/contrac
 - Booking model reuse/consolidation.
 
 ### Exit Gate
+
+- Video-owned append-only domain proof covers successful/denied live credential issuance; generic AccessAuditLog alone cannot satisfy this gate.
 
 - JobInterview video works through public CL-06 facts with zero Booking lifecycle coupling;
 - provider resource remains Video-owned;
@@ -1696,8 +1715,8 @@ No new generic enforcement/blocked table.
 ### Public Interfaces
 
 - owner event handlers for Order/refund/dispute access invalidation;
-- `applyMediaModerationDecision`;
-- `applyVideoModerationDecision`;
+- `executeMediaModerationInstruction`;
+- `applyVideoModerationDecision` — Video-owned SH-103 boundary for authorized asset disable/restore, affected grant revocation, other specifically targeted Video-owned transitions, idempotent replay, and acknowledgment/completion/failure evidence;
 - `applyDigitalModerationDecision`;
 - grant bulk-revocation owner commands;
 - Search refresh request integration.
@@ -1930,14 +1949,14 @@ All feature-specific SH operations continue to apply, with particular emphasis o
 - SH-044–SH-052 idempotency, event dedupe, queue, retry, locking, optimistic concurrency;
 - SH-055–SH-058 expiration/counters/interval locks;
 - SH-059–SH-063 webhook/reconciliation/snapshots;
-- SH-072–SH-078 cryptography/provider minimization;
+- SH-072 `hashCanonicalPayload`, SH-074 `generateSecureToken`, SH-075 `encryptSensitiveValue`, and SH-078 `minimizeAndRedactProviderInput` for the confirmed hashing/token/encryption/provider-minimization uses above; SH-073 remains Proposed and is not authorized by this feature;
 - SH-095–SH-098 privacy/anonymization.
 
 No hardening work may create a duplicate local infrastructure service.
 
 ### Data / Schema
 
-Review and tune existing schema only:
+Review existing schema and the separately approved future schema prerequisites, including mandatory Video-owned persistent live-access evidence:
 
 - booking overlap/exclusion constraint and active-status strategy;
 - provider-event unique constraints and hashes;
@@ -2046,6 +2065,11 @@ Explicitly test and document:
 - legal policy expansion.
 
 ### Exit Gate
+
+- live Booking/Interview issuance and denial have persistent Video-owned domain evidence under SH-125, separate from supplemental SH-030;
+- destructive cascades are not used as erasure authorization: owners enumerate affected records, supply retention facts, and safely execute Privacy disposition only after the target-specific retention matrix is approved; exact periods/dispositions/FK changes remain unresolved;
+- no final grant-consumption, `used`, or `final_after_access` behavior is claimed without the relevant owner/commercial/legal ruling; issuance alone is not automatically consumption;
+- terminal `failed` live rooms remain terminal: retry/reconciliation does not authorize reset, `failed → pending`, replacement generations, or duplicate rooms while Video recovery design remains unresolved.
 
 CL-05 is production-ready only when all are true:
 

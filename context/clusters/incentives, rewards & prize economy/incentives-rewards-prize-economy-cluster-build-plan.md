@@ -2,11 +2,13 @@
 
 > **Cluster ID:** `CL-10`  
 > **Cluster:** Incentives, Rewards & Prize Economy  
-> **Repository target:** `context/clusters/incentives-rewards-prize-economy/build-plan.md`  
-> **Companion:** this Cluster `architecture.md`, target Module architecture/implementation plans, root Workin Ants context, Canonical Shared Operations Registry  
+> **Repository target:** `context/clusters/incentives, rewards & prize economy/incentives-rewards-prize-economy-cluster-build-plan.md`\
+> **Companion:** [Cluster architecture](<incentives-rewards-prize-economy-cluster-architecture.md>), context-map routing, Canonical Shared Operations Registry\
 > **Implementation posture:** Greenfield/MVP planning against the current Prisma and architecture evidence; legal-gated production behavior remains disabled until its named architecture/legal gates are resolved.
 
 ---
+
+**Context routing and availability:** Follow [context/context-map.md](<../../context-map.md>) for authority by concern and actual artifact paths; use [context/project-overview-v3.md](<../../project-overview-v3.md>) as the overview entry point. Root architecture/build plan, `context/code-standards.md`, and the dedicated progress tracker are unavailable in the current context inventory. References below to those artifacts or their standards are conditional prerequisites, not evidence of an existing global sequence or approval. Do not invent missing root decisions or artifacts.
 
 ## Core Principle
 
@@ -33,7 +35,7 @@ Draft/configuration capabilities may be built before legal review. **Production 
 
 ## Build Rules
 
-1. Follow the root `architecture.md`, `code-standards.md`, Canonical Shared Operations Registry, and this Cluster architecture.
+1. Follow `context/context-map.md` for concern-specific authority, the canonical Shared Operations registry, and the applicable Cluster/Module architecture and sequencing plans. Root architecture/code standards remain unavailable conditional prerequisites.
 2. Do not expand CL-10 into payments, subscriptions, tax filing, search, notification delivery, privacy orchestration, or a general fraud platform.
 3. Do not redesign Module ownership for implementation convenience.
 4. Reuse canonical SH-### operations. If a required shared operation is not implemented yet, implement/fix it in its canonical owner or coordinate that prerequisite; do not create a CL-10 copy.
@@ -75,12 +77,19 @@ CL-10 consumes these platform capabilities and must not rebuild them:
 - idempotent commands/event dedupe/transactional outbox — SH-044/045/046;
 - durable jobs/retries — SH-047/048;
 - database locking/lifecycle transition/atomic reservation — SH-051/053/056;
+- Gamification rule-versioning mechanism — SH-080;
 - Privacy owner protocol — SH-095 through SH-098;
 - aggregate projection — SH-115;
 - secure random selection — SH-116;
 - yearly reportable-value aggregation and Tax handoff — SH-117/118.
 
-If these operations are not yet implemented, CL-10 features may use contract fakes in tests, but production code must depend on the canonical interfaces rather than local substitutes.
+If these operations are not yet implemented, CL-10 features may use contract fakes in isolated tests only. Production exit gates require the real canonical provider capability and resolution of its applicable architecture blockers; using an interface or fake alone is insufficient.
+
+### Production provider readiness (CL-10-R007 / CL-10-R013)
+
+This prerequisite applies to every affected production feature exit gate below. SH-009 `resolveActiveConsentVersion` and SH-029 `appendAuditEvent` remain Confirmed, but actual active-version resolution and durable audit proof require their provider architecture blockers to be resolved (Consent U-CL01-08; Audit U-17). Contract fakes can pass isolated contract tests, not production exit gates. Record contract-test readiness separately from production readiness for Consent, Audit, Hold, Tax, and every other required provider capability.
+
+Hold-dependent production behavior additionally requires the Hold owner's approved target/action applicability and safe creation contracts before SH-011/012 integration is production-ready. `blockedByHoldId` is an association/evidence link, never current gate truth. Evaluate through SH-011; dependency unavailable must not become allow. The CL-10 owner performs its own resulting lifecycle transition; do not create a local hold table/evaluator or change the Hold owner's architecture here.
 
 ### Upstream/neighbor prerequisites
 
@@ -125,6 +134,10 @@ Features can prove owner behavior with versioned contract fixtures while preserv
 - **U-CL10-01:** immutable official-rules evidence — before production drawing activation in Feature 06.
 - **U-CL10-02:** immutable drawing-run proof schema — before Feature 08 can run a production drawing.
 - **U-CL10-03:** reward inventory semantics — before limited-inventory rewards can be activated in Feature 04.
+- **U-GR-01/02/04/16:** point account/sign rules, reversal identity/double-reversal prevention, and applicable compensation — hard production gates for Features 02/04/05 (CL-10-R002).
+- **U-GR-03/14:** historical source-event/exact-rule and accepted Consent proof linkage — proof gates in Features 01–02/04; no unspecified metadata sufficiency claim (CL-10-R010).
+- **U-GR-06 / U-CL10-04:** no production participant transition subset approved; Feature 03 requires the Module ruling (CL-10-R001).
+- **CL-10-R009:** SH-117 jurisdiction/grain interpretation — before production annual prize aggregation/reporting in Feature 09.
 - **U-CL10-05/06:** specific reward effect/fulfillment and SH-119 ownership — before those reward types are activated in Feature 05.
 - **U-CL10-11/12:** redraw and jurisdiction/legal policy — before those behaviors are offered.
 
@@ -158,12 +171,16 @@ An authorized administrator can create and manage `GamificationProgram` and `Gam
 
 #### Dependencies
 
+- SH-080 `manageVersionedRules` for rule versions/effective intervals; U-GR-03 remains the separate historical award-proof gate.
+
 - Current Prisma models/enums for `GamificationProgram`, `GamificationRule`, `GamificationProgramStatus`, `GamificationRuleTrigger`.
 - SH-001, SH-002, SH-008/009, SH-029, SH-044, SH-046.
 - Root validation/error conventions.
 - PR-CL10-03 from architecture: `ruleJson` is declarative, versioned, schema-validated configuration, never executable code.
 
 #### Shared Operations Used
+
+**SH-080 — `manageVersionedRules` (Confirmed)**; each policy Module using the shared versioning mechanism. Invoke for Gamification rule versions/effective intervals at configuration and award evaluation. Gamification retains trigger meaning, points, applicability, validation, source qualification, and reward policy. Do not build a separate general versioning framework. Contract tests must prove immutable effective-version resolution; U-GR-03 historical linkage remains unresolved.
 
 - **SH-001 — resolveAuthenticatedActor**; Identity & Access. Resolve admin actor. Local policy: which gamification actions need a user/system actor. Do not rebuild session helpers.
 - **SH-002 — authorizeResourceAction**; Role / Authority. Authorize program/rule administration. Local policy: action names and target facts. Do not build a gamification role engine.
@@ -265,6 +282,8 @@ No full consumer rewards portal is required in this feature.
 
 #### Exit Gate
 
+Production rule activation must preserve the exact effective version through SH-080; unresolved U-GR-03 historical linkage cannot be represented as completed award proof. Draft configuration does not satisfy the downstream production award gate (CL-10-R010). Actual required Consent/Audit providers must satisfy the production-readiness prerequisite above.
+
 Feature 01 is complete only when:
 
 - a clean seeded database can create/read/update a draft program and rules through owner services;
@@ -301,12 +320,16 @@ Gamification can consume approved source Module events, evaluate active rules, a
 
 #### Dependencies
 
+- SH-080 `manageVersionedRules` for rule versions/effective intervals; U-GR-03 remains the separate historical award-proof gate.
+
 - Feature 01.
 - `PointLedgerEntry`, `PointLedgerEntryType`, `PointLedgerEntrySource`.
 - At least one approved source contract; `order_completed` is the preferred first slice because its source owner is clear.
 - SH-031, SH-044, SH-045, SH-046, SH-014, SH-029, SH-032/033/034.
 
 #### Shared Operations Used
+
+**SH-080 — `manageVersionedRules` (Confirmed)**; each policy Module using the shared versioning mechanism. Invoke for Gamification rule versions/effective intervals at configuration and award evaluation. Gamification retains trigger meaning, points, applicability, validation, source qualification, and reward policy. Do not build a separate general versioning framework. Contract tests must prove immutable effective-version resolution; U-GR-03 historical linkage remains unresolved.
 
 - **SH-045 — deduplicateDomainEvent**; platform event infrastructure. Prevent repeat source delivery. Local policy: once per source event + rule/program semantics. Do not create `processedGamificationEvent`.
 - **SH-044 — executeIdempotentCommand**; platform primitive. Protect application command retries. Local policy: semantic key. Do not build `pointsIdempotency.ts`.
@@ -324,7 +347,7 @@ Primary write:
 
 No `points_balance` source table/column is introduced.
 
-Current schema does not contain explicit `sourceEventId` or a reversal-link column. Event dedupe must therefore use canonical SH-045/044 infrastructure plus safe source/rule references in existing metadata where appropriate. Do not create a local processed-event table merely to compensate.
+Current schema does not contain explicit `sourceEventId` or a reversal-link column. Reuse SH-045/044 for dedupe, but preserve U-GR-03/04 as unresolved historical-causation/reversal-proof contracts. Generic metadata must not be declared sufficient until explicitly approved. Every awarded point must remain explainable by the authoritative source event and exact effective rule version. Do not invent columns or a local processed-event table (CL-10-R010).
 
 #### Public Interfaces
 
@@ -393,6 +416,12 @@ Source event contracts must be versioned and owner-defined.
 
 #### Exit Gate
 
+Production balance/reversal behavior remains blocked by U-GR-01/02/04 and applicable U-GR-16 compensation approval. Preserve append-only entries and derived balance; shared mechanics do not decide these policies (CL-10-R002).
+
+Production source-event behavior requires an approved bilateral producer contract covering event meaning/timing, subject, qualification inputs, and corrections. Unresolved triggers remain inactive, including `delivery_on_time`; no direct cross-domain Prisma reads or polling may substitute (CL-10-R004).
+
+U-GR-03 must approve durable source-event/exact-effective-rule evidence before production awards; unspecified metadata is not proof. Required Audit implementation must satisfy the production provider readiness gate.
+
 - `order_completed` or another approved owner event creates the correct append-only point entry.
 - Delivering it 2+ times creates exactly one effect per applicable rule.
 - No direct cross-domain Prisma read is required.
@@ -429,7 +458,7 @@ Users can join approved challenges, owner events can complete challenge particip
 
 - Features 01–02.
 - SH-044/045/046/047/048/115.
-- U-CL10-04 participant status issue must be handled by the architecture’s conservative service constraint unless a dedicated enum ruling is approved.
+- U-GR-06 / U-CL10-04 must approve participant lifecycle semantics before any production participant transition; no conservative subset is currently approved.
 
 #### Shared Operations Used
 
@@ -448,7 +477,7 @@ Users can join approved challenges, owner events can complete challenge particip
 
 No new point source-of-truth table.
 
-Until U-CL10-04 is resolved, service-layer participant states must use only the approved conservative subset and reject values that have no defined participant meaning. Do not add a new enum migration silently.
+Until U-GR-06 / U-CL10-04 is resolved, reads, structural scaffolding, and rejection of unsupported states may proceed. None approves a production transition subset. Feature 03 cannot pass its participant-lifecycle gate by selecting remaining enum values. Do not add a new enum migration.
 
 #### Public Interfaces
 
@@ -523,6 +552,8 @@ If user UI is not in the current product surface, public queries plus admin/test
 
 #### Exit Gate
 
+**Production participant-lifecycle gate:** FAIL / BLOCKED until U-GR-06 approves and tests the Module transition semantics. Rejecting unsupported states or selecting a conservative subset is not approval (CL-10-R001).
+
 - Challenge join and completion are owner-validated and idempotent.
 - Unsupported `ChallengeParticipant.status` values cannot be written through normal services.
 - Leaderboard and balance can be fully rebuilt from authoritative records.
@@ -589,13 +620,14 @@ The redemption snapshots `valueCents`/`currency` where applicable; subsequent Re
 
 **Inventory:** until U-CL10-03 is resolved, a reward with finite `inventory` must not be activated for production redemption unless the approved concurrency semantics are implemented. Do not silently interpret the field as “remaining stock.”
 
-#### Public Interfaces
+#### Public and Module-Internal Application Interfaces
 
 - `configureReward`
 - `activateReward` / `pauseReward` / `retireReward`
 - `listRewards` / `getReward`
 - `requestRewardRedemption`
-- `getRewardRedemption` / `listRewardRedemptions`
+- `getRewardRedemption`
+- Module-internal `listRewardRedemptions` for owner UI/admin use; this is not a cross-Module public contract without an established external consumer and a Module-architecture contract (CL-10-R006).
 
 #### Logic
 
@@ -666,6 +698,10 @@ User-facing where applicable:
 - sweepstakes entry conversion.
 
 #### Exit Gate
+
+Production balance/reversal behavior remains blocked by U-GR-01/02/04 and applicable U-GR-16 compensation approval. Preserve append-only entries and derived balance; shared mechanics do not decide these policies (CL-10-R002).
+
+Terms-gated production redemption also requires U-GR-14 approval of exact historical Consent proof/version linkage; current consent state or unspecified metadata is insufficient (CL-10-R010). Hold-dependent production behavior is BLOCKED until the approved Hold target/action applicability and creation contracts and real provider capability are available; the production provider readiness prerequisite above applies (CL-10-R007).
 
 - Supported reward configuration can be activated; unsupported types fail closed.
 - One redemption request creates one RewardRedemption and exactly one matching point-spend entry when required.
@@ -813,6 +849,12 @@ Sensitive tax details stay in Payment/Tax interfaces; CL-10 UI displays only min
 - creating a platform-credit wallet.
 
 #### Exit Gate
+
+Production balance/reversal behavior remains blocked by U-GR-01/02/04 and applicable U-GR-16 compensation approval. Preserve append-only entries and derived balance; shared mechanics do not decide these policies (CL-10-R002).
+
+Production tax-sensitive fulfillment requires approved tax-specific SH-019 usage with Payment; generic financial readiness is not reward/prize tax clearance. SH-118 reporting requires the source owner's approved recognition point and required subject, value/currency, jurisdiction, source identity, date, valuation evidence, and idempotency contract. Keep unresolved paths disabled (CL-10-R005).
+
+Hold-dependent production behavior is BLOCKED until the approved Hold target/action applicability and creation contracts and real provider capability are available; the production provider readiness prerequisite above applies (CL-10-R007).
 
 - Tax-sensitive redemption cannot fulfill before positive owner-issued readiness.
 - Active hold blocks fulfillment without a local blocked truth system.
@@ -1123,6 +1165,10 @@ Admin:
 
 #### Exit Gate
 
+Production source-event behavior requires an approved bilateral producer contract covering event meaning/timing, subject, qualification inputs, and corrections. Unresolved triggers remain inactive, including `delivery_on_time`; no direct cross-domain Prisma reads or polling may substitute (CL-10-R004). Purchase-triggered methods remain production-disabled until the authoritative Order/Payment producer bridge is approved and available; Sweepstakes receives no Stripe webhook.
+
+Hold-dependent production behavior is BLOCKED until the approved Hold target/action applicability and creation contracts and real provider capability are available; the production provider readiness prerequisite above applies (CL-10-R007).
+
 - Free entry produces correct PrizeEntry truth without purchase.
 - Purchase owner event produces exactly configured entries once and includes Order provenance.
 - Duplicate delivery/click cannot exceed counts.
@@ -1269,6 +1315,8 @@ Authorized admin drawing console:
 
 #### Exit Gate
 
+Any hold-gated winner-selection/approval path additionally requires the approved Hold contract and real provider under the production-readiness prerequisite; drawing-run proof alone does not establish hold clearance (CL-10-R007).
+
 - U-CL10-02 is resolved and approved schema/migration is present.
 - a drawing cannot enter `drawing` twice concurrently.
 - eligible population is frozen/proven before selection.
@@ -1306,6 +1354,8 @@ Sweepstakes can map Payment/Tax and ComplianceHold decisions into its own PrizeW
 - Future fulfillment provider owner: unresolved until explicitly assigned.
 
 #### Dependencies
+
+- Approved CL-10-R009 SH-117 jurisdiction/grain interpretation; current `(userId, taxYear, currency)` uniqueness does not establish jurisdiction-aware aggregation.
 
 - Feature 08.
 - SH-019, SH-011/012, SH-117/118, SH-041, SH-047/048, SH-037, SH-029/030.
@@ -1423,6 +1473,12 @@ Admin fulfillment UI:
 
 #### Exit Gate
 
+Production SH-117 aggregation and jurisdiction-sensitive annual reporting are BLOCKED pending CL-10-R009. Do not assume a single jurisdiction or change schema.
+
+Production tax-sensitive fulfillment requires approved tax-specific SH-019 usage with Payment; generic financial readiness is not reward/prize tax clearance. SH-118 reporting requires the source owner's approved recognition point and required subject, value/currency, jurisdiction, source identity, date, valuation evidence, and idempotency contract. Keep unresolved paths disabled (CL-10-R005).
+
+Hold-dependent production behavior is BLOCKED until the approved Hold target/action applicability and creation contracts and real provider capability are available; the production provider readiness prerequisite above applies (CL-10-R007).
+
 - Tax-required win is impossible to fulfill before positive owner-issued readiness.
 - active hold blocks fulfillment without local hold truth.
 - PrizeTaxYearSummary rebuild equals recognized PrizeWinning source values.
@@ -1436,7 +1492,7 @@ Admin fulfillment UI:
 
 ## Phase 4 — Cross-Cluster Contract Proof
 
-Replace test doubles with real neighboring Module contracts where available and prove CL-10 behaves as a good platform citizen without importing their source truth.
+Replace test doubles with the real neighboring Module capabilities required by the enabled production scope and prove CL-10 integration without importing their source truth. Isolated contract tests may use fakes, but missing required providers keep the production exit gate blocked (CL-10-R013).
 
 ### 10 Cross-Cluster Integration, Privacy Executor, and Boundary Verification
 
@@ -1463,7 +1519,7 @@ All production CL-10 workflows use the canonical public interfaces/events for id
 #### Dependencies
 
 - Features 01–09.
-- Production-ready or contract-complete neighboring Module interfaces.
+- Real production-ready neighboring capabilities for enabled production scope; contract-complete fakes are isolated test evidence only.
 - SH-095/096/097/098 for Privacy.
 - Conditional SH-119/Track/Search only if approved reward type is included.
 
@@ -1574,6 +1630,8 @@ Exercise real:
 - introducing new reward provider types merely to increase coverage.
 
 #### Exit Gate
+
+Both Modules must prove the owner-specific target/executor contracts in their architecture Section 28: concrete registered descriptors, subject/target validation, SH-097 retention facts, approved SH-095/098 execution, idempotent canonical results, and unsupported/failure outcomes. Target registration and dispositions remain approval-gated; no implicit enum mapping or generic crawler (CL-10-R015). Real Consent/Audit/Hold/Tax and other required providers must satisfy production-readiness gates; fakes cannot close this gate (CL-10-R013).
 
 - All production-enabled CL-10 source events come through explicit owner contracts.
 - No Sweepstakes Stripe webhook or Payment repository coupling exists.
@@ -1755,7 +1813,7 @@ CL-10 production hardening passes only when:
 - telemetry redaction tests prove sensitive payloads are excluded;
 - no production-enabled feature depends on an unresolved architecture/legal decision;
 - any intentionally deferred reward type/drawing behavior is disabled and documented;
-- architecture/build-plan/progress tracker reflect the shipped scope.
+- architecture/build-plan and the progress tracker, if available, reflect the shipped scope; report completion evidence separately while the tracker is missing.
 
 ---
 
@@ -1848,7 +1906,7 @@ Before each numbered feature:
 6. Implement **only** that feature and prerequisite changes in their correct canonical owners.
 7. Run typecheck, lint, unit/integration tests, migration checks, and production build as applicable.
 8. Perform the feature’s workflow verification, including retry/denial/duplicate paths.
-9. Update the progress tracker.
+9. Update the progress tracker only when available; otherwise report completion evidence without inventing a tracker.
 10. Update architecture first if a binding decision legitimately changed.
 11. Record risks, assumptions, unresolved questions, and deferred work.
 

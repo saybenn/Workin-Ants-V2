@@ -250,9 +250,9 @@ The physical Prisma schema currently contains or relates to joins such as:
 - `JobApplicationMedia`;
 - `OrderFile` and other contextual references.
 
-Historical registry evidence claims several of these under Media. Later canonical evidence is stronger: **the contextual Module owns the business meaning of its join; Media owns the `MediaAsset` mechanics.**
+Registry placement does not transfer contextual lifecycle ownership: **the contextual Module owns the business meaning of its join; Media owns the `MediaAsset` mechanics.** CL-03-R020 approves this split for `ProfessionalProfileMedia`: Professional Eligibility owns contextual attach/detach/reorder semantics and authorization; Media owns the referenced asset and generic file mechanics.
 
-### Proposed Ruling MFA-PR-01 — contextual join stewardship
+### Ruling MFA-PR-01 — contextual join stewardship (split approved by CL-03-R020)
 
 Until root architecture explicitly moves schema/code placement, preserve current schema placement where it already exists, but enforce these semantic rules:
 
@@ -597,9 +597,9 @@ Use database transactions/row locking or optimistic conflict detection as approp
 
 **Current schema issue:** `@@unique([context, status])` plus mutable `updatedAt` permits only one row in each status and does not provide immutable historical versions.
 
-### Proposed Ruling MFA-PR-02 — version Media upload policies
+### Ruling MFA-PR-02 — version Media upload policies (requirement approved by R009)
 
-Adopt `SH-080 manageVersionedRules` for `MediaUploadPolicy` before production policy administration is enabled:
+R009 makes `SH-080 manageVersionedRules` semantics binding for `MediaUploadPolicy`; the current schema is insufficient and requires a later approved migration before production policy-version behavior is complete:
 
 - activated versions are immutable;
 - every upload session resolves one effective policy version;
@@ -619,9 +619,9 @@ If the exact root versioning convention is not yet available, Feature 01 may def
 
 **Current schema issue:** `status` is typed as `MediaAssetStatus`. An upload attempt and stored asset have different lifecycle semantics.
 
-### Proposed Ruling MFA-PR-03 — dedicated upload-session status
+### MFA-PR-03 — dedicated upload-session status (separation required by R010)
 
-Introduce a dedicated `MediaUploadSessionStatus` when schema migration work begins, using a graph equivalent to:
+R010 requires a dedicated upload-session status representation separate from MediaAsset. The eventual schema must not use `MediaAssetStatus` as the final session vocabulary. The proposed `MediaUploadSessionStatus` representation/graph below is retained for the later schema review; this reconciliation does not perform or select its migration:
 
 ```text
 initiated
@@ -766,7 +766,7 @@ draft → active ↔ paused → retired
           └────────────→ retired
 ```
 
-Under Proposed Ruling MFA-PR-02, an active policy version is immutable; “edit” means create a new draft version and activate it according to `SH-080`.
+Under the R009-approved requirement in MFA-PR-02, an active policy version is immutable; “edit” means create a new draft version and activate it according to `SH-080`.
 
 ### 9.3 Upload session lifecycle
 
@@ -888,6 +888,8 @@ request may terminate as denied
 **Purpose:** the public composite command for authorized generic private MediaAsset access.
 
 **Actor/context:** authenticated actor plus contextual owner decision.
+
+For MessageMedia access, Messaging exposes its owner-specific SH-026 `authorizeContextualResourceAccess` decision bound to the actor, Thread, Message, MediaAsset, and requested action. It returns the contextual allow/deny decision and safe evidence; `ThreadParticipant` or `MessageMedia` facts alone are not authorization. Media consumes that decision through `requestMediaAccess`, independently applies MediaAsset readiness, safety/freeze/erasure, grant, and TTL rules, and owns downstream SH-087 `issueSignedMediaUrl`. Media must not reconstruct Messaging participant/access policy; Messaging must not issue signed URLs or call SH-087 directly.
 
 **Inputs:** asset ID, intended action (`view`/`download` or typed equivalent), contextual authorization decision/evidence, requested TTL bounded by Media policy, target reference, idempotency key.
 
@@ -1169,7 +1171,8 @@ Only operations relevant to this Module are referenced here. The canonical regis
 ### SH-026 — `authorizeContextualResourceAccess`
 
 - **Owner:** relevant context owner
-- **Classification:** shared contract / separate policy
+- **Classification:** Shared contract; separate implementations
+- **Status:** Confirmed
 - **Why used:** establish business-context authorization before generic file access.
 - **Invocation:** before `requestMediaAccess` issues a grant/URL.
 - **Local policy:** Media readiness/grant/TTL/storage checks.
@@ -1293,7 +1296,7 @@ Only operations relevant to this Module are referenced here. The canonical regis
 ### SH-080 — `manageVersionedRules`
 
 - **Owner:** shared mechanism; Media owns upload-policy meaning
-- **Why used:** Proposed Ruling MFA-PR-02 for immutable/effective MediaUploadPolicy versions.
+- **Why used:** R009-approved MFA-PR-02 requirement for immutable/effective MediaUploadPolicy versions; exact schema/migration remains a prerequisite.
 - **Do not build:** one-off versioning framework.
 
 ### SH-082 — `validateUploadedFile`
@@ -2374,7 +2377,7 @@ MFA-PR-02 requires immutable/effective policy versions. Exact shared versioning 
 
 ### MFA-UR-08 — upload-session enum migration timing
 
-MFA-PR-03 is the recommended correction. Exact migration timing must align with Cluster/database sequencing.
+R010 requires the lifecycle separation in MFA-PR-03; its exact status representation/migration timing remains for the later schema pass and must align with Cluster/database sequencing.
 
 ### MFA-UR-09 — access-proof retention
 

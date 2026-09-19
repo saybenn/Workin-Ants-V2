@@ -231,7 +231,7 @@
     "ownsResponsibility": [
       "Platform permission interpretation",
       "Organization membership authority",
-      "Thread participant authority",
+      "Thread participant permission interpretation using Messaging-owned facts",
       "Admin/support authority boundaries",
       "Server-side access decisions",
       "Reusable access helper rules"
@@ -254,8 +254,7 @@
     ],
     "schemasOwnedResponsibleForOver": [
       "OrganizationMember",
-      "OrganizationRole",
-      "ThreadParticipant"
+      "OrganizationRole"
     ],
     "schemasReferenced": [
       "User",
@@ -267,7 +266,8 @@
       "JobInterview",
       "ProfessionalProfile",
       "CandidateProfile",
-      "AccessAuditLog"
+      "AccessAuditLog",
+      "ThreadParticipant"
     ],
     "technologies": [
       "Supabase RLS",
@@ -463,6 +463,14 @@
           "DataRetentionExemption",
           "DataExportBundle"
         ]
+      },
+      {
+        "termId": "contract_retention_exemptions",
+        "label": "Contract retention exemptions",
+        "role": "primary",
+        "proofSchemas": [
+          "DataRetentionExemption"
+        ]
       }
     ],
     "ownsResponsibility": [
@@ -609,6 +617,7 @@
       "Search engine execution",
       "AI suggestion generation",
       "Business lifecycle of entities",
+      "Contextual classification join create/update/delete/privacy lifecycle; each classified entity owner owns its joins",
       "Compliance approval decisions",
       "Professional verification results"
     ],
@@ -626,6 +635,9 @@
       "TaxonomyDomain",
       "TaxonomyCategory",
       "TaxonomyTag",
+      "TagSource"
+    ],
+    "schemasReferenced": [
       "ProfessionalCategory",
       "ProfessionalTag",
       "CandidateCategory",
@@ -635,9 +647,6 @@
       "OfferingTag",
       "GigTag",
       "JobTag",
-      "TagSource"
-    ],
-    "schemasReferenced": [
       "ProfessionalProfile",
       "CandidateProfile",
       "Organization",
@@ -665,6 +674,7 @@
     ],
     "overlapWarnings": [
       "Taxonomy triggers gates but does not approve them.",
+      "CL02-R001: Professional, Candidate, Organization, Offering, Gig, and Job owners own their contextual taxonomy joins. Taxonomy owns canonical vocabulary, normalization, trigger semantics, and SH-023 validation; it must not mutate foreign joins.",
       "AI Taxonomy suggests; Taxonomy & Classification owns final accepted terms.",
       "Search uses taxonomy facets but does not own taxonomy truth."
     ]
@@ -709,7 +719,8 @@
       "Payout-readiness consumption",
       "Healthcare-readiness consumption",
       "Verification-readiness consumption",
-      "Compliance-hold consumption"
+      "Compliance-hold consumption",
+      "ProfessionalProfileMedia contextual attach/detach/reorder lifecycle and authorization (CL-03-R020); Media owns file mechanics"
     ],
     "doesNotOwn": [
       "KYC verification records",
@@ -731,7 +742,10 @@
       "Admin Review / Compliance Hold Module"
     ],
     "schemasOwnedResponsibleForOver": [
+      "ProfessionalCategory",
+      "ProfessionalTag",
       "ProfessionalProfile",
+      "ProfessionalProfileMedia",
       "ProfileStatus"
     ],
     "schemasReferenced": [
@@ -1016,13 +1030,7 @@
       "CourseDeliveryMode",
       "PricingTier",
       "OfferingMedia",
-      "OfferingTag",
-      "DigitalGoodsPolicy",
-      "DigitalDownloadAsset",
-      "ChildDirectedContentDeclaration",
-      "MinorPrivacyControl",
-      "CourseAccessibilityAsset",
-      "SalesTaxLineItem"
+      "OfferingTag"
     ],
     "schemasReferenced": [
       "ProfessionalProfile",
@@ -1039,7 +1047,13 @@
       "TrustBadge",
       "CourseVideoAsset",
       "CourseVideoPlaybackPolicy",
-      "CourseVideoAssetStatus"
+      "CourseVideoAssetStatus",
+      "DigitalGoodsPolicy",
+      "DigitalDownloadAsset",
+      "ChildDirectedContentDeclaration",
+      "MinorPrivacyControl",
+      "CourseAccessibilityAsset",
+      "SalesTaxLineItem"
     ],
     "technologies": [
       "Next.js offering UI",
@@ -1312,10 +1326,7 @@
       "AgreementSignature",
       "AgreementDocumentSnapshot",
       "AgreementEvent",
-      "AgreementAccessGrant",
-      "TrackSubscription",
-      "TrackEntitlementGrant",
-      "TrackUsageEvent"
+      "AgreementAccessGrant"
     ],
     "schemasReferenced": [
       "Offering",
@@ -1339,7 +1350,10 @@
       "Booking",
       "BookingSlotLock",
       "BookingOrchestrationRun",
-      "Agreement"
+      "Agreement",
+      "TrackSubscription",
+      "TrackEntitlementGrant",
+      "TrackUsageEvent"
     ],
     "technologies": [
       "Stripe webhook integration",
@@ -2068,6 +2082,7 @@
       "Role / Authority Module"
     ],
     "schemasOwnedResponsibleForOver": [
+      "JobTag",
       "Organization",
       "OrganizationStatus",
       "OrganizationMember",
@@ -2875,7 +2890,7 @@
       "Media lifecycle",
       "Public/private URL rules",
       "Base file access checks",
-      "Entity media join tables",
+      "Entity media join mechanics; contextual ProfessionalProfileMedia (Professional Eligibility-owned) and MessageMedia (Messaging-owned) lifecycles remain external",
       "Upload policy definitions by context",
       "Server-side file size enforcement",
       "Binary MIME/signature inspection",
@@ -2893,6 +2908,7 @@
       "Order-specific file role",
       "Resume-specific access decision",
       "Message participant access",
+      "MessageMedia contextual lifecycle (Messaging-owned)",
       "Moderation/legal decision",
       "Privacy erasure workflow",
       "Healthcare redaction policy",
@@ -2902,7 +2918,8 @@
       "Agreement legal lifecycle",
       "Digital goods purchase entitlement",
       "Moderation/legal decision",
-      "Privacy request orchestration"
+      "Privacy request orchestration",
+      "ProfessionalProfileMedia contextual lifecycle and authorization (Professional Eligibility-owned, CL-03-R020)"
     ],
     "consumedByModulesDependentOnThisModule": [
       "Marketplace Supply Module",
@@ -2916,13 +2933,11 @@
       "MediaAsset",
       "MediaAssetStatus",
       "UserMedia",
-      "ProfessionalProfileMedia",
       "CandidateProfileMedia",
       "OrganizationMedia",
       "OfferingMedia",
       "GigMedia",
       "JobMedia",
-      "MessageMedia",
       "MediaUploadContext",
       "MediaStorageVisibility",
       "MediaStorageBucketClass",
@@ -2980,7 +2995,9 @@
       "CourseAccessibilityAsset",
       "AccessAuditLog",
       "ModerationCase",
-      "PrivacyRequest"
+      "PrivacyRequest",
+      "MessageMedia",
+      "ProfessionalProfileMedia"
     ],
     "technologies": [
       "Cloudflare R2",
@@ -4881,7 +4898,7 @@
       "Default free plans should be seeded and assigned automatically where appropriate.",
       "Stripe is the billing provider rail, not the entitlement source of truth.",
       "Do not trust client-side Stripe redirects as subscription truth.",
-      "Only signed, verified provider webhooks should update paid subscription state.",
+      "Track owns paid subscription transitions through approved user/admin commands, provider events, expiration processing, and reconciliation. Provider-originated transitions require signed, verified, deduplicated provider input; provider input is not the sole lifecycle trigger.",
       "Plan downgrades should expire/revoke affected grants without corrupting historical usage proof.",
       "Professional commission rate must be snapshotted onto Order at transaction time.",
       "Buyer fee waiver must be snapshotted onto Order at checkout time.",

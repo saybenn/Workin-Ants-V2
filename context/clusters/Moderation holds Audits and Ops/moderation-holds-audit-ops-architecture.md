@@ -127,19 +127,19 @@ Privacy, and other Modules without CL-09 directly taking their state.
 
 ```text
 Request / internal command
-  -> resolveAuthenticatedActor                 [Identity & Access]
-  -> createRequestContext                      [Observability/platform]
-  -> authorizeResourceAction                   [Role / Authority]
+  -> SH-001 resolveAuthenticatedActor                 [Identity & Access]
+  -> SH-032 createRequestContext                      [Observability/platform]
+  -> SH-002 authorizeResourceAction                   [Role / Authority]
   -> owning CL-09 Module command
        -> validate owner-local input/invariants
-       -> validateOwnedTargetReference or owner-specific target query
+       -> SH-123 validateOwnedTargetReference or owner-specific target query
        -> evaluate required external gates
-       -> executeIdempotentCommand
+       -> SH-044 executeIdempotentCommand
        -> authoritative owner transaction
-       -> publishDomainEvent / enqueueReliableJob when needed
-       -> appendAuditEvent for important action proof
-       -> recordSensitiveAccess when protected evidence/data was accessed
-       -> requestNotification for user/admin delivery when required
+       -> SH-046 publishDomainEvent / SH-047 enqueueReliableJob when needed
+       -> SH-029 appendAuditEvent for important action proof
+       -> SH-030 recordSensitiveAccess when protected evidence/data was accessed
+       -> SH-041 requestNotification for user/admin delivery when required
   -> safe result
 ```
 
@@ -151,7 +151,7 @@ Report / LegalNotice
   -> ModerationCase
   -> evidence preservation requirement
   -> ModerationAction (decision/action truth)
-  -> executeModerationDecision protocol
+  -> SH-103 executeModerationDecision protocol
        -> Media owner handler
        -> Search owner handler
        -> Messaging owner handler
@@ -172,27 +172,27 @@ The target handler writes its own source state. Moderation stores only its decis
 
 ```text
 Source Module determines a review/block condition
-  -> requestComplianceHold
+  -> SH-012 requestComplianceHold
   -> Hold Module validates request + target + authority + idempotency
   -> ComplianceHold(active)
-  -> consuming workflow calls evaluateComplianceHold
+  -> consuming workflow calls SH-011 evaluateComplianceHold
   -> source condition later resolves
   -> source Module requests release
   -> Hold Module authorizes + transitions to released
-  -> appendAuditEvent
-  -> requestNotification if required
+  -> SH-029 appendAuditEvent
+  -> SH-041 requestNotification if required
 ```
 
 ### 5.4 Operational topology
 
 ```text
 Every request / job / provider adapter
-  -> createRequestContext
-  -> writeStructuredLog / emitMetric
-  -> on technical failure: recordIntegrationFailure
-  -> shared queue runner: recordQueueTelemetry
-  -> severe/correlated failures: correlateOpsIncident
-  -> requestNotification for operational alerts
+  -> SH-032 createRequestContext
+  -> SH-033 writeStructuredLog / SH-036 emitMetric
+  -> on technical failure: SH-037 recordIntegrationFailure
+  -> shared queue runner: SH-038 recordQueueTelemetry
+  -> severe/correlated failures: SH-040 correlateOpsIncident
+  -> SH-041 requestNotification for operational alerts
 ```
 
 `QueueJob`, if implemented, is operational visibility only. The owning workflow record remains business truth.
@@ -334,7 +334,7 @@ The exact repository prefix must follow root `code-standards.md`. The following 
 | `ModerationCaseStatus` | Content Moderation & Legal Notice | Case lifecycle vocabulary. | Present. | Exact transition graph requires owner policy. |
 | `ModerationAction` | Content Moderation & Legal Notice | Recorded moderation/legal decision/action. | Present; append-style row. | Does not prove downstream execution succeeded. |
 | `ModerationActionType` | Content Moderation & Legal Notice | Controlled moderation action vocabulary. | Present. | Several action effects are executed by other Modules. |
-| `ModerationTargetType` | Content Moderation & Legal Notice | Polymorphic target vocabulary. | Present, but schema contains a suspicious `@@map("payout_transfers")` mapping. | Mapping defect must be resolved before a migration relies on it. |
+| `ModerationTargetType` | Content Moderation & Legal Notice | Primary moderation decision target vocabulary. | Present; `@@map("moderation_target_type")`, including `media_access_grant`. | Verify migration/database compatibility separately; no enum change is authorized by this snapshot correction (CL-09-R017). |
 | `ComplianceHold` | Admin Review / Compliance Hold | Platform stop-sign truth. | Present. | Current direct target FKs cover only User, ProfessionalProfile, and Order; claimed scope is broader. |
 | `ComplianceHoldReason` | Admin Review / Compliance Hold | Hold reason vocabulary. | Present. | Reason references source conditions but does not replace them. |
 | `ComplianceHoldStatus` | Admin Review / Compliance Hold | `active`, `released`, `expired`. | Present. | `expired` has no current expiry timestamp/policy in the model. |
@@ -464,9 +464,12 @@ digital_download_asset
 course_video_asset
 course_accessibility_asset
 media_upload_session
+media_access_grant
 ```
 
-The enum's current Prisma `@@map("payout_transfers")` mapping is not treated as intentional domain meaning; it is tracked as `U-01` and must be resolved against migration/database evidence before implementation relies on it.
+The current Prisma mapping is `@@map("moderation_target_type")`. CL-09-R017 corrects the stale U-01 snapshot; migration provenance and deployed compatibility remain separate verification work (CL-09-R013).
+
+**CL-09-R007 — Primary target versus downstream effect.** The primary moderation target identifies the subject of the moderation/legal decision. A downstream affected record is not automatically a primary target. Order/payout blocking uses `ComplianceHold` where a reusable stop sign is required. Digital Goods Access executes DigitalDownloadGrant revocation; Video Infrastructure executes CourseVideoPlaybackGrant revocation. These owner-local effect references may travel through SH-103 `executeModerationDecision` requests/results without extending `ModerationTargetType`. Existing `media_access_grant` remains valid. Any new first-class decision target requires a separate explicit vocabulary ruling; no enum extension is authorized here.
 
 **`ComplianceHoldStatus`**
 
@@ -594,6 +597,8 @@ No Observability-specific status or severity enums are confirmed in the supplied
 | `QueueJob` | Observability / Ops | Operational queue/job visibility, not domain job truth. | **Missing from Prisma.** |
 | `OpsIncident` | Observability / Ops | Grouped operational incident truth. | **Missing from Prisma.** |
 
+**CL-09-R009 — Retained decision proof.** A retained `ModerationAction` must not be destroyed merely because its parent `ModerationCase` is hard-deleted. Current cascade behavior is architecturally invalid for retained actions. A later schema correction must preserve required decision proof; the replacement FK/deletion strategy remains unresolved. Privacy erasure uses approved owner-local anonymization/retention disposition, never accidental cascade.
+
 ### 8.4 Proposed or unresolved additional records
 
 These are **not current source truth** and must not be created without accepting the associated ruling.
@@ -652,13 +657,13 @@ These are **not current source truth** and must not be created without accepting
 - **Confirmed transition meaning:** an active hold may end by authorized release or by an approved expiry rule.
 - **Transition authority:** Hold Module only. Source Modules may request creation/release and provide evidence.
 - **Must not be confused with:** KYC/tax/background/healthcare/dispute/moderation/job-compliance state or consumer-local blocked fields.
-- **Unresolved:** reopen semantics, expiry condition, target/cardinality model, semantic uniqueness, and review-queue lifecycle.
+- **Confirmed under CL-09-R006:** exactly one typed primary target per hold and prevention of semantically duplicate active holds. **Unresolved:** reopen semantics, expiry condition, physical target representation, exact semantic-equivalence key/constraint design, and review-queue lifecycle.
 
 ### 9.6 AuditEvent lifecycle
 
 - **Owner:** Audit / Event Ledger.
 - **Statuses:** none; creation-only evidence.
-- **Authority:** append through the canonical `appendAuditEvent` operation.
+- **Authority:** append through the canonical SH-029 `appendAuditEvent` operation.
 - **Mutation rule:** insert-only evidence. Update/delete by normal app/admin roles is prohibited.
 - **Must not be confused with:** domain lifecycle event ledgers or operational failures.
 
@@ -666,7 +671,7 @@ These are **not current source truth** and must not be created without accepting
 
 - **Owner:** Audit / Event Ledger.
 - **Statuses:** none; creation-only evidence.
-- **Authority:** append through `recordSensitiveAccess` after the data/context owner makes the access decision.
+- **Authority:** append through SH-030 `recordSensitiveAccess` after the data/context owner makes the access decision.
 - **Mutation rule:** insert-only evidence; optional hash fields do not by themselves prove append-only enforcement.
 - **Must not be confused with:** `ResumeAccessLog`, Media access event truth, agreement event truth, or authorization result ownership.
 
@@ -685,9 +690,15 @@ These are **not current source truth** and must not be created without accepting
 
 “Public” means an internal Workin Ants Module contract, not necessarily an internet route.
 
+**CL-09-R003 — Organization Hiring executor.** Moderation issues the decision; Organization Hiring executes supported effects against `Job` and `Organization` through SH-103 `executeModerationDecision` and returns execution evidence. Hiring validates owner-local transitions and retains every mutation to those records. Its retry-safe result must distinguish accepted, rejected, idempotently already applied, retryable failure, and terminal failure as supported by the eventual contract, within the canonical acknowledged/completed/failed/restored evidence boundary. Exact effect/result encoding remains for the owner contract; this does not create a competing operation or permit CL-09 database writes to Hiring.
+
+**CL-09-R006 — Confirmed Hold semantics.** One `ComplianceHold` represents one authoritative stop sign against exactly one typed target. The public contract carries target type/identity, controlled reason, explicit action/scope or equivalent applicability, requesting/source Module, source decision/evidence reference, requester actor/system context, semantic idempotency, and lifecycle state. Equivalent concurrent active requests must not create semantically duplicate stop signs. Consumers use SH-011 `evaluateComplianceHold` and retain their own lifecycle consequences. The exact database representation, equivalence-key/constraint design, expiry, durable reviewer claims, and escalation persistence remain unresolved; the three nullable target FKs are not the final general-purpose representation.
+
+**CL-09-R010 — Confirmed Audit contract semantics.** SH-029 `appendAuditEvent` and SH-030 `recordSensitiveAccess` are the authoritative integration boundaries. Persistence must support actor attribution (including supported non-user/system actions), action, target, outcome/access outcome, request/correlation identity, and safe validated metadata. Generic access evidence must represent a normalized access outcome; Healthcare may supply its own decision as source evidence but its policy vocabulary is not universal Audit policy. `AuditEventType` and `AuditEventActor` are absent current-schema claims, not available structures. Exact fields/enums, non-user actor storage, migration design, and hash-chain architecture remain unresolved; SH-073 `hashChainRecords` remains Proposed ruling.
+
 | Interface | Owner | Consumers | Purpose | Minimum input | Minimum output | Result kind | Consumers must not infer/recreate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `submitModerationReport` | Content Moderation & Legal Notice | All report-capable Modules; controlled user/external intake | Create report truth. | Actor/reporter context, `ReportSource`, typed target, `ReportReason`, safe details/evidence refs, idempotency key. | `reportId`, status, received timestamp. | Truth | Do not create local report/case rows. |
+| SH-101 `submitModerationReport` | Content Moderation & Legal Notice | All report-capable Modules; controlled user/external intake | Create report truth. | Actor/reporter context, `ReportSource`, typed target, `ReportReason`, safe details/evidence refs, idempotency key. | `reportId`, status, received timestamp. | Truth | Do not create local report/case rows. |
 | `submitLegalNotice` | Content Moderation & Legal Notice | Controlled legal intake/admin | Create formal notice truth. | Notice type, target, submitter/rights-owner fields, claimed work/URL/statements/evidence refs. | `legalNoticeId`, status, received time. | Truth | Do not treat email receipt or target disable status as legal-notice truth. |
 | `triageReport` | Content Moderation & Legal Notice | Moderation/admin tools | Apply report triage policy. | Report ID, reviewer, triage decision/note, expected version. | New report state and next action. | Decision + truth | Do not alter target state directly. |
 | `openModerationCase` | Content Moderation & Legal Notice | Moderation/legal workflows | Open review container. | Trigger report/notice/admin concern, target, opener, summary. | Case ID/status. | Truth | Do not use Hold/Dispute as the case. |
@@ -695,75 +706,75 @@ These are **not current source truth** and must not be created without accepting
 | `listModerationQueue` | Content Moderation & Legal Notice | Admin moderation UI | Return actionable cases. | Filters, viewer authority, cursor. | Paginated cases/assignment/deadline summaries. | Projection | Queue projection is not a new lifecycle. |
 | `recordModerationAction` | Content Moderation & Legal Notice | Moderation/legal workflow | Persist approved action/decision. | Case, actor, action type, target, rationale/reference. | Action ID/time. | Truth/evidence | Do not infer downstream execution success. |
 | `queryActiveModerationRestriction` | Content Moderation & Legal Notice | Target owners, Search, delivery Modules | Tell a consumer whether moderation/legal restriction applies. | Typed target + action/surface context. | Active restriction decision + source case/action refs. | Decision | Consumer must not rebuild moderation policy from raw cases. |
-| `executeModerationDecision` | Protocol owned by Moderation decision; implemented by target owners | Media, Search, Messaging, Marketplace, Digital Goods, Video, other target owners | Apply an authorized moderation action in owner-local truth. | Case/action IDs, typed target, requested effect, reason, idempotency/correlation. | `acknowledged/completed/failed/restored` evidence and owner state reference. | Cross-Module protocol | Moderation must not directly write target tables; target owner must not create competing moderation truth. |
-| `requestComplianceHold` | Admin Review / Compliance Hold | Compliance-sensitive Modules | Create authoritative stop sign. | Typed target, reason, source/evidence refs, requested scope, actor/system context, idempotency key. | Hold ID, active status, applicable scope. | Truth | No local hold model or blocked boolean. |
-| `evaluateComplianceHold` | Admin Review / Compliance Hold | Any gated workflow | Return active stop signs for target/action. | Target + requested action + context. | Allow/block decision, hold IDs, safe reasons, scope, expiry if applicable. | Decision | Do not reconstruct from foreign links or reasons alone. |
-| `releaseComplianceHold` | Admin Review / Compliance Hold | Source Modules/admin review | Release an existing stop sign. | Hold ID, source decision ref, actor, reason, idempotency key. | Released hold + time/actor. | Truth | Release is not underlying compliance approval. |
-| `getComplianceHold` / `listActiveComplianceHolds` | Admin Review / Compliance Hold | Authorized consumers/admin | Read hold truth. | Hold/target filters + authority. | Safe hold view(s). | Truth | Do not bypass `evaluateComplianceHold` for action policy. |
-| `appendAuditEvent` | Audit / Event Ledger | All Modules | Append generic important-action proof. | Actor/system ref, action, target, request/correlation, safe metadata; canonical registry also calls for outcome. | Audit event ID/time. | Evidence | Do not use as business lifecycle truth. |
-| `recordSensitiveAccess` | Audit / Event Ledger | Sensitive data/access owners | Append protected-access outcome proof. | Actor, action, sensitivity, target, owner decision, request context, safe metadata. | Access log ID/time/hash info if enabled. | Evidence | Audit did not authorize the access. |
+| SH-103 `executeModerationDecision` | Protocol owned by Moderation decision; implemented by target owners | Media, Search, Messaging, Marketplace, Digital Goods, Video, other target owners | Apply an authorized moderation action in owner-local truth. | Case/action IDs, typed target, requested effect, reason, idempotency/correlation. | `acknowledged/completed/failed/restored` evidence and owner state reference. | Cross-Module protocol | Moderation must not directly write target tables; target owner must not create competing moderation truth. |
+| SH-012 `requestComplianceHold` | Admin Review / Compliance Hold | Compliance-sensitive Modules | Create authoritative stop sign. | Typed target, reason, source/evidence refs, requested scope, actor/system context, idempotency key. | Hold ID, active status, applicable scope. | Truth | No local hold model or blocked boolean. |
+| SH-011 `evaluateComplianceHold` | Admin Review / Compliance Hold | Any gated workflow | Return active stop signs for target/action. | Target + requested action + context. | Allow/block decision, hold IDs, safe reasons, scope, expiry if applicable. | Decision | Do not reconstruct from foreign links or reasons alone. |
+| SH-013 `releaseComplianceHold` | Admin Review / Compliance Hold | Source Modules/admin review | Release an existing stop sign. | Hold ID, source decision ref, actor, reason, idempotency key. | Released hold + time/actor. | Truth | Release is not underlying compliance approval. |
+| `getComplianceHold` / `listActiveComplianceHolds` | Admin Review / Compliance Hold | Authorized consumers/admin | Read hold truth. | Hold/target filters + authority. | Safe hold view(s). | Truth | Do not bypass SH-011 `evaluateComplianceHold` for action policy. |
+| SH-029 `appendAuditEvent` | Audit / Event Ledger | All Modules | Append generic important-action proof. | Actor/system ref, action, target, outcome, request/correlation, safe validated metadata. | Audit event ID/time. | Evidence | Do not use as business lifecycle truth. |
+| SH-030 `recordSensitiveAccess` | Audit / Event Ledger | Sensitive data/access owners | Append protected-access outcome proof. | Actor, action, sensitivity, target, owner decision, request context, safe metadata. | Access log ID/time/hash info if enabled. | Evidence | Audit did not authorize the access. |
 | `queryAuditEvents` | Audit / Event Ledger | Authorized admin/compliance/support | Query generic action evidence. | Filters, cursor, viewer authority. | Redacted paginated events. | Evidence | Do not infer target current state. |
 | `querySensitiveAccessHistory` | Audit / Event Ledger | Authorized compliance/security | Query sensitive-access proof. | Target/actor/action/sensitivity/request/time filters. | Redacted paginated access evidence. | Evidence | Do not infer authorization policy. |
-| `createRequestContext` | Observability/platform | All request/job entry points | Create correlation/trace context. | Incoming request/job/provider context. | Safe request/correlation/trace IDs + actor ref. | Platform context | Do not embed domain payloads. |
-| `writeStructuredLog` | Observability / Ops | All Modules | Emit structured operational log. | Level, operation, safe dimensions, request context. | Log acknowledgement/provider ref if any. | Telemetry | Log is not source truth. |
-| `recordIntegrationFailure` | Observability / Ops | Provider owners/workers | Normalize technical failure visibility. | Provider/integration, operation, source ref, retryability, safe diagnostics, request ID. | Failure record/ref when persistence is approved. | Operational truth | Do not replace business/provider-dedupe state. |
-| `recordQueueTelemetry` | Observability / Ops / queue infra | Shared worker runner | Record claim/attempt/heartbeat/retry/completion/dead-letter visibility. | Queue/job type, source ref, attempt/timing/outcome. | Queue visibility record/metric. | Projection/operational truth | Do not infer domain completion. |
-| `checkServiceHealth` | Observability coordinates; owner supplies check | Admin/health tooling | Standardize component health. | Registered check + timeout/scope. | Healthy/degraded/unavailable/delayed + safe detail. | Projection | Do not turn health into business lifecycle. |
-| `correlateOpsIncident` | Observability / Ops | Ops/admin/system | Group operational signals. | Signals, correlation, severity/context. | Incident ID/status if persistence is approved. | Operational truth | Incident cannot block business actions by itself. |
+| SH-032 `createRequestContext` | Observability/platform | All request/job entry points | Create correlation/trace context. | Incoming request/job/provider context. | Safe request/correlation/trace IDs + actor ref. | Platform context | Do not embed domain payloads. |
+| SH-033 `writeStructuredLog` | Observability / Ops | All Modules | Emit structured operational log. | Level, operation, safe dimensions, request context. | Log acknowledgement/provider ref if any. | Telemetry | Log is not source truth. |
+| SH-037 `recordIntegrationFailure` | Observability / Ops | Provider owners/workers | Normalize technical failure visibility. | Provider/integration, operation, source ref, retryability, safe diagnostics, request ID. | Failure record/ref when persistence is approved. | Operational truth | Do not replace business/provider-dedupe state. |
+| SH-038 `recordQueueTelemetry` | Observability / Ops / queue infra | Shared worker runner | Record claim/attempt/heartbeat/retry/completion/dead-letter visibility. | Queue/job type, source ref, attempt/timing/outcome. | Queue visibility record/metric. | Projection/operational truth | Do not infer domain completion. |
+| SH-039 `checkServiceHealth` | Observability coordinates; owner supplies check | Admin/health tooling | Standardize component health. | Registered check + timeout/scope. | Healthy/degraded/unavailable/delayed + safe detail. | Projection | Do not turn health into business lifecycle. |
+| SH-040 `correlateOpsIncident` | Observability / Ops | Ops/admin/system | Group operational signals. | Signals, correlation, severity/context. | Incident ID/status if persistence is approved. | Operational truth | Incident cannot block business actions by itself. |
 
 ### Interface conflict notes
 
-- The canonical `appendAuditEvent` build rule calls for request ID and outcome; current `AuditEvent` has neither explicit field. This is a **schema/contract alignment decision** that must be resolved before finalizing the command DTO.
-- `requestComplianceHold` / `evaluateComplianceHold` require typed target + scope, while current `ComplianceHold` does not represent the claimed target breadth. This is a **blocking architecture decision** for a general-purpose hold API.
+- The canonical SH-029 `appendAuditEvent` build rule calls for request ID and outcome; current `AuditEvent` has neither explicit field. This is a **schema/contract alignment decision** that must be resolved before finalizing the command DTO.
+- SH-012 `requestComplianceHold` / SH-011 `evaluateComplianceHold` require typed target + scope, while current `ComplianceHold` does not represent the claimed target breadth. This is a **blocking architecture decision** for a general-purpose hold API.
 - Observability public interfaces are canonically named, but their four claimed persistence records are absent. Persistence and lifecycle vocabulary must be ruled before repository implementation.
 
 ---
 
 ## 11. Canonical Shared Operations Used by This Cluster
 
-The current Canonical Shared Operations Architecture supplies canonical **operation names** rather than permanent `SH-###` identifiers. Do not invent numeric IDs in code or context until the registry supplies them.
+The canonical `context/shared/shared-operations.md` registry supplies permanent SH IDs and names. References below use those existing identities; canonical ownership, boundaries, and Confirmed / Proposed ruling / Unresolved status remain unchanged. An ID reference does not approve a proposed operation or an unresolved implementation design.
 
 ### 11.1 Confirmed operations
 
 | Canonical operation | Plain-English meaning | Canonical owner | CL-09 consumers | Reusable mechanism | Local policy retained in CL-09 | Invocation point | Must not be duplicated |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `resolveAuthenticatedActor` | Resolve provider session/system credential to trusted Workin Ants actor context. | Identity & Access | All four Modules | Request middleware + actor context | Which CL-09 action is being attempted. | Every protected entry point. | Local `currentUser`, moderator-auth, hold-auth, audit-auth helpers. |
-| `authorizeResourceAction` | Decide platform/org/participant/ownership-scoped permission. | Role / Authority | All four Modules | Typed authorization decision | Moderation/hold/audit/ops action vocabulary and owner relationship facts. | Before protected query/mutation. | Feature-local admin/role engines. |
-| `requireStepUpForSensitiveAction` | Require fresh high-assurance authentication for designated high-risk action. | Identity & Access | Sensitive audit export/evidence review or hold release where policy requires | Step-up/session mechanism | Which CL-09 actions require step-up. | After authority, before high-risk action. | Local MFA/OTP/passkey checks. |
-| `evaluateComplianceHold` | Return active stop signs applicable to target/action. | Admin Review / Compliance Hold | Moderation and all external workflow consumers | One hold decision API | Hold reason-to-action applicability. | Before blocked business action or moderation effect requiring a stop sign. | Local `isBlocked`, payout/job/content hold checks. |
-| `requestComplianceHold` | Request an authoritative stop sign. | Admin Review / Compliance Hold | Moderation and external compliance owners | Typed idempotent hold command | Whether source facts justify requesting a hold. | After owner decision, before affected action continues. | Per-feature hold creation tables/services. |
-| `releaseComplianceHold` | Release hold after source condition resolved. | Admin Review / Compliance Hold | Source owners/admin review | Typed idempotent release command | Hold release policy. | After source decision. | Direct status writes from consumers. |
-| `appendAuditEvent` | Append generic important-action proof. | Audit / Event Ledger | Moderation, Hold, Ops admin actions | Insert-only command | Audit action/metadata schema. | Immediately after/within owner transaction boundary as appropriate. | `moderationAudit`, `holdAudit`, generic log tables. |
-| `recordSensitiveAccess` | Append protected-access outcome proof. | Audit / Event Ledger | Moderation evidence viewers, Hold sensitive review, Ops sensitive diagnostics | `AccessAuditLog` append | Data sensitivity and owner access outcome. | After decision; record allow/deny/redact/block or credential issuance. | PHI/finance/resume/file-specific generic audit tables. |
-| `createRequestContext` | Propagate correlation/trace/request/actor IDs. | Observability/platform | All four Modules | Async request context | None beyond safe dimensions. | Request/job/provider entry. | Per-module correlation ID utilities. |
-| `writeStructuredLog` | Emit safe machine-readable operational logs. | Observability / Ops | All four Modules | One logger | Operation-specific safe fields. | Throughout execution. | Separate loggers/formatters. |
-| `sanitizeTelemetryMetadata` | Remove or reject secrets/sensitive payloads from audit/telemetry. | Observability / Ops + Audit payload policy | Audit + Ops; every producer | Allowlists/redaction/truncation | Allowed metadata per audit action/sensitivity. | Before persistence/transmission. | Local ad hoc redactors. |
-| `captureException` | Send exception to monitoring provider with safe context. | Observability / Ops | All four Modules | One provider adapter | Error classification/context. | Unexpected exception boundary. | Independent Sentry clients. |
-| `emitMetric` | Publish operational metric. | Observability / Ops | All four Modules | One metrics client | Metric meaning/threshold source. | Request/job/provider lifecycle points. | Per-module metrics clients. |
-| `recordIntegrationFailure` | Persist normalized technical failure/degradation evidence. | Observability / Ops | Moderation enforcement workers and all provider-owning Modules | Common failure record contract | Domain owner retryability/business result. | After normalized technical failure. | Generic failure tables in each Module. |
-| `recordQueueTelemetry` | Record shared queue execution visibility. | Observability / Ops / queue infrastructure | CL-09 workers | Shared worker instrumentation | Domain job completion meaning. | Queue claim/attempt/heartbeat/retry/terminal state. | Local queue-monitor ledgers. |
-| `checkServiceHealth` | Standardize dependency/component health response. | Observability coordinates; owner supplies check | Ops admin surfaces | Health registry | What healthy means for each component. | Health/readiness endpoints and dashboard. | Per-module health frameworks. |
-| `correlateOpsIncident` | Group related failures/queue/system signals into incident. | Observability / Ops | Ops tooling | Correlation/incident mechanism | Incident criteria and operator workflow. | After severity/correlation threshold. | Local generic incident tables. |
-| `requestNotification` | Submit safe alert for delivery. | Notification | Moderation, Hold, Audit integrity, Ops incidents | Delivery request/templating | Trigger and message meaning. | After authoritative event/decision. | SES/SMS/push dispatch inside CL-09. |
-| `executeIdempotentCommand` | Ensure retries produce one business effect. | Platform app infrastructure | All CL-09 mutations | Idempotency claim/result | Semantic key/equivalence/conflict policy. | Mutating public commands. | Per-module idempotency stores. |
-| `deduplicateDomainEvent` | Prevent repeated consumer side effects from same event. | Platform event infrastructure + consumer inbox | CL-09 event handlers | Inbox claims | Handler/version and side effect. | Event consumption. | Ad hoc processed-event tables unless provider/domain-specific truth requires them. |
-| `publishDomainEvent` | Reliably publish versioned event after source transaction commits. | Platform outbox infrastructure | Moderation, Hold, Audit/ops only where meaningful | Transactional outbox | Event names/payload/emission conditions. | After source write. | Fire-and-forget event publishing. |
-| `enqueueReliableJob` | Persist async work with retries/leases/dead-letter visibility. | Shared queue infrastructure | Moderation deadline/enforcement workers, Audit integrity/export, Ops monitors | Queue client/worker shell | Payload, completion meaning, legal retry constraints. | When work must be asynchronous. | Per-module queue frameworks. |
-| `executeRetryWithBackoff` | Retry transient failures safely. | Shared queue/platform | CL-09 workers | Backoff/jitter/max attempts | Retryability and side-effect legality. | Technical failure. | Hand-written retry loops. |
-| `orchestrateWorkflowSteps` | Run multi-step cross-Module workflow without owning participants' truth. | Workflow owner using shared runner | Moderation enforcement | Run/step/retry/compensation plumbing | Required steps, order, compensation/restoration meaning. | After `ModerationAction` authorizes multi-owner effects. | Universal saga policy or ad hoc chained calls. |
-| `acquireAggregateLock` | Serialize conflicting commands. | Shared persistence infrastructure | Moderation cases, holds, incident transitions | DB lock mechanism | Lock key/conflict behavior. | Before conflicting transition. | In-memory mutexes. |
-| `withOptimisticConcurrency` | Reject stale writes. | Shared persistence infrastructure | Moderation cases/notices, holds, incidents | CAS/version mechanism | Retry/merge/conflict policy. | Mutation of mutable lifecycle rows. | Custom inconsistent concurrency checks. |
-| `transitionLifecycleState` | Reusable state-machine plumbing while owner retains graph. | Shared mechanism | Moderation, Hold, Ops incident once statuses exist | Transition validation + transactional update hooks | Each lifecycle's valid graph. | Every owner status transition. | One generic global lifecycle policy. |
-| `runDeadlineExpiration` | Find records past owner-defined deadline and invoke owner transition. | Shared scheduler/queue | Legal notice deadlines if policy sets `actionDueAt`; hold expiry if approved | Scheduler/batching | Deadline rules and legal meaning. | Scheduled scan. | Per-module cron engines. |
-| `hashCanonicalPayload` | Produce stable digest over canonical fields. | Shared crypto capability | Audit/evidence snapshot | Canonical serialization/hash | What the hash proves and included fields. | Evidence snapshot/integrity creation. | Local hash implementations. |
-| `validateOwnedTargetReference` | Validate cross-Module target through its owner. | Target owner | Moderation, Hold | Shared contract/separate implementations | Allowed relationship/action for target. | Before persisting polymorphic target reference or executing action. | Cross-domain Prisma target lookup. |
-| `requestSearchProjectionRefresh` | Request index/update/hide/remove/restore work. | Search / Public Visibility | Moderation | Search command | Moderation decision/reason and source version. | After action requiring public visibility change. | Typesense calls or `SearchUpsertEvent` writes in CL-09. |
-| `executePrivacyInstruction` | Execute Privacy-owned instruction against owner records. | Privacy orchestrates; each owner executes | All four CL-09 data owners | Common request/result protocol | Record-specific erase/anonymize/retain/export behavior. | During Privacy target execution. | CL-09-local privacy-request workflows. |
-| `enumerateSubjectData` | Enumerate owner-held subject data and supported dispositions. | Each data owner through Privacy contract | All four CL-09 data owners | Shared enumeration contract | Schema relationships and export meaning. | Privacy discovery. | Global DB crawler. |
-| `evaluateRetentionRequirement` | Return owner facts requiring retention; Privacy records exemption. | Data owner + Privacy | Moderation, Hold, Audit, Ops | Shared contract | Legal/security/fraud/audit retention fact. | Before erasure. | Local retention-exemption tables. |
-| `anonymizePersonalFields` | Apply approved field-level anonymization. | Shared primitive; record owner maps fields | CL-09 data owners | Versioned field mapping mechanism | Which fields can change without breaking proof. | Privacy executor. | Ad hoc erasure helpers. |
-| `submitModerationReport` | Submit typed abuse/legal allegation. | Content Moderation & Legal Notice | Platform Modules | Intake contract | Report reason/source/evidence requirements. | Report creation. | Local report models. |
-| `executeModerationDecision` | Apply moderation/legal effect inside each target owner. | Moderation decision + target owner execution | Moderation and target owners | Dispatch/ack protocol | Decision semantics and owner-local execution. | After `ModerationAction`. | Direct cross-module writes. |
+| SH-001 `resolveAuthenticatedActor` | Resolve provider session/system credential to trusted Workin Ants actor context. | Identity & Access | All four Modules | Request middleware + actor context | Which CL-09 action is being attempted. | Every protected entry point. | Local `currentUser`, moderator-auth, hold-auth, audit-auth helpers. |
+| SH-002 `authorizeResourceAction` | Decide platform/org/participant/ownership-scoped permission. | Role / Authority | All four Modules | Typed authorization decision | Moderation/hold/audit/ops action vocabulary and owner relationship facts. | Before protected query/mutation. | Feature-local admin/role engines. |
+| SH-014 `requireStepUpForSensitiveAction` | Require fresh high-assurance authentication for designated high-risk action. | Identity & Access | Sensitive audit export/evidence review or hold release where policy requires | Step-up/session mechanism | Which CL-09 actions require step-up. | After authority, before high-risk action. | Local MFA/OTP/passkey checks. |
+| SH-011 `evaluateComplianceHold` | Return active stop signs applicable to target/action. | Admin Review / Compliance Hold | Moderation and all external workflow consumers | One hold decision API | Hold reason-to-action applicability. | Before blocked business action or moderation effect requiring a stop sign. | Local `isBlocked`, payout/job/content hold checks. |
+| SH-012 `requestComplianceHold` | Request an authoritative stop sign. | Admin Review / Compliance Hold | Moderation and external compliance owners | Typed idempotent hold command | Whether source facts justify requesting a hold. | After owner decision, before affected action continues. | Per-feature hold creation tables/services. |
+| SH-013 `releaseComplianceHold` | Release hold after source condition resolved. | Admin Review / Compliance Hold | Source owners/admin review | Typed idempotent release command | Hold release policy. | After source decision. | Direct status writes from consumers. |
+| SH-029 `appendAuditEvent` | Append generic important-action proof. | Audit / Event Ledger | Moderation, Hold, Ops admin actions | Insert-only command | Audit action/metadata schema. | Immediately after/within owner transaction boundary as appropriate. | `moderationAudit`, `holdAudit`, generic log tables. |
+| SH-030 `recordSensitiveAccess` | Append protected-access outcome proof. | Audit / Event Ledger | Moderation evidence viewers, Hold sensitive review, Ops sensitive diagnostics | `AccessAuditLog` append | Data sensitivity and owner access outcome. | After decision; record allow/deny/redact/block or credential issuance. | PHI/finance/resume/file-specific generic audit tables. |
+| SH-032 `createRequestContext` | Propagate correlation/trace/request/actor IDs. | Observability/platform | All four Modules | Async request context | None beyond safe dimensions. | Request/job/provider entry. | Per-module correlation ID utilities. |
+| SH-033 `writeStructuredLog` | Emit safe machine-readable operational logs. | Observability / Ops | All four Modules | One logger | Operation-specific safe fields. | Throughout execution. | Separate loggers/formatters. |
+| SH-034 `sanitizeTelemetryMetadata` | Remove or reject secrets/sensitive payloads from audit/telemetry. | Observability / Ops + Audit payload policy | Audit + Ops; every producer | Allowlists/redaction/truncation | Allowed metadata per audit action/sensitivity. | Before persistence/transmission. | Local ad hoc redactors. |
+| SH-035 `captureException` | Send exception to monitoring provider with safe context. | Observability / Ops | All four Modules | One provider adapter | Error classification/context. | Unexpected exception boundary. | Independent Sentry clients. |
+| SH-036 `emitMetric` | Publish operational metric. | Observability / Ops | All four Modules | One metrics client | Metric meaning/threshold source. | Request/job/provider lifecycle points. | Per-module metrics clients. |
+| SH-037 `recordIntegrationFailure` | Persist normalized technical failure/degradation evidence. | Observability / Ops | Moderation enforcement workers and all provider-owning Modules | Common failure record contract | Domain owner retryability/business result. | After normalized technical failure. | Generic failure tables in each Module. |
+| SH-038 `recordQueueTelemetry` | Record shared queue execution visibility. | Observability / Ops / queue infrastructure | CL-09 workers | Shared worker instrumentation | Domain job completion meaning. | Queue claim/attempt/heartbeat/retry/terminal state. | Local queue-monitor ledgers. |
+| SH-039 `checkServiceHealth` | Standardize dependency/component health response. | Observability coordinates; owner supplies check | Ops admin surfaces | Health registry | What healthy means for each component. | Health/readiness endpoints and dashboard. | Per-module health frameworks. |
+| SH-040 `correlateOpsIncident` | Group related failures/queue/system signals into incident. | Observability / Ops | Ops tooling | Correlation/incident mechanism | Incident criteria and operator workflow. | After severity/correlation threshold. | Local generic incident tables. |
+| SH-041 `requestNotification` | Submit safe alert for delivery. | Notification | Moderation, Hold, Audit integrity, Ops incidents | Delivery request/templating | Trigger and message meaning. | After authoritative event/decision. | SES/SMS/push dispatch inside CL-09. |
+| SH-044 `executeIdempotentCommand` | Ensure retries produce one business effect. | Platform app infrastructure | All CL-09 mutations | Idempotency claim/result | Semantic key/equivalence/conflict policy. | Mutating public commands. | Per-module idempotency stores. |
+| SH-045 `deduplicateDomainEvent` | Prevent repeated consumer side effects from same event. | Platform event infrastructure + consumer inbox | CL-09 event handlers | Inbox claims | Handler/version and side effect. | Event consumption. | Ad hoc processed-event tables unless provider/domain-specific truth requires them. |
+| SH-046 `publishDomainEvent` | Reliably publish versioned event after source transaction commits. | Platform outbox infrastructure | Moderation, Hold, Audit/ops only where meaningful | Transactional outbox | Event names/payload/emission conditions. | After source write. | Fire-and-forget event publishing. |
+| SH-047 `enqueueReliableJob` | Persist async work with retries/leases/dead-letter visibility. | Shared queue infrastructure | Moderation deadline/enforcement workers, Audit integrity/export, Ops monitors | Queue client/worker shell | Payload, completion meaning, legal retry constraints. | When work must be asynchronous. | Per-module queue frameworks. |
+| SH-048 `executeRetryWithBackoff` | Retry transient failures safely. | Shared queue/platform | CL-09 workers | Backoff/jitter/max attempts | Retryability and side-effect legality. | Technical failure. | Hand-written retry loops. |
+| SH-049 `orchestrateWorkflowSteps` | Run multi-step cross-Module workflow without owning participants' truth. | Workflow owner using shared runner | Moderation enforcement | Run/step/retry/compensation plumbing | Required steps, order, compensation/restoration meaning. | After `ModerationAction` authorizes multi-owner effects. | Universal saga policy or ad hoc chained calls. |
+| SH-051 `acquireAggregateLock` | Serialize conflicting commands. | Shared persistence infrastructure | Moderation cases, holds, incident transitions | DB lock mechanism | Lock key/conflict behavior. | Before conflicting transition. | In-memory mutexes. |
+| SH-052 `withOptimisticConcurrency` | Reject stale writes. | Shared persistence infrastructure | Moderation cases/notices, holds, incidents | CAS/version mechanism | Retry/merge/conflict policy. | Mutation of mutable lifecycle rows. | Custom inconsistent concurrency checks. |
+| SH-053 `transitionLifecycleState` | Reusable state-machine plumbing while owner retains graph. | Shared mechanism | Moderation, Hold, Ops incident once statuses exist | Transition validation + transactional update hooks | Each lifecycle's valid graph. | Every owner status transition. | One generic global lifecycle policy. |
+| SH-055 `runDeadlineExpiration` | Find records past owner-defined deadline and invoke owner transition. | Shared scheduler/queue | Legal notice deadlines if policy sets `actionDueAt`; hold expiry if approved | Scheduler/batching | Deadline rules and legal meaning. | Scheduled scan. | Per-module cron engines. |
+| SH-072 `hashCanonicalPayload` | Produce stable digest over canonical fields. | Shared crypto capability | Audit/evidence snapshot | Canonical serialization/hash | What the hash proves and included fields. | Evidence snapshot/integrity creation. | Local hash implementations. |
+| SH-123 `validateOwnedTargetReference` | Validate cross-Module target through its owner. | Target owner | Moderation, Hold | Shared contract/separate implementations | Allowed relationship/action for target. | Before persisting polymorphic target reference or executing action. | Cross-domain Prisma target lookup. |
+| SH-091 `requestSearchProjectionRefresh` | Request index/update/hide/remove/restore work. | Search / Public Visibility | Moderation | Search command | Moderation decision/reason and source version. | After action requiring public visibility change. | Typesense calls or `SearchUpsertEvent` writes in CL-09. |
+| SH-095 `executePrivacyInstruction` | Execute Privacy-owned instruction against owner records. | Privacy orchestrates; each owner executes | All four CL-09 data owners | Common request/result protocol | Record-specific erase/anonymize/retain/export behavior. | During Privacy target execution. | CL-09-local privacy-request workflows. |
+| SH-096 `enumerateSubjectData` | Enumerate owner-held subject data and supported dispositions. | Each data owner through Privacy contract | All four CL-09 data owners | Shared enumeration contract | Schema relationships and export meaning. | Privacy discovery. | Global DB crawler. |
+| SH-097 `evaluateRetentionRequirement` | Return owner facts requiring retention; Privacy records exemption. | Data owner + Privacy | Moderation, Hold, Audit, Ops | Shared contract | Legal/security/fraud/audit retention fact. | Before erasure. | Local retention-exemption tables. |
+| SH-098 `anonymizePersonalFields` | Apply approved field-level anonymization. | Shared primitive; record owner maps fields | CL-09 data owners | Versioned field mapping mechanism | Which fields can change without breaking proof. | Privacy executor. | Ad hoc erasure helpers. |
+| SH-101 `submitModerationReport` | Submit typed abuse/legal allegation. | Content Moderation & Legal Notice | Platform Modules | Intake contract | Report reason/source/evidence requirements. | Report creation. | Local report models. |
+| SH-103 `executeModerationDecision` | Apply moderation/legal effect inside each target owner. | Moderation decision + target owner execution | Moderation and target owners | Dispatch/ack protocol | Decision semantics and owner-local execution. | After `ModerationAction`. | Direct cross-module writes. |
 
 ### 11.2 Proposed shared operations relevant to CL-09
 
@@ -771,16 +782,16 @@ These appear in the Canonical Shared Operations synthesis as **Proposed Ruling**
 
 | Operation | Proposed owner / classification | CL-09 use | Rule until accepted |
 | --- | --- | --- | --- |
-| `claimWorkItem` | Shared work-queue/locking capability | Manual moderation/hold review claim and lease. | Do not build a universal review queue schema or competing per-Module claim primitive until accepted. Module-owned assignment fields may still be used where already present. |
-| `resolveModerationTarget` | Target registry contract; owner-specific resolvers | Safe minimized target context for moderators. | Prefer owner-specific interfaces now; do not create universal cross-domain repository. |
-| `preserveEvidenceSnapshot` | Shared evidence mechanism; decision owner retains proof meaning | Immutable moderation/hold decision evidence using Media + hash primitives. | Do not create a generic Audit-owned evidence table. |
-| `correlateEnforcementResult` | Content Moderation & Legal Notice cluster-local orchestration | Durable acknowledgment/retry/restoration tracking for one moderation action. | No new execution schema until accepted; do not overload `ModerationAction` with downstream owner truth. |
-| `hashChainRecords` | Shared cryptographic capability; owner unresolved | Tamper-evident AccessAuditLog/Agreement chains. | Optional hash fields must not be treated as proof of a complete chain until partition/sequence/algorithm/verification policy is approved. |
-| `returnDecisionResult` | Shared contract; policy owner varies | Consistent hold/moderation/readiness result shape. | May inspire DTO shape; do not create global policy engine. |
+| SH-054 `claimWorkItem` | Shared work-queue/locking capability | Manual moderation/hold review claim and lease. | Do not build a universal review queue schema or competing per-Module claim primitive until accepted. Module-owned assignment fields may still be used where already present. |
+| SH-102 `resolveModerationTarget` | Target registry contract; owner-specific resolvers | Safe minimized target context for moderators. | Prefer owner-specific interfaces now; do not create universal cross-domain repository. |
+| SH-104 `preserveEvidenceSnapshot` | Shared evidence mechanism; decision owner retains proof meaning | Immutable moderation/hold decision evidence using Media + hash primitives. | Do not create a generic Audit-owned evidence table. |
+| SH-105 `correlateEnforcementResult` | Content Moderation & Legal Notice cluster-local orchestration | Durable acknowledgment/retry/restoration tracking for one moderation action. | No new execution schema until accepted; do not overload `ModerationAction` with downstream owner truth. |
+| SH-073 `hashChainRecords` | Shared cryptographic capability; owner unresolved | Tamper-evident AccessAuditLog/Agreement chains. | Optional hash fields must not be treated as proof of a complete chain until partition/sequence/algorithm/verification policy is approved. |
+| SH-015 `returnDecisionResult` | Shared contract; policy owner varies | Consistent hold/moderation/readiness result shape. | May inspire DTO shape; do not create global policy engine. |
 
 ### 11.3 Unresolved shared capability
 
-`computeContentFingerprint` remains unresolved. Exact checksums may be Media-owned mechanics, but perceptual matching/provider choice, threshold policy, persistence, and infringement meaning are not established. A fingerprint match may only be a signal; it must never automatically become legal infringement truth or a moderation action.
+SH-106 `computeContentFingerprint` remains unresolved. Exact checksums may be Media-owned mechanics, but perceptual matching/provider choice, threshold policy, persistence, and infringement meaning are not established. A fingerprint match may only be a signal; it must never automatically become legal infringement truth or a moderation action.
 
 ---
 
@@ -789,19 +800,19 @@ These appear in the Canonical Shared Operations synthesis as **Proposed Ruling**
 ### 12.1 User or system report to moderation decision
 
 1. **Trigger — source Module or controlled intake:** an actor reports a typed target.
-2. **Identity — Identity & Access:** `resolveAuthenticatedActor` when an authenticated actor exists; controlled external notice/report intake uses its separately approved identity/evidence rules.
+2. **Identity — Identity & Access:** SH-001 `resolveAuthenticatedActor` when an authenticated actor exists; controlled external notice/report intake uses its separately approved identity/evidence rules.
 3. **Authority — Role / Authority:** authorize the intake or admin action.
-4. **Intake write — Moderation:** `submitModerationReport` validates target via owner interface and writes `Report(submitted)` idempotently.
+4. **Intake write — Moderation:** SH-101 `submitModerationReport` validates target via owner interface and writes `Report(submitted)` idempotently.
 5. **Audit — Audit:** append a generic intake action if policy requires; do not copy full evidence payload.
 6. **Triage — Moderation:** reviewer/system applies owner triage policy and may open `ModerationCase`.
-7. **Case evidence read — target owners/Media:** return minimized target summary and protected evidence through owner access rules; sensitive reads call `recordSensitiveAccess`.
+7. **Case evidence read — target owners/Media:** return minimized target summary and protected evidence through owner access rules; sensitive reads call SH-030 `recordSensitiveAccess`.
 8. **Decision — Moderation:** authorized reviewer records `ModerationAction` and required case transition.
 9. **Outbox — Moderation/platform:** publish domain event or enqueue enforcement workflow after the authoritative transaction commits.
-10. **Downstream requests — target owners:** use `executeModerationDecision`; each target owner changes its own state.
+10. **Downstream requests — target owners:** use SH-103 `executeModerationDecision`; each target owner changes its own state.
 11. **Search — Search owner:** moderation requests projection refresh/removal; Search writes `SearchUpsertEvent` and Typesense state.
-12. **Hold — Hold owner:** if a reusable block is required, moderation calls `requestComplianceHold`.
+12. **Hold — Hold owner:** if a reusable block is required, moderation calls SH-012 `requestComplianceHold`.
 13. **Notification — Notification:** moderation requests safe notices to affected parties/reviewers.
-14. **Ops — Observability:** technical failures become `recordIntegrationFailure`/queue telemetry; business rejection remains in owner result.
+14. **Ops — Observability:** technical failures become SH-037 `recordIntegrationFailure`/queue telemetry; business rejection remains in owner result.
 15. **Reconciliation — Moderation:** if the proposed enforcement-correlation capability is accepted, track missing/failed acknowledgments and restoration work.
 
 ### 12.2 Formal legal notice and counter-notice
@@ -820,12 +831,12 @@ These appear in the Canonical Shared Operations synthesis as **Proposed Ruling**
 ### 12.3 Compliance hold creation and gating
 
 1. Source owner evaluates its own fact: e.g. dispute open, tax required, verification review, moderation review.
-2. Source owner calls `requestComplianceHold` with typed target, reason, source/evidence refs, and idempotency key.
+2. Source owner calls SH-012 `requestComplianceHold` with typed target, reason, source/evidence refs, and idempotency key.
 3. Hold Module validates target/authority/semantic duplicate policy and writes `ComplianceHold(active)`.
 4. Hold Module appends generic audit proof.
-5. Any consuming business action calls `evaluateComplianceHold` rather than reading a local boolean.
+5. Any consuming business action calls SH-011 `evaluateComplianceHold` rather than reading a local boolean.
 6. Consumer receives allow/block plus safe hold references and applies its own lifecycle behavior.
-7. When source fact resolves, source owner calls `releaseComplianceHold`; Hold Module alone transitions status.
+7. When source fact resolves, source owner calls SH-013 `releaseComplianceHold`; Hold Module alone transitions status.
 8. Notification/Audit are requested as required. Hold release does not mutate the source compliance record.
 
 ### 12.4 Sensitive evidence access
@@ -841,7 +852,7 @@ These appear in the Canonical Shared Operations synthesis as **Proposed Ruling**
 
 1. Source Module/provider adapter performs its own business/provider operation.
 2. Provider owner verifies/deduplicates/translates provider state where applicable.
-3. Technical failure is normalized and sent to `recordIntegrationFailure` with source ref and request ID.
+3. Technical failure is normalized and sent to SH-037 `recordIntegrationFailure` with source ref and request ID.
 4. Shared worker runner records queue telemetry for attempts/retries/dead-letter.
 5. Structured log/metric/error provider receive sanitized telemetry.
 6. Observability correlates repeated/severe signals into `OpsIncident` if persistence/rules are approved.
@@ -862,22 +873,22 @@ These appear in the Canonical Shared Operations synthesis as **Proposed Ruling**
 
 | Source | Destination | Information / command | Authoritative owner | Interface / event | Forbidden coupling |
 | --- | --- | --- | --- | --- | --- |
-| CL-01 Identity & Access | CL-09 | Actor/session/step-up assurance. | Identity & Access | `resolveAuthenticatedActor`, `requireStepUpForSensitiveAction`. | CL-09 auth/session logic. |
-| CL-01 Role / Authority | CL-09 | Permission decisions for moderation, hold, audit, ops. | Role / Authority | `authorizeResourceAction`. | Local admin-role interpretation. |
+| CL-01 Identity & Access | CL-09 | Actor/session/step-up assurance. | Identity & Access | SH-001 `resolveAuthenticatedActor`, SH-014 `requireStepUpForSensitiveAction`. | CL-09 auth/session logic. |
+| CL-01 Role / Authority | CL-09 | Permission decisions for moderation, hold, audit, ops. | Role / Authority | SH-002 `authorizeResourceAction`. | Local admin-role interpretation. |
 | CL-01 Track Subscription & Entitlement | CL-09 Observability/Moderation context | Entitlement/subscription source refs and provider failure signals where relevant. | Track Subscription & Entitlement | Owner event/query; Observability failure ingestion. | CL-09 entitlement policy or premium flags. |
-| CL-02 Search / Public Visibility | Moderation | Execute de-index/re-index after decision. | Search | `requestSearchProjectionRefresh`; Search-owned worker. | Direct `SearchUpsertEvent`/Typesense writes from Moderation. |
-| CL-03 Marketplace Supply | Moderation/Hold | Offering/product/course target summary and owner-local enforcement. | Marketplace Supply | Owner target query + `executeModerationDecision` handler. | Moderation directly changing Offering lifecycle. |
-| CL-03 Payment / Payout / Tax | Hold/Audit/Ops | Financial readiness facts, hold requests/gates, sensitive-access evidence, provider failures. | Payment for financial truth; Hold/Audit/Ops for their separate truth. | `request/evaluate/releaseComplianceHold`, `recordSensitiveAccess`, `recordIntegrationFailure`. | Reading Stripe state to decide holds inside CL-09. |
+| CL-02 Search / Public Visibility | Moderation | Execute de-index/re-index after decision. | Search | SH-091 `requestSearchProjectionRefresh`; Search-owned worker. | Direct `SearchUpsertEvent`/Typesense writes from Moderation. |
+| CL-03 Marketplace Supply | Moderation/Hold | Offering/product/course target summary and owner-local enforcement. | Marketplace Supply | Owner target query + SH-103 `executeModerationDecision` handler. | Moderation directly changing Offering lifecycle. |
+| CL-03 Payment / Payout / Tax | Hold/Audit/Ops | Financial readiness facts, hold requests/gates, sensitive-access evidence, provider failures. | Payment for financial truth; Hold/Audit/Ops for their separate truth. | SH-012 `requestComplianceHold`, SH-011 `evaluateComplianceHold`, SH-013 `releaseComplianceHold`, SH-030 `recordSensitiveAccess`, SH-037 `recordIntegrationFailure`. | Reading Stripe state to decide holds inside CL-09. |
 | CL-03 Trust Verification / Healthcare | Hold/Audit | Verification/healthcare decision facts and sensitive access outcome. | Trust/Healthcare | Owner readiness/decision query; hold/audit commands. | CL-09 reinterpreting provider or healthcare policy. |
 | CL-04 Transaction / Order | Hold/Audit/Moderation | Order target facts; disputes may request holds; contract access is audited. | Transaction / Order, Review / Dispute | Owner queries/events + CL-09 commands. | AuditEvent or Hold as Order truth. |
-| CL-05 Media / File Access | Moderation/Audit | Preserve/freeze/revoke public URL; deliver protected evidence; media access proof. | Media for mechanics; Moderation for decision; Audit for generic access proof. | `executeModerationDecision`, Media public commands, `recordSensitiveAccess`. | Moderation R2 calls or local signed URLs. |
-| CL-05 Digital Goods / Video | Moderation | Disable/revoke/restore grants/playback after moderation decision. | Digital Goods / Video for execution truth. | `executeModerationDecision` owner handlers. | Moderation writing grant tables. |
+| CL-05 Media / File Access | Moderation/Audit | Preserve/freeze/revoke public URL; deliver protected evidence; media access proof. | Media for mechanics; Moderation for decision; Audit for generic access proof. | SH-103 `executeModerationDecision`, Media public commands, SH-030 `recordSensitiveAccess`. | Moderation R2 calls or local signed URLs. |
+| CL-05 Digital Goods / Video | Moderation | Disable/revoke/restore grants/playback after moderation decision. | Digital Goods / Video for execution truth. | SH-103 `executeModerationDecision` owner handlers. | Moderation writing grant tables. |
 | CL-05 Booking / Calendar | Audit/Ops | Sensitive booking/calendar action proof and integration failure signals. | Booking for lifecycle/provider truth. | Audit/ops commands. | CL-09 processed-calendar-event state. |
 | CL-06 Hiring / Candidate | Moderation/Hold/Audit | Reported Job/message/media/candidate context; job-compliance hold signals; protected resume access evidence. | Hiring/Candidate/Job Compliance. | Owner query, hold command, audit command. | CL-09 resume access authorization or Job lifecycle changes. |
-| CL-07 Messaging | Moderation/Audit | Message/thread target context and restriction execution; sensitive read evidence. | Messaging | Target query + moderation execution handler + `recordSensitiveAccess`. | Moderation mutating Message/Thread rows. |
-| CL-07 Notification | All CL-09 | Deliver user/admin/legal/ops messages. | Notification | `requestNotification`. | SES/SMS/push code in CL-09. |
-| CL-08 Privacy / Data Erasure | All CL-09 data owners | Privacy target discovery, retention decision recording, erasure/anonymization/export execution. | Privacy for request/orchestration; CL-09 owners for their records. | `enumerateSubjectData`, `evaluateRetentionRequirement`, `executePrivacyInstruction`. | Privacy directly rewriting every CL-09 table; CL-09 local PrivacyRequest. |
-| CL-08 Location Safety | Audit/Moderation context | Location-reveal access evidence or reported location-sensitive target context. | Location Safety | Owner decision + `recordSensitiveAccess`. | Audit deciding reveal eligibility. |
+| CL-07 Messaging | Moderation/Audit | Message/thread target context and restriction execution; sensitive read evidence. | Messaging | Target query + moderation execution handler + SH-030 `recordSensitiveAccess`. | Moderation mutating Message/Thread rows. |
+| CL-07 Notification | All CL-09 | Deliver user/admin/legal/ops messages. | Notification | SH-041 `requestNotification`. | SES/SMS/push code in CL-09. |
+| CL-08 Privacy / Data Erasure | All CL-09 data owners | Privacy target discovery, retention decision recording, erasure/anonymization/export execution. | Privacy for request/orchestration; CL-09 owners for their records. | SH-096 `enumerateSubjectData`, SH-097 `evaluateRetentionRequirement`, SH-095 `executePrivacyInstruction`. | Privacy directly rewriting every CL-09 table; CL-09 local PrivacyRequest. |
+| CL-08 Location Safety | Audit/Moderation context | Location-reveal access evidence or reported location-sensitive target context. | Location Safety | Owner decision + SH-030 `recordSensitiveAccess`. | Audit deciding reveal eligibility. |
 | CL-10 Sweepstakes / Rewards | Hold/Audit/Ops | Prize/reward tax/fraud hold requests and operational evidence. | Sweepstakes/Rewards for domain truth; Hold/Audit/Ops separate. | Hold/audit/ops contracts. | Local prize/reward block flags replacing hold. |
 
 ---
@@ -886,11 +897,11 @@ These appear in the Canonical Shared Operations synthesis as **Proposed Ruling**
 
 ### Authentication dependency
 
-Every authenticated CL-09 request begins with `resolveAuthenticatedActor`. System/service actors must use a typed trusted system context; nullable user IDs in audit or moderation records do not authorize anonymous mutations.
+Every authenticated CL-09 request begins with SH-001 `resolveAuthenticatedActor`. System/service actors must use a typed trusted system context; nullable user IDs in audit or moderation records do not authorize anonymous mutations.
 
 ### Authorization dependency
 
-`authorizeResourceAction` is the general authority engine. CL-09 Modules supply action and relationship facts, for example:
+SH-002 `authorizeResourceAction` is the general authority engine. CL-09 Modules supply action and relationship facts, for example:
 
 - report submission versus report review;
 - legal-notice review versus legal-notice status lookup;
@@ -910,7 +921,7 @@ CL-09 must not infer authority from `UserRole`/`PlatformRole` alone.
 
 ### High-risk operations
 
-`requireStepUpForSensitiveAction` is available for actions designated by security policy, including potentially high-impact hold release, legal evidence export, financial/healthcare diagnostic review, or security-sensitive audit export. Which exact actions require step-up is **not established by CL-09 evidence** and must be defined by Identity/Security policy rather than guessed.
+SH-014 `requireStepUpForSensitiveAction` is available for actions designated by security policy, including potentially high-impact hold release, legal evidence export, financial/healthcare diagnostic review, or security-sensitive audit export. Which exact actions require step-up is **not established by CL-09 evidence** and must be defined by Identity/Security policy rather than guessed.
 
 ### Service-role actions
 
@@ -936,7 +947,7 @@ Service-role server actions may perform system transitions only through the same
 
 ### ComplianceHold composition rule
 
-A source Module may request a hold when its own policy says review/blocking is required. A consuming Module may call `evaluateComplianceHold` as one input to its own action. Neither side may interpret hold reason alone as proof that the underlying condition currently exists.
+A source Module may request a hold when its own policy says review/blocking is required. A consuming Module may call SH-011 `evaluateComplianceHold` as one input to its own action. Neither side may interpret hold reason alone as proof that the underlying condition currently exists.
 
 ---
 
@@ -944,7 +955,7 @@ A source Module may request a hold when its own policy says review/blocking is r
 
 ### 16.1 Event principles
 
-- Use `publishDomainEvent` with a transactional outbox for events that other Modules must reliably consume.
+- Use SH-046 `publishDomainEvent` with a transactional outbox for events that other Modules must reliably consume.
 - The event name/payload belongs to the source Module; there is no single “CL09Event”.
 - Exact event names are not supplied in current evidence. Coding agents must not establish a permanent event registry by convention alone.
 - Recommended **event classes**, not binding names:
@@ -964,7 +975,7 @@ An authoritative source mutation and its required domain event/outbox entry must
 
 ### 16.3 Queue responsibilities
 
-Use `enqueueReliableJob` and the shared worker shell. CL-09 workers may include:
+Use SH-047 `enqueueReliableJob` and the shared worker shell. CL-09 workers may include:
 
 - moderation enforcement dispatch/reconciliation;
 - legal-notice deadline scans when approved policy supplies `actionDueAt`;
@@ -976,7 +987,7 @@ Use `enqueueReliableJob` and the shared worker shell. CL-09 workers may include:
 
 ### 16.4 Retries and dead-letter handling
 
-- `executeRetryWithBackoff` handles transient technical errors.
+- SH-048 `executeRetryWithBackoff` handles transient technical errors.
 - Domain/provider owner classifies retryable versus terminal/manual-review failures.
 - Every asynchronous command has an idempotency key or event inbox identity.
 - Dead-lettered work must be visible through Observability and retain source references/correlation IDs.
@@ -993,7 +1004,7 @@ Use database locks/optimistic concurrency for:
 
 ### 16.6 Workflow/saga boundary
 
-Moderation is the principal CL-09 multi-Module workflow owner. `orchestrateWorkflowSteps` may supply execution plumbing, but Content Moderation & Legal Notice owns which steps are required, the meaning of partial completion, restoration/compensation policy, and when a case can close.
+Moderation is the principal CL-09 multi-Module workflow owner. SH-049 `orchestrateWorkflowSteps` may supply execution plumbing, but Content Moderation & Legal Notice owns which steps are required, the meaning of partial completion, restoration/compensation policy, and when a case can close.
 
 A universal saga that owns moderation, privacy, booking, dispute, and hold policy is prohibited.
 
@@ -1029,19 +1040,19 @@ Moderation decision
 ### 17.3 Webhook verification and dedupe
 
 - The provider-owning Module owns webhook endpoint policy, signature algorithm, dedupe record, status translation, and reconciliation.
-- Shared `verifyProviderWebhookSignature` and `deduplicateProviderEvent` mechanics may be reused, but `ProcessedStripeEvent`, `ProcessedCalendarEvent`, video/subscription/notification processed events remain separate truth.
+- Shared SH-059 `verifyProviderWebhookSignature` and SH-060 `deduplicateProviderEvent` mechanics may be reused, but `ProcessedStripeEvent`, `ProcessedCalendarEvent`, video/subscription/notification processed events remain separate truth.
 - Observability may record a normalized failure but must not mark a provider event processed or recovered in the provider owner's dedupe table.
 
 ### 17.4 Status translation and reconciliation
 
-Provider payload types must terminate at their adapter boundary. The owning Module translates them to domain/operational result types. `reconcileProviderState` remains owner-specific even when the worker framework is shared.
+Provider payload types must terminate at their adapter boundary. The owning Module translates them to domain/operational result types. SH-062 `reconcileProviderState` remains owner-specific even when the worker framework is shared.
 
 ---
 
 ## 18. Search / Projection Boundaries
 
 - Search / Public Visibility owns `SearchUpsertEvent`, Typesense adapters, projection execution, reconciliation, and query surfaces.
-- Moderation owns the decision that a target should be hidden, removed, restored, or otherwise restricted; it calls `requestSearchProjectionRefresh`.
+- Moderation owns the decision that a target should be hidden, removed, restored, or otherwise restricted; it calls SH-091 `requestSearchProjectionRefresh`.
 - The source Module continues to own the source projection. Search may compose owner-issued public-readiness decisions; it must not reconstruct moderation policy by scanning `ModerationCase` tables.
 - Compliance holds may be one input to a source Module's public-readiness decision where that source policy says so. Search should consume a decision, not interpret raw hold reasons.
 - Audit records and Observability records are not searchable-public-source records.
@@ -1062,6 +1073,8 @@ Provider payload types must terminate at their adapter boundary. The owning Modu
 - File/object/public URL execution is Media truth and occurs through Media public commands/adapters.
 - Permanent public links must not be introduced for protected evidence.
 
+**CL-09-R016 — Protected evidence access.** The relevant context owner supplies SH-026 `authorizeContextualResourceAccess`; only after the required contextual authorization succeeds may Media / File Access provide SH-087 `issueSignedMediaUrl` for protected short-lived delivery. Where sensitivity/action policy requires proof, use SH-030 `recordSensitiveAccess`. Signing is not permission logic. CL-09 must not implement a signer, object-storage access service, or generic evidence-access bypass.
+
 ### Evidence preservation
 
 **Proposed Ruling:** where legal/moderation evidence must survive source mutation, Content Moderation & Legal Notice should own an immutable evidence-snapshot proof record or equivalent immutable reference containing the source target/version, canonical hash, captured-at time, policy/version, MediaAsset/private-object reference, and retention classification. Media owns bytes/object mechanics; Audit owns generic access proof; neither absorbs the moderation/legal meaning.
@@ -1073,7 +1086,7 @@ Until accepted, do not pretend mutable `evidenceJson` or `statementJson` provide
 1. Role / Authority checks general viewer permission.
 2. Moderation/Hold/context owner decides business/legal entitlement and redaction.
 3. Media validates asset/grant/readiness and issues short-lived access.
-4. Audit records `recordSensitiveAccess` with minimized context.
+4. Audit records SH-030 `recordSensitiveAccess` with minimized context.
 
 ---
 
@@ -1091,9 +1104,9 @@ Privacy / Data Erasure owns:
 
 Each CL-09 Module must implement owner-local privacy contracts:
 
-- `enumerateSubjectData`;
-- `evaluateRetentionRequirement`;
-- `executePrivacyInstruction`;
+- SH-096 `enumerateSubjectData`;
+- SH-097 `evaluateRetentionRequirement`;
+- SH-095 `executePrivacyInstruction`;
 - owner-specific export serialization if requested.
 
 ### 20.2 Content Moderation & Legal Notice
@@ -1148,7 +1161,7 @@ These surfaces must remain separate.
 - All audit writes pass metadata sanitization.
 - App/admin roles cannot update or delete sensitive access records.
 - Restricted queries apply Role / Authority and field-level redaction.
-- Sensitive reads of audit evidence may themselves require `recordSensitiveAccess`.
+- Sensitive reads of audit evidence may themselves require SH-030 `recordSensitiveAccess`.
 - Request/correlation IDs should link owner action, audit proof, job, and operational trace where schema supports it.
 
 ### Operational telemetry requirements
@@ -1172,7 +1185,7 @@ These surfaces must remain separate.
 8. Sensitive audit/moderation/hold evidence queries require server-side authorization and owner-specific redaction.
 9. Step-up assurance is applied where Identity/Security policy designates a CL-09 action as high risk.
 10. `AuditEvent` and `AccessAuditLog` must have database-level insert-only protection for normal app/admin roles, not only service-layer conventions.
-11. Hashes use `hashCanonicalPayload`; chain hashing uses `hashChainRecords` only after the proposed chain policy is accepted.
+11. Hashes use SH-072 `hashCanonicalPayload`; chain hashing uses SH-073 `hashChainRecords` only after the proposed chain policy is accepted.
 12. Encryption/hashing keys are managed by shared security infrastructure; they are never stored in Module source or telemetry.
 13. Service-role actions cannot bypass Module state machines or target validation.
 14. Async work is idempotent and replay-safe; destructive effects require owner-local idempotency.
@@ -1224,7 +1237,7 @@ These surfaces must remain separate.
 
 - Every CL-09 public command/query has a versioned DTO/response contract.
 - Target owners must pass shared protocol tests for moderation execution and target validation.
-- Hold consumers pass `evaluateComplianceHold` contract tests rather than reading hold tables.
+- Hold consumers pass SH-011 `evaluateComplianceHold` contract tests rather than reading hold tables.
 - Audit callers verify required safe fields and prohibited payload rejection.
 - Observability ingestion accepts normalized technical facts but rejects domain payload leakage.
 
@@ -1240,7 +1253,7 @@ At minimum:
 
 1. Report -> case -> moderation action -> Search removal request -> Search acknowledgment.
 2. Moderation action -> Media freeze/public URL removal -> evidence remains privately available to authorized reviewer.
-3. Moderation action -> hold request -> downstream action blocked by `evaluateComplianceHold`.
+3. Moderation action -> hold request -> downstream action blocked by SH-011 `evaluateComplianceHold`.
 4. Source compliance resolution -> hold release -> consumer proceeds without interpreting source state locally.
 5. Sensitive moderation evidence read -> Media signed access -> `AccessAuditLog` created.
 6. Provider/worker failure -> Observability failure/queue telemetry -> incident/alert path without altering business state.
@@ -1330,15 +1343,15 @@ At minimum:
 
 Coding agents must not create any of the following inside CL-09 or its consumers when a canonical owner already exists:
 
-- `requireAdmin.ts`, `isAdmin.ts`, `moderationAuth.ts`, `holdAdminAuth.ts`, or a second permission engine instead of `authorizeResourceAction`;
-- CL-09-specific session/current-user helpers instead of `resolveAuthenticatedActor`;
-- local MFA/OTP/passkey verification for sensitive admin actions instead of `requireStepUpForSensitiveAction`;
+- `requireAdmin.ts`, `isAdmin.ts`, `moderationAuth.ts`, `holdAdminAuth.ts`, or a second permission engine instead of SH-002 `authorizeResourceAction`;
+- CL-09-specific session/current-user helpers instead of SH-001 `resolveAuthenticatedActor`;
+- local MFA/OTP/passkey verification for sensitive admin actions instead of SH-014 `requireStepUpForSensitiveAction`;
 - `payoutHold`, `jobBlock`, `moderationBlock`, `contentHold`, `isBlocked`, or local hold tables instead of `ComplianceHold`;
-- `moderationAudit.ts`, `holdAudit.ts`, `adminAuditLogger.ts`, generic `event_log` tables, or PHI/finance access logs instead of `appendAuditEvent` / `recordSensitiveAccess`;
+- `moderationAudit.ts`, `holdAudit.ts`, `adminAuditLogger.ts`, generic `event_log` tables, or PHI/finance access logs instead of SH-029 `appendAuditEvent` / SH-030 `recordSensitiveAccess`;
 - a generic audit table that absorbs `OrderEvent`, `BookingEvent`, `JobInterviewEvent`, `AgreementEvent`, `UserSecurityEvent`, or provider processed-event records;
 - feature-local structured loggers or independent Sentry clients;
 - generic `integration_failures` tables in Payment, Calendar, Media, Search, Notification, Video, Subscription, or Moderation instead of Observability's canonical interface once persistence is ruled;
-- feature-local `queue_job` telemetry tables or queue dashboards that replace `recordQueueTelemetry`;
+- feature-local `queue_job` telemetry tables or queue dashboards that replace SH-038 `recordQueueTelemetry`;
 - local generic incident systems;
 - direct Typesense clients/de-index workers in Moderation;
 - direct Cloudflare R2 client calls for moderation evidence/freeze/public URL removal;
@@ -1347,7 +1360,7 @@ Coding agents must not create any of the following inside CL-09 or its consumers
 - a global processed-webhook table shared by Stripe, calendar, video, subscription, or notification;
 - local privacy-request/retention-exemption tables in any CL-09 Module;
 - duplicated hashing/canonicalization, retry/backoff, idempotency, locking, outbox, queue-runner, or request-context utilities;
-- a generic review queue schema that merges Moderation, Hold, Job Compliance, Healthcare, and Verification review truth before `claimWorkItem`/review ownership is approved.
+- a generic review queue schema that merges Moderation, Hold, Job Compliance, Healthcare, and Verification review truth before SH-054 `claimWorkItem`/review ownership is approved.
 
 ---
 
@@ -1355,24 +1368,24 @@ Coding agents must not create any of the following inside CL-09 or its consumers
 
 | # | Question | Why unresolved | Missing/conflicting evidence | What it blocks |
 | --- | --- | --- | --- | --- |
-| U-01 | What is the correct Prisma DB mapping for `ModerationTargetType`? | Current enum maps to `"payout_transfers"`, inconsistent with its meaning. | No migration history or explicit intended map supplied. | Safe schema migration/DB enum verification. |
-| U-02 | How should `ModerationActionType` effects target Order, payout, download grants, and video grants when those are absent from `ModerationTargetType`? | Action vocabulary exceeds target vocabulary. | No parent-target or child-grant targeting rule. | Durable moderation enforcement contract for these effects. |
+| U-01 / CL-09-R017 | Current enum snapshot corrected. | `@@map("moderation_target_type")`; includes `media_access_grant`. | Migration provenance/deployed compatibility is separate investigation under CL-09-R013. | No remaining enum-mapping architecture decision; verify compatibility before migration. |
+| U-02 / CL-09-R007 | Primary target/effect distinction is confirmed. | Order/payout blocking uses Holds; Digital Goods/Video own grant effects through SH-103 `executeModerationDecision`. | Exact enabled owner-local effect mappings remain contract prerequisites; new primary targets require separate approval. | Enable only effects with approved owner contracts; no inferred enum extension. |
 | U-03 | Can one `ModerationCase` aggregate multiple reports, and how are they linked? | Current schema has one optional `reportId`. | No cardinality ruling/join model. | Multi-report case consolidation. |
 | U-04 | What immutable record proves moderation evidence preservation? | `evidenceJson`/`statementJson` are mutable generic JSON; no snapshot record exists. | Snapshot ownership/storage/retention schema absent. | Strong DMCA/DSA evidence-preservation implementation. |
 | U-05 | How is legal-notice validation decision/provenance/version stored? | Status fields exist, but no explicit validation result/policy version. | Legal requirements/policy versioning not supplied. | Auditable legal validation beyond simple status. |
-| U-06 | What durable record tracks downstream moderation action execution/acknowledgments? | `ModerationAction` has no execution status. | `correlateEnforcementResult` is only proposed. | Reliable multi-owner enforcement/reconciliation. |
+| U-06 | What durable record tracks downstream moderation action execution/acknowledgments? | `ModerationAction` has no execution status. | SH-105 `correlateEnforcementResult` is only proposed. | Reliable multi-owner enforcement/reconciliation. |
 | U-07 | What is repeat-infringer truth? | Responsibility claimed; no schema or policy. | No source record, threshold, legal policy, or hold relationship. | Repeat-infringer automation/escalation. |
-| U-08 | Is duplicate/piracy fingerprinting MVP, and who owns it? | Registry desire exists; canonical `computeContentFingerprint` unresolved. | Provider/algorithm/threshold/persistence/owner absent. | Proactive duplicate-content detection. |
+| U-08 | Is duplicate/piracy fingerprinting MVP, and who owns it? | Registry desire exists; canonical SH-106 `computeContentFingerprint` unresolved. | Provider/algorithm/threshold/persistence/owner absent. | Proactive duplicate-content detection. |
 | U-09 | Is legal correspondence a dedicated timeline, Messaging thread, or Notification-only delivery? | Current models do not capture replies/supplements as legal workflow history. | No correspondence ownership ruling. | Complete legal communication history. |
-| U-10 | What typed target model/cardinality should `ComplianceHold` use? | Current direct FKs cover only User/Profile/Order; canonical interface expects typed target/action/scope. | Claimed target breadth exceeds schema. | General-purpose `request/evaluateComplianceHold`. |
-| U-11 | What persistent review queue/claim/escalation model backs Hold review? | Manual review queues/escalation are claimed but absent. | `claimWorkItem` is proposed, no schema. | Concurrent reviewer claim/escalation workflow. |
-| U-12 | What creation/source evidence belongs on `ComplianceHold`? | No creator, requester Module, source record, decision version, or idempotency field. | Registry claims admin release proof only; canonical command requires richer request. | Strong provenance/idempotency. |
+| U-10 / CL-09-R006 | Which physical structure implements one typed Hold target? | Exactly one typed target and explicit applicability are confirmed; current nullable FKs are not final. | Physical representation, supported target vocabulary, and migration strategy remain unresolved. | General-purpose Hold persistence/API implementation. |
+| U-11 | What persistent review queue/claim/escalation model backs Hold review? | Manual review queues/escalation are claimed but absent. | SH-054 `claimWorkItem` is proposed, no schema. | Concurrent reviewer claim/escalation workflow. |
+| U-12 / CL-09-R006 | How are confirmed provenance and requester semantics persisted? | Requesting/source Module, source decision/evidence, and actor/system context are required. | Exact storage/field/actor representation remains unresolved. | Complete provenance storage. |
 | U-13 | What does hold `expired` mean and how is it proven? | Enum includes `expired`; model lacks `expiresAt` or expiry-condition reference. | No time/event/manual expiry policy. | Expiry worker and transition. |
-| U-14 | What prevents semantically duplicate active holds? | No unique constraint/idempotency field. | Equivalence key not defined. | Safe concurrent hold creation. |
+| U-14 / CL-09-R006 | Which equivalence key and storage strategy prevent duplicate active holds? | Semantic idempotency and duplicate prevention are confirmed requirements. | Exact key, constraint, retention, and race-result design remain unresolved. | Safe concurrent hold creation. |
 | U-15 | Which candidate/resume actions can a hold block and what target represents them? | Module listed as consumer but target mapping absent. | No candidate/application/resume hold rule. | Candidate/resume hold integration. |
 | U-16 | Should `AuditEventType` and `AuditEventActor` exist? | Registry claims ownership; Prisma has strings/nullable user ID instead. | No migration or enum definitions. | Canonical audit vocabulary migration. |
-| U-17 | How should canonical `appendAuditEvent` store request ID and outcome? | Shared Operations require them; current model does not. | No explicit fields or approved metadata convention. | Final audit command/schema contract. |
-| U-18 | What is AccessAuditLog hash-chain scope/sequence/algorithm/version/anchoring? | Optional hash fields exist, but chain policy absent. | `hashChainRecords` only proposed. | Claiming tamper-evident chain compliance. |
+| U-17 | How should canonical SH-029 `appendAuditEvent` store request ID and outcome? | Shared Operations require them; current model does not. | No explicit fields or approved metadata convention. | Final audit command/schema contract. |
+| U-18 | What is AccessAuditLog hash-chain scope/sequence/algorithm/version/anchoring? | Optional hash fields exist, but chain policy absent. | SH-073 `hashChainRecords` only proposed. | Claiming tamper-evident chain compliance. |
 | U-19 | Where do `SystemEvent`, `IntegrationFailure`, `QueueJob`, and `OpsIncident` persist? | Registry/glossary claim them; Prisma omits all. | External-vs-Postgres authority not ruled. | Observability repositories/admin queries. |
 | U-20 | What are Observability statuses/severities/lifecycle transitions? | No enums supplied. | Models absent. | Incident/failure/queue lifecycle code. |
 | U-21 | Which queue runtime/provider executes shared jobs? | Shared queue infrastructure is canonical, provider is unspecified. | No chosen runtime/storage. | Production queue adapter, not domain semantics. |
@@ -1402,19 +1415,19 @@ Coding agents must not create any of the following inside CL-09 or its consumers
 
 ### Proposed Rulings requiring explicit acceptance
 
-**PR-CL09-01 — Moderation target resolver contract.** Adopt `resolveModerationTarget` as a typed registry contract with owner-supplied resolvers; prohibit a universal cross-domain repository.
+**PR-CL09-01 — Moderation target resolver contract.** Adopt SH-102 `resolveModerationTarget` as a typed registry contract with owner-supplied resolvers; prohibit a universal cross-domain repository.
 
-**PR-CL09-02 — Moderation evidence snapshots.** Add an immutable Moderation-owned evidence proof/reference shape backed by Media and `hashCanonicalPayload`; Media owns bytes, Moderation owns legal meaning.
+**PR-CL09-02 — Moderation evidence snapshots.** Add an immutable Moderation-owned evidence proof/reference shape backed by Media and SH-072 `hashCanonicalPayload`; Media owns bytes, Moderation owns legal meaning.
 
 **PR-CL09-03 — Moderation enforcement correlation.** Add durable Moderation-owned run/step correlation for downstream acknowledgments, retries, failures, and restoration; target owners retain execution truth.
 
-**PR-CL09-04 — ComplianceHold target representation.** Replace/augment current narrow target FKs with one validated typed target representation capable of the confirmed/claimed hold scope, with exactly one primary target per hold unless a later explicit multi-target rule is approved.
+**PR-CL09-04 — Residual ComplianceHold persistence proposal.** CL-09-R006 confirms exactly one typed target, explicit applicability, provenance/source evidence, requester context, and semantic idempotency. The physical replacement/augmentation of current nullable FKs, supported target vocabulary, and exact equivalence/storage strategy still require separate approval; no database design is accepted here.
 
 **PR-CL09-05 — Observability canonical persistence.** Persist the four registry/glossary-owned operational records in Workin Ants PostgreSQL/Prisma while treating Sentry/logging/metrics as secondary provider telemetry. Exact model/status designs still require approval before migration.
 
-**PR-CL09-06 — Shared review claim mechanism.** Use `claimWorkItem` for claim/lease mechanics only after accepted; reviewer eligibility and review lifecycle remain with Moderation/Hold/other review owners.
+**PR-CL09-06 — Shared review claim mechanism.** Use SH-054 `claimWorkItem` for claim/lease mechanics only after accepted; reviewer eligibility and review lifecycle remain with Moderation/Hold/other review owners.
 
-**PR-CL09-07 — Audit hash chaining.** Use `hashChainRecords` only after an Audit-owned chain partition, canonical field set, sequence, algorithm/version, integrity verification, and privacy-retention policy are approved.
+**PR-CL09-07 — Audit hash chaining.** Use SH-073 `hashChainRecords` only after an Audit-owned chain partition, canonical field set, sequence, algorithm/version, integrity verification, and privacy-retention policy are approved.
 
 Until accepted, these proposals are not permission for a coding agent to invent a schema.
 

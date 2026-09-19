@@ -46,13 +46,17 @@ The Module has genuine UI responsibilities for report/legal intake and protected
 
 ## Preconditions
 
+**CL-09-R016 — Protected evidence access.** The relevant context owner supplies SH-026 `authorizeContextualResourceAccess`; only after the required contextual authorization succeeds may Media / File Access provide SH-087 `issueSignedMediaUrl` for protected short-lived delivery. Where sensitivity/action policy requires proof, use SH-030 `recordSensitiveAccess`. Signing is not permission logic. CL-09 must not implement a signer, object-storage access service, or generic evidence-access bypass.
+
+Protected-evidence feature tests must prove contextual authorization precedes signed delivery, required sensitive-access proof is requested, and no Moderation-owned signer or storage bypass exists.
+
 ### Hard platform prerequisites
 
 - Next.js/TypeScript/Prisma/Supabase foundation according to root context.
 - Database migration/test environment.
 - Canonical Shared Operations registry available to coding agents.
 - Request/correlation context and shared queue/event primitives available by the feature that first needs them.
-- Cluster Feature 01 Audit interfaces (`appendAuditEvent`, `recordSensitiveAccess`) available before evidence/admin review production integration.
+- Cluster Feature 01 Audit interfaces (SH-029 `appendAuditEvent`, SH-030 `recordSensitiveAccess`) available before evidence/admin review production integration.
 - Cluster Feature 02 Observability interfaces available before durable async enforcement production integration.
 - Identity & Access actor resolution.
 - Role / Authority decision interface.
@@ -67,21 +71,21 @@ The following must be settled before affected production features:
 | `M-01` / `M-02` — approved Report and ModerationCase transition matrices | Features 02 and later transitions |
 | `M-03` / `U-05` — legal-notice validation transition/provenance policy | Any transition to `valid`/`invalid` claiming legal sufficiency |
 | `PR-CL09-02` / `U-04` — immutable moderation evidence proof/reference | Feature 04 evidence-sensitive decision path |
-| `U-02` — action/effect target mapping for Order, payout, download grants/playback grants | Feature 05 production enforcement for affected actions |
+| `U-02` / CL-09-R007 — approved owner-local effect mappings, with primary targets kept separate | Feature 05 enables only supported owner effects; Order/payout blocking uses Holds and grant effects do not require an enum extension |
 | `PR-CL09-03` / `U-06` — durable enforcement run/step correlation | Feature 05 production reconciliation |
 | deterministic counter-notice/original-notice relationship policy; schema change only if approved | Feature 06 |
 | `U-25` — approved legal deadline calculation/outcome policy | Feature 07 |
 | `U-24` — Privacy target vocabulary + retention policy | Feature 09 production privacy behavior |
-| `M-04` — case/action deletion-retention policy if any delete path is contemplated | Before case hard-delete or FK change |
+| `M-04` / CL-09-R009 — physical retention-safe deletion/FK strategy | Retained action cascade deletion is prohibited now; approve a replacement strategy before any case hard-delete/FK change |
 | `M-05` — production external legal-intake identity/anti-abuse policy | Feature 03 public production launch |
 
 ### Dependencies that may initially be stubbed
 
 For local Module slices, typed fakes may stand in for:
 
-- Search `requestSearchProjectionRefresh`;
+- Search SH-091 `requestSearchProjectionRefresh`;
 - Media evidence/freeze/public-URL/signed-access contracts;
-- Notification `requestNotification`;
+- Notification SH-041 `requestNotification`;
 - Digital Goods / Video / Messaging / Marketplace / Gig / Hiring target-owner execution handlers;
 - Admin Review / Compliance Hold commands;
 - Observability failure/queue calls.
@@ -130,11 +134,11 @@ Preparation for **CL-09 Feature 03 — Moderation Report, Legal Notice, and Case
 - root code standards if present;
 - Canonical Shared Operations;
 - CL-09 architecture/build plan;
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
-- `validateOwnedTargetReference` contract shape;
-- `transitionLifecycleState`;
-- `withOptimisticConcurrency`.
+- SH-001 `resolveAuthenticatedActor`;
+- SH-002 `authorizeResourceAction`;
+- SH-123 `validateOwnedTargetReference` contract shape;
+- SH-053 `transitionLifecycleState`;
+- SH-052 `withOptimisticConcurrency`.
 
 #### In Scope
 
@@ -146,7 +150,7 @@ Preparation for **CL-09 Feature 03 — Moderation Report, Legal Notice, and Case
 - target/action compatibility table for current, confirmed target/action vocabulary;
 - transition-policy files;
 - migration-history check for `ModerationTargetType` before any migration;
-- architecture conflict note: stale CL-09 U-01 vs current Prisma;
+- current schema evidence: CL-09-R017 corrects the earlier U-01 snapshot; migration compatibility remains separate;
 - tests.
 
 #### Out of Scope
@@ -173,7 +177,7 @@ No schema change is required merely to create the Module boundary.
 
 Define typed contracts, without necessarily exposing all routes yet:
 
-- `submitModerationReport`
+- SH-101 `submitModerationReport`
 - `getReportStatus`
 - `submitLegalNotice`
 - `getLegalNoticeStatus`
@@ -196,16 +200,16 @@ Define internal contracts for:
 
 | Canonical operation | Owner | Invocation | Local policy | Prohibited duplicate |
 | --- | --- | --- | --- | --- |
-| `transitionLifecycleState` | shared state-machine plumbing | transition service | Module transition graph | local generic state machine |
-| `withOptimisticConcurrency` | shared persistence | repository mutation | retry/conflict semantics | custom stale-write framework |
-| `validateOwnedTargetReference` | target owner | contract definition/tests | supported target/action set | universal target repository |
-| `returnDecisionResult` | proposed shared contract | DTO pattern only | moderation reason codes | global policy engine |
+| SH-053 `transitionLifecycleState` | shared state-machine plumbing | transition service | Module transition graph | local generic state machine |
+| SH-052 `withOptimisticConcurrency` | shared persistence | repository mutation | retry/conflict semantics | custom stale-write framework |
+| SH-123 `validateOwnedTargetReference` | target owner | contract definition/tests | supported target/action set | universal target repository |
+| SH-015 `returnDecisionResult` | proposed shared contract | DTO pattern only | moderation reason codes | global policy engine |
 
 #### Domain Logic
 
 - Treat `Report`, `LegalNotice`, `ModerationCase`, and `ModerationAction` as separate aggregates/history.
 - Build target/action policy from confirmed enum values.
-- Mark mappings with unresolved semantics (`pause_payout`, `freeze_order`, grant-level effects) as unsupported for production enforcement until `U-02` is decided.
+- Apply CL-09-R007: `pause_payout`/`freeze_order` use Holds where blocking is required; grant revocations are Digital Goods/Video owner-local effects. Enable only effects with approved owner mappings, without treating affected records as new primary moderation targets.
 - Do not infer lifecycle edges from enum ordering.
 - Preserve `ModerationAction` as append-style truth.
 
@@ -219,7 +223,7 @@ No protected operation is executed yet, but contract inputs must reserve trusted
 - no generic `deleteModerationCase` repository method;
 - no case hard-delete path;
 - use `updatedAt` as the available optimistic token unless a version-field architecture change is separately approved;
-- document current `ModerationAction` `onDelete: Cascade` retention concern without changing it incidentally.
+- document CL-09-R009: current `ModerationAction` cascade behavior is invalid for retained proof; require a later schema correction without choosing or implementing the replacement strategy here.
 
 #### Events / Jobs
 
@@ -296,7 +300,7 @@ Implements the report/case portion of **CL-09 Feature 03**.
 
 #### In Scope
 
-- `submitModerationReport`;
+- SH-101 `submitModerationReport`;
 - `getReportStatus`;
 - `triageReport`;
 - `openModerationCase`;
@@ -324,7 +328,7 @@ Implements the report/case portion of **CL-09 Feature 03**.
 
 #### Public Interfaces
 
-- `submitModerationReport`
+- SH-101 `submitModerationReport`
 - `getReportStatus`
 - `triageReport`
 - `openModerationCase`
@@ -336,15 +340,15 @@ Implements the report/case portion of **CL-09 Feature 03**.
 
 | Canonical operation | Owner | Invocation | Local policy | Prohibited duplicate |
 | --- | --- | --- | --- | --- |
-| `resolveAuthenticatedActor` | Identity & Access | report/reviewer protected entry | source compatibility | local auth |
-| `authorizeResourceAction` | Role / Authority | triage/open/assign/read | moderation action facts | `isModerator` |
-| `validateOwnedTargetReference` | target owner | before report/case persist | reportable targets | foreign DB lookup |
-| `executeIdempotentCommand` | platform | report/case create | semantic identity | local dedupe table |
-| `transitionLifecycleState` | shared | triage/case transitions | approved graph | ad hoc status writes |
-| `withOptimisticConcurrency` | shared | triage/assignment | stale behavior | manual timestamp check utility |
-| `appendAuditEvent` | Audit | reviewer/admin actions | safe refs | moderation audit table |
-| `createRequestContext` / `writeStructuredLog` | Ops | entry/diagnostics | safe dimensions | local logger |
-| `publishDomainEvent` | platform outbox | report/case facts | event meaning | fire-and-forget |
+| SH-001 `resolveAuthenticatedActor` | Identity & Access | report/reviewer protected entry | source compatibility | local auth |
+| SH-002 `authorizeResourceAction` | Role / Authority | triage/open/assign/read | moderation action facts | `isModerator` |
+| SH-123 `validateOwnedTargetReference` | target owner | before report/case persist | reportable targets | foreign DB lookup |
+| SH-044 `executeIdempotentCommand` | platform | report/case create | semantic identity | local dedupe table |
+| SH-053 `transitionLifecycleState` | shared | triage/case transitions | approved graph | ad hoc status writes |
+| SH-052 `withOptimisticConcurrency` | shared | triage/assignment | stale behavior | manual timestamp check utility |
+| SH-029 `appendAuditEvent` | Audit | reviewer/admin actions | safe refs | moderation audit table |
+| SH-032 `createRequestContext` / SH-033 `writeStructuredLog` | Ops | entry/diagnostics | safe dimensions | local logger |
+| SH-046 `publishDomainEvent` | platform outbox | report/case facts | event meaning | fire-and-forget |
 
 #### Domain Logic
 
@@ -361,7 +365,7 @@ Implements the report/case portion of **CL-09 Feature 03**.
 - system/admin/law-enforcement sources cannot be selected by arbitrary clients;
 - reviewer operations are server-authorized;
 - rate limit intake;
-- sensitive target summary may require `recordSensitiveAccess`.
+- sensitive target summary may require SH-030 `recordSensitiveAccess`.
 
 #### Database / Transaction Behavior
 
@@ -491,13 +495,13 @@ Completes the legal-notice intake portion of **CL-09 Feature 03**.
 
 #### Shared Operations Used
 
-- `validateOwnedTargetReference`
-- `executeIdempotentCommand`
-- `createRequestContext`
-- `sanitizeTelemetryMetadata`
-- `appendAuditEvent` where required
-- `requestNotification` for receipt
-- `publishDomainEvent`
+- SH-123 `validateOwnedTargetReference`
+- SH-044 `executeIdempotentCommand`
+- SH-032 `createRequestContext`
+- SH-034 `sanitizeTelemetryMetadata`
+- SH-029 `appendAuditEvent` where required
+- SH-041 `requestNotification` for receipt
+- SH-046 `publishDomainEvent`
 
 **Prohibited duplicates:** inbox-only legal handling, separate legal-report table, direct email delivery service.
 
@@ -600,7 +604,7 @@ Implements **CL-09 Feature 05 — Evidence-Preserving Moderation Decisions**. Cl
 - Cluster Audit/Ops/Hold interfaces;
 - accepted `PR-CL09-02/U-04` or an explicit approved alternative evidence proof;
 - Media private evidence storage/access contract;
-- `hashCanonicalPayload`;
+- SH-072 `hashCanonicalPayload`;
 - approved action/evidence-required matrix;
 - approved legal policy only for decisions that claim legal sufficiency.
 
@@ -640,16 +644,16 @@ Implements **CL-09 Feature 05 — Evidence-Preserving Moderation Decisions**. Cl
 
 | Operation | Owner | Invocation | Local policy | Prohibited duplicate |
 | --- | --- | --- | --- | --- |
-| `resolveModerationTarget` | proposed registry/owner resolvers | reviewer context | visible fields/actions | universal repo |
-| `preserveEvidenceSnapshot` | proposed evidence mechanism | pre-action gate | what evidence proves | Audit blob |
-| `hashCanonicalPayload` | shared crypto | snapshot | canonical fields | local SHA |
-| `recordSensitiveAccess` | Audit | evidence read | sensitivity/outcome | local access log |
-| `authorizeResourceAction` | Role | reviewer/action | allowed moderation action | ad hoc admin checks |
-| `requireStepUpForSensitiveAction` | Identity | if designated | high-risk action matrix | local MFA |
-| `transitionLifecycleState` | shared | status changes | owner graph | raw status assignment |
-| `withOptimisticConcurrency` / `acquireAggregateLock` | shared | decision race | conflict semantics | in-memory lock |
-| `appendAuditEvent` | Audit | decision proof | safe refs | moderation audit table |
-| `publishDomainEvent` / `enqueueReliableJob` | platform | post-decision | event/job meaning | fire-and-forget |
+| SH-102 `resolveModerationTarget` | proposed registry/owner resolvers | reviewer context | visible fields/actions | universal repo |
+| SH-104 `preserveEvidenceSnapshot` | proposed evidence mechanism | pre-action gate | what evidence proves | Audit blob |
+| SH-072 `hashCanonicalPayload` | shared crypto | snapshot | canonical fields | local SHA |
+| SH-030 `recordSensitiveAccess` | Audit | evidence read | sensitivity/outcome | local access log |
+| SH-002 `authorizeResourceAction` | Role | reviewer/action | allowed moderation action | ad hoc admin checks |
+| SH-014 `requireStepUpForSensitiveAction` | Identity | if designated | high-risk action matrix | local MFA |
+| SH-053 `transitionLifecycleState` | shared | status changes | owner graph | raw status assignment |
+| SH-052 `withOptimisticConcurrency` / SH-051 `acquireAggregateLock` | shared | decision race | conflict semantics | in-memory lock |
+| SH-029 `appendAuditEvent` | Audit | decision proof | safe refs | moderation audit table |
+| SH-046 `publishDomainEvent` / SH-047 `enqueueReliableJob` | platform | post-decision | event/job meaning | fire-and-forget |
 
 #### Domain Logic
 
@@ -751,10 +755,14 @@ Implements **CL-09 Feature 06 — Cross-Module Moderation Enforcement and Reconc
 
 - Module Feature 04;
 - accepted `PR-CL09-03/U-06`;
-- resolved `U-02` for every enabled effect whose target mapping is ambiguous;
+- CL-09-R007 primary-target/effect separation and an approved owner contract for every enabled effect;
 - shared workflow runner/outbox/queue/retry/idempotency;
-- target-owner `executeModerationDecision` handlers;
+- target-owner SH-103 `executeModerationDecision` handlers;
 - Search, Media, Hold, Audit, Notification, Ops contracts.
+
+**CL-09-R003 — Organization Hiring executor.** Moderation issues the decision; Organization Hiring executes supported effects against `Job` and `Organization` through SH-103 `executeModerationDecision` and returns execution evidence. Hiring validates owner-local transitions and retains every mutation to those records. Its retry-safe result must distinguish accepted, rejected, idempotently already applied, retryable failure, and terminal failure as supported by the eventual contract, within the canonical acknowledged/completed/failed/restored evidence boundary. Exact effect/result encoding remains for the owner contract; this does not create a competing operation or permit CL-09 database writes to Hiring.
+
+The Organization Hiring provider-side contract/handler is a prerequisite for enabling Job/Organization effects in Module Feature 05 / CL-09 Feature 06, with bilateral proof in CL-09 Feature 11; no direct foreign-table fallback is permitted.
 
 #### In Scope
 
@@ -782,27 +790,27 @@ Implements **CL-09 Feature 06 — Cross-Module Moderation Enforcement and Reconc
 #### Public Interfaces
 
 - dispatch entry point;
-- `executeModerationDecision` protocol envelope;
+- SH-103 `executeModerationDecision` protocol envelope;
 - enforcement status/query projection;
 - reconciliation entry point.
 
 #### Shared Operations Used
 
-- `executeModerationDecision`
-- `correlateEnforcementResult` — proposed, must be accepted
-- `orchestrateWorkflowSteps`
-- `reconcileWorkflowStatus`
-- `publishDomainEvent`
-- `deduplicateDomainEvent`
-- `enqueueReliableJob`
-- `executeRetryWithBackoff`
-- `executeIdempotentCommand`
-- `requestSearchProjectionRefresh`
-- `requestComplianceHold`
-- `appendAuditEvent`
-- `requestNotification`
-- `recordIntegrationFailure`
-- `recordQueueTelemetry`
+- SH-103 `executeModerationDecision`
+- SH-105 `correlateEnforcementResult` — proposed, must be accepted
+- SH-049 `orchestrateWorkflowSteps`
+- SH-050 `reconcileWorkflowStatus`
+- SH-046 `publishDomainEvent`
+- SH-045 `deduplicateDomainEvent`
+- SH-047 `enqueueReliableJob`
+- SH-048 `executeRetryWithBackoff`
+- SH-044 `executeIdempotentCommand`
+- SH-091 `requestSearchProjectionRefresh`
+- SH-012 `requestComplianceHold`
+- SH-029 `appendAuditEvent`
+- SH-041 `requestNotification`
+- SH-037 `recordIntegrationFailure`
+- SH-038 `recordQueueTelemetry`
 
 **Prohibited duplicates:** direct foreign writes, local Search/R2 clients, local failure tables, custom queue/retry framework.
 
@@ -855,7 +863,7 @@ None directly. Provider failures are normalized by target owner.
 - owner terminal rejection => manual review/terminal step, not fabricated success;
 - queue dead-letter => Ops-visible, case/action preserved;
 - partial completion => do not mark overall effect complete unless Module reconciliation policy says required steps are satisfied;
-- ambiguous U-02 mapping => feature cannot enable that action.
+- ambiguous owner-local effect mapping => feature cannot enable that effect; CL-09-R007 does not authorize inferring a new primary target.
 
 #### Tests
 
@@ -872,7 +880,7 @@ None directly. Provider failures are normalized by target owner.
 #### Documentation Updates
 
 - document PR-CL09-03 accepted schema/contract;
-- document action/effect/target mapping decisions from U-02.
+- document approved owner-local mappings under CL-09-R007 without extending primary target vocabulary.
 
 #### Acceptance Criteria
 
@@ -886,7 +894,7 @@ None directly. Provider failures are normalized by target owner.
 
 #### Exit Gate
 
-All enabled enforcement actions pass owner-contract, retry, dedupe, partial-failure, and reconciliation tests. Any action still blocked by U-02 remains disabled, not guessed.
+All enabled enforcement actions pass owner-contract, retry, dedupe, partial-failure, and reconciliation tests. Any effect without an approved owner-local mapping remains disabled; CL-09-R007 resolves the primary-target/effect distinction only.
 
 ---
 
@@ -953,12 +961,12 @@ Implements the manual/approved-policy portion of **CL-09 Feature 07 — Counter-
 - idempotent command;
 - lifecycle transition;
 - optimistic concurrency/lock;
-- executeModerationDecision;
+- SH-103 executeModerationDecision;
 - enforcement correlation;
-- requestSearchProjectionRefresh;
-- requestNotification;
-- appendAuditEvent;
-- enqueueReliableJob/retry.
+- SH-091 requestSearchProjectionRefresh;
+- SH-041 requestNotification;
+- SH-029 appendAuditEvent;
+- SH-047 enqueueReliableJob/retry.
 
 #### Domain Logic
 
@@ -1094,15 +1102,15 @@ Completes the automated-deadline portion of **CL-09 Feature 07**.
 
 #### Shared Operations Used
 
-- `runDeadlineExpiration`
-- `enqueueReliableJob`
-- `executeRetryWithBackoff`
-- `executeIdempotentCommand`
-- `transitionLifecycleState`
-- `requestNotification`
-- `recordIntegrationFailure`
-- `recordQueueTelemetry`
-- `appendAuditEvent`
+- SH-055 `runDeadlineExpiration`
+- SH-047 `enqueueReliableJob`
+- SH-048 `executeRetryWithBackoff`
+- SH-044 `executeIdempotentCommand`
+- SH-053 `transitionLifecycleState`
+- SH-041 `requestNotification`
+- SH-037 `recordIntegrationFailure`
+- SH-038 `recordQueueTelemetry`
+- SH-029 `appendAuditEvent`
 
 #### Domain Logic
 
@@ -1235,11 +1243,11 @@ UI consumes existing Module commands/queries. No direct repository use from comp
 
 #### Shared Operations Used
 
-- `resolveAuthenticatedActor`
-- `authorizeResourceAction`
-- `requireStepUpForSensitiveAction` where approved
-- `recordSensitiveAccess`
-- `appendAuditEvent`
+- SH-001 `resolveAuthenticatedActor`
+- SH-002 `authorizeResourceAction`
+- SH-014 `requireStepUpForSensitiveAction` where approved
+- SH-030 `recordSensitiveAccess`
+- SH-029 `appendAuditEvent`
 - request context/logging
 
 #### Domain Logic
@@ -1347,9 +1355,9 @@ Implements this Module's portion of **CL-09 Feature 10 — CL-09 Privacy, Retent
 
 #### In Scope
 
-- `enumerateSubjectData`;
-- `evaluateRetentionRequirement`;
-- `executePrivacyInstruction`;
+- SH-096 `enumerateSubjectData`;
+- SH-097 `evaluateRetentionRequirement`;
+- SH-095 `executePrivacyInstruction`;
 - export serializer;
 - field-level anonymization mapping;
 - tests.
@@ -1375,12 +1383,12 @@ Implement Privacy-defined owner executor contracts.
 
 #### Shared Operations Used
 
-- `enumerateSubjectData`
-- `evaluateRetentionRequirement`
-- `executePrivacyInstruction`
-- `anonymizePersonalFields`
-- `appendAuditEvent`
-- `recordSensitiveAccess`
+- SH-096 `enumerateSubjectData`
+- SH-097 `evaluateRetentionRequirement`
+- SH-095 `executePrivacyInstruction`
+- SH-098 `anonymizePersonalFields`
+- SH-029 `appendAuditEvent`
+- SH-030 `recordSensitiveAccess`
 - Media deletion/access owner contract
 
 #### Domain Logic
@@ -1505,15 +1513,15 @@ No new cross-Cluster source table.
 Freeze/verify versions for:
 
 - moderation commands/queries;
-- executeModerationDecision protocol;
+- SH-103 executeModerationDecision protocol;
 - Search/Media/Hold/Notification/Audit/Ops/Privacy dependencies.
 
 #### Shared Operations Used
 
 - actor/authority;
-- `requestSearchProjectionRefresh`;
-- `executeModerationDecision`;
-- `requestComplianceHold`;
+- SH-091 `requestSearchProjectionRefresh`;
+- SH-103 `executeModerationDecision`;
+- SH-012 `requestComplianceHold`;
 - audit/access;
 - Notification;
 - Ops;
@@ -1636,11 +1644,11 @@ Freeze versioned contracts and add compatibility/deprecation tests.
 
 #### Shared Operations Used
 
-- `authorizeResourceAction`
-- `requireStepUpForSensitiveAction`
-- `executeIdempotentCommand`
-- `acquireAggregateLock`
-- `withOptimisticConcurrency`
+- SH-002 `authorizeResourceAction`
+- SH-014 `requireStepUpForSensitiveAction`
+- SH-044 `executeIdempotentCommand`
+- SH-051 `acquireAggregateLock`
+- SH-052 `withOptimisticConcurrency`
 - queue/retry/outbox/inbox
 - telemetry sanitizer
 - Audit/Access
@@ -1673,7 +1681,7 @@ Security/concurrency checklist:
 - verify indexes for status/target/assignee/deadline/case action history;
 - migration dry run and rollback/forward-fix;
 - check current enum mapping against deployed DB;
-- review `ModerationAction` cascade-delete risk and ensure no unsafe hard-delete path;
+- enforce CL-09-R009 as a hardening exit gate: tests must prove case hard deletion cannot cascade-delete retained `ModerationAction` proof; replacement FK/deletion design remains separate schema work;
 - no unbounded joins/pagination.
 
 #### Events / Jobs
@@ -1738,6 +1746,8 @@ Faults injected through owner Module adapters, not direct clients.
 #### Exit Gate
 
 The Module is launch-ready only when all acceptance criteria pass and unresolved repeat-infringer, fingerprinting, correspondence, or unapproved legal automation remain explicitly disabled/deferred.
+
+CL-09-R009 is also an explicit exit gate: tests must prove no case hard-delete path removes retained `ModerationAction` proof. A replacement FK/deletion strategy requires separate approval; this documentation pass does not change the current cascade.
 
 ---
 

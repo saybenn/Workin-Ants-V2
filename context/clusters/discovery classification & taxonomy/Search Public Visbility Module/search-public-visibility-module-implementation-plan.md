@@ -4,12 +4,14 @@
 > **Canonical module name:** Search / Public Visibility Module  
 > **Primary Cluster:** `CL-02 — Discovery, Classification & Visibility`  
 > **Plan status:** implementation-grade Module plan subordinate to root/Cluster sequencing  
-> **Primary root build-plan link:** Phase 4 — Taxonomy, AI Suggestions, and Search Projection; especially Slice 4.4  
-> **Later linked phases:** Professional/public supply integration as those sources mature; Phase 8 for protected candidate search; Phase 10 for formal Privacy/Moderation orchestration; Phase 12 for production hardening
+> **Primary Cluster build-plan link:** CL-02 Features 02–03 — Search contract harness, provider, and taxonomy discovery\
+> **Later linked Cluster features:** 09 public source integration; 10 protected Candidate Search; 11 enforcement prerequisites/reaction integration; 12–13 reconciliation and hardening
 
 This plan implements the Module architecture without changing ownership or Cluster order. It does not authorize application code outside the numbered feature being executed.
 
-A dedicated current CL-02 `architecture.md` / `build-plan.md` was not available in the retrieved evidence. Until one is present, this plan follows the CL-02 registry and root Workin Ants build plan. If a current CL-02 build plan is later added, reconcile sequencing before continuing rather than assuming this plan overrides it.
+The current CL-02 architecture and build plan are linked above; use their coordination and sequence under context-map.md.
+
+Current coordination: [Cluster architecture](<../discovery-classification-architecture.md>) and [Cluster build plan](<../discovery-classification-build-plan.md>). Locate supporting artifacts through [context-map.md](<../../../context-map.md>); authority follows concern, not location or age. Root architecture/build-plan files are currently unavailable and do not supply enforceable phases.
 
 ---
 
@@ -83,13 +85,13 @@ The following must exist before production activation of the initial Search slic
 
 ### Hard Search architecture dependency
 
-Before Feature 04/05 production implementation, **PR-SPV-01 must be settled**: the current `SearchUpsertEvent.processed` boolean does not satisfy the confirmed SH-091 contract for intent, source version, requester Module, idempotency, and robust work outcome.
+Before Feature 04/05 production implementation, the separate PR-SPV-01 physical representation must be approved and implemented. CL02-R008 already requires durable Search-owned SH-091 identity/context, source version/currentness, idempotency, requester, action, claimability, completion, retry/operator failure, and stale/superseded outcomes; the current Boolean is insufficient. Generic queues own transport/retry mechanics only.
 
 Feature 01 exists specifically to settle and implement that schema alignment.
 
 ### Source interfaces that may initially be faked
 
-Search may build against contract fakes until source Modules reach their root build phases. Fakes may stand in for:
+Search may build against contract fakes until source Modules expose the required public contracts. Fakes may stand in for:
 
 - Marketplace Supply `buildSourceProjection` / public readiness;
 - Gig / Demand projection/readiness;
@@ -107,11 +109,11 @@ A fake does not make Search the temporary owner of the missing source truth.
 
 ### Phase sequencing constraints
 
-- Basic Search work/provider/public query belongs to root **Phase 4**.
+- Basic Search work/provider/public query maps to CL-02 Features 02–03.
 - Production integration with a source entity occurs only once that source Module exposes its approved public interface.
-- Protected candidate search waits for root **Phase 8** candidate/organization interfaces.
-- Formal Privacy/Moderation orchestration matures with root **Phase 10**, although Search must implement/test basic de-index behavior in the Phase 4 foundation.
-- Full outage/reconciliation/performance/security launch verification belongs to root **Phase 12**.
+- Protected Candidate Search waits for Candidate/Organization interfaces and CL-02 Feature 10 prerequisites.
+- Formal Privacy/Moderation reaction integration maps to CL-02 Feature 11; prerequisite enforcement contracts/tests precede protected Candidate Search.
+- Full outage/reconciliation/performance/security verification maps to CL-02 Features 12–13.
 
 ---
 
@@ -129,7 +131,7 @@ A validated `requestSearchProjectionRefresh` contract can be represented durably
 
 ### Cluster Build-Plan Link
 
-Supports root Workin Ants **Phase 4 / Slice 4.4 — SearchUpsertEvent and Typesense projection**. This is the schema prerequisite for that slice.
+CL-02 Feature 02 contract harness and production persistence prerequisite. CL02-R008 semantics are approved; physical representation requires a separate database decision.
 
 ### Dependencies
 
@@ -141,8 +143,8 @@ Supports root Workin Ants **Phase 4 / Slice 4.4 — SearchUpsertEvent and Typese
 ### In Scope
 
 - inspect current `SearchUpsertEvent` migration history and usage;
-- approve the exact additive work-contract migration;
-- add the minimum Search-owned fields required by SH-091;
+- obtain separate approval for expanding SearchUpsertEvent or another Search-owned representation and its migration; no physical choice is approved by CL02-R008;
+- implement only the separately approved representation of CL02-R008 durable Search-work requirements;
 - add `SearchProjectionIntent` / work-status/outcome enums only if approved by the feature specification;
 - add unique/idempotency indexes and worker-read indexes;
 - preserve existing rows through a deterministic migration/backfill strategy;
@@ -150,7 +152,7 @@ Supports root Workin Ants **Phase 4 / Slice 4.4 — SearchUpsertEvent and Typese
 - define `SearchEntityType` surface support registry, with `user` disabled by default;
 - repository methods only for Search-owned work rows.
 
-Recommended target semantics from Module architecture:
+Illustrative field names from the Module proposal, not an approved schema:
 
 ```text
 intent
@@ -225,8 +227,7 @@ This feature defines an internal contract only. The public command later accepts
 - command claim/idempotency record and `SearchUpsertEvent` insertion must be atomic under the canonical SH-044 mechanism;
 - add a unique constraint/index sufficient to enforce idempotency at the database level;
 - add indexes for pending work ordered by creation time and for `entityType/entityId/sourceVersion` lookup;
-- existing `processed=true` rows migrate to an approved completed state/outcome where deterministically possible;
-- existing `processed=false` rows migrate to pending;
+- existing `processed` rows migrate only under the separately approved, evidence-backed mapping; neither Boolean value alone approves an exact target state, currentness, or outcome;
 - do not fabricate historical intent/sourceVersion values without a documented sentinel/backfill strategy;
 - validate migration from clean and realistic existing data.
 
@@ -263,7 +264,7 @@ None.
 
 ### Documentation Updates
 
-- update this architecture only if PR-SPV-01 field/status names materially differ from the proposed ruling;
+- record the separately approved physical design and reconcile the illustrative PR-SPV-01 fields/statuses; no implementation convenience approves a proposal;
 - update shared-operation registry only if SH-091 itself changes, not for normal implementation detail;
 - record migration/ruling in progress tracker/ADR if the repo uses ADRs.
 
@@ -305,7 +306,7 @@ Search can ask a fake source owner for a deterministic, versioned, allowlisted p
 
 ### Cluster Build-Plan Link
 
-Supports root **Phase 4** and the CL-02 rule “project approved objects into public discovery.” It prepares Search to integrate source Modules as they arrive in later root phases.
+CL-02 Features 02–03 — source-safe projection/readiness contracts; later owners integrate as their public contracts become available.
 
 ### Dependencies
 
@@ -457,7 +458,7 @@ Application tests can swap a fake Search provider for a Typesense adapter. A dev
 
 ### Cluster Build-Plan Link
 
-Directly supports root **Phase 4 / Slice 4.4** `Typesense projection` and the Canonical **SH-092** provider adapter.
+CL-02 Feature 03 — SH-092 provider adapter. The Module provider gate precedes the production worker; CP Feature 02 uses a fake writer.
 
 ### Dependencies
 
@@ -504,6 +505,8 @@ No new Prisma truth. Search owns code/config for:
 Implements **SH-092 `writeSearchProjection`** internally. No source Module can access the raw provider port.
 
 ### Shared Operations Used
+
+- **SH-061 `translateProviderStatus`** — existing Search adapter status/error mapping; provider-owning adapter retains mapping/version and normalized failure policy.
 
 #### SH-092 — `writeSearchProjection`
 
@@ -600,7 +603,7 @@ Calling `requestSearchProjectionRefresh` with a valid entity, intent, source ver
 
 ### Cluster Build-Plan Link
 
-Root **Phase 4 / Slice 4.4 — SearchUpsertEvent service**.
+CL-02 Feature 02 — SH-091 command/queue contract harness; production use also requires the approved persistence/provider gates.
 
 ### Dependencies
 
@@ -737,7 +740,7 @@ For a fake source owner and fake/real Search provider:
 
 ### Cluster Build-Plan Link
 
-Root **Phase 4 / Slice 4.4 — index worker and re-index/de-index worker**.
+CL-02 Feature 03 — production projection worker after this Module provider gate. The earlier CP Feature 02 fake-writer harness is not this milestone.
 
 ### Dependencies
 
@@ -897,7 +900,7 @@ A public caller can search supported public entity types with bounded query/filt
 
 ### Cluster Build-Plan Link
 
-Root **Phase 4** Search API portion of CL-02; continues Slice 4.4 after basic projection exists.
+CL-02 Feature 03 — initial public taxonomy query, extended by Feature 09 source integrations.
 
 ### Dependencies
 
@@ -1036,7 +1039,7 @@ An authorized operator can dry-run or execute a bounded backfill for a supported
 
 ### Cluster Build-Plan Link
 
-Root **Phase 4 / Slice 4.4 — backfill command and search debug/admin viewer**.
+CL-02 Feature 03 — taxonomy-slice repair/debug proof; Feature 12 and SP Feature 11 retain generalized production reconciliation.
 
 ### Dependencies
 
@@ -1045,7 +1048,7 @@ Root **Phase 4 / Slice 4.4 — backfill command and search debug/admin viewer**.
 - SH-029 audit;
 - SH-047 queue;
 - source contract fakes/first real source adapter;
-- existing Admin shell from root Phase 3 if available.
+- existing authorized Admin shell, if available.
 
 ### In Scope
 
@@ -1178,7 +1181,7 @@ Pass backfill/debug/auth/audit tests, typecheck/lint/build, plus a dry-run and r
 
 # Phase 3 — Module Integration
 
-This phase proves Search works with real neighboring Modules through public contracts. It must be executed incrementally as those Modules reach their own root build phases. A source integration cannot be “completed” by importing that source's Prisma repository if its public interface is not ready.
+This phase proves Search works with real neighboring Modules through public contracts. It must be executed incrementally as those Modules expose their required public contracts. A source integration cannot be “completed” by importing that source's Prisma repository if its public interface is not ready.
 
 ## 08 Public Source and Signal Integrations
 
@@ -1192,12 +1195,7 @@ At least the source types currently available in the repository can change their
 
 ### Cluster Build-Plan Link
 
-- root **Phase 4** for Taxonomy/Search;
-- root **Phase 5** as Professional/Offering become available;
-- root **Phase 6** for Gig/transaction-adjacent demand sources where relevant;
-- root **Phase 8** for Organization/Job source availability.
-
-The feature may be implemented in sub-slices aligned with source readiness, but remains one Module-plan capability: real source integration.
+CL-02 Feature 09 — real public-source integrations as Professional/Offering, Gig, and Organization/Job owner contracts become available.
 
 ### Dependencies
 
@@ -1351,21 +1349,21 @@ A Privacy target instruction can idempotently remove Search provider documents a
 
 ### Cluster Build-Plan Link
 
-- root **Phase 4** required privacy/moderation de-index tests and responsive projection behavior;
-- matures with root **Phase 10 — Privacy, Location Safety, Moderation, and Legal Workflows**.
-
-The Search executor may be implemented against contract fakes in Phase 4; production orchestration wiring waits for the source owner workflows.
+CL-02 Feature 11 prerequisite-contract slice precedes Feature 10; later asynchronous reaction/owner-orchestrator integration remains in Feature 11. Preserve all Module enforcement/anti-resurrection tests.
 
 ### Dependencies
 
 - Features 01–08;
 - SH-095/096 Privacy protocols;
+- SH-097 `evaluateRetentionRequirement` where Search-owned work/provider data requires retention evaluation; no exemption ownership transfer;
 - SH-103 Moderation executor protocol;
 - SH-011 ComplianceHold;
 - SH-029 audit for manual enforcement if required;
 - Privacy/Moderation/Hold owner interfaces or contract fakes.
 
 ### In Scope
+
+- Search-owned retention facts through SH-097, with approved basis/minimum-fields/retain-until/anonymization-permission result; no retention policy or field-level anonymization mapping is approved here;
 
 - `executeSearchPrivacyInstruction`;
 - `enumerateSearchSubjectData`;
@@ -1495,7 +1493,7 @@ Resolve or explicitly retain the SearchUpsertEvent privacy-retention question. U
 
 ### Exit Gate
 
-Pass privacy/moderation/hold contract and anti-resurrection tests. Production wiring to actual owner workflows waits until those root Phase 10 interfaces pass their own exit gates.
+Pass privacy/moderation/hold contract and anti-resurrection tests. Production wiring to actual owner workflows waits until the actual Privacy/Moderation/Hold owner interfaces pass their own exit gates.
 
 ---
 
@@ -1511,7 +1509,7 @@ An authorized organization actor with any required commercial entitlement can qu
 
 ### Cluster Build-Plan Link
 
-Linked to root **Phase 8 — Organization Hiring and Candidate Pipeline**. The root Phase 4 plan explicitly says **do not build candidate search beyond privacy-safe projection yet**; therefore this feature must not execute before the required CL-06 owner interfaces exist.
+CL-02 Feature 10 — protected Candidate Search, after Candidate/Organization owner interfaces and enforcement prerequisites; exact composition remains U-CL02-10.
 
 ### Dependencies
 
@@ -1687,7 +1685,7 @@ An authorized dry-run reconciliation reports missing, stale, extra/orphaned, ver
 
 ### Cluster Build-Plan Link
 
-Extends root **Phase 4** backfill/debug capability and prepares root **Phase 12** launch reliability. Recurring schedule remains subordinate to root Ops scheduling decisions.
+CL-02 Feature 12 — generalized production reconciliation, distinct from early taxonomy-only repair proof; scheduling remains an Ops decision.
 
 ### Dependencies
 
@@ -1731,6 +1729,8 @@ Search work/projection metadata; optional Search-specific reconciliation report/
 - `inspectSearchProjection` can surface drift references.
 
 ### Shared Operations Used
+
+- **SH-115 `buildAggregateProjection`** — existing Search-owned versioned projection/rebuild behavior with checkpoint, idempotent write, lag, and source reconciliation; inclusion/ranking remains Search policy.
 
 - SH-093 reconcile;
 - SH-094/024 source expectation;
@@ -1829,7 +1829,7 @@ The complete Search Module passes production-grade concurrency, replay, provider
 
 ### Cluster Build-Plan Link
 
-Root **Phase 12 — Production Hardening and Launch Readiness**, while preserving all earlier CL-02 boundaries.
+CL-02 Feature 13 — production hardening and launch-readiness evidence.
 
 ### Dependencies
 
@@ -2040,12 +2040,12 @@ Any known failure or unresolved launch-critical decision blocks the Module launc
 
 ### Sequence notes
 
-- Features 01–07 are the core root Phase 4 Search slice.
+- Features 01–07 map to the basic CL-02 Features 02–03 Search slices; generalized reconciliation is not implied.
 - Feature 08 is incremental and closes source integrations only as their owning Modules become available.
-- Feature 09 provides basic enforcement contracts early but production Privacy/Moderation wiring matures with root Phase 10.
-- Feature 10 is intentionally deferred to root Phase 8 despite belonging to Search, because protected candidate truth/authority originates in CL-06.
+- Feature 09 provides enforcement contracts before protected Candidate Search; production Privacy/Moderation reaction wiring follows the CP Feature 11 split.
+- Feature 10 waits for CL-06 owner contracts and maps to CP Feature 10; protected candidate truth/authority remains external.
 - Feature 11 can begin manually once enough source adapters exist; recurring scheduling is not decided here.
-- Feature 12 belongs to root Phase 12.
+- Feature 12 maps to CP Feature 13 hardening.
 
 ---
 
@@ -2054,10 +2054,10 @@ Any known failure or unresolved launch-critical decision blocks the Module launc
 Before implementing each numbered feature:
 
 1. Read root project overview and root architecture.
-2. Read root code standards.
+2. Read repository instructions; referenced root code standards are unavailable.
 3. Read the Canonical Shared Operations Registry.
 4. Read current CL-02 architecture and build plan if they exist.
-5. Read root build plan and the exact linked root phase.
+5. Read the current linked CL-02 build plan and verify actual external prerequisites.
 6. Read this Module architecture and implementation plan.
 7. Read public-interface sections for every direct dependency used by the feature.
 8. Inspect current Prisma schema/migrations and existing Search implementation before creating files.
@@ -2070,7 +2070,7 @@ Before implementing each numbered feature:
 15. Update architecture only when a binding decision legitimately changed.
 16. Record unresolved risks, missing owner interfaces, and any use of contract fakes.
 
-A later feature may not “helpfully” finish deferred work from an earlier/later root phase unless the plan is explicitly updated.
+A later feature may not “helpfully” finish deferred work from an earlier/later mapped Cluster feature unless the plan is explicitly updated.
 
 ---
 
@@ -2122,7 +2122,7 @@ After implementing each numbered feature, the coding agent must report:
 - **Assumptions** — only those still valid and documented.
 - **Known failures** — exact failing checks; never hide them.
 - **Remaining risks** — concurrency/privacy/provider/coupling risks.
-- **Deferred work** — feature number/root phase that owns it.
+- **Deferred work** — Module/Cluster feature number that owns it.
 - **Exit-gate result** — PASS or BLOCKED with evidence.
 
 A feature with a blocked exit gate is not complete.

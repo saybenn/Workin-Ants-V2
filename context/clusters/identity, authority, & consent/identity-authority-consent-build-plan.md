@@ -2,7 +2,7 @@
 
 > **Cluster ID:** `CL-01`  
 > **Cluster:** Identity, Authority, Consent & Entitlements  
-> **Repository target:** `context/clusters/identity-authority-consent-entitlements/build-plan.md`  
+> **Repository target:** `context/clusters/identity, authority, & consent/identity-authority-consent-build-plan.md`\
 > **Companion architecture:** this Cluster `architecture.md`  
 > **Modules:** `identity_access`, `role_authority`, `consent_disclosure`, `customer_buyer_profile`, `track_subscription_entitlement`  
 > **Implementation posture:** greenfield MVP planning against the current Workin Ants architecture and Prisma evidence. Unresolved security, consent-retention, customer-actor cutover, and commercial-policy decisions remain gated rather than being guessed in code.
@@ -44,11 +44,11 @@ Foundation work is allowed only when later features genuinely depend on it. Cano
 
 ## Build Rules
 
-1. Follow root `project-overview.md`, root `architecture.md`, root `code-standards.md`, the Canonical Shared Operations Registry, and this Cluster `architecture.md`.
+1. Follow `context/project-overview-v3.md`, root `architecture.md`, root `code-standards.md`, the Canonical Shared Operations Registry, and this Cluster `architecture.md`.
 2. Do not expand CL-01 into marketplace transaction ownership, organization membership ownership, messaging participant ownership, payment/payout/tax ownership, privacy orchestration, file mechanics, search execution, notification delivery, or generic compliance workflow ownership.
 3. Do not redesign Deep Module ownership for implementation convenience.
 4. Reuse canonical shared operations. If one is missing, implement/fix it in its canonical owner or depend on its approved contract/test double; do not create a CL-01-local substitute.
-5. Use canonical operation names where the Shared Operations Registry provides them. Extract-local aliases must not become competing public APIs.
+5. Use permanent SH IDs and canonical operation names from `context/shared/shared-operations.md`. Registry owner/status/boundaries remain authoritative: Proposed ruling entries, including SH-003/SH-015 and any referenced proposed primitives, require explicit architecture approval before schema/API commitment. Extract-local aliases must not become competing public APIs.
 6. Every mutation validates input, resolves the authenticated/system actor when required, authorizes the action server-side, and enforces the owning Module's invariants.
 7. Anonymous operations are limited to explicitly allowed entry points such as age-gate evaluation and provider callbacks.
 8. Every cross-Module read uses a public owner interface, owner-facts DTO, event, or explicitly approved controlled database policy function. Direct foreign Prisma repositories are not the default.
@@ -83,9 +83,9 @@ CL-01 assumes the root platform can provide, or can be represented by approved t
 
 - runtime request validation and typed boundary schemas;
 - request/correlation context;
-- `executeIdempotentCommand`;
+- SH-044 `executeIdempotentCommand`;
 - transactional outbox and consumer-inbox semantics;
-- `enqueueReliableJob` plus retry/backoff and dead-letter mechanics;
+- SH-047 `enqueueReliableJob` plus retry/backoff and dead-letter mechanics;
 - database-backed aggregate locking/concurrency primitives;
 - canonical token/hash/encryption helpers;
 - structured logging, exception capture, metrics, `IntegrationFailure`, `SystemEvent`, and queue telemetry;
@@ -106,13 +106,15 @@ The current Prisma schema contains the major source records needed for the Clust
 - Customer: `CustomerProfile`;
 - Track: plan, price, entitlement definition/mapping, subscription, grants, usage events/counters, subscription events.
 
+Database-prerequisite verification remains **unsatisfied**: the checked-in migration evidence does not establish coverage of the current CL-01 Prisma inventory. Migration provenance or approved database-state evidence must be verified separately; schema model presence is not proof of deployment or reproducible migration coverage (CL01-R010).
+
 This plan may add constraints, indexes, fields, or source records only when this Cluster architecture explicitly permits the decision or a named unresolved decision is resolved first.
 
 ### Neighboring Module prerequisites
 
 Stable contracts are needed from the following owners; their full product implementations do not need to exist first:
 
-- Admin Review / Compliance Hold — `evaluateComplianceHold` and hold-management commands;
+- Admin Review / Compliance Hold — SH-011 `evaluateComplianceHold` and hold-management commands;
 - Audit / Event Ledger — audit/access append commands;
 - Observability / Ops — structured operational reporting;
 - Privacy / Data Erasure — target-executor protocol;
@@ -158,7 +160,7 @@ Create the first trust slice: an eligible person becomes one Workin Ants `User`,
 
 ### Objective
 
-Make `User` and `resolveAuthenticatedActor` the single server-authoritative account identity foundation while enforcing the pre-account age gate and provider boundary.
+Make `User` and SH-001 `resolveAuthenticatedActor` the single server-authoritative account identity foundation while enforcing the pre-account age gate and provider boundary.
 
 ### User-visible / Observable Result
 
@@ -176,15 +178,16 @@ Make `User` and `resolveAuthenticatedActor` the single server-authoritative acco
 - Current `User`, age-gate, `AuthProviderAccount`, `UserSecurityProfile`, and security-event schema.
 - Provider-neutral auth port backed initially by Supabase Auth.
 - Request context, idempotency, outbox/event, and audit/observability contracts.
-- Resolve U-CL01-01/U-CL01-02/U-CL01-05 before enabling ambiguous provider-link or account-merge cases; simple one-provider provisioning may proceed fail-closed.
+- Resolve U-CL01-01/U-CL01-02/U-CL01-03 before enabling ambiguous provider-link or account-merge cases; U-CL01-05 governs age-gate proof provenance. Simple one-provider provisioning may proceed fail-closed.
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor` — Identity owner; resolves verified provider/system credentials to typed Workin Ants actor context. Local policy: User/provider mapping and assurance fields. Do not rebuild route-local current-user helpers.
-- `executeIdempotentCommand` — platform primitive; protects provisioning. Local policy: semantic key is provider identity + provisioning intent. Do not create Identity-specific generic idempotency storage.
-- `normalizeAndHashIdentifier` — shared crypto/privacy primitive for age-gate/rate-limit comparison keys. Do not create local hashing algorithms.
-- `appendDomainLifecycleEvent` / approved outbox primitive — emit minimized User/security domain events where needed; do not create a second event bus.
-- `appendAuditEvent` and structured Ops primitives — security-relevant administrative actions and safe diagnostics only; neither replaces Identity domain state.
+- SH-001 `resolveAuthenticatedActor` — Identity owner; resolves verified provider/system credentials to typed Workin Ants actor context. Local policy: User/provider mapping and assurance fields. Do not rebuild route-local current-user helpers.
+- SH-044 `executeIdempotentCommand` — platform primitive; protects provisioning. Local policy: semantic key is provider identity + provisioning intent. Do not create Identity-specific generic idempotency storage.
+- SH-076 `normalizeAndHashIdentifier` — shared crypto/privacy primitive for age-gate/rate-limit comparison keys. Do not create local hashing algorithms.
+- SH-031 `appendDomainLifecycleEvent` — append Identity-owned security/lifecycle evidence transactionally with the source change.
+- SH-046 `publishDomainEvent` — publish minimized User/security integration events through the transactional outbox where consumers require them. Publication does not replace owner history, and history does not prove publication.
+- SH-029 `appendAuditEvent` and structured Ops primitives — security-relevant administrative actions and safe diagnostics only; neither replaces Identity domain state.
 
 ### Data / Schema
 
@@ -196,7 +199,7 @@ Make `User` and `resolveAuthenticatedActor` the single server-authoritative acco
 ### Public Interfaces
 
 - `provisionUserAfterAgeGate`.
-- `resolveAuthenticatedActor`.
+- SH-001 `resolveAuthenticatedActor`.
 - Safe account/security summary query needed by self/admin callers.
 - Minimized `UserProvisioned` integration event only if another Module has an explicit consumer.
 
@@ -257,7 +260,7 @@ Make `User` and `resolveAuthenticatedActor` the single server-authoritative acco
 
 - Ineligible signup cannot create a User.
 - Eligible provisioning creates exactly one User under replay/concurrency.
-- `resolveAuthenticatedActor` returns a typed local actor for valid sessions and none for invalid sessions.
+- SH-001 `resolveAuthenticatedActor` returns a typed local actor for valid sessions and none for invalid sessions.
 - No feature-local current-user helper or raw credential storage exists.
 - Typecheck, lint, unit/integration tests, and production build pass; context/progress is updated.
 
@@ -270,7 +273,7 @@ Create the reusable authority slice that turns authenticated actor + source-owne
 
 ### Objective
 
-Make `authorizeResourceAction` the single permission interpreter while preserving ownership of organization membership, thread participation, and resource relationships in their source Modules.
+Make SH-002 `authorizeResourceAction` the single permission interpreter while preserving ownership of organization membership, thread participation, and resource relationships in their source Modules.
 
 ### User-visible / Observable Result
 
@@ -296,10 +299,10 @@ Make `authorizeResourceAction` the single permission interpreter while preservin
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor` — consumes Identity actor context; Role does not parse sessions.
-- `authorizeResourceAction` — implemented by Role as the canonical capability. Local policy: action/resource matrix and reason semantics. Do not build feature-specific authorization services.
-- `queryOwnerFacts` — shared contract/separate owner implementations. Local policy remains with each source owner. Do not build a universal polymorphic repository.
-- `recordSensitiveAccess` / `appendAuditEvent` — Audit-owned proof for policy-defined sensitive reads/admin actions; Role does not own audit ledgers.
+- SH-001 `resolveAuthenticatedActor` — consumes Identity actor context; Role does not parse sessions.
+- SH-002 `authorizeResourceAction` — implemented by Role as the canonical capability. Local policy: action/resource matrix and reason semantics. Do not build feature-specific authorization services.
+- SH-003 `queryOwnerFacts` (Proposed ruling) — shared contract/separate owner implementations. Local policy remains with each source owner. Do not build a universal polymorphic repository.
+- SH-030 `recordSensitiveAccess` / SH-029 `appendAuditEvent` — Audit-owned proof for policy-defined sensitive reads/admin actions; Role does not own audit ledgers.
 
 ### Data / Schema
 
@@ -310,7 +313,7 @@ Make `authorizeResourceAction` the single permission interpreter while preservin
 
 ### Public Interfaces
 
-- `authorizeResourceAction`.
+- SH-002 `authorizeResourceAction`.
 - Typed action/resource vocabulary and stable decision envelope.
 - Owner-facts DTO contracts for platform, organization, participant, ownership, and administrator scopes.
 
@@ -362,7 +365,7 @@ Make `authorizeResourceAction` the single permission interpreter while preservin
 
 ### Exit Gate
 
-- Every covered protected test action uses `authorizeResourceAction`.
+- Every covered protected test action uses SH-002 `authorizeResourceAction`.
 - No competing `isAdmin`, `isOwner`, organization-role, or participant authorization helper is needed for covered paths.
 - Foreign owner records remain read-only to Role.
 - RLS/server parity passes and unknown policies fail closed.
@@ -399,11 +402,11 @@ Let a User securely register, list, revoke, compromise, or use approved authenti
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor` and `authorizeResourceAction` — self/admin method management gates.
-- `generateSecureToken` — shared security primitive if registration/challenge correlation needs a Workin Ants-generated secret; domain-specific TTL/binding remains Identity policy.
-- `executeIdempotentCommand` — method registration/revocation replay protection.
-- `appendAuditEvent` / `recordSensitiveAccess` — admin or sensitive method inspection/action proof according to policy.
-- `requestNotification` — request security-change notices; Identity does not deliver email/SMS/push.
+- SH-001 `resolveAuthenticatedActor` and SH-002 `authorizeResourceAction` — self/admin method management gates.
+- SH-074 `generateSecureToken` — shared security primitive if registration/challenge correlation needs a Workin Ants-generated secret; domain-specific TTL/binding remains Identity policy.
+- SH-044 `executeIdempotentCommand` — method registration/revocation replay protection.
+- SH-029 `appendAuditEvent` / SH-030 `recordSensitiveAccess` — admin or sensitive method inspection/action proof according to policy.
+- SH-041 `requestNotification` — request security-change notices; Identity does not deliver email/SMS/push.
 
 ### Data / Schema
 
@@ -505,11 +508,11 @@ Create and verify `StepUpChallenge` and `SensitiveActionSession` as Identity-own
 
 ### Shared Operations Used
 
-- `requireStepUpForSensitiveAction` — Identity-owned canonical gate. Local policy: action/target/TTL/assurance matrix. Do not build payout-specific or subscription-specific OTP services.
-- `resolveAuthenticatedActor` / `authorizeResourceAction` — actor and permission precede step-up.
-- `executeIdempotentCommand` — challenge creation/verification replay safety.
-- `requestNotification` — security alert intent only.
-- `appendAuditEvent` and Ops primitives — sensitive admin/security changes and provider failures.
+- SH-014 `requireStepUpForSensitiveAction` — Identity-owned canonical gate. Local policy: action/target/TTL/assurance matrix. Do not build payout-specific or subscription-specific OTP services.
+- SH-001 `resolveAuthenticatedActor` / SH-002 `authorizeResourceAction` — actor and permission precede step-up.
+- SH-044 `executeIdempotentCommand` — challenge creation/verification replay safety.
+- SH-041 `requestNotification` — security alert intent only.
+- SH-029 `appendAuditEvent` and Ops primitives — sensitive admin/security changes and provider failures.
 
 ### Data / Schema
 
@@ -522,7 +525,7 @@ Create and verify `StepUpChallenge` and `SensitiveActionSession` as Identity-own
 - `evaluateStepUpRequirement`.
 - `createStepUpChallenge`.
 - `verifyStepUpChallenge`.
-- `requireStepUpForSensitiveAction` / `authorizeSensitiveAction`.
+- SH-014 `requireStepUpForSensitiveAction` / `authorizeSensitiveAction`.
 - `revokeSensitiveActionSession` where policy requires.
 
 ### Logic
@@ -612,12 +615,12 @@ Provide a controlled changed-phone/account-recovery path that verifies identity 
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor` / `authorizeResourceAction` where a logged-in recovery actor exists; recovery-token/provider callback paths use their explicit security boundary.
-- `queryConsentProof` — exact recovery disclosure proof where policy requires; Consent remains proof owner.
-- `verifyProviderWebhookSignature` — shared webhook shell; no recovery-local signature utility.
-- `deduplicateProviderEvent` — shared mechanism with Identity-owned processed-event truth once U-CL01-08 is resolved.
-- `translateProviderStatus` — Identity recovery adapter maps provider result to domain-neutral recovery result.
-- `executeIdempotentCommand`, `requestNotification`, `appendAuditEvent`, `recordIntegrationFailure` — reuse canonical mechanics.
+- SH-001 `resolveAuthenticatedActor` / SH-002 `authorizeResourceAction` where a logged-in recovery actor exists; recovery-token/provider callback paths use their explicit security boundary.
+- SH-008 `queryConsentProof` — exact recovery disclosure proof where policy requires; Consent remains proof owner.
+- SH-059 `verifyProviderWebhookSignature` — shared webhook shell; no recovery-local signature utility.
+- SH-060 `deduplicateProviderEvent` — shared mechanism with Identity-owned processed-event truth once U-CL01-08 is resolved.
+- SH-061 `translateProviderStatus` — Identity recovery adapter maps provider result to domain-neutral recovery result.
+- SH-044 `executeIdempotentCommand`, SH-041 `requestNotification`, SH-029 `appendAuditEvent`, SH-037 `recordIntegrationFailure` — reuse canonical mechanics.
 
 ### Data / Schema
 
@@ -709,7 +712,7 @@ Make `CustomerProfile` the source-owned buyer actor and provide idempotent provi
 ### User-visible / Observable Result
 
 - An eligible User can obtain exactly one `CustomerProfile`.
-- `resolveCustomerActor` returns the buyer actor or an explicit unavailable/ineligible result.
+- SH-004 `resolveCustomerActor` returns the buyer actor or an explicit unavailable/ineligible result.
 - Repeated User-provisioned events or commands do not create duplicate profiles.
 - Downstream contract fixtures can consume `customerProfileId` without reading CustomerProfile tables directly.
 
@@ -722,16 +725,16 @@ Make `CustomerProfile` the source-owned buyer actor and provide idempotent provi
 - Features 01–02.
 - `CustomerProfile` with unique `userId`.
 - User-provisioned event or on-demand provisioning trigger.
-- Resolve U-CL01-18 before enabling lifecycle states beyond the conservative existing path; U-CL01-19 controls full downstream cutover, not basic profile creation.
+- Resolve U-CL01-18 before final production provisioning wiring and U-CL01-21 before enabling lifecycle states beyond the conservative existing path; U-CL01-19 controls full downstream cutover, not basic profile creation.
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor` — Identity supplies User actor.
-- `authorizeResourceAction` — Customer self/admin actions.
-- `resolveCustomerActor` — Customer-owned canonical public interface; consumers must not recreate buyer identity.
-- `executeIdempotentCommand` — provisioning replay safety.
-- `appendDomainLifecycleEvent` / outbox — emit minimized CustomerProfile-created/status events where consumers require them.
-- `evaluateComplianceHold` only for actions explicitly gated by a hold; Customer does not own generic blocked truth.
+- SH-001 `resolveAuthenticatedActor` — Identity supplies User actor.
+- SH-002 `authorizeResourceAction` — Customer self/admin actions.
+- SH-004 `resolveCustomerActor` — Customer-owned canonical public interface; consumers must not recreate buyer identity.
+- SH-044 `executeIdempotentCommand` — provisioning replay safety.
+- SH-046 `publishDomainEvent` — publish minimized CustomerProfile-created/status integration events through the outbox where consumers require them. Any separately approved Customer lifecycle-history requirement uses SH-031 `appendDomainLifecycleEvent`; neither operation substitutes for the other, and this feature does not approve a new Customer history model.
+- SH-011 `evaluateComplianceHold` only for actions explicitly gated by a hold; Customer does not own generic blocked truth.
 
 ### Data / Schema
 
@@ -742,7 +745,7 @@ Make `CustomerProfile` the source-owned buyer actor and provide idempotent provi
 ### Public Interfaces
 
 - `provisionCustomerProfile`.
-- `resolveCustomerActor`.
+- SH-004 `resolveCustomerActor`.
 - `getCustomerProfile` safe owner/admin view.
 - Minimized `CustomerProfileCreated` event if consumers need asynchronous reaction.
 
@@ -780,7 +783,7 @@ Make `CustomerProfile` the source-owned buyer actor and provide idempotent provi
 ### Tests
 
 - One-to-one database/concurrency tests.
-- `resolveCustomerActor` contract tests.
+- SH-004 `resolveCustomerActor` contract tests.
 - Authorization tests.
 - User event replay tests.
 - Negative test proving no Customer code writes User auth fields or Track state.
@@ -795,10 +798,10 @@ Make `CustomerProfile` the source-owned buyer actor and provide idempotent provi
 ### Exit Gate
 
 - Exactly one CustomerProfile can exist per User under concurrent/replayed provisioning.
-- `resolveCustomerActor` is usable by contract fixtures without direct Customer table reads.
+- SH-004 `resolveCustomerActor` is usable by contract fixtures without direct Customer table reads.
 - No consumer lifecycle is copied into CustomerProfile.
 - No public search projection is emitted.
-- Tests/typecheck/lint/build pass and U-CL01-18/U-CL01-19 gates remain explicit.
+- Tests/typecheck/lint/build pass and U-CL01-18/U-CL01-19/U-CL01-21 gates remain explicit.
 
 
 ---
@@ -828,15 +831,15 @@ Allow safe CustomerProfile maintenance without turning Customer into an auth, fi
 
 - Feature 06 and Feature 02.
 - Media attachment validation/safe-access contract.
-- Resolve U-CL01-20/U-CL01-21 for display-field precedence and status semantics before enabling disputed fields/transitions.
+- Resolve U-CL01-22/U-CL01-21 for display-field precedence and status semantics before enabling disputed fields/transitions.
 - U-CL01-22/public visibility remains unresolved; public search stays disabled.
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor` and `authorizeResourceAction` — owner/admin edit/read gates.
-- `executeIdempotentCommand` — mutation replay safety where external retries are possible.
-- `appendAuditEvent` / `recordSensitiveAccess` — sensitive admin reads/changes as policy requires.
-- `evaluateComplianceHold` only for specifically approved blocked profile actions; do not create local generic block flags.
+- SH-001 `resolveAuthenticatedActor` and SH-002 `authorizeResourceAction` — owner/admin edit/read gates.
+- SH-044 `executeIdempotentCommand` — mutation replay safety where external retries are possible.
+- SH-029 `appendAuditEvent` / SH-030 `recordSensitiveAccess` — sensitive admin reads/changes as policy requires.
+- SH-011 `evaluateComplianceHold` only for specifically approved blocked profile actions; do not create local generic block flags.
 
 ### Data / Schema
 
@@ -941,12 +944,12 @@ Make `ConsentLog` the durable exact-version acceptance proof and eliminate featu
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor` and `authorizeResourceAction` — acceptance/history/admin access gates.
-- `recordConsentProof` — Consent-owned canonical command. Local policy: exact type/version/evidence fields. Do not build feature-local consent write services.
-- `queryConsentProof` — Consent-owned canonical query. Local policy: exact accepted type/version semantics. Do not build feature-local consent booleans or proof queries.
-- `executeIdempotentCommand` — acceptance replay protection.
-- `normalizeAndHashIdentifier` — request evidence where an approved privacy-minimized hash is required.
-- `appendAuditEvent` only for material admin operations; ConsentLog remains the acceptance proof.
+- SH-001 `resolveAuthenticatedActor` and SH-002 `authorizeResourceAction` — acceptance/history/admin access gates.
+- SH-007 `recordConsentProof` — Consent-owned canonical command. Local policy: exact type/version/evidence fields. Do not build feature-local consent write services.
+- SH-008 `queryConsentProof` — Consent-owned canonical query. Local policy: exact accepted type/version semantics. Do not build feature-local consent booleans or proof queries.
+- SH-044 `executeIdempotentCommand` — acceptance replay protection.
+- SH-076 `normalizeAndHashIdentifier` — request evidence where an approved privacy-minimized hash is required.
+- SH-029 `appendAuditEvent` only for material admin operations; ConsentLog remains the acceptance proof.
 
 ### Data / Schema
 
@@ -957,8 +960,8 @@ Make `ConsentLog` the durable exact-version acceptance proof and eliminate featu
 
 ### Public Interfaces
 
-- `recordConsentProof`.
-- `queryConsentProof`.
+- SH-007 `recordConsentProof`.
+- SH-008 `queryConsentProof`.
 - Authorized consent-history query with safe pagination.
 
 ### Logic
@@ -1013,7 +1016,7 @@ Make `ConsentLog` the durable exact-version acceptance proof and eliminate featu
 ### Exit Gate
 
 - Exact type/version acceptance produces durable ConsentLog proof.
-- `queryConsentProof` is the canonical consumer path and wrong/missing versions cannot pass.
+- SH-008 `queryConsentProof` is the canonical consumer path and wrong/missing versions cannot pass.
 - No new local consent booleans/tables are introduced.
 - Command replay is safe under the approved current decision.
 - Tests/typecheck/lint/build pass.
@@ -1023,18 +1026,17 @@ Make `ConsentLog` the durable exact-version acceptance proof and eliminate featu
 
 ### 09 Consent Version Catalog, Standalone Presentation, and Retention Contract
 
-Complete the consent capability needed for production version resolution, standalone disclosure presentation, re-consent signaling, and Privacy-safe retention.
+Complete the consent capability needed for production version resolution, standalone disclosure presentation, and re-consent signaling while preserving retention gates. The Consent Privacy owner/executor bridge is implemented with Feature 16.
 
 ### Objective
 
-Give Consent a persistent, versioned disclosure catalog and retention-aware privacy contract without letting it own downstream permission or Privacy orchestration.
+Give Consent a persistent, versioned disclosure catalog and retention-aware presentation/proof behavior without letting it own downstream permission or Privacy orchestration.
 
 ### User-visible / Observable Result
 
 - A consumer can resolve the active version for a consent type/context and present the exact approved text/metadata.
 - Changing the active version does not mutate historical ConsentLog proof.
 - Consumers can detect that a newer required version lacks acceptance.
-- Privacy can enumerate and execute Consent-owned targets while respecting approved retention exemptions.
 
 ### Owning Module(s)
 
@@ -1045,17 +1047,16 @@ Give Consent a persistent, versioned disclosure catalog and retention-aware priv
 ### Dependencies
 
 - Feature 08.
-- Resolve U-CL01-13, U-CL01-15, U-CL01-16, and U-CL01-17 before enabling production active-version/re-consent/destructive retention behavior.
-- Privacy target-executor and notification contracts.
+- Resolve U-CL01-13, U-CL01-16, and U-CL01-17 where required by enabled active-version/re-consent/proof-binding behavior. U-CL01-15 remains the destructive-retention blocker; the executor is coordinated in Feature 16.
+- Notification contract for approved re-consent requests. Privacy target-executor integration belongs to Feature 16.
 
 ### Shared Operations Used
 
-- `resolveActiveConsentVersion` — Consent-owned canonical query over approved version catalog. Do not let consumers hardcode active versions.
-- `presentStandaloneConsent` — Consent-owned presentation contract; consumers may embed it without copying text/version policy.
-- `queryConsentProof` / `recordConsentProof` — exact proof mechanisms from Feature 08.
-- `manageVersionedRules` — shared versioning mechanism if used for immutable effective intervals; Consent policy/text remains Consent-owned.
-- `enumerateSubjectData`, `executePrivacyInstruction`, `evaluateRetentionRequirement`, `anonymizePersonalFields` — Privacy protocol/shared mechanisms; Consent supplies field/retention meaning.
-- `requestNotification` — re-consent/disclosure notification intent only.
+- SH-009 `resolveActiveConsentVersion` — Consent-owned canonical query over approved version catalog. Do not let consumers hardcode active versions.
+- SH-010 `presentStandaloneConsent` — Consent-owned presentation contract; consumers may embed it without copying text/version policy.
+- SH-008 `queryConsentProof` / SH-007 `recordConsentProof` — exact proof mechanisms from Feature 08.
+- SH-080 `manageVersionedRules` — shared versioning mechanism if used for immutable effective intervals; Consent policy/text remains Consent-owned.
+- SH-041 `requestNotification` — re-consent/disclosure notification intent only.
 
 ### Data / Schema
 
@@ -1066,18 +1067,16 @@ Give Consent a persistent, versioned disclosure catalog and retention-aware priv
 
 ### Public Interfaces
 
-- `resolveActiveConsentVersion`.
-- `presentStandaloneConsent`.
+- SH-009 `resolveActiveConsentVersion`.
+- SH-010 `presentStandaloneConsent`.
 - `listConsentVersions` admin query.
 - `publishConsentVersion` / `retireConsentVersion` under approved policy.
-- Consent implementations of Privacy subject-data enumeration/execution.
 
 ### Logic
 
 - Publish immutable version records; do not edit accepted disclosure content in place.
 - Resolve active version deterministically by type/context/effective date.
 - Compare required version with exact acceptance proof; a new version creates a missing-proof condition, not automatic acceptance.
-- Execute Privacy instructions idempotently while returning retained/anonymized/deleted/skipped/failure outcomes.
 
 ### UI / Administrative Surface
 
@@ -1096,13 +1095,11 @@ Give Consent a persistent, versioned disclosure catalog and retention-aware priv
 
 - Consent-version-published/re-consent-needed events if consumers require re-evaluation.
 - Notification requests for required re-consent.
-- Privacy target execution through shared queue only if asynchronous.
 
 ### Failure Behavior
 
 - No active version → unavailable/fail closed for workflows that require one.
 - Overlapping active intervals or duplicate version → constraint/validation failure.
-- Privacy retention unresolved → retain/defer with explicit result, never hard-delete by guess.
 - Notification failure → consent truth remains correct; delivery retries independently.
 
 ### Tests
@@ -1111,14 +1108,14 @@ Give Consent a persistent, versioned disclosure catalog and retention-aware priv
 - Immutable historical content/proof tests.
 - Re-consent detection tests.
 - Admin authorization/audit tests.
-- Privacy retention/cascade tests.
+- Catalog changes preserve retained historical proof; Privacy executor/retention/cascade integration tests belong to Feature 16.
 - Contract tests proving consumers cannot infer permission from Consent.
 
 ### Out of Scope
 
 - Feature-specific contextual consent records owned elsewhere.
 - Provider authorization state.
-- Privacy request orchestration.
+- Privacy request orchestration and Consent subject-data enumeration/execution implementation (the owner executor is delivered in Feature 16).
 - Notification delivery mechanics.
 
 ### Exit Gate
@@ -1126,8 +1123,7 @@ Give Consent a persistent, versioned disclosure catalog and retention-aware priv
 - Active version can be resolved and presented without consumer hardcoding.
 - Historical proof remains immutable across catalog changes.
 - Re-consent need is detectable without changing downstream lifecycle truth.
-- Consent Privacy executor obeys approved retention rules and no User deletion can silently destroy required proof.
-- All U-CL01-13/15/16/17 decisions required by enabled behavior are resolved and tests/build pass.
+- All U-CL01-13/U-CL01-16/U-CL01-17 decisions required by enabled behavior are resolved and tests/build pass. U-CL01-15 still blocks destructive behavior; this exit does not require the Feature 16 executor.
 
 
 ---
@@ -1161,11 +1157,11 @@ Make Track plan, pricing, and entitlement definitions an admin-controlled source
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor` and `authorizeResourceAction` — admin catalog mutation and safe read gates.
-- `manageVersionedRules` — shared versioning mechanism if adopted for immutable/effective catalog versions; Track owns commercial meaning.
-- `executeIdempotentCommand` — admin mutation replay safety.
-- `appendAuditEvent` — material catalog publication/retirement proof; audit is not plan truth.
-- `appendDomainLifecycleEvent` — Track-owned plan/catalog lifecycle history when the domain requires it.
+- SH-001 `resolveAuthenticatedActor` and SH-002 `authorizeResourceAction` — admin catalog mutation and safe read gates.
+- SH-080 `manageVersionedRules` — shared versioning mechanism if adopted for immutable/effective catalog versions; Track owns commercial meaning.
+- SH-044 `executeIdempotentCommand` — admin mutation replay safety.
+- SH-029 `appendAuditEvent` — material catalog publication/retirement proof; audit is not plan truth.
+- SH-031 `appendDomainLifecycleEvent` — Track-owned plan/catalog lifecycle history when the domain requires it.
 
 ### Data / Schema
 
@@ -1178,6 +1174,7 @@ Make Track plan, pricing, and entitlement definitions an admin-controlled source
 
 - `listTrackPlans` / `getTrackPlan` safe query.
 - `resolveBaselineTrackPlan`.
+- `assignDefaultFreeTrack` — Track-owned, implemented by Track plan slice 02A only after the existing free-representation gate is resolved.
 - Admin `createTrackPlanVersion`, `publishTrackPlanVersion`, `retireTrackPlanVersion` or approved equivalents.
 - `getEntitlementDefinition` / catalog query.
 
@@ -1186,6 +1183,7 @@ Make Track plan, pricing, and entitlement definitions an admin-controlled source
 - Validate plan track, billing model, price/provider compatibility, and entitlement value type.
 - Keep draft/published/retired semantics explicit; do not overwrite historical published commercial terms in place.
 - Resolve baseline/free access according to U-CL01-24 rather than inventing implicit absence semantics.
+- Coordinate Track implementation slice 02A for `assignDefaultFreeTrack` after the approved actor-created handoff. The slice covers trigger integration, replay/concurrency safety, tests, and its production exit; profile provisioning does not depend on Track assignment. U-CL01-24 and any applicable integrity/precedence/history decisions remain unresolved gates.
 - Separate catalog definition from actor subscription/grant state.
 
 ### UI / Administrative Surface
@@ -1232,7 +1230,7 @@ Make Track plan, pricing, and entitlement definitions an admin-controlled source
 ### Exit Gate
 
 - Approved catalog records can be created/read only through Track interfaces.
-- Baseline/free-track behavior is explicit for enabled tracks and no local premium boolean is introduced.
+- Baseline/free-track behavior is explicit for enabled tracks and no local premium boolean is introduced. Claiming production default assignment requires Track slice 02A's approved handoff, idempotency/concurrency tests, and exit gate; unresolved representation keeps assignment disabled.
 - Published commercial terms obey the approved mutability/version rule.
 - Invalid typed entitlement representations fail.
 - Required U-CL01-24/26/27 decisions for enabled behavior are resolved; tests/typecheck/lint/build pass.
@@ -1246,7 +1244,7 @@ Implement the canonical Track decision that resolves plan mappings and explicit 
 
 ### Objective
 
-Make `resolveEntitlement` the only source for current feature/quota/waiver/boost/commission/priority/perk policy across customer, candidate, and professional tracks.
+Make SH-005 `resolveEntitlement` the only source for current feature/quota/waiver/boost/commission/priority/perk policy across customer, candidate, and professional tracks.
 
 ### User-visible / Observable Result
 
@@ -1263,17 +1261,17 @@ Make `resolveEntitlement` the only source for current feature/quota/waiver/boost
 
 - Feature 10.
 - `TrackEntitlementGrant`, definition/mapping records, profile/track linkage.
-- Resolve U-CL01-25 grant precedence and any U-CL01-26 typed-value constraints before production resolution across competing sources.
+- Resolve U-CL01-26 grant precedence and typed-value constraints before production resolution across competing sources; U-CL01-25 governs actor/profile and active-subscription constraints.
 - ComplianceHold contract for any explicitly hold-gated Track administrative action.
 
 ### Shared Operations Used
 
-- `resolveEntitlement` — Track-owned canonical commercial-policy query. Local policy: precedence/effective-date/value semantics. Do not create local entitlement evaluators in consumers.
-- `executeIdempotentCommand` — grant creation/revocation replay protection.
-- `authorizeResourceAction` — admin/self actions around grants where permitted.
-- `evaluateComplianceHold` — only for approved Track actions; a hold does not become grant status.
-- `appendDomainLifecycleEvent` and `appendAuditEvent` — Track grant history vs generic administrative audit remain separate.
-- `requestSearchProjectionRefresh` / Search public interface when an effective boost changes; Track never writes the search index.
+- SH-005 `resolveEntitlement` — Track-owned canonical commercial-policy query. Local policy: precedence/effective-date/value semantics. Do not create local entitlement evaluators in consumers.
+- SH-044 `executeIdempotentCommand` — grant creation/revocation replay protection.
+- SH-002 `authorizeResourceAction` — admin/self actions around grants where permitted.
+- SH-011 `evaluateComplianceHold` — only for approved Track actions; a hold does not become grant status.
+- SH-031 `appendDomainLifecycleEvent` and SH-029 `appendAuditEvent` — Track grant history vs generic administrative audit remain separate.
+- SH-091 `requestSearchProjectionRefresh` / Search public interface when an effective boost changes; Track never writes the search index.
 
 ### Data / Schema
 
@@ -1284,7 +1282,7 @@ Make `resolveEntitlement` the only source for current feature/quota/waiver/boost
 
 ### Public Interfaces
 
-- `resolveEntitlement`.
+- SH-005 `resolveEntitlement`.
 - `listEffectiveEntitlements` where a bounded account summary is needed.
 - `grantEntitlement`, `revokeEntitlement`, `suspendEntitlement` admin/manual operations under policy.
 - `resolveTrackPolicySnapshot` only if consumers need a typed bundle rather than repeated per-key calls.
@@ -1341,11 +1339,11 @@ Make `resolveEntitlement` the only source for current feature/quota/waiver/boost
 
 ### Exit Gate
 
-- `resolveEntitlement` deterministically returns typed value, reason, and evidence for all enabled keys.
+- SH-005 `resolveEntitlement` deterministically returns typed value, reason, and evidence for all enabled keys.
 - Expired/revoked/inconsistent grants cannot resolve as active.
 - No enabled consumer needs a local entitlement evaluator or premium boolean.
 - Search change is requested, never executed, by Track.
-- U-CL01-25/26 decisions required by enabled precedence/value behavior are resolved and tests/build pass.
+- U-CL01-26 decisions required by enabled precedence/value behavior and U-CL01-25 decisions required by enabled actor/subscription constraints are resolved and tests/build pass.
 
 
 ---
@@ -1356,7 +1354,7 @@ Implement immutable usage proof plus an atomically enforced rebuildable counter 
 
 ### Objective
 
-Make `consumeMeteredEntitlement` the single atomic mechanism for limited commercial entitlement usage while letting the source business Module decide when its event actually counts.
+Make SH-006 `consumeMeteredEntitlement` the single atomic mechanism for limited commercial entitlement usage while letting the source business Module decide when its event actually counts.
 
 ### User-visible / Observable Result
 
@@ -1379,11 +1377,11 @@ Make `consumeMeteredEntitlement` the single atomic mechanism for limited commerc
 
 ### Shared Operations Used
 
-- `consumeMeteredEntitlement` — Track canonical capability; local policy: period/limit/reversal rules. Do not build feature-specific counters.
-- `executeIdempotentCommand` — keyed by consumer business event + entitlement consumption intent.
-- `acquireAggregateLock` or approved DB concurrency primitive — lock the entitlement/subject/period aggregate; do not use in-memory locks.
-- `enqueueReliableJob` / `executeRetryWithBackoff` — counter rebuild/reconciliation jobs only.
-- `appendDomainLifecycleEvent` — immutable usage event is Track truth; generic AuditEvent remains separate.
+- SH-006 `consumeMeteredEntitlement` — Track canonical capability; local policy: period/limit/reversal rules. Do not build feature-specific counters.
+- SH-044 `executeIdempotentCommand` — keyed by consumer business event + entitlement consumption intent.
+- SH-051 `acquireAggregateLock` or approved DB concurrency primitive — lock the entitlement/subject/period aggregate; do not use in-memory locks.
+- SH-047 `enqueueReliableJob` / SH-048 `executeRetryWithBackoff` — counter rebuild/reconciliation jobs only.
+- SH-031 `appendDomainLifecycleEvent` — immutable usage event is Track truth; generic AuditEvent remains separate.
 
 ### Data / Schema
 
@@ -1394,7 +1392,7 @@ Make `consumeMeteredEntitlement` the single atomic mechanism for limited commerc
 
 ### Public Interfaces
 
-- `consumeMeteredEntitlement`.
+- SH-006 `consumeMeteredEntitlement`.
 - `getMeteredEntitlementUsage`.
 - `rebuildUsageCounter` / reconciliation worker contract.
 - Optional reversal/adjustment command only after refund/reversal policy is approved; never mutate/delete original usage proof.
@@ -1491,15 +1489,16 @@ Turn verified provider billing results into authoritative `TrackSubscription` an
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor` and `authorizeResourceAction` — subscriber/admin action gates.
-- `queryConsentProof` / `resolveActiveConsentVersion` — exact subscription/recurring-billing/plan-change proof where required; Track does not own consent proof.
-- `requireStepUpForSensitiveAction` — only for approved subscription actions requiring recent assurance.
-- `evaluateComplianceHold` — block/review relevant plan actions according to policy.
-- `verifyProviderWebhookSignature` — shared ingress shell; do not build Track-local signature utility.
-- `deduplicateProviderEvent` — shared mechanism + Track-specific processed-event truth.
-- `translateProviderStatus` — Track adapter maps provider states to approved domain transition inputs.
-- `executeIdempotentCommand` / DB aggregate lock — concurrent command/provider safety.
-- `requestNotification`, `appendAuditEvent`, `recordIntegrationFailure`, `enqueueReliableJob` — canonical support effects/reconciliation.
+- SH-001 `resolveAuthenticatedActor` and SH-002 `authorizeResourceAction` — subscriber/admin action gates.
+- SH-008 `queryConsentProof` / SH-009 `resolveActiveConsentVersion` — exact subscription/recurring-billing/plan-change proof where required; Track does not own consent proof.
+- SH-014 `requireStepUpForSensitiveAction` — only for approved subscription actions requiring recent assurance.
+- SH-011 `evaluateComplianceHold` — block/review relevant plan actions according to policy.
+- SH-064 `authorizeExternalProviderConnection` — Confirmed; provider-owning Module boundary for hosted checkout/portal initiation, including state/nonce, redirect allowlists, scoped permissions, callback validation, and provider-reference lifecycle. Track retains plan/price selection, commercial eligibility, provider-specific translation, and subscription policy.
+- SH-059 `verifyProviderWebhookSignature` — shared ingress shell; do not build Track-local signature utility.
+- SH-060 `deduplicateProviderEvent` — shared mechanism + Track-specific processed-event truth.
+- SH-061 `translateProviderStatus` — Track adapter maps provider states to approved domain transition inputs.
+- SH-044 `executeIdempotentCommand` / DB aggregate lock — concurrent command/provider safety.
+- SH-041 `requestNotification`, SH-029 `appendAuditEvent`, SH-037 `recordIntegrationFailure`, SH-047 `enqueueReliableJob` — canonical support effects/reconciliation.
 
 ### Data / Schema
 
@@ -1579,7 +1578,7 @@ Turn verified provider billing results into authoritative `TrackSubscription` an
 ### Exit Gate
 
 - All mandatory subscription U-CL01 architecture gates used by live behavior are resolved and reflected in `architecture.md`.
-- Only verified/deduped provider input can mutate Track subscription state.
+- Track owns all TrackSubscription transitions through its approved user/admin commands, provider events, expiration processing, and reconciliation. Provider-originated transitions require verified/deduped provider input through SH-059/SH-060; that requirement does not make provider input the sole lifecycle trigger.
 - Provider success page alone cannot activate a subscription.
 - Track-specific processed-event truth is explicit and replay-safe.
 - General financial ownership remains outside Track.
@@ -1600,7 +1599,7 @@ Validate the CustomerProfile bridge to customer-demand, transaction, scheduling,
 
 ### User-visible / Observable Result
 
-- Contract fixtures for Gig/Order/Booking/Digital/Video can resolve the buyer through `resolveCustomerActor`.
+- Contract fixtures for Gig/Order/Booking/Digital/Video can resolve the buyer through SH-004 `resolveCustomerActor`.
 - New approved consumer records use `customerProfileId` according to the resolved cutover policy.
 - Legacy references can be backfilled/reconciled without changing source business lifecycle ownership.
 - CustomerProfile deletion/archive cannot silently destroy foreign business obligations.
@@ -1614,16 +1613,16 @@ Validate the CustomerProfile bridge to customer-demand, transaction, scheduling,
 
 - Features 06–07.
 - Destination public-interface/contract fixtures.
-- Resolve U-CL01-19 before enforcing production cutover/backfill; U-CL01-18 governs Customer status behavior.
+- Resolve U-CL01-19 before enforcing production cutover/backfill; U-CL01-21 governs Customer status behavior.
 - Privacy and retention fact contracts for destructive scenarios.
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor`, `authorizeResourceAction`, `resolveCustomerActor` — canonical actor/permission/buyer identity composition.
-- `queryOwnerFacts` — destination owners return minimal obligation/participant facts; Customer must not query foreign repositories directly.
-- `executeIdempotentCommand` — backfill/cutover command replay protection.
-- `enqueueReliableJob` / retry primitives — large backfill/reconciliation only.
-- `enumerateSubjectData` / Privacy contract — Customer contributes its own records, not foreign lifecycle records.
+- SH-001 `resolveAuthenticatedActor`, SH-002 `authorizeResourceAction`, SH-004 `resolveCustomerActor` — canonical actor/permission/buyer identity composition.
+- SH-003 `queryOwnerFacts` (Proposed ruling) — destination owners return minimal obligation/participant facts; Customer must not query foreign repositories directly.
+- SH-044 `executeIdempotentCommand` — backfill/cutover command replay protection.
+- SH-047 `enqueueReliableJob` / retry primitives — large backfill/reconciliation only.
+- SH-096 `enumerateSubjectData` / Privacy contract — Customer contributes its own records, not foreign lifecycle records.
 
 ### Data / Schema
 
@@ -1634,7 +1633,7 @@ Validate the CustomerProfile bridge to customer-demand, transaction, scheduling,
 
 ### Public Interfaces
 
-- `resolveCustomerActor` consumer contract.
+- SH-004 `resolveCustomerActor` consumer contract.
 - Customer-to-destination buyer-context DTO.
 - Destination-specific owner-facts queries needed for safe archive/privacy decisions.
 - Backfill/reconciliation report contract.
@@ -1729,11 +1728,11 @@ Validate current Track decisions and metered usage at real consumer boundaries a
 
 ### Shared Operations Used
 
-- `resolveEntitlement` — current commercial decision for all nonmetered keys.
-- `consumeMeteredEntitlement` — atomic limited-use proof; destination decides when the source event counts.
-- `resolveAuthenticatedActor` / `authorizeResourceAction` remain destination action gates; Track result never substitutes them.
-- `requestSearchProjectionRefresh` or Search public interface — request refresh only after boost truth changes; no direct index write.
-- `executeIdempotentCommand` — destination snapshot/consumption integration where retries cross Module boundaries.
+- SH-005 `resolveEntitlement` — current commercial decision for all nonmetered keys.
+- SH-006 `consumeMeteredEntitlement` — atomic limited-use proof; destination decides when the source event counts.
+- SH-001 `resolveAuthenticatedActor` / SH-002 `authorizeResourceAction` remain destination action gates; Track result never substitutes them.
+- SH-091 `requestSearchProjectionRefresh` or Search public interface — request refresh only after boost truth changes; no direct index write.
+- SH-044 `executeIdempotentCommand` — destination snapshot/consumption integration where retries cross Module boundaries.
 
 ### Data / Schema
 
@@ -1750,7 +1749,7 @@ Validate current Track decisions and metered usage at real consumer boundaries a
 - `evaluatePriorityScheduling` or typed entitlement result for Booking.
 - Candidate application quota consume contract.
 - Candidate search boost entitlement/refresh contract.
-- `evaluateProfessionalSellingEntitlement` or `resolveEntitlement` composition contract.
+- `evaluateProfessionalSellingEntitlement` or SH-005 `resolveEntitlement` composition contract.
 - `authorizeLiveStreaming` / generic digital entitlement query where approved, returning commercial decision only.
 
 ### Logic
@@ -1844,13 +1843,13 @@ Complete the major support contracts needed for legal/privacy execution, generic
 
 ### Shared Operations Used
 
-- `enumerateSubjectData` — each CL-01 data owner implements the Privacy-defined inventory contract.
-- `executePrivacyInstruction` — each owner executes only its records; Privacy orchestrates.
-- `evaluateRetentionRequirement` / `anonymizePersonalFields` — shared protocol/primitive with owner-specific retention facts/field maps.
-- `evaluateComplianceHold` — Hold-owned stop-sign decision; no CL-01 generic blocked table.
-- `appendAuditEvent` / `recordSensitiveAccess` — Audit-owned ledgers.
-- `requestNotification` — Notification-owned delivery request.
-- `recordIntegrationFailure`, structured logging, `enqueueReliableJob`, retry/dead-letter primitives — Ops/platform mechanisms, not domain truth.
+- SH-096 `enumerateSubjectData` — each CL-01 data owner implements the Privacy-defined inventory contract.
+- SH-095 `executePrivacyInstruction` — each owner executes only its records; Privacy orchestrates.
+- SH-097 `evaluateRetentionRequirement` / SH-098 `anonymizePersonalFields` — shared protocol/primitive with owner-specific retention facts/field maps.
+- SH-011 `evaluateComplianceHold` — Hold-owned stop-sign decision; no CL-01 generic blocked table.
+- SH-029 `appendAuditEvent` / SH-030 `recordSensitiveAccess` — Audit-owned ledgers.
+- SH-041 `requestNotification` — Notification-owned delivery request.
+- SH-037 `recordIntegrationFailure`, structured logging, SH-047 `enqueueReliableJob`, retry/dead-letter primitives — Ops/platform mechanisms, not domain truth.
 
 ### Data / Schema
 
@@ -1860,7 +1859,7 @@ Complete the major support contracts needed for legal/privacy execution, generic
 
 ### Public Interfaces
 
-- Identity/Consent/Customer/Track implementations of `enumerateSubjectData` and `executePrivacyInstruction`.
+- Identity/Consent/Customer/Track implementations of SH-096 `enumerateSubjectData` and SH-095 `executePrivacyInstruction`.
 - Owner-specific retention fact query/result.
 - Hold evaluation inputs for relevant actions.
 - Audit/access event requests with safe metadata.
@@ -1923,6 +1922,7 @@ Complete the major support contracts needed for legal/privacy execution, generic
 ### Exit Gate
 
 - Privacy can execute each enabled CL-01 owner through a standard contract without direct table orchestration.
+- Consent Module Feature 07 supplies its SH-096 enumeration, SH-097 retention facts, and SH-095 executor here. It returns a non-destructive retention-required result while U-CL01-15 is unresolved; destructive execution remains blocked, and no User deletion may silently destroy required Consent proof.
 - Mandatory hold gates fail closed and no local generic blocked system exists.
 - Audit/access/notification/Ops effects are routed through their canonical owners.
 - Domain truth remains correct when support effects retry/fail.
@@ -1962,12 +1962,12 @@ Ensure existing/seeded data can be migrated and continuously checked against CL-
 
 ### Shared Operations Used
 
-- `enqueueReliableJob` / `executeRetryWithBackoff` — durable batch/checkpoint mechanics.
-- `executeIdempotentCommand` — repair/backfill item idempotency.
-- `queryOwnerFacts` — compare source-owner facts through contracts where cross-Module evidence is needed.
-- `appendAuditEvent` — authorized repair actions.
-- `recordIntegrationFailure` / structured Ops primitives — mismatch/failure telemetry.
-- `consumeMeteredEntitlement` counter rebuild logic is reused; do not invent a separate usage repair algorithm.
+- SH-047 `enqueueReliableJob` / SH-048 `executeRetryWithBackoff` — durable batch/checkpoint mechanics.
+- SH-044 `executeIdempotentCommand` — repair/backfill item idempotency.
+- SH-003 `queryOwnerFacts` (Proposed ruling) — compare source-owner facts through contracts where cross-Module evidence is needed.
+- SH-029 `appendAuditEvent` — authorized repair actions.
+- SH-037 `recordIntegrationFailure` / structured Ops primitives — mismatch/failure telemetry.
+- SH-006 `consumeMeteredEntitlement` counter rebuild logic is reused; do not invent a separate usage repair algorithm.
 
 ### Data / Schema
 

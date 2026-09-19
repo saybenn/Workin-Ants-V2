@@ -5,7 +5,7 @@
 > **Module type:** `compliance`  
 > **Build status:** `mvp_active`  
 > **Primary Cluster:** `CL-01 — Identity, Authority, Consent & Entitlements`  
-> **Repository target:** `context/modules/consent_disclosure/module-architecture.md`  
+> **Repository target:** `context/clusters/identity, authority, & consent/Consent & Disclosure Module/consent-disclosure-module-architecture.md`\
 > **Document status:** implementation-grade Module architecture grounded in the current Workin Ants registries, Prisma schema, Ubiquitous Language / Compliance Inventory, Canonical Shared Operations Registry, CL-01 architecture, and CL-01 build plan  
 > **Audience:** coding agents, developers, reviewers, security reviewers, privacy/compliance reviewers, and maintainers  
 > **Update rule:** update this file whenever a binding Consent & Disclosure ownership, proof, versioning, retention, authorization, privacy, event, or public-contract decision changes. Build progress must not silently redefine this architecture.
@@ -58,7 +58,7 @@ The Module produces:
 - a stable proof result containing the proof ID, type, version, and `acceptedAt`;
 - proof/history queries that prevent direct foreign Prisma access;
 - a reusable standalone-consent presentation capability;
-- once U-CL01-08 is resolved, an active-version resolution capability;
+- once U-CL01-13 is resolved, an active-version resolution capability;
 - Privacy-owner-compatible subject-data enumeration and target execution for Consent-owned records;
 - audit, notification, event, and observability requests through canonical shared interfaces when applicable.
 
@@ -92,7 +92,7 @@ Consent proof is reused across identity/security, verification, calendar, notifi
 | Record | Ownership | Plain-English meaning |
 |---|---|---|
 | `ConsentLog` | **Confirmed** | Immutable-style evidence that one User accepted one exact consent/disclosure type and version at a particular time, with minimized request evidence. |
-| Persistent consent-version catalog | **Capability ownership confirmed; schema unresolved** | The authoritative source for which consent text/version applies now. No Prisma model currently exists; U-CL01-08 must be resolved before a production schema is introduced. |
+| Persistent consent-version catalog | **Capability ownership confirmed; schema unresolved** | The authoritative source for which consent text/version applies now. No Prisma model currently exists; U-CL01-13 must be resolved before a production schema is introduced. |
 
 ### 3.2 Enums / statuses owned
 
@@ -117,9 +117,9 @@ ConsentLog created
 terminal historical proof
 ```
 
-There is no approved mutation transition from a `ConsentLog` to revoked/withdrawn/superseded. If revocable-current-state behavior is required, it must preserve acceptance history and must not be invented until U-CL01-09 is resolved.
+There is no approved mutation transition from a `ConsentLog` to revoked/withdrawn/superseded. If revocable-current-state behavior is required, it must preserve acceptance history and must not be invented until U-CL01-16 is resolved.
 
-The future consent-document/version lifecycle is owned in principle by Consent & Disclosure, but its states, transitions, schema, publishing authority, and re-consent semantics remain gated by U-CL01-08 and U-CL01-09.
+The future consent-document/version lifecycle is owned in principle by Consent & Disclosure, but its states, transitions, schema, publishing authority, and re-consent semantics remain gated by U-CL01-13 and U-CL01-16.
 
 ### 3.4 Source-of-truth fields
 
@@ -155,10 +155,10 @@ Consent & Disclosure owns:
 - exact type/version matching semantics;
 - what constitutes an explicit acceptance command;
 - which `ConsentType` values require standalone presentation, once the policy is fully codified;
-- active-version applicability and material-change/re-consent policy once U-CL01-08/U-CL01-09 are resolved;
+- active-version applicability and material-change/re-consent policy once U-CL01-13/U-CL01-16 are resolved;
 - Consent-specific evidence minimization rules;
 - what fields are safe to return in self/admin history queries;
-- Consent-owned privacy disposition mapping after U-CL01-11 is resolved.
+- Consent-owned privacy disposition mapping after U-CL01-15 is resolved.
 
 ---
 
@@ -202,7 +202,7 @@ The registry’s historical “Privacy request workflow” technology label is s
 8. **Consumers call the public interface.** Direct foreign inserts or proof queries against `ConsentLog` are prohibited outside approved migrations/reporting tooling.
 9. **The User identity comes from Identity.** Browser/client input must not be trusted to choose the accepting `userId` for a self-acceptance command.
 10. **Evidence is minimized.** Raw IP addresses are not stored in `ConsentLog`; hashing uses the canonical security primitive and raw request evidence is not copied into logs/events.
-11. **Version content is immutable after publication.** This becomes binding for the future catalog once U-CL01-08 is resolved; content changes create a new version rather than rewriting historical meaning.
+11. **Version content is immutable after publication.** This becomes binding for the future catalog once U-CL01-13 is resolved; content changes create a new version rather than rewriting historical meaning.
 12. **Privacy orchestration is external.** Consent executes an instruction against its records; it never creates its own erasure job system.
 13. **Support records do not replace proof.** Audit and observability may describe an operation but do not substitute for a valid `ConsentLog`.
 14. **Unresolved legal semantics fail closed.** Withdrawal, re-consent, retention, decline proof, and destructive erasure are not guessed in implementation.
@@ -234,7 +234,7 @@ src/modules/consent-disclosure/
 └── tests/
 ```
 
-After U-CL01-08 is resolved, add only the code areas actually required for the accepted version-catalog design, for example a catalog repository/policy. Do **not** create `providers/` because this Module owns no external provider integration. Do **not** create a `workers/` directory unless an approved Consent-owned asynchronous responsibility exists.
+After U-CL01-13 is resolved, add only the code areas actually required for the accepted version-catalog design, for example a catalog repository/policy. Do **not** create `providers/` because this Module owns no external provider integration. Do **not** create a `workers/` directory unless an approved Consent-owned asynchronous responsibility exists.
 
 Shared authentication, authorization, idempotency, hashing, audit, queue, notification, privacy orchestration, and observability code stays in its canonical owner.
 
@@ -279,11 +279,11 @@ These relations allow consumers to freeze proof references; they do not transfer
 
 **Current indexes:** by `[userId, type, acceptedAt]` and `[type, version]`.
 
-**Uniqueness / idempotency:** no database uniqueness currently distinguishes retry duplicates from intentional re-acceptance. U-CL01-10 is a production architecture gate. SH-044 must protect command retries in the interim without falsely claiming permanent database uniqueness semantics.
+**Uniqueness / idempotency:** no database uniqueness currently distinguishes retry duplicates from intentional re-acceptance. U-CL01-14 is a production architecture gate. SH-044 must protect command retries in the interim without falsely claiming permanent database uniqueness semantics.
 
 **Concurrency-sensitive behavior:** duplicate simultaneous acceptance requests for the same semantic command. The accepted idempotency key policy must distinguish replay from a later independent acceptance.
 
-**Retention/privacy:** current `User → ConsentLog` relation uses `onDelete: Cascade`, while the privacy vocabulary contains a `consent_proof` retention-exemption reason. This is an explicit architecture conflict. No destructive migration or production hard-delete behavior may be implemented until U-CL01-11 resolves retention, pseudonymization, and referential behavior.
+**Retention/privacy:** current `User → ConsentLog` relation uses `onDelete: Cascade`, while the privacy vocabulary contains a `consent_proof` retention-exemption reason. This is an explicit architecture conflict. No destructive migration or production hard-delete behavior may be implemented until U-CL01-15 resolves retention, pseudonymization, and referential behavior.
 
 ### 8.2 `ConsentType`
 
@@ -293,7 +293,7 @@ Consumer Modules may define which type they require for their action; they must 
 
 ### 8.3 Required future version-catalog truth — schema unresolved
 
-SH-009 and CL-01 confirm that Consent owns active-version resolution, but no current Prisma model persists that truth. **Do not invent a model name or migration in feature code.** U-CL01-08 must first settle at minimum:
+SH-009 and CL-01 confirm that Consent owns active-version resolution, but no current Prisma model persists that truth. **Do not invent a model name or migration in feature code.** U-CL01-13 must first settle at minimum:
 
 - stable document/type identity;
 - immutable version identifier;
@@ -333,7 +333,7 @@ CONSENT_LOG_CREATED
 
 **Reversal/reopen:** none in the current schema. Privacy-authorized erasure/anonymization/retention is a separate data-rights effect, not a normal lifecycle reversal.
 
-**Concurrency expectation:** semantic retries must return the same command result after U-CL01-10 policy is applied; independent later acceptance may need a distinct history row.
+**Concurrency expectation:** semantic retries must return the same command result after U-CL01-14 policy is applied; independent later acceptance may need a distinct history row.
 
 **Event/history proof:** the row itself is proof. Audit/Event records are supplemental.
 
@@ -341,11 +341,11 @@ CONSENT_LOG_CREATED
 
 ### 9.2 Withdrawal / revocation / decline / re-consent
 
-**Unresolved:** U-CL01-09. No status values or transition graph may be introduced here until policy is approved per ConsentType or policy family.
+**Unresolved:** U-CL01-16. No status values or transition graph may be introduced here until policy is approved per ConsentType or policy family.
 
 ### 9.3 Consent-version catalog lifecycle
 
-**Unresolved:** U-CL01-08. The Module owns the capability, but the actual status vocabulary and transitions are not defined by current evidence. Do not invent `draft/published/retired` schema merely because such states are common.
+**Unresolved:** U-CL01-13. The Module owns the capability, but the actual status vocabulary and transitions are not defined by current evidence. Do not invent `draft/published/retired` schema merely because such states are common.
 
 ---
 
@@ -375,17 +375,17 @@ CONSENT_LOG_CREATED
 
 **Effects:** optional minimized event/audit request after the source write; no consumer lifecycle mutation.
 
-**Idempotency:** mandatory at the command boundary. Final semantic uniqueness remains gated by U-CL01-10.
+**Idempotency:** mandatory at the command boundary. Final semantic uniqueness remains gated by U-CL01-14.
 
 **Failure modes:** invalid type/version, unauthenticated actor, subject mismatch, idempotency conflict, database failure, unavailable canonical security primitive.
 
 ### 10.2 Future catalog publish/change command — gated
 
-Consent & Disclosure is the probable/Cluster-confirmed owner of version publication, but command names, statuses, approval authority, and persistence are not binding until U-CL01-08 is resolved. A coding agent must stop rather than create `publishConsentVersion` from convention.
+Consent & Disclosure is the probable/Cluster-confirmed owner of version publication, but command names, statuses, approval authority, and persistence are not binding until U-CL01-13 is resolved. A coding agent must stop rather than create `publishConsentVersion` from convention.
 
 ### 10.3 Withdrawal command — prohibited until resolved
 
-No `withdrawConsent` / `revokeConsent` command is approved today. U-CL01-09 must first decide which types are revocable and how current state is represented while preserving history.
+No `withdrawConsent` / `revokeConsent` command is approved today. U-CL01-16 must first decide which types are revocable and how current state is represented while preserving history.
 
 ---
 
@@ -419,17 +419,17 @@ No `withdrawConsent` / `revokeConsent` command is approved today. U-CL01-09 must
 
 **Consumers:** every presentation workflow.
 
-**Input:** consent type, effective time, and only those locale/jurisdiction/context facts adopted by U-CL01-08.
+**Input:** consent type, effective time, and only those locale/jurisdiction/context facts adopted by U-CL01-13.
 
 **Result:** exact active version plus controlled presentation metadata and content/content reference.
 
-**Status:** public capability confirmed; production implementation blocked by U-CL01-08.
+**Status:** public capability confirmed; production implementation blocked by U-CL01-13.
 
 **Consumer must not infer:** that the User accepted that version. It must call SH-008 or obtain SH-007 proof after presentation.
 
 ### 11.4 Standalone presentation decision
 
-The Module owns whether its configured consent must be presented separately. The exact persistence mechanism is part of U-CL01-08. A consumer may supply workflow context, but it may not quietly downgrade a Consent-required standalone disclosure into general Terms.
+The Module owns whether its configured consent must be presented separately. The exact persistence mechanism is part of U-CL01-13. A consumer may supply workflow context, but it may not quietly downgrade a Consent-required standalone disclosure into general Terms.
 
 ---
 
@@ -446,14 +446,14 @@ The Module owns whether its configured consent must be presented separately. The
 
 ### Confirmed capability, implementation-gated
 
-- **SH-009 `resolveActiveConsentVersion`** — owner confirmed, persistence blocked by U-CL01-08.
+- **SH-009 `resolveActiveConsentVersion`** — owner confirmed, persistence blocked by U-CL01-13.
 - **SH-010 `presentStandaloneConsent`** — reusable application/UI capability. Before SH-009 is production-ready, it may accept a trusted server-supplied exact presentation descriptor without inventing a catalog.
 
 ### Privacy executor
 
 - **SH-096 `enumerateSubjectData`** implementation for Consent-owned records.
 - **SH-097 `evaluateRetentionRequirement`** Consent-owned facts supplied to Privacy.
-- **SH-095 `executePrivacyInstruction`** implementation against Consent-owned records, with destructive behavior gated by U-CL01-11.
+- **SH-095 `executePrivacyInstruction`** implementation against Consent-owned records, with destructive behavior gated by U-CL01-15.
 - SH-098 shared anonymization primitive when an approved field mapping exists.
 
 ### Emitted domain events
@@ -563,7 +563,7 @@ Only operations materially relevant to this Module are listed here. The Canonica
 - **Local policy:** applicability, material change, supersession, re-consent.
 - **Expected result:** exact active version descriptor.
 - **Do not build:** `currentTerms.ts`, `termsVersionService.ts` inside consumer Modules.
-- **Gate:** U-CL01-08.
+- **Gate:** U-CL01-13.
 
 ### SH-010 — `presentStandaloneConsent`
 
@@ -592,7 +592,7 @@ Only operations materially relevant to this Module are listed here. The Canonica
 - **Classification:** cross-cutting audit capability.
 - **Owner:** Audit / Event Ledger.
 - **Meaning:** record access to sensitive information when policy requires it.
-- **Why used:** privileged history/evidence reads only if the U-CL01-17 access-audit matrix classifies them as sensitive.
+- **Why used:** privileged history/evidence reads only if the Consent sensitive-access audit decision classifies them as sensitive.
 - **Invocation:** authorized sensitive read.
 - **Local policy:** what fields/operation count as sensitive.
 - **Expected result:** access-audit proof.
@@ -629,7 +629,7 @@ Only operations materially relevant to this Module are listed here. The Canonica
 - **Owner:** platform application infrastructure.
 - **Why used:** retry-safe acceptance and privileged catalog/privacy mutations.
 - **Invocation:** command boundary before source write.
-- **Local policy:** semantic key and replay result, subject to U-CL01-10.
+- **Local policy:** semantic key and replay result, subject to U-CL01-14.
 - **Do not build:** `consentIdempotency.ts`, custom idempotency table.
 
 ### SH-046 — `publishDomainEvent`
@@ -645,7 +645,7 @@ Only operations materially relevant to this Module are listed here. The Canonica
 
 - **Classification:** platform security primitive.
 - **Owner:** shared security/cryptography.
-- **Why used:** future content hash/integrity proof if U-CL01-08 requires it.
+- **Why used:** future content hash/integrity proof if U-CL01-13 requires it.
 - **Invocation:** canonical consent-content creation/publishing.
 - **Local policy:** canonical fields and what the hash proves.
 - **Do not build:** local SHA/HMAC helpers.
@@ -664,7 +664,7 @@ Only operations materially relevant to this Module are listed here. The Canonica
 - **Classification:** shared mechanism / separate policy.
 - **Owner:** each policy Module using the shared versioning mechanism.
 - **Why used:** future immutable effective-dated consent catalog mechanics.
-- **Invocation:** only after U-CL01-08 approves persistence/status semantics.
+- **Invocation:** only after U-CL01-13 approves persistence/status semantics.
 - **Local policy:** Consent version meaning, applicability, standalone and re-consent policy.
 - **Do not build:** an unrelated Consent-only generic version engine.
 
@@ -674,7 +674,7 @@ Only operations materially relevant to this Module are listed here. The Canonica
 - **Owner:** Privacy orchestrates; Consent owns execution against its records; shared primitive for approved anonymization.
 - **Why used:** inventory/export/erase/anonymize/retain Consent data without moving Privacy lifecycle into this Module.
 - **Invocation:** Privacy-authorized target execution.
-- **Local policy:** Consent field disposition and retention facts after U-CL01-11.
+- **Local policy:** Consent field disposition and retention facts after U-CL01-15.
 - **Expected result:** typed target execution result.
 - **Do not build:** `gdprConsentWorker.ts`, `ConsentPrivacyRequest`, local retention-exemption table.
 
@@ -687,9 +687,9 @@ Only operations materially relevant to this Module are listed here. The Canonica
 | validateConsentAcceptance | enforce type/version/explicit-intent rules before SH-007 write | actor, type, version, acceptance payload | validated acceptance intent or domain error | none | Consent defines what constitutes valid proof creation |
 | buildConsentProofResult | expose only safe proof fields | ConsentLog | public proof DTO | none | prevents request evidence leakage |
 | matchExactConsentVersion | determine whether a proof satisfies an exact requirement | proof + required type/version | match/no-match + reason | none | core Consent semantics |
-| classifyStandaloneRequirement | determine standalone presentation requirement | consent type + approved context | standalone/general result | none | Consent policy, not consumer UI preference; persistence is partly gated by U-CL01-08 |
+| classifyStandaloneRequirement | determine standalone presentation requirement | consent type + approved context | standalone/general result | none | Consent policy, not consumer UI preference; persistence is partly gated by U-CL01-13 |
 | filterConsentHistory | apply self/admin field-redaction rules | actor/subject/filter | safe history page | none | Consent knows proof sensitivity while Role decides authority |
-| mapConsentPrivacyDisposition | map Privacy instruction to allowable Consent-owned effects | instruction + approved retention facts | local execution plan | ConsentLog only | record-owner responsibility; destructive paths gated by U-CL01-11 |
+| mapConsentPrivacyDisposition | map Privacy instruction to allowable Consent-owned effects | instruction + approved retention facts | local execution plan | ConsentLog only | record-owner responsibility; destructive paths gated by U-CL01-15 |
 
 Do not turn these into generic platform utilities.
 
@@ -794,7 +794,7 @@ No Consent-owned background worker is currently required for the core acceptance
 
 Possible future work is gated:
 
-- re-consent targeting/notification after a material version change — depends on U-CL01-08/U-CL01-09 and must call Notification rather than deliver itself;
+- re-consent targeting/notification after a material version change — depends on U-CL01-13/U-CL01-16 and must call Notification rather than deliver itself;
 - privacy target execution — Privacy owns orchestration; Consent implements its executor and may run under shared queue infrastructure when instructed;
 - catalog integrity/reconciliation — only if the accepted version model requires it.
 
@@ -806,7 +806,7 @@ Any approved worker must use the shared queue/retry/dead-letter infrastructure. 
 
 ### Acceptance race
 
-Two retries of the same semantic acceptance must not create uncontrolled duplicate proof. Use SH-044. U-CL01-10 must define the durable semantic key/uniqueness policy before final production constraints are introduced.
+Two retries of the same semantic acceptance must not create uncontrolled duplicate proof. Use SH-044. U-CL01-14 must define the durable semantic key/uniqueness policy before final production constraints are introduced.
 
 **Likely aggregate/resource key:** accepting User + consent type + version + semantic acceptance intent/idempotency key. This is not yet a database uniqueness ruling.
 
@@ -816,7 +816,7 @@ Two retries of the same semantic acceptance must not create uncontrolled duplica
 
 ### Version-catalog race
 
-Publishing/superseding versions is blocked until U-CL01-08 defines constraints. When implemented, use database constraints/optimistic concurrency or aggregate locking from shared primitives rather than in-memory locks.
+Publishing/superseding versions is blocked until U-CL01-13 defines constraints. When implemented, use database constraints/optimistic concurrency or aggregate locking from shared primitives rather than in-memory locks.
 
 ### Prohibited
 
@@ -873,7 +873,7 @@ Three truths stay distinct:
 
 Do not log every acceptance as a substitute for `ConsentLog`. Do not copy `ipHash`, raw user agent, or full consent text into generic audit payloads unless an explicitly approved audit matrix requires a minimized field.
 
-U-CL01-17 must determine which admin/support history reads require SH-030. Self-history reads do not become “sensitive access” automatically merely because the model is compliance-related.
+Consent sensitive-access audit decision must determine which admin/support history reads require SH-030. Self-history reads do not become “sensitive access” automatically merely because the model is compliance-related.
 
 ---
 
@@ -901,7 +901,7 @@ Consent implements:
 
 ### Retention conflict / hard gate
 
-Current cascade deletion can remove `ConsentLog` when `User` is deleted, while the privacy vocabulary explicitly recognizes `consent_proof` as a retention-exemption reason. U-CL01-11 must settle:
+Current cascade deletion can remove `ConsentLog` when `User` is deleted, while the privacy vocabulary explicitly recognizes `consent_proof` as a retention-exemption reason. U-CL01-15 must settle:
 
 - minimum/maximum retention by consent category or legal purpose;
 - whether retained proof keeps a User FK, pseudonymous subject key, or other identity reference;
@@ -999,13 +999,13 @@ Do not expose database stack traces, SQL errors, raw cryptography failures, or c
 - standalone policy fixtures for approved types;
 - proof DTO redaction;
 - evidence-minimization mapping;
-- future active-version applicability only after U-CL01-08.
+- future active-version applicability only after U-CL01-13.
 
 ### State / lifecycle tests
 
 - explicit acceptance creates proof once per semantic command;
 - historical proof cannot be mutated by normal product commands;
-- no invented revoke/withdraw transition exists before U-CL01-09.
+- no invented revoke/withdraw transition exists before U-CL01-16.
 
 ### Public contract tests
 
@@ -1042,15 +1042,15 @@ Do not expose database stack traces, SQL errors, raw cryptography failures, or c
 
 - duplicate request replay;
 - simultaneous same-key acceptance;
-- different independent acceptance keys preserve intended history after U-CL01-10;
-- catalog publish race tests after U-CL01-08.
+- different independent acceptance keys preserve intended history after U-CL01-14;
+- catalog publish race tests after U-CL01-13.
 
 ### Privacy tests
 
 - subject enumeration;
 - export field minimization;
 - retention decision path;
-- no destructive cascade enabled until U-CL01-11;
+- no destructive cascade enabled until U-CL01-15;
 - anonymization/deletion only according to approved mapping.
 
 ### E2E participation tests
@@ -1087,10 +1087,10 @@ Representative flows should prove Consent boundaries with at least:
 16. Age eligibility is not inferred from `ConsentType.age_gate`.
 17. Raw IP addresses are never stored in ConsentLog or telemetry.
 18. Shared idempotency, hashing, authorization, audit, notification, privacy, and observability mechanisms are consumed, not recreated.
-19. No persistent consent-version schema may be invented before U-CL01-08 is resolved and architecture updated.
-20. No withdraw/revoke/decline/re-consent lifecycle may be invented before U-CL01-09 is resolved.
-21. No permanent database uniqueness rule may collapse intentional re-acceptance history before U-CL01-10 is resolved.
-22. No destructive User/Consent delete path may bypass U-CL01-11 retention analysis.
+19. No persistent consent-version schema may be invented before U-CL01-13 is resolved and architecture updated.
+20. No withdraw/revoke/decline/re-consent lifecycle may be invented before U-CL01-16 is resolved.
+21. No permanent database uniqueness rule may collapse intentional re-acceptance history before U-CL01-14 is resolved.
+22. No destructive User/Consent delete path may bypass U-CL01-15 retention analysis.
 23. Privacy orchestration remains Privacy-owned.
 24. Audit and observability records supplement but never replace Consent proof.
 25. Consent owns no provider webhook/client.
@@ -1157,12 +1157,12 @@ Do not create inside this Module or consumer Modules:
 
 | ID | Decision | Why unresolved | Blocks |
 |---|---|---|---|
-| U-CL01-08 | What is the persistent consent-version catalog schema and applicability model? | SH-009 capability is confirmed but Prisma has no version/content model | production active-version resolution, catalog administration, re-consent lifecycle |
-| U-CL01-09 | Which consent types support withdrawal, revocation, decline proof, or re-consent and how is current state represented? | ConsentLog models acceptance only | withdrawal commands/events/current-state query |
-| U-CL01-10 | What is ConsentLog semantic idempotency/uniqueness policy? | no uniqueness constraint; retries must be deduped without erasing intentional re-acceptance history | final DB constraints and replay semantics |
-| U-CL01-11 | What is ConsentLog retention and User-erasure behavior? | `onDelete: Cascade` conflicts with `consent_proof` retention exemption | destructive privacy paths and retention-safe schema migration |
-| U-CL01-17 | Which Consent history/admin reads require AccessAuditLog? | platform sensitive-access matrix not fully enumerated | final SH-030 instrumentation matrix |
-| U-CL01-25 | How are subscription terms/recurring-billing consent immutably bound to enrollment/change? | Track consumer context exists but proof reference/snapshot policy is incomplete | production Track enrollment/change integration, not generic proof recording |
+| U-CL01-13 | What is the persistent consent-version catalog schema and applicability model? | SH-009 capability is confirmed but Prisma has no version/content model | production active-version resolution, catalog administration, re-consent lifecycle |
+| U-CL01-16 | Which consent types support withdrawal, revocation, decline proof, or re-consent and how is current state represented? | ConsentLog models acceptance only | withdrawal commands/events/current-state query |
+| U-CL01-14 | What is ConsentLog semantic idempotency/uniqueness policy? | no uniqueness constraint; retries must be deduped without erasing intentional re-acceptance history | final DB constraints and replay semantics |
+| U-CL01-15 | What is ConsentLog retention and User-erasure behavior? | `onDelete: Cascade` conflicts with `consent_proof` retention exemption | destructive privacy paths and retention-safe schema migration |
+| Consent sensitive-access audit decision | Which Consent history/admin reads require AccessAuditLog? | platform sensitive-access matrix not fully enumerated | final SH-030 instrumentation matrix |
+| U-CL01-28 | How are subscription terms/recurring-billing consent immutably bound to enrollment/change? | Track consumer context exists but proof reference/snapshot policy is incomplete | production Track enrollment/change integration, not generic proof recording |
 | U-CD-01 | When must a consumer store explicit `consentLogId` versus only query current proof? | some current models reference ConsentLog; others do not | consumer-specific historical proof contracts |
 | U-CD-02 | Is version + content hash sufficient presentation proof, or is a separate presentation evidence record required? | current schema proves acceptance, not rendered presentation details | final catalog/presentation evidence design |
 | U-CD-03 | Does `ConsentType.age_gate` represent only a disclosure acknowledgment? | Identity owns age eligibility and schema contains the enum value | any use of age_gate as a Consent proof type |
@@ -1181,7 +1181,7 @@ Implementation rule: if a numbered feature reaches one of these questions, the a
 4. No ConsentLog lifecycle status exists today; the row is completed historical acceptance evidence.
 5. Consent proof is not downstream permission, readiness, provider state, or compliance outcome.
 6. SH-007 and SH-008 are the canonical write/read boundary for generic consent proof.
-7. SH-009 and SH-010 are Consent-owned capabilities; persistent active-version implementation remains gated by U-CL01-08.
+7. SH-009 and SH-010 are Consent-owned capabilities; persistent active-version implementation remains gated by U-CL01-13.
 8. Consumer-specific contextual records remain owned by their domain Modules.
 9. Identity owns authentication and age eligibility; Role owns permission interpretation.
 10. Privacy owns privacy-request/job/retention-exemption orchestration; Consent is a target executor only.
@@ -1193,7 +1193,7 @@ Implementation rule: if a numbered feature reaches one of these questions, the a
 ### Proposed rulings
 
 - **CD-PR-01:** organize implementation behind a dedicated feature-first `consent-disclosure` boundary and expose public contracts rather than direct cross-domain Prisma access.
-- **CD-PR-02:** treat `ConsentLog` as append-only historical proof in ordinary product flows; any privacy-authorized destructive/anonymizing change is a separate data-rights execution path governed by U-CL01-11.
+- **CD-PR-02:** treat `ConsentLog` as append-only historical proof in ordinary product flows; any privacy-authorized destructive/anonymizing change is a separate data-rights execution path governed by U-CL01-15.
 - **CD-PR-03:** consumers that need historical frozen context should store the proof ID/result in their own source record; current-state gates should query SH-008. Exact per-consumer binding remains U-CD-01.
 - **CD-PR-04:** default to query-first integration; add Consent domain events only where a durable asynchronous consumer requirement exists.
 
@@ -1212,18 +1212,18 @@ Implementation rule: if a numbered feature reaches one of these questions, the a
 
 Before implementing or changing this Module, the coding agent must read, in order:
 
-1. root `context/project-overview.md`;
-2. root `context/architecture.md`;
-3. root `context/code-standards.md`;
+1. root `context/project-overview-v3.md`;
+2. root `context/architecture.md` (**currently missing**; see `context/context-map.md`);
+3. root `context/code-standards.md` (**currently missing**; see `context/context-map.md`);
 4. `context/shared/shared-operations.md`;
-5. CL-01 `architecture.md`;
-6. CL-01 `build-plan.md`;
+5. CL-01 `context/clusters/identity, authority, & consent/identity-authority-consent-architecture.md`;
+6. CL-01 `context/clusters/identity, authority, & consent/identity-authority-consent-build-plan.md`;
 7. this `module-architecture.md`;
 8. this Module `implementation-plan.md`;
 9. relevant dependency/consumer public-interface sections, especially Identity & Access, Role / Authority, Privacy / Data Erasure, Audit / Event Ledger, Notification, Trust Verification / Screening, Booking & Calendar, Transaction / Order, Digital Goods Access, Track Subscription & Entitlement, Healthcare / Regulated Services, Sweepstakes / Prize, and Gamification / Rewards;
-10. current `progress-tracker.md`;
+10. `progress-tracker.md` (**currently missing**; see `context/context-map.md`);
 11. current Prisma schema and migrations.
 
-Before coding a feature, the agent must confirm that none of U-CL01-08, U-CL01-09, U-CL01-10, U-CL01-11, U-CL01-17, U-CL01-25, or U-CD-01 through U-CD-03 blocks that feature’s production behavior.
+Before coding a feature, the agent must confirm that none of U-CL01-13, U-CL01-16, U-CL01-14, U-CL01-15, Consent sensitive-access audit decision, U-CL01-28, or U-CD-01 through U-CD-03 blocks that feature’s production behavior.
 
 If repository code differs from this architecture, the agent must record the conflict, preserve confirmed source-of-truth ownership, and update architecture first if a binding decision legitimately changed. Build progress may report implementation status; it may not redefine Consent ownership, proof meaning, retention policy, or shared-operation ownership.

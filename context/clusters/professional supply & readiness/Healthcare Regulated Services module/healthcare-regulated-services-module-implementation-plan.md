@@ -3,10 +3,12 @@
 > **Module ID:** `healthcare_regulated_services`  
 > **Module name:** Healthcare / Regulated Services Module  
 > **Primary Cluster:** CL-03 — Professional Supply & Readiness  
-> **Repository target:** `context/healthcare_regulated_services/implementation-plan.md`  
-> **Architecture dependency:** `context/healthcare_regulated_services/module-architecture.md`  
-> **Cluster sequence dependency:** `context/professional-supply-readiness/build-plan.md`  
+> **Repository target:** `context/clusters/professional supply & readiness/Healthcare Regulated Services module/healthcare-regulated-services-module-implementation-plan.md`\
+> **Architecture dependency:** `context/clusters/professional supply & readiness/Healthcare Regulated Services module/healthcare-regulated-services-module-architecture.md`\
+> **Cluster sequence dependency:** `context/clusters/professional supply & readiness/professional-supply-readiness-build-plan.md`\
 > **Plan status:** Ordered Module implementation roadmap; subordinate to root and Cluster architecture
+
+**Repository context (CL-03-R021):** Read [context/context-map.md](<../../../context-map.md>) for authority by concern and verified artifact locations, [context/project-overview-v3.md](<../../../project-overview-v3.md>) for orientation, and [context/shared/shared-operations.md](<../../../shared/shared-operations.md>) for canonical operations. Root architecture, root build plan, code standards, and the progress tracker are missing; references to those prerequisites do not assert availability or authorize a substitute/global precedence rule.
 
 ## Core Principle
 
@@ -70,7 +72,7 @@ These must exist before a production path relies on them. A feature may contract
 
 - Professional Eligibility Feature 01 `getProfessionalProfileContext` or equivalent owner facts contract;
 - Marketplace Supply Feature 02 `getOfferingEligibilityContext` where Offering context is evaluated;
-- Professional Eligibility Feature 03 consumption of SH-020 or stable contract double for it;
+- CL-03 Cluster Feature 03 / Professional Eligibility local Feature 02 readiness composition consuming SH-020, or a stable contract double for it (CL-03-R022);
 - Taxonomy SH-022 `resolveTaxonomyRequirements`;
 - Consent SH-008 where a healthcare disclosure/consent proof is required by the approved feature path;
 - SH-123 target-owner validation before writing polymorphic boundaries/policies;
@@ -169,7 +171,7 @@ Supports **CL-03 Feature 06** prerequisites and establishes the boundary require
 
 ### Module-Owned Data
 
-No new source-of-truth model. Existing four Healthcare models and owned enums are referenced. No migration unless a purely mechanical index/constraint defect is found and an architecture-compatible migration is reviewed.
+No new source-of-truth model. The four Healthcare models and owned enums are declared in Prisma; that does not establish deployability from checked-in migrations. Apply the CL-03-R016 migration-baseline prerequisite. Additional feature-specific index/constraint changes require architecture-compatible review; this reconciliation makes no migration change.
 
 ### Public Interfaces
 
@@ -1868,7 +1870,7 @@ Before implementing each numbered feature:
 4. Read CL-03 architecture and build plan.
 5. Read this Module architecture and implementation plan.
 6. Read public-interface sections for every direct dependency used by the feature.
-7. Read current progress tracker and approved ADR/rulings for U-07–U-18 and U-HC-*.
+7. Check `context/context-map.md`: the progress tracker is missing; read available approved ADR/rulings for U-07–U-18 and U-HC-* without substituting them for the tracker.
 8. Confirm the prior numbered feature exit gate is passing.
 9. Produce one concise Feature Implementation Specification using the required template below.
 10. Implement only the current feature.

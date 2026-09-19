@@ -2,9 +2,11 @@
 
 > **Cluster ID:** CL-03  
 > **Cluster name:** Professional Supply & Readiness  
-> **Repository target:** `context/professional-supply-readiness/build-plan.md`  
-> **Architecture dependency:** `context/professional-supply-readiness/architecture.md`  
+> **Repository target:** `context/clusters/professional supply & readiness/professional-supply-readiness-build-plan.md`\
+> **Architecture dependency:** `context/clusters/professional supply & readiness/professional-supply-readiness-architecture.md`\
 > **Plan status:** Ordered implementation roadmap; it does not redefine architecture
+
+**Repository context (CL-03-R021):** Read [context/context-map.md](<../../context-map.md>) for authority by concern and verified artifact locations, [context/project-overview-v3.md](<../../project-overview-v3.md>) for orientation, and [context/shared/shared-operations.md](<../../shared/shared-operations.md>) for canonical operations. Root architecture, root build plan, code standards, and the progress tracker are missing; references to those prerequisites do not assert availability or authorize a substitute/global precedence rule.
 
 ## Core Principle
 
@@ -86,6 +88,10 @@ These may initially be stubbed behind stable interfaces so CL-03 can progress wi
 - **CL-05 Digital Goods / Video:** delivery-readiness contracts for downloadable products/courses.
 - **CL-07 Notification:** request interface.
 - **CL-08 Privacy:** fulfillment protocol.
+
+### Migration-baseline prerequisite (CL-03-R016)
+
+Current Prisma declarations are not proof of a deployable database baseline. Checked-in migrations do not reproduce all current CL-03 structures and enum values. Before claiming database readiness for an affected feature, establish migration coverage for the approved schema, verify the target database baseline, and record the migration/reconciliation evidence. Historical applied migrations must not be rewritten merely to resemble Prisma; address gaps through an approved forward migration/reconciliation process. Contract work may use the existing permitted test doubles, but cannot claim database or production readiness. This documentation pass creates or changes no migration.
 
 ### Existing source-of-truth records
 
@@ -1234,6 +1240,8 @@ Restriction/restoration source decision comes from Moderation/Hold owner; Market
 
 ### Exit Gate
 
+Marketplace local Feature 05 completes the Offering publication transition slice only; local Feature 06 completes the required Search handoff. Neither the publication slice alone nor an untested Search request closes Cluster Feature 08 (CL-03-R018).
+
 Feature 08 is complete only when:
 
 1. U-01 has an approved `publish_offering` financial-gate ruling recorded in architecture/module policy;
@@ -1526,6 +1534,44 @@ Feature 10 is complete only when:
 
 # Phase 4 — Cross-Cluster Contract Proof
 
+## 10A — Taxable-Value Intake and Tax-Reporting Coordination
+
+**Approved CL-03-R017:** this numbered acceptance point follows Feature 10's Payment/Order bridge and precedes Feature 11 and final hardening. Existing feature IDs remain unchanged. Payment local Features 08–09 retain their internal implementation sequence.
+
+### Objective / Observable Result
+
+Prove the CL-10 Prize/Rewards-to-Payment taxable-value bridge and the approved reporting scope: source-owned recognized values reach Payment without duplicate counting, jurisdiction loss, or transfer of prize/reward lifecycle ownership.
+
+### Owning Modules and Dependencies
+
+- Payment owns tax intake, `TaxYearEarningsSummary`, reporting state, and tax reconciliation.
+- CL-10 Prize/Reward and other approved value owners retain recognition, valuation evidence, source events, and their separate value summaries.
+- Cluster Feature 10 and Payment local Features 08–09 supply the relevant implementation/contracts; coordinate with the enabled source-owner features rather than duplicating them here.
+- Apply the CL-03-R016 migration baseline and Payment's remaining subject-representation/persistence, reporting-rule, provider, correction, and retention gates. Automated filing remains disabled where the existing Payment plan leaves it unapproved.
+
+### Shared Operations / Public Integration
+
+| Operation | Invocation and local policy | Boundary / integration proof |
+| --- | --- | --- |
+| SH-118 `reportTaxableValue` | Source owner sends recognized subject, value/currency, jurisdiction, source identity/date, valuation evidence, and idempotency context to Payment. Payment validates approved source and tax context. | Payment owns the public intake; source recognition and fair-market-value truth stay external. Contract-test the CL-10 bridge and reject unsupported input. |
+| SH-117 `aggregateYearlyReportableValue` | Payment applies the shared mechanism to its own summary using tax subject + jurisdiction + tax year + currency, durable source-event uniqueness, transactional updates, and reversals. | Each value-owning Module retains separate summary truth. Verify replay, isolation, reversal, and rebuild behavior; do not create a universal value ledger. |
+| SH-044/045/046/047/048 | Reuse approved command/event idempotency, outbox, and reliable reconciliation jobs at their existing owner boundaries. | No CL-03 queue, inbox, event contract, or provider implementation is created by this coordination feature. |
+
+### Schema / Failure / Compliance Constraints
+
+Current `TaxYearEarningsSummary` uniqueness is insufficient under CL-03-R014. Exact tax-subject representation and persistence/migration design remain open; contract tests do not establish production aggregation readiness. Missing required subject/jurisdiction/year/currency context, unsupported source contracts, or unresolved policy must fail explicitly without inventing recognition or reporting rules. Retain existing authorization, audit, privacy, and legal/provider gates from Payment local Features 08–09.
+
+### Tests and Numbered Acceptance Gate
+
+1. At least one representative approved source-owner intake contract is tested, with explicit CL-10 Prize/Reward bridge coverage for the enabled scope; no source lifecycle is copied into Payment.
+2. Subject/jurisdiction/tax-year/currency validation and separation match CL-03-R014 and canonical SH-117/118.
+3. Concurrent/replayed source recognition and correction/reversal cannot double-count; durable identity/retention requirements are accounted for.
+4. Reporting/reconciliation tests cover rebuild, source-query failure/retry, discrepancies, and unchanged source ownership.
+5. Record the approved reporting scope and prove unresolved automated filing/provider/correction/retention paths remain disabled. Disabled or contract-only paths must be identified rather than reported as production-complete.
+6. Database/production readiness is claimed only with the required approved persistence and migration-baseline evidence; remaining blockers remain explicit before Feature 13 hardening.
+
+---
+
 ## 11 — Readiness Change Propagation and Neighboring-Cluster Integration
 
 Prove that CL-03 collaborates correctly with Gig, Order, Search, Delivery, Notification, and Hiring consumers while preserving every neighbor's source truth.
@@ -1552,7 +1598,7 @@ A change in CL-03 source truth reliably reaches affected consumers, and CL-03 ca
 
 ### Dependencies
 
-- Features 01–10.
+- Features 01–10 and the approved-scope coordination acceptance point 10A.
 - CL-02 Search interface.
 - CL-04 Gig/Order contracts.
 - CL-05 Media/Digital Goods/Video readiness contracts.
@@ -2036,11 +2082,11 @@ No cross-cluster integration is accepted merely because a foreign table can be q
 | 1 | Seller and Supply Foundations | 01 Professional Profile Foundation; 02 Offering Draft, Shape, Pricing, Classification, and Media Context; 03 Professional Readiness Composition Contract |
 | 2 | Trust and Regulated Readiness | 04 Verification Requirements, Consent, Packages, and Manual Check Path; 05 Verification Providers, Credentials, Expiry, Trust Projection, and FCRA Boundary; 06 Healthcare Lane, BAA, Data Boundaries, and Admin Payload Policy |
 | 3 | Financial Readiness and Publication | 07 KYC, Tax Profile, Payout Account, and Financial Readiness; 08 Offering Publication and Public Professional Supply; 09 Professional Balance, Payout Request, and Transfer; 10 Payment and Sales-Tax Bridge to Transaction / Order |
-| 4 | Cross-Cluster Contract Proof | 11 Readiness Change Propagation and Neighboring-Cluster Integration |
+| 4 | Cross-Cluster Contract Proof | 10A Taxable-Value Intake and Tax-Reporting Coordination; 11 Readiness Change Propagation and Neighboring-Cluster Integration |
 | 5 | Governance, Privacy, and Enforcement Integration | 12 Privacy, Moderation, Audit, Sensitive Access, and Operational Case Completion |
 | 6 | Hardening and Production Readiness | 13 CL-03 Security, Reliability, Reconciliation, Backfill, Compliance, and Production Hardening |
 
-**Total numbered features: 13**
+**Total numbered features: 14 (01–13 plus 10A; existing IDs preserved)**
 
 # Phase Execution Pattern
 
@@ -2086,7 +2132,7 @@ Immediately before implementation, each numbered feature must receive a concise 
 - **Acceptance criteria** — concrete pass/fail conditions aligned to the feature exit gate.
 - **Documentation updates** — progress and any legitimate architecture/module contract change.
 
-Do **not** pre-write giant implementation specifications for all 13 features. Specify the next numbered feature immediately before implementation so the spec reflects the real repository state and previously completed work.
+Do **not** pre-write giant implementation specifications for all 14 numbered features. Specify the next numbered feature immediately before implementation so the spec reflects the real repository state and previously completed work.
 
 # Required Completion Report
 

@@ -3,8 +3,10 @@
 > **Module ID:** `marketplace_supply`  
 > **Module name:** Marketplace Supply Module  
 > **Primary Cluster:** CL-03 — Professional Supply & Readiness  
-> **Repository target:** `context/marketplace_supply/module-architecture.md`  
+> **Repository target:** `context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-architecture.md`\
 > **Document status:** Implementation-grade Module architecture. Confirmed rulings are binding; Proposed Rulings require approval before schema/API commitment; Unresolved items must not be invented by implementation.
+
+**Repository context (CL-03-R021):** Read [context/context-map.md](<../../../context-map.md>) for authority by concern and verified artifact locations, [context/project-overview-v3.md](<../../../project-overview-v3.md>) for orientation, and [context/shared/shared-operations.md](<../../../shared/shared-operations.md>) for canonical operations. Root architecture, root build plan, code standards, and the progress tracker are missing; references to those prerequisites do not assert availability or authorize a substitute/global precedence rule.
 
 ## 1. Module Header
 
@@ -296,7 +298,6 @@ src/modules/marketplace-supply/
 
   events/
     handlers/
-      professional-readiness-changed.ts
       taxonomy-requirements-changed.ts
       moderation-decision-received.ts
       delivery-readiness-changed.ts
@@ -913,6 +914,8 @@ Consumers use SH-045. An event is a fact that occurred, not a disguised command 
 
 Required for publication/restriction/restoration/archival and other changes where Search, Notification, or neighboring consumers must react reliably.
 
+**CL-03-R005:** Marketplace does not consume or depend on `ProfessionalReadinessChanged`; Professional Eligibility has not approved that producer contract. Generic dependency-triggered reevaluation remains valid, but the replacement producer/consumer handoff for downstream Offering consequences is unresolved. Shared event/job mechanics do not supply that missing contract.
+
 ## 22. Background Jobs / Scheduled Work
 
 ### `reevaluateOfferingPublicationState`
@@ -1343,16 +1346,16 @@ Do not create the following inside Marketplace Supply:
 
 Before implementing Marketplace Supply, an agent must read:
 
-1. root `context/project-overview.md`;
-2. root `context/architecture.md`;
-3. root `context/code-standards.md`;
-4. Canonical Shared Operations Registry (`context/shared/shared-operations.md` or current canonical equivalent);
-5. CL-03 `context/professional-supply-readiness/architecture.md`;
-6. CL-03 `context/professional-supply-readiness/build-plan.md`;
-7. this `marketplace_supply/module-architecture.md`;
-8. `marketplace_supply/implementation-plan.md`;
+1. `context/project-overview-v3.md`;
+2. root architecture (**missing**; see `context/context-map.md`);
+3. root code standards (**missing**; see `context/context-map.md`);
+4. Canonical Shared Operations Registry (`context/shared/shared-operations.md`);
+5. CL-03 `context/clusters/professional supply & readiness/professional-supply-readiness-architecture.md`;
+6. CL-03 `context/clusters/professional supply & readiness/professional-supply-readiness-build-plan.md`;
+7. this `context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-architecture.md`;
+8. `context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-implementation-plan.md`;
 9. public-interface sections for Professional Eligibility, Taxonomy, Media, Search, Digital Goods, Video, Transaction / Order, Moderation/Hold, Privacy, Notification, Audit, and any other dependency touched by the feature;
-10. current progress tracker.
+10. progress tracker (**missing**; see `context/context-map.md`).
 
 Before coding a numbered feature the agent must:
 

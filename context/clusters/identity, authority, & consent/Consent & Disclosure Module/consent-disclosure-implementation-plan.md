@@ -3,8 +3,8 @@
 > **Module ID:** `consent_disclosure`  
 > **Module:** Consent & Disclosure Module  
 > **Primary Cluster:** `CL-01 — Identity, Authority, Consent & Entitlements`  
-> **Repository target:** `context/modules/consent_disclosure/implementation-plan.md`  
-> **Companion:** `module-architecture.md`, CL-01 `architecture.md`, CL-01 `build-plan.md`, root Workin Ants context, Canonical Shared Operations Registry  
+> **Repository target:** `context/clusters/identity, authority, & consent/Consent & Disclosure Module/consent-disclosure-implementation-plan.md`\
+> **Companion:** `module-architecture.md`, CL-01 `context/clusters/identity, authority, & consent/identity-authority-consent-architecture.md`, CL-01 `context/clusters/identity, authority, & consent/identity-authority-consent-build-plan.md`, root Workin Ants context, Canonical Shared Operations Registry\
 > **Implementation posture:** implement the current `ConsentLog` proof capability first; production consent-version catalog, withdrawal/re-consent, durable uniqueness, and destructive retention behavior remain architecture-gated rather than guessed in code.
 
 ---
@@ -40,15 +40,15 @@ This plan is subordinate to the CL-01 build plan. It does not change Cluster seq
 6. Every mutation has runtime validation, trusted actor resolution when applicable, server-side authorization for privileged operations, and transaction-safe writes.
 7. `ConsentLog` is historical accepted proof. Do not add status booleans or mutate proof rows for ordinary product behavior.
 8. Exact type/version matching is mandatory unless an approved future Consent policy explicitly defines compatibility.
-9. Command retries use SH-044. Do not add a permanent uniqueness constraint until U-CL01-10 is resolved.
+9. Command retries use SH-044. Do not add a permanent uniqueness constraint until U-CL01-14 is resolved.
 10. Raw IP addresses are never persisted in ConsentLog; SH-076 supplies privacy-safe hashing where evidence is approved.
 11. Provider details stay outside this Module. There are no Consent-owned provider adapters in the current plan.
 12. Cross-Module effects happen through public contracts or versioned events; Consent never writes another Module’s state.
 13. Async effects, if introduced, use shared outbox/queue/retry mechanisms and remain idempotent/observable.
 14. Privacy orchestration stays Privacy-owned. Consent implements only subject enumeration, retention facts, and owner execution.
-15. No destructive Consent/User retention migration is enabled until U-CL01-11 is resolved.
-16. No withdrawal/revocation/decline/re-consent lifecycle is implemented until U-CL01-09 is resolved.
-17. No persistent active-version catalog schema is implemented until U-CL01-08 is resolved and `module-architecture.md`/CL-01 architecture are updated.
+15. No destructive Consent/User retention migration is enabled until U-CL01-15 is resolved.
+16. No withdrawal/revocation/decline/re-consent lifecycle is implemented until U-CL01-16 is resolved.
+17. No persistent active-version catalog schema is implemented until U-CL01-13 is resolved and `module-architecture.md`/CL-01 architecture are updated.
 18. Every numbered feature ends with exact tests, documentation/progress update, and an exit gate.
 19. Do not begin the next dependent feature while the previous exit gate is failing.
 20. Unresolved architecture is surfaced, not silently settled in code.
@@ -74,12 +74,12 @@ The following must exist as real implementations or approved stable contracts/te
 
 These are hard gates only for the features that depend on them:
 
-- **U-CL01-08** — must be resolved before Feature 05 persistent active-version catalog implementation.
-- **U-CL01-09** — must be resolved before any withdrawal/revocation/re-consent state or command is added.
-- **U-CL01-10** — must be resolved before final production database uniqueness/idempotency constraints are frozen in Feature 08.
-- **U-CL01-11** — must be resolved before destructive privacy execution or retention-safe FK/cascade migration is enabled in Features 07–08.
-- **U-CL01-17** — must be resolved before final sensitive-access audit matrix is declared complete.
-- **U-CL01-25 / U-CD-01** — consumer-specific historical binding must be resolved before production Track/other consumer schemas are tightened around `consentLogId`.
+- **U-CL01-13** — must be resolved before Feature 05 persistent active-version catalog implementation.
+- **U-CL01-16** — must be resolved before any withdrawal/revocation/re-consent state or command is added.
+- **U-CL01-14** — must be resolved before final production database uniqueness/idempotency constraints are frozen in Feature 08.
+- **U-CL01-15** — must be resolved before destructive privacy execution or retention-safe FK/cascade migration is enabled in Features 07–08.
+- **Consent sensitive-access audit decision** — must be resolved before final sensitive-access audit matrix is declared complete.
+- **U-CL01-28 / U-CD-01** — consumer-specific historical binding must be resolved before production Track/other consumer schemas are tightened around `consentLogId`.
 
 ### Dependencies that may initially be stubbed by contract
 
@@ -124,7 +124,7 @@ Make the Module’s ownership, runtime request/result schemas, repository bounda
 
 ### Cluster Build-Plan Link
 
-Supports **CL-01 Phase 2 / Feature 07 — Version-Specific Consent Acceptance and Proof Query** and the Cluster requirement that public contracts replace direct foreign Prisma access.
+Supports **CL-01 Phase 2 / Feature 08 — Exact Version Consent Acceptance and Proof Query** and the Cluster requirement that public contracts replace direct foreign Prisma access.
 
 ### Dependencies
 
@@ -195,7 +195,7 @@ The feature may expose test-only or internal repository methods, but those are n
 
 - use current indexes and relations;
 - do not add `@@unique([userId,type,version])`;
-- do not alter `onDelete: Cascade` in this feature because U-CL01-11 is unresolved;
+- do not alter `onDelete: Cascade` in this feature because U-CL01-15 is unresolved;
 - no transaction beyond ordinary repository test setup is required yet.
 
 ### Events / Jobs
@@ -264,7 +264,7 @@ A signed-in User can explicitly accept one exact consent type/version and receiv
 
 ### Cluster Build-Plan Link
 
-Direct implementation of **CL-01 Phase 2 / Feature 07 — Version-Specific Consent Acceptance and Proof Query**.
+Direct implementation of **CL-01 Phase 2 / Feature 08 — Exact Version Consent Acceptance and Proof Query**.
 
 ### Dependencies
 
@@ -323,7 +323,7 @@ Do not expose `ipHash`/`userAgent` in the ordinary result.
 ### Shared Operations Used
 
 - **SH-001 `resolveAuthenticatedActor` — Identity:** resolve accepting User. Local policy: self acceptance only unless future explicit system path approved. **Do not build:** `consentAuth.ts`.
-- **SH-044 `executeIdempotentCommand` — platform:** retry safety. Local policy: semantic acceptance key while U-CL01-10 remains unresolved. **Do not build:** `consentIdempotency.ts` or a Consent idempotency table.
+- **SH-044 `executeIdempotentCommand` — platform:** retry safety. Local policy: semantic acceptance key while U-CL01-14 remains unresolved. **Do not build:** `consentIdempotency.ts` or a Consent idempotency table.
 - **SH-076 `normalizeAndHashIdentifier` — shared security:** hash IP/request evidence. Local policy: whether/which evidence is required. **Do not build:** `hashIp.ts`.
 - **SH-032 / SH-034 — request context/sanitization:** correlation and safe telemetry. **Do not build:** local context/redaction framework.
 - **SH-029 `appendAuditEvent` — Audit:** only if the approved Audit matrix requires a separate material event. Local policy: safe IDs/action. **Do not build:** Consent audit ledger.
@@ -355,7 +355,7 @@ A generic Terms acceptance cannot be silently substituted for a different type s
 - if an event is later approved, source row + outbox entry must commit atomically;
 - no in-memory lock;
 - SH-044 replay semantics protect retries;
-- no new unique constraint until U-CL01-10;
+- no new unique constraint until U-CL01-14;
 - preserve current relations/indexes.
 
 ### Events / Jobs
@@ -402,7 +402,7 @@ No full UI required. A developer/test harness or the later Feature 04 presentati
 
 - progress tracker;
 - public-interface documentation for SH-007;
-- if actual SH-044 semantics force a decision about U-CL01-10, stop and update architecture rather than implicitly choosing permanent uniqueness.
+- if actual SH-044 semantics force a decision about U-CL01-14, stop and update architecture rather than implicitly choosing permanent uniqueness.
 
 ### Acceptance Criteria
 
@@ -435,14 +435,14 @@ Provide one authoritative exact-version proof query plus a privacy-safe history 
 
 ### Cluster Build-Plan Link
 
-Completes the read side of **CL-01 Phase 2 / Feature 07**.
+Completes the read side of **CL-01 Phase 2 / Feature 08**.
 
 ### Dependencies
 
 - Features 01–02;
 - SH-001;
 - SH-002;
-- Audit SH-030 only if U-CL01-17 or an approved interim matrix requires it;
+- Audit SH-030 only if Consent sensitive-access audit decision or an approved interim matrix requires it;
 - current ConsentLog indexes/RLS.
 
 ### In Scope
@@ -462,7 +462,7 @@ Completes the read side of **CL-01 Phase 2 / Feature 07**.
 - broad compliance reporting/export warehouse;
 - exposing IP hash/user agent in normal UI;
 - consumer business decisions;
-- `AccessAuditLog` policy beyond approved U-CL01-17 ruling.
+- `AccessAuditLog` policy beyond approved Consent sensitive-access audit decision ruling.
 
 ### Module-Owned Data
 
@@ -495,7 +495,7 @@ Reads `ConsentLog`; no schema mutation required unless query-plan evidence later
 - self history is self-only;
 - other-user history uses SH-002;
 - sensitive evidence fields stay hidden unless a separately authorized query exists;
-- U-CL01-17 remains visible as the final access-audit completeness gate.
+- Consent sensitive-access audit decision remains visible as the final access-audit completeness gate.
 
 ### Database / Transaction Behavior
 
@@ -534,7 +534,7 @@ Optional minimal self-history page and/or admin history view may consume the que
 - other-user denial;
 - authorized admin/support access;
 - evidence-field redaction;
-- U-CL01-17 instrumentation fixture if applicable;
+- Consent sensitive-access audit decision instrumentation fixture if applicable;
 - query/index plan/performance smoke test;
 - test proving consumer cannot infer downstream status from result shape.
 
@@ -578,7 +578,7 @@ Allow high-risk consumer workflows to present one trusted exact disclosure/versi
 
 ### Cluster Build-Plan Link
 
-Supports **CL-01 Feature 07** minimal reusable acceptance surface and prepares **Feature 08 — Consent Version Catalog and Standalone Consent Presentation**.
+Supports **CL-01 Feature 08** minimal reusable acceptance surface and prepares **CL-01 Feature 09 — Consent Version Catalog, Standalone Presentation, and Retention Contract**.
 
 ### Dependencies
 
@@ -698,7 +698,7 @@ Feature 04 passes when interaction, accessibility, contract, acceptance, cancell
 
 ## 05 Persistent Consent Version Catalog, Active-Version Resolution, and Governed Presentation
 
-**ARCHITECTURE GATE:** do not implement this feature until U-CL01-08 is resolved and the accepted model, applicability dimensions, publication authority, immutability rules, and re-consent metadata are recorded in CL-01 and Module architecture. If U-CL01-09 affects initial publication/re-consent semantics, resolve the required portion before activation.
+**ARCHITECTURE GATE:** do not implement this feature until U-CL01-13 is resolved and the accepted model, applicability dimensions, publication authority, immutability rules, and re-consent metadata are recorded in CL-01 and Module architecture. If U-CL01-16 affects initial publication/re-consent semantics, resolve the required portion before activation.
 
 ### Objective
 
@@ -717,13 +717,13 @@ After the architecture gate is resolved:
 
 ### Cluster Build-Plan Link
 
-Direct implementation of **CL-01 Phase 2 / Feature 08 — Consent Version Catalog and Standalone Consent Presentation**.
+Direct implementation of **CL-01 Phase 2 / Feature 09 — Consent Version Catalog, Standalone Presentation, and Retention Contract**.
 
 ### Dependencies
 
 - Features 01–04;
-- **resolved U-CL01-08** and updated architecture;
-- relevant part of U-CL01-09 for material change/re-consent;
+- **resolved U-CL01-13** and updated architecture;
+- relevant part of U-CL01-16 for material change/re-consent;
 - SH-009, SH-010;
 - SH-080 versioning mechanism;
 - SH-072 hashing if the approved schema uses content hashes;
@@ -749,14 +749,14 @@ Only after architecture approval:
 - inventing model/status names before approval;
 - legal copy drafting;
 - consumer lifecycle transitions;
-- automatic re-consent notification if U-CL01-09 does not define it;
+- automatic re-consent notification if U-CL01-16 does not define it;
 - withdrawal lifecycle;
 - provider integrations;
 - global policy engine replacing SH-080.
 
 ### Module-Owned Data
 
-The exact model names/fields are **TBD by U-CL01-08**. The approved design must, at minimum, be able to represent the semantic requirements recorded in `module-architecture.md`: type/document identity, immutable version, content/reference, applicability/effective semantics, publication state, and any approved content hash/material-change metadata.
+The exact model names/fields are **TBD by U-CL01-13**. The approved design must, at minimum, be able to represent the semantic requirements recorded in `module-architecture.md`: type/document identity, immutable version, content/reference, applicability/effective semantics, publication state, and any approved content hash/material-change metadata.
 
 Do not proceed if a coding agent still has to invent these fields.
 
@@ -813,7 +813,7 @@ The exact transition graph comes from the architecture ruling, not this plan. Re
 Optional and policy-driven:
 
 - version-published/superseded event via SH-046 if durable consumers need it;
-- a re-consent targeting job is **not** added unless U-CL01-09 defines its behavior and ownership;
+- a re-consent targeting job is **not** added unless U-CL01-16 defines its behavior and ownership;
 - any job uses the shared queue/retry/DLQ infrastructure.
 
 ### Provider Integration
@@ -856,7 +856,7 @@ After gate resolution:
 
 ### Documentation Updates
 
-**Mandatory before coding:** update CL-01 architecture and `module-architecture.md` with the resolved U-CL01-08 schema/lifecycle/public commands, plus any resolved U-CL01-09 material-change rule.
+**Mandatory before coding:** update CL-01 architecture and `module-architecture.md` with the resolved U-CL01-13 schema/lifecycle/public commands, plus any resolved U-CL01-16 material-change rule.
 
 After implementation, update public interface docs, migration/seed docs, progress tracker, and any shared-operation integration notes.
 
@@ -902,7 +902,7 @@ Each test can point to one owner for every resulting record.
 
 ### Cluster Build-Plan Link
 
-Supports **CL-01 Phase 4 — Cross-Cluster Contract Proof (Features 13–15)** and specifically the Cluster rule that consumers use owner public interfaces rather than importing CL-01 source repositories.
+Supports **CL-01 Phase 4 — Cross-Cluster Contract Proof (Features 14–16)** and specifically the Cluster rule that consumers use owner public interfaces rather than importing CL-01 source repositories.
 
 Feature 06 may proceed before Feature 05 for consumers that supply a trusted explicit version descriptor; production flows requiring authoritative current-version resolution remain gated until Feature 05.
 
@@ -911,7 +911,7 @@ Feature 06 may proceed before Feature 05 for consumers that supply a trusted exp
 - Features 02–04;
 - Feature 05 for any production flow that must resolve active version dynamically;
 - versioned contract fixtures or real public interfaces for target consumers;
-- U-CD-01 / U-CL01-25 resolution only where a consumer schema is being tightened around an immutable proof reference.
+- U-CD-01 / U-CL01-28 resolution only where a consumer schema is being tightened around an immutable proof reference.
 
 ### In Scope
 
@@ -1036,7 +1036,7 @@ At minimum:
 ### Documentation Updates
 
 - update each implemented consumer integration contract/reference docs;
-- record unresolved consumer binding cases under U-CD-01/U-CL01-25 rather than silently deciding them;
+- record unresolved consumer binding cases under U-CD-01/U-CL01-28 rather than silently deciding them;
 - progress tracker.
 
 ### Acceptance Criteria
@@ -1074,7 +1074,7 @@ Make Consent proof safely discoverable/exportable by Privacy, support approved a
 
 ### Cluster Build-Plan Link
 
-Directly supports **CL-01 Feature 15 — Privacy, Holds, Audit, Notification, and Operational Support Bridges**. Consent does not need a local ComplianceHold integration merely to satisfy this feature; holds remain relevant to consumer actions and Admin Review.
+Directly supports **CL-01 Feature 16 — Privacy, Holds, Audit, Notification, and Operational Support Bridges**. Consent does not need a local ComplianceHold integration merely to satisfy this feature; holds remain relevant to consumer actions and Admin Review.
 
 ### Dependencies
 
@@ -1083,8 +1083,8 @@ Directly supports **CL-01 Feature 15 — Privacy, Holds, Audit, Notification, an
 - SH-029/030 Audit interfaces;
 - SH-041 Notification interface;
 - SH-032/033/034/036/037 Ops;
-- U-CL01-11 before destructive delete/anonymize is enabled;
-- U-CL01-17 before declaring sensitive-access coverage final.
+- U-CL01-15 before destructive delete/anonymize is enabled;
+- Consent sensitive-access audit decision before declaring sensitive-access coverage final.
 
 ### In Scope
 
@@ -1092,7 +1092,7 @@ Directly supports **CL-01 Feature 15 — Privacy, Holds, Audit, Notification, an
 - export-safe serializer for Consent proof;
 - Consent retention-fact response via SH-097;
 - SH-095 executor dispatch/result for approved dispositions;
-- non-destructive `RETENTION_DECISION_REQUIRED` behavior while U-CL01-11 is open;
+- non-destructive `RETENTION_DECISION_REQUIRED` behavior while U-CL01-15 is open;
 - SH-029 audit for approved material admin/catalog/privacy operations;
 - SH-030 for approved sensitive history access once policy is known;
 - SH-041 request integration for approved version/re-consent notices;
@@ -1103,7 +1103,7 @@ Directly supports **CL-01 Feature 15 — Privacy, Holds, Audit, Notification, an
 - PrivacyRequest/DataErasureJob/DataErasureTarget creation or scheduling;
 - local DataRetentionExemption table;
 - deciding legal retention without approved policy;
-- destructive User/Consent cascade migration while U-CL01-11 is unresolved;
+- destructive User/Consent cascade migration while U-CL01-15 is unresolved;
 - email/SMS/push implementation;
 - generic AuditEvent/AccessAuditLog persistence;
 - generic Ops dashboard/system tables;
@@ -1139,8 +1139,8 @@ Directly supports **CL-01 Feature 15 — Privacy, Holds, Audit, Notification, an
 - subject enumeration is stable/paginated according to Privacy contract;
 - export omits or appropriately labels sensitive request evidence unless Privacy export policy explicitly includes it;
 - product deletion is not equivalent to privacy erasure;
-- until U-CL01-11 is resolved, Consent does not physically delete evidence that may be retention-exempt;
-- after U-CL01-11, executor follows the approved retain/anonymize/delete field map and preserves referential integrity;
+- until U-CL01-15 is resolved, Consent does not physically delete evidence that may be retention-exempt;
+- after U-CL01-15, executor follows the approved retain/anonymize/delete field map and preserves referential integrity;
 - Audit/Notification/Ops failure never rewrites Consent proof into a false state.
 
 ### Authorization / Compliance
@@ -1148,12 +1148,12 @@ Directly supports **CL-01 Feature 15 — Privacy, Holds, Audit, Notification, an
 - only Privacy-authorized system workflow may invoke destructive executor behavior;
 - privileged manual retry uses SH-002 and SH-014 only if root policy requires;
 - self/admin history access remains Feature 03 authority policy;
-- access-audit completeness remains gated by U-CL01-17;
+- access-audit completeness remains gated by Consent sensitive-access audit decision;
 - telemetry and audit payloads are minimized.
 
 ### Database / Transaction Behavior
 
-Before U-CL01-11 resolution:
+Before U-CL01-15 resolution:
 
 - no destructive schema/FK migration;
 - executor may read/inventory/export and return `RETENTION_DECISION_REQUIRED` for deletion/anonymization requests that cannot safely be decided.
@@ -1170,7 +1170,7 @@ After resolution:
 - Privacy owns parent jobs/scheduling;
 - Consent target execution may run in shared worker infrastructure but owns no job lifecycle;
 - Notification request is an external support effect;
-- no re-consent bulk worker unless U-CL01-09 defines it.
+- no re-consent bulk worker unless U-CL01-16 defines it.
 
 ### Provider Integration
 
@@ -1194,18 +1194,18 @@ No Consent privacy-request UI. Optional admin diagnostics may show target/result
 - export-safe field mapping;
 - prove no local PrivacyRequest/DataErasureJob/RetentionExemption creation;
 - unresolved-retention destructive request returns blocked result;
-- after U-CL01-11: retain/anonymize/delete tests and FK integrity;
+- after U-CL01-15: retain/anonymize/delete tests and FK integrity;
 - executor idempotency;
 - audit event safe payload;
-- sensitive access audit fixture after U-CL01-17;
+- sensitive access audit fixture after Consent sensitive-access audit decision;
 - Notification request safe variables/no provider calls;
 - Ops telemetry redaction;
 - no Consent-specific IntegrationFailure table.
 
 ### Documentation Updates
 
-- before enabling destructive behavior, update architecture with U-CL01-11 ruling and exact field/FK disposition;
-- update U-CL01-17 status when access-audit matrix is approved;
+- before enabling destructive behavior, update architecture with U-CL01-15 ruling and exact field/FK disposition;
+- update Consent sensitive-access audit decision status when access-audit matrix is approved;
 - document Privacy target types/results;
 - progress tracker.
 
@@ -1218,7 +1218,7 @@ No Consent privacy-request UI. Optional admin diagnostics may show target/result
 
 ### Exit Gate
 
-Feature 07 passes for non-destructive MVP behavior when enumeration/export/blocked-retention/support-rail tests pass. It passes for destructive production behavior only after U-CL01-11 is resolved, architecture updated, migration verified, and retention/privacy tests pass.
+Feature 07 passes for non-destructive MVP behavior when enumeration/export/blocked-retention/support-rail tests pass. It passes for destructive production behavior only after U-CL01-15 is resolved, architecture updated, migration verified, and retention/privacy tests pass.
 
 ---
 
@@ -1235,32 +1235,32 @@ Make the enabled Consent & Disclosure scope production-safe without using harden
 ### Observable Result
 
 - acceptance/query/presentation/catalog paths have stable versioned contracts;
-- duplicate/replay/concurrent acceptance behavior is deterministic under the resolved U-CL01-10 policy;
+- duplicate/replay/concurrent acceptance behavior is deterministic under the resolved U-CL01-14 policy;
 - active-version catalog cannot resolve ambiguous/stale content if Feature 05 is enabled;
-- User/privacy deletion cannot destroy required Consent proof under the resolved U-CL01-11 policy;
+- User/privacy deletion cannot destroy required Consent proof under the resolved U-CL01-15 policy;
 - privileged history/catalog/privacy actions satisfy final auth/RLS/audit requirements;
 - operators can diagnose failures through canonical Ops surfaces;
 - no unresolved decision is required by a production-enabled path.
 
 ### Cluster Build-Plan Link
 
-Directly supports **CL-01 Feature 16 — Hardening and Production Readiness** for Consent-specific risk.
+Directly supports **CL-01 Feature 17 — Backfills, Reconciliation, and Migration Safety** and **Feature 18 — Security, Privacy, Concurrency, and Production Readiness Hardening** for Consent-specific risk.
 
 ### Dependencies
 
 - all prior enabled features;
-- **resolved U-CL01-10** before final idempotency/uniqueness schema freeze;
-- **resolved U-CL01-11** before destructive retention path launch;
-- U-CL01-08/09 resolved for any production-enabled catalog/re-consent behavior;
-- U-CL01-17 resolved for final sensitive-access coverage;
+- **resolved U-CL01-14** before final idempotency/uniqueness schema freeze;
+- **resolved U-CL01-15** before destructive retention path launch;
+- U-CL01-13/U-CL01-16 resolved for any production-enabled catalog/re-consent behavior;
+- Consent sensitive-access audit decision resolved for final sensitive-access coverage;
 - production-like Postgres/RLS environment;
 - migration/backfill/rollback strategy.
 
 ### In Scope
 
-- implement the approved U-CL01-10 durable replay/uniqueness strategy;
+- implement the approved U-CL01-14 durable replay/uniqueness strategy;
 - run concurrency/load tests for acceptance and catalog publishing if enabled;
-- implement approved U-CL01-11 retention-safe FK/anonymization/delete changes;
+- implement approved U-CL01-15 retention-safe FK/anonymization/delete changes;
 - validate RLS/server-authorization parity;
 - verify all Consumer integrations avoid direct Consent repositories;
 - validate data minimization/logging/audit payloads;
@@ -1285,7 +1285,7 @@ Directly supports **CL-01 Feature 16 — Hardening and Production Readiness** fo
 Review/finalize as applicable:
 
 - `ConsentLog` indexes/constraints;
-- retention-safe User relationship/FK behavior after U-CL01-11;
+- retention-safe User relationship/FK behavior after U-CL01-15;
 - approved catalog models/constraints after Feature 05;
 - no generic event/audit/ops table.
 
@@ -1325,9 +1325,9 @@ Hardening must prove:
 
 - accepted historical proof cannot be altered by normal business commands;
 - exact version matching remains deterministic;
-- idempotency replay and intentional later acceptance are distinguishable according to U-CL01-10;
+- idempotency replay and intentional later acceptance are distinguishable according to U-CL01-14;
 - catalog ambiguity/missing content fails closed;
-- privacy disposition follows U-CL01-11 exactly;
+- privacy disposition follows U-CL01-15 exactly;
 - no support-system outage fabricates proof or downstream success;
 - no enabled consumer uses a generic Terms proof for a distinct required type;
 - no production behavior depends on unresolved U-CD/U-CL01 decision.
@@ -1341,7 +1341,7 @@ Final review includes:
 - privacy executor system authority;
 - step-up requirements if root policy applies;
 - RLS/server-policy parity;
-- U-CL01-17 sensitive-access matrix;
+- Consent sensitive-access audit decision sensitive-access matrix;
 - standalone consent coverage for enabled high-risk workflows;
 - telemetry/PII redaction;
 - retention matrix implementation.
@@ -1349,8 +1349,8 @@ Final review includes:
 ### Database / Transaction Behavior
 
 - acceptance transaction + SH-044 replay behavior stress-tested;
-- accepted U-CL01-10 constraints migrated safely;
-- accepted U-CL01-11 FK/retention changes migrated safely;
+- accepted U-CL01-14 constraints migrated safely;
+- accepted U-CL01-15 FK/retention changes migrated safely;
 - catalog effective/version constraints stress-tested if enabled;
 - no in-memory concurrency authority;
 - reconciliation/backfill never rewrites a valid newer record blindly;
@@ -1363,7 +1363,7 @@ If Consent events/jobs exist in enabled scope:
 - event outbox replay/dedupe tests;
 - queue retry/dead-letter handling;
 - no exactly-once claim — prove effectively-once effects;
-- re-consent notification target behavior only if U-CL01-09 approved it;
+- re-consent notification target behavior only if U-CL01-16 approved it;
 - Privacy job ownership remains external.
 
 If no Consent event/job is required, do not add one for hardening symmetry.
@@ -1407,9 +1407,9 @@ Each case must produce a defined deny/retry/unavailable/retained/manual-review r
 - public contract suite;
 - authorization/RLS parity suite;
 - acceptance concurrency stress test;
-- idempotency replay + intentional re-acceptance suite after U-CL01-10;
+- idempotency replay + intentional re-acceptance suite after U-CL01-14;
 - catalog concurrent publish/effective-resolution stress tests if enabled;
-- retention/privacy destructive-path tests after U-CL01-11;
+- retention/privacy destructive-path tests after U-CL01-15;
 - migration clean DB + representative legacy data;
 - rollback/forward-fix rehearsal for destructive migration;
 - proof query load/performance tests;
@@ -1444,8 +1444,8 @@ Each case must produce a defined deny/retry/unavailable/retained/manual-review r
 The Module is production-ready only when:
 
 - all applicable typecheck/lint/unit/integration/authorization/RLS/privacy/concurrency/E2E/build checks pass;
-- U-CL01-10 and U-CL01-11 are resolved for the enabled production paths;
-- U-CL01-08/U-CL01-09 are resolved for any enabled catalog/re-consent behavior;
+- U-CL01-14 and U-CL01-15 are resolved for the enabled production paths;
+- U-CL01-13/U-CL01-16 are resolved for any enabled catalog/re-consent behavior;
 - no normal code path mutates historical ConsentLog proof;
 - no direct consumer ConsentLog repository use remains;
 - idempotency/concurrency tests produce no unexplained duplicate effects;
@@ -1612,7 +1612,7 @@ After implementing each numbered feature, the coding agent must report:
 - Deferred work
 - Exit-gate result
 
-For this Module, the report must explicitly state whether the feature touched any of U-CL01-08, U-CL01-09, U-CL01-10, U-CL01-11, U-CL01-17, U-CL01-25, or U-CD-01 through U-CD-03, and whether architecture was updated before implementation.
+For this Module, the report must explicitly state whether the feature touched any of U-CL01-13, U-CL01-16, U-CL01-14, U-CL01-15, Consent sensitive-access audit decision, U-CL01-28, or U-CD-01 through U-CD-03, and whether architecture was updated before implementation.
 
 ---
 
@@ -1624,9 +1624,9 @@ Before declaring this Module plan satisfied, verify all of the following:
 2. No neighboring Module truth was absorbed into Consent.
 3. Consumers use SH-007/SH-008 rather than duplicate generic proof storage/query logic.
 4. `VerificationConsent`, `AgreementElectronicConsent`, `DigitalGoodsTermsAcceptance`, `CalendarConnection`, `NotificationSubscription`, `BaaAgreement`, `TrackSubscription`, and Identity age/security records remain separate truth.
-5. No persistent version-catalog schema was invented before U-CL01-08 resolution.
-6. No withdrawal/revocation/re-consent state was invented before U-CL01-09 resolution.
-7. Final idempotency/uniqueness semantics were not guessed around U-CL01-10.
+5. No persistent version-catalog schema was invented before U-CL01-13 resolution.
+6. No withdrawal/revocation/re-consent state was invented before U-CL01-16 resolution.
+7. Final idempotency/uniqueness semantics were not guessed around U-CL01-14.
 8. Privacy orchestration remains Privacy-owned and cascade/retention behavior is resolved before destructive launch.
 9. Authentication and authorization are consumed through SH-001/SH-002.
 10. Hashing/idempotency/audit/notification/observability infrastructure is reused rather than copied.

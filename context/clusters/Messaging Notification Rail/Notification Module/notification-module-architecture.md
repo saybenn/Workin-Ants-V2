@@ -7,8 +7,8 @@
 > **Primary Cluster:** CL-07 — Messaging & Notification Rail  
 > **Document status:** Implementation-grade Module architecture. Confirmed and Cluster Architecture Ruling material is binding; Proposed Rulings remain non-binding until approved; Unresolved Decisions are explicit implementation boundaries.  
 > **Intended audience:** coding agents, developers, reviewers, maintainers, architecture reviewers  
-> **Relationship to root architecture:** subordinate to Workin Ants root `project-overview.md`, root `architecture.md`, root `code-standards.md`, and the Canonical Shared Operations Architecture. Root rules control platform-wide identity, authorization, privacy, audit, observability, queueing, cryptography, provider infrastructure, and source-of-truth conventions.  
-> **Relationship to Cluster architecture:** this file specializes CL-07 `architecture.md` for the Notification Deep Module. It may narrow Cluster decisions but may not contradict or silently broaden them.  
+> **Relationship to root architecture:** subordinate to Workin Ants [project overview V3](<../../../project-overview-v3.md>), root `architecture.md`, root `code-standards.md`, and the Canonical Shared Operations Architecture. Root rules control platform-wide identity, authorization, privacy, audit, observability, queueing, cryptography, provider infrastructure, and source-of-truth conventions.\
+> **Relationship to Cluster architecture:** this file specializes [CL-07 architecture](<../messaging-notification-rail-architecture.md>) for the Notification Deep Module. It may narrow Cluster decisions but may not contradict or silently broaden them.\
 > **Update rule:** update this file whenever a binding Notification ownership, lifecycle, public-contract, provider, privacy, persistence, or security decision changes. Build progress must never silently redefine architecture.
 
 ---
@@ -19,14 +19,14 @@
 
 This document is synthesized from the current Workin Ants evidence set:
 
-1. root `project-overview.md`;
+1. [project overview V3](<../../../project-overview-v3.md>);
 2. Deep Module Registry;
 3. Cluster Registry v2.3;
 4. current Prisma schema;
 5. Ubiquitous Language / Compliance Inventory;
 6. Canonical Shared Operations Architecture;
-7. CL-07 `architecture.md`;
-8. CL-07 `build-plan.md`;
+7. [CL-07 architecture](<../messaging-notification-rail-architecture.md>);
+8. [CL-07 build plan](<../messaging-notification-rail-build-plan.md>);
 9. the standardized Notification Module Architecture Extract in this architecture thread.
 
 The repository copies of root `architecture.md`, root `code-standards.md`, and `progress-tracker.md` were not part of the attached evidence set used to generate this file. They remain required implementation context and take precedence where they define platform-wide conventions not contradicted by a higher-order ownership ruling.
@@ -178,7 +178,7 @@ Confirmed compliance/proof participation:
 - **Supporting:** DMCA takedown/counter-notice delivery — `Notification`, `NotificationDelivery`; legal decision remains Content Moderation & Legal Notice-owned.
 - **Supporting:** FCRA notice delivery — `Notification`, `NotificationDelivery`; screening/adverse-action decision remains with its owner.
 
-Historical registry entries also name security-alert notification, recovery email delivery, and SMS MFA delivery. Their triggering security/recovery/challenge truth remains Identity & Access-owned, and the exact SMS/MFA provider boundary is unresolved.
+Historical registry entries also name security-alert notification, recovery email delivery, and SMS MFA delivery. Their triggering security/recovery/challenge truth remains Identity & Access-owned. Identity verification-provider transport follows the approved boundary in Section 20.3; generic SMS provider selection remains unresolved.
 
 ### 3.7 Policies/invariants owned locally
 
@@ -204,7 +204,7 @@ The Notification Module must not own or reconstruct the following.
 
 | Adjacent owner | Truth/responsibility that stays outside Notification |
 | --- | --- |
-| Identity & Access | `User`, session/authentication, OTP challenge lifecycle, MFA verification, recovery-token issuance/validation/expiry, account recovery state, phone-number update state, security event truth. Notification may transport owner-generated content only. |
+| Identity & Access | `User`, session/authentication, OTP challenge lifecycle, MFA verification, recovery-token issuance/validation/expiry, account recovery state, phone-number update state, security event truth. Notification may deliver owner-generated generic security/recovery alerts; Identity verification-provider transport remains outside Notification under Section 20.3. |
 | Role / Authority | Platform, organization, participant, and ownership permission interpretation. Notification supplies recipient/subscription relationship facts and requested action. |
 | Consent & Disclosure | `ConsentLog`, accepted consent/disclosure version, consent validity/version lifecycle. Browser permission and subscription state remain separate Notification truths. |
 | Messaging | `Thread`, `ThreadParticipant`, `Message`, `MessageMedia`, participant policy, private message content. Notification may persist only safe metadata required for delivery. |
@@ -220,7 +220,7 @@ The Notification Module must not own or reconstruct the following.
 | Healthcare / Regulated Services | healthcare sensitivity/redaction/block policy. Notification consumes only safe payload constraints/approved facts. |
 | Privacy / Data Erasure | `PrivacyRequest`, `DataErasureJob`, `DataErasureTarget`, `DataRetentionExemption`, export orchestration, legal retention decision, overall completion. |
 | Audit / Event Ledger | generic `AuditEvent` and `AccessAuditLog`. Notification keeps domain delivery/subscription evidence separate. |
-| Observability / Ops | generic `IntegrationFailure`, queue telemetry, incidents, metrics/logging infrastructure. These records do not replace Notification status. |
+| Observability / Ops | public failure recording, queue telemetry, incidents, metrics/logging infrastructure; persistence remains CL-09-owned and unresolved. These capabilities do not replace Notification status. |
 | Search / Public Visibility | Typesense/public search projections and `SearchUpsertEvent`. Notification is not a public-search entity. |
 | Media / File Access | `MediaAsset`, upload/storage/scanning/signed URLs. Notification has no attachment model in current evidence. |
 | Provider clouds / operating system | provider cloud internals, OS notification settings, or provider-native status as Workin Ants truth. |
@@ -238,7 +238,7 @@ Also prohibited inside this Module:
 ## 5. Module Architecture Principles
 
 1. **Alert truth is not source-event truth.** A Notification says an alert was accepted/delivered about a source; it does not prove the source event happened unless the source owner says so.
-2. **One canonical intake.** Workflow Modules use `requestNotification`; they do not write Notification rows or call delivery providers directly.
+2. **One canonical intake.** Workflow Modules use SH-041 `requestNotification`; they do not write Notification rows or call delivery providers directly.
 3. **Notification owns transport policy, not domain policy.** Source owners decide whether/when an alert is semantically required and provide safe facts.
 4. **Consent, permission, reachability, delivery, and interaction are separate evidence.** Never collapse them into one `canNotify` boolean.
 5. **Outward payloads are minimal.** Private Message bodies, PHI, OTPs, recovery tokens, tax/financial details, raw resume data, identity documents, contract text, and provider credentials must not enter outward push payloads or generic telemetry.
@@ -440,9 +440,9 @@ Do not create empty folders preemptively. Add a folder only when a real responsi
 
 **Concurrency-sensitive fields:** endpoint/token identity, `updatedAt`, token rotation, status, permission state, failure counters, `lastDeliveryAttemptAt`.
 
-**Current uniqueness:** `@@unique([provider, endpoint])` and `@@unique([provider, token])`; hash indexes also exist. This conflicts with PR-N04 if plaintext fields cease to be authoritative and requires an approved migration before production credential handling changes.
+**Current uniqueness:** `@@unique([provider, endpoint])` and `@@unique([provider, token])`; hash indexes also exist. These current constraints require an approved migration to implement PR-N04 target authority; exact uniqueness/backfill/cutover details remain U-CL07-18.
 
-**Security conflict:** plaintext `endpoint`, `token`, `p256dh`, and `auth` currently coexist with encrypted/hash fields. Production implementation must not maintain two active credential truths. U-CL07-18 / PR-N04 gates resolution.
+**Security conflict:** plaintext `endpoint`, `token`, `p256dh`, and `auth` currently coexist with encrypted/hash fields. Production implementation must not maintain two active credential truths. PR-N04 target authority is approved; U-CL07-18 still gates exact uniqueness/backfill/cutover.
 
 **Policy invariant:** application paths must not create an active Web Push subscription when `permissionStatus != granted`.
 
@@ -577,14 +577,14 @@ unknown may precede a resolved state
 
 ## 10. Commands
 
-### 10.1 `requestNotification`
+### 10.1 SH-041 `requestNotification`
 
 - **Purpose:** canonical intake for a business/security/compliance/operational alert.
 - **Actor/context:** authenticated User/system/service actor context as appropriate; caller identity and source Module must be trusted server-side.
 - **Authoritative inputs:** source Module/type/id; recipient target/group descriptor; template key/version; priority; sensitivity; safe variables; action route; channel requirements; idempotency key; correlation context.
 - **Preconditions:** valid contract; registered template/version for implemented path; valid source-owned recipient contract; payload/action-route policy; required consent/permission/reachability gates for relevant channels.
 - **Writes:** one or more Notification-owned records only according to approved target/channel model.
-- **Shared operations:** `executeIdempotentCommand`, `queryOwnerFacts`/`resolveNotificationRecipients`, `queryConsentProof` when required, `createRequestContext`, `sanitizeTelemetryMetadata`, `enqueueReliableJob` for external channels.
+- **Shared operations:** SH-044 `executeIdempotentCommand`, SH-003 `queryOwnerFacts` (Proposed ruling)/SH-043 `resolveNotificationRecipients`, SH-008 `queryConsentProof` when required, SH-032 `createRequestContext`, SH-034 `sanitizeTelemetryMetadata`, SH-047 `enqueueReliableJob` for external channels.
 - **Effects:** may enqueue delivery work; may append audit/ops evidence only where policy requires.
 - **Idempotency:** required. Duplicate semantic request returns original accepted result/effect.
 - **Failure modes:** invalid request, unsafe variable, invalid action route, unknown template/version, no eligible recipient, channel unavailable, unresolved production provider/policy.
@@ -635,7 +635,7 @@ unknown may precede a resolved state
 - **Actor/context:** authenticated User, own device context.
 - **Preconditions:** permission granted; required Consent proof present; credential storage policy approved; runtime input valid.
 - **Writes:** `NotificationSubscription` plus event evidence.
-- **Shared operations:** `queryConsentProof`, `encryptSensitiveValue`, `normalizeAndHashIdentifier`, `executeIdempotentCommand`, authorization/audit as required.
+- **Shared operations:** SH-008 `queryConsentProof`, SH-075 `encryptSensitiveValue`, SH-076 `normalizeAndHashIdentifier`, SH-044 `executeIdempotentCommand`, authorization/audit as required.
 - **Concurrency:** duplicate same subscription converges; no plaintext secret exposure.
 
 ### 10.8 `refreshPushSubscription`
@@ -650,7 +650,7 @@ unknown may precede a resolved state
 - **Purpose:** disable future delivery to a User-controlled subscription.
 - **Actor/context:** authenticated owner or specifically authorized admin/support path.
 - **Writes:** subscription revoke/disable metadata and event evidence.
-- **Audit:** revocation/security-significant admin action may call `appendAuditEvent` according to root policy.
+- **Audit:** revocation/security-significant admin action may call SH-029 `appendAuditEvent` according to root policy.
 - **Idempotency:** repeated revoke succeeds safely.
 
 ### 10.10 `handlePushSubscriptionChange`
@@ -669,7 +669,7 @@ unknown may precede a resolved state
 - **Actor/context:** trusted queue worker context.
 - **Preconditions:** authoritative Notification exists; not expired under approved policy; eligible channel; safe rendered content; valid destination; valid attempt identity.
 - **Writes:** `NotificationDelivery` result and potentially Subscription health signal.
-- **Shared operations:** `enqueueReliableJob`, `executeRetryWithBackoff`, `recordQueueTelemetry`, `recordIntegrationFailure`, request context/telemetry sanitization.
+- **Shared operations:** SH-047 `enqueueReliableJob`, SH-048 `executeRetryWithBackoff`, SH-038 `recordQueueTelemetry`, SH-037 `recordIntegrationFailure`, request context/telemetry sanitization.
 - **Must not:** mutate source business state.
 
 ### 10.13 `recordProviderDeliveryResult` — internal
@@ -683,7 +683,7 @@ unknown may precede a resolved state
 - **Purpose:** disable reachability after provider-confirmed invalid/dead endpoint/token evidence.
 - **Rule:** do not disable User identity; append local event proof; execution is idempotent.
 
-### 10.15 `executePrivacyInstruction`
+### 10.15 SH-095 `executePrivacyInstruction`
 
 - **Purpose:** execute a Privacy-owned disposition against Notification-owned records/provider resources.
 - **Actor/context:** Privacy-authorized orchestration context, not ordinary User route.
@@ -700,11 +700,12 @@ unknown may precede a resolved state
 | `listNotifications` | User-facing notification center | authenticated actor; cursor/pagination; safe status filters | Notification source truth / safe summaries | source workflow status; Message unread state |
 | `getUnreadNotificationCount` | User UI | authenticated actor | derived count over Notification truth | a persisted quota/counter or Message unread count |
 | `listNotificationSubscriptions` | account settings | authenticated actor | own device/reachability summaries with secrets removed | OS state beyond observed evidence; authentication identity |
-| `resolveNotificationRecipients` | Notification routing + source owner | typed recipient descriptor | owner-issued User IDs/routing metadata plus Notification dedupe result | Organization membership, participant lifecycle, source authorization policy |
+| SH-043 `resolveNotificationRecipients` | Notification routing + source owner | typed recipient descriptor | owner-issued User IDs/routing metadata plus Notification dedupe result | Organization membership, participant lifecycle, source authorization policy |
 | `evaluateNotificationEligibility` | Notification internal routing | resolved User/channel/sensitivity/reachability + external gate facts | allow/skip/deny with local reason code | underlying consent or owner policy truth |
 | `getNotificationDeliveryState` | authorized admin/support or legitimate source caller | Notification/delivery reference | canonical Delivery evidence, safe failure reason, aggregate reason once approved | user attention or source business success |
-| `enumerateSubjectData` | Privacy | subject/cursor | stable target descriptors, supported dispositions, retention candidates/export facts | legal retention decision or Privacy completion |
-| `reconcileProviderState` report/query | authorized ops/admin | provider/time window/cursor/dry-run | discrepancy report and approved repair results | provider state as source business truth |
+| SH-096 `enumerateSubjectData` | Privacy | subject/cursor | stable target descriptors, supported dispositions, retention candidates/export facts | legal retention decision or Privacy completion |
+| SH-097 `evaluateRetentionRequirement` | Privacy | subject/owner target and approved policy context | owner retention facts under SH-097 | exemption creation or final Privacy completion |
+| SH-062 `reconcileProviderState` report/query | authorized ops/admin | provider/time window/cursor/dry-run | discrepancy report and approved repair results | provider state as source business truth |
 
 ### Stable local reason-code families
 
@@ -729,7 +730,7 @@ The exact codes should be defined with the implementing feature and versioned as
 
 ### Public commands
 
-- `requestNotification`
+- SH-041 `requestNotification`
 - `markNotificationRead`
 - `dismissNotification`
 - `recordNotificationInteraction`
@@ -750,12 +751,13 @@ The exact codes should be defined with the implementing feature and versioned as
 
 ### Shared/owner recipient contract
 
-- `resolveNotificationRecipients` — shared request/result contract. Source owner returns its own recipient relationship facts; Notification deduplicates/fans out and applies channel policy.
+- SH-043 `resolveNotificationRecipients` — shared request/result contract. Source owner returns its own recipient relationship facts; Notification deduplicates/fans out and applies channel policy.
 
 ### Privacy executor
 
-- `enumerateSubjectData`
-- `executePrivacyInstruction`
+- SH-096 `enumerateSubjectData`
+- SH-097 `evaluateRetentionRequirement` — owner-side retention query
+- SH-095 `executePrivacyInstruction`
 - export serializer in Privacy-defined format where required
 
 ### Provider-facing interfaces owned by Notification
@@ -772,7 +774,7 @@ Provider-specific SDK/types must not leak through the public business interface.
 
 ### Emitted domain events
 
-No binding Notification integration-event catalog is defined by the current Cluster architecture. The root overview includes an illustrative `notification.delivered` name, but no authoritative payload/version/emission contract is supplied here. If Notification events become required, define them explicitly and publish through `publishDomainEvent`; do not invent event names in implementation code and do not treat provider callbacks as domain events.
+No binding Notification integration-event catalog is defined by the current Cluster architecture. The root overview includes an illustrative `notification.delivered` name, but no authoritative payload/version/emission contract is supplied here. If Notification events become required, define them explicitly and publish through SH-046 `publishDomainEvent`; do not invent event names in implementation code and do not treat provider callbacks as domain events.
 
 ---
 
@@ -780,18 +782,18 @@ No binding Notification integration-event catalog is defined by the current Clus
 
 | Owning Module/capability | Interface consumed | Why required | Minimum information | May block? | Must not copy locally |
 | --- | --- | --- | --- | --- | --- |
-| Identity & Access | `resolveAuthenticatedActor` | trusted actor for protected commands/queries | actor ID/type, session assurance, safe request context | yes | session/user-current helpers, OTP/recovery lifecycle |
-| Role / Authority | `authorizeResourceAction` | permission for view/read/dismiss/device/admin actions | action, Notification-owned ownership/recipient/subscription facts | yes | permission engine/RBAC interpretation |
-| Consent & Disclosure | `queryConsentProof` | required disclosure proof for production push onboarding/use where policy requires | proof ID/type/version/acceptedAt/validity | yes for consent-dependent action | ConsentLog table/service |
-| Source workflow Modules | `queryOwnerFacts` or source-specific command/event contracts | validate source reference and recipient relationship without reading source repository | stable source ID/type, minimum recipient/relationship/sensitivity facts | yes/no-recipient | source repositories/lifecycle rules |
-| Organization Hiring | owner-specific recipient query such as `resolveOrganizationNotificationRecipients` | organization member/settings routing | concrete eligible User IDs + safe routing metadata | yes/no-recipient | OrganizationMember, OrganizationRole, OrganizationNotificationSetting logic |
+| Identity & Access | SH-001 `resolveAuthenticatedActor` | trusted actor for protected commands/queries | actor ID/type, session assurance, safe request context | yes | session/user-current helpers, OTP/recovery lifecycle |
+| Role / Authority | SH-002 `authorizeResourceAction` | permission for view/read/dismiss/device/admin actions | action, Notification-owned ownership/recipient/subscription facts | yes | permission engine/RBAC interpretation |
+| Consent & Disclosure | SH-008 `queryConsentProof` | required disclosure proof for production push onboarding/use where policy requires | proof ID/type/version/acceptedAt/validity | yes for consent-dependent action | ConsentLog table/service |
+| Source workflow Modules | SH-003 `queryOwnerFacts` (Proposed ruling) or source-specific command/event contracts | validate source reference and recipient relationship without reading source repository | stable source ID/type, minimum recipient/relationship/sensitivity facts | yes/no-recipient | source repositories/lifecycle rules |
+| Organization Hiring | `resolveOrganizationNotificationRecipientFacts` supporting SH-043 `resolveNotificationRecipients` | organization member/settings routing | concrete eligible User IDs + safe routing metadata | yes/no-recipient | OrganizationMember, OrganizationRole, OrganizationNotificationSetting logic |
 | Healthcare / Regulated Services | approved safe-payload/view constraints where relevant | prevent unsafe sensitive output | classification/allow/redact/block or safe-payload contract, not PHI | yes for sensitive channels | healthcare policy |
 | Privacy / Data Erasure | Privacy handler protocol | execute owner-local privacy targets | target/action/retention instruction/idempotency | yes for destructive action | PrivacyRequest/job/exemption lifecycle |
-| Audit / Event Ledger | `appendAuditEvent`, `recordSensitiveAccess` when policy requires | generic action/access proof | minimized actor/action/target/correlation facts | may fail closed if governing policy says proof mandatory | local AuditEvent/AccessAuditLog |
+| Audit / Event Ledger | SH-029 `appendAuditEvent`, SH-030 `recordSensitiveAccess` when policy requires | generic action/access proof | minimized actor/action/target/correlation facts | may fail closed if governing policy says proof mandatory | local AuditEvent/AccessAuditLog |
 | Observability / Ops | request context, telemetry, failure, metrics, health interfaces | diagnose provider/queue failures safely | correlation + safe operational dimensions | no business block except explicit platform health policy | logging/metrics/IntegrationFailure systems |
-| Shared queue/jobs | `enqueueReliableJob`, `executeRetryWithBackoff`, `recordQueueTelemetry` | durable external work | owner job payload reference, idempotency, correlation | external delivery may be delayed/failed | notification-specific queue framework |
-| Platform crypto | `encryptSensitiveValue`, `normalizeAndHashIdentifier` | protect push credential material | value/purpose/key metadata | yes for live credential storage | local encryption/hash helpers |
-| Shared provider security | `verifyProviderWebhookSignature`, validation primitive | authenticate callbacks | raw bytes/signature/timestamp/provider adapter config | yes | bespoke route verifier framework |
+| Shared queue/jobs | SH-047 `enqueueReliableJob`, SH-048 `executeRetryWithBackoff`, SH-038 `recordQueueTelemetry` | durable external work | owner job payload reference, idempotency, correlation | external delivery may be delayed/failed | notification-specific queue framework |
+| Platform crypto | SH-075 `encryptSensitiveValue`, SH-076 `normalizeAndHashIdentifier` | protect push credential material | value/purpose/key metadata | yes for live credential storage | local encryption/hash helpers |
+| Shared provider security | SH-059 `verifyProviderWebhookSignature`, validation primitive | authenticate callbacks | raw bytes/signature/timestamp/provider adapter config | yes | bespoke route verifier framework |
 
 ---
 
@@ -807,7 +809,7 @@ No binding Notification integration-event catalog is defined by the current Clus
 - Content Moderation & Legal Notice — request DMCA/moderation notices.
 - Admin Review / Compliance Hold — request hold-created/released alerts without transferring hold state.
 - Track Subscription & Entitlement — request plan/subscription/entitlement lifecycle alerts without transferring policy truth.
-- Identity & Access — may request security/recovery/MFA transport under approved provider boundary.
+- Identity & Access — may request generic security/recovery alerts; Identity-owned verification-provider transport remains within Identity.
 - Sweepstakes / Prize and Gamification / Rewards — request result/fulfillment alerts without transferring eligibility/tax truth.
 - Users and authorized organization actors — consume Notification source truth through UI/queries.
 - Privacy — consumes Notification privacy inventory/executor.
@@ -830,42 +832,44 @@ Notification may **not** update a source Module's business state as a side effec
 
 ## 15. Canonical Shared Operations Used
 
-The Canonical Shared Operations evidence supplies canonical **names but no numeric SH IDs**. Do not invent SH numbers. Reference operations by their exact canonical names unless the canonical registry is later versioned with IDs.
+**Shared Operations status:** references marked **Proposed ruling** are planning dependencies only, not approval for shared schema/API commitment or a generic service. Independently justified owner-specific interfaces do not approve a proposed shared operation globally. Realtime remains post-commit, authorized, and rebuildable; Moderation integration consumes approved contracts. Canonical metadata and reusable boundaries remain controlled by the Shared Operations registry.
 
-| Canonical operation | Owner / classification | Why Notification uses it | Invocation point | Notification-local policy | Prohibited duplicate examples |
-| --- | --- | --- | --- | --- | --- |
-| `resolveAuthenticatedActor` | Identity & Access; platform capability | establish trusted actor | every user-facing command/query | requested Notification action/target | `notificationCurrentUser`, `notification-auth.ts`, `requireNotificationUser` |
-| `authorizeResourceAction` | Role / Authority; cross-cutting capability | decide protected resource action | before view/read/dismiss/revoke/admin inspection | recipient/subscription ownership facts and action vocabulary | `notificationPermissions.ts`, local RBAC engine |
-| `queryOwnerFacts` | each source Module; shared contract/separate implementation; Proposed Ruling | obtain minimal source/relationship facts | source validation and recipient resolution | only Notification-safe facts requested | cross-domain Prisma repositories |
-| `queryConsentProof` | Consent & Disclosure; platform consent capability | check required push disclosure proof | push onboarding/use where policy requires | decide whether proof is sufficient for Notification action | `pushConsentService`, local ConsentLog query/table |
-| `requestNotification` | Notification; platform notification capability | canonical intake owned here | source/Messaging post-commit alert request | routing, persistence, payload policy | feature-local `sendEmail`, `sendPush`, `dispatchWorkflowNotification` |
-| `renderNotificationTemplate` | Notification; cross-cutting capability | centralized validated rendering | intake/delivery planning/worker | template variables, channel constraints, payload safety | per-Module HTML/email/push renderer |
-| `resolveNotificationRecipients` | source owner + Notification; shared contract/separate policy | convert owner groups into concrete User IDs | intake/routing | dedupe/fan-out/channel eligibility | universal recipient repository; org role interpretation |
-| `executeIdempotentCommand` | platform application infrastructure; primitive | retries converge to one effect | request intake, read/dismiss, subscription mutation, privacy/callback apply | semantic key, conflict/replay behavior | local idempotency table/helper/framework |
-| `deduplicateDomainEvent` | platform event infra + consumer inbox; primitive | prevent duplicate event-triggered alert effects | only approved event consumers | handler identity/effect | custom event dedupe framework |
-| `publishDomainEvent` | platform outbox; primitive | publish approved Notification fact after commit | only when binding event contract exists | names/payload/privacy owned by Notification | fire-and-forget event bus |
-| `enqueueReliableJob` | shared queue; primitive | durable async delivery/reconciliation | after authoritative write | job payload/completion semantics | `notificationQueue`, local DLQ engine |
-| `executeRetryWithBackoff` | shared queue; primitive | bounded retry technical failures | provider delivery/callback/reconciliation | retryability classification | adapter-local retry loops |
-| `acquireAggregateLock` / approved transactional equivalent | shared persistence; primitive | serialize conflicting owner operations if needed | delivery apply, subscription rotation, aggregate transition | lock key/conflict semantics | in-memory mutex |
-| `withOptimisticConcurrency` | shared persistence; primitive | reject stale subscription/lifecycle updates where adopted | token rotation/admin updates | retry/merge/conflict behavior | ad hoc version checks scattered in routes |
-| `transitionLifecycleState` | shared mechanism/separate truth | reuse state-machine plumbing | Notification/Delivery/Subscription transitions | transition graph remains Notification-owned | generic status table owning Notification semantics |
-| `verifyProviderWebhookSignature` | shared integration-security shell + adapter | authenticate callbacks | raw webhook edge before parse | provider algorithm/secret/tolerance | bespoke webhook verification route |
-| `deduplicateProviderEvent` | provider-owning Module using shared primitive; separate truth | replay-proof callback | after signature verification | Notification-owned event record/result | reuse ProcessedStripe/Calendar/Video event tables |
-| `translateProviderStatus` | Notification provider adapter | canonicalize provider outcome | sync provider response/callback | NotificationDelivery/Subscription mappings | global cross-domain provider-status mapper |
-| `reconcileProviderState` | Notification using shared worker pattern | detect/repair missed provider effects | schedule/admin command | which discrepancies are safe to repair | global provider reconciler with Notification policy |
-| `validateStructuredProviderOutput` | shared validation primitive | validate callback/provider structured data | before owner state mutation | exact adapter schema and semantic checks | trusting provider JSON directly |
-| `encryptSensitiveValue` | shared cryptography; primitive | encrypt recoverable push credentials | subscription create/refresh | which values require recovery/rotation | `notificationCrypto`, local AES helper |
-| `normalizeAndHashIdentifier` | shared cryptography; primitive | stable nonplaintext endpoint/token matching | subscription create/lookup/rotation | normalization purpose/domain separation | plaintext-only lookup / local hash helper |
-| `appendAuditEvent` | Audit / Event Ledger | important action proof | revocation/admin retry/privacy execution as policy requires | which actions merit generic audit | `NotificationAuditLog` |
-| `recordSensitiveAccess` | Audit / Event Ledger | protected admin/device access where policy requires | sensitive inspection | safe target/purpose metadata | local access ledger |
-| `createRequestContext` | Observability/platform | correlation propagation | command entry and async worker | safe Notification labels only | local correlation ID framework |
-| `sanitizeTelemetryMetadata` | Observability/Ops + Audit policy | remove sensitive fields | before logs/errors/audit metadata | Notification sensitivity allowlist | ad hoc redactors |
-| `recordIntegrationFailure` | Observability / Ops | normalized provider/worker failure | provider/queue degradation | Delivery truth remains local | `NotificationFailure` replacing domain status |
-| `recordQueueTelemetry` | queue/Ops | worker attempt/retry/DLQ evidence | every async job | owner completion remains Delivery truth | custom queue ledger |
-| `captureException` / `emitMetric` / `checkServiceHealth` | Observability / Ops | safe monitoring | provider/worker/API boundaries | safe dimensions/health semantics | provider-specific logging stacks |
-| `enumerateSubjectData` | each data owner through Privacy protocol | privacy inventory | Privacy orchestration | Notification target definitions/dispositions | global Privacy DB crawler |
-| `evaluateRetentionRequirement` | data owner + Privacy protocol | return owner facts for retention decision | privacy planning | only factual retention context | local exemption decision/table |
-| `executePrivacyInstruction` | Privacy orchestrates; owner executes | apply disposition locally | Privacy target execution | Notification field/provider mutation | local PrivacyRequest workflow |
+Use existing SH IDs and canonical metadata from `context/shared/shared-operations.md`. Notification-specific policy and invocation details below do not redefine reusable boundaries.
+
+| Canonical operation | Canonical owner | Why Notification uses it | Invocation point | Notification-local policy | Prohibited duplicate examples | Classification | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| SH-001 `resolveAuthenticatedActor` | Identity & Access | establish trusted actor | every user-facing command/query | requested Notification action/target | `notificationCurrentUser`, `notification-auth.ts`, `requireNotificationUser` | Platform capability | Confirmed |
+| SH-002 `authorizeResourceAction` | Role / Authority | decide protected resource action | before view/read/dismiss/revoke/admin inspection | recipient/subscription ownership facts and action vocabulary | `notificationPermissions.ts`, local RBAC engine | Cross-cutting capability | Confirmed |
+| SH-003 `queryOwnerFacts` (Proposed ruling) | Each source Module | obtain minimal source/relationship facts | source validation and recipient resolution | only Notification-safe facts requested | cross-domain Prisma repositories | Shared contract; separate implementations | Proposed ruling |
+| SH-008 `queryConsentProof` | Consent & Disclosure | check required push disclosure proof | push onboarding/use where policy requires | decide whether proof is sufficient for Notification action | `pushConsentService`, local ConsentLog query/table | Platform consent capability | Confirmed |
+| SH-041 `requestNotification` | Notification | canonical intake owned here | source/Messaging post-commit alert request | routing, persistence, payload policy | feature-local `sendEmail`, `sendPush`, `dispatchWorkflowNotification` | Platform notification capability | Confirmed |
+| SH-042 `renderNotificationTemplate` | Notification | centralized validated rendering | intake/delivery planning/worker | template variables, channel constraints, payload safety | per-Module HTML/email/push renderer | Cross-cutting capability | Confirmed |
+| SH-043 `resolveNotificationRecipients` | Source context owner plus Notification | convert owner groups into concrete User IDs | intake/routing | dedupe/fan-out/channel eligibility | universal recipient repository; org role interpretation | Shared contract; separate policy | Confirmed |
+| SH-044 `executeIdempotentCommand` | Platform application infrastructure | retries converge to one effect | request intake, read/dismiss, subscription mutation, privacy/callback apply | semantic key, conflict/replay behavior | local idempotency table/helper/framework | Platform primitive | Confirmed |
+| SH-045 `deduplicateDomainEvent` | Platform event infrastructure; consumer owns inbox | prevent duplicate event-triggered alert effects | only approved event consumers | handler identity/effect | custom event dedupe framework | Platform primitive | Confirmed |
+| SH-046 `publishDomainEvent` | Platform event/outbox infrastructure | publish approved Notification fact after commit | only when binding event contract exists | names/payload/privacy owned by Notification | fire-and-forget event bus | Platform primitive | Confirmed |
+| SH-047 `enqueueReliableJob` | Shared queue infrastructure | durable async delivery/reconciliation | after authoritative write | job payload/completion semantics | `notificationQueue`, local DLQ engine | Platform primitive | Confirmed |
+| SH-048 `executeRetryWithBackoff` | Shared queue/platform infrastructure | bounded retry technical failures | provider delivery/callback/reconciliation | retryability classification | adapter-local retry loops | Platform primitive | Confirmed |
+| SH-051 `acquireAggregateLock` / approved transactional equivalent | Shared persistence infrastructure | serialize conflicting owner operations if needed | delivery apply, subscription rotation, aggregate transition | lock key/conflict semantics | in-memory mutex | Platform primitive | Confirmed |
+| SH-052 `withOptimisticConcurrency` | Shared persistence infrastructure | reject stale subscription/lifecycle updates where adopted | token rotation/admin updates | retry/merge/conflict behavior | ad hoc version checks scattered in routes | Platform primitive | Confirmed |
+| SH-053 `transitionLifecycleState` | Shared mechanism; lifecycle owner supplies policy | reuse state-machine plumbing | Notification/Delivery/Subscription transitions | transition graph remains Notification-owned | generic status table owning Notification semantics | Shared mechanism; separate truth | Confirmed |
+| SH-059 `verifyProviderWebhookSignature` | Shared integration-security shell; provider adapter supplies algorithm | authenticate callbacks | raw webhook edge before parse | provider algorithm/secret/tolerance | bespoke webhook verification route | Provider-adapter contract | Confirmed |
+| SH-060 `deduplicateProviderEvent` | Provider-owning Module using shared primitive | replay-proof callback | after signature verification | Notification-owned event record/result | reuse ProcessedStripe/Calendar/Video event tables | Shared mechanism; separate truth | Confirmed |
+| SH-061 `translateProviderStatus` | Provider-owning adapter | canonicalize provider outcome | sync provider response/callback | NotificationDelivery/Subscription mappings | global cross-domain provider-status mapper | Provider-adapter contract | Confirmed |
+| SH-062 `reconcileProviderState` | Each provider-owning Module using shared worker framework | detect/repair missed provider effects | schedule/admin command | which discrepancies are safe to repair | global provider reconciler with Notification policy | Shared mechanism; separate policy | Confirmed |
+| SH-066 `validateStructuredProviderOutput` | Shared validation primitive; consuming Module owns schema | validate callback/provider structured data | before owner state mutation | exact adapter schema and semantic checks | trusting provider JSON directly | Cross-cutting capability | Confirmed |
+| SH-075 `encryptSensitiveValue` | Shared security/cryptography capability | encrypt recoverable push credentials | subscription create/refresh | which values require recovery/rotation | `notificationCrypto`, local AES helper | Platform primitive | Confirmed |
+| SH-076 `normalizeAndHashIdentifier` | Shared security/cryptography capability | stable nonplaintext endpoint/token matching | subscription create/lookup/rotation | normalization purpose/domain separation | plaintext-only lookup / local hash helper | Platform primitive | Confirmed |
+| SH-029 `appendAuditEvent` | Audit / Event Ledger | important action proof | revocation/admin retry/privacy execution as policy requires | which actions merit generic audit | `NotificationAuditLog` | Platform audit capability | Confirmed |
+| SH-030 `recordSensitiveAccess` | Audit / Event Ledger | protected admin/device access where policy requires | sensitive inspection | safe target/purpose metadata | local access ledger | Cross-cutting capability | Confirmed |
+| SH-032 `createRequestContext` | Observability / platform infrastructure | correlation propagation | command entry and async worker | safe Notification labels only | local correlation ID framework | Platform primitive | Confirmed |
+| SH-034 `sanitizeTelemetryMetadata` | Observability / Ops and Audit payload policy | remove sensitive fields | before logs/errors/audit metadata | Notification sensitivity allowlist | ad hoc redactors | Cross-cutting capability | Confirmed |
+| SH-037 `recordIntegrationFailure` | Observability / Ops | normalized provider/worker failure | provider/queue degradation | Delivery truth remains local | `NotificationFailure` replacing domain status | Cross-cutting capability | Confirmed |
+| SH-038 `recordQueueTelemetry` | Observability / Ops / queue infrastructure | worker attempt/retry/DLQ evidence | every async job | owner completion remains Delivery truth | custom queue ledger | Cross-cutting capability | Confirmed |
+| SH-035 `captureException` / SH-036 `emitMetric` / SH-039 `checkServiceHealth` | SH-035: Observability / Ops<br>SH-036: Observability / Ops<br>SH-039: Observability / Ops coordinates; owner supplies check | safe monitoring | provider/worker/API boundaries | safe dimensions/health semantics | provider-specific logging stacks | SH-035: Provider adapter<br>SH-036: Platform capability<br>SH-039: Cross-cutting capability | SH-035: Confirmed<br>SH-036: Confirmed<br>SH-039: Confirmed |
+| SH-096 `enumerateSubjectData` | Each data-owning Module through Privacy-defined interface | privacy inventory | Privacy orchestration | Notification target definitions/dispositions | global Privacy DB crawler | Cross-cutting protocol | Confirmed |
+| SH-097 `evaluateRetentionRequirement` | Data owner supplies facts; Privacy records exemption | return owner facts for retention decision | privacy planning | only factual retention context | local exemption decision/table | Cross-cutting protocol | Confirmed |
+| SH-095 `executePrivacyInstruction` | Privacy orchestrates; each data owner executes | apply disposition locally | Privacy target execution | Notification field/provider mutation | local PrivacyRequest workflow | Cross-cutting protocol | Confirmed |
 
 ---
 
@@ -890,8 +894,8 @@ The Canonical Shared Operations evidence supplies canonical **names but no numer
 
 ## 17. Shared Mechanism / Separate Truth Rules
 
-1. **Idempotency:** reuse `executeIdempotentCommand`; Notification defines request/subscription/callback semantic identity and stores its own effect.
-2. **Queueing/retry:** reuse queue/retry infrastructure; `NotificationDelivery` remains transport truth and QueueJob/DLQ remains operational truth.
+1. **Idempotency:** reuse SH-044 `executeIdempotentCommand`; Notification defines request/subscription/callback semantic identity and stores its own effect.
+2. **Queueing/retry:** reuse queue/retry infrastructure; `NotificationDelivery` remains transport truth and queue/DLQ telemetry remains operational evidence without assuming a QueueJob table.
 3. **Provider webhook dedupe:** reuse atomic dedupe mechanics; Notification requires its own processed-provider-event truth if callbacks are enabled. Never reuse `ProcessedStripeEvent`, `ProcessedCalendarEvent`, or `ProcessedVideoProviderEvent`.
 4. **Provider status translation:** reuse provider-port/result envelope shape; Notification maintains its own mapping table/version to Notification statuses.
 5. **Lifecycle plumbing:** shared transition helper may enforce compare/update/event hooks; Notification owns its status graph and reason semantics.
@@ -907,11 +911,11 @@ The Canonical Shared Operations evidence supplies canonical **names but no numer
 
 ### Authenticated actor requirement
 
-Every user-facing Notification command/query begins with `resolveAuthenticatedActor`. Client-supplied `userId`, `organizationId`, subscription ID, or provider token is a reference, never proof of authority.
+Every user-facing Notification command/query begins with SH-001 `resolveAuthenticatedActor`. Client-supplied `userId`, `organizationId`, subscription ID, or provider token is a reference, never proof of authority.
 
 ### Role / Authority use
 
-Call `authorizeResourceAction` for protected actions such as:
+Call SH-002 `authorizeResourceAction` for protected actions such as:
 
 - `notification.list` / `notification.read` / `notification.dismiss`;
 - `notification.subscription.list` / `notification.subscription.revoke`;
@@ -936,7 +940,7 @@ RLS is defense in depth. It must agree with server-side Role / Authority decisio
 
 ### Organization context
 
-Notification does not interpret `OrganizationRole`. Organization Hiring resolves organization-member/settings recipient facts. Role / Authority controls any organization-admin action.
+Notification does not interpret `OrganizationRole`. Organization Hiring exposes `resolveOrganizationNotificationRecipientFacts` as its owner-specific public query supporting SH-043 `resolveNotificationRecipients`. It accepts an Organization-scoped notification context, evaluates Organization-owned membership and `OrganizationNotificationSetting` facts, and returns eligible concrete User IDs plus only safe routing facts. An empty eligible-recipient set is valid; unavailable and unauthorized results are distinct from that empty result. Notification consumes the result, deduplicates recipients, applies its own reachability/channel eligibility, and performs fan-out. Notification must not reconstruct Organization role/settings policy from raw tables. Role / Authority controls any organization-admin action.
 
 ### Admin/support
 
@@ -944,7 +948,7 @@ Admin/support does not imply unrestricted access to sensitive payloads or raw pr
 
 ### Step-up
 
-No ordinary Notification action currently has a binding step-up requirement. If root/Identity policy declares an admin/device/security action sensitive enough, consume `requireStepUpForSensitiveAction`; do not add local MFA.
+No ordinary Notification action currently has a binding step-up requirement. If root/Identity policy declares an admin/device/security action sensitive enough, consume SH-014 `requireStepUpForSensitiveAction`; do not add local MFA.
 
 ---
 
@@ -954,13 +958,13 @@ No ordinary Notification action currently has a binding step-up requirement. If 
 | --- | --- | --- | --- |
 | Authentication | Identity & Access | protected User/admin commands/queries | require trusted actor before authorization |
 | Permission | Role / Authority | read/dismiss/revoke/inspect/retry | provide Notification facts; obey allow/deny |
-| Push disclosure consent | Consent & Disclosure | production push onboarding/use where required | `queryConsentProof`; Notification decides if channel may proceed |
+| Push disclosure consent | Consent & Disclosure | production push onboarding/use where required | SH-008 `queryConsentProof`; Notification decides if channel may proceed |
 | Browser permission | Notification | push subscription activation/delivery | active subscription path requires observed granted permission |
 | Reachability | Notification | Web Push route eligibility | use active Subscription; do not equate with consent |
 | Healthcare/sensitivity constraint | Healthcare / source owner | outward safe payload / sensitive admin handling | consume safe decision/facts; fail closed when required |
 | ComplianceHold | Admin Review / Compliance Hold | only if source/owner declares communication action gated | consume owner decision; never local `isBlocked` |
 | FCRA/DMCA notice requirement | screening/legal owner | notice delivery | Notification transports after owner request; never decides legal need/deadline |
-| Security/recovery/MFA state | Identity & Access | security/recovery/SMS transport | owner creates/validates challenge/token; Notification records transport only |
+| Security/recovery/MFA state | Identity & Access | generic security/recovery alert delivery; Identity verification protocol remains external | Identity owns challenge/token and verification-provider transport; Notification only records its own generic alert delivery |
 | Entitlement | Track Subscription & Entitlement | no general Notification gate confirmed | entitlement changes may trigger alerts; no local premium flags |
 
 Urgent priority never bypasses privacy, authorization, consent, permission, or source-owner policy.
@@ -988,9 +992,7 @@ The provider port should expose only normalized inputs/outputs required by Notif
 
 ### 20.3 SMS
 
-**Unresolved U-CL07-16:** the initial general notification SMS provider and Identity MFA transport boundary are not approved. The Project Overview phrase “AWS SES for Email and SMS” conflicts with other evidence that references a generic SMS provider and Twilio Verify/equivalent for OTP. Production SMS stays disabled/stubbed until the ruling is approved.
-
-Notification must never create a second OTP challenge/verification implementation.
+**Approved SMS ownership boundary (CL-07-R002):** generic business SMS alerts use Notification through SH-041 `requestNotification`; source Modules must not dispatch generic SMS directly. Identity & Access may use an Identity-owned verification provider whose protocol delivers an OTP or challenge. Identity retains challenge generation, expiry, attempts, verification outcome, assurance result, and provider protocol truth. Notification must not independently generate, validate, resend, or implement a parallel OTP/MFA transport/verification workflow. This verification-provider transport is not a second generic notification rail. Only initial production generic SMS provider selection remains unresolved under U-CL07-16.
 
 ### 20.4 Web Push
 
@@ -1004,7 +1006,7 @@ The registry/Project Overview mentions “AWS Lambda for notifications” / a de
 
 - provider secret credentials remain server-side and outside client responses;
 - push subscription endpoint/token/key material follows PR-N04/U-CL07-18 before production storage;
-- use `encryptSensitiveValue` and `normalizeAndHashIdentifier`;
+- use SH-075 `encryptSensitiveValue` and SH-076 `normalizeAndHashIdentifier`;
 - never log raw endpoints/tokens/auth keys;
 - VAPID public material may be client-safe only as designed; private keys remain server-only.
 
@@ -1013,11 +1015,11 @@ The registry/Project Overview mentions “AWS Lambda for notifications” / a de
 For any callback-capable provider:
 
 1. read raw bytes;
-2. verify signature/timestamp through `verifyProviderWebhookSignature` before parsing/state mutation;
+2. verify signature/timestamp through SH-059 `verifyProviderWebhookSignature` before parsing/state mutation;
 3. validate structured envelope;
 4. atomically dedupe through shared mechanism using Notification-owned event truth;
 5. map provider IDs to Delivery/Subscription;
-6. `translateProviderStatus`;
+6. SH-061 `translateProviderStatus`;
 7. idempotently apply allowed local transition;
 8. record safe operational evidence;
 9. mark processed-event result.
@@ -1026,7 +1028,7 @@ For any callback-capable provider:
 
 ### 20.8 Reconciliation
 
-Where provider APIs support readback, use `reconcileProviderState` through a Notification-owned reconciliation service. Repairs may change only Notification-owned truth and only when the discrepancy is safe/approved. Reconciliation must not mutate Order, Job, Booking, Message, or other source state.
+Where provider APIs support readback, use SH-062 `reconcileProviderState` through a Notification-owned reconciliation service. Repairs may change only Notification-owned truth and only when the discrepancy is safe/approved. Reconciliation must not mutate Order, Job, Booking, Message, or other source state.
 
 ### 20.9 Provider status/error translation
 
@@ -1045,7 +1047,7 @@ No complete Notification-owned integration-event catalog is currently approved. 
 
 ### If/when Notification emits domain events
 
-Use canonical `publishDomainEvent` with:
+Use canonical SH-046 `publishDomainEvent` with:
 
 - stable `eventId`;
 - `eventType` and schema version;
@@ -1065,7 +1067,7 @@ A provider callback becomes usable Notification evidence only after signature ve
 
 ### Source events consumed
 
-Notification may consume source Module domain events only where the source Module has an approved event contract. CL-07 must not invent source event names. Direct `requestNotification` remains the safe default boundary.
+Notification may consume source Module domain events only where the source Module has an approved event contract. CL-07 must not invent source event names. Direct SH-041 `requestNotification` remains the safe default boundary.
 
 ### Payload minimization
 
@@ -1118,10 +1120,10 @@ Generic queue scheduling, leases, heartbeat, backoff, DLQ, metrics, and worker h
 
 ### 23.1 Notification intake
 
-- semantic key is supplied/derived under `requestNotification` contract;
-- use `executeIdempotentCommand` so duplicate retries return/replay the original effect;
+- semantic key is supplied/derived under SH-041 `requestNotification` contract;
+- use SH-044 `executeIdempotentCommand` so duplicate retries return/replay the original effect;
 - do not rely solely on frontend request suppression;
-- if source events are consumed, additionally use `deduplicateDomainEvent` keyed by event ID + handler/version.
+- if source events are consumed, additionally use SH-045 `deduplicateDomainEvent` keyed by event ID + handler/version.
 
 ### 23.2 Read/dismiss
 
@@ -1212,7 +1214,7 @@ Notification owns:
 
 ### New-message trigger
 
-Messaging calls `requestNotification` only after Message commit, with safe metadata. Notification must not fetch private Message body inside the delivery transaction. Notification failure never rolls back Message truth.
+Messaging calls SH-041 `requestNotification` only after Message commit, with safe metadata. Notification must not fetch private Message body inside the delivery transaction. Notification failure never rolls back Message truth.
 
 ### Safe action intent
 
@@ -1232,7 +1234,7 @@ These must not be collapsed into AuditEvent.
 
 ### Generic audit
 
-Use `appendAuditEvent` for actions requiring generic proof, such as:
+Use SH-029 `appendAuditEvent` for actions requiring generic proof, such as:
 
 - device/subscription revocation when root security policy requires it;
 - admin/manual delivery retry or reconciliation repair;
@@ -1241,7 +1243,7 @@ Use `appendAuditEvent` for actions requiring generic proof, such as:
 
 ### Sensitive access
 
-Use `recordSensitiveAccess` when governing Audit/Healthcare policy says viewing sensitive notification failure/device metadata or related private content requires access proof.
+Use SH-030 `recordSensitiveAccess` when governing Audit/Healthcare policy says viewing sensitive notification failure/device metadata or related private content requires access proof.
 
 ### Prohibitions
 
@@ -1269,8 +1271,12 @@ Notification-held subject data may include:
 
 Notification must expose:
 
-- `enumerateSubjectData` — stable target descriptors, supported dispositions, sensitivity, retention candidates, provider references, export serializer facts;
-- `executePrivacyInstruction` — exact owner-approved erase/anonymize/revoke/retain/export/detach behavior with explicit result and idempotency.
+- SH-096 `enumerateSubjectData` — stable target descriptors, supported dispositions, sensitivity, retention candidates, provider references, export serializer facts;
+- SH-095 `executePrivacyInstruction` — exact owner-approved erase/anonymize/revoke/retain/export/detach behavior with explicit result and idempotency.
+
+Messaging and Notification participate through SH-096 `enumerateSubjectData`, expose owner-side SH-097 `evaluateRetentionRequirement`, and execute approved dispositions through SH-095 `executePrivacyInstruction`. Retention evaluation returns required, reason code, legal/policy basis, retainUntil, minimum fields, permitted anonymization, and source reference under approved policy. Privacy owns `DataRetentionExemption` creation and final workflow completion; it must not directly rewrite CL-07 tables.
+
+**CL-07-R005 — unresolved Privacy target mapping:** inventory must cover `ThreadParticipant`, `MessageMedia`, `NotificationSubscription`, `NotificationDelivery`, and `NotificationSubscriptionEvent` as well as Thread, Message, and Notification. How those child records become `DataErasureTarget` entries remains a Privacy-owned architecture decision. Do not silently omit them, invent enum values, select an ad hoc untyped `other` mapping, or assume parent erasure determines every child disposition. Destructive workflows depending on this mapping remain gated until it is approved.
 
 ### Provider resources
 
@@ -1278,7 +1284,7 @@ When Privacy instructs deletion/revocation and the provider supports it, Notific
 
 ### Retention
 
-Notification may supply factual retention context to `evaluateRetentionRequirement`. Privacy owns `DataRetentionExemption` and the final retention/legal decision. No statutory period is invented here.
+Notification exposes owner-side SH-097 `evaluateRetentionRequirement` for factual retention evaluation. Privacy owns `DataRetentionExemption` and the final retention/legal decision. No statutory period is invented here.
 
 ### Current gap
 
@@ -1291,15 +1297,17 @@ Notification does not currently have dedicated `erasedAt` fields. Field-level er
 Every Notification API/worker/provider path should have:
 
 - request/correlation/trace IDs;
-- structured safe logs;
+- structured safe logs through SH-033 `writeStructuredLog`;
 - queue depth/lag/attempt/retry/DLQ telemetry;
 - delivery latency and canonical outcomes;
 - subscription failure/dead-token metrics;
 - callback verification/dedupe outcomes;
 - provider availability/timeout/error-rate metrics;
-- `IntegrationFailure` for meaningful provider/worker degradation;
+- SH-037 `recordIntegrationFailure` for meaningful provider/worker degradation through the public capability;
 - health checks for enabled provider adapters and worker dependencies;
 - exception capture through the single approved monitoring adapter.
+
+**CL-07-R007 — Observability persistence boundary:** CL-07 consumes approved public capabilities for failure recording, queue telemetry, health, structured logging, metrics, and exception capture. `IntegrationFailure`, `QueueJob`, `OpsIncident`, and `SystemEvent` are not current Prisma models. CL-09 owns its unresolved persistence/status design. CL-07 must not create local substitutes or couple Messaging/Notification business status to any future operational record.
 
 ### Safe dimensions
 
@@ -1400,11 +1408,11 @@ Raw provider payloads/errors must not leak to business consumers.
 
 ### Public contract tests
 
-- `requestNotification` with Messaging and representative source Modules;
+- SH-041 `requestNotification` with Messaging and representative source Modules;
 - Organization recipient-facts contract;
-- `queryConsentProof` boundary;
+- SH-008 `queryConsentProof` boundary;
 - Role authorization using Notification-owned facts;
-- Privacy enumerate/execute protocol;
+- Privacy enumeration, SH-097 `evaluateRetentionRequirement`, and execution protocol;
 - provider-port normalized result contract.
 
 ### Database/integration tests
@@ -1431,7 +1439,7 @@ Raw provider payloads/errors must not leak to business consumers.
 - consent proof remains separate from browser permission;
 - active push subscription cannot be created through application path without granted permission;
 - DMCA/FCRA delivery proof never mutates legal workflow state;
-- Identity recovery/MFA transport never mutates challenge/recovery truth;
+- generic security/recovery alert delivery never mutates Identity truth or implements a parallel OTP/MFA transport/verification workflow;
 - private Message body/PHI/OTP/financial/tax/resume/contract fixtures are rejected from unsafe outward channels.
 
 ### Provider adapter tests
@@ -1469,8 +1477,8 @@ Raw provider payloads/errors must not leak to business consumers.
 1. `Notification`, `NotificationDelivery`, `NotificationSubscription`, and `NotificationSubscriptionEvent` have one owner: Notification.
 2. The source business event that caused an alert remains owned by its source Module.
 3. A Message is not a Notification and must never be generalized into one persisted Communication record.
-4. Source Modules must call `requestNotification`; they must not write Notification tables directly.
-5. Source Modules must not call email, SMS, Web Push, FCM, OneSignal, WonderPush, SES, or other Notification providers directly.
+4. Source Modules must call SH-041 `requestNotification`; they must not write Notification tables directly.
+5. Source Modules must not call generic Notification providers directly; Identity-owned OTP/challenge verification-provider transport is the explicit Section 20.3 exception.
 6. Notification must never mutate Order, Gig, Booking, Job, Application, Interview, Message, ComplianceHold, ModerationCase, FCRA, DMCA, Subscription/Entitlement, Prize/Reward, or security/recovery lifecycle truth because delivery succeeded or failed.
 7. Provider state is not Notification truth until validated, normalized, and applied by Notification.
 8. Delivery success is not proof of User attention.
@@ -1485,12 +1493,12 @@ Raw provider payloads/errors must not leak to business consumers.
 17. Notification action routes must use the approved authenticated route contract; arbitrary external redirects are prohibited.
 18. Organization membership/settings remain Organization Hiring truth; Notification consumes owner-resolved recipient facts.
 19. Notification must not interpret `OrganizationRole` to decide organization recipients.
-20. Identity owns OTP/recovery challenge semantics; Notification only transports approved content under the final provider boundary.
+20. Identity owns OTP/recovery challenge and verification-provider protocol truth, including provider transport. Notification must not independently generate, validate, resend, or implement a parallel OTP workflow.
 21. Legal/FCRA/DMCA owners decide notice requirement/content/deadlines; Notification only records delivery evidence.
 22. Track Subscription & Entitlement remains commercial-policy truth; no `isPremium`, `canNotify`, or local entitlement boolean may be introduced.
 23. Privacy / Data Erasure owns orchestration and retention exemptions; Notification executes only its own targets.
 24. Generic AuditEvent/AccessAuditLog remain Audit-owned; Delivery/SubscriptionEvent remain Notification evidence.
-25. IntegrationFailure/queue telemetry remain operational truth and never replace Delivery status.
+25. Public failure/queue telemetry capabilities provide operational evidence and never replace Delivery status; no Ops Prisma table is assumed.
 26. Notification generates no public Search projection for ordinary lifecycle state.
 27. Provider callbacks authenticate before parsing/state mutation and dedupe before side effects.
 28. Notification uses its own processed-provider-event truth if callbacks are enabled; no reuse of Stripe/Calendar/Video event ledgers.
@@ -1501,7 +1509,7 @@ Raw provider payloads/errors must not leak to business consumers.
 33. Expired notifications may not be sent after the approved cutoff once expiry semantics are implemented.
 34. Retry history may not be silently destroyed once the approved attempt model is implemented.
 35. Unresolved decisions U-CL07-09 through U-CL07-21 must not be settled inside feature code without an architecture update.
-36. Proposed Rulings PR-N01 through PR-N05 remain non-binding until explicitly approved.
+36. PR-N04 target credential authority is approved; its migration details remain U-CL07-18. PR-N01/02/03/05 remain non-binding until explicitly approved.
 37. Provider-neutral ports may be implemented while unapproved production providers remain disabled/stubbed.
 
 ---
@@ -1522,7 +1530,7 @@ Do not create any of the following as independent implementations inside Notific
 - global provider-status mapper shared with Payment/Calendar/Video/etc.;
 - reuse of `ProcessedStripeEvent`, `ProcessedCalendarEvent`, `ProcessedVideoProviderEvent`;
 - source-specific `orderEmailService`, `bookingSmsService`, `jobPushService`, `messageFcmClient`;
-- source-module SES/Twilio/FCM/OneSignal/WonderPush SDK calls;
+- source-module generic-alert SES/Twilio/FCM/OneSignal/WonderPush SDK calls (Identity verification-provider protocol excluded);
 - a generic `Communication` table merging Notification and Message;
 - a mutable `NotificationTemplate` database lifecycle solely for convenience before such a lifecycle is approved;
 - Notification-owned marketing campaign/newsletter/CRM system;
@@ -1547,19 +1555,19 @@ These are explicit architecture blockers. Do not guess.
 | `U-CL07-13` | Does each retry create a new Delivery row; what correlates attempts? | preserved production retry history |
 | `U-CL07-14` | What Notification-owned processed provider-event record is used? | async provider callback/reconciliation feature |
 | `U-CL07-15` | What provider vocabulary truthfully represents email and SMS deliveries? | trustworthy provider reporting for enabled non-push channels |
-| `U-CL07-16` | Initial SMS provider and Identity MFA transport boundary | production SMS/MFA delivery |
+| `U-CL07-16` | Initial generic SMS provider selection; Identity verification-provider ownership resolved by CL-07-R002 | production generic SMS alerts |
 | `U-CL07-17` | Initial Web Push adapter/provider strategy | production Web Push |
-| `U-CL07-18` | Removal/retirement/migration of plaintext push credential fields | live production credential storage |
+| `U-CL07-18` | Exact provider/platform/hash uniqueness, backfill, rotation, constraint replacement and cutover implementing approved PR-N04 | live production credential migration/storage |
 | `U-CL07-19` | Canonical click/open/close interaction record | normalized interaction evidence/analytics |
 | `U-CL07-20` | Controlled Notification template-name catalog and version-governance rules | production source-template integrations |
 | `U-CL07-21` | Exact allowed payload schema by sensitivity × channel | all production external delivery |
 
-### Proposed Rulings from CL-07 — not binding until approved
+### Ruling status from CL-07 — PR-N04 target authority approved; other proposals remain unapproved
 
-- **PR-N01 — Explicit fan-out:** `requestNotification` accepts semantic intent and recipient/channel requirements; Notification performs fan-out. Source Modules never create Delivery rows.
+- **PR-N01 — Explicit fan-out:** SH-041 `requestNotification` accepts semantic intent and recipient/channel requirements; Notification performs fan-out. Source Modules never create Delivery rows.
 - **PR-N02 — Prefer channel-specific Notification rows:** one row per resolved target/channel semantic alert; Deliveries are attempts for that channel; one request may create multiple Notifications.
 - **PR-N03 — One Delivery row per attempt:** preserve retry history with attempt/correlation/idempotency fields.
-- **PR-N04 — Encrypted/hash credentials replace plaintext authority:** hash for matching, encrypted values only where recovery is required, stop writing plaintext credential copies after migration.
+- **PR-N04 — Approved target credential authority (CL-07-R010).** Production recoverable provider credential material uses approved encrypted storage through SH-075 `encryptSensitiveValue`; stable comparison/identity uses normalized purpose-bound hashes through SH-076 `normalizeAndHashIdentifier`. Plaintext `endpoint`, `token`, `p256dh`, and `auth` must not remain parallel authoritative representations after migration, and code must not treat plaintext and encrypted/hash values as equal source truth. U-CL07-18 remains unresolved for exact provider/platform/hash composite uniqueness, backfill, rotation during cutover, replacement order of plaintext uniqueness constraints, and any temporary compatibility period. This approval is not a migration design or permission to change current schema/constraints without separate review.
 - **PR-N05 — Code-based template registry for MVP:** typed key/version, per-channel variable schemas, sensitivity, safe action routes; no mutable DB template lifecycle yet.
 
 ### Historical evidence conflicts that remain governed
@@ -1576,15 +1584,15 @@ These are explicit architecture blockers. Do not guess.
 
 1. Notification is the single owner of alert, delivery, push reachability, and Notification subscription-event truth.
 2. Source Modules retain the event/business/legal meaning that causes an alert.
-3. `requestNotification` is the canonical alert intake; direct source-provider dispatch is prohibited.
+3. SH-041 `requestNotification` is the canonical generic alert intake; direct source-provider dispatch for generic alerts is prohibited. Identity-owned verification-provider transport follows the Section 20.3 exception.
 4. Notification owns safe rendering, routing, delivery attempts/results, provider status translation, and dead-subscription handling.
 5. Organization recipient relationships/settings remain Organization Hiring-owned; Notification consumes owner facts.
 6. Consent proof, browser permission, reachability, delivery, and interaction remain separate evidence.
-7. Identity owns MFA/recovery/security lifecycle; Notification may transport approved content but not recreate challenge logic.
+7. Identity owns MFA/recovery/security lifecycle and verification-provider transport. Notification may deliver generic security/recovery alerts; it must not independently generate, validate, resend, or implement a parallel OTP/MFA transport/verification workflow.
 8. Shared queue, idempotency, retry, events, webhook verification, crypto, audit, request-context, and observability operations are reused, not rebuilt.
 9. Provider adapters remain behind Notification-owned provider-neutral ports.
 10. Provider-native state is never business truth; unknown provider states fail safely.
-11. Privacy owns request/orchestration/retention exemption; Notification exposes inventory/execution over its own truth.
+11. Privacy owns request/orchestration/retention exemption; Notification exposes inventory, SH-097 `evaluateRetentionRequirement`, and execution over its own truth.
 12. Audit and observability do not replace Notification lifecycle records.
 13. Notification has no public Search responsibility.
 14. Current Prisma constraints are honored until approved migrations change them.
@@ -1595,7 +1603,7 @@ These are explicit architecture blockers. Do not guess.
 - implement User-target `in_app` Notification intake first;
 - implement typed provider-neutral contracts/adapters without enabling unapproved production channels;
 - do not introduce speculative schema fields/tables to solve U-CL07 decisions;
-- explicitly disable/stub production SMS/Web Push paths until their provider/boundary rulings are approved;
+- explicitly disable/stub production generic SMS/Web Push paths until their provider-selection rulings are approved; Identity verification-provider ownership is already settled;
 - stop a feature at its stated architecture blocker rather than inventing semantics.
 
 ---
@@ -1604,14 +1612,14 @@ These are explicit architecture blockers. Do not guess.
 
 Before implementing or modifying Notification, the coding agent must read, in order:
 
-1. root `project-overview.md`;
+1. [project overview V3](<../../../project-overview-v3.md>);
 2. root `architecture.md`;
 3. root `code-standards.md`;
 4. Canonical Shared Operations Registry/Architecture;
-5. CL-07 `architecture.md`;
-6. CL-07 `build-plan.md`;
-7. this `notification/module-architecture.md`;
-8. `notification/implementation-plan.md`;
+5. [CL-07 architecture](<../messaging-notification-rail-architecture.md>);
+6. [CL-07 build plan](<../messaging-notification-rail-build-plan.md>);
+7. this [Notification architecture](<notification-module-architecture.md>);
+8. [Notification implementation plan](<notification-module-implementation-plan.md>);
 9. relevant public-interface sections for direct dependencies, especially Identity & Access, Role / Authority, Consent & Disclosure, Organization Hiring, Privacy / Data Erasure, Audit / Event Ledger, Observability / Ops, Healthcare / Regulated Services, Messaging, and the current source workflow owner;
 10. `progress-tracker.md`.
 

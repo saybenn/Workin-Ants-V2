@@ -3,13 +3,15 @@
 > **Cluster ID:** `CL-10`  
 > **Cluster name:** Incentives, Rewards & Prize Economy  
 > **Cluster type:** `feature_ecosystem_prize_compliance_reward_ledger`  
-> **Repository target:** `context/clusters/incentives-rewards-prize-economy/architecture.md`  
+> **Repository target:** `context/clusters/incentives, rewards & prize economy/incentives-rewards-prize-economy-cluster-architecture.md`\
 > **Document status:** Target Cluster architecture derived from the current Workin Ants evidence set; proposed rulings and unresolved decisions are explicitly labeled  
 > **Audience:** Coding agents, developers, reviewers, maintainers, compliance reviewers, and architects  
 > **Primary Deep Modules:** `gamification_rewards`, `sweepstakes_prize`  
 > **Update rule:** Update this file whenever a binding CL-10 architectural decision, Module ownership boundary, public contract, lifecycle rule, compliance gate, or material schema meaning changes.
 
 ---
+
+**Context routing and availability:** Follow [context/context-map.md](<../../context-map.md>) for authority by concern and actual artifact paths; use [context/project-overview-v3.md](<../../project-overview-v3.md>) as the overview entry point. Root architecture/build plan, `context/code-standards.md`, and the dedicated progress tracker are unavailable in the current context inventory. References below to those artifacts or their standards are conditional prerequisites, not evidence of an existing global sequence or approval. Do not invent missing root decisions or artifacts.
 
 ## 1. Document Status and Scope
 
@@ -18,7 +20,7 @@ CL-10 is the controlled implementation context for the Workin Ants incentives ec
 1. **Gamification / Rewards** — deterministic engagement incentives, points, challenges, leaderboards, rewards, and reward redemption.
 2. **Sweepstakes / Prize** — chance-based entry, drawings, winning, prize value tracking, and prize fulfillment state.
 
-This document is subordinate to the root Workin Ants architecture and source-of-truth rules. It explains how the two Modules collaborate with each other and with platform capabilities without taking ownership away from either Module.
+This document follows the authority-by-concern rules in `context/context-map.md`; root architecture is currently unavailable. It explains how the two Modules collaborate with each other and with platform capabilities without taking ownership away from either Module.
 
 **A Cluster is not a lifecycle owner.** CL-10 must never acquire a `ClusterStatus`, generic incentive ledger, generic fulfillment lifecycle, generic winner/redemption record, or generic source-of-truth repository. The Cluster exists for planning, integration, cross-Module invariants, coding-agent context, and end-to-end verification.
 
@@ -33,7 +35,7 @@ The Prisma schema remains executable schema evidence. The Deep Module Registry a
 
 ### Relationship to Module architecture
 
-The Module architecture remains more authoritative for Module-internal behavior. If a future Module architecture conflicts with this file:
+The Module architecture remains more authoritative for Module-internal behavior. If a member Module architecture conflicts with this file:
 
 1. identify the conflict;
 2. preserve already-confirmed source-of-truth ownership;
@@ -232,7 +234,7 @@ A notification of winning is downstream communication; it is not the winning rec
 
 ## 6. Folder / Code Organization
 
-The root Workin Ants repository owns the final folder convention through `code-standards.md`. The following is a **Proposed Ruling (PR-CL10-02)** for the domain organization if the root architecture has not already chosen equivalent paths.
+Root `context/code-standards.md` and root architecture are currently unavailable. The following domain organization remains a **Proposed Ruling (PR-CL10-02)**; it does not establish missing root conventions.
 
 ```text
 src/
@@ -419,7 +421,7 @@ Other Modules may react to program activation/ending but cannot mutate status.
 
 ### 9.2 Point ledger lifecycle
 
-`PointLedgerEntry` is **not** a mutable lifecycle. It is append-only value truth.
+`PointLedgerEntry` is **not** a mutable lifecycle. It is append-only value truth. Gamification U-GR-01/02/04/16 still gate production account/balance scope, sign/type combinations, reversal identity/double-reversal prevention, and applicable compensation (CL-10-R002). Shared mechanics do not resolve these policies. U-GR-03 separately gates historical source-event/exact-effective-rule proof; unspecified metadata is not approved proof (CL-10-R010).
 
 Corrections occur by new entries:
 
@@ -444,7 +446,7 @@ paused → active | completed | cancelled
 completed | cancelled → archived
 ```
 
-`ChallengeParticipant.status` currently reuses `ChallengeStatus`. Until U-CL10-04 is resolved, owner services must reject semantically invalid participant values such as `draft` or `archived` unless an approved participant-state definition explicitly allows them.
+`ChallengeParticipant.status` currently reuses `ChallengeStatus`. Gamification owns its lifecycle meaning. No production participant transition subset is approved until U-GR-06 is resolved (CL-10-R001 / U-CL10-04). Reads, structural scaffolding, and rejection of semantically unsupported values may proceed; rejecting invalid values does not approve the remaining values or complete a production transition matrix.
 
 ### 9.4 Reward lifecycle
 
@@ -469,7 +471,7 @@ Activation must fail if the reward type has no approved fulfillment/effect contr
 
 **Proposed Ruling PR-CL10-05:** the owner service must implement an explicit transition matrix. At minimum, fulfillment cannot occur from `pending_tax` or `blocked`; a `fulfilled` redemption cannot be deleted or rewritten to hide fulfillment; a correction uses `reversed` plus compensating point/effect operations where the reward type supports reversal.
 
-The precise reopen path from `blocked` after hold release and the treatment of cancellation after `approved` must be finalized in the Module architecture before implementation.
+The precise reopen path from `blocked` after hold release and the treatment of cancellation after `approved` must be finalized in the Module architecture before implementation. Terms-gated redemption also remains blocked on U-GR-14: historical evidence must identify the exact Consent proof/version accepted for the action; current consent state or unspecified metadata is not an approved substitute (CL-10-R010).
 
 ### 9.6 PrizeDrawing lifecycle
 
@@ -515,7 +517,7 @@ drawing → completed
 
 ### 9.10 PrizeTaxYearSummary
 
-This is a derived yearly aggregate, not a lifecycle. Sweepstakes owns rebuild and reconciliation from recognized `PrizeWinning` value facts. Payment / Payout / Tax may consume its output but does not mutate it as tax truth.
+This is a derived yearly aggregate, not a lifecycle. Sweepstakes owns rebuild and reconciliation from recognized `PrizeWinning` value facts. Payment / Payout / Tax may consume its output but does not mutate it as tax truth. Production SH-117 aggregation remains blocked by the unresolved jurisdiction/grain mismatch in CL-10-R009 (Section 26).
 
 ---
 
@@ -599,10 +601,14 @@ Only CL-10-relevant operations are listed here. The global definitions remain in
 | **SH-045 `deduplicateDomainEvent`** | Platform event infrastructure | Gamification and purchase-entry consumers | Consumer inbox/processed-event mechanism | Whether one source event may cause one effect, one-per-rule, etc. | On inbound owner domain events | `processedGamificationEvent.ts`, `dedupeEntry.ts` |
 | **SH-046 `publishDomainEvent`** | Transactional outbox capability | Both | Atomic outbox/event envelope | Event names, aggregate IDs, safe payload | With owner state mutation | `gamificationEventBus.ts`, `prizePublisher.ts` |
 | **SH-047 `enqueueReliableJob`** | Shared queue infrastructure | Both | Durable job scheduling/execution | Drawing/projection/aggregation/reconciliation job identity | Async work dispatch | `prizeQueue.ts`, `gamificationQueue.ts` |
-| **SH-048 `retryWithBackoff`** | Shared queue/platform | Both | Retry policy/backoff/dead-letter | Which failures are retryable vs terminal | Worker/provider/downstream failures | feature retry loops |
+| **SH-048 `executeRetryWithBackoff`** | Shared queue/platform | Both | Retry policy/backoff/dead-letter | Which failures are retryable vs terminal | Worker/provider/downstream failures | feature retry loops |
 | **SH-051 `acquireAggregateLock`** | Platform/database primitive | Both | DB/advisory/aggregate lock | Lock key and protected aggregate | Drawing execution; competing redemption/inventory operations where needed | in-memory mutex or local lock table |
 | **SH-053 `transitionLifecycleState`** | Shared transition mechanism; owner supplies policy | Both | Current-state + allowed-transition enforcement | Each Module’s transition matrix | Every status mutation | generic status service with cross-domain policy |
 | **SH-056 `executeAtomicReservation`** | Database/platform concurrency primitive | Gamification / Rewards | Atomic scarce-resource reservation | Point sufficiency and limited-reward policy | Redemption transaction | `rewardBalanceService.ts` or non-transactional check-then-write |
+
+### Gamification rule versioning
+
+**SH-080 `manageVersionedRules` — Confirmed.** Canonical owner: each policy Module using the shared versioning mechanism. Gamification uses this mechanism to configure/activate/retire rule versions and resolve effective intervals during award evaluation. Trigger meaning, point amount, applicability, validation, source qualification, and reward policy remain Gamification-owned. Do not build an independent general rule-version framework. Contract tests must prove immutable effective-version resolution; historical award linkage remains unresolved under U-GR-03 / CL-10-R010.
 
 ### Privacy, projections, randomness, tax value
 
@@ -1111,6 +1117,14 @@ Enumerate at minimum:
 
 Prize/tax/legal retention may prevent full deletion. The owner returns retention facts; Privacy records any `DataRetentionExemption`.
 
+### Owner-specific Privacy contract coordination (CL-10-R015)
+
+The two Module architectures' Section 28 contracts bind `ownerModule=gamification_rewards` to point/participation/redemption records and `ownerModule=sweepstakes_prize` to entry/winning/prize-summary records. Each supplies SH-096 subject inventory with stable owner record identity, sensitivity, retention candidates, supported actions, source-version evidence, export serializer version, and cursoring through Privacy's descriptor protocol.
+
+Privacy dispatches SH-095 instructions to the named owner; that owner revalidates the subject/target, supplies SH-097 retention facts, applies SH-098 only with an approved field map, and returns the canonical target result with request/job/target references, disposition, idempotency, evidence, safe counts, and failure/retained outcomes. Privacy records orchestration, target disposition, and exemptions. No generic database crawler, CL-10-owned PrivacyRequest, or implicit DataErasureTargetType mapping is permitted.
+
+Concrete target registration/encoding and per-target supported dispositions still require the bilateral Privacy contract; legal retention remains unresolved under CL-10-R014. Feature 10 cannot claim production Privacy coverage from a generic executor declaration or a fake. This coordination requirement does not approve new target enum values, persistence, or retention dispositions.
+
 ### Retention rules
 
 - `deletedAt` semantics are not currently present on these CL-10 models and must not be invented as a privacy substitute.
@@ -1400,7 +1414,7 @@ Coding agents must not create the following CL-10-local substitutes when the can
 - **Question:** Is reusing `ChallengeStatus` for `ChallengeParticipant.status` intentional, or should participant state have its own enum?
 - **Why unresolved:** Prisma reuses values such as `draft`, `paused`, and `archived`, which may not all make semantic sense for a participant.
 - **Missing evidence:** Module lifecycle ruling.
-- **Blocks:** only participant states beyond the conservative subset. The current service may constrain allowed participant values without schema migration.
+- **Blocks:** all production participant transitions until Gamification U-GR-06 approves their semantics. Reads, structural scaffolding, and rejection of unsupported states may proceed, but selecting a conservative subset cannot satisfy Feature 03's participant-lifecycle exit gate. This ruling approves no subset and no enum migration (CL-10-R001).
 
 ### U-CL10-05 — Reward type fulfillment/effect contracts
 
@@ -1460,6 +1474,12 @@ Coding agents must not create the following CL-10-local substitutes when the can
 - **Blocks:** production launch in affected jurisdictions, not domain scaffolding/tests.
 
 
+### CL-10-R009 — SH-117 jurisdiction/grain mismatch (unresolved)
+
+`PrizeTaxYearSummary` is currently unique on `(userId, taxYear, currency)` and has no jurisdiction field. SH-117 requires a currency/jurisdiction/year aggregation key. The current record must not be represented as fully jurisdiction-aware without an approved interpretation. Production SH-117 aggregation and jurisdiction-sensitive annual reporting remain blocked, including Feature 09.
+
+A future ruling must either approve a single applicable aggregation jurisdiction with authoritative evidence elsewhere, or approve a structure preserving the jurisdiction dimension. Neither option is selected here; no schema change or single-jurisdiction assumption is authorized.
+
 ### U-CL10-13 — Observability registry / Prisma record mismatch
 
 - **Question:** Are `SystemEvent`, `IntegrationFailure`, `QueueJob`, and `OpsIncident` pending platform models, renamed records, or intentionally external operational abstractions?
@@ -1511,16 +1531,16 @@ Unresolved decisions are not invitations to improvise. Features that depend on U
 
 Before changing CL-10, an implementation agent must read, in order:
 
-1. root `context/project-overview.md`;
-2. root `context/architecture.md`;
-3. root `context/code-standards.md`;
+1. root `context/project-overview-v3.md`;
+2. root `context/architecture.md`, unavailable; consult only if recovered and reconciled;
+3. root `context/code-standards.md`, unavailable; consult only when present;
 4. `context/shared/shared-operations.md`;
-5. this Cluster `architecture.md`;
-6. this Cluster `build-plan.md`;
+5. `context/clusters/incentives, rewards & prize economy/incentives-rewards-prize-economy-cluster-architecture.md`;
+6. `context/clusters/incentives, rewards & prize economy/incentives-rewards-prize-economy-cluster-build-plan.md`;
 7. the target Module architecture;
 8. the target Module implementation plan;
 9. relevant dependency Module public-interface sections, especially Identity & Access, Role / Authority, Consent & Disclosure, Transaction / Order, Payment / Payout / Tax, Track Subscription & Entitlement, Admin Review / Compliance Hold, Notification, Audit / Event Ledger, Observability / Ops, Privacy / Data Erasure, and Search when applicable;
-10. the current progress tracker.
+10. the dedicated progress tracker only when available; it is currently missing.
 
 Before implementation, the agent must also inspect the current Prisma schema and migrations rather than assuming this document represents the latest executable schema.
 

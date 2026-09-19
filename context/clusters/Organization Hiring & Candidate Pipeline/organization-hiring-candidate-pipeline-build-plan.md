@@ -2,7 +2,7 @@
 
 > **Cluster ID:** CL-06  
 > **Cluster name:** Organization, Hiring, & Candidate Pipeline  
-> **Authority:** `organization-hiring-candidate-pipeline/architecture.md`  
+> **Authority:** [Cluster architecture](organization-hiring-candidate-piepline-architecture.md)\
 > **Purpose:** ordered implementation sequence, not an alternative architecture
 
 ## Core Principle
@@ -25,6 +25,8 @@ Compliance, worker, privacy, and integration features do not need artificial UI,
 
 ## Build Rules
 
+The [Shared Operations registry](../../shared/shared-operations.md) governs permanent IDs, canonical names, owners, classifications and statuses. Registered use points below carry verified IDs/statuses. Proposed ruling entries may support planning and owner-specific interfaces/mechanisms, but cross-platform SH API/schema commitment requires separate explicit approval; any exit gate relying on that shared API must verify approval. Unresolved entries must not be silently implemented or replaced locally. The approved Job Compliance publication envelope does not approve a proposed shared decision envelope.
+
 1. Follow root architecture/code standards, this Cluster architecture, and target Module context.
 2. Do not expand CL-06 into Gigs, Orders, Bookings, general CRM, or a generic ATS beyond the evidence.
 3. Do not redesign Module ownership for convenience.
@@ -42,7 +44,7 @@ Compliance, worker, privacy, and integration features do not need artificial UI,
 15. Privacy owns privacy-request orchestration.
 16. ComplianceHold is the reusable stop sign.
 17. Job Interview never writes JobApplication truth and never becomes Booking.
-18. Resolve the Prisma relation defect before affected migrations.
+18. The obsolete U-CL06-17 placement claim is retired; do not use the R008 multi-Organization view-event relation as truth, and do not assume the project-level migration baseline is verified.
 19. A failed exit gate stops sequential execution until fixed or architecture/build plan is explicitly revised.
 
 ## Dependencies and Preconditions
@@ -54,7 +56,7 @@ Compliance, worker, privacy, and integration features do not need artificial UI,
 - Prisma transaction/migration layer;
 - runtime validation;
 - canonical idempotency;
-- optimistic concurrency/aggregate locking;
+- optimistic concurrency/aggregate locking with owner-issued opaque `expectedConcurrencyToken`: the owner returns and atomically compares the token and rejects stale writes; no universal integer version or `updatedAt` is assumed. Persisted backing and parent/child token choices remain unresolved per affected aggregate;
 - transactional outbox/inbox;
 - reliable queue, retries, dead-letter handling;
 - structured logging/request IDs;
@@ -65,7 +67,7 @@ Compliance, worker, privacy, and integration features do not need artificial UI,
 - CL-01 Identity, Role / Authority, Track;
 - CL-02 Taxonomy and Search;
 - CL-03 Trust Verification;
-- CL-05 Media, Video, calendar capability when ruled;
+- CL-05 Media, Video, and Booking & Calendar via Confirmed SH-067 `invokeCalendarProvider` (Confirmed);
 - CL-07 Messaging and Notification;
 - CL-08 Privacy;
 - CL-09 Holds, Audit and Ops.
@@ -77,11 +79,11 @@ Before the affected production feature begins, architecture must resolve:
 - U-CL06-01/02 for verified Organization activation;
 - U-CL06-03 for ownership transfer;
 - U-CL06-04 for monetized Organization ATS access;
-- U-CL06-05/06/07 for production Job publication;
+- U-CL06-05/07 policy rulings and a later approved persistence implementation of the binding U-CL06-06 historical-proof invariant for production Job publication;
 - U-CL06-10/11/12/13 for candidate search/pipeline/access semantics;
-- U-CL06-14/15 for interview participant/reschedule behavior;
-- U-CL06-16 for production calendar sync;
-- U-CL06-17 for affected Prisma migrations.
+- residual U-CL06-14 participant removal/eligibility and U-CL06-15 reschedule policy; Job Interview participant ownership is confirmed;
+- residual U-CL06-16 JobInterview-local external event/sync/error-field semantics for persisted calendar integration; Booking & Calendar provider ownership is confirmed;
+- unresolved SH-120 `normalizeJurisdictionContext` (Unresolved) owner/interface before jurisdiction-aware production compliance.
 
 External providers may be contract-stubbed before their integration feature. Do not fake their domain decisions.
 
@@ -111,12 +113,12 @@ Requires actor resolution, Role / Authority, Taxonomy validation, shared idempot
 
 #### Shared Operations Used
 
-- `resolveAuthenticatedActor` — Identity; establish actor context, not business permission.
-- `authorizeResourceAction` — Role / Authority; Organization Hiring supplies membership/resource facts.
-- `queryOwnerFacts` — Organization Hiring; typed DTOs instead of cross-domain repository reads.
-- `executeIdempotentCommand` — protect create commands.
-- `withOptimisticConcurrency` — protect Job/profile/member edits.
-- `appendAuditEvent` — record sensitive member/role changes when policy requires.
+- SH-001 `resolveAuthenticatedActor` (Confirmed) — Identity; establish actor context, not business permission.
+- SH-002 `authorizeResourceAction` (Confirmed) — Role / Authority; Organization Hiring supplies membership/resource facts.
+- SH-003 `queryOwnerFacts` (Proposed ruling) — Organization Hiring; typed DTOs instead of cross-domain repository reads.
+- SH-044 `executeIdempotentCommand` (Confirmed) — protect create commands.
+- SH-052 `withOptimisticConcurrency` (Confirmed) — protect Job/profile/member edits.
+- SH-029 `appendAuditEvent` (Confirmed) — record sensitive member/role changes when policy requires.
 - Taxonomy validation interface — validate controlled classifications; do not hardcode taxonomy.
 No feature-local auth, role or lock helper may be created.
 
@@ -125,6 +127,8 @@ No feature-local auth, role or lock helper may be created.
 Use `Organization`, `OrganizationStatus`, `OrganizationMember`, `OrganizationRole`, `Job`, `JobStatus`, `JobVisibility`, `EmploymentType`, and only architecture-approved classification joins. Preserve slug/member uniqueness and Job→Organization ownership. Do not assign `OrganizationFeatureAccess` ownership here.
 
 #### Public Interfaces
+
+Before Feature 02, Organization Hiring exposes the dedicated compliance-input snapshot and scoped/cursor rescan-enumeration contracts defined in its architecture. The latter returns eligible Job IDs and exact source revision/token; neither permits Job Compliance to access Organization Hiring repositories directly. Missing authoritative compensation/benefit sources remain unresolved.
 
 Implement/complete `createOrganization`, `getOrganization`, `listOrganizationsForActor`, `addOrganizationMember`, `changeOrganizationMemberRole`, `removeOrganizationMember`, `listOrganizationMembers`, `createJobDraft`, `getJob`, `listOrganizationJobs`, `updateJobDraft`, and minimal `getOrganizationHiringContext`.
 
@@ -158,6 +162,8 @@ Organization verification/activation, ownership transfer, public Job publication
 
 #### Exit Gate
 
+Organization's compliance snapshot and rescan-enumeration provider contracts/fixtures must be available and paired with Job Compliance consumers before Feature 02 starts.
+
 PASS only if authorized Organization/Job draft workflows work end-to-end, unauthorized/RLS paths deny, no local Role policy exists, no Job can become public/searchable, concurrency produces deterministic conflicts, and typecheck/lint/unit/integration/RLS/UI checks pass.
 
 
@@ -180,23 +186,23 @@ An authorized Job Compliance evaluation produces durable rule-version, check, fi
 
 #### Dependencies
 
-Feature 01 plus U-CL06-05/06/07 resolved before production decision semantics. Requires canonical text/hash/version/scanner/queue/audit mechanisms and reviewer/admin authority.
+Feature 01 must expose Organization Hiring's compliance-input snapshot and scoped/cursor rescan-enumeration owner contracts before this feature consumes them. U-CL06-05/07 remain policy blockers; U-CL06-06 is a binding evidence invariant whose persistence design/implementation requires a later approved schema pass. SH-120 `normalizeJurisdictionContext` (Unresolved) remains Unresolved: production jurisdiction-aware evaluation requires its approved owner/interface. Rule/check persistence, owner-local scanner mechanics and deterministic fixtures with explicitly supplied normalized jurisdiction context may proceed below that gate; raw location strings are not canonical evidence and no local replacement is permitted. Shared proposed scanner/decision/owner-facts APIs require separate approval before cross-platform commitment.
 
 #### Shared Operations Used
 
-`buildCanonicalTextSnapshot`, `hashCanonicalPayload`, `manageVersionedRules`, `runPatternScanner`, `executeIdempotentCommand`, `enqueueReliableJob`, `executeRetryWithBackoff`, `returnDecisionResult`, `appendAuditEvent`, `requestComplianceHold` as needed. Scanner/version mechanics are shared; employment policy remains Job Compliance-owned.
+SH-077 `buildCanonicalTextSnapshot` (Confirmed), SH-072 `hashCanonicalPayload` (Confirmed), SH-080 `manageVersionedRules` (Confirmed), SH-081 `runPatternScanner` (Proposed ruling), SH-044 `executeIdempotentCommand` (Confirmed), SH-047 `enqueueReliableJob` (Confirmed), SH-048 `executeRetryWithBackoff` (Confirmed), SH-015 `returnDecisionResult` (Proposed ruling), SH-029 `appendAuditEvent` (Confirmed), SH-012 `requestComplianceHold` (Confirmed) as needed. Scanner/version mechanics are shared; employment policy remains Job Compliance-owned.
 
 #### Data / Schema
 
-Use `JobComplianceRule`, `JobComplianceCheck`, `JobComplianceFinding`, `JobCompensationDisclosure`, owned enums/statuses, and the architecture-approved historical rule-set proof. Add only indexes/constraints required for reproducibility and idempotency. Job compensation itself remains on Job.
+Use `JobComplianceRule`, `JobComplianceCheck`, `JobComplianceFinding`, `JobCompensationDisclosure`, owned enums/statuses, and historical proof satisfying the binding U-CL06-06 invariant. Preserve immutable exact input (snapshot or reconstructible immutable source-version reference) plus hash, every applied rule identity/version including zero-finding approvals, scanner version, evaluation time and material normalized jurisdiction input. Current schema is insufficient; schema design/migrations belong to a later approved database pass. Job compensation itself remains Organization-owned; missing authoritative source-field mappings remain unresolved.
 
 #### Public Interfaces
 
-`requestJobComplianceEvaluation`, `evaluateJobCompliance`, `getJobPublicationComplianceDecision`, `getJobComplianceReport`, `getApplicableJobComplianceRequirements`, rule publish/retire, review and override commands.
+`requestJobComplianceEvaluation`, SH-021 `evaluateJobCompliance` (Confirmed), `getJobPublicationComplianceDecision`, `getJobComplianceReport`, `getApplicableJobComplianceRequirements`, rule publish/retire, review and override commands.
 
 #### Logic
 
-Resolve applicable rules by jurisdiction/effective date; build all relevant Job text/structured surfaces; validate disclosure; scan; classify findings; persist provenance; derive the ruled DecisionResult; retain exact source/rule versions. Unknown/uncertain states go to review/unavailable, never silent pass.
+Resolve applicable rules by jurisdiction/effective date; build all relevant Job text/structured surfaces; validate disclosure; scan; classify findings; persist provenance; return the Job Compliance-owned `allowed | denied | warning | review_required | unavailable` response; retain exact source/rule proof. Final precedence remains unresolved; `unavailable` and `review_required` are not denial, and remediation stays in reason/next-action metadata. Unknown/uncertain states go to review/unavailable, never silent pass.
 
 #### UI / Administrative Surface
 
@@ -224,7 +230,7 @@ Job lifecycle mutation, Search writes, candidate screening, generic moderation.
 
 #### Exit Gate
 
-PASS only if U-CL06-05/06/07 are resolved; identical source+rule versions reproduce the result; zero-finding pass records evaluated rules; technical failure cannot approve; Job Compliance never owns Job lifecycle; reviewer/admin actions are authorized/audited; all tests/build checks pass.
+PASS only if U-CL06-05/07 are resolved, the binding U-CL06-06 invariant has an approved implemented persistence design, SH-120 `normalizeJurisdictionContext` (Unresolved) has an approved owner/interface, and any proposed SH API/schema commitment has separate approval; both Organization source contracts pass consumer tests; identical immutable input and complete applied-rule proof reproduce the result after later Job/rule changes; zero-finding pass records every applied rule; technical failure cannot approve; Job Compliance never owns Job lifecycle; reviewer/admin actions are authorized/audited; all tests/build checks pass.
 
 
 ### 03 Controlled Job Publication and Search Handoff
@@ -249,7 +255,7 @@ Features 01–02, resolved compliance mapping, Search contract/fixture, Trust re
 
 #### Shared Operations Used
 
-`authorizeResourceAction`, `evaluateComplianceHold`, `evaluateJobCompliance`, Trust requirement/readiness operations, `buildSourceProjection`, `requestSearchProjectionRefresh`, `publishDomainEvent`, `requestNotification`, idempotency and concurrency.
+SH-002 `authorizeResourceAction` (Confirmed), SH-011 `evaluateComplianceHold` (Confirmed), SH-021 `evaluateJobCompliance` (Confirmed), Trust requirement/readiness operations, SH-094 `buildSourceProjection` (Confirmed), SH-091 `requestSearchProjectionRefresh` (Confirmed), SH-046 `publishDomainEvent` (Confirmed), SH-041 `requestNotification` (Confirmed), idempotency and concurrency.
 
 #### Data / Schema
 
@@ -257,9 +263,11 @@ Features 01–02, resolved compliance mapping, Search contract/fixture, Trust re
 
 #### Public Interfaces
 
-Complete `requestJobPublication`, owner command equivalent to `applyJobComplianceDecision`, public Job projection query, Search refresh/removal contract.
+Complete `requestJobPublication`, owner command equivalent to `applyJobComplianceDecision`, `pauseJob`, `markJobFilled`, `closeJob`, `archiveJob`, public Job projection query and Search refresh/removal contract. Consume Job Compliance's `allowed | denied | warning | review_required | unavailable` envelope; no competing Organization union.
 
 #### Logic
+
+Implement the four manual Job owner commands using existing Organization lifecycle policy, actor/authority checks, concurrency and idempotency. Commit the Job transition before requesting Search refresh/removal. Apply later Compliance changes to Organization-owned application eligibility; Candidate consumes that fail-closed owner state/context and does not perform a second Compliance evaluation/read.
 
 Set pending-review before evaluation; reject stale decision if Job changed; apply explicit compliance→Job mapping; compose hold/verification/public visibility without moving their policy; request Search after source commit; material edits invalidate/re-review according to rule.
 
@@ -281,6 +289,8 @@ Search outage never rolls back or rewrites truthful Job state; it queues retry. 
 
 #### Tests
 
+For pause/fill/close/archive, test authorized and unauthorized actors, allowed/invalid transitions under existing policy, stale/replayed requests, committed owner state before Search effects, and Search outage/retry. Test the exact producer decision vocabulary, especially unavailable versus denial and review-required versus denial.
+
 End-to-end draft→review→open; warning/block/review/failure; publish/edit race; Search no-preapproval contract; hold/Trust composition; E2E with Search fixture.
 
 #### Out of Scope
@@ -289,46 +299,46 @@ Organization verification activation until U-CL06-01/02; applications and ATS.
 
 #### Exit Gate
 
-PASS only if no Job is indexed before owner state+allowed compliance, Search never recomputes compliance, Job Compliance never writes Job status directly, edit invalidation and Search retry paths are tested, and all checks pass.
+PASS only if all four manual lifecycle commands and their post-commit Search effects meet those tests, the publication response matches the producer-owned envelope, normal Candidate eligibility uses the Job owner context, and no Job is indexed before owner state+allowed compliance, Search never recomputes compliance, Job Compliance never writes Job status directly, edit invalidation and Search retry paths are tested, and all checks pass.
 
 # Phase 2 — Candidate Intake, Private Resume, and Recruiter Pipeline
 
 
 ### 04 CandidateProfile and Secure Resume Intake
 
-A User can create CandidateProfile identity, upload a private resume through Media, and observe a non-decisional resume parse lifecycle.
+A User can create CandidateProfile identity, upload a private resume through Media, and observe Media validation/scanning and permitted candidate/profile attachment.
 
 #### Objective
 
-A User can create CandidateProfile identity, upload a private resume through Media, and observe a non-decisional resume parse lifecycle.
+A User can create CandidateProfile identity, upload a private resume through Media, and observe Media validation/scanning and permitted candidate/profile attachment.
 
 #### User-visible / Observable Result
 
-A User can create CandidateProfile identity, upload a private resume through Media, and observe a non-decisional resume parse lifecycle.
+A User can create CandidateProfile identity, upload a private resume through Media, and observe Media validation/scanning and permitted candidate/profile attachment.
 
 #### Owning Module(s)
 
-Candidate Application owns CandidateProfile, contextual attachment meaning and ResumeParseResult; Media owns file safety/storage.
+Candidate Application owns CandidateProfile and contextual attachment meaning; Media owns file safety/storage. No ResumeParseResult is created in this feature.
 
 #### Dependencies
 
-Media public interfaces, actor/authority, U-CL06-09 resolution for resume/verification overlap before production truth, and U-CL06-13 retention/encryption decision before final raw-text retention.
+Media public interfaces and actor/authority; enforce the binding non-authority of resumeUrl and local verification caches. Remaining Candidate policy questions stay gated.
 
 #### Shared Operations Used
 
-Actor/authority; `validateUploadedFile`, `scanFileForMalware`, `attachValidatedMedia`, `enqueueReliableJob`, retry/ops primitives. Do not create local storage/MIME/malware helpers.
+Actor/authority; SH-114 `provisionOneToOneProfile` (Confirmed), SH-082 `validateUploadedFile` (Confirmed), SH-083 `scanFileForMalware` (Confirmed), SH-090 `attachValidatedMedia` (Confirmed), and Media retry/ops interfaces. Do not create local storage/MIME/malware helpers.
 
 #### Data / Schema
 
-`CandidateProfile`, `CandidateProfileMedia`, `ResumeParseResult` plus Media-owned records through APIs. Do not treat `resumeUrl`, `trustScore`, `verifiedAt`, or `verificationExpiresAt` as authority.
+`CandidateProfile`, `CandidateProfileMedia` plus Media-owned records through APIs. Do not treat `resumeUrl`, `trustScore`, `verifiedAt`, or `verificationExpiresAt` as authority.
 
 #### Public Interfaces
 
-`createCandidateProfile`, `updateCandidateProfile`, candidate status transition, media attach/detach, `queueResumeParse`, parse-result query.
+`createCandidateProfile`, `updateCandidateProfile`, candidate status transition, media attach/detach and Media upload/readiness queries.
 
 #### Logic
 
-Require ready+clean MediaAsset before parse; extract structured metadata and optional raw text under approved retention; never emit hiring recommendation/rank/eligibility.
+Require Media validation/scanning and ready+clean state for permitted attachment. Parsing cannot begin until a JobApplication and its matching JobApplicationMedia exist in Feature 05.
 
 #### UI / Administrative Surface
 
@@ -340,23 +350,23 @@ Candidate ownership server-side; resume private by default; Trust truth remains 
 
 #### Events / Jobs / Integrations
 
-Parse worker and parse requested/completed/failed events. No Search indexing yet.
+Candidate profile/attachment events and Media-owned upload processing only. No parsing or Search indexing.
 
 #### Failure Behavior
 
-Invalid/malware file is rejected by Media; parse failure is durable/retriable; duplicate parse request is idempotent; sensitive payloads are redacted from telemetry.
+Invalid/malware files are rejected by Media; upload/attachment retries are idempotent and sensitive payloads are redacted from telemetry.
 
 #### Tests
 
-Ownership, private file behavior, ready+clean gate, parser idempotency/failure, no public URL, no recommendation, privacy/log redaction.
+Ownership, one-to-one provisioning/idempotency, private file behavior, ready+clean gate, no pre-application parse record/job, no public URL and privacy/log redaction.
 
 #### Out of Scope
 
-JobApplication, recruiter resume access, candidate Search, automated hiring scoring.
+JobApplication, JobApplicationMedia, ResumeParseResult creation/worker execution, recruiter resume access, candidate Search and automated hiring scoring.
 
 #### Exit Gate
 
-PASS only if parsing cannot precede ready+clean state, resume is not public, parser failure is recoverable, raw text is absent from logs/analytics, no hiring recommendation exists, and tests/build pass.
+PASS only if private upload and permitted profile attachment work through Media, no ResumeParseResult or parse job is produced, resume/local verification fields are not authority, sensitive content is absent from logs, and tests/build pass.
 
 
 ### 05 Atomic Application Eligibility, Quota, and Submission
@@ -377,11 +387,15 @@ Candidate Application owns JobApplication; Track owns quota/usage; Organization 
 
 #### Dependencies
 
+Parsing is a strictly post-submission stage: first create/commit JobApplication and its ready/clean JobApplicationMedia; only then implement parse request and worker execution. Submission does not depend on a completed parse. Final raw-text retention/encryption still requires U-CL06-13, and retry evidence/media-role questions remain unresolved.
+
 Features 03–04, Track resolve/consume, Trust readiness, U-CL06-11 sufficient for submission/withdraw semantics, and a defined race-safe cross-owner application+usage protocol.
 
 #### Shared Operations Used
 
-Actor/authority, `evaluateComplianceHold`, `resolveEntitlement`, `consumeMeteredEntitlement`, Trust readiness, idempotency, aggregate/counter locking, domain event, Notification and optional Messaging context.
+Post-submission parsing uses SH-047 `enqueueReliableJob` (Confirmed), SH-048 `executeRetryWithBackoff` (Confirmed) and Media readiness interfaces; no parser/storage mechanism is introduced locally beyond the owner parser port.
+
+Actor/authority, SH-011 `evaluateComplianceHold` (Confirmed), SH-005 `resolveEntitlement` (Confirmed), SH-006 `consumeMeteredEntitlement` (Confirmed), Trust readiness, idempotency, aggregate/counter locking, domain event, Notification and optional Messaging context.
 
 #### Data / Schema
 
@@ -389,9 +403,11 @@ Actor/authority, `evaluateComplianceHold`, `resolveEntitlement`, `consumeMetered
 
 #### Public Interfaces
 
-`evaluateApplicationEligibility`, `checkCandidateApplicationAllowance`, `submitJobApplication`, `withdrawJobApplication`, `listCandidateApplications`.
+`evaluateApplicationEligibility`, `checkCandidateApplicationAllowance`, `submitJobApplication`, `withdrawJobApplication`, `listCandidateApplications`, `attachApplicationMedia`, `queueResumeParse`, `getResumeParseResult`.
 
 #### Logic
+
+Consume Organization Hiring's fail-closed `getJobApplicationEligibilityContext`. No normal direct Candidate → Job Compliance read/evaluation is permitted. After the application/media pair exists, request parsing idempotently and expose non-decisional metadata/status; a parsing failure does not roll back the submitted application or create duplicate quota usage.
 
 Compose CandidateProfile usability, Job application facts, holds, Track quota, verified-only readiness and duplicate constraint. Application and usage outcomes reconcile under retry/concurrency.
 
@@ -405,13 +421,15 @@ Candidate owns profile; verified-only gates consume Trust; no local quota/premiu
 
 #### Events / Jobs / Integrations
 
-Application submitted/withdrawn events; Notification; optional context thread.
+Application submitted/withdrawn events; Notification; optional context thread; post-submission parse requested/completed/failed events and parse worker.
 
 #### Failure Behavior
 
 Duplicate idempotency returns existing result; unique constraint gives domain conflict; quota exhaustion creates no application; Trust unavailable cannot bypass; partial cross-owner outcome is reconciled.
 
 #### Tests
+
+Prove upload alone cannot create parse work; application/media existence and Media ready+clean gate precede every parse; parser failure/replay is recoverable without application rollback, duplicate parse truth or hiring recommendations. Verify no direct Compliance dependency in submission.
 
 Eligibility unit tests, Track/Trust contracts, simultaneous submissions, idempotency replay, hold/verified-only denial, E2E apply.
 
@@ -421,7 +439,7 @@ Recruiter pipeline, resume view, candidate Search.
 
 #### Exit Gate
 
-PASS only if quota cannot be exceeded under concurrency, duplicate JobApplication is impossible, Track usage and application truth reconcile, verified-only/hold gates cannot be bypassed, and tests pass.
+PASS only if quota cannot be exceeded under concurrency, duplicate JobApplication is impossible, Track usage and application truth reconcile, verified-only/hold gates cannot be bypassed, post-submission parsing meets its existence/readiness/idempotency/privacy gates, and tests pass.
 
 
 ### 06 Recruiter Applicant Views, View Events, and Pipeline State
@@ -438,7 +456,7 @@ Authorized OrganizationMembers can view privacy-shaped applicants and move appli
 
 #### Owning Module(s)
 
-Candidate Application owns JobApplication status/stage and view-event truth after U-CL06-12 approval.
+Candidate Application owns JobApplication status/stage and JobApplicationViewEvent truth. U-CL06-12 approval gates qualifying-view and view-summary behavior, not ownership.
 
 #### Dependencies
 
@@ -446,11 +464,13 @@ Feature 05, U-CL06-11 transition matrix, U-CL06-12 view semantics, Role / Author
 
 #### Shared Operations Used
 
+Use SH-076 `normalizeAndHashIdentifier` (Confirmed) for approved IP/identifier evidence; Candidate retains capture and access-event policy.
+
 Actor/authority, owner-facts query, lifecycle transition mechanism, concurrency, Audit where required, domain events, Notification.
 
 #### Data / Schema
 
-`JobApplication`, proposed `JobApplicationViewEvent`, viewed/status/stage timestamps under the ruled summary semantics.
+`JobApplication`, Candidate-owned `JobApplicationViewEvent` with at most one Organization context, and viewed/status/stage timestamps only under separately approved summary semantics.
 
 #### Public Interfaces
 
@@ -511,7 +531,9 @@ Feature 06, U-CL06-13 access-event semantics; U-CL06-04 only if monetized resume
 
 #### Shared Operations Used
 
-Actor/authority, contextual-resource authorization pattern, Media temporary grant/signed URL, `recordSensitiveAccess`, idempotency, telemetry redaction.
+Use SH-125 `recordDomainAccessEvent` (Confirmed) for ResumeAccessLog append mechanics and SH-076 `normalizeAndHashIdentifier` (Confirmed) for approved access metadata; Candidate retains event meaning and authorization.
+
+Actor/authority, contextual-resource authorization pattern, Media temporary grant/signed URL, SH-030 `recordSensitiveAccess` (Confirmed), idempotency, telemetry redaction.
 
 #### Data / Schema
 
@@ -576,7 +598,7 @@ Features 04 and 06, U-CL06-10 visibility/search participation ruling, Search con
 
 #### Shared Operations Used
 
-`resolveEntitlement`, `buildSourceProjection`, `requestSearchProjectionRefresh`, domain event, Privacy target protocol.
+SH-005 `resolveEntitlement` (Confirmed), SH-094 `buildSourceProjection` (Confirmed), SH-091 `requestSearchProjectionRefresh` (Confirmed), domain event, Privacy target protocol.
 
 #### Data / Schema
 
@@ -643,7 +665,7 @@ Feature 06; Role / Authority; Candidate Application interviewability facts; the 
 
 #### Shared Operations Used
 
-Actor resolution/authorization; `queryOwnerFacts`; `transitionLifecycleState`; `appendDomainLifecycleEvent`; idempotency; optimistic concurrency; Notification may be a contract fixture.
+Actor resolution/authorization; SH-003 `queryOwnerFacts` (Proposed ruling); SH-053 `transitionLifecycleState` (Confirmed); SH-031 `appendDomainLifecycleEvent` (Confirmed); idempotency; optimistic concurrency; Notification may be a contract fixture.
 
 #### Data / Schema
 
@@ -704,7 +726,7 @@ Job Interview owns interview and, after U-CL06-14 approval, participant truth. C
 
 #### Dependencies
 
-Feature 09; U-CL06-14 participant ownership/removal/candidate invariant; U-CL06-15 reschedule semantics/cardinality; Candidate Application stage interface.
+Feature 09; Job Interview participant row/role/status ownership is confirmed, while U-CL06-14 removal/role eligibility/candidate invariant remains unresolved; U-CL06-15 reschedule semantics/cardinality; Candidate Application stage interface.
 
 #### Shared Operations Used
 
@@ -748,7 +770,7 @@ Calendar provider, video provider internals, Messaging internals.
 
 #### Exit Gate
 
-PASS only if U-CL06-14/15 are resolved and followed, participant removal is unambiguous, reschedule history is deterministic, Job Interview never writes JobApplication directly, and all tests pass.
+PASS only if remaining U-CL06-14 participant policy and U-CL06-15 reschedule policy are resolved and followed, confirmed Job Interview participant ownership is preserved, participant removal is unambiguous, reschedule history is deterministic, Job Interview never writes JobApplication directly, and all tests pass.
 
 
 ### 11 Interview Messaging, Notification, Resume Review, and Video Handoffs
@@ -773,7 +795,7 @@ Features 07 and 10 plus owner public contracts for Messaging, Notification, Cand
 
 #### Shared Operations Used
 
-`ensureContextThread`; `requestNotification`; Candidate resume-access interface; `recordSensitiveAccess`; reliable jobs/retries; provider call only through Video owner (`invokeVideoProvider` pattern); integration-failure observability.
+SH-113 `ensureContextThread` (Confirmed); SH-041 `requestNotification` (Confirmed); Candidate resume-access interface; SH-030 `recordSensitiveAccess` (Confirmed); reliable jobs/retries; provider call only through Video owner (SH-068 `invokeVideoProvider` (Confirmed) pattern); integration-failure observability.
 
 #### Data / Schema
 
@@ -818,27 +840,27 @@ PASS only if CL-06 owns none of the downstream source lifecycles, resume review 
 
 ### 12 Interview Calendar Sync and Reconciliation
 
-After the calendar ownership ruling, JobInterview schedule changes can create/update/cancel an external calendar event through the canonical calendar owner, with normalized sync state and reconciliation.
+JobInterview schedule changes can create/update/cancel an external calendar event through Confirmed Booking & Calendar SH-067 `invokeCalendarProvider` (Confirmed), with normalized results and reconciliation; exact local sync-field meaning remains gated.
 
 #### Objective
 
-After the calendar ownership ruling, JobInterview schedule changes can create/update/cancel an external calendar event through the canonical calendar owner, with normalized sync state and reconciliation.
+JobInterview schedule changes can create/update/cancel an external calendar event through Confirmed Booking & Calendar SH-067 `invokeCalendarProvider` (Confirmed), with normalized results and reconciliation; exact local sync-field meaning remains gated.
 
 #### User-visible / Observable Result
 
-After the calendar ownership ruling, JobInterview schedule changes can create/update/cancel an external calendar event through the canonical calendar owner, with normalized sync state and reconciliation.
+JobInterview schedule changes can create/update/cancel an external calendar event through Confirmed Booking & Calendar SH-067 `invokeCalendarProvider` (Confirmed), with normalized results and reconciliation; exact local sync-field meaning remains gated.
 
 #### Owning Module(s)
 
-Job Interview owns interview schedule. The architecture-approved calendar capability owns provider connection, webhook verification/dedupe, adapter calls and provider-event truth.
+Job Interview owns interview schedule. Booking & Calendar owns provider connections, invocation/synchronization, webhook verification/dedupe, adapter calls and provider normalization through Confirmed SH-067 `invokeCalendarProvider` (Confirmed).
 
 #### Dependencies
 
-Feature 10; U-CL06-16 resolved; calendar owner port; provider webhook/dedupe/reconciliation infrastructure.
+Feature 10; residual U-CL06-16 local event/sync/error-field semantics approved where used; Confirmed Booking & Calendar port; provider webhook/dedupe/reconciliation infrastructure.
 
 #### Shared Operations Used
 
-`invokeCalendarProvider`; `verifyProviderWebhookSignature`; `deduplicateProviderEvent`; `translateProviderStatus`; `reconcileProviderState`; reliable jobs/retries; integration failure telemetry. Do not create `ProcessedInterviewCalendarEvent`.
+SH-067 `invokeCalendarProvider` (Confirmed); SH-059 `verifyProviderWebhookSignature` (Confirmed); SH-060 `deduplicateProviderEvent` (Confirmed); SH-061 `translateProviderStatus` (Confirmed); SH-062 `reconcileProviderState` (Confirmed); reliable jobs/retries; integration failure telemetry. Do not create `ProcessedInterviewCalendarEvent`.
 
 #### Data / Schema
 
@@ -878,7 +900,7 @@ Availability-engine redesign, Booking lifecycle, direct Cronofy/Nylas SDK usage 
 
 #### Exit Gate
 
-PASS only if U-CL06-16 is resolved, no local provider-event dedupe truth exists, callbacks are verified/deduped/normalized by owner, interview truth survives provider outage, reconciliation passes, and all tests/build checks pass.
+PASS only if local sync-field semantics are approved where used, Confirmed Booking & Calendar ownership is respected, no local provider-event dedupe truth exists, callbacks are verified/deduped/normalized by owner, interview truth survives provider outage, reconciliation passes, and all tests/build checks pass.
 
 # Phase 4 — Cross-Cluster Contract Proof and Privacy
 
@@ -905,7 +927,7 @@ Candidate/interview features as applicable; Privacy target protocol; U-CL06-13 r
 
 #### Shared Operations Used
 
-`enumerateSubjectData`; `executePrivacyInstruction`; `evaluateRetentionRequirement`; `anonymizePersonalFields`; Search removal; provider deletion through provider owners; Audit/Ops. No local PrivacyRequest workflow.
+SH-096 `enumerateSubjectData` (Confirmed); SH-095 `executePrivacyInstruction` (Confirmed); SH-097 `evaluateRetentionRequirement` (Confirmed); SH-098 `anonymizePersonalFields` (Confirmed); Search removal; provider deletion through provider owners; Audit/Ops. No local PrivacyRequest workflow.
 
 #### Data / Schema
 
@@ -1095,7 +1117,7 @@ resume attachment/access → Media
 Candidate projection + Track boost → Search
 Application/Interview events → Notification/Messaging
 JobInterview → Video Session
-JobInterview → calendar capability after U-CL06-16
+JobInterview schedule policy → Confirmed Booking & Calendar calendar provider boundary; local sync-field semantics remain gated
 Privacy → each CL-06 executor
 ComplianceHold → action gates
 Audit → generic audit/sensitive access proof

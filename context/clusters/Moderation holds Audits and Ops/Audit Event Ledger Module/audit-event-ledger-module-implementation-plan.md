@@ -52,7 +52,7 @@ No feature in this plan may use Audit evidence to replace the business or compli
 1. Follow root and CL-09 architecture before this plan.
 2. This Module owns only `AuditEvent`, `AccessAuditLog`, `AccessAuditAction`, and Audit-specific evidence/query/privacy policy.
 3. Do not create `AuditEventType` or `AuditEventActor` until `U-16` is explicitly resolved.
-4. Do not finalize the canonical `appendAuditEvent` storage contract until `U-17` is explicitly resolved.
+4. Do not finalize the canonical SH-029 `appendAuditEvent` storage contract until `U-17` is explicitly resolved.
 5. Do not implement or claim hash-chain integrity until `PR-CL09-07` / `U-18` are explicitly resolved.
 6. Do not implement production Privacy retention/anonymization behavior until `U-24` is explicitly resolved.
 7. Consume authenticated actor context through Identity & Access.
@@ -83,10 +83,10 @@ These must exist, or be implemented as accepted platform foundations before the 
 
 - PostgreSQL/Prisma foundation and migration workflow;
 - server-only application execution boundary;
-- authenticated actor interface: `resolveAuthenticatedActor`;
-- Role / Authority interface: `authorizeResourceAction`;
-- request/correlation interface: `createRequestContext`;
-- metadata sanitization mechanism: `sanitizeTelemetryMetadata`;
+- authenticated actor interface: SH-001 `resolveAuthenticatedActor`;
+- Role / Authority interface: SH-002 `authorizeResourceAction`;
+- request/correlation interface: SH-032 `createRequestContext`;
+- metadata sanitization mechanism: SH-034 `sanitizeTelemetryMetadata`;
 - canonical structured logging/error boundary;
 - testable database permission/RLS/grant mechanism appropriate to root standards;
 - canonical idempotency primitive for any source command that requires replay protection.
@@ -96,7 +96,7 @@ These must exist, or be implemented as accepted platform foundations before the 
 | Decision | Required before |
 | --- | --- |
 | `U-16` — `AuditEventType` / `AuditEventActor` conflict | Feature 01 exit if the implementation changes current free-form type/actor representation. At minimum, the conflict must be formally resolved as "keep current representation for MVP" or an approved migration. |
-| `U-17` — `AuditEvent` request ID/outcome storage | Feature 01 exit and therefore all `appendAuditEvent` implementation. |
+| `U-17` — `AuditEvent` request ID/outcome storage | Feature 01 exit and therefore all SH-029 `appendAuditEvent` implementation. |
 | `U-24` — Audit Privacy target vocabulary and retention policy | Feature 07 production exit. Contract scaffolding may precede it; destructive/anonymizing behavior may not. |
 | `PR-CL09-07` / `U-18` — Audit hash chaining | Only the optional integrity branch in Feature 09. Baseline production hardening does not require hash chaining if it remains unaccepted and no launch claim depends on it. |
 
@@ -144,7 +144,7 @@ Before beginning a feature, check the following table. A blocked decision is not
 | `U-24` privacy target/retention rules | Unresolved | Feature 07 may build contracts/tests with non-destructive fixtures, but production disposition must remain blocked until policy is approved. |
 | Audit-specific step-up matrix | Unresolved | Use step-up only for actions explicitly designated by Identity/Security policy. |
 | Audit evidence export manifest | Unresolved | Do not add a new export source record merely for convenience. |
-| Generic non-healthcare access-decision persistence | Unresolved | Do not widen `HealthcareAccessDecision?` into a generic decision enum without architecture review. |
+| Generic non-healthcare access-decision persistence | Semantics confirmed by CL-09-R010; representation unresolved | Approve normalized generic outcome storage before Feature 01 exits; do not widen Healthcare policy into universal Audit policy or invent fields/enums. |
 | Ghost-account cleanup policy | Unresolved | No account deletion/suspension workflow in this Module. |
 
 ---
@@ -163,9 +163,11 @@ This phase implements the exact Audit storage and safety boundary needed by CL-0
 
 Resolve the current Audit schema/contract conflicts and establish stable typed contracts for generic audit evidence and sensitive-access evidence without inventing new ownership.
 
+**CL-09-R010 — Confirmed Audit contract semantics.** SH-029 `appendAuditEvent` and SH-030 `recordSensitiveAccess` are the authoritative integration boundaries. Persistence must support actor attribution (including supported non-user/system actions), action, target, outcome/access outcome, request/correlation identity, and safe validated metadata. Generic access evidence must represent a normalized access outcome; Healthcare may supply its own decision as source evidence but its policy vocabulary is not universal Audit policy. `AuditEventType` and `AuditEventActor` are absent current-schema claims, not available structures. Exact fields/enums, non-user actor storage, migration design, and hash-chain architecture remain unresolved; SH-073 `hashChainRecords` remains Proposed ruling.
+
 #### Observable Result
 
-- The repository has explicit typed request/receipt/view contracts for `appendAuditEvent`, `recordSensitiveAccess`, `queryAuditEvents`, and `querySensitiveAccessHistory`.
+- The repository has explicit typed request/receipt/view contracts for SH-029 `appendAuditEvent`, SH-030 `recordSensitiveAccess`, `queryAuditEvents`, and `querySensitiveAccessHistory`.
 - The `U-16` conflict is explicitly resolved or intentionally preserved with a documented MVP representation.
 - The `U-17` request-ID/outcome storage decision is explicitly resolved and represented in Prisma or an approved normalized representation.
 - Schema validation/migration checks pass.
@@ -181,17 +183,19 @@ This feature must not advance CL-09 Feature 01 beyond the Cluster's architecture
 
 - current Prisma schema and migration history;
 - Canonical Shared Operations Architecture;
-- `createRequestContext` contract;
+- SH-032 `createRequestContext` contract;
 - root naming/error/validation conventions;
 - explicit architecture resolution for `U-17`;
 - explicit ruling for `U-16` if schema/type changes are proposed.
+
+- approved generic access-outcome representation satisfying CL-09-R010; exact fields/enums and non-user actor storage remain unresolved until separately decided.
 
 #### In Scope
 
 - inspect current `AuditEvent`, `AccessAuditLog`, `AccessAuditAction`, `DataSensitivity`, and `HealthcareAccessDecision`;
 - define stable command DTOs and receipts;
 - define redacted query-view DTOs at the contract layer;
-- resolve/document how `appendAuditEvent` stores request ID and outcome;
+- resolve/document how SH-029 `appendAuditEvent` stores request ID and outcome;
 - add only the approved schema/migration changes required by that decision;
 - verify/adjust indexes required by the approved correlation/filter contract;
 - document actor representation under current nullable `actorUserId`;
@@ -229,8 +233,8 @@ Consumed only:
 Define, but do not yet fully wire, the stable contracts:
 
 ```text
-appendAuditEvent(command) -> AuditEventReceipt
-recordSensitiveAccess(command) -> AccessAuditReceipt
+SH-029 appendAuditEvent(command) -> AuditEventReceipt
+SH-030 recordSensitiveAccess(command) -> AccessAuditReceipt
 queryAuditEvents(filters, viewer) -> Page<AuditEventView>
 querySensitiveAccessHistory(filters, viewer) -> Page<AccessAuditView>
 ```
@@ -247,9 +251,9 @@ No public type exports a raw Prisma row.
 
 | Canonical operation | Owner | Invocation | Local policy | Prohibited duplicate |
 | --- | --- | --- | --- | --- |
-| `createRequestContext` | Observability/platform | Contract alignment for request/correlation field semantics. | Whether/how Audit persists safe correlation reference. | `auditRequestId` helper or alternate correlation vocabulary. |
-| `sanitizeTelemetryMetadata` | Observability / Ops + Audit payload policy | Define accepted metadata input/result type. | Audit action-specific allowlists/size limits are defined in later implementation. | Custom generic sanitizer contract. |
-| `resolveAuthenticatedActor` | Identity & Access | Align actor DTO/reference semantics. | Which actor fields may be persisted. | `AuditActor` identity subsystem. |
+| SH-032 `createRequestContext` | Observability/platform | Contract alignment for request/correlation field semantics. | Whether/how Audit persists safe correlation reference. | `auditRequestId` helper or alternate correlation vocabulary. |
+| SH-034 `sanitizeTelemetryMetadata` | Observability / Ops + Audit payload policy | Define accepted metadata input/result type. | Audit action-specific allowlists/size limits are defined in later implementation. | Custom generic sanitizer contract. |
+| SH-001 `resolveAuthenticatedActor` | Identity & Access | Align actor DTO/reference semantics. | Which actor fields may be persisted. | `AuditActor` identity subsystem. |
 
 #### Domain Logic
 
@@ -325,7 +329,7 @@ Update:
 
 #### Acceptance Criteria
 
-1. `U-17` is explicitly decided and reflected in the contract/storage design.
+1. An explicitly approved representation satisfies CL-09-R010 actor/action/target/outcome/request-correlation/safe-metadata semantics, including U-17 and generic access outcomes; absent actor/type schemas are not assumed to exist.
 2. `U-16` is explicitly resolved or preserved as a documented no-schema-change ruling.
 3. Public DTO names use canonical operation names.
 4. No unapproved Audit-owned enum/model has been invented.
@@ -369,7 +373,7 @@ Supports **CL-09 Phase 1, Feature 01 — Audit Evidence and Request Correlation*
 
 - Module Feature 01;
 - approved root database/RLS/grant pattern;
-- `sanitizeTelemetryMetadata`;
+- SH-034 `sanitizeTelemetryMetadata`;
 - structured logger/test environment;
 - current migrations.
 
@@ -422,9 +426,9 @@ No generic `save`, `update`, `delete`, `upsert`, or arbitrary raw-query public r
 
 | Canonical operation | Owner | Invocation | Local policy | Prohibited duplicate |
 | --- | --- | --- | --- | --- |
-| `sanitizeTelemetryMetadata` | Observability / Ops + Audit payload policy | Before any JSON evidence is accepted. | Allowed keys, maximum depth/size, action-specific fields. | `redactAuditJson`, `safeAuditJson`, duplicate global serializer. |
-| `writeStructuredLog` | Observability / Ops | Repository/validation failures with safe dimensions. | No raw evidence metadata in logs. | Audit-specific logger. |
-| `captureException` | Observability / Ops | Unexpected persistence failure boundary. | Safe operation/evidence type only. | Direct Sentry setup. |
+| SH-034 `sanitizeTelemetryMetadata` | Observability / Ops + Audit payload policy | Before any JSON evidence is accepted. | Allowed keys, maximum depth/size, action-specific fields. | `redactAuditJson`, `safeAuditJson`, duplicate global serializer. |
+| SH-033 `writeStructuredLog` | Observability / Ops | Repository/validation failures with safe dimensions. | No raw evidence metadata in logs. | Audit-specific logger. |
+| SH-035 `captureException` | Observability / Ops | Unexpected persistence failure boundary. | Safe operation/evidence type only. | Direct Sentry setup. |
 
 #### Domain Logic
 
@@ -528,7 +532,7 @@ This phase exposes the stable Module operations that other Workin Ants Modules u
 
 #### Objective
 
-Implement `appendAuditEvent` as the canonical trusted server command for generic important-action proof.
+Implement SH-029 `appendAuditEvent` as the canonical trusted server command for generic important-action proof.
 
 #### Observable Result
 
@@ -541,11 +545,11 @@ Completes a major portion of **CL-09 Phase 1, Feature 01**.
 #### Dependencies
 
 - Module Features 01–02;
-- `resolveAuthenticatedActor` for user-driven contexts;
-- `createRequestContext`;
-- `sanitizeTelemetryMetadata`;
-- optional `validateOwnedTargetReference` where the target contract requires existence;
-- optional `executeIdempotentCommand` for source-defined replay identity.
+- SH-001 `resolveAuthenticatedActor` for user-driven contexts;
+- SH-032 `createRequestContext`;
+- SH-034 `sanitizeTelemetryMetadata`;
+- optional SH-123 `validateOwnedTargetReference` where the target contract requires existence;
+- optional SH-044 `executeIdempotentCommand` for source-defined replay identity.
 
 #### In Scope
 
@@ -581,7 +585,7 @@ No neighboring record is written.
 #### Public Interfaces
 
 ```text
-appendAuditEvent(command) -> AuditEventReceipt
+SH-029 appendAuditEvent(command) -> AuditEventReceipt
 ```
 
 The command must expose canonical fields rather than require callers to place actor/action/target/outcome/request ID inside metadata.
@@ -590,12 +594,12 @@ The command must expose canonical fields rather than require callers to place ac
 
 | Canonical operation | Owner | Invocation | Local policy | Prohibited duplicate |
 | --- | --- | --- | --- | --- |
-| `resolveAuthenticatedActor` | Identity & Access | At user-originated command context before append. | Which resolved actor attributes are persisted. | Audit current-user helper. |
-| `createRequestContext` | Observability/platform | At source request/job boundary; Audit consumes propagated context. | Safe correlation persistence. | Per-Audit request ID generator. |
-| `sanitizeTelemetryMetadata` | Observability / Ops + Audit policy | Before persistence. | AuditEvent action-specific metadata allowlist. | Local generic redactor. |
-| `validateOwnedTargetReference` | Target owner | Only when command semantics require target existence/eligibility proof. | Which Audit actions require validation. | Cross-domain target repository. |
-| `executeIdempotentCommand` | Platform application infra | Only when source supplies semantic retry identity. | Retry equivalence and conflict behavior. | Audit processed-command table. |
-| `writeStructuredLog` / `captureException` | Observability / Ops | Safe execution diagnostics. | No raw metadata. | Audit logger/Sentry. |
+| SH-001 `resolveAuthenticatedActor` | Identity & Access | At user-originated command context before append. | Which resolved actor attributes are persisted. | Audit current-user helper. |
+| SH-032 `createRequestContext` | Observability/platform | At source request/job boundary; Audit consumes propagated context. | Safe correlation persistence. | Per-Audit request ID generator. |
+| SH-034 `sanitizeTelemetryMetadata` | Observability / Ops + Audit policy | Before persistence. | AuditEvent action-specific metadata allowlist. | Local generic redactor. |
+| SH-123 `validateOwnedTargetReference` | Target owner | Only when command semantics require target existence/eligibility proof. | Which Audit actions require validation. | Cross-domain target repository. |
+| SH-044 `executeIdempotentCommand` | Platform application infra | Only when source supplies semantic retry identity. | Retry equivalence and conflict behavior. | Audit processed-command table. |
+| SH-033 `writeStructuredLog` / SH-035 `captureException` | Observability / Ops | Safe execution diagnostics. | No raw metadata. | Audit logger/Sentry. |
 
 #### Domain Logic
 
@@ -687,7 +691,7 @@ Feature 03 passes when at least two representative consumer contract tests can a
 
 #### Objective
 
-Implement `recordSensitiveAccess` as the canonical cross-platform command for protected-access proof while preserving source-owner authorization and domain-specific access records.
+Implement SH-030 `recordSensitiveAccess` as the canonical cross-platform command for protected-access proof while preserving source-owner authorization and domain-specific access records.
 
 #### Observable Result
 
@@ -702,9 +706,9 @@ Completes the core mutation portion of **CL-09 Phase 1, Feature 01** and establi
 - Module Features 01–03;
 - current `AccessAuditAction`;
 - current `DataSensitivity`;
-- current `HealthcareAccessDecision`;
-- `createRequestContext`;
-- `sanitizeTelemetryMetadata`;
+- current `HealthcareAccessDecision` only as Healthcare-owned source evidence, plus the separately approved normalized generic access-outcome representation required by CL-09-R010;
+- SH-032 `createRequestContext`;
+- SH-034 `sanitizeTelemetryMetadata`;
 - source-owner access decision contract/fake.
 
 #### In Scope
@@ -751,7 +755,7 @@ Consumes:
 #### Public Interfaces
 
 ```text
-recordSensitiveAccess(command) -> AccessAuditReceipt
+SH-030 recordSensitiveAccess(command) -> AccessAuditReceipt
 ```
 
 The command must require the source owner to supply enough information to state what happened. It must not query raw provider or neighboring-domain state to reconstruct the outcome.
@@ -760,17 +764,17 @@ The command must require the source owner to supply enough information to state 
 
 | Canonical operation | Owner | Invocation | Local policy | Prohibited duplicate |
 | --- | --- | --- | --- | --- |
-| `resolveAuthenticatedActor` | Identity & Access | Where a user actor is involved. | Persist only approved actor reference. | Caller-specific audit actor helpers. |
-| `createRequestContext` | Observability/platform | Correlate access to request/job. | Request ID is evidence, not dedupe key. | Local correlation generator. |
-| `sanitizeTelemetryMetadata` | Observability / Ops + Audit policy | Before append. | Action/sensitivity-specific safe fields. | Finance/PHI/resume-specific generic redactors. |
-| `executeIdempotentCommand` | Platform app infra | Only for a technical retry of the same evidence append. | Preserve distinct real accesses. | Global access-dedupe table. |
-| `writeStructuredLog` / `captureException` | Observability / Ops | Diagnostics. | No protected payload in logs. | Audit-local logger/Sentry. |
+| SH-001 `resolveAuthenticatedActor` | Identity & Access | Where a user actor is involved. | Persist only approved actor reference. | Caller-specific audit actor helpers. |
+| SH-032 `createRequestContext` | Observability/platform | Correlate access to request/job. | Request ID is evidence, not dedupe key. | Local correlation generator. |
+| SH-034 `sanitizeTelemetryMetadata` | Observability / Ops + Audit policy | Before append. | Action/sensitivity-specific safe fields. | Finance/PHI/resume-specific generic redactors. |
+| SH-044 `executeIdempotentCommand` | Platform app infra | Only for a technical retry of the same evidence append. | Preserve distinct real accesses. | Global access-dedupe table. |
+| SH-033 `writeStructuredLog` / SH-035 `captureException` | Observability / Ops | Diagnostics. | No protected payload in logs. | Audit-local logger/Sentry. |
 
 #### Domain Logic
 
 1. Source owner decides whether requested access/action is allowed, denied, redacted, blocked, or otherwise completed.
 2. Source owner creates its domain-specific access record where that domain requires one.
-3. Source owner calls `recordSensitiveAccess`.
+3. Source owner calls SH-030 `recordSensitiveAccess`.
 4. Audit validates:
    - actor/system context;
    - target type/ID;
@@ -799,7 +803,7 @@ The plus sign means “both may be required,” not “duplicate ownership.”
 
 - caller must be trusted internal code;
 - data/context owner authorizes the protected access;
-- `recordSensitiveAccess` never grants access;
+- SH-030 `recordSensitiveAccess` never grants access;
 - healthcare `accessDecision` is recorded only when Healthcare supplies it;
 - financial reads use `DataSensitivity.financial`;
 - resume reads use `DataSensitivity.resume`;
@@ -889,9 +893,9 @@ Completes the query portion of **CL-09 Phase 1, Feature 01** and creates the API
 #### Dependencies
 
 - Module Features 01–04;
-- `authorizeResourceAction`;
-- `requireStepUpForSensitiveAction` only if an Audit-specific security policy designates a query;
-- `createRequestContext`;
+- SH-002 `authorizeResourceAction`;
+- SH-014 `requireStepUpForSensitiveAction` only if an Audit-specific security policy designates a query;
+- SH-032 `createRequestContext`;
 - current indexes;
 - redacted DTO mapping.
 
@@ -938,11 +942,11 @@ Filters must be validated and bounded.
 
 | Canonical operation | Owner | Invocation | Local policy | Prohibited duplicate |
 | --- | --- | --- | --- | --- |
-| `authorizeResourceAction` | Role / Authority | Before every protected evidence query. | Audit query action names and resource facts. | `canViewAudit`, local admin role checks. |
-| `requireStepUpForSensitiveAction` | Identity & Access | Only for specifically approved high-risk query/export action. | Which Audit query requires fresh assurance. | Local MFA flow. |
-| `createRequestContext` | Observability/platform | Correlate query and diagnostics. | Safe request metadata. | Query-specific correlation helper. |
-| `validateOwnedTargetReference` | Target owner | Optional safe target label/context lookup. | Only minimized view context. | Cross-domain join/repository. |
-| `writeStructuredLog` / `captureException` | Observability / Ops | Query diagnostics. | No returned evidence body in logs. | Audit query logger. |
+| SH-002 `authorizeResourceAction` | Role / Authority | Before every protected evidence query. | Audit query action names and resource facts. | `canViewAudit`, local admin role checks. |
+| SH-014 `requireStepUpForSensitiveAction` | Identity & Access | Only for specifically approved high-risk query/export action. | Which Audit query requires fresh assurance. | Local MFA flow. |
+| SH-032 `createRequestContext` | Observability/platform | Correlate query and diagnostics. | Safe request metadata. | Query-specific correlation helper. |
+| SH-123 `validateOwnedTargetReference` | Target owner | Optional safe target label/context lookup. | Only minimized view context. | Cross-domain join/repository. |
+| SH-033 `writeStructuredLog` / SH-035 `captureException` | Observability / Ops | Query diagnostics. | No returned evidence body in logs. | Audit query logger. |
 
 #### Domain Logic
 
@@ -1112,11 +1116,11 @@ If a detail endpoint is needed, it must be a narrow protected Audit query return
 
 | Canonical operation | Owner | Invocation | Local policy | Prohibited duplicate |
 | --- | --- | --- | --- | --- |
-| `authorizeResourceAction` | Role / Authority | Route/query/detail guard. | Audit viewer actions and evidence scopes. | `requireAdmin`, `isAuditAdmin`. |
-| `requireStepUpForSensitiveAction` | Identity & Access | Only for explicitly designated high-risk view/export action. | Which viewer action requires step-up. | UI-local MFA. |
-| `recordSensitiveAccess` | Audit / Event Ledger | Only when the act of accessing protected evidence itself fits an approved canonical action and policy. | Do not invent enum values to log the viewer. | `adminViewAuditLog` local table/action string. |
-| `appendAuditEvent` | Audit / Event Ledger | Record important admin mutations only; baseline viewer is read-only. | Do not recursively log every list fetch. | Ad hoc admin logger. |
-| `validateOwnedTargetReference` | Target owner | Resolve safe link/summary when needed. | Safe fields only. | Universal target lookup. |
+| SH-002 `authorizeResourceAction` | Role / Authority | Route/query/detail guard. | Audit viewer actions and evidence scopes. | `requireAdmin`, `isAuditAdmin`. |
+| SH-014 `requireStepUpForSensitiveAction` | Identity & Access | Only for explicitly designated high-risk view/export action. | Which viewer action requires step-up. | UI-local MFA. |
+| SH-030 `recordSensitiveAccess` | Audit / Event Ledger | Only when the act of accessing protected evidence itself fits an approved canonical action and policy. | Do not invent enum values to log the viewer. | `adminViewAuditLog` local table/action string. |
+| SH-029 `appendAuditEvent` | Audit / Event Ledger | Record important admin mutations only; baseline viewer is read-only. | Do not recursively log every list fetch. | Ad hoc admin logger. |
+| SH-123 `validateOwnedTargetReference` | Target owner | Resolve safe link/summary when needed. | Safe fields only. | Universal target lookup. |
 
 #### Domain Logic
 
@@ -1237,14 +1241,14 @@ Production completion is blocked until `U-24` is resolved.
 - Module Features 01–06;
 - Privacy / Data Erasure public protocol;
 - explicit `U-24` target vocabulary and retention policy for production disposition;
-- canonical `anonymizePersonalFields` if anonymization is approved;
+- canonical SH-098 `anonymizePersonalFields` if anonymization is approved;
 - approved privileged data-disposition boundary.
 
 #### In Scope
 
-- `enumerateSubjectData`;
-- `evaluateRetentionRequirement`;
-- `executePrivacyInstruction`;
+- SH-096 `enumerateSubjectData`;
+- SH-097 `evaluateRetentionRequirement`;
+- SH-095 `executePrivacyInstruction`;
 - owner-specific export serialization if required by Privacy protocol;
 - actor-linked record enumeration;
 - approved target-linked relationship mapping;
@@ -1279,9 +1283,9 @@ Normal app/admin insert-only rules remain unchanged.
 Implements Privacy-defined owner contracts:
 
 ```text
-enumerateSubjectData(...)
-evaluateRetentionRequirement(...)
-executePrivacyInstruction(...)
+SH-096 enumerateSubjectData(...)
+SH-097 evaluateRetentionRequirement(...)
+SH-095 executePrivacyInstruction(...)
 exportSubjectData(...)   // only if required by Privacy's approved owner contract
 ```
 
@@ -1289,12 +1293,12 @@ exportSubjectData(...)   // only if required by Privacy's approved owner contrac
 
 | Canonical operation | Owner | Invocation | Local policy | Prohibited duplicate |
 | --- | --- | --- | --- | --- |
-| `enumerateSubjectData` | Privacy protocol + Audit implementation | Privacy target discovery. | Audit actor/target relationship mapping. | Global DB crawler. |
-| `evaluateRetentionRequirement` | Data owner + Privacy | Before disposition. | Audit security/legal retention facts. | Local retention-exemption table. |
-| `executePrivacyInstruction` | Privacy orchestrates; Audit executes | Apply approved owner-local result. | Field-level disposition rules. | Audit-local Privacy workflow. |
-| `anonymizePersonalFields` | Shared primitive; Audit maps fields | Approved anonymization. | Which fields can change without invalidating proof. | Ad hoc scrubber. |
-| `executeIdempotentCommand` | Platform app infra | Privacy target replay. | Privacy target/idempotency identity. | Audit privacy dedupe table. |
-| `writeStructuredLog` / `recordIntegrationFailure` | Observability / Ops | Privacy executor diagnostics. | No subject data in telemetry. | Local privacy failure table. |
+| SH-096 `enumerateSubjectData` | Privacy protocol + Audit implementation | Privacy target discovery. | Audit actor/target relationship mapping. | Global DB crawler. |
+| SH-097 `evaluateRetentionRequirement` | Data owner + Privacy | Before disposition. | Audit security/legal retention facts. | Local retention-exemption table. |
+| SH-095 `executePrivacyInstruction` | Privacy orchestrates; Audit executes | Apply approved owner-local result. | Field-level disposition rules. | Audit-local Privacy workflow. |
+| SH-098 `anonymizePersonalFields` | Shared primitive; Audit maps fields | Approved anonymization. | Which fields can change without invalidating proof. | Ad hoc scrubber. |
+| SH-044 `executeIdempotentCommand` | Platform app infra | Privacy target replay. | Privacy target/idempotency identity. | Audit privacy dedupe table. |
+| SH-033 `writeStructuredLog` / SH-037 `recordIntegrationFailure` | Observability / Ops | Privacy executor diagnostics. | No subject data in telemetry. | Local privacy failure table. |
 
 #### Domain Logic
 
@@ -1387,7 +1391,7 @@ Feature 07 production exit requires `U-24` to be explicitly approved and all ret
 
 #### Objective
 
-Prove that the most important Workin Ants Modules consume Audit through `appendAuditEvent` and `recordSensitiveAccess` while preserving their own domain/event/access truth.
+Prove that the most important Workin Ants Modules consume Audit through SH-029 `appendAuditEvent` and SH-030 `recordSensitiveAccess` while preserving their own domain/event/access truth.
 
 #### Observable Result
 
@@ -1411,17 +1415,17 @@ This is the Module's dedicated Integration Phase.
 Required representative journeys:
 
 1. **Moderation / Hold**
-   - moderation/admin action -> `appendAuditEvent`;
-   - hold creation/release -> `appendAuditEvent`;
+   - moderation/admin action -> SH-029 `appendAuditEvent`;
+   - hold creation/release -> SH-029 `appendAuditEvent`;
    - original `ModerationAction` / `ComplianceHold` remains source truth.
 
 2. **Healthcare**
    - source owner decides allowed/redacted/blocked/denied;
-   - `recordSensitiveAccess` records result without PHI;
+   - SH-030 `recordSensitiveAccess` records result without PHI;
    - Healthcare policy remains truth.
 
 3. **Financial**
-   - sensitive processor balance/payout/tax read -> `recordSensitiveAccess` with financial sensitivity;
+   - sensitive processor balance/payout/tax read -> SH-030 `recordSensitiveAccess` with financial sensitivity;
    - Payment/Payout/Tax remains truth.
 
 4. **Resume**
@@ -1471,8 +1475,8 @@ No neighboring source record is written by Audit.
 Production verification for:
 
 ```text
-appendAuditEvent
-recordSensitiveAccess
+SH-029 appendAuditEvent
+SH-030 recordSensitiveAccess
 queryAuditEvents
 querySensitiveAccessHistory
 ```
@@ -1483,13 +1487,13 @@ Privacy executor contract is verified through Feature 07/Cluster Feature 10.
 
 | Canonical operation | Owner | Invocation | Local policy | Prohibited duplicate |
 | --- | --- | --- | --- | --- |
-| `appendAuditEvent` | Audit / Event Ledger | Generic important actions from source Modules. | Safe action/metadata policy. | Source-local generic audit tables. |
-| `recordSensitiveAccess` | Audit / Event Ledger | Protected access outcomes from source owners. | Action/sensitivity compatibility. | Finance/PHI/resume/media generic audit tables. |
-| `authorizeResourceAction` | Role / Authority | Source-owner and Audit admin query authority. | Audit does not reinterpret source decision. | Integration auth bypass. |
-| `createRequestContext` | Observability/platform | Correlate source action and evidence. | Safe identifiers. | Per-bridge correlation helpers. |
-| `recordIntegrationFailure` | Observability / Ops | Surface technical audit handoff failure. | Source operation/retryability. | Consumer-local generic failure tables. |
-| `executeIdempotentCommand` | Platform app infra | Replay-safe source commands where needed. | Semantic identity remains source-owned. | Per-consumer audit dedupe table. |
-| `publishDomainEvent` / `deduplicateDomainEvent` | Platform event infra | Only where a source owner reaches Audit through an approved event-driven integration. | Source event meaning and Audit consumer effect. | Fire-and-forget/ad hoc inbox. |
+| SH-029 `appendAuditEvent` | Audit / Event Ledger | Generic important actions from source Modules. | Safe action/metadata policy. | Source-local generic audit tables. |
+| SH-030 `recordSensitiveAccess` | Audit / Event Ledger | Protected access outcomes from source owners. | Action/sensitivity compatibility. | Finance/PHI/resume/media generic audit tables. |
+| SH-002 `authorizeResourceAction` | Role / Authority | Source-owner and Audit admin query authority. | Audit does not reinterpret source decision. | Integration auth bypass. |
+| SH-032 `createRequestContext` | Observability/platform | Correlate source action and evidence. | Safe identifiers. | Per-bridge correlation helpers. |
+| SH-037 `recordIntegrationFailure` | Observability / Ops | Surface technical audit handoff failure. | Source operation/retryability. | Consumer-local generic failure tables. |
+| SH-044 `executeIdempotentCommand` | Platform app infra | Replay-safe source commands where needed. | Semantic identity remains source-owned. | Per-consumer audit dedupe table. |
+| SH-046 `publishDomainEvent` / SH-045 `deduplicateDomainEvent` | Platform event infra | Only where a source owner reaches Audit through an approved event-driven integration. | Source event meaning and Audit consumer effect. | Fire-and-forget/ad hoc inbox. |
 
 #### Domain Logic
 
@@ -1646,7 +1650,7 @@ Baseline hardening:
 
 Conditional integrity branch only if approved:
 
-- integrate `hashChainRecords`;
+- integrate SH-073 `hashChainRecords`;
 - define and implement Audit-owned partition/sequence/canonical field set;
 - use canonical crypto;
 - use database lock/serializable strategy;
@@ -1679,8 +1683,8 @@ Conditional integrity data only if architecture explicitly approves additional f
 
 Freeze/version:
 
-- `appendAuditEvent`;
-- `recordSensitiveAccess`;
+- SH-029 `appendAuditEvent`;
+- SH-030 `recordSensitiveAccess`;
 - `queryAuditEvents`;
 - `querySensitiveAccessHistory`;
 - Privacy executor contracts.
@@ -1691,16 +1695,16 @@ Any breaking DTO change requires explicit migration/deprecation plan.
 
 | Canonical operation | Owner | Invocation | Local policy | Prohibited duplicate |
 | --- | --- | --- | --- | --- |
-| `authorizeResourceAction` | Role / Authority | Final permission matrix tests. | Audit resource/action facts. | Local admin permission code. |
-| `requireStepUpForSensitiveAction` | Identity & Access | Final approved high-risk actions. | Audit-specific action selection. | Local MFA. |
-| `executeIdempotentCommand` | Platform app infra | Fault/replay testing. | Same-fact versus new-fact semantics. | Audit idempotency subsystem. |
-| `acquireAggregateLock` | Shared persistence infra | Conditional hash-chain append/verification coordination only if approved. | Chain partition lock key. | In-memory mutex / local lock helper. |
-| `hashCanonicalPayload` | Shared crypto | Approved integrity/export proof only. | Audit canonical bytes/purpose/version. | Local SHA/HMAC. |
-| `hashChainRecords` | Proposed shared crypto | **Conditional: use only after explicit acceptance.** | Audit chain partition/sequence/anomaly policy. | Local chain implementation. |
-| `enqueueReliableJob` / `executeRetryWithBackoff` | Shared queue/platform | Conditional integrity verification worker. | Payload/retry/dead-letter meaning. | Audit queue/retry framework. |
-| `sanitizeTelemetryMetadata` | Observability / Ops + Audit policy | Final fuzzing/redaction. | Audit allowlists/limits. | Local redaction stack. |
-| `recordIntegrationFailure` / `writeStructuredLog` / `captureException` | Observability / Ops | Fault-injection visibility. | Safe Audit diagnostics. | Generic Audit failure table or direct Sentry. |
-| `requestNotification` | Notification | Conditional integrity alert after approved anomaly. | Severity, recipients, safe variables. | Direct email/SMS/push. |
+| SH-002 `authorizeResourceAction` | Role / Authority | Final permission matrix tests. | Audit resource/action facts. | Local admin permission code. |
+| SH-014 `requireStepUpForSensitiveAction` | Identity & Access | Final approved high-risk actions. | Audit-specific action selection. | Local MFA. |
+| SH-044 `executeIdempotentCommand` | Platform app infra | Fault/replay testing. | Same-fact versus new-fact semantics. | Audit idempotency subsystem. |
+| SH-051 `acquireAggregateLock` | Shared persistence infra | Conditional hash-chain append/verification coordination only if approved. | Chain partition lock key. | In-memory mutex / local lock helper. |
+| SH-072 `hashCanonicalPayload` | Shared crypto | Approved integrity/export proof only. | Audit canonical bytes/purpose/version. | Local SHA/HMAC. |
+| SH-073 `hashChainRecords` | Proposed shared crypto | **Conditional: use only after explicit acceptance.** | Audit chain partition/sequence/anomaly policy. | Local chain implementation. |
+| SH-047 `enqueueReliableJob` / SH-048 `executeRetryWithBackoff` | Shared queue/platform | Conditional integrity verification worker. | Payload/retry/dead-letter meaning. | Audit queue/retry framework. |
+| SH-034 `sanitizeTelemetryMetadata` | Observability / Ops + Audit policy | Final fuzzing/redaction. | Audit allowlists/limits. | Local redaction stack. |
+| SH-037 `recordIntegrationFailure` / SH-033 `writeStructuredLog` / SH-035 `captureException` | Observability / Ops | Fault-injection visibility. | Safe Audit diagnostics. | Generic Audit failure table or direct Sentry. |
+| SH-041 `requestNotification` | Notification | Conditional integrity alert after approved anomaly. | Severity, recipients, safe variables. | Direct email/SMS/push. |
 
 #### Domain Logic
 
@@ -1880,7 +1884,7 @@ source owner decides / mutates source truth
         |
         +--> domain event/access proof, if owned there
         |
-        +--> appendAuditEvent or recordSensitiveAccess
+        +--> SH-029 appendAuditEvent or SH-030 recordSensitiveAccess
         |
         v
 Audit preserves generic evidence only
@@ -2036,8 +2040,8 @@ Before declaring the Module complete, verify all of the following:
 
 1. `AuditEvent`, `AccessAuditLog`, and `AccessAuditAction` have exactly one owner.
 2. `AuditEventType` / `AuditEventActor` were not invented from registry claims without explicit ruling.
-3. `appendAuditEvent` has one canonical storage contract including the approved request/outcome behavior.
-4. `recordSensitiveAccess` records owner decisions without becoming the decision maker.
+3. SH-029 `appendAuditEvent` has one canonical storage contract including the approved request/outcome behavior.
+4. SH-030 `recordSensitiveAccess` records owner decisions without becoming the decision maker.
 5. Domain lifecycle event ledgers remain domain-owned.
 6. Domain-specific access proof remains domain-owned.
 7. Provider processed-event ledgers remain provider-owner truth.

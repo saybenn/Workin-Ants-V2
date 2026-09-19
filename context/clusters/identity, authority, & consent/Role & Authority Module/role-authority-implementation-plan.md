@@ -3,9 +3,9 @@
 > **Module ID:** `role_authority`  
 > **Module:** Role & Authority Module  
 > **Primary Cluster:** `CL-01 Identity, Authority, Consent & Entitlements`  
-> **Repository target:** `context/modules/role_authority/implementation-plan.md`  
+> **Repository target:** `context/clusters/identity, authority, & consent/Role & Authority Module/role-authority-implementation-plan.md`\
 > **Companion architecture:** `role_authority/module-architecture.md`  
-> **Cluster dependency:** subordinate to `context/clusters/identity-authority-consent-entitlements/build-plan.md`  
+> **Cluster dependency:** subordinate to `context/clusters/identity, authority, & consent/identity-authority-consent-build-plan.md`\
 > **Implementation posture:** build the canonical permission interpreter and its enforcement/parity layer without absorbing Identity, Organization Hiring, Messaging, business-resource, Audit, healthcare, entitlement, consent, or compliance truth.
 
 ---
@@ -54,7 +54,7 @@ The action-owning Module still owns entitlement, consent, readiness, compliance,
 10. Unknown actions/resources/policies fail closed.
 11. Missing or unavailable authoritative facts never result in `allowed`.
 12. Server authorization and RLS/helper-function enforcement must share one controlled semantic policy specification/test matrix.
-13. No generic RBAC persistence is added until `U-CL01-16` is resolved and the Module architecture is updated.
+13. No generic RBAC persistence is added until `U-CL01-10` is resolved and the Module architecture is updated.
 14. Every server trust boundary validates action/resource/context input using root validation standards.
 15. Client-provided `userId`, `role`, `isAdmin`, membership, participant, and ownership booleans are never authority proof.
 16. Admin/support authority does not imply healthcare, financial, resume, legal-contract, or private-message payload access.
@@ -113,13 +113,13 @@ The fake must implement the canonical contract. It must not cause Role to become
 These decisions must be resolved before the affected production feature crosses the boundary:
 
 - **PR-CL01-02:** organization membership and thread participant ownership split, or implementation stays read-only exactly as described in Cluster architecture.
-- **U-CL01-16:** source of authorization policy before broad production RLS bindings are committed.
+- **U-CL01-10:** source of authorization policy before broad production RLS bindings are committed.
 - **Initial action/resource vocabulary:** approve versioned keys and governance before consumers rely on them.
 - **Platform admin/support matrix:** approve action distinctions before production admin/support authorization.
 - **Organization role/action matrix:** approve owner/admin/recruiter permissions before production organization actions.
 - **SH-015 decision envelope:** approve shared shape or explicitly freeze a compatible Role public contract.
-- **U-CL01-15:** step-up action governance before Role emits production step-up obligations for newly classified actions.
-- **U-CL01-17:** sensitive access audit matrix and failure semantics before claiming audit completeness.
+- **U-CL01-07:** step-up action governance before Role emits production step-up obligations for newly classified actions.
+- **Role sensitive-access audit decision:** sensitive access audit matrix and failure semantics before claiming audit completeness.
 - **Denial presentation:** root/data-owner rule before final 403/404/redaction behavior is wired broadly.
 
 ---
@@ -953,7 +953,7 @@ Completes the core requirement of **CL-01 Feature 02 — Resource Authorization 
 ### Dependencies
 
 - Features 01–05;
-- **U-CL01-16 resolved** for production implementation;
+- **U-CL01-10 resolved** for production implementation;
 - root Prisma/migration/RLS convention;
 - Identity-approved DB actor/session context;
 - approved RLS coverage list;
@@ -972,7 +972,7 @@ Completes the core requirement of **CL-01 Feature 02 — Resource Authorization 
 ### Out of Scope
 
 - changing foreign lifecycle ownership;
-- adding generic permission tables unless U-CL01-16 explicitly selected that architecture;
+- adding generic permission tables unless U-CL01-10 explicitly selected that architecture;
 - business readiness/entitlement RLS masquerading as Role policy;
 - using RLS to replace owner-specific business access decisions not owned by Role;
 - direct browser CRUD outside root architecture.
@@ -1059,7 +1059,7 @@ None.
 
 ### Documentation Updates
 
-- resolve and document U-CL01-16;
+- resolve and document U-CL01-10;
 - document RLS coverage set and semantic-source strategy;
 - document table-owner coordination/migrations;
 - update Cluster architecture if the chosen policy source is Cluster-significant;
@@ -1067,7 +1067,7 @@ None.
 
 ### Acceptance Criteria
 
-- U-CL01-16 is no longer unresolved for implemented scope;
+- U-CL01-10 is no longer unresolved for implemented scope;
 - every covered RLS policy has a server parity fixture;
 - no independent SQL permission matrix exists without parity governance;
 - no foreign lifecycle ownership moved;
@@ -1098,13 +1098,13 @@ For an approved sensitive authority action, an actor with sufficient base role/r
 
 ### Cluster Build-Plan Link
 
-Supports the boundary between **CL-01 Feature 02** and **CL-01 Feature 03 — Security Posture, Passkeys, and Step-Up Assurance**.
+Supports the boundary between **CL-01 Feature 02** and **CL-01 Feature 04 — Sensitive-Action Step-Up and Temporary Security Sessions**.
 
 ### Dependencies
 
 - Features 01–06;
 - SH-014 Identity step-up contract;
-- **U-CL01-15** governance resolved for actions enabled here;
+- **U-CL01-07** governance resolved for actions enabled here;
 - approved action-to-assurance matrix;
 - Identity assurance facts/result contract.
 
@@ -1199,7 +1199,7 @@ Role owns no challenge UI. Consumer/Identity security shell presents step-up acc
 
 ### Documentation Updates
 
-- record approved action-to-step-up matrix and U-CL01-15 resolution;
+- record approved action-to-step-up matrix and U-CL01-07 resolution;
 - update public decision contract if obligation fields become binding;
 - update progress tracker.
 
@@ -1212,7 +1212,7 @@ Role owns no challenge UI. Consumer/Identity security shell presents step-up acc
 
 ### Exit Gate
 
-- U-CL01-15 resolved for enabled actions;
+- U-CL01-07 resolved for enabled actions;
 - SH-014 contract tests pass;
 - no Role MFA/provider implementation exists;
 - decision envelope communicates step-up without leaking secrets;
@@ -1232,13 +1232,13 @@ For the approved audit matrix, required sensitive/admin access attempts generate
 
 ### Cluster Build-Plan Link
 
-Supports **CL-01 Feature 02**, CL-01 Phase 4 guardrail integration, and **CL-01 Feature 16** audit/access-proof hardening.
+Supports **CL-01 Feature 02**, CL-01 Phase 4 guardrail integration, and **CL-01 Feature 16** support integration and **CL-01 Feature 18** audit/access-proof hardening.
 
 ### Dependencies
 
 - Features 01–07;
 - SH-029 / SH-030 Audit contracts;
-- **U-CL01-17 sensitive-access matrix resolved for enabled paths**;
+- **Role sensitive-access audit decision resolved for enabled paths**;
 - Audit owner's decision on general access-decision vocabulary / schema compatibility;
 - SH-034 telemetry/audit sanitization.
 
@@ -1319,7 +1319,7 @@ None.
 
 ### Failure Behavior
 
-Must be explicitly specified in U-CL01-17 resolution. Possible classes to distinguish:
+Must be explicitly specified in Role sensitive-access audit decision resolution. Possible classes to distinguish:
 
 - mandatory sensitive audit unavailable;
 - optional administrative audit unavailable;
@@ -1341,7 +1341,7 @@ Role must not catch-and-ignore mandatory audit failures.
 
 ### Documentation Updates
 
-- resolve U-CL01-17 for enabled scope;
+- resolve Role sensitive-access audit decision for enabled scope;
 - update Role and Audit public-interface docs if contract changes;
 - document access-decision vocabulary handling;
 - update progress tracker.
@@ -1356,7 +1356,7 @@ Role must not catch-and-ignore mandatory audit failures.
 
 ### Exit Gate
 
-- U-CL01-17 resolved for production-enabled paths;
+- Role sensitive-access audit decision resolved for production-enabled paths;
 - Audit integration tests pass;
 - direct-write prohibition is verified;
 - mandatory evidence cannot be silently lost;
@@ -1378,7 +1378,7 @@ End-to-end contract fixtures prove organization management, candidate/resume bas
 
 ### Cluster Build-Plan Link
 
-Supports **CL-01 Phase 4 — Cross-Cluster Contract Proof (Features 13–15)**, especially `OrganizationMember / ThreadParticipant owner facts → Role authority`.
+Supports **CL-01 Phase 4 — Cross-Cluster Contract Proof (Features 14–16)**, especially `OrganizationMember / ThreadParticipant owner facts → Role authority`.
 
 ### Dependencies
 
@@ -1517,7 +1517,7 @@ Representative Order, Media, moderation/admin, hold-review, and healthcare-sensi
 
 ### Cluster Build-Plan Link
 
-Supports **CL-01 Phase 4 — Cross-Cluster Contract Proof (Features 13–15)** and the cross-Cluster authority rail consumed by CL-04, CL-05, and CL-09.
+Supports **CL-01 Phase 4 — Cross-Cluster Contract Proof (Features 14–16)** and the cross-Cluster authority rail consumed by CL-04, CL-05, and CL-09.
 
 ### Dependencies
 
@@ -1666,7 +1666,7 @@ Production readiness checks prove that all enabled protected actions use the can
 
 ### Cluster Build-Plan Link
 
-Supports **CL-01 Feature 16 — Hardening and Production Readiness** and closes Role-specific requirements from CL-01 Feature 02 and Phase 4.
+Supports **CL-01 Feature 18 — Security, Privacy, Concurrency, and Production Readiness Hardening** and closes Role-specific requirements from CL-01 Feature 02 and Phase 4.
 
 ### Dependencies
 
@@ -1928,10 +1928,10 @@ Hardening must not add a new Role lifecycle, decision ledger, queue, provider ad
 ### Cluster alignment summary
 
 - Module Features 01–06 primarily implement **CL-01 Feature 02 — Resource Authorization Contract and RLS Parity**.
-- Module Feature 07 composes with the Identity-owned **CL-01 Feature 03** step-up foundation without taking ownership.
+- Module Feature 07 composes with the Identity-owned **CL-01 Feature 04** step-up foundation without taking ownership.
 - Module Feature 08 supplies the Role side of CL-01 audit/access-proof requirements.
 - Module Features 09–10 implement the Role portion of **CL-01 Phase 4 Cross-Cluster Contract Proof**.
-- Module Feature 11 implements the Role portion of **CL-01 Feature 16 Hardening and Production Readiness**.
+- Module Feature 11 implements the Role portion of **CL-01 Feature 18 Security, Privacy, Concurrency, and Production Readiness Hardening**.
 
 The Module plan does not reorder the Cluster plan. If the Cluster plan changes sequencing, this Module plan must be reconciled rather than followed independently.
 

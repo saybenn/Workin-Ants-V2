@@ -55,7 +55,9 @@ Counts are by document role and directory depth, corroborated by headers and reg
 | Module implementation plan | 34 | 33 | Missing `organization_hiring` |
 | Canonical Shared Operations registry | 1 | 1 | 126 unique entry headings, SH-001 through SH-126, no gaps |
 
-Both registries declare 34 Modules. CL-06 declares four, but only three Module directories exist. No `organization_hiring` Module directory or document pair was found elsewhere in the repository. Missing authority must remain missing; the Cluster document is supporting evidence, not a substitute Module contract.
+At the 2026-09-08 baseline, both registries declared 34 Modules and CL-06 declared four, but only three CL-06 Module document pairs were found. **Verified inventory update (2026-09-13, CL-06-R019):** Organization Hiring now has its architecture and implementation plan at the paths below; all four CL-06 pairs are present. The historical baseline counts above are retained as historical evidence, not current missing-artifact claims.
+
+**CL-09-R018 current inventory confirmation:** 34 Module architectures and 34 Module implementation plans are now available, including Organization Hiring at the indexed paths. This availability correction does not establish the separate CL-09-R003 SH-103 execution contract; that contract is documented in the owner and CL-09 artifacts.
 
 Neither repository-root `architecture.md` / `build-plan.md` nor `context/architecture.md` / `context/build-plan.md` exists. The unversioned `context/project-overview.md` and dedicated `context/progress-tracker.md` are also absent. Overview references to `context/code-standards.md`, `context/library-docs.md`, `context/ui-tokens.md`, `context/ui-rules.md`, and `context/ui-registry.md` have no discovered files. These are gaps, not instructions to create them here.
 
@@ -86,7 +88,7 @@ Cluster directories are directly under `context/clusters/`; Module directories a
 | CL-03 | [professional supply & readiness](<clusters/professional supply & readiness/>) | [architecture](<clusters/professional supply & readiness/professional-supply-readiness-architecture.md>) | [build plan](<clusters/professional supply & readiness/professional-supply-readiness-build-plan.md>) | 5 |
 | CL-04 | [customer demand, order, & resolution](<clusters/customer demand, order, & resolution/>) | [architecture](<clusters/customer demand, order, & resolution/customer-demand-order-resolution-architecture.md>) | [build plan](<clusters/customer demand, order, & resolution/customer-demand-order-resolution-build-plan.md>) | 3 |
 | CL-05 | [scheduling, media, & digital delivery](<clusters/scheduling, media, & digital delivery/>) | [architecture](<clusters/scheduling, media, & digital delivery/scheduling-media-digital-delivery-cluster-architecture.md>) | [build plan](<clusters/scheduling, media, & digital delivery/scheduling-media-digital-delivery-cluster-build-plan.md>) | 4 |
-| CL-06 | [Organization Hiring & Candidate Pipeline](<clusters/Organization Hiring & Candidate Pipeline/>) | [architecture](<clusters/Organization Hiring & Candidate Pipeline/organization-hiring-candidate-piepline-architecture.md>) | [build plan](<clusters/Organization Hiring & Candidate Pipeline/organization-hiring-candidate-pipeline-build-plan.md>) | 3 |
+| CL-06 | [Organization Hiring & Candidate Pipeline](<clusters/Organization Hiring & Candidate Pipeline/>) | [architecture](<clusters/Organization Hiring & Candidate Pipeline/organization-hiring-candidate-piepline-architecture.md>) | [build plan](<clusters/Organization Hiring & Candidate Pipeline/organization-hiring-candidate-pipeline-build-plan.md>) | 4 |
 | CL-07 | [Messaging Notification Rail](<clusters/Messaging Notification Rail/>) | [architecture](<clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md>) | [build plan](<clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md>) | 2 |
 | CL-08 | [Privacy & Location Safety](<clusters/Privacy & Location Safety/>) | [architecture](<clusters/Privacy & Location Safety/privacy-location-safety-architecture.md>) | [build plan](<clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md>) | 2 |
 | CL-09 | [Moderation holds Audits and Ops](<clusters/Moderation holds Audits and Ops/>) | [architecture](<clusters/Moderation holds Audits and Ops/moderation-holds-audit-ops-architecture.md>) | [build plan](<clusters/Moderation holds Audits and Ops/moderation-holds-audit-ops-build-plan.md>) | 4 |
@@ -129,7 +131,7 @@ The following lists directories and artifact pairs only; identity and membership
 | `observability_ops` | CL-09 | [Observability Ops Module](<clusters/Moderation holds Audits and Ops/Observability Ops Module/>) | [architecture](<clusters/Moderation holds Audits and Ops/Observability Ops Module/observability-ops-module-architecture.md>) / [plan](<clusters/Moderation holds Audits and Ops/Observability Ops Module/observability-ops-module-implementation-plan.md>) |
 | `gamification_rewards` | CL-10 | [gamification-rewards-module](<clusters/incentives, rewards & prize economy/gamification-rewards-module/>) | [architecture](<clusters/incentives, rewards & prize economy/gamification-rewards-module/gamification-rewards-module-architecture(1).md>) / [plan](<clusters/incentives, rewards & prize economy/gamification-rewards-module/gamification-rewards-module-implementation-plan(1).md>) |
 | `sweepstakes_prize` | CL-10 | [sweepstakes-module](<clusters/incentives, rewards & prize economy/sweepstakes-module/>) | [architecture](<clusters/incentives, rewards & prize economy/sweepstakes-module/sweepstakes-prize-module-architecture.md>) / [plan](<clusters/incentives, rewards & prize economy/sweepstakes-module/sweepstakes-prize-implementation-plan.md>) |
-| `organization_hiring` | CL-06 | **MISSING** | Architecture and plan missing |
+| `organization_hiring` | CL-06 | [Organization Hiring Module](<clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/>) | [architecture](<clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-architecture.md>) / [plan](<clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-implementation-plan.md>) |
 
 # Authority by Concern
 
@@ -251,7 +253,7 @@ If a member artifact is missing, record the gap. Do not infer its complete contr
 
 Also consult registries, glossary, and compliance for identity, meaning, or regulated behavior touched by the feature. If missing context prevents resolving a necessary concern, record the gap and stop that dependent work; do not choose an owner or invent a gate.
 
-**Do not load all 34 Module plans for every feature unless the task genuinely requires a platform-wide audit.** Only 33 plans are present at this baseline.
+**Do not load all 34 Module plans for every feature unless the task genuinely requires a platform-wide audit.** 33 plans were present at that baseline; the verified Organization Hiring pair is now included in the path index.
 
 # Current Maturity
 
@@ -265,10 +267,10 @@ These labels describe artifact role and evidence readiness, not recency, impleme
 | Cluster Registry | `CANONICAL_CURRENT` | v2.3 declares 10 Clusters and 34 memberships. |
 | Shared Operations Markdown | `CANONICAL_CURRENT` | Verified SH-001–SH-126; confirmed, proposed, and unresolved statuses retain their meanings. |
 | Shared Operations source DOCX | `FOUNDATIONAL` | 34/34 extract synthesis and rationale underlying the canonical registry; source extracts themselves were not found as a separate artifact set. |
-| 10 Cluster architectures / 33 Module architectures | `CANONICAL_CURRENT` | Current lower-level architecture evidence with confirmed/proposed/unresolved distinctions; not a platform-wide reconciliation certificate. |
-| 10 Cluster plans / 33 Module plans | `DERIVED_CURRENT` | Current lower-level sequencing evidence; not proof of implementation or complete synchronization. |
+| 10 Cluster architectures / 34 Module architectures | `CANONICAL_CURRENT` | Current lower-level architecture evidence with confirmed/proposed/unresolved distinctions; not a platform-wide reconciliation certificate. |
+| 10 Cluster plans / 34 Module plans | `DERIVED_CURRENT` | Current lower-level sequencing evidence; not proof of implementation or complete synchronization. |
 | CL-02 Search and Taxonomy plans' Cluster-availability/root-sequence references | `REQUIRES_RECONCILIATION` | Both describe unavailable CL-02 documents now present and reference root phases without a discovered root plan. No sequencing corrected here. |
-| Organization Hiring Module pair | `MISSING` | Registry member lacks its own directory, architecture, and plan. |
+| Organization Hiring Module pair | `CANONICAL_CURRENT` architecture / `DERIVED_CURRENT` plan | Both files verified at the indexed CL-06 paths on 2026-09-13; presence does not prove implementation completion. |
 | Prisma schema / migration files | `CANONICAL_CURRENT` | Executable repository evidence for structure, not proof of deployed schema or every approval. |
 | Schema-to-migration coverage | `REQUIRES_RECONCILIATION` | 177 models/207 enums versus sole migration's 53 tables/31 enums; migration coverage must be established later. |
 | Root architecture / root build plan | `MISSING` | Absent at repository root and context root; no basis to label a discovered root document finalized or stale. A recovered pre-completion version requires reconciliation. |

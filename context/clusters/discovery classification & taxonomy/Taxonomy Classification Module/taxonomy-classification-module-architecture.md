@@ -5,22 +5,24 @@
 > **Module type:** `capability`  
 > **Build status:** `mvp_active`  
 > **Primary Cluster:** `CL-02 — Discovery, Classification & Visibility`  
-> **Repository target:** `context/modules/taxonomy_classification/module-architecture.md`  
-> **Document status:** implementation-grade target architecture, subordinate to root and CL-02 architecture  
+> **Repository target:** `context/clusters/discovery classification & taxonomy/Taxonomy Classification Module/taxonomy-classification-module-architecture.md`\
+> **Document status:** implementation-grade target architecture under context-map.md authority by concern\
 > **Audience:** coding agents, developers, reviewers, maintainers, security/compliance reviewers, and architecture reviewers  
 > **Update rule:** update this file only when a binding taxonomy ownership, lifecycle, public-contract, trigger-policy, privacy, search-handoff, or cross-Module decision changes. Build progress must not silently redefine this architecture.
 
 ## Evidence and ruling legend
 
-This architecture is grounded in the supplied Workin Ants Project Overview, Deep Module Registry, Cluster Registry, Prisma schema, Ubiquitous Language / Compliance Inventory, Canonical Shared Operations Architecture, the prior Taxonomy & Classification Module Architecture Extract, and the directly dependent AI Taxonomy and Search / Public Visibility extracts. The root Workin Ants build plan places this Module in Phase 4, **Taxonomy, AI Suggestions, and Search Projection**.
+This architecture is grounded in the supplied Workin Ants Project Overview, Deep Module Registry, Cluster Registry, Prisma schema, Ubiquitous Language / Compliance Inventory, Canonical Shared Operations Architecture, the prior Taxonomy & Classification Module Architecture Extract, and the directly dependent AI Taxonomy and Search / Public Visibility extracts. CL-02 coordinates this Module through its current numbered features.
 
-A dedicated CL-02 `architecture.md` / `build-plan.md` was not located among the supplied or available project artifacts during this synthesis. Therefore this Module inherits CL-02 decisions directly from the Cluster Registry and root build-plan Phase 4 until a dedicated CL-02 pair exists. If a later CL-02 architecture conflicts with this document, the stronger root/Cluster ruling controls and this file must be reconciled.
+The current CL-02 architecture and build plan are linked above. This Module follows their collaboration/sequence within the authority-by-concern rules in context-map.md.
 
 Labels used below:
 
 - **Confirmed** — directly supported by current schema, registry, glossary/compliance evidence, canonical Shared Operations, or repeated Module evidence.
 - **Proposed Ruling** — required to make implementation safe and coherent, strongly supported by evidence, but not yet established as final across all sources.
 - **Unresolved** — the evidence establishes a real conflict or missing decision and implementation must not guess.
+
+Current coordination: [Cluster architecture](<../discovery-classification-architecture.md>) and [Cluster build plan](<../discovery-classification-build-plan.md>). Locate supporting artifacts through [context-map.md](<../../../context-map.md>); authority follows concern, not location or age. Root architecture/build-plan files are currently unavailable and do not supply enforceable phases.
 
 ---
 
@@ -35,8 +37,8 @@ Labels used below:
 | Primary Cluster | `CL-02 — Discovery, Classification & Visibility` |
 | Document status | Target Module architecture for MVP implementation |
 | Intended audience | Coding agents, developers, reviewers, maintainers, security/compliance reviewers |
-| Relationship to root architecture | Subordinate; root architecture controls platform-wide ownership, infrastructure, security, privacy, and shared-operation rules |
-| Relationship to Cluster architecture | Subordinate to CL-02. Until a dedicated CL-02 architecture is available, Cluster Registry + root build-plan Phase 4 are the governing CL-02 coordination evidence |
+| Relationship to root architecture | Currently unavailable; do not infer a root ruling. Use context-map.md authority by concern |
+| Relationship to Cluster architecture | Current CL-02 architecture owns collaboration; this Module owns its source truth/lifecycle; current CL-02 build plan owns Cluster sequence |
 | Update rule | Change only for a binding architecture decision; progress or implementation convenience is not an architecture change |
 
 ---
@@ -109,39 +111,34 @@ Controlled vocabulary and classification semantics are reused across otherwise i
 | Classification-trigger interpretation | **Confirmed** | Translation from accepted classification metadata to requirement *triggers*. Taxonomy does not decide whether the downstream requirement is satisfied. |
 | Taxonomy administration policy | **Confirmed** | Which taxonomy fields may change and what safe effects a term activation/deactivation/update has. |
 
-### 3.2 Join records — ownership conflict
+### 3.2 Contextual join records — approved lifecycle ownership
 
-The Deep Module Registry claims these records for Taxonomy:
+**PR-TAX-01 / U-TAX-01 — RESOLVED by CL02-R001:** the Module owning the classified entity owns create/update/delete and privacy execution for its contextual classification joins.
 
-- `ProfessionalCategory`
-- `ProfessionalTag`
-- `CandidateCategory`
-- `CandidateTag`
-- `OrganizationCategory`
-- `OrganizationTag`
-- `OfferingTag`
-- `GigTag`
-- `JobTag`
+| Contextual entity owner | Owned joins |
+| --- | --- |
+| Professional Eligibility | ProfessionalCategory, ProfessionalTag |
+| Candidate Application & Resume Privacy | CandidateCategory, CandidateTag |
+| Organization Hiring | OrganizationCategory, OrganizationTag |
+| Marketplace Supply | OfferingTag |
+| Gig / Demand | GigTag |
+| Organization Hiring | JobTag |
 
-However, the Ubiquitous Language / shared-schema rules also state that Taxonomy owns **controlled vocabulary and classification semantics while entity Modules own the lifecycle of the entity using the join**, and several contextual Modules also claim their corresponding joins.
-
-**Proposed Ruling PR-TAX-01 — contextual join lifecycle:** the contextual entity owner should own create/remove lifecycle and repository access for its classification join rows, while every assignment must use Taxonomy's public validation policy (SH-023) and canonical `TagSource` semantics. This avoids Taxonomy becoming a cross-domain repository for ProfessionalProfile, CandidateProfile, Organization, Offering, Gig, and Job lifecycles.
-
-This ruling is strongly supported but not yet fully reconciled with the Registry's schema-ownership list. **No production join repository or assignment command may be implemented until PR-TAX-01 is approved or replaced.** The Module may implement SH-023 and owner-facing classification contracts first.
+Taxonomy owns canonical term existence, validity, normalization, compatibility, requirement-trigger semantics, and SH-023 validation. It must not expose repositories or commands that directly mutate foreign contextual joins. Every contextual assignment uses SH-023; target validation uses SH-123. Unresolved join metadata semantics remain separately gated.
 
 ### 3.3 Enums and statuses
 
 - **Owned:** `TagSource` semantic vocabulary.
 - **Not a dedicated lifecycle enum:** Domain, Category, and Tag currently use `isActive: Boolean`.
 - Tag joins currently contain `verified: Boolean` and `confidence: Float?`; their complete semantics are **not defined**.
-- `DataSensitivity` is consumed by `TaxonomyCategory` but its semantic owner is not conclusively established by the supplied taxonomy evidence. Taxonomy must not claim platform-wide ownership of that enum merely because it stores a value.
+- `DataSensitivity` meaning is governed by canonical Ubiquitous Language/compliance authority (CL02-R010). Taxonomy consumes that vocabulary and must not independently redefine its meaning or enum values.
 
 ### 3.4 Source-of-truth records
 
 - Vocabulary truth: Domain / Category / Tag records.
 - Hierarchy truth: `TaxonomyCategory.domainId`, `TaxonomyTag.categoryId`.
 - Trigger truth: fields actually modeled on Category/Tag plus approved requirement bindings elsewhere.
-- Classification attachment truth: the applicable join record plus direct `domainId` / `categoryId` on entities that model those fields, with join-row owner subject to PR-TAX-01.
+- Classification attachment truth: the applicable join record plus direct `domainId` / `categoryId` on entities that model those fields, with create/update/delete/privacy lifecycle owned by the classified entity owner under approved PR-TAX-01.
 - Tag provenance: join `source`, `confidence`, `verified`, `createdAt`, but `verified`/`confidence` interpretation remains constrained by Section 35.
 
 ### 3.5 Domain events / ledgers
@@ -152,7 +149,7 @@ No taxonomy-specific change ledger exists in the supplied Prisma schema. Generic
 
 - Taxonomy owns no Typesense/search projection.
 - Search owns `SearchUpsertEvent` and search-provider documents.
-- Taxonomy may expose SH-094 `buildSourceProjection` for a safe taxonomy term projection if Search requires it.
+- Taxonomy exposes SH-024 `evaluatePublicReadiness` for its own searchable records and SH-094 `buildSourceProjection` for safe, versioned taxonomy source data (CL02-R005).
 - Historical consumers snapshot taxonomy inputs through their own records/patterns (for example SH-109/SH-110). Taxonomy does not become a universal historical-decision ledger.
 
 ### 3.7 Module-owned invariants
@@ -178,8 +175,8 @@ This Module must not own or recreate:
 | --- | --- |
 | **AI Taxonomy** | Bedrock/foundation-model calls, prompt/model versions, `AiSuggestion`, `AiClassificationLog`, confidence-generation logic, backfill suggestion generation. |
 | **Search / Public Visibility** | `SearchUpsertEvent`, Typesense client, index schemas, ranking, public/private visibility policy, indexing/de-indexing workers, search reconciliation/backfill. |
-| **Marketplace Supply** | Offering lifecycle, publish state, pricing, supply readiness, and—subject to PR-TAX-01—Offering classification-join lifecycle. |
-| **Gig / Demand** | Gig lifecycle and—subject to PR-TAX-01—Gig classification-join lifecycle. |
+| **Marketplace Supply** | Offering lifecycle, publish state, pricing, supply readiness, and Offering classification-join lifecycle. |
+| **Gig / Demand** | Gig lifecycle and Gig classification-join lifecycle. |
 | **Organization Hiring** | Organization and Job lifecycle, organization membership, Job publication, and contextual organization/job assignment lifecycle. |
 | **Candidate Application & Resume Privacy** | CandidateProfile/application/resume lifecycle, candidate privacy, and contextual candidate classification attachment lifecycle. |
 | **Professional Eligibility** | ProfessionalProfile lifecycle/readiness and professional selling eligibility. |
@@ -206,7 +203,7 @@ Taxonomy must also never become a generic “compliance engine.” It identifies
 5. **No direct provider clients.** Bedrock belongs behind AI Taxonomy/shared AI adapter; Typesense belongs behind Search.
 6. **No hard delete through normal Module commands.** See PR-TAX-02 in Section 9.
 7. **Effective activity follows ancestry.** See PR-TAX-03.
-8. **No silent join ownership.** PR-TAX-01 must be settled before assignment repositories are built.
+8. **Contextual join ownership is explicit.** Approved PR-TAX-01 assigns all contextual join create/update/delete/privacy lifecycle to the classified entity owner.
 9. **No ambiguous `verified` interpretation.** It must never mean `VerificationCheck` passed.
 10. **No cross-Module Prisma repository shortcuts.** Cross-Module target facts use SH-123 or the owner’s public interface.
 11. **Search refresh is a command to Search, never a write to `SearchUpsertEvent`.**
@@ -280,7 +277,7 @@ tests/integration/taxonomy-classification/
 
 - Do **not** create `providers/`; this Module owns no external provider.
 - Do **not** create `search/`, `typesense/`, `bedrock/`, `auth/`, `permissions/`, `audit/`, or `queue/` infrastructure under this Module.
-- Do **not** create classification-join repositories until PR-TAX-01 is resolved.
+- Do **not** create foreign classification-join repositories in Taxonomy; contextual entity owners alone persist those joins.
 - The admin route is a thin delivery surface. It delegates to Module commands/queries and never embeds taxonomy policy in React components or route handlers.
 
 ---
@@ -292,7 +289,7 @@ tests/integration/taxonomy-classification/
 | Delivery / admin UI | Forms, hierarchy browser, command invocation, safe errors | business rules, direct Prisma writes, role interpretation, search/AI provider calls |
 | Application services | orchestration of taxonomy commands/queries and shared-operation calls | generic auth/idempotency/queue/audit implementations |
 | Domain policy | hierarchy, effective-active, normalization, mutation policy, assignment compatibility, requirement trigger interpretation | healthcare/verification readiness, business lifecycle decisions |
-| Repositories | only Domain/Category/Tag source-truth persistence; joins only if PR-TAX-01 later assigns them here | repositories for Offering/Gig/Job/Profile/Organization or Search/Ai tables |
+| Repositories | only Domain/Category/Tag source-truth persistence; contextual joins remain with their entity owners | repositories for Offering/Gig/Job/Profile/Organization or Search/Ai tables |
 | Workers | taxonomy normalization/backfill and approved impact enumeration | generic queue mechanics, AI generation, Search indexing |
 | Adapters | none required for external providers | Bedrock, Typesense, healthcare, verification, or notification provider clients |
 | Contracts | stable taxonomy public DTOs, reason codes, source-projection DTO | foreign Module internal models/provider payloads |
@@ -340,7 +337,7 @@ tests/integration/taxonomy-classification/
 
 ### Taxonomy category joins
 
-`ProfessionalCategory`, `CandidateCategory`, `OrganizationCategory` are composite-key relationships to a Category. Their exact repository/lifecycle owner is unresolved under PR-TAX-01.
+`ProfessionalCategory`, `CandidateCategory`, `OrganizationCategory` are composite-key relationships to a Category. Their repository and create/update/delete/privacy lifecycle belong to their classified entity owners under approved PR-TAX-01 (CL02-R001).
 
 ### Taxonomy tag joins
 
@@ -466,14 +463,14 @@ Activates/deactivates one Tag. Deactivation prevents new accepted assignments bu
 
 ### SH-121 `applyAiSuggestion`
 
-- **Purpose:** convert an administrator-approved AI suggestion into accepted taxonomy truth.
-- **Actor/context:** authenticated/authorized reviewer or approved system workflow.
-- **Authoritative inputs:** AI suggestion ID/version, target, selected canonical term or proposed new term, reviewer, reason, idempotency key.
-- **Preconditions:** AI Taxonomy confirms suggestion/version/provenance; target owner confirms target if an assignment is involved; taxonomy normalization/hierarchy/active rules pass.
-- **Writes:** canonical term only when explicitly approved; assignment only after PR-TAX-01 identifies its owner.
+- **Purpose:** canonical AI/Taxonomy acceptance workflow; Taxonomy owns canonical acceptance policy, while the contextual entity owner persists its assignment (CL02-R001/R003).
+- **Inputs:** suggestion ID/version, target, selected canonical term, reviewer, reason, idempotency key, and audit evidence.
+- **Preconditions:** AI confirms proposal/version; SH-123 confirms target eligibility; SH-023 and approved taxonomy rules validate the classification.
+- **Writes:** the contextual entity owner commits accepted assignment; Taxonomy does not write foreign joins. Initial AI acceptance uses existing canonical IDs only; future novel-term creation remains gated by U-CL02-15.
+- **Disposition:** AI records acceptance only after successful accepted mutation. Retry the same suggestion version/idempotency context; acknowledgement failure does not duplicate or reverse accepted truth. Rejection/expiry/cancellation/supersession without mutation remain AI proposal lifecycle concerns and do not affect Taxonomy, joins, or Search.
 - **Shared operations:** SH-121, SH-123, SH-079, SH-023, SH-044, SH-029, SH-046, SH-091.
-- **Failure modes:** stale/superseded suggestion, invalid target, canonical collision, inactive hierarchy, unresolved join ownership, duplicate request.
-- **Boundary:** Taxonomy never calls Bedrock or writes `AiSuggestion`/`AiClassificationLog`.
+- **Failures:** stale/superseded proposal, invalid target, invalid canonical terms, failed mutation, or conflicting replay; no accepted disposition before successful mutation.
+- **Boundary:** no Bedrock calls or AI-table writes. Exact AI lifecycle/schema remains U-CL02-04; event vocabulary/version remains U-CL02-13.
 
 ### SH-122 `mergeCanonicalRecord` — proposed, not yet production-approved
 
@@ -521,9 +518,13 @@ Version/snapshot-friendly read for AI Taxonomy and other controlled consumers. I
 
 Returns a canonicalized candidate/match result using Taxonomy policy over the shared text primitive. It may suggest existing terms but does not create them.
 
+### SH-024 `evaluatePublicReadiness`
+
+Taxonomy issues readiness for Taxonomy-owned Search surfaces from approved policy and source truth. The result identifies the surface, decision/reasons, and source version. Search consumes that result rather than reconstructing readiness from `isActive`, hierarchy, or repository state. Parent/effective-activity-dependent policy remains gated by U-CL02-07; this is not downstream professional, healthcare, or Job readiness.
+
 ### SH-094 `buildSourceProjection`
 
-If Search requires a safe Taxonomy entity projection, this query returns only public/approved term fields and a source version. Search still owns final document schema and execution.
+Returns only allowlisted Taxonomy term fields and source version, and may carry the already-computed SH-024 result. Search owns the final provider document and execution; carrying readiness data does not transfer policy ownership.
 
 ---
 
@@ -541,9 +542,11 @@ If Search requires a safe Taxonomy entity projection, this query returns only pu
 - `updateTaxonomyTag`
 - `setTaxonomyTagActive`
 - **SH-121 `applyAiSuggestion`**
-- assignment commands: **not exposed until PR-TAX-01 is resolved**.
+- contextual assignment commands remain with their entity owners; Taxonomy exposes SH-023 validation only.
 
 ### Public queries
+
+- **SH-024 `evaluatePublicReadiness`** for Taxonomy-owned Search surfaces;
 
 - `listTaxonomyTree`
 - `getTaxonomyTerm`
@@ -572,7 +575,7 @@ These are facts, not instructions. Search work uses SH-091 rather than a disguis
 
 ### Privacy executor
 
-The Module must register an SH-095-compatible owner executor only for data it actually owns. Canonical term records are reference data and normally do not identify a privacy subject. Join-row privacy handling depends on PR-TAX-01. See Section 28.
+The Module must register an SH-095-compatible owner executor only for data it actually owns. Canonical term records are reference data and normally do not identify a privacy subject. Join-row privacy execution belongs to the contextual entity owner under approved PR-TAX-01. See Section 28.
 
 ### Provider-facing interfaces
 
@@ -633,7 +636,7 @@ Taxonomy never mutates Offering, Gig, Job, CandidateProfile, ProfessionalProfile
 | --- | --- | --- | --- | --- | --- | --- |
 | **SH-001 `resolveAuthenticatedActor`** | canonical capability — Identity & Access | establish admin/reviewer/system actor | protected commands/admin reads | which operations require actor | typed actor context | `taxonomyAuth.ts`, `getCurrentUser.ts` |
 | **SH-002 `authorizeResourceAction`** | canonical capability — Role / Authority | authorize taxonomy administration/review | after actor resolution | taxonomy action vocabulary + target facts | allow/deny/step-up/review decision | `taxonomyPermissions.ts`, `adminGuard.ts` |
-| **SH-015 `returnDecisionResult`** | shared contract / separate policy | consistent SH-022/023 decisions | query boundary | taxonomy reason-code namespace | common decision envelope | `taxonomyReadinessResult.ts` fork |
+| **SH-015 `returnDecisionResult`** | Proposed shared contract / separate policy | optional standardization target | only if separately approved | taxonomy reason codes | documented local decision DTO until adoption | treating a Proposed contract as mandatory |
 | **SH-017 `resolveVerificationRequirements`** | another Module's public interface — Trust Verification | resolve detailed Trust-owned requirements when bound to classification | SH-022 composition | which classification triggers request expansion | requirement facts, not results | `verificationGate.ts`, direct VerificationRequirement query |
 | **SH-022 `resolveTaxonomyRequirements`** | **Taxonomy-owned public interface** | canonical trigger translation | consumer readiness/publication checks | taxonomy trigger semantics | requirement owner/source/severity/applicability | `taxonomyCompliance.ts`, feature-local trigger maps |
 | **SH-023 `validateTaxonomyAssignment`** | **Taxonomy-owned public interface** | enforce canonical hierarchy/active/compatibility | every contextual classification mutation | assignment semantics | canonical IDs + stable errors | `validateClassificationPath.ts` in every feature |
@@ -659,7 +662,7 @@ Taxonomy never mutates Offering, Gig, Job, CandidateProfile, ProfessionalProfile
 | **SH-096 `enumerateSubjectData`** | owner participation in Privacy | report owned subject records | privacy inventory | Taxonomy subject-data definition | record/provider refs | global schema crawler |
 | **SH-097 `evaluateRetentionRequirement`** | shared contract / owner facts | tell Privacy whether taxonomy-owned record must be retained | privacy execution | taxonomy retention facts | retention decision facts | local exemption table |
 | **SH-098 `anonymizePersonalFields`** | shared mechanism | apply approved anonymization if future owned records contain personal fields | privacy execution | field mapping | anonymized record result | blanket deletion helper |
-| **SH-121 `applyAiSuggestion`** | CL-02 public workflow — AI Taxonomy + Taxonomy | convert approved suggestion to accepted truth | reviewer/system acceptance | normalization/hierarchy/final mutation | accepted taxonomy result | `bedrockTaxonomyService.ts`, `acceptSuggestion.ts` bypass |
+| **SH-121 `applyAiSuggestion`** | CL-02 public workflow — AI Taxonomy + Taxonomy | convert approved suggestion to accepted truth | reviewer/system acceptance | canonical normalization/hierarchy/acceptance validation; contextual owner assignment | accepted taxonomy result | `bedrockTaxonomyService.ts`, `acceptSuggestion.ts` bypass |
 | **SH-122 `mergeCanonicalRecord`** | Taxonomy internal reusable op — **Proposed** | merge duplicate/retired controlled terms | approved migration/admin workflow | compatibility, target, provenance | merge result/counts | generic merge service |
 | **SH-123 `validateOwnedTargetReference`** | target-owner interface | validate foreign target existence/context | any classification association workflow | accepted target types/relationship rules | typed owner facts | `lookupAnyEntity.ts`, foreign Prisma |
 | **SH-124 `generateUniqueSlug`** | cross-cutting primitive — Proposed | optional reserved-word/collision-safe slug generation | create/rename when approved | taxonomy slug policy | unique slug/collision | duplicate slug utilities |
@@ -706,7 +709,7 @@ Protects parent validity, immutable identity constraints, trigger metadata, deac
 - **Jobs:** SH-047/048 provide durability/retry; Taxonomy owns normalization/backfill completion meaning.
 - **Events:** SH-046 provides outbox; Taxonomy owns event vocabulary/payload meaning.
 - **Search projection:** SH-091/094 share mechanism/contracts; Taxonomy truth and Search documents remain separate.
-- **Readiness envelope:** SH-015 shapes decisions; Taxonomy owns only assignment validity and trigger policy.
+- **Readiness envelope:** SH-015 is Proposed/optional; use the documented Module decision DTO until separately approved. Taxonomy owns assignment/trigger policy and readiness only for its own searchable records.
 - **Privacy:** Privacy owns request/job orchestration; Taxonomy executes only its owned target instructions.
 - **Historical snapshots:** consuming Modules own snapshots of taxonomy inputs used for their historical business/compliance decisions.
 
@@ -761,7 +764,7 @@ No taxonomy-specific step-up requirement is confirmed. Do not invent MFA. If the
 
 ## 19. Compliance / Readiness / Entitlement Gates
 
-### Taxonomy is a trigger source, not a readiness owner
+### Taxonomy owns only its own Search readiness and supplies downstream triggers
 
 | Gate family | Underlying truth owner | Taxonomy input | Taxonomy output | Action owner responsibility |
 | --- | --- | --- | --- | --- |
@@ -772,7 +775,7 @@ No taxonomy-specific step-up requirement is confirmed. Do not invent MFA. If the
 | Professional eligibility | Professional Eligibility | accepted taxonomy + requirement triggers | no eligibility result | Professional Eligibility composes readiness |
 | Entitlement | Track Subscription & Entitlement | none for canonical taxonomy administration | none | Taxonomy does not gate canonical term truth on premium plans |
 
-**Prohibited:** a universal `taxonomyCanPublish()` or `taxonomyCompliancePassed` result.
+**Prohibited:** a universal `taxonomyCanPublish()` or `taxonomyCompliancePassed` result. Taxonomy-owned Search readiness uses SH-024; it is not downstream compliance readiness. CL02-R010 forbids invented independent Tag healthcare/sensitivity/location rules or hardcoded category requirement lists. Only approved, represented trigger facts may be exposed.
 
 ---
 
@@ -829,7 +832,7 @@ Consumers use SH-045 transactional inbox semantics. Taxonomy never assumes exact
 
 ### `taxonomy-impact-refresh` worker — conditional
 
-If one taxonomy change affects many search projections, a worker may enumerate approved impact IDs and call SH-091 in bounded batches. **U-TAX-08 must be resolved first** because join ownership determines who can enumerate classified entity IDs.
+If one taxonomy change affects many projections, fanout obtains affected IDs from each contextual entity owner and calls SH-091 in bounded batches. CL02-R007 resolves enumeration ownership; implementation waits for the relevant owner-enumerator contracts. Neither Taxonomy nor Search scans foreign joins, and exact event vocabulary/version remains U-CL02-13.
 
 ### SH-122 merge worker — conditional
 
@@ -889,18 +892,13 @@ Domain/Category/Tag are Taxonomy truth. Search is derived.
 
 ### Taxonomy-owned source projection
 
-If needed, SH-094 exposes a safe term DTO containing canonical ID/type/name/slug/parent/effective-active/approved facet metadata/source version. It is rebuildable from taxonomy source truth.
+SH-094 exposes allowlisted, versioned taxonomy source data with owner-issued SH-024 readiness. Effective-activity-dependent fields/policy remain gated by U-CL02-07. Search cannot reconstruct readiness from raw fields.
 
 ### Indexing triggers
 
 Accepted create/update/activity changes may call SH-091 for the taxonomy term itself. Changes that alter classifications, trigger metadata, or facet labels may also require affected entity refresh.
 
-**Unresolved U-TAX-08 — search fan-out ownership:** the system does not yet establish whether Taxonomy or each contextual join owner enumerates affected entity IDs after a Category/Tag change. Until settled:
-
-- Taxonomy may request refresh for its own taxonomy entity;
-- contextual join owners must request refresh when they change their own entity classification;
-- no Module may directly write `SearchUpsertEvent`;
-- no Taxonomy worker may scan foreign business tables as a shortcut.
+**U-TAX-08 enumeration ownership RESOLVED by CL02-R007:** Taxonomy identifies changed canonical terms; each contextual join owner enumerates its own affected entity IDs. Neither Taxonomy nor Search scans foreign joins. Fanout coordinates those owner enumerators with SH-091/SH-093. External enumerator contracts must be supplied by their owning Modules; exact taxonomy event vocabulary/version remains unresolved under U-CL02-13.
 
 ### What Search must not reconstruct
 
@@ -932,14 +930,14 @@ If a future product requirement needs administrator alerts or downstream owner n
 
 Canonical Domain/Category/Tag records are platform reference data and should not contain privacy-subject personal data. Their descriptions/names must not be used as a free-form place to store personal information.
 
-Tag/category joins can reference ProfessionalProfile, CandidateProfile, Organization, Offering, Gig, or Job. Whether person-scoped joins are Taxonomy-owned is tied to PR-TAX-01.
+Tag/category joins reference contextual entities; their classified entity owners own join create/update/delete/privacy under CL02-R001. Taxonomy owns canonical vocabulary and validation semantics.
 
 ### Privacy executor behavior
 
 - Privacy / Data Erasure owns `PrivacyRequest`, jobs, ordering, deadlines, and exemptions.
 - Taxonomy participates through SH-095/096/097/098 only for records it owns.
-- If PR-TAX-01 assigns person-scoped joins to contextual owners, Taxonomy's subject enumeration normally returns no person-owned join rows; those contextual Modules execute detachment/anonymization as appropriate.
-- If join ownership remains Taxonomy-owned, this architecture must be updated with explicit detach/retain/anonymize behavior before production privacy erasure is enabled.
+- Approved PR-TAX-01 assigns person-scoped joins to contextual owners; Taxonomy enumerates no foreign joins, and those owners execute detachment/anonymization according to their approved policies.
+- Taxonomy must not execute privacy mutations on foreign contextual joins; their entity owners supply the applicable owner executors.
 
 ### Retention
 
@@ -987,7 +985,7 @@ Operational records never become taxonomy source truth.
 
 ## 31. Error / Decision Result Pattern
 
-Public commands return the root project Result/error shape. Public decisions SH-022/023 use SH-015's common decision envelope where available.
+Public commands/decisions use their documented Module result DTOs. SH-015 remains Proposed/optional and is not required until a separate adoption decision.
 
 ### Stable categories
 
@@ -1018,7 +1016,6 @@ Public commands return the root project Result/error shape. Public decisions SH-
 - `taxonomy_cross_category_policy_unresolved`
 - `taxonomy_ai_suggestion_stale`
 - `taxonomy_ai_suggestion_invalid`
-- `taxonomy_join_ownership_unresolved`
 - `taxonomy_merge_policy_unresolved`
 
 Never leak raw Prisma errors, provider errors, or foreign Module internals to consumers.
@@ -1104,7 +1101,7 @@ Admin taxonomy manager: create Domain → Category → Tag → edit trigger meta
 8. Tag-join `verified` never means a `VerificationCheck` passed.
 9. Taxonomy requirement triggers never mean healthcare, license, background check, or eligibility completion.
 10. Taxonomy must not query or mutate foreign business lifecycles through direct Prisma repositories.
-11. Join-row lifecycle must not be implemented until PR-TAX-01 is settled.
+11. Join-row create/update/delete/privacy lifecycle is implemented only by the contextual entity owner under approved PR-TAX-01.
 12. Normal product code does not hard-delete Domain/Category/Tag records.
 13. Parent deactivation does not require destructive child deletion or row rewriting; effective activity is derived under PR-TAX-03.
 14. Normalization logic exists once through SH-079; consumers do not fork `slugify/tagCleaner/skillNormalizer` implementations.
@@ -1138,9 +1135,9 @@ Do not create these inside `taxonomy_classification`:
 
 ## 35. Unresolved Decisions
 
-### U-TAX-01 — taxonomy join-row lifecycle ownership
+### U-TAX-01 — taxonomy join-row lifecycle ownership — RESOLVED
 
-Registry claims Taxonomy ownership while glossary/contextual Modules also claim or imply ownership. Resolve before implementing assignment repositories/commands. **PR-TAX-01 proposes contextual ownership + mandatory SH-023 validation.**
+CL02-R001 approves PR-TAX-01: the classified entity owner owns join create/update/delete/privacy lifecycle; Taxonomy owns canonical semantics and SH-023 validation, with no foreign join repositories.
 
 ### U-TAX-02 — tag-join `verified` meaning
 
@@ -1166,17 +1163,17 @@ Specify Unicode normalization, case folding, punctuation/whitespace policy, cano
 
 No alias, retired/merged status, merge record, or taxonomy change ledger exists. SH-122 is Proposed only. Resolve before destructive canonical merges.
 
-### U-TAX-08 — search refresh fan-out ownership
+### U-TAX-08 — search refresh fan-out ownership — OWNERSHIP RESOLVED
 
-When a Category/Tag change affects many classified entities, decide whether the contextual join owners enumerate impacted entity IDs, Taxonomy exposes an approved impact query, or Search consumes a taxonomy-change event and queries owner contracts. Direct foreign table scans are prohibited.
+CL02-R007 assigns affected-entity enumeration to each contextual join owner. Taxonomy identifies changed terms; neither Taxonomy nor Search scans foreign joins. External owner contracts remain implementation prerequisites; event vocabulary/version remains unresolved under U-CL02-13.
 
 ### U-TAX-09 — location/license/background trigger representation
 
 Registry says taxonomy can trigger location, license, and background requirements, but current Taxonomy fields directly model only verification, healthcare (Category), and sensitivity (Category). Define owner-bound requirement mappings before claiming additional trigger coverage.
 
-### U-TAX-10 — `DataSensitivity` semantic owner
+### U-TAX-10 — DataSensitivity meaning — AUTHORITY CLARIFIED
 
-Taxonomy stores a Category value but supplied evidence does not conclusively assign platform-wide enum evolution to Taxonomy. Confirm owner before changing enum values/meaning.
+CL02-R010 confirms Ubiquitous Language/compliance authority over meaning. Taxonomy consumes approved vocabulary and represented source facts; no independent enum redefinition is permitted. Future trigger representation remains unresolved under U-CL02-06/U-TAX-09.
 
 ### U-TAX-11 — taxonomy-specific history/versioning
 
@@ -1190,15 +1187,15 @@ Moving a Category to another Domain or Tag to another Category could invalidate 
 
 ## 36. Architecture Decision Summary
 
-Binding for implementation unless a stronger root/Cluster ruling supersedes it:
+Read the binding/proposed status of each item under context-map.md authority by concern; this summary does not approve unresolved proposals:
 
 1. Taxonomy & Classification owns canonical Domain/Category/Tag vocabulary, hierarchy, `TagSource` semantics, normalization policy, classification validity, and trigger interpretation.
 2. Search owns all Search projection truth and provider execution; Taxonomy uses SH-091/094.
-3. AI Taxonomy owns AI suggestion/run truth and provider behavior; accepted mutation crosses SH-121 into Taxonomy.
+3. SH-121 coordinates Taxonomy canonical acceptance validation, contextual owner assignment persistence, and AI disposition only after successful mutation; proposal-only rejection remains AI-owned.
 4. Taxonomy triggers verification/healthcare/sensitivity requirements but never marks them complete.
 5. Domain/Category/Tag use the current active/inactive lifecycle; normal hard delete is prohibited under PR-TAX-02.
 6. Effective activity follows ancestry under PR-TAX-03.
-7. Join-row ownership remains the principal blocker. PR-TAX-01 proposes contextual Module ownership with Taxonomy SH-023 validation.
+7. Approved PR-TAX-01 assigns join create/update/delete/privacy to contextual entity owners, with Taxonomy SH-023 validation and owner-provided impact enumeration.
 8. `verified` on joins must not be interpreted as Verification truth; `confidence` and candidate provenance remain unresolved.
 9. Cross-Module data access uses owner interfaces/SH-123, not foreign repositories.
 10. Audit, events, jobs, idempotency, concurrency, observability, privacy orchestration, and Search refresh use canonical shared operations rather than local copies.
@@ -1211,12 +1208,12 @@ Binding for implementation unless a stronger root/Cluster ruling supersedes it:
 
 Before implementing any numbered Taxonomy feature, the coding agent must read, in order:
 
-1. root `project-overview.md`;
-2. root `architecture.md`;
-3. root code standards;
+1. `context/project-overview-v3.md` (orientation; see context map);
+2. context-map.md notes root architecture is unavailable; use the applicable existing concern owner;
+3. repository instructions; referenced code standards are unavailable in context-map.md;
 4. Canonical Shared Operations Registry / Architecture;
-5. CL-02 architecture, if one now exists; otherwise Cluster Registry CL-02 section;
-6. CL-02 build plan, if one now exists; otherwise root build-plan Phase 4;
+5. CL-02 architecture, at the current linked path;
+6. CL-02 build plan, at the current linked path;
 7. this `module-architecture.md`;
 8. this Module's `implementation-plan.md`;
 9. public-interface sections for direct dependencies, especially Identity, Role, AI Taxonomy, Search, Trust Verification, and contextual entity owners relevant to the feature;

@@ -32,7 +32,7 @@ Where those sources conflict, this document preserves the confirmed source-of-tr
 ### Evidence conflicts carried into this document
 
 1. The Deep Module Registry claims `AuditEventType` and `AuditEventActor` as Audit-owned schemas, but neither exists in the current Prisma schema.
-2. Canonical `appendAuditEvent` requires request ID and outcome in its contract, but current `AuditEvent` has neither as a first-class field.
+2. Canonical SH-029 `appendAuditEvent` requires request ID and outcome in its contract, but current `AuditEvent` has neither as a first-class field.
 3. `AccessAuditLog` has optional `previousHash` and `entryHash`, but no approved hash-chain partition, sequence, algorithm/version, anchoring, verification, or privacy strategy exists.
 4. CL-09 privacy target vocabulary and Audit retention durations are not yet approved.
 5. `AccessAuditLog.accessDecision` currently consumes the Healthcare-owned `HealthcareAccessDecision` enum; Audit records that result but does not own healthcare access policy.
@@ -266,8 +266,8 @@ These fields do not establish a complete tamper-evident chain until `PR-CL09-07`
 
 The Module owns:
 
-- which input shapes are valid for `appendAuditEvent`;
-- which input shapes are valid for `recordSensitiveAccess`;
+- which input shapes are valid for SH-029 `appendAuditEvent`;
+- which input shapes are valid for SH-030 `recordSensitiveAccess`;
 - Audit metadata allowlists and size limits;
 - prohibited-data filtering for generic evidence payloads;
 - mapping from canonical Audit public contracts to Audit-owned records;
@@ -328,12 +328,12 @@ The registry desire to identify "ghost accounts" may support a future Audit-deri
 ## 5. Module Architecture Principles
 
 1. **Evidence records describe facts; they do not create business truth.**
-2. **Generic audit and sensitive-access proof are separate commands.** `appendAuditEvent` and `recordSensitiveAccess` must not collapse into one ambiguous logging API.
+2. **Generic audit and sensitive-access proof are separate commands.** SH-029 `appendAuditEvent` and SH-030 `recordSensitiveAccess` must not collapse into one ambiguous logging API.
 3. **Sensitive access is decided before it is recorded.** The data/context owner supplies the access result.
 4. **Normal app/admin roles cannot update or delete Audit evidence.**
 5. **Audit metadata is minimized and schema-validated.** Generic JSON is not permission to dump domain payloads.
 6. **Domain access proof can coexist with `AccessAuditLog`.** `ResumeAccessLog`, `MediaAccessEvent`, `DigitalDownloadEvent`, Agreement access events, and similar records remain separate truth.
-7. **Request correlation is shared infrastructure.** Audit consumes `createRequestContext`; it does not invent a correlation-ID subsystem.
+7. **Request correlation is shared infrastructure.** Audit consumes SH-032 `createRequestContext`; it does not invent a correlation-ID subsystem.
 8. **Operational logging is not Audit truth.** Structured logs/Sentry are diagnostics and cannot substitute for `AuditEvent`/`AccessAuditLog`.
 9. **Audit should not re-read provider state.** Provider-specific status and dedupe remain with provider owners.
 10. **No direct cross-Module Prisma access for business meaning.** If existence or safe target context must be validated, use owner interfaces.
@@ -449,7 +449,7 @@ Current indexes:
 - `(entityType, entityId)`;
 - `(action, createdAt)`.
 
-Current missing fields relative to canonical `appendAuditEvent`:
+Current missing fields relative to canonical SH-029 `appendAuditEvent`:
 
 - first-class request/correlation ID;
 - first-class outcome.
@@ -551,7 +551,7 @@ validated
 There is no mutable status.
 
 - **Transition owner:** Audit / Event Ledger.
-- **Trigger:** approved `appendAuditEvent`.
+- **Trigger:** approved SH-029 `appendAuditEvent`.
 - **Terminal state:** appended evidence.
 - **Reversal/reopen:** none. A later correction is a new evidence event if architecture permits; it does not rewrite prior evidence.
 - **Concurrency expectation:** concurrent valid events may append independently.
@@ -562,7 +562,7 @@ There is no mutable status.
 
 ```text
 owner access decision / protected action outcome
-  -> recordSensitiveAccess
+  -> SH-030 recordSensitiveAccess
   -> appended
   -> retained/queryable
 ```
@@ -611,7 +611,9 @@ Until then, `previousHash` and `entryHash` are optional integrity metadata only.
 
 ## 10. Commands
 
-### 10.1 `appendAuditEvent`
+**CL-09-R010 — Confirmed Audit contract semantics.** SH-029 `appendAuditEvent` and SH-030 `recordSensitiveAccess` are the authoritative integration boundaries. Persistence must support actor attribution (including supported non-user/system actions), action, target, outcome/access outcome, request/correlation identity, and safe validated metadata. Generic access evidence must represent a normalized access outcome; Healthcare may supply its own decision as source evidence but its policy vocabulary is not universal Audit policy. `AuditEventType` and `AuditEventActor` are absent current-schema claims, not available structures. Exact fields/enums, non-user actor storage, migration design, and hash-chain architecture remain unresolved; SH-073 `hashChainRecords` remains Proposed ruling.
+
+### 10.1 SH-029 `appendAuditEvent`
 
 **Purpose:** append generic proof that an important actor or system action occurred.
 
@@ -625,8 +627,8 @@ Until then, `previousHash` and `entryHash` are optional integrity metadata only.
 - action;
 - target/entity type;
 - optional target/entity ID;
-- outcome once `U-17` is resolved;
-- request ID once `U-17` is resolved;
+- outcome required by the confirmed contract; storage representation remains gated by `U-17`;
+- request/correlation identity required by the confirmed contract; storage representation remains gated by `U-17`;
 - minimized metadata.
 
 **Preconditions:**
@@ -639,11 +641,11 @@ Until then, `previousHash` and `entryHash` are optional integrity metadata only.
 **State written:** one `AuditEvent`.
 
 **Shared operations consumed:**
-- `resolveAuthenticatedActor` where a user actor is involved;
-- `createRequestContext`;
-- `sanitizeTelemetryMetadata`;
-- `executeIdempotentCommand` only where the source command has a semantic retry identity that should not duplicate the audit record;
-- `validateOwnedTargetReference` only where target existence/eligibility validation is required.
+- SH-001 `resolveAuthenticatedActor` where a user actor is involved;
+- SH-032 `createRequestContext`;
+- SH-034 `sanitizeTelemetryMetadata`;
+- SH-044 `executeIdempotentCommand` only where the source command has a semantic retry identity that should not duplicate the audit record;
+- SH-123 `validateOwnedTargetReference` only where target existence/eligibility validation is required.
 
 **Events/audit/notifications produced:** no automatic domain event merely because an AuditEvent was appended. Audit-write technical failure may be reported to Observability. Do not recursively append an AuditEvent about every AuditEvent.
 
@@ -661,7 +663,7 @@ Until then, `previousHash` and `entryHash` are optional integrity metadata only.
 - persistence failure;
 - unresolved schema contract (`U-17`) blocks final implementation.
 
-### 10.2 `recordSensitiveAccess`
+### 10.2 SH-030 `recordSensitiveAccess`
 
 **Purpose:** append generic protected-access evidence.
 
@@ -693,9 +695,9 @@ Until then, `previousHash` and `entryHash` are optional integrity metadata only.
 **State written:** one `AccessAuditLog`.
 
 **Shared operations consumed:**
-- `createRequestContext`;
-- `sanitizeTelemetryMetadata`;
-- `resolveAuthenticatedActor` when appropriate;
+- SH-032 `createRequestContext`;
+- SH-034 `sanitizeTelemetryMetadata`;
+- SH-001 `resolveAuthenticatedActor` when appropriate;
 - source Module's own authorization/context decision;
 - conditional platform idempotency only for technical replay of the same evidence append.
 
@@ -715,7 +717,7 @@ Until then, `previousHash` and `entryHash` are optional integrity metadata only.
 
 ### 10.3 Privacy instruction execution
 
-`executePrivacyInstruction` is not a general Audit mutation. It is a Privacy-owned protocol implemented by Audit for Audit-owned records.
+SH-095 `executePrivacyInstruction` is not a general Audit mutation. It is a Privacy-owned protocol implemented by Audit for Audit-owned records.
 
 It may:
 
@@ -740,7 +742,7 @@ It must never create or transition `PrivacyRequest`, `DataErasureJob`, `DataEras
 - action filter;
 - entity type/ID;
 - date range;
-- request ID if `U-17` produces a first-class field;
+- request/correlation identity through the approved `U-17` representation, without presuming a first-class field;
 - cursor/page size;
 - viewer context.
 
@@ -778,7 +780,7 @@ It must never create or transition `PrivacyRequest`, `DataErasureJob`, `DataEras
 - that an access log replaces a resume/media/agreement/video domain access record;
 - that a healthcare decision applies to non-healthcare policy.
 
-### 11.3 `evaluateRetentionRequirement`
+### 11.3 SH-097 `evaluateRetentionRequirement`
 
 **Consumer:** Privacy / Data Erasure.
 
@@ -792,7 +794,7 @@ It must never create or transition `PrivacyRequest`, `DataErasureJob`, `DataEras
 
 **Current status:** production behavior is blocked by `U-24` until retention target vocabulary and approved policy are supplied.
 
-### 11.4 `enumerateSubjectData`
+### 11.4 SH-096 `enumerateSubjectData`
 
 **Consumer:** Privacy / Data Erasure.
 
@@ -817,8 +819,8 @@ If `PR-CL09-07` is accepted, the Module may own a query such as `queryAuditInteg
 ### Public commands
 
 ```text
-appendAuditEvent(command) -> AuditEventReceipt
-recordSensitiveAccess(command) -> AccessAuditReceipt
+SH-029 appendAuditEvent(command) -> AuditEventReceipt
+SH-030 recordSensitiveAccess(command) -> AccessAuditReceipt
 ```
 
 These are the canonical operations. Caller-specific aliases such as `recordFinancialSensitiveAccess`, `recordHealthcareAccess`, `writeAuditEvent`, or `appendSensitiveAccessLog` must not become independent public services.
@@ -843,9 +845,9 @@ If a later feature introduces an Audit-owned event, it must describe an Audit-ow
 Audit implements Privacy-defined contracts:
 
 ```text
-enumerateSubjectData(...)
-evaluateRetentionRequirement(...)
-executePrivacyInstruction(...)
+SH-096 enumerateSubjectData(...)
+SH-097 evaluateRetentionRequirement(...)
+SH-095 executePrivacyInstruction(...)
 exportSubjectData(...)   // only where Privacy's contract requires owner serialization
 ```
 
@@ -861,16 +863,16 @@ None. Audit owns no provider adapter, webhook, provider credentials, or provider
 
 | Owning Module / capability | Public operation / interface consumed | Why required | Minimum information needed | Can it block? | Must not be copied locally |
 | --- | --- | --- | --- | --- | --- |
-| Identity & Access | `resolveAuthenticatedActor` | Trusted actor context for user-driven evidence and admin surfaces. | User ID/system context, assurance context where needed. | Yes for protected direct entry points. | Session parsing, current-user helper, MFA/passkey logic. |
-| Role / Authority | `authorizeResourceAction` | Protect audit queries, admin viewer, and sensitive evidence access. | Actor, action, Audit resource/scope facts. | Yes. | Audit-local admin/role engine. |
-| Identity & Access | `requireStepUpForSensitiveAction` | Fresh assurance for designated high-risk audit evidence review/export if policy requires it. | Actor, action, target, current assurance. | Yes. | Local OTP/MFA/passkey implementation. |
-| Observability / platform | `createRequestContext` | Correlation across source action, Audit record, logs, and async work. | Request/correlation/trace IDs and safe actor/environment IDs. | Normally no; required correlation may be policy-dependent. | Audit-specific request-ID generator. |
-| Observability + Audit payload policy | `sanitizeTelemetryMetadata` | Remove secrets and prohibited data before persistence. | Proposed metadata and sensitivity labels. | Yes when payload is unsafe. | Ad hoc redaction utilities. |
-| Target owner | `validateOwnedTargetReference` or owner-specific fact query | Validate cross-Module target where the command contract requires it. | Target ID/type, safe status/version/relationship facts. | Yes if target is required. | Universal `findByTypeAndId` Prisma repository. |
+| Identity & Access | SH-001 `resolveAuthenticatedActor` | Trusted actor context for user-driven evidence and admin surfaces. | User ID/system context, assurance context where needed. | Yes for protected direct entry points. | Session parsing, current-user helper, MFA/passkey logic. |
+| Role / Authority | SH-002 `authorizeResourceAction` | Protect audit queries, admin viewer, and sensitive evidence access. | Actor, action, Audit resource/scope facts. | Yes. | Audit-local admin/role engine. |
+| Identity & Access | SH-014 `requireStepUpForSensitiveAction` | Fresh assurance for designated high-risk audit evidence review/export if policy requires it. | Actor, action, target, current assurance. | Yes. | Local OTP/MFA/passkey implementation. |
+| Observability / platform | SH-032 `createRequestContext` | Correlation across source action, Audit record, logs, and async work. | Request/correlation/trace IDs and safe actor/environment IDs. | Normally no; required correlation may be policy-dependent. | Audit-specific request-ID generator. |
+| Observability + Audit payload policy | SH-034 `sanitizeTelemetryMetadata` | Remove secrets and prohibited data before persistence. | Proposed metadata and sensitivity labels. | Yes when payload is unsafe. | Ad hoc redaction utilities. |
+| Target owner | SH-123 `validateOwnedTargetReference` or owner-specific fact query | Validate cross-Module target where the command contract requires it. | Target ID/type, safe status/version/relationship facts. | Yes if target is required. | Universal `findByTypeAndId` Prisma repository. |
 | Privacy / Data Erasure | Privacy executor protocol | Execute Privacy-owned workflow instructions. | Request/job/target IDs, disposition, idempotency key, retention context. | Yes; only trusted Privacy orchestration may call it. | Local privacy request/job/exemption workflow. |
-| Observability / Ops | `writeStructuredLog`, `captureException`, `recordIntegrationFailure` as appropriate | Diagnose technical Audit failures without converting them into audit truth. | Safe operation/error/request references. | Must not recursively fail the core path. | Audit-local logger, Sentry client, generic failure table. |
-| Shared crypto | `hashCanonicalPayload` | Only if an approved Audit integrity or export-proof design needs canonical hashing. | Purpose/version + canonical bytes. | Only for integrity-enabled path. | Local SHA/HMAC implementation. |
-| Shared queue | `enqueueReliableJob`, `executeRetryWithBackoff` | Only for approved Audit workers such as integrity verification. | Audit-owned job payload, correlation, retryability. | Worker-specific. | Audit-only queue runtime/retry loop. |
+| Observability / Ops | SH-033 `writeStructuredLog`, SH-035 `captureException`, SH-037 `recordIntegrationFailure` as appropriate | Diagnose technical Audit failures without converting them into audit truth. | Safe operation/error/request references. | Must not recursively fail the core path. | Audit-local logger, Sentry client, generic failure table. |
+| Shared crypto | SH-072 `hashCanonicalPayload` | Only if an approved Audit integrity or export-proof design needs canonical hashing. | Purpose/version + canonical bytes. | Only for integrity-enabled path. | Local SHA/HMAC implementation. |
+| Shared queue | SH-047 `enqueueReliableJob`, SH-048 `executeRetryWithBackoff` | Only for approved Audit workers such as integrity verification. | Audit-owned job payload, correlation, retryability. | Worker-specific. | Audit-only queue runtime/retry loop. |
 
 ### Dependency rule
 
@@ -933,29 +935,29 @@ Audit never directly:
 
 ## 15. Canonical Shared Operations Used
 
-The current Canonical Shared Operations Architecture supplies canonical names rather than permanent numeric IDs. Do not invent `SH-###` identifiers in this document or code.
+The canonical `context/shared/shared-operations.md` registry supplies permanent SH IDs and names. References below use those existing identities; canonical ownership, boundaries, and Confirmed / Proposed ruling / Unresolved status remain unchanged. An ID reference does not approve a proposed operation or an unresolved implementation design.
 
 | Canonical operation | Classification | Owner | Why Audit uses it | Invocation point | Audit-local policy | Expected contract/result | Prohibited duplicate names |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `resolveAuthenticatedActor` | Canonical shared capability | Identity & Access | Trusted actor context. | Protected command/query entry. | Which actor fields may be persisted. | Typed actor/system context. | `currentUser`, `auditActor`, `requireAuditUser`. |
-| `authorizeResourceAction` | Canonical shared capability | Role / Authority | Gate audit evidence queries/admin actions. | Before protected read/admin action. | Audit action vocabulary and evidence scopes. | Allowed/denied decision with safe reasons. | `auditPermissions`, `isAuditAdmin`, `canViewLogs`. |
-| `requireStepUpForSensitiveAction` | Canonical shared capability | Identity & Access | Fresh assurance for designated high-risk evidence access/export. | After authority, before high-risk action. | Which Audit actions require step-up. | Assurance satisfied or challenge required. | `auditMfa`, `verifyAdminOtp`. |
-| `createRequestContext` | Platform primitive | Observability/platform | Request/correlation IDs. | Request/job entry; passed into append commands. | Safe propagation only. | Typed correlation context. | `auditRequestId`, `correlationHelper`. |
-| `sanitizeTelemetryMetadata` | Canonical shared capability | Observability / Ops + Audit payload policy | Prevent sensitive payload leakage. | Before Audit persistence and operational telemetry. | Audit-specific allowlists and size limits. | Sanitized metadata or typed rejection. | `redactAuditJson`, `safeAuditMetadata`. |
-| `writeStructuredLog` | Canonical shared capability | Observability / Ops | Diagnose execution. | Command/query/worker boundaries. | Safe dimensions only. | Operational log emission. | Audit-local logger. |
-| `captureException` | Provider adapter | Observability / Ops | Send unexpected exceptions through one monitoring adapter. | Unexpected exception boundary. | Safe Audit operation context. | Monitoring reference/fallback behavior. | Direct Sentry client/init. |
-| `executeIdempotentCommand` | Platform primitive | Platform application infrastructure | Replay a source command safely when duplicate Audit evidence would be a retry artifact. | Only where source-defined semantic identity exists. | Which repeats are retries versus separate facts. | Original result replay or conflict. | Audit idempotency table/helper. |
-| `validateOwnedTargetReference` | Shared contract / separate implementations | Target owner | Validate a target without foreign Prisma access when required. | Before append only when contract requires target existence/eligibility. | Audit target namespace allowed for that command. | Safe target reference/version or not-found/forbidden. | Universal target repository. |
-| `hashCanonicalPayload` | Platform primitive | Shared security/crypto | Canonical digest where an accepted integrity/export design requires it. | Conditional integrity/export path. | What the hash proves and canonical Audit fields. | Versioned digest. | `sha256Audit`, local crypto helper. |
-| `hashChainRecords` | Proposed shared capability | Shared cryptographic capability; ownership unresolved | Potential tamper-evident AccessAuditLog chain. | **Do not invoke until `PR-CL09-07` is accepted.** | Chain partition, sequence, canonical fields, anomaly policy. | Approved chain append/verify result. | Local chain algorithm. |
-| `enumerateSubjectData` | Another Module's public protocol | Audit as data owner under Privacy orchestration | Discover Audit-owned subject data. | Privacy job dispatch. | Audit relationship mapping. | Bounded target inventory. | Global DB crawler. |
-| `evaluateRetentionRequirement` | Shared contract / separate policy | Audit + Privacy | Return Audit-specific retention fact. | Before Privacy disposition. | Security/legal proof rules. | Retain/anonymize/erase/export/manual-review fact. | Local exemption table. |
-| `executePrivacyInstruction` | Another Module's public protocol | Privacy orchestrates; Audit executes | Apply approved disposition to Audit-owned data. | Privacy job target execution. | Field-level Audit behavior. | Typed privacy target result. | Local `PrivacyRequest` workflow. |
-| `anonymizePersonalFields` | Platform/shared primitive | Shared mechanism; record owner supplies mapping | Approved pseudonymization. | Privacy executor only. | Which Audit fields may change without invalidating required proof. | Versioned anonymization result. | Ad hoc scrubber. |
-| `enqueueReliableJob` | Platform primitive | Shared queue infrastructure | Run conditional integrity verification. | Only after approved worker exists. | Payload/completion meaning. | Durable job receipt. | Audit queue framework. |
-| `executeRetryWithBackoff` | Platform primitive | Shared queue/platform | Retry transient worker failures. | Conditional Audit worker. | Retryability/anomaly handling. | Bounded retry/dead-letter result. | Local retry loop. |
-| `recordIntegrationFailure` | Canonical shared capability | Observability / Ops | Surface technical Audit dependency/worker failure. | After normalized technical failure. | Source refs/retryability. | Operational failure receipt. | Audit generic failure table. |
-| `requestNotification` | Canonical shared capability | Notification | Alert authorized recipients only for a confirmed Audit-owned trigger. | Conditional integrity/security alert. | Trigger severity and safe variables. | Notification request receipt. | Direct SES/SMS/push. |
+| SH-001 `resolveAuthenticatedActor` | Canonical shared capability | Identity & Access | Trusted actor context. | Protected command/query entry. | Which actor fields may be persisted. | Typed actor/system context. | `currentUser`, `auditActor`, `requireAuditUser`. |
+| SH-002 `authorizeResourceAction` | Canonical shared capability | Role / Authority | Gate audit evidence queries/admin actions. | Before protected read/admin action. | Audit action vocabulary and evidence scopes. | Allowed/denied decision with safe reasons. | `auditPermissions`, `isAuditAdmin`, `canViewLogs`. |
+| SH-014 `requireStepUpForSensitiveAction` | Canonical shared capability | Identity & Access | Fresh assurance for designated high-risk evidence access/export. | After authority, before high-risk action. | Which Audit actions require step-up. | Assurance satisfied or challenge required. | `auditMfa`, `verifyAdminOtp`. |
+| SH-032 `createRequestContext` | Platform primitive | Observability/platform | Request/correlation IDs. | Request/job entry; passed into append commands. | Safe propagation only. | Typed correlation context. | `auditRequestId`, `correlationHelper`. |
+| SH-034 `sanitizeTelemetryMetadata` | Canonical shared capability | Observability / Ops + Audit payload policy | Prevent sensitive payload leakage. | Before Audit persistence and operational telemetry. | Audit-specific allowlists and size limits. | Sanitized metadata or typed rejection. | `redactAuditJson`, `safeAuditMetadata`. |
+| SH-033 `writeStructuredLog` | Canonical shared capability | Observability / Ops | Diagnose execution. | Command/query/worker boundaries. | Safe dimensions only. | Operational log emission. | Audit-local logger. |
+| SH-035 `captureException` | Provider adapter | Observability / Ops | Send unexpected exceptions through one monitoring adapter. | Unexpected exception boundary. | Safe Audit operation context. | Monitoring reference/fallback behavior. | Direct Sentry client/init. |
+| SH-044 `executeIdempotentCommand` | Platform primitive | Platform application infrastructure | Replay a source command safely when duplicate Audit evidence would be a retry artifact. | Only where source-defined semantic identity exists. | Which repeats are retries versus separate facts. | Original result replay or conflict. | Audit idempotency table/helper. |
+| SH-123 `validateOwnedTargetReference` | Shared contract / separate implementations | Target owner | Validate a target without foreign Prisma access when required. | Before append only when contract requires target existence/eligibility. | Audit target namespace allowed for that command. | Safe target reference/version or not-found/forbidden. | Universal target repository. |
+| SH-072 `hashCanonicalPayload` | Platform primitive | Shared security/crypto | Canonical digest where an accepted integrity/export design requires it. | Conditional integrity/export path. | What the hash proves and canonical Audit fields. | Versioned digest. | `sha256Audit`, local crypto helper. |
+| SH-073 `hashChainRecords` | Proposed shared capability | Shared cryptographic capability; ownership unresolved | Potential tamper-evident AccessAuditLog chain. | **Do not invoke until `PR-CL09-07` is accepted.** | Chain partition, sequence, canonical fields, anomaly policy. | Approved chain append/verify result. | Local chain algorithm. |
+| SH-096 `enumerateSubjectData` | Another Module's public protocol | Audit as data owner under Privacy orchestration | Discover Audit-owned subject data. | Privacy job dispatch. | Audit relationship mapping. | Bounded target inventory. | Global DB crawler. |
+| SH-097 `evaluateRetentionRequirement` | Shared contract / separate policy | Audit + Privacy | Return Audit-specific retention fact. | Before Privacy disposition. | Security/legal proof rules. | Retain/anonymize/erase/export/manual-review fact. | Local exemption table. |
+| SH-095 `executePrivacyInstruction` | Another Module's public protocol | Privacy orchestrates; Audit executes | Apply approved disposition to Audit-owned data. | Privacy job target execution. | Field-level Audit behavior. | Typed privacy target result. | Local `PrivacyRequest` workflow. |
+| SH-098 `anonymizePersonalFields` | Platform/shared primitive | Shared mechanism; record owner supplies mapping | Approved pseudonymization. | Privacy executor only. | Which Audit fields may change without invalidating required proof. | Versioned anonymization result. | Ad hoc scrubber. |
+| SH-047 `enqueueReliableJob` | Platform primitive | Shared queue infrastructure | Run conditional integrity verification. | Only after approved worker exists. | Payload/completion meaning. | Durable job receipt. | Audit queue framework. |
+| SH-048 `executeRetryWithBackoff` | Platform primitive | Shared queue/platform | Retry transient worker failures. | Conditional Audit worker. | Retryability/anomaly handling. | Bounded retry/dead-letter result. | Local retry loop. |
+| SH-037 `recordIntegrationFailure` | Canonical shared capability | Observability / Ops | Surface technical Audit dependency/worker failure. | After normalized technical failure. | Source refs/retryability. | Operational failure receipt. | Audit generic failure table. |
+| SH-041 `requestNotification` | Canonical shared capability | Notification | Alert authorized recipients only for a confirmed Audit-owned trigger. | Conditional integrity/security alert. | Trigger severity and safe variables. | Notification request receipt. | Direct SES/SMS/push. |
 
 ---
 
@@ -1030,13 +1032,13 @@ It must use the shared crypto primitive rather than implement hashing locally.
 | Mechanism | Shared mechanism | Separate truth that remains outside Audit |
 | --- | --- | --- |
 | Append-only persistence | Shared insert-only repository conventions/DB enforcement. | `OrderEvent`, `BookingEvent`, `JobInterviewEvent`, `AgreementEvent`, `UserSecurityEvent`, `PointLedgerEntry`, `ResumeAccessLog`, `MediaAccessEvent`, etc. |
-| Sensitive access evidence | `recordSensitiveAccess` is the generic cross-cutting proof rail. | Resume, Media, Agreement, Digital Download, Video, Location, and Security domain-specific proof records remain local where they exist. |
-| Hashing | `hashCanonicalPayload` is shared crypto. | Agreement document hash meaning remains Transaction / Order; Audit integrity meaning remains Audit. |
-| Hash chaining | Proposed `hashChainRecords` shared algorithm/plumbing. | Audit and Agreement chains, partitions, fields, retention, anomaly policy remain separate. |
-| Idempotency | `executeIdempotentCommand`. | Each caller defines whether repeated action is the same fact or a new legitimate access. |
-| Request correlation | `createRequestContext`. | Source business action and Audit evidence remain separate records. |
+| Sensitive access evidence | SH-030 `recordSensitiveAccess` is the generic cross-cutting proof rail. | Resume, Media, Agreement, Digital Download, Video, Location, and Security domain-specific proof records remain local where they exist. |
+| Hashing | SH-072 `hashCanonicalPayload` is shared crypto. | Agreement document hash meaning remains Transaction / Order; Audit integrity meaning remains Audit. |
+| Hash chaining | Proposed SH-073 `hashChainRecords` shared algorithm/plumbing. | Audit and Agreement chains, partitions, fields, retention, anomaly policy remain separate. |
+| Idempotency | SH-044 `executeIdempotentCommand`. | Each caller defines whether repeated action is the same fact or a new legitimate access. |
+| Request correlation | SH-032 `createRequestContext`. | Source business action and Audit evidence remain separate records. |
 | Privacy executor | Privacy dispatch/result protocol. | Audit owns disposition of Audit fields; Privacy owns request/job/exemption lifecycle. |
-| Target validation | `validateOwnedTargetReference` contract. | Target owner retains target lifecycle and access policy. |
+| Target validation | SH-123 `validateOwnedTargetReference` contract. | Target owner retains target lifecycle and access policy. |
 | Operational failure | Observability failure rail. | Audit append failure does not become `AuditEvent` truth automatically, and Observability does not replace the failed Audit requirement. |
 
 ---
@@ -1046,14 +1048,14 @@ It must use the shared crypto primitive rather than implement hashing locally.
 ### Authenticated actor requirement
 
 - Public clients do not receive a generic endpoint that can write arbitrary `AuditEvent` or `AccessAuditLog`.
-- User-driven app operations resolve trusted actor context through `resolveAuthenticatedActor`.
+- User-driven app operations resolve trusted actor context through SH-001 `resolveAuthenticatedActor`.
 - System/background actions require an approved trusted system context; nullable `actorUserId` does not mean anonymous public callers are allowed.
 
 ### Authorization
 
 - The source Module authorizes the business action being audited.
 - Audit does not re-decide the source business authorization.
-- Audit-owned query/admin actions use `authorizeResourceAction`.
+- Audit-owned query/admin actions use SH-002 `authorizeResourceAction`.
 - Viewer authorization is server-side and must align with database/RLS policy where applicable.
 
 ### Contextual facts supplied by Audit
@@ -1084,7 +1086,7 @@ Audit viewer routes must return minimized/redacted DTOs. Sensitive source data r
 
 ### Step-up
 
-`requireStepUpForSensitiveAction` may be required for high-risk audit export or evidence review when Identity/Security policy explicitly designates that action.
+SH-014 `requireStepUpForSensitiveAction` may be required for high-risk audit export or evidence review when Identity/Security policy explicitly designates that action.
 
 The exact step-up matrix is not currently supplied. Do not add Module-local MFA logic or assume every audit query requires step-up.
 
@@ -1098,15 +1100,15 @@ Audit is an evidence Module, not a readiness composer.
 
 | Audit action | Underlying truth owner | Query/gate consumed | Local Audit role | Result |
 | --- | --- | --- | --- | --- |
-| Protected audit viewer/query | Role / Authority | `authorizeResourceAction` | Define Audit resource/action facts and redaction. | Allow/deny query. |
-| High-risk evidence review/export | Identity & Access | `requireStepUpForSensitiveAction` when policy says so | Identify the Audit action/target. | Proceed or step-up required. |
+| Protected audit viewer/query | Role / Authority | SH-002 `authorizeResourceAction` | Define Audit resource/action facts and redaction. | Allow/deny query. |
+| High-risk evidence review/export | Identity & Access | SH-014 `requireStepUpForSensitiveAction` when policy says so | Identify the Audit action/target. | Proceed or step-up required. |
 | Recording protected source access | Source data/context owner | Owner-specific authorization/context decision | Preserve the outcome; do not reinterpret it. | Append `AccessAuditLog`. |
 | Privacy disposition | Privacy / Data Erasure + Audit retention fact | Privacy executor protocol | Execute only approved Audit-local disposition. | Privacy target result. |
 
 ### Not applicable as a generic Audit gate
 
-- `resolveEntitlement`: no subscription entitlement is required to create compliance audit proof.
-- `evaluateComplianceHold`: a hold does not normally prevent mandatory evidence from being written.
+- SH-005 `resolveEntitlement`: no subscription entitlement is required to create compliance audit proof.
+- SH-011 `evaluateComplianceHold`: a hold does not normally prevent mandatory evidence from being written.
 - financial/healthcare/professional readiness: Audit records their outcomes only where required.
 
 If a future product requirement proposes hiding audit proof behind a commercial entitlement, it requires explicit architecture review.
@@ -1158,7 +1160,7 @@ Only a new Audit-owned fact that other Modules must react to may justify a domai
 
 If introduced, it must use:
 
-- `publishDomainEvent`;
+- SH-046 `publishDomainEvent`;
 - versioned envelope;
 - source Module = Audit / Event Ledger;
 - Audit aggregate/reference;
@@ -1204,7 +1206,7 @@ Only if `PR-CL09-07` is accepted:
 
 ### Generic queue rule
 
-Use `enqueueReliableJob` and `executeRetryWithBackoff`. Do not create an Audit-specific queue runtime.
+Use SH-047 `enqueueReliableJob` and SH-048 `executeRetryWithBackoff`. Do not create an Audit-specific queue runtime.
 
 ---
 
@@ -1225,7 +1227,7 @@ Do not globally deduplicate by:
 
 Those strategies could erase legitimate repeated access proof.
 
-Use `executeIdempotentCommand` only when a source command supplies a semantic identity proving two attempts are retries of the same fact.
+Use SH-044 `executeIdempotentCommand` only when a source command supplies a semantic identity proving two attempts are retries of the same fact.
 
 ### Transaction boundary
 
@@ -1252,7 +1254,7 @@ If hash chaining is accepted:
 
 - define a chain partition;
 - define one atomic order/sequence;
-- use database row/advisory lock or serializable transaction through `acquireAggregateLock`;
+- use database row/advisory lock or serializable transaction through SH-051 `acquireAggregateLock`;
 - do not use an in-memory mutex;
 - allocate previous hash and new entry hash in the same protected transaction;
 - define deterministic replay behavior.
@@ -1270,7 +1272,7 @@ If an audit/admin workflow needs a protected file:
 1. source/context owner decides business access;
 2. Media / File Access validates the asset/grant;
 3. Media issues short-lived access;
-4. Audit records `recordSensitiveAccess` if required.
+4. Audit records SH-030 `recordSensitiveAccess` if required.
 
 Audit metadata must contain references and minimized facts, not full file contents, full contracts, full resumes, images, or raw documents.
 
@@ -1345,9 +1347,9 @@ Audit-owned personal/sensitive references can include:
 
 Audit must implement the Privacy owner protocol:
 
-- `enumerateSubjectData`;
-- `evaluateRetentionRequirement`;
-- `executePrivacyInstruction`;
+- SH-096 `enumerateSubjectData`;
+- SH-097 `evaluateRetentionRequirement`;
+- SH-095 `executePrivacyInstruction`;
 - export serialization where Privacy requires it.
 
 ### Erase/anonymize/revoke/retain behavior
@@ -1511,8 +1513,8 @@ Query results include:
 
 ### Public contract tests
 
-- `appendAuditEvent`;
-- `recordSensitiveAccess`;
+- SH-029 `appendAuditEvent`;
+- SH-030 `recordSensitiveAccess`;
 - `queryAuditEvents`;
 - `querySensitiveAccessHistory`;
 - Privacy executor contracts.
@@ -1599,9 +1601,9 @@ Not applicable. Audit owns no provider adapter.
 18. Public Audit interfaces return DTOs, not Prisma models.
 19. Request correlation uses the canonical request-context mechanism.
 20. `AuditEventType` and `AuditEventActor` are not created until `U-16` is explicitly resolved.
-21. The final `appendAuditEvent` contract is not implemented until `U-17` is resolved.
+21. The final SH-029 `appendAuditEvent` contract is not implemented until `U-17` is resolved.
 22. Optional `previousHash` / `entryHash` do not justify a tamper-evident-chain claim.
-23. `hashChainRecords` is not used until `PR-CL09-07` is accepted.
+23. SH-073 `hashChainRecords` is not used until `PR-CL09-07` is accepted.
 24. Crypto algorithms are never implemented locally in Audit domain code.
 25. Audit owns no Sentry, Stripe, Typesense, R2, notification, calendar, video, or webhook provider client.
 26. Audit owns no `PrivacyRequest`, `DataErasureJob`, `DataRetentionExemption`, or Privacy orchestration.
@@ -1660,7 +1662,7 @@ Do not create inside this Module:
 | ID | Question | Why unresolved | What it blocks |
 | --- | --- | --- | --- |
 | `U-16` | Should `AuditEventType` and `AuditEventActor` exist? | Registry claims them; Prisma does not. Current canonical public operation does not require those exact schemas. | Any enum/schema migration claiming canonical audit type/actor vocabulary. |
-| `U-17` | How should `appendAuditEvent` persist request ID and outcome? | Canonical Shared Operations require both; current `AuditEvent` lacks them. | Final command DTO/schema contract and request-correlation query behavior. |
+| `U-17` | How should SH-029 `appendAuditEvent` persist request ID and outcome? | Canonical Shared Operations require both; current `AuditEvent` lacks them. | Final command DTO/schema contract and request-correlation query behavior. |
 | `U-18` / `PR-CL09-07` | What is the AccessAuditLog hash-chain partition, sequence, algorithm/version, anchor, verifier, and privacy policy? | Optional hash fields exist but no complete chain architecture exists. | Hash-chain implementation and tamper-evident-chain compliance claim. |
 | `U-24` | Which Audit records are Privacy target types and what retention/anonymization durations apply? | Privacy target vocabulary and legal/security retention policy are incomplete. | Production privacy executor. |
 | `AUD-U-01` | What is the approved action namespace governance for free-form `AuditEvent.action`? | Current schema is a string; registry claims absent controlled schemas. | Long-term prevention of action-name drift. |
@@ -1669,7 +1671,7 @@ Do not create inside this Module:
 | `AUD-U-04` | What is the exact fail-closed matrix when Audit persistence is unavailable? | Different source workflows have different legal/security criticality. | Per-consumer recovery policy. |
 | `AUD-U-05` | What actor deletion/pseudonymization behavior is valid for `actorUserId` and its relation? | Privacy/retention requirements are unresolved; `AccessAuditLog` has a User relation while `AuditEvent` has only a scalar. | Account-erasure behavior and FK migration policy. |
 | `AUD-U-06` | Should a durable audit evidence export manifest exist? | Admin viewer support is confirmed, but no Audit export source record is supplied. | Reproducible legal/security evidence bundles beyond query results. |
-| `AUD-U-07` | How should generic `AccessAuditLog.accessDecision` evolve if non-healthcare decision outcomes need first-class representation? | Current field is specifically `HealthcareAccessDecision?`. | Any generalized decision-result persistence change. |
+| `AUD-U-07` / CL-09-R010 | Which storage representation supports normalized generic access outcomes? | Generic outcome semantics are confirmed; current `HealthcareAccessDecision?` remains Healthcare source evidence, not universal Audit policy. | Exact field/enum/migration design remains unresolved before final generic access persistence. |
 | `AUD-U-08` | What internal target namespace registry, if any, is needed for `entityType` / `targetType` strings? | Current schema is polymorphic strings; universal cross-domain repository is prohibited. | Stronger target validation without ownership leakage. |
 | `AUD-U-09` | Is a durable Audit viewer projection necessary at scale? | Current requirement can be met through bounded owned queries; no projection schema is approved. | Future performance architecture only. |
 | `AUD-U-10` | What exactly constitutes an actionable "ghost account" signal? | Registry contains a desire, but account lifecycle/removal ownership is external and no policy is supplied. | Any inactivity report beyond exploratory analytics. |
@@ -1678,7 +1680,7 @@ Do not create inside this Module:
 
 **PR-AUD-01 — Prefer first-class `AuditEvent` correlation/outcome fields over hiding canonical contract data in free-form metadata.**
 
-Rationale: Canonical `appendAuditEvent` explicitly requires request ID and outcome, and request correlation is a cross-platform architectural primitive. If accepted, the exact field types, nullability, outcome vocabulary, indexes, migration/backfill, and compatibility behavior must be specified before schema change.
+Rationale: Canonical SH-029 `appendAuditEvent` explicitly requires request ID and outcome, and request correlation is a cross-platform architectural primitive. If accepted, the exact field types, nullability, outcome vocabulary, indexes, migration/backfill, and compatibility behavior must be specified before schema change.
 
 Status: **Proposed Ruling, not yet accepted.**
 
@@ -1700,7 +1702,7 @@ Status: **Proposed Ruling, not yet accepted.**
 2. `AuditEvent` is generic important-action proof.
 3. `AccessAuditLog` is generic sensitive-access proof.
 4. Both records are creation-only evidence with insert-only normal application/admin behavior.
-5. `appendAuditEvent` and `recordSensitiveAccess` are the canonical public mutation contracts.
+5. SH-029 `appendAuditEvent` and SH-030 `recordSensitiveAccess` are the canonical public mutation contracts.
 6. Domain lifecycle event ledgers remain with their parent Modules.
 7. Domain-specific access records remain with their parent Modules even when generic `AccessAuditLog` is also required.
 8. The source data/context owner makes authorization, sensitivity, healthcare, financial, entitlement, and business decisions.
@@ -1716,7 +1718,7 @@ Status: **Proposed Ruling, not yet accepted.**
 ### Binding conflict handling
 
 17. Do not implement `AuditEventType` or `AuditEventActor` until `U-16` is resolved.
-18. Do not finalize the canonical `appendAuditEvent` storage contract until `U-17` is resolved.
+18. Do not finalize the canonical SH-029 `appendAuditEvent` storage contract until `U-17` is resolved.
 19. Do not implement hash chaining until `PR-CL09-07` and `U-18` are resolved.
 20. Do not implement production Audit retention/anonymization durations until `U-24` is resolved.
 

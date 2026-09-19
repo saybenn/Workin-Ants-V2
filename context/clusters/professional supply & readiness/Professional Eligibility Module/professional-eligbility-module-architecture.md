@@ -3,7 +3,9 @@
 > **Module ID:** `professional_eligibility`  
 > **Module name:** Professional Eligibility Module  
 > **Primary Cluster:** CL-03 — Professional Supply & Readiness  
-> **Repository target:** `context/professional_eligibility/module-architecture.md`
+> **Repository target:** `context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-architecture.md`
+
+**Repository context (CL-03-R021):** Read [context/context-map.md](<../../../context-map.md>) for authority by concern and verified artifact locations, [context/project-overview-v3.md](<../../../project-overview-v3.md>) for orientation, and [context/shared/shared-operations.md](<../../../shared/shared-operations.md>) for canonical operations. Root architecture, root build plan, code standards, and the progress tracker are missing; references to those prerequisites do not assert availability or authorize a substitute/global precedence rule.
 
 ## 1. Module Header
 
@@ -33,7 +35,7 @@ When those sources differ, use the following discipline:
 5. mark necessary implementation decisions as **Proposed Rulings** instead of presenting inference as fact;
 6. leave genuinely unsettled product/compliance questions **Unresolved** and keep affected production paths disabled.
 
-The root `context/architecture.md` and `context/code-standards.md` were not supplied as complete files in this thread. This document therefore does not invent their exact repository conventions. Any later root rule that conflicts with a proposed placement or mechanism here supersedes the proposal.
+Root architecture and code standards are missing at the locations recorded in `context/context-map.md`. This document does not invent their repository conventions; apply authority by concern and preserve required unresolved prerequisites rather than substituting another artifact.
 
 ---
 
@@ -118,6 +120,10 @@ The Module owns a distinct identity branch (`ProfessionalProfile`) and a distinc
 
 Professional Eligibility is the sole business owner of ordinary `ProfessionalProfile` creation, profile-field mutation, and profile lifecycle transitions.
 
+#### `ProfessionalProfileMedia`
+
+**Approved CL-03-R020:** Professional Eligibility owns the contextual attachment lifecycle, attach/detach/reorder semantics, and authorization to associate a MediaAsset with a ProfessionalProfile. Media / File Access owns the referenced `MediaAsset`, validation, scanning, processing, storage, signed access, and generic validated-attachment mechanics. This ruling establishes ownership; it does not add a new implementation feature or speculative public interface.
+
 ### 3.2 Enums / statuses owned
 
 #### `ProfileStatus` as applied to `ProfessionalProfile`
@@ -135,6 +141,7 @@ The enum is also used by `CandidateProfile`. Current evidence therefore supports
 ### 3.3 Lifecycles owned
 
 - `ProfessionalProfile.status` lifecycle;
+- `ProfessionalProfileMedia` contextual attach/detach/reorder lifecycle and authorization (CL-03-R020);
 - the local meaning of profile status transitions, including which commands are permitted and what owner-side effects occur;
 - the local consequence of an approved external moderation decision when that decision requires a profile transition.
 
@@ -193,7 +200,7 @@ The current schema includes several overlapping/legacy fields. They remain non-a
 - `stripeAccountId` — must not replace Payment-owned `PayoutAccount` provider truth;
 - `verifiedAt` / `verificationExpiresAt` — must not replace Trust-owned verification records;
 - `trustScore` — has no approved formula/owner/version and must not gate seller actions;
-- `ratingAverage` / `ratingCount` — derived Review projections only if retained;
+- `ratingAverage` / `ratingCount` — Professional Eligibility persists derived results supplied by Review / Dispute; Review owns inclusion/calculation;
 - `onboardingCompleteAt` — present in the owned row, but its precise business semantics are unresolved and it must not substitute for readiness;
 - `suspendedForModerationAt` — may serve only as local transition provenance/metadata after an external moderation decision; the moderation decision remains externally owned.
 
@@ -223,7 +230,7 @@ Professional Eligibility must not create convenient duplicates of the following 
 | Observability / Ops | logs, metrics, IntegrationFailure, QueueJob, OpsIncident | emit safe operational metadata | use ops state as professional truth or create a module-specific incident/queue system |
 | Privacy / Data Erasure | PrivacyRequest/DataErasure orchestration, retention exemptions, export bundle lifecycle | enumerate and execute instructions against owned data | create a ProfessionalProfile privacy-request workflow or decide legal retention alone |
 | Content Moderation & Legal Notice | reports, legal notices, moderation cases/actions | execute an approved target decision against ProfessionalProfile through SH-103 | create moderation cases, determine legal takedown outcome, or own evidence preservation lifecycle |
-| Review / Dispute | review/dispute lifecycle and reputation truth | consume only explicitly approved reputation projections if needed | own review truth or use rating projection as eligibility proof |
+| Review / Dispute | review/dispute lifecycle and reputation truth | consume the approved CL-04-R005 Review aggregate and persist derived Profile rating fields | own review truth or use rating projection as eligibility proof |
 
 A foreign key or Prisma relation does not transfer ownership.
 
@@ -388,7 +395,7 @@ The following categories are authoritative for Professional Eligibility, subject
 
 #### Non-authoritative / derived fields
 
-- `ratingAverage`, `ratingCount` — rebuildable Review projections if retained;
+- `ratingAverage`, `ratingCount` — rebuildable Review-derived projections persisted by Professional Eligibility under CL-04-R005;
 - `stripeAccountId`, `stripeReady` — compatibility only, not Payment truth;
 - `verifiedAt`, `verificationExpiresAt`, `trustScore` — compatibility/projection only, not Trust truth;
 - `onboardingCompleteAt` — exact semantics unresolved; do not use as `canSell` or readiness proof.
@@ -587,6 +594,8 @@ Suggested owner-specific fields:
 Raw provider codes/reports, PHI, tax identifiers, and confidential hold/moderation detail are never part of the generic decision result.
 
 ---
+
+**Approved reputation handoff (CL-04-R005):** Review / Dispute owns Review inclusion and aggregate calculation. It supplies its owner-issued reputation result/facts for a ProfessionalProfile through the explicit Module contract: target ProfessionalProfile ID, derived ratingAverage/ratingCount, and source/projection version evidence. Professional Eligibility consumes that result, owns writes to its `ProfessionalProfile.ratingAverage`/`ratingCount`, and supplies the resulting Professional projection to Search. Review / Dispute must not mutate the ProfessionalProfile repository. SH-115 supplies shared projection/version/replay mechanics, not Review policy or Profile ownership. Dependency failure leaves Review truth committed and projection work retryable; exact transport/API naming is not newly selected here.
 
 ## 12. Public Module Interface
 
@@ -1059,7 +1068,7 @@ Use SH-044 for creation and replay-prone lifecycle/admin/privacy commands. Seman
 
 Professional Eligibility currently owns no file/media mechanics and no provider storage.
 
-`ProfessionalProfile` may be related to profile media in the wider schema, but the target registry does not establish `ProfessionalProfileMedia` as this Module's owned schema. Therefore this Module plan does not introduce a profile-media lifecycle.
+**CL-03-R020 resolves PE-U13:** Professional Eligibility owns `ProfessionalProfileMedia` contextual attach/detach/reorder semantics and authorization. Media owns `MediaAsset` and all generic file mechanics; validated attachments reuse SH-090. Ownership approval alone does not schedule a new profile-media implementation feature or approve new public command signatures.
 
 If future profile media is implemented:
 
@@ -1570,7 +1579,7 @@ A thin adapter may wrap a canonical operation for dependency injection/testing, 
 | **PE-U10** | Is immutable historical proof of an eligibility decision required for any seller action? | CL-03 PR-10 says no new readiness source table in MVP; future legal/business evidence needs are not settled. | No eligibility snapshot source table now. Add only through a later architecture ruling. |
 | **PE-U11** | Exact notification triggers and detail granularity for readiness/suspension/remediation. | Notification rail exists; product messaging policy not supplied. | Only lifecycle notifications explicitly approved in feature spec should be enabled. |
 | **PE-U12** | Are any manual admin/support readiness overrides allowed, and if so which owner provides the source override decision? | Current architecture has holds/moderation/admin review but no universal eligibility override. | No generic `forceAllow` / `forceActive` path may be implemented. |
-| **PE-U13** | Ownership and lifecycle of `ProfessionalProfileMedia` if profile media is brought into scope. | Prisma relation exists but target Module registry does not list the join as owned truth. | No profile-media command in this Module until owner is established. |
+| **PE-U13 — RESOLVED by CL-03-R020** | Professional Eligibility owns `ProfessionalProfileMedia` attachment meaning/lifecycle and contextual authorization. | Media owns the referenced `MediaAsset` and generic file mechanics. | No new implementation feature is introduced merely by this ownership ruling. |
 
 ---
 
@@ -1609,7 +1618,7 @@ A thin adapter may wrap a canonical operation for dependency injection/testing, 
 
 ### Decisions that remain unresolved
 
-PE-U01 through PE-U13 remain non-implementable where they affect behavior. A numbered implementation feature must stop or constrain itself when one of these is a true prerequisite.
+PE-U01 through PE-U12 remain non-implementable where they affect behavior. PE-U13 is resolved by CL-03-R020 as recorded above. A numbered implementation feature must stop or constrain itself when one of these is a true prerequisite.
 
 ---
 
@@ -1617,16 +1626,16 @@ PE-U01 through PE-U13 remain non-implementable where they affect behavior. A num
 
 Before implementing or changing Professional Eligibility, an agent must read, in an order appropriate to the repository:
 
-1. root `context/project-overview.md`;
-2. root `context/architecture.md`;
-3. root `context/code-standards.md`;
+1. `context/project-overview-v3.md`;
+2. root architecture (**missing**; see `context/context-map.md`);
+3. root code standards (**missing**; see `context/context-map.md`);
 4. `context/shared/shared-operations.md` / Canonical Shared Operations Registry;
-5. `context/professional-supply-readiness/architecture.md`;
-6. `context/professional-supply-readiness/build-plan.md`;
-7. `context/professional_eligibility/module-architecture.md`;
-8. `context/professional_eligibility/implementation-plan.md`;
+5. `context/clusters/professional supply & readiness/professional-supply-readiness-architecture.md`;
+6. `context/clusters/professional supply & readiness/professional-supply-readiness-build-plan.md`;
+7. `context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-architecture.md`;
+8. `context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-implementation-plan.md`;
 9. the public-interface sections of every direct dependency touched by the feature, especially Identity, Role / Authority, Track Entitlement, Taxonomy, Trust, Healthcare, Payment, Hold, Marketplace, Gig, Order, Search, Privacy, Moderation, Audit, Notification, and Observability as applicable;
-10. the current progress tracker.
+10. the progress tracker (**missing**; see `context/context-map.md`).
 
 The agent must then:
 

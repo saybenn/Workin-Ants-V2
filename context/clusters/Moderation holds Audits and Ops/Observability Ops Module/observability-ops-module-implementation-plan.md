@@ -60,8 +60,8 @@ Therefore contract/provider-neutral work can begin before persistence is settled
 
 - Next.js / TypeScript / Prisma / Supabase foundation is available according to root context.
 - Runtime validation follows root standards, expected to use Zod where current project context requires it.
-- `resolveAuthenticatedActor` exists before protected ops routes/actions are exposed.
-- `authorizeResourceAction` exists before protected operational detail or incident mutations are exposed.
+- SH-001 `resolveAuthenticatedActor` exists before protected ops routes/actions are exposed.
+- SH-002 `authorizeResourceAction` exists before protected operational detail or incident mutations are exposed.
 - Shared request context, idempotency, queue, retry, locking, outbox/inbox, and concurrency primitives are available as each feature requires them. A contract-compatible stub is acceptable only where the CL-09 build plan explicitly allows one.
 
 ### Hard Cluster sequencing dependencies
@@ -122,8 +122,8 @@ Supports CL-09 Phase 1 Feature 01 **Audit Evidence and Request Correlation** and
 #### Dependencies
 
 - Root runtime/request middleware conventions.
-- Canonical `createRequestContext`.
-- Canonical `sanitizeTelemetryMetadata`.
+- Canonical SH-032 `createRequestContext`.
+- Canonical SH-034 `sanitizeTelemetryMetadata`.
 - Identity & Access actor context if the current request is authenticated.
 - No Observability Prisma model is required.
 
@@ -157,9 +157,9 @@ Runtime contracts only:
 
 #### Public Interfaces
 
-- `createRequestContext`
+- SH-032 `createRequestContext`
 - context accessor/propagator consistent with root platform convention;
-- `sanitizeTelemetryMetadata`
+- SH-034 `sanitizeTelemetryMetadata`
 
 No public browser endpoint is introduced.
 
@@ -167,9 +167,9 @@ No public browser endpoint is introduced.
 
 | Canonical operation | Owner | Invocation | Local policy | Prohibited duplicate |
 | --- | --- | --- | --- | --- |
-| `resolveAuthenticatedActor` | Identity & Access | Optional authenticated request entry. | Persist/propagate only safe actor identifiers. | local current-user helper. |
-| `createRequestContext` | Observability/platform | Every request/job/provider entry. | Allowed identifiers and propagation rules. | `request-id.ts`, per-module ALS context. |
-| `sanitizeTelemetryMetadata` | Observability + Audit payload policy | Before logging/provider/persistence boundary. | Observability allowlist, size, cardinality, truncation. | `redactError`, `scrubLog`, blacklist-only helper. |
+| SH-001 `resolveAuthenticatedActor` | Identity & Access | Optional authenticated request entry. | Persist/propagate only safe actor identifiers. | local current-user helper. |
+| SH-032 `createRequestContext` | Observability/platform | Every request/job/provider entry. | Allowed identifiers and propagation rules. | `request-id.ts`, per-module ALS context. |
+| SH-034 `sanitizeTelemetryMetadata` | Observability + Audit payload policy | Before logging/provider/persistence boundary. | Observability allowlist, size, cardinality, truncation. | `redactError`, `scrubLog`, blacklist-only helper. |
 
 #### Domain Logic
 
@@ -310,8 +310,8 @@ No other Module's records are touched.
 Repository layer remains internal. Public command/query contracts are finalized enough for later features:
 
 - `recordSystemEvent` if approved;
-- `recordIntegrationFailure`;
-- `recordQueueTelemetry`;
+- SH-037 `recordIntegrationFailure`;
+- SH-038 `recordQueueTelemetry`;
 - query contracts for failures/queue/system events;
 - incident command/query contracts if lifecycle approved.
 
@@ -319,11 +319,11 @@ Repository layer remains internal. Public command/query contracts are finalized 
 
 | Operation | Owner | Invocation | Local policy | Prohibited duplicate |
 | --- | --- | --- | --- | --- |
-| `executeIdempotentCommand` | Platform app infrastructure | Writes that require replay safety. | semantic key per approved record. | local idempotency table. |
-| `withOptimisticConcurrency` | Shared persistence | Mutable incident/failure rows if approved. | conflict/retry policy. | custom stale-write code. |
-| `acquireAggregateLock` | Shared persistence | Only where approved constraints need serialization. | lock key. | in-memory mutex. |
-| `transitionLifecycleState` | Shared mechanism | Any approved lifecycle transition. | Observability transition graph. | generic global lifecycle policy. |
-| `sanitizeTelemetryMetadata` | Observability/Audit policy | Before persistence. | record-specific safe fields. | raw JSON passthrough. |
+| SH-044 `executeIdempotentCommand` | Platform app infrastructure | Writes that require replay safety. | semantic key per approved record. | local idempotency table. |
+| SH-052 `withOptimisticConcurrency` | Shared persistence | Mutable incident/failure rows if approved. | conflict/retry policy. | custom stale-write code. |
+| SH-051 `acquireAggregateLock` | Shared persistence | Only where approved constraints need serialization. | lock key. | in-memory mutex. |
+| SH-053 `transitionLifecycleState` | Shared mechanism | Any approved lifecycle transition. | Observability transition graph. | generic global lifecycle policy. |
+| SH-034 `sanitizeTelemetryMetadata` | Observability/Audit policy | Before persistence. | record-specific safe fields. | raw JSON passthrough. |
 
 #### Domain Logic
 
@@ -426,13 +426,13 @@ CL-09 Phase 1 Feature 02 **Operational Telemetry, Failure Visibility, and Health
 
 #### In Scope
 
-- `writeStructuredLog` implementation.
+- SH-033 `writeStructuredLog` implementation.
 - logging port + current provider adapter if selected; safe console/server fallback only as root standards permit.
 - error-monitoring port + Sentry adapter.
-- `captureException` implementation.
+- SH-035 `captureException` implementation.
 - metrics port + provider-neutral client; adapter if provider selected.
 - metric naming/dimension registry.
-- health registry and `checkServiceHealth` implementation.
+- health registry and SH-039 `checkServiceHealth` implementation.
 - minimal public health response and protected detail query plumbing.
 
 #### Out of Scope
@@ -449,20 +449,20 @@ No new source records beyond any approved SystemEvent/health persistence explici
 
 #### Public Interfaces
 
-- `writeStructuredLog`
-- `captureException`
-- `emitMetric`
+- SH-033 `writeStructuredLog`
+- SH-035 `captureException`
+- SH-036 `emitMetric`
 - `registerHealthCheck`
-- `checkServiceHealth`
+- SH-039 `checkServiceHealth`
 - `getOperationalHealth`
 
 #### Shared Operations Used
 
-- `createRequestContext`
-- `sanitizeTelemetryMetadata`
-- `authorizeResourceAction` for detailed health
-- `recordSensitiveAccess` when a detailed view exposes protected diagnostics
-- `recordIntegrationFailure` only for safe non-recursive sink degradation where policy says it is appropriate
+- SH-032 `createRequestContext`
+- SH-034 `sanitizeTelemetryMetadata`
+- SH-002 `authorizeResourceAction` for detailed health
+- SH-030 `recordSensitiveAccess` when a detailed view exposes protected diagnostics
+- SH-037 `recordIntegrationFailure` only for safe non-recursive sink degradation where policy says it is appropriate
 
 Prohibited duplicates: direct Sentry client, feature logger, per-module metric client, independent health framework.
 
@@ -537,7 +537,7 @@ Document selected logging/metrics providers if `U-23` is resolved during this fe
 
 #### Objective
 
-Implement the canonical `recordIntegrationFailure` command and protected failure query so provider-owning Modules can surface technical degradation without creating local generic failure tables.
+Implement the canonical SH-037 `recordIntegrationFailure` command and protected failure query so provider-owning Modules can surface technical degradation without creating local generic failure tables.
 
 #### Observable Result
 
@@ -585,19 +585,19 @@ CL-09 Phase 1 Feature 02; later exercised by Features 06, 07, 11, and Cluster Fe
 
 #### Public Interfaces
 
-- `recordIntegrationFailure(command) -> IntegrationFailureReceipt`
+- SH-037 `recordIntegrationFailure(command) -> IntegrationFailureReceipt`
 - `queryIntegrationFailures(filters, viewer) -> Page<IntegrationFailureView>`
 
 #### Shared Operations Used
 
 | Operation | Owner | Invocation | Local policy | Prohibited duplicate |
 | --- | --- | --- | --- | --- |
-| `executeIdempotentCommand` | Platform | Failure command. | semantic failure command identity. | local dedupe table. |
-| `sanitizeTelemetryMetadata` | Observability/Audit | Before persistence. | failure safe fields. | raw error JSON. |
-| `writeStructuredLog` | Observability | command outcome. | safe failure summary. | failure-specific logger. |
-| `emitMetric` | Observability | failure counts/latency. | allowed dimensions. | local metrics. |
-| `authorizeResourceAction` | Role | detailed query. | view failure action facts. | local admin guard. |
-| `recordSensitiveAccess` | Audit | if detailed query exposes protected source refs. | sensitivity classification. | ops access table. |
+| SH-044 `executeIdempotentCommand` | Platform | Failure command. | semantic failure command identity. | local dedupe table. |
+| SH-034 `sanitizeTelemetryMetadata` | Observability/Audit | Before persistence. | failure safe fields. | raw error JSON. |
+| SH-033 `writeStructuredLog` | Observability | command outcome. | safe failure summary. | failure-specific logger. |
+| SH-036 `emitMetric` | Observability | failure counts/latency. | allowed dimensions. | local metrics. |
+| SH-002 `authorizeResourceAction` | Role | detailed query. | view failure action facts. | local admin guard. |
+| SH-030 `recordSensitiveAccess` | Audit | if detailed query exposes protected source refs. | sensitivity classification. | ops access table. |
 
 #### Domain Logic
 
@@ -694,7 +694,7 @@ CL-09 Phase 1 Feature 02; foundational to Cluster Features 06/07/10/11/12 and Ob
 #### In Scope
 
 - queue instrumentation adapter/hooks.
-- `recordQueueTelemetry` command.
+- SH-038 `recordQueueTelemetry` command.
 - queue telemetry normalization/safety.
 - `queryQueueJobs` protected query.
 - dead-letter and retry visibility.
@@ -716,20 +716,20 @@ CL-09 Phase 1 Feature 02; foundational to Cluster Features 06/07/10/11/12 and Ob
 
 #### Public Interfaces
 
-- `recordQueueTelemetry`
+- SH-038 `recordQueueTelemetry`
 - `queryQueueJobs`
 
 The shared runner calls the command; feature Modules normally do not hand-roll telemetry calls.
 
 #### Shared Operations Used
 
-- `enqueueReliableJob` — shared queue owner; exercised by test job.
-- `executeRetryWithBackoff` — shared queue/platform.
-- `recordQueueTelemetry` — Observability/queue instrumentation.
-- `emitMetric` — queue depth/retry/duration/dead-letter.
-- `writeStructuredLog`.
-- `sanitizeTelemetryMetadata`.
-- `authorizeResourceAction` for queue detail query.
+- SH-047 `enqueueReliableJob` — shared queue owner; exercised by test job.
+- SH-048 `executeRetryWithBackoff` — shared queue/platform.
+- SH-038 `recordQueueTelemetry` — Observability/queue instrumentation.
+- SH-036 `emitMetric` — queue depth/retry/duration/dead-letter.
+- SH-033 `writeStructuredLog`.
+- SH-034 `sanitizeTelemetryMetadata`.
+- SH-002 `authorizeResourceAction` for queue detail query.
 
 Prohibited duplicate: per-Module queue telemetry table, manual retry loop, in-module dead-letter engine.
 
@@ -852,11 +852,11 @@ Read-only over approved Observability records and runtime health/provider refere
 
 #### Shared Operations Used
 
-- `authorizeResourceAction`
-- `recordSensitiveAccess`
-- `queryOwnerFacts` only where an approved owner-specific DTO is needed; because canonical status is Proposed Ruling, use concrete owner public interface where available.
-- `writeStructuredLog`
-- `emitMetric`
+- SH-002 `authorizeResourceAction`
+- SH-030 `recordSensitiveAccess`
+- SH-003 `queryOwnerFacts` only where an approved owner-specific DTO is needed; because canonical status is Proposed Ruling, use concrete owner public interface where available.
+- SH-033 `writeStructuredLog`
+- SH-036 `emitMetric`
 
 Prohibited duplicate: universal polymorphic repository, raw Prisma exposure, unrestricted provider-log browser.
 
@@ -871,7 +871,7 @@ Prohibited duplicate: universal polymorphic repository, raw Prisma exposure, unr
 
 - All detailed queries protected.
 - Field-level redaction according to action/sensitivity.
-- Protected reveal triggers `recordSensitiveAccess`.
+- Protected reveal triggers SH-030 `recordSensitiveAccess`.
 - Existence of sensitive source record must not be leaked to unauthorized caller.
 
 #### Database / Transaction Behavior
@@ -930,7 +930,7 @@ Document stable query contracts for dashboard consumers.
 
 #### Objective
 
-Implement the approved `OpsIncident` lifecycle and `correlateOpsIncident` behavior without turning incidents into business remediation or compliance holds.
+Implement the approved `OpsIncident` lifecycle and SH-040 `correlateOpsIncident` behavior without turning incidents into business remediation or compliance holds.
 
 #### Observable Result
 
@@ -977,7 +977,7 @@ CL-09 Phase 4 Feature 09 **Ops Incident, Failure, Queue, and Health Dashboard**.
 
 #### Public Interfaces
 
-- `correlateOpsIncident`
+- SH-040 `correlateOpsIncident`
 - `openOpsIncident`
 - `updateOpsIncident`
 - `getOpsIncident`
@@ -985,15 +985,15 @@ CL-09 Phase 4 Feature 09 **Ops Incident, Failure, Queue, and Health Dashboard**.
 
 #### Shared Operations Used
 
-- `authorizeResourceAction`
-- `executeIdempotentCommand`
-- `withOptimisticConcurrency`
-- `acquireAggregateLock` if approved conflict scenarios require it
-- `transitionLifecycleState`
-- `appendAuditEvent`
-- `writeStructuredLog`
-- `emitMetric`
-- `requestNotification` only if alert policy is approved
+- SH-002 `authorizeResourceAction`
+- SH-044 `executeIdempotentCommand`
+- SH-052 `withOptimisticConcurrency`
+- SH-051 `acquireAggregateLock` if approved conflict scenarios require it
+- SH-053 `transitionLifecycleState`
+- SH-029 `appendAuditEvent`
+- SH-033 `writeStructuredLog`
+- SH-036 `emitMetric`
+- SH-041 `requestNotification` only if alert policy is approved
 
 Prohibited duplicate: local incident systems in provider/business Modules.
 
@@ -1131,11 +1131,11 @@ Consumes:
 
 #### Shared Operations Used
 
-- `authorizeResourceAction`
-- `recordSensitiveAccess`
-- `requestNotification`
-- `writeStructuredLog`
-- `emitMetric`
+- SH-002 `authorizeResourceAction`
+- SH-030 `recordSensitiveAccess`
+- SH-041 `requestNotification`
+- SH-033 `writeStructuredLog`
+- SH-036 `emitMetric`
 
 Prohibited duplicate: direct table query from UI/server component, direct SES/SMS/push, UI-level authorization booleans.
 
@@ -1161,7 +1161,7 @@ UI never accesses DB directly. All mutations through application/public command 
 
 #### Events / Jobs
 
-- Optional manual/approved alert -> `requestNotification` with idempotency key.
+- Optional manual/approved alert -> SH-041 `requestNotification` with idempotency key.
 - No direct provider dispatch.
 
 #### Provider Integration
@@ -1248,9 +1248,9 @@ Implements the Observability portion of CL-09 Phase 5 Feature 10 **CL-09 Privacy
 
 #### In Scope
 
-- `enumerateSubjectData` implementation for Observability-owned records/references.
-- `evaluateRetentionRequirement` implementation returning owner facts.
-- `executePrivacyInstruction` implementation.
+- SH-096 `enumerateSubjectData` implementation for Observability-owned records/references.
+- SH-097 `evaluateRetentionRequirement` implementation returning owner facts.
+- SH-095 `executePrivacyInstruction` implementation.
 - export serializer if Privacy requires one.
 - field-level anonymization mapping.
 - provider deletion/revocation through Observability-owned adapter only when instructed/approved.
@@ -1271,21 +1271,21 @@ Approved Observability records and approved provider references only.
 
 Implements Privacy-defined:
 
-- `enumerateSubjectData`
-- `evaluateRetentionRequirement`
-- `executePrivacyInstruction`
+- SH-096 `enumerateSubjectData`
+- SH-097 `evaluateRetentionRequirement`
+- SH-095 `executePrivacyInstruction`
 - export serializer
 
 #### Shared Operations Used
 
-- `enumerateSubjectData`
-- `evaluateRetentionRequirement`
-- `executePrivacyInstruction`
-- `anonymizePersonalFields`
-- `enqueueReliableJob`
-- `executeRetryWithBackoff`
-- `appendAuditEvent` if Privacy/audit policy requires execution proof
-- `recordIntegrationFailure` for provider deletion failure without replacing Privacy job truth
+- SH-096 `enumerateSubjectData`
+- SH-097 `evaluateRetentionRequirement`
+- SH-095 `executePrivacyInstruction`
+- SH-098 `anonymizePersonalFields`
+- SH-047 `enqueueReliableJob`
+- SH-048 `executeRetryWithBackoff`
+- SH-029 `appendAuditEvent` if Privacy/audit policy requires execution proof
+- SH-037 `recordIntegrationFailure` for provider deletion failure without replacing Privacy job truth
 
 Prohibited duplicate: local PrivacyRequest flow, local exemption table, ad hoc delete cron.
 
@@ -1394,7 +1394,7 @@ Implements the Observability portion of CL-09 Phase 5 Feature 11 **Cross-Cluster
 #### In Scope
 
 - replace failure/health contract fakes one boundary at a time.
-- instrument owner adapters/workers to call canonical `recordIntegrationFailure`.
+- instrument owner adapters/workers to call canonical SH-037 `recordIntegrationFailure`.
 - register owner health checks.
 - ensure shared queue runner telemetry works for real Module workers.
 - exercise correlation IDs across process/provider boundaries.
@@ -1416,28 +1416,28 @@ Only Observability operational records from real integrated signals.
 
 Verify real integration for:
 
-- `createRequestContext`
-- `writeStructuredLog`
-- `captureException`
-- `emitMetric`
-- `recordIntegrationFailure`
-- `recordQueueTelemetry`
-- `checkServiceHealth`
+- SH-032 `createRequestContext`
+- SH-033 `writeStructuredLog`
+- SH-035 `captureException`
+- SH-036 `emitMetric`
+- SH-037 `recordIntegrationFailure`
+- SH-038 `recordQueueTelemetry`
+- SH-039 `checkServiceHealth`
 - operational queries
-- `requestNotification` for ops alert handoff
+- SH-041 `requestNotification` for ops alert handoff
 - Privacy executor contract
 
 #### Shared Operations Used
 
-- `verifyProviderWebhookSignature` — source owner, not Observability.
-- `deduplicateProviderEvent` — source owner.
-- `translateProviderStatus` — source owner.
-- `reconcileProviderState` — source owner.
-- `recordIntegrationFailure` — Observability.
-- `recordQueueTelemetry` — Observability/shared runner.
-- `publishDomainEvent` / `deduplicateDomainEvent` — where source owners emit operational facts through events.
-- `enqueueReliableJob` / `executeRetryWithBackoff` — shared queue.
-- `requestNotification` — Notification.
+- SH-059 `verifyProviderWebhookSignature` — source owner, not Observability.
+- SH-060 `deduplicateProviderEvent` — source owner.
+- SH-061 `translateProviderStatus` — source owner.
+- SH-062 `reconcileProviderState` — source owner.
+- SH-037 `recordIntegrationFailure` — Observability.
+- SH-038 `recordQueueTelemetry` — Observability/shared runner.
+- SH-046 `publishDomainEvent` / SH-045 `deduplicateDomainEvent` — where source owners emit operational facts through events.
+- SH-047 `enqueueReliableJob` / SH-048 `executeRetryWithBackoff` — shared queue.
+- SH-041 `requestNotification` — Notification.
 
 Prohibited duplicate: any Observability implementation of provider signature/dedupe/reconciliation.
 
@@ -1571,26 +1571,26 @@ All Module public interfaces are contract-regression tested.
 
 #### Shared Operations Used
 
-- `resolveAuthenticatedActor`
-- `authorizeResourceAction`
-- `requireStepUpForSensitiveAction` where approved
-- `createRequestContext`
-- `sanitizeTelemetryMetadata`
-- `captureException`
-- `emitMetric`
-- `recordIntegrationFailure`
-- `recordQueueTelemetry`
-- `checkServiceHealth`
-- `executeIdempotentCommand`
-- `publishDomainEvent` / `deduplicateDomainEvent` where used
-- `enqueueReliableJob`
-- `executeRetryWithBackoff`
-- `acquireAggregateLock`
-- `withOptimisticConcurrency`
-- `transitionLifecycleState`
-- `appendAuditEvent`
-- `recordSensitiveAccess`
-- `requestNotification`
+- SH-001 `resolveAuthenticatedActor`
+- SH-002 `authorizeResourceAction`
+- SH-014 `requireStepUpForSensitiveAction` where approved
+- SH-032 `createRequestContext`
+- SH-034 `sanitizeTelemetryMetadata`
+- SH-035 `captureException`
+- SH-036 `emitMetric`
+- SH-037 `recordIntegrationFailure`
+- SH-038 `recordQueueTelemetry`
+- SH-039 `checkServiceHealth`
+- SH-044 `executeIdempotentCommand`
+- SH-046 `publishDomainEvent` / SH-045 `deduplicateDomainEvent` where used
+- SH-047 `enqueueReliableJob`
+- SH-048 `executeRetryWithBackoff`
+- SH-051 `acquireAggregateLock`
+- SH-052 `withOptimisticConcurrency`
+- SH-053 `transitionLifecycleState`
+- SH-029 `appendAuditEvent`
+- SH-030 `recordSensitiveAccess`
+- SH-041 `requestNotification`
 - Privacy owner/executor operations
 
 No local substitute is permitted for any of these.
@@ -1707,9 +1707,9 @@ Module Feature 10 is the dedicated integration phase. It proves that Observabili
 
 Required contract proofs:
 
-1. **Identity / Role** — protected ops views/actions resolve authenticated actor and use `authorizeResourceAction`.
-2. **Audit** — sensitive diagnostic access uses `recordSensitiveAccess`; important operator actions use `appendAuditEvent` where policy requires it.
-3. **Notification** — operational alerts use `requestNotification`; no channel/provider code appears here.
+1. **Identity / Role** — protected ops views/actions resolve authenticated actor and use SH-002 `authorizeResourceAction`.
+2. **Audit** — sensitive diagnostic access uses SH-030 `recordSensitiveAccess`; important operator actions use SH-029 `appendAuditEvent` where policy requires it.
+3. **Notification** — operational alerts use SH-041 `requestNotification`; no channel/provider code appears here.
 4. **Payment / Calendar / Video / Media / Search / Notification / Subscription provider owners** — normalized failure signal enters Observability only after provider-owner verification/translation/dedupe boundaries.
 5. **Shared queue** — queue telemetry comes from canonical runner instrumentation; job completion remains source-owned.
 6. **Privacy** — Privacy orchestrates; Observability enumerates/executes only its own targets.

@@ -28,6 +28,8 @@ This plan is intentionally narrower than the CL-06 build plan. It does not indep
 
 ## Build Rules
 
+The [Shared Operations registry](../../../shared/shared-operations.md) governs permanent IDs, canonical names, owners, classifications and statuses. Registered use points below carry verified IDs/statuses. Proposed ruling entries may support planning and owner-specific interfaces/mechanisms, but cross-platform SH API/schema commitment requires separate explicit approval; any exit gate relying on that shared API must verify approval. Unresolved entries must not be silently implemented or replaced locally. The approved Job Compliance publication envelope does not approve a proposed shared decision envelope.
+
 1. Follow root architecture/code standards, CL-06 architecture/build plan, and `job_interview/module-architecture.md`.
 2. Job Interview owns only its declared source truth.
 3. Use other Modules through approved public interfaces/events or versioned fixtures when the CL-06 build plan explicitly permits fixtures.
@@ -57,17 +59,17 @@ The CL-06 build plan places Job Interview core work at Cluster Feature 09, after
 
 The following must exist as real platform capabilities before production Job Interview mutation code ships:
 
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction` plus RLS parity support;
+- SH-001 `resolveAuthenticatedActor` (Confirmed);
+- SH-002 `authorizeResourceAction` (Confirmed) plus RLS parity support;
 - runtime validation standard;
 - Prisma/Postgres transaction layer;
-- `executeIdempotentCommand`;
-- `withOptimisticConcurrency` and/or `acquireAggregateLock` according to root persistence standards;
-- `appendDomainLifecycleEvent` conventions;
-- transactional `publishDomainEvent` outbox and `deduplicateDomainEvent` inbox;
-- `enqueueReliableJob` / retry/dead-letter infrastructure;
+- SH-044 `executeIdempotentCommand` (Confirmed);
+- SH-052 `withOptimisticConcurrency` (Confirmed) and/or SH-051 `acquireAggregateLock` (Confirmed) according to root persistence standards;
+- SH-031 `appendDomainLifecycleEvent` (Confirmed) conventions;
+- transactional SH-046 `publishDomainEvent` (Confirmed) outbox and SH-045 `deduplicateDomainEvent` (Confirmed) inbox;
+- SH-047 `enqueueReliableJob` (Confirmed) / retry/dead-letter infrastructure;
 - structured logging/request/correlation IDs;
-- `appendAuditEvent` / `recordSensitiveAccess` where required.
+- SH-029 `appendAuditEvent` (Confirmed) / SH-030 `recordSensitiveAccess` (Confirmed) where required.
 
 If any platform primitive is not implemented yet, the Module may define/compile against a versioned contract fixture only where the Cluster coordinator allows it. The Job Interview Module must never implement the missing generic primitive locally.
 
@@ -86,20 +88,24 @@ These can be contract fixtures until their dedicated Module feature:
 - Notification for Feature 02/03;
 - Messaging for Feature 06;
 - Video Infrastructure for Feature 06;
-- Calendar capability for Feature 07 only after U-CL06-16 is resolved;
+- Confirmed Booking & Calendar SH-067 `invokeCalendarProvider` (Confirmed) for Feature 07; only residual local sync-field semantics remain gated;
 - Privacy protocol for Feature 08 if Privacy implementation lags, provided the contract is frozen by CL-06/Privacy architecture.
 
 ### Explicit architecture blockers
 
-- **U-CL06-14 / U-JI-01:** participant ownership/removal/candidate invariant — blocks Feature 04.
+- **U-CL06-14 / U-JI-01:** participant removal/role eligibility/candidate invariant — blocks dependent Feature 04 behavior; Job Interview ownership is confirmed.
 - **U-CL06-15 / U-JI-02:** transition/reschedule semantics — at minimum the transition subset used by Feature 02 must be approved; advanced rescheduling blocks Feature 05.
-- **U-CL06-16 / U-JI-03:** calendar capability ownership — blocks Feature 07.
+- **U-CL06-16 / U-JI-03:** local external event/sync/error-field meaning — blocks dependent Feature 07 persistence; Booking & Calendar ownership is confirmed.
 - **U-JI-04:** `externalMeetingUrl` semantics — blocks use as credential-bearing meeting link.
 - **U-JI-05:** parent application-state effects — blocks full application/interview synchronization in Feature 05.
 - **U-JI-06/U-JI-07:** retention/privacy target semantics — block destructive production privacy execution in Feature 08.
 - **U-JI-08:** concurrency token/root strategy — must be resolved enough to implement stale-write detection in Feature 02.
 - **U-JI-09:** event name registry — must be approved before external consumers freeze event names in Feature 09.
-- **U-CL06-17/U-JI-12:** current Prisma structural defect — must be cleared before migrations if root schema validation is affected.
+- U-CL06-17/U-JI-12 placement claim is retired; verify overall schema separately and preserve R008 and the project migration-baseline issue.
+
+### Public concurrency prerequisite — CL-06-R020
+
+Public mutation contracts use an owner-issued opaque `expectedConcurrencyToken`. The owner returns the token, atomically compares it through SH-052 `withOptimisticConcurrency` (Confirmed), and rejects stale tokens. Consumers do not assume a universal integer `version` or `updatedAt` field. JobApplication, mutable Job Compliance finding/review, JobInterview and any parent-versus-child token backing remain unresolved where no representation is approved; no version column is ordered here.
 
 # Phase 1 — Contracts and Source-of-Truth Foundation
 
@@ -131,7 +137,7 @@ Supports **CL-06 Feature 09 — Core JobInterview Proposal and Scheduling**, spe
 - CL-06 Feature 06 exit gate passed or Cluster plan explicitly revised;
 - current Prisma schema available and parseable;
 - root runtime validation/error conventions;
-- `resolveAuthenticatedActor`, `authorizeResourceAction`, `queryOwnerFacts` contract shapes;
+- SH-001 `resolveAuthenticatedActor` (Confirmed), SH-002 `authorizeResourceAction` (Confirmed), SH-003 `queryOwnerFacts` (Proposed ruling) contract shapes;
 - canonical shared operations registry;
 - current U-CL06/U-JI decision register.
 
@@ -143,7 +149,7 @@ Supports **CL-06 Feature 09 — Core JobInterview Proposal and Scheduling**, spe
 - define dependency ports for Organization Hiring and Candidate Application owner facts;
 - define Job Interview-specific error categories/reason-code namespace aligned to root conventions;
 - implement Job Interview-owned repository reads/writes needed by later features;
-- implement insert-only `JobInterviewEvent` persistence adapter compatible with `appendDomainLifecycleEvent`;
+- implement insert-only `JobInterviewEvent` persistence adapter compatible with SH-031 `appendDomainLifecycleEvent` (Confirmed);
 - implement context assembly interfaces but not final transition policy;
 - add schema verification tests for currently owned fields/indexes/relations;
 - document current schema concerns (`externalMeetingUrl`, calendar fields, cascade deletion, no explicit version).
@@ -158,7 +164,7 @@ Supports **CL-06 Feature 09 — Core JobInterview Proposal and Scheduling**, spe
 - Privacy destructive execution;
 - provider SDKs/webhooks;
 - JobApplication mutation;
-- schema changes that assign participant ownership or change reschedule cardinality without architecture approval.
+- schema changes or reschedule cardinality choices without architecture approval; Job Interview participant ownership is already confirmed.
 
 ### Module-Owned Data
 
@@ -166,7 +172,7 @@ Supports **CL-06 Feature 09 — Core JobInterview Proposal and Scheduling**, spe
 - `JobInterviewEvent` insert-only persistence mapping;
 - `JobInterviewStatus`, `JobInterviewLocationType`, `JobInterviewEventActor` in public/domain types.
 
-`JobInterviewParticipant` remains read-only/unused until U-CL06-14 approval.
+`JobInterviewParticipant` and its role/status enums are Job Interview-owned. Mutations remain gated by the unresolved removal/role eligibility/candidate invariant required by the particular behavior.
 
 ### Public Interfaces
 
@@ -189,8 +195,8 @@ Unresolved commands should return/compile as explicitly unavailable until their 
 
 ### Shared Operations Used
 
-- `queryOwnerFacts` — each source owner; define small dependency DTOs. **Local policy:** required relationship facts. **Prohibited duplicate:** cross-domain Prisma repositories.
-- `appendDomainLifecycleEvent` — shared persistence mechanism; wire repository convention only. **Local policy:** event fields/vocabulary. **Prohibited duplicate:** universal event table.
+- SH-003 `queryOwnerFacts` (Proposed ruling) — each source owner; define small dependency DTOs. **Local policy:** required relationship facts. **Prohibited duplicate:** cross-domain Prisma repositories.
+- SH-031 `appendDomainLifecycleEvent` (Confirmed) — shared persistence mechanism; wire repository convention only. **Local policy:** event fields/vocabulary. **Prohibited duplicate:** universal event table.
 - root runtime validation primitive if named separately by root standards.
 
 ### Domain Logic
@@ -235,7 +241,7 @@ None required.
 - schema/contract mismatch fails tests/build;
 - unresolved architecture returns explicit unsupported result rather than permissive implementation;
 - dependency port unavailable is represented explicitly;
-- whole-schema validation failure due U-CL06-17 blocks migration generation and is reported.
+- any actual whole-schema validation failure blocks migration generation and is reported; do not assume retired U-CL06-17 is its cause.
 
 ### Tests
 
@@ -301,8 +307,8 @@ Direct implementation of **CL-06 Feature 09 — Core JobInterview Proposal and S
 - U-JI-08 concurrency strategy resolved enough for stale-write protection;
 - Organization Hiring owner-fact interface/fixture;
 - Candidate Application interviewability owner-fact interface/fixture;
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
+- SH-001 `resolveAuthenticatedActor` (Confirmed);
+- SH-002 `authorizeResourceAction` (Confirmed);
 - idempotency/concurrency/event/outbox primitives;
 - optional Notification contract fixture only for post-commit request tests.
 
@@ -351,15 +357,15 @@ Enable:
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor` — actor context before every command. **Prohibited duplicate:** feature current-user helper.
-- `authorizeResourceAction` — permission decision. **Local policy:** interview action/context. **Prohibited duplicate:** OrganizationRole switch.
-- `queryOwnerFacts` — Organization/Candidate source facts. **Prohibited duplicate:** direct repositories.
-- `evaluateComplianceHold` — only when Cluster/root says applicable to the action. **Local policy:** block effect. **Prohibited duplicate:** local hold flag.
-- `executeIdempotentCommand` — command replay. **Local policy:** semantic fingerprint. **Prohibited duplicate:** ad-hoc key table.
-- `withOptimisticConcurrency` / `acquireAggregateLock` — stale/conflicting transition safety. **Local policy:** interview lock/conflict rules. **Prohibited duplicate:** in-memory mutex.
-- `transitionLifecycleState` — plumbing only. **Local policy:** approved transition graph.
-- `appendDomainLifecycleEvent` — append JobInterviewEvent in transaction.
-- `publishDomainEvent` — transactional outbox.
+- SH-001 `resolveAuthenticatedActor` (Confirmed) — actor context before every command. **Prohibited duplicate:** feature current-user helper.
+- SH-002 `authorizeResourceAction` (Confirmed) — permission decision. **Local policy:** interview action/context. **Prohibited duplicate:** OrganizationRole switch.
+- SH-003 `queryOwnerFacts` (Proposed ruling) — Organization/Candidate source facts. **Prohibited duplicate:** direct repositories.
+- SH-011 `evaluateComplianceHold` (Confirmed) — only when Cluster/root says applicable to the action. **Local policy:** block effect. **Prohibited duplicate:** local hold flag.
+- SH-044 `executeIdempotentCommand` (Confirmed) — command replay. **Local policy:** semantic fingerprint. **Prohibited duplicate:** ad-hoc key table.
+- SH-052 `withOptimisticConcurrency` (Confirmed) / SH-051 `acquireAggregateLock` (Confirmed) — stale/conflicting transition safety. **Local policy:** interview lock/conflict rules. **Prohibited duplicate:** in-memory mutex.
+- SH-053 `transitionLifecycleState` (Confirmed) — plumbing only. **Local policy:** approved transition graph.
+- SH-031 `appendDomainLifecycleEvent` (Confirmed) — append JobInterviewEvent in transaction.
+- SH-046 `publishDomainEvent` (Confirmed) — transactional outbox.
 
 ### Domain Logic
 
@@ -378,7 +384,7 @@ Enable:
 - candidate-side mutations only if explicitly allowed by approved action matrix; do not assume;
 - candidate/org reads are relationship-scoped;
 - support/admin requires platform authority, not generic bypass;
-- use `recordSensitiveAccess` only for sensitive paths specified by root/Cluster policy; ordinary interview source reads do not automatically become AccessAuditLog without policy.
+- use SH-030 `recordSensitiveAccess` (Confirmed) only for sensitive paths specified by root/Cluster policy; ordinary interview source reads do not automatically become AccessAuditLog without policy.
 
 ### Database / Transaction Behavior
 
@@ -521,10 +527,10 @@ Finalize stable read DTOs and pagination contracts for the five queries. The UI 
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
-- `queryOwnerFacts` as needed for Role facts;
-- `recordSensitiveAccess` only for paths specifically classified sensitive;
+- SH-001 `resolveAuthenticatedActor` (Confirmed);
+- SH-002 `authorizeResourceAction` (Confirmed);
+- SH-003 `queryOwnerFacts` (Proposed ruling) as needed for Role facts;
+- SH-030 `recordSensitiveAccess` (Confirmed) only for paths specifically classified sensitive;
 - root UI/error primitives if applicable.
 
 ### Domain Logic
@@ -606,7 +612,7 @@ PASS only if root typecheck/lint, targeted UI/unit/integration tests, authorizat
 
 ### Objective
 
-After U-CL06-14 is explicitly approved, implement interview-local participant invitation and response truth without turning participants into OrganizationMembers or Messaging ThreadParticipants.
+Under confirmed Job Interview participant ownership, once remaining U-CL06-14 behavior is explicitly approved, implement interview-local participant invitation and response truth without turning participants into OrganizationMembers or Messaging ThreadParticipants.
 
 ### Observable Result
 
@@ -626,7 +632,7 @@ Implements the participant portion of **CL-06 Feature 10 — Interview Participa
 
 ### In Scope
 
-- formally adopt participant model/enums if approved;
+- use the confirmed Job Interview-owned participant model/role/status enums;
 - `validateParticipantAssignment`;
 - `addInterviewParticipant`;
 - `removeInterviewParticipant` or approved revoke command;
@@ -668,9 +674,9 @@ After architecture approval:
 - owner facts;
 - idempotency;
 - participant-row concurrency lock;
-- `appendDomainLifecycleEvent`;
-- `publishDomainEvent`;
-- `requestNotification` may be fixture-only until Feature 06.
+- SH-031 `appendDomainLifecycleEvent` (Confirmed);
+- SH-046 `publishDomainEvent` (Confirmed);
+- SH-041 `requestNotification` (Confirmed) may be fixture-only until Feature 06.
 
 **Prohibited duplicates:** local Organization membership policy, local Messaging participant table, custom invitation queue.
 
@@ -747,7 +753,7 @@ None. Do not sync calendar attendees or Video roles yet.
 
 ### Documentation Updates
 
-Mandatory: once U-CL06-14 is approved, update Module/Cluster architecture decision registers and data ownership table before implementation. Record any schema migration and participant removal rule.
+Ownership is already confirmed by CL-06-R012. When remaining U-CL06-14 policy is approved, update the corresponding behavior/gates before implementation; record any separately approved schema migration and participant removal rule.
 
 ### Acceptance Criteria
 
@@ -822,12 +828,12 @@ Completes **CL-06 Feature 10**.
 ### Shared Operations Used
 
 - actor/authority;
-- `executeIdempotentCommand`;
-- `acquireAggregateLock`/`withOptimisticConcurrency`;
-- `transitionLifecycleState`;
-- `appendDomainLifecycleEvent`;
-- `publishDomainEvent`;
-- `deduplicateDomainEvent` for application-state events;
+- SH-044 `executeIdempotentCommand` (Confirmed);
+- SH-051 `acquireAggregateLock` (Confirmed)/SH-052 `withOptimisticConcurrency` (Confirmed);
+- SH-053 `transitionLifecycleState` (Confirmed);
+- SH-031 `appendDomainLifecycleEvent` (Confirmed);
+- SH-046 `publishDomainEvent` (Confirmed);
+- SH-045 `deduplicateDomainEvent` (Confirmed) for application-state events;
 - reliable job/retry only for downstream owner requests.
 
 ### Domain Logic
@@ -936,10 +942,10 @@ Direct implementation of **CL-06 Feature 11 — Interview Messaging, Notificatio
 
 - Feature 05 or Feature 03 minimum depending approved participant/reschedule sequencing;
 - CL-06 Feature 07 resume-access contract available;
-- Messaging `ensureContextThread`;
-- Notification `requestNotification` and recipient contract;
+- Messaging SH-113 `ensureContextThread` (Confirmed);
+- Notification SH-041 `requestNotification` (Confirmed) and recipient contract;
 - Video Infrastructure JobInterview room/join contract;
-- Audit `recordSensitiveAccess`;
+- Audit SH-030 `recordSensitiveAccess` (Confirmed);
 - reliable job/retry/Ops integration.
 
 ### In Scope
@@ -983,14 +989,14 @@ Do not expose provider-native room APIs.
 
 ### Shared Operations Used
 
-- `ensureContextThread` — Messaging owner. **Local policy:** context/participant facts. **Prohibited duplicate:** local chat.
-- `requestNotification` — Notification owner. **Local policy:** business trigger/safe variables. **Prohibited duplicate:** delivery client.
-- `resolveNotificationRecipients` — source context + Notification. **Local policy:** interview recipient group. **Prohibited duplicate:** Notification owning participant truth.
-- Candidate `authorizeContextualResourceAccess`/resume public interface — Candidate Application owner. **Local policy:** interview context only. **Prohibited duplicate:** local resume permission.
-- `recordSensitiveAccess` — Audit owner for configured resume/video/admin access.
-- `publishDomainEvent`, `deduplicateDomainEvent`, `enqueueReliableJob`, `executeRetryWithBackoff` — reliable handoffs.
-- `recordIntegrationFailure` — Ops.
-- Video owner internally uses canonical `invokeVideoProvider`; Job Interview must not.
+- SH-113 `ensureContextThread` (Confirmed) — Messaging owner. **Local policy:** context/participant facts. **Prohibited duplicate:** local chat.
+- SH-041 `requestNotification` (Confirmed) — Notification owner. **Local policy:** business trigger/safe variables. **Prohibited duplicate:** delivery client.
+- SH-043 `resolveNotificationRecipients` (Confirmed) — source context + Notification. **Local policy:** interview recipient group. **Prohibited duplicate:** Notification owning participant truth.
+- Candidate SH-026 `authorizeContextualResourceAccess` (Confirmed)/resume public interface — Candidate Application owner. **Local policy:** interview context only. **Prohibited duplicate:** local resume permission.
+- SH-030 `recordSensitiveAccess` (Confirmed) — Audit owner for configured resume/video/admin access.
+- SH-046 `publishDomainEvent` (Confirmed), SH-045 `deduplicateDomainEvent` (Confirmed), SH-047 `enqueueReliableJob` (Confirmed), SH-048 `executeRetryWithBackoff` (Confirmed) — reliable handoffs.
+- SH-037 `recordIntegrationFailure` (Confirmed) — Ops.
+- Video owner internally uses canonical SH-068 `invokeVideoProvider` (Confirmed); Job Interview must not.
 
 ### Domain Logic
 
@@ -1008,7 +1014,7 @@ Do not expose provider-native room APIs.
 - interview action authorized first;
 - resume review must also pass Candidate Application contextual authorization;
 - Video join request includes participant/interview/time context but Video makes token/grant decision;
-- sensitive resume/video/admin accesses use `recordSensitiveAccess` as required;
+- sensitive resume/video/admin accesses use SH-030 `recordSensitiveAccess` (Confirmed) as required;
 - notification variables are privacy-minimized.
 
 ### Database / Transaction Behavior
@@ -1081,7 +1087,7 @@ PASS only if all four owner contract suites pass; integration outage/retry/idemp
 
 ### Objective
 
-After U-CL06-16 is resolved, synchronize interview schedule changes to the canonical calendar owner through a provider-neutral contract, persist only approved local attachment state, and reconcile failures without making calendar provider state the interview source of truth.
+Using Confirmed Booking & Calendar SH-067 `invokeCalendarProvider` (Confirmed), once required local sync-field semantics are approved, synchronize interview schedule changes to that owner through a provider-neutral contract, persist only approved local attachment state, and reconcile failures without making calendar provider state the interview source of truth.
 
 ### Observable Result
 
@@ -1094,7 +1100,7 @@ Direct implementation of **CL-06 Feature 12 — Interview Calendar Sync and Reco
 ### Dependencies
 
 - Feature 05;
-- U-CL06-16/U-JI-03 resolved and architecture updated;
+- residual U-CL06-16/U-JI-03 local sync-field meaning approved where persisted; Booking & Calendar ownership is already confirmed;
 - U-JI-04 resolved if external meeting/calendar details overlap;
 - calendar owner public port;
 - provider owner webhook verification/dedupe/status/reconciliation capability;
@@ -1136,18 +1142,18 @@ Only the approved local sync attachment fields on `JobInterview`. Provider event
 
 Job Interview calls the calendar owner’s public interface. The calendar owner uses:
 
-- `invokeCalendarProvider`;
-- `verifyProviderWebhookSignature`;
-- `deduplicateProviderEvent`;
-- `translateProviderStatus`;
-- `reconcileProviderState`.
+- SH-067 `invokeCalendarProvider` (Confirmed);
+- SH-059 `verifyProviderWebhookSignature` (Confirmed);
+- SH-060 `deduplicateProviderEvent` (Confirmed);
+- SH-061 `translateProviderStatus` (Confirmed);
+- SH-062 `reconcileProviderState` (Confirmed).
 
 Job Interview itself uses:
 
-- `publishDomainEvent`/outbox;
-- `deduplicateDomainEvent` for normalized result;
-- `enqueueReliableJob`/`executeRetryWithBackoff` for handoff retries;
-- `recordIntegrationFailure` for visible degradation;
+- SH-046 `publishDomainEvent` (Confirmed)/outbox;
+- SH-045 `deduplicateDomainEvent` (Confirmed) for normalized result;
+- SH-047 `enqueueReliableJob` (Confirmed)/SH-048 `executeRetryWithBackoff` (Confirmed) for handoff retries;
+- SH-037 `recordIntegrationFailure` (Confirmed) for visible degradation;
 - idempotency/concurrency for local sync-state updates.
 
 ### Domain Logic
@@ -1213,7 +1219,7 @@ Owned by calendar capability, not Job Interview. Project overview currently name
 
 ### Documentation Updates
 
-Mandatory architecture update when U-CL06-16 is resolved. Document whether calendar fields remain on `JobInterview`, their meaning, and provider-neutral owner contract. If schema fields move, update migration/context before code.
+Record the later ruling on exact JobInterview-local external event/sync/error-field meaning before persisting those fields. Confirmed Booking & Calendar ownership is not reopened. Any schema relocation requires a separately approved database pass.
 
 ### Acceptance Criteria
 
@@ -1225,7 +1231,7 @@ Mandatory architecture update when U-CL06-16 is resolved. Document whether calen
 
 ### Exit Gate
 
-PASS only if U-CL06-16/U-JI-03 is resolved, calendar contract/provider-owner tests pass, duplicate/stale/outage/reconciliation paths pass, no direct provider code/dedupe truth exists in Job Interview, and CL-06 Feature 12 exit conditions are satisfied.
+PASS only if residual local sync-field semantics are approved where used, Confirmed Booking & Calendar contract/provider-owner tests pass, duplicate/stale/outage/reconciliation paths pass, no direct provider code/dedupe truth exists in Job Interview, and CL-06 Feature 12 exit conditions are satisfied.
 
 # Phase 7 — Privacy, Retention, Audit, and Evidence
 
@@ -1246,7 +1252,7 @@ Job Interview portion of **CL-06 Feature 13 — Privacy Executors, Retention, an
 ### Dependencies
 
 - Features 02–07 as enabled;
-- Privacy `enumerateSubjectData`, `executePrivacyInstruction`, `evaluateRetentionRequirement` protocol;
+- Privacy SH-096 `enumerateSubjectData` (Confirmed), SH-095 `executePrivacyInstruction` (Confirmed), SH-097 `evaluateRetentionRequirement` (Confirmed) protocol;
 - U-JI-06 retention/cascade policy resolved before destructive production execution;
 - U-JI-07 canonical target vocabulary resolved or versioned protocol explicitly supports generic owner targets;
 - Audit/Ops interfaces;
@@ -1257,8 +1263,8 @@ Job Interview portion of **CL-06 Feature 13 — Privacy Executors, Retention, an
 - enumerate interview records by candidate User/profile, participant User, scheduling actor where required by privacy definition;
 - inventory `JobInterview`, participants, events, local meeting/calendar references;
 - owner-local erase/anonymize/restrict/retain mapping;
-- `evaluateRetentionRequirement` facts;
-- `anonymizePersonalFields` mapping;
+- SH-097 `evaluateRetentionRequirement` (Confirmed) facts;
+- SH-098 `anonymizePersonalFields` (Confirmed) mapping;
 - delegate Thread/message, Video room/provider, Calendar provider resource deletion/revocation;
 - idempotent rerun behavior;
 - partial-failure reporting;
@@ -1283,21 +1289,21 @@ Potentially:
 
 ### Public Interfaces
 
-- Job Interview implementation of `enumerateSubjectData`;
-- Job Interview implementation of `executePrivacyInstruction`;
-- Job Interview owner facts for `evaluateRetentionRequirement`;
+- Job Interview implementation of SH-096 `enumerateSubjectData` (Confirmed);
+- Job Interview implementation of SH-095 `executePrivacyInstruction` (Confirmed);
+- Job Interview owner facts for SH-097 `evaluateRetentionRequirement` (Confirmed);
 - optional export serializer for privacy bundle contribution if Privacy protocol requires it.
 
 ### Shared Operations Used
 
-- `enumerateSubjectData`;
-- `executePrivacyInstruction`;
-- `evaluateRetentionRequirement`;
-- `anonymizePersonalFields`;
-- `executeIdempotentCommand`/reliable jobs for repeatable execution;
-- `appendAuditEvent` for destructive privacy execution if policy requires;
-- `recordSensitiveAccess` for protected privacy/admin reads where policy requires;
-- `recordIntegrationFailure` for delegated deletion failure.
+- SH-096 `enumerateSubjectData` (Confirmed);
+- SH-095 `executePrivacyInstruction` (Confirmed);
+- SH-097 `evaluateRetentionRequirement` (Confirmed);
+- SH-098 `anonymizePersonalFields` (Confirmed);
+- SH-044 `executeIdempotentCommand` (Confirmed)/reliable jobs for repeatable execution;
+- SH-029 `appendAuditEvent` (Confirmed) for destructive privacy execution if policy requires;
+- SH-030 `recordSensitiveAccess` (Confirmed) for protected privacy/admin reads where policy requires;
+- SH-037 `recordIntegrationFailure` (Confirmed) for delegated deletion failure.
 
 ### Domain Logic
 
@@ -1571,16 +1577,16 @@ Stabilize/version existing interfaces; only hardening-compatible additions such 
 
 ### Shared Operations Used
 
-- `executeIdempotentCommand`;
-- `acquireAggregateLock`;
-- `withOptimisticConcurrency`;
-- `publishDomainEvent` / `deduplicateDomainEvent`;
-- `enqueueReliableJob` / `executeRetryWithBackoff`;
-- `recordIntegrationFailure` and Ops incident correlation;
-- `appendAuditEvent` / `recordSensitiveAccess`;
+- SH-044 `executeIdempotentCommand` (Confirmed);
+- SH-051 `acquireAggregateLock` (Confirmed);
+- SH-052 `withOptimisticConcurrency` (Confirmed);
+- SH-046 `publishDomainEvent` (Confirmed) / SH-045 `deduplicateDomainEvent` (Confirmed);
+- SH-047 `enqueueReliableJob` (Confirmed) / SH-048 `executeRetryWithBackoff` (Confirmed);
+- SH-037 `recordIntegrationFailure` (Confirmed) and Ops incident correlation;
+- SH-029 `appendAuditEvent` (Confirmed) / SH-030 `recordSensitiveAccess` (Confirmed);
 - Privacy protocol;
-- provider-owner `reconcileProviderState` indirectly for Video/Calendar;
-- `runDeadlineExpiration` if proposal expiry approved.
+- provider-owner SH-062 `reconcileProviderState` (Confirmed) indirectly for Video/Calendar;
+- SH-055 `runDeadlineExpiration` (Confirmed) if proposal expiry approved.
 
 No new generic Job Interview infrastructure is permitted.
 
@@ -1716,11 +1722,11 @@ Identity actor
 → JobInterview source write
 → JobInterviewEvent + outbox
 → Candidate Application event/command boundary
-→ Messaging ensureContextThread
-→ Notification requestNotification
+→ Messaging SH-113 ensureContextThread (Confirmed)
+→ Notification SH-041 requestNotification (Confirmed)
 → Candidate resume authorization → Media grant
 → Video Infrastructure JobInterviewVideoRoom
-→ Calendar owner after U-CL06-16
+→ Confirmed Booking & Calendar provider boundary; approved local sync-field semantics where persisted
 → Audit sensitive-access proof
 → Privacy owner executor
 → Ops failure visibility
@@ -1848,9 +1854,9 @@ A completion report must not say PASS when required tests were skipped or a bloc
 Before treating the Module plan as implementation-ready, verify:
 
 1. `JobInterview`/`JobInterviewEvent` have one owner.
-2. Participant ownership is not treated as binding until U-CL06-14 is approved.
+2. Job Interview owns participant rows/role/status enums; remaining removal/eligibility/candidate-invariant behavior stays gated.
 3. Exact transition/reschedule semantics are not invented around U-CL06-15.
-4. Calendar implementation is blocked until U-CL06-16 is settled.
+4. Calendar mechanics use Confirmed Booking & Calendar; unresolved local sync-field meaning remains gated.
 5. Job Interview never writes JobApplication lifecycle truth.
 6. Job Interview is never implemented through Booking.
 7. Video room/provider mechanics remain Video-owned.

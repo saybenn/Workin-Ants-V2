@@ -5,8 +5,8 @@
 > **Module type:** `capability`  
 > **Build status:** `mvp_active`  
 > **Primary Cluster:** `CL-02 — Discovery, Classification & Visibility`  
-> **Repository target:** `context/modules/search_public_visibility/module-architecture.md`  
-> **Document status:** Implementation-grade Module architecture; subordinate to root Workin Ants architecture and the CL-02 Cluster architecture/build plan when present  
+> **Repository target:** `context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-architecture.md`\
+> **Document status:** Implementation-grade Module architecture; governed by context-map.md authority by concern and current CL-02 coordination\
 > **Audience:** coding agents, developers, reviewers, maintainers, security/privacy reviewers, search/integration reviewers  
 > **Update rule:** update this file only when a binding ownership, contract, lifecycle, provider, privacy, projection, or security decision for this Module changes. Build progress must not silently redefine architecture.
 
@@ -18,7 +18,7 @@ The current evidence set confirms that Search owns the search-projection work re
 
 Two evidence gaps materially affect implementation:
 
-1. A dedicated current `CL-02/architecture.md` and `CL-02/build-plan.md` were not available in the retrieved evidence. Until those artifacts are present, the Cluster Registry plus the root Workin Ants Phase 4 / Slice 4.4 govern sequencing. This file must be revalidated against a later CL-02 build plan rather than silently overriding it.
+1. The current CL-02 architecture and build plan are linked above and supply collaboration/sequencing evidence under context-map.md.
 2. The current Prisma `SearchUpsertEvent` is materially thinner than the confirmed canonical `SH-091 requestSearchProjectionRefresh` contract. The schema only stores `entityType`, `entityId`, optional `reason`, `processed`, `createdAt`, and `processedAt`; the canonical operation requires action/intent, source version, requester Module, and idempotency. The required reconciliation is recorded below as a **Proposed Ruling**, not treated as already implemented.
 
 Evidence labels used below:
@@ -26,6 +26,8 @@ Evidence labels used below:
 - **Confirmed** — directly supported by current registry/schema/glossary/shared-operation evidence.
 - **Proposed Ruling** — a concrete implementation-grade resolution strongly supported by the evidence but requiring architecture acceptance before schema/API commitment.
 - **Unresolved** — a real question that the evidence does not safely settle.
+
+Current coordination: [Cluster architecture](<../discovery-classification-architecture.md>) and [Cluster build plan](<../discovery-classification-build-plan.md>). Locate supporting artifacts through [context-map.md](<../../../context-map.md>); authority follows concern, not location or age. Root architecture/build-plan files are currently unavailable and do not supply enforceable phases.
 
 ---
 
@@ -42,7 +44,7 @@ Evidence labels used below:
 | Intended audience | Coding agents, developers, reviewers, security/privacy/search maintainers |
 | Relationship to root architecture | Inherits global source-of-truth, authorization, privacy, audit, queue, observability, provider-adapter, and testing rules. Search-specific rules here narrow those decisions. |
 | Relationship to Cluster architecture | Implements CL-02's projection/public-surface responsibility; Taxonomy owns accepted classification and AI Taxonomy owns proposals. Search must not absorb either. |
-| Relationship to root build plan | Primarily implements root **Phase 4 — Taxonomy, AI Suggestions, and Search Projection**, especially Slice **4.4 SearchUpsertEvent and Typesense projection**. Later integrations align with the phases that establish their source Modules. |
+| Relationship to Cluster build plan | CL-02 Features 02–03 establish basic Search, 09 integrates public sources, 10 protected Candidate Search, 11 prerequisite/reaction slices, and 12–13 reconciliation/hardening. External owner contracts must exist before production integration. |
 | Update rule | Change only for binding architecture changes; implementation progress belongs in progress tracking. |
 
 ---
@@ -415,11 +417,13 @@ disabled
 
 Search may index only the owner-approved projection state. `rawResumeTextIndexed` must never be used as permission to ingest raw resume text; the platform rule is to keep raw resume text out of Search.
 
-### 8.5 Proposed schema hardening
+### 8.5 Approved durable semantics and unresolved physical representation
 
-**PR-SPV-01 — Proposed Ruling:** reconcile `SearchUpsertEvent` with the confirmed `SH-091` contract before production worker implementation.
+**CL02-R008 — Approved semantic requirement:** Search owns durable SH-091 request identity/context, source version/currentness, idempotency, requester identity, action, claimability, successful completion, retry/operator failure, and stale/superseded outcomes. Shared queues own transport, attempts, backoff, and dead-letter mechanics; they are not the sole truth for Search currentness/outcome. The current `processed` Boolean is insufficient for the final production lifecycle.
 
-Minimum additive semantics should include:
+**PR-SPV-01 — Physical design remains proposed:** expanding SearchUpsertEvent versus another Search-owned representation, exact fields/enums, and migration strategy require a separate database decision. No physical choice is approved by this reconciliation.
+
+Illustrative field names only; not an approved additive schema:
 
 ```text
 intent              # index | update | hide | remove | restore, or an approved equivalent
@@ -433,7 +437,7 @@ outcome?            # upserted | removed | skipped | no_op, or approved equivale
 
 Generic attempt count, lease, heartbeat, next-attempt timestamp, and dead-letter truth should remain in shared queue/Observability infrastructure unless the canonical queue architecture explicitly requires a reference field here.
 
-This ruling is needed because the current boolean cannot safely implement canonical idempotency, stale-work protection, removal intent, or terminal-failure proof.
+CL02-R008 approves those semantic requirements. It does not approve the illustrative field names, exact state graph, or an additive-only schema design.
 
 ---
 
@@ -453,7 +457,7 @@ This is the only lifecycle currently represented by Prisma.
 
 ### 9.2 Target lifecycle — Proposed Ruling
 
-If PR-SPV-01 is approved, use an explicit work-state machine:
+CL02-R008 requires durable work outcomes, but the following exact state names/graph remain a proposal pending separate persistence/lifecycle detail approval:
 
 ```text
 pending
@@ -604,7 +608,7 @@ anything else
 
 **Consumer must not infer:** resume content, JobApplication state, candidate suitability, hiring recommendation, or background-check truth.
 
-This query must not be activated in root Phase 4 because the root plan explicitly defers candidate search beyond privacy-safe projection. It belongs after the CL-06 candidate/public-interface dependencies exist.
+This query belongs to CL-02 Feature 10 and remains disabled until CL-06 owner interfaces, the enforcement prerequisites, and the separately approved protected-search policy exist.
 
 ### `inspectSearchProjection`
 
@@ -776,10 +780,10 @@ Aliases such as `enqueueSearchProjection`, `enqueueProjectionUpdate`, `enqueuePr
 | --- | --- | --- | --- | --- | --- |
 | `composeSearchVisibilityDecision` | map owner decisions to Search surface action | surface + readiness + source version | upsert/remove/exclude/no-op | none | Search owns final provider projection decision, not source policy |
 | `resolveSearchCollection` | route entity/surface to provider collection/schema version | entityType + surface | collection descriptor | none | Search provider topology is Search-owned |
-| `buildSearchProjectionDocument` | transform approved source projection into provider document | SH-094 result + approved signals | versioned provider document | none | provider representation belongs to Search |
+| `buildSearchProjectionDocument` (Search-local SH-115 projection behavior) | transform approved source projection into provider document | SH-094 result + approved signals | versioned provider document | none | provider representation belongs to Search |
 | `processSearchProjectionWork` | execute one Search work item | Search work ID | terminal/retry/no-op result | `SearchUpsertEvent` | core Search work lifecycle |
 | `applySearchRankingSignals` | attach approved nonauthoritative ranking metadata | eligible document + trust/entitlement signals | ranked document fields | provider document only | Search owns ranking behavior after eligibility |
-| `classifySearchProviderError` | map provider error to safe retry/permanent category | provider error | normalized Search error | none | adapter-specific translation remains Search-owned |
+| `classifySearchProviderError` (local SH-061 mapping) | map provider error to safe retry/permanent category | provider error | normalized Search error | none | adapter-specific translation remains Search-owned |
 | `buildReconciliationExpectation` | compute expected provider identity/version from source contracts | source projection/readiness | expected doc descriptor | none | reconciliation semantics are Search-owned |
 | `inspectProjectionState` | combine Search work + provider presence/version into debug result | entity/event | diagnostic DTO | none | Search-specific ops surface |
 
@@ -922,7 +926,7 @@ No Typesense webhook workflow is confirmed. Do not implement webhook verificatio
 
 Not applicable today. Search work idempotency is driven by Workin Ants `SearchUpsertEvent`, source version, and shared command/job idempotency.
 
-### Status/error translation
+### Status/error translation — SH-061 `translateProviderStatus`
 
 Translate provider errors into stable Search/operational categories such as:
 
@@ -937,11 +941,15 @@ Raw provider error bodies do not cross public interfaces.
 
 ### Reconciliation
 
-SH-093 is mandatory for drift repair. It must support dry run, cursor/checkpoint, projection version, stale/missing/orphan detection, and privacy/moderation verification before repair.
+SH-115 `buildAggregateProjection` identifies Search-owned versioned projection/rebuild behavior; inclusion/ranking and owner-safe input policy remain local. SH-093 is mandatory for drift repair. It must support dry run, cursor/checkpoint, projection version, stale/missing/orphan detection, and privacy/moderation verification before repair.
 
 ### Retry and idempotency
 
 Use SH-047/048. Do not implement `typesenseRetry.ts` as an independent retry framework.
+
+### Retention requirements — SH-097 `evaluateRetentionRequirement`
+
+Search supplies retention facts for its owned work/provider references through SH-097 when required; Privacy records exemptions. Return the approved reason/basis, retain-until, minimum fields, permitted anonymization, and source reference. This does not approve retention policy or a field-level anonymization mapping. No generic SH-098 dependency is introduced.
 
 ### Privacy deletion
 
@@ -1458,7 +1466,7 @@ Do not create inside this Module:
 
 The following must be settled explicitly rather than guessed during coding:
 
-1. **SearchUpsertEvent schema hardening:** approve PR-SPV-01 exact field names/enums/migration and deprecation path for `processed`.
+1. **Search work physical representation:** separately decide whether to expand SearchUpsertEvent or use another Search-owned representation, plus fields/enums/migration satisfying CL02-R008. The existing Boolean is not the final production lifecycle.
 2. **Collection topology:** one multi-entity public collection versus per-entity collections/aliases, and exact schema migration strategy.
 3. **Protected candidate collection topology:** exact collection/key/query isolation and whether query is always server-mediated.
 4. **`SearchEntityType.user`:** remove/deprecate, reserve internally, or define a safe public use case. Default remains non-indexable.
@@ -1491,9 +1499,9 @@ Binding rulings for implementation:
 - Ranking signals apply only after eligibility. TrustBadge/entitlement boosts cannot confer eligibility.
 - Privacy and Moderation own decisions/orchestration; Search implements their target-executor effects through SH-095/SH-103.
 - Generic queue, idempotency, audit, sensitive-access logging, failures, metrics, and incident management are reused shared mechanisms.
-- The current `SearchUpsertEvent.processed` boolean is insufficient for the confirmed canonical refresh contract; production implementation must settle PR-SPV-01 before relying on a durable worker lifecycle.
+- The current `SearchUpsertEvent.processed` boolean is insufficient for the confirmed canonical refresh contract; CL02-R008 approves durable semantic requirements; production persistence still requires the separate PR-SPV-01 physical design decision.
 - `SearchEntityType.user` is fail-closed/non-indexable until explicitly ruled otherwise.
-- Root Phase 4 implements the basic public Search projection. Protected candidate search waits for the later CL-06 dependencies and may not be pulled forward merely because Typesense exists.
+- CL-02 Features 02–03 establish basic public Search. Protected Candidate Search waits for Feature 10 owner/enforcement dependencies and cannot be enabled merely because Typesense exists.
 
 ---
 
@@ -1501,13 +1509,13 @@ Binding rulings for implementation:
 
 Before implementing any numbered feature in this Module, the coding agent must read, in order:
 
-1. root `project-overview.md`;
-2. root `architecture.md`;
-3. root `code-standards.md`;
+1. `context/project-overview-v3.md` (orientation; see context map);
+2. context-map.md notes root architecture is unavailable; use the applicable existing concern owner;
+3. repository instructions; referenced code standards are unavailable in context-map.md;
 4. `context/shared/shared-operations.md` / Canonical Shared Operations Registry;
 5. current CL-02 architecture, if present;
 6. current CL-02 build plan, if present;
-7. root `build-plan.md`, especially Phase 4 and the later phase linked by the target feature;
+7. current linked CL-02 build plan and the target feature's actual external prerequisites;
 8. this `module-architecture.md`;
 9. this Module's `implementation-plan.md`;
 10. public-interface sections for direct dependencies used by the feature;

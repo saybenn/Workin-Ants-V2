@@ -3,7 +3,7 @@
 > **Cluster ID:** `CL-02`  
 > **Cluster name:** Discovery, Classification & Visibility  
 > **Cluster type:** `discovery_taxonomy_projection`  
-> **Repository target:** `context/clusters/discovery-classification-visibility/architecture.md`  
+> **Repository target:** `context/clusters/discovery classification & taxonomy/discovery-classification-architecture.md`\
 > **Document status:** Target Cluster architecture for the Workin Ants MVP, grounded in the current Project Overview, Deep Module Registry, Cluster Registry v2.3, Prisma schema, Ubiquitous Language / Compliance Inventory, all three CL-02 Module Architecture Extracts, and the Canonical Shared Operations Registry  
 > **Audience:** coding agents, developers, reviewers, maintainers, search/relevance reviewers, privacy reviewers, compliance reviewers, and architecture reviewers  
 > **Update rule:** update this file whenever a binding CL-02 ownership, classification, AI, projection, privacy, ranking, provider, lifecycle, or cross-Cluster decision changes. Build progress must not silently redefine this architecture.
@@ -15,6 +15,8 @@ Evidence labels used in this document:
 - **Confirmed** — directly supported by the current registry, Prisma schema, glossary/compliance evidence, canonical shared-operation rulings, or repeated Module evidence.
 - **Proposed Ruling** — an implementation-grade decision strongly supported by the evidence but not yet cleanly settled across all authoritative sources.
 - **Unresolved** — the evidence establishes a real question, conflict, or missing contract and does not support a safe final answer.
+
+Current coordination: [Cluster architecture](<discovery-classification-architecture.md>) and [Cluster build plan](<discovery-classification-build-plan.md>). Locate supporting artifacts through [context-map.md](<../../context-map.md>); authority follows concern, not location or age. Root architecture/build-plan files are currently unavailable and do not supply enforceable phases.
 
 ---
 
@@ -48,7 +50,7 @@ How is a platform object classified?
 → how is that approved truth projected into search without becoming source truth?
 ```
 
-This architecture is subordinate to the root Workin Ants architecture. If this file conflicts with a confirmed root ruling, the root ruling controls unless it is explicitly changed.
+Apply context-map.md authority by concern. Root architecture is currently unavailable; no blanket root/Cluster precedence is inferred over Module ownership or lifecycle.
 
 The Prisma schema remains executable schema evidence. This file explains semantic ownership, lifecycle meaning, projection boundaries, provider boundaries, and collaboration rules that Prisma alone cannot express.
 
@@ -58,12 +60,12 @@ Module-specific architecture remains authoritative for Module-local behavior. Th
 
 The current evidence contains several real gaps that must not be hidden:
 
-- the Deep Module Registry broadly assigns taxonomy joins to Taxonomy & Classification, while entity Modules and the glossary claim or imply ownership of some join lifecycles;
+- contextual join lifecycle ownership is resolved by CL02-R001: each classified entity owner creates, updates, deletes, and handles privacy for its own joins;
 - `AiSuggestion` and `AiClassificationLog` are canonical AI Taxonomy truth in the registry/glossary but are absent from the supplied Prisma schema;
 - the AI suggestion disposition/acceptance lifecycle is not modeled;
 - the exact semantics of `verified` and `confidence` on tag joins are unresolved;
 - Taxonomy registry claims for tag-level healthcare/location triggers exceed the current Prisma fields;
-- `DataSensitivity` is used across multiple domains without a confirmed evolution owner;
+- `DataSensitivity` meaning is governed by canonical Ubiquitous Language/compliance material; Taxonomy consumes it without redefining it (CL02-R010);
 - `SearchUpsertEvent` is intentionally minimal and does not itself express every projection failure/retry state;
 - public/protected Typesense collection boundaries and ranking details are not fully specified;
 - candidate discovery depends on Candidate-owned privacy projection plus organization authority and Track entitlement, none of which Search may recreate.
@@ -185,7 +187,7 @@ CL-02 does not become source truth for:
 
 | Module ID | Module name | Module type | Purpose | Owned truth | Primary responsibility in CL-02 | Major inbound dependencies | Major outbound consumers |
 |---|---|---|---|---|---|---|---|
-| `taxonomy_classification` | Taxonomy & Classification | `capability` | Maintain controlled Domain/Category/Tag vocabulary and accepted classification semantics | `TaxonomyDomain`, `TaxonomyCategory`, `TaxonomyTag`, `TagSource`, hierarchy, normalization policy, term activation, classification validity, classification-trigger interpretation; taxonomy-join lifecycle ownership remains partly unresolved | Define what classifications mean and whether a proposed assignment is canonical/valid | Identity/Role for administration; entity owners; AI Taxonomy; Trust Verification; Healthcare; Search | Search; Marketplace Supply; Gig / Demand; Organization Hiring; Candidate Application; Professional Eligibility; Healthcare; Trust Verification; AI Taxonomy |
+| `taxonomy_classification` | Taxonomy & Classification | `capability` | Maintain controlled Domain/Category/Tag vocabulary and accepted classification semantics | `TaxonomyDomain`, `TaxonomyCategory`, `TaxonomyTag`, `TagSource`, hierarchy, normalization policy, term activation, classification validity, classification-trigger interpretation; contextual taxonomy-join lifecycle belongs to each classified entity owner | Define what classifications mean and whether a proposed assignment is canonical/valid | Identity/Role for administration; entity owners; AI Taxonomy; Trust Verification; Healthcare; Search | Search; Marketplace Supply; Gig / Demand; Organization Hiring; Candidate Application; Professional Eligibility; Healthcare; Trust Verification; AI Taxonomy |
 | `ai_taxonomy` | AI Taxonomy | `capability` | Produce structured, validated, traceable AI taxonomy/skill suggestions without converting them directly into accepted truth | Conceptually `AiSuggestion` and `AiClassificationLog`; prompt/model version semantics; AI suggestion confidence/provenance; classification-run outcomes | Generate proposals and preserve model-run evidence | Taxonomy vocabulary; source-owner classification snapshots; privacy/healthcare data-boundary decisions; Role/Authority; provider adapter; Ops | Taxonomy; Marketplace Supply; Organization Hiring; Candidate Application; Admin Review; potentially Search diagnostics only after acceptance |
 | `search_public_visibility` | Search / Public Visibility | `capability` | Maintain rebuildable, privacy-safe public/protected discovery projections | `SearchUpsertEvent`, `SearchEntityType`, provider document schemas, Typesense adapter behavior, projection execution, de-index/re-index/backfill/debug behavior, public/protected query behavior | Turn owner-approved source truth into search-provider state and discovery results | Source entity owners; Taxonomy; Professional Eligibility; Job Compliance; Candidate Privacy; Trust; Healthcare where applicable; Location Safety; Moderation; Privacy; Holds; Track; Identity/Role; Ops | Public discovery; protected organization candidate search; business surfaces; moderation/privacy workflows; admin/debug |
 
@@ -302,7 +304,7 @@ The target interaction is:
 
 ```text
 Authorized reviewer
-→ Taxonomy acceptance workflow
+→ SH-121 applyAiSuggestion acceptance workflow
 → fetch AI-owned suggestion through AI public query
 → validate current taxonomy and target context
 → accepted taxonomy / attachment mutation by the approved lifecycle owner
@@ -311,7 +313,7 @@ Authorized reviewer
 → Search receives SH-091 projection refresh only after accepted truth exists
 ```
 
-The exact attachment owner and suggestion-disposition transaction protocol remain architecture-gated by `U-CL02-01`, `U-CL02-04`, and `U-CL02-05`.
+CL02-R001/R003 resolve attachment ownership and acceptance choreography through confirmed SH-121 `applyAiSuggestion`. Taxonomy validates the canonical classification decision; the contextual entity owner commits its assignment. AI records acceptance only after that mutation succeeds. Retries retain the suggestion version/idempotency context; a failed acknowledgement is retried without repeating or reversing accepted truth. Rejection, expiry, cancellation, and supersession without an accepted mutation remain AI proposal lifecycle concerns. U-CL02-04 still gates exact AI persistence/lifecycle details; U-CL02-13 still gates exact event vocabulary/version.
 
 ### Search projection
 
@@ -332,7 +334,7 @@ Source change / taxonomy change / moderation / privacy / entitlement change
 → queue/integration telemetry
 ```
 
-**Proposed Ruling PR-CL02-03:** interpret `SearchUpsertEvent` as a **refresh-to-current-source-truth request** even though its historical name says “Upsert.” The worker decides at execution time whether the correct provider effect is create/update or delete. This avoids inventing a second de-index queue and keeps retries/attempts in the canonical queue infrastructure rather than duplicating them in Search.
+**PR-CL02-03 — Semantic requirements approved by CL02-R008:** Search owns durable refresh-work identity/context, source version/currentness, idempotency, requester, requested action, claimability, completion, retry/operator failure, and stale/superseded outcomes. Generic queues own transport, attempts, backoff, and dead-letter mechanics. The current `processed` Boolean is insufficient for the final production lifecycle. Expanding or replacing SearchUpsertEvent remains a separate schema decision.
 
 ### Thin delivery rule
 
@@ -541,6 +543,8 @@ No CL-02 provider webhook/event-deduplication record is currently confirmed. Bed
 
 ## 9. Lifecycle Ownership
 
+CL02-R010 limits SH-022 `resolveTaxonomyRequirements` to approved, represented source facts: Category verification/healthcare/sensitivity and represented Tag verification or approved bindings. No invented Tag healthcare/sensitivity/location rules or hardcoded category lists are permitted. `DataSensitivity` meaning comes from Ubiquitous Language/compliance authority. Trigger output never proves downstream readiness. Future trigger expansion remains unresolved under U-CL02-06.
+
 ### 9.1 Taxonomy term lifecycle
 
 **Owner:** Taxonomy & Classification.
@@ -560,7 +564,7 @@ Only Taxonomy may change term state.
 
 ### 9.2 Taxonomy assignment lifecycle
 
-**Owner:** unresolved for entity-specific join rows.
+**Owner:** the Module owning the classified entity (CL02-R001).
 
 Confirmed facts:
 
@@ -569,9 +573,9 @@ Confirmed facts:
 - contextual entity Modules own their business entity lifecycle;
 - duplicate repositories for the same join rows are prohibited.
 
-**PR-CL02-01 — Proposed Ruling:** contextual entity Modules own create/delete lifecycle of their entity-specific taxonomy join rows, while Taxonomy owns validation, canonical IDs, normalization, and classification-trigger semantics. A contextual owner may write an attachment only after `SH-023 validateTaxonomyAssignment` succeeds. Taxonomy must never acquire a generic write repository for all business entities.
+**PR-CL02-01 — Approved by CL02-R001:** contextual entity Modules own create/update/delete and privacy lifecycle of their entity-specific taxonomy join rows, while Taxonomy owns validation, canonical IDs, normalization, and classification-trigger semantics. A contextual owner may write an attachment only after `SH-023 validateTaxonomyAssignment` succeeds. Taxonomy must never acquire a generic write repository for all business entities.
 
-This ruling must be approved before join repositories/services are committed.
+U-CL02-01 is resolved. Professional, Candidate, Organization, Offering, Gig, and Job classification attachments follow their respective entity owners. Taxonomy owns canonical semantics and SH-023 validation, never foreign join repositories.
 
 ### 9.3 AI classification-run lifecycle
 
@@ -590,11 +594,12 @@ The evidence requires a split:
 
 ```text
 AI creates proposal truth
-→ Taxonomy accepts/rejects for platform classification
+→ SH-121 acceptance validated by Taxonomy and persisted by the contextual entity owner
+→ rejection without accepted mutation remains AI proposal lifecycle
 → AI records the disposition/reference on its own proposal
 ```
 
-The exact status vocabulary and acknowledgement protocol are unresolved.
+The acceptance ordering and replay boundary are approved by CL02-R003; exact AI status vocabulary remains unresolved under U-CL02-04 and event vocabulary/version under U-CL02-13.
 
 `AiSuggestion.status=accepted` must never be the only proof of accepted taxonomy; accepted term/attachment truth must exist in the Taxonomy/contextual record.
 
@@ -610,14 +615,9 @@ processed = false
 → processed = true + processedAt
 ```
 
-**PR-CL02-03 — Proposed Ruling:** `SearchUpsertEvent` represents a request to converge the provider projection to **current authoritative source truth**. At processing time:
+**PR-CL02-03 — Semantic requirements approved by CL02-R008:** durable Search-owned work must preserve canonical SH-091 identity/context, source version/currentness, idempotency, requester, action, whether work is claimable, successful completion, retry/operator failure, and stale/superseded outcomes.
 
-- eligible/currently public source → upsert/update provider document;
-- ineligible/hidden/erased/missing source → delete provider document;
-- transient provider failure → leave source work unprocessed and retry through SH-047/048;
-- terminal operational failure → remain visibly unresolved through Search debug + Ops dead-letter evidence.
-
-Attempts, leases, and dead-letter metadata belong to generic queue infrastructure, not duplicated Search columns.
+Search rechecks authoritative source readiness before its provider effect. Shared queues own attempts, transport, backoff, and dead-letter mechanics; they cannot be the sole truth for Search currentness/outcome. The current `processed` Boolean is not the final production lifecycle. Whether SearchUpsertEvent is expanded or succeeded by another Search-owned representation remains undecided and requires a separate database pass.
 
 ### 9.6 Search provider-document lifecycle
 
@@ -652,9 +652,11 @@ Search may index an approved protected-provider document derived from the Candid
 | **SH-023 `validateTaxonomyAssignment`** | Taxonomy | all classifiable source Modules | Validate hierarchy, active state, and assignment compatibility | entity type/context + Domain/Category/Tag IDs | valid/invalid + normalized canonical IDs/reasons | decision | local tag validators |
 | **SH-022 `resolveTaxonomyRequirements`** | Taxonomy | Professional Eligibility, Trust, Healthcare, Search/source owners | Translate accepted classification into triggered requirements | accepted Domain/Category/Tag IDs + context | requirement refs, owners, trigger sources, severity/applicability | decision/requirements | whether requirements are satisfied |
 | `create/update/setActive Taxonomy*` | Taxonomy | authorized admins | Administer vocabulary | validated term/policy input + actor/reason | updated canonical term | truth mutation | direct Prisma writes from admin UI |
-| `decideAiClassificationSuggestion` | Taxonomy | admin/review workflow; AI | Accept/reject an AI proposal for platform classification | suggestion reference + target + reviewer + selected canonical term(s) | decision reference + resulting accepted classification refs | decision | AI-owned run mutation or Search write |
+| **SH-121 `applyAiSuggestion`** | AI Taxonomy / Taxonomy workflow | authorized reviewer | Accept an AI proposal using canonical taxonomy validation and the contextual owner mutation | suggestion ID/version + target + selected canonical term + reviewer + reason + idempotency key | accepted mutation reference + decision result | acceptance workflow | AI provenance ownership, foreign join mutation by Taxonomy, or Search writes |
 
-The final name/shape of `decideAiClassificationSuggestion` is a Proposed Ruling and depends on `U-CL02-01/04/05`.
+SH-121 is the confirmed canonical acceptance workflow. Descriptive flow names are not alternate canonical operations. Required audit evidence accompanies the accepted mutation. AI-owned rejection does not mutate canonical taxonomy, contextual joins, or Search.
+
+Taxonomy also exposes **SH-024 `evaluatePublicReadiness`** for its own searchable records and **SH-094 `buildSourceProjection`** for allowlisted, versioned taxonomy source data. SH-094 may carry the owner-computed readiness result; Search must not infer readiness from `isActive`, hierarchy, or repository state. Parent/effective-activity-dependent rules remain gated by U-CL02-07 (CL02-R005).
 
 ### AI Taxonomy interfaces
 
@@ -664,15 +666,15 @@ The final name/shape of `decideAiClassificationSuggestion` is a Proposed Ruling 
 | `getSuggestionsForTarget` | AI Taxonomy | Taxonomy, source owner, admin | Read proposals and provenance | target ref + scope | suggestion DTOs + confidence/provenance | truth about proposal | acceptance |
 | `getClassificationRun` | AI Taxonomy | authorized admin/Ops | Diagnose one run | run ID | model/prompt version, safe input/output metadata, outcome | evidence | AuditEvent or Ops incident |
 | `listSuggestionsForReview` | AI Taxonomy | Taxonomy/admin review | Obtain review candidates | filters/cursor | proposal list | proposal truth | final classification |
-| `acknowledgeSuggestionDecision` | AI Taxonomy | Taxonomy workflow | Record that Taxonomy made a decision | suggestion ID + Taxonomy decision ref/outcome | updated proposal disposition | proposal truth | taxonomy mutation |
+| `recordSuggestionDisposition` | AI Taxonomy | Taxonomy workflow | Record acceptance after successful SH-121 owner mutation | suggestion ID + Taxonomy decision ref/outcome | updated proposal disposition | proposal truth | taxonomy mutation |
 
-The last interface and exact lifecycle are blocked on `U-CL02-04/05`.
+The handoff obeys CL02-R003. Its exact persistence/status contract remains gated by U-CL02-04; any event name/version remains gated by U-CL02-13.
 
 ### Search / Public Visibility interfaces
 
 | Interface | Owner | Consumers | Purpose | Minimum input | Minimum output | Returns | Consumers must not infer/recreate |
 |---|---|---|---|---|---|---|---|
-| **SH-091 `requestSearchProjectionRefresh`** | Search | all source/decision owners | Request convergence of provider state to current source truth | entity type + entity ID + reason + idempotency context | refresh-event/work reference | projection request truth | direct Typesense writes |
+| **SH-091 `requestSearchProjectionRefresh`** | Search | all source/decision owners | Request convergence of provider state to current source truth | `entityType` + `entityId` + `action` + `reason` + `sourceVersion` + `requesterModule` + `idempotencyKey` | refresh-event/work reference | projection request truth | direct Typesense writes |
 | `searchPublicDiscovery` | Search | public product surfaces | Search public eligible projections | query, approved filters/facets, paging/sort | safe result DTOs + paging | projection | business lifecycle truth |
 | `searchCandidatesForOrganization` | Search | authorized Organization Hiring surfaces | Protected candidate discovery | authenticated org actor/context, query, filters | privacy-safe candidate results | protected projection | raw resume/application truth |
 | `inspectSearchProjection` | Search | authorized admins/Ops | Explain indexed/excluded/stale/failed state | entity type + ID | source/projection status, safe reasons, provider metadata | projection/debug evidence | source policy ownership |
@@ -701,6 +703,7 @@ Only operations materially required by CL-02 are listed here. Their full definit
 | SH-001 `resolveAuthenticatedActor` | Identity & Access | all protected admin/AI/search operations | trusted actor resolution | which CL-02 actions are public vs protected | admin/review/protected-search entry | route-local current-user helpers |
 | SH-002 `authorizeResourceAction` | Role / Authority | all three | resource/action decision | taxonomy admin actions, AI review/backfill actions, search admin/candidate-search facts | before protected read/mutation | local CL-02 role engines |
 | SH-003 `queryOwnerFacts` **Proposed** | source owner | AI, Search, Taxonomy integration | minimum owner relationship facts | exact source DTO | before cross-Module policy/read | universal entity repository |
+| SH-123 `validateOwnedTargetReference` | target owner | Taxonomy; AI | target existence and relationship eligibility | target version/status and relationship context | before assignment/target-dependent classification | foreign repository access; SH-003 facts as eligibility substitute |
 | SH-005 `resolveEntitlement` | Track Subscription & Entitlement | Search | commercial boost/protected-search entitlement | how Search applies a permitted boost after readiness | ranking/protected candidate query | premium/boost booleans |
 | SH-011 `evaluateComplianceHold` | Admin Review / Compliance Hold | Search; Taxonomy/AI where action-specific | reusable stop-sign decision | which CL-02 action is blocked | readiness/review/admin action | `searchBlocked`, `aiBlocked` generic flags |
 | SH-022 `resolveTaxonomyRequirements` | Taxonomy & Classification | source/compliance consumers; Search composition where needed | accepted classification → requirement refs | taxonomy trigger rules | after accepted classification | local requirement maps |
@@ -764,6 +767,8 @@ Owner of authoritative write: Taxonomy.
 
 Hard delete/merge is not enabled until `U-CL02-07` is resolved.
 
+Taxonomy identifies changed canonical terms. Each contextual join owner enumerates its own affected entity IDs for fanout through SH-091/SH-093. Neither Taxonomy nor Search scans foreign join repositories. Enumeration ownership is resolved by CL02-R007; external owner-enumerator contracts must be supplied by their owners, and exact domain-event names/versions remain unresolved under U-CL02-13.
+
 ### Flow B — Manual entity classification
 
 ```text
@@ -776,7 +781,7 @@ Source entity owner receives classification change
 → source owner requests SH-091 Search refresh if public projection may change
 ```
 
-The assignment write is blocked until `U-CL02-01/02` is resolved.
+The assignment owner is resolved by CL02-R001; any exposed join metadata remains gated by U-CL02-02.
 
 ### Flow C — AI classification suggestion
 
@@ -799,18 +804,19 @@ No taxonomy or search write occurs in this flow.
 
 ### Flow D — Accept or reject AI suggestion
 
+Acceptance uses confirmed SH-121 `applyAiSuggestion` with suggestion ID/version, target, selected canonical term, reviewer, reason, idempotency key, and audit evidence:
+
 ```text
-Reviewer command
-→ actor + authorization
-→ Taxonomy loads AI proposal through AI public interface
-→ Taxonomy revalidates current canonical terms and target context
-→ accepted classification write by approved assignment owner OR no write on rejection
-→ Taxonomy records decision reference/event
-→ AI acknowledges disposition on AiSuggestion
-→ Search refresh requested only if accepted source truth changed
+Authorized reviewer
+→ AI-owned versioned proposal lookup
+→ Taxonomy canonical term/decision validation
+→ SH-123 target-owner validation
+→ contextual entity owner commits accepted assignment
+→ AI records acceptance with the successful mutation reference
+→ source owner requests SH-091 after accepted truth exists
 ```
 
-This flow is gated by `U-CL02-01`, `U-CL02-04`, and `U-CL02-05`.
+A failed accepted mutation cannot produce an AI accepted disposition. Retry the same suggestion version/idempotency context; if only AI acknowledgement fails, retry that handoff without duplicating accepted classification. Rejection and other proposal-only dispositions remain AI-owned and do not mutate Taxonomy, contextual joins, or Search. Exact AI lifecycle/schema remains gated by U-CL02-04 and exact events by U-CL02-13.
 
 ### Flow E — Source object becomes discoverable
 
@@ -1565,7 +1571,7 @@ Typesense:
 
 1. CL-02 is a coordination boundary, not a lifecycle owner.
 2. `TaxonomyDomain`, `TaxonomyCategory`, and `TaxonomyTag` remain Taxonomy & Classification truth.
-3. Do not build taxonomy join repositories until the join-owner ruling is approved.
+3. Contextual entity owners alone implement their taxonomy join repositories under CL02-R001; Taxonomy supplies SH-023 validation.
 4. Do not create two services that both mutate the same taxonomy join.
 5. AI output is never accepted taxonomy merely because provider validation succeeded.
 6. `AiSuggestion` is proposal truth; it is not `TaxonomyTag`, a join, or a Search document.
@@ -1638,14 +1644,14 @@ Coding agents must not create:
 
 | ID | Question | Why unresolved | Missing evidence / decision | What it blocks |
 |---|---|---|---|---|
-| `U-CL02-01` | Who owns create/update/delete lifecycle for each taxonomy join? | Registry and glossary/entity Modules conflict | explicit one-owner ruling per join | join repositories; accepted entity-classification mutation |
+| `U-CL02-01` | RESOLVED — CL02-R001 | Contextual entity owners own join create/update/delete/privacy | PR-CL02-01 approved | Owner contracts and unresolved metadata policy still gate implementation |
 | `U-CL02-02` | What do tag-join `verified` and `confidence` mean, and what confidence scale/source is valid? | Prisma fields exist without canonical semantics | Taxonomy semantic ruling | safe use of join metadata; AI confidence snapshot |
 | `U-CL02-03` | Should `TagSource.candidate` exist, and what provenance should candidate-authored tags use now? | Prisma comments it out; candidate joins exist | product/taxonomy provenance decision | candidate self-tagging provenance |
 | `U-CL02-04` | What exact Prisma models/enums define `AiSuggestion` and `AiClassificationLog`, including run/suggestion statuses? | Canonical records are absent from Prisma | approved AI schema/lifecycle contract | AI persistence, production worker/review |
-| `U-CL02-05` | How does Taxonomy accept/reject an AI proposal and AI record disposition without split ownership or a dual write? | final acceptance is Taxonomy-owned while proposal record is AI-owned | workflow/event/command contract + atomicity/idempotency rule | end-to-end AI acceptance |
-| `U-CL02-06` | Can Tags independently trigger healthcare, sensitivity, or location rules, and who owns `DataSensitivity` evolution? | registry/glossary exceed current Tag fields; shared enum ownership unclear | schema/policy ruling | tag-level trigger behavior; migrations |
+| `U-CL02-05` | Choreography RESOLVED — CL02-R003 | SH-121 acceptance, owner mutation before AI disposition, idempotent retries | Exact AI lifecycle and event vocabulary remain U-CL02-04/13 | Dependent persistence/event implementation |
+| `U-CL02-06` | Future Tag/location trigger expansion remains unresolved | Current supported facts bounded by CL02-R010; DataSensitivity meaning follows language/compliance authority | Approved future policy/schema/contract | Unsupported trigger expansion |
 | `U-CL02-07` | What is taxonomy hard-delete, parent-inactive, merge/alias, history/version policy? | current `isActive` and destructive cascades are insufficiently specified | lifecycle/history decision | destructive admin commands; term merge/backfill |
-| `U-CL02-08` | Is PR-CL02-03 refresh semantics for current `SearchUpsertEvent` approved, or does Search need richer persistent projection-work state? | current schema is minimal; canonical operation is “refresh” | explicit queue-semantics ruling | production Search worker/debug semantics |
+| `U-CL02-08` | Semantics RESOLVED — CL02-R008; physical representation unresolved | Durable Search-owned currentness/outcome required; Boolean insufficient | Separate Search schema design and migration approval | Production durable-work persistence |
 | `U-CL02-09` | What are Typesense collection boundaries, document versions, ranking weights, query facets/sorts, and public vs protected collection topology? | technology named; exact provider schema absent | Search projection/query ADR | provider schema commitment and ranking tuning |
 | `U-CL02-10` | What exact Organization authority, Candidate privacy, and Track entitlement contract gates protected candidate search? | source owners are known, composite policy contract is not | CL-01/CL-06 public-interface agreement | production candidate search |
 | `U-CL02-11` | What AI-log/suggestion retention, erasure, provider-retention/deletion policy applies to personal/sensitive data? | privacy boundary known; retention/provider behavior not specified | Privacy/legal/provider decision | production AI retention and sensitive classification |
@@ -1669,12 +1675,12 @@ The following can remain unresolved while the Cluster proves taxonomy read/admin
 
 Do not implement or activate:
 
-- taxonomy join mutation before `U-CL02-01/02`;
+- taxonomy join mutation outside its CL02-R001 owner or before applicable `U-CL02-02` metadata rules;
 - AI persistence/provider production flow before `U-CL02-04`;
-- AI acceptance before `U-CL02-01/04/05`;
+- AI acceptance before `U-CL02-04` and the CL02-R003 SH-121 handoff prerequisites;
 - tag-level healthcare/location behavior before `U-CL02-06`;
 - hard delete/merge before `U-CL02-07`;
-- production Search worker before `U-CL02-08` is resolved;
+- production Search worker before the separate `U-CL02-08` persistence design is approved and implemented;
 - protected candidate Search before `U-CL02-10`;
 - sensitive personal-data AI production use before `U-CL02-11`;
 - User indexing before `U-CL02-16`.
@@ -1702,13 +1708,13 @@ Do not implement or activate:
 15. Bedrock and Typesense stay behind owner adapters; provider state is not domain truth.
 16. Canonical Shared Operations Registry is binding anti-duplication guidance.
 
-### Proposed rulings requiring approval before dependent implementation
+### Reconciliation rulings and remaining proposals
 
-**PR-CL02-01 — Taxonomy join split:** contextual entity Module owns its join-row lifecycle; Taxonomy owns validation/semantics.
+**PR-CL02-01 — APPROVED, CL02-R001 — Taxonomy join split:** contextual entity Module owns its join-row lifecycle; Taxonomy owns validation/semantics.
 
-**PR-CL02-02 — AI disposition split:** AI owns proposal record transitions; Taxonomy owns the classification acceptance decision and accepted classification mutation; Taxonomy acknowledges its decision to AI through a public contract/event.
+**PR-CL02-02 — APPROVED, CL02-R003 — AI disposition split:** SH-121 is the canonical acceptance workflow. Taxonomy validates canonical acceptance; contextual entity owners persist assignments; AI records acceptance only after successful mutation. Proposal-only rejection stays AI-owned; retry preserves suggestion version/idempotency.
 
-**PR-CL02-03 — Search refresh semantics:** `SearchUpsertEvent` is interpreted as “refresh this entity to current source truth,” with provider upsert **or delete** chosen at execution time; generic queue infrastructure owns attempts/retries/dead-letter telemetry.
+**PR-CL02-03 — SEMANTICS APPROVED, CL02-R008:** Search owns durable refresh-work currentness, identity, idempotency, action, claimability, and outcome; generic queues own delivery/retry mechanics. Physical representation remains unresolved.
 
 **PR-CL02-04 — Search source-contract rule:** every searchable source exposes SH-094 plus SH-024/owner readiness instead of granting Search direct foreign repository access. This is strongly supported by the canonical registry and should be treated as the implementation default.
 
@@ -1720,9 +1726,9 @@ Do not implement or activate:
 
 Before changing CL-02, an implementation agent must read, in order:
 
-1. root `project-overview.md`;
-2. root `architecture.md`;
-3. root `code-standards.md`;
+1. `context/project-overview-v3.md` (orientation; see context map);
+2. context-map.md notes root architecture is unavailable; use the applicable existing concern owner;
+3. repository instructions; referenced code standards are unavailable in context-map.md;
 4. `context/shared/shared-operations.md`;
 5. this Cluster `architecture.md`;
 6. this Cluster `build-plan.md`;

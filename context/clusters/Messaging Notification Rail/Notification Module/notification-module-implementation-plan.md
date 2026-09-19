@@ -3,8 +3,8 @@
 > **Module ID:** `notification`  
 > **Module:** Notification Module  
 > **Primary Cluster:** CL-07 — Messaging & Notification Rail  
-> **Companion Module architecture:** `notification/module-architecture.md`  
-> **Parent build plan:** CL-07 `messaging-notification-rail-build-plan.md`  
+> **Companion Module architecture:** [Notification architecture](<notification-module-architecture.md>)\
+> **Parent build plan:** [CL-07 build plan](<../messaging-notification-rail-build-plan.md>)\
 > **Status:** implementation sequence for the Notification Deep Module; subordinate to root and CL-07 architecture  
 > **Rule:** this plan implements approved architecture. It does not independently settle Unresolved Decisions, change ownership, or broaden CL-07 product scope.
 
@@ -34,10 +34,10 @@ A capability does not require artificial end-user UI. The observable result of a
 
 ## Build Rules
 
-1. Follow root `project-overview.md`, root `architecture.md`, root `code-standards.md`, Canonical Shared Operations, CL-07 `architecture.md`, and `notification/module-architecture.md`.
+1. Follow [project overview V3](<../../../project-overview-v3.md>), root `architecture.md`, root `code-standards.md`, Canonical Shared Operations, [CL-07 architecture](<../messaging-notification-rail-architecture.md>), and [Notification architecture](<notification-module-architecture.md>).
 2. Notification owns only `Notification`, `NotificationSubscription`, `NotificationDelivery`, `NotificationSubscriptionEvent`, their approved lifecycle policy, safe rendering/routing, provider delivery, and provider-result translation.
 3. The source Module owns the event, legal/business meaning, source state, and decision that an alert is required.
-4. Every source uses `requestNotification`; no source directly inserts Notification rows or calls notification provider SDKs.
+4. Every source uses SH-041 `requestNotification`; no source directly inserts Notification rows or calls notification provider SDKs.
 5. Consume other Modules through approved public interfaces/events. Foreign keys are not permission to import their repositories.
 6. Reuse canonical Shared Operations. Do not create Notification-local authentication, authorization, idempotency, queue, retry, dead-letter, webhook-security, cryptography, audit, or observability infrastructure.
 7. Every public mutation is runtime-validated, server-authorized where applicable, and semantically idempotent when retries are possible.
@@ -48,7 +48,7 @@ A capability does not require artificial end-user UI. The observable result of a
 12. Provider callbacks authenticate before parsing/state mutation and dedupe before side effects.
 13. Consent proof, browser permission, Subscription reachability, Delivery evidence, and interaction evidence remain separate.
 14. Privacy / Data Erasure owns request/job/target/exemption/export orchestration. Notification only enumerates/executes against its own records/provider resources.
-15. Audit/Event Ledger owns generic AuditEvent/AccessAuditLog. Observability owns IntegrationFailure/queue telemetry. Neither replaces Notification truth.
+15. Audit/Event Ledger owns generic AuditEvent/AccessAuditLog. Observability owns public failure/queue telemetry capabilities; their persistence remains CL-09-gated. Neither replaces Notification truth.
 16. Track Subscription & Entitlement remains commercial policy truth; no local premium or `canNotify` entitlement flag.
 17. Notification has no public Search responsibility.
 18. Private Message bodies, PHI, OTP/recovery tokens, financial/tax details, raw resume data, identity documents, contract text, and provider credentials are prohibited from unsafe outward payloads and generic telemetry.
@@ -58,7 +58,15 @@ A capability does not require artificial end-user UI. The observable result of a
 
 ---
 
+**Approved SMS ownership boundary (CL-07-R002):** generic business SMS alerts use Notification through SH-041 `requestNotification`; source Modules must not dispatch generic SMS directly. Identity & Access may use an Identity-owned verification provider whose protocol delivers an OTP or challenge. Identity retains challenge generation, expiry, attempts, verification outcome, assurance result, and provider protocol truth. Notification must not independently generate, validate, resend, or implement a parallel OTP/MFA transport/verification workflow. This verification-provider transport is not a second generic notification rail. Only initial production generic SMS provider selection remains unresolved under U-CL07-16.
+
+Source-provider import checks in this plan cover generic alert delivery and must permit the Identity-owned verification-provider protocol.
+
 ## Preconditions
+
+**Shared Operations status:** references marked **Proposed ruling** are planning dependencies only, not approval for shared schema/API commitment or a generic service. Independently justified owner-specific interfaces do not approve a proposed shared operation globally. Realtime remains post-commit, authorized, and rebuildable; Moderation integration consumes approved contracts. Canonical metadata and reusable boundaries remain controlled by the Shared Operations registry.
+
+**CL-07-R007 — Observability persistence boundary:** CL-07 consumes approved public capabilities for failure recording, queue telemetry, health, structured logging, metrics, and exception capture. `IntegrationFailure`, `QueueJob`, `OpsIncident`, and `SystemEvent` are not current Prisma models. CL-09 owns its unresolved persistence/status design. CL-07 must not create local substitutes or couple Messaging/Notification business status to any future operational record.
 
 ### Hard platform prerequisites
 
@@ -66,15 +74,15 @@ The following must exist in canonical owner/shared scope before dependent Notifi
 
 - Prisma/PostgreSQL migration workflow;
 - runtime schema validation using the root-approved validation library;
-- `resolveAuthenticatedActor` from Identity & Access;
-- `authorizeResourceAction` from Role / Authority, with aligned RLS conventions;
-- canonical `executeIdempotentCommand` infrastructure;
+- SH-001 `resolveAuthenticatedActor` from Identity & Access;
+- SH-002 `authorizeResourceAction` from Role / Authority, with aligned RLS conventions;
+- canonical SH-044 `executeIdempotentCommand` infrastructure;
 - canonical request/correlation context;
 - one reliable queue/worker framework;
 - retry/backoff/dead-letter mechanics;
-- structured logging, metrics, exception capture, `IntegrationFailure`, queue telemetry;
+- SH-033 `writeStructuredLog`, metrics, exception capture, SH-037 `recordIntegrationFailure`, and queue telemetry interfaces;
 - centralized cryptography for encryption/HMAC;
-- generic `appendAuditEvent` and `recordSensitiveAccess` interfaces;
+- generic SH-029 `appendAuditEvent` and SH-030 `recordSensitiveAccess` interfaces;
 - transactional outbox/inbox only when an implemented source/event contract uses events.
 
 If a platform primitive is missing, implement the minimum canonical prerequisite in its owning shared/platform scope. Do not create a Notification-local substitute.
@@ -83,7 +91,7 @@ If a platform primitive is missing, implement the minimum canonical prerequisite
 
 - Identity & Access: authenticated actor context.
 - Role / Authority: protected action decision.
-- Consent & Disclosure: `queryConsentProof` before production consent-dependent push onboarding/use.
+- Consent & Disclosure: SH-008 `queryConsentProof` before production consent-dependent push onboarding/use.
 - Privacy / Data Erasure: privacy handler protocol before production privacy fulfillment.
 - Audit / Event Ledger: generic audit/access proof interface before a policy requiring those proofs is production-enabled.
 - Organization Hiring: owner recipient/settings query before Organization routing exits.
@@ -103,6 +111,8 @@ Typed fixtures/fakes may represent owner public contracts until those source Mod
 
 A stub must mimic the eventual public contract only. It must never become a local copy of the source schema or business lifecycle.
 
+**PR-N04 — Approved target credential authority (CL-07-R010).** Production recoverable provider credential material uses approved encrypted storage through SH-075 `encryptSensitiveValue`; stable comparison/identity uses normalized purpose-bound hashes through SH-076 `normalizeAndHashIdentifier`. Plaintext `endpoint`, `token`, `p256dh`, and `auth` must not remain parallel authoritative representations after migration, and code must not treat plaintext and encrypted/hash values as equal source truth. U-CL07-18 remains unresolved for exact provider/platform/hash composite uniqueness, backfill, rotation during cutover, replacement order of plaintext uniqueness constraints, and any temporary compatibility period. This approval is not a migration design or permission to change current schema/constraints without separate review.
+
 ### Architecture blockers by Cluster decision
 
 | Decision | Must be closed before |
@@ -110,11 +120,57 @@ A stub must mimic the eventual public contract only. It must never become a loca
 | U-CL07-09 — recipient/cardinality/fan-out | Feature 06 Organization Recipient Routing exits |
 | U-CL07-10/11/12/13/15/19 — channel/aggregate/expiry/retry/provider/interactions | Feature 05 Delivery Semantics exits; broad production multi-channel delivery |
 | U-CL07-14 — Notification processed-provider-event schema | Feature 10 Provider Callbacks exits |
-| U-CL07-16 — SMS provider + MFA boundary | production SMS enablement |
+| U-CL07-16 — generic SMS provider selection; Identity verification ownership resolved | production generic SMS enablement |
 | U-CL07-17 — Web Push provider | production Web Push enablement |
-| U-CL07-18 / PR-N04 equivalent — plaintext credential migration | Feature 03 live credential storage exits |
+| U-CL07-18 — migration/uniqueness implementing approved PR-N04 | Feature 03 live credential storage exits |
 | U-CL07-20/21 — template governance + safe payload catalog | Feature 02 production external-channel readiness and Feature 04 production-enabled external channels |
 | Privacy retention decisions relevant to Notification | Feature 08 destructive production privacy execution |
+
+### Shared Operation reference metadata
+
+Only referenced operations are listed. Invocation, local policy, and integration proof remain in the relevant features; canonical boundaries remain in the Shared Operations registry.
+
+| ID / canonical name | Canonical owner | Classification | Status |
+| --- | --- | --- | --- |
+| SH-001 `resolveAuthenticatedActor` | Identity & Access | Platform capability | Confirmed |
+| SH-002 `authorizeResourceAction` | Role / Authority | Cross-cutting capability | Confirmed |
+| SH-003 `queryOwnerFacts` (Proposed ruling) | Each source Module | Shared contract; separate implementations | Proposed ruling |
+| SH-008 `queryConsentProof` | Consent & Disclosure | Platform consent capability | Confirmed |
+| SH-029 `appendAuditEvent` | Audit / Event Ledger | Platform audit capability | Confirmed |
+| SH-030 `recordSensitiveAccess` | Audit / Event Ledger | Cross-cutting capability | Confirmed |
+| SH-032 `createRequestContext` | Observability / platform infrastructure | Platform primitive | Confirmed |
+| SH-033 `writeStructuredLog` | Observability / Ops | Platform capability | Confirmed |
+| SH-034 `sanitizeTelemetryMetadata` | Observability / Ops and Audit payload policy | Cross-cutting capability | Confirmed |
+| SH-035 `captureException` | Observability / Ops | Provider adapter | Confirmed |
+| SH-036 `emitMetric` | Observability / Ops | Platform capability | Confirmed |
+| SH-037 `recordIntegrationFailure` | Observability / Ops | Cross-cutting capability | Confirmed |
+| SH-038 `recordQueueTelemetry` | Observability / Ops / queue infrastructure | Cross-cutting capability | Confirmed |
+| SH-039 `checkServiceHealth` | Observability / Ops coordinates; owner supplies check | Cross-cutting capability | Confirmed |
+| SH-041 `requestNotification` | Notification | Platform notification capability | Confirmed |
+| SH-042 `renderNotificationTemplate` | Notification | Cross-cutting capability | Confirmed |
+| SH-043 `resolveNotificationRecipients` | Source context owner plus Notification | Shared contract; separate policy | Confirmed |
+| SH-044 `executeIdempotentCommand` | Platform application infrastructure | Platform primitive | Confirmed |
+| SH-045 `deduplicateDomainEvent` | Platform event infrastructure; consumer owns inbox | Platform primitive | Confirmed |
+| SH-046 `publishDomainEvent` | Platform event/outbox infrastructure | Platform primitive | Confirmed |
+| SH-047 `enqueueReliableJob` | Shared queue infrastructure | Platform primitive | Confirmed |
+| SH-048 `executeRetryWithBackoff` | Shared queue/platform infrastructure | Platform primitive | Confirmed |
+| SH-051 `acquireAggregateLock` | Shared persistence infrastructure | Platform primitive | Confirmed |
+| SH-052 `withOptimisticConcurrency` | Shared persistence infrastructure | Platform primitive | Confirmed |
+| SH-053 `transitionLifecycleState` | Shared mechanism; lifecycle owner supplies policy | Shared mechanism; separate truth | Confirmed |
+| SH-055 `runDeadlineExpiration` | Shared scheduler/queue infrastructure | Cross-cutting capability | Confirmed |
+| SH-059 `verifyProviderWebhookSignature` | Shared integration-security shell; provider adapter supplies algorithm | Provider-adapter contract | Confirmed |
+| SH-060 `deduplicateProviderEvent` | Provider-owning Module using shared primitive | Shared mechanism; separate truth | Confirmed |
+| SH-061 `translateProviderStatus` | Provider-owning adapter | Provider-adapter contract | Confirmed |
+| SH-062 `reconcileProviderState` | Each provider-owning Module using shared worker framework | Shared mechanism; separate policy | Confirmed |
+| SH-066 `validateStructuredProviderOutput` | Shared validation primitive; consuming Module owns schema | Cross-cutting capability | Confirmed |
+| SH-070 `deleteProviderResource` | Provider-owning Module | Provider-adapter contract | Confirmed |
+| SH-072 `hashCanonicalPayload` | Shared security/cryptography capability | Platform primitive | Confirmed |
+| SH-075 `encryptSensitiveValue` | Shared security/cryptography capability | Platform primitive | Confirmed |
+| SH-076 `normalizeAndHashIdentifier` | Shared security/cryptography capability | Platform primitive | Confirmed |
+| SH-095 `executePrivacyInstruction` | Privacy orchestrates; each data owner executes | Cross-cutting protocol | Confirmed |
+| SH-096 `enumerateSubjectData` | Each data-owning Module through Privacy-defined interface | Cross-cutting protocol | Confirmed |
+| SH-097 `evaluateRetentionRequirement` | Data owner supplies facts; Privacy records exemption | Cross-cutting protocol | Confirmed |
+| SH-098 `anonymizePersonalFields` | Shared primitive; record owner supplies mapping | Cross-cutting capability | Confirmed |
 
 ### Parent Cluster sequencing
 
@@ -130,11 +186,11 @@ This Module plan begins at the Notification portion of CL-07. CL-07 Features 01�
 
 #### Objective
 
-Establish `requestNotification` as the single Notification intake path and prove durable User-targeted `in_app` Notification truth before external providers or Organization fan-out are introduced.
+Establish SH-041 `requestNotification` as the single Notification intake path and prove durable User-targeted `in_app` Notification truth before external providers or Organization fan-out are introduced.
 
 #### Observable Result
 
-An authenticated User receives a representative in-app alert created through `requestNotification`, can list it in a Notification center, see a correct unread count, open an approved authenticated action route, mark it read, and dismiss it. The referenced source workflow is unchanged by read/dismiss behavior.
+An authenticated User receives a representative in-app alert created through SH-041 `requestNotification`, can list it in a Notification center, see a correct unread count, open an approved authenticated action route, mark it read, and dismiss it. The referenced source workflow is unchanged by read/dismiss behavior.
 
 #### Cluster Build-Plan Link
 
@@ -144,12 +200,12 @@ An authenticated User receives a representative in-app alert created through `re
 #### Dependencies
 
 - current Prisma `Notification` and `NotificationStatus`;
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
-- `executeIdempotentCommand`;
-- `createRequestContext`;
-- `sanitizeTelemetryMetadata`;
-- source/Messaging safe `requestNotification` fixture/contract.
+- SH-001 `resolveAuthenticatedActor`;
+- SH-002 `authorizeResourceAction`;
+- SH-044 `executeIdempotentCommand`;
+- SH-032 `createRequestContext`;
+- SH-034 `sanitizeTelemetryMetadata`;
+- source/Messaging safe SH-041 `requestNotification` fixture/contract.
 
 No external provider is required.
 
@@ -194,7 +250,7 @@ For this feature, create a concrete `userId` target only and do not use Organiza
 
 Introduce/stabilize:
 
-- `requestNotification`;
+- SH-041 `requestNotification`;
 - `listNotifications`;
 - `getUnreadNotificationCount`;
 - `markNotificationRead`;
@@ -204,16 +260,16 @@ The request response must distinguish accepted/rejected and include a Notificati
 
 #### Shared Operations Used
 
-| Operation | Canonical owner | Invocation | Local policy | Prohibited duplicate |
-| --- | --- | --- | --- | --- |
-| `resolveAuthenticatedActor` | Identity & Access | all User center commands/queries | target Notification action | local `notificationCurrentUser` helper |
-| `authorizeResourceAction` | Role / Authority | before list/read/dismiss | Notification supplies targeted-user facts | Notification RBAC/permission engine |
-| `executeIdempotentCommand` | platform application infra | request intake, read/dismiss when retryable | semantic request key/replay behavior | local idempotency table/service |
-| `createRequestContext` | Observability/platform | request entry | safe correlation labels | local correlation framework |
-| `sanitizeTelemetryMetadata` | Observability/Ops + Audit policy | before logs/errors | allow only safe Notification IDs/template key/status | ad hoc payload scrubber |
-| `appendAuditEvent` | Audit / Event Ledger | only if a sensitive/admin action policy requires it | ordinary User read need not be audited by default | `NotificationAuditLog` |
+| Operation | Canonical owner | Invocation | Local policy | Prohibited duplicate | Classification | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| SH-001 `resolveAuthenticatedActor` | Identity & Access | all User center commands/queries | target Notification action | local `notificationCurrentUser` helper | Platform capability | Confirmed |
+| SH-002 `authorizeResourceAction` | Role / Authority | before list/read/dismiss | Notification supplies targeted-user facts | Notification RBAC/permission engine | Cross-cutting capability | Confirmed |
+| SH-044 `executeIdempotentCommand` | Platform application infrastructure | request intake, read/dismiss when retryable | semantic request key/replay behavior | local idempotency table/service | Platform primitive | Confirmed |
+| SH-032 `createRequestContext` | Observability / platform infrastructure | request entry | safe correlation labels | local correlation framework | Platform primitive | Confirmed |
+| SH-034 `sanitizeTelemetryMetadata` | Observability / Ops and Audit payload policy | before logs/errors | allow only safe Notification IDs/template key/status | ad hoc payload scrubber | Cross-cutting capability | Confirmed |
+| SH-029 `appendAuditEvent` | Audit / Event Ledger | only if a sensitive/admin action policy requires it | ordinary User read need not be audited by default | `NotificationAuditLog` | Platform audit capability | Confirmed |
 
-`requestNotification` itself is the Notification-owned canonical capability being implemented, not a shared helper to import from elsewhere.
+SH-041 `requestNotification` itself is the Notification-owned canonical capability being implemented, not a shared helper to import from elsewhere.
 
 #### Domain Logic
 
@@ -299,7 +355,7 @@ Do not expose raw `payload` if it contains internal-only metadata.
 
 #### Acceptance Criteria
 
-- all alerts in the slice enter through `requestNotification`;
+- all alerts in the slice enter through SH-041 `requestNotification`;
 - User-target in-app Notification persists durably;
 - list/unread/read/dismiss work only for authorized User;
 - duplicate requests do not duplicate semantic alert effect;
@@ -311,7 +367,7 @@ Do not expose raw `payload` if it contains internal-only metadata.
 
 Run root-required typecheck/lint/build plus Notification unit/integration/contract/E2E tests. Exit only when:
 
-- one representative source creates an in-app alert exclusively through `requestNotification`;
+- one representative source creates an in-app alert exclusively through SH-041 `requestNotification`;
 - duplicate request replay converges;
 - cross-User authorization/RLS tests pass;
 - source-state isolation test passes;
@@ -337,7 +393,7 @@ Supports **CL-07 Feature 06 — Template Registry, Payload Safety, and Action Ro
 #### Dependencies
 
 - Feature 01;
-- `renderNotificationTemplate` canonical capability;
+- SH-042 `renderNotificationTemplate` canonical capability;
 - PR-N05 or an approved equivalent before treating the registry design as binding;
 - U-CL07-20 and U-CL07-21 closed before production external-channel integrations rely on the catalog;
 - root validation standards.
@@ -374,7 +430,7 @@ No new persisted model is required by default. Existing `Notification.name`, `ti
 
 #### Public Interfaces
 
-- `renderNotificationTemplate` — internal to Notification application/delivery path but canonical Notification capability;
+- SH-042 `renderNotificationTemplate` — internal to Notification application/delivery path but canonical Notification capability;
 - typed `NotificationTemplateKey`/version input contract exported to approved source callers;
 - approved action-route builder/validator contract.
 
@@ -382,14 +438,14 @@ Source Modules provide safe variables, not final HTML, SMS text, push payload, o
 
 #### Shared Operations Used
 
-| Operation | Owner | Invocation | Local policy | Prohibited duplicate |
-| --- | --- | --- | --- | --- |
-| `renderNotificationTemplate` | Notification | intake/delivery render | variable/channel/sensitivity policy | source-specific renderers |
-| `sanitizeTelemetryMetadata` | Observability/Ops + Audit policy | rendering failure diagnostics | safe template key/version/reason only | logging rendered sensitive payload |
-| `executeIdempotentCommand` | platform | request path inherited from Feature 01 | semantic Notification identity | local dedupe helper |
-| `hashCanonicalPayload` if root standards define/use it | platform crypto/hash capability | optional integrity/version proof | Notification decides whether a hash is needed | local hash implementation |
+| Operation | Canonical owner | Invocation | Local policy | Prohibited duplicate | Classification | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| SH-042 `renderNotificationTemplate` | Notification | intake/delivery render | variable/channel/sensitivity policy | source-specific renderers | Cross-cutting capability | Confirmed |
+| SH-034 `sanitizeTelemetryMetadata` | Observability / Ops and Audit payload policy | rendering failure diagnostics | safe template key/version/reason only | logging rendered sensitive payload | Cross-cutting capability | Confirmed |
+| SH-044 `executeIdempotentCommand` | Platform application infrastructure | request path inherited from Feature 01 | semantic Notification identity | local dedupe helper | Platform primitive | Confirmed |
+| SH-072 `hashCanonicalPayload` if root standards define/use it | Shared security/cryptography capability | optional integrity/version proof | Notification decides whether a hash is needed | local hash implementation | Platform primitive | Confirmed |
 
-Do not add an operation not present in root Shared Operations solely because this plan mentions an optional integrity hash; if `hashCanonicalPayload` is absent in the current canonical registry, omit it and follow root standards.
+SH-072 `hashCanonicalPayload` exists as SH-072 (Confirmed). Its use here remains conditional on an approved integrity requirement; the reference does not invent a local hashing policy.
 
 #### Domain Logic
 
@@ -511,13 +567,13 @@ Supports **CL-07 Feature 07 — Web Push Permission and Subscription Lifecycle**
 #### Dependencies
 
 - Feature 02;
-- `queryConsentProof` from Consent & Disclosure;
-- `encryptSensitiveValue`;
-- `normalizeAndHashIdentifier`;
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
-- `executeIdempotentCommand`;
-- U-CL07-18 / approved PR-N04 equivalent before live production credential storage exits.
+- SH-008 `queryConsentProof` from Consent & Disclosure;
+- SH-075 `encryptSensitiveValue`;
+- SH-076 `normalizeAndHashIdentifier`;
+- SH-001 `resolveAuthenticatedActor`;
+- SH-002 `authorizeResourceAction`;
+- SH-044 `executeIdempotentCommand`;
+- U-CL07-18 migration/uniqueness approval implementing binding PR-N04 before live production credential storage exits.
 
 #### In Scope
 
@@ -568,17 +624,17 @@ Supports **CL-07 Feature 07 — Web Push Permission and Subscription Lifecycle**
 
 #### Shared Operations Used
 
-| Operation | Owner | Invocation | Local policy | Prohibited duplicate |
-| --- | --- | --- | --- | --- |
-| `resolveAuthenticatedActor` | Identity | all account/device mutations/queries | own Subscription target | client user ID authority |
-| `authorizeResourceAction` | Role | list/revoke/manage | ownership/action facts | local device permissions engine |
-| `queryConsentProof` | Consent | before consent-dependent push onboarding | decide if proof is sufficient | local ConsentLog/pushConsent table |
-| `encryptSensitiveValue` | platform crypto | store recoverable endpoint/token/key | fields/rotation/retention | local crypto helper |
-| `normalizeAndHashIdentifier` | platform crypto | match endpoint/token without plaintext | purpose/domain normalization | raw-token equality as sole identity |
-| `executeIdempotentCommand` | platform | create/refresh/revoke | subscription semantic key/replay | local idempotency |
-| `withOptimisticConcurrency` or approved transaction strategy | shared persistence | refresh/rotation | newest valid rotation wins | in-memory mutex |
-| `appendAuditEvent` | Audit | revoke/security-significant admin changes if policy requires | safe device reference only | NotificationAuditLog |
-| `sanitizeTelemetryMetadata` | Ops/Audit | client/provider error logging | no secrets/user-agent beyond allowed | raw endpoint/token logging |
+| Operation | Canonical owner | Invocation | Local policy | Prohibited duplicate | Classification | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| SH-001 `resolveAuthenticatedActor` | Identity & Access | all account/device mutations/queries | own Subscription target | client user ID authority | Platform capability | Confirmed |
+| SH-002 `authorizeResourceAction` | Role / Authority | list/revoke/manage | ownership/action facts | local device permissions engine | Cross-cutting capability | Confirmed |
+| SH-008 `queryConsentProof` | Consent & Disclosure | before consent-dependent push onboarding | decide if proof is sufficient | local ConsentLog/pushConsent table | Platform consent capability | Confirmed |
+| SH-075 `encryptSensitiveValue` | Shared security/cryptography capability | store recoverable endpoint/token/key | fields/rotation/retention | local crypto helper | Platform primitive | Confirmed |
+| SH-076 `normalizeAndHashIdentifier` | Shared security/cryptography capability | match endpoint/token without plaintext | purpose/domain normalization | raw-token equality as sole identity | Platform primitive | Confirmed |
+| SH-044 `executeIdempotentCommand` | Platform application infrastructure | create/refresh/revoke | subscription semantic key/replay | local idempotency | Platform primitive | Confirmed |
+| SH-052 `withOptimisticConcurrency` or approved transaction strategy | Shared persistence infrastructure | refresh/rotation | newest valid rotation wins | in-memory mutex | Platform primitive | Confirmed |
+| SH-029 `appendAuditEvent` | Audit / Event Ledger | revoke/security-significant admin changes if policy requires | safe device reference only | NotificationAuditLog | Platform audit capability | Confirmed |
+| SH-034 `sanitizeTelemetryMetadata` | Observability / Ops and Audit payload policy | client/provider error logging | no secrets/user-agent beyond allowed | raw endpoint/token logging | Cross-cutting capability | Confirmed |
 
 #### Domain Logic
 
@@ -659,7 +715,7 @@ Account Notification settings:
 
 #### Documentation Updates
 
-- mark U-CL07-18/PR-N04 status only after approved architecture migration;
+- preserve PR-N04 as approved target authority; mark U-CL07-18 resolved only after separate approval of exact migration/uniqueness details;
 - document credential migration/backfill/rollback procedure;
 - progress tracker.
 
@@ -700,12 +756,12 @@ Supports **CL-07 Feature 08 — Durable External Delivery Worker and Channel Por
 #### Dependencies
 
 - Features 01–03;
-- `enqueueReliableJob`;
-- `executeRetryWithBackoff`;
-- `recordQueueTelemetry`;
-- `recordIntegrationFailure`;
+- SH-047 `enqueueReliableJob`;
+- SH-048 `executeRetryWithBackoff`;
+- SH-038 `recordQueueTelemetry`;
+- SH-037 `recordIntegrationFailure`;
 - request context/metrics/exception/telemetry sanitization;
-- `renderNotificationTemplate`;
+- SH-042 `renderNotificationTemplate`;
 - U-CL07-20/21 closed for any channel enabled in production;
 - email provider configuration if email enabled;
 - SMS and Web Push remain disabled until U-CL07-16/17 respectively.
@@ -720,7 +776,7 @@ Supports **CL-07 Feature 08 — Durable External Delivery Worker and Channel Por
 - selected/approved adapters only;
 - disabled/stub adapter for unapproved channels;
 - `recordProviderDeliveryResult`;
-- Notification-owned `translateProviderStatus` per adapter;
+- Notification-owned SH-061 `translateProviderStatus` per adapter;
 - provider retryability classification;
 - dead-token signal `shouldDisableSubscription` where supported;
 - protected delivery inspector;
@@ -753,22 +809,22 @@ Internal Notification interfaces:
 - SMS port;
 - Web Push port;
 - `recordProviderDeliveryResult`;
-- `translateProviderStatus` implementation per adapter.
+- SH-061 `translateProviderStatus` implementation per adapter.
 
-No provider SDK/types become part of `requestNotification`.
+No provider SDK/types become part of SH-041 `requestNotification`.
 
 #### Shared Operations Used
 
-| Operation | Owner | Invocation | Local policy | Prohibited duplicate |
-| --- | --- | --- | --- | --- |
-| `enqueueReliableJob` | shared queue | after authoritative Delivery plan/write | job payload/completion semantics | `notificationQueue` framework |
-| `executeRetryWithBackoff` | shared queue/platform | technical provider failure | adapter classifies retryable/permanent | provider-local retry loops |
-| `recordQueueTelemetry` | queue/Ops | worker attempt/heartbeat/result | safe Delivery ref/status | custom queue ledger |
-| `createRequestContext` | platform/Ops | worker propagation | safe correlation | local request-context system |
-| `renderNotificationTemplate` | Notification | immediately before send if required | channel-safe output | per-source renderers |
-| `translateProviderStatus` | Notification adapter | provider response | explicit Notification mapping | global provider status mapper |
-| `recordIntegrationFailure` | Observability | meaningful degradation | Delivery remains domain truth | NotificationFailure substitute |
-| `captureException` / `emitMetric` / `sanitizeTelemetryMetadata` | Observability | worker/provider boundary | safe bounded dimensions | raw provider payload logs |
+| Operation | Canonical owner | Invocation | Local policy | Prohibited duplicate | Classification | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| SH-047 `enqueueReliableJob` | Shared queue infrastructure | after authoritative Delivery plan/write | job payload/completion semantics | `notificationQueue` framework | Platform primitive | Confirmed |
+| SH-048 `executeRetryWithBackoff` | Shared queue/platform infrastructure | technical provider failure | adapter classifies retryable/permanent | provider-local retry loops | Platform primitive | Confirmed |
+| SH-038 `recordQueueTelemetry` | Observability / Ops / queue infrastructure | worker attempt/heartbeat/result | safe Delivery ref/status | custom queue ledger | Cross-cutting capability | Confirmed |
+| SH-032 `createRequestContext` | Observability / platform infrastructure | worker propagation | safe correlation | local request-context system | Platform primitive | Confirmed |
+| SH-042 `renderNotificationTemplate` | Notification | immediately before send if required | channel-safe output | per-source renderers | Cross-cutting capability | Confirmed |
+| SH-061 `translateProviderStatus` | Provider-owning adapter | provider response | explicit Notification mapping | global provider status mapper | Provider-adapter contract | Confirmed |
+| SH-037 `recordIntegrationFailure` | Observability / Ops | meaningful degradation | Delivery remains domain truth | NotificationFailure substitute | Cross-cutting capability | Confirmed |
+| SH-035 `captureException` / SH-036 `emitMetric` / SH-034 `sanitizeTelemetryMetadata` | SH-035: Observability / Ops<br>SH-036: Observability / Ops<br>SH-034: Observability / Ops and Audit payload policy | worker/provider boundary | safe bounded dimensions | raw provider payload logs | SH-035: Provider adapter<br>SH-036: Platform capability<br>SH-034: Cross-cutting capability | SH-035: Confirmed<br>SH-036: Confirmed<br>SH-034: Confirmed |
 
 #### Domain Logic
 
@@ -947,15 +1003,15 @@ Finalize as approved:
 
 #### Shared Operations Used
 
-| Operation | Owner | Invocation | Local policy | Prohibited duplicate |
-| --- | --- | --- | --- | --- |
-| `executeIdempotentCommand` | platform | retry/manual interaction/read/dismiss | semantic effect identity | local dedupe |
-| `enqueueReliableJob` | shared queue | retry/expiry work | job completion status | local scheduler/queue |
-| `executeRetryWithBackoff` | shared queue | transient provider retries | retryability/max outcome semantics | hand-coded adapter loops |
-| `runDeadlineExpiration` or root scheduler equivalent | shared scheduler | find expired items and invoke owner command | Notification expiry transition | generic scheduler owning statuses |
-| `transitionLifecycleState` | shared mechanism | state transition | Notification graph | generic lifecycle policy table |
-| `acquireAggregateLock` / `withOptimisticConcurrency` | shared persistence | conflicting Delivery/Notification updates | lock/version key and conflict | in-memory lock |
-| `appendAuditEvent` | Audit | manual retry/admin intervention | which admin action needs proof | local audit table |
+| Operation | Canonical owner | Invocation | Local policy | Prohibited duplicate | Classification | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| SH-044 `executeIdempotentCommand` | Platform application infrastructure | retry/manual interaction/read/dismiss | semantic effect identity | local dedupe | Platform primitive | Confirmed |
+| SH-047 `enqueueReliableJob` | Shared queue infrastructure | retry/expiry work | job completion status | local scheduler/queue | Platform primitive | Confirmed |
+| SH-048 `executeRetryWithBackoff` | Shared queue/platform infrastructure | transient provider retries | retryability/max outcome semantics | hand-coded adapter loops | Platform primitive | Confirmed |
+| SH-055 `runDeadlineExpiration` or root scheduler equivalent | Shared scheduler/queue infrastructure | find expired items and invoke owner command | Notification expiry transition | generic scheduler owning statuses | Cross-cutting capability | Confirmed |
+| SH-053 `transitionLifecycleState` | Shared mechanism; lifecycle owner supplies policy | state transition | Notification graph | generic lifecycle policy table | Shared mechanism; separate truth | Confirmed |
+| SH-051 `acquireAggregateLock` / SH-052 `withOptimisticConcurrency` | SH-051: Shared persistence infrastructure<br>SH-052: Shared persistence infrastructure | conflicting Delivery/Notification updates | lock/version key and conflict | in-memory lock | SH-051: Platform primitive<br>SH-052: Platform primitive | SH-051: Confirmed<br>SH-052: Confirmed |
+| SH-029 `appendAuditEvent` | Audit / Event Ledger | manual retry/admin intervention | which admin action needs proof | local audit table | Platform audit capability | Confirmed |
 
 #### Domain Logic
 
@@ -1085,8 +1141,8 @@ Supports **CL-07 Feature 10 — Organization Recipient Routing and Hiring Alerts
 
 #### In Scope
 
-- typed Organization/group recipient descriptor in `requestNotification`;
-- integration with owner query such as `resolveOrganizationNotificationRecipients`;
+- typed Organization/group recipient descriptor in SH-041 `requestNotification`;
+- integration with owner query `resolveOrganizationNotificationRecipientFacts` supporting SH-043 `resolveNotificationRecipients`;
 - Notification recipient dedupe/fan-out/channel routing;
 - owner-settings consumption without local mutation;
 - hiring alert contract fixture/E2E;
@@ -1108,19 +1164,21 @@ Notification models only, according to the approved target/fan-out model. `Organ
 
 #### Public Interfaces
 
-- `requestNotification` with approved Organization/group recipient descriptor;
-- shared `resolveNotificationRecipients` contract;
-- consumed Organization-owned `resolveOrganizationNotificationRecipients` or equivalent.
+- SH-041 `requestNotification` with approved Organization/group recipient descriptor;
+- shared SH-043 `resolveNotificationRecipients` contract;
+- consumed Organization-owned `resolveOrganizationNotificationRecipientFacts`.
+
+Organization Hiring exposes `resolveOrganizationNotificationRecipientFacts` as its owner-specific public query supporting SH-043 `resolveNotificationRecipients`. It accepts an Organization-scoped notification context, evaluates Organization-owned membership and `OrganizationNotificationSetting` facts, and returns eligible concrete User IDs plus only safe routing facts. An empty eligible-recipient set is valid; unavailable and unauthorized results are distinct from that empty result. Notification consumes the result, deduplicates recipients, applies its own reachability/channel eligibility, and performs fan-out. Notification must not reconstruct Organization role/settings policy from raw tables.
 
 #### Shared Operations Used
 
-| Operation | Owner | Invocation | Local policy | Prohibited duplicate |
-| --- | --- | --- | --- | --- |
-| `resolveNotificationRecipients` | source owner + Notification | intake routing | dedupe/fan-out/channel eligibility | local Organization role resolver |
-| `queryOwnerFacts` | Organization Hiring | owner recipient query | minimum facts only | direct OrganizationMember repository read |
-| `requestNotification` | Notification | hiring source intake | local Notification routing/payload | source writing Delivery rows |
-| `authorizeResourceAction` | Role | any interactive org/admin settings/inspection path | Notification target/action facts | local org RBAC |
-| `executeIdempotentCommand` | platform | intake/fan-out effect | recipient semantic identity | local dedupe |
+| Operation | Canonical owner | Invocation | Local policy | Prohibited duplicate | Classification | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| SH-043 `resolveNotificationRecipients` | Source context owner plus Notification | intake routing | dedupe/fan-out/channel eligibility | local Organization role resolver | Shared contract; separate policy | Confirmed |
+| SH-003 `queryOwnerFacts` (Proposed ruling) | Each source Module | owner recipient query | minimum facts only | direct OrganizationMember repository read | Shared contract; separate implementations | Proposed ruling |
+| SH-041 `requestNotification` | Notification | hiring source intake | local Notification routing/payload | source writing Delivery rows | Platform notification capability | Confirmed |
+| SH-002 `authorizeResourceAction` | Role / Authority | any interactive org/admin settings/inspection path | Notification target/action facts | local org RBAC | Cross-cutting capability | Confirmed |
+| SH-044 `executeIdempotentCommand` | Platform application infrastructure | intake/fan-out effect | recipient semantic identity | local dedupe | Platform primitive | Confirmed |
 
 #### Domain Logic
 
@@ -1224,7 +1282,7 @@ Supports **CL-07 Feature 11 — Source-Module Notification Contract Pack**.
 - Features 02–06 as applicable;
 - source Module public contracts/events as available;
 - approved template catalog/safe payload rules for production external channels;
-- Identity provider boundary ruling before production security/MFA transport.
+- Generic SMS provider selection under U-CL07-16 before production generic SMS alerts; Identity verification-provider transport is outside Notification.
 
 #### In Scope
 
@@ -1263,20 +1321,20 @@ No new source lifecycle model. Notification stores only its own source reference
 
 #### Public Interfaces
 
-- `requestNotification` remains the one intake;
+- SH-041 `requestNotification` remains the one intake;
 - typed template/source-intent contracts layered on the same command;
 - event consumer adapters only where source event exists and is approved.
 
 #### Shared Operations Used
 
-| Operation | Owner | Invocation | Local policy | Prohibited duplicate |
-| --- | --- | --- | --- | --- |
-| `requestNotification` | Notification | every source family | Notification routing/payload | source provider dispatch |
-| `renderNotificationTemplate` | Notification | source intent render | safe variables/channel policy | source email/SMS HTML builders |
-| `resolveNotificationRecipients` | source + Notification | group/relationship targets | dedupe/fan-out | source relationship copy |
-| `publishDomainEvent` | source/platform outbox | source only if event contract exists | source event meaning | CL-07 invented event name |
-| `deduplicateDomainEvent` | consumer/platform inbox | Notification event consumer | handler/effect identity | custom event dedupe |
-| `executeIdempotentCommand` | platform | direct command intake | source semantic key | local duplicate service |
+| Operation | Canonical owner | Invocation | Local policy | Prohibited duplicate | Classification | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| SH-041 `requestNotification` | Notification | every source family | Notification routing/payload | source provider dispatch | Platform notification capability | Confirmed |
+| SH-042 `renderNotificationTemplate` | Notification | source intent render | safe variables/channel policy | source email/SMS HTML builders | Cross-cutting capability | Confirmed |
+| SH-043 `resolveNotificationRecipients` | Source context owner plus Notification | group/relationship targets | dedupe/fan-out | source relationship copy | Shared contract; separate policy | Confirmed |
+| SH-046 `publishDomainEvent` | Platform event/outbox infrastructure | source only if event contract exists | source event meaning | CL-07 invented event name | Platform primitive | Confirmed |
+| SH-045 `deduplicateDomainEvent` | Platform event infrastructure; consumer owns inbox | Notification event consumer | handler/effect identity | custom event dedupe | Platform primitive | Confirmed |
+| SH-044 `executeIdempotentCommand` | Platform application infrastructure | direct command intake | source semantic key | local duplicate service | Platform primitive | Confirmed |
 
 #### Domain Logic
 
@@ -1353,7 +1411,7 @@ No new general UI. Add contract catalog/trace fixtures showing:
 
 #### Acceptance Criteria
 
-- marketplace and hiring sources use the same canonical `requestNotification` command shape;
+- marketplace and hiring sources use the same canonical SH-041 `requestNotification` command shape;
 - source/template vocabulary is typed/versioned;
 - no source provider dispatch exists;
 - duplicates converge;
@@ -1390,9 +1448,9 @@ Implements the **Notification slice of CL-07 Feature 13 — Privacy Enumeration 
 
 - Features 01–05 for relevant data models;
 - canonical Privacy handler protocol;
-- `enumerateSubjectData`;
-- `evaluateRetentionRequirement`;
-- `executePrivacyInstruction`;
+- SH-096 `enumerateSubjectData`;
+- SH-097 `evaluateRetentionRequirement`;
+- SH-095 `executePrivacyInstruction`;
 - root Privacy-defined export format;
 - retention rules approved before destructive production action for each affected data class;
 - provider deletion/revocation contract where applicable.
@@ -1429,22 +1487,27 @@ Notification privacy inventory/handler for:
 
 #### Public Interfaces
 
-- Notification `enumerateSubjectData`;
-- Notification `executePrivacyInstruction`;
+- Notification SH-096 `enumerateSubjectData`;
+- Notification SH-097 `evaluateRetentionRequirement` — owner-side retention query;
+- Notification SH-095 `executePrivacyInstruction`;
 - Notification export serializer(s) in Privacy-defined format.
+
+Messaging and Notification participate through SH-096 `enumerateSubjectData`, expose owner-side SH-097 `evaluateRetentionRequirement`, and execute approved dispositions through SH-095 `executePrivacyInstruction`. Retention evaluation returns required, reason code, legal/policy basis, retainUntil, minimum fields, permitted anonymization, and source reference under approved policy. Privacy owns `DataRetentionExemption` creation and final workflow completion; it must not directly rewrite CL-07 tables.
+
+**CL-07-R005 — unresolved Privacy target mapping:** inventory must cover `ThreadParticipant`, `MessageMedia`, `NotificationSubscription`, `NotificationDelivery`, and `NotificationSubscriptionEvent` as well as Thread, Message, and Notification. How those child records become `DataErasureTarget` entries remains a Privacy-owned architecture decision. Do not silently omit them, invent enum values, select an ad hoc untyped `other` mapping, or assume parent erasure determines every child disposition. Destructive workflows depending on this mapping remain gated until it is approved.
 
 #### Shared Operations Used
 
-| Operation | Owner | Invocation | Local policy | Prohibited duplicate |
-| --- | --- | --- | --- | --- |
-| `enumerateSubjectData` | each owner via Privacy protocol | privacy inventory | Notification target types/dispositions | Privacy global DB crawler |
-| `evaluateRetentionRequirement` | data owner + Privacy | planning | factual Notification retention context | local legal exemption logic |
-| `executePrivacyInstruction` | Privacy orchestrates; Notification executes | target fulfillment | exact field/provider mutation | local PrivacyRequest workflow |
-| `executeIdempotentCommand` | platform | destructive/retryable target execution | target+disposition semantic key | local privacy dedupe |
-| `appendAuditEvent` | Audit | fulfillment proof if policy says | minimized result only | Notification privacy audit table |
-| provider resource deletion/revocation operation if present in root Canonical Ops | provider owner/shared pattern | provider-side cleanup | Notification resource mapping | custom global erasure worker |
+| Operation | Canonical owner | Invocation | Local policy | Prohibited duplicate | Classification | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| SH-096 `enumerateSubjectData` | Each data-owning Module through Privacy-defined interface | privacy inventory | Notification target types/dispositions | Privacy global DB crawler | Cross-cutting protocol | Confirmed |
+| SH-097 `evaluateRetentionRequirement` | Data owner supplies facts; Privacy records exemption | planning | factual Notification retention context | local legal exemption logic | Cross-cutting protocol | Confirmed |
+| SH-095 `executePrivacyInstruction` | Privacy orchestrates; each data owner executes | target fulfillment | exact field/provider mutation | local PrivacyRequest workflow | Cross-cutting protocol | Confirmed |
+| SH-044 `executeIdempotentCommand` | Platform application infrastructure | destructive/retryable target execution | target+disposition semantic key | local privacy dedupe | Platform primitive | Confirmed |
+| SH-029 `appendAuditEvent` | Audit / Event Ledger | fulfillment proof if policy says | minimized result only | Notification privacy audit table | Platform audit capability | Confirmed |
+| SH-070 `deleteProviderResource` | Provider-owning Module | provider-side cleanup | Notification resource mapping | custom global erasure worker | Provider-adapter contract | Confirmed |
 
-If `anonymizePersonalFields` or `deleteProviderResource` is not present in the current root canonical registry, do not invent the operation name; use the approved Privacy/provider contract available at implementation time.
+SH-098 `anonymizePersonalFields` and SH-070 `deleteProviderResource` are Confirmed in the registry. Use them only where the approved Privacy disposition/provider contract calls for them.
 
 #### Domain Logic
 
@@ -1590,21 +1653,21 @@ Only Notification-owned records created through public intake. Source foreign ke
 
 #### Public Interfaces
 
-- `requestNotification`;
-- `resolveNotificationRecipients` as needed;
+- SH-041 `requestNotification`;
+- SH-043 `resolveNotificationRecipients` as needed;
 - approved source event consumers, if any;
 - existing Notification queries for proof.
 
 #### Shared Operations Used
 
-| Operation | Owner | Invocation | Local policy | Prohibited duplicate |
-| --- | --- | --- | --- | --- |
-| `queryOwnerFacts` | source owners | source/recipient validation | minimum safe facts | cross-domain repository |
-| `authorizeResourceAction` | Role | user/admin interactions | Notification target facts | duplicated source permissions |
-| `requestNotification` | Notification | every workflow alert | local routing/payload | direct provider calls |
-| `resolveNotificationRecipients` | source + Notification | group targets | dedupe/fan-out | copied membership/party data |
-| `publishDomainEvent` / `deduplicateDomainEvent` | platform + source/consumer | only approved event bridges | event meaning stays owner | CL-07 invented event catalog |
-| `executeIdempotentCommand` | platform | command bridge | semantic effect | local dedupe |
+| Operation | Canonical owner | Invocation | Local policy | Prohibited duplicate | Classification | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| SH-003 `queryOwnerFacts` (Proposed ruling) | Each source Module | source/recipient validation | minimum safe facts | cross-domain repository | Shared contract; separate implementations | Proposed ruling |
+| SH-002 `authorizeResourceAction` | Role / Authority | user/admin interactions | Notification target facts | duplicated source permissions | Cross-cutting capability | Confirmed |
+| SH-041 `requestNotification` | Notification | every workflow alert | local routing/payload | direct provider calls | Platform notification capability | Confirmed |
+| SH-043 `resolveNotificationRecipients` | Source context owner plus Notification | group targets | dedupe/fan-out | copied membership/party data | Shared contract; separate policy | Confirmed |
+| SH-046 `publishDomainEvent` / SH-045 `deduplicateDomainEvent` | SH-046: Platform event/outbox infrastructure<br>SH-045: Platform event infrastructure; consumer owns inbox | only approved event bridges | event meaning stays owner | CL-07 invented event catalog | SH-046: Platform primitive<br>SH-045: Platform primitive | SH-046: Confirmed<br>SH-045: Confirmed |
+| SH-044 `executeIdempotentCommand` | Platform application infrastructure | command bridge | semantic effect | local dedupe | Platform primitive | Confirmed |
 
 #### Domain Logic
 
@@ -1638,7 +1701,7 @@ Representative events may be exercised only if already approved by source. Exter
 
 #### Provider Integration
 
-Existing Notification adapters only. Source Modules have zero provider SDK imports/calls.
+Existing Notification adapters only. Source Modules have zero generic Notification provider SDK imports/calls for alerts; Identity verification-provider protocol is separate.
 
 #### UI / Admin Surface
 
@@ -1710,10 +1773,10 @@ Supports **CL-07 Feature 15 — Provider Callbacks, Deduplication, and Reconcili
 - selected enabled provider(s) with callback/query capabilities;
 - approved U-CL07-14 Notification processed-provider-event schema;
 - truthful provider vocabulary U-CL07-15 for enabled channels;
-- `verifyProviderWebhookSignature`;
-- `deduplicateProviderEvent`;
-- `validateStructuredProviderOutput`;
-- `reconcileProviderState`;
+- SH-059 `verifyProviderWebhookSignature`;
+- SH-060 `deduplicateProviderEvent`;
+- SH-066 `validateStructuredProviderOutput`;
+- SH-062 `reconcileProviderState`;
 - canonical queue/retry/observability.
 
 #### In Scope
@@ -1766,17 +1829,17 @@ Exact schema comes from U-CL07-14 ruling, not this plan.
 
 #### Shared Operations Used
 
-| Operation | Owner | Invocation | Local policy | Prohibited duplicate |
-| --- | --- | --- | --- | --- |
-| `verifyProviderWebhookSignature` | shared security + adapter | raw webhook entry | provider algorithm/secret/tolerance | bespoke verifier logic outside adapter shell |
-| `deduplicateProviderEvent` | shared primitive + Notification-owned truth | after signature verification | Notification event identity/result | reuse Stripe/Calendar/Video ledger |
-| `validateStructuredProviderOutput` | shared validation | after raw auth | adapter event schema/semantic checks | trusting provider JSON |
-| `translateProviderStatus` | Notification adapter | callback mapping | Delivery/Subscription status mapping/version | global provider mapper |
-| `reconcileProviderState` | Notification/shared worker pattern | schedule/admin | safe discrepancy repair rules | global reconciler |
-| `executeIdempotentCommand` | platform | callback state application/repair | local aggregate command identity | local callback dedupe helper |
-| `enqueueReliableJob` / `executeRetryWithBackoff` | shared queue | follow-up/reconciliation | local job meaning/retryability | custom callback queue |
-| `recordIntegrationFailure` | Observability | callback/reconcile degradation | safe refs | local failure table |
-| `createRequestContext` / `sanitizeTelemetryMetadata` | platform/Ops | callback/worker trace | safe metadata only | raw webhook logging |
+| Operation | Canonical owner | Invocation | Local policy | Prohibited duplicate | Classification | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| SH-059 `verifyProviderWebhookSignature` | Shared integration-security shell; provider adapter supplies algorithm | raw webhook entry | provider algorithm/secret/tolerance | bespoke verifier logic outside adapter shell | Provider-adapter contract | Confirmed |
+| SH-060 `deduplicateProviderEvent` | Provider-owning Module using shared primitive | after signature verification | Notification event identity/result | reuse Stripe/Calendar/Video ledger | Shared mechanism; separate truth | Confirmed |
+| SH-066 `validateStructuredProviderOutput` | Shared validation primitive; consuming Module owns schema | after raw auth | adapter event schema/semantic checks | trusting provider JSON | Cross-cutting capability | Confirmed |
+| SH-061 `translateProviderStatus` | Provider-owning adapter | callback mapping | Delivery/Subscription status mapping/version | global provider mapper | Provider-adapter contract | Confirmed |
+| SH-062 `reconcileProviderState` | Each provider-owning Module using shared worker framework | schedule/admin | safe discrepancy repair rules | global reconciler | Shared mechanism; separate policy | Confirmed |
+| SH-044 `executeIdempotentCommand` | Platform application infrastructure | callback state application/repair | local aggregate command identity | local callback dedupe helper | Platform primitive | Confirmed |
+| SH-047 `enqueueReliableJob` / SH-048 `executeRetryWithBackoff` | SH-047: Shared queue infrastructure<br>SH-048: Shared queue/platform infrastructure | follow-up/reconciliation | local job meaning/retryability | custom callback queue | SH-047: Platform primitive<br>SH-048: Platform primitive | SH-047: Confirmed<br>SH-048: Confirmed |
+| SH-037 `recordIntegrationFailure` | Observability / Ops | callback/reconcile degradation | safe refs | local failure table | Cross-cutting capability | Confirmed |
+| SH-032 `createRequestContext` / SH-034 `sanitizeTelemetryMetadata` | SH-032: Observability / platform infrastructure<br>SH-034: Observability / Ops and Audit payload policy | callback/worker trace | safe metadata only | raw webhook logging | SH-032: Platform primitive<br>SH-034: Cross-cutting capability | SH-032: Confirmed<br>SH-034: Confirmed |
 
 #### Domain Logic
 
@@ -1970,24 +2033,24 @@ Stabilize versions, reason codes, runtime schemas, pagination, and failure contr
 
 All previously used canonical operations, with explicit review of:
 
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
-- `executeIdempotentCommand`;
-- `enqueueReliableJob`;
-- `executeRetryWithBackoff`;
-- `verifyProviderWebhookSignature`;
-- `deduplicateProviderEvent`;
-- `reconcileProviderState`;
-- `encryptSensitiveValue`;
-- `normalizeAndHashIdentifier`;
-- `appendAuditEvent`;
-- `recordSensitiveAccess`;
-- `sanitizeTelemetryMetadata`;
-- `recordIntegrationFailure`;
-- `recordQueueTelemetry`;
-- `captureException`;
-- `emitMetric`;
-- `checkServiceHealth`;
+- SH-001 `resolveAuthenticatedActor`;
+- SH-002 `authorizeResourceAction`;
+- SH-044 `executeIdempotentCommand`;
+- SH-047 `enqueueReliableJob`;
+- SH-048 `executeRetryWithBackoff`;
+- SH-059 `verifyProviderWebhookSignature`;
+- SH-060 `deduplicateProviderEvent`;
+- SH-062 `reconcileProviderState`;
+- SH-075 `encryptSensitiveValue`;
+- SH-076 `normalizeAndHashIdentifier`;
+- SH-029 `appendAuditEvent`;
+- SH-030 `recordSensitiveAccess`;
+- SH-034 `sanitizeTelemetryMetadata`;
+- SH-037 `recordIntegrationFailure`;
+- SH-038 `recordQueueTelemetry`;
+- SH-035 `captureException`;
+- SH-036 `emitMetric`;
+- SH-039 `checkServiceHealth`;
 - Privacy executor protocols.
 
 No new Notification-local infrastructure is permitted during hardening.
@@ -1998,7 +2061,7 @@ Hardening checklist:
 
 1. Every public command/query rejects malformed/fuzzed input without unsafe logs.
 2. Source/provider direct coupling scans are clean.
-3. Duplicate/reordered `requestNotification` calls converge.
+3. Duplicate/reordered SH-041 `requestNotification` calls converge.
 4. Read/dismiss/interactions cannot illegally regress state.
 5. Subscription refresh cannot revive stale credential state.
 6. Dead token is disabled only after approved authoritative evidence.
@@ -2174,7 +2237,7 @@ Integration is invalid if proven by:
 
 - importing another Module's Prisma repository;
 - source Module writing Notification tables;
-- source Module calling provider SDK;
+- source Module calling a generic Notification provider SDK for alerts;
 - Notification interpreting source lifecycle fields to reconstruct event meaning;
 - copying Organization membership/settings into a Notification-owned truth table.
 
@@ -2238,10 +2301,10 @@ This mapping preserves Cluster sequencing rather than creating a competing plan.
 
 Before implementing each numbered Module feature:
 
-1. Read root `project-overview.md` and root architecture/standards.
+1. Read [project overview V3](<../../../project-overview-v3.md>) and root architecture/standards.
 2. Read Canonical Shared Operations.
 3. Read CL-07 architecture and build plan.
-4. Read `notification/module-architecture.md` and this plan.
+4. Read [Notification architecture](<notification-module-architecture.md>) and this plan.
 5. Read public-interface sections for direct dependencies/source owners.
 6. Confirm the prior Module exit gate and the relevant parent Cluster prerequisite.
 7. Check every U-CL07 decision named by the feature and verify its current status.
@@ -2325,7 +2388,7 @@ Before treating the Notification Module plan as complete or production-ready, ve
 
 1. `Notification`, `NotificationDelivery`, `NotificationSubscription`, and `NotificationSubscriptionEvent` remain Notification-owned truth.
 2. No neighboring Module lifecycle has been absorbed.
-3. Every source uses `requestNotification`; provider SDK calls are isolated to Notification adapters.
+3. Every source uses SH-041 `requestNotification`; provider SDK calls are isolated to Notification adapters.
 4. Canonical shared operations are consumed rather than duplicated.
 5. Shared mechanism/separate truth boundaries remain explicit for idempotency, provider dedupe, status translation, reconciliation, audit, privacy, and cryptography.
 6. All cross-Module reads use owner public interfaces/events rather than direct repositories.
@@ -2336,7 +2399,7 @@ Before treating the Notification Module plan as complete or production-ready, ve
 11. Implementation features remain aligned to CL-07 Feature 05–16 sequencing and do not duplicate Messaging-only work.
 12. Every numbered Module feature has explicit tests, acceptance criteria, and exit gate.
 13. Every production-enabled capability has its required U-CL07 decisions approved.
-14. SMS and Web Push remain disabled if provider/boundary selection is unresolved.
+14. Generic SMS and Web Push alerts remain disabled if their provider selection is unresolved; Identity verification-provider transport follows the approved CL-07-R002 boundary.
 15. Push credential storage has one approved encrypted/hash authority and does not expose secrets.
 16. Payload safety is proven for every template/channel/sensitivity combination enabled in production.
 17. Delivery/retry/callback behavior is idempotent and concurrency-safe.

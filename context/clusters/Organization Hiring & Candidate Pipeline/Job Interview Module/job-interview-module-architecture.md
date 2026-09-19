@@ -24,7 +24,17 @@
 
 ### Evidence basis
 
-This document is grounded in the current supplied Workin Ants sources:
+Historical supplied-source names are retained below as provenance. Current implementation navigation uses:
+
+- [Project overview V3](../../../project-overview-v3.md)
+- [Deep Module Registry](<../../../../prisma/deep modules and schemas.json>) and [Cluster Registry](../../../../prisma/clusters.json)
+- [Prisma schema](../../../../prisma/schema.prisma)
+- [Ubiquitous Language / Compliance](<../../../workin_ants_ubiquitous_language_pack_v2_2_full_compliance_schema_module (1).docx>)
+- [Shared Operations registry](../../../shared/shared-operations.md)
+- [Cluster architecture](../organization-hiring-candidate-piepline-architecture.md) and [build plan](../organization-hiring-candidate-pipeline-build-plan.md)
+- [Module architecture](job-interview-module-architecture.md) and [implementation plan](job-interview-module-implementation-plan.md)
+
+Historical source names:
 
 - `project-overview-v3(20260906-163916).md`;
 - `deep modules and schemas(20260906-163900).json`;
@@ -40,11 +50,11 @@ Root `architecture.md`, root `code-standards.md`, progress tracker, and dependen
 
 ### Evidence conflicts that materially affect this Module
 
-1. The Deep Module Registry confirms `JobInterview` and `JobInterviewEvent` ownership but does **not** assign `JobInterviewParticipant`; the glossary marks participant ownership as unassigned; CL-06 proposes Job Interview ownership. Participant implementation is therefore not yet binding.
-2. `JobInterview` stores `externalCalendarProvider` and `externalSyncStatus` using calendar vocabulary owned by Booking & Calendar, while Job Interview explicitly does not own the calendar availability/provider engine. CL-06 U-CL06-16 leaves the broader hiring calendar port unresolved.
+1. CL-06-R012 confirms Job Interview ownership of `JobInterviewParticipant`, `JobInterviewParticipantRole` and `JobInterviewParticipantStatus`. Registry/glossary inventory alignment is deferred to a later metadata pass; remaining participant policy is unresolved.
+2. Confirmed SH-067 `invokeCalendarProvider` (Confirmed) assigns calendar mechanics to Booking & Calendar, including hiring. Job Interview owns schedule policy. Only exact local external event/sync/error-field semantics remain unresolved under residual U-CL06-16.
 3. The Prisma schema stores `externalMeetingUrl`, while Video Infrastructure owns interview-room mechanics and forbids reusable public room links. The permitted meaning and security treatment of `externalMeetingUrl` require an explicit rule before it is used as a credential-bearing meeting link.
 4. `JobInterview`/participant/event relations cascade on parent deletion, while `JobInterviewEvent` is supporting append-only evidence. Retention/erasure behavior must be resolved before destructive production paths.
-5. CL-06 identifies a Prisma structural defect around `JobApplicationViewEvent`. Although not Job Interview-owned, it may block whole-schema validation/migration generation and must be resolved before affected migrations.
+5. U-CL06-17's relation-placement claim is retired. R008's extra Organization/view-event many-to-many relation remains a domain-meaning discrepancy for a later schema pass; R009's project migration-baseline question remains separate. Verify whole-schema validity independently rather than assuming a placement defect.
 
 ## 2. Purpose, Goal, and Transformation
 
@@ -78,7 +88,7 @@ The Module produces:
 
 - authoritative `JobInterview` state;
 - immutable `JobInterviewEvent` domain history;
-- participant state after participant ownership is approved;
+- participant state under Job Interview ownership once the relevant participant behavior is approved;
 - public, privacy-shaped interview queries;
 - versioned domain events after committed state changes;
 - requests to Messaging, Notification, Video, Calendar, Audit, Privacy, and Ops through their public interfaces;
@@ -113,13 +123,13 @@ A hiring interview resembles a marketplace Booking technically but carries diffe
 | `JobInterview` | The authoritative record that a formal hiring interview exists, which application/organization/candidate it belongs to, when it is intended to occur, its location mode, its lifecycle status, and its local downstream-reference state. | **Binding / confirmed** |
 | `JobInterviewEvent` | Immutable interview-domain history recording actor type, optional actor ID, prior/next interview status, event name, reason, safe metadata, and timestamp. | **Binding / confirmed** |
 
-### 3.2 Proposed owned schemas/models
+### 3.2 Confirmed participant model
 
 | Record | Meaning | Ownership status |
 |---|---|---|
-| `JobInterviewParticipant` | Interview-local fact that a User participates in one specific hiring interview under a participant role and invitation-response state. | **Proposed Ruling — U-CL06-14** |
+| `JobInterviewParticipant` | Interview-local fact that a User participates in one specific hiring interview under a participant role and invitation-response state. | **Confirmed — CL-06-R012; remaining U-CL06-14 policy gated** |
 
-**Proposed Ruling:** Job Interview should own `JobInterviewParticipant` because the row is interview-scoped, cascade-bound to `JobInterview`, and describes interview-local participation rather than organization-wide authority or Messaging participation. This ruling must be explicitly accepted before participant mutation code is committed.
+**Binding ruling (CL-06-R012):** Job Interview owns `JobInterviewParticipant` and its role/status lifecycle. This is interview-local truth, not Organization-wide authority or Messaging participation. Removal/revocation, role eligibility and candidate participant invariants remain unresolved and must be approved before dependent behavior ships.
 
 ### 3.3 Confirmed owned enums/statuses
 
@@ -143,7 +153,7 @@ A hiring interview resembles a marketplace Booking technically but carries diffe
   - `admin`
   - `webhook`
 
-### 3.4 Proposed owned enums/statuses
+### 3.4 Confirmed participant enums/statuses
 
 - `JobInterviewParticipantRole`
   - `candidate`
@@ -157,13 +167,13 @@ A hiring interview resembles a marketplace Booking technically but carries diffe
   - `tentative`
   - `no_response`
 
-Ownership of these two enums follows U-CL06-14 and is not binding until approved.
+Job Interview ownership of both enums is confirmed by CL-06-R012; remaining participant policy is not approved by that ownership ruling.
 
 ### 3.5 Lifecycles owned
 
 **Binding:** Job Interview alone owns `JobInterview.status` changes.
 
-**Proposed:** if U-CL06-14 is accepted, Job Interview also owns participant invitation/response lifecycle.
+**Binding:** Job Interview owns participant invitation/response lifecycle; the remaining U-CL06-14 behavior questions stay gated.
 
 The Module does not own `JobApplication.status`, `JobApplication.stage`, `Job.status`, `Thread` lifecycle, `Notification` lifecycle, `JobInterviewVideoRoom` lifecycle, calendar-provider lifecycle, or privacy-request lifecycle.
 
@@ -171,13 +181,13 @@ The Module does not own `JobApplication.status`, `JobApplication.stage`, `Job.st
 
 - `JobInterview` is interview state truth.
 - `JobInterviewEvent` is interview-domain event/history truth.
-- `JobInterviewParticipant` is participant truth only after proposed ownership is accepted.
+- `JobInterviewParticipant` is Job Interview-owned participant truth.
 
 No provider object, meeting URL, calendar event, Thread, Notification, AccessAuditLog, or frontend state may override these records.
 
 ### 3.7 Domain events / ledgers owned
 
-`JobInterviewEvent` is a domain ledger. The Module owns its vocabulary and when rows are appended. It uses the canonical shared `appendDomainLifecycleEvent` mechanism, but the shared mechanism must not move the ledger into a generic event table.
+`JobInterviewEvent` is a domain ledger. The Module owns its vocabulary and when rows are appended. It uses the canonical shared SH-031 `appendDomainLifecycleEvent` (Confirmed) mechanism, but the shared mechanism must not move the ledger into a generic event table.
 
 ### 3.8 Projections owned
 
@@ -250,7 +260,7 @@ The Module must not own or recreate the following.
 16. Privacy orchestration stays Privacy-owned; Job Interview only enumerates and executes against its own records.
 17. Participant management cannot ship until U-CL06-14 is settled.
 18. Advanced rescheduling cannot ship until U-CL06-15 is settled.
-19. Production calendar sync cannot ship until U-CL06-16 is settled.
+19. Production calendar sync uses Confirmed Booking & Calendar SH-067 `invokeCalendarProvider` (Confirmed); any persisted local sync-field meaning still requires the residual U-CL06-16 ruling.
 20. Any implementation requiring a changed binding decision must update architecture first.
 
 ## 6. Proposed Folder / Code Structure
@@ -370,7 +380,7 @@ Provider-neutral dependency ports may exist under `contracts/dependency-ports.ts
 - optionally references scheduling `User`;
 - self-references predecessor interview for rescheduling;
 - owns interview events;
-- proposed ownership of participant rows;
+- confirmed participant-row ownership with remaining removal/eligibility policy gated;
 - has one Video-owned `JobInterviewVideoRoom` relation;
 - may have a Messaging-owned `Thread` relation.
 
@@ -395,7 +405,7 @@ Provider-neutral dependency ports may exist under `contracts/dependency-ports.ts
 - `externalSyncStatus`;
 - `externalSyncError`.
 
-These fields may be used as local calendar attachment/sync state only after U-CL06-16 confirms the calendar owner boundary. They never become calendar-provider source truth.
+These fields may be used as local calendar attachment/sync state only after residual U-CL06-16 approves their exact local meaning; Booking & Calendar provider ownership is already confirmed. They never become calendar-provider source truth.
 
 **Security-sensitive field:** `externalMeetingUrl`. It must not be treated as a permanent reusable credential. Until a binding rule is approved, provider-generated video access must use Video Infrastructure rather than this field.
 
@@ -413,7 +423,7 @@ These fields may be used as local calendar attachment/sync state only after U-CL
 
 **Concurrency-sensitive fields:** `status`, `startsAt`, `endsAt`, `rescheduledFromInterviewId`, terminal timestamps, and any local external-sync fields.
 
-**Concurrency note:** current schema has `updatedAt` but no explicit version column. Canonical `withOptimisticConcurrency` supports version or compare-and-set/`updatedAt`. Job Interview must follow the root persistence standard; it must not add a version column silently. Critical transition operations may additionally use `acquireAggregateLock` or conditional updates.
+**Concurrency note:** current schema has `updatedAt` but no explicit version column. Canonical SH-052 `withOptimisticConcurrency` (Confirmed) supports version or compare-and-set/`updatedAt`. Job Interview must follow the root persistence standard; it must not add a version column silently. Critical transition operations may additionally use SH-051 `acquireAggregateLock` (Confirmed) or conditional updates.
 
 **Retention/privacy concerns:** candidate identity linkage, participant identities, exact location text, timezones, meeting references, scheduling actor, calendar references, and terminal timestamps are personal/hiring data. Cascade deletion must be reconciled with legal retention and append-only proof before destructive production behavior.
 
@@ -440,7 +450,7 @@ These fields may be used as local calendar attachment/sync state only after U-CL
 
 **Retention:** event history is supporting compliance/audit evidence. Current cascade deletion from `JobInterview` conflicts with “append-only proof” expectations and needs a retention ruling.
 
-### 8.3 `JobInterviewParticipant` — Proposed Ruling
+### 8.3 `JobInterviewParticipant` — Confirmed Job Interview ownership
 
 **Purpose:** record interview-local participation and invitation response.
 
@@ -516,7 +526,7 @@ U-CL06-15 must answer:
 
 **Proposed Ruling:** prefer a successor interview for reschedule history and limit each predecessor to one effective active successor. This remains non-binding until accepted.
 
-### 9.3 Participant lifecycle — Proposed
+### 9.3 Participant lifecycle — Confirmed owner; remaining behavior unresolved
 
 Statuses: `invited`, `accepted`, `declined`, `tentative`, `no_response`.
 
@@ -540,7 +550,7 @@ The following names are the preferred Module contract names. An explicitly appro
 - **Authoritative inputs:** application ID, requested start/end, location type, timezone context, optional safe location/reference data, idempotency key.
 - **Preconditions:** application exists and is interviewable; organization/candidate tuple matches; valid time range; actor authorized; applicable holds do not block under approved policy.
 - **Writes:** `JobInterview`; `JobInterviewEvent`; outbox entry through shared mechanism.
-- **Shared operations:** `resolveAuthenticatedActor`, `authorizeResourceAction`, `queryOwnerFacts`, `executeIdempotentCommand`, concurrency primitive, `appendDomainLifecycleEvent`, `publishDomainEvent`.
+- **Shared operations:** SH-001 `resolveAuthenticatedActor` (Confirmed), SH-002 `authorizeResourceAction` (Confirmed), SH-003 `queryOwnerFacts` (Proposed ruling), SH-044 `executeIdempotentCommand` (Confirmed), concurrency primitive, SH-031 `appendDomainLifecycleEvent` (Confirmed), SH-046 `publishDomainEvent` (Confirmed).
 - **Effects:** may request Notification only after commit; participant rows only after U-CL06-14.
 - **Idempotency:** repeated same semantic command replays original result; conflicting fingerprint returns deterministic conflict.
 - **Failures:** unauthenticated, unauthorized, context mismatch, invalid time, invalid transition/policy unresolved, dependency unavailable, conflict.
@@ -557,7 +567,7 @@ The following names are the preferred Module contract names. An explicitly appro
 ### 10.3 `cancelInterview`
 
 - **Purpose:** transition an eligible interview to cancelled.
-- **Inputs:** interview ID, actor, reason, expected state/version, idempotency key.
+- **Inputs:** interview ID, actor, reason, expected state and owner-issued opaque expectedConcurrencyToken, idempotency key.
 - **Writes:** status, `cancelledAt`, event/outbox.
 - **Effects:** requests downstream revocation/update through owner contracts; those failures retry independently.
 
@@ -584,7 +594,7 @@ The following names are the preferred Module contract names. An explicitly appro
 ### 10.7 `addInterviewParticipant` — blocked by U-CL06-14
 
 - **Purpose:** add one interview-local participant.
-- **Preconditions:** participant ownership and assignment rules approved; user eligibility facts resolved from source owners; no duplicate composite key.
+- **Preconditions:** Job Interview ownership confirmed and assignment rules approved; user eligibility facts resolved from source owners; no duplicate composite key.
 - **Writes:** participant row + event/outbox.
 - **Must not:** create OrganizationMember or ThreadParticipant directly.
 
@@ -604,12 +614,12 @@ The following names are the preferred Module contract names. An explicitly appro
 - **Purpose:** consume a Candidate Application-owned event and apply only the approved owner-local interview effect.
 - **Input:** versioned domain event envelope with application ID and changed state facts.
 - **Must not:** rewrite application truth.
-- **Idempotency:** `deduplicateDomainEvent` before owner-local side effects.
+- **Idempotency:** SH-045 `deduplicateDomainEvent` (Confirmed) before owner-local side effects.
 - **Unresolved:** exact withdrawal/rejection/closed/hired effects on active interviews.
 
 ### 10.11 Privacy executor commands
 
-`executePrivacyInstruction` is implemented as a Job Interview owner executor under the Privacy-defined protocol, not as a user-facing privacy command. It may erase, anonymize, detach, restrict, or retain only after a Privacy-owned instruction and retention evaluation.
+SH-095 `executePrivacyInstruction` (Confirmed) is implemented as a Job Interview owner executor under the Privacy-defined protocol, not as a user-facing privacy command. It may erase, anonymize, detach, restrict, or retain only after a Privacy-owned instruction and retention evaluation.
 
 ## 11. Queries / Decisions
 
@@ -649,11 +659,11 @@ The following names are the preferred Module contract names. An explicitly appro
 
 ### `getInterviewAuthorizationFacts`
 
-This is an owner-facts DTO under canonical `queryOwnerFacts`, not a universal repository. It should expose only minimum identifiers/state needed by Role / Authority, e.g. interview ID, organization ID, candidate profile owner reference where permitted, participant relation if approved, and current status. It does not return raw application/resume content.
+This is an owner-facts DTO under canonical SH-003 `queryOwnerFacts` (Proposed ruling), not a universal repository. It should expose only minimum identifiers/state needed by Role / Authority, e.g. interview ID, organization ID, candidate profile owner reference where permitted, participant relation if approved, and current status. It does not return raw application/resume content.
 
 ### Decision result pattern
 
-Job Interview may return local allow/deny/conflict results for its own policy. It must not create a generic hiring readiness engine. If the shared `returnDecisionResult` envelope is used, the policy owner remains Job Interview for interview-specific decisions.
+Job Interview may return local allow/deny/conflict results for its own policy. It must not create a generic hiring readiness engine. If the shared SH-015 `returnDecisionResult` (Proposed ruling) envelope is used, the policy owner remains Job Interview for interview-specific decisions.
 
 ## 12. Public Module Interface
 
@@ -672,7 +682,7 @@ Blocked until decisions:
 - `rescheduleInterview` — U-CL06-15;
 - `addInterviewParticipant` — U-CL06-14;
 - `removeInterviewParticipant` — U-CL06-14;
-- `respondToInterviewInvitation` — participant ownership/policy portion of U-CL06-14.
+- `respondToInterviewInvitation` — remaining participant-policy portion of U-CL06-14.
 
 ### Public queries
 
@@ -681,7 +691,7 @@ Blocked until decisions:
 - `listOrganizationInterviews`
 - `listCandidateInterviews`
 - `getInterviewTimeline`
-- owner-fact query implementing the canonical `queryOwnerFacts` pattern.
+- owner-fact query implementing the canonical SH-003 `queryOwnerFacts` (Proposed ruling) pattern.
 
 ### Emitted domain events
 
@@ -709,9 +719,9 @@ Event names are a proposed stable registry because `JobInterviewEvent.name` is c
 
 ### Privacy executor
 
-- `enumerateSubjectData` implementation for Job Interview;
-- `executePrivacyInstruction` implementation for Job Interview;
-- `evaluateRetentionRequirement` facts for interview data.
+- SH-096 `enumerateSubjectData` (Confirmed) implementation for Job Interview;
+- SH-095 `executePrivacyInstruction` (Confirmed) implementation for Job Interview;
+- SH-097 `evaluateRetentionRequirement` (Confirmed) facts for interview data.
 
 ### Provider-facing interfaces
 
@@ -721,19 +731,19 @@ None directly owned. Job Interview must not expose raw provider webhooks or prov
 
 | Owning Module / capability | Public operation/interface consumed | Why required | Minimum information | May block action? | Must not copy locally |
 |---|---|---|---|---|---|
-| Identity & Access | `resolveAuthenticatedActor` | trusted actor context | actor ID/type/session assurance | yes, protected actions | auth/session logic |
-| Role / Authority | `authorizeResourceAction` | organization/candidate/admin permission | action + owner facts + actor | yes | role interpretation |
+| Identity & Access | SH-001 `resolveAuthenticatedActor` (Confirmed) | trusted actor context | actor ID/type/session assurance | yes, protected actions | auth/session logic |
+| Role / Authority | SH-002 `authorizeResourceAction` (Confirmed) | organization/candidate/admin permission | action + owner facts + actor | yes | role interpretation |
 | Organization Hiring | `getOrganizationHiringContext` or owner-fact DTO | verify organization/job relationship and active hiring context | organization ID, job/application relationship facts, relevant status/version | yes | Organization/Job lifecycle |
 | Candidate Application & Resume Privacy | interviewability facts / `getJobApplicationDetail`-grade owner DTO | verify application/candidate/job consistency | application ID, candidate profile ID, job/org IDs, source state/version | yes | application stage/status policy |
 | Candidate Application & Resume Privacy | `authorizeContextualResumeAccess` / resume-review contract | interview-related resume review | actor, application, media, reason=`interview_review` | yes for resume access only | ResumeAccessLog/authorization |
-| Admin Review / Compliance Hold | `evaluateComplianceHold` | enforce applicable reusable stop sign where Cluster/root policy requires | target/action + hold IDs/reasons | yes when applicable | local hold flags |
-| Messaging | `ensureContextThread` | create/retrieve interview conversation | context type `job_interview`, interview ID, approved participant IDs | no to source interview truth; may degrade collaboration | Thread lifecycle |
-| Notification | `requestNotification`, recipient contract | alert users after interview facts | recipients/template/safe variables/idempotency | no to source truth; retryable | delivery/provider logic |
-| Video Infrastructure | JobInterview room request/join contract; internally uses `invokeVideoProvider` | live video interview | interview ID, time window, participant context | room availability may degrade video experience; does not own interview state | provider rooms/tokens |
-| Calendar capability | provider-neutral create/update/cancel/sync contract after U-CL06-16 | external calendar handoff | interview ID, times, safe participant/event fields, idempotency | no to source truth unless future approved policy says otherwise | provider SDK/webhook/dedupe |
-| Audit / Event Ledger | `appendAuditEvent`, `recordSensitiveAccess` | generic proof and restricted-access evidence | actor/action/target/outcome/safe metadata | audit failure follows root policy; no silent skip for required evidence | AuditEvent/AccessAuditLog tables |
+| Admin Review / Compliance Hold | SH-011 `evaluateComplianceHold` (Confirmed) | enforce applicable reusable stop sign where Cluster/root policy requires | target/action + hold IDs/reasons | yes when applicable | local hold flags |
+| Messaging | SH-113 `ensureContextThread` (Confirmed) | create/retrieve interview conversation | context type `job_interview`, interview ID, approved participant IDs | no to source interview truth; may degrade collaboration | Thread lifecycle |
+| Notification | SH-041 `requestNotification` (Confirmed), recipient contract | alert users after interview facts | recipients/template/safe variables/idempotency | no to source truth; retryable | delivery/provider logic |
+| Video Infrastructure | JobInterview room request/join contract; internally uses SH-068 `invokeVideoProvider` (Confirmed) | live video interview | interview ID, time window, participant context | room availability may degrade video experience; does not own interview state | provider rooms/tokens |
+| Booking & Calendar | Confirmed SH-067 `invokeCalendarProvider` (Confirmed) create/update/cancel/sync contract; local sync-field semantics remain gated | external calendar handoff | interview ID, times, safe participant/event fields, idempotency | no to source truth unless future approved policy says otherwise | provider SDK/webhook/dedupe |
+| Audit / Event Ledger | SH-029 `appendAuditEvent` (Confirmed), SH-030 `recordSensitiveAccess` (Confirmed) | generic proof and restricted-access evidence | actor/action/target/outcome/safe metadata | audit failure follows root policy; no silent skip for required evidence | AuditEvent/AccessAuditLog tables |
 | Privacy / Data Erasure | privacy target protocol | legal erase/export/restrict workflow | target instruction, subject, retention context | yes for destructive action | PrivacyRequest/DataErasureJob |
-| Observability / Ops | `recordIntegrationFailure` | visible technical degradation | provider/operation/source ref/retryability/request ID | no business approval; records failure | IntegrationFailure lifecycle |
+| Observability / Ops | SH-037 `recordIntegrationFailure` (Confirmed) | visible technical degradation | provider/operation/source ref/retryability/request ID | no business approval; records failure | IntegrationFailure lifecycle |
 
 ### Dependency failure rule
 
@@ -749,7 +759,7 @@ If a required gate is unavailable, return explicit unavailable/deny/retry accord
 | Messaging | interview context/approved participant IDs | thread creation/update request | Messaging owns Thread/participants |
 | Notification | safe event facts/recipients | alert delivery | Notification owns provider attempts |
 | Video Infrastructure | interview ID/time/participant context | room create/update/cancel/token requests | Video owns room/provider truth |
-| Calendar capability | schedule intent | external event create/update/cancel | calendar owner owns provider truth |
+| Booking & Calendar | schedule intent | external event create/update/cancel | calendar owner owns provider truth |
 | Audit | significant action/access context | generic audit/access append | audit records are separate proof |
 | Privacy | subject-data inventory/executor results | erase/export/restrict orchestration | Privacy owns request/job |
 | Ops | source reference and safe diagnostics | integration failure/incident telemetry | operational evidence only |
@@ -758,46 +768,46 @@ Downstream owner commands should be published/queued only after the source trans
 
 ## 15. Canonical Shared Operations Used
 
-The supplied Canonical Shared Operations Architecture provides canonical operation names but no SH-### identifiers. Therefore the operation name is the canonical identifier in this document.
+The [Shared Operations registry](../../../shared/shared-operations.md) governs permanent IDs, canonical names, owners, classifications and statuses. Registered use points below carry verified IDs/statuses. Proposed ruling entries may support planning and owner-specific interfaces/mechanisms, but cross-platform SH API/schema commitment requires separate explicit approval; any exit gate relying on that shared API must verify approval. Unresolved entries must not be silently implemented or replaced locally. The approved Job Compliance publication envelope does not approve a proposed shared decision envelope.
 
 | Canonical operation | Classification / owner | Why Job Interview uses it | Invocation point | Local policy that remains Job Interview-owned | Expected result | Prohibited duplicate |
 |---|---|---|---|---|---|---|
-| `resolveAuthenticatedActor` | Platform capability — Identity & Access | obtain trusted actor | every protected command/query | action being attempted | typed actor context | `getCurrentUser`, feature auth helper |
-| `authorizeResourceAction` | Cross-cutting capability — Role / Authority | determine org/candidate/admin permission | after actor resolution, before protected work | action vocabulary + interview relationship facts | typed allow/deny decision | `canRecruiterManageInterview` |
-| `queryOwnerFacts` | Shared contract, separate implementations — each source owner | obtain minimum application/org facts without repository coupling | authorization/context validation | which facts Job Interview exposes/needs | small typed DTO | universal cross-domain repository |
-| `evaluateComplianceHold` | Cross-cutting capability — Holds | enforce applicable stop signs | before affected sensitive/lifecycle action when policy applies | how applicable hold blocks Job Interview action | hold decision/references | `interviewBlocked` flag/table |
-| `appendAuditEvent` | Platform audit capability — Audit | generic action proof where required | after significant approved action | which actions merit generic audit | audit receipt | local AuditEvent |
-| `recordSensitiveAccess` | Cross-cutting capability — Audit | proof of restricted interview/resume/video/admin access | sensitive query/grant/join path | sensitivity classification and safe context | access-log receipt | local AccessAuditLog |
-| `appendDomainLifecycleEvent` | Shared mechanism / separate truth — shared persistence | append `JobInterviewEvent` with state change | inside owner transaction | event vocabulary/metadata | event row | universal domain-event table |
-| `requestNotification` | Platform notification capability — Notification | request user alert | after owner event/outbox | trigger meaning, safe variables | delivery request receipt | SES/SMS/push code |
-| `resolveNotificationRecipients` | Shared contract — source owner + Notification | derive interview recipients without Notification owning participant truth | notification orchestration | which interview roles receive which event | user IDs / recipient group | global participant policy in Notification |
-| `executeIdempotentCommand` | Platform primitive — application infrastructure | safe command replay | every retryable mutation | semantic command identity/conflict behavior | original/new command result | ad-hoc idempotency table |
-| `publishDomainEvent` | Platform primitive — outbox infrastructure | reliable post-commit event | owner transaction/outbox | event name/payload/privacy | durable event envelope | fire-and-forget event bus write |
-| `deduplicateDomainEvent` | Platform primitive — event inbox | safe application/provider-normalized event consumption | application-state and normalized result handlers | owner-local side effect | inbox claim/result | custom processed-event table |
-| `enqueueReliableJob` | Platform primitive — shared queue | expiry/retry/reconciliation/privacy work | async handoff | payload/completion meaning | durable job receipt | local queue framework |
-| `executeRetryWithBackoff` | Platform primitive — queue/platform | retry transient technical failures | worker/provider handoff | retryable vs permanent classification | retry/dead-letter outcome | bespoke retry loop |
-| `orchestrateWorkflowSteps` | Shared mechanism / separate workflow truth — workflow owner | coordinate multi-owner interview handoffs if simple outbox receipts are insufficient | collaboration/provider workflow | steps, dependencies, compensation | persisted run/step acknowledgments | generic hiring truth |
-| `acquireAggregateLock` | Platform primitive — shared persistence | serialize critical interview transitions | cancel/reschedule/terminal races | lock key/conflicting actions | lock/transaction scope | in-memory mutex |
-| `withOptimisticConcurrency` | Platform primitive — shared persistence | reject stale updates | mutable interview/participant operations | retry/merge/conflict policy | updated record or conflict | blind last-write-wins |
-| `transitionLifecycleState` | Shared mechanism / separate truth | reusable transition plumbing | each status command | complete Job Interview transition graph | validated transition result | generic state policy table |
-| `runDeadlineExpiration` | Cross-cutting scheduler — shared scheduler/queue | expire stale proposals only if expiry policy is approved | scheduled worker | what expires and resulting transition | owner command dispatch | custom cron framework |
-| `ensureContextThread` | Module public interface — Messaging | create/retrieve interview Thread | after interview/participant commit | context and participant facts | Thread reference | local chat table |
-| `recordIntegrationFailure` | Cross-cutting capability — Observability/Ops | track degraded handoff/provider result | failure handling | business effect remains local | IntegrationFailure ref | JobInterviewEvent as sole ops log |
-| `enumerateSubjectData` | Cross-cutting privacy protocol — each data owner | expose interview-held subject data | Privacy inventory step | schema/relationship meaning | target inventory | local privacy request workflow |
-| `executePrivacyInstruction` | Cross-cutting privacy protocol — Privacy orchestrates, Job Interview executes | erase/anonymize/restrict/retain own data | Privacy worker callback | field-level owner behavior | target result | local DataErasureJob |
-| `evaluateRetentionRequirement` | Cross-cutting privacy protocol — owner facts + Privacy exemption | determine retention before destructive action | privacy executor | interview retention facts | retain/erase/anonymize decision facts | local exemption table |
-| `anonymizePersonalFields` | Cross-cutting primitive — owner mapping | apply approved field-level minimization | privacy executor | exact field map | proof/result | global blind scrubber |
+| SH-001 `resolveAuthenticatedActor` (Confirmed) | Platform capability — Identity & Access | obtain trusted actor | every protected command/query | action being attempted | typed actor context | `getCurrentUser`, feature auth helper |
+| SH-002 `authorizeResourceAction` (Confirmed) | Cross-cutting capability — Role / Authority | determine org/candidate/admin permission | after actor resolution, before protected work | action vocabulary + interview relationship facts | typed allow/deny decision | `canRecruiterManageInterview` |
+| SH-003 `queryOwnerFacts` (Proposed ruling) | Shared contract; separate implementations — Each source Module | obtain minimum application/org facts without repository coupling | authorization/context validation | which facts Job Interview exposes/needs | small typed DTO | universal cross-domain repository |
+| SH-011 `evaluateComplianceHold` (Confirmed) | Cross-cutting capability — Admin Review / Compliance Hold | enforce applicable stop signs | before affected sensitive/lifecycle action when policy applies | how applicable hold blocks Job Interview action | hold decision/references | `interviewBlocked` flag/table |
+| SH-029 `appendAuditEvent` (Confirmed) | Platform audit capability — Audit / Event Ledger | generic action proof where required | after significant approved action | which actions merit generic audit | audit receipt | local AuditEvent |
+| SH-030 `recordSensitiveAccess` (Confirmed) | Cross-cutting capability — Audit / Event Ledger | proof of restricted interview/resume/video/admin access | sensitive query/grant/join path | sensitivity classification and safe context | access-log receipt | local AccessAuditLog |
+| SH-031 `appendDomainLifecycleEvent` (Confirmed) | Shared mechanism; separate truth — Shared persistence mechanism; each domain owns truth | append `JobInterviewEvent` with state change | inside owner transaction | event vocabulary/metadata | event row | universal domain-event table |
+| SH-041 `requestNotification` (Confirmed) | Platform notification capability — Notification | request user alert | after owner event/outbox | trigger meaning, safe variables | delivery request receipt | SES/SMS/push code |
+| SH-043 `resolveNotificationRecipients` (Confirmed) | Shared contract; separate policy — Source context owner plus Notification | derive interview recipients without Notification owning participant truth | notification orchestration | which interview roles receive which event | user IDs / recipient group | global participant policy in Notification |
+| SH-044 `executeIdempotentCommand` (Confirmed) | Platform primitive — Platform application infrastructure | safe command replay | every retryable mutation | semantic command identity/conflict behavior | original/new command result | ad-hoc idempotency table |
+| SH-046 `publishDomainEvent` (Confirmed) | Platform primitive — Platform event/outbox infrastructure | reliable post-commit event | owner transaction/outbox | event name/payload/privacy | durable event envelope | fire-and-forget event bus write |
+| SH-045 `deduplicateDomainEvent` (Confirmed) | Platform primitive — Platform event infrastructure; consumer owns inbox | safe application/provider-normalized event consumption | application-state and normalized result handlers | owner-local side effect | inbox claim/result | custom processed-event table |
+| SH-047 `enqueueReliableJob` (Confirmed) | Platform primitive — Shared queue infrastructure | expiry/retry/reconciliation/privacy work | async handoff | payload/completion meaning | durable job receipt | local queue framework |
+| SH-048 `executeRetryWithBackoff` (Confirmed) | Platform primitive — Shared queue/platform infrastructure | retry transient technical failures | worker/provider handoff | retryable vs permanent classification | retry/dead-letter outcome | bespoke retry loop |
+| SH-049 `orchestrateWorkflowSteps` (Confirmed) | Shared mechanism; separate workflow truth — Workflow-owning Module using shared runner | coordinate multi-owner interview handoffs if simple outbox receipts are insufficient | collaboration/provider workflow | steps, dependencies, compensation | persisted run/step acknowledgments | generic hiring truth |
+| SH-051 `acquireAggregateLock` (Confirmed) | Platform primitive — Shared persistence infrastructure | serialize critical interview transitions | cancel/reschedule/terminal races | lock key/conflicting actions | lock/transaction scope | in-memory mutex |
+| SH-052 `withOptimisticConcurrency` (Confirmed) | Platform primitive — Shared persistence infrastructure | reject stale updates | mutable interview/participant operations | retry/merge/conflict policy | updated record or conflict | blind last-write-wins |
+| SH-053 `transitionLifecycleState` (Confirmed) | Shared mechanism; separate truth — Shared mechanism; lifecycle owner supplies policy | reusable transition plumbing | each status command | complete Job Interview transition graph | validated transition result | generic state policy table |
+| SH-055 `runDeadlineExpiration` (Confirmed) | Cross-cutting capability — Shared scheduler/queue infrastructure | expire stale proposals only if expiry policy is approved | scheduled worker | what expires and resulting transition | owner command dispatch | custom cron framework |
+| SH-113 `ensureContextThread` (Confirmed) | Module public interface — Messaging | create/retrieve interview Thread | after interview/participant commit | context and participant facts | Thread reference | local chat table |
+| SH-037 `recordIntegrationFailure` (Confirmed) | Cross-cutting capability — Observability / Ops | track degraded handoff/provider result | failure handling | business effect remains local | IntegrationFailure ref | JobInterviewEvent as sole ops log |
+| SH-096 `enumerateSubjectData` (Confirmed) | Cross-cutting protocol — Each data-owning Module through Privacy-defined interface | expose interview-held subject data | Privacy inventory step | schema/relationship meaning | target inventory | local privacy request workflow |
+| SH-095 `executePrivacyInstruction` (Confirmed) | Cross-cutting protocol — Privacy orchestrates; each data owner executes | erase/anonymize/restrict/retain own data | Privacy worker callback | field-level owner behavior | target result | local DataErasureJob |
+| SH-097 `evaluateRetentionRequirement` (Confirmed) | Cross-cutting protocol — Data owner supplies facts; Privacy records exemption | determine retention before destructive action | privacy executor | interview retention facts | retain/erase/anonymize decision facts | local exemption table |
+| SH-098 `anonymizePersonalFields` (Confirmed) | Cross-cutting capability — Shared primitive; record owner supplies mapping | apply approved field-level minimization | privacy executor | exact field map | proof/result | global blind scrubber |
 
 ### Dependency-owned provider pattern operations
 
 The following are **not implemented in Job Interview**. They are requirements on the provider-owning Module used by Job Interview:
 
-- `invokeVideoProvider` — Video Infrastructure;
-- `invokeCalendarProvider` — Booking & Calendar under current canonical registry, subject to U-CL06-16 for hiring use;
-- `verifyProviderWebhookSignature`;
-- `deduplicateProviderEvent`;
-- `translateProviderStatus`;
-- `reconcileProviderState`.
+- SH-068 `invokeVideoProvider` (Confirmed) — Video Infrastructure;
+- SH-067 `invokeCalendarProvider` (Confirmed) — Confirmed Booking & Calendar boundary, including Job Interview; only local sync-field semantics remain unresolved;
+- SH-059 `verifyProviderWebhookSignature` (Confirmed);
+- SH-060 `deduplicateProviderEvent` (Confirmed);
+- SH-061 `translateProviderStatus` (Confirmed);
+- SH-062 `reconcileProviderState` (Confirmed).
 
 Job Interview consumes normalized owner results only.
 
@@ -819,7 +829,7 @@ Job Interview consumes normalized owner results only.
 
 ## 17. Shared Mechanism / Separate Truth Rules
 
-1. **State-machine plumbing is shared; `JobInterviewStatus` policy is not.** `transitionLifecycleState` may validate/update mechanically but cannot own the graph.
+1. **State-machine plumbing is shared; `JobInterviewStatus` policy is not.** SH-053 `transitionLifecycleState` (Confirmed) may validate/update mechanically but cannot own the graph.
 2. **Append mechanics are shared; `JobInterviewEvent` remains Job Interview truth.** Do not merge with BookingEvent, AuditEvent, or provider-event tables.
 3. **Idempotency is shared; semantic command identity is local.** The platform stores claim/result mechanics; Job Interview defines what “same command” means.
 4. **Concurrency primitives are shared; aggregate conflicts are local.** Lock key is interview ID or participant composite key; no global hiring lock policy.
@@ -836,11 +846,11 @@ Job Interview consumes normalized owner results only.
 
 ### Authenticated actor requirement
 
-All protected commands and non-public queries call `resolveAuthenticatedActor` first. Frontend identity, a participant ID, or an OrganizationMember ID in the request is not trusted actor proof.
+All protected commands and non-public queries call SH-001 `resolveAuthenticatedActor` (Confirmed) first. Frontend identity, a participant ID, or an OrganizationMember ID in the request is not trusted actor proof.
 
 ### Role / Authority operation
 
-Use `authorizeResourceAction`. Job Interview supplies only minimum relationship facts and a stable action vocabulary such as:
+Use SH-002 `authorizeResourceAction` (Confirmed). Job Interview supplies only minimum relationship facts and a stable action vocabulary such as:
 
 - `interview.propose`;
 - `interview.schedule`;
@@ -876,11 +886,11 @@ At minimum where relevant:
 
 ### Admin/support
 
-Admin/support actions require platform authority and must not be broad bypasses for sensitive interview/resume/video/location data. Sensitive reads use `recordSensitiveAccess` where policy requires.
+Admin/support actions require platform authority and must not be broad bypasses for sensitive interview/resume/video/location data. Sensitive reads use SH-030 `recordSensitiveAccess` (Confirmed) where policy requires.
 
 ### Step-up
 
-No Job Interview-specific step-up requirement is confirmed. If root security policy requires fresh assurance for a sensitive admin/support action, use Identity & Access `requireStepUpForSensitiveAction`; do not add local MFA state.
+No Job Interview-specific step-up requirement is confirmed. If root security policy requires fresh assurance for a sensitive admin/support action, use Identity & Access SH-014 `requireStepUpForSensitiveAction` (Confirmed); do not add local MFA state.
 
 ## 19. Compliance / Readiness / Entitlement Gates
 
@@ -888,11 +898,11 @@ Job Interview has a narrow gate surface.
 
 | Gate | Underlying truth owner | Query consumed | Gated Job Interview action | Local composition | Result |
 |---|---|---|---|---|---|
-| Authentication | Identity & Access | `resolveAuthenticatedActor` | all protected actions | none beyond requiring actor | actor or unauthenticated |
-| Permission | Role / Authority | `authorizeResourceAction` | mutate/view interview | supply interview/org/candidate facts | allow/deny |
+| Authentication | Identity & Access | SH-001 `resolveAuthenticatedActor` (Confirmed) | all protected actions | none beyond requiring actor | actor or unauthenticated |
+| Permission | Role / Authority | SH-002 `authorizeResourceAction` (Confirmed) | mutate/view interview | supply interview/org/candidate facts | allow/deny |
 | Application interviewability | Candidate Application | source owner facts/query | propose/schedule/reschedule | require coherent eligible application state as approved | allow/deny/unavailable |
 | Organization/job context | Organization Hiring | owner facts | org-side interview actions | ensure application belongs to actor org/job | allow/deny |
-| ComplianceHold | Holds | `evaluateComplianceHold` | actions designated by Cluster/root | map applicable hold to local denial; no local flag | allow/deny/remediation |
+| ComplianceHold | Holds | SH-011 `evaluateComplianceHold` (Confirmed) | actions designated by Cluster/root | map applicable hold to local denial; no local flag | allow/deny/remediation |
 | Resume review | Candidate Application + Media | contextual resume authorization then Media grant | resume access from interview | supply reason `interview_review` | allow/deny/grant ref |
 | Video join | Video Infrastructure with Role/context inputs | Video room/join contract | join video interview | supply participant/time context | token/grant/deny |
 
@@ -925,7 +935,7 @@ Job Interview must never store or generate provider-native join tokens, secrets,
 
 ```text
 Job Interview committed schedule
-→ architecture-approved calendar owner public command
+→ Confirmed Booking & Calendar public command
 → provider-neutral calendar port
 → Cronofy / future adapter
 → verified/deduped/translated provider result
@@ -934,16 +944,16 @@ Job Interview committed schedule
 → Job Interview local sync attachment state if U-CL06-16 approves
 ```
 
-The canonical shared operations document currently assigns `invokeCalendarProvider` to Booking & Calendar, but CL-06 U-CL06-16 explicitly questions whether that capability is general enough for hiring. Production calendar sync is blocked until the architecture decides this.
+Confirmed SH-067 `invokeCalendarProvider` (Confirmed) is mandatory and owned by Booking & Calendar for hiring as well as other calendar use. Booking & Calendar owns connections, provider invocation/synchronization, webhook verification/dedupe and normalization. Job Interview supplies schedule policy/context and SHALL NOT create a second calendar provider owner. Only exact interview-local external event/sync/error-field meaning remains unresolved.
 
 ### Webhooks
 
 No webhook endpoint belongs in Job Interview. Provider owner must use:
 
-- `verifyProviderWebhookSignature`;
-- `deduplicateProviderEvent`;
-- `translateProviderStatus`;
-- `reconcileProviderState`.
+- SH-059 `verifyProviderWebhookSignature` (Confirmed);
+- SH-060 `deduplicateProviderEvent` (Confirmed);
+- SH-061 `translateProviderStatus` (Confirmed);
+- SH-062 `reconcileProviderState` (Confirmed).
 
 Job Interview consumes only a trusted normalized internal result/event.
 
@@ -1003,7 +1013,7 @@ Events may include IDs, status changes, schedule timestamps where required, loca
 
 ### Consumer idempotency
 
-All consumers use `deduplicateDomainEvent`. Duplicate delivery must not create duplicate notifications, threads, provider rooms, calendar events, or application-stage requests.
+All consumers use SH-045 `deduplicateDomainEvent` (Confirmed). Duplicate delivery must not create duplicate notifications, threads, provider rooms, calendar events, or application-stage requests.
 
 ### Events are facts, not commands
 
@@ -1043,9 +1053,11 @@ Job Interview does not schedule the privacy job. Privacy invokes the owner execu
 
 ### Queue rule
 
-All jobs use `enqueueReliableJob` and `executeRetryWithBackoff`. Do not create a Module-local cron/queue framework.
+All jobs use SH-047 `enqueueReliableJob` (Confirmed) and SH-048 `executeRetryWithBackoff` (Confirmed). Do not create a Module-local cron/queue framework.
 
 ## 23. Concurrency and Idempotency
+
+Public mutation contracts use an owner-issued opaque `expectedConcurrencyToken`. The owner returns the token, atomically compares it through SH-052 `withOptimisticConcurrency` (Confirmed), and rejects stale tokens. Consumers do not assume a universal integer `version` or `updatedAt` field. JobApplication, mutable Job Compliance finding/review, JobInterview and any parent-versus-child token backing remain unresolved where no representation is approved; no version column is ordered here.
 
 ### Races to prevent
 
@@ -1064,16 +1076,16 @@ All jobs use `enqueueReliableJob` and `executeRetryWithBackoff`. Do not create a
 ### Aggregate/resource lock keys
 
 - interview lifecycle: `job_interview:{interviewId}`;
-- participant mutation: `job_interview_participant:{interviewId}:{userId}` after participant ownership approval;
+- participant mutation: `job_interview_participant:{interviewId}:{userId}` after the relevant participant policy is approved;
 - reschedule creation may also lock predecessor interview and any approved active-successor constraint.
 
 ### Database strategy
 
 Use repository/root-approved implementations of:
 
-- `withOptimisticConcurrency` for stale-edit detection;
-- `acquireAggregateLock` or a transactionally equivalent Postgres lock for critical conflicting commands;
-- conditional update on expected current status/version/`updatedAt`;
+- SH-052 `withOptimisticConcurrency` (Confirmed) for stale-edit detection;
+- SH-051 `acquireAggregateLock` (Confirmed) or a transactionally equivalent Postgres lock for critical conflicting commands;
+- conditional update on current state and owner-issued opaque expectedConcurrencyToken, atomically compared;
 - existing composite participant primary key for duplicate prevention.
 
 Never use process-local mutexes for distributed correctness.
@@ -1084,7 +1096,7 @@ Current schema does not enforce at most one successor. If U-CL06-15 approves tha
 
 ### Idempotency semantics
 
-All externally initiated/retryable commands require `executeIdempotentCommand`.
+All externally initiated/retryable commands require SH-044 `executeIdempotentCommand` (Confirmed).
 
 The semantic fingerprint should include command type, actor, target/interview/application context, and material request fields. Same key + same fingerprint replays the original result. Same key + different fingerprint is a conflict.
 
@@ -1163,11 +1175,11 @@ Notification owns channel routing, persistence, provider delivery, retries, deli
 
 ### Generic audit
 
-Use `appendAuditEvent` only where root/Cluster audit policy requires generic proof. Do not mirror every domain event automatically unless policy says so.
+Use SH-029 `appendAuditEvent` (Confirmed) only where root/Cluster audit policy requires generic proof. Do not mirror every domain event automatically unless policy says so.
 
 ### Sensitive access
 
-Use `recordSensitiveAccess` for restricted interview/admin access where required, especially:
+Use SH-030 `recordSensitiveAccess` (Confirmed) for restricted interview/admin access where required, especially:
 
 - interview-related resume access path;
 - sensitive support/admin interview views;
@@ -1193,7 +1205,7 @@ Job Interview may hold:
 
 - interview IDs linked to candidate application/profile and organization;
 - scheduling actor ID;
-- participant User IDs and response timestamps if U-CL06-14 is accepted;
+- participant User IDs and response timestamps under confirmed Job Interview ownership, with behavior gated by remaining U-CL06-14 policy;
 - interview schedule/timezones;
 - `locationText`;
 - `externalMeetingUrl` if retained under approved policy;
@@ -1203,7 +1215,7 @@ Job Interview may hold:
 
 ### Privacy executor
 
-Implement the Privacy-defined `enumerateSubjectData` and `executePrivacyInstruction` contracts for Job Interview-owned data only.
+Implement the Privacy-defined SH-096 `enumerateSubjectData` (Confirmed) and SH-095 `executePrivacyInstruction` (Confirmed) contracts for Job Interview-owned data only.
 
 ### Possible dispositions
 
@@ -1215,7 +1227,7 @@ Depending on approved retention policy:
 - minimize event metadata/reasons while preserving required event proof;
 - detach or mark source records per approved privacy restriction behavior;
 - request linked provider/message/video deletion through their owners;
-- retain required hiring/audit proof only when `evaluateRetentionRequirement` supplies the basis and Privacy records `DataRetentionExemption`.
+- retain required hiring/audit proof only when SH-097 `evaluateRetentionRequirement` (Confirmed) supplies the basis and Privacy records `DataRetentionExemption`.
 
 ### Retention blockers
 
@@ -1259,7 +1271,7 @@ Do not log:
 
 ### Ops records
 
-Use `recordIntegrationFailure` for provider/worker/rail degradation. Use queue telemetry and incident correlation. Operational records never become interview status truth.
+Use SH-037 `recordIntegrationFailure` (Confirmed) for provider/worker/rail degradation. Use queue telemetry and incident correlation. Operational records never become interview status truth.
 
 ### Metrics
 
@@ -1326,7 +1338,6 @@ These are interface-level codes, not provider codes:
 - `INTERVIEW_APPLICATION_NOT_INTERVIEWABLE`
 - `INTERVIEW_PARTICIPANT_POLICY_UNRESOLVED`
 - `INTERVIEW_RESCHEDULE_POLICY_UNRESOLVED`
-- `INTERVIEW_CALENDAR_OWNER_UNRESOLVED`
 - `INTERVIEW_DEPENDENCY_UNAVAILABLE`
 
 Exact code spelling may be aligned to root error conventions, but stable semantics are required.
@@ -1453,10 +1464,10 @@ participant invite/response
 11. Video Infrastructure owns `JobInterviewVideoRoom` and provider room/join mechanics.
 12. Job Interview must not call Daily/Agora directly.
 13. Job Interview must not create reusable public video/join URLs.
-14. Calendar provider ownership/mechanics remain outside Job Interview; production sync waits for U-CL06-16.
+14. Confirmed Booking & Calendar SH-067 `invokeCalendarProvider` (Confirmed) owns calendar mechanics; only residual local sync-field meaning remains gated by U-CL06-16.
 15. Job Interview must not create `ProcessedInterviewCalendarEvent`.
 16. Provider callbacks must be verified, deduped, and translated by the provider owner before Job Interview consumes them.
-17. Participant ownership/removal/candidate invariant remains blocked until U-CL06-14 is approved.
+17. Participant ownership is confirmed; removal/role eligibility/candidate invariant remains blocked until the remaining U-CL06-14 policy is approved.
 18. Reschedule transition/cardinality remains blocked until U-CL06-15 is approved.
 19. Participant row presence is not OrganizationMember authority.
 20. OrganizationMember role is not interpreted locally.
@@ -1509,13 +1520,13 @@ Do not generate inside `job_interview`:
 
 ## 35. Unresolved Decisions
 
-### U-JI-01 — Participant ownership/removal/candidate invariant
+### U-JI-01 — Confirmed participant owner; removal/eligibility/candidate invariant unresolved
 
 Derived from U-CL06-14.
 
 Questions:
 
-- Is Job Interview formally the owner of participant row and enums?
+- Owner is confirmed: Job Interview owns the participant row and role/status enums (CL-06-R012).
 - Must every interview have exactly one candidate-role participant in addition to `candidateProfileId`?
 - Can interviewers/coordinators/observers be non-OrganizationMembers?
 - What does removal mean: delete, revoke state, cancellation, or separate record?
@@ -1538,13 +1549,13 @@ Questions:
 
 **Blocks:** advanced transitions/rescheduling and any DB constraint based on active-successor semantics.
 
-### U-JI-03 — Calendar capability ownership for hiring
+### U-JI-03 — Calendar owner resolved; local sync-field semantics unresolved
 
 Derived from U-CL06-16.
 
-Question: Does Booking & Calendar intentionally expose a general calendar provider port to Job Interview, or should calendar integration be separated into a broader shared capability?
+Confirmed SH-067 `invokeCalendarProvider` (Confirmed) is owned by Booking & Calendar and covers hiring. Job Interview owns schedule policy. The remaining question is the exact local meaning of external event ID, provider-reference, sync-status and error fields; no second provider owner is permitted.
 
-**Blocks:** production calendar sync. Does not block provider-independent interview truth.
+**Blocks:** use of unresolved local sync fields in production. Confirmed Booking & Calendar provider ownership is not an open question; provider-independent interview truth remains separate.
 
 ### U-JI-04 — `externalMeetingUrl` semantics
 
@@ -1571,7 +1582,7 @@ Confirm canonical Privacy target identifiers for interview, participant, and eve
 
 ### U-JI-08 — Concurrency token
 
-Current schema has `updatedAt` but no explicit version. Confirm root strategy for `withOptimisticConcurrency` on JobInterview and public contract token.
+Current schema has `updatedAt` but no explicit version. The public contract uses an owner-issued opaque `expectedConcurrencyToken`; exact JobInterview backing and parent-versus-child comparison strategy remain unresolved.
 
 ### U-JI-09 — Event name registry
 
@@ -1587,14 +1598,14 @@ Define treatment of `locationText` and phone/in-person details, including notifi
 
 ### U-JI-12 — Prisma schema validation blocker
 
-Resolve CL-06 U-CL06-17 before migration generation if the current root schema fails validation due out-of-model relation lines.
+U-CL06-17 is retired as written: the referenced fields are inside model braces. Verify overall schema validity independently; R008's relation meaning and R009's project migration baseline remain separate.
 
 ## 36. Architecture Decision Summary
 
 ### Binding rulings
 
 1. `job_interview` is a `domain_capability_hybrid` in CL-06.
-2. Job Interview owns `JobInterview`, `JobInterviewStatus`, `JobInterviewLocationType`, `JobInterviewEvent`, and `JobInterviewEventActor`.
+2. Job Interview owns `JobInterview`, `JobInterviewStatus`, `JobInterviewLocationType`, `JobInterviewEvent`, `JobInterviewEventActor`, `JobInterviewParticipant`, `JobInterviewParticipantRole` and `JobInterviewParticipantStatus`.
 3. `JobInterview` is formal hiring interview truth and is not Booking.
 4. Candidate Application owns `JobApplication` status/stage and resume business privacy.
 5. Organization Hiring owns Organization/Job/member-row truth; Role / Authority interprets permission.
@@ -1609,26 +1620,26 @@ Resolve CL-06 U-CL06-17 before migration generation if the current root schema f
 
 ### Proposed rulings requiring explicit acceptance
 
-1. Job Interview owns `JobInterviewParticipant` and participant enums.
+1. Remaining participant removal/role eligibility/candidate invariant requires approval; ownership is already confirmed.
 2. Rescheduling should use a history-preserving successor model with one effective active successor per predecessor.
 3. Stable interview domain event names should use the `interview.*` registry listed in Section 12.
 
 ### Unresolved blockers
 
-Participant removal/candidate invariant, exact lifecycle matrix/reschedule semantics, calendar capability ownership, meeting-URL semantics, application/interview synchronization, retention/cascade behavior, privacy target IDs, concurrency token strategy, event-name finalization, proposal expiry, and hiring-location privacy remain unresolved until architecture decisions settle them.
+Participant removal/candidate invariant, exact lifecycle matrix/reschedule semantics, local calendar sync-field semantics, meeting-URL semantics, application/interview synchronization, retention/cascade behavior, privacy target IDs, concurrency token strategy, event-name finalization, proposal expiry, and hiring-location privacy remain unresolved until architecture decisions settle them.
 
 ## 37. Coding-Agent Usage
 
 Before implementing or modifying Job Interview, an agent must read, in order:
 
-1. root `project-overview.md`;
+1. current [project-overview-v3.md](../../../project-overview-v3.md);
 2. root `architecture.md` if present;
 3. root `code-standards.md` if present;
 4. Canonical Shared Operations Registry/Architecture;
 5. CL-06 `architecture.md`;
 6. CL-06 `build-plan.md`;
-7. this `job_interview/module-architecture.md`;
-8. this `job_interview/implementation-plan.md`;
+7. this [Module architecture](job-interview-module-architecture.md);
+8. this [Module implementation plan](job-interview-module-implementation-plan.md);
 9. relevant public-interface sections for Identity, Role / Authority, Organization Hiring, Candidate Application & Resume Privacy, Messaging, Notification, Video Infrastructure, Calendar owner, Audit, Privacy, Holds, and Ops;
 10. current Prisma schema and migrations;
 11. progress tracker / current branch handoff;

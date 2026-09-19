@@ -5,8 +5,10 @@
 > **Module type:** `compliance_trust_capability`  
 > **Build status:** `mvp_active_legal_gated`  
 > **Primary Cluster:** `CL-03 — Professional Supply & Readiness`  
-> **Repository target:** `context/modules/trust-verification-screening/module-architecture.md`  
+> **Repository target:** `context/clusters/professional supply & readiness/Trust verification Screening Module/trust-verification-screening-module-architecture.md`\
 > **Document status:** Implementation-grade Module architecture. Confirmed rulings are binding; Proposed Rulings require approval before schema/API commitment; Unresolved items are non-implementable where stated.
+
+**Repository context (CL-03-R021):** Read [context/context-map.md](<../../../context-map.md>) for authority by concern and verified artifact locations, [context/project-overview-v3.md](<../../../project-overview-v3.md>) for orientation, and [context/shared/shared-operations.md](<../../../shared/shared-operations.md>) for canonical operations. Root architecture, root build plan, code standards, and the progress tracker are missing; references to those prerequisites do not assert availability or authorize a substitute/global precedence rule.
 
 ## 1. Module Header
 
@@ -18,11 +20,11 @@ Coding agents, developers, reviewers, maintainers, architecture reviewers, compl
 
 This document is subordinate to the root Workin Ants architecture, project overview, code standards, and Canonical Shared Operations Registry. Root decisions about authentication, authorization, persistence, events, queues, privacy orchestration, audit, observability, media, search, and deployment are inherited rather than redefined here.
 
-The current evidence supplied to this Module task includes the root `project-overview.md`; a current root `architecture.md` or `code-standards.md` was not supplied as a current-conversation artifact. Implementers must still read the repository-current versions before coding.
+Read `context/project-overview-v3.md` for orientation. Root architecture and code standards are missing at the locations recorded in `context/context-map.md`; preserve required prerequisites as missing rather than claiming repository-current versions exist or substituting another artifact.
 
 ### Relationship to Cluster architecture
 
-This document specializes `CL-03 — Professional Supply & Readiness` for the `trust_verification_screening` Deep Module. The Cluster architecture is authoritative for cross-Module boundaries and build sequencing. This Module architecture is more specific and authoritative for Trust-owned records, policies, transitions, provider adapters, workers, contracts, and internal behavior.
+This document specializes `CL-03 — Professional Supply & Readiness` for the `trust_verification_screening` Deep Module. The Cluster architecture is authoritative for cross-Module boundaries and structural prerequisites; the Cluster build plan owns implementation sequencing (CL-03-R002). This Module architecture is more specific and authoritative for Trust-owned records, policies, transitions, provider adapters, workers, contracts, and internal behavior.
 
 The Cluster is not an aggregate owner. No `ProfessionalSupplyReadiness` or CL-03 verification repository is created here.
 
@@ -40,9 +42,9 @@ This document is derived from the current:
 - Prisma schema;
 - Ubiquitous Language / Compliance Inventory;
 - Canonical Shared Operations Architecture / Registry;
-- CL-03 `architecture.md`;
-- CL-03 `build-plan.md`;
-- Workin Ants `project-overview.md`;
+- CL-03 `context/clusters/professional supply & readiness/professional-supply-readiness-architecture.md`;
+- CL-03 `context/clusters/professional supply & readiness/professional-supply-readiness-build-plan.md`;
+- Workin Ants `context/project-overview-v3.md`;
 - direct boundary evidence for Professional Eligibility, Consent & Disclosure, Taxonomy & Classification, Transaction / Order, Media / File Access, Admin Review / Compliance Hold, Search / Public Visibility, Audit / Event Ledger, Privacy / Data Erasure, Notification, and Observability / Ops.
 
 ### Evidence labels
@@ -1871,16 +1873,16 @@ A dedicated immutable Trust lifecycle event table is not currently established. 
 
 Before implementing or modifying this Module, an agent must read the repository-current versions of:
 
-1. root `context/project-overview.md`;
-2. root `context/architecture.md`;
-3. root `context/code-standards.md`;
+1. `context/project-overview-v3.md`;
+2. root architecture (**missing**; see `context/context-map.md`);
+3. root code standards (**missing**; see `context/context-map.md`);
 4. `context/shared/shared-operations.md` / Canonical Shared Operations Registry;
-5. `context/professional-supply-readiness/architecture.md`;
-6. `context/professional-supply-readiness/build-plan.md`;
-7. this Module `module-architecture.md`;
-8. this Module `implementation-plan.md`;
+5. `context/clusters/professional supply & readiness/professional-supply-readiness-architecture.md`;
+6. `context/clusters/professional supply & readiness/professional-supply-readiness-build-plan.md`;
+7. this Module `context/clusters/professional supply & readiness/Trust verification Screening Module/trust-verification-screening-module-architecture.md`;
+8. this Module `context/clusters/professional supply & readiness/Trust verification Screening Module/trust-verification-screening-implementation-plan.md`;
 9. public-interface sections for Identity & Access, Role / Authority, Consent & Disclosure, Taxonomy & Classification, Professional Eligibility, Transaction / Order, Media / File Access, Admin Review / Compliance Hold, Search / Public Visibility, Notification, Audit / Event Ledger, Privacy / Data Erasure, Observability / Ops, and relevant Hiring owners;
-10. the current `progress-tracker.md`.
+10. the progress tracker (**missing**; see `context/context-map.md`).
 
 Before coding a numbered Module feature, the agent must also:
 

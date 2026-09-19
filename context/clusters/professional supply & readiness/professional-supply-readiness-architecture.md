@@ -4,7 +4,9 @@
 > **Cluster name:** Professional Supply & Readiness  
 > **Cluster type:** `core_marketplace_supply_eligibility_regulated_readiness`  
 > **Document status:** Implementation-grade cluster architecture; binding where marked Confirmed, planning-only where marked Proposed Ruling, and non-implementable where marked Unresolved  
-> **Repository target:** `context/professional-supply-readiness/architecture.md`
+> **Repository target:** `context/clusters/professional supply & readiness/professional-supply-readiness-architecture.md`
+
+**Repository context (CL-03-R021):** Read [context/context-map.md](<../../context-map.md>) for authority by concern and verified artifact locations, [context/project-overview-v3.md](<../../project-overview-v3.md>) for orientation, and [context/shared/shared-operations.md](<../../shared/shared-operations.md>) for canonical operations. Root architecture, root build plan, code standards, and the progress tracker are missing; references to those prerequisites do not assert availability or authorize a substitute/global precedence rule.
 
 ## 1. Document Status and Scope
 
@@ -16,7 +18,7 @@ This document is subordinate to the root Workin Ants architecture and code stand
 
 CL-03 is a **planning, integration, and controlled-context boundary**. It is not a lifecycle owner and it has no independent source-of-truth aggregate. The five included Deep Modules retain their own records, policies, provider mappings, events, and lifecycle transitions.
 
-Module architecture remains more authoritative for a Module's internal domain behavior. This Cluster architecture is authoritative for collaboration boundaries, cross-Module contracts, anti-duplication rules, build sequencing, and the way the five Modules compose without stealing ownership from one another.
+Module architecture remains more authoritative for a Module's internal domain behavior. This Cluster architecture is authoritative for collaboration boundaries, cross-Module contracts, anti-duplication rules, structural prerequisites, and the way the five Modules compose without stealing ownership from one another. The Cluster build plan owns numbered implementation order, feature sequencing, and exit-gate sequencing (CL-03-R002).
 
 **Update rule:** when a binding ownership, lifecycle, public-interface, data-model, provider, compliance, or shared-operation decision changes, update this architecture before or in the same change as implementation. Build progress must never silently redefine this document.
 
@@ -287,6 +289,7 @@ The Prisma schema is executable schema evidence. This section explains semantic 
 | Record / enum / projection | Owner | Meaning / rule |
 | --- | --- | --- |
 | `ProfessionalProfile` | Professional Eligibility | Seller actor identity and profile lifecycle truth. |
+| `ProfessionalProfileMedia` | Professional Eligibility | Contextual attach/detach/reorder lifecycle and authorization; Media owns `MediaAsset` and generic file mechanics (CL-03-R020). |
 | `ProfileStatus` as used by `ProfessionalProfile` | Professional Eligibility | Professional profile lifecycle vocabulary. The enum is also used by CandidateProfile; see Proposed Ruling PR-02. |
 | `VerificationRequirement` | Trust | Requirement truth: which verification applies to which target/action. |
 | `VerificationCheck` | Trust | Auditable screening/check attempt and result truth. |
@@ -409,7 +412,7 @@ Public means exposed to another application boundary or Module. It does not mean
 | **SH-019 `evaluateFinancialReadiness`** | Payment | Professional Eligibility, payout flows, CL-10 consumers as applicable | Answer separate KYC/tax/payout-account/balance/restriction dimensions. | professionalProfileId, requested financial action, amount/currency where applicable | dimensioned readiness + reasons/evidence refs | Decision | Stripe object interpretation or `canPayout`. |
 | `startKyc/Tax/PayoutAccountOnboarding` | Payment | professional finance UI | Create provider-neutral onboarding flow and local canonical state. | actor, profile, action, idempotency | local record IDs + provider-session/reference data safe for client | Truth + delivery instruction | provider objects as platform truth. |
 | `createPayoutRequest` | Payment | professional finance UI | Record withdrawal intent after step-up/readiness. | actor, profile, account, amount/currency, idempotency | PayoutRequest state | Truth | transfer completion. |
-| `getFinancialHistory` | Payment | professional/admin | Read balance/request/transfer/tax state under step-up and sensitive access audit. | actor, profile, filters | safe financial view | Truth/projection | raw provider secrets or unrestricted data. |
+| `getFinancialSetupSummary`, `getProfessionalBalanceProjection`, `getPayoutHistory`, `getProviderRequirementSnapshot`, `getTaxReportingStatus`, `getSalesTaxEvidenceForOrder` | Payment | authorized professional/admin or owner consumer | Read the corresponding approved Payment query under its authorization, step-up, and sensitive-access rules. | query-specific actor/subject/profile/Order context and filters | query-specific safe setup, balance, payout, provider-requirement, reporting, or sales-tax evidence | Truth/projection | raw provider secrets, unrestricted data, or an assumed combined facade. |
 | Order payment/tax commands | Payment ↔ Transaction / Order | Order/payment workflows | Execute provider rail and report normalized payment/tax results while Order owns transaction status. | Order snapshot/ref, amount/currency/tax context/idempotency | normalized provider result/evidence refs | Evidence/decision | direct mutation of Order by Payment. |
 | **SH-020 `evaluateHealthcareReadiness`** | Healthcare | Professional Eligibility, Marketplace, Search/Delivery context owners | Answer healthcare lane/BAA/data-boundary readiness. | profile/target/action/provider context | permitted/blocked/redacted/denied result, reasons, policy version/evidence refs | Decision | Role authorization or BAA/provider truth reconstruction. |
 | `getHealthcareComplianceContext` | Healthcare | professional/admin/consumers | Return safe healthcare lane summary and current evidence refs. | profile/target context | healthcare profile status + current BAA ref/boundary refs | Truth/evidence | raw PHI or provider payload. |
@@ -421,6 +424,8 @@ Public means exposed to another application boundary or Module. It does not mean
 ### Public interface rule
 
 If a public semantic operation already has a canonical `SH-###` ID, reuse that contract or intentionally wrap it without creating a competing operation. Do not create `getStripeReady`, `getIsVerified`, `isHealthcareProvider`, or `canPublishOffering` helpers that bypass the owner decision interface.
+
+**CL-03-R007:** `getFinancialHistory` is not an approved Payment public interface. A combined facade requires an explicit Payment architecture contract before any plan or consumer may rely on it.
 
 ## 11. Canonical Shared Operations Used by This Cluster
 
@@ -826,6 +831,8 @@ All provider owners use Observability for normalized integration failures and se
 - Healthcare supplies healthcare public-readiness decisions; Search must not infer healthcare status from a generic flag.
 - Payment financial state is generally not a public search projection and must not leak into index documents unless a separately approved public field is explicitly defined.
 
+**CL-03-R005:** `ProfessionalReadinessChanged` is not an approved producer contract and Marketplace must not depend on it. Underlying dependency events may trigger reevaluation; the replacement producer/consumer handoff for downstream Offering consequences remains unresolved. The trigger descriptions below do not establish a new event contract.
+
 ### Indexing/de-indexing triggers
 
 Relevant changes include:
@@ -849,6 +856,7 @@ Source Modules call **SH-091**. They do not write `SearchUpsertEvent` directly a
 
 ### Contextual ownership
 
+- `ProfessionalProfileMedia` attachment meaning, attach/detach/reorder lifecycle, and contextual authorization belong to Professional Eligibility (CL-03-R020).
 - `OfferingMedia` meaning/order belongs to Marketplace Supply.
 - Verification credential/check evidence context belongs to Trust.
 - BAA/document healthcare context belongs to Healthcare.
@@ -1195,16 +1203,16 @@ The following are examples of files/services a coding agent must **not** create 
 
 Before changing CL-03, an implementation agent must read, in order appropriate to the current repository:
 
-1. root `context/project-overview.md`;
-2. root `context/architecture.md`;
-3. root `context/code-standards.md`;
+1. `context/project-overview-v3.md`;
+2. root architecture (**missing**; see `context/context-map.md`);
+3. root code standards (**missing**; see `context/context-map.md`);
 4. `context/shared/shared-operations.md`;
-5. this `context/professional-supply-readiness/architecture.md`;
-6. `context/professional-supply-readiness/build-plan.md`;
+5. this `context/clusters/professional supply & readiness/professional-supply-readiness-architecture.md`;
+6. `context/clusters/professional supply & readiness/professional-supply-readiness-build-plan.md`;
 7. the target Module architecture;
 8. the target Module implementation plan;
 9. the public-interface sections of every dependency Module touched by the feature;
-10. the current progress tracker.
+10. the progress tracker (**missing**; see `context/context-map.md`).
 
 The agent must then:
 

@@ -4,7 +4,9 @@
 > **Canonical registry name:** Payment / Payout / Tax Module  
 > **Primary Cluster:** CL-03 — Professional Supply & Readiness  
 > **Primary bridge:** CL-04 — Customer Demand, Order & Resolution  
-> **Repository target:** `context/payment_payout_tax/module-architecture.md`
+> **Repository target:** `context/clusters/professional supply & readiness/Payment Payout & Tax Module/payment-payout-tax-module-architecture.md`
+
+**Repository context (CL-03-R021):** Read [context/context-map.md](<../../../context-map.md>) for authority by concern and verified artifact locations, [context/project-overview-v3.md](<../../../project-overview-v3.md>) for orientation, and [context/shared/shared-operations.md](<../../../shared/shared-operations.md>) for canonical operations. Root architecture, root build plan, code standards, and the progress tracker are missing; references to those prerequisites do not assert availability or authorize a substitute/global precedence rule.
 
 ## 1. Module Header
 
@@ -399,7 +401,7 @@ Authentication, RBAC, step-up, ComplianceHold, command idempotency store, transa
 
 **Concurrency:** updates must be source-event idempotent and transactional. Reconciliation must be able to rebuild from source-recognized values.
 
-**Important ambiguity:** the row also carries optional `professionalProfileId`, while uniqueness is User/year/currency. This leaves the exact aggregate grain unresolved. See UD-14.
+**Approved CL-03-R014:** the minimum aggregation semantics are tax subject + jurisdiction + tax year + currency, with durable source-event uniqueness and reversal handling under SH-117/118. Current Prisma uniqueness `(userId, taxYear, currency)` is insufficient; jurisdiction must not be discarded. The exact tax-subject representation, including any ProfessionalProfile dimension, and the forward persistence/migration design remain Payment-owned open decisions under UD-14. No schema change is made by this documentation ruling.
 
 ### 8.6 `TaxReportingSubmission`
 
@@ -497,7 +499,7 @@ Authentication, RBAC, step-up, ComplianceHold, command idempotency store, transa
 
 **Ownership:** Payment owns this record even when Marketplace or Digital Goods supplies source item context.
 
-**Schema conflict:** compliance/glossary evidence describes line-item liability role, but current Prisma does not include `SalesTaxLineItem.liabilityRole`; liability currently appears on calculation/transaction. See UD-17.
+**Approved CL-03-R015 / schema gap:** Payment must preserve line-level liability evidence wherever liability can differ between lines; transaction-level liability cannot prove mixed-liability items. Current Prisma lacks `SalesTaxLineItem.liabilityRole`. A field or another immutable line-linked evidence structure requires later persistence design and a forward migration; UD-17 retains that design gap, not a choice to discard line-level evidence. Unsupported mixed-liability flows remain disabled.
 
 ### 8.15 `SalesTaxTransaction`
 
@@ -1295,7 +1297,7 @@ Generic queue, lease, retry, dead-letter, and telemetry mechanics use SH-047/048
 | `payout-transfer-worker` | Execute approved payout transfer | payout request/transfer ID | transfer idempotency key | transient provider, safe retry | terminal provider reject, ambiguous unreconciled result | PayoutTransfer/Request + ledger | SH-038 |
 | `payout-reconciliation-worker` | Repair transfer result after timeout/missed callback | transfer ID/provider ref | transfer+reconcile version | provider/API transient | mismatched amount/account or unsupported state | PayoutTransfer/Request/ledger through owner commands | SH-037/038 |
 | `financial-source-effect-worker` | Apply Order/refund/dispute source effects to ledger | source domain event ID | handler+event/effect key | source owner unavailable/DB transient | invalid source snapshot | ledger entries | SH-045/038 |
-| `tax-year-aggregation-worker` | Reconcile reportable yearly totals | subject/year/currency/source window | subject+year+currency+run/version | source query transient | unresolved grain/rule conflict | TaxYearEarningsSummary | SH-038 |
+| `tax-year-aggregation-worker` | Reconcile reportable yearly totals | tax subject/jurisdiction/year/currency/source window | tax subject+jurisdiction+year+currency+run/version | source query transient | unresolved subject representation/persistence/rule conflict | TaxYearEarningsSummary | SH-038 |
 | `tax-reporting-preparation-worker` | Identify ready/blocked reporting recipients under approved rules | year/regime/jurisdiction | reporting run/version | source/provider transient | missing legal rule/profile data | submission/recipient drafts | SH-038 |
 | `tax-reporting-submission-worker` | Submit approved filing bundle | submission ID | provider+submission+version | safe provider transient | rejection/legal/provider unsupported | TaxReportingSubmission/Recipients | SH-037/038 |
 | `sales-tax-payment-reconciliation-worker` | Reconcile tax/payment proof with provider and Order command effects | Order/provider refs | order+provider+window/version | provider/Order unavailable | inconsistent immutable amount/version | Payment tax state; Order command only | SH-037/038 |
@@ -1814,10 +1816,10 @@ These are binding blockers/constraints. Coding agents must not choose answers si
 | **UD-11** | Is a PayoutTransfer one transfer per request, per Order, or may both be authoritative sources? | Both `payoutRequestId` and `orderId` optional. | Transfer creation invariant and reconciliation. No arbitrary mixed source strategy. |
 | **UD-12** | After provider failure, is retry the same PayoutTransfer, a new PayoutTransfer, or a child attempt record? | No attempt model; transfer has mutable provider refs/status. | Retry/history semantics. Must preserve no-duplicate-money invariant; do not invent child model without ruling. |
 | **UD-13** | Does Payment need first-class payment attempt/charge/refund/chargeback records beyond Order refs + ProcessedStripeEvent + sales-tax records? | Module owns processor rail/proof, but current registry/schema has no generic payment-attempt/charge/refund-attempt/chargeback aggregate. | Multi-attempt payment history, chargeback/provider-dispute proof, detailed refund rail history. MVP must constrain to current supported evidence or approve new models. |
-| **UD-14** | What is exact grain of `TaxYearEarningsSummary`? | Unique `(userId,taxYear,currency)` conflicts with optional ProfessionalProfile and multiple jurisdiction/regime fields. | Correct aggregation, multiple profiles/jurisdictions. Resolve before automated filing. |
+| **UD-14 — partially resolved by CL-03-R014** | Minimum grain is tax subject + jurisdiction + tax year + currency, with source-event uniqueness/reversals. Exact tax-subject representation and persistence design remain open. | Current unique `(userId,taxYear,currency)` is insufficient and cannot discard jurisdiction. | Production aggregation requires approved subject representation and persistence/migration coverage for the minimum grain; no schema change in this pass. |
 | **UD-15** | What versioned tax reporting rule source owns thresholds/forms/regimes and effective dates? | Compliance says do not hardcode thresholds/one form; no complete rule schema is established. | Automated “reporting required”, filing preparation/submission. Manual/legal-reviewed configuration only until approved. |
 | **UD-16** | How is one authoritative/final SalesTaxCalculation selected for an Order/version? | Multiple calculations allowed; no unique final current constraint/version snapshot field. | Concurrent/recalculated checkout finalization. Must bind explicitly to Order version and approved calc ID. |
-| **UD-17** | At what granularity is `SalesTaxLiabilityRole` authoritative? | Glossary/compliance references line-item liability; Prisma line item lacks liabilityRole while calculation/transaction have it. | Marketplace-facilitator proof for mixed-liability carts. Do not claim line-level liability proof until schema/rule resolved. |
+| **UD-17 — evidence requirement resolved by CL-03-R015** | Payment must preserve line-level liability evidence when lines can differ. Exact persistence design remains open. | Prisma line item lacks liabilityRole; calculation/transaction liability cannot prove mixed-liability lines. | Mixed-liability production requires an approved field or immutable line-linked structure and forward migration; no schema change in this pass. |
 | **UD-18** | How are partial/multiple refunds and tax reversals represented? | SalesTaxTransaction has aggregate amount + one reversal ref; Cluster plan says unsupported cases must fail rather than invent allocation. | Partial/multi-refund production flows. Constrain to supported full/single cases until schema/provider semantics approved. |
 | **UD-19** | What buyer tax-location provenance must be stored? | Calculation stores location fields but not explicit evidence-source/version relationship. | Audit-reproducible jurisdiction proof. Feature may store minimized metadata only if approved; do not invent public/geolocation ownership. |
 | **UD-20** | How are tax-reporting corrections/replacement submissions chained/versioned? | Submission/recipient statuses include corrected/rejected but no explicit prior/subsequent submission relation. | Automated corrections/re-filings. Keep unsupported correction automation disabled. |
@@ -1860,7 +1862,7 @@ These are binding blockers/constraints. Coding agents must not choose answers si
 
 ### Non-rulings preserved as unresolved
 
-Sections 35 UD-01 through UD-23 remain unresolved. This architecture deliberately does not fill those gaps with guessed implementation.
+Section 35 preserves the remaining UD-01 through UD-23 decisions. CL-03-R014 fixes the minimum aggregation semantics in UD-14; CL-03-R015 fixes the line-level evidence requirement in UD-17. Their exact persistence designs remain open. All other unresolved decisions remain unchanged; this architecture does not fill them with guessed implementation.
 
 ---
 
@@ -1868,17 +1870,17 @@ Sections 35 UD-01 through UD-23 remain unresolved. This architecture deliberatel
 
 Before implementing any numbered feature in this Module, the coding agent must read, in order appropriate to repository conventions:
 
-1. root `project-overview`;
+1. `context/project-overview-v3.md`;
 2. root Workin Ants architecture;
 3. root code/security/data standards;
 4. Canonical Shared Operations Registry / `context/shared/shared-operations.md`;
-5. CL-03 Professional Supply & Readiness `architecture.md`;
-6. CL-03 Professional Supply & Readiness `build-plan.md`;
-7. this `payment_payout_tax/module-architecture.md`;
-8. this Module's `implementation-plan.md`;
+5. CL-03 `context/clusters/professional supply & readiness/professional-supply-readiness-architecture.md`;
+6. CL-03 `context/clusters/professional supply & readiness/professional-supply-readiness-build-plan.md`;
+7. this `context/clusters/professional supply & readiness/Payment Payout & Tax Module/payment-payout-tax-module-architecture.md`;
+8. this Module's `context/clusters/professional supply & readiness/Payment Payout & Tax Module/payment-payout-tax-module-implementation-plan.md`;
 9. current Prisma schema/migrations for every Payment-owned record touched;
 10. public-interface sections for direct dependencies, especially Identity/Role, Professional Eligibility, Transaction / Order, Compliance Hold, Review / Dispute, Track Entitlement, Prize/Rewards, Privacy, Audit, Notification, Observability, Media when used;
-11. the current progress tracker / prior feature completion report;
+11. the progress tracker (**missing**; see `context/context-map.md`) and any available prior feature completion report, without treating the latter as an equivalent tracker;
 12. the Unresolved Decisions table in this document and the Cluster architecture.
 
 Before coding, the agent must identify which assertions are Confirmed, Proposed Rulings already approved, or still Unresolved. If the feature depends on an unresolved item, the agent must either:

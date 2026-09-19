@@ -5,11 +5,13 @@
 > **Module type:** `compliance_trust_capability`  
 > **Build status:** `mvp_active_legal_gated`  
 > **Primary Cluster:** `CL-03 — Professional Supply & Readiness`  
-> **Repository target:** `context/modules/trust-verification-screening/implementation-plan.md`  
-> **Architecture dependency:** this Module `module-architecture.md` and `context/professional-supply-readiness/architecture.md`  
-> **Plan status:** Ordered Module implementation roadmap; subordinate to the CL-03 `build-plan.md`; it does not redefine Cluster sequencing or architecture.
+> **Repository target:** `context/clusters/professional supply & readiness/Trust verification Screening Module/trust-verification-screening-implementation-plan.md`\
+> **Architecture dependency:** this Module `context/clusters/professional supply & readiness/Trust verification Screening Module/trust-verification-screening-module-architecture.md` and `context/clusters/professional supply & readiness/professional-supply-readiness-architecture.md`\
+> **Plan status:** Ordered Module implementation roadmap; subordinate to the CL-03 `context/clusters/professional supply & readiness/professional-supply-readiness-build-plan.md`; it does not redefine Cluster sequencing or architecture.
 
 ---
+
+**Repository context (CL-03-R021):** Read [context/context-map.md](<../../../context-map.md>) for authority by concern and verified artifact locations, [context/project-overview-v3.md](<../../../project-overview-v3.md>) for orientation, and [context/shared/shared-operations.md](<../../../shared/shared-operations.md>) for canonical operations. Root architecture, root build plan, code standards, and the progress tracker are missing; references to those prerequisites do not assert availability or authorize a substitute/global precedence rule.
 
 ## Core Principle
 
@@ -1445,7 +1447,7 @@ Before each numbered feature:
 4. Read CL-03 architecture and build plan.
 5. Read this Module architecture and plan.
 6. Read public-interface sections for all direct dependencies.
-7. Read current progress tracker.
+7. Read progress tracker (**missing**; see `context/context-map.md`).
 8. Confirm the prior feature exit gate.
 9. Identify every Proposed Ruling/Unresolved decision touched.
 10. Produce the Required Feature Implementation Specification for this feature only.

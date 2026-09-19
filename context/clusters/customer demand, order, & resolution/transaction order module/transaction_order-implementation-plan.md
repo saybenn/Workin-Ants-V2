@@ -6,6 +6,8 @@
 > **Plan status:** Sequential Module implementation plan subordinate to the CL-04 `build-plan.md`  
 > **Architecture authority:** `module-architecture.md` governs Module-local ownership and invariants; CL-04/root architecture governs broader sequencing and cross-cutting boundaries.
 
+**Shared Operation status (CL-04-R015/R016):** exact SH IDs/names resolve to the canonical registry. SH-046 publication/outbox is Confirmed. SH-003 `queryOwnerFacts` and SH-015 `returnDecisionResult` remain Proposed ruling: use owner-specific fact/decision DTOs, not binding APIs dependent on those proposals. SH-054, SH-073, and SH-111, wherever referenced, remain Proposed ruling and conditional on separate approval. All other referenced registered operations retain their registry status and owner.
+
 ---
 
 ## Core Principle
@@ -60,12 +62,12 @@ Must exist before the first production mutation that relies on them:
 
 - Prisma/Postgres migration workflow;
 - strict TypeScript/validation conventions;
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
-- canonical `executeIdempotentCommand`;
-- canonical database concurrency primitive (`acquireAggregateLock` and/or `withOptimisticConcurrency`);
-- `appendDomainLifecycleEvent` convention;
-- transactional outbox / `publishDomainEvent`;
+- SH-001 `resolveAuthenticatedActor`;
+- SH-002 `authorizeResourceAction`;
+- canonical SH-044 `executeIdempotentCommand`;
+- canonical database concurrency primitive (SH-051 `acquireAggregateLock` and/or SH-052 `withOptimisticConcurrency`);
+- SH-031 `appendDomainLifecycleEvent` convention;
+- transactional outbox / SH-046 `publishDomainEvent`;
 - request/correlation context;
 - structured logging and telemetry redaction;
 - Audit / Event Ledger public commands.
@@ -76,31 +78,31 @@ These may be contract-stubbed in isolated unit tests, but production feature exi
 
 | Dependency | Required by | Minimum required public contract |
 | --- | --- | --- |
-| Customer / Buyer Profile | Features 01–10 | `resolveCustomerActor` / owner facts. |
+| Customer / Buyer Profile | Features 01–10 | SH-004 `resolveCustomerActor` / owner facts. |
 | Marketplace Supply | Features 01–03, 06–07 | immutable Offering checkout source DTO with source version, seller, amount/pricing tier, delivery/agreement facts. |
 | Gig / Demand | Features 01, 09 | `getGigAssignmentCheckoutSource`; CL-04 Feature 03 must have passed before production GigAssignment conversion. |
-| Professional Eligibility | selected Features 01, 06–07 | `evaluateProfessionalReadiness` for approved Order action contexts. |
-| Track Subscription & Entitlement | Feature 03 onward | `resolveEntitlement`, optional `consumeMeteredEntitlement`. |
-| Consent & Disclosure | Feature 04 onward | `queryConsentProof`, active consent version if needed. |
-| Media / File Access | Features 05, 07, 10 | ready asset facts, contextual attachment validation, `issueSignedMediaUrl`. |
+| Professional Eligibility | selected Features 01, 06–07 | SH-016 `evaluateProfessionalReadiness` for approved Order action contexts. |
+| Track Subscription & Entitlement | Feature 03 onward | SH-005 `resolveEntitlement`, optional SH-006 `consumeMeteredEntitlement`. |
+| Consent & Disclosure | Feature 04 onward | SH-008 `queryConsentProof`, active consent version if needed. |
+| Media / File Access | Features 05, 07, 10 | ready asset facts, contextual attachment validation, SH-087 `issueSignedMediaUrl`. |
 | Payment / Payout / Tax | Feature 06 onward | provider-neutral payment/refund initiation and normalized result contracts. |
-| Admin Review / Compliance Hold | Features 06–10 | `evaluateComplianceHold`; no local hold truth. |
+| Admin Review / Compliance Hold | Features 06–10 | SH-011 `evaluateComplianceHold`; no local hold truth. |
 | Booking/delivery Modules | Feature 07 onward | public facts/entitlement consumers only. |
 | Review / Dispute | Feature 08 onward | dispute transaction-effect/settlement contracts; CL-04 Features 11–12 must exist before full production settlement proof. |
-| Privacy / Data Erasure | Feature 10 | canonical target request/result contract and retention-exemption references. |
+| Privacy / Data Erasure | Feature 10a before Feature 09 proof; 10b hardening afterward | canonical target request/result contract and retention-exemption references. |
 
 ### Architecture decisions required before affected production work
 
 1. CustomerProfile nullability/backfill and legacy `buyerUserId` semantics — blocks final production Order schema constraint.
 2. Exact Order transition matrix by source/delivery kind — blocks full production mutation set in Features 06–07.
-3. Commercial pricing freeze point — blocks Feature 03 production behavior.
+3. Commercial freeze ordering is confirmed: resolve source/Track decisions and freeze before Agreement execution/payment initiation; detailed fee-field definitions remain gated.
 4. Order source XOR database enforcement — blocks Feature 01 exit gate.
 5. Fee-field semantics — blocks Feature 03 final arithmetic contract.
 6. Agreement supersession model — blocks advanced supersession in Feature 04/05; basic single Agreement execution can proceed if supersession is explicitly deferred.
 7. Agreement legacy field cleanup — does not block basic normalized implementation if compatibility fields are treated as non-authoritative.
 8. Manual-signature workflow details — block production manual completion beyond recording opt-out.
 9. AgreementAccessGrant TTL/use policy — blocks Feature 05 production issue/access behavior.
-10. Step-up action matrix — blocks exact enforcement only where root policy requires it.
+10. SH-014 is mandatory for refund/release actions causing or authorizing financial movement; other action-specific rules remain gated.
 11. Refund/dispute Order transition semantics — blocks Feature 08 production settlement behavior.
 12. Retention durations/dispositions — block destructive privacy/purge behavior in Feature 10.
 
@@ -131,10 +133,10 @@ Supports **CL-04 Feature 04 — Order Aggregate and Source Contracts**.
 - Marketplace Supply checkout source DTO;
 - Gig / Demand `getGigAssignmentCheckoutSource` DTO;
 - ProfessionalProfile owner facts as required;
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
+- SH-001 `resolveAuthenticatedActor`;
+- SH-002 `authorizeResourceAction`;
 - Prisma migration workflow;
-- explicit source-XOR ruling;
+- binding CL-04-R008 source XOR/type-consistency invariant;
 - CustomerProfile migration ruling for final production constraint.
 
 ### In Scope
@@ -162,6 +164,8 @@ Supports **CL-04 Feature 04 — Order Aggregate and Source Contracts**.
 - Stripe/provider clients;
 - neighboring Module repositories.
 
+**Actor prerequisite (CL-04-R007):** enforce CustomerProfile as semantic buyer identity for new records; Review authors resolve from the Order buyer and Dispute opener identity is typed. Historical backfill and final Prisma representation remain separate approval gates. No schema is changed in this reconciliation.
+
 ### Module-Owned Data
 
 - `OrderSourceType`;
@@ -182,11 +186,11 @@ Introduce/version:
 
 ### Shared Operations Used
 
-- **`resolveAuthenticatedActor` — Identity & Access:** used by source validation entry points that are user-driven; local policy identifies requested Order action; prohibit `orderAuth.ts`.
-- **`authorizeResourceAction` — Role / Authority:** used for source/participant access; local policy supplies buyer/seller/source relationship facts; prohibit local RBAC.
-- **`resolveCustomerActor` — Customer / Buyer Profile:** resolves buyer domain identity; prohibit User-only buyer inference.
-- **`returnDecisionResult` — shared contract/separate policy:** standardize validation/unsupported/deny result shape; Order-specific reasons remain local.
-- **`createRequestContext` — platform:** propagate request/correlation IDs; prohibit local correlation helper.
+- **SH-001 `resolveAuthenticatedActor` — Identity & Access:** used by source validation entry points that are user-driven; local policy identifies requested Order action; prohibit `orderAuth.ts`.
+- **SH-002 `authorizeResourceAction` — Role / Authority:** used for source/participant access; local policy supplies buyer/seller/source relationship facts; prohibit local RBAC.
+- **SH-004 `resolveCustomerActor` — Customer / Buyer Profile:** resolves buyer domain identity; prohibit User-only buyer inference.
+- **SH-015 `returnDecisionResult` (Proposed future normalization only; not a prerequisite) — shared contract/separate policy:** standardize validation/unsupported/deny result shape; Order-specific reasons remain local.
+- **SH-032 `createRequestContext` — platform:** propagate request/correlation IDs; prohibit local correlation helper.
 
 ### Domain Logic
 
@@ -209,7 +213,7 @@ Introduce/version:
 ### Database / Transaction Behavior
 
 - add/verify indexes on source and participant lookup paths;
-- after architecture approval, add DB check enforcing source XOR/type consistency;
+- implement the binding source XOR/type invariant in domain validation and a later approved DB constraint/migration; no schema mutation occurs in this documentation pass;
 - preserve unique `gigAssignmentId`;
 - do not make a destructive CustomerProfile migration without backfill and rollback plan;
 - no in-memory source lock.
@@ -247,7 +251,7 @@ No dedicated UI is required. Existing or future Order UI may consume DTOs after 
 
 ### Documentation Updates
 
-If source-XOR or CustomerProfile migration rulings are approved, update Module architecture Section 8/23/35 and CL-04 architecture unresolved register before migration merges.
+Source XOR is approved by CL-04-R008. Any later CustomerProfile physical migration/backfill ruling must be recorded in owner architecture before its migration merges.
 
 ### Acceptance Criteria
 
@@ -288,8 +292,8 @@ Completes Transaction / Order-owned work for **CL-04 Feature 04**.
 - Feature 01 exit gate;
 - canonical idempotency;
 - approved DB concurrency primitive;
-- `appendDomainLifecycleEvent`;
-- transactional outbox / `publishDomainEvent`;
+- SH-031 `appendDomainLifecycleEvent`;
+- transactional outbox / SH-046 `publishDomainEvent`;
 - source owner DTOs;
 - CustomerProfile decision for production writes.
 
@@ -332,14 +336,14 @@ Completes Transaction / Order-owned work for **CL-04 Feature 04**.
 
 ### Shared Operations Used
 
-- **`resolveAuthenticatedActor`** at user-driven create/read boundary; no local session helper.
-- **`authorizeResourceAction`** for create/read; Order supplies relationship facts.
-- **`executeIdempotentCommand`** wraps semantic creation; local key/fingerprint defines source and buyer.
-- **`acquireAggregateLock` / `withOptimisticConcurrency`** serializes source conversion where needed; no in-memory mutex.
-- **`appendDomainLifecycleEvent`** writes initial OrderEvent in same DB transaction.
-- **`publishDomainEvent`** writes OrderCreated to transactional outbox.
-- **`appendAuditEvent`** only for admin/system exceptional creation if audit policy requires; never replaces OrderEvent.
-- **`createRequestContext`/`writeStructuredLog`** for safe correlation/ops.
+- **SH-001 `resolveAuthenticatedActor`** at user-driven create/read boundary; no local session helper.
+- **SH-002 `authorizeResourceAction`** for create/read; Order supplies relationship facts.
+- **SH-044 `executeIdempotentCommand`** wraps semantic creation; local key/fingerprint defines source and buyer.
+- **SH-051 `acquireAggregateLock` / SH-052 `withOptimisticConcurrency`** serializes source conversion where needed; no in-memory mutex.
+- **SH-031 `appendDomainLifecycleEvent`** writes initial OrderEvent in same DB transaction.
+- **SH-046 `publishDomainEvent`** writes OrderCreated to transactional outbox.
+- **SH-029 `appendAuditEvent`** only for admin/system exceptional creation if audit policy requires; never replaces OrderEvent.
+- **SH-032 `createRequestContext`/SH-033 `writeStructuredLog`** for safe correlation/ops.
 
 ### Domain Logic
 
@@ -355,7 +359,7 @@ Completes Transaction / Order-owned work for **CL-04 Feature 04**.
 10. commit;
 11. return stable Order result.
 
-No price/entitlement snapshot is frozen unless the approved freeze point is creation; if that ruling selects creation, Feature 03 logic must be invoked atomically or Feature 02 cannot be released independently in production.
+**Confirmed commercial freeze boundary (CL-04-R003):** resolve authoritative source and Track entitlement decisions, then freeze source pricing, buyer fee-waiver effect, seller commission effect, and supporting Track grant/evidence references before Agreement execution or payment initiation. An initial/draft Order may exist before freeze. Frozen effects must never be recomputed from later subscription state.
 
 ### Authorization / Compliance
 
@@ -446,9 +450,9 @@ Implements **CL-04 Feature 05 — Commercial Pricing and Entitlement Snapshot**.
 ### Dependencies
 
 - Feature 02;
-- explicit pricing-freeze ruling;
+- confirmed CL-04-R003 source/Track → freeze → Agreement/payment boundary;
 - explicit fee-field definitions/rounding rules;
-- Track `resolveEntitlement` and optional `consumeMeteredEntitlement`;
+- Track SH-005 `resolveEntitlement` and optional SH-006 `consumeMeteredEntitlement`;
 - Offering/GigAssignment base commercial source facts;
 - canonical idempotency/concurrency.
 
@@ -488,13 +492,13 @@ Implements **CL-04 Feature 05 — Commercial Pricing and Entitlement Snapshot**.
 
 ### Shared Operations Used
 
-- **`resolveEntitlement` — Track:** buyer fee waiver and seller commission; local policy maps values to frozen Order fields; prohibit local premium/commission helpers.
-- **`consumeMeteredEntitlement` — Track:** only if approved perk usage counts at freeze/checkout; local policy defines counting event; prohibit local counters.
-- **`executeIdempotentCommand`** prevents double freeze/usage;
-- **`withOptimisticConcurrency`/lock** prevents two different snapshots winning;
-- **`appendDomainLifecycleEvent`** records snapshot fact;
-- **`publishDomainEvent`** emits pricing-ready/frozen fact if downstream consumption requires it;
-- **`returnDecisionResult`** for Track unavailable/deny remediation.
+- **SH-005 `resolveEntitlement` — Track:** buyer fee waiver and seller commission; local policy maps values to frozen Order fields; prohibit local premium/commission helpers.
+- **SH-006 `consumeMeteredEntitlement` — Track:** only if approved perk usage counts at freeze/checkout; local policy defines counting event; prohibit local counters.
+- **SH-044 `executeIdempotentCommand`** prevents double freeze/usage;
+- **SH-052 `withOptimisticConcurrency`/lock** prevents two different snapshots winning;
+- **SH-031 `appendDomainLifecycleEvent`** records snapshot fact;
+- **SH-046 `publishDomainEvent`** emits pricing-ready/frozen fact if downstream consumption requires it;
+- **SH-015 `returnDecisionResult` (Proposed future normalization only; not a prerequisite)** for Track unavailable/deny remediation.
 
 ### Domain Logic
 
@@ -505,7 +509,7 @@ Implements **CL-04 Feature 05 — Commercial Pricing and Entitlement Snapshot**.
 - snapshot records calculation version, source version, entitlement grant references, effective result, and safe reason/evidence;
 - no later entitlement change mutates historical snapshot;
 - if Track is unavailable before freeze, do not silently grant premium or silently choose an unapproved default;
-- if the approved freeze point is Order creation, this command must be integrated atomically into Feature 02's create transaction before production release.
+- an initial/draft Order may precede this freeze, but Agreement execution and payment initiation must not begin until source/Track resolution and snapshot freeze complete;
 
 ### Authorization / Compliance
 
@@ -559,7 +563,7 @@ Checkout/Order price breakdown may show base amount, buyer platform fee/waiver, 
 
 ### Documentation Updates
 
-Before production implementation, record approved freeze point and fee-field definitions in `module-architecture.md` and CL-04 architecture if they resolve deferred decisions.
+The freeze boundary is approved by CL-04-R003. Before production calculation, obtain the still-unresolved fee-field definitions and record any later ruling in the owner architecture.
 
 ### Acceptance Criteria
 
@@ -579,6 +583,8 @@ Before production implementation, record approved freeze point and fee-field def
 
 # Phase 3 — Agreement Execution and Contract Proof
 
+**Database readiness gate (CL-04-R012):** Agreement features are not database-ready until migration-history reconciliation establishes reproducible migration evidence for the Agreement family represented in current Prisma. Recovery, baseline, or new migration selection belongs to a separate database-state task.
+
 ## 04 Agreement Template and Execution State
 
 ### Objective
@@ -596,7 +602,7 @@ Implements **CL-04 Feature 06 — Agreement Template and Order-Specific Agreemen
 ### Dependencies
 
 - Features 01–03;
-- Consent & Disclosure `queryConsentProof`;
+- Consent & Disclosure SH-008 `queryConsentProof`;
 - authority;
 - template governance ruling;
 - decision on whether advanced supersession is deferred or schema is changed;
@@ -650,16 +656,16 @@ Implements **CL-04 Feature 06 — Agreement Template and Order-Specific Agreemen
 
 ### Shared Operations Used
 
-- **`resolveAuthenticatedActor` / `authorizeResourceAction`** for admin template and signer actions; prohibit local RBAC.
-- **`queryConsentProof` — Consent:** validates generic versioned proof; local Agreement consent remains separate.
-- **`resolveActiveConsentVersion`** if active disclosure version must be selected; no local version catalog.
-- **`executeIdempotentCommand`** for instantiation/consent/signature requests/completion.
-- **`withOptimisticConcurrency`/lock** for Agreement/signer races.
-- **`transitionLifecycleState`** supplies plumbing; Agreement graph remains local.
-- **`appendDomainLifecycleEvent`** writes AgreementEvent transactionally.
-- **`appendAuditEvent`** for template activation/retirement and privileged actions.
-- **`recordSensitiveAccess`** for signature/manual-opt-out evidence when policy requires.
-- **`publishDomainEvent` / `requestNotification`** after commit.
+- **SH-001 `resolveAuthenticatedActor` / SH-002 `authorizeResourceAction`** for admin template and signer actions; prohibit local RBAC.
+- **SH-008 `queryConsentProof` — Consent:** validates generic versioned proof; local Agreement consent remains separate.
+- **SH-009 `resolveActiveConsentVersion`** if active disclosure version must be selected; no local version catalog.
+- **SH-044 `executeIdempotentCommand`** for instantiation/consent/signature requests/completion.
+- **SH-052 `withOptimisticConcurrency`/lock** for Agreement/signer races.
+- **SH-053 `transitionLifecycleState`** supplies plumbing; Agreement graph remains local.
+- **SH-031 `appendDomainLifecycleEvent`** writes AgreementEvent transactionally.
+- **SH-029 `appendAuditEvent`** for template activation/retirement and privileged actions.
+- **SH-030 `recordSensitiveAccess`** for signature/manual-opt-out evidence when policy requires.
+- **SH-046 `publishDomainEvent` / SH-041 `requestNotification`** after commit.
 
 ### Domain Logic
 
@@ -773,9 +779,9 @@ Implements **CL-04 Feature 07 — Agreement Document Finalization and Secure Acc
 - Feature 04;
 - Media / File Access ready/private asset and signed-access contracts;
 - canonical queue/retry;
-- canonical `calculateChecksum` SHA-256 primitive;
-- `generateSecureToken`/temporary grant mechanics;
-- `recordSensitiveAccess`;
+- canonical SH-086 `calculateChecksum` SHA-256 primitive;
+- SH-074 `generateSecureToken`/temporary grant mechanics;
+- SH-030 `recordSensitiveAccess`;
 - AgreementAccessGrant TTL/use ruling;
 - renderer choice/port implementation only as needed.
 
@@ -788,7 +794,7 @@ Implements **CL-04 Feature 07 — Agreement Document Finalization and Secure Acc
 - `AgreementDocumentSnapshot` versioning;
 - exact-byte SHA-256 hash binding/verification;
 - `finalizeAgreementDocument`;
-- `verifyAgreementDocumentHash`;
+- SH-112 `verifyAgreementDocumentHash`;
 - AgreementAccessGrant issue/use/revoke/expire;
 - Media signed URL request after contextual grant;
 - sensitive access audit;
@@ -815,22 +821,23 @@ Implements **CL-04 Feature 07 — Agreement Document Finalization and Secure Acc
 - `generateAgreementDocument`;
 - `recordAgreementDocumentSnapshot`;
 - `finalizeAgreementDocument`;
-- `verifyAgreementDocumentHash`;
 - `issueAgreementAccessGrant`;
 - `revokeAgreementAccessGrant`;
 - `getAgreementPackage` updated with safe snapshot/access metadata.
 
+SH-112 `verifyAgreementDocumentHash` is internal/background integrity work, not a general public API.
+
 ### Shared Operations Used
 
-- **`enqueueReliableJob` / `executeRetryWithBackoff`:** renderer/finalization/verification/expiration jobs; local completion semantics remain Agreement-owned; prohibit custom queue/retry loop.
-- **`calculateChecksum`:** SHA-256 exact bytes; local policy binds checksum to legal document snapshot; prohibit local SHA helper.
-- **`hashChainRecords`:** use only if approved; Agreement defines canonical fields/partition; do not assume proposed ruling is binding.
-- **`generateSecureToken`:** grant secret creation; no weak/random local token helper.
-- **`manageTemporaryAccessGrant` / `revokeTemporaryAccessGrant`:** shared status/TTL/token plumbing; `AgreementAccessGrant` stays separate truth.
-- **`issueSignedMediaUrl` — Media:** actual transport URL after local contextual grant; prohibit R2/S3 presign code here.
-- **`recordSensitiveAccess`:** agreement view/download/hash/access denial evidence.
-- **`appendDomainLifecycleEvent` / `publishDomainEvent` / `appendAuditEvent`:** document and access lifecycle evidence/effects.
-- **`createRequestContext`, `writeStructuredLog`, `sanitizeTelemetryMetadata`, `recordIntegrationFailure`:** safe worker/provider observability.
+- **SH-047 `enqueueReliableJob` / SH-048 `executeRetryWithBackoff`:** renderer/finalization/verification/expiration jobs; local completion semantics remain Agreement-owned; prohibit custom queue/retry loop.
+- **SH-086 `calculateChecksum`:** SHA-256 exact bytes; local policy binds checksum to legal document snapshot; prohibit local SHA helper.
+- **SH-073 `hashChainRecords`:** use only if approved; Agreement defines canonical fields/partition; do not assume proposed ruling is binding.
+- **SH-074 `generateSecureToken`:** grant secret creation; no weak/random local token helper.
+- **SH-088 `manageTemporaryAccessGrant` / SH-089 `revokeTemporaryAccessGrant`:** shared status/TTL/token plumbing; `AgreementAccessGrant` stays separate truth.
+- **SH-087 `issueSignedMediaUrl` — Media:** actual transport URL after local contextual grant; prohibit R2/S3 presign code here.
+- **SH-030 `recordSensitiveAccess`:** agreement view/download/hash/access denial evidence.
+- **SH-031 `appendDomainLifecycleEvent` / SH-046 `publishDomainEvent` / SH-029 `appendAuditEvent`:** document and access lifecycle evidence/effects.
+- **SH-032 `createRequestContext`, SH-033 `writeStructuredLog`, SH-034 `sanitizeTelemetryMetadata`, SH-037 `recordIntegrationFailure`:** safe worker/provider observability.
 
 ### Domain Logic
 
@@ -870,7 +877,7 @@ No finalized snapshot bytes or hash are overwritten in place.
 ### Events / Jobs
 
 - render/finalization worker;
-- grant-expiration worker via `runDeadlineExpiration`;
+- grant-expiration worker via SH-055 `runDeadlineExpiration`;
 - hash-verification/reconciliation worker;
 - events: document generated/finalized/archived, hash verified/tamper detected, access issued/viewed/downloaded/denied/revoked/expired.
 
@@ -953,7 +960,7 @@ Implements **CL-04 Feature 08 — Payment Initiation and Verified Order Payment*
 - Features 01–05 as applicable;
 - approved Order transition matrix for payment states;
 - Payment public initiation/result contracts;
-- `evaluateComplianceHold`;
+- SH-011 `evaluateComplianceHold`;
 - Agreement gate behavior;
 - canonical idempotency/concurrency/outbox.
 
@@ -995,15 +1002,15 @@ Implements **CL-04 Feature 08 — Payment Initiation and Verified Order Payment*
 
 ### Shared Operations Used
 
-- **`resolveAuthenticatedActor` / `authorizeResourceAction`** for buyer payment initiation.
-- **`evaluateComplianceHold`** before payment action; local mapping decides which holds block.
-- **`evaluateProfessionalReadiness`** only where approved source/action requires it; do not reconstruct raw readiness.
-- **`executeIdempotentCommand`** for payment initiation/application.
-- **`acquireAggregateLock`/`withOptimisticConcurrency`** for state races.
-- **`transitionLifecycleState`** for approved Order graph.
-- **`appendDomainLifecycleEvent` / `publishDomainEvent`** for verified payment effect.
-- **`createRequestContext` / `recordIntegrationFailure`** for Payment dependency degradation.
-- **`requestNotification`** for user-facing success/failure state after commit.
+- **SH-001 `resolveAuthenticatedActor` / SH-002 `authorizeResourceAction`** for buyer payment initiation.
+- **SH-011 `evaluateComplianceHold`** before payment action; local mapping decides which holds block.
+- **SH-016 `evaluateProfessionalReadiness`** only where approved source/action requires it; do not reconstruct raw readiness.
+- **SH-044 `executeIdempotentCommand`** for payment initiation/application.
+- **SH-051 `acquireAggregateLock`/SH-052 `withOptimisticConcurrency`** for state races.
+- **SH-053 `transitionLifecycleState`** for approved Order graph.
+- **SH-031 `appendDomainLifecycleEvent` / SH-046 `publishDomainEvent`** for verified payment effect.
+- **SH-032 `createRequestContext` / SH-037 `recordIntegrationFailure`** for Payment dependency degradation.
+- **SH-041 `requestNotification`** for user-facing success/failure state after commit.
 
 ### Domain Logic
 
@@ -1104,7 +1111,7 @@ Implement the approved post-payment Order lifecycle and expose the canonical Ord
 
 ### Observable Result
 
-Participants can progress an Order through applicable seller/fulfillment states. CL-05 consumers can call `authorizeOrderEntitlement` and receive a stable decision without reading Stripe/payment tables.
+Participants can progress an Order through applicable seller/fulfillment states. CL-05 consumers can call SH-025 `authorizeOrderEntitlement` and receive a stable decision without reading Stripe/payment tables.
 
 ### Cluster Build-Plan Link
 
@@ -1127,7 +1134,7 @@ Implements **CL-04 Feature 09 — Order Fulfillment, Delivery Entitlement, and C
 - `recordOrderDelivery`;
 - `completeOrder`;
 - `cancelOrder`;
-- `authorizeOrderEntitlement`;
+- SH-025 `authorizeOrderEntitlement`;
 - `attachOrderFile`;
 - participant Order progress DTO;
 - Order completion event contract;
@@ -1158,28 +1165,28 @@ Implements **CL-04 Feature 09 — Order Fulfillment, Delivery Entitlement, and C
 - `recordOrderDelivery`;
 - `completeOrder`;
 - `cancelOrder`;
-- `authorizeOrderEntitlement`;
+- SH-025 `authorizeOrderEntitlement`;
 - `attachOrderFile`;
 - `getOrder`/summary updated with fulfillment state.
 
 ### Shared Operations Used
 
-- **`authorizeResourceAction`** for participant mutations.
-- **`evaluateProfessionalReadiness`** at exact approved action checkpoints.
-- **`evaluateComplianceHold`** for action-specific block behavior.
-- **`attachValidatedMedia` — Media/context contract:** OrderFile creation only; no file mechanics.
-- **`executeIdempotentCommand`** on completion/delivery/cancel and other retryable commands.
-- **`transitionLifecycleState`** for approved source-specific graph.
-- **`acquireAggregateLock`/`withOptimisticConcurrency`** for conflicting transitions.
-- **`appendDomainLifecycleEvent` / `publishDomainEvent`** for fulfillment facts.
-- **`requestNotification`** after commit.
+- **SH-002 `authorizeResourceAction`** for participant mutations.
+- **SH-016 `evaluateProfessionalReadiness`** at exact approved action checkpoints.
+- **SH-011 `evaluateComplianceHold`** for action-specific block behavior.
+- **SH-090 `attachValidatedMedia` — Media/context contract:** OrderFile creation only; no file mechanics.
+- **SH-044 `executeIdempotentCommand`** on completion/delivery/cancel and other retryable commands.
+- **SH-053 `transitionLifecycleState`** for approved source-specific graph.
+- **SH-051 `acquireAggregateLock`/SH-052 `withOptimisticConcurrency`** for conflicting transitions.
+- **SH-031 `appendDomainLifecycleEvent` / SH-046 `publishDomainEvent`** for fulfillment facts.
+- **SH-041 `requestNotification`** after commit.
 
 ### Domain Logic
 
 - transition legality depends on approved Order source/delivery-kind graph;
 - `awaiting_seller` is used only where approved;
 - downstream service/digital delivery state never becomes Order truth automatically without approved completion evidence;
-- `authorizeOrderEntitlement` evaluates current Order status, participant relationship, refund/dispute effect, and applicable hold, and returns only transaction entitlement;
+- SH-025 `authorizeOrderEntitlement` evaluates current Order status, participant relationship, refund/dispute effect, and applicable hold, and returns only transaction entitlement;
 - delivery module owns its own grant/usage/revocation rules;
 - cancellation after payment does not assert refund occurred;
 - completion is the authoritative transaction completion fact used by payout/review/reward consumers, but the exact trigger criteria must be approved.
@@ -1262,7 +1269,7 @@ The exact transition/completion semantics must be recorded in architecture befor
 
 ### Objective
 
-Implement only the Transaction / Order-owned part of commercial resolution: apply dispute state and normalized refund/settlement effects while keeping adjudication, provider execution, payout, and hold lifecycles with their owners.
+Implement the Transaction / Order-owned part of commercial resolution: coordinate SH-108 `requestOrderRefund`, apply dispute state and verified refund/settlement effects, and keep adjudication, provider execution, payout, and hold lifecycles with their owners.
 
 ### Observable Result
 
@@ -1270,21 +1277,21 @@ Review / Dispute and Payment can drive Transaction / Order through public provid
 
 ### Cluster Build-Plan Link
 
-Supports the Transaction / Order portion of **CL-04 Feature 12 — Dispute Adjudication, Refund/Release, and Closure**. This Module feature must not be treated as available before CL-04 Features 11–12 define the Review / Dispute contracts and lifecycle semantics.
+This feature has two sequenced contributions under CL-04-R013: **08a dispute entry** supplies `enterOrderDisputeState` before CL-04 Feature 11 intake integration; **08b refund/settlement** remains under CL-04 Feature 12. Both retain Order ownership and require their applicable approved lifecycle contracts.
 
 ### Dependencies
 
 - Feature 07;
-- CL-04 Feature 11 dispute intake contract;
-- CL-04 Feature 12 adjudication/settlement contract;
-- explicit Order `disputed`/refund transition semantics;
-- Payment normalized refund result contract;
-- Hold owner contract;
+- 08a: approved dispute-entry/intake contract before CL-04 Feature 11 integration;
+- 08b only: CL-04 Feature 12 adjudication/settlement contract;
+- 08a: approved Order dispute-entry transition semantics;
+- 08b: approved refund/dispute-exit transition semantics, Payment normalized refund-result contract, and applicable Hold coordination;
 - canonical workflow/idempotency/concurrency/event mechanisms.
 
 ### In Scope
 
 - `enterOrderDisputeState`;
+- SH-108 `requestOrderRefund` — Order receives authorized adjudication and coordinates Payment execution;
 - `applyRefundOutcomeToOrder`;
 - `resolveOrderDisputeState`;
 - `getOrderSettlementFacts`;
@@ -1313,26 +1320,27 @@ Supports the Transaction / Order portion of **CL-04 Feature 12 — Dispute Adjud
 ### Public Interfaces
 
 - `enterOrderDisputeState`;
+- SH-108 `requestOrderRefund` — Order receives authorized adjudication and coordinates Payment execution;
 - `applyRefundOutcomeToOrder`;
 - `resolveOrderDisputeState`;
 - `getOrderSettlementFacts`.
 
 ### Shared Operations Used
 
-- **`executeIdempotentCommand`** for all external-result applications.
-- **`acquireAggregateLock`/`withOptimisticConcurrency`** for dispute/refund/completion races.
-- **`transitionLifecycleState`** with approved Order matrix.
-- **`orchestrateWorkflowSteps`** only if a durable settlement coordinator is explicitly owned/needed; shared runner does not own Dispute/Payment/Hold truth.
-- **`deduplicateDomainEvent`** for event-driven result handlers.
-- **`appendDomainLifecycleEvent` / `publishDomainEvent`** for Order effect.
-- **`appendAuditEvent`** for high-risk admin correction if present.
-- **`recordIntegrationFailure`** for settlement coordination failures.
+- **SH-044 `executeIdempotentCommand`** for all external-result applications.
+- **SH-051 `acquireAggregateLock`/SH-052 `withOptimisticConcurrency`** for dispute/refund/completion races.
+- **SH-053 `transitionLifecycleState`** with approved Order matrix.
+- **SH-049 `orchestrateWorkflowSteps`** only if a durable settlement coordinator is explicitly owned/needed; shared runner does not own Dispute/Payment/Hold truth.
+- **SH-045 `deduplicateDomainEvent`** for event-driven result handlers.
+- **SH-031 `appendDomainLifecycleEvent` / SH-046 `publishDomainEvent`** for Order effect.
+- **SH-029 `appendAuditEvent`** for high-risk admin correction if present.
+- **SH-037 `recordIntegrationFailure`** for settlement coordination failures.
 
 ### Domain Logic
 
 - Dispute open may request Order transaction effect but does not create hold/refund;
 - Review / Dispute adjudication result is accepted only from its public contract/event with version/correlation;
-- Payment refund execution result is accepted only as normalized verified result;
+- Order receives the refund decision through SH-108 `requestOrderRefund`, coordinates Payment execution, and accepts only its verified provider-neutral result; Review / Dispute never calls the Payment refund executor directly;
 - partial/full/denied refund maps to approved `RefundStatus` and Order transition rules;
 - settlement release may restore/complete an Order only under explicit transition policy;
 - hold release remains Hold-owned;
@@ -1342,7 +1350,7 @@ Supports the Transaction / Order portion of **CL-04 Feature 12 — Dispute Adjud
 
 - user actors do not directly submit provider settlement results;
 - admin corrections use explicit authority and audit;
-- step-up only if root policy requires it;
+- SH-014 `requireStepUpForSensitiveAction` is mandatory for refund/release actions causing or authorizing financial movement;
 - sensitive dispute evidence is not carried in Order events; use stable refs/reason codes only.
 
 ### Database / Transaction Behavior
@@ -1402,7 +1410,8 @@ Update architecture when exact `disputed` exit paths, partial refund semantics, 
 
 ### Exit Gate
 
-- CL-04 Features 11–12 contracts are approved and available;
+- 08a exit: `enterOrderDisputeState` and entry-specific contract/concurrency tests are available before CL-04 Feature 11 integration; this exit does not depend on 08b refund/settlement tests;
+- 08b exit: CL-04 Feature 12 adjudication/settlement contracts are approved and available;
 - Order settlement transition tests pass;
 - Payment/Dispute/Hold contract tests pass;
 - no direct provider or foreign repository mutation exists;
@@ -1429,6 +1438,7 @@ Transaction / Order participation in **CL-04 Feature 13 — Cross-Cluster Contra
 ### Dependencies
 
 - Features 01–08;
+- Feature 10a Order/Agreement privacy executor implementation before privacy proof;
 - CL-04 Features 01–12 as needed for full Gig/Dispute journeys;
 - dependency contract fixtures/real test adapters;
 - real outbox/inbox/queue runner in integration environment.
@@ -1572,6 +1582,8 @@ If integration exposes an incomplete contract, update owner/public-interface doc
 
 # Phase 7 — Privacy, Reconciliation, and Production Hardening
 
+**Binding retention boundary (CL-04-R011):** hard deletion of an Order must not cascade-delete retained transaction, Agreement, Review, Dispute, or domain-history evidence without owner-specific Privacy/retention evaluation. Privacy issues the instruction; each owner enumerates its targets, evaluates retention/exemption facts, erases/anonymizes eligible data, preserves/minimizes retained evidence, and returns proof to Privacy. Database cascades must not provide an alternate destructive path. Existing cascade behavior requires a later approved database correction; legal retention durations remain unresolved.
+
 ## 10 Privacy Executor, Reconciliation, Security, and Production Readiness
 
 ### Objective
@@ -1584,11 +1596,14 @@ Privacy jobs can enumerate and execute approved Transaction / Order targets; ope
 
 ### Cluster Build-Plan Link
 
-Transaction / Order portion of **CL-04 Feature 14 — Security, Privacy, Reconciliation, and Production Readiness**.
+Split contribution under CL-04-R014: **Feature 10a** implements Order/Agreement enumeration and privacy execution before Module Feature 09 / CL-04 Feature 13 proof; **Feature 10b** supplies CL-04 Feature 14 hardening afterward.
+
+10a exits when the local enumeration/executor contracts exist and applicable owner-contract tests pass, with unresolved destructive/retention behavior still gated. 10b owns the remaining production, batching, destructive-safety, migration, and reconciliation checks below; those do not delay first executor availability until after its own integration proof.
 
 ### Dependencies
 
-- Feature 09;
+- Feature 10a: relevant owner data/features and Privacy contracts; no dependency on Feature 09 proof;
+- Feature 10b: Feature 09 proof;
 - approved retention rules for destructive behavior;
 - Privacy target contract;
 - production dependency/provider contracts;
@@ -1637,13 +1652,13 @@ All Transaction / Order-owned records may be enumerated. Destructive changes are
 ### Shared Operations Used
 
 - **canonical privacy target result contract** — Privacy owns orchestration; local executor returns erased/anonymized/retained/revoked/etc.
-- **`revokeTemporaryAccessGrant`** — revoke AgreementAccessGrant when instructed.
-- **`enqueueReliableJob` / `executeRetryWithBackoff`** — backfills/reconciliation/privacy local work.
-- **`deduplicateDomainEvent` / `executeIdempotentCommand`** — replay-safe repair.
-- **`createRequestContext`, `writeStructuredLog`, `sanitizeTelemetryMetadata`, `captureException`, `emitMetric`, `recordIntegrationFailure`, `recordQueueTelemetry`, `checkServiceHealth`** — production ops.
-- **`appendAuditEvent` / `recordSensitiveAccess`** — privileged repair/privacy/access evidence.
-- **`calculateChecksum`** — integrity re-verification where required.
-- **`requireStepUpForSensitiveAction`** only for actions specified by root security policy; no local MFA flags.
+- **SH-089 `revokeTemporaryAccessGrant`** — revoke AgreementAccessGrant when instructed.
+- **SH-047 `enqueueReliableJob` / SH-048 `executeRetryWithBackoff`** — backfills/reconciliation/privacy local work.
+- **SH-045 `deduplicateDomainEvent` / SH-044 `executeIdempotentCommand`** — replay-safe repair.
+- **SH-032 `createRequestContext`, SH-033 `writeStructuredLog`, SH-034 `sanitizeTelemetryMetadata`, SH-035 `captureException`, SH-036 `emitMetric`, SH-037 `recordIntegrationFailure`, SH-038 `recordQueueTelemetry`, SH-039 `checkServiceHealth`** — production ops.
+- **SH-029 `appendAuditEvent` / SH-030 `recordSensitiveAccess`** — privileged repair/privacy/access evidence.
+- **SH-086 `calculateChecksum`** — integrity re-verification where required.
+- **SH-014 `requireStepUpForSensitiveAction`** only for actions specified by root security policy; no local MFA flags.
 
 ### Domain Logic
 
@@ -1676,7 +1691,7 @@ Reconciliation must never overwrite newer domain truth.
 - Privacy/system executor authenticates through trusted internal context;
 - retained contract/payment/tax/dispute/fraud/signature proof is preserved when instructed;
 - admin/operator diagnostics expose safe metadata only;
-- privileged manual repair requires explicit authority, audit, and step-up if root policy says so;
+- privileged manual repair requires authority/audit; refund/release actions capable of financial movement require SH-014; other action-specific policy remains gated;
 - Search/public deindexing, Media deletion, and provider deletion are requested through owners rather than performed directly;
 - telemetry is allowlisted/redacted.
 
@@ -1837,6 +1852,15 @@ It must not be used to postpone unimplemented core lifecycle or agreement behavi
 
 **Total numbered Module features: 10**
 
+### Approved local Shared Operation mappings
+
+- SH-107 `createChargeableOrder` — Confirmed; Transaction / Order owns creation. `createOrderFromOffering` and `createOrderFromGigAssignment` are typed source-specific specializations of this responsibility, not separate creation engines.
+- SH-109 `snapshotExternalDecision` — Confirmed; Order freezes external Track decision/evidence while Track retains current policy truth.
+- SH-110 `createDomainSnapshot` — Confirmed; Order owns immutable source/commercial snapshots where the registered semantics apply.
+- SH-026 `authorizeContextualResourceAccess` — Confirmed; the context owner decides Agreement/Dispute business access; Media retains signed transport mechanics.
+- SH-125 `recordDomainAccessEvent` — Confirmed; Agreement/domain access proof remains separate from generic AccessAuditLog.
+- SH-111 `renderDocument` — Proposed ruling, conditional future shared normalization; not a required confirmed dependency. Transaction / Order retains its owner-local/provider-neutral rendering workflow until separate Shared Operations approval.
+
 ### CL-04 build-plan alignment
 
 | Module feature | CL-04 milestone |
@@ -1847,11 +1871,11 @@ It must not be used to postpone unimplemented core lifecycle or agreement behavi
 | 05 | Feature 07 — Agreement Document Finalization and Secure Access |
 | 06 | Feature 08 — Payment Initiation and Verified Order Payment |
 | 07 | Feature 09 — Order Fulfillment, Delivery Entitlement, and Completion |
-| 08 | Transaction / Order portion of Feature 12 — Dispute Adjudication, Refund/Release, and Closure |
+| 08a / 08b | Dispute-entry prerequisite before Feature 11 integration / refund-settlement contribution at Feature 12 |
 | 09 | Feature 13 — Cross-Cluster Contract Proof |
-| 10 | Feature 14 — Security, Privacy, Reconciliation, and Production Readiness |
+| 10a / 10b | Privacy executor prerequisite before Feature 13 proof / Feature 14 hardening |
 
-This mapping is binding for sequence. Feature 08 cannot leap ahead of CL-04 Review / Dispute Features 10–12 merely because Transaction / Order code is ready.
+This mapping is binding: Feature 08a supplies dispute entry before CL-04 Feature 11 integration; Feature 08b remains at Feature 12. This split does not pull refund settlement forward or approve unresolved transitions.
 
 ---
 

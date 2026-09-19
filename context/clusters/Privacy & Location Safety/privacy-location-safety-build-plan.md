@@ -1,11 +1,25 @@
 # Privacy & Location Safety Build Plan
 
-> **Repository location:** `context/privacy-location-safety/build-plan.md`  
+> **Repository location:** `context/clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md`<br>
 > **Cluster ID:** CL-08  
 > **Cluster:** Privacy & Location Safety  
-> **Companion architecture:** `context/privacy-location-safety/architecture.md`  
+> **Companion architecture:** `context/clusters/Privacy & Location Safety/privacy-location-safety-architecture.md`<br>
 > **Plan status:** Implementation sequence; decision-gated where architecture/legal policy is unresolved  
 > **Total numbered features:** 11
+
+**Shared Operation status:** References use permanent IDs and canonical names from `context/shared/shared-operations.md`; that registry controls owner, classification, status, and reusable boundary. SH-003 queryOwnerFacts remains **Proposed ruling** and is not an unconditional prerequisite or an approved universal DTO/API. Adoption requires separate Shared Operations approval before API/schema commitment. Existing source-owner-specific public queries may be consumed within their approved contracts; direct cross-domain Prisma/repository reads remain prohibited. SH-069 geocodeAddress remains **Proposed ruling** wherever referenced; this pass does not approve it.
+
+### Current context paths and missing artifact roles
+
+Read `context/context-map.md` first for authority by concern, then the existing artifacts relevant to the feature:
+
+- Overview: `context/project-overview-v3.md`.
+- Shared Operations: `context/shared/shared-operations.md`.
+- Cluster architecture: `context/clusters/Privacy & Location Safety/privacy-location-safety-architecture.md`.
+- Cluster build plan: `context/clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md`.
+- Member Module pairs: use the Privacy / Data Erasure and Location Safety paths in `context/context-map.md`.
+
+Root/repository-root and context-root `architecture.md`, `build-plan.md`, `code-standards.md`, and dedicated `progress-tracker.md` are currently **missing**. References to those global artifacts below describe future roles, not loadable files or current authority. Do not create local substitutes or infer global approval. Apply existing concern owners through the context map; stop work that needs a missing global decision. Until a dedicated tracker is available, report progress/blockers in the task completion report; progress does not approve architecture.
 
 ---
 
@@ -48,7 +62,7 @@ Decision-gated features must remain blocked rather than filling missing legal/sa
 ## Build Rules
 
 1. Follow the CL-08 `architecture.md`.
-2. Follow root Workin Ants `architecture.md` and `code-standards.md`.
+2. Use `context/context-map.md` for existing concern owners; root architecture/code standards are currently missing.
 3. Do not expand CL-08 into a generic compliance framework, identity system, storage system, search system, or map system.
 4. Do not redesign Deep Module ownership for implementation convenience.
 5. Reuse Canonical Shared Operations. Do not create duplicate auth, authorization, queues, idempotency, audit, crypto, search, file, or provider infrastructure.
@@ -62,7 +76,7 @@ Decision-gated features must remain blocked rather than filling missing legal/sa
 13. No public location payload contains exact private location.
 14. No exact-location result is returned from cached frontend eligibility.
 15. Do not implement automated privacy legal deadlines, rejection grounds, retention periods, or reveal predicates until approved.
-16. Do not treat Proposed Rulings in the architecture as approved unless the progress tracker or root architecture explicitly records approval.
+16. Do not treat Proposed Rulings as approved without an explicit approved architecture decision from the concern owner identified in `context/context-map.md`. Progress records may cite that decision but cannot approve architecture.
 17. Every numbered feature ends with automated tests and a concrete exit gate.
 18. Do not start the next numbered feature until the current exit gate passes, except when the current feature is explicitly marked **Decision-Gated** and the project owner chooses to pause CL-08 rather than invent the decision.
 19. Build-plan progress cannot silently change architecture. Update architecture first when a binding decision changes.
@@ -83,6 +97,7 @@ CL-08 assumes the root platform can supply, or will supply before the relevant f
 - transactional outbox/inbox;
 - reliable jobs and retry/dead-letter handling;
 - request/correlation context;
+- SH-036 emitMetric and SH-038 recordQueueTelemetry through their canonical Ops/queue owners; consumers retain domain state and safe dimension policy;
 - structured logging and telemetry redaction;
 - Audit / Event Ledger append interfaces;
 - shared encryption and keyed hashing;
@@ -93,38 +108,37 @@ CL-08 assumes the root platform can supply, or will supply before the relevant f
 The following canonical operations are major dependencies:
 
 ```text
-resolveAuthenticatedActor
-authorizeResourceAction
-queryOwnerFacts
-evaluateComplianceHold
-authorizeContextualResourceAccess
-appendAuditEvent
-recordSensitiveAccess
-executeIdempotentCommand
-publishDomainEvent
-deduplicateDomainEvent
-enqueueReliableJob
-orchestrateWorkflowSteps
-reconcileWorkflowStatus
-transitionLifecycleState
-acquireAggregateLock
-withOptimisticConcurrency
-runDeadlineExpiration
-encryptSensitiveValue
-normalizeAndHashIdentifier
-requestSearchProjectionRefresh
-issueSignedMediaUrl
-enumerateSubjectData
-evaluateRetentionRequirement
-executePrivacyInstruction
-orchestratePrivacyFulfillment
-createPrivacyExportArtifact
-resolveLocationReveal
-applyFuzzyPublicLocation
-validateOwnedTargetReference
+resolveAuthenticatedActor # SH-001 resolveAuthenticatedActor
+authorizeResourceAction # SH-002 authorizeResourceAction
+evaluateComplianceHold # SH-011 evaluateComplianceHold
+authorizeContextualResourceAccess # SH-026 authorizeContextualResourceAccess
+appendAuditEvent # SH-029 appendAuditEvent
+recordSensitiveAccess # SH-030 recordSensitiveAccess
+executeIdempotentCommand # SH-044 executeIdempotentCommand
+publishDomainEvent # SH-046 publishDomainEvent
+deduplicateDomainEvent # SH-045 deduplicateDomainEvent
+enqueueReliableJob # SH-047 enqueueReliableJob
+orchestrateWorkflowSteps # SH-049 orchestrateWorkflowSteps
+reconcileWorkflowStatus # SH-050 reconcileWorkflowStatus
+transitionLifecycleState # SH-053 transitionLifecycleState
+acquireAggregateLock # SH-051 acquireAggregateLock
+withOptimisticConcurrency # SH-052 withOptimisticConcurrency
+runDeadlineExpiration # SH-055 runDeadlineExpiration
+encryptSensitiveValue # SH-075 encryptSensitiveValue
+normalizeAndHashIdentifier # SH-076 normalizeAndHashIdentifier
+requestSearchProjectionRefresh # SH-091 requestSearchProjectionRefresh
+issueSignedMediaUrl # SH-087 issueSignedMediaUrl
+enumerateSubjectData # SH-096 enumerateSubjectData
+evaluateRetentionRequirement # SH-097 evaluateRetentionRequirement
+executePrivacyInstruction # SH-095 executePrivacyInstruction
+orchestratePrivacyFulfillment # SH-099 orchestratePrivacyFulfillment
+createPrivacyExportArtifact # SH-100 createPrivacyExportArtifact
+resolveLocationReveal # SH-027 resolveLocationReveal
+applyFuzzyPublicLocation # SH-028 applyFuzzyPublicLocation
+validateOwnedTargetReference # SH-123 validateOwnedTargetReference
 ```
 
-If a canonical operation has not yet been implemented, implement or schedule it in its canonical owner. Do not create a CL-08-only substitute.
+For Confirmed operations, implementation belongs in the canonical owner before the consuming feature. Proposed operations require separate architecture approval before API/schema commitment; SH-003 queryOwnerFacts is not an unconditional prerequisite. Approved narrow source-owner queries remain usable. Do not create a CL-08-only substitute.
 
 ### Existing CL-08 schema prerequisites
 
@@ -224,11 +238,11 @@ Make `PrivacyRequest` a real, user-visible source-of-truth record with safe self
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor` — Identity owner; establishes requester. Privacy supplies no alternate auth helper.
-- `authorizeResourceAction` — Role / Authority owner; Privacy supplies request ownership/admin context. Do not build `privacyAuth`.
-- `executeIdempotentCommand` — platform owner; used for submission retry safety. Privacy supplies semantic request fingerprint; do not build local idempotency storage.
-- `appendAuditEvent` — Audit owner; records sanitized submission/admin actions. Do not create a privacy audit table.
-- `createRequestContext` / `writeStructuredLog` / `sanitizeTelemetryMetadata` — platform/Ops; no request-body dumping.
+- `SH-001 resolveAuthenticatedActor` — Identity owner; establishes requester. Privacy supplies no alternate auth helper.
+- `SH-002 authorizeResourceAction` — Role / Authority owner; Privacy supplies request ownership/admin context. Do not build `privacyAuth`.
+- `SH-044 executeIdempotentCommand` — platform owner; used for submission retry safety. Privacy supplies semantic request fingerprint; do not build local idempotency storage.
+- `SH-029 appendAuditEvent` — Audit owner; records sanitized submission/admin actions. Do not create a privacy audit table.
+- `SH-032 createRequestContext` / `SH-033 writeStructuredLog` / `SH-034 sanitizeTelemetryMetadata` — platform/Ops; no request-body dumping.
 
 ### Data / Schema
 
@@ -406,13 +420,13 @@ This is an implementation proof surface, not a legal fulfillment screen.
 
 ### Shared Operations Used
 
-- `enumerateSubjectData` — each owner implements; Privacy defines protocol. No global DB crawler.
-- `evaluateRetentionRequirement` — owner supplies facts; Privacy does not encode tax/contract/etc. logic.
-- `executePrivacyInstruction` — typed execution protocol; no owner creates PrivacyRequest.
-- `validateOwnedTargetReference` — target owner validates existence/context.
-- `queryOwnerFacts` — narrow owner DTOs only.
-- `executeIdempotentCommand` — used by executor commands.
-- `createRequestContext`, `writeStructuredLog`, `sanitizeTelemetryMetadata`.
+- `SH-096 enumerateSubjectData` — each owner implements; Privacy defines protocol. No global DB crawler.
+- `SH-097 evaluateRetentionRequirement` — owner supplies facts; Privacy does not encode tax/contract/etc. logic.
+- `SH-095 executePrivacyInstruction` — typed execution protocol; no owner creates PrivacyRequest.
+- `SH-123 validateOwnedTargetReference` — target owner validates existence/context.
+- `SH-003 queryOwnerFacts (Proposed ruling; adoption gated)` — narrow owner DTOs only.
+- `SH-044 executeIdempotentCommand` — used by executor commands.
+- `SH-032 createRequestContext`, `SH-033 writeStructuredLog`, `SH-034 sanitizeTelemetryMetadata`.
 
 ### Data / Schema
 
@@ -441,9 +455,9 @@ The descriptor is a contract object, not a new universal database table unless r
 Define the canonical protocol contracts:
 
 ```ts
-enumerateSubjectData(request)
-evaluateRetentionRequirement(request)
-executePrivacyInstruction(request)
+enumerateSubjectData(request) // SH-096 enumerateSubjectData
+evaluateRetentionRequirement(request) // SH-097 evaluateRetentionRequirement
+executePrivacyInstruction(request) // SH-095 executePrivacyInstruction
 ```
 
 Define normalized result categories:
@@ -492,7 +506,7 @@ No raw exports or exact-location values on the diagnostic surface.
 
 ### Events / Jobs / Integrations
 
-Use `enqueueReliableJob` only if inventory size requires async execution; otherwise synchronous dry-run is acceptable for test fixtures.
+Use `SH-047 enqueueReliableJob` only if inventory size requires async execution; otherwise synchronous dry-run is acceptable for test fixtures.
 
 No provider calls are required in dry-run.
 
@@ -548,7 +562,7 @@ Build the first Location Safety vertical slice: public consumers can receive a s
 
 ### Objective
 
-Make `applyFuzzyPublicLocation` and `FuzzyLocationCache` real source-backed Location Safety behavior.
+Make `SH-028 applyFuzzyPublicLocation` and `FuzzyLocationCache` real source-backed Location Safety behavior.
 
 ### User-visible / Observable Result
 
@@ -579,14 +593,14 @@ The exact input location is never returned by the public interface.
 
 ### Shared Operations Used
 
-- `applyFuzzyPublicLocation` — Location Safety canonical public interface; no consumer-side fuzzing.
-- `queryOwnerFacts` / `validateOwnedTargetReference` — get source location safely.
-- `executeIdempotentCommand` — duplicate refresh safety.
-- `acquireAggregateLock` or `withOptimisticConcurrency` — one projection per target.
-- `geocodeAddress` — only behind Location-owned port if needed; provider may be stubbed.
-- `requestSearchProjectionRefresh` — invoked through Search contract, not direct index call.
-- `publishDomainEvent` / `enqueueReliableJob` only if approved for refresh/expiry.
-- `sanitizeTelemetryMetadata` — exact location omitted from logs.
+- `SH-028 applyFuzzyPublicLocation` — Location Safety canonical public interface; no consumer-side fuzzing.
+- `SH-003 queryOwnerFacts (Proposed ruling; adoption gated)` / `SH-123 validateOwnedTargetReference` — get source location safely.
+- `SH-044 executeIdempotentCommand` — duplicate refresh safety.
+- `SH-051 acquireAggregateLock` or `SH-052 withOptimisticConcurrency` — one projection per target.
+- `SH-069 geocodeAddress (Proposed ruling; adoption gated)` — only behind Location-owned port if needed; provider may be stubbed.
+- `SH-091 requestSearchProjectionRefresh` — invoked through Search contract, not direct index call.
+- `SH-046 publishDomainEvent` / `SH-047 enqueueReliableJob` only if approved for refresh/expiry.
+- `SH-034 sanitizeTelemetryMetadata` — exact location omitted from logs.
 
 ### Data / Schema
 
@@ -608,7 +622,7 @@ Implementation must use an explicit supported-target registry in application con
 Implement/complete:
 
 ```ts
-applyFuzzyPublicLocation(...)
+applyFuzzyPublicLocation(...) // SH-028 applyFuzzyPublicLocation
 getPublicLocationProjection(...)
 refreshFuzzyLocationProjection(...)
 invalidateFuzzyLocationProjection(...)
@@ -648,7 +662,7 @@ location.public_projection.updated
 location.public_projection.invalidated
 ```
 
-Expiry worker may use `runDeadlineExpiration` when policy exists.
+Expiry worker may use `SH-055 runDeadlineExpiration` when policy exists.
 
 Geocoder is stubbed/provider-neutral for this feature.
 
@@ -741,16 +755,16 @@ For a verified test request, an authorized requester/admin can see:
 
 ### Shared Operations Used
 
-- `orchestratePrivacyFulfillment` — Privacy-owned workflow.
-- `enumerateSubjectData` — inventory.
-- `evaluateRetentionRequirement` — owner facts.
-- `executePrivacyInstruction` — owner mutation.
-- `anonymizePersonalFields` — owner-specific field map.
-- `orchestrateWorkflowSteps` / `reconcileWorkflowStatus` — mechanism only.
-- `enqueueReliableJob` / `executeRetryWithBackoff`.
-- `executeIdempotentCommand`.
-- `appendAuditEvent` / `recordSensitiveAccess` where applicable.
-- `recordIntegrationFailure`.
+- `SH-099 orchestratePrivacyFulfillment` — Privacy-owned workflow.
+- `SH-096 enumerateSubjectData` — inventory.
+- `SH-097 evaluateRetentionRequirement` — owner facts.
+- `SH-095 executePrivacyInstruction` — owner mutation.
+- `SH-098 anonymizePersonalFields` — owner-specific field map.
+- `SH-049 orchestrateWorkflowSteps` / `SH-050 reconcileWorkflowStatus` — mechanism only.
+- `SH-047 enqueueReliableJob` / `SH-048 executeRetryWithBackoff`.
+- `SH-044 executeIdempotentCommand`.
+- `SH-029 appendAuditEvent` / `SH-030 recordSensitiveAccess` where applicable.
+- `SH-037 recordIntegrationFailure`.
 
 No provider adapter is rebuilt in Privacy.
 
@@ -905,6 +919,8 @@ E2E:
 
 Build the export path for requests explicitly typed `export`, using owner serializers and Media-owned private delivery mechanics.
 
+Production export is gated until SH-100 createPrivacyExportArtifact is fully satisfied: manifest and per-owner sections, archive hash/encryption, protected MediaAccessGrant/access, expiry and cleanup, and sensitive-access audit. A bare `DataExportBundle.mediaAssetId` is not sufficient production proof. The Media handoff, integrity/persistence representation, algorithm, and key-management implementation remain unresolved; this requirement does not approve them.
+
 ### Objective
 
 Produce a private, expiring `DataExportBundle` without turning Privacy into a storage provider or exposing permanent URLs.
@@ -929,21 +945,21 @@ For a verified export request:
 - verified export request test fixture or approved verification path.
 - Media private asset creation/finalization.
 - signed Media access.
-- encryption/hash primitives if approved by export artifact contract.
+- approved shared encryption/hash implementation satisfying mandatory SH-100 createPrivacyExportArtifact protections; production remains gated until available.
 - Audit.
 
 ### Shared Operations Used
 
-- `createPrivacyExportArtifact` — Privacy owns bundle; Media owns storage.
-- `enumerateSubjectData` — owner export sections.
-- `issueSignedMediaUrl` — Media owner.
-- `hashCanonicalPayload` — artifact/manifest integrity if required.
-- `encryptSensitiveValue` or approved archive encryption mechanism where root security contract requires it.
-- `recordSensitiveAccess` — issuance/download.
-- `enqueueReliableJob` — generation/expiry cleanup.
-- `runDeadlineExpiration` — bundle expiry.
-- `executeIdempotentCommand`.
-- `sanitizeTelemetryMetadata`.
+- `SH-100 createPrivacyExportArtifact` — Privacy owns bundle; Media owns storage.
+- `SH-096 enumerateSubjectData` — owner export sections.
+- `SH-087 issueSignedMediaUrl` — Media owner.
+- `SH-072 hashCanonicalPayload` — mandatory artifact/manifest integrity for SH-100 createPrivacyExportArtifact.
+- `SH-075 encryptSensitiveValue` or an approved shared archive encryption mechanism — mandatory archive protection for SH-100 createPrivacyExportArtifact; implementation remains decision-gated.
+- `SH-030 recordSensitiveAccess` — issuance/download.
+- `SH-047 enqueueReliableJob` — generation/expiry cleanup.
+- `SH-055 runDeadlineExpiration` — bundle expiry.
+- `SH-044 executeIdempotentCommand`.
+- `SH-034 sanitizeTelemetryMetadata`.
 
 ### Data / Schema
 
@@ -1016,7 +1032,7 @@ Jobs:
 
 Notification:
 
-- `requestNotification` may notify requester when ready/failed if approved template exists.
+- `SH-041 requestNotification` may notify requester when ready/failed if approved template exists.
 
 No direct R2 client in Privacy.
 
@@ -1029,6 +1045,8 @@ No direct R2 client in Privacy.
 - cleanup failure → bundle remains expired and Ops records retryable cleanup failure.
 
 ### Tests
+
+Production acceptance tests must prove the full SH-100 createPrivacyExportArtifact protection chain; missing integrity, encryption, grant/access, cleanup, or audit protection cannot pass the production gate.
 
 Unit:
 
@@ -1063,6 +1081,7 @@ E2E:
 
 ### Exit Gate
 
+- production export satisfies the complete SH-100 createPrivacyExportArtifact protection chain; unresolved representation or Media handoff blocks the gate;
 - ready bundle references a valid private Media asset;
 - requester can obtain short-lived access and another User cannot;
 - access is audited;
@@ -1121,20 +1140,20 @@ Must resolve at minimum:
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor`
-- `authorizeResourceAction`
-- `requireStepUpForSensitiveAction` only if approved policy requires it
-- `orchestratePrivacyFulfillment`
-- `transitionLifecycleState`
-- `reconcileWorkflowStatus`
-- `enumerateSubjectData`
-- `evaluateRetentionRequirement`
-- `executePrivacyInstruction`
-- `requestNotification`
-- `appendAuditEvent`
-- `recordSensitiveAccess`
-- `executeIdempotentCommand`
-- `enqueueReliableJob`
+- `SH-001 resolveAuthenticatedActor`
+- `SH-002 authorizeResourceAction`
+- `SH-014 requireStepUpForSensitiveAction` only if approved policy requires it
+- `SH-099 orchestratePrivacyFulfillment`
+- `SH-053 transitionLifecycleState`
+- `SH-050 reconcileWorkflowStatus`
+- `SH-096 enumerateSubjectData`
+- `SH-097 evaluateRetentionRequirement`
+- `SH-095 executePrivacyInstruction`
+- `SH-041 requestNotification`
+- `SH-029 appendAuditEvent`
+- `SH-030 recordSensitiveAccess`
+- `SH-044 executeIdempotentCommand`
+- `SH-047 enqueueReliableJob`
 
 No local substitutes.
 
@@ -1255,7 +1274,7 @@ Notification templates must be versioned and privacy-safe.
 
 ### Objective
 
-Implement `resolveLocationReveal` as the single exact-location disclosure decision and `LocationReveal` as viewer/context reveal truth.
+Implement `SH-027 resolveLocationReveal` as the single exact-location disclosure decision and `LocationReveal` as viewer/context reveal truth.
 
 ### User-visible / Observable Result
 
@@ -1286,19 +1305,19 @@ Resolve at minimum:
 
 ### Shared Operations Used
 
-- `resolveLocationReveal` — Location Safety owner.
-- `resolveAuthenticatedActor`.
-- `authorizeResourceAction`.
-- `authorizeContextualResourceAccess`.
-- `queryOwnerFacts`.
-- `evaluateComplianceHold` only if approved predicate uses it.
-- `encryptSensitiveValue` for approved exact storage/decryption.
-- `normalizeAndHashIdentifier` for IP/request proof.
-- `executeIdempotentCommand`.
-- `acquireAggregateLock` / `withOptimisticConcurrency`.
-- `recordSensitiveAccess`.
-- `appendAuditEvent`.
-- `sanitizeTelemetryMetadata`.
+- `SH-027 resolveLocationReveal` — Location Safety owner.
+- `SH-001 resolveAuthenticatedActor`.
+- `SH-002 authorizeResourceAction`.
+- `SH-026 authorizeContextualResourceAccess`.
+- `SH-003 queryOwnerFacts (Proposed ruling; adoption gated)`.
+- `SH-011 evaluateComplianceHold` only if approved predicate uses it.
+- `SH-075 encryptSensitiveValue` for approved exact storage/decryption.
+- `SH-076 normalizeAndHashIdentifier` for IP/request proof.
+- `SH-044 executeIdempotentCommand`.
+- `SH-051 acquireAggregateLock` / `SH-052 withOptimisticConcurrency`.
+- `SH-030 recordSensitiveAccess`.
+- `SH-029 appendAuditEvent`.
+- `SH-034 sanitizeTelemetryMetadata`.
 
 No Booking/Order-specific reveal helper may duplicate policy.
 
@@ -1322,7 +1341,7 @@ Do not invent schema before architecture approval.
 Complete:
 
 ```text
-resolveLocationReveal(...)
+resolveLocationReveal(...) # SH-027 resolveLocationReveal
 getLocationRevealStatus(...)
 revokeLocationReveal(...)
 listLocationRevealHistory(...)
@@ -1445,18 +1464,18 @@ Resolve U-08-21 and U-08-23 before production privacy disposition of location re
 
 ### Shared Operations Used
 
-- `deduplicateDomainEvent`
-- `publishDomainEvent`
-- `enqueueReliableJob`
-- `executeRetryWithBackoff`
-- `resolveLocationReveal`
-- `applyFuzzyPublicLocation`
-- `requestSearchProjectionRefresh`
-- `enumerateSubjectData`
-- `evaluateRetentionRequirement`
-- `executePrivacyInstruction`
-- `recordSensitiveAccess`
-- `appendAuditEvent`
+- `SH-045 deduplicateDomainEvent`
+- `SH-046 publishDomainEvent`
+- `SH-047 enqueueReliableJob`
+- `SH-048 executeRetryWithBackoff`
+- `SH-027 resolveLocationReveal`
+- `SH-028 applyFuzzyPublicLocation`
+- `SH-091 requestSearchProjectionRefresh`
+- `SH-096 enumerateSubjectData`
+- `SH-097 evaluateRetentionRequirement`
+- `SH-095 executePrivacyInstruction`
+- `SH-030 recordSensitiveAccess`
+- `SH-029 appendAuditEvent`
 
 ### Data / Schema
 
@@ -1471,9 +1490,9 @@ Potential retention fields are added only if approved architecture requires them
 Location Privacy executor implements:
 
 ```text
-enumerateSubjectData
-evaluateRetentionRequirement
-executePrivacyInstruction
+enumerateSubjectData # SH-096 enumerateSubjectData
+evaluateRetentionRequirement # SH-097 evaluateRetentionRequirement
+executePrivacyInstruction # SH-095 executePrivacyInstruction
 ```
 
 Event handlers consume approved source events for:
@@ -1586,17 +1605,17 @@ Neighbor Module public interfaces must be implementation-ready.
 
 ### Shared Operations Used
 
-- `requestSearchProjectionRefresh`
-- `issueSignedMediaUrl`
-- `deleteProviderResource` through provider owners
-- `appendAuditEvent`
-- `recordSensitiveAccess`
-- `requestNotification`
-- `recordIntegrationFailure`
-- `createRequestContext`
-- `sanitizeTelemetryMetadata`
-- `enqueueReliableJob`
-- `executeIdempotentCommand`
+- `SH-091 requestSearchProjectionRefresh`
+- `SH-087 issueSignedMediaUrl`
+- `SH-070 deleteProviderResource` through provider owners
+- `SH-029 appendAuditEvent`
+- `SH-030 recordSensitiveAccess`
+- `SH-041 requestNotification`
+- `SH-037 recordIntegrationFailure`
+- `SH-032 createRequestContext`
+- `SH-034 sanitizeTelemetryMetadata`
+- `SH-047 enqueueReliableJob`
+- `SH-044 executeIdempotentCommand`
 
 ### Data / Schema
 
@@ -1617,13 +1636,13 @@ Apply PR-08-04 relation only if approved.
 Integrate real implementations for:
 
 ```text
-requestSearchProjectionRefresh
-issueSignedMediaUrl
+requestSearchProjectionRefresh # SH-091 requestSearchProjectionRefresh
+issueSignedMediaUrl # SH-087 issueSignedMediaUrl
 Media privacy executor
-appendAuditEvent
-recordSensitiveAccess
-requestNotification
-recordIntegrationFailure
+appendAuditEvent # SH-029 appendAuditEvent
+recordSensitiveAccess # SH-030 recordSensitiveAccess
+requestNotification # SH-041 requestNotification
+recordIntegrationFailure # SH-037 recordIntegrationFailure
 ```
 
 ### Logic
@@ -1633,7 +1652,8 @@ recordIntegrationFailure
 - dedupe downstream event handling;
 - retry transient failures;
 - do not roll back Privacy/Location truth merely because a nonauthoritative notification fails;
-- do not mark Search projection successful until Search acknowledges its own work.
+- SH-091 requestSearchProjectionRefresh acceptance is pending progress, not deletion completion; a Privacy target requiring Search removal remains non-successful until Search supplies completion evidence under the approved executor contract;
+- Location may complete its own cache/projection-source mutation independently; durable Search completion-receipt representation remains unresolved.
 
 ### UI / Administrative Surface
 
@@ -1730,15 +1750,15 @@ Relevant neighbor Module architectures/implementation plans.
 
 ### Shared Operations Used
 
-- `enumerateSubjectData`
-- `evaluateRetentionRequirement`
-- `executePrivacyInstruction`
-- `queryOwnerFacts`
-- `validateOwnedTargetReference`
-- `authorizeOrderEntitlement` where delivery/order entitlement facts are required by an owner, not as privacy truth
-- `resolveLocationReveal`
-- `applyFuzzyPublicLocation`
-- `requestSearchProjectionRefresh`
+- `SH-096 enumerateSubjectData`
+- `SH-097 evaluateRetentionRequirement`
+- `SH-095 executePrivacyInstruction`
+- `SH-003 queryOwnerFacts (Proposed ruling; adoption gated)`
+- `SH-123 validateOwnedTargetReference`
+- `SH-025 authorizeOrderEntitlement` where delivery/order entitlement facts are required by an owner, not as privacy truth
+- `SH-027 resolveLocationReveal`
+- `SH-028 applyFuzzyPublicLocation`
+- `SH-091 requestSearchProjectionRefresh`
 - provider deletion contract through owner Modules.
 
 ### Data / Schema
@@ -1890,22 +1910,22 @@ All production-bound unresolved decisions must be approved or the affected path 
 
 All CL-08-relevant canonical operations, especially:
 
-- `executeIdempotentCommand`
-- `deduplicateDomainEvent`
-- `enqueueReliableJob`
-- `executeRetryWithBackoff`
-- `reconcileWorkflowStatus`
-- `reconcileProviderState` through provider owners
-- `reconcileSearchProjection`
-- `runDeadlineExpiration`
-- `acquireAggregateLock`
-- `withOptimisticConcurrency`
-- `recordIntegrationFailure`
-- `checkServiceHealth`
-- `correlateOpsIncident`
-- `sanitizeTelemetryMetadata`
-- `appendAuditEvent`
-- `recordSensitiveAccess`.
+- `SH-044 executeIdempotentCommand`
+- `SH-045 deduplicateDomainEvent`
+- `SH-047 enqueueReliableJob`
+- `SH-048 executeRetryWithBackoff`
+- `SH-050 reconcileWorkflowStatus`
+- `SH-062 reconcileProviderState` through provider owners
+- `SH-093 reconcileSearchProjection`
+- `SH-055 runDeadlineExpiration`
+- `SH-051 acquireAggregateLock`
+- `SH-052 withOptimisticConcurrency`
+- `SH-037 recordIntegrationFailure`
+- `SH-039 checkServiceHealth`
+- `SH-040 correlateOpsIncident`
+- `SH-034 sanitizeTelemetryMetadata`
+- `SH-029 appendAuditEvent`
+- `SH-030 recordSensitiveAccess`.
 
 ### Data / Schema
 
@@ -2062,7 +2082,7 @@ Feature 11 and CL-08 production readiness pass only when:
 - no enabled path depends on an unresolved U-08 decision;
 - all destructive privacy work is idempotent and observable;
 - every retained target has approved exemption proof;
-- exports are private, short-lived, audited, and cleaned up;
+- production exports satisfy the complete SH-100 createPrivacyExportArtifact protection chain, including manifest, per-owner sections, archive hash/encryption, MediaAccessGrant/access, expiry/cleanup, and sensitive-access audit;
 - public search cannot expose exact location;
 - exact reveal is fail-safe under stale state, concurrency, and crypto/provider failure;
 - Search/Media/Audit/Ops/provider reconciliations preserve ownership;

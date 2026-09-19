@@ -96,7 +96,7 @@ Messaging currently owns no `ThreadStatus`, `MessageStatus`, participant-history
 No Messaging-specific domain event ledger or access-proof ledger is currently modeled. Potential lifecycle events are facts only if later registered. Inbox/unread state may initially be derived from Messaging truth; any later persisted projection remains rebuildable. Generic `AuditEvent` and `AccessAuditLog` remain Audit-owned.
 
 ### Policies/invariants owned
-Messaging owns context-binding rules, current membership semantics, Messaging action vocabulary, message content/edit/delete rules, read-cursor monotonicity, MessageMedia contextual policy, deleted-vs-erased meaning, safe serialization after external decisions, and safe metadata passed to realtime/Notification.
+Messaging uses owner-specific SH-123 `validateOwnedTargetReference` when validating a cross-Module context target; source existence/relationship facts remain with that owner. Messaging owns context-binding rules, current membership semantics, Messaging action vocabulary, message content/edit/delete rules, read-cursor monotonicity, MessageMedia contextual policy, deleted-vs-erased meaning, safe serialization after external decisions, and safe metadata passed to realtime/Notification.
 
 ## 4. Explicit Non-Ownership
 
@@ -115,7 +115,7 @@ Messaging owns context-binding rules, current membership semantics, Messaging ac
 | Content Moderation & Legal Notice | Report, ModerationCase, ModerationAction, legal notice lifecycle |
 | Audit / Event Ledger | AuditEvent, AccessAuditLog |
 | Notification | Notification truth, templates, routing, delivery attempts, provider adapters |
-| Observability / Ops | IntegrationFailure/SystemEvent/queue/incident truth |
+| Observability / Ops | public failure/queue/incident capabilities and any future Ops-owned persistence |
 | Search / Public Visibility | SearchUpsertEvent, Typesense projection, public query |
 | Track Subscription & Entitlement | plan/entitlement/quota/premium truth |
 
@@ -204,7 +204,7 @@ Do not create Messaging-local provider, generic queue, crypto, audit-persistence
 ## 8. Data Model
 
 ### `Thread`
-Purpose: canonical conversation/context. Key fields: `id`, `contextType`, optional `contextId`, typed FKs, `dataSensitivity`, timestamps, `erasedAt`. Typed FKs to Order/Gig/GigResponse/GigAssignment/JobApplication/JobInterview are each `@unique`, so the current schema permits at most one Thread per typed source record. Concurrency-sensitive `ensureContextThread` must converge under these constraints. `erasedAt` is privacy processing evidence, not closure.
+Purpose: canonical conversation/context. Key fields: `id`, `contextType`, optional `contextId`, typed FKs, `dataSensitivity`, timestamps, `erasedAt`. Typed FKs to Order/Gig/GigResponse/GigAssignment/JobApplication/JobInterview are each `@unique`, so the current schema permits at most one Thread per typed source record. Concurrency-sensitive SH-113 `ensureContextThread` must converge under these constraints. `erasedAt` is privacy processing evidence, not closure.
 
 ### `ThreadParticipant`
 Purpose: current membership plus read cursor. Authoritative fields: `threadId`, `userId`, `joinedAt`, `lastReadAt`. Composite PK prevents duplicate membership. `lastReadAt` must advance atomically and never regress. Removing a row loses historical membership evidence; no history model is currently approved.
@@ -272,7 +272,7 @@ MediaAsset ready + authorized context
 
 | Command | Purpose / key rules | Writes | Shared/public dependencies | Idempotency/failure |
 | --- | --- | --- | --- | --- |
-| `ensureContextThread` | create/return current-schema single Thread for typed source context; validate owner facts and context consistency | Thread + initial participants | actor, Role, `queryOwnerFacts`, idempotency, DB lock/constraint | replay same semantic result; unique-race fetch winner; context mismatch/denial fail |
+| SH-113 `ensureContextThread` | create/return current-schema single Thread for typed source context; validate owner facts and context consistency | Thread + initial participants | actor, Role, SH-003 `queryOwnerFacts` (Proposed ruling), idempotency, DB lock/constraint | replay same semantic result; unique-race fetch winner; context mismatch/denial fail |
 | `createDirectThread` | create direct conversation | Thread + participants | actor, Role | **decision-gated** participant-set identity/dedupe |
 | `createSupportThread` | create support conversation | Thread + participants | actor, Role | **decision-gated** support-case semantics |
 | `addThreadParticipant` | add current membership | ThreadParticipant | actor, Role, owner facts, idempotency | duplicate add returns current state |
@@ -283,9 +283,9 @@ MediaAsset ready + authorized context
 | `markThreadRead` | advance read cursor | `lastReadAt` | actor, Role | atomic max/current replay |
 | `attachMediaToMessage` | attach ready asset context | MessageMedia | Role, Media, idempotency | composite-key retry-safe; no file mutation |
 | `detachMediaFromMessage` | remove contextual join | MessageMedia delete | Role | no MediaAsset deletion |
-| `reportMessageOrThread` | submit target to Moderation | none locally | `submitModerationReport` | Moderation owns Report/Case |
-| `executeModerationDecision` | execute approved target action | only supported Messaging fields | Moderation decision, audit if required | unsupported action fails explicitly |
-| `executePrivacyInstruction` | execute Privacy-directed owner-local disposition | Messaging records only | Privacy protocol, idempotency, audit if required | returns typed owner result; never completes PrivacyRequest |
+| `reportMessageOrThread` | submit target to Moderation | none locally | SH-101 `submitModerationReport` | Moderation owns Report/Case |
+| SH-103 `executeModerationDecision` | execute approved target action | only supported Messaging fields | Moderation decision, audit if required | unsupported action fails explicitly |
+| SH-095 `executePrivacyInstruction` | execute Privacy-directed owner-local disposition | Messaging records only | Privacy protocol, idempotency, audit if required | returns typed owner result; never completes PrivacyRequest |
 
 ## 11. Queries / Decisions
 
@@ -293,12 +293,14 @@ MediaAsset ready + authorized context
 | --- | --- | --- | --- |
 | `resolveThreadContext` | source Modules, UI, Privacy, Moderation | source/context truth | source lifecycle or permission |
 | `getThreadParticipantFacts` | Role, Media, Healthcare, Admin | source/context facts | authorization decision |
+| SH-026 `authorizeContextualResourceAccess` (Messaging owner implementation) | Media | contextual allow/deny and safe evidence bound to actor/Thread/Message/MediaAsset/action | Media readiness, grants, TTL, or signed access |
 | `listThreadsForUser` | inbox UI | source truth + derived summary | source business lifecycle |
 | `getThread` | UI/admin/support | full/redacted/metadata-only/denied view | Healthcare policy internals |
 | `listThreadMessages` | UI/protected consumers | paginated source-truth view | edit history that does not exist |
 | `listThreadParticipants` | authorized consumers | current participants | historical membership |
 | `getUnreadThreadState` | inbox UI | derived count/boolean | Notification unread state |
-| `enumerateSubjectData` | Privacy | owner target evidence | final legal disposition |
+| SH-096 `enumerateSubjectData` | Privacy | owner target evidence | final legal disposition |
+| SH-097 `evaluateRetentionRequirement` | Privacy | owner retention facts under SH-097 | exemption creation or Privacy workflow completion |
 | `exportMessagingSubjectData` | Privacy | owner export section | global export completion |
 
 Stable view/error reasons should include `allowed`, `not_participant`, `authorization_denied`, `sensitive_redacted`, `sensitive_blocked`, `erased`, `not_found`, `context_mismatch`, and dependency errors as appropriate.
@@ -327,12 +329,14 @@ executePrivacyInstruction
 ```text
 resolveThreadContext
 getThreadParticipantFacts
+authorizeContextualResourceAccess [SH-026 owner implementation]
 listThreadsForUser
 getThread
 listThreadMessages
 listThreadParticipants
 getUnreadThreadState
 enumerateSubjectData
+evaluateRetentionRequirement
 exportMessagingSubjectData
 ```
 
@@ -340,7 +344,7 @@ exportMessagingSubjectData
 No event is binding until registered. If approved, likely facts are `messaging.thread.created`, `messaging.participant.added/removed`, `messaging.message.sent/edited/deleted`. Payloads must be versioned/minimized and omit private message body by default.
 
 ### Privacy executor
-Messaging implements `enumerateSubjectData`, `executePrivacyInstruction`, and an export serializer compatible with Privacy's protocol.
+Messaging implements SH-096 `enumerateSubjectData`, SH-097 `evaluateRetentionRequirement`, SH-095 `executePrivacyInstruction`, and an export serializer compatible with Privacy's protocol.
 
 ### Provider-facing interfaces
 None. Supabase Realtime is consumed through the platform realtime adapter; Messaging owns no external communication/storage/search provider lifecycle.
@@ -349,17 +353,17 @@ None. Supabase Realtime is consumed through the platform realtime adapter; Messa
 
 | Owning Module/capability | Interface consumed | Why required | Minimum information | May block? | Messaging must not copy |
 | --- | --- | --- | --- | --- | --- |
-| Identity & Access | `resolveAuthenticatedActor` | trusted actor context | actor/system ID, session/assurance context | yes | auth/session helpers |
-| Role / Authority | `authorizeResourceAction` | permission interpretation | action + Messaging/source relationship facts | yes | permission matrix/engine |
-| Source context owner | owner-specific `queryOwnerFacts` DTO | validate context/participants | canonical ID, existence, relationship/participant facts | yes | source repositories/lifecycle reconstruction |
+| Identity & Access | SH-001 `resolveAuthenticatedActor` | trusted actor context | actor/system ID, session/assurance context | yes | auth/session helpers |
+| Role / Authority | SH-002 `authorizeResourceAction` | permission interpretation | action + Messaging/source relationship facts | yes | permission matrix/engine |
+| Source context owner | owner-specific SH-003 `queryOwnerFacts` (Proposed ruling) DTO | validate context/participants | canonical ID, existence, relationship/participant facts | yes | source repositories/lifecycle reconstruction |
 | Media / File Access | ready-asset + contextual access/signed-access interfaces | attachment safety/access | MediaAsset ID, readiness/access result | yes for attach/access | upload/scan/storage/signed URLs |
 | Healthcare / Regulated Services | healthcare message/thread view decision | sensitive view composition | target/sensitivity/viewer purpose | yes for sensitive reads | healthcare policy/boundary truth |
 | Privacy / Data Erasure | privacy executor protocol | receive authoritative disposition | target/action/retention/idempotency/correlation | yes for destructive action | PrivacyRequest/job/exemption lifecycle |
 | Content Moderation & Legal Notice | report + decision interfaces | route report/execute approved action | target/evidence/action/reason | yes for enforcement | report/case/action truth |
-| Audit / Event Ledger | `appendAuditEvent`, `recordSensitiveAccess` | generic/sensitive proof | actor/action/target/decision/minimized metadata | policy-dependent | local audit tables |
-| Notification | `requestNotification` | alert after committed Message | recipients, safe source IDs/template/action route | no for Message truth | Notification/provider state |
+| Audit / Event Ledger | SH-029 `appendAuditEvent`, SH-030 `recordSensitiveAccess` | generic/sensitive proof | actor/action/target/decision/minimized metadata | policy-dependent | local audit tables |
+| Notification | SH-041 `requestNotification` | alert after committed Message | recipients, safe source IDs/template/action route | no for Message truth | Notification/provider state |
 | Observability / Ops | request context, telemetry sanitation, failure recording | safe diagnostics | correlation IDs/safe metadata | no | Ops business records |
-| Platform realtime | `publishRealtimeChange` | near-realtime client updates | committed delta + audience | no | realtime storage/source truth |
+| Platform realtime | SH-071 `publishRealtimeChange` (Proposed ruling) | near-realtime client updates | committed delta + audience | no | realtime storage/source truth |
 
 Current typed source contexts: Order, Gig, GigResponse, GigAssignment, JobApplication, JobInterview. `direct` and `support` are Messaging contexts without typed source FKs.
 
@@ -373,7 +377,7 @@ Current typed source contexts: Order, Gig, GigResponse, GigAssignment, JobApplic
 | Job Interview | interview conversation | ensure/retrieve/message | using interview event ledger as Message truth |
 | Review / Dispute | approved Order-linked conversation | reuse approved Thread | inventing Dispute context |
 | Role / Authority | participant/context facts | return permission decision | mutate ThreadParticipant |
-| Media / File Access | attachment-context facts | authorize/issue signed access | own MessageMedia lifecycle |
+| Media / File Access | Messaging SH-026 contextual decision | apply independent file readiness/grant/TTL checks and issue signed access | reconstruct Messaging participant policy or own MessageMedia lifecycle |
 | Healthcare | target/sensitivity facts | return view decision | mutate Message/Thread |
 | Privacy | inventory/executor | orchestrate disposition | direct Prisma mutation |
 | Moderation | safe target/executor | case/action lifecycle and approved request | treat deletedAt as moderation truth |
@@ -384,32 +388,34 @@ Messaging has no public Search projection. A committed Message may request Notif
 
 ## 15. Canonical Shared Operations Used
 
-The current Canonical Shared Operations Registry supplies canonical names but no numeric IDs; do not invent IDs.
+**Shared Operations status:** references marked **Proposed ruling** are planning dependencies only, not approval for shared schema/API commitment or a generic service. Independently justified owner-specific interfaces do not approve a proposed shared operation globally. Realtime remains post-commit, authorized, and rebuildable; Moderation integration consumes approved contracts. Canonical metadata and reusable boundaries remain controlled by the Shared Operations registry.
 
-| Canonical operation | Classification | Owner | Messaging use / invocation | Local policy retained | Expected result | Prohibited duplicates |
-| --- | --- | --- | --- | --- | --- | --- |
-| `resolveAuthenticatedActor` | canonical shared capability | Identity & Access | every protected entrypoint | Messaging action/context | trusted actor | `chatAuth`, `messagingSession` |
-| `authorizeResourceAction` | canonical shared capability | Role / Authority | before protected read/write | Messaging action vocabulary + facts | allow/deny/reasons | `threadPermissions`, local auth engine |
-| `queryOwnerFacts` | shared contract/separate implementation | source owner | context/participant validation | exact facts needed | narrow owner DTO | cross-domain repository |
-| `executeIdempotentCommand` | platform primitive | platform app infra | retryable commands | semantic key/fingerprint/replay | claim/replay/conflict | local idempotency table/cache |
-| `publishRealtimeChange` | platform primitive | realtime platform | after committed safe change | audience/payload | publication ack/failure | chat socket store |
-| `requestNotification` | Module public interface | Notification | after committed Message | recipients + safe source metadata | accepted/rejected | email/SMS/push service |
-| `attachValidatedMedia` | shared contract/separate truth | contextual owner + Media | attachment creation | Thread/Message attachment context | validated Media ref | upload/storage service |
-| `authorizeContextualResourceAccess` | shared contract/separate policy | relevant owner | attachment view/download composition | Messaging participation facts | allow/deny/evidence | local signed-url policy |
-| `recordSensitiveAccess` | cross-cutting capability | Audit | sensitive/admin reads | target/action/sensitivity/purpose | audit ack | MessageAccessLog |
-| `appendAuditEvent` | cross-cutting capability | Audit | important participant/privacy/moderation actions | sanitized context | audit ack | chat audit table |
-| `createRequestContext` | platform primitive | platform/Ops | entrypoint/post-commit correlation | safe labels | context | local correlation system |
-| `sanitizeTelemetryMetadata` | platform primitive | Ops/Audit policy | before logs/errors/audit metadata | Messaging-sensitive fields | safe metadata | local redactor framework |
-| `recordIntegrationFailure` | cross-cutting capability | Observability / Ops | realtime/Notification/Media dependency failure | Messaging truth unchanged | failure ref | local failure table |
-| `publishDomainEvent` | shared mechanism/separate truth | platform outbox | only if Messaging event approved | event meaning/version/payload | durable outbox result | ad hoc event bus |
-| `deduplicateDomainEvent` | platform primitive | platform events | future consumers | handler effect | claim/replay | custom inbox framework |
-| `enumerateSubjectData` | privacy protocol | each data owner | Privacy inventory | Messaging targets/dispositions | cursorable descriptors | global DB crawler |
-| `evaluateRetentionRequirement` | shared contract/separate truth | owner facts + Privacy | privacy planning | Messaging relational facts only | retention facts | local exemption table |
-| `executePrivacyInstruction` | shared mechanism/separate truth | Privacy orchestrates; Messaging executes | privacy target execution | exact owner-local field treatment | typed disposition | local Privacy workflow |
-| `submitModerationReport` | Module public interface | Moderation | report action | target/evidence context | Report ref | local report/case |
-| `executeModerationDecision` | shared mechanism/separate truth | Moderation decides; Messaging executes | approved action | target-to-owner mutation map | acknowledgement | Moderation direct DB write |
+Use the existing SH IDs and canonical metadata in `context/shared/shared-operations.md`; local usage does not redefine reusable boundaries.
 
-Conditional only when an approved policy applies: `requireStepUpForSensitiveAction` and `evaluateComplianceHold`. They are not default Messaging gates.
+| Canonical operation | Classification | Owner | Messaging use / invocation | Local policy retained | Expected result | Prohibited duplicates | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| SH-001 `resolveAuthenticatedActor` | Platform capability | Identity & Access | every protected entrypoint | Messaging action/context | trusted actor | `chatAuth`, `messagingSession` | Confirmed |
+| SH-002 `authorizeResourceAction` | Cross-cutting capability | Role / Authority | before protected read/write | Messaging action vocabulary + facts | allow/deny/reasons | `threadPermissions`, local auth engine | Confirmed |
+| SH-003 `queryOwnerFacts` (Proposed ruling) | Shared contract; separate implementations | Each source Module | context/participant validation | exact facts needed | narrow owner DTO | cross-domain repository | Proposed ruling |
+| SH-044 `executeIdempotentCommand` | Platform primitive | Platform application infrastructure | retryable commands | semantic key/fingerprint/replay | claim/replay/conflict | local idempotency table/cache | Confirmed |
+| SH-071 `publishRealtimeChange` (Proposed ruling) | Infrastructure adapter | Platform realtime adapter; Messaging is primary consumer | after committed safe change | audience/payload | publication ack/failure | chat socket store | Proposed ruling |
+| SH-041 `requestNotification` | Platform notification capability | Notification | after committed Message | recipients + safe source metadata | accepted/rejected | email/SMS/push service | Confirmed |
+| SH-090 `attachValidatedMedia` | Shared contract; separate contextual truth | Contextual domain Module; Media owns asset truth | attachment creation | Thread/Message attachment context | validated Media ref | upload/storage service | Confirmed |
+| SH-026 `authorizeContextualResourceAccess` | Shared contract; separate implementations | Relevant context owner | attachment view/download composition | actor/Thread/Message/MediaAsset/action-bound contextual decision, composed from owner facts and applicable external gates | allow/deny/evidence | local signed-url policy | Confirmed |
+| SH-030 `recordSensitiveAccess` | Cross-cutting capability | Audit / Event Ledger | sensitive/admin reads | target/action/sensitivity/purpose | audit ack | MessageAccessLog | Confirmed |
+| SH-029 `appendAuditEvent` | Platform audit capability | Audit / Event Ledger | important participant/privacy/moderation actions | sanitized context | audit ack | chat audit table | Confirmed |
+| SH-032 `createRequestContext` | Platform primitive | Observability / platform infrastructure | entrypoint/post-commit correlation | safe labels | context | local correlation system | Confirmed |
+| SH-034 `sanitizeTelemetryMetadata` | Cross-cutting capability | Observability / Ops and Audit payload policy | before logs/errors/audit metadata | Messaging-sensitive fields | safe metadata | local redactor framework | Confirmed |
+| SH-037 `recordIntegrationFailure` | Cross-cutting capability | Observability / Ops | realtime/Notification/Media dependency failure | Messaging truth unchanged | failure ref | local failure table | Confirmed |
+| SH-046 `publishDomainEvent` | Platform primitive | Platform event/outbox infrastructure | only if Messaging event approved | event meaning/version/payload | durable outbox result | ad hoc event bus | Confirmed |
+| SH-045 `deduplicateDomainEvent` | Platform primitive | Platform event infrastructure; consumer owns inbox | future consumers | handler effect | claim/replay | custom inbox framework | Confirmed |
+| SH-096 `enumerateSubjectData` | Cross-cutting protocol | Each data-owning Module through Privacy-defined interface | Privacy inventory | Messaging targets/dispositions | cursorable descriptors | global DB crawler | Confirmed |
+| SH-097 `evaluateRetentionRequirement` | Cross-cutting protocol | Data owner supplies facts; Privacy records exemption | privacy planning | Messaging relational facts only | retention facts | local exemption table | Confirmed |
+| SH-095 `executePrivacyInstruction` | Cross-cutting protocol | Privacy orchestrates; each data owner executes | privacy target execution | exact owner-local field treatment | typed disposition | local Privacy workflow | Confirmed |
+| SH-101 `submitModerationReport` | Module public interface | Content Moderation & Legal Notice | report action | target/evidence context | Report ref | local report/case | Confirmed |
+| SH-103 `executeModerationDecision` | Cross-cutting protocol | Moderation owns decision; each target owner executes | approved action | target-to-owner mutation map | acknowledgement | Moderation direct DB write | Confirmed |
+
+Conditional only when an approved policy applies: SH-014 `requireStepUpForSensitiveAction` and SH-011 `evaluateComplianceHold`. They are not default Messaging gates.
 
 ## 16. Module-Internal Operations
 
@@ -439,22 +445,22 @@ Conditional only when an approved policy applies: `requireStepUpForSensitiveActi
 
 ## 18. Authentication and Authorization
 
-All interactive Messaging operations require `resolveAuthenticatedActor`; trusted workers use the root system-actor contract, never a bypass boolean. `authorizeResourceAction` interprets named actions using Messaging-supplied facts such as participant state, Thread context, Message sender relation, and source-owner relationship facts.
+All interactive Messaging operations require SH-001 `resolveAuthenticatedActor`; trusted workers use the root system-actor contract, never a bypass boolean. SH-002 `authorizeResourceAction` interprets named actions using Messaging-supplied facts such as participant state, Thread context, Message sender relation, and source-owner relationship facts.
 
-Ordinary Thread read/write requires current participation unless separately authorized admin/support policy applies. Organization membership is never copied into Messaging; Hiring owner facts and Role interpretation are used. Admin/support access must compose Role authorization, Healthcare decision where applicable, and `recordSensitiveAccess` where policy requires. No general Messaging step-up requirement is approved; step-up is added only to a specifically approved sensitive action.
+Ordinary Thread read/write requires current participation unless separately authorized admin/support policy applies. Organization membership is never copied into Messaging; Hiring owner facts and Role interpretation are used. Admin/support access must compose Role authorization, Healthcare decision where applicable, and SH-030 `recordSensitiveAccess` where policy requires. No general Messaging step-up requirement is approved; step-up is added only to a specifically approved sensitive action.
 
 ## 19. Compliance / Readiness / Entitlement Gates
 
 | Gate | Owner | Operation | Gated Messaging action | Local composition/result |
 | --- | --- | --- | --- | --- |
-| authority | Role / Authority | `authorizeResourceAction` | all protected reads/writes | supply facts → allow/deny |
+| authority | Role / Authority | SH-002 `authorizeResourceAction` | all protected reads/writes | supply facts → allow/deny |
 | healthcare view | Healthcare | approved view decision | sensitive Thread/Message views | apply full/redact/metadata/block |
 | file readiness/access | Media | ready/access interface | attach/view MessageMedia | require both context + Media decision |
 | privacy disposition | Privacy | executor envelope | erase/anonymize/retain/export | execute only local mutation, return typed result |
 | moderation enforcement | Moderation | approved action | target restriction/delete where mapped | execute supported action or fail unsupported |
-| ComplianceHold | Hold owner | `evaluateComplianceHold` only when approved | specific action only | no local blocked boolean |
+| ComplianceHold | Hold owner | SH-011 `evaluateComplianceHold` only when approved | specific action only | no local blocked boolean |
 
-No Messaging entitlement/premium/quota gate is currently confirmed. Do not call `resolveEntitlement` unless later architecture explicitly makes a Messaging action track-dependent.
+No Messaging entitlement/premium/quota gate is currently confirmed. Do not call SH-005 `resolveEntitlement` unless later architecture explicitly makes a Messaging action track-dependent.
 
 ## 20. Provider Integrations
 
@@ -484,7 +490,7 @@ thread:{threadId}:participant:{userId}
 message:{messageId}:media:{mediaId}
 ```
 
-These are semantic scopes, not permission to implement in-memory locks. Use DB unique constraints, transactions, optimistic/CAS or approved aggregate locking. `ensureContextThread` transactionally claims idempotency/create/fetch-winner/initial participants. `sendMessage` claims idempotency and writes Message plus owner-local joins; realtime/Notification are post-commit. `markThreadRead` is atomic max. Privacy execution revalidates current target in transaction.
+These are semantic scopes, not permission to implement in-memory locks. Use DB unique constraints, transactions, optimistic/CAS or approved aggregate locking. SH-113 `ensureContextThread` transactionally claims idempotency/create/fetch-winner/initial participants. `sendMessage` claims idempotency and writes Message plus owner-local joins; realtime/Notification are post-commit. `markThreadRead` is atomic max. Privacy execution revalidates current target in transaction.
 
 Same idempotency key + same semantic fingerprint returns original result; same key + different fingerprint returns deterministic conflict. Replay must not duplicate downstream semantic effects.
 
@@ -498,11 +504,13 @@ Media upload/processing
 → Messaging authorizes Thread/Message context
 → MessageMedia join
 → viewer request
-→ Messaging supplies context facts
-→ Media authorizes/issues short-lived access
+→ Messaging returns actor/Thread/Message/MediaAsset/action-bound SH-026 decision
+→ Media requestMediaAccess applies its own gates and issues short-lived access
 ```
 
-No permanent private URL/object key belongs in Messaging. Sensitive access uses `recordSensitiveAccess` when policy requires; no local attachment-access ledger is created.
+No permanent private URL/object key belongs in Messaging. Sensitive access uses SH-030 `recordSensitiveAccess` when policy requires; no local attachment-access ledger is created.
+
+For MessageMedia access, Messaging exposes its owner-specific SH-026 `authorizeContextualResourceAccess` decision bound to the actor, Thread, Message, MediaAsset, and requested action. It returns the contextual allow/deny decision and safe evidence; `ThreadParticipant` or `MessageMedia` facts alone are not authorization. Media consumes that decision through `requestMediaAccess`, independently applies MediaAsset readiness, safety/freeze/erasure, grant, and TTL rules, and owns downstream SH-087 `issueSignedMediaUrl`. Media must not reconstruct Messaging participant/access policy; Messaging must not issue signed URLs or call SH-087 directly.
 
 ## 25. Search / Projection
 
@@ -522,8 +530,8 @@ Message timestamps/lifecycle markers are Messaging truth, not an audit ledger. A
 
 Messaging may call:
 
-- `appendAuditEvent` for important participant administration, moderation execution, privacy execution, or other actions required by root policy;
-- `recordSensitiveAccess` for protected Thread/Message reads and admin/support access according to approved policy.
+- SH-029 `appendAuditEvent` for important participant administration, moderation execution, privacy execution, or other actions required by root policy;
+- SH-030 `recordSensitiveAccess` for protected Thread/Message reads and admin/support access according to approved policy.
 
 No Messaging-specific `MessageAccessLog` or `ThreadOpenLog` is approved. If policy requires audit proof before sensitive data can be returned, audit failure must fail closed. Do not infer that every ordinary participant read requires append-only audit.
 
@@ -535,11 +543,16 @@ Messaging can hold subject data in Thread context/participant metadata, Message 
 ### Privacy interfaces
 ```text
 enumerateSubjectData
+evaluateRetentionRequirement
 executePrivacyInstruction
 exportMessagingSubjectData
 ```
 
 Privacy / Data Erasure owns requester verification, `PrivacyRequest`, erasure job/target lifecycle, retention exemptions, aggregate completion, and export-bundle lifecycle.
+
+Messaging and Notification participate through SH-096 `enumerateSubjectData`, expose owner-side SH-097 `evaluateRetentionRequirement`, and execute approved dispositions through SH-095 `executePrivacyInstruction`. Retention evaluation returns required, reason code, legal/policy basis, retainUntil, minimum fields, permitted anonymization, and source reference under approved policy. Privacy owns `DataRetentionExemption` creation and final workflow completion; it must not directly rewrite CL-07 tables.
+
+**CL-07-R005 — unresolved Privacy target mapping:** inventory must cover `ThreadParticipant`, `MessageMedia`, `NotificationSubscription`, `NotificationDelivery`, and `NotificationSubscriptionEvent` as well as Thread, Message, and Notification. How those child records become `DataErasureTarget` entries remains a Privacy-owned architecture decision. Do not silently omit them, invent enum values, select an ad hoc untyped `other` mapping, or assume parent erasure determines every child disposition. Destructive workflows depending on this mapping remain gated until it is approved.
 
 ### Owner-local dispositions
 Messaging may, only under approved Privacy instruction:
@@ -556,13 +569,15 @@ Messaging may, only under approved Privacy instruction:
 
 ## 29. Observability
 
-Safe structured dimensions include operation name, pseudonymous Thread/Message IDs where root policy permits, context type, safe decision/error code, latency, dependency, request/correlation ID, and idempotency replay indicator.
+Emit structured operational logs through SH-033 `writeStructuredLog`. Safe structured dimensions include operation name, pseudonymous Thread/Message IDs where root policy permits, context type, safe decision/error code, latency, dependency, request/correlation ID, and idempotency replay indicator.
 
 Never log Message body, PHI, private attachment URL/object key, resume text, financial/tax data, auth secrets, or provider tokens.
 
-Realtime/Notification/Media dependency failures may be recorded through Observability / Ops `IntegrationFailure`/SystemEvent mechanisms; these records do not change Message/Thread lifecycle.
+Realtime/Notification/Media dependency failures use Observability / Ops SH-037 `recordIntegrationFailure` and other approved telemetry interfaces; their persistence is not assumed and they do not change Message/Thread lifecycle.
 
 Recommended metrics: Thread ensure latency/conflict rate, Message send success/error latency, idempotency replay/conflict rate, inbox/message query latency, realtime publish failures, Notification handoff failures, authorization denials, privacy executor outcomes, moderation executor failures.
+
+**CL-07-R007 — Observability persistence boundary:** CL-07 consumes approved public capabilities for failure recording, queue telemetry, health, structured logging, metrics, and exception capture. `IntegrationFailure`, `QueueJob`, `OpsIncident`, and `SystemEvent` are not current Prisma models. CL-09 owns its unresolved persistence/status design. CL-07 must not create local substitutes or couple Messaging/Notification business status to any future operational record.
 
 ## 30. Security Boundaries
 
@@ -736,7 +751,7 @@ A similarly named file is acceptable only when its scope is genuinely Messaging-
 - Canonical shared operations are reused, not duplicated.
 
 ### Proposed rulings carried forward
-- Source Modules should call `ensureContextThread`, not insert Thread rows directly.
+- Source Modules should call SH-113 `ensureContextThread`, not insert Thread rows directly.
 - `getThreadParticipantFacts` is the stable owner-facts boundary for Role and contextual consumers.
 - Initial unread state should derive from `lastReadAt` and Message timestamps.
 - Stable pagination should use `(createdAt, id)` unless a later sequence ruling supersedes it.

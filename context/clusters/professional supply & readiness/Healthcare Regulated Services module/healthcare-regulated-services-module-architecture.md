@@ -3,8 +3,10 @@
 > **Module ID:** `healthcare_regulated_services`  
 > **Module name:** Healthcare / Regulated Services Module  
 > **Primary Cluster:** CL-03 — Professional Supply & Readiness  
-> **Repository target:** `context/healthcare_regulated_services/module-architecture.md`  
+> **Repository target:** `context/clusters/professional supply & readiness/Healthcare Regulated Services module/healthcare-regulated-services-module-architecture.md`\
 > **Document status:** Implementation-grade Module architecture; binding where marked **Confirmed**, planning-only where marked **Proposed Ruling**, and non-implementable where marked **Unresolved**
+
+**Repository context (CL-03-R021):** Read [context/context-map.md](<../../../context-map.md>) for authority by concern and verified artifact locations, [context/project-overview-v3.md](<../../../project-overview-v3.md>) for orientation, and [context/shared/shared-operations.md](<../../../shared/shared-operations.md>) for canonical operations. Root architecture, root build plan, code standards, and the progress tracker are missing; references to those prerequisites do not assert availability or authorize a substitute/global precedence rule.
 
 ## 1. Module Header
 
@@ -1578,16 +1580,16 @@ These are implementation constraints, not invitations to guess.
 
 Before implementing any Healthcare feature, the coding agent must read, in this order unless the repository defines a stricter one:
 
-1. root `project-overview.md`;
-2. root `architecture.md`;
-3. root `code-standards.md`;
-4. Canonical Shared Operations Registry / Architecture;
-5. CL-03 Professional Supply & Readiness `architecture.md`;
-6. CL-03 Professional Supply & Readiness `build-plan.md`;
-7. this `healthcare_regulated_services/module-architecture.md`;
-8. this Module's `implementation-plan.md`;
+1. `context/project-overview-v3.md`;
+2. root architecture (**missing**; see `context/context-map.md`);
+3. root code standards (**missing**; see `context/context-map.md`);
+4. Canonical Shared Operations Registry (`context/shared/shared-operations.md`);
+5. CL-03 `context/clusters/professional supply & readiness/professional-supply-readiness-architecture.md`;
+6. CL-03 `context/clusters/professional supply & readiness/professional-supply-readiness-build-plan.md`;
+7. this `context/clusters/professional supply & readiness/Healthcare Regulated Services module/healthcare-regulated-services-module-architecture.md`;
+8. this Module's `context/clusters/professional supply & readiness/Healthcare Regulated Services module/healthcare-regulated-services-module-implementation-plan.md`;
 9. public-interface sections for direct dependencies used by the current feature, especially Identity & Access, Role / Authority, Consent & Disclosure, Taxonomy, Professional Eligibility, Marketplace Supply, Media / File Access, Audit / Event Ledger, Privacy / Data Erasure, Notification, Admin Review / Compliance Hold, Search, and Video Session as applicable;
-10. current `progress-tracker.md` and any approved ADR/ruling that resolves U-07–U-18 or U-HC-* items.
+10. progress tracker (**missing**; see `context/context-map.md`) and any approved ADR/ruling that resolves U-07–U-18 or U-HC-* items.
 
 The agent must then:
 

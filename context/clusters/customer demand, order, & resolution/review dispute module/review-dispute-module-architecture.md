@@ -5,6 +5,8 @@
 > **Primary Cluster:** CL-04 — Customer Demand, Order & Resolution  
 > **Document role:** Binding Module-local architecture where evidence is confirmed; proposed rulings and unresolved decisions are explicitly non-binding until approved.
 
+**Shared Operation status (CL-04-R015/R016):** exact SH IDs/names resolve to the canonical registry. SH-046 publication/outbox is Confirmed. SH-003 `queryOwnerFacts` and SH-015 `returnDecisionResult` remain Proposed ruling: use owner-specific fact/decision DTOs, not binding APIs dependent on those proposals. SH-054, SH-073, and SH-111, wherever referenced, remain Proposed ruling and conditional on separate approval. All other referenced registered operations retain their registry status and owner.
+
 ---
 
 ## 1. Module Header
@@ -23,17 +25,9 @@
 | Relationship to Cluster build plan | This Module implements the Review / Dispute portion of CL-04 Feature 10 (Review), Feature 11 (Dispute intake/hold), Feature 12 (adjudication/settlement), and participates in Features 13–14 (cross-cluster proof and hardening). |
 | Update rule | Update only when a binding Module decision changes: ownership, lifecycle semantics, public contract, schema meaning, cross-Module boundary, compliance behavior, or shared-operation use. Build progress alone must not redefine architecture. |
 
-### Evidence hierarchy used by this document
+### Authority by concern
 
-1. Deep Module Registry and approved source-of-truth ownership rules.
-2. CL-04 architecture and Cluster Registry for integration boundaries.
-3. Current Prisma schema for concrete models, fields, relationships, uniqueness, and deletion behavior.
-4. Ubiquitous Language / Compliance Inventory for canonical meanings and separation rules.
-5. Canonical Shared Operations Architecture for cross-cutting operations, primitives, and anti-duplication boundaries.
-6. CL-04 build plan for implementation sequence and explicit architecture gates.
-7. The prior standardized Review / Dispute Module Architecture Extract in this thread.
-
-When those sources leave a behavior undefined, this file records an unresolved decision instead of inventing policy.
+Follow [context/context-map.md](<../../../context-map.md>) authority by concern: Ubiquitous Language owns terminology; approved compliance material owns obligations; Prisma/migrations own persisted structure; the owning Module architecture owns lifecycle/API/invariants; Cluster architecture owns collaboration; Shared Operations owns SH identity/owner/status/boundaries; Cluster and Module plans own their respective sequence. No document class, timestamp, or file depth supplies a global precedence ladder.
 
 ---
 
@@ -73,7 +67,7 @@ Produce a durable, explainable answer to two post-transaction questions:
 - dispute adjudication decisions;
 - owner-defined Review/Dispute domain events through the shared outbox mechanism;
 - requests to create/release `ComplianceHold` through the hold owner;
-- requests for refund/release/transaction effects through Transaction / Order and Payment / Payout / Tax public interfaces;
+- refund requests through Transaction / Order's SH-108 `requestOrderRefund`; release/transaction effects through their approved owner interfaces;
 - reputation recalculation inputs and Search projection refresh requests;
 - notification intent;
 - generic AuditEvent requests and sensitive-access audit requests;
@@ -200,13 +194,13 @@ The Module does own:
 | Customer / Buyer Profile | `CustomerProfile` lifecycle and buyer actor truth. | Resolve CustomerProfile for Review/dispute actions where buyer context is needed. |
 | Transaction / Order | `Order`, `OrderStatus`, `OrderEvent`, Order participant/source truth, Order-attached `RefundStatus`. | Query minimum Order facts; request disputed/refund effects through public contracts. |
 | Professional Eligibility | `ProfessionalProfile` lifecycle/readiness. | Consume seller facts if needed; supply reputation outcome/projection input without owning profile lifecycle. |
-| Payment / Payout / Tax | Payment/refund provider rail, Stripe webhook verification/dedupe, provider status mapping, payout ledger, payout execution, KYC/tax. | Request/consume normalized refund/release outcomes through its public interface. |
+| Payment / Payout / Tax | Payment/refund provider rail, Stripe webhook verification/dedupe, provider status mapping, payout ledger, payout execution, KYC/tax. | Route refund decisions through Transaction / Order SH-108; consume settlement results and use approved payout/release reevaluation interfaces without calling Payment's refund executor. |
 | Admin Review / Compliance Hold | `ComplianceHold` record and create/release/expire lifecycle. | Request/evaluate/release holds using canonical operations. |
 | Content Moderation & Legal Notice | `Report`, `LegalNotice`, `ModerationCase`, `ModerationAction`, legal/content adjudication. | Route applicable Review/dispute issues and consume formal moderation outcome. |
 | Media / File Access | `MediaAsset`, upload validation, malware scanning, object storage, signed URL mechanics, `MediaAccessGrant`. | Own contextual dispute-evidence meaning only if/when an evidence schema is approved; consume signed access. |
 | Messaging | `Thread`, `ThreadParticipant`, `Message`, `MessageMedia`. | Use Order/support thread context through Messaging interface; never create a shadow dispute chat system. |
 | Notification | Notification records, templates, channel routing, delivery attempts, provider callbacks. | Request notifications with safe intent/variables. |
-| Search / Public Visibility | `SearchUpsertEvent`, Typesense adapter, indexing, reconciliation, search query surface. | Request a projection refresh after reputation-relevant source changes. |
+| Search / Public Visibility | `SearchUpsertEvent`, Typesense adapter, indexing, reconciliation, search query surface. | For Professional reputation, hand the Review aggregate to Professional Eligibility; Search receives its resulting Professional projection. |
 | Audit / Event Ledger | Generic `AuditEvent`, `AccessAuditLog`. | Request generic audit/access evidence while retaining separate domain truth. |
 | Privacy / Data Erasure | `PrivacyRequest`, erasure/export orchestration, `DataRetentionExemption`. | Enumerate/execute instructions against owned Review/Dispute data. |
 | Observability / Ops | `IntegrationFailure`, `SystemEvent`, `QueueJob`, `OpsIncident`, logger/metrics/incident stack. | Emit safe operational telemetry and failure reports. |
@@ -352,7 +346,7 @@ src/modules/review-dispute/
 - no revision/edit history exists;
 - cascade deletion may conflict with later retention/privacy policy.
 
-**Proposed Ruling:** new production Review writes should identify the buyer through `CustomerProfile` and preserve User only for actor/audit trace. Exact migration shape remains unresolved.
+**Confirmed CL-04-R007:** a new Review author resolves to the Order's buyer CustomerProfile; User remains account/audit identity. Exact migration/backfill shape remains unresolved.
 
 ### 8.2 `Dispute`
 
@@ -425,7 +419,7 @@ The enum vocabulary is confirmed; the complete transition graph is not.
 
 **Concurrency expectation:** publication/hide/remove commands must reject stale conflicting transitions through the canonical lifecycle/concurrency mechanism.
 
-**History proof:** no Review-specific event table is confirmed. If Review history becomes necessary, use the shared `appendDomainLifecycleEvent` persistence pattern with Review-owned event meaning or a transactional outbox; do not use generic `AuditEvent` as a substitute for lifecycle truth.
+**History proof:** no Review-specific event table is confirmed. If Review history becomes necessary, use the shared SH-031 `appendDomainLifecycleEvent` persistence pattern with Review-owned event meaning or a transactional outbox; do not use generic `AuditEvent` as a substitute for lifecycle truth.
 
 **Prohibited shortcuts:**
 
@@ -489,19 +483,19 @@ The commands below are Module-owned mutations. Exact API transport is repository
 
 | Command | Purpose | Required actor/context | Authoritative inputs | Preconditions | State written | Shared operations/effects | Idempotency / failure expectations |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `submitOrderReview` | Create the one Review associated with an eligible Order. | authenticated actor + resolved CustomerProfile | `orderId`, rating, optional comment, idempotency key | Order facts say reviewable; buyer controls Order; no existing Review; approved rating scale | `Review` | `resolveAuthenticatedActor`, `resolveCustomerActor`, `authorizeResourceAction`, `queryOwnerFacts`, `executeIdempotentCommand`, `publishDomainEvent`, `appendAuditEvent`, optional `requestNotification` | retry must replay same semantic result; duplicate non-matching attempt returns conflict |
-| `publishReview` | Move an eligible Review into reputation-bearing public state. | authorized admin/system actor under approved publication policy | review ID, expected version/state, reason/context | transition permitted; no moderation/hold policy blocks it if such gate is approved | `Review.status` | `authorizeResourceAction`, `transitionLifecycleState`, `publishDomainEvent`, `appendAuditEvent` | stale state conflicts; projection failure does not roll back Review truth |
+| `submitOrderReview` | Create the one Review associated with an eligible Order. | authenticated actor + resolved CustomerProfile | `orderId`, rating, optional comment, idempotency key | Order facts say reviewable; buyer controls Order; no existing Review; approved rating scale | `Review` | SH-001 `resolveAuthenticatedActor`, SH-004 `resolveCustomerActor`, SH-002 `authorizeResourceAction`, SH-003 `queryOwnerFacts` (Proposed future normalization only; not a prerequisite), SH-044 `executeIdempotentCommand`, SH-046 `publishDomainEvent`, SH-029 `appendAuditEvent`, optional SH-041 `requestNotification` | retry must replay same semantic result; duplicate non-matching attempt returns conflict |
+| `publishReview` | Move an eligible Review into reputation-bearing public state. | authorized admin/system actor under approved publication policy | review ID, expected version/state, reason/context | transition permitted; no moderation/hold policy blocks it if such gate is approved | `Review.status` | SH-002 `authorizeResourceAction`, SH-053 `transitionLifecycleState`, SH-046 `publishDomainEvent`, SH-029 `appendAuditEvent` | stale state conflicts; projection failure does not roll back Review truth |
 | `hideReview` | Remove Review from public/reputation contribution without erasing it. | authorized admin/system actor | review ID, reason, expected state | legal transition | `Review.status` | lifecycle transition, audit, domain event, downstream projection refresh | repeat same intent is replay-safe |
 | `removeReview` | Mark Review removed from ordinary product/public use. | authorized admin/system/privacy-integrated path as applicable | review ID, reason, expected state | legal transition and retention/privacy rule | `Review.status` and any approved removal metadata | lifecycle transition, audit, domain event | removal is not legal erasure; stale transition conflicts |
-| `applyReviewModerationDecision` | Translate an authoritative moderation outcome into Review-owned visibility state. | verified internal event/system actor | review ID, moderation decision reference, desired approved Review action, event ID | decision references this Review; handler not already applied | `Review.status` only | `deduplicateDomainEvent`, lifecycle transition, audit, publish event | must not create/alter ModerationCase truth |
-| `openOrderDispute` | Create an Order-bound commercial conflict and start coordination. | authenticated authorized Order participant | Order ID, opener context, reason, approved evidence references, idempotency key | Order may be disputed; opener authorized; multiplicity rule permits case | `Dispute` | auth/authority, idempotency, domain event, audit, durable workflow, `requestComplianceHold`, Order dispute-effect handoff, notification | Dispute truth may commit before an external hold succeeds; failed coordination is retried, not faked |
-| `beginDisputeReview` | Move an open case into active review. | authorized admin/reviewer | dispute ID, expected state, optional assignment/context | legal transition and reviewer authority | `Dispute.status` plus approved reviewer/history proof | authority, `transitionLifecycleState`, audit, event | competing claim/review action conflicts or uses shared work-item claim |
+| `applyReviewModerationDecision` | Translate an authoritative moderation outcome into Review-owned visibility state. | verified internal event/system actor | review ID, moderation decision reference, desired approved Review action, event ID | decision references this Review; handler not already applied | `Review.status` only | SH-045 `deduplicateDomainEvent`, lifecycle transition, audit, publish event | must not create/alter ModerationCase truth |
+| `openOrderDispute` | Create an Order-bound commercial conflict and start coordination. | authenticated authorized Order participant | Order ID, opener context, reason, approved evidence references, idempotency key | Order may be disputed; opener authorized; multiplicity rule permits case | `Dispute` | auth/authority, idempotency, domain event, audit, durable workflow, SH-012 `requestComplianceHold`, Order dispute-effect handoff, notification | Dispute truth may commit before an external hold succeeds; failed coordination is retried, not faked |
+| `beginDisputeReview` | Move an open case into active review. | authorized admin/reviewer | dispute ID, expected state, optional assignment/context | legal transition and reviewer authority | `Dispute.status` plus approved reviewer/history proof | authority, SH-053 `transitionLifecycleState`, audit, event | competing claim/review action conflicts or uses shared work-item claim |
 | `recordDisputeEvidenceReference` | Attach stable references to evidence owned elsewhere. | authorized participant/reviewer | dispute ID, evidence target type/ID, submitter context, description if allowed | evidence accessible and contextually relevant; schema approved | approved dispute-context evidence record/reference | authority, Media/context access, sensitive-access audit when read | unavailable until evidence-reference schema is approved; must never copy raw storage mechanics |
 | `addDisputeAdminNote` | Add internal case commentary without pretending the note is lifecycle truth. | authorized admin/reviewer | dispute ID, note, actor | case exists; authority passes | current `adminNotes` only if retained, preferably approved append-only note record | audit, telemetry sanitization | mutable blob must not be used as sole adjudication proof |
-| `resolveDisputeWithRefund` | Record adjudication favoring refund and start owner-separated settlement workflow. | authorized adjudicator; step-up if root policy requires | dispute ID, resolution basis, approved amount if applicable, expected state, idempotency key | dispute reviewable; no competing final decision; resolution schema/rules approved | Review / Dispute-owned adjudication state/proof | idempotency, lock/concurrency, lifecycle event, audit, workflow enqueue, notification | does not write Order RefundStatus or call Stripe |
-| `resolveDisputeWithRelease` | Record adjudication favoring release/no refund and start owner-separated release workflow. | authorized adjudicator; step-up if required | dispute ID, resolution basis, expected state, idempotency key | same as above | Module-owned adjudication state/proof | same shared mechanisms; hold-release/payout reevaluation through owners | does not assert payout was released |
+| `resolveDisputeWithRefund` | Record adjudication favoring refund and start owner-separated settlement workflow. | authorized adjudicator; SH-014 required for financial movement | dispute ID, resolution basis, approved amount if applicable, expected state, idempotency key | dispute reviewable; no competing final decision; resolution schema/rules approved | Review / Dispute-owned adjudication state/proof | idempotency, lock/concurrency, lifecycle event, audit, workflow enqueue, notification | does not write Order RefundStatus or call Stripe |
+| `resolveDisputeWithRelease` | Record adjudication favoring release/no refund and start owner-separated release workflow. | authorized adjudicator; SH-014 required for financial movement | dispute ID, resolution basis, expected state, idempotency key | same as above | Module-owned adjudication state/proof | same shared mechanisms; hold-release/payout reevaluation through owners | does not assert payout was released |
 | `dismissDispute` | End a case under an approved dismissal rule. | authorized adjudicator/reviewer | dispute ID, reason, expected state | dismissal transition allowed | `Dispute.status` and approved decision proof | lifecycle transition, audit, event, notification; hold reevaluation if policy says | exact dismissal policy unresolved |
-| `applyOrderSettlementResultToDispute` | Apply normalized external-owner settlement facts back to the dispute workflow. | trusted internal event/system actor | dispute ID/correlation, normalized Order/Payment result, event ID | result matches active workflow/correlation; not already applied | approved settlement progress and potentially Dispute transition/close | `deduplicateDomainEvent`, lifecycle transition, audit, workflow reconciliation | raw provider payload/status is prohibited |
+| `applyOrderSettlementResultToDispute` | Apply normalized external-owner settlement facts back to the dispute workflow. | trusted internal event/system actor | dispute ID/correlation, normalized Order/Payment result, event ID | result matches active workflow/correlation; not already applied | approved settlement progress and potentially Dispute transition/close | SH-045 `deduplicateDomainEvent`, lifecycle transition, audit, workflow reconciliation | raw provider payload/status is prohibited |
 | `closeDispute` | Make the dispute final only after approved closure conditions are met. | authorized system/reviewer | dispute ID, expected state, required downstream completion evidence | closure semantics approved and all required prerequisites met | `Dispute.status=closed`, `resolvedAt` as defined | transition, audit, event, notification | must fail closed if settlement/hold state is ambiguous |
 | `executeReviewDisputePrivacyInstruction` | Apply a Privacy-owned instruction to Review / Dispute data. | trusted Privacy workflow | instruction ID, target record, operation, retention decision/reference | validated Privacy instruction; retention decision satisfied | owner records only | privacy protocol, audit/observability as required | must not create a local PrivacyRequest workflow |
 
@@ -614,20 +608,20 @@ None are owned by this Module. Review / Dispute consumes normalized owner contra
 
 | Owning Module / capability | Public operation/interface consumed | Why required | Minimum information | May block action? | Must not be copied locally |
 | --- | --- | --- | --- | --- | --- |
-| Identity & Access | `resolveAuthenticatedActor` | establish trusted User/system actor | actor ID, actor kind, assurance context | yes | session parsing/current-user helper |
-| Customer / Buyer Profile | `resolveCustomerActor` | identify buyer commercial actor for Review and buyer-side dispute | customerProfileId linked to authenticated User | yes | buyer identity on User or local customer mapping |
-| Role / Authority | `authorizeResourceAction` | interpret participant/admin permission | action + Review/Dispute relationship facts | yes | feature-local RBAC/role engine |
-| Transaction / Order | owner-fact query (`queryOwnerFacts` pattern) | Review/dispute requires Order status, participants, seller, refund/dispute effects | Order ID/version, customerProfileId, sellerProfessionalProfileId, relevant status/refund facts | yes | Order repository or status reconstruction |
+| Identity & Access | SH-001 `resolveAuthenticatedActor` | establish trusted User/system actor | actor ID, actor kind, assurance context | yes | session parsing/current-user helper |
+| Customer / Buyer Profile | SH-004 `resolveCustomerActor` | identify buyer commercial actor for Review and buyer-side dispute | customerProfileId linked to authenticated User | yes | buyer identity on User or local customer mapping |
+| Role / Authority | SH-002 `authorizeResourceAction` | interpret participant/admin permission | action + Review/Dispute relationship facts | yes | feature-local RBAC/role engine |
+| Transaction / Order | owner-fact query (SH-003 `queryOwnerFacts` (Proposed future normalization only; not a prerequisite) pattern) | Review/dispute requires Order status, participants, seller, refund/dispute effects | Order ID/version, customerProfileId, sellerProfessionalProfileId, relevant status/refund facts | yes | Order repository or status reconstruction |
 | Transaction / Order | dispute/refund public commands and normalized outcome events | attach transaction effect to Order | Order/dispute correlation + normalized decision/outcome | yes/downstream | direct Order writes |
 | Professional Eligibility / Profile owner | minimum ProfessionalProfile/reputation projection contract | validate target and surface rating projection | ProfessionalProfile ID; projection update/accepted facts | no for existing Review truth; may block invalid target at submit | Profile repository writes |
-| Admin Review / Compliance Hold | `evaluateComplianceHold`, `requestComplianceHold`, `releaseComplianceHold` | reusable payout/action stop sign | target, reason, source/evidence refs, hold ID/status | yes | local hold table/boolean |
-| Payment / Payout / Tax | provider-neutral refund/release/settlement interface | execute financial effect and return normalized outcome | Order/dispute correlation, approved amount/basis; normalized result | downstream | Stripe client, webhook verification/dedupe, payout ledger |
-| Media / File Access | contextual Media access + `issueSignedMediaUrl` | safe dispute evidence retrieval | media ID/context, authorized actor, purpose | yes for evidence read | R2/S3 client, signed URL helper, scan/validation |
+| Admin Review / Compliance Hold | SH-011 `evaluateComplianceHold`, SH-012 `requestComplianceHold`, SH-013 `releaseComplianceHold` | reusable payout/action stop sign | target, reason, source/evidence refs, hold ID/status | yes | local hold table/boolean |
+| Payment / Payout / Tax | refund execution behind Transaction / Order SH-108; approved release/settlement interfaces | execute provider financial effect; Order returns refund settlement | Order/dispute correlation, approved amount/basis; normalized result | downstream through Order for refunds | direct refund-executor call, Stripe client, webhook verification/dedupe, payout ledger |
+| Media / File Access | contextual Media access + SH-087 `issueSignedMediaUrl` | safe dispute evidence retrieval | media ID/context, authorized actor, purpose | yes for evidence read | R2/S3 client, signed URL helper, scan/validation |
 | Messaging | context-thread facts/interfaces | case communication when approved | Order/support context and participant facts | possibly | Thread/Message lifecycle or participant ACL |
 | Content Moderation & Legal Notice | report/moderation public interface; moderation result events | route abuse/legal/content issues and apply resulting Review visibility action | target Review/related evidence, moderation action reference | yes for visibility action | Report/ModerationCase/LegalNotice tables |
-| Notification | `requestNotification` | participant/admin alerts | recipients/context or owner recipient facts, template intent, safe variables | no to committed domain truth | email/SMS/push provider |
-| Audit / Event Ledger | `appendAuditEvent`, `recordSensitiveAccess` | generic proof and protected evidence-access proof | safe actor/action/target/outcome/request context | normally no to domain commit unless required control fails closed by policy | audit/access tables |
-| Search / Public Visibility | `requestSearchProjectionRefresh` | refresh professional public reputation projection | target profile/entity ID, source version/reason | no to Review truth | Typesense/SearchUpsertEvent writes |
+| Notification | SH-041 `requestNotification` | participant/admin alerts | recipients/context or owner recipient facts, template intent, safe variables | no to committed domain truth | email/SMS/push provider |
+| Audit / Event Ledger | SH-029 `appendAuditEvent`, SH-030 `recordSensitiveAccess` | generic proof and protected evidence-access proof | safe actor/action/target/outcome/request context | normally no to domain commit unless required control fails closed by policy | audit/access tables |
+| Search / Public Visibility | SH-091 `requestSearchProjectionRefresh` through Professional Eligibility after its Profile update | refresh professional public reputation projection | target profile/entity ID, source version/reason | no to Review truth | Typesense/SearchUpsertEvent writes |
 | Privacy / Data Erasure | privacy executor protocol + retention decision | legal data-rights orchestration | instruction, target, exemption decision/ref | yes for destructive action | PrivacyRequest/erasure orchestrator |
 | Observability / Ops | request context/log/failure primitives | operational visibility | safe correlation, operation, failure class | no | local Sentry/logger/incident system |
 
@@ -638,10 +632,10 @@ None are owned by this Module. Review / Dispute consumes normalized owner contra
 | Consumer | Source fact/event | Permitted effect | Boundary |
 | --- | --- | --- | --- |
 | Transaction / Order | `DisputeOpened`, adjudication, settlement status | apply Order dispute/refund attachment through owner command | Review / Dispute never writes Order directly |
-| Payment / Payout / Tax | dispute refund/release decision | execute provider-neutral financial effect / reevaluate payout | does not mutate Dispute directly |
+| Payment / Payout / Tax | refund decision coordinated by Transaction / Order SH-108; approved release reevaluation | execute provider-neutral financial effect / reevaluate payout | no direct Review / Dispute call to Payment refund executor; no direct Dispute mutation |
 | Admin Review / Compliance Hold | dispute open/resolution evidence | create/evaluate/release hold | hold lifecycle stays external |
 | Professional reputation/Profile presentation | Review publication changes | rebuild/update rating projection through approved contract | Review determines inclusion policy; Profile does not reinterpret raw statuses |
-| Search / Public Visibility | Review/reputation source changes | refresh public projection | Search owns SearchUpsertEvent/Typesense; disputes are not public search docs |
+| Search / Public Visibility | resulting Professional projection after the Review aggregate handoff | refresh public projection | Search owns SearchUpsertEvent/Typesense; disputes are not public search docs |
 | Notification | Review/Dispute lifecycle event | route/deliver alert | delivery truth stays Notification-owned |
 | Audit / Event Ledger | significant action/access intent | append AuditEvent/AccessAuditLog | generic audit does not replace Review/Dispute lifecycle |
 | Content Moderation | Review/dispute content concern | open Report/ModerationCase and issue moderation outcome | moderation case remains separate from Dispute |
@@ -656,45 +650,45 @@ Cross-Module effects must be commands/events against owner interfaces. A conveni
 
 ## 15. Canonical Shared Operations Used
 
-The supplied canonical registry standardizes names and ownership but does **not** contain permanent `SH-###` identifiers. This Module therefore references canonical operation names and must not invent IDs.
+Use the permanent IDs, canonical owners, and statuses in [Shared Operations](<../../../shared/shared-operations.md>). Confirmed references retain their registered boundaries; proposed references are conditional only.
 
 | Canonical operation | Classification / owner | Why used here | Invocation point | Module-specific policy retained here | Expected result | Prohibited local duplicates |
 | --- | --- | --- | --- | --- | --- | --- |
-| `resolveAuthenticatedActor` | canonical shared capability — Identity & Access | establish trusted actor | every protected command/query | what Review/Dispute action is attempted | typed actor context | `reviewAuth.ts`, `disputeAuth.ts`, `getCurrentUser.ts` |
-| `resolveCustomerActor` | another Module public interface — Customer / Buyer Profile | resolve buyer identity | Review submission and buyer dispute actions | whether CustomerProfile is eligible participant | customer actor facts | `buyerResolver.ts`, User-only buyer helper |
-| `authorizeResourceAction` | canonical shared capability — Role / Authority | permission interpretation | before protected Review/Dispute action | relationship facts and action vocabulary | allow/deny with safe reason | `reviewPermissions.ts`, `disputeRbac.ts` |
-| `queryOwnerFacts` | shared contract / separate implementations — source owner | get minimum Order/participant facts | eligibility and workflows | which Order facts are required | versioned owner DTO | cross-domain `orderRepository` in this Module |
-| `evaluateComplianceHold` | canonical shared capability — Hold owner | check applicable stop signs | selected actions/settlement | which actions a hold blocks | active hold decision | `isPayoutBlocked`, `disputeBlocked` |
-| `requestComplianceHold` | canonical shared capability — Hold owner | request authoritative stop sign | after Dispute opens | when dispute justifies hold and evidence supplied | hold ID/result | local hold model/service |
-| `releaseComplianceHold` | canonical shared capability — Hold owner | request hold release | approved resolution/settlement | whether source condition is resolved | release result | `unblockPayout.ts` writing hold table |
-| `requireStepUpForSensitiveAction` | canonical shared capability — Identity & Access | high-risk adjudication if root policy requires | refund/release admin action | which action requires step-up remains root/local composition | assurance decision/session | local OTP/MFA |
-| `returnDecisionResult` | shared contract / separate policy | consistent eligibility decisions | review/dispute policy queries | reason namespace and evidence meaning | allow/deny/warn/review structure | universal compliance policy engine |
-| `executeIdempotentCommand` | platform primitive | retry-safe commercial mutations | submit/open/resolve/settlement commands | semantic command identity/replay | original or new result | `reviewDedupe.ts`, `disputeIdempotency.ts` |
-| `acquireAggregateLock` | platform primitive | serialize conflicting adjudication/state changes | dispute resolution, critical review transitions if needed | lock key/conflict policy | exclusive transaction scope | in-memory mutex, custom lock table |
-| `withOptimisticConcurrency` | platform primitive | reject stale transitions | update transitions | retry/merge/conflict semantics | compare-and-set result | hand-rolled `updatedAt` checks |
-| `transitionLifecycleState` | shared mechanism / separate truth | reusable state-machine plumbing | every status mutation | ReviewStatus/DisputeStatus graph | valid transition result | global lifecycle policy table |
-| `appendDomainLifecycleEvent` | shared mechanism / separate truth | immutable transition/history mechanics if approved | same transaction as owner state | event names/meaning/retention | append-only domain record | universal Event replacing domain truth |
-| `publishDomainEvent` | platform primitive — outbox | reliable downstream facts | after committed state | event schema/privacy/emission rule | durable outbox event | fire-and-forget event bus calls |
-| `deduplicateDomainEvent` | platform primitive — consumer inbox | prevent repeated settlement/moderation side effects | inbound event handlers | handler identity/side effect | one applied consumer effect | ordinary-event bespoke processed table |
-| `enqueueReliableJob` | platform primitive — queue | durable reputation/settlement work | after source transaction | job payload and success meaning | persisted job | `disputeQueue.ts` custom queue |
-| `executeRetryWithBackoff` | platform primitive — queue | retry transient dependencies | workers/workflow steps | retryability classification | bounded retry/dead-letter | custom retry loops |
-| `orchestrateWorkflowSteps` | shared mechanism / separate workflow truth | coordinate dispute settlement owners | after adjudication/open | exact step sequence and completion policy | durable workflow progress | one global saga owning Dispute status |
-| `reconcileWorkflowStatus` | shared mechanism / separate policy | combine child step outcomes | settlement workflow | what partial/complete means | deterministic workflow status | generic status owning business semantics |
-| `claimWorkItem` | cross-cutting capability, proposed | prevent simultaneous admin review | review-queue claim if adopted | reviewer eligibility/lease/escalation | claim/lease | local mutable `assignedTo` without locking |
-| `appendAuditEvent` | canonical shared capability — Audit / Event Ledger | generic action proof | significant mutations/admin actions | safe metadata and which actions audit | AuditEvent ID/result | `reviewAuditLog`, `disputeAuditTable` |
-| `recordSensitiveAccess` | canonical shared capability — Audit / Event Ledger | evidence access proof | private evidence issue/view/download | sensitivity/context authorization | access audit result | `disputeFileViewLog` substitute |
-| `requestNotification` | canonical shared capability — Notification | lifecycle alerts | post-commit events/workflow | intent/recipient meaning and safe variables | notification request | direct SES/SMS/push code |
-| `resolveNotificationRecipients` | shared contract / separate policy — context owner + Notification | derive participant recipients | notification request composition | Order/dispute recipient group semantics | User IDs/recipient facts | delivery/channel logic |
-| `issueSignedMediaUrl` | another Module public interface — Media / File Access | private evidence retrieval | authorized evidence access | contextual entitlement/purpose | short-lived access result | R2/S3 presigner |
-| `requestSearchProjectionRefresh` | another Module public interface — Search | reputation projection refresh | Review publication/inclusion changes | source version and public-safe facts | queued refresh | Typesense client / SearchUpsertEvent insert |
-| `buildAggregateProjection` | shared mechanism / separate policy — projection owner | rebuild rating/count projection | Review state changes/backfill | which Review statuses count and exact math | projection snapshot | duplicate rating calculator in Search/Profile |
-| `enumerateSubjectData` | privacy protocol — each data owner | identify subject Review/Dispute data | privacy job inventory | Module-owned data inventory | target descriptors | local privacy-request system |
-| `executePrivacyInstruction` | privacy protocol — data owner executes | apply erase/anonymize/retain/export instruction | Privacy-owned job | field-specific behavior | execution receipt | local DataErasureJob |
-| `evaluateRetentionRequirement` | owner facts + Privacy exemption | prevent unlawful/unsafe destructive erase | before destructive privacy action | dispute/review retention facts | retain/erase decision + proof | hardcoded retention guess |
-| `createRequestContext` | platform primitive — Observability | correlation across sync/async work | request/worker entry | safe domain correlation only | request/correlation IDs | local request-ID helper |
-| `writeStructuredLog` | canonical shared capability — Observability/Ops | operational diagnostics | command/query/worker boundaries | safe dimensions | structured log | separate module logger |
-| `sanitizeTelemetryMetadata` | canonical shared capability — Observability/Audit policy | redact sensitive evidence/comments | before audit/log/exception | sensitivity tags/context | sanitized metadata | ad hoc redaction |
-| `recordIntegrationFailure` | canonical shared capability — Observability/Ops | persist dependency/worker failure | failed hold/payment/search/media/notification coordination | retryability and domain correlation | IntegrationFailure | local provider-failure table |
+| SH-001 `resolveAuthenticatedActor` | canonical shared capability — Identity & Access | establish trusted actor | every protected command/query | what Review/Dispute action is attempted | typed actor context | `reviewAuth.ts`, `disputeAuth.ts`, `getCurrentUser.ts` |
+| SH-004 `resolveCustomerActor` | another Module public interface — Customer / Buyer Profile | resolve buyer identity | Review submission and buyer dispute actions | whether CustomerProfile is eligible participant | customer actor facts | `buyerResolver.ts`, User-only buyer helper |
+| SH-002 `authorizeResourceAction` | canonical shared capability — Role / Authority | permission interpretation | before protected Review/Dispute action | relationship facts and action vocabulary | allow/deny with safe reason | `reviewPermissions.ts`, `disputeRbac.ts` |
+| SH-003 `queryOwnerFacts` (Proposed future normalization only; not a prerequisite) | shared contract / separate implementations — source owner | get minimum Order/participant facts | eligibility and workflows | which Order facts are required | versioned owner DTO | cross-domain `orderRepository` in this Module |
+| SH-011 `evaluateComplianceHold` | canonical shared capability — Hold owner | check applicable stop signs | selected actions/settlement | which actions a hold blocks | active hold decision | `isPayoutBlocked`, `disputeBlocked` |
+| SH-012 `requestComplianceHold` | canonical shared capability — Hold owner | request authoritative stop sign | after Dispute opens | when dispute justifies hold and evidence supplied | hold ID/result | local hold model/service |
+| SH-013 `releaseComplianceHold` | canonical shared capability — Hold owner | request hold release | approved resolution/settlement | whether source condition is resolved | release result | `unblockPayout.ts` writing hold table |
+| SH-014 `requireStepUpForSensitiveAction` | canonical shared capability — Identity & Access | refund/release adjudication causing or authorizing financial movement | refund/release admin action | financial refund/release movement requires SH-014; other action rules remain unresolved | assurance decision/session | local OTP/MFA |
+| SH-015 `returnDecisionResult` (Proposed future normalization only; not a prerequisite) | shared contract / separate policy | consistent eligibility decisions | review/dispute policy queries | reason namespace and evidence meaning | allow/deny/warn/review structure | universal compliance policy engine |
+| SH-044 `executeIdempotentCommand` | platform primitive | retry-safe commercial mutations | submit/open/resolve/settlement commands | semantic command identity/replay | original or new result | `reviewDedupe.ts`, `disputeIdempotency.ts` |
+| SH-051 `acquireAggregateLock` | platform primitive | serialize conflicting adjudication/state changes | dispute resolution, critical review transitions if needed | lock key/conflict policy | exclusive transaction scope | in-memory mutex, custom lock table |
+| SH-052 `withOptimisticConcurrency` | platform primitive | reject stale transitions | update transitions | retry/merge/conflict semantics | compare-and-set result | hand-rolled `updatedAt` checks |
+| SH-053 `transitionLifecycleState` | shared mechanism / separate truth | reusable state-machine plumbing | every status mutation | ReviewStatus/DisputeStatus graph | valid transition result | global lifecycle policy table |
+| SH-031 `appendDomainLifecycleEvent` | shared mechanism / separate truth | immutable transition/history mechanics if approved | same transaction as owner state | event names/meaning/retention | append-only domain record | universal Event replacing domain truth |
+| SH-046 `publishDomainEvent` | platform primitive — outbox | reliable downstream facts | after committed state | event schema/privacy/emission rule | durable outbox event | fire-and-forget event bus calls |
+| SH-045 `deduplicateDomainEvent` | platform primitive — consumer inbox | prevent repeated settlement/moderation side effects | inbound event handlers | handler identity/side effect | one applied consumer effect | ordinary-event bespoke processed table |
+| SH-047 `enqueueReliableJob` | platform primitive — queue | durable reputation/settlement work | after source transaction | job payload and success meaning | persisted job | `disputeQueue.ts` custom queue |
+| SH-048 `executeRetryWithBackoff` | platform primitive — queue | retry transient dependencies | workers/workflow steps | retryability classification | bounded retry/dead-letter | custom retry loops |
+| SH-049 `orchestrateWorkflowSteps` | shared mechanism / separate workflow truth | coordinate dispute settlement owners | after adjudication/open | exact step sequence and completion policy | durable workflow progress | one global saga owning Dispute status |
+| SH-050 `reconcileWorkflowStatus` | shared mechanism / separate policy | combine child step outcomes | settlement workflow | what partial/complete means | deterministic workflow status | generic status owning business semantics |
+| SH-054 `claimWorkItem` | cross-cutting capability, proposed | prevent simultaneous admin review | review-queue claim if adopted | reviewer eligibility/lease/escalation | claim/lease | local mutable `assignedTo` without locking |
+| SH-029 `appendAuditEvent` | canonical shared capability — Audit / Event Ledger | generic action proof | significant mutations/admin actions | safe metadata and which actions audit | AuditEvent ID/result | `reviewAuditLog`, `disputeAuditTable` |
+| SH-030 `recordSensitiveAccess` | canonical shared capability — Audit / Event Ledger | evidence access proof | private evidence issue/view/download | sensitivity/context authorization | access audit result | `disputeFileViewLog` substitute |
+| SH-041 `requestNotification` | canonical shared capability — Notification | lifecycle alerts | post-commit events/workflow | intent/recipient meaning and safe variables | notification request | direct SES/SMS/push code |
+| SH-043 `resolveNotificationRecipients` | shared contract / separate policy — context owner + Notification | derive participant recipients | notification request composition | Order/dispute recipient group semantics | User IDs/recipient facts | delivery/channel logic |
+| SH-087 `issueSignedMediaUrl` | another Module public interface — Media / File Access | private evidence retrieval | authorized evidence access | contextual entitlement/purpose | short-lived access result | R2/S3 presigner |
+| SH-091 `requestSearchProjectionRefresh` | another Module public interface — Search | reputation refresh through Professional Eligibility's resulting projection | after the Review result is consumed and Profile projection updated | source version and public-safe facts | queued refresh | Typesense client / SearchUpsertEvent insert |
+| SH-115 `buildAggregateProjection` | shared mechanism / separate policy — projection owner | rebuild rating/count projection | Review state changes/backfill | which Review statuses count and exact math | projection snapshot | duplicate rating calculator in Search/Profile |
+| SH-096 `enumerateSubjectData` | privacy protocol — each data owner | identify subject Review/Dispute data | privacy job inventory | Module-owned data inventory | target descriptors | local privacy-request system |
+| SH-095 `executePrivacyInstruction` | privacy protocol — data owner executes | apply erase/anonymize/retain/export instruction | Privacy-owned job | field-specific behavior | execution receipt | local DataErasureJob |
+| SH-097 `evaluateRetentionRequirement` | owner facts + Privacy exemption | prevent unlawful/unsafe destructive erase | before destructive privacy action | dispute/review retention facts | retain/erase decision + proof | hardcoded retention guess |
+| SH-032 `createRequestContext` | platform primitive — Observability | correlation across sync/async work | request/worker entry | safe domain correlation only | request/correlation IDs | local request-ID helper |
+| SH-033 `writeStructuredLog` | canonical shared capability — Observability/Ops | operational diagnostics | command/query/worker boundaries | safe dimensions | structured log | separate module logger |
+| SH-034 `sanitizeTelemetryMetadata` | canonical shared capability — Observability/Audit policy | redact sensitive evidence/comments | before audit/log/exception | sensitivity tags/context | sanitized metadata | ad hoc redaction |
+| SH-037 `recordIntegrationFailure` | canonical shared capability — Observability/Ops | persist dependency/worker failure | failed hold/payment/search/media/notification coordination | retryability and domain correlation | IntegrationFailure | local provider-failure table |
 
 ---
 
@@ -721,7 +715,7 @@ These operations contain Review / Dispute domain meaning and should remain local
 
 ## 17. Shared Mechanism / Separate Truth Rules
 
-1. **State-machine plumbing may be shared; transition policy cannot.** `transitionLifecycleState` can validate mechanics, but only Review / Dispute defines legal ReviewStatus and DisputeStatus transitions.
+1. **State-machine plumbing may be shared; transition policy cannot.** SH-053 `transitionLifecycleState` can validate mechanics, but only Review / Dispute defines legal ReviewStatus and DisputeStatus transitions.
 2. **Idempotency is shared; command identity is local.** `submitOrderReview`, `openOrderDispute`, and adjudication commands define their own semantic keys.
 3. **Locks are shared; conflict scope is local.** The platform supplies DB locking/CAS. Review / Dispute defines which commands conflict on an Order, Review, or Dispute.
 4. **Outbox/inbox is shared; events remain Module facts.** `ReviewPublished` is not a generic “status changed” truth and cannot be renamed by infrastructure.
@@ -737,7 +731,7 @@ These operations contain Review / Dispute domain meaning and should remain local
 
 ## 18. Authentication and Authorization
 
-Every protected operation begins with `resolveAuthenticatedActor`. Buyer-side operations then resolve the `CustomerProfile` commercial actor where relevant.
+Every protected operation begins with SH-001 `resolveAuthenticatedActor`. Buyer-side operations then resolve the `CustomerProfile` commercial actor where relevant.
 
 ### Relationship facts supplied by this Module or source owners
 
@@ -752,7 +746,7 @@ Every protected operation begins with `resolveAuthenticatedActor`. Buyer-side op
 
 ### Authority interpretation
 
-`authorizeResourceAction` owns permission interpretation. Review / Dispute supplies the action vocabulary and facts. Example actions may include:
+SH-002 `authorizeResourceAction` owns permission interpretation. Review / Dispute supplies the action vocabulary and facts. Example actions may include:
 
 - `review.submit`
 - `review.read_private`
@@ -773,11 +767,11 @@ These names are proposed interface vocabulary, not permission rows that may be i
 - A buyer Review is anchored to the Order’s authoritative CustomerProfile.
 - The reviewed Professional is anchored to the Order seller.
 - A dispute participant is derived from Order participant facts, not an arbitrary submitted User ID.
-- Admin/support role is not blanket entitlement to private evidence. Evidence access still requires contextual authorization and `recordSensitiveAccess`.
+- Admin/support role is not blanket entitlement to private evidence. Evidence access still requires contextual authorization and SH-030 `recordSensitiveAccess`.
 
 ### Step-up
 
-`requireStepUpForSensitiveAction` must be consumed if root security policy classifies refund/release adjudication or evidence actions as high risk. The exact per-action matrix is unresolved and must not be guessed.
+SH-014 `requireStepUpForSensitiveAction` is required for refund/release adjudication causing or authorizing financial movement. Other evidence/action-specific assurance rules remain unresolved and must not be guessed.
 
 No Module-local auth middleware, MFA flow, role engine, or RLS bypass helper may be created.
 
@@ -788,7 +782,7 @@ No Module-local auth middleware, MFA flow, role engine, or RLS bypass helper may
 ### 19.1 Review submission
 
 - **Underlying truth owner:** Transaction / Order for Order state/participants; Customer / Buyer Profile for buyer actor.
-- **Queries consumed:** Order owner facts + `resolveCustomerActor`; authority decision.
+- **Queries consumed:** Order owner facts + SH-004 `resolveCustomerActor`; authority decision.
 - **Gated action:** `submitOrderReview`.
 - **Local policy:** Order must satisfy approved review eligibility, normally completed; only buyer may submit; one Review per Order; rating valid; target Professional equals Order seller.
 - **Result:** allow/deny with stable reasons.
@@ -814,7 +808,7 @@ No paid Track entitlement may gate a legitimate dispute unless a future explicit
 ### 19.4 Payout hold
 
 - **Underlying truth owner:** Admin Review / Compliance Hold.
-- **Operation consumed:** `requestComplianceHold`.
+- **Operation consumed:** SH-012 `requestComplianceHold`.
 - **Local trigger policy:** an open qualifying Dispute requests a hold with source evidence.
 - **Result:** external hold record/result. Review / Dispute does not store a competing blocked boolean.
 
@@ -835,7 +829,8 @@ The registry historically lists “Stripe refund APIs” as a technology near Re
 
 ```text
 Review / Dispute adjudication
-→ Payment / Payout / Tax provider-neutral refund/release interface
+→ Transaction / Order receives the refund decision and coordinates SH-108 requestOrderRefund
+→ Payment / Payout / Tax provider-neutral refund executor
 → Payment-owned Stripe adapter
 → webhook signature verification
 → Payment-owned provider-event dedupe
@@ -866,7 +861,7 @@ Events are facts that occurred in Review / Dispute. They are not disguised comma
 
 ### 21.1 Event envelope
 
-Use canonical `publishDomainEvent` with the platform event envelope:
+Use canonical SH-046 `publishDomainEvent` with the platform event envelope:
 
 - event ID;
 - event type;
@@ -924,7 +919,7 @@ This Module has no confirmed cron-style business lifecycle that should be invent
 
 - **Purpose:** rebuild Professional rating/count from authoritative Review inclusion policy.
 - **Input:** ProfessionalProfile ID, triggering Review/event/source version.
-- **Owner:** Review / Dispute for inclusion/calculation policy; target projection storage interface may belong to Professional Profile/reputation presentation owner.
+- **Owner:** Review / Dispute owns inclusion/calculation; Professional Eligibility consumes the result and writes its own derived ProfessionalProfile rating/count fields.
 - **Idempotency key:** projection target + source version/rebuild generation.
 - **Retryable failures:** target projection service unavailable, Search refresh unavailable, queue/transient DB failure.
 - **Permanent failures:** malformed source identity, deleted/invalid target requiring manual architecture/data repair.
@@ -948,7 +943,7 @@ This Module has no confirmed cron-style business lifecycle that should be invent
 
 Do not add automatic dispute deadlines, review publication timers, reopen windows, or purge schedules until those domain policies are approved.
 
-All jobs use canonical `enqueueReliableJob`, `executeRetryWithBackoff`, request context, queue telemetry, and dead-letter handling.
+All jobs use canonical SH-047 `enqueueReliableJob`, SH-048 `executeRetryWithBackoff`, request context, queue telemetry, and dead-letter handling.
 
 ---
 
@@ -1037,12 +1032,16 @@ Review / Dispute owns **business evidence context**, not file mechanics.
    - actor/context authorization;
    - Media access operation;
    - short-lived signed access;
-   - `recordSensitiveAccess` when sensitivity/policy requires.
+   - SH-030 `recordSensitiveAccess` when sensitivity/policy requires.
 6. Media failure does not change Dispute truth.
 7. Deleting a dispute evidence association does not automatically delete the underlying MediaAsset.
 8. Retention/exemption policy controls destructive deletion.
 
 ---
+
+**Approved reputation handoff (CL-04-R005):** Review / Dispute owns Review inclusion and aggregate calculation. It supplies its owner-issued reputation result/facts for a ProfessionalProfile through the explicit Module contract: target ProfessionalProfile ID, derived ratingAverage/ratingCount, and source/projection version evidence. Professional Eligibility consumes that result, owns writes to its `ProfessionalProfile.ratingAverage`/`ratingCount`, and supplies the resulting Professional projection to Search. Review / Dispute must not mutate the ProfessionalProfile repository. SH-115 supplies shared projection/version/replay mechanics, not Review policy or Profile ownership. Dependency failure leaves Review truth committed and projection work retryable; exact transport/API naming is not newly selected here.
+
+**Shared access mapping (CL-04-R017):** SH-026 `authorizeContextualResourceAccess` (Confirmed) supplies the context-owner boundary for private dispute evidence; Media owns signed transport. Where domain-specific access proof is applicable, SH-125 `recordDomainAccessEvent` (Confirmed) supplements rather than replaces generic AccessAuditLog.
 
 ## 25. Search / Projection
 
@@ -1056,7 +1055,7 @@ Source chain:
 Review source truth
 → Review-owned inclusion policy
 → deterministic rating/count projection
-→ approved Professional reputation storage/facts
+→ Professional Eligibility consumes the result and persists its derived ProfessionalProfile rating fields
 → Search / Public Visibility refresh
 → public search projection
 ```
@@ -1069,7 +1068,7 @@ Disputes, reasons, admin notes, evidence, financial settlement details, and priv
 
 ### Search rules
 
-- use `requestSearchProjectionRefresh`;
+- use SH-091 `requestSearchProjectionRefresh`;
 - never insert `SearchUpsertEvent` directly from this Module unless Search’s public implementation contract explicitly encapsulates it;
 - never instantiate a Typesense client here;
 - Search must consume source-safe reputation facts and cannot reconstruct review visibility, verification, or dispute policy from raw tables;
@@ -1096,7 +1095,7 @@ Review / Dispute owns notification **triggers and business meaning**. Notificati
 - use IDs, safe status labels, safe reason codes, action routes;
 - do not place review/dispute evidence, private messages, payment details, raw admin notes, or sensitive attachment names in push/SMS/email variables unless an explicitly approved template and sensitivity policy permits them;
 - provider delivery failure never rolls back Review/Dispute truth;
-- use `requestNotification` after authoritative state commit/outbox event.
+- use SH-041 `requestNotification` after authoritative state commit/outbox event.
 
 ---
 
@@ -1110,7 +1109,7 @@ Review and Dispute state—and any approved ReviewEvent/DisputeEvent or structur
 
 ### 27.2 Generic `AuditEvent`
 
-Use `appendAuditEvent` for significant actions such as:
+Use SH-029 `appendAuditEvent` for significant actions such as:
 
 - admin publishes/hides/removes Review;
 - dispute opened where audit policy requires;
@@ -1123,7 +1122,7 @@ AuditEvent is supplemental proof. It cannot be the only source of a Dispute deci
 
 ### 27.3 `AccessAuditLog`
 
-Use `recordSensitiveAccess` for protected evidence issue/view/download/denial and other sensitive access required by policy.
+Use SH-030 `recordSensitiveAccess` for protected evidence issue/view/download/denial and other sensitive access required by policy.
 
 ### Payload minimization
 
@@ -1207,7 +1206,7 @@ Do not log:
 
 ### Integration failures
 
-Use `recordIntegrationFailure` for failures coordinating with:
+Use SH-037 `recordIntegrationFailure` for failures coordinating with:
 
 - Compliance Hold;
 - Payment/Payout/Tax;
@@ -1247,7 +1246,7 @@ Do not emit User IDs or free text as metric dimensions.
 8. No payment-provider credentials, webhook secrets, or SDK clients belong here.
 9. No custom crypto is required. If hashing/token work is later approved, consume the canonical security package.
 10. Admin/support access is contextual, not blanket.
-11. High-risk adjudication consumes step-up only when root policy says so.
+11. Refund/release adjudication causing or authorizing financial movement requires SH-014 step-up.
 12. Public reputation output must never include private dispute facts.
 
 ---
@@ -1277,7 +1276,7 @@ internal_error
 
 ### Decision shape
 
-Use the canonical `returnDecisionResult` pattern where appropriate:
+Use owner-specific decision results; SH-015 `returnDecisionResult` (Proposed future normalization only; not a prerequisite) is proposed future normalization only:
 
 ```text
 decision: allow | deny | warning | review
@@ -1393,7 +1392,7 @@ At Cluster level:
 
 - completed Order → Review → published reputation update;
 - Order → Dispute → hold request → admin review;
-- Dispute → refund adjudication → Payment/Order normalized settlement → hold release → close;
+- Dispute → refund adjudication → Order SH-108 coordination → Payment execution → Order settlement → Dispute settlement → hold release/closure under approved policy;
 - Dispute → release adjudication → owner-separated completion;
 - dependency outage/retry path;
 - privacy request affecting Review/Dispute.
@@ -1408,7 +1407,7 @@ At Cluster level:
 2. `ReviewStatus` and `DisputeStatus` transition authority belongs only to this Module.
 3. A Review is post-order reputation feedback, not verification, KYC, licensing, readiness, or TrustBadge truth.
 4. A Review must be tied to an authoritative Order.
-5. New production Review author identity must align with CustomerProfile buyer truth once the actor-schema ruling is approved.
+5. New Review authors resolve to the Order's buyer CustomerProfile under CL-04-R007; physical migration/backfill remains gated.
 6. The reviewed Professional must be derived from or validated against the Order seller.
 7. At most one Review per Order exists under the current schema.
 8. Rating must satisfy an explicitly approved scale; coding agents may not invent the scale.
@@ -1455,20 +1454,20 @@ Coding agents must not create these responsibilities inside `review-dispute/`, r
 
 | Prohibited implementation | Why | Use instead |
 | --- | --- | --- |
-| `review-auth.ts`, `dispute-auth.ts`, `getCurrentUser.ts` | duplicates authentication | `resolveAuthenticatedActor` |
-| `review-permissions.ts`, `dispute-rbac.ts`, generic `canAdmin*` | duplicates authority | `authorizeResourceAction` |
-| `customerResolver.ts`, User-only buyer helper | duplicates buyer actor truth | `resolveCustomerActor` |
+| `review-auth.ts`, `dispute-auth.ts`, `getCurrentUser.ts` | duplicates authentication | SH-001 `resolveAuthenticatedActor` |
+| `review-permissions.ts`, `dispute-rbac.ts`, generic `canAdmin*` | duplicates authority | SH-002 `authorizeResourceAction` |
+| `customerResolver.ts`, User-only buyer helper | duplicates buyer actor truth | SH-004 `resolveCustomerActor` |
 | `orderRepository.ts` reading/writing Transaction / Order internals | crosses owner boundary | Order public fact/command interfaces |
 | `isPayoutBlocked`, `disputeHoldService` owning hold rows | duplicates ComplianceHold | Hold owner operations |
-| `stripeRefundService.ts`, `stripeClient.ts`, `disputeWebhook.ts` | duplicates Payment provider adapter | Payment / Payout / Tax public interface |
+| `stripeRefundService.ts`, `stripeClient.ts`, `disputeWebhook.ts` | duplicates Payment provider adapter | Transaction / Order SH-108 coordinates Payment refund execution |
 | `ProcessedDisputeStripeEvent` | duplicates provider-event dedupe | Payment-owned provider dedupe |
 | `refundStatusMapper.ts` for Stripe | provider mapping not owned here | Payment adapter translation |
 | `payoutService.ts`, `wallet.ts`, `escrow.ts` | wrong financial ownership | Payment/Payout/Tax |
 | `disputeUploader.ts`, `evidenceSignedUrl.ts`, direct R2/S3 client | duplicates Media mechanics | Media / File Access |
 | `reviewIndexer.ts`, `typesenseRatingService.ts` | duplicates Search | Search refresh interface |
-| `reviewEmailService.ts`, `disputeSms.ts`, provider push client | duplicates Notification delivery | `requestNotification` |
-| `reviewAuditTable`, `disputeAuditLogger` as generic ledger | duplicates Audit/Event Ledger | `appendAuditEvent` |
-| `disputeFileViewLog` replacing AccessAuditLog | duplicate sensitive access proof | `recordSensitiveAccess` |
+| `reviewEmailService.ts`, `disputeSms.ts`, provider push client | duplicates Notification delivery | SH-041 `requestNotification` |
+| `reviewAuditTable`, `disputeAuditLogger` as generic ledger | duplicates Audit/Event Ledger | SH-029 `appendAuditEvent` |
+| `disputeFileViewLog` replacing AccessAuditLog | duplicate sensitive access proof | SH-030 `recordSensitiveAccess` |
 | `reviewPrivacyJob.ts`, `disputeErasureOrchestrator.ts` | duplicates Privacy workflow | privacy executor protocol |
 | `reviewEventBus.ts`, `disputeQueue.ts`, custom retry loop | duplicates event/queue primitives | outbox, queue, retry primitives |
 | `reviewMutex.ts`, `disputeLockTable` | unsafe/duplicate concurrency | shared Postgres lock/CAS primitive |
@@ -1479,6 +1478,14 @@ Coding agents must not create these responsibilities inside `review-dispute/`, r
 | hardcoded dispute/review retention duration | unsupported legal policy | Privacy retention decision/exemption |
 
 ---
+
+**Confirmed actor semantics (CL-04-R007):** CustomerProfile is required semantic buyer identity for new CL-04 buyer-domain records; User remains authenticated account/audit identity. After CustomerProfile migration, Gig/GigAssignment/Order buyer ownership must not be authorized from User ID alone. A Review author resolves to the Order's buyer CustomerProfile. Dispute opener proof must distinguish customer, professional, and privileged/admin initiation with an unambiguous typed domain actor; this representation requirement does not approve which actors may open a Dispute. Historical backfill, permanent legacy-User reference semantics, and the physical typed-opener schema remain unresolved.
+
+**Mandatory durable Dispute proof (CL-04-R010):** persist the authorized adjudicator, decision, basis/reason, decision timestamp, refund amount/basis where applicable, idempotency/correlation identity, hold request/release correlation, settlement/refund correlation, and whether required downstream steps are pending or completed. This domain proof must survive retries/outages. Generic AuditEvent, QueueJob, or mutable `adminNotes` cannot substitute for it. The final decision/event/workflow persistence design remains unresolved and must be approved before production adjudication.
+
+**Binding retention boundary (CL-04-R011):** hard deletion of an Order must not cascade-delete retained transaction, Agreement, Review, Dispute, or domain-history evidence without owner-specific Privacy/retention evaluation. Privacy issues the instruction; each owner enumerates its targets, evaluates retention/exemption facts, erases/anonymizes eligible data, preserves/minimizes retained evidence, and returns proof to Privacy. Database cascades must not provide an alternate destructive path. Existing cascade behavior requires a later approved database correction; legal retention durations remain unresolved.
+
+**Confirmed sensitive-action gate (CL-04-R021):** refund/release adjudication or actions that cause or authorize financial movement require SH-014 `requireStepUpForSensitiveAction`, owned by Identity & Access. This gate does not approve finality, grant TTL/reuse/renewal, manual-signature procedure, non-payout hold effects, signer anonymization, or retention periods. Optional external e-sign adoption must not block the provider-neutral Agreement domain.
 
 ## 35. Unresolved Decisions
 
@@ -1491,17 +1498,17 @@ These questions are intentionally non-authoritative. Implementation must stop at
 | Is Review auto-published or moderated from `pending`? | schema default `pending`; no policy | publication automation/default |
 | Can a Review be edited/revised? | no revision/history policy | edit feature |
 | Can hidden/removed Reviews be republished/restored? | no transition rule | reverse transitions |
-| Who stores the final Professional rating/count projection? | ProfessionalProfile has fields; Review owns feedback semantics | projection write interface |
+| Reputation result handoff | CL-04-R005 confirms Review calculation and Professional Eligibility persistence. | consumer contract/implementation readiness; ownership is settled |
 | Who may open a Dispute: buyer, seller, both, admin/system? | `openedById?` ambiguous; Order participant concept | production dispute authorization/schema |
 | What is the dispute opening time/window and eligible Order status set? | not supplied | eligibility policy |
 | Is there one lifetime Dispute, one active Dispute, or reopenable case? | `orderId @unique`; semantics absent | reopen/multiplicity |
 | What structured evidence-reference schema exists? | no dedicated DisputeEvidence confirmed | rich evidence intake |
 | Does `adminNotes` remain, or is an append-only note/history model required? | mutable blob only | admin case history |
-| What structured adjudication/resolution proof must be stored? | status + resolvedAt insufficient for actor/basis/correlation | production adjudication |
+| What physical persistence implements the approved durable adjudication proof? | CL-04-R010 fixes the minimum decision/correlation/recovery facts; status + resolvedAt is insufficient. | production persistence design/migration |
 | What exactly distinguishes `resolved_refund`/`resolved_release`/`dismissed` from `closed`? | enum exists; finality semantics absent | close automation |
 | How is a requested ComplianceHold correlated back to a Dispute? | no explicit dispute source relation confirmed | robust hold reconciliation |
 | How is refund/release execution correlated to adjudication? | no Review/Dispute correlation field confirmed | robust settlement workflow |
-| Which refund/release actions require step-up? | platform sensitive-action capability exists; action matrix absent | exact admin enforcement |
+| Other sensitive-action rules | Financial refund/release movement requires SH-014 under CL-04-R021. | remaining action-specific policy only |
 | What Messaging context is used for dispute communication? | ThreadContextType lacks dispute; Order/support possible | dedicated case messaging |
 | What records/fields require retention exemptions and for how long? | retention risk confirmed; duration absent | destructive erasure/purge |
 | What optimistic concurrency/version field should Review/Dispute use? | current models lack version; Dispute lacks updatedAt | CAS implementation |
@@ -1532,13 +1539,16 @@ These questions are intentionally non-authoritative. Implementation must stop at
 16. Review publication status may influence reputation; it must never become verification truth.
 17. Dispute adjudication must remain distinguishable from refund attachment, provider financial execution, and hold lifecycle.
 
+### Confirmed reconciliation rulings
+
+- **Confirmed CL-04-R007:** new Review authors resolve to the Order buyer CustomerProfile and the Professional target is derived/validated from Order.
+
+**Confirmed SH-046:** cross-Module facts use canonical transactional publication. **Confirmed CL-04-R005:** Review / Dispute calculates reputation; Professional Eligibility persists its derived Profile fields and supplies the Professional projection to Search.
+
 ### Proposed rulings carried forward
 
-1. New production Review writes should identify the buyer with CustomerProfile and validate/derive the Professional target from Order.
-2. Production Review/Dispute schemas should be strengthened for actor integrity, concurrency, and structured proof before their affected features ship.
-3. Review/Dispute cross-Module effects should use transactional outbox/domain events plus canonical idempotent workflow steps.
-4. Reputation inclusion/calculation should have one Review-owned policy and one approved projection writer/contract.
-5. Dispute settlement should be a Review / Dispute-owned semantic workflow over shared runner mechanics.
+1. Production Review/Dispute schemas should be strengthened for actor integrity, concurrency, and structured proof before their affected features ship.
+2. Dispute settlement should be a Review / Dispute-owned semantic workflow over shared runner mechanics.
 
 ### Non-rulings
 

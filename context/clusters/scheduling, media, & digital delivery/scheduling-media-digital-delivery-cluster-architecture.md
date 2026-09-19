@@ -24,7 +24,7 @@ CL-05 coordinates delivery after a buyer, professional, candidate, organization 
 The Cluster contains:
 
 1. `booking_calendar` — Booking & Calendar Module
-2. `video_session` — Video Infrastructure / Video Session Module
+2. `video_session` — Video Session Module (registry/legacy alias: Video Infrastructure Module)
 3. `media_file_access` — Media / File Access Module
 4. `digital_goods_access` — Digital Goods Access Module
 
@@ -128,7 +128,7 @@ Although the Cluster is primarily a delivery layer, `BookingHold` and `BookingSl
 | Module ID | Module name | Module type | Purpose | Owned truth | Primary responsibility in CL-05 | Major inbound dependencies | Major outbound consumers |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `booking_calendar` | Booking & Calendar Module | `domain_capability_hybrid` | Own paid live-service scheduling, professional availability, calendar blocking, slot reservation, booking lifecycle, calendar synchronization, and booking-specific orchestration. | Availability rules, busy windows, calendar connection state, booking holds, slot locks, Booking, BookingEvent, calendar-provider dedupe, booking orchestration records. | Turn availability plus upstream transaction/readiness facts into one conflict-free Booking and maintain external calendar synchronization. | Identity/Authority, Customer Profile, Professional Profile, Consent, Order/Agreement, Track Entitlement, Location Safety, Video, Notification, Messaging, Audit/Ops. | Transaction/Order, Video Session, Notification, Messaging, Professional Eligibility, Location Safety. |
-| `video_session` | Video Infrastructure Module / Video Session Module | `capability` | Own provider-neutral live-room and on-demand streaming mechanics. | BookingVideoRoom, JobInterviewVideoRoom, CourseVideoAsset, CourseVideoPlaybackGrant, CourseVideoPlaybackEvent, ProcessedVideoProviderEvent and video-provider status mappings. | Provision rooms/assets, issue short-lived join/playback credentials, process video-provider events, and preserve video-specific access evidence. | Booking, JobInterview, Order entitlement, CourseDetails, MediaAsset, Track Entitlement, Healthcare, Audit, Privacy, Digital Goods. | Booking, Job Interview, Digital Goods, support/review later. |
+| `video_session` | Video Session Module (registry/legacy alias: Video Infrastructure Module) | `capability` | Own provider-neutral live-room and on-demand streaming mechanics. | BookingVideoRoom, JobInterviewVideoRoom, CourseVideoAsset, CourseVideoPlaybackGrant, CourseVideoPlaybackEvent, ProcessedVideoProviderEvent and video-provider status mappings. | Provision rooms/assets, issue short-lived join/playback credentials, process video-provider events, and preserve video-specific access evidence. | Booking, JobInterview, Order entitlement, CourseDetails, MediaAsset, Track Entitlement, Healthcare, Audit, Privacy, Digital Goods. | Booking, Job Interview, Digital Goods, support/review later. |
 | `media_file_access` | Media / File Access Module | `capability_compliance_support` | Own file mechanics, upload policy, private storage, validation/scanning/processing, generic file grants, and short-lived signed file access. | MediaAsset, upload/validation/scan/processing records, MediaAccessGrant, MediaAccessEvent, storage/provider mechanics. | Turn untrusted uploaded bytes into a safe private/processed MediaAsset and expose it only through approved short-lived access mechanics. | Identity/Authority, contextual owner decisions, ComplianceHold, Healthcare, Moderation, Privacy, Audit/Ops. | Marketplace Supply, Order, Candidate/Resume, Messaging, Healthcare, Moderation, Digital Goods, Video. |
 | `digital_goods_access` | Digital Goods Access Module | `domain_capability_compliance_hybrid` | Own buyer-facing paid digital access, product/course policy proof, expiring download grants, digital delivery events, child-directed declarations, privacy controls, and accessibility assets. | DigitalGoodsPolicy, DigitalGoodsTermsAcceptance, DigitalDownloadAsset, DigitalDownloadGrant, DigitalDownloadEvent, ChildDirectedContentDeclaration, MinorPrivacyControl, CourseAccessibilityAsset. | Convert an authoritative purchase/access basis plus safe MediaAsset into controlled downloadable access and digital-policy proof. | Identity/Authority, Customer Profile, Order, Offering/Product/Course, Consent, Media, Video, Moderation, Privacy, Audit. | Marketplace Supply, Order, Media, Video, Payment/Tax, Consent, Moderation, Privacy, Search. |
 
@@ -481,6 +481,8 @@ The following are important CL-05 inputs but remain external truth:
 
 ### 9.7 BookingVideoRoom lifecycle
 
+**Live credential boundary (R011; also applies to JobInterviewVideoRoom):** persisted `roomUrl` and `*JoinUrl` fields may contain only non-authorizing metadata/opaque references, never reusable bearer access authority. Video mints actor/role/room/time-scoped short-lived participant credentials on demand. Evidence retains hashes/metadata, not reusable plaintext secrets. Later column removal, repurposing, or encryption remains a separate schema decision.
+
 **Owner:** Video Session.  
 **States:** `pending → active | failed | expired | cancelled`.  
 **Transition authority:** Video Session after parent Booking facts and provider result.  
@@ -497,6 +499,8 @@ The following are important CL-05 inputs but remain external truth:
 
 ### 9.9 CourseVideoAsset lifecycle
 
+**Approved relationship contract (R008):** `CourseDetails.offeringId` is the canonical CourseDetails identity and identifies the owning Offering. `CourseVideoAsset.courseDetailsId` identifies that value. Its nullable `offeringId` is redundant: when present it must equal that identity and never identify another Offering. Video exposes owner-validated relationship facts through `getCourseVideoProcessingStatus` so Digital Goods can validate accessibility associations without querying Video repositories. Removing or constraining the redundant field is later schema work.
+
 **Owner:** Video Session.  
 **States:** `draft`, `upload_pending`, `uploading`, `processing`, `ready`, `failed`, `disabled`, `archived`, `deleted`.  
 **Transition authority:** Video Session after Media source readiness and provider adapter results.  
@@ -504,6 +508,8 @@ The following are important CL-05 inputs but remain external truth:
 **Must not be confused with:** `MediaAsset.status`, `DigitalDownloadAsset.status`, Offering status, or CourseDetails lifecycle.
 
 ### 9.10 CourseVideoPlaybackGrant lifecycle
+
+**Separate grant semantics (R014):** the shared `used` label does not establish a universal CL-05 meaning. Media, Video, and Digital Goods own separate use events, terminality, concurrent-grant and replay rules. Grant/credential issuance is not automatically business consumption. Unapproved use rules and Digital Goods `final_after_access` remain unresolved; SH-057/088/089 do not settle them.
 
 **Owner:** Video Session.  
 **States:** `active → used | expired | revoked | denied`.  
@@ -537,6 +543,7 @@ The following are important CL-05 inputs but remain external truth:
 
 **Owner:** Media / File Access.  
 **Records:** MediaUploadSession, MediaValidationResult, MediaScanResult, MediaProcessingResult.  
+**Upload-session separation (R010):** MediaUploadSession is an upload-attempt lifecycle, distinct from MediaAsset. A dedicated session-status representation is required in a later schema/migration pass. Current `MediaAssetStatus` storage reuse is legacy only and must remain behind Media-owned typed mapping; no consumer may depend on that coupling.
 **Transition authority:** Media worker/adapters.  
 **Important rule:** proof records support the MediaAsset transition but do not become moderation, trust verification, or healthcare approval.
 
@@ -586,7 +593,7 @@ The following are important CL-05 inputs but remain external truth:
 
 ## 10. Public Module Interfaces
 
-Exact transport (Server Action, internal TypeScript interface, Route Handler, event handler) follows root code standards. The interface names below are the proposed stable application/public contract names. They express already-established responsibilities and must not be bypassed with cross-domain repository access.
+Exact transport (Server Action, internal TypeScript interface, Route Handler, event handler) follows root code standards. The interface names below are the proposed stable application/public contract names except where CL-05 reconciliation rulings explicitly approve the owner contracts documented here. They express already-established responsibilities and must not be bypassed with cross-domain repository access.
 
 | Interface | Owner | Consumers | Purpose | Minimum input | Minimum output | Returns | Consumers must not infer/recreate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -596,20 +603,23 @@ Exact transport (Server Action, internal TypeScript interface, Route Handler, ev
 | `cancelBooking` / `rescheduleBooking` | Booking & Calendar | buyer/professional/support | Apply Booking-owned cancellation/reschedule transitions | booking, actor, expected version, reason/new interval | updated Booking + event + downstream work refs | Truth | downstream provider state |
 | `connectCalendar` / `disconnectCalendar` | Booking & Calendar | Professional settings | Manage active external-calendar connection | professional, consent proof, provider/scopes/access mode, idempotency | CalendarConnection state and provider redirect/result | Truth | ConsentLog lifecycle or provider payload semantics |
 | `applyCalendarProviderEvent` | Booking & Calendar | webhook worker | Apply verified/deduped provider changes | normalized provider event + processed-event claim | updated BusyWindow/connection/sync refs | Truth/evidence | direct provider state |
-| `provisionBookingVideoRoom` | Video Session | Booking orchestration | Create/get room for confirmed video Booking | booking facts, participant facts, healthcare decision, entitlement if applicable, idempotency | BookingVideoRoom | Truth | Booking lifecycle |
+| `getBookingOwnerFacts` | Booking & Calendar | Video and authorized owner-fact consumers | Supply current parent/timing facts without transferring scheduling ownership | Booking reference and authorized request context | Booking ID/version or freshness marker, status, scheduled start/end, authorized participants, overtimeGraceMinutes | Owner facts | a local overtime default or direct Booking repository access; SH-003 remains Proposed |
+| `provisionBookingVideoRoom` | Video Session | Booking orchestration | Create/get room for confirmed video Booking | current Booking ID/version or freshness marker, status, scheduled start/end, authorized participants, overtimeGraceMinutes, healthcare decision, entitlement if applicable, idempotency | BookingVideoRoom | Truth | Booking lifecycle |
 | `provisionInterviewVideoRoom` | Video Session | Job Interview | Create/get room for Interview | interview facts/participants, healthcare decision if applicable, idempotency | JobInterviewVideoRoom | Truth | interview scheduling lifecycle |
 | `issueVideoJoinCredential` | Video Session | Booking/Interview UI | Issue short-lived participant-specific join token/URL | room, actor, parent-context authorization, current time | credential + expiry + safe room metadata | Decision/evidence | parent authorization or provider permanent link |
+| `getCourseVideoProcessingStatus` | Video Session | Marketplace/Digital Goods | Return safe processing and owner-validated relationship facts | CourseVideoAsset ID or approved course reference | asset ID/status, canonical courseDetailsId (= CourseDetails.offeringId and owning Offering ID), redundant offeringId equality validation | Owner facts | direct Video repository access or a second course identity |
 | `registerCourseVideoSource` | Video Session | Marketplace/Digital Goods | Start streaming-provider ingest from ready MediaAsset | course/offering refs, source media decision, actor | CourseVideoAsset | Truth | MediaAsset lifecycle or CourseDetails lifecycle |
-| `issueCoursePlaybackGrant` | Video Session | Digital Goods/course UI | Grant temporary signed streaming access | user, asset, Order entitlement or approved alternate basis, TTL, idempotency | CourseVideoPlaybackGrant + playback credential metadata | Truth/decision | Order entitlement or Digital Goods policy |
+| `authorizeContextualResourceAccess` | Digital Goods Access | Video; Media/file consumers | Digital Goods-owned SH-026 contextual authorization for playback or file access | actor, target/action context, applicable owner facts/evidence | allow/deny, safe reason, applicable policy/acceptance evidence refs, evaluation freshness/expiry where applicable, owner-defined delivery constraints | Decision | Order payment truth or a generic cross-domain entitlement engine |
+| `issueCoursePlaybackGrant` | Video Session | Digital Goods/course UI | Grant temporary signed streaming access | user, asset, Order entitlement or approved alternate basis, Digital Goods SH-026 playback decision, TTL, idempotency | CourseVideoPlaybackGrant + playback credential metadata | Truth/decision | Order entitlement or Digital Goods policy |
 | `getMediaReadiness` | Media / File Access | all contextual modules | Return whether a MediaAsset is safe/ready for intended use | mediaAssetId, required context/action | status, validation/scan/process evidence refs, sensitivity, allowed next action | Decision | contextual business entitlement |
 | `createMediaUploadSession` | Media / File Access | all upload surfaces | Create quarantine-first upload attempt | actor, upload context, file metadata, policy key | upload session + private upload instruction/object key | Truth | business attachment |
 | `completeMediaUpload` | Media / File Access | upload route/worker | Validate, scan, process, and promote/reject uploaded bytes | upload session/object confirmation | MediaAsset state + proof refs | Truth | moderation or contextual attachment |
-| `requestMediaAccess` | Media / File Access | contextual owner/UI | Create/validate generic MediaAccessGrant after contextual decision | actor, MediaAsset, contextual authorization result, action, TTL | MediaAccessGrant decision | Truth/decision | contextual authorization logic |
-| `issueSignedMediaUrl` | Media / File Access | file consumers | Return short-lived URL after Media grant/readiness gates | valid MediaAccessGrant, requested action | signed URL + expiry + access event ref | Delivery credential/evidence | entitlement |
+| `requestMediaAccess` | Media / File Access | contextual owner/UI | Public composite: validate the contextual owner’s decision and Media readiness/grant proof, then invoke SH-087 internally | actor, MediaAsset, contextual owner authorization decision/evidence, action, bounded TTL, idempotency key | short-lived credential + expiry + Media grant/access evidence references, or typed denial | Delivery credential/decision/evidence | contextual authorization logic or a second public signing call |
 | `registerDigitalDownloadAsset` | Digital Goods Access | Marketplace Supply | Link a safe MediaAsset to a downloadable Offering/Course/Product | offering/context refs, media readiness, actor, access policy | DigitalDownloadAsset | Truth | Media lifecycle or Offering lifecycle |
 | `recordDigitalGoodsTermsAcceptance` | Digital Goods Access | checkout/access flow | Preserve digital product policy/version acceptance context | user/order/offering/policy versions, Consent proof if required, text hash | DigitalGoodsTermsAcceptance | Evidence | generic consent lifecycle or Agreement state |
 | `issueDigitalDownloadGrant` | Digital Goods Access | Order fulfillment | Create buyer/user download grant | user/customer, digital asset, Order entitlement or approved alternate basis, acceptance evidence, TTL/max use, idempotency | DigitalDownloadGrant | Truth | Order/payment state |
-| `issueDigitalDownloadAccess` | Digital Goods Access | buyer download UI | Consume/validate grant then request Media signed URL | grant, actor, request context | delivery result + DigitalDownloadEvent + Media URL ref | Decision/evidence | object-store signing or Media safety rules |
+| `issueDigitalDownloadAccess` | Digital Goods Access | buyer download UI | Consume/validate grant then call Media `requestMediaAccess` | grant, actor, request context | delivery result + DigitalDownloadEvent + Media URL ref | Decision/evidence | object-store signing or Media safety rules |
+| `applyVideoModerationDecision` | Video Session | Moderation | Video-owned SH-103 execution boundary: targeted asset disable/restore, affected grant revocation, other specifically targeted Video-owned transitions | authorized case/action/target instruction and replay identity | acknowledgment/completion/failure evidence, idempotent replay | Execution evidence | moderation/legal policy or direct Moderation writes to Video tables |
 | `applyDigitalModerationDecision` | Digital Goods Access | Moderation | Apply authoritative action to download asset/grants | moderation action ID, target, action, idempotency | updated DigitalDownloadAsset/grants + acknowledgment | Truth/evidence | DMCA/legal validity |
 | `executeCl05PrivacyInstruction` (owner-specific handlers, not one generic repository) | each CL-05 Module | Privacy | Execute Privacy-owned target instruction against owner data/provider | Privacy target command, subject, disposition, retention decision | erased/anonymized/retained/failed result + evidence | Execution result | PrivacyRequest/DataErasureJob lifecycle |
 
@@ -669,12 +679,13 @@ Only CL-05-relevant operations are listed. Full definitions remain in `context/s
 | **SH-074 `generateSecureToken`** | cryptographically secure secret, hash retained — shared security | Media, Video, Digital Goods | token generator/verifier | TTL/binding/usage | temporary grant issuance | `downloadToken.ts`, `videoTokenHelper.ts` with custom randomness |
 | **SH-075 `encryptSensitiveValue`** | managed envelope encryption — shared security | Booking only where exact address snapshot is approved; sensitive Media/provider creds through proper owners | KMS/envelope primitive | necessity/access/retention | sensitive field persistence | `bookingEncryption.ts`, custom crypto |
 | **SH-078 `minimizeAndRedactProviderInput`** | minimum purpose-bound provider payload — shared serializer + source policy | Booking, Video, Media | allowlisted provider DTO | exact fields permitted by owner/sensitivity lane | before provider calls | raw domain object forwarding |
+| **SH-080 `manageVersionedRules`** | immutable/effective upload-policy versions — Media policy using shared versioning mechanism | MediaUploadPolicy | effective-version resolution, activation/retirement | Media technical policy meaning and exact applied-version evidence | policy administration/upload policy selection; future schema prerequisite | mutable historical policy or local versioning framework |
 | **SH-082 `validateUploadedFile`** | size/MIME/binary/context validation — Media | all upload consumers | MediaUploadPolicy pipeline | contextual suitability after Media readiness | upload completion | file validators in Digital Goods/Video/etc. |
 | **SH-083 `scanFileForMalware`** | malware scan/quarantine — Media | upload consumers | scanner adapter/result | policy says required/skipped | after validation before ready | per-context scanner services |
 | **SH-084 `scrubFileMetadata`** | EXIF/GPS/PDF metadata removal — Media | public/cross-user media flows | processing pipeline | required actions by upload context | processing before ready/public derivative | `stripExif.ts` in feature Modules |
 | **SH-085 `generatePrivateObjectKey`** | opaque storage key — Media/storage primitive | upload consumers through Media | key generator | bucket/context | upload session creation | user filename as object key |
 | **SH-086 `calculateChecksum`** | binary integrity hash — shared primitive/Media | Media, Agreement verification consumer as appropriate | SHA-256 bytes | Media checksum meaning | upload/derivative | duplicate hash utility |
-| **SH-087 `issueSignedMediaUrl`** | short-lived private object URL — Media | Digital Goods, agreements/resume/message consumers, privacy export | R2/S3 presign adapter | Media readiness/grant/action/TTL | final file delivery | `r2SignedUrl.ts` in contextual Modules |
+| **SH-087 `issueSignedMediaUrl`** | short-lived private object URL — Media | consumers through Media `requestMediaAccess` only | Media-internal R2/S3 presign adapter | Media readiness/grant/action/TTL | final file delivery | `r2SignedUrl.ts` in contextual Modules |
 | **SH-088 `manageTemporaryAccessGrant`** | shared grant issue/use/expire/revoke mechanics; separate truth | Media, Video, Digital Goods | common grant helper | each grant schema/policy | temporary grant operations | one generic grant table |
 | **SH-089 `revokeTemporaryAccessGrant`** | revoke domain grant after external instruction — each grant owner | Media, Video, Digital Goods | typed revocation pattern | owner transition/evidence | refund/moderation/privacy/security | direct cross-owner status mutation |
 | **SH-090 `attachValidatedMedia`** | attach ready MediaAsset to contextual owner | Digital Goods and other context Modules | validated attach contract | contextual join meaning | digital asset/accessibility registration | Media inferring all attachment policy |
@@ -752,7 +763,8 @@ Confirmed/rescheduled/cancelled Booking
 → provider result translated
 → Booking externalSyncStatus/provider refs updated
 → transient failure queued/retried
-→ terminal failure records IntegrationFailure and Booking external_sync_failed or step failure according to Booking policy
+→ terminal failure updates Booking-owned externalSyncStatus, fails/retries the applicable orchestration step, and records SH-037 IntegrationFailure
+→ core Booking.status does not transition to external_sync_failed; that schema value remains reserved under the approved Booking lifecycle
 → reconciliation later compares provider state
 ```
 
@@ -760,15 +772,18 @@ Confirmed/rescheduled/cancelled Booking
 
 ```text
 Booking orchestration requests video room
-→ Video queries Booking owner facts/public contract
+→ Video queries Booking getBookingOwnerFacts for current ID/version or freshness marker, status, scheduled start/end, authorized participants, and overtimeGraceMinutes
+→ Video uses the owner-provided overtime value, never a local schema-default policy, room-state inference, or direct Booking repository read
 → Role/context + healthcare + track entitlement gates as applicable
 → Video creates/persists BookingVideoRoom pending
 → SH-068 live-video adapter creates room
 → translated result updates Video-owned room active/failed
 → join request later re-authorizes parent participant + time window
 → Video issues short-lived join credential
-→ Course/room access event + AccessAuditLog if sensitive
+→ Video-owned append-only live access evidence for successful or denied credential issuance; AccessAuditLog is supplemental when sensitive
 ```
+
+Successful or denied Booking/Interview credential issuance must persist Video-owned append-only domain evidence under SH-125: room, parent context, actor/participant, action/decision, relevant provider context, expiry/access window, and time/request correlation. SH-030 alone is insufficient. The exact record/model name remains for a later schema pass; persistent Video evidence is a live-delivery prerequisite.
 
 ### 12.6 JobInterview to live video room
 
@@ -804,6 +819,7 @@ Context Module requests upload
 ```text
 Actor requests protected file
 → resource/context owner returns SH-026 authorization decision
+→ consumer calls Media requestMediaAccess (public composite; no second signing call)
 → Media checks MediaAsset ready/not frozen/not erased + hold/healthcare gates
 → Media creates/validates MediaAccessGrant
 → Media SH-087 issues short-lived signed URL
@@ -821,7 +837,7 @@ Order becomes delivery-entitled
 → Media returns MediaAsset ready decision
 → Digital Goods creates DigitalDownloadGrant with TTL/max downloads
 → download request atomically enforces grant status/usage
-→ Digital Goods requests Media signed URL
+→ Digital Goods calls Media requestMediaAccess with its contextual authorization/grant evidence; Media invokes SH-087 internally
 → DigitalDownloadEvent + MediaAccessEvent written separately
 → sensitive access audit if required
 ```
@@ -834,11 +850,13 @@ Default architectural TTL from current schema/module evidence: 24 hours for digi
 Course/Offering registers raw source MediaAsset
 → Media confirms ready/private source
 → Video creates CourseVideoAsset
-→ Video adapter sends purpose-minimized source to streaming provider
+→ Media authorizes and mediates a bounded source handoff; production transport remains unresolved
+→ Video owns provider ingest from that handoff with purpose-minimized source information; no direct R2 access or permanent source URL
 → verified/deduped provider event marks asset ready/failed
 → playback request
 → Order owner authorizes purchase entitlement
-→ Digital Goods policy/terms context supplied
+→ Digital Goods returns its SH-026 authorizeContextualResourceAccess playback decision (allow/deny, safe reason, policy/acceptance evidence, freshness/expiry, delivery constraints)
+→ Video combines that decision with SH-025 and its readiness/authority/healthcare/hold gates; it does not interpret raw Digital Goods rows
 → Video creates CourseVideoPlaybackGrant
 → Video issues signed playback credential
 → CourseVideoPlaybackEvent + sensitive audit when required
@@ -1520,6 +1538,23 @@ Coding agents must reference the canonical Shared Operations Registry and must n
 **Binding boundary:** Consent & Disclosure owns `ConsentType`; Digital Goods cannot own it.  
 **Evidence missing:** final consent taxonomy mapping.  
 **Blocks:** exact consent key selection in digital-goods UI; does not block `DigitalGoodsTermsAcceptance` contextual evidence model.
+
+### 26.9 Media-to-Video production ingest transport — R004
+
+Media must authorize and mediate bounded source retrieval; Video owns provider ingest and receives only purpose-minimized source information. Video may not read R2 directly or receive a permanent source URL. Signed source URL, server stream, provider upload destination, and other transports remain unselected. Production ingest is blocked pending the handoff decision; test/fake adapters remain permitted.
+
+### 26.10 Retention-safe cascade behavior — R013
+
+A database cascade never authorizes erasure of compliance/delivery evidence. Before destructive production deletion, each owner enumerates affected records, supplies retention facts, receives Privacy's retain/anonymize/delete disposition, and executes it safely. Any cascade that could remove retained evidence is blocked from production reliance until target-specific retention behavior is approved. Record coverage, retention periods, anonymization, and exact FK/cascade changes remain unresolved.
+
+### 26.11 Terminal live-room failure recovery — R015
+
+Once Video commits a room to terminal `failed`, technical retry authority ends. SH-048 does not permit `failed → pending`; reconciliation does not permit duplicate rooms. Reset, replacement/generation, or another recovery design remains unresolved and requires a separate Video lifecycle ruling.
+
+### 26.12 Historical Digital Goods legal content — R016
+
+The accepted-text owner must preserve immutable historical content. Generic Consent-owned disclosures come from the Consent version catalog. Contextual Digital Goods license/refund/access text remains Digital Goods-owned unless explicitly classified as Consent-owned disclosure. A linked ConsentLog does not imply storage of that contextual text, and `acceptedTextHash` alone cannot reconstruct it. The owner-controlled persistence/retrieval mechanism remains unresolved; production legal-content activation is blocked until that source exists.
+
 
 ---
 

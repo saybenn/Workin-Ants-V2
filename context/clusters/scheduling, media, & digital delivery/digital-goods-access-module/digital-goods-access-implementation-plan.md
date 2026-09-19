@@ -45,7 +45,7 @@ No feature may make R2/S3, Stripe, Mux, ConsentLog, Order, Search, Audit, or Pri
 6. Every lifecycle transition is performed through Digital Goods owner policy in a transaction-safe way.
 7. Order remains normal purchased-entitlement truth. Never read Stripe/provider state as delivery entitlement.
 8. Media owns file safety/storage/signed URL mechanics. Digital Goods must not instantiate R2/S3 clients or presign URLs.
-9. Consent & Disclosure owns generic consent/version proof. Digital Goods owns contextual terms acceptance evidence only.
+9. Consent & Disclosure owns generic consent/version proof and its disclosure text. Digital Goods owns contextual digital-goods terms and acceptance evidence; their historical-text persistence/retrieval mechanism remains unresolved.
 10. Temporary grant mechanics may be shared, but `DigitalDownloadGrant` must not merge with Media, Video, Agreement, or security grants.
 11. Download usage limits are database-atomic; in-memory locks and read-then-write counters are prohibited.
 12. Time-bound access checks server time at request time; expiration-worker delay never extends access.
@@ -85,7 +85,7 @@ If the platform implementation is not yet present, tests may use contract fakes 
 **Before Module Feature 03/04/05 paid delivery can be complete:**
 
 - CL-05 Feature 01: Media can produce a safe `MediaAsset.ready`;
-- CL-05 Feature 02: Media exposes contextual short-lived signed delivery / SH-087;
+- CL-05 Feature 02: Media exposes composite `requestMediaAccess`, invoking SH-087 internally and returning a short-lived credential or typed denial; no second public signing call;
 - Marketplace Supply exposes Offering/Product/Course owner validation/facts;
 - Transaction / Order exposes SH-025 `authorizeOrderEntitlement`;
 - Consent & Disclosure exposes required proof/version interfaces.
@@ -227,6 +227,7 @@ Introduce stable TypeScript contracts for:
 - acceptance evidence;
 - download readiness;
 - download eligibility;
+- Digital Goods-owned SH-026 `authorizeContextualResourceAccess` playback/file decision (allow/deny, safe reason, applicable policy/acceptance evidence, freshness/expiry, delivery constraints);
 - buyer downloads;
 - delivery evidence;
 - privacy controls;
@@ -241,7 +242,7 @@ Only contracts/fakes are required in this feature.
 - **SH-044:** command idempotency contract.
 - **SH-046 / SH-047:** outbox/job contracts.
 - **SH-051 / SH-052 / SH-053 / SH-057:** transition/concurrency contracts.
-- **SH-087 / SH-090:** Media boundary contracts.
+- **SH-087:** Media-internal signing behind `requestMediaAccess`; **SH-090:** Digital Goods/contextual-owner attachment using Media readiness.
 - **SH-095–097:** Privacy protocol types.
 - **SH-103:** Moderation execution envelope.
 - **SH-123:** owner target validation contract.
@@ -388,6 +389,8 @@ Directly implements the Digital Goods-owned portion of **CL-05 Feature 03**.
 
 ### Public Interfaces
 
+Implement Digital Goods-owned SH-026 `authorizeContextualResourceAccess` for course playback using the Module’s existing policy/acceptance rules. Return allow/deny, safe reason, applicable evidence references, freshness/expiry where applicable, and owner-defined playback constraints. Video consumes this alongside SH-025 and its own readiness/authority/healthcare/hold gates; no Video-side policy-row interpretation is permitted. Production legal-content policy remains gated as described below.
+
 Implement:
 
 - `upsertDigitalGoodsPolicy`;
@@ -477,6 +480,8 @@ If UI foundation exists:
 
 ### Tests
 
+- playback SH-026 contract covers allow/deny, safe reasons, applicable evidence/freshness/expiry and delivery constraints without granting Video ownership of Digital Goods rules;
+
 - policy validation/unit tests;
 - optimistic concurrency/stale edit;
 - Offering owner contract allow/deny;
@@ -491,7 +496,7 @@ If UI foundation exists:
 
 ### Documentation Updates
 
-If the final ConsentType mapping or immutable legal-text source is approved during implementation, update Module architecture and Consent public-interface documentation before merging the behavior.
+Keep ConsentType mapping and the Digital Goods historical-text persistence/retrieval mechanism unresolved until their owners approve them. Record any later owner-approved contract change in the affected architecture before merging behavior; this CL-05 pass does not change Consent architecture.
 
 ### Acceptance Criteria
 
@@ -503,6 +508,9 @@ If the final ConsentType mapping or immutable legal-text source is approved duri
 - production legal gate is explicit.
 
 ### Exit Gate
+
+Production legal-content activation is blocked until immutable owner-controlled historical content exists. Consent’s catalog supplies generic Consent-owned disclosures; Digital Goods owns contextual license/refund/access text unless explicitly classified otherwise. A ConsentLog link or acceptedTextHash alone is insufficient. The Digital Goods persistence/retrieval mechanism remains unresolved.
+
 
 Pass typecheck, lint, unit, database integration, contract, authorization, and E2E policy/acceptance tests. Confirm no download grant/access code was added early.
 
@@ -529,7 +537,7 @@ Supports **CL-05 Feature 04 — Purchased Digital Download Grant and Controlled 
 - Features 01–02;
 - CL-05 Media Feature 01 complete or contract-equivalent;
 - Marketplace SH-123 target validation;
-- Media SH-090 attach validated media/readiness;
+- Media readiness query; Digital Goods owns contextual SH-090 `attachValidatedMedia`;
 - SH-001/002/044/052/053.
 
 ### In Scope
@@ -570,7 +578,7 @@ Implement:
 - SH-001/002 — actor/permission;
 - SH-044 — registration idempotency;
 - SH-052/053 — stale-write/transition mechanics;
-- **SH-090 `attachValidatedMedia`** — validate ready Media relation;
+- **SH-090 `attachValidatedMedia` — contextual owner (Digital Goods here).** Validate attachment meaning using Media-owned readiness/file truth;
 - **SH-123** — Offering/Product/Course references;
 - SH-029 — material admin transition audit;
 - SH-046/091 — downstream readiness event/search refresh when a committed change affects public readiness.
@@ -828,7 +836,7 @@ Completes the core behavior of **CL-05 Feature 04**.
 ### Dependencies
 
 - Feature 04;
-- CL-05 Media Feature 02 / SH-087;
+- CL-05 Media Feature 02 / composite `requestMediaAccess` (SH-087 remains Media-internal);
 - SH-025 current entitlement;
 - SH-030 audit interface;
 - SH-051/057/088/125;
@@ -881,7 +889,8 @@ Implement:
 - SH-051 — grant lock;
 - **SH-055 — expiration scheduler**;
 - **SH-057 — atomic usage counter**;
-- **SH-087 — Media signed URL**;
+- **SH-026 `authorizeContextualResourceAccess` — Digital Goods context.** Supply business authorization/grant evidence to Media;
+- **SH-087 `issueSignedMediaUrl` — Media-internal capability**, consumed through public composite `requestMediaAccess`;
 - SH-088/089 — validate/revoke shared grant mechanics;
 - **SH-125 — append DigitalDownloadEvent**;
 - SH-047/048 — bulk revocation/expiration work.
@@ -899,7 +908,7 @@ Implement:
 5. Validate DigitalDownloadAsset current local state.
 6. Revalidate SH-025 Order entitlement for normal purchased path.
 7. Evaluate applicable hold.
-8. Ask Media for SH-087 signed access; Media revalidates MediaAsset safety/freeze/erasure.
+8. Call Media `requestMediaAccess` with the Digital Goods SH-026 decision and grant evidence; Media revalidates safety/freeze/erasure and its grant/proof requirements, invokes SH-087 internally, and returns a short-lived credential or typed denial.
 9. At the **approved consumption point**, atomically increment bounded usage and, under the proposed rule, set `used` when finite allowance is exhausted.
 10. Store only signed URL hash/evidence if needed; never raw URL.
 11. Append DigitalDownloadEvent and required generic sensitive access audit.
@@ -947,7 +956,7 @@ Until product/legal architecture defines what counts as “access” for `final_
 
 ### Provider Integration
 
-Digital Goods calls Media SH-087 only. Test with Media contract fake and real Media integration test environment when available.
+Digital Goods calls only Media’s public composite `requestMediaAccess`; SH-087 signing stays internal to Media. Test credential/typed-denial, replay, proof references, and provider-failure behavior through that contract using a fake and real Media integration environment when available.
 
 ### UI / Admin Surface
 
@@ -1180,8 +1189,8 @@ Implements the accessibility portion of **CL-05 Feature 05** and supplies Digita
 
 - Feature 03 / Media ready substrate;
 - Marketplace Offering/Course facts;
-- Media SH-090/readiness;
-- Video owner facts when `courseVideoAssetId` is used;
+- Media readiness; Digital Goods owns contextual SH-090 attachment;
+- Video `getCourseVideoProcessingStatus` owner-validated relationship facts when `courseVideoAssetId` is used: canonical courseDetailsId identifies CourseDetails.offeringId / the owning Offering, and any present redundant offeringId must equal it;
 - SH-001/002/044/052/053/123;
 - waiver authority remains unresolved for production.
 
@@ -1223,7 +1232,7 @@ Implement:
 - SH-001/002 — actor/authority;
 - SH-044 — idempotent registration/state commands;
 - SH-052/053 — transition/stale-write mechanics;
-- SH-090 — attach validated Media;
+- SH-090 `attachValidatedMedia` — Digital Goods/contextual-owner attachment using Media readiness;
 - SH-123 — Offering/Course/Video target validation;
 - SH-029 — review/waiver audit if approved;
 - SH-041/091 — outcome notification/search refresh where product policy requires.
@@ -1234,7 +1243,7 @@ Implement:
 
 - record type/language/required/default semantics;
 - attached Media must be ready before accessibility record reaches `ready`;
-- a `courseVideoAssetId` is an association to Video truth, not permission to mutate/read provider payloads directly;
+- before attaching `courseVideoAssetId`, verify its expected course/Offering through Video’s owner-validated `getCourseVideoProcessingStatus` facts; never query the Video repository or accept divergent redundant offeringId;
 - readiness reports required assets missing/processing/failed/rejected/ready and approved waiver/not-required states;
 - only one default per approved scope/type/language should be effective; exact DB constraint may be added once scope semantics are confirmed;
 - `waived` and `not_required` require explicit authority/policy and cannot be self-selected by ordinary seller if production criteria are unresolved.
@@ -1362,7 +1371,7 @@ Harden and version the interfaces built in Features 02–07. No new broad public
 
 ### Shared Operations Used
 
-- SH-004, SH-007/008, SH-025, SH-087, SH-090, SH-123;
+- SH-004, SH-007/008, SH-025, SH-026 `authorizeContextualResourceAccess` (Digital Goods playback/file decision), SH-087 (Media-internal through requestMediaAccess), SH-090 (contextual owner), SH-123;
 - SH-044/046 where commands/events are part of contract proof;
 - SH-032 correlation in cross-Module test harness.
 
@@ -1990,8 +1999,8 @@ The Module integration requirement is satisfied across Features 08–09. The fin
 | Transaction / Order | SH-025 normal purchased access allow/deny/refund/dispute effects |
 | Customer / Buyer Profile | authenticated User resolves to correct buyer context for qualifying Order |
 | Consent & Disclosure | generic proof/version linkage without replacing DigitalGoodsTermsAcceptance |
-| Media / File Access | ready asset attachment + SH-087 signed delivery; no provider code in Digital Goods |
-| Video Session | CourseVideoAsset reference validation for accessibility; no Video mutation/provider leakage |
+| Media / File Access | Media readiness + composite requestMediaAccess (SH-087 internal); Digital Goods owns contextual SH-090 attachment; no local provider code |
+| Video Session | Video owner validates canonical course/Offering relationship for accessibility; Digital Goods supplies SH-026 playback permission; no repository reads/provider leakage or Video-side policy interpretation |
 | Compliance Hold | SH-011 mapped denial without local hold truth |
 | Moderation | SH-103 action → owner-local disable/restore/revoke + acknowledgment |
 | Search | SH-091 only; no Typesense/SearchUpsertEvent direct writes |

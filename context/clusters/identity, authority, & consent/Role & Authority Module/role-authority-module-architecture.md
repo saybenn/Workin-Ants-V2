@@ -5,7 +5,7 @@
 > **Module type:** `capability_security`  
 > **Build status:** `mvp_active`  
 > **Primary Cluster:** `CL-01 Identity, Authority, Consent & Entitlements`  
-> **Repository target:** `context/modules/role_authority/module-architecture.md`  
+> **Repository target:** `context/clusters/identity, authority, & consent/Role & Authority Module/role-authority-module-architecture.md`\
 > **Document status:** implementation-grade target architecture; confirmed rulings are binding, proposed rulings require approval before the dependent implementation is committed  
 > **Audience:** coding agents, developers, security reviewers, database/RLS reviewers, maintainers, compliance reviewers, and architecture reviewers  
 > **Update rule:** update this file whenever a binding authority-policy, ownership, action-vocabulary, decision-contract, RLS-parity, audit, or cross-Module boundary changes. Build progress must not silently redefine this architecture.
@@ -117,7 +117,7 @@ Role & Authority owns **policy truth and decision semantics**, not the lifecycle
 
 **Confirmed persisted Prisma models owned by this Module: none.**
 
-No `Permission`, `RolePermission`, `ResourcePermission`, `AuthorizationDecision`, or generic RBAC table is currently evidenced. Do not add one merely because it is convenient. A persisted policy model may be introduced only after unresolved policy-source decision `U-CL01-16` is settled.
+No `Permission`, `RolePermission`, `ResourcePermission`, `AuthorizationDecision`, or generic RBAC table is currently evidenced. Do not add one merely because it is convenient. A persisted policy model may be introduced only after unresolved policy-source decision `U-CL01-10` is settled.
 
 ### 3.2 Controlled vocabulary owned
 
@@ -152,7 +152,7 @@ Role & Authority does not own creation, activation, suspension, removal, archive
 
 ### 3.5 Source-of-truth records
 
-There is currently no confirmed persisted authorization-policy record. The owned source truth is the **approved authority policy specification** and its versioned action/resource/role interpretation. The physical source of that policy — code-first, generated configuration, SQL-first, or another controlled source — is unresolved under `U-CL01-16`.
+There is currently no confirmed persisted authorization-policy record. The owned source truth is the **approved authority policy specification** and its versioned action/resource/role interpretation. The physical source of that policy — code-first, generated configuration, SQL-first, or another controlled source — is unresolved under `U-CL01-10`.
 
 Until that decision is resolved:
 
@@ -348,7 +348,7 @@ This is intentional. A capability can own authoritative policy without owning a 
 
 No policy, permission, resource, action, or role-to-permission schema is present in current evidence.
 
-**Unresolved `U-CL01-16`:** choose the controlled source of authorization policy before production RLS breadth is committed. Options may include code-first with generated SQL bindings, generated configuration, SQL-first with generated TypeScript contract, or another architecture-approved model. Do not introduce administratively editable RBAC tables unless the product actually requires runtime-configurable policy.
+**Unresolved `U-CL01-10`:** choose the controlled source of authorization policy before production RLS breadth is committed. Options may include code-first with generated SQL bindings, generated configuration, SQL-first with generated TypeScript contract, or another architecture-approved model. Do not introduce administratively editable RBAC tables unless the product actually requires runtime-configurable policy.
 
 ### 8.4 Retention / privacy concerns
 
@@ -403,7 +403,7 @@ A consumer must not treat an old decision as a permanent grant. For protected mu
 
 ### 9.4 Policy lifecycle
 
-The existence of policy identifiers/versions is required for traceability, but the physical versioning mechanism is unresolved until `U-CL01-16` is settled. Policy changes must be reviewed, tested against the authorization matrix, and deployed atomically enough that server/RLS semantics cannot intentionally diverge.
+The existence of policy identifiers/versions is required for traceability, but the physical versioning mechanism is unresolved until `U-CL01-10` is settled. Policy changes must be reviewed, tested against the authorization matrix, and deployed atomically enough that server/RLS semantics cannot intentionally diverge.
 
 ### 9.5 Prohibited lifecycle shortcuts
 
@@ -437,7 +437,7 @@ Role & Authority is primarily a synchronous decision capability. Policy administ
 - **Purpose:** request append-only evidence for sensitive/admin access where the audit matrix requires it.
 - **State written:** Audit / Event Ledger only.
 - **Idempotency:** owned by the canonical audit operation and caller request/correlation semantics.
-- **Failure:** handling is part of unresolved `U-CL01-17`; production-sensitive paths must not silently skip mandatory evidence.
+- **Failure:** handling is part of unresolved `Role sensitive-access audit decision`; production-sensitive paths must not silently skip mandatory evidence.
 
 ---
 
@@ -803,7 +803,7 @@ Role owns entry authority boundaries. It does not grant blanket payload access. 
 
 ### Step-up
 
-If an action is centrally classified as sensitive, Role may return a step-up obligation or invoke the approved Identity operation through its application service. Exact action governance remains subject to `U-CL01-15`.
+If an action is centrally classified as sensitive, Role may return a step-up obligation or invoke the approved Identity operation through its application service. Exact action governance remains subject to `U-CL01-07`.
 
 ### No local generic authorization infrastructure elsewhere
 
@@ -969,7 +969,7 @@ If a future security policy requires notifying a user of high-risk administrativ
 
 Role supplies safe authority context to SH-029/SH-030 when the approved audit matrix requires it.
 
-### Unresolved audit matrix — `U-CL01-17`
+### Unresolved audit matrix — `Role sensitive-access audit decision`
 
 Architecture must still decide:
 
@@ -1141,7 +1141,7 @@ Dependency exceptions are converted to `unavailable` plus safe telemetry. Never 
 
 ### Compliance / audit tests
 
-After `U-CL01-17` is resolved:
+After `Role sensitive-access audit decision` is resolved:
 
 - required sensitive access appends through Audit owner;
 - no direct AccessAuditLog write exists in Role;
@@ -1189,7 +1189,7 @@ Role participates in critical flows owned elsewhere: organization job management
 13. Unknown action/resource/policy fails closed.
 14. Missing owner facts never become an implicit allow.
 15. Server policy and RLS semantics must have parity tests from one controlled policy specification/matrix.
-16. No generic RBAC tables are added until `U-CL01-16` is resolved and architecture updated.
+16. No generic RBAC tables are added until `U-CL01-10` is resolved and architecture updated.
 17. No feature-local `isAdmin`, `isSupport`, `isOrgOwner`, `isRecruiter`, `isThreadParticipant`, `isOwner`, or equivalent policy engine may replace SH-002.
 18. `AccessAuditLog` remains Audit / Event Ledger-owned; Role only invokes canonical audit operations.
 19. Step-up state remains Identity-owned.
@@ -1269,15 +1269,15 @@ Thin adapters are allowed only when they translate a domain action into SH-002 w
 | ID / Topic | Current evidence | Required decision | Blocks |
 |---|---|---|---|
 | PR-CL01-02 ownership split | Registry conflicts with glossary/Cluster architecture | Formally accept or amend Organization Hiring/Messaging lifecycle ownership | Any Role mutation of membership/participant records; current plan assumes read-only split |
-| U-CL01-16 policy source | No persisted policy model; server + RLS both required | Code-first, generated config, SQL-first, or another controlled single source | Broad production RLS implementation and final policy code layout |
+| U-CL01-10 policy source | No persisted policy model; server + RLS both required | Code-first, generated config, SQL-first, or another controlled single source | Broad production RLS implementation and final policy code layout |
 | Action vocabulary | Examples exist, full catalog does not | Approve versioned action/resource key inventory and governance | Production policy coverage |
 | Platform admin/support matrix | Roles exist, exact actions absent | Define explicit user/admin/support permissions | Production admin/support routes |
 | Organization role matrix | owner/admin/recruiter exist; exact actions absent | Define approved action matrix; decide status of deferred member/viewer values | Production org actions |
 | Owner-facts DTOs | Need is confirmed, exact contracts vary | Define per-owner minimal facts and versions | Each consumer integration |
 | SH-015 decision envelope | Proposed shared contract | Approve exact shared shape or define Role-compatible stable contract | Cross-gate result standardization |
 | Denial presentation | 403/404/redaction/domain denial not universal | Root/data-owner rule for target-existence protection | HTTP/UI translation, not pure policy evaluation |
-| U-CL01-15 step-up action governance | Sensitive action enum exists elsewhere | Define extension/governance and Role obligation matrix | Step-up-required production actions |
-| U-CL01-17 sensitive access audit matrix | AccessAuditLog exists; exact required actions absent | Determine which allowed/denied attempts require SH-030 vs SH-029/logging and failure semantics | Audit completeness |
+| U-CL01-07 step-up action governance | Sensitive action enum exists elsewhere | Define extension/governance and Role obligation matrix | Step-up-required production actions |
+| Role sensitive-access audit decision | AccessAuditLog exists; exact required actions absent | Determine which allowed/denied attempts require SH-030 vs SH-029/logging and failure semantics | Audit completeness |
 | AccessAuditLog decision vocabulary | Current schema couples `accessDecision` to healthcare vocabulary | Audit owner must decide whether general decision vocabulary is needed | Generic Role-sensitive access evidence |
 | RLS coverage set | RLS technology confirmed, table/action coverage incomplete | Enumerate which protected tables/actions require DB-side Role parity | Production direct DB/RLS exposure |
 | Policy cache | No need currently evidenced | Keep absent unless performance requires explicit invalidation design | Nothing for MVP; must not be invented |
@@ -1330,12 +1330,12 @@ When implementation reaches one of these boundaries, either:
 
 Before implementing or modifying Role & Authority, the coding agent must read, in order:
 
-1. root `project-overview.md`;
-2. root `architecture.md`;
-3. root `code-standards.md`;
+1. `context/project-overview-v3.md`;
+2. root `architecture.md` (**currently missing**; see `context/context-map.md`);
+3. root `code-standards.md` (**currently missing**; see `context/context-map.md`);
 4. `context/shared/shared-operations.md`;
-5. `context/clusters/identity-authority-consent-entitlements/architecture.md`;
-6. `context/clusters/identity-authority-consent-entitlements/build-plan.md`;
+5. `context/clusters/identity, authority, & consent/identity-authority-consent-architecture.md`;
+6. `context/clusters/identity, authority, & consent/identity-authority-consent-build-plan.md`;
 7. this `role_authority/module-architecture.md`;
 8. this `role_authority/implementation-plan.md`;
 9. public-interface sections for Identity & Access, Organization Hiring, Messaging, Transaction / Order, Candidate Application & Resume Privacy, Job Interview, Audit / Event Ledger, Healthcare, Media / File Access, and any other direct consumer/fact owner involved in the feature;

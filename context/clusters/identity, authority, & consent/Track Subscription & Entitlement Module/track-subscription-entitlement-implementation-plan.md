@@ -3,9 +3,9 @@
 > **Module ID:** `track_subscription_entitlement`  
 > **Module:** Track Subscription & Entitlement  
 > **Primary Cluster:** `CL-01 — Identity, Authority, Consent & Entitlements`  
-> **Repository target:** `context/modules/track_subscription_entitlement/implementation-plan.md`  
+> **Repository target:** `context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-implementation-plan.md`\
 > **Companion architecture:** `module-architecture.md`  
-> **Parent sequence:** `context/clusters/identity-authority-consent-entitlements/build-plan.md`  
+> **Parent sequence:** `context/clusters/identity, authority, & consent/identity-authority-consent-build-plan.md`\
 > **Implementation posture:** greenfield MVP planning against current Workin Ants schema/context. This Module plan is narrower than the CL-01 build plan and must not independently change Cluster sequencing or ownership.
 
 ---
@@ -105,24 +105,24 @@ The following consumers need stable contract fixtures, not full product UIs, dur
 
 ### Provider setup
 
-Stripe Billing / Checkout / Customer Portal may be adapter-stubbed until CL-01 Feature 12. Live credentials and live callback side effects are **not** preconditions for catalog, entitlement resolution, or metering features.
+Stripe Billing / Checkout / Customer Portal may be adapter-stubbed until CL-01 Feature 13. Live credentials and live callback side effects are **not** preconditions for catalog, entitlement resolution, or metering features.
 
 ### Mandatory architecture gates by slice
 
 | Gate | Required before |
 |---|---|
-| U-CL01-18 free-plan representation | production default-free provisioning and free↔paid transitions |
-| U-CL01-19 production entitlement catalog | activating production plan/entitlement keys |
-| U-CL01-20 grant precedence | production SH-005 resolution over overlapping sources |
-| U-CL01-21 subscription transition table | production paid subscription lifecycle |
-| U-CL01-22 processed provider-event record | live provider webhook side effects |
-| U-CL01-23 plan revision/effective history | material mutation of live production plans |
-| U-CL01-24 typed value constraints | production plan mapping/grant writes |
-| U-CL01-25 consent binding | paid enrollment/plan change |
-| U-CL01-26 candidate usage period/refund rules | final Candidate Application quota integration |
-| U-CL01-27 fee/commission calculation/snapshot rules | final Order pricing bridge |
-| U-CL01-28 priority scheduling semantics | final Booking priority bridge |
-| U-CL01-29 billing retention/anonymization | destructive privacy behavior |
+| U-CL01-24 free-plan representation | production default-free provisioning and free↔paid transitions |
+| U-CL01-26 production entitlement catalog | activating production plan/entitlement keys |
+| U-CL01-26 grant precedence | production SH-005 resolution over overlapping sources |
+| U-CL01-28 subscription transition table | production paid subscription lifecycle |
+| U-CL01-28 processed provider-event record | live provider webhook side effects |
+| U-CL01-27 plan revision/effective history | material mutation of live production plans |
+| U-CL01-26 typed value constraints | production plan mapping/grant writes |
+| U-CL01-28 consent binding | paid enrollment/plan change |
+| U-CL01-29 candidate usage period/refund rules | final Candidate Application quota integration |
+| U-CL01-30 fee/commission calculation/snapshot rules | final Order pricing bridge |
+| U-CL01-31 priority scheduling semantics | final Booking priority bridge |
+| U-CL01-32 billing retention/anonymization | destructive privacy behavior |
 | PR-CL01-04 / PR-TSE-02 provider ownership | Track-owned live Stripe Billing adapter |
 | U-TSE-01/02 pricing/billing-interval schema | production catalog price mutation where affected |
 | U-TSE-03 actor-profile/active-subscription DB constraints | production subscription/grant creation |
@@ -152,7 +152,7 @@ Produce the validated domain vocabulary, Track-owned repository boundary, public
 
 ### Cluster Build-Plan Link
 
-Supports **CL-01 Feature 09 — Track Plan and Typed Entitlement Catalog Foundation** and its prerequisite ownership/schema work. It must not begin paid provider behavior from CL-01 Feature 12.
+Supports **CL-01 Feature 10 — Track Catalog and Free-Track Foundation** and its prerequisite ownership/schema work. It must not begin paid provider behavior from CL-01 Feature 13.
 
 ### Dependencies
 
@@ -201,7 +201,7 @@ Reviewed/affected:
 - `TrackUsageCounter`;
 - `TrackSubscriptionEvent`.
 
-Potential migrations are allowed only for decisions already resolved, especially U-CL01-24/U-TSE-03/U-TSE-04 when ratified.
+Potential migrations are allowed only for decisions already resolved, especially U-CL01-26/U-TSE-03/U-TSE-04 when ratified.
 
 ### Public Interfaces
 
@@ -293,7 +293,7 @@ Do not begin Feature 02 until:
 - schema/migration tests pass;
 - runtime contract tests pass;
 - no direct foreign lifecycle repository has been introduced;
-- U-CL01-24/U-TSE-03/U-TSE-04 remain visibly gated if unresolved;
+- U-CL01-26/U-TSE-03/U-TSE-04 remain visibly gated if unresolved;
 - typecheck/lint/test/build checks for the slice pass.
 
 ---
@@ -317,17 +317,17 @@ An authorized admin or developer fixture can:
 - list plans through a stable public query;
 - run the same seed manifest repeatedly without duplicates.
 
-Production keys/plan versions remain disabled if U-CL01-19/23/24 are unresolved.
+Production keys/plan versions remain disabled if U-CL01-26/U-CL01-27 are unresolved.
 
 ### Cluster Build-Plan Link
 
-Directly implements the Module portion of **CL-01 Feature 09 — Track Plan and Typed Entitlement Catalog Foundation**.
+Directly implements the Module portion of **CL-01 Feature 10 — Track Catalog and Free-Track Foundation**.
 
 ### Dependencies
 
 - Module Feature 01;
 - SH-001/002/029/044;
-- plan/value architecture gates U-CL01-19, U-CL01-23, U-CL01-24;
+- plan/value architecture gates U-CL01-26 and U-CL01-27;
 - U-TSE-01/02 where pricing/cadence are affected.
 
 ### In Scope
@@ -343,7 +343,7 @@ Directly implements the Module portion of **CL-01 Feature 09 — Track Plan and 
 
 ### Out of Scope
 
-- assigning subscriptions;
+- assigning subscriptions in the catalog work; default-free assignment is covered separately by gated slice 02A;
 - resolving overlapping grants;
 - metering;
 - paid checkout/provider callbacks;
@@ -381,7 +381,7 @@ Public exposure of mutations is admin-only, not cross-module general access.
 - **SH-044 `executeIdempotentCommand` — platform.** Invocation: seed/create/transition retry protection. Local policy: plan natural key/transition semantic key. **Do not build:** Track idempotency table.
 - **SH-051/052/053 — shared concurrency/lifecycle.** Invocation: activation/retirement/stale edit. Local policy: plan transition graph and lock/version strategy. **Do not build:** generic state machine.
 - **SH-046 `publishDomainEvent`** only if plan-published/retired events are actually consumed. Local policy: minimized Track event. **Do not build:** private event bus.
-- **SH-080 `manageVersionedRules`** only after U-CL01-23 is resolved. Local policy: Track plan revision/effective dates.
+- **SH-080 `manageVersionedRules`** only after U-CL01-27 is resolved. Local policy: Track plan revision/effective dates.
 
 ### Domain Logic
 
@@ -407,7 +407,7 @@ Public exposure of mutations is admin-only, not cross-module general access.
 - plan activation reads all relevant mappings/prices under consistent state;
 - use expected version/updatedAt or lock for conflicting admin edits;
 - preserve `[track,key]` uniqueness;
-- implement typed-value DB checks only after U-CL01-24;
+- implement typed-value DB checks only after U-CL01-26;
 - do not allow `monthlyPriceCents` and TrackPlanPrice to drift once U-TSE-01 is resolved.
 
 ### Events / Jobs
@@ -457,7 +457,39 @@ Any resolved production catalog/version/price decision updates Module + CL-01 ar
 
 ### Exit Gate
 
-Feature 02 passes only when catalog/domain/authorization/idempotency tests pass, seed replay is safe, no provider integration exists, and CL-01 Feature 09’s Track-specific exit conditions are satisfied.
+Feature 02's catalog work passes only when catalog/domain/authorization/idempotency tests pass, seed replay is safe, no provider integration exists, and the applicable CL-01 Feature 10 catalog exit conditions are satisfied. Enabled free-track assignment additionally requires slice 02A below.
+
+### Implementation Slice 02A — Default Free-Track Assignment (Architecture-Gated)
+
+**Cluster coordination:** CL-01 Feature 10. This slice implements the existing `assignDefaultFreeTrack` command from Track architecture §10.6; it does not renumber later Module features.
+
+**Architecture gate:** U-CL01-24 remains unresolved. Production assignment is disabled until its representation is approved and recorded in architecture. Applicable actor-binding, typed-value, precedence, and history gates remain intact. This slice selects neither TrackSubscription nor grants nor a combination, and introduces no persistence model or constraint.
+
+#### Scope and trigger integration
+
+- Implement the Track-owned `assignDefaultFreeTrack` command after the representation gate is resolved.
+- Integrate the approved profile-owner actor-created handoff through its public command/event contract. Do not invent event names or read/write foreign profile repositories.
+- Profile creation must not depend on a Track record or successful free-track assignment.
+- Catalog seeding remains separate from assigning commercial access to an actor.
+- Use approved owner contracts or labeled test fixtures before production wiring exists. Any additional representation-dependent prerequisite must be explicitly coordinated in CL-01 before enabling assignment; this slice does not silently pull later Module features forward.
+
+#### Idempotency, concurrency, and shared boundaries
+
+- SH-044 `executeIdempotentCommand` protects retries using the approved assignment identity and replay result; this plan does not choose a durable key or schema constraint.
+- Concurrent or repeated delivery for the same logical assignment must not create duplicate commercial effects. Use the shared persistence concurrency mechanism with Track-owned validation and the approved representation.
+- If the approved handoff is asynchronous, use SH-045 `deduplicateDomainEvent` and SH-047 `enqueueReliableJob` / SH-048 `executeRetryWithBackoff`; do not create a local inbox, queue, or retry engine.
+- Commit only Track-owned effects. Use SH-031 owner evidence and SH-046 publication only where the approved lifecycle/integration contract requires them; neither substitutes for the other.
+- Return a gated/unavailable result while required architecture or owner facts are missing; do not infer free access from absent records or provider defaults.
+
+#### Tests and exit gate
+
+- Verify actor-created handoff to the existing command using approved owner-contract fixtures.
+- Test repeated delivery, retry after interruption, concurrent assignment, wrong-track/mismatched actor facts, and owner-fact unavailability.
+- Prove that retries/concurrency produce the approved single logical assignment result without duplicate effects, and that assignment failure does not undo or prevent profile creation.
+- Verify unresolved U-CL01-24 keeps production assignment disabled and introduces no default storage representation.
+- After adjudication, test the approved representation and its applicable integrity/precedence/history rules before production activation.
+- This slice passes for production only when the required architecture gates and owner handoff are approved, the above tests pass, and CL-01 Feature 10's enabled free-track behavior is demonstrated. Catalog-only completion does not claim that assignment is implemented.
+
 
 ---
 
@@ -486,7 +518,7 @@ Wrong-track/wrong-profile requests are denied deterministically.
 
 ### Cluster Build-Plan Link
 
-Implements **CL-01 Feature 10 — Effective Entitlement Resolution and Actor Binding**.
+Implements **CL-01 Feature 11 — Effective Entitlement Resolution and Grant Materialization**.
 
 ### Dependencies
 
@@ -494,8 +526,8 @@ Implements **CL-01 Feature 10 — Effective Entitlement Resolution and Actor Bin
 - Customer SH-004;
 - Candidate/Professional SH-003 owner facts;
 - SH-011 if holds affect the requested policy;
-- **production gate U-CL01-20 grant precedence**;
-- U-CL01-24 typed-value validation.
+- **production gate U-CL01-26 grant precedence**;
+- U-CL01-26 typed-value validation.
 
 Fixture-only tests may exercise an explicitly non-overlapping single grant without claiming a production precedence policy.
 
@@ -595,7 +627,7 @@ Optional entitlement inspector for authorized admin/developer use, showing sourc
 
 ### Documentation Updates
 
-When U-CL01-20 is resolved, update architecture first with the precedence table and then add full precedence tests.
+When U-CL01-26 is resolved, update architecture first with the precedence table and then add full precedence tests.
 
 ### Acceptance Criteria
 
@@ -606,7 +638,7 @@ When U-CL01-20 is resolved, update architecture first with the precedence table 
 
 ### Exit Gate
 
-All SH-005 contract/domain tests pass and the production resolver remains disabled for ambiguous overlaps until U-CL01-20 is approved.
+All SH-005 contract/domain tests pass and the production resolver remains disabled for ambiguous overlaps until U-CL01-26 is approved.
 
 ---
 
@@ -624,13 +656,13 @@ Authorized admin/system workflows can create and transition a TrackEntitlementGr
 
 ### Cluster Build-Plan Link
 
-Supports **CL-01 Feature 10** (effective grants) and prepares **CL-01 Feature 12** (subscription-driven grant materialization) without starting provider integration.
+Supports **CL-01 Feature 11** (effective grants) and prepares **CL-01 Feature 13** (subscription-driven grant materialization) without starting provider integration.
 
 ### Dependencies
 
 - Feature 03;
 - SH-002/011/014/029/044/051/053/055/046;
-- U-CL01-20 for overlapping precedence;
+- U-CL01-26 for overlapping precedence;
 - U-TSE-05 if a dedicated grant-history ledger is required before high-risk admin launch.
 
 ### In Scope
@@ -775,7 +807,7 @@ A trusted consumer can:
 
 ### Cluster Build-Plan Link
 
-Implements the Track portion of **CL-01 Feature 11 — metered entitlement consumption and usage projection**.
+Implements the Track portion of **CL-01 Feature 12 — Atomic Metered Entitlement Usage and Counter Projection**.
 
 ### Dependencies
 
@@ -784,7 +816,7 @@ Implements the Track portion of **CL-01 Feature 11 — metered entitlement consu
 - SH-044/051/057;
 - SH-115 projection mechanism;
 - U-TSE-04 semantic idempotency persistence;
-- policy-specific gates such as U-CL01-26 before final Candidate Application activation.
+- policy-specific gates such as U-CL01-29 before final Candidate Application activation.
 
 ### In Scope
 
@@ -898,7 +930,7 @@ Optional read-only usage summary showing used/limit/period and clearly labeling 
 
 ### Documentation Updates
 
-When U-CL01-26 or another quota policy is resolved, add its period/reversal rules to architecture before consumer activation.
+When U-CL01-29 or another quota policy is resolved, add its period/reversal rules to architecture before consumer activation.
 
 ### Acceptance Criteria
 
@@ -940,19 +972,17 @@ Before gates resolve, adapter contract/provider tests may pass but live callback
 
 ### Cluster Build-Plan Link
 
-Implements **CL-01 Feature 12 — Paid Track Subscription Lifecycle and Billing Adapter**.
+Implements **CL-01 Feature 13 — Paid Track Subscription Lifecycle and Stripe Billing Adapter**.
 
 ### Dependencies
 
 Module Features 02–05 plus mandatory:
 
-- U-CL01-18;
-- U-CL01-20;
-- U-CL01-21;
-- U-CL01-22;
-- U-CL01-23;
-- U-CL01-25;
-- U-CL01-29;
+- U-CL01-24;
+- U-CL01-26;
+- U-CL01-28 (subscription transitions, provider receipts, and consent binding);
+- U-CL01-27;
+- U-CL01-32;
 - PR-CL01-04 / PR-TSE-02;
 - U-TSE-03 where active subscription/profile constraints are required;
 - Consent SH-008/009;
@@ -965,8 +995,8 @@ Module Features 02–05 plus mandatory:
 - Stripe Billing/Checkout/Customer Portal adapter;
 - start checkout/change/cancel/portal commands;
 - provider route handler that delegates after SH-059;
-- owner-specific processed-event record after U-CL01-22;
-- Track subscription transition service after U-CL01-21;
+- owner-specific processed-event record after U-CL01-28;
+- Track subscription transition service after U-CL01-28;
 - subscription-driven grant materialization;
 - TrackSubscriptionEvent append;
 - reconciliation worker;
@@ -1007,6 +1037,7 @@ TrackSubscription; TrackEntitlementGrant; TrackSubscriptionEvent; provider price
 - **SH-046** Track fact publication.
 - **SH-041** Notification intent.
 - **SH-047/048** provider/reconcile retries.
+- **SH-064 `authorizeExternalProviderConnection` — Confirmed; owner: provider-owning Module.** Invocation: hosted checkout/portal initiation. Reuse state/nonce, redirect allowlists, scoped permissions, callback validation, and provider-reference lifecycle. Track retains plan/price selection, commercial eligibility, Stripe-specific translation, and TrackSubscription lifecycle. **Prohibited duplicate:** a Track-local replacement for hosted-flow security mechanics. Integration tests cover rejected redirect/state/callback input and confirm that initiation alone does not activate a subscription.
 - **SH-059** raw webhook signature verification.
 - **SH-060** provider-event dedupe; local truth is Track-specific.
 - **SH-061** Track adapter status mapping.
@@ -1023,7 +1054,7 @@ Prohibited duplicates include Track-specific generic webhook security, Payment�
 - browser redirect never establishes active state;
 - provider event identity is claimed before side effects;
 - event maps through explicit adapter mapping version;
-- Track transition table rejects invalid/out-of-order transitions according to U-CL01-21 ruling;
+- Track transition table rejects invalid/out-of-order transitions according to U-CL01-28 ruling;
 - transition + TrackSubscriptionEvent + grant materialization + outbox occur transactionally where feasible;
 - downgrade/cancel preserves usage/history;
 - unknown provider status results in review/unsupported, never active;
@@ -1036,7 +1067,7 @@ Prohibited duplicates include Track-specific generic webhook security, Payment�
 - hold gate;
 - step-up if action matrix requires;
 - material admin/reconciliation actions audited;
-- billing retention follows U-CL01-29.
+- billing retention follows U-CL01-32.
 
 ### Database / Transaction Behavior
 
@@ -1122,7 +1153,7 @@ Before live activation, all named U-CL01 decisions must be marked resolved in CL
 
 ### Exit Gate
 
-The feature cannot pass for production until every mandatory architecture gate is resolved, provider signature/dedupe/ordering/reconciliation suites pass, and CL-01 Feature 12 exit conditions are satisfied.
+The feature cannot pass for production until every mandatory architecture gate is resolved, provider signature/dedupe/ordering/reconciliation suites pass, and CL-01 Feature 13 exit conditions are satisfied.
 
 ---
 
@@ -1147,7 +1178,7 @@ Make Track state self-maintaining over time and ensure committed entitlement cha
 
 ### Cluster Build-Plan Link
 
-Completes asynchronous work associated with **CL-01 Features 11–12** and prepares cross-Cluster contract proof in **CL-01 Phase 4 / Features 13–15**.
+Completes asynchronous work associated with **CL-01 Features 12–13** and prepares cross-Cluster contract proof in **CL-01 Phase 4 / Features 14–16**.
 
 ### Dependencies
 
@@ -1293,13 +1324,13 @@ Live-streaming/digital perk → delivery owner grant, not Track grant reuse
 
 ### Cluster Build-Plan Link
 
-Supports **CL-01 Phase 4 — Cross-Cluster Contract Proof**, specifically the Track bridges included in CL-01 Features 13–15.
+Supports **CL-01 Phase 4 — Cross-Cluster Contract Proof**, specifically the Track bridges included in CL-01 Features 14–16.
 
 ### Dependencies
 
 - Features 03–07;
 - downstream public contracts or versioned fixtures;
-- U-CL01-26/27/28 for final policy-specific production behavior;
+- U-CL01-29/U-CL01-30/U-CL01-31 for final policy-specific production behavior;
 - SH-109 snapshot pattern;
 - SH-091 Search refresh.
 
@@ -1340,11 +1371,11 @@ Finalize consumer-facing decisions listed above.
 
 #### Order bridge
 
-`quoteOrderTrackPolicy` returns buyer fee waiver and professional commission value/evidence. Order applies U-CL01-27-approved calculation and persists its historical snapshot. A later Track change does not rewrite the Order.
+`quoteOrderTrackPolicy` returns buyer fee waiver and professional commission value/evidence. Order applies U-CL01-30-approved calculation and persists its historical snapshot. A later Track change does not rewrite the Order.
 
 #### Candidate application bridge
 
-Candidate workflow authenticates/authorizes its JobApplication creation, then calls SH-006 when the business event counts. Transaction ordering must prevent quota loss without a corresponding accepted business event according to the final integration design. U-CL01-26 controls reversal/refund semantics.
+Candidate workflow authenticates/authorizes its JobApplication creation, then calls SH-006 when the business event counts. Transaction ordering must prevent quota loss without a corresponding accepted business event according to the final integration design. U-CL01-29 controls reversal/refund semantics.
 
 #### Search bridge
 
@@ -1352,7 +1383,7 @@ Track returns boost; Search composes boost with privacy/readiness/moderation. Tr
 
 #### Booking bridge
 
-Track returns priority semantics only after U-CL01-28. Booking owns slot/hold/booking record and any priority application.
+Track returns priority semantics only after U-CL01-31. Booking owns slot/hold/booking record and any priority application.
 
 #### Professional readiness bridge
 
@@ -1387,8 +1418,8 @@ None required.
 - Track unavailable on hard commercial gate → consumer fails closed/unavailable;
 - snapshot write failure → consumer transaction does not pretend historical decision was stored;
 - Search refresh failure → retry;
-- usage consumed but consumer source mutation fails → follow approved U-CL01-26/integration compensation policy; do not invent a reversal.
-- unresolved U-CL01-27/28 → final consumer behavior disabled.
+- usage consumed but consumer source mutation fails → follow approved U-CL01-29/integration compensation policy; do not invent a reversal.
+- unresolved U-CL01-30/U-CL01-31 → final consumer behavior disabled.
 
 ### Tests
 
@@ -1403,7 +1434,7 @@ None required.
 
 ### Documentation Updates
 
-Resolve U-CL01-26/27/28 in both relevant consumer Module architecture and Track architecture before production integration.
+Resolve U-CL01-29/U-CL01-30/U-CL01-31 in both relevant consumer Module architecture and Track architecture before production integration.
 
 ### Acceptance Criteria
 
@@ -1437,14 +1468,14 @@ Allow Privacy/Admin/Ops to safely enumerate, retain/anonymize/erase/revoke Track
 
 ### Cluster Build-Plan Link
 
-Supports CL-01’s privacy/guardrail integration in **Phase 4** and hardening requirements in **CL-01 Feature 16**.
+Supports CL-01’s privacy/guardrail integration in **CL-01 Feature 16** and hardening requirements in **CL-01 Feature 18**.
 
 ### Dependencies
 
 - prior Track source features;
 - SH-095–098;
 - SH-029/030;
-- U-CL01-29 before destructive billing evidence behavior;
+- U-CL01-32 before destructive billing evidence behavior;
 - Notification/Ops contracts;
 - provider deletion/detachment interface if required by approved retention policy.
 
@@ -1466,7 +1497,7 @@ Supports CL-01’s privacy/guardrail integration in **Phase 4** and hardening re
 - retention exemption source table;
 - generic admin case workflow;
 - provider-wide account deletion unrelated to Track;
-- hard-delete before U-CL01-29.
+- hard-delete before U-CL01-32.
 
 ### Module-Owned Data
 
@@ -1543,7 +1574,7 @@ No standalone Privacy UI. Restricted support view may show Track state, audit li
 
 ### Documentation Updates
 
-Resolve U-CL01-29 and record exact field retention/anonymization map before destructive production path.
+Resolve U-CL01-32 and record exact field retention/anonymization map before destructive production path.
 
 ### Acceptance Criteria
 
@@ -1551,7 +1582,7 @@ Track participates in Privacy through owner executor only; required evidence is 
 
 ### Exit Gate
 
-Privacy, retention, audit and sensitive-access test suites pass. Production erase remains disabled if U-CL01-29 is unresolved.
+Privacy, retention, audit and sensitive-access test suites pass. Production erase remains disabled if U-CL01-32 is unresolved.
 
 ---
 
@@ -1582,7 +1613,7 @@ A production-readiness test/report can demonstrate:
 
 ### Cluster Build-Plan Link
 
-Implements the Track-specific portion of **CL-01 Feature 16 — Hardening and Production Readiness**.
+Implements the Track-specific portion of **CL-01 Feature 17 — Backfills, Reconciliation, and Migration Safety** and **Feature 18 — Security, Privacy, Concurrency, and Production Readiness Hardening**.
 
 ### Dependencies
 
@@ -1849,7 +1880,7 @@ Hardening must not introduce:
 
 | **Phase** | **Name** | **Features** |
 |---|---|---|
-| 1 | Contracts and Source-of-Truth Foundation | 01–02 |
+| 1 | Contracts and Source-of-Truth Foundation | 01–02, including gated slice 02A |
 | 2 | Effective Entitlement and Grant Behavior | 03–04 |
 | 3 | Metered Entitlement Consumption | 05 |
 | 4 | Paid Subscription Lifecycle and Billing Provider | 06 |
@@ -1858,9 +1889,9 @@ Hardening must not introduce:
 | 7 | Privacy, Compliance, Audit, and Support Integration | 09 |
 | 8 | Module Hardening and Production Verification | 10 |
 
-**Total numbered Module features: 10.**
+**Total numbered Module features: 10, plus gated implementation slice 02A within Feature 02.**
 
-These are Module-local implementation slices. They do not renumber or replace CL-01 Features 09–16.
+These are Module-local implementation slices. They do not renumber or replace CL-01 Features 10–18.
 
 ---
 
@@ -1962,5 +1993,5 @@ Before treating this plan as ready for implementation, verify:
 11. Order/Booking historical decisions remain consumer-owned snapshots.
 12. Paid provider behavior cannot activate before U-CL01 gates resolve.
 13. Every numbered feature has tests, acceptance criteria, and an exit gate.
-14. Module sequencing aligns with CL-01 Features 09–16.
+14. Module sequencing aligns with CL-01 Features 10–18.
 15. A coding agent can execute the next feature without inventing ownership, lifecycle, provider, or concurrency architecture.

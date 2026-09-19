@@ -27,6 +27,8 @@ The Module does not implement Candidate Application, Job Compliance, Job Intervi
 
 ## Build Rules
 
+The [Shared Operations registry](../../../shared/shared-operations.md) governs permanent IDs, canonical names, owners, classifications and statuses. Registered use points below carry verified IDs/statuses. Proposed ruling entries may support planning and owner-specific interfaces/mechanisms, but cross-platform SH API/schema commitment requires separate explicit approval; any exit gate relying on that shared API must verify approval. Unresolved entries must not be silently implemented or replaced locally. The approved Job Compliance publication envelope does not approve a proposed shared decision envelope.
+
 1. Follow root architecture/code standards, CL-06 architecture/build plan, and this Module architecture.
 2. This Module owns only Organization, OrganizationMember row/role assignment, Organization notification preference facts, Job lifecycle, and approved contextual attachment meaning.
 3. Consume neighboring Modules through approved public interfaces/events.
@@ -44,8 +46,8 @@ The Module does not implement Candidate Application, Job Compliance, Job Intervi
 15. Organization ATS commercial access remains unresolved; do not invent a local premium system.
 16. Organization verified activation remains unresolved; do not invent `isVerifiedOrganization`.
 17. Ownership transfer remains unavailable until `U-CL06-03`.
-18. Production Job publication cannot pass until `U-CL06-05/06/07` are resolved.
-19. Resolve `U-CL06-17` before migrations touching the affected schema region.
+18. Production Job publication cannot pass until U-CL06-05/07 policy is resolved and binding U-CL06-06 proof has approved implemented persistence.
+19. U-CL06-17's field-placement blocker is retired; retain the separate R008 relation discrepancy and R009 project-level migration-baseline blocker.
 20. Every feature ends with tests and a hard exit gate.
 21. A failed exit gate blocks the next sequential Module feature unless architecture/plan is explicitly revised.
 
@@ -57,10 +59,10 @@ Must exist before Feature 01 implementation:
 
 - Prisma/Postgres migration foundation;
 - runtime validation standard;
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
+- SH-001 `resolveAuthenticatedActor` (Confirmed);
+- SH-002 `authorizeResourceAction` (Confirmed);
 - RLS policy/testing support;
-- `executeIdempotentCommand`;
+- SH-044 `executeIdempotentCommand` (Confirmed);
 - optimistic concurrency/aggregate locking primitives;
 - transactional outbox/event envelope;
 - reliable queue client/worker shell;
@@ -76,6 +78,8 @@ Must exist before Feature 01 implementation:
 - Media attachment/readiness interface before organization/job media attachment.
 - Notification interface before delivery effects.
 - Privacy target protocol before privacy executor completion.
+
+- CL-09-R003: the SH-103 `executeModerationDecision` (Confirmed) provider contract and supported owner-local effect mappings before enabling Job/Organization moderation effects. Implement the handler within Feature 06 and prove it in Module integration; CL-09 Feature 06 depends on this provider, and CL-09 Feature 11 proves the launch-critical bilateral contract. Existing CL-06 sequencing still applies.
 
 ### Interfaces that may initially be contract-stubbed
 
@@ -98,10 +102,14 @@ Fixtures must mimic the approved public contract, not fabricate owner decisions.
 - `U-CL06-01/02`: blocks verified Organization activation.
 - `U-CL06-03`: blocks ownership transfer.
 - `U-CL06-04`: blocks monetized Organization ATS access.
-- `U-CL06-05/06/07`: blocks production Job publication.
+- U-CL06-05/07 policy and approved implemented persistence for binding U-CL06-06 remain prerequisites for production publication.
 - `U-CL06-08`: blocks final classification join persistence placement.
 - `U-CL06-09`: blocks production use of `Organization.logoUrl` as file truth.
-- `U-CL06-17`: blocks affected migrations.
+- U-CL06-17 is retired as written; no overall schema validity or migration-baseline conclusion follows.
+
+### Public concurrency prerequisite — CL-06-R020
+
+Public mutation contracts use an owner-issued opaque `expectedConcurrencyToken`. The owner returns the token, atomically compares it through SH-052 `withOptimisticConcurrency` (Confirmed), and rejects stale tokens. Consumers do not assume a universal integer `version` or `updatedAt` field. JobApplication, mutable Job Compliance finding/review, JobInterview and any parent-versus-child token backing remain unresolved where no representation is approved; no version column is ordered here.
 
 # Phase 1 — Contracts and Source-of-Truth Foundation
 
@@ -138,7 +146,7 @@ Supports CL-06 Phase 1 / Feature 01, **Organization Membership and Job Draft Wor
 - define source-version strategy using current `updatedAt` or approved explicit version;
 - implement Organization, OrganizationMember, Job and OrganizationNotificationSetting repositories;
 - verify indexes/constraints;
-- verify `U-CL06-17`;
+- verify current schema without assuming the retired U-CL06-17 placement defect;
 - add source projection DTO types without Search execution;
 - define dependency ports for Identity, Authority, Taxonomy, Job Compliance, Trust, Media, Search, Notification, Messaging, Audit, Holds, Privacy, Ops.
 
@@ -179,9 +187,9 @@ Introduce types/signatures for:
 
 ### Shared Operations Used
 
-- `queryOwnerFacts` — contract pattern; Organization Hiring supplies its own facts.
-- `withOptimisticConcurrency` — shared persistence primitive; local conflict rules.
-- `returnDecisionResult` — only for dependency decision port typing where applicable.
+- SH-003 `queryOwnerFacts` (Proposed ruling) — contract pattern; Organization Hiring supplies its own facts.
+- SH-052 `withOptimisticConcurrency` (Confirmed) — shared persistence primitive; local conflict rules.
+- SH-015 `returnDecisionResult` (Proposed ruling) — only for dependency decision port typing where applicable.
 
 **Prohibited duplicates:** generic target repository, local generic decision engine, independent concurrency helper.
 
@@ -193,7 +201,7 @@ No lifecycle changes yet. Define and unit-test pure policy signatures for:
 - membership mutation validation;
 - Job transition validation;
 - Job edit materiality;
-- compliance-decision mapping placeholder that fails closed until `U-CL06-05/06/07`.
+- compliance-decision mapping placeholder that fails closed until U-CL06-05/07 policy is resolved and binding U-CL06-06 proof has approved implemented persistence.
 
 ### Authorization / Compliance
 
@@ -225,7 +233,7 @@ None required.
 - schema mismatch blocks feature;
 - repository not-found is normalized;
 - stale-version contract exists but no mutation uses it yet;
-- unresolved schema placement is documented, not guessed.
+- any actual schema-validation issue is documented from current evidence; the retired U-CL06-17 placement claim is not a repair prerequisite.
 
 ### Tests
 
@@ -238,7 +246,7 @@ None required.
 
 ### Documentation Updates
 
-Update this architecture only if schema verification changes a binding ownership/model ruling. Record `U-CL06-17` resolution when settled.
+Update this architecture only if schema verification changes a binding ownership/model ruling. U-CL06-17 is already retired; any new schema issue requires its own evidence.
 
 ### Acceptance Criteria
 
@@ -250,7 +258,7 @@ Update this architecture only if schema verification changes a binding ownership
 
 ### Exit Gate
 
-PASS only if typecheck/lint/tests pass, repository boundaries are enforced, `U-CL06-17` is resolved for touched models, and no unresolved ownership decision has been encoded as schema truth.
+PASS only if typecheck/lint/tests pass, repository boundaries are enforced, schema validation is verified independently of the retired U-CL06-17 claim, and no unresolved ownership decision has been encoded as schema truth.
 
 ## 02 Draft Organization Creation and Membership Management
 
@@ -272,13 +280,13 @@ Directly implements the Organization/membership portion of CL-06 Feature 01.
 ### Dependencies
 
 - Feature 01;
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
-- `executeIdempotentCommand`;
-- `withOptimisticConcurrency`;
-- `acquireAggregateLock` where required;
-- `publishDomainEvent`;
-- `appendAuditEvent`;
+- SH-001 `resolveAuthenticatedActor` (Confirmed);
+- SH-002 `authorizeResourceAction` (Confirmed);
+- SH-044 `executeIdempotentCommand` (Confirmed);
+- SH-052 `withOptimisticConcurrency` (Confirmed);
+- SH-051 `acquireAggregateLock` (Confirmed) where required;
+- SH-046 `publishDomainEvent` (Confirmed);
+- SH-029 `appendAuditEvent` (Confirmed);
 - User existence/actor contract.
 
 ### In Scope
@@ -326,31 +334,31 @@ Implement:
 
 ### Shared Operations Used
 
-**`resolveAuthenticatedActor` — Identity & Access**  
+**SH-001 `resolveAuthenticatedActor` (Confirmed) — Identity & Access**\
 Invocation: every protected command/query.  
 Local policy: which Organization action is requested.  
 Prohibited: `current-user.ts`.
 
-**`authorizeResourceAction` — Role / Authority**  
+**SH-002 `authorizeResourceAction` (Confirmed) — Role / Authority**\
 Invocation: profile/member mutation and protected reads.  
 Local policy: membership facts and action vocabulary.  
 Prohibited: `org-permissions.ts`, role string checks in components.
 
-**`executeIdempotentCommand` — platform**  
+**SH-044 `executeIdempotentCommand` (Confirmed) — platform**\
 Invocation: create Organization, add member.  
 Local policy: command fingerprint and replay semantics.  
 Prohibited: ad-hoc idempotency table.
 
-**`withOptimisticConcurrency` / `acquireAggregateLock` — platform persistence**  
+**SH-052 `withOptimisticConcurrency` (Confirmed) / SH-051 `acquireAggregateLock` (Confirmed) — platform persistence**\
 Invocation: role/removal operations affecting owner invariant.  
 Local policy: Organization membership aggregate key.  
 Prohibited: in-memory lock.
 
-**`publishDomainEvent` — outbox**  
+**SH-046 `publishDomainEvent` (Confirmed) — outbox**\
 Invocation: same source transaction.  
 Local policy: event names/payloads.
 
-**`appendAuditEvent` — Audit**  
+**SH-029 `appendAuditEvent` (Confirmed) — Audit**\
 Invocation: policy-designated role/removal changes.  
 Local policy: auditable action type.
 
@@ -461,14 +469,14 @@ An authorized Organization member can manage Job drafts inside one Organization;
 
 ### Cluster Build-Plan Link
 
-Completes the Job-draft portion of CL-06 Feature 01.
+Completes the Job-draft portion of CL-06 Feature 01 and establishes both Organization-owned compliance source contracts before CL-06 Feature 02.
 
 ### Dependencies
 
 - Features 01–02;
-- Taxonomy `validateTaxonomyAssignment`;
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
+- Taxonomy SH-023 `validateTaxonomyAssignment` (Confirmed);
+- SH-001 `resolveAuthenticatedActor` (Confirmed);
+- SH-002 `authorizeResourceAction` (Confirmed);
 - idempotency/concurrency;
 - Organization owner-facts interface.
 
@@ -481,7 +489,9 @@ Completes the Job-draft portion of CL-06 Feature 01.
 - Job draft UI;
 - domain/category assignment;
 - contextual Job tags only according to `U-CL06-08` placement;
-- job application eligibility context query skeleton;
+- fail-closed `getJobApplicationEligibilityContext` query contract: Candidate consumes current Organization-owned application eligibility without a normal direct Compliance read/evaluation;
+- dedicated compliance-input snapshot query and scoped/cursor rescan-enumeration query, returning exact source revision/token and authoritative source facts as defined in Module architecture;
+- source contracts/fixtures must be available to Job Compliance at CL-06 Feature 02, before Module Feature 05 publication integration; missing authoritative compensation/benefit field mappings remain unresolved;
 - Job events;
 - no Search refresh.
 
@@ -517,13 +527,13 @@ Implement:
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
-- `validateTaxonomyAssignment`;
-- `resolveTaxonomyRequirements` for non-owning trigger discovery;
-- `executeIdempotentCommand`;
-- `withOptimisticConcurrency`;
-- `publishDomainEvent`.
+- SH-001 `resolveAuthenticatedActor` (Confirmed);
+- SH-002 `authorizeResourceAction` (Confirmed);
+- SH-023 `validateTaxonomyAssignment` (Confirmed);
+- SH-022 `resolveTaxonomyRequirements` (Confirmed) for non-owning trigger discovery;
+- SH-044 `executeIdempotentCommand` (Confirmed);
+- SH-052 `withOptimisticConcurrency` (Confirmed);
+- SH-046 `publishDomainEvent` (Confirmed).
 
 **Prohibited:** local taxonomy tables/cleaners, direct Trust decision logic.
 
@@ -585,6 +595,7 @@ None.
 - draft cannot become Search-visible;
 - stale edit;
 - compensation input validation;
+- paired compliance-input snapshot and rule/jurisdiction/effective-scope cursor enumeration contracts: exact source facts/tokens, pagination, missing-source/unavailable behavior and no direct Organization Hiring repository access by Job Compliance;
 - event/outbox;
 - Playwright draft Job flow.
 
@@ -602,7 +613,7 @@ Record `U-CL06-08` or `U-CL06-07` resolution if settled; architecture first.
 
 ### Exit Gate
 
-PASS only if Job draft flow is complete, no Job can enter `open`, no Search refresh is requested from a draft-only path, and all tests/typecheck/lint pass.
+PASS only if Job draft flow is complete, both Organization-owned compliance source contracts/fixtures are available and paired before CL-06 Feature 02, no Job can enter `open`, no Search refresh is requested from a draft-only path, and all tests/typecheck/lint pass.
 
 # Phase 2 — Organization Presentation and Owner-Side Support Facts
 
@@ -660,19 +671,21 @@ Supports CL-06 Feature 01 presentation/organization-management details and prepa
 
 - attachment commands;
 - notification setting commands/queries;
-- `resolveOrganizationNotificationRecipientFacts`.
+- `resolveOrganizationNotificationRecipientFacts` — owner-side SH-043 `resolveNotificationRecipients` (Confirmed) query.
+
+Organization Hiring exposes `resolveOrganizationNotificationRecipientFacts` as its owner-specific public query supporting SH-043 `resolveNotificationRecipients` (Confirmed). It accepts an Organization-scoped notification context, evaluates Organization-owned membership and `OrganizationNotificationSetting` facts, and returns eligible concrete User IDs plus only safe routing facts. An empty eligible-recipient set is valid; unavailable and unauthorized results are distinct from that empty result. Notification consumes the result, deduplicates recipients, applies its own reachability/channel eligibility, and performs fan-out. Notification must not reconstruct Organization role/settings policy from raw tables.
 
 ### Shared Operations Used
 
-**`attachValidatedMedia` — contextual owner + Media**  
+**SH-090 `attachValidatedMedia` (Confirmed) — contextual owner + Media**\
 Invocation: after Media readiness.  
 Local policy: organization_logo/job_graphic context and business role.  
 Prohibited: direct MediaAsset status mutation, storage client.
 
-**`validateUploadedFile`, `scanFileForMalware` — Media**  
+**SH-082 `validateUploadedFile` (Confirmed), SH-083 `scanFileForMalware` (Confirmed) — Media**\
 Organization Hiring never calls implementation helpers directly; it consumes Media's final readiness/attachment contract.
 
-**`resolveNotificationRecipients` — source owner + Notification contract**  
+**SH-043 `resolveNotificationRecipients` (Confirmed) — source owner + Notification contract**\
 Invocation: when an Organization business event requests delivery.  
 Local policy: `notifyOwners/admins/recruiters`.  
 Prohibited: channel fan-out/provider dispatch.
@@ -722,6 +735,7 @@ None.
 - asset not ready/incorrect context → deterministic denial;
 - Media unavailable → no join;
 - Notification unavailable does not prevent preference write.
+- Recipient query returns an empty eligible set as valid; unauthorized and unavailable results remain distinct and must not be replaced with invented recipients.
 
 ### Tests
 
@@ -729,6 +743,8 @@ None.
 - processed derivative only;
 - join uniqueness;
 - setting uniqueness;
+- recipient query returns eligible concrete User IDs and distinguishes empty, unauthorized, and unavailable results;
+- Notification applies dedupe/reachability/fan-out without reconstructing Organization policy;
 - role authorization;
 - no storage client dependency;
 - projection refresh triggered only when appropriate.
@@ -765,12 +781,12 @@ Organization Hiring portion of CL-06 Feature 03, **Controlled Job Publication an
 
 - Features 01–04;
 - CL-06 Job Compliance Feature 02/public interface;
-- Job Compliance `evaluateJobCompliance`;
-- Trust `resolveVerificationRequirements` + `evaluateVerificationReadiness`;
-- Holds `evaluateComplianceHold`;
-- `returnDecisionResult`;
+- Job Compliance SH-021 `evaluateJobCompliance` (Confirmed);
+- Trust SH-017 `resolveVerificationRequirements` (Confirmed) + SH-018 `evaluateVerificationReadiness` (Confirmed);
+- Holds SH-011 `evaluateComplianceHold` (Confirmed);
+- SH-015 `returnDecisionResult` (Proposed ruling);
 - idempotency/concurrency/outbox;
-- **hard blocker:** `U-CL06-05`, `U-CL06-06`, `U-CL06-07` resolved before production allow/open mapping.
+- **hard blocker:** U-CL06-05/07 policy decisions plus approved implemented persistence satisfying binding U-CL06-06 before production allow/open mapping.
 
 ### In Scope
 
@@ -808,37 +824,38 @@ Implement/complete:
 - `requestJobPublication`;
 - internal `applyJobComplianceDecision`;
 - publication-status query fields in `getJob`;
-- source snapshot/query consumed by Job Compliance.
+- consume the compliance snapshot/rescan source contracts established in Feature 03; do not defer their first availability to this publication feature.
 
 ### Shared Operations Used
 
-**`evaluateJobCompliance` — Job Compliance**  
+**SH-021 `evaluateJobCompliance` (Confirmed) — Job Compliance**\
 Invocation: after Job is committed to pending review.  
 Local policy: mapping result to Job lifecycle.  
 Prohibited: scanner/rule engine.
 
-**`resolveVerificationRequirements` / `evaluateVerificationReadiness` — Trust**  
+**SH-017 `resolveVerificationRequirements` (Confirmed) / SH-018 `evaluateVerificationReadiness` (Confirmed) — Trust**\
 Invocation: publication composition where applicable.  
 Local policy: how requirement affects Job publication.  
 Prohibited: reading TrustBadge/provider status.
 
-**`evaluateComplianceHold` — Holds**  
+**SH-011 `evaluateComplianceHold` (Confirmed) — Holds**\
 Invocation: before opening/publication-sensitive transition.  
 Local policy: transition effect.  
 Prohibited: local blocked flag.
 
-**`returnDecisionResult` — shared contract**  
-Local policy: reason mapping.
+**SH-015 `returnDecisionResult` (Proposed ruling) — proposed shared contract only**\
+Separate SH approval is required before shared API commitment. Publication consumes Job Compliance's `allowed | denied | warning | review_required | unavailable` owner envelope; unavailable/review-required are not denial and remediation is metadata.
 
-**`executeIdempotentCommand`, `withOptimisticConcurrency`, `publishDomainEvent`**  
+**SH-044 `executeIdempotentCommand` (Confirmed), SH-052 `withOptimisticConcurrency` (Confirmed), SH-046 `publishDomainEvent` (Confirmed)**\
 Protect workflow.
 
 ### Domain Logic
 
-- Publication request requires exact expected Job version.
+- Publication request requires exact owner-issued opaque Job expectedConcurrencyToken.
 - Job enters `pending_compliance_review` before evaluation.
 - Decision for stale source version cannot open Job.
-- Job Compliance warning/block/review/failure mappings follow approved `U-CL06-05`.
+- Job Compliance's public values are `allowed | denied | warning | review_required | unavailable`; final lifecycle mappings still require U-CL06-05. Do not conflate unavailable or review-required with denial.
+- Later Compliance decisions update Organization-owned Job lifecycle/application eligibility; Candidate consumes its fail-closed context and owner state/events, not a second Compliance evaluation/read.
 - Technical `failed` result cannot approve/reject legally.
 - Hold/verification approval cannot substitute Job Compliance.
 - Material edit after approval invalidates publication according to approved materiality policy.
@@ -855,7 +872,7 @@ Protect workflow.
 
 **Request transaction:**
 
-1. authorize and validate expected version;
+1. authorize and validate owner-issued opaque expectedConcurrencyToken;
 2. transition Job to pending review;
 3. persist source-version binding/workflow receipt;
 4. write outbox event;
@@ -916,7 +933,7 @@ None.
 
 ### Documentation Updates
 
-Record final decisions for `U-CL06-05/06/07` before production path is enabled.
+Record final U-CL06-05/07 policy decisions and approved implemented persistence for binding U-CL06-06 before enabling production.
 
 ### Acceptance Criteria
 
@@ -928,9 +945,9 @@ Record final decisions for `U-CL06-05/06/07` before production path is enabled.
 
 ### Exit Gate
 
-PASS only after `U-CL06-05/06/07` are resolved and encoded in architecture, all decision/transition tests pass, and production publication remains impossible under any missing/unknown gate.
+PASS only after U-CL06-05/07 are resolved and binding U-CL06-06 has an approved implemented persistence design, all decision/transition tests pass, and production publication remains impossible under any missing/unknown gate.
 
-## 06 Search, Notification, Event, and Deadline Effects
+## 06 Manual Job Lifecycle, Search, Notification, Event, and Deadline Effects
 
 ### Objective
 
@@ -946,16 +963,16 @@ After authoritative Job/Organization source changes, reliably request Search/Not
 
 ### Cluster Build-Plan Link
 
-Completes Organization Hiring responsibilities in CL-06 Feature 03.
+Completes Organization Hiring responsibilities in CL-06 Feature 03. Under CL-09-R003 this feature also supplies the SH-103 `executeModerationDecision` (Confirmed) owner-side handler needed before CL-09 Feature 06 enables Job/Organization effects; this does not reorder CL-06.
 
 ### Dependencies
 
 - Feature 05;
-- Search `requestSearchProjectionRefresh`;
-- `buildSourceProjection`;
-- Notification `requestNotification`;
+- Search SH-091 `requestSearchProjectionRefresh` (Confirmed);
+- SH-094 `buildSourceProjection` (Confirmed);
+- Notification SH-041 `requestNotification` (Confirmed);
 - queue/retry infrastructure;
-- `runDeadlineExpiration`;
+- SH-055 `runDeadlineExpiration` (Confirmed);
 - Ops telemetry.
 
 ### In Scope
@@ -965,6 +982,8 @@ Completes Organization Hiring responsibilities in CL-06 Feature 03.
 - Search refresh/remove request handlers;
 - event consumers for relevant Hold/Trust/compliance readiness revocation only through approved contracts;
 - notification request handlers;
+- `pauseJob`, `markJobFilled`, `closeJob` and `archiveJob` owner commands under existing architecture, including authorization, stale-write rejection, idempotent replay and post-commit Search effects;
+- SH-103 `executeModerationDecision` (Confirmed) handler for supported Job/Organization moderation effects, with authorized source envelope, owner-local transition validation, semantic replay safety through SH-044 `executeIdempotentCommand` (Confirmed), and correlated execution results;
 - close-expired-Jobs worker after close policy is approved;
 - retry/dead-letter behavior for downstream requests.
 
@@ -979,37 +998,41 @@ Completes Organization Hiring responsibilities in CL-06 Feature 03.
 ### Module-Owned Data
 
 - source projection DTOs, not Search records;
-- Job.status changes from close worker;
+- Job.status changes from `pauseJob`, `markJobFilled`, `closeJob`, `archiveJob` and the close worker;
+- only approved Job/Organization owner-local moderation effects under SH-103 `executeModerationDecision` (Confirmed); no Moderation decision records;
 - outbox events.
 
 ### Public Interfaces
 
 - source projection queries/builders;
 - owner event handlers;
-- close-worker command.
+- `pauseJob`, `markJobFilled`, `closeJob`, `archiveJob`;
+- close-worker command;
+- SH-103 `executeModerationDecision` (Confirmed) provider contract from Module architecture section 10: case/action/target/effect and idempotency/correlation input; accepted/rejected/already-applied/retryable/terminal distinctions within canonical execution evidence. Exact effect vocabulary and result encoding must be agreed before enabling an effect; no new lifecycle transition or schema is approved here.
 
 ### Shared Operations Used
 
-**`requestSearchProjectionRefresh` — Search**  
+**SH-091 `requestSearchProjectionRefresh` (Confirmed) — Search**\
 Invocation: after source commit.  
 Local policy: whether source state requests index/update/remove.  
 Prohibited: Typesense client/SearchUpsertEvent write.
 
-**`buildSourceProjection` — shared mechanism/source owner**  
+**SH-094 `buildSourceProjection` (Confirmed) — shared mechanism/source owner**\
 Local policy: allowlisted fields.
 
-**`requestNotification` — Notification**  
+**SH-041 `requestNotification` (Confirmed) — Notification**\
 Invocation: after owner fact committed.  
 Local policy: business trigger/template variables.
 
-**`resolveNotificationRecipients` — source owner + Notification**  
+**SH-043 `resolveNotificationRecipients` (Confirmed) — source owner + Notification**\
 Local policy: Organization setting/member group.
 
-**`enqueueReliableJob`, `executeRetryWithBackoff`, `runDeadlineExpiration` — platform**  
+**SH-047 `enqueueReliableJob` (Confirmed), SH-048 `executeRetryWithBackoff` (Confirmed), SH-055 `runDeadlineExpiration` (Confirmed) — platform**\
 Local policy: Job close eligibility and downstream retry classification.
 
 ### Domain Logic
 
+- Manual pause/fill/close/archive commands apply existing Organization Job transition policy, then commit Job state/outbox before requesting Search removal/update.
 - Search request follows, never precedes, truthful source commit.
 - Search failure does not change Job from `open` to another status.
 - Search refresh carries source version so stale requests can be ignored/reconciled.
@@ -1059,6 +1082,8 @@ None.
 - stale projection version;
 - public projection allowlist;
 - notification safe payload;
+- manual pause/fill/close/archive allowed/invalid transitions, authorization, stale-token conflicts, replay, committed state before Search effects and Search outage/retry;
+- SH-103 `executeModerationDecision` (Confirmed) authorized/rejected inputs, unsupported effects and invalid transitions without mutation, duplicate replay, retryable/terminal failure, acknowledgment versus completion, and no CL-09 foreign writes;
 - close worker race/idempotency;
 - DLQ/ops record.
 
@@ -1072,7 +1097,7 @@ Search remains fully rebuildable from source projections; source truth survives 
 
 ### Exit Gate
 
-PASS only if Search and Notification contract tests, retry tests, stale-version tests, deadline race tests, and projection privacy tests pass.
+PASS only if `pauseJob`, `markJobFilled`, `closeJob` and `archiveJob` meet their owner-transition and post-commit Search acceptance tests, Search and Notification contract tests, retry tests, stale-version tests, deadline race tests, and projection privacy tests pass. Supported moderation effects additionally require bilateral SH-103 `executeModerationDecision` (Confirmed) contract/replay/failure tests before enablement; unresolved effect mappings are not inferred.
 
 # Phase 4 — Module Integration and Hiring Dashboard Contracts
 
@@ -1129,11 +1154,11 @@ No new source record required. Optional read-model cache only if root architectu
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
-- `queryOwnerFacts`;
-- `resolveEntitlement` only after `U-CL06-04` if Organization access becomes Track-backed;
-- `evaluateComplianceHold` if dashboard action availability needs hold context.
+- SH-001 `resolveAuthenticatedActor` (Confirmed);
+- SH-002 `authorizeResourceAction` (Confirmed);
+- SH-003 `queryOwnerFacts` (Proposed ruling);
+- SH-005 `resolveEntitlement` (Confirmed) only after `U-CL06-04` if Organization access becomes Track-backed;
+- SH-011 `evaluateComplianceHold` (Confirmed) if dashboard action availability needs hold context.
 
 ### Domain Logic
 
@@ -1226,8 +1251,8 @@ Supports CL-06 privacy/hardening requirements and cross-cluster CL-08 integratio
 
 ### In Scope
 
-- `enumerateSubjectData`;
-- `executePrivacyInstruction`;
+- SH-096 `enumerateSubjectData` (Confirmed);
+- SH-095 `executePrivacyInstruction` (Confirmed);
 - `exportPrivacyContribution`;
 - membership/user-reference anonymization/removal rules where approved;
 - Organization/Job personal display-field handling;
@@ -1252,11 +1277,11 @@ Privacy executor contract.
 
 ### Shared Operations Used
 
-- `enumerateSubjectData`;
-- `executePrivacyInstruction`;
-- `evaluateRetentionRequirement`;
-- `requestSearchProjectionRefresh`;
-- `appendAuditEvent`;
+- SH-096 `enumerateSubjectData` (Confirmed);
+- SH-095 `executePrivacyInstruction` (Confirmed);
+- SH-097 `evaluateRetentionRequirement` (Confirmed);
+- SH-091 `requestSearchProjectionRefresh` (Confirmed);
+- SH-029 `appendAuditEvent` (Confirmed);
 - reliable job/ops primitives if cleanup is async.
 
 ### Domain Logic
@@ -1337,7 +1362,7 @@ The Module passes production-grade race, replay, authorization, privacy, project
 
 ### Cluster Build-Plan Link
 
-Organization Hiring hardening for CL-06 Phase 4 / production verification and all Organization Hiring-owned portions of Cluster Features 01 and 03.
+Organization Hiring hardening for CL-06 Phase 5 / Feature 15 production verification and all Organization Hiring-owned portions of Cluster Features 01 and 03.
 
 ### Dependencies
 
@@ -1377,14 +1402,14 @@ No new business interface unless hardening exposes a documented health/diagnosti
 
 ### Shared Operations Used
 
-- `executeIdempotentCommand`;
-- `deduplicateDomainEvent`;
-- `publishDomainEvent`;
-- `enqueueReliableJob`;
-- `executeRetryWithBackoff`;
-- `withOptimisticConcurrency`;
-- `acquireAggregateLock`;
-- `appendAuditEvent`;
+- SH-044 `executeIdempotentCommand` (Confirmed);
+- SH-045 `deduplicateDomainEvent` (Confirmed);
+- SH-046 `publishDomainEvent` (Confirmed);
+- SH-047 `enqueueReliableJob` (Confirmed);
+- SH-048 `executeRetryWithBackoff` (Confirmed);
+- SH-052 `withOptimisticConcurrency` (Confirmed);
+- SH-051 `acquireAggregateLock` (Confirmed);
+- SH-029 `appendAuditEvent` (Confirmed);
 - Ops integration.
 
 ### Domain Logic
@@ -1477,6 +1502,12 @@ PASS only if all required quality checks pass, no architecture blocker is silent
 The integration work is distributed across Features 05–08 and must be verified as a single Module gate before Organization Hiring is considered complete.
 
 ## Required owner-contract proofs
+
+### Moderation (CL-09-R003)
+
+- Prove the SH-103 `executeModerationDecision` (Confirmed) contract with Content Moderation & Legal Notice for every enabled Job/Organization effect.
+- Hiring alone changes Job/Organization state; Moderation alone owns the source decision.
+- Verify authorized target/effect input, rejection without mutation, semantic replay, retryable/terminal failures, and correlated completion evidence; acceptance alone must not complete CL-09 enforcement.
 
 ### Identity / Role
 
@@ -1654,8 +1685,8 @@ Before marking Organization Hiring complete, verify:
 10. Search remains projection.
 11. OrganizationFeatureAccess ownership was not invented.
 12. Organization verification ownership was not invented.
-13. Production Job publication is enabled only after `U-CL06-05/06/07`.
+13. Production Job publication is enabled only after U-CL06-05/07 policy is resolved and binding U-CL06-06 proof has approved implemented persistence.
 14. Ownership transfer is absent until `U-CL06-03`.
-15. Schema defect `U-CL06-17` is resolved before affected migrations.
+15. No obsolete U-CL06-17 repair is performed; R008 and the unverified migration baseline remain separate database-pass issues.
 16. Every numbered feature passed its tests and exit gate.
 17. A coding agent can implement the Module without inventing architecture.

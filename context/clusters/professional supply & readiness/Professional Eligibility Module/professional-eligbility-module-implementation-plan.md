@@ -3,9 +3,11 @@
 > **Module ID:** `professional_eligibility`  
 > **Module name:** Professional Eligibility Module  
 > **Primary Cluster:** CL-03 — Professional Supply & Readiness  
-> **Repository target:** `context/professional_eligibility/implementation-plan.md`  
-> **Architecture dependency:** `context/professional_eligibility/module-architecture.md`  
-> **Plan status:** Ordered Module implementation roadmap; subordinate to the CL-03 `build-plan.md`
+> **Repository target:** `context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-implementation-plan.md`\
+> **Architecture dependency:** `context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-architecture.md`\
+> **Plan status:** Ordered Module implementation roadmap; subordinate to the CL-03 `context/clusters/professional supply & readiness/professional-supply-readiness-build-plan.md`
+
+**Repository context (CL-03-R021):** Read [context/context-map.md](<../../../context-map.md>) for authority by concern and verified artifact locations, [context/project-overview-v3.md](<../../../project-overview-v3.md>) for orientation, and [context/shared/shared-operations.md](<../../../shared/shared-operations.md>) for canonical operations. Root architecture, root build plan, code standards, and the progress tracker are missing; references to those prerequisites do not assert availability or authorize a substitute/global precedence rule.
 
 ## Core Principle
 
@@ -36,7 +38,7 @@ The Module plan is intentionally narrower than CL-03's build plan. It implements
 ## Build Rules
 
 1. Follow the root Workin Ants architecture, project overview, code standards, Canonical Shared Operations Registry, CL-03 architecture, and CL-03 build plan.
-2. This Module owns only `ProfessionalProfile`, its lifecycle, professional action-readiness policy, professional public-readiness policy, safe source projection input, and owner-specific privacy execution.
+2. This Module owns `ProfessionalProfile`, its lifecycle, `ProfessionalProfileMedia` contextual attachment lifecycle/authorization (CL-03-R020), professional action-readiness policy, professional public-readiness policy, safe source projection input, and owner-specific privacy execution. The attachment ownership ruling does not add a new profile-media feature to this plan; Media retains all file mechanics.
 3. Never add a second source of truth for verification, healthcare, KYC/tax/payout, subscription entitlements, holds, Offerings, Gigs, Orders, Search, privacy requests, moderation cases, audit, or notification delivery.
 4. Consume other Modules through approved public interfaces or versioned events; direct foreign Prisma repositories are not the default integration pattern.
 5. Reuse canonical Shared Operations by their permanent `SH-###` identifiers. Do not introduce local aliases with competing semantics.
@@ -59,7 +61,7 @@ The Module plan is intentionally narrower than CL-03's build plan. It implements
 22. No Stripe, screening, BAA/e-sign, Search, email/SMS/push, or other provider client/webhook is introduced in this Module.
 23. Every numbered feature ends with exact tests and an exit gate. The next feature does not begin until the previous exit gate is passing or the plan explicitly records an approved exception.
 24. If a numbered feature reaches an Unresolved Decision that is a real prerequisite, stop, document it, and either obtain an architecture ruling or keep the affected path disabled.
-25. A progress update cannot redefine architecture. Update `module-architecture.md` first when a binding decision changes.
+25. A progress update cannot redefine architecture. Update `context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-architecture.md` first when a binding decision changes.
 
 ---
 
@@ -399,7 +401,7 @@ Required:
 
 If implementation resolves any portion of PE-U03 or PE-U06:
 
-- update `module-architecture.md` lifecycle/concurrency sections;
+- update `context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-architecture.md` lifecycle/concurrency sections;
 - update the exact public command contract;
 - update CL-03 architecture only if the decision changes a Cluster boundary;
 - update progress tracker.
@@ -730,7 +732,7 @@ If this feature settles:
 - exact ProfessionalAction serialization;
 - final decision/reason-code contract;
 
-update `module-architecture.md` Sections 11, 19, 31, and 35 before or with code.
+update `context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-architecture.md` Sections 11, 19, 31, and 35 before or with code.
 
 If SH-015 is approved globally, update the Module contract to reference the canonical envelope rather than maintaining a merely aligned owner-local shape.
 
@@ -762,6 +764,8 @@ Before Feature 03 begins:
 ---
 
 # Phase 3 — Public Visibility and Consumer Contracts
+
+**CL-04-R005 contribution:** implement the Review / Dispute reputation-result consumer in this profile-projection feature before CL-04 Feature 10 reaches reputation integration proof. Review owns inclusion/calculation; Professional Eligibility alone writes ratingAverage/ratingCount and then supplies Search with its Professional projection. Validate result identity/version, replay/dependency failure behavior, and absence of direct Review-to-Profile writes using the architecture's reputation handoff. This does not change CL-03 readiness gates or choose a new transport/API name.
 
 ## 03 — Professional Public Readiness and Search Source Projection
 

@@ -5,7 +5,7 @@
 > **Module type:** `commercial_policy_capability`  
 > **Build status:** `mvp_active`  
 > **Primary Cluster:** `CL-01 — Identity, Authority, Consent & Entitlements`  
-> **Repository target:** `context/modules/track_subscription_entitlement/module-architecture.md`  
+> **Repository target:** `context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md`\
 > **Document status:** implementation-grade Module architecture; subordinate to root Workin Ants architecture and the CL-01 architecture  
 > **Audience:** coding agents, developers, reviewers, maintainers, security reviewers, privacy reviewers, compliance reviewers, and architecture reviewers  
 > **Update rule:** update this file whenever a binding ownership, lifecycle, entitlement, usage-metering, provider, privacy, retention, or public-contract decision for this Module changes. Build progress must not silently redefine this architecture.
@@ -38,7 +38,7 @@ Evidence posture used throughout:
 ### Evidence conflicts already resolved at this boundary
 
 1. **Track schema ownership vs historical Transaction / Order claims.** Older registry/extract material associated some Track records with Transaction / Order. Current CL-01 architecture and Canonical Shared Operations make Track Subscription & Entitlement the current commercial-policy owner. `Order` may snapshot Track decisions, but must not own or mutate `TrackSubscription`, `TrackEntitlementGrant`, `TrackUsageEvent`, or `TrackUsageCounter`.
-2. **Provider-event dedupe vs Payment’s `ProcessedStripeEvent`.** Older glossary material treats `ProcessedStripeEvent` as Payment / Payout / Tax truth. Current shared-operations architecture requires shared dedupe mechanics with provider-owning, domain-specific processed-event truth. The exact subscription-billing processed-event record is still unresolved (`U-CL01-22`). Do not reuse Payment’s record automatically and do not treat `TrackSubscriptionEvent` as sufficient dedupe proof.
+2. **Provider-event dedupe vs Payment’s `ProcessedStripeEvent`.** Older glossary material treats `ProcessedStripeEvent` as Payment / Payout / Tax truth. Current shared-operations architecture requires shared dedupe mechanics with provider-owning, domain-specific processed-event truth. The exact subscription-billing processed-event record is still unresolved (`U-CL01-28`). Do not reuse Payment’s record automatically and do not treat `TrackSubscriptionEvent` as sufficient dedupe proof.
 3. **“Monthly usage reset worker” vs immutable usage proof.** Older cluster technology lists mention a monthly reset worker. Current CL-01 build-plan rules are stronger: `TrackUsageEvent` is immutable and counters are period projections. A new period/counter may begin, but historical usage proof must never be destructively reset.
 
 ---
@@ -198,7 +198,7 @@ Track owns evidence references returned with current policy decisions: source pl
 - plan lifecycle and catalog validity;
 - entitlement key/value compatibility;
 - grant status/effective-time validity;
-- grant precedence once `U-CL01-20` is resolved;
+- grant precedence once `U-CL01-26` is resolved;
 - subscription-to-grant materialization policy;
 - quota period and accounting policy once the relevant unresolved item is resolved;
 - typed current entitlement resolution;
@@ -235,7 +235,7 @@ This Module must not own or duplicate the following.
 | Privacy / Data Erasure | `PrivacyRequest`, `DataErasureJob`, `DataErasureTarget`, retention-exemption orchestration/export bundle | Implement Track target inventory/execution only. |
 | Admin Review / Compliance Hold | `ComplianceHold` lifecycle | Query hold or request/release through owner; no generic `isBlocked` truth. |
 | Media / File Access | upload, scan, file storage, signed URL, MediaAsset lifecycle | This Module currently owns no file attachment semantics. |
-| Organization Hiring | organization ATS feature-access model until `U-CL01-30` is resolved | Do not silently add `organization` to `AccountTrack`. |
+| Organization Hiring | organization ATS feature-access model until `U-CL01-33` is resolved | Do not silently add `organization` to `AccountTrack`. |
 
 ### Specific anti-theft rules
 
@@ -253,7 +253,7 @@ This Module must not own or duplicate the following.
 2. **Current policy vs historical business truth.** Track answers what applies now or at an explicitly supplied evaluation instant. Consumers own historical snapshots used by their lifecycles.
 3. **Actor-track binding is explicit.** A track decision is scoped to a `User` plus the correct actor profile where the schema requires one.
 4. **No local premium booleans.** `isPremium`, `isPro`, `hasPriority`, `feeWaived`, `searchBoosted`, `commissionRate`, and equivalent feature-local current-policy truth are prohibited.
-5. **Typed entitlement values.** Every entitlement definition declares one value type; mappings and grants must carry exactly the compatible value representation once `U-CL01-24` is resolved.
+5. **Typed entitlement values.** Every entitlement definition declares one value type; mappings and grants must carry exactly the compatible value representation once `U-CL01-26` is resolved.
 6. **Usage proof is append-only.** Ordinary correction does not update/delete `TrackUsageEvent`; reconciliation rebuilds projections or uses an explicitly approved reversal/adjustment model.
 7. **Counters are projections.** `TrackUsageCounter` may be dropped/rebuilt without losing usage truth.
 8. **Provider events are untrusted until verified.** Signature verification precedes parsing/side effects; dedupe and status translation precede domain transition.
@@ -341,7 +341,7 @@ src/
 - `providers/stripe-billing-adapter.ts` is permitted only after `PR-CL01-04` is ratified and the provider lifecycle blockers are resolved.
 - Shared idempotency, queue, retry, audit, notification, logging, lock, webhook-verification, and privacy-orchestration code must remain outside this Module.
 - Repositories may access only Track-owned tables by default. Foreign-owner reads use public interfaces/contracts.
-- `domain/subscription-transition.ts` must not invent the production transition graph while `U-CL01-21` remains unresolved.
+- `domain/subscription-transition.ts` must not invent the production transition graph while `U-CL01-28` remains unresolved.
 
 ---
 
@@ -381,7 +381,7 @@ The Prisma schema is executable evidence. This section documents meaning, owners
 
 **Retention/privacy:** plan catalog is generally non-personal; historical plan interpretation may require retention after retirement.
 
-**Unresolved:** `U-CL01-23` must settle plan revision/effective-date history. The current mutable row alone does not guarantee historical interpretation.
+**Unresolved:** `U-CL01-27` must settle plan revision/effective-date history. The current mutable row alone does not guarantee historical interpretation.
 
 ### 8.2 `TrackPlanPrice`
 
@@ -405,7 +405,7 @@ The Prisma schema is executable evidence. This section documents meaning, owners
 
 **Uniqueness:** `key` globally unique.
 
-**Rule:** the exact production key catalog is blocked by `U-CL01-19`. Test fixtures may use explicitly labeled non-production keys.
+**Rule:** the exact production key catalog is blocked by `U-CL01-26`. Test fixtures may use explicitly labeled non-production keys.
 
 ### 8.4 `TrackPlanEntitlement`
 
@@ -415,7 +415,7 @@ The Prisma schema is executable evidence. This section documents meaning, owners
 
 **Uniqueness:** one mapping per `[planId, entitlementId]`.
 
-**Critical constraint gap:** the schema permits multiple value fields or a `valueType` that disagrees with the entitlement definition. `U-CL01-24` must define application/DB constraints before production writes.
+**Critical constraint gap:** the schema permits multiple value fields or a `valueType` that disagrees with the entitlement definition. `U-CL01-26` must define application/DB constraints before production writes.
 
 ### 8.5 `TrackSubscription`
 
@@ -435,7 +435,7 @@ The Prisma schema is executable evidence. This section documents meaning, owners
 - no unique constraint guarantees one relevant active subscription per actor track;
 - no constraint guarantees `userId` matches the selected profile’s User;
 - provider subscription ID is indexed but not unique;
-- free-plan representation is unresolved (`U-CL01-18`).
+- free-plan representation is unresolved (`U-CL01-24`).
 
 These are implementation blockers for production state mutation, not reasons to encode ad hoc checks in consumers.
 
@@ -449,7 +449,7 @@ These are implementation blockers for production state mutation, not reasons to 
 
 **Constraint gaps:** same actor/profile binding and typed-value issues as subscription/mapping. `sourcePlanId` and `sourceEventId` are scalar references in the current schema without explicit Prisma relations; code must not infer referential integrity that the schema does not provide.
 
-**Precedence:** unresolved `U-CL01-20`.
+**Precedence:** unresolved `U-CL01-26`.
 
 ### 8.7 `TrackUsageEvent`
 
@@ -483,9 +483,9 @@ These are implementation blockers for production state mutation, not reasons to 
 
 **Authoritative fields:** subscription/plan/user references, event name, from/to status, optional provider/provider event ID, safe metadata, timestamp.
 
-**Boundary:** `providerEventId` is indexed, not unique. Therefore this table is not sufficient proof of provider-event dedupe under SH-060. `U-CL01-22` must resolve the owner-specific processed-event record/schema.
+**Boundary:** `providerEventId` is indexed, not unique. Therefore this table is not sufficient proof of provider-event dedupe under SH-060. `U-CL01-28` must resolve the owner-specific processed-event record/schema.
 
-**Retention:** likely subject to billing-history retention; exact duration/anonymization is blocked by `U-CL01-29`.
+**Retention:** likely subject to billing-history retention; exact duration/anonymization is blocked by `U-CL01-32`.
 
 ---
 
@@ -499,7 +499,7 @@ candidate
 professional
 ```
 
-These are current account tracks. `organization` must not be added until `U-CL01-30` is resolved.
+These are current account tracks. `organization` must not be added until `U-CL01-33` is resolved.
 
 ### 9.2 TrackPlan lifecycle
 
@@ -528,7 +528,7 @@ Rules:
 - retirement stops new enrollment but must not corrupt historical subscriptions;
 - archived is terminal unless architecture explicitly approves restoration;
 - direct `draft → active` must fail if unresolved production catalog/value/version rules are not satisfied;
-- live plan mutation must respect `U-CL01-23`.
+- live plan mutation must respect `U-CL01-27`.
 
 ### 9.3 TrackSubscription lifecycle
 
@@ -545,7 +545,7 @@ incomplete
 incomplete_expired
 ```
 
-**Transition graph:** **Unresolved — `U-CL01-21`.**
+**Transition graph:** **Unresolved — `U-CL01-28`.**
 
 No implementation may infer Stripe’s native transition graph or use the enum declaration order as policy. Required decisions include:
 
@@ -594,7 +594,7 @@ suspended ──revoke──> revoked
 - Restoration creates no historical rewrite; if policy requires a materially new grant, create a new grant instead.
 - `consumed` is valid only for one-shot semantics.
 - Subscription downgrade/cancel acts through Track-owned grant policy.
-- Grant precedence across overlapping active grants remains blocked by `U-CL01-20`.
+- Grant precedence across overlapping active grants remains blocked by `U-CL01-26`.
 
 ### 9.5 Usage lifecycle
 
@@ -672,7 +672,7 @@ The names below define public/module-owned mutation responsibilities. They are i
 
 - **Purpose:** define canonical entitlement vocabulary and map typed values to plans.
 - **Actor:** authorized admin.
-- **Preconditions:** `U-CL01-19` and `U-CL01-24` for production.
+- **Preconditions:** `U-CL01-26` for production catalog and typed-value rules.
 - **Writes:** TrackEntitlementDefinition, TrackPlanEntitlement.
 - **Failure:** value-type mismatch, inactive/unknown entitlement, wrong track applicability.
 
@@ -689,7 +689,7 @@ The names below define public/module-owned mutation responsibilities. They are i
 ### 10.6 `assignDefaultFreeTrack`
 
 - **Purpose:** provision default commercial access when a track actor is created.
-- **Status:** **Blocked for production by `U-CL01-18`.**
+- **Status:** **Blocked for production by `U-CL01-24`.**
 - **Actor/context:** trusted system event/command.
 - **Writes:** either TrackSubscription, grants, or both — unresolved.
 - **Rule:** profile provisioning must not depend on a Track record existing; Track may react after actor creation.
@@ -718,17 +718,17 @@ The names below define public/module-owned mutation responsibilities. They are i
 ### 10.9 `startTrackSubscriptionCheckout`
 
 - **Purpose:** initiate paid enrollment through the Track-owned billing adapter if PR-CL01-04 is ratified.
-- **Production gate:** U-CL01-18/20/21/22/23/25/29 and PR-CL01-04.
+- **Production gate:** U-CL01-24/U-CL01-26/U-CL01-28/U-CL01-27/U-CL01-32 and PR-CL01-04.
 - **Actor:** authenticated owner of the target track/profile.
 - **Inputs:** plan/price ID, actor track/profile, consent proof references, return context.
 - **Preconditions:** plan active, price active, authority, consent, hold/step-up policy.
 - **Writes:** any local pending/incomplete source state only as defined by the approved transition design; never marks active because checkout session exists.
-- **Effects:** provider session creation.
+- **Effects:** provider session creation through SH-064 `authorizeExternalProviderConnection` (Confirmed; owner: provider-owning Module). Hosted initiation reuses state/nonce, redirect allowlists, scoped permissions, callback validation, and provider-reference lifecycle mechanics; Track retains checkout eligibility, plan/price selection, provider-specific translation, and TrackSubscription lifecycle.
 - **Failure:** consent missing, provider unavailable, duplicate command, plan changed.
 
 ### 10.10 `changeTrackSubscriptionPlan`, `cancelTrackSubscription`, `openTrackBillingPortal`
 
-Same provider/lifecycle gates as checkout. These commands:
+Same provider/lifecycle gates as checkout. Hosted portal initiation also uses SH-064 `authorizeExternalProviderConnection` under the same mechanics/policy boundary. These commands:
 
 - do not copy Stripe status into domain fields without translation;
 - do not modify Payment/Payout/Tax ledgers;
@@ -741,7 +741,7 @@ Same provider/lifecycle gates as checkout. These commands:
 - **Actor:** trusted provider endpoint/system context, not a browser actor.
 - **Inputs:** normalized verified event envelope.
 - **Preconditions:** SH-059 verified raw callback; SH-060 unique claim; SH-061 recognized mapping.
-- **Writes:** TrackSubscription, grants, TrackSubscriptionEvent, processed-provider-event truth once U-CL01-22 is resolved.
+- **Writes:** TrackSubscription, grants, TrackSubscriptionEvent, processed-provider-event truth once U-CL01-28 is resolved.
 - **Effects:** outbox events, Notification request, Search refresh when boost changes.
 - **Failure:** forged/duplicate/out-of-order/unknown event, unresolved transition.
 
@@ -825,14 +825,14 @@ Same provider/lifecycle gates as checkout. These commands:
 - **Result:** fee-waiver and professional commission decisions plus source evidence/version.
 - **Type:** contextual commercial decision.
 - **Consumer must not infer:** Order pricing history from future Track queries. Order must persist its own approved snapshot.
-- **Blocked details:** `U-CL01-27` rounding/basis-point/snapshot payload rules.
+- **Blocked details:** `U-CL01-30` rounding/basis-point/snapshot payload rules.
 
 ### 11.7 `evaluatePriorityScheduling`
 
 - **Consumer:** Booking & Calendar.
 - **Input:** Customer track/profile and scheduling context.
 - **Result:** priority rank/class and evidence; optional metering requirement if approved.
-- **Blocked details:** `U-CL01-28`.
+- **Blocked details:** `U-CL01-31`.
 - **Consumer must not infer:** slot availability or booking ownership.
 
 ### 11.8 `evaluateCandidateSearchBoost`
@@ -1166,7 +1166,7 @@ Only operations materially relevant to this Module are listed.
 - **Why:** exactly-one domain effect per provider event.
 - **Local policy:** subscription-billing processed-event record and result.
 - **Do not build:** reuse Payment’s `ProcessedStripeEvent` without ruling or use TrackSubscriptionEvent as dedupe.
-- **Architecture gate:** U-CL01-22.
+- **Architecture gate:** U-CL01-28.
 
 ### SH-061 — `translateProviderStatus`
 
@@ -1195,7 +1195,7 @@ Only operations materially relevant to this Module are listed.
 
 - **Owner:** each policy Module over shared versioning mechanism.
 - **Classification:** shared mechanism / separate policy.
-- **Why:** likely support for plan/policy versioning once U-CL01-23 is resolved.
+- **Why:** likely support for plan/policy versioning once U-CL01-27 is resolved.
 - **Local policy:** Track revision/effective semantics.
 - **Do not build:** a generic plan versioning system before the decision.
 
@@ -1247,10 +1247,10 @@ These remain local because they encode Track-specific business semantics.
 |---|---|---|---|---|---|
 | `validateTrackActorBinding` | Prove track/profile/User consistency | user, track, profile refs | valid/invalid binding facts | none | Track schema has multi-profile attachment and needs owner-specific invariant |
 | `validateTypedEntitlementValue` | Enforce entitlement-definition/value compatibility | definition + supplied value | normalized typed value/denial | mappings/grants on write | Track-specific value semantics |
-| `resolveGrantPrecedence` | Choose effective grant source | candidate grants/subscription/plan | winning value/evidence | none | Core commercial policy; blocked by U-CL01-20 |
+| `resolveGrantPrecedence` | Choose effective grant source | candidate grants/subscription/plan | winning value/evidence | none | Core commercial policy; blocked by U-CL01-26 |
 | `materializeSubscriptionGrants` | Create/update grants from approved subscription policy | subscription + plan mappings | grant changes | TrackEntitlementGrant | Track owns subscription→grant policy |
-| `applySubscriptionTransition` | Apply approved TrackSubscription transition | current state + trigger | new state/history/effects | subscription/events/grants | Track lifecycle owner; blocked by U-CL01-21 |
-| `deriveUsagePeriodBounds` | Calculate quota window | period policy + instant/context | periodStart/periodEnd | none | Track quota semantics; some cases blocked by U-CL01-26 |
+| `applySubscriptionTransition` | Apply approved TrackSubscription transition | current state + trigger | new state/history/effects | subscription/events/grants | Track lifecycle owner; blocked by U-CL01-28 |
+| `deriveUsagePeriodBounds` | Calculate quota window | period policy + instant/context | periodStart/periodEnd | none | Track quota semantics; some cases blocked by U-CL01-29 |
 | `buildTrackUsageReceipt` | Return canonical accepted use evidence | usage event + counter | receipt | none | Track owns quota accounting result |
 | `quoteOrderTrackPolicy` | Compose buyer fee/seller commission decisions | actor contexts + policy instant | quote/evidence | none | Track owns current commercial quote; snapshot remains Order-owned |
 | `classifyTrackBillingEvent` | Decide which normalized provider event can affect Track | provider event | Track trigger/ignored/review | none | Subscription-provider mapping belongs with Track adapter under PR-CL01-04 |
@@ -1324,7 +1324,7 @@ Use SH-014 if root/CL-01 action matrix designates an operation high risk. Track 
 |---|---|---|---|---|---|
 | Authentication | Identity | SH-001 | all protected commands | Track identifies action/target | actor or unauthenticated |
 | Authorization | Role | SH-002 | admin/self-service mutations | Track target facts | allow/deny |
-| Subscription terms / recurring billing | Consent | SH-008/009 | paid enrollment, relevant plan change | exact required proof per Track action; blocked by U-CL01-25 | proceed / consent required |
+| Subscription terms / recurring billing | Consent | SH-008/009 | paid enrollment, relevant plan change | exact required proof per Track action; blocked by U-CL01-28 | proceed / consent required |
 | Step-up | Identity | SH-014 | high-risk billing/admin actions if approved | action matrix external; Track supplies target | assured / step-up required |
 | ComplianceHold | Hold owner | SH-011 | enrollment/change/grant/use where hold policy applies | map returned hold to Track operation | proceed / blocked / review |
 | Actor profile validity | profile owner | SH-003 / SH-004 | Track binding and current decision | correct track→profile mapping | valid / mismatch |
@@ -1342,7 +1342,7 @@ Use SH-014 if root/CL-01 action matrix designates an operation high risk. Track 
 
 **Proposed Ruling inherited from `PR-CL01-04`:** Track Subscription & Entitlement owns the Stripe Billing subscription adapter and Track-specific status translation; Payment / Payout / Tax retains general payment, payout, processor-ledger, and tax truth.
 
-Paid production integration remains gated by U-CL01-18/20/21/22/23/25/29.
+Paid production integration remains gated by U-CL01-24/U-CL01-26/U-CL01-28/U-CL01-27/U-CL01-32.
 
 ### Provider-neutral port
 
@@ -1376,7 +1376,7 @@ SH-059 validates raw body/signature/timestamp before trusted parse or side effec
 
 ### Provider-event dedupe truth
 
-SH-060 mechanics are mandatory. Exact Track processed-event schema is unresolved U-CL01-22. Requirements once resolved:
+SH-060 mechanics are mandatory. Exact Track processed-event schema is unresolved U-CL01-28. Requirements once resolved:
 
 - unique `(provider, providerEventId)`;
 - payload fingerprint where appropriate;
@@ -1403,7 +1403,7 @@ Provider event ID and command semantic keys prevent duplicate effects. Redirects
 
 ### Privacy deletion
 
-Provider resource deletion or customer/subscription detachment, if legally/technically supported, occurs only under Privacy-approved instruction and provider-owner interface. Billing retention may require retaining provider references; U-CL01-29 controls.
+Provider resource deletion or customer/subscription detachment, if legally/technically supported, occurs only under Privacy-approved instruction and provider-owner interface. Billing retention may require retaining provider references; U-CL01-32 controls.
 
 ### Operational failure reporting
 
@@ -1659,7 +1659,7 @@ Implement SH-095/096. Track reports:
 
 ### Billing retention
 
-`U-CL01-29` is a production blocker for destructive Track privacy behavior. Until resolved:
+`U-CL01-32` is a production blocker for destructive Track privacy behavior. Until resolved:
 
 - do not hard-delete billing/subscription event evidence;
 - do not invent a retention duration;
@@ -1865,7 +1865,7 @@ Provider-native error strings/codes may be logged safely in adapter diagnostics 
 2. `User`, CustomerProfile, CandidateProfile, ProfessionalProfile, Order, Booking, Search, Video, and Digital Goods must not acquire current Track policy booleans as source truth.
 3. A Track decision must be bound to the correct User, AccountTrack, and actor profile.
 4. `customer` maps to CustomerProfile, `candidate` to CandidateProfile, and `professional` to ProfessionalProfile where profile-scoped context is required.
-5. `organization` is not an AccountTrack until `U-CL01-30` is resolved.
+5. `organization` is not an AccountTrack until `U-CL01-33` is resolved.
 6. `TrackPlan`, `TrackSubscription`, `TrackEntitlementGrant`, `TrackUsageEvent`, `TrackUsageCounter`, and `TrackSubscriptionEvent` remain Track-owned.
 7. Order may snapshot Track decisions but never mutate Track source records.
 8. Booking may apply priority but never own Track priority entitlement truth.
@@ -1884,9 +1884,9 @@ Provider-native error strings/codes may be logged safely in adapter diagnostics 
 21. TrackSubscriptionEvent is domain history, not provider-event dedupe truth.
 22. Provider-event dedupe truth stays separate for each provider-owning domain.
 23. A subscription downgrade/cancel cannot erase prior usage events or consumer snapshots.
-24. Grant precedence must not be guessed while U-CL01-20 is unresolved.
-25. Subscription transitions must not be guessed while U-CL01-21 is unresolved.
-26. Production entitlement keys must not be invented while U-CL01-19 is unresolved.
+24. Grant precedence must not be guessed while U-CL01-26 is unresolved.
+25. Subscription transitions must not be guessed while U-CL01-28 is unresolved.
+26. Production entitlement keys must not be invented while U-CL01-26 is unresolved.
 27. Paid production enrollment must not proceed until consent binding and provider-event record decisions are resolved.
 28. Plan mutation must preserve historical interpretation once plans are live.
 29. ComplianceHold remains an external reusable stop sign; no local generic blocked flag.
@@ -1952,19 +1952,19 @@ These are binding implementation gates inherited from CL-01 or identified by cur
 
 | ID | Question | Why unresolved | Blocks |
 |---|---|---|---|
-| `U-CL01-18` | How is a default/free plan represented: TrackSubscription, direct grants, or both? | Registry expects default free assignment; schema/provider defaults do not settle semantics. | production free-plan provisioning and free↔paid transitions |
-| `U-CL01-19` | What are the exact production entitlement keys, types and track applicability? | Registry names examples but no approved canonical production catalog. | production seed/catalog activation |
-| `U-CL01-20` | What is grant precedence across paid, free, comped/manual, temporary grants? | Multiple active sources can overlap; no deterministic winner policy supplied. | production SH-005 effective resolution |
-| `U-CL01-21` | What is the exact TrackSubscription transition graph? | Enum exists; trial, grace, pause, cancel, downgrade and provider ordering semantics are absent. | paid lifecycle/provider side effects |
-| `U-CL01-22` | What owner-specific processed Stripe Billing event record is used? | SH-060 requires separate provider-event truth; TrackSubscriptionEvent is not unique dedupe proof; Payment’s record belongs to another domain. | live webhook side effects |
-| `U-CL01-23` | What is plan revision/effective-date history? | Current TrackPlan is mutable and lacks immutable revision/effective model. | safe live plan changes/historical interpretation |
-| `U-CL01-24` | How are typed entitlement values constrained? | Current schema permits mismatched/multiple value columns. | production mapping/grant mutations |
-| `U-CL01-25` | How are subscription/recurring-billing/plan-change consents immutably bound? | Consent proof owner is known; Track schema has no settled binding/snapshot. | production paid enrollment/change |
-| `U-CL01-26` | What are candidate application-limit period, timezone and refund/reversal semantics? | UsagePeriod exists but product policy is missing. | candidate quota integration |
-| `U-CL01-27` | What are buyer-fee/seller-commission rounding, basis-point and snapshot rules? | Entitlement value types exist; transaction computation rules do not. | final `quoteOrderTrackPolicy`/Order integration |
-| `U-CL01-28` | What does priority scheduling rank mean and does use consume quota? | Track entitlement exists; Booking semantics absent. | final Booking integration |
-| `U-CL01-29` | What billing/subscription evidence must be retained/anonymized and for how long? | Legal/privacy duration and field policy absent. | destructive privacy paths |
-| `U-CL01-30` | Does organization commercial access remain a separate model or become another AccountTrack? | Shared-ops registry explicitly leaves owner unresolved. | future org plans; does not block current three tracks |
+| `U-CL01-24` | How is a default/free plan represented: TrackSubscription, direct grants, or both? | Registry expects default free assignment; schema/provider defaults do not settle semantics. | production free-plan provisioning and free↔paid transitions |
+| `U-CL01-26` | What are the exact production entitlement keys, types and track applicability? | Registry names examples but no approved canonical production catalog. | production seed/catalog activation |
+| `U-CL01-26` | What is grant precedence across paid, free, comped/manual, temporary grants? | Multiple active sources can overlap; no deterministic winner policy supplied. | production SH-005 effective resolution |
+| `U-CL01-28` | What is the exact TrackSubscription transition graph? | Enum exists; trial, grace, pause, cancel, downgrade and provider ordering semantics are absent. | paid lifecycle/provider side effects |
+| `U-CL01-28` | What owner-specific processed Stripe Billing event record is used? | SH-060 requires separate provider-event truth; TrackSubscriptionEvent is not unique dedupe proof; Payment’s record belongs to another domain. | live webhook side effects |
+| `U-CL01-27` | What is plan revision/effective-date history? | Current TrackPlan is mutable and lacks immutable revision/effective model. | safe live plan changes/historical interpretation |
+| `U-CL01-26` | How are typed entitlement values constrained? | Current schema permits mismatched/multiple value columns. | production mapping/grant mutations |
+| `U-CL01-28` | How are subscription/recurring-billing/plan-change consents immutably bound? | Consent proof owner is known; Track schema has no settled binding/snapshot. | production paid enrollment/change |
+| `U-CL01-29` | What are candidate application-limit period, timezone and refund/reversal semantics? | UsagePeriod exists but product policy is missing. | candidate quota integration |
+| `U-CL01-30` | What are buyer-fee/seller-commission rounding, basis-point and snapshot rules? | Entitlement value types exist; transaction computation rules do not. | final `quoteOrderTrackPolicy`/Order integration |
+| `U-CL01-31` | What does priority scheduling rank mean and does use consume quota? | Track entitlement exists; Booking semantics absent. | final Booking integration |
+| `U-CL01-32` | What billing/subscription evidence must be retained/anonymized and for how long? | Legal/privacy duration and field policy absent. | destructive privacy paths |
+| `U-CL01-33` | Does organization commercial access remain a separate model or become another AccountTrack? | Shared-ops registry explicitly leaves owner unresolved. | future org plans; does not block current three tracks |
 | `U-TSE-01` | Which price field is canonical after catalog activation: TrackPlan.monthlyPriceCents or TrackPlanPrice.amountCents? | Current schema stores both without reconciliation rule. | production price mutation/plan presentation |
 | `U-TSE-02` | Should billing cadence have a dedicated enum instead of TrackUsagePeriod? | Current interval field overloads quota-period vocabulary. | schema hardening before broader billing cadence support |
 | `U-TSE-03` | What DB constraints enforce exact profile binding and one active subscription per actor track? | Application invariant is confirmed but schema does not enforce it. | production subscription/grant creation |
@@ -2019,16 +2019,16 @@ For any unresolved item, a coding agent must either:
 
 Before implementing or modifying this Module, an agent must read, in order:
 
-1. root `context/project-overview.md`;
-2. root `context/architecture.md`;
-3. root `context/code-standards.md`;
+1. root `context/project-overview-v3.md`;
+2. root `context/architecture.md` (**currently missing**; see `context/context-map.md`);
+3. root `context/code-standards.md` (**currently missing**; see `context/context-map.md`);
 4. `context/shared/shared-operations.md`;
-5. `context/clusters/identity-authority-consent-entitlements/architecture.md`;
-6. `context/clusters/identity-authority-consent-entitlements/build-plan.md`;
+5. `context/clusters/identity, authority, & consent/identity-authority-consent-architecture.md`;
+6. `context/clusters/identity, authority, & consent/identity-authority-consent-build-plan.md`;
 7. this `module-architecture.md`;
 8. this Module `implementation-plan.md`;
 9. relevant dependency public-interface sections, especially Identity & Access, Role / Authority, Consent & Disclosure, Customer / Buyer Profile, Professional Eligibility, Candidate Application & Resume Privacy, Transaction / Order, Booking & Calendar, Search / Public Visibility, Notification, Audit / Event Ledger, Admin Review / Compliance Hold, Privacy / Data Erasure, Observability / Ops, and Payment / Payout / Tax provider-boundary material;
-10. current `context/progress-tracker.md`.
+10. `context/progress-tracker.md` (**currently missing**; see `context/context-map.md`).
 
 Before coding a numbered Module feature, confirm:
 

@@ -5,7 +5,7 @@
 > **Module type:** `domain_capability_hybrid`  
 > **Build status:** `mvp_active`  
 > **Primary Cluster:** `CL-05 — Scheduling, Media & Digital Delivery`  
-> **Repository target:** `context/clusters/scheduling-media-digital-delivery/modules/booking_calendar/module-architecture.md`  
+> **Repository target:** `context/clusters/scheduling, media, & digital delivery/booking-calendar-module/booking-calendar-module-architecture.md`\
 > **Document status:** Target Module architecture derived from the current Workin Ants Project Overview, Deep Module Registry, Prisma schema, Ubiquitous Language / Compliance Inventory, Canonical Shared Operations Registry, Booking Module Architecture Extract, and CL-05 architecture/build plan. Proposed rulings and unresolved decisions are explicitly labeled.  
 > **Intended audience:** coding agents, developers, reviewers, maintainers, architecture reviewers, and engineers implementing Booking-owned provider/workflow behavior.  
 > **Update rule:** update this file whenever a binding Booking ownership boundary, lifecycle rule, public contract, concurrency rule, provider contract, privacy behavior, or cross-Module dependency changes. Build progress must not silently redefine this architecture.
@@ -798,7 +798,7 @@ The signatures below are stable conceptual contracts; transport follows root cod
 
 ### `disconnectCalendar`
 
-- Transitions connection to disconnected/revoked as appropriate and invokes provider disconnect when supported.
+- Transitions connection to disconnected/revoked as appropriate and invokes provider disconnect when supported; approved external resource deletion/revocation uses SH-070 `deleteProviderResource` through the Booking-owned provider adapter.
 - Removes/stops future external busy synchronization under owner policy.
 
 ### `applyCalendarProviderEvent`
@@ -854,7 +854,9 @@ These implement the Privacy-owned protocol and never create a parallel privacy r
 
 Booking’s implementation of SH-003-style owner facts for consumers such as Video, Location Safety, Notification/Messaging composition, or Order.
 
-Suggested minimal fields:
+Required current facts for Video include Booking ID/version or freshness marker, status, scheduled start/end, authorized participant facts, and `overtimeGraceMinutes`. Video must consume the owner-provided overtime value, never a local default, room-state inference, or a direct Booking repository read. This owner-specific query does not promote proposed SH-003.
+
+Other authorized consumers receive the minimum relevant fields from:
 
 - bookingId;
 - status/version;
@@ -862,6 +864,7 @@ Suggested minimal fields:
 - customerProfileId/buyerUserId as permitted;
 - professionalProfileId;
 - UTC start/end;
+- `overtimeGraceMinutes` supplied by Booking for Video join-window enforcement;
 - locationType;
 - participant relationship facts;
 - cancellation/completion state;
@@ -1241,6 +1244,20 @@ Only operations materially used by Booking & Calendar are listed here. Global de
 - **Local policy:** Booking/provider mapping and safe event descriptions.
 - **Do not build:** direct Cronofy calls scattered across commands/workers/UI.
 
+### SH-070 — `deleteProviderResource`
+- **Owner:** provider-owning Module (Booking & Calendar for calendar resources).
+- **Status:** Confirmed.
+- **Use:** approved calendar-provider disconnect/deletion/revocation, including Privacy instructions.
+- **Local policy:** calendar target mapping and resulting Booking-owned state; return typed deleted, absent, retained, retryable-failure, or terminal-failure evidence.
+- **Do not build:** provider deletion in Privacy or a separate Booking deletion framework.
+
+### SH-078 — `minimizeAndRedactProviderInput`
+- **Owner:** source-data owner supplies policy; shared serializer enforces.
+- **Status:** Confirmed.
+- **Use:** before calendar authorization, free/busy, writeback, deletion, or reconciliation provider requests.
+- **Local policy:** purpose-bound calendar field allowlists and scope/data minimization; secrets and unrelated event details do not enter telemetry.
+- **Do not build:** a local generic provider serializer/redactor.
+
 ### SH-072 — `hashCanonicalPayload`
 - **Owner:** shared cryptography capability
 - **Use:** provider payload/availability hashes and integrity/idempotency evidence where needed.
@@ -1373,7 +1390,7 @@ No exact Booking-specific step-up matrix is currently approved. SH-014 may be re
 
 ### Provider-neutral port
 
-All external calendar calls use `CalendarProviderPort` / SH-067.
+All external calendar calls use `CalendarProviderPort` / SH-067. Their purpose-bound payloads use SH-078 `minimizeAndRedactProviderInput`; approved calendar-resource deletion/disconnection uses SH-070 `deleteProviderResource` within that provider boundary.
 
 ### Current adapter
 
@@ -2093,19 +2110,17 @@ Do not introduce a reverse dependency until a concrete need such as `hasBookable
 
 ## 37. Coding-Agent Usage
 
-Before implementing or modifying Booking & Calendar, an agent must read, in order:
+Before implementing or modifying Booking & Calendar, use [context-map.md](../../../context-map.md) for authority by concern and actual artifact routing. Read:
 
-1. root `context/project-overview.md`;
-2. root `context/architecture.md` when available in the repository;
-3. root `context/build-plan.md`;
-4. root `context/code-standards.md`;
-5. `context/shared/shared-operations.md`;
-6. CL-05 `architecture.md`;
-7. CL-05 `build-plan.md`;
-8. this `module-architecture.md`;
-9. this Module `implementation-plan.md`;
-10. public-interface sections for direct dependencies, especially Identity/Authority, Customer Profile, Track Entitlement, Order/Agreement, Professional/Marketplace facts, Location Safety, Video Session, Messaging, Notification, Audit/Ops, Privacy, and Healthcare when applicable;
-11. `context/progress-tracker.md`.
+1. [Project overview V3](../../../project-overview-v3.md), with V2 as routed supporting evidence;
+2. [Canonical Shared Operations](../../../shared/shared-operations.md);
+3. [CL-05 architecture](../scheduling-media-digital-delivery-cluster-architecture.md);
+4. [CL-05 build plan](../scheduling-media-digital-delivery-cluster-build-plan.md);
+5. [Booking architecture](booking-calendar-module-architecture.md);
+6. [Booking implementation plan](booking-calendar-module-implementation-plan.md);
+7. public-interface sections for direct dependencies, especially Identity/Authority, Customer Profile, Track Entitlement, Order/Agreement, Professional/Marketplace facts, Location Safety, Video Session, Messaging, Notification, Audit/Ops, Privacy, and Healthcare when applicable.
+
+Root architecture/build plan, code standards, and a dedicated progress tracker are currently unavailable at the paths described by the context map. Their absence does not authorize a replacement global phase or precedence rule.
 
 Before coding a feature, answer:
 

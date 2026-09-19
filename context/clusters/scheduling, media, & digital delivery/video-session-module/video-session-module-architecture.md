@@ -68,7 +68,7 @@ Typical inputs are:
 - `Order` entitlement for purchased course playback;
 - `CourseDetails` / Offering target facts;
 - a Media-owned ready source `MediaAsset` for course-video ingest;
-- Digital Goods policy/terms facts where the course delivery policy requires them;
+- Digital Goods-owned SH-026 `authorizeContextualResourceAccess` course-playback decision, including its applicable policy/acceptance evidence and delivery constraints;
 - Track Subscription & Entitlement decisions where live-streaming entitlement is applicable;
 - Healthcare readiness/data-boundary/provider-approval decisions where a healthcare lane applies;
 - ComplianceHold decisions;
@@ -426,7 +426,7 @@ src/modules/video-session/
 
 - `roomUrl`, `buyerJoinUrl`, `professionalJoinUrl` exist in Prisma.
 - Current architecture forbids reusable public room links as durable truth.
-- **Unresolved:** these fields must be removed, encrypted/opaque, or constrained to non-reusable provider references before production reliance. Code must not assume they may safely hold reusable credentials.
+- **Approved boundary (R011):** all persisted room/join URL fields are non-authorizing metadata or opaque references only; none may independently grant access. Video mints actor/role/room/time-scoped short-lived participant credentials on demand and persists only hashes/safe issuance metadata, never reusable plaintext credentials. Later column removal, repurposing, or encryption is a separate schema decision.
 
 **Indexes/concurrency**
 
@@ -453,7 +453,7 @@ src/modules/video-session/
 
 **Sensitive/conflicting fields**
 
-- `roomUrl`, `candidateJoinUrl`, `interviewerJoinUrl` present the same durable-credential conflict as BookingVideoRoom.
+- `roomUrl`, `candidateJoinUrl`, `interviewerJoinUrl` follow BookingVideoRoom’s approved non-authorizing persistence boundary; participant credentials are minted on demand, never treated as durable reusable access authority.
 
 **Concurrency**
 
@@ -470,8 +470,8 @@ src/modules/video-session/
 
 **Key relationships**
 
-- `courseDetailsId` → current Prisma relation to `CourseDetails.offeringId`;
-- optional `offeringId` duplicates/overlaps the business reference concept;
+- `courseDetailsId` identifies `CourseDetails.offeringId`, the canonical CourseDetails identity and the owning Offering ID;
+- optional `offeringId` is redundant and, when present, must equal that identity; it must never name a different Offering;
 - optional `sourceMediaAssetId` → Media-owned raw source;
 - optional `createdByUserId` → User;
 - one-to-many playback grants/events;
@@ -495,7 +495,7 @@ src/modules/video-session/
 
 **Schema conflict**
 
-- `courseDetailsId` relation plus optional `offeringId` can diverge.
+- current schema does not constrain redundant `offeringId` equality; Video owner validation must enforce the approved identity invariant until a later schema pass removes or constrains the redundant field.
 - **Unresolved:** establish one canonical cross-Module reference rule before migration/API reliance.
 
 **Retention/privacy**
@@ -720,13 +720,22 @@ The unique provider/event key is authoritative. Duplicate callbacks must not rep
 
 **Failure modes:** invalid signature, duplicate, unknown event/status, target not found, stale transition, provider mismatch.
 
+### `applyVideoModerationDecision`
+
+**Purpose:** the single Video-owned SH-103 `executeModerationDecision` public execution boundary for authorized moderation instructions.
+**Input:** authorized case/action IDs, Video target, specifically requested action, source reason/evidence, and replay identity.
+**Owner effects:** disable/restore a CourseVideoAsset, revoke affected Video-owned grants, and perform other specifically targeted Video-owned transitions permitted by the authoritative action.
+**Result:** idempotent replay plus acknowledgment/completion/failure evidence for the requested execution.
+**Boundary:** Moderation owns the legal/moderation decision and never mutates Video tables. This command applies owner-local transitions; it does not create a second moderation policy.
+**Shared operations:** SH-103, SH-044, SH-053, SH-089 for grant revocation, and required domain/audit evidence.
+
 ### `issueCoursePlaybackGrant`
 
 **Purpose:** produce temporary Video access proof after authoritative purchase/context gates pass.
 
 **Actor/context:** authenticated user; exact CourseVideoAsset; order or separately approved alternate basis.
 
-**Preconditions:** asset ready; playback policy permits requested path; Order/context entitlement allows; Digital Goods conditions satisfied where required; hold/healthcare gates pass.
+**Preconditions:** asset ready; playback policy permits requested path; SH-025 Order entitlement allows the purchased path; Digital Goods-owned SH-026 `authorizeContextualResourceAccess` playback decision allows; applicable authority/hold/healthcare gates pass. The Digital Goods decision supplies allow/deny, safe reason, applicable policy/acceptance evidence references, evaluation freshness/expiry where applicable, and owner-defined playback delivery constraints. Video enforces the result and never interprets raw Digital Goods policy/acceptance rows.
 
 **Writes:** `CourseVideoPlaybackGrant`; optionally denial/access event according to approved design.
 
@@ -758,7 +767,7 @@ The unique provider/event key is authoritative. Duplicate callbacks must not rep
 
 **Purpose:** create or return the Video-owned provider room for an eligible confirmed video Booking.
 
-**Context:** Booking owner facts are authoritative.
+**Context:** Booking `getBookingOwnerFacts` supplies current ID/version or freshness marker, status, scheduled start/end, authorized participants, and `overtimeGraceMinutes`. Video consumes the owner-provided overtime value; it must not hardcode the schema default, infer timing from room state, or read Booking repositories. SH-003 remains Proposed; this is the Booking-owned query contract.
 
 **Preconditions:** Booking confirmed/eligible, location type video, time/participants known, relevant entitlement/healthcare/hold gates pass, provider configured.
 
@@ -778,9 +787,9 @@ Same provider mechanism as Booking room provisioning but consumes JobInterview o
 
 **Preconditions:** actor authorized; parent owner facts currently permit access; room active; current server time inside approved join window; holds/healthcare pass.
 
-**Writes:** no reusable credential truth. Required Video-domain access proof remains subject to the unresolved live-access-proof model; AccessAuditLog is requested where applicable.
+**Writes:** successful or denied issuance appends Video-owned persistent domain access evidence under SH-125: room, parent context, actor/participant, action/decision, relevant provider context, expiry/access window, and time/request correlation. No reusable secret is retained. SH-030 AccessAuditLog is supplemental where applicable and cannot replace this evidence. The exact model/schema design remains a later prerequisite.
 
-**Shared operations:** SH-001, SH-002, SH-003, SH-020, SH-026, SH-030, SH-068, SH-074, SH-125 where the approved domain proof exists.
+**Shared operations:** SH-001, SH-002, SH-003, SH-020, SH-026, SH-030, SH-068, SH-074, SH-125 for mandatory Video-owned live domain evidence.
 
 ### `cancelVideoRoom`
 
@@ -814,7 +823,7 @@ Same provider mechanism as Booking room provisioning but consumes JobInterview o
 
 - **Consumers:** Marketplace Supply, Digital Goods, creator/admin/support surfaces.
 - **Input:** CourseVideoAsset ID or approved course reference.
-- **Result:** sanitized Video source truth: canonical status, safe provider name, readiness/failure category, timestamps, safe media metadata.
+- **Result:** sanitized Video source truth: asset ID, canonical status, safe provider name, readiness/failure category, timestamps, safe media metadata, and owner-validated course/Offering relationship facts. `courseDetailsId` identifies `CourseDetails.offeringId` and the owning Offering; any present redundant `offeringId` must match. Digital Goods uses these facts to validate the expected course/Offering before accessibility attachment, never a direct Video repository read.
 - **Type:** source truth/read model.
 - **Consumer must not infer:** Offering publication eligibility, purchase entitlement, legal/compliance readiness.
 
@@ -872,6 +881,7 @@ Public contracts are the preferred boundary. Consumers must not import Video rep
 - `issueVideoJoinCredential`
 - `cancelBookingVideoRoom`
 - `cancelInterviewVideoRoom`
+- `applyVideoModerationDecision` — single public SH-103 execution boundary
 - `applyVideoProviderEvent` — internal/provider-facing application boundary
 - `reconcileCourseVideoProviderState` — authorized system/admin command
 - `reconcileLiveVideoProviderState` — authorized system/admin command
@@ -927,12 +937,12 @@ Events state facts that already occurred. They do not command Booking, JobInterv
 | --- | --- | --- | --- | --- | --- |
 | Identity & Access | SH-001 `resolveAuthenticatedActor` | Identify user/admin/system actor | actor ID/type/session assurance | Yes | auth/session helpers |
 | Role / Authority | SH-002 `authorizeResourceAction` | Authorize creator/admin/join/retry actions | actor, action, target facts/scope | Yes | role interpretation |
-| Booking & Calendar | SH-003 `queryOwnerFacts` / owner-specific Booking facts; SH-123 target validation | Provision/join/cancel Booking room | booking ID/version/status/location type/start/end/overtime/participants | Yes | Booking repository/status logic |
+| Booking & Calendar | SH-003 `queryOwnerFacts` / owner-specific Booking facts; SH-123 target validation | Provision/join/cancel Booking room | Booking ID/version or freshness marker, current status/location type, scheduled start/end, authorized participants, overtimeGraceMinutes | Yes | Booking repository/status logic |
 | Job Interview | owner-specific SH-003/SH-123 facts | Provision/join/cancel interview room | interview ID/version/status/time/participants/roles | Yes | hiring lifecycle/participant policy |
 | Transaction / Order | SH-025 `authorizeOrderEntitlement` | Purchased course playback | order ID/state, participant, qualifying item, refund/dispute effects, evidence | Yes | payment/order checks |
 | Marketplace Supply | SH-123 / owner facts for CourseDetails | Validate course target/reference | course/Offering ID, owner/status/version, relationship eligibility | Yes | course lifecycle |
 | Media / File Access | ready-source/readiness public contract | Safely ingest source video | MediaAsset ID, ready/frozen/deleted state, safe provider-ingest access/reference | Yes | R2, scan, MIME, malware logic |
-| Digital Goods Access | contextual access/policy facts | Enforce required terms/license/delivery policy without owning it | policy/acceptance facts needed for playback action | Yes when policy requires | terms/refund/license truth |
+| Digital Goods Access | SH-026 `authorizeContextualResourceAccess` playback decision | Enforce owner-decided contextual permission alongside SH-025 and Video readiness | allow/deny, safe reason, applicable policy/acceptance refs, freshness/expiry, playback constraints | Yes | Digital Goods policy interpretation or repository reads |
 | Track Subscription & Entitlement | SH-005 `resolveEntitlement` | Gate live streaming where configured | actor/profile, entitlement key, effective decision/evidence | Conditional | premium flags |
 | Healthcare / Regulated Services | SH-020 `evaluateHealthcareReadiness` | Gate healthcare-sensitive provider path/access | target, provider, BAA/data-boundary decision/version | Yes | HIPAA/BAA policy |
 | Admin Review / Compliance Hold | SH-011 `evaluateComplianceHold` | Reusable stop-sign check | target/action, hold IDs/reasons/expiry | Yes | local blocked state |
@@ -1292,7 +1302,7 @@ Only the operations below are part of Video Session’s expected architecture. T
 - **Classification:** cross-cutting protocol.
 - **Owner:** Moderation owns decision; Video executes.
 - **Why used:** disable/restore course playback, revoke grants, or remove provider resource after authoritative action.
-- **Invocation:** signed/authorized moderation envelope.
+- **Invocation:** signed/authorized moderation envelope through `applyVideoModerationDecision`; return idempotent acknowledgment/completion/failure evidence for asset disable/restore, affected grant revocation, and other specifically targeted Video-owned transitions.
 - **Local policy:** mapping to Video transitions/provider calls.
 - **Do not build:** DMCA/legal adjudication in Video.
 
@@ -1309,7 +1319,7 @@ Only the operations below are part of Video Session’s expected architecture. T
 
 - **Classification:** shared append-only mechanism / separate truth.
 - **Owner:** Video for Video-specific access evidence.
-- **Why used:** playback access/progress/completion evidence and any approved live-access evidence.
+- **Why used:** playback access/progress/completion evidence and mandatory append-only Video-owned evidence for successful or denied Booking/Interview credential issuance.
 - **Invocation:** after domain access decision/effect.
 - **Local policy:** Video action/reason/provider/context fields.
 - **Do not build:** generic `deliveryLog` replacing Video-specific evidence.
@@ -1421,7 +1431,7 @@ The exact CL-05 Video step-up matrix is unresolved. Do not add ad hoc MFA checks
 | Contextual resource access | context owner | SH-026 | joins/playback where owner-specific business context applies | room/grant/time policy | allow/deny |
 | Track entitlement | Track Subscription & Entitlement | SH-005 | live streaming only where product policy requires | determine whether the specific operation consumes perk | allowed/not entitled |
 | Healthcare readiness | Healthcare / Regulated Services | SH-020 | healthcare-sensitive room/streaming provider and access | enforce provider/access outcome | permitted/blocked/redacted/review |
-| Digital goods terms/policy | Digital Goods Access / Consent where relevant | owner public facts / consent proof | course playback where required | combine external policy proof with Video readiness | allow/deny |
+| Digital goods terms/policy | Digital Goods Access | SH-026 `authorizeContextualResourceAccess` | course playback | enforce owner decision/constraints alongside SH-025 and Video readiness; do not interpret raw policy | allow/deny, safe reason, evidence, freshness/expiry |
 | Moderation/legal | Content Moderation | SH-103 execution instruction | asset disable/restore/provider resource access | map action to Video transition | acknowledged/completed/failed |
 | Privacy/retention | Privacy + data owner facts | SH-095–098 | revoke/delete/anonymize/retain | local disposition only | typed executor result |
 
@@ -1677,7 +1687,8 @@ Notification payloads must never contain reusable provider secrets or raw signed
 
 - `CourseVideoPlaybackEvent` records Video-specific playback facts.
 - `ProcessedVideoProviderEvent` records provider-event dedupe/processing facts.
-- room status fields record live provider-resource lifecycle.
+- room status fields record live provider-resource lifecycle;
+- successful or denied live credential issuance requires separate Video-owned append-only persistent access evidence; generic audit and room lifecycle fields do not substitute for it.
 
 ### Generic AuditEvent
 
@@ -1700,7 +1711,7 @@ None replaces another.
 
 ### Live access evidence gap
 
-The schema has `AccessAuditAction.live_video_token_issued`, but no Video-owned live grant/access event model equivalent to `CourseVideoPlaybackEvent`. This is unresolved and must be settled before claiming complete Video-specific live-access proof.
+R012 resolves the requirement: successful or denied Booking/Interview credential issuance must append Video-owned persistent domain evidence identifying the room, parent context, actor/participant, action/decision, relevant provider context, credential expiry/access window, and time/request correlation. SH-030 is supplemental. Current schema has `AccessAuditAction.live_video_token_issued` but lacks the required Video-owned live evidence record; its exact model/name and migration are later schema work and prerequisites for the live-delivery exit.
 
 ---
 
@@ -2014,12 +2025,9 @@ Coding agents must not create:
 
 ## 35. Unresolved Decisions
 
-### U-VS-01 — Canonical Module name
+### U-VS-01 — Canonical Module name — resolved by R021
 
-**Question:** Is the canonical documentation/code name “Video Session Module” or “Video Infrastructure Module”?  
-**Evidence conflict:** glossary uses Video Session; Deep Module Registry/Cluster frequently use Video Infrastructure / Video Session.  
-**Current handling:** use folder/module ID `video_session`; this document uses Video Session with registry alias.  
-**Blocks:** final naming cleanup only, not domain implementation.
+**Approved terminology:** Video Session Module is the canonical glossary name. `video_session` remains the Module ID; Video Infrastructure Module is a registry/legacy alias, not another Module. No folder or registry ID is renamed.
 
 ### U-VS-02 — Binding MVP live provider
 
@@ -2028,22 +2036,20 @@ Coding agents must not create:
 **Proposed Ruling:** provider-neutral port + Daily adapter; Agora/Chime deferred.  
 **Blocks:** production live adapter commitment, not port/domain/test-adapter work.
 
-### U-VS-03 — Persisted live `roomUrl/*JoinUrl` fields
+### U-VS-03 — Persisted live URL fields — boundary resolved by R011
 
-**Question:** remove them, encrypt/store opaque non-reusable references, or constrain them to provider metadata that cannot authorize?  
-**Conflict:** schema contains durable URL fields; architecture prohibits reusable public links and durable credentials.  
-**Blocks:** production live credential persistence design.
+**Approved boundary:** persisted `roomUrl/*JoinUrl` fields are non-authorizing metadata/opaque references only. Participant credentials are minted on demand, actor/role/room/time scoped and short-lived; no reusable plaintext credential is persisted as source truth.
+**Still deferred:** column removal, repurposing, or encryption is a separate schema decision.
 
-### U-VS-04 — Live Video domain access proof
+### U-VS-04 — Live Video domain access proof — requirement resolved by R012
 
-**Question:** is AccessAuditLog sufficient, or does Video need a dedicated live token/access grant/event record analogous to CourseVideoPlaybackEvent?  
-**Evidence:** `AccessAuditAction.live_video_token_issued` exists, but no Video-owned live access ledger is present.  
-**Blocks:** claim of complete Video-specific live access proof; does not block secure ephemeral credential issuance if generic audit is accepted temporarily.
+**Approved requirement:** successful or denied live credential issuance requires Video-owned persistent append-only evidence under SH-125 with room, parent context, actor/participant, action/decision, relevant provider context, expiry/window, and time/request correlation. SH-030 alone is insufficient.
+**Schema prerequisite:** exact model/name and migration design remain deferred; persistent domain proof is required before the live-video exit.
 
-### U-VS-05 — CourseVideoAsset course/Offering foreign-key shape
+### U-VS-05 — Course/Offering identity — resolved by R008; schema cleanup deferred
 
-**Question:** why does `courseDetailsId` reference `CourseDetails.offeringId` while `offeringId` also exists? Which field is canonical?  
-**Blocks:** migration/API contract finalization for course-video registration.
+**Approved meaning:** `CourseDetails.offeringId` is the canonical CourseDetails identity and owning Offering ID. `CourseVideoAsset.courseDetailsId` identifies it; any present redundant `offeringId` must equal it. Video returns owner-validated relationship facts through `getCourseVideoProcessingStatus` for Digital Goods accessibility validation.
+**Later schema work:** remove the redundant field or enforce equality; no Prisma change is authorized by this documentation pass.
 
 ### U-VS-06 — `CourseVideoAsset.isDownloadable`
 

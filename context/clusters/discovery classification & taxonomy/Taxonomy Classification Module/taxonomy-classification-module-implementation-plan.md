@@ -3,15 +3,21 @@
 > **Module ID:** `taxonomy_classification`  
 > **Module:** Taxonomy & Classification Module  
 > **Primary Cluster:** `CL-02 — Discovery, Classification & Visibility`  
-> **Repository target:** `context/modules/taxonomy_classification/implementation-plan.md`  
+> **Repository target:** `context/clusters/discovery classification & taxonomy/Taxonomy Classification Module/taxonomy-classification-module-implementation-plan.md`\
 > **Plan status:** implementation-grade Module plan, subordinate to root/Cluster sequencing  
-> **Governing architecture:** `taxonomy_classification/module-architecture.md`
+> **Governing architecture:** [Taxonomy Module architecture](<taxonomy-classification-module-architecture.md>)
 
 This plan converts the Taxonomy & Classification architecture into narrow, independently reviewable implementation work. It does not reassign ownership, change CL-02 sequencing, or resolve architecture questions by implementation convenience.
 
-A dedicated CL-02 `architecture.md` / `build-plan.md` was not located in the supplied project artifacts used for this synthesis. Until one exists, the controlling Cluster-level implementation sequence is the root Workin Ants build-plan **Phase 4 — Taxonomy, AI Suggestions, and Search Projection**, especially slices **4.1 Taxonomy foundation**, **4.2 Entity taxonomy joins**, **4.3 AI taxonomy suggestions**, and **4.4 Search projection**.
+The current CL-02 architecture and build plan are linked above. This Module follows their collaboration/sequence within the authority-by-concern rules in context-map.md.
+
+Current coordination: [Cluster architecture](<../discovery-classification-architecture.md>) and [Cluster build plan](<../discovery-classification-build-plan.md>). Locate supporting artifacts through [context-map.md](<../../../context-map.md>); authority follows concern, not location or age. Root architecture/build-plan files are currently unavailable and do not supply enforceable phases.
 
 ---
+
+## Lifecycle approval gate (CL02-R002)
+
+PR-TAX-02 and PR-TAX-03 are not implementation defaults. Throughout every feature below, effective activity through parent hierarchy, hard deletion, historical-reference preservation, merge/alias behavior, and reparenting/history behavior remain disabled or explicitly gated by U-CL02-07. References to effective-active validation, projections, admin commands, seeds, or tests do not approve those rules. Implement only independently approved behavior until Taxonomy lifecycle adjudication.
 
 ## Core Principle
 
@@ -46,8 +52,8 @@ Taxonomy has a genuine administrator surface, but UI is never the source of trut
 10. Background jobs are durable, bounded, retryable, observable, and use shared queue mechanics.
 11. Every numbered feature ends with automated tests and an explicit exit gate.
 12. Unresolved architecture must be surfaced and block the affected production mutation rather than being guessed.
-13. No production taxonomy join repository is allowed while **U-TAX-01 / PR-TAX-01** remains unresolved.
-14. No hard-delete command is allowed for Domain/Category/Tag in MVP under PR-TAX-02.
+13. CL02-R001 resolves U-TAX-01/PR-TAX-01: contextual entity owners alone own join create/update/delete/privacy; Taxonomy never implements foreign join repositories.
+14. Hard-delete behavior remains disabled pending U-CL02-07; PR-TAX-02 is a proposal, not approval of a final deletion policy.
 15. `verified` on tag joins must never be interpreted as Trust Verification success.
 16. No feature may hardcode category/tag IDs as a substitute for SH-022/023 policy.
 
@@ -57,8 +63,8 @@ Taxonomy has a genuine administrator surface, but UI is never the source of trut
 
 ### Hard dependencies before Feature 01
 
-- repository/context foundation from root Phase 0;
-- working Prisma/Postgres foundation and migration discipline from root Phase 1;
+- repository/context foundation described by available repository instructions;
+- working Prisma/Postgres foundation and independently verified migration discipline;
 - current `TaxonomyDomain`, `TaxonomyCategory`, `TaxonomyTag`, and `TagSource` schema available;
 - runtime validation standard and common Result/error conventions;
 - Canonical Shared Operations contracts for SH-001, SH-002, SH-029, SH-032/033/034, SH-044, SH-046, SH-051/052, SH-079, SH-091, SH-121/122/123;
@@ -76,7 +82,7 @@ These may be represented by contract-complete test doubles during early Module d
 
 ### Hard dependencies before entity-assignment integration
 
-- **U-TAX-01 / PR-TAX-01 must be resolved**;
+- enforce approved CL02-R001 contextual-owner lifecycle and SH-023 validation;
 - target-owner SH-123 contracts for the entity types being integrated;
 - approved semantics for any join metadata that the write contract exposes, especially U-TAX-02 (`verified`) and U-TAX-03 (`confidence`).
 
@@ -91,7 +97,7 @@ These may be represented by contract-complete test doubles during early Module d
 
 - SH-091 Search refresh command;
 - Search's accepted `SearchEntityType`/action/source-version contract;
-- **U-TAX-08** resolved for affected-entity enumeration ownership.
+- owner-enumerator contracts available: CL02-R007 resolves enumeration ownership to each contextual entity owner; exact events remain U-CL02-13.
 
 ### Interfaces that may initially be stubbed
 
@@ -118,8 +124,7 @@ A developer can call typed Taxonomy queries against the database, receive stable
 
 #### Cluster Build-Plan Link
 
-- Root Phase 1 — schema/source-of-truth baseline.
-- Root Phase 4, Slice 4.1 — Taxonomy foundation.
+CL-02 Feature 01 — canonical taxonomy catalog/validation; existing Prisma/Postgres foundation and independently verified migration parity are prerequisites.
 
 #### Dependencies
 
@@ -251,8 +256,7 @@ The same approved seed can run repeatedly without duplicate terms, and raw contr
 
 #### Cluster Build-Plan Link
 
-- Root Phase 1, Slice 1.3 — default taxonomy seed data.
-- Root Phase 4, Slice 4.1 — tag normalization rules and category/tag seed data.
+CL-02 Feature 01 — canonical seed and normalization rules, only within approved lifecycle behavior.
 
 #### Dependencies
 
@@ -377,14 +381,14 @@ An authorized administrator can manage Domain/Category/Tag source truth through 
 
 #### Cluster Build-Plan Link
 
-Root Phase 4, Slice 4.1 — Domain/Category/Tag management and admin taxonomy foundation.
+CL-02 Feature 01 — Taxonomy administration/validation; U-CL02-07-dependent behavior remains gated.
 
 #### Dependencies
 
 - Features 01–02;
 - SH-001, SH-002, SH-029, SH-044, SH-046, SH-052, SH-079;
 - approved action vocabulary from Module architecture;
-- PR-TAX-02 and PR-TAX-03 treated as governing Proposed Rulings unless replaced before coding.
+- PR-TAX-02/03 remain proposals only; absence of a replacement is not approval. Any dependent behavior stays disabled pending U-CL02-07 adjudication.
 
 #### In Scope
 
@@ -527,14 +531,12 @@ Any consuming Module can validate a proposed canonical classification and receiv
 
 #### Cluster Build-Plan Link
 
-- Root Phase 4, Slice 4.1 — classification rules.
-- Root Phase 4, Slice 4.2 — controlled entity taxonomy attachment prerequisite.
-- Cross-cluster readiness foundation for later supply/hiring/search phases.
+CL-02 Features 01 and 07 — classification validation and owner attachment contracts.
 
 #### Dependencies
 
 - Features 01–03;
-- SH-015 common decision envelope;
+- documented Module decision DTO; SH-015 `returnDecisionResult` is Proposed/optional and is not a blocking prerequisite;
 - SH-017 Trust Verification requirement query where available;
 - current modeled Category/Tag trigger fields;
 - U-TAX-05 must be represented as unresolved/fail-closed rather than guessed.
@@ -572,7 +574,7 @@ Read-only use of Domain/Category/Tag. No new source record required.
 
 #### Shared Operations Used
 
-- **SH-015 `returnDecisionResult` — shared decision envelope.** Invocation: decision response. Local: taxonomy reason codes/policy. Prohibited duplicate: taxonomy-specific generic result framework.
+- **SH-015 `returnDecisionResult` — Proposed/optional standardization target.** Use the documented Module decision DTO until separate adoption approval; no mandatory dependency or local approval is implied.
 - **SH-017 `resolveVerificationRequirements` — Trust Verification.** Invocation: when detailed Trust-owned binding is required. Local: classification trigger inputs. Prohibited duplicate: direct VerificationRequirement repository.
 - **SH-123 `validateOwnedTargetReference` — target owner, optional at orchestration boundary.** Invocation: only if SH-023 input includes target eligibility context that must be owner-confirmed. Local: supported relationship context. Prohibited duplicate: `lookupAnyEntity`.
 
@@ -621,7 +623,7 @@ No dedicated UI required. Feature 05 displays decision failures in admin forms.
 
 - unknown/inactive hierarchy → denied with stable taxonomy code;
 - Trust requirement service unavailable → `unavailable`/retryable result for the detailed portion, not false `allowed`;
-- unresolved tag compatibility → review/denied according SH-015 policy;
+- unresolved tag compatibility → review/denied according documented Taxonomy policy/DTO; SH-015 remains optional/proposed;
 - no provider/raw DB error leakage.
 
 #### Tests
@@ -666,12 +668,12 @@ An authorized administrator can manage canonical taxonomy through `/admin/settin
 
 #### Cluster Build-Plan Link
 
-Root Phase 4, Slice 4.1 — admin taxonomy manager.
+CL-02 Feature 01 — taxonomy administration using the available authorized admin shell.
 
 #### Dependencies
 
 - Features 01–04;
-- root admin shell from Phase 3;
+- available authorized admin shell;
 - SH-001/002;
 - root UI/accessibility conventions.
 
@@ -775,6 +777,8 @@ Admin E2E plus all Feature 03 mutation tests pass. The UI must demonstrate sourc
 
 ## Phase 4 — Shared-Operation and Search Handoff Integration
 
+Taxonomy Search provider contract (CL02-R005): SH-024 `evaluatePublicReadiness` supplies Taxonomy-owned surface readiness and SH-094 `buildSourceProjection` supplies safe, versioned term data, optionally carrying that decision. Feature 06 must prove Search consumes it without inferring readiness from raw fields; U-CL02-07-dependent policy remains gated. Feature 04's exclusion of downstream Search/compliance decisions does not exclude this Taxonomy-owned readiness.
+
 ### 06 Audit, Domain Event, Idempotency, and Search Refresh Handoff
 
 #### Objective
@@ -787,8 +791,7 @@ A taxonomy mutation commits exactly once, produces the expected audit/event evid
 
 #### Cluster Build-Plan Link
 
-- Root Phase 4, Slice 4.1 — accepted taxonomy changes.
-- Root Phase 4, Slice 4.4 — Search projection handoff.
+CL-02 Features 02–03 — Taxonomy SH-024/SH-094 and Search refresh handoff.
 
 #### Dependencies
 
@@ -811,7 +814,7 @@ A taxonomy mutation commits exactly once, produces the expected audit/event evid
 
 - Typesense/index worker;
 - direct `SearchUpsertEvent` writes;
-- affected business-entity fan-out beyond the taxonomy term while U-TAX-08 is unresolved;
+- affected business-entity fanout until the applicable contextual owner-enumerator contracts exist; exact event vocabulary/version remains U-CL02-13;
 - Search ranking/visibility rules.
 
 #### Module-Owned Data
@@ -904,7 +907,7 @@ If Search's actual public contract differs from SH-091 assumptions, update this 
 
 #### Exit Gate
 
-Run Search contract/failure/idempotency tests. Feature 07 may not start production joins until U-TAX-01 is resolved regardless of Feature 06 success.
+Run Search contract/failure/idempotency tests. Feature 07 requires the CL02-R001 contextual-owner contracts and separately approved exposed metadata semantics regardless of Feature 06 success.
 
 ---
 
@@ -922,12 +925,12 @@ At least one approved contextual owner can classify a real entity through public
 
 #### Cluster Build-Plan Link
 
-Root Phase 4, Slice 4.2 — entity taxonomy joins for ProfessionalProfile, CandidateProfile, Organization, Offering, Gig, and Job. Root plan mentions CustomerProfile “where needed”; no Customer taxonomy join exists in current supplied schema, so **do not invent one**.
+CL-02 Feature 07 — contextual owner assignment integration under CL02-R001. No Customer taxonomy join is present; do not invent one.
 
 #### Dependencies
 
 - Features 01–06;
-- **hard blocker: U-TAX-01 / PR-TAX-01 resolved**;
+- approved CL02-R001 ownership: contextual owners implement their own joins;
 - U-TAX-02/03 resolved if assignment contract exposes `verified`/`confidence`;
 - SH-123 target-owner contracts;
 - contextual owner command/service for the first integrated entity type;
@@ -935,7 +938,7 @@ Root Phase 4, Slice 4.2 — entity taxonomy joins for ProfessionalProfile, Candi
 
 #### In Scope
 
-If PR-TAX-01 is approved as proposed:
+Under PR-TAX-01 approved by CL02-R001:
 
 - define shared classification-assignment DTO consumed by contextual owners;
 - contextual owner validates its entity/reference through its own repository;
@@ -945,7 +948,7 @@ If PR-TAX-01 is approved as proposed:
 - contract tests for Professional, Candidate, Organization, Offering, Gig, Job shapes;
 - direct Domain/Category consistency on Offering/Gig/Job assignment flows.
 
-If architecture instead assigns one or more joins to Taxonomy, stop and update `module-architecture.md` before implementation; then this feature must be rewritten to reflect owner-specific repository and privacy effects.
+Taxonomy must not implement foreign join repositories; contextual owner contracts are the integration prerequisite.
 
 #### Out of Scope
 
@@ -971,7 +974,7 @@ No Taxonomy `attachTagToAnyEntity` command is introduced under PR-TAX-01.
 
 - **SH-023 — Taxonomy.** Contextual owner's mandatory validation. Local policy: hierarchy/active/compatibility. Prohibited duplicate: owner-local tag validators.
 - **SH-123 — target owner.** Validate target facts if a cross-Module orchestration layer invokes Taxonomy. Prohibited duplicate: foreign repository.
-- **SH-015 — decision envelope.** Consistent assignment error result.
+- **SH-015 — Proposed/optional.** Documented local assignment error DTO remains usable without SH-015 adoption.
 - **SH-091 — Search, normally called by contextual owner after its accepted classification mutation.** Prohibited duplicate: Search row/provider write.
 
 #### Domain Logic
@@ -1016,7 +1019,7 @@ No generic classification editor is required inside Taxonomy. Contextual entity 
 
 #### Failure Behavior
 
-- U-TAX-01 unresolved → feature remains blocked; no code workaround;
+- contextual owner contract unavailable → affected integration remains blocked; no foreign repository workaround;
 - target missing/ineligible → owner `NOT_FOUND`/forbidden;
 - taxonomy invalid/inactive/stale → SH-023 denial;
 - cross-category policy unresolved → review/denial;
@@ -1036,13 +1039,7 @@ No generic classification editor is required inside Taxonomy. Contextual entity 
 
 #### Documentation Updates
 
-**Mandatory:** when U-TAX-01 is finally resolved, update:
-
-- this Module architecture;
-- relevant contextual Module architectures;
-- Deep Module/ownership registry if necessary;
-- Shared Operations documentation if the public assignment contract changes;
-- this implementation plan before coding the production write path.
+Record the approved CL02-R001 ownership mapping and verify the contextual owner's public contracts. Foreign Module documentation/enumerator implementations are handled in their own reconciliation; this feature must not compensate with Taxonomy repositories.
 
 #### Acceptance Criteria
 
@@ -1055,7 +1052,7 @@ No generic classification editor is required inside Taxonomy. Contextual entity 
 
 #### Exit Gate
 
-Architecture approval for U-TAX-01 plus passing cross-Module contract/integration tests is required. If approval is absent, mark Feature 07 blocked and proceed only to independent features that do not depend on join ownership.
+CL02-R001 resolves ownership. Passing contextual-owner contract/integration tests and approval of any exposed unresolved join metadata remain required. Unavailable owner interfaces block only their affected integrations.
 
 ---
 
@@ -1071,12 +1068,12 @@ An authorized reviewer can select an AI suggestion, apply it through SH-121, and
 
 #### Cluster Build-Plan Link
 
-Root Phase 4, Slice 4.3 — AI taxonomy suggestions and accept/reject flow; rule: AI suggests, Taxonomy owns accepted truth.
+CL-02 Feature 08 — confirmed SH-121 acceptance and AI disposition; initial acceptance uses existing IDs only.
 
 #### Dependencies
 
 - Features 02–06;
-- Feature 07 only if the suggestion applies an entity join rather than canonical term creation;
+- Feature 07 contextual-owner assignment contract for the target; initial acceptance uses existing canonical IDs only;
 - AI Taxonomy source schemas/contracts;
 - SH-121;
 - SH-123 for target validation where applicable;
@@ -1092,7 +1089,7 @@ Root Phase 4, Slice 4.3 — AI taxonomy suggestions and accept/reject flow; rule
 - explicit reviewer reason;
 - idempotent acceptance;
 - audit/event/Search handoff;
-- acknowledgement back to AI Taxonomy only through its public contract if required.
+- acknowledgement back to AI Taxonomy through its public contract only after successful accepted mutation; replay and partial-failure tests are required.
 
 #### Out of Scope
 
@@ -1106,8 +1103,8 @@ Root Phase 4, Slice 4.3 — AI taxonomy suggestions and accept/reject flow; rule
 
 #### Module-Owned Data
 
-- Domain/Category/Tag mutation if reviewer explicitly approves a new canonical term;
-- contextual assignment only if Feature 07 owner ruling explicitly permits the write in that owner.
+- no novel Domain/Category/Tag creation or activation from AI acceptance, even with reviewer approval; U-CL02-15 remains unresolved;
+- contextual assignment is persisted only by the entity owner under CL02-R001 and Feature 07.
 - No `AiSuggestion`/`AiClassificationLog` write.
 
 #### Public Interfaces
@@ -1117,7 +1114,7 @@ Root Phase 4, Slice 4.3 — AI taxonomy suggestions and accept/reject flow; rule
 
 #### Shared Operations Used
 
-- **SH-121 — CL-02 AI↔Taxonomy contract.** Local: final taxonomy normalization/hierarchy/mutation. Prohibited duplicate: `acceptSuggestion.ts` that bypasses contract.
+- **SH-121 — CL-02 AI↔Taxonomy contract.** Local: canonical normalization/hierarchy/acceptance validation; contextual entity owner persists assignment. Prohibited duplicate: `acceptSuggestion.ts` that bypasses contract.
 - **SH-079 — normalization.** Canonicalize proposed text.
 - **SH-023 — assignment validity** where target classification is applied.
 - **SH-123 — target owner facts** where applicable.
@@ -1132,7 +1129,7 @@ Root Phase 4, Slice 4.3 — AI taxonomy suggestions and accept/reject flow; rule
 - suggestion existence/version/provenance is confirmed by AI owner;
 - stale/superseded/rejected suggestion cannot be applied;
 - `TagSource.ai` records provenance where an accepted assignment is created, but does not bypass validation;
-- if normalized term already exists, acceptance may resolve to existing canonical ID rather than create duplicate;
+- accept only existing canonical IDs; novel text remains review-only and cannot create or activate a term while U-CL02-15 is unresolved;
 - if proposed parent/path is invalid or inactive, reject/review;
 - no automatic acceptance solely from confidence score.
 
@@ -1145,7 +1142,7 @@ Root Phase 4, Slice 4.3 — AI taxonomy suggestions and accept/reject flow; rule
 
 #### Database / Transaction Behavior
 
-Use idempotent command transaction for the Taxonomy-owned mutation. AI source remains external; use suggestion version/hash/reference to prevent stale replay. Do not try to make a distributed DB transaction with AI Taxonomy.
+SH-121 requires suggestion ID/version, target, selected canonical term, reviewer, reason, idempotency key, and audit evidence. Taxonomy validates the canonical decision; the contextual entity owner commits its assignment. AI records acceptance only after mutation success. Retry the same version/idempotency context; failed acknowledgement retries without duplicating or reversing accepted classification. Exact AI status/persistence and event contracts remain gated by U-CL02-04/13. Rejection/expiry/cancellation/supersession without accepted mutation stay AI-owned and never change Taxonomy, joins, or Search.
 
 #### Events / Jobs
 
@@ -1210,7 +1207,7 @@ A taxonomy change, an AI-accepted classification, and a consuming Module validat
 
 #### Cluster Build-Plan Link
 
-Root Phase 4 overall integration: 4.1 → 4.3 → 4.4, plus prerequisites for later Phase 5–8 consumers.
+CL-02 Features 08–10 — accepted classification/Search and external owner contract proof.
 
 #### Dependencies
 
@@ -1301,7 +1298,7 @@ Optional admin diagnostic links only; no new UI required for exit.
 
 #### Documentation Updates
 
-Update public interface docs when real neighbor contracts are locked. If a dedicated CL-02 architecture/build plan now exists, reconcile this Module plan before continuing.
+Update public interface references when real neighbor contracts are verified against the current linked CL-02 architecture/build plan.
 
 #### Acceptance Criteria
 
@@ -1331,7 +1328,7 @@ An authorized maintenance run can scan a bounded taxonomy scope, report canonica
 
 #### Cluster Build-Plan Link
 
-Root Phase 4, Slice 4.1 — tag normalization worker / reference-data maintenance.
+Module-internal normalization maintenance. No dedicated Cluster feature is required; Cluster completion does not certify this maintenance feature.
 
 #### Dependencies
 
@@ -1447,7 +1444,7 @@ A fixture with clean records, safe normalizations, collisions, stale edits, and 
 
 #### Objective
 
-Implement SH-122 `mergeCanonicalRecord` only after U-TAX-07 establishes alias/history/retirement semantics and U-TAX-01/U-TAX-08 establish reference migration and Search impact ownership.
+Implement SH-122 `mergeCanonicalRecord` only after U-TAX-07 establishes alias/history/retirement semantics and CL02-R001/R007 establish contextual reference/impact ownership; relevant owner contracts are available.
 
 #### Observable Result
 
@@ -1455,14 +1452,14 @@ If approved, an administrator can dry-run and execute a compatible canonical ter
 
 #### Cluster Build-Plan Link
 
-Supports Taxonomy foundation quality but is not required by the root Phase 4 MVP acceptance criteria. It is therefore subordinate/conditional and must not delay earlier MVP slices if merge is deferred.
+Conditional Module-internal merge work, gated by unresolved U-TAX-07/U-CL02-07 and proposed SH-122; no additional Cluster feature is implied.
 
 #### Dependencies
 
 - Features 03, 06, 10;
 - **U-TAX-07 resolved**;
-- **U-TAX-01 resolved**;
-- **U-TAX-08 resolved**;
+- CL02-R001 contextual-owner contracts available;
+- CL02-R007 owner-enumerator contracts available; exact event vocabulary/version remains gated by U-CL02-13;
 - SH-122, SH-051, SH-044, SH-047/048, SH-029/046/091;
 - approved alias/history schema if required.
 
@@ -1562,7 +1559,7 @@ Either:
 
 #### Exit Gate
 
-No production merge command exists unless U-TAX-07/U-TAX-01/U-TAX-08 are resolved and every merge safety test passes.
+No production merge command exists unless U-TAX-07 is resolved and approved CL02-R001/R007 owner contracts are available and every merge safety test passes.
 
 ---
 
@@ -1580,14 +1577,14 @@ Privacy can enumerate/execute instructions against records Taxonomy actually own
 
 #### Cluster Build-Plan Link
 
-Cross-cutting support for root Privacy/Location phase and the compliance gates consumed by later Professional Supply, Hiring, and Search phases. This does not change root sequencing; production Privacy integration may be activated when the root privacy rail is available.
+CL-02 Feature 11 owner privacy/reaction integration and Feature 13 compliance proof; production wiring requires available Privacy owner contracts.
 
 #### Dependencies
 
 - Features 04, 07 if joins are implemented;
 - SH-095/096/097/098;
 - Privacy owner protocol;
-- approved U-TAX-01 ownership;
+- approved CL02-R001 contextual join privacy ownership;
 - Trust/Healthcare public readiness interfaces for boundary tests where available.
 
 #### In Scope
@@ -1611,7 +1608,7 @@ Cross-cutting support for root Privacy/Location phase and the compliance gates c
 
 #### Module-Owned Data
 
-Usually canonical terms only. If PR-TAX-01 assigns joins to contextual owners, Taxonomy has little/no direct person-subject data. If the final ruling assigns joins here, this feature must be expanded before production.
+Canonical terms remain Taxonomy-owned; contextual join privacy execution belongs to each classified entity owner under CL02-R001. Inventory only records actually owned by Taxonomy.
 
 #### Public Interfaces
 
@@ -1676,7 +1673,7 @@ None required.
 
 #### Documentation Updates
 
-If final U-TAX-01 changes privacy ownership, update architecture and privacy inventory before implementation. Record retention assumptions settled in U-TAX-11 if applicable.
+Apply CL02-R001 contextual-owner privacy execution and record the Taxonomy-owned inventory. Preserve unresolved retention/history assumptions under U-TAX-11.
 
 #### Acceptance Criteria
 
@@ -1734,7 +1731,7 @@ The Module passes a production-oriented test matrix; source truth remains correc
 
 #### Cluster Build-Plan Link
 
-Root Phase 4 acceptance/hardening and root Phase 12 production hardening. This feature does not accelerate or skip root launch gates.
+CL-02 Feature 13 — production hardening and all applicable external readiness gates.
 
 #### Dependencies
 
@@ -1883,7 +1880,7 @@ The Module is production-ready for the approved MVP scope only when:
 3. clean migration + seed succeeds twice idempotently;
 4. Search/AI outage tests preserve taxonomy source truth;
 5. dependency scan finds no prohibited provider/foreign repository/local shared-infrastructure duplication;
-6. U-TAX-01 is resolved before any production join integration is marked complete;
+6. every production join integration enforces approved CL02-R001 owner boundaries and available owner contracts;
 7. optional blocked features such as merge remain disabled rather than partially implemented.
 
 ---
@@ -1911,10 +1908,10 @@ The Module is production-ready for the approved MVP scope only when:
 
 Before implementing each numbered feature:
 
-1. Read root project overview and architecture.
-2. Read root code standards.
+1. Read context/project-overview-v3.md and context-map.md; root architecture is unavailable.
+2. Read repository instructions; referenced root code standards are unavailable.
 3. Read the Canonical Shared Operations Registry/Architecture.
-4. Read CL-02 architecture/build plan if they now exist; otherwise read Cluster Registry CL-02 and root build-plan Phase 4.
+4. Read the current linked CL-02 architecture and build plan under context-map.md.
 5. Read this Module architecture and implementation plan.
 6. Read public-interface sections for direct dependencies used by the feature.
 7. Check the current status of U-TAX-01 through U-TAX-12.
@@ -1990,16 +1987,16 @@ A feature is not complete because code exists. It is complete only after its exi
 Before treating this plan as executable context, verify:
 
 1. Canonical Domain/Category/Tag source truth has exactly one owner.
-2. Join ownership conflict is not silently hidden; Feature 07 is gated by U-TAX-01.
+2. Feature 07 enforces CL02-R001 contextual ownership; unavailable owner contracts and unresolved metadata remain gated.
 3. AI suggestion truth remains AI-owned and accepted taxonomy remains Taxonomy-owned.
-4. Search remains projection and SH-091/094 are the only Taxonomy/Search boundary described.
+4. Search remains projection; Taxonomy supplies SH-024 readiness and SH-094 safe source data and requests refresh through SH-091.
 5. Every shared operation is consumed rather than duplicated.
 6. Shared mechanism / separate truth boundaries are explicit for audit, events, jobs, concurrency, decisions, projections, and privacy.
 7. Cross-Module reads use public owner interfaces.
 8. No provider adapter has been imported into Taxonomy.
 9. Compliance triggers remain separate from verification/healthcare/readiness completion.
 10. Privacy orchestration remains Privacy-owned.
-11. The sequence aligns with root Phase 4 rather than inventing a competing Cluster roadmap.
+11. The sequence maps to current CL-02 features and retains actual external prerequisites.
 12. Every numbered feature includes tests, acceptance criteria, and an exit gate.
 13. Conditional merge behavior is blocked until architecture supports it.
 14. A coding agent can implement the approved features without inventing ownership or shared infrastructure.

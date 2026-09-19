@@ -6,6 +6,8 @@
 > **Document status:** Implementation-grade Module architecture. Confirmed rulings are binding; Proposed Rulings require explicit acceptance; unresolved decisions are non-authoritative and may block affected implementation.  
 > **Source basis:** Workin Ants project overview, Deep Module Registry, current Prisma schema, Ubiquitous Language / Compliance Inventory, Canonical Shared Operations Architecture, CL-04 architecture, CL-04 build plan, and the standardized Gig / Demand Module Architecture Extract.
 
+**Shared Operation status (CL-04-R015/R016):** exact SH IDs/names resolve to the canonical registry. SH-046 publication/outbox is Confirmed. SH-003 `queryOwnerFacts` and SH-015 `returnDecisionResult` remain Proposed ruling: use owner-specific fact/decision DTOs, not binding APIs dependent on those proposals. SH-054, SH-073, and SH-111, wherever referenced, remain Proposed ruling and conditional on separate approval. All other referenced registered operations retain their registry status and owner.
+
 ---
 
 ## 1. Module Header
@@ -25,13 +27,13 @@
 
 ### Authority rule
 
-When sources conflict, use the current Workin Ants authority order: approved source-of-truth ownership rules and Deep Module Registry, then Cluster architecture/registry, then Prisma structural evidence, then Ubiquitous Language/compliance evidence, then historical Module-extract inference. A newer explicit architecture ruling overrides an older convenience claim.
+Follow [context/context-map.md](<../../../context-map.md>) authority by concern: Ubiquitous Language owns terminology; approved compliance material owns obligations; Prisma/migrations own persisted structure; the owning Module architecture owns lifecycle/API/invariants; Cluster architecture owns collaboration; Shared Operations owns SH identity/owner/status/boundaries; Cluster and Module plans own their respective sequence. No document class, timestamp, or file depth supplies a global precedence ladder.
 
 ### Current decision posture
 
 The following are **not yet binding** and must not be silently implemented:
 
-- single-award versus multi-award Gigs;
+- database enforcement of the confirmed single-award MVP invariant;
 - exact `Gig`, `GigResponse`, and `GigAssignment` transition matrices;
 - whether `CustomerProfile` becomes mandatory on all new Gig-domain writes and how legacy User IDs are retained;
 - `invite_only` audience authority;
@@ -169,7 +171,7 @@ Gig / Demand owns:
 - which customer controls the Gig;
 - which Professional controls a response;
 - which response may be accepted;
-- assignment cardinality policy once explicitly ruled;
+- single-award MVP assignment policy;
 - accepted-work transition policy;
 - which source fields are exposed in `getGigAssignmentCheckoutSource`;
 - what Gig-specific facts are supplied to Role / Authority, Professional Eligibility, Search, Messaging, Privacy, and other owners.
@@ -323,7 +325,7 @@ src/modules/gig-demand/
 | --- | --- | --- |
 | Delivery/UI | Gig draft/edit/view, response form/status, customer response management, assignment view | authentication, Search result engine, messaging UI infrastructure, payment checkout |
 | Application services | command orchestration, dependency calls, transaction boundaries, public DTO assembly | underlying external owner policy |
-| Domain policy | Gig/Response/Assignment transition rules, Gig publication requirements, local validation, assignment cardinality once ruled | verification, hold, taxonomy, entitlement, payment, location-safety policy |
+| Domain policy | Gig/Response/Assignment transition rules, Gig publication requirements, local validation, single-award MVP assignment policy | verification, hold, taxonomy, entitlement, payment, location-safety policy |
 | Repositories/data access | Prisma access only for Gig-owned records and owner-local joins | arbitrary repositories for CustomerProfile, ProfessionalProfile, Order, ComplianceHold, VerificationCheck, MediaAsset, SearchUpsertEvent |
 | Workers | owner-local expiration and assignment→Order handoff reconciliation | generic queue runner, provider reconciliation, Search reconciliation |
 | Adapters | None owned | Stripe, Typesense, R2/S3, Checkr/Certn, notification providers |
@@ -331,6 +333,8 @@ src/modules/gig-demand/
 | Events | Gig-domain event vocabulary/payload meaning | event transport/outbox implementation or consumer inbox infrastructure |
 
 ---
+
+**Confirmed actor semantics (CL-04-R007):** CustomerProfile is required semantic buyer identity for new CL-04 buyer-domain records; User remains authenticated account/audit identity. After CustomerProfile migration, Gig/GigAssignment/Order buyer ownership must not be authorized from User ID alone. A Review author resolves to the Order's buyer CustomerProfile. Dispute opener proof must distinguish customer, professional, and privileged/admin initiation with an unambiguous typed domain actor; this representation requirement does not approve which actors may open a Dispute. Historical backfill, permanent legacy-User reference semantics, and the physical typed-opener schema remain unresolved.
 
 ## 8. Data Model
 
@@ -357,7 +361,7 @@ src/modules/gig-demand/
 
 **Privacy/retention:** title/description/location may contain personal information. Public output must not expose exact location by default. Draft/unconverted data may be more erasable than accepted terms later frozen into an Order.
 
-**Proposed Ruling — buyer actor migration:** new Gig writes should require an active `customerProfileId`; `posterUserId` should remain the authenticated User/audit relation during migration. Existing null CustomerProfile rows require backfill/legacy handling before non-null enforcement.
+**Confirmed CL-04-R007:** new Gig/assignment writes require CustomerProfile as semantic buyer identity. Current nullable fields remain structural evidence; historical backfill and legacy User reference semantics require separate approval before physical enforcement.
 
 ### 8.2 `GigResponse`
 
@@ -397,7 +401,7 @@ src/modules/gig-demand/
 
 **Current cardinality evidence:** `Gig.assignments GigAssignment[]` plus non-unique `GigAssignment.gigId` permits multiple assignments per Gig.
 
-**Proposed Ruling — MVP cardinality:** one accepted assignment per Gig for MVP, consistent with the product flow “customer accepts one response.” If accepted, enforce at both policy and database layers, preferably a uniqueness constraint on `gigId` or an equivalent conditional invariant compatible with any future episode model.
+**Confirmed — CL-04-R002:** MVP Gigs are single-award: many responses, at most one accepted/current winning assignment per Gig. Competing acceptance commands must serialize. Database enforcement design remains a later approved schema/migration task; losing-response treatment, complete transition graphs, completion/dispute synchronization, and invitation authority remain unresolved. `invite_only` stays disabled.
 
 **Privacy/retention:** accepted commercial terms may be retained longer than unconverted Gig content, particularly after an Order is created. Gig / Demand does not decide legal retention exemptions by itself.
 
@@ -525,7 +529,7 @@ This matrix remains non-binding pending the CL-04 lifecycle ruling.
 
 - Transition owner: Gig / Demand only.
 - External Modules supply decisions/facts; they do not write statuses.
-- Every concurrency-sensitive transition uses `transitionLifecycleState` plumbing plus canonical idempotency/concurrency primitives.
+- Every concurrency-sensitive transition uses SH-053 `transitionLifecycleState` plumbing plus canonical idempotency/concurrency primitives.
 - Terminal/reopen rules must be explicit; no frontend-only status changes.
 - No dedicated lifecycle ledger is currently confirmed. Significant transitions emit transactional domain events and selected generic audit evidence.
 
@@ -537,25 +541,25 @@ The commands below are architectural public/application operations, not claims t
 
 | Command | Purpose | Actor/context | Preconditions | State written | Shared operations | Effects | Idempotency / failures |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `createGigDraft` | Create customer demand in draft. | authenticated User + resolved CustomerProfile | valid customer actor; validated basic input | `Gig` | `resolveAuthenticatedActor`, `resolveCustomerActor`, `authorizeResourceAction`, `executeIdempotentCommand` | `GigCreated` outbox as needed | retry returns same Gig; invalid customer/validation fails before write |
+| `createGigDraft` | Create customer demand in draft. | authenticated User + resolved CustomerProfile | valid customer actor; validated basic input | `Gig` | SH-001 `resolveAuthenticatedActor`, SH-004 `resolveCustomerActor`, SH-002 `authorizeResourceAction`, SH-044 `executeIdempotentCommand` | `GigCreated` outbox as needed | retry returns same Gig; invalid customer/validation fails before write |
 | `updateGigDraft` | Edit allowed Gig fields. | controlling customer | editable status; expected version where required | `Gig`, `GigTag`, `GigMedia` context as applicable | auth, authority, taxonomy/media interfaces, optimistic concurrency if used | update event/projection request if public state affected | stale write → conflict |
 | `publishGig` | Open eligible Gig. | controlling customer | publication policy; taxonomy valid; media ready; hold allows; public-safe location | Gig status/visibility | auth, authority, taxonomy, hold, Media, Location, idempotency, transition, outbox | audit + Search refresh + optional notification | Search failure does not roll back Gig truth |
 | `pauseGig` | Stop new response/public availability temporarily. | controlling customer/admin if approved | allowed transition | status | auth, authority, transition, outbox | Search refresh | stale transition conflict |
 | `reopenGig` | Return paused Gig to open. | controlling customer | transition approved; deadlines/gates still valid | status | auth, authority, gates, transition | Search refresh | unavailable gate → deny |
 | `cancelGig` | End active demand under approved policy. | controlling customer/admin if approved | no prohibited downstream state | status | auth, authority, transition, idempotency | audit, Search refresh, notifications | conflict if assignment/Order policy forbids |
 | `archiveGig` | Remove terminal Gig from normal active views. | owner/admin | terminal state | status | auth, authority, transition | Search remove | product archive is not privacy erasure |
-| `setGigTags` | Mutate contextual accepted tag relationships. | controlling customer/system-approved taxonomy flow | taxonomy validates assignments | `GigTag` | `validateTaxonomyAssignment` | source-change event if public | no local normalization |
-| `setGigMedia` | Attach/detach/reorder ready assets. | controlling customer | Media validates target/asset | `GigMedia` | `attachValidatedMedia` and Media owner queries | source-change event if public | no file mutation |
-| `submitGigResponse` | Create one Professional response. | authenticated Professional actor + ProfessionalProfile | Gig accepts responses; readiness allowed; uniqueness | `GigResponse` | auth, authority, `evaluateProfessionalReadiness`, idempotency, outbox | customer notification | duplicate retry must not create second row |
+| `setGigTags` | Mutate contextual accepted tag relationships. | controlling customer/system-approved taxonomy flow | taxonomy validates assignments | `GigTag` | SH-023 `validateTaxonomyAssignment` | source-change event if public | no local normalization |
+| `setGigMedia` | Attach/detach/reorder ready assets. | controlling customer | Media validates target/asset | `GigMedia` | SH-090 `attachValidatedMedia` and Media owner queries | source-change event if public | no file mutation |
+| `submitGigResponse` | Create one Professional response. | authenticated Professional actor + ProfessionalProfile | Gig accepts responses; readiness allowed; uniqueness | `GigResponse` | auth, authority, SH-016 `evaluateProfessionalReadiness`, idempotency, outbox | customer notification | duplicate retry must not create second row |
 | `reviseGigResponse` | Edit existing response under approved nonterminal policy. | response owner | editable status; readiness recheck if material | same `GigResponse` | auth, authority, concurrency | response-updated event/notification if needed | stale/terminal → conflict |
 | `withdrawGigResponse` | Withdraw own response. | response owner | allowed nonterminal transition | status | auth, authority, transition | notification | accepted/terminal → conflict |
 | `markGigResponseViewed` | Record customer view-state transition. | controlling customer | submitted response | status | auth, authority, transition | optional event | idempotent if already viewed or later state according to policy |
 | `shortlistGigResponse` | Mark preferred response. | controlling customer | allowed state | status | auth, authority, transition | optional notification | terminal → conflict |
 | `rejectGigResponse` | Reject response. | controlling customer | allowed state | status | auth, authority, transition | notification | accepted/withdrawn → conflict |
-| `acceptGigResponse` | Atomically accept a response and create/replay assignment. | controlling customer | assignment cardinality ruling; Gig/response state; readiness recheck; no blocking hold | response + assignment + Gig state according to approved matrix | auth, customer actor, authority, `evaluateProfessionalReadiness`, `evaluateComplianceHold`, `executeIdempotentCommand`, `acquireAggregateLock`, `transitionLifecycleState`, `publishDomainEvent`, audit | assignment-ready event; thread/notification effects | retry replays same assignment; competing acceptance obeys cardinality exactly |
+| `acceptGigResponse` | Atomically accept a response and create/replay assignment. | controlling customer | assignment cardinality ruling; Gig/response state; readiness recheck; no blocking hold | response + assignment + Gig state according to approved matrix | auth, customer actor, authority, SH-016 `evaluateProfessionalReadiness`, SH-011 `evaluateComplianceHold`, SH-044 `executeIdempotentCommand`, SH-051 `acquireAggregateLock`, SH-053 `transitionLifecycleState`, SH-046 `publishDomainEvent`, audit | assignment-ready event; thread/notification effects | retry replays same assignment; competing acceptance obeys cardinality exactly |
 | `transitionGigAssignment` | Apply owner-local accepted-work transition. | authorized participant/system | approved assignment matrix + contextual external facts | assignment status/timestamps | authority, transition, concurrency, outbox | notifications; Order/Dispute consumers may react | stale transition conflict |
-| `executeGigModerationDecision` | Apply an authorized moderation action to Gig-owned state. | signed internal Moderation instruction | validated case/action/target/version | only approved Gig fields/status/visibility | `executeModerationDecision`, idempotency, outbox | Search refresh | no local ModerationCase truth |
-| `executeGigPrivacyInstruction` | Apply Privacy-directed disposition to Gig-owned data. | Privacy/system actor | approved target instruction + retention result | owner-local data only | `executePrivacyInstruction`, `evaluateRetentionRequirement`, anonymization primitive | Search deindex/detach effects | idempotent; retained/skipped explicit |
+| `executeGigModerationDecision` | Apply an authorized moderation action to Gig-owned state. | signed internal Moderation instruction | validated case/action/target/version | only approved Gig fields/status/visibility | SH-103 `executeModerationDecision`, idempotency, outbox | Search refresh | no local ModerationCase truth |
+| `executeGigPrivacyInstruction` | Apply Privacy-directed disposition to Gig-owned data. | Privacy/system actor | approved target instruction + retention result | owner-local data only | SH-095 `executePrivacyInstruction`, SH-097 `evaluateRetentionRequirement`, anonymization primitive | Search deindex/detach effects | idempotent; retained/skipped explicit |
 
 ---
 
@@ -578,7 +582,7 @@ The commands below are architectural public/application operations, not claims t
 
 ### Decision result pattern
 
-Policy-facing decisions should use the canonical decision envelope (`allowed`, `denied`, `warning`, `review_required`, `step_up_required`, `unavailable`) plus Gig-specific reason codes, source version, evaluated time, and safe evidence references.
+Policy-facing decisions use an owner-specific decision envelope (`allowed`, `denied`, `warning`, `review_required`, `step_up_required`, `unavailable`) plus Gig-specific reason codes, source version, evaluated time, and safe evidence references.
 
 ---
 
@@ -662,20 +666,20 @@ None. Gig / Demand owns no provider adapter or webhook endpoint.
 
 | Owner | Public operation/interface consumed | Why required | Minimum information | Can block? | Must not copy locally |
 | --- | --- | --- | --- | --- | --- |
-| Identity & Access | `resolveAuthenticatedActor` | trusted actor | actor ID/type/security context | Yes | session/user helper |
-| Role / Authority | `authorizeResourceAction` | authorization | action, resource, owner facts | Yes | generic permission engine |
-| Customer / Buyer Profile | `resolveCustomerActor` | buyer-domain actor | active CustomerProfile ID + User link/status | Yes | CustomerProfile lifecycle |
-| Taxonomy & Classification | `validateTaxonomyAssignment`, `resolveTaxonomyRequirements` | classification validity/triggers | canonical IDs, validity, requirement refs | Yes for publish/update as local policy requires | taxonomy rules |
-| Professional Eligibility | `evaluateProfessionalReadiness` | Professional response/acceptance gate | action `respond_to_gig`/approved acceptance action, Professional, Gig context | Yes | raw readiness composition |
-| Admin Review / Compliance Hold | `evaluateComplianceHold` | reusable stop sign | target/action + safe reasons | Yes | blocked flags |
-| Media / File Access | ready-target validation, `attachValidatedMedia`, signed access where viewer needs media | safe attachments | MediaAsset ID/status/context/allowed actions | Yes for attachment/publication | file pipeline |
-| Location Safety | `applyFuzzyPublicLocation` | public-safe location | approved fuzzy projection/version | Yes where public location is required | coordinate fuzzing |
-| Messaging | `ensureContextThread` | conversation context | ThreadContextType, context ID, participants | No for core Gig write unless explicitly made synchronous | Thread lifecycle |
-| Notification | `requestNotification` | user alerts | recipients/template key/safe variables | No for source commit | delivery providers/status |
-| Search / Public Visibility | `requestSearchProjectionRefresh` | derived discovery | entity/action/reason/source version | No for source commit | SearchUpsertEvent/Typesense |
-| Content Moderation | `executeModerationDecision` protocol | apply authoritative moderation result | case/action/target/source version | May restrict public behavior | moderation case truth |
+| Identity & Access | SH-001 `resolveAuthenticatedActor` | trusted actor | actor ID/type/security context | Yes | session/user helper |
+| Role / Authority | SH-002 `authorizeResourceAction` | authorization | action, resource, owner facts | Yes | generic permission engine |
+| Customer / Buyer Profile | SH-004 `resolveCustomerActor` | buyer-domain actor | active CustomerProfile ID + User link/status | Yes | CustomerProfile lifecycle |
+| Taxonomy & Classification | SH-023 `validateTaxonomyAssignment`, SH-022 `resolveTaxonomyRequirements` | classification validity/triggers | canonical IDs, validity, requirement refs | Yes for publish/update as local policy requires | taxonomy rules |
+| Professional Eligibility | SH-016 `evaluateProfessionalReadiness` | Professional response/acceptance gate | action `respond_to_gig`/approved acceptance action, Professional, Gig context | Yes | raw readiness composition |
+| Admin Review / Compliance Hold | SH-011 `evaluateComplianceHold` | reusable stop sign | target/action + safe reasons | Yes | blocked flags |
+| Media / File Access | ready-target validation, SH-090 `attachValidatedMedia`, signed access where viewer needs media | safe attachments | MediaAsset ID/status/context/allowed actions | Yes for attachment/publication | file pipeline |
+| Location Safety | SH-028 `applyFuzzyPublicLocation` | public-safe location | approved fuzzy projection/version | Yes where public location is required | coordinate fuzzing |
+| Messaging | SH-113 `ensureContextThread` | conversation context | ThreadContextType, context ID, participants | No for core Gig write unless explicitly made synchronous | Thread lifecycle |
+| Notification | SH-041 `requestNotification` | user alerts | recipients/template key/safe variables | No for source commit | delivery providers/status |
+| Search / Public Visibility | SH-091 `requestSearchProjectionRefresh` | derived discovery | entity/action/reason/source version | No for source commit | SearchUpsertEvent/Typesense |
+| Content Moderation | SH-103 `executeModerationDecision` protocol | apply authoritative moderation result | case/action/target/source version | May restrict public behavior | moderation case truth |
 | Privacy / Data Erasure | privacy instruction protocol | execute owner data disposition | target/disposition/idempotency/exemption ref | May restrict/delete/anonymize | PrivacyRequest workflow |
-| Audit / Event Ledger | `appendAuditEvent` | generic significant-action proof | actor/action/target/outcome/safe metadata | Usually no; required audit failure policy follows root standard | generic audit storage |
+| Audit / Event Ledger | SH-029 `appendAuditEvent` | generic significant-action proof | actor/action/target/outcome/safe metadata | Usually no; required audit failure policy follows root standard | generic audit storage |
 | Transaction / Order | source conversion acknowledgement/query as needed | assignment→Order handoff/reconciliation | assignment ID/source version/Order ID | No effect on accepted assignment truth if downstream unavailable | Order creation logic |
 | Observability / Ops | request context/log/failure interfaces | operations | correlation IDs/safe failure categories | No | SystemEvent/IntegrationFailure logic |
 
@@ -702,47 +706,47 @@ Trust Verification / Screening is normally indirect through Professional Eligibi
 
 ## 15. Canonical Shared Operations Used
 
-The supplied Canonical Shared Operations Registry standardizes names but does **not** provide permanent `SH-###` identifiers. This document therefore does not invent IDs.
+Use the permanent IDs, canonical owners, and statuses in [Shared Operations](<../../../shared/shared-operations.md>). Confirmed references retain their registered boundaries; proposed references are conditional only.
 
 | Canonical operation | Owner / class | Why Gig / Demand uses it | Invocation point | Local policy that remains here | Expected result | Prohibited duplicate names |
 | --- | --- | --- | --- | --- | --- | --- |
-| `resolveAuthenticatedActor` | Identity & Access; platform capability | trusted actor | every protected command | what Gig action is attempted | typed actor context | `requireGigUser`, `gigAuth`, `currentGigUser` |
-| `authorizeResourceAction` | Role / Authority; cross-cutting capability | server-side permission | protected reads/writes | owner/response/assignment relationship facts | allow/deny decision | `gigPermissions`, `assignmentGuard`, local RBAC |
-| `queryOwnerFacts` | each source Module; shared contract | expose minimal Gig ownership/context facts | Role/Media/Messaging consumers | Gig fact vocabulary | owner-fact DTO | cross-domain repository |
-| `resolveCustomerActor` | Customer / Buyer Profile; Module public interface | buyer-domain identity | customer Gig commands | Gig requires eligible customer context | CustomerProfile ID/status/source version | `buyerResolver`, User-only buyer helper |
-| `evaluateComplianceHold` | Admin Review / Compliance Hold | reusable action stop sign | publish, response acceptance, selected assignment transitions | which action/target a hold blocks | safe DecisionResult | local `blocked` flag/service |
-| `returnDecisionResult` | shared contract; policy local | consistent decisions | all gate/query surfaces | Gig reason codes and policy | normalized decision envelope | ad hoc booleans |
-| `evaluateProfessionalReadiness` | Professional Eligibility | response/acceptance gate | submit and accept | Gig supplies action/context only | DecisionResult + safe evidence refs | `professionalCanRespond`, raw verification composer |
-| `resolveTaxonomyRequirements` | Taxonomy & Classification | requirement triggers | publish/update | whether trigger blocks Gig transition | typed requirements | hard-coded category risk map |
-| `validateTaxonomyAssignment` | Taxonomy & Classification | canonical classification validation | create/update/publish | whether category/tags are mandatory | normalized IDs/errors | `gigCategoryValidator`, local tag cleaner |
-| `evaluatePublicReadiness` | shared contract; source/compliance owners | public projection decision | publish/Search source build | Gig-local status/visibility rules | owner decision + version | Search reconstructing Gig policy |
-| `applyFuzzyPublicLocation` | Location Safety | public-safe location | public projection | what location context Gig wants displayed | fuzzy projection/version | `gigLocationMask`, coordinate randomizer |
-| `attachValidatedMedia` | contextual Module + Media truth | safe Gig attachment | media attach | role/sort/context semantics | validated join creation | `gigFileScanner`, direct Media writes |
-| `issueSignedMediaUrl` | Media / File Access | temporary private media delivery | authorized Gig media read | contextual viewer entitlement facts | signed URL/access evidence | `gigPresignedUrl`, R2 client |
-| `ensureContextThread` | Messaging; Module public interface | idempotent business-context conversation | after approved Gig/response/assignment point | context/participants | Thread ID | `gigChatService`, direct Thread insert |
-| `appendAuditEvent` | Audit / Event Ledger | generic significant action proof | publish/cancel/accept/admin actions | safe Gig metadata | audit acknowledgement | `gigAuditLog` generic table |
-| `createRequestContext` | platform/Observability | correlation/causation | request/job entry | safe domain IDs only | propagated context | custom correlation helper |
-| `writeStructuredLog` | Observability / Ops | operational diagnostics | commands/workers | safe dimensions | log record | direct ad hoc logger stack |
-| `sanitizeTelemetryMetadata` | Observability/Audit policy | prevent sensitive leakage | logging/audit/event metadata | Gig sensitivity classification | safe metadata | manual scattered redaction |
-| `recordIntegrationFailure` | Observability / Ops | visible degraded dependency | failed Search/Notification/Order handoff etc. | business state remains unchanged | normalized failure | custom failure table |
-| `requestNotification` | Notification | user alert | committed lifecycle events | event meaning + recipients | notification request | `gigEmailService`, `gigPush` |
-| `executeIdempotentCommand` | platform application infrastructure | safe retries | create/respond/accept/transitions | semantic identity/conflict/replay | original result replay | `gigIdempotency`, custom dedupe table |
-| `deduplicateDomainEvent` | platform event infrastructure | idempotent event consumers | inbound event handlers | handler-specific effect | inbox claim/result | ad hoc processed-event table |
-| `publishDomainEvent` | platform outbox | reliable committed fact publication | same transaction/outbox as source write | event names/payload privacy | versioned event | fire-and-forget emitter |
-| `enqueueReliableJob` | shared queue infrastructure | expiration/reconciliation | background work | job payload and business meaning | durable job ID | custom queue |
-| `executeRetryWithBackoff` | shared queue/platform | retry transient effects | worker dependency calls | retryability classification | success/dead-letter | per-worker retry loop |
-| `acquireAggregateLock` | shared persistence infrastructure | serialize response acceptance | acceptance/critical transition | lock key `gig:{gigId}` and conflicts | lock/transaction scope | in-memory mutex, bespoke lock table |
-| `withOptimisticConcurrency` | shared persistence infrastructure | stale update protection | edits/non-locking transitions where approved | retry/merge policy | update/conflict | hand-rolled timestamp compare |
-| `transitionLifecycleState` | shared mechanism/separate truth | state-machine plumbing | all lifecycle commands | exact Gig/Response/Assignment graph | validated transition | generic policy owning statuses |
-| `runDeadlineExpiration` | shared scheduler/queue | process `closesAt` | expiration worker | which statuses expire | dispatched owner transition | `gigCron`, scheduler writing status directly |
-| `requestSearchProjectionRefresh` | Search / Public Visibility | index/update/hide/remove | after committed public-source change | Gig source version/reason | accepted projection request | Typesense client, `SearchUpsertEvent` insert |
-| `buildSourceProjection` | each source Module; shared pattern | safe Search input | Search query/rebuild | allowlisted Gig fields | source projection + version | Search raw Prisma access |
-| `executePrivacyInstruction` | Privacy protocol; data owner executes | privacy disposition | Privacy target command | field-level Gig handling | normalized privacy result | `gigGdprWorkflow` |
-| `enumerateSubjectData` | each data owner | privacy inventory | Privacy discovery | Gig-owned targets | cursorable target list | global DB crawler |
-| `evaluateRetentionRequirement` | data owner facts + Privacy exemption record | retention determination input | before destructive action | Gig/Order-linked retention facts | required/reason/minimum fields | local retention-exemption table |
-| `anonymizePersonalFields` | shared primitive; owner mapping | field-level anonymization | approved Privacy instruction | exact Gig field map | anonymization proof/result | global uncontrolled anonymizer |
-| `executeModerationDecision` | Moderation decision; target owner executes | apply approved source effect | moderation event/command | allowed Gig-side effect | ack/completed/failed result | local moderation case |
-| `validateOwnedTargetReference` | target owner | safe cross-Module target validation | context joins/commands | Gig relationship eligibility | typed target result | direct cross-domain Prisma read |
+| SH-001 `resolveAuthenticatedActor` | Identity & Access; platform capability | trusted actor | every protected command | what Gig action is attempted | typed actor context | `requireGigUser`, `gigAuth`, `currentGigUser` |
+| SH-002 `authorizeResourceAction` | Role / Authority; cross-cutting capability | server-side permission | protected reads/writes | owner/response/assignment relationship facts | allow/deny decision | `gigPermissions`, `assignmentGuard`, local RBAC |
+| SH-003 `queryOwnerFacts` (Proposed future normalization only; not a prerequisite) | each source Module; shared contract | expose minimal Gig ownership/context facts | Role/Media/Messaging consumers | Gig fact vocabulary | owner-fact DTO | cross-domain repository |
+| SH-004 `resolveCustomerActor` | Customer / Buyer Profile; Module public interface | buyer-domain identity | customer Gig commands | Gig requires eligible customer context | CustomerProfile ID/status/source version | `buyerResolver`, User-only buyer helper |
+| SH-011 `evaluateComplianceHold` | Admin Review / Compliance Hold | reusable action stop sign | publish, response acceptance, selected assignment transitions | which action/target a hold blocks | safe DecisionResult | local `blocked` flag/service |
+| SH-015 `returnDecisionResult` (Proposed future normalization only; not a prerequisite) | shared contract; policy local | consistent decisions | all gate/query surfaces | Gig reason codes and policy | normalized decision envelope | ad hoc booleans |
+| SH-016 `evaluateProfessionalReadiness` | Professional Eligibility | response/acceptance gate | submit and accept | Gig supplies action/context only | DecisionResult + safe evidence refs | `professionalCanRespond`, raw verification composer |
+| SH-022 `resolveTaxonomyRequirements` | Taxonomy & Classification | requirement triggers | publish/update | whether trigger blocks Gig transition | typed requirements | hard-coded category risk map |
+| SH-023 `validateTaxonomyAssignment` | Taxonomy & Classification | canonical classification validation | create/update/publish | whether category/tags are mandatory | normalized IDs/errors | `gigCategoryValidator`, local tag cleaner |
+| SH-024 `evaluatePublicReadiness` | shared contract; source/compliance owners | public projection decision | publish/Search source build | Gig-local status/visibility rules | owner decision + version | Search reconstructing Gig policy |
+| SH-028 `applyFuzzyPublicLocation` | Location Safety | public-safe location | public projection | what location context Gig wants displayed | fuzzy projection/version | `gigLocationMask`, coordinate randomizer |
+| SH-090 `attachValidatedMedia` | contextual Module + Media truth | safe Gig attachment | media attach | role/sort/context semantics | validated join creation | `gigFileScanner`, direct Media writes |
+| SH-087 `issueSignedMediaUrl` | Media / File Access | temporary private media delivery | authorized Gig media read | contextual viewer entitlement facts | signed URL/access evidence | `gigPresignedUrl`, R2 client |
+| SH-113 `ensureContextThread` | Messaging; Module public interface | idempotent business-context conversation | after approved Gig/response/assignment point | context/participants | Thread ID | `gigChatService`, direct Thread insert |
+| SH-029 `appendAuditEvent` | Audit / Event Ledger | generic significant action proof | publish/cancel/accept/admin actions | safe Gig metadata | audit acknowledgement | `gigAuditLog` generic table |
+| SH-032 `createRequestContext` | platform/Observability | correlation/causation | request/job entry | safe domain IDs only | propagated context | custom correlation helper |
+| SH-033 `writeStructuredLog` | Observability / Ops | operational diagnostics | commands/workers | safe dimensions | log record | direct ad hoc logger stack |
+| SH-034 `sanitizeTelemetryMetadata` | Observability/Audit policy | prevent sensitive leakage | logging/audit/event metadata | Gig sensitivity classification | safe metadata | manual scattered redaction |
+| SH-037 `recordIntegrationFailure` | Observability / Ops | visible degraded dependency | failed Search/Notification/Order handoff etc. | business state remains unchanged | normalized failure | custom failure table |
+| SH-041 `requestNotification` | Notification | user alert | committed lifecycle events | event meaning + recipients | notification request | `gigEmailService`, `gigPush` |
+| SH-044 `executeIdempotentCommand` | platform application infrastructure | safe retries | create/respond/accept/transitions | semantic identity/conflict/replay | original result replay | `gigIdempotency`, custom dedupe table |
+| SH-045 `deduplicateDomainEvent` | platform event infrastructure | idempotent event consumers | inbound event handlers | handler-specific effect | inbox claim/result | ad hoc processed-event table |
+| SH-046 `publishDomainEvent` | platform outbox | reliable committed fact publication | same transaction/outbox as source write | event names/payload privacy | versioned event | fire-and-forget emitter |
+| SH-047 `enqueueReliableJob` | shared queue infrastructure | expiration/reconciliation | background work | job payload and business meaning | durable job ID | custom queue |
+| SH-048 `executeRetryWithBackoff` | shared queue/platform | retry transient effects | worker dependency calls | retryability classification | success/dead-letter | per-worker retry loop |
+| SH-051 `acquireAggregateLock` | shared persistence infrastructure | serialize response acceptance | acceptance/critical transition | lock key `gig:{gigId}` and conflicts | lock/transaction scope | in-memory mutex, bespoke lock table |
+| SH-052 `withOptimisticConcurrency` | shared persistence infrastructure | stale update protection | edits/non-locking transitions where approved | retry/merge policy | update/conflict | hand-rolled timestamp compare |
+| SH-053 `transitionLifecycleState` | shared mechanism/separate truth | state-machine plumbing | all lifecycle commands | exact Gig/Response/Assignment graph | validated transition | generic policy owning statuses |
+| SH-055 `runDeadlineExpiration` | shared scheduler/queue | process `closesAt` | expiration worker | which statuses expire | dispatched owner transition | `gigCron`, scheduler writing status directly |
+| SH-091 `requestSearchProjectionRefresh` | Search / Public Visibility | index/update/hide/remove | after committed public-source change | Gig source version/reason | accepted projection request | Typesense client, `SearchUpsertEvent` insert |
+| SH-094 `buildSourceProjection` | each source Module; shared pattern | safe Search input | Search query/rebuild | allowlisted Gig fields | source projection + version | Search raw Prisma access |
+| SH-095 `executePrivacyInstruction` | Privacy protocol; data owner executes | privacy disposition | Privacy target command | field-level Gig handling | normalized privacy result | `gigGdprWorkflow` |
+| SH-096 `enumerateSubjectData` | each data owner | privacy inventory | Privacy discovery | Gig-owned targets | cursorable target list | global DB crawler |
+| SH-097 `evaluateRetentionRequirement` | data owner facts + Privacy exemption record | retention determination input | before destructive action | Gig/Order-linked retention facts | required/reason/minimum fields | local retention-exemption table |
+| SH-098 `anonymizePersonalFields` | shared primitive; owner mapping | field-level anonymization | approved Privacy instruction | exact Gig field map | anonymization proof/result | global uncontrolled anonymizer |
+| SH-103 `executeModerationDecision` | Moderation decision; target owner executes | apply approved source effect | moderation event/command | allowed Gig-side effect | ack/completed/failed result | local moderation case |
+| SH-123 `validateOwnedTargetReference` | target owner | safe cross-Module target validation | context joins/commands | Gig relationship eligibility | typed target result | direct cross-domain Prisma read |
 
 ---
 
@@ -766,7 +770,7 @@ The supplied Canonical Shared Operations Registry standardizes names but does **
 
 ## 17. Shared Mechanism / Separate Truth Rules
 
-1. **Lifecycle plumbing:** `transitionLifecycleState` may be shared; Gig/Response/Assignment graphs remain Gig truth.
+1. **Lifecycle plumbing:** SH-053 `transitionLifecycleState` may be shared; Gig/Response/Assignment graphs remain Gig truth.
 2. **Idempotency:** platform stores command claim/replay; Gig defines semantic command identity and conflict meaning.
 3. **Concurrency:** database lock/CAS mechanism is shared; Gig defines acceptance lock key and conflicting commands.
 4. **Outbox/inbox:** transport is shared; Gig owns event vocabulary/payload/emission condition; consumers own side effects.
@@ -784,11 +788,11 @@ The supplied Canonical Shared Operations Registry standardizes names but does **
 
 ### Authenticated actor
 
-Every protected command begins with `resolveAuthenticatedActor`. Browser/client-provided User IDs are never trusted as actor proof.
+Every protected command begins with SH-001 `resolveAuthenticatedActor`. Browser/client-provided User IDs are never trusted as actor proof.
 
 ### Authority
 
-Use `authorizeResourceAction`. Gig / Demand supplies contextual facts such as:
+Use SH-002 `authorizeResourceAction`. Gig / Demand supplies contextual facts such as:
 
 - controlling `customerProfileId` and associated User;
 - `posterUserId` during migration/legacy handling;
@@ -808,7 +812,7 @@ Role / Authority returns permission interpretation. It does not determine busine
 
 ### Step-up
 
-No Gig-specific step-up requirement is confirmed. If root security policy later marks an admin/financial Gig-adjacent action as sensitive, Gig / Demand calls Identity & Access `requireStepUpForSensitiveAction`; it does not implement MFA locally.
+No Gig-specific step-up requirement is confirmed. If root security policy later marks an admin/financial Gig-adjacent action as sensitive, Gig / Demand calls Identity & Access SH-014 `requireStepUpForSensitiveAction`; it does not implement MFA locally.
 
 ---
 
@@ -816,13 +820,13 @@ No Gig-specific step-up requirement is confirmed. If root security policy later 
 
 | Gate | Underlying truth owner | Query | Gig action gated | Gig-local policy | Result |
 | --- | --- | --- | --- | --- | --- |
-| Customer actor | Customer / Buyer Profile | `resolveCustomerActor` | create/update/publish/accept | require eligible controlling customer | allow/deny |
-| Taxonomy validity | Taxonomy & Classification | `validateTaxonomyAssignment` | create/update/publish | decide which classification fields are mandatory | valid/errors |
-| Taxonomy requirements | Taxonomy & Classification | `resolveTaxonomyRequirements` | publish/response context | include trigger facts in readiness/public policy | requirement refs |
-| Professional response readiness | Professional Eligibility | `evaluateProfessionalReadiness` | submit response | `respond_to_gig` action | DecisionResult |
+| Customer actor | Customer / Buyer Profile | SH-004 `resolveCustomerActor` | create/update/publish/accept | require eligible controlling customer | allow/deny |
+| Taxonomy validity | Taxonomy & Classification | SH-023 `validateTaxonomyAssignment` | create/update/publish | decide which classification fields are mandatory | valid/errors |
+| Taxonomy requirements | Taxonomy & Classification | SH-022 `resolveTaxonomyRequirements` | publish/response context | include trigger facts in readiness/public policy | requirement refs |
+| Professional response readiness | Professional Eligibility | SH-016 `evaluateProfessionalReadiness` | submit response | `respond_to_gig` action | DecisionResult |
 | Acceptance readiness recheck | Professional Eligibility | same interface with approved action/context | accept response | fresh evaluation required at acceptance | DecisionResult |
-| Compliance hold | Admin Review / Compliance Hold | `evaluateComplianceHold` | publish/accept/selected transitions | map applicable holds to denial | DecisionResult |
-| Location safety | Location Safety | `applyFuzzyPublicLocation` | public projection | do not expose exact location | safe projection |
+| Compliance hold | Admin Review / Compliance Hold | SH-011 `evaluateComplianceHold` | publish/accept/selected transitions | map applicable holds to denial | DecisionResult |
+| Location safety | Location Safety | SH-028 `applyFuzzyPublicLocation` | public projection | do not expose exact location | safe projection |
 | Media readiness | Media / File Access | owner validation/attach interface | attach/publish | required assets must be ready | allow/deny |
 | Moderation | Content Moderation | approved action protocol | public/source restriction | apply only authorized effect | action acknowledgement |
 | Entitlement | Track Subscription & Entitlement | none confirmed for a Gig-specific MVP feature | none by default | do not invent premium/posting quota policy | N/A until product ruling |
@@ -873,7 +877,7 @@ Typical event payload should contain IDs, status, source version, actor/customer
 
 ### Consumer idempotency
 
-Every consumer uses `deduplicateDomainEvent`. Gig / Demand does not create ad hoc processed-event tables for ordinary internal domain events.
+Every consumer uses SH-045 `deduplicateDomainEvent`. Gig / Demand does not create ad hoc processed-event tables for ordinary internal domain events.
 
 ### Events are not commands
 
@@ -903,7 +907,7 @@ Every consumer uses `deduplicateDomainEvent`. Gig / Demand does not create ad ho
 - **Failure rule:** an accepted assignment remains valid Gig truth if Order is temporarily unavailable; reconciliation must never fabricate an Order ID.
 - **Dead-letter:** surface to Ops after bounded retries.
 
-Generic queue mechanics, retries, leases, dead-letter state, and telemetry use `enqueueReliableJob`, `executeRetryWithBackoff`, and shared worker infrastructure.
+Generic queue mechanics, retries, leases, dead-letter state, and telemetry use SH-047 `enqueueReliableJob`, SH-048 `executeRetryWithBackoff`, and shared worker infrastructure.
 
 ---
 
@@ -927,11 +931,11 @@ Generic queue mechanics, retries, leases, dead-letter state, and telemetry use `
 
 ### Missing constraint
 
-Current schema does not enforce one assignment per Gig. Assignment cardinality is an architecture decision gate.
+Current schema does not enforce the approved single-award MVP invariant. Acceptance must serialize competing commands; the physical database enforcement design remains a separate schema/migration gate.
 
 ### Acceptance transaction
 
-Once cardinality is approved, `acceptGigResponse` must:
+Under the confirmed single-award MVP rule, `acceptGigResponse` must:
 
 1. claim command idempotency;
 2. lock `gig:{gigId}` or use an approved equivalent serializable/CAS strategy;
@@ -956,7 +960,7 @@ No in-memory mutex is acceptable for database-owned concurrency.
 - It must not mark MediaAsset ready, bypass malware/MIME/metadata processing, choose raw storage keys, or create permanent public URLs.
 - Public Gig projection may include only Media-approved public/processed references according to Media and Search contracts.
 - Private Gig media is delivered through Media signed access after contextual authorization.
-- `issueSignedMediaUrl` is transport, not Gig entitlement truth.
+- SH-087 `issueSignedMediaUrl` is transport, not Gig entitlement truth.
 - Detaching `GigMedia` does not automatically delete `MediaAsset`; Media/privacy/moderation retention rules decide object disposition.
 
 ---
@@ -995,7 +999,7 @@ Search / Public Visibility owns:
 
 ### Triggers
 
-After committed source changes that affect public discovery, call `requestSearchProjectionRefresh` with entity ID, action/reason, source version, requester Module, and idempotency key.
+After committed source changes that affect public discovery, call SH-091 `requestSearchProjectionRefresh` with entity ID, action/reason, source version, requester Module, and idempotency key.
 
 Projection failure does not roll back Gig source truth.
 
@@ -1014,7 +1018,7 @@ Likely trigger intents:
 - Gig paused/cancelled/expired where participants need notice;
 - assignment lifecycle change.
 
-Use `requestNotification` with:
+Use SH-041 `requestNotification` with:
 
 - recipient User IDs resolved from source relationships;
 - template key;
@@ -1035,7 +1039,7 @@ Gig/Response/Assignment source rows and transactional domain events remain domai
 
 ### Generic audit
 
-Use `appendAuditEvent` for significant actions such as:
+Use SH-029 `appendAuditEvent` for significant actions such as:
 
 - Gig publication/cancellation/admin correction;
 - response acceptance;
@@ -1044,7 +1048,7 @@ Use `appendAuditEvent` for significant actions such as:
 
 ### Sensitive access
 
-Ordinary Gig reads are not automatically sensitive-access events. Private/sensitive Media access is audited through Media/Audit rails. If future Gig fields become specially sensitive, use `recordSensitiveAccess` rather than creating a local access-log table.
+Ordinary Gig reads are not automatically sensitive-access events. Private/sensitive Media access is audited through Media/Audit rails. If future Gig fields become specially sensitive, use SH-030 `recordSensitiveAccess` rather than creating a local access-log table.
 
 ### Separation
 
@@ -1086,12 +1090,12 @@ Privacy execution may request Search removal and Media contextual detach/deletio
 
 Use canonical:
 
-- `createRequestContext`;
-- `writeStructuredLog`;
-- `sanitizeTelemetryMetadata`;
-- `captureException` where platform wrapper applies;
-- `emitMetric`;
-- `recordIntegrationFailure`;
+- SH-032 `createRequestContext`;
+- SH-033 `writeStructuredLog`;
+- SH-034 `sanitizeTelemetryMetadata`;
+- SH-035 `captureException` where platform wrapper applies;
+- SH-036 `emitMetric`;
+- SH-037 `recordIntegrationFailure`;
 - shared queue telemetry.
 
 Recommended safe dimensions:
@@ -1185,14 +1189,14 @@ Provider-specific error strings must never become public domain reason codes.
 
 ### Public contract tests
 
-- `resolveCustomerActor` consumption;
+- SH-004 `resolveCustomerActor` consumption;
 - taxonomy validation/requirements;
-- `evaluateProfessionalReadiness` response gate;
+- SH-016 `evaluateProfessionalReadiness` response gate;
 - ComplianceHold decision;
 - Media attachment validation;
 - Location Safety fuzzy projection;
 - Search refresh request;
-- Messaging `ensureContextThread`;
+- Messaging SH-113 `ensureContextThread`;
 - Notification request;
 - `getGigAssignmentCheckoutSource` consumed by Transaction / Order;
 - privacy executor contract.
@@ -1264,7 +1268,7 @@ No provider adapter tests belong here because this Module owns none.
 7. Response acceptance must be idempotent and concurrency-safe.
 8. Assignment cardinality must match the explicitly approved ruling; current schema permissiveness is not permission to choose.
 9. New buyer-domain writes must not silently ignore the CustomerProfile architecture direction; migration semantics must be explicitly approved.
-10. `posterUserId`/`buyerUserId` are not a substitute for CustomerProfile commercial truth once the migration ruling is accepted.
+10. `posterUserId`/`buyerUserId` are not a substitute for CustomerProfile commercial truth once CustomerProfile migration is complete.
 11. `invite_only` must remain disabled/unsupported until authoritative audience truth exists.
 12. Gig / Demand never computes verification readiness from raw `VerificationCheck`, TrustBadge, KYC, tax, healthcare, entitlement, or hold tables.
 13. Gig / Demand never creates local compliance block flags.
@@ -1318,11 +1322,11 @@ Do not generate these or equivalent local responsibilities inside `gig-demand`:
 
 | Decision | Current evidence | Implementation impact |
 | --- | --- | --- |
-| Single-award vs multi-award Gig | Product flow says customer accepts one response; Prisma permits many assignments; CL-04 explicitly marks unresolved. | Blocks production acceptance/cardinality constraint. Proposed MVP: single-award. |
+| Single-award database enforcement | Single-award MVP is confirmed; Prisma permits multiple assignments. | Later enforcement design/migration; remaining acceptance transitions still require approval. |
 | Exact Gig transition matrix | Enum exists; no approved graph. | Blocks pause/reopen/assigned/completed automation beyond settled subset. |
 | Exact GigResponse transition/edit rules | Enum and uniqueness exist; edit-window rules absent. | Blocks final `reviseGigResponse` state policy. |
 | Exact GigAssignment transition semantics | Enum exists; `proposed` and `disputed` meaning unclear. | Blocks full assignment lifecycle. |
-| CustomerProfile non-null migration | New architecture says CustomerProfile is buyer truth; schema remains optional. | Blocks destructive/non-null migration; new-write policy needs explicit approval. |
+| CustomerProfile physical migration | New buyer-domain identity requirement is confirmed; current fields remain nullable. | Historical backfill, physical enforcement, and legacy User reference semantics remain unresolved. |
 | `posterUserId` / `buyerUserId` semantics | legacy/auth IDs remain; `buyerUserId` lacks explicit relation on assignment. | Requires schema/migration ruling and audit/reference semantics. |
 | `invite_only` authority | enum exists; no invitation/audience record. | `invite_only` must remain unsupported. |
 | Completion synchronization | Gig, Assignment, and Order each have completion concepts. | Blocks automatic Gig completion from downstream facts. |
@@ -1348,14 +1352,18 @@ Do not generate these or equivalent local responsibilities inside `gig-demand`:
 9. Response uniqueness is one ProfessionalProfile per Gig.
 10. `invite_only` cannot be implemented until an audience authority exists.
 
+### Confirmed reconciliation rulings
+
+- **Confirmed CL-04-R002 (not a proposal):** at most one accepted/current winning GigAssignment per Gig for MVP; serialize competing acceptance.
+- **Confirmed SH-046 (not a proposal):** all cross-Module Gig-domain effects publish through the canonical outbox.
+
+**Confirmed CL-04-R007:** CustomerProfile is required semantic buyer identity for new Gig/assignment records. Historical backfill and permanent legacy User reference semantics remain unresolved.
+
 ### Proposed Rulings requiring explicit acceptance
 
-1. **Single-award MVP:** one accepted GigAssignment per Gig.
-2. **Buyer actor migration:** new Gig/assignment writes require CustomerProfile; User IDs remain authentication/audit references during/after migration where useful.
-3. **Acceptance concurrency:** use canonical aggregate lock on Gig plus idempotent command result.
-4. **Transactional outbox:** all cross-Module Gig-domain effects publish through the canonical outbox.
-5. **Assignment creation:** acceptance creates `GigAssignment.status=accepted` directly; `proposed` remains unsupported until a separate workflow is defined.
-6. **Source interface:** Transaction / Order consumes `getGigAssignmentCheckoutSource` instead of reading Gig repositories.
+1. **Acceptance concurrency:** use canonical aggregate lock on Gig plus idempotent command result.
+2. **Assignment creation:** acceptance creates `GigAssignment.status=accepted` directly; `proposed` remains unsupported until a separate workflow is defined.
+3. **Source interface:** Transaction / Order consumes `getGigAssignmentCheckoutSource` instead of reading Gig repositories.
 
 ### Still unresolved
 

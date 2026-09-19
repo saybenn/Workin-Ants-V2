@@ -5,24 +5,26 @@
 > **Module type:** `feature_compliance`  
 > **Build status:** `mvp_active_legal_gated`  
 > **Primary Cluster:** `CL-10 — Incentives, Rewards & Prize Economy`  
-> **Repository target:** `context/modules/gamification_rewards/module-architecture.md`  
+> **Repository target:** `context/clusters/incentives, rewards & prize economy/gamification-rewards-module/gamification-rewards-module-architecture(1).md`\
 > **Document status:** Implementation-grade Module architecture derived from the current Workin Ants evidence set. Confirmed rules are binding; Proposed Rulings and Unresolved Decisions are explicitly labeled.  
 > **Audience:** Coding agents, developers, reviewers, maintainers, architects, and compliance reviewers working on `gamification_rewards`.  
 > **Update rule:** Update this file whenever a binding Module ownership boundary, lifecycle rule, public contract, shared-operation dependency, data meaning, or compliance gate changes. Build progress must not silently redefine architecture.
 
 ---
 
+**Context routing and availability:** Follow [context/context-map.md](<../../../context-map.md>) for authority by concern and actual artifact paths; use [context/project-overview-v3.md](<../../../project-overview-v3.md>) as the overview entry point. Root architecture/build plan, `context/code-standards.md`, and the dedicated progress tracker are unavailable in the current context inventory. References below to those artifacts or their standards are conditional prerequisites, not evidence of an existing global sequence or approval. Do not invent missing root decisions or artifacts.
+
 ## 1. Module Header
 
 ### Relationship to root architecture
 
-This file is subordinate to the root Workin Ants architecture and Project Overview. Root rules remain authoritative for platform-wide identity, authorization, privacy, observability, data access, provider isolation, and shared-operation behavior.
+This file follows `context/context-map.md` for authority by concern. The overview provides product context; root architecture is currently unavailable. Existing canonical owner contracts and Shared Operations govern their respective platform concerns.
 
 This file narrows those rules to the `gamification_rewards` Deep Module. It does not create a second platform architecture.
 
 ### Relationship to Cluster architecture
 
-This file is subordinate to `CL-10 — Incentives, Rewards & Prize Economy` architecture and build plan.
+The CL-10 architecture governs cross-Module collaboration. This Module architecture governs Gamification source truth, lifecycles, commands, queries, invariants, and explicit non-ownership. The Cluster build plan governs Cluster sequencing; the Gamification implementation plan governs Module implementation sequencing within that Cluster sequence. The Shared Operations registry governs SH identities, names, owners, statuses, and reusable boundaries; Prisma governs current persisted structure. No plan may silently overrule architecture. These are concern-specific authorities, not a global precedence ladder (CL-10-R019).
 
 The Cluster coordinates `gamification_rewards` with `sweepstakes_prize`; this Module file owns only the deterministic gamification side:
 
@@ -294,7 +296,7 @@ The Module must not own or recreate the following.
 4. **Exactly-once business effect under at-least-once delivery.** Event replay must not duplicate rule effects.
 5. **Source Modules publish facts; Gamification decides points.** Gamification must not poll another Module's tables to reconstruct a source event.
 6. **Rule configuration is declarative.** `ruleJson` is schema-validated configuration, never executable code.
-7. **Program/rule time applies deliberately.** A source event is evaluated against owner-approved effective rule semantics, not whatever mutable configuration happens to exist later.
+7. **Program/rule time applies deliberately.** A source event is evaluated against owner-approved effective rule semantics through SH-080 `manageVersionedRules`, not whatever mutable configuration happens to exist later. Historical award linkage remains unresolved under U-GR-03.
 8. **Challenge state is not leaderboard state.**
 9. **Leaderboard is a projection.** Projection loss must be recoverable from source truth.
 10. **Reward request is atomic with point spend.**
@@ -313,7 +315,7 @@ The Module must not own or recreate the following.
 
 ## 6. Proposed Folder / Code Structure
 
-The root code standards own final repository conventions. If they do not already establish equivalent paths, use the following Module-local organization:
+Root code standards are currently unavailable. The following remains the proposed Module-local organization; it does not establish missing root conventions:
 
 ```text
 src/
@@ -1312,6 +1314,17 @@ Only operations relevant to this Module are listed. The canonical definitions re
 **Local policy:** point sufficiency, inventory meaning, release/commit behavior.  
 **Do not build:** check-then-decrement helper or local lock service.
 
+### SH-080 — `manageVersionedRules`
+
+**Classification:** shared mechanism; separate policy
+**Owner:** each policy Module using shared versioning mechanism
+**Status:** Confirmed
+**Why used:** preserve immutable Gamification rule versions and effective intervals.
+**Invocation:** rule configuration/activation/retirement and effective-version resolution during award evaluation.
+**Local policy:** trigger meaning, point amount, applicability, validation, source qualification, and reward policy remain Gamification-owned.
+**Do not build:** an independent general rule-version framework.
+**Integration proof:** contract tests resolve the correct immutable effective version through SH-080. This does not resolve U-GR-03 historical source-event/rule linkage or approve schema changes.
+
 ### SH-095 / SH-096 / SH-097 / SH-098 — Privacy owner protocol
 **Classification:** cross-cutting protocol/capability  
 **Owner:** Privacy orchestrates; Gamification executes owned-data actions  
@@ -1744,6 +1757,25 @@ Through SH-095:
 - export owned records;
 - retain where required;
 - report result/evidence to Privacy.
+
+### Owner target/executor contract (CL-10-R015)
+
+**Protocol owner:** Privacy / Data Erasure. **Executing owner:** `gamification_rewards`. The following maps existing owner records, not new DataErasureTargetType enum values:
+
+| Subject inventory | Existing owner identity | Export contribution |
+|---|---|---|
+| `PointLedgerEntry` by `userId` | `id` | Point history and approved causation references |
+| `ChallengeParticipant` by `userId` | Existing composite key `(challengeId, userId)`; protocol encoding pending | Challenge participation |
+| `LeaderboardEntry` by `userId` | `id` | Leaderboard participation |
+| `RewardRedemption` by `userId` | `id` | Redemption/value history and owned evidence references |
+
+SH-096 accepts the Privacy subject/cursor context and returns minimized descriptors using Privacy's fields: `ownerModule`, `targetType`, `targetId` or `externalRef`, `subjectId`, `supportedActions`, `sensitivity`, `sourceVersion`, `retentionCandidate`, and `exportSerializerVersion`, with cursoring. Validate subject association in this Module; referenced foreign records remain their owners' inventory. Configuration records enter inventory only where a subject association or incidental personal data is established. Future Gamification-owned provider targets require their separately approved ownership/schema first.
+
+SH-097 accepts the owned target and proposed action and returns required retention facts, reason/policy basis, authoritative `retainUntil` when available, minimum fields, permitted anonymization, and source references. Unknown policy is not permission to erase or a fabricated retention basis; Privacy records any exemption.
+
+SH-095 accepts Privacy request/job/target references, the typed owner target, requested disposition, idempotency and execution context. Revalidate owner/subject/target and approved action before changing owned records. SH-098 uses only an approved versioned field map. Return Privacy's canonical target result: owner, requested disposition, idempotency key, result (erased, anonymized, retained, restricted, exported, detached, revoked, skipped, retryable failure, or terminal failure, as applicable under approved policy), evidence/exemption references, safe counts/completion metadata, and provider result only where applicable. Replays must not repeat side effects; unsupported targets/actions cannot be reported as successful execution. Privacy owns recorded target disposition and orchestration.
+
+**Still unresolved:** bilateral registration of stable `targetType`/target-ID encoding, source-version strategy, per-target supported actions and result mappings; retain/anonymize/erase dispositions depend on CL-10-R014. This mapping documents owner participation without choosing those pending details. Production execution requires their approval. Do not infer an enum mapping, use a generic database crawler, create a local PrivacyRequest/DataErasureJob, or decide legal retention here.
 
 ### Retention evaluation
 
@@ -2213,14 +2245,14 @@ Production code must not silently resolve U-GR-01 through U-GR-17. Features may 
 
 Before implementing this Module, the coding agent must read, in order:
 
-1. root `context/project-overview.md`;
-2. root `context/architecture.md`;
-3. root `context/code-standards.md`;
+1. root `context/project-overview-v3.md`;
+2. root `context/architecture.md`, unavailable; consult only if recovered and reconciled;
+3. root `context/code-standards.md`, unavailable; consult only when present;
 4. `context/shared/shared-operations.md`;
-5. `context/clusters/incentives-rewards-prize-economy/architecture.md`;
-6. `context/clusters/incentives-rewards-prize-economy/build-plan.md`;
-7. this `gamification_rewards/module-architecture.md`;
-8. this `gamification_rewards/implementation-plan.md`;
+5. `context/clusters/incentives, rewards & prize economy/incentives-rewards-prize-economy-cluster-architecture.md`;
+6. `context/clusters/incentives, rewards & prize economy/incentives-rewards-prize-economy-cluster-build-plan.md`;
+7. `context/clusters/incentives, rewards & prize economy/gamification-rewards-module/gamification-rewards-module-architecture(1).md`;
+8. `context/clusters/incentives, rewards & prize economy/gamification-rewards-module/gamification-rewards-module-implementation-plan(1).md`;
 9. public-interface sections for direct dependencies, especially:
    - Identity & Access;
    - Role / Authority;

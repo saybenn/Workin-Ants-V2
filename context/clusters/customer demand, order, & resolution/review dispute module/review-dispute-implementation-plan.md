@@ -8,6 +8,8 @@
 > **Plan status:** Implementation-grade Module plan; subordinate to root architecture and CL-04 `build-plan.md`  
 > **Source-of-truth scope:** `Review`, `ReviewStatus`, `Dispute`, `DisputeStatus`
 
+**Shared Operation status (CL-04-R015/R016):** exact SH IDs/names resolve to the canonical registry. SH-046 publication/outbox is Confirmed. SH-003 `queryOwnerFacts` and SH-015 `returnDecisionResult` remain Proposed ruling: use owner-specific fact/decision DTOs, not binding APIs dependent on those proposals. SH-054, SH-073, and SH-111, wherever referenced, remain Proposed ruling and conditional on separate approval. All other referenced registered operations retain their registry status and owner.
+
 ---
 
 ## Core Principle
@@ -49,7 +51,7 @@ The plan is narrower than CL-04's Cluster plan. It implements the Review / Dispu
 5. Every mutation validates input, authenticated actor, authority, current owner state, and relevant contextual gates.
 6. Buyer commercial identity resolves through `CustomerProfile`; User remains authentication/audit identity.
 7. Review target Professional must be derived from or validated against authoritative Order seller facts.
-8. Commercially consequential retryable commands use `executeIdempotentCommand`.
+8. Commercially consequential retryable commands use SH-044 `executeIdempotentCommand`.
 9. Lifecycle changes use database-safe concurrency and owner-local transition policy.
 10. Cross-Module effects use committed state + transactional outbox/durable workflow; do not depend on one best-effort network call.
 11. Dispute opening/adjudication may commit before downstream hold/payment/search/notification work completes; pending coordination is explicit and retryable.
@@ -71,15 +73,15 @@ The following must exist before the first production mutation that uses them:
 
 - Prisma/Postgres migration workflow;
 - TypeScript strict mode and project validation conventions;
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
+- SH-001 `resolveAuthenticatedActor`;
+- SH-002 `authorizeResourceAction`;
 - canonical command idempotency;
 - canonical database concurrency primitive;
 - transactional outbox/domain-event envelope;
 - consumer inbox/deduplication;
 - shared queue/worker shell with retry/dead-letter;
 - structured request/correlation context;
-- `appendAuditEvent`;
+- SH-029 `appendAuditEvent`;
 - stable application error/decision result conventions.
 
 If these are not implemented when Review / Dispute work begins, this Module may compile against approved interfaces/test doubles but must not create substitutes.
@@ -88,7 +90,7 @@ If these are not implemented when Review / Dispute work begins, this Module may 
 
 - CL-04 Feature 09 Order fulfillment/completion truth;
 - Transaction / Order public owner-fact query containing review-relevant Order status, CustomerProfile buyer, seller ProfessionalProfile, and version;
-- Customer / Buyer Profile `resolveCustomerActor`;
+- Customer / Buyer Profile SH-004 `resolveCustomerActor`;
 - explicit Review rating-scale ruling;
 - explicit Review author schema/migration ruling;
 - initial Review publication policy;
@@ -102,7 +104,7 @@ If these are not implemented when Review / Dispute work begins, this Module may 
 - approved dispute eligibility/time-window policy;
 - approved minimum evidence-reference policy for MVP;
 - Admin Review / Compliance Hold public request/evaluate/release contracts;
-- Payment / Payout / Tax provider-neutral refund/release result contract;
+- Transaction / Order SH-108 refund-coordination/settlement contract, with Payment-owned verified execution outcomes and approved release results;
 - explicit `resolved_*` versus `closed` lifecycle semantics before automatic closure;
 - approved structured adjudication/correlation proof shape.
 
@@ -186,6 +188,8 @@ Supports **CL-04 Feature 10 — Post-Order Review and Reputation Projection**. T
 - moderation-case implementation;
 - verification/trust logic.
 
+**Actor prerequisite (CL-04-R007):** enforce CustomerProfile as semantic buyer identity for new records; Review authors resolve from the Order buyer and Dispute opener identity is typed. Historical backfill and final Prisma representation remain separate approval gates. No schema is changed in this reconciliation.
+
 ### Module-Owned Data
 
 - `Review`;
@@ -199,11 +203,11 @@ Contracts only in this feature. No production command may be advertised as compl
 
 ### Shared Operations Used
 
-- `queryOwnerFacts` — source-owner contract pattern; define the minimal Order DTO Review needs; prohibit direct Order repository reads.
-- `returnDecisionResult` — define stable Review eligibility decision shape; local reason codes remain Review-owned.
-- `withOptimisticConcurrency` / `acquireAggregateLock` — select approved concurrency integration if schema needs a version field; no local lock implementation.
-- `publishDomainEvent` — define event envelope/schema contract; no custom event bus.
-- `executeIdempotentCommand` — define submission semantic idempotency inputs; no local dedupe table.
+- SH-003 `queryOwnerFacts` (Proposed future normalization only; not a prerequisite) — source-owner contract pattern; define the minimal Order DTO Review needs; prohibit direct Order repository reads.
+- SH-015 `returnDecisionResult` (Proposed future normalization only; not a prerequisite) — define stable Review eligibility decision shape; local reason codes remain Review-owned.
+- SH-052 `withOptimisticConcurrency` / SH-051 `acquireAggregateLock` — select approved concurrency integration if schema needs a version field; no local lock implementation.
+- SH-046 `publishDomainEvent` — define event envelope/schema contract; no custom event bus.
+- SH-044 `executeIdempotentCommand` — define submission semantic idempotency inputs; no local dedupe table.
 
 ### Domain Logic
 
@@ -288,6 +292,8 @@ Before Feature 02/03 proceeds:
 
 ---
 
+**Mandatory durable Dispute proof (CL-04-R010):** persist the authorized adjudicator, decision, basis/reason, decision timestamp, refund amount/basis where applicable, idempotency/correlation identity, hold request/release correlation, settlement/refund correlation, and whether required downstream steps are pending or completed. This domain proof must survive retries/outages. Generic AuditEvent, QueueJob, or mutable `adminNotes` cannot substitute for it. The final decision/event/workflow persistence design remains unresolved and must be approved before production adjudication.
+
 ## 02 Dispute Source-Truth and Workflow Contract Foundation
 
 ### Objective
@@ -365,14 +371,14 @@ Contract shapes for:
 
 ### Shared Operations Used
 
-- `returnDecisionResult`;
-- `executeIdempotentCommand`;
-- `acquireAggregateLock` / `withOptimisticConcurrency`;
-- `transitionLifecycleState`;
-- `appendDomainLifecycleEvent` if a domain ledger is approved;
-- `publishDomainEvent`;
-- `orchestrateWorkflowSteps`;
-- `reconcileWorkflowStatus`.
+- SH-015 `returnDecisionResult` (Proposed future normalization only; not a prerequisite);
+- SH-044 `executeIdempotentCommand`;
+- SH-051 `acquireAggregateLock` / SH-052 `withOptimisticConcurrency`;
+- SH-053 `transitionLifecycleState`;
+- SH-031 `appendDomainLifecycleEvent` if a domain ledger is approved;
+- SH-046 `publishDomainEvent`;
+- SH-049 `orchestrateWorkflowSteps`;
+- SH-050 `reconcileWorkflowStatus`.
 
 Local rules define statuses, case identity, decision meaning, workflow steps, and closure.
 
@@ -391,7 +397,7 @@ The Dispute schema may hold opaque owner references/correlation evidence, but no
 
 ### Authorization / Compliance
 
-Define participant/reviewer/adjudicator action facts. Exact step-up policy remains external/root-owned.
+Define participant/reviewer/adjudicator action facts. SH-014 is required for refund/release adjudication causing or authorizing financial movement; Identity owns the assurance/session mechanics.
 
 ### Database / Transaction Behavior
 
@@ -472,7 +478,7 @@ Implements the submission half of **CL-04 Feature 10**.
 - Features 01–02 only insofar as shared foundations are complete;
 - CL-04 Feature 09 exit gate;
 - Transaction / Order owner-fact query;
-- `resolveCustomerActor`;
+- SH-004 `resolveCustomerActor`;
 - Role / Authority;
 - canonical idempotency;
 - approved Review schema/rating/publication policy.
@@ -509,15 +515,15 @@ Implements the submission half of **CL-04 Feature 10**.
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor` — resolve User/system actor; prohibit local auth helper.
-- `resolveCustomerActor` — establish commercial buyer; prohibit User-only buyer inference.
-- `queryOwnerFacts` — fetch minimum Order facts; prohibit direct Order repository.
-- `authorizeResourceAction` — authorize `review.submit`/read.
-- `returnDecisionResult` — eligibility response.
-- `executeIdempotentCommand` — one semantic Review create.
-- `publishDomainEvent` — `ReviewSubmitted`.
-- `appendAuditEvent` — only if audit policy requires submission proof.
-- `requestNotification` — only approved post-submit intent.
+- SH-001 `resolveAuthenticatedActor` — resolve User/system actor; prohibit local auth helper.
+- SH-004 `resolveCustomerActor` — establish commercial buyer; prohibit User-only buyer inference.
+- SH-003 `queryOwnerFacts` (Proposed future normalization only; not a prerequisite) — fetch minimum Order facts; prohibit direct Order repository.
+- SH-002 `authorizeResourceAction` — authorize `review.submit`/read.
+- SH-015 `returnDecisionResult` (Proposed future normalization only; not a prerequisite) — eligibility response.
+- SH-044 `executeIdempotentCommand` — one semantic Review create.
+- SH-046 `publishDomainEvent` — `ReviewSubmitted`.
+- SH-029 `appendAuditEvent` — only if audit policy requires submission proof.
+- SH-041 `requestNotification` — only approved post-submit intent.
 
 ### Domain Logic
 
@@ -611,6 +617,8 @@ Update public interface docs and progress. Architecture changes only if behavior
 
 ---
 
+**Approved reputation handoff (CL-04-R005):** Review / Dispute owns Review inclusion and aggregate calculation. It supplies its owner-issued reputation result/facts for a ProfessionalProfile through the explicit Module contract: target ProfessionalProfile ID, derived ratingAverage/ratingCount, and source/projection version evidence. Professional Eligibility consumes that result, owns writes to its `ProfessionalProfile.ratingAverage`/`ratingCount`, and supplies the resulting Professional projection to Search. Review / Dispute must not mutate the ProfessionalProfile repository. SH-115 supplies shared projection/version/replay mechanics, not Review policy or Profile ownership. Dependency failure leaves Review truth committed and projection work retryable; exact transport/API naming is not newly selected here.
+
 ## 04 Review Publication, Reputation Projection, and Search Effect
 
 ### Objective
@@ -629,8 +637,8 @@ Completes **CL-04 Feature 10 — Post-Order Review and Reputation Projection**.
 
 - Feature 03;
 - approved publication/restore transition policy;
-- approved reputation projection storage/public contract;
-- Search `requestSearchProjectionRefresh`;
+- CL-04-R005 Review-result → Professional Eligibility consumer contract, with the Profile writer available before the reputation integration exit gate;
+- Search SH-091 `requestSearchProjectionRefresh`;
 - Notification;
 - moderation result interface if Review moderation is active.
 
@@ -673,18 +681,18 @@ Completes **CL-04 Feature 10 — Post-Order Review and Reputation Projection**.
 
 ### Shared Operations Used
 
-- `authorizeResourceAction`;
-- `transitionLifecycleState`;
-- `executeIdempotentCommand` for retryable administrative commands;
-- `withOptimisticConcurrency`/lock as selected;
-- `publishDomainEvent`;
-- `appendAuditEvent`;
-- `buildAggregateProjection`;
-- `enqueueReliableJob`;
-- `executeRetryWithBackoff`;
-- `requestSearchProjectionRefresh`;
-- `requestNotification`;
-- `deduplicateDomainEvent` for moderation input.
+- SH-002 `authorizeResourceAction`;
+- SH-053 `transitionLifecycleState`;
+- SH-044 `executeIdempotentCommand` for retryable administrative commands;
+- SH-052 `withOptimisticConcurrency`/lock as selected;
+- SH-046 `publishDomainEvent`;
+- SH-029 `appendAuditEvent`;
+- SH-115 `buildAggregateProjection`;
+- SH-047 `enqueueReliableJob`;
+- SH-048 `executeRetryWithBackoff`;
+- SH-091 `requestSearchProjectionRefresh`;
+- SH-041 `requestNotification`;
+- SH-045 `deduplicateDomainEvent` for moderation input.
 
 Local policy: which Review statuses count, allowed transition graph, aggregation math.
 
@@ -698,8 +706,8 @@ For each committed visibility change:
 4. append lifecycle proof/outbox;
 5. enqueue reputation rebuild for ProfessionalProfile;
 6. recompute aggregate only from inclusion-eligible Review source truth;
-7. write projection through approved owner interface;
-8. request Search refresh after projection change;
+7. hand the owner-issued aggregate to Professional Eligibility, which writes its own ProfessionalProfile rating fields; then Search consumes the resulting Professional projection;
+8. Professional Eligibility supplies its updated Professional projection to Search through the Search-owned refresh contract;
 9. request safe notifications if product policy requires.
 
 Search failure must never revert `Review.status`.
@@ -761,7 +769,7 @@ None.
 
 ### Documentation Updates
 
-Update projection/public contract docs if storage ownership becomes binding; update architecture if restore/republication rules are newly approved.
+Storage ownership is binding under CL-04-R005: Professional Eligibility writes its rating fields from Review-owned results. Preserve unresolved restore/republication policy.
 
 ### Acceptance Criteria
 
@@ -803,7 +811,7 @@ Implements the intake/coordination core of **CL-04 Feature 11 — Dispute Intake
 - approved opener actor and dispute eligibility/window rules;
 - approved multiplicity;
 - Transaction / Order owner facts + dispute-effect command;
-- Admin Review / Compliance Hold `requestComplianceHold`;
+- Admin Review / Compliance Hold SH-012 `requestComplianceHold`;
 - Notification;
 - canonical workflow/outbox/queue.
 
@@ -846,21 +854,21 @@ Implements the intake/coordination core of **CL-04 Feature 11 — Dispute Intake
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor`;
-- `resolveCustomerActor` for buyer-side opener where applicable;
-- `queryOwnerFacts` for Order participant/transaction state;
-- `authorizeResourceAction`;
-- `returnDecisionResult`;
-- `executeIdempotentCommand`;
-- `acquireAggregateLock`/approved concurrency;
-- `publishDomainEvent`;
-- `appendAuditEvent`;
-- `orchestrateWorkflowSteps`;
-- `enqueueReliableJob`;
-- `executeRetryWithBackoff`;
-- `requestComplianceHold`;
-- `requestNotification`;
-- `recordIntegrationFailure`.
+- SH-001 `resolveAuthenticatedActor`;
+- SH-004 `resolveCustomerActor` for buyer-side opener where applicable;
+- SH-003 `queryOwnerFacts` (Proposed future normalization only; not a prerequisite) for Order participant/transaction state;
+- SH-002 `authorizeResourceAction`;
+- SH-015 `returnDecisionResult` (Proposed future normalization only; not a prerequisite);
+- SH-044 `executeIdempotentCommand`;
+- SH-051 `acquireAggregateLock`/approved concurrency;
+- SH-046 `publishDomainEvent`;
+- SH-029 `appendAuditEvent`;
+- SH-049 `orchestrateWorkflowSteps`;
+- SH-047 `enqueueReliableJob`;
+- SH-048 `executeRetryWithBackoff`;
+- SH-012 `requestComplianceHold`;
+- SH-041 `requestNotification`;
+- SH-037 `recordIntegrationFailure`.
 
 Local policy defines dispute eligibility, opener validity, multiplicity, and which hold scope/reason is requested.
 
@@ -980,10 +988,10 @@ Completes the review/evidence portion of **CL-04 Feature 11**.
 - Feature 05;
 - approved evidence-reference model or explicitly approved MVP reference types;
 - Media signed-access interface;
-- `recordSensitiveAccess`;
+- SH-030 `recordSensitiveAccess`;
 - Content Moderation intake interface;
 - Role / Authority admin/reviewer actions;
-- `claimWorkItem` only if canonical proposed operation is accepted/available.
+- SH-054 `claimWorkItem` only if canonical proposed operation is accepted/available.
 
 ### In Scope
 
@@ -1025,18 +1033,18 @@ Completes the review/evidence portion of **CL-04 Feature 11**.
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
-- `claimWorkItem` if approved;
-- `transitionLifecycleState`;
-- `executeIdempotentCommand`;
-- `issueSignedMediaUrl`;
-- `recordSensitiveAccess`;
-- `appendAuditEvent`;
-- `publishDomainEvent`;
-- `sanitizeTelemetryMetadata`;
+- SH-001 `resolveAuthenticatedActor`;
+- SH-002 `authorizeResourceAction`;
+- SH-054 `claimWorkItem` if approved;
+- SH-053 `transitionLifecycleState`;
+- SH-044 `executeIdempotentCommand`;
+- SH-087 `issueSignedMediaUrl`;
+- SH-030 `recordSensitiveAccess`;
+- SH-029 `appendAuditEvent`;
+- SH-046 `publishDomainEvent`;
+- SH-034 `sanitizeTelemetryMetadata`;
 - Content Moderation public intake;
-- `requestNotification` where review-start notification is approved.
+- SH-041 `requestNotification` where review-start notification is approved.
 
 Local policy: reviewer eligibility, which evidence refs are relevant, and when a commercial case must be routed to moderation/legal handling.
 
@@ -1163,7 +1171,7 @@ Implements the adjudication half of **CL-04 Feature 12 — Dispute Adjudication,
 - explicit adjudicator authority;
 - approved structured decision proof;
 - approved `resolved_refund`, `resolved_release`, `dismissed` semantics;
-- step-up matrix if applicable;
+- SH-014 assurance for refund/release actions causing or authorizing financial movement;
 - Payment, Order, Hold contract definitions;
 - canonical workflow runner.
 
@@ -1205,18 +1213,18 @@ Implements the adjudication half of **CL-04 Feature 12 — Dispute Adjudication,
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor`;
-- `authorizeResourceAction`;
-- `requireStepUpForSensitiveAction` if root policy applies;
-- `executeIdempotentCommand`;
-- `acquireAggregateLock` / `withOptimisticConcurrency`;
-- `transitionLifecycleState`;
-- `appendDomainLifecycleEvent`;
-- `appendAuditEvent`;
-- `publishDomainEvent`;
-- `orchestrateWorkflowSteps`;
-- `enqueueReliableJob`;
-- `requestNotification`.
+- SH-001 `resolveAuthenticatedActor`;
+- SH-002 `authorizeResourceAction`;
+- SH-014 `requireStepUpForSensitiveAction` if root policy applies;
+- SH-044 `executeIdempotentCommand`;
+- SH-051 `acquireAggregateLock` / SH-052 `withOptimisticConcurrency`;
+- SH-053 `transitionLifecycleState`;
+- SH-031 `appendDomainLifecycleEvent`;
+- SH-029 `appendAuditEvent`;
+- SH-046 `publishDomainEvent`;
+- SH-049 `orchestrateWorkflowSteps`;
+- SH-047 `enqueueReliableJob`;
+- SH-041 `requestNotification`.
 
 Local policy: which outcomes are valid from current state, required evidence/basis, refund amount bounds, decision finality, and dismissal reasons.
 
@@ -1242,7 +1250,7 @@ Dismissal records the approved dismissal reason and initiates only the downstrea
 ### Authorization / Compliance
 
 - adjudication is an explicit high-authority action;
-- step-up is enforced only according to approved root policy;
+- SH-014 step-up is mandatory for refund/release actions causing or authorizing financial movement;
 - refund amount/basis must come from authorized decision and Order facts, not client/provider guess;
 - decision notes/evidence are minimized in generic audit/events.
 
@@ -1289,7 +1297,7 @@ Do not show provider success merely because the adjudication command returned.
 ### Tests
 
 - authorized/unauthorized adjudicator;
-- step-up allow/deny if applicable;
+- SH-014 allow/deny and missing-assurance tests for financial refund/release adjudication;
 - refund amount/basis validation;
 - refund vs release race;
 - duplicate same decision replay;
@@ -1300,7 +1308,7 @@ Do not show provider success merely because the adjudication command returned.
 
 ### Documentation Updates
 
-Update lifecycle architecture when decision/finality semantics become binding. Update step-up policy reference if root architecture settles it.
+Update lifecycle architecture when decision/finality semantics become binding. The financial refund/release SH-014 gate is approved by CL-04-R021; do not invent other action-specific policy.
 
 ### Acceptance Criteria
 
@@ -1337,7 +1345,7 @@ Completes **CL-04 Feature 12**.
 ### Dependencies
 
 - Feature 07;
-- Payment provider-neutral refund/release interface;
+- Transaction / Order SH-108 refund-coordination contract and Payment-owned verified outcomes; approved release reevaluation interface;
 - Transaction / Order `applyRefundOutcomeToOrder`/dispute-effect interfaces;
 - Hold evaluate/release interface;
 - explicit closure semantics;
@@ -1382,20 +1390,20 @@ Completes **CL-04 Feature 12**.
 
 ### Shared Operations Used
 
-- `orchestrateWorkflowSteps`;
-- `reconcileWorkflowStatus`;
-- `enqueueReliableJob`;
-- `executeRetryWithBackoff`;
-- `executeIdempotentCommand`;
-- `deduplicateDomainEvent`;
-- `acquireAggregateLock`/optimistic concurrency;
-- `transitionLifecycleState`;
-- `releaseComplianceHold`;
-- `evaluateComplianceHold`;
-- `appendAuditEvent`;
-- `publishDomainEvent`;
-- `requestNotification`;
-- `recordIntegrationFailure`;
+- SH-049 `orchestrateWorkflowSteps`;
+- SH-050 `reconcileWorkflowStatus`;
+- SH-047 `enqueueReliableJob`;
+- SH-048 `executeRetryWithBackoff`;
+- SH-044 `executeIdempotentCommand`;
+- SH-045 `deduplicateDomainEvent`;
+- SH-051 `acquireAggregateLock`/optimistic concurrency;
+- SH-053 `transitionLifecycleState`;
+- SH-013 `releaseComplianceHold`;
+- SH-011 `evaluateComplianceHold`;
+- SH-029 `appendAuditEvent`;
+- SH-046 `publishDomainEvent`;
+- SH-041 `requestNotification`;
+- SH-037 `recordIntegrationFailure`;
 - request/telemetry primitives.
 
 Local policy: step order/dependency, accepted owner result codes, when settlement is complete, when close is permitted.
@@ -1406,9 +1414,10 @@ Refund path, conceptually:
 
 ```text
 adjudication already committed
-→ request Payment refund with semantic idempotency
+→ send authorized refund decision to Transaction / Order SH-108 requestOrderRefund with semantic idempotency
+→ Transaction / Order coordinates Payment refund execution
 → Payment returns/ultimately emits normalized verified result
-→ request Transaction / Order apply refund outcome
+→ Transaction / Order applies the verified refund outcome
 → consume Order acknowledgment/facts
 → apply settlement result to Dispute workflow
 → request/evaluate ComplianceHold release as policy permits
@@ -1432,7 +1441,7 @@ The exact order can be adapted to approved owner interfaces, but ownership canno
 
 ### Authorization / Compliance
 
-Workflow/system actions use trusted internal identity. Manual retry/override requires explicit admin authority and audit. Step-up may apply to manual financial retry according to root policy.
+Workflow/system actions use trusted internal identity. Manual retry/override requires explicit admin authority and audit. Manual refund/release retry or override capable of causing or authorizing financial movement requires SH-014.
 
 ### Database / Transaction Behavior
 
@@ -1522,6 +1531,8 @@ CL-04 Feature 12 is complete for this Module when:
 
 # Phase 5 — Compliance and Cross-Cutting Boundary Completion
 
+**Binding retention boundary (CL-04-R011):** hard deletion of an Order must not cascade-delete retained transaction, Agreement, Review, Dispute, or domain-history evidence without owner-specific Privacy/retention evaluation. Privacy issues the instruction; each owner enumerates its targets, evaluates retention/exemption facts, erases/anonymizes eligible data, preserves/minimizes retained evidence, and returns proof to Privacy. Database cascades must not provide an alternate destructive path. Existing cascade behavior requires a later approved database correction; legal retention durations remain unresolved.
+
 ## 09 Privacy, Audit, Notification, Moderation, and Media Boundary Completion
 
 ### Objective
@@ -1555,8 +1566,8 @@ Completes Module-specific cross-cutting work needed before **CL-04 Feature 13 �
 - approved anonymization/erase/retain/export behavior;
 - retention-exemption enforcement;
 - Review public removal versus privacy erasure behavior;
-- generic `appendAuditEvent` coverage map;
-- `recordSensitiveAccess` coverage for evidence;
+- generic SH-029 `appendAuditEvent` coverage map;
+- SH-030 `recordSensitiveAccess` coverage for evidence;
 - notification trigger/template-intent map;
 - moderation routing and Review moderation-result handler;
 - evidence access telemetry/redaction;
@@ -1589,19 +1600,19 @@ Completes Module-specific cross-cutting work needed before **CL-04 Feature 13 �
 
 ### Shared Operations Used
 
-- `enumerateSubjectData`;
-- `executePrivacyInstruction`;
-- `evaluateRetentionRequirement`;
-- `appendAuditEvent`;
-- `recordSensitiveAccess`;
-- `requestNotification`;
-- `resolveNotificationRecipients`;
-- `issueSignedMediaUrl`;
-- `deduplicateDomainEvent`;
-- `sanitizeTelemetryMetadata`;
-- `writeStructuredLog`;
-- `recordIntegrationFailure`;
-- `requestSearchProjectionRefresh` where privacy/moderation changes Review public state.
+- SH-096 `enumerateSubjectData`;
+- SH-095 `executePrivacyInstruction`;
+- SH-097 `evaluateRetentionRequirement`;
+- SH-029 `appendAuditEvent`;
+- SH-030 `recordSensitiveAccess`;
+- SH-041 `requestNotification`;
+- SH-043 `resolveNotificationRecipients`;
+- SH-087 `issueSignedMediaUrl`;
+- SH-045 `deduplicateDomainEvent`;
+- SH-034 `sanitizeTelemetryMetadata`;
+- SH-033 `writeStructuredLog`;
+- SH-037 `recordIntegrationFailure`;
+- SH-091 `requestSearchProjectionRefresh` where privacy/moderation changes Review public state.
 
 Local policy: what Review/Dispute data is subject data; what can be anonymized/removed; what is retained; which actions trigger audit/notification; how moderation outcome maps to local Review state.
 
@@ -1755,7 +1766,7 @@ Contract/integration proof for:
 ```text
 CustomerProfile → Review submission
 Order → Review eligibility
-Review → reputation projection → Search refresh
+Review aggregate → Professional Eligibility rating-field update → Professional projection → Search refresh
 Order participant → Dispute open
 Dispute → ComplianceHold request
 Dispute adjudication → Payment command
@@ -1954,23 +1965,23 @@ No gratuitous new public APIs. Hardening may add operator-safe internal commands
 
 ### Shared Operations Used
 
-- `executeIdempotentCommand`;
-- `acquireAggregateLock`;
-- `withOptimisticConcurrency`;
-- `deduplicateDomainEvent`;
-- `enqueueReliableJob`;
-- `executeRetryWithBackoff`;
-- `orchestrateWorkflowSteps`;
-- `reconcileWorkflowStatus`;
-- `buildAggregateProjection`;
-- `evaluateRetentionRequirement`;
-- `recordSensitiveAccess`;
-- `appendAuditEvent`;
-- `createRequestContext`;
-- `writeStructuredLog`;
-- `sanitizeTelemetryMetadata`;
-- `recordIntegrationFailure`;
-- `emitMetric`/health primitives if available.
+- SH-044 `executeIdempotentCommand`;
+- SH-051 `acquireAggregateLock`;
+- SH-052 `withOptimisticConcurrency`;
+- SH-045 `deduplicateDomainEvent`;
+- SH-047 `enqueueReliableJob`;
+- SH-048 `executeRetryWithBackoff`;
+- SH-049 `orchestrateWorkflowSteps`;
+- SH-050 `reconcileWorkflowStatus`;
+- SH-115 `buildAggregateProjection`;
+- SH-097 `evaluateRetentionRequirement`;
+- SH-030 `recordSensitiveAccess`;
+- SH-029 `appendAuditEvent`;
+- SH-032 `createRequestContext`;
+- SH-033 `writeStructuredLog`;
+- SH-034 `sanitizeTelemetryMetadata`;
+- SH-037 `recordIntegrationFailure`;
+- SH-036 `emitMetric`/health primitives if available.
 
 No new local infrastructure.
 
@@ -2105,7 +2116,8 @@ CL-01
 
 CL-03 / CL-04 neighbors
   Professional/Profile     ← reputation projection
-  Payment/Payout/Tax       ↔ normalized refund/release effects
+  Transaction / Order     ↔ SH-108 refund coordination and settlement
+  Payment/Payout/Tax       ↔ provider execution behind Order for refunds; approved release effects
   Transaction / Order      ↔ Order facts, dispute/refund attachment
 
 CL-07
@@ -2123,7 +2135,8 @@ CL-09
   Observability / Ops      ← technical failure/telemetry
 
 CL-02
-  Search                   ← reputation projection refresh
+  Professional Eligibility ← Review-owned reputation aggregate
+  Search                   ← resulting Professional projection
 
 CL-05
   Media / File Access      ↔ approved dispute evidence access

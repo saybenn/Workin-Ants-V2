@@ -114,12 +114,12 @@ The parent CL-05 plan explicitly allows contract fakes rather than temporary own
 
 A fake is never permission to create a new source of truth or a replacement service inside Media.
 
-### Proposed-ruling prerequisites
+### Approved requirements and remaining proposed-ruling prerequisites
 
-The following architecture items are intentionally recorded as Proposed Rulings in `module-architecture.md` and must be resolved or implemented as explicitly provisional before their migration/API commitment:
+R009 requires immutable/effective MediaUploadPolicy versions through SH-080 with stable evidence of the exact applied version. Current schema is insufficient; a later approved schema/migration is a prerequisite to production policy-version behavior. R010 requires a distinct upload-session status representation; until its later migration, Media-owned typed mapping isolates legacy MediaAssetStatus storage and consumers must not depend on that coupling. Contract fixtures may precede these migrations.
 
-- versioned/immutable active `MediaUploadPolicy` behavior using SH-080;
-- a dedicated `MediaUploadSessionStatus` rather than reusing `MediaAssetStatus` for an upload attempt;
+The following architecture items remain Proposed Rulings in `module-architecture.md` and must be resolved or implemented as explicitly provisional before their migration/API commitment:
+
 - retention-safe replacement for unsafe cascade deletion of access/security evidence where required;
 - default prohibition on `public_original` for MVP;
 - contextual join schema/code stewardship while preserving contextual semantic ownership.
@@ -166,7 +166,7 @@ Supports **CL-05 Feature 01 — Secure Upload to Ready MediaAsset**, specificall
 - define application repository boundaries for Media-owned models only;
 - define transition policies for `MediaAsset`, validation, scan, processing, grant, and policy states;
 - implement or migrate to version-safe `MediaUploadPolicy` behavior consistent with SH-080;
-- introduce a dedicated `MediaUploadSessionStatus` if the Proposed Ruling is approved for this feature; otherwise isolate session-state translation behind a contract and record the migration block;
+- prepare the R010-required dedicated upload-session status representation for later schema review; until the approved migration, isolate legacy session-state storage behind Media-owned typed mapping and record the migration prerequisite;
 - verify and document existing indexes/constraints instead of recreating schema blindly;
 - define owner/provider ports without provider SDK types.
 
@@ -288,7 +288,7 @@ No user UI required. A developer test harness or existing admin/debug surface ma
 
 ### Documentation Updates
 
-- update `module-architecture.md` if policy-version or upload-session status Proposed Rulings become binding;
+- preserve the R009 immutable policy-version and R010 separate session-status requirements; document the later approved schema/migration design without reopening those requirements;
 - record migration decision in project ADR/progress tracker if the repository uses ADRs;
 - do not modify CL-05 sequence.
 
@@ -1104,6 +1104,8 @@ Implement:
 
 Consumers must not infer business entitlement from `MediaAccessGrant.status` alone.
 
+For MessageMedia access, Messaging exposes its owner-specific SH-026 `authorizeContextualResourceAccess` decision bound to the actor, Thread, Message, MediaAsset, and requested action. It returns the contextual allow/deny decision and safe evidence; `ThreadParticipant` or `MessageMedia` facts alone are not authorization. Media consumes that decision through `requestMediaAccess`, independently applies MediaAsset readiness, safety/freeze/erasure, grant, and TTL rules, and owns downstream SH-087 `issueSignedMediaUrl`. Media must not reconstruct Messaging participant/access policy; Messaging must not issue signed URLs or call SH-087 directly.
+
 ### Shared Operations Used
 
 #### SH-001 — `resolveAuthenticatedActor`
@@ -1265,6 +1267,7 @@ No standalone Media UI required. Consumer Modules render their own “view/downl
 ### Tests
 
 - contract allow/deny with fake contextual owner;
+- MessageMedia contract validates Messaging decision binding to actor/Thread/Message/MediaAsset/action; facts-only, denied, or unavailable decisions cannot issue a grant/URL;
 - authority allow/deny;
 - hold and healthcare allow/deny/redact/block paths as applicable;
 - ready/non-ready/frozen/deleted/erased matrix;

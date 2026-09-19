@@ -5,7 +5,7 @@
 > **Module type:** `capability_security`  
 > **Build status:** `mvp_active`  
 > **Primary Cluster:** `CL-01 — Identity, Authority, Consent & Entitlements`  
-> **Repository target:** `context/modules/identity_access/module-architecture.md`  
+> **Repository target:** `context/clusters/identity, authority, & consent/Identity & Access module/identity-access-module-architecture.md`\
 > **Document status:** Implementation-grade Module architecture for the current Workin Ants MVP; confirmed rules are binding, Proposed Rulings require approval before dependent production behavior, and Unresolved Decisions must not be guessed in code.  
 > **Audience:** coding agents, developers, reviewers, maintainers, security reviewers, privacy reviewers, compliance reviewers, and architecture reviewers.  
 > **Relationship to root architecture:** subordinate to root Workin Ants architecture, project overview, code standards, and canonical Shared Operations Registry. Root rulings win if a conflict is confirmed.  
@@ -1930,12 +1930,12 @@ If a feature reaches U-IA-01 through U-IA-18, the agent must either:
 
 Before implementing or changing Identity & Access, read in this order:
 
-1. root `context/project-overview.md`;
-2. root `context/architecture.md`;
-3. root `context/code-standards.md`;
+1. root `context/project-overview-v3.md`;
+2. root `context/architecture.md` (**currently missing**; see `context/context-map.md`);
+3. root `context/code-standards.md` (**currently missing**; see `context/context-map.md`);
 4. `context/shared/shared-operations.md`;
-5. `context/clusters/identity-authority-consent-entitlements/architecture.md`;
-6. `context/clusters/identity-authority-consent-entitlements/build-plan.md`;
+5. `context/clusters/identity, authority, & consent/identity-authority-consent-architecture.md`;
+6. `context/clusters/identity, authority, & consent/identity-authority-consent-build-plan.md`;
 7. this `identity_access/module-architecture.md`;
 8. this `identity_access/implementation-plan.md`;
 9. public-interface sections for direct dependencies, especially Role / Authority, Consent & Disclosure, Admin Review / Compliance Hold, Audit / Event Ledger, Notification, Observability / Ops, Privacy / Data Erasure, and downstream sensitive-action consumers such as Transaction / Order and Payment / Payout / Tax;

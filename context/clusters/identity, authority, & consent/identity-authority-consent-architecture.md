@@ -3,7 +3,7 @@
 > **Cluster ID:** `CL-01`  
 > **Cluster name:** Identity, Authority, Consent & Entitlements  
 > **Cluster type:** `foundation_access_control_consent_entitlement_policy`  
-> **Repository target:** `context/clusters/identity-authority-consent-entitlements/architecture.md`  
+> **Repository target:** `context/clusters/identity, authority, & consent/identity-authority-consent-architecture.md`\
 > **Document status:** Target MVP Cluster architecture. Confirmed facts, Proposed Rulings, and Unresolved Decisions are labeled.  
 > **Audience:** coding agents, developers, reviewers, maintainers, security/compliance reviewers, and architects  
 > **Update rule:** update this file whenever a binding ownership, lifecycle, public-interface, provider, security, privacy, consent, entitlement, or cross-Cluster decision changes. Build progress must not silently redefine architecture.
@@ -371,23 +371,23 @@ Important schema gaps:
 
 | Interface | Owner | Purpose | Minimum input | Minimum output | Returns | Consumers must not recreate |
 |---|---|---|---|---|---|---|
-| `resolveAuthenticatedActor` | Identity | map trusted session/system credential to actor | session/request credential | user/context/assurance | truth/context | local current-user logic |
+| SH-001 `resolveAuthenticatedActor` | Identity | map trusted session/system credential to actor | session/request credential | user/context/assurance | truth/context | local current-user logic |
 | `provisionUserAfterAgeGate` | Identity | idempotent User/provider provisioning | age decision + provider identity | User/provider mapping | truth | bypass age gate |
 | `getUserSecurityPosture` | Identity | safe security readiness summary | actor/target | tier/method/lock summary | truth/projection | raw credential truth |
 | passkey commands | Identity | register/use/list/revoke passkeys | actor + verified ceremony | credential result/ref | truth/evidence | biometrics |
-| `requireStepUpForSensitiveAction` | Identity | action-scoped recent stronger auth | actor/action/target | allowed/challenge/session evidence | decision/evidence | business permission |
+| SH-014 `requireStepUpForSensitiveAction` | Identity | action-scoped recent stronger auth | actor/action/target | allowed/challenge/session evidence | decision/evidence | business permission |
 | recovery commands/query | Identity | own recovery workflow | request/provider result | recovery state | truth | KYC/screening |
-| `authorizeResourceAction` | Role | action/resource authority | actor/action/owner facts | decision/reasons | decision | consent/entitlement/readiness |
-| owner-specific `queryOwnerFacts` | each source owner | supply relationship facts | resource/purpose | minimal DTO | truth | foreign repository |
-| `recordConsentProof` | Consent | persist exact acceptance | user/type/version/evidence | proof ID/ref | evidence | permission |
-| `queryConsentProof` | Consent | query exact required version | user/type/version | accepted + proof ref | evidence | active version logic |
-| `resolveActiveConsentVersion` | Consent | resolve current version/config | type/context | version/hash/effective metadata | policy/config | “latest log” inference |
-| `presentStandaloneConsent` | Consent | return required disclosure | type/context | renderable version | config/projection | provider state |
-| `resolveCustomerActor` | Customer | resolve User→CustomerProfile | User | profile ID/status | truth | buyer from User fields |
+| SH-002 `authorizeResourceAction` | Role | action/resource authority | actor/action/owner facts | decision/reasons | decision | consent/entitlement/readiness |
+| owner-specific SH-003 `queryOwnerFacts` (Proposed ruling) | each source owner | supply relationship facts | resource/purpose | minimal DTO | truth | foreign repository |
+| SH-007 `recordConsentProof` | Consent | persist exact acceptance | user/type/version/evidence | proof ID/ref | evidence | permission |
+| SH-008 `queryConsentProof` | Consent | query exact required version | user/type/version | accepted + proof ref | evidence | active version logic |
+| SH-009 `resolveActiveConsentVersion` | Consent | resolve current version/config | type/context | version/hash/effective metadata | policy/config | “latest log” inference |
+| SH-010 `presentStandaloneConsent` | Consent | return required disclosure | type/context | renderable version | config/projection | provider state |
+| SH-004 `resolveCustomerActor` | Customer | resolve User→CustomerProfile | User | profile ID/status | truth | buyer from User fields |
 | `provisionDefaultCustomerProfile` | Customer | ensure one profile | eligible User | profile result | truth | direct Identity insert |
 | Customer profile commands/query | Customer | read/update/status | actor/profile/patch | profile/result | truth | file/search/commerce lifecycles |
-| `resolveEntitlement` | Track | current typed commercial policy | track/profile/key/context | value/reason/source/evidence | decision/truth | local premium switch |
-| `consumeMeteredEntitlement` | Track | atomic quota + usage proof | entitlement/quantity/idempotency target | permit/deny + usage receipt | decision/evidence | local counter |
+| SH-005 `resolveEntitlement` | Track | current typed commercial policy | track/profile/key/context | value/reason/source/evidence | decision/truth | local premium switch |
+| SH-006 `consumeMeteredEntitlement` | Track | atomic quota + usage proof | entitlement/quantity/idempotency target | permit/deny + usage receipt | decision/evidence | local counter |
 | Track catalog/subscription queries | Track | current plan/subscription state | user/profile/track | provider-neutral DTO | truth | Stripe object |
 | Track subscription commands | Track | start/change/cancel | actor/plan/proof refs | initiation/result | command result | success redirect = active |
 | `quoteOrderTrackPolicy` | Track | fee/commission current policy | buyer/professional/order context | typed policy/evidence | decision | Order mutation/current-plan recalculation |
@@ -396,42 +396,42 @@ Important schema gaps:
 
 ## 11. Canonical Shared Operations Used by This Cluster
 
-The supplied registry exposes canonical names; no stable SH-### identifiers are visible in the supplied version, so this file does not invent them.
+`context/shared/shared-operations.md` provides the permanent SH IDs, canonical names, owners, and statuses used below. References preserve those registry boundaries; citing a Proposed ruling does not approve it. Shared contracts and mechanisms do not transfer Module truth.
 
 | Operation | Meaning | Canonical owner/class | CL-01 use | Local policy stays with | Must not be rebuilt as |
 |---|---|---|---|---|---|
-| `resolveAuthenticatedActor` | trusted session→actor | Identity / platform capability | protected entry | Identity mapping/assurance | current-user helpers |
-| `authorizeResourceAction` | resource/action permission | Role / cross-cutting | all protected actions | Role action policy + owner facts | isAdmin/isOwner/org/thread helpers |
-| `queryOwnerFacts` | minimum relationship facts | each source owner / shared contract, separate implementations | Role reads | source owner | universal repository |
-| `resolveCustomerActor` | User→buyer profile | Customer public interface | customer workflows | Customer status/access | buyer-from-User logic |
-| `recordConsentProof` | exact acceptance evidence | Consent | acceptance | Consent version policy | per-feature consent store |
-| `queryConsentProof` | exact proof lookup | Consent | consent gates | Consent | local consent query |
-| `resolveActiveConsentVersion` | effective version/config | Consent | presentation | Consent context rules | latest-log inference |
-| `presentStandaloneConsent` | standalone disclosure | Consent | security/screening/calendar/Track | Consent wording/version | buried feature terms |
-| `resolveEntitlement` | typed commercial policy | Track | current perks/waivers/boosts | Track precedence | isPremium |
-| `consumeMeteredEntitlement` | atomic quota + usage proof | Track | application/usage limits | Track period/counting | local counter |
-| `requireStepUpForSensitiveAction` | scoped stronger auth | Identity | sensitive actions | Identity assurance matrix | payout/admin OTP service |
-| `evaluateComplianceHold` | stop-sign decision | Hold owner | hold-sensitive CL-01 actions | Hold + target policy | local blocked flags |
-| `appendAuditEvent` | generic action audit | Audit | material admin/security actions | audit selection/safe metadata | CL-01 audit table |
-| `recordSensitiveAccess` | sensitive-access proof | Audit | sensitive reads | access policy | local access log |
-| `appendDomainLifecycleEvent` | shared append mechanics | shared mechanism, owner truth | Identity/Track/Customer domain history | domain owner | generic event truth |
-| `executeIdempotentCommand` | semantic replay safety | platform | provisioning/consent/metering/provider commands | caller key/result | local idempotency subsystem |
-| `enqueueReliableJob` | durable background work | platform | expiry/backfill/reconciliation/privacy | owner job payload | custom job truth |
-| `executeRetryWithBackoff` | retry + dead letter | platform/Ops | workers/providers | owner failure classification | ad-hoc retry loops |
-| `verifyProviderWebhookSignature` | authenticate callback | shared provider security | recovery/Stripe Billing | provider adapter config | custom route verifier |
-| `deduplicateProviderEvent` | prevent repeat side effects | shared mechanism, owner event truth | recovery/Billing | owner event identity | one global provider truth |
-| `translateProviderStatus` | provider→domain input | owner adapter/shared pattern | Identity/Track | lifecycle owner | scattered provider enums |
-| `recordIntegrationFailure` | operational failure proof | Ops | provider/worker failures | safe owner context | domain failure status |
-| `normalizeAndHashIdentifier` | stable nonplaintext comparison | crypto primitive | age/rate/recovery evidence | owner normalization/retention | local hash |
-| `generateSecureToken` | purpose-bound secure secret | security primitive | recovery/security when needed | owner TTL/binding | token helper |
-| `minimizeAndRedactProviderInput` | minimum provider payload | source policy + shared serializer | identity provider calls | Identity sensitivity policy | raw User object export |
-| `enumerateSubjectData` | owner subject inventory | each owner via Privacy | Identity/Consent/Customer/Track | owner schema meaning | Privacy direct table crawl |
-| `executePrivacyInstruction` | owner erase/export/etc | Privacy orchestrates; owner executes | CL-01 executors | owner invariants | local PrivacyRequest |
-| `evaluateRetentionRequirement` | owner retention facts | owner + Privacy | destructive privacy prep | owner legal facts | local exemption workflow |
-| `anonymizePersonalFields` | field pseudonymization | shared primitive + owner map | privacy execution | owner fields/invariants | global crawler |
-| `requestNotification` | semantic delivery request | Notification | security/profile/subscription notices | source business trigger | direct email/SMS/push client |
+| SH-001 `resolveAuthenticatedActor` | trusted session→actor | Identity / platform capability | protected entry | Identity mapping/assurance | current-user helpers |
+| SH-002 `authorizeResourceAction` | resource/action permission | Role / cross-cutting | all protected actions | Role action policy + owner facts | isAdmin/isOwner/org/thread helpers |
+| SH-003 `queryOwnerFacts` (Proposed ruling) | minimum relationship facts | each source owner / shared contract, separate implementations | Role reads | source owner | universal repository |
+| SH-004 `resolveCustomerActor` | User→buyer profile | Customer public interface | customer workflows | Customer status/access | buyer-from-User logic |
+| SH-007 `recordConsentProof` | exact acceptance evidence | Consent | acceptance | Consent version policy | per-feature consent store |
+| SH-008 `queryConsentProof` | exact proof lookup | Consent | consent gates | Consent | local consent query |
+| SH-009 `resolveActiveConsentVersion` | effective version/config | Consent | presentation | Consent context rules | latest-log inference |
+| SH-010 `presentStandaloneConsent` | standalone disclosure | Consent | security/screening/calendar/Track | Consent wording/version | buried feature terms |
+| SH-005 `resolveEntitlement` | typed commercial policy | Track | current perks/waivers/boosts | Track precedence | isPremium |
+| SH-006 `consumeMeteredEntitlement` | atomic quota + usage proof | Track | application/usage limits | Track period/counting | local counter |
+| SH-014 `requireStepUpForSensitiveAction` | scoped stronger auth | Identity | sensitive actions | Identity assurance matrix | payout/admin OTP service |
+| SH-011 `evaluateComplianceHold` | stop-sign decision | Hold owner | hold-sensitive CL-01 actions | Hold + target policy | local blocked flags |
+| SH-029 `appendAuditEvent` | generic action audit | Audit | material admin/security actions | audit selection/safe metadata | CL-01 audit table |
+| SH-030 `recordSensitiveAccess` | sensitive-access proof | Audit | sensitive reads | access policy | local access log |
+| SH-031 `appendDomainLifecycleEvent` | shared append mechanics | shared mechanism, owner truth | Identity/Track/Customer domain history | domain owner | generic event truth |
+| SH-044 `executeIdempotentCommand` | semantic replay safety | platform | provisioning/consent/metering/provider commands | caller key/result | local idempotency subsystem |
+| SH-047 `enqueueReliableJob` | durable background work | platform | expiry/backfill/reconciliation/privacy | owner job payload | custom job truth |
+| SH-048 `executeRetryWithBackoff` | retry + dead letter | platform/Ops | workers/providers | owner failure classification | ad-hoc retry loops |
+| SH-059 `verifyProviderWebhookSignature` | authenticate callback | shared provider security | recovery/Stripe Billing | provider adapter config | custom route verifier |
+| SH-060 `deduplicateProviderEvent` | prevent repeat side effects | shared mechanism, owner event truth | recovery/Billing | owner event identity | one global provider truth |
+| SH-061 `translateProviderStatus` | provider→domain input | owner adapter/shared pattern | Identity/Track | lifecycle owner | scattered provider enums |
+| SH-037 `recordIntegrationFailure` | operational failure proof | Ops | provider/worker failures | safe owner context | domain failure status |
+| SH-076 `normalizeAndHashIdentifier` | stable nonplaintext comparison | crypto primitive | age/rate/recovery evidence | owner normalization/retention | local hash |
+| SH-074 `generateSecureToken` | purpose-bound secure secret | security primitive | recovery/security when needed | owner TTL/binding | token helper |
+| SH-078 `minimizeAndRedactProviderInput` | minimum provider payload | source policy + shared serializer | identity provider calls | Identity sensitivity policy | raw User object export |
+| SH-096 `enumerateSubjectData` | owner subject inventory | each owner via Privacy | Identity/Consent/Customer/Track | owner schema meaning | Privacy direct table crawl |
+| SH-095 `executePrivacyInstruction` | owner erase/export/etc | Privacy orchestrates; owner executes | CL-01 executors | owner invariants | local PrivacyRequest |
+| SH-097 `evaluateRetentionRequirement` | owner retention facts | owner + Privacy | destructive privacy prep | owner legal facts | local exemption workflow |
+| SH-098 `anonymizePersonalFields` | field pseudonymization | shared primitive + owner map | privacy execution | owner fields/invariants | global crawler |
+| SH-041 `requestNotification` | semantic delivery request | Notification | security/profile/subscription notices | source business trigger | direct email/SMS/push client |
 
-`queryOwnerFacts` is shared contract/separate policy. Webhook verification/dedupe is shared mechanism/separate truth. Decision envelopes may be shared response contracts but never share policy.
+SH-003 `queryOwnerFacts` (Proposed ruling) is shared contract/separate policy. Webhook verification/dedupe is shared mechanism/separate truth. Decision envelopes may be shared response contracts but never share policy.
 
 ---
 
@@ -591,7 +591,7 @@ Privacy request/job/target
 
 ## 14. Authentication and Authorization
 
-All protected operations begin with `resolveAuthenticatedActor` unless explicitly anonymous (age gate/auth entry/verified provider callback).
+All protected operations begin with SH-001 `resolveAuthenticatedActor` unless explicitly anonymous (age gate/auth entry/verified provider callback).
 
 `UserRole`/`PlatformRole` are structurally Identity-owned; Role interprets them. Admin/support never imply unrestricted access to PHI, tax, resumes, agreements, private messages, or financial records.
 
@@ -799,15 +799,15 @@ Required test layers:
 
 | Prohibited duplicate | Use instead |
 |---|---|
-| `currentUser.ts`, route-local session parser, marketplace auth helper | `resolveAuthenticatedActor` |
-| `isAdmin`, `isOwner`, org/thread permission helpers | `authorizeResourceAction` |
+| `currentUser.ts`, route-local session parser, marketplace auth helper | SH-001 `resolveAuthenticatedActor` |
+| `isAdmin`, `isOwner`, org/thread permission helpers | SH-002 `authorizeResourceAction` |
 | Role mutation repository for OrganizationMember/ThreadParticipant | source-owner interface + Role policy |
 | `acceptedTerms`, local FCRA/calendar/subscription consent booleans/tables | Consent public interfaces |
-| consumer active-consent-version selector | `resolveActiveConsentVersion` |
-| buyer reconstruction from User fields | `resolveCustomerActor` |
+| consumer active-consent-version selector | SH-009 `resolveActiveConsentVersion` |
+| buyer reconstruction from User fields | SH-004 `resolveCustomerActor` |
 | Customer R2/S3/presign/scanner service | Media / File Access |
-| `isPremium`, plan-name switches, local fee/commission/boost/priority rules | `resolveEntitlement` |
-| feature-local quota counter | `consumeMeteredEntitlement` |
+| `isPremium`, plan-name switches, local fee/commission/boost/priority rules | SH-005 `resolveEntitlement` |
+| feature-local quota counter | SH-006 `consumeMeteredEntitlement` |
 | Order current-plan fee/commission calculator | Track policy quote → Order snapshot |
 | Track Typesense client | Search public interface |
 | Track generic payment/payout/tax service | Payment / Payout / Tax |
@@ -900,7 +900,7 @@ No permissive auth fallback, no Customer actor cutover without migration rules, 
 
 Before changing CL-01, read:
 
-1. root `project-overview.md`
+1. `context/project-overview-v3.md`
 2. root `architecture.md`
 3. root `code-standards.md`
 4. Canonical Shared Operations Registry

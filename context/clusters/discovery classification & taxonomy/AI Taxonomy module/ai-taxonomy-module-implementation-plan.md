@@ -3,10 +3,18 @@
 > **Module ID:** `ai_taxonomy`  
 > **Module:** AI Taxonomy Module  
 > **Primary Cluster:** `CL-02 — Discovery, Classification & Visibility`  
-> **Repository target:** `context/modules/ai_taxonomy/implementation-plan.md`  
+> **Repository target:** `context/clusters/discovery classification & taxonomy/AI Taxonomy module/ai-taxonomy-module-implementation-plan.md`\
 > **Plan status:** Ordered implementation plan subordinate to root/CL-02 build sequencing; features that depend on Proposed Rulings or Unresolved Decisions are explicitly gated
 
+Current coordination: [Cluster architecture](<../discovery-classification-architecture.md>) and [Cluster build plan](<../discovery-classification-build-plan.md>). Locate supporting artifacts through [context-map.md](<../../../context-map.md>); authority follows concern, not location or age. Root architecture/build-plan files are currently unavailable and do not supply enforceable phases.
+
 ---
+
+## Target and acceptance contract requirements (CL02-R003/R017)
+
+Every target-validity/relationship-eligibility check uses confirmed SH-123 `validateOwnedTargetReference` through the target owner; proposed SH-003 supplies only minimal owner facts. Source classification-input DTOs remain owner-approved and separate. Target-specific request/backfill/source-integration tests must cover target version/status, relationship eligibility, and not-found/forbidden outcomes.
+
+SH-121 is the canonical acceptance workflow; AI records acceptance only after successful owner mutation. If mutation fails, no accepted disposition is written. If acknowledgement fails after success, retry the same suggestion version/idempotency context without duplicate classification. Rejection, expiry, cancellation, or supersession without accepted mutation stays AI-owned. Exact AI statuses/transitions/persistence remain unresolved under U-CL02-04.
 
 ## Core Principle
 
@@ -28,7 +36,7 @@ observable command/query/admin behavior
 
 The Module does not need a public consumer UI to be valid. Its primary observable behavior is a durable classification-run lifecycle, validated proposal records, public Module contracts, provider adapter, worker/backfill process, and protected review evidence.
 
-The implementation plan deliberately separates **basic safe AI suggestions** from advanced AI automation. The root Workin Ants build plan places AI suggestions in Phase 4.3 but allows advanced AI taxonomy to be deferred from the compressed first MVP. Therefore the first implementation should prioritize correctness, provenance, explicit human/domain acceptance, and safe provider boundaries over autonomous breadth.
+The implementation plan deliberately separates **basic safe AI suggestions** from advanced AI automation. CL-02 Features 04–06 establish basic AI suggestions; advanced behavior remains subject to its explicit scope and approval gates. Therefore the first implementation should prioritize correctness, provenance, explicit human/domain acceptance, and safe provider boundaries over autonomous breadth.
 
 ---
 
@@ -107,11 +115,11 @@ A stub is allowed only at the interface boundary. Do not compensate for a missin
 The implementation is intentionally split between:
 
 ```text
-Root Phase 4.3 — core AI proposal capability
-→ Root Phase 5 — Professional/Offering source integration
-→ Root Phase 8 — Organization/Job/Candidate source integration
-→ Root Phase 10 — formal Privacy orchestration integration
-→ Root Phase 12 — production hardening
+CL-02 Features 04–06 — core AI proposal capability
+→ CL-02 Feature 09 — Professional/Offering and Organization/Job source integration
+→ CL-02 Feature 10 — Candidate-safe AI source integration
+→ CL-02 Feature 11 — formal Privacy orchestration integration
+→ CL-02 Feature 13 — production hardening
 ```
 
 This Module plan does not reorder those root milestones.
@@ -132,7 +140,7 @@ The database can persist a valid AI run and its proposed suggestions with explic
 
 ### Cluster Build-Plan Link
 
-Supports root **Phase 4.3 — AI taxonomy suggestions** by supplying the missing `AiClassificationLog` and `AiSuggestion` records named by the Registry/Glossary.
+CL-02 Feature 04 — AI records/lifecycle foundation, gated by U-CL02-04.
 
 ### Dependencies
 
@@ -156,7 +164,7 @@ Supports root **Phase 4.3 — AI taxonomy suggestions** by supplying the missing
 - Bedrock SDK/provider calls;
 - public request command;
 - queue worker;
-- Taxonomy acceptance/rejection implementation;
+- Taxonomy canonical acceptance and contextual assignment implementation;
 - Search writes/indexing;
 - admin UI;
 - `AiBackfill` model;
@@ -280,7 +288,7 @@ Consumers can compile against explicit AI Taxonomy interfaces, tests can create/
 
 ### Cluster Build-Plan Link
 
-Supports **Phase 4.3** provider boundary, prompt/version logging, and later admin accept/reject workflow.
+CL-02 Feature 04 — AI commands and proposal/run contracts, gated by approved lifecycle.
 
 ### Dependencies
 
@@ -428,7 +436,7 @@ Given a trusted source fixture and a model-output fixture, the Module can build 
 
 ### Cluster Build-Plan Link
 
-Directly supports root **Phase 4.3** JSON schema validation and the rule that AI output must be validated before it can become Taxonomy or Search truth.
+CL-02 Feature 05 — vocabulary snapshot and structured provider-output validation.
 
 ### Dependencies
 
@@ -572,7 +580,7 @@ The application can call the provider port using a minimized classification requ
 
 ### Cluster Build-Plan Link
 
-Supports root **Phase 4.3 — AI provider adapter boundary** and prompt/model provenance.
+CL-02 Feature 05 — provider-neutral invocation and model/prompt provenance; SH-065 remains Proposed.
 
 ### Dependencies
 
@@ -712,7 +720,7 @@ A caller with an authorized target can request suggestions and receive a run ID.
 
 ### Cluster Build-Plan Link
 
-Completes the core executable portion of root **Phase 4.3** for AI suggestions, while leaving source-specific adapters to later phases.
+CL-02 Feature 05 — executable classification path; source-specific adapters require their owner contracts.
 
 ### Dependencies
 
@@ -743,7 +751,7 @@ Completes the core executable portion of root **Phase 4.3** for AI suggestions, 
 ### Out of Scope
 
 - direct production Offering/Job/Candidate Prisma access;
-- Taxonomy acceptance/rejection;
+- Taxonomy canonical acceptance and contextual assignment;
 - broad backfill;
 - public Search refresh;
 - user notifications;
@@ -892,7 +900,7 @@ Authorized consumers can inspect proposals and provenance without direct Prisma 
 
 ### Cluster Build-Plan Link
 
-Supports root **Phase 4.3** admin/user review flow and operational reviewability.
+CL-02 Feature 06 — review queue and safe proposal inspection.
 
 ### Dependencies
 
@@ -1011,9 +1019,9 @@ Query/authorization/redaction tests pass; any admin page passes component/E2E ro
 
 # Phase 4 — Module Integration Phase
 
-This phase proves AI Taxonomy collaborates with its primary neighbors through public contracts. It must not reach into neighboring repositories. Features 08–10 deliberately occur when the corresponding root phases make those source Modules real.
+This phase proves AI Taxonomy collaborates with its primary neighbors through public contracts. It must not reach into neighboring repositories. Features 08–10 occur when their source-owner public contracts are available, at the coordination points mapped in CP.
 
-## 07 Taxonomy Acceptance / Rejection Handoff and Search Boundary
+## 07 SH-121 Acceptance and AI Disposition Handoff with Search Boundary
 
 ### Objective
 
@@ -1021,16 +1029,16 @@ Complete the AI side of the proposal → Taxonomy decision handshake while provi
 
 ### Observable Result
 
-Taxonomy can read an AI proposal through `getSuggestionForDecision`, accept or reject it through its own workflow, and communicate the disposition back to AI Taxonomy exactly once. AI records the disposition but never writes the accepted classification or Search queue.
+SH-121 `applyAiSuggestion` reads an AI proposal through `getSuggestionForDecision`; Taxonomy validates canonical acceptance and the contextual entity owner commits its assignment. Only then does AI record acceptance. Replay uses the same suggestion version/idempotency context without duplicate accepted classifications. AI owns proposal-only rejection and never writes accepted classification or the Search queue.
 
 ### Cluster Build-Plan Link
 
-Bridges root **Phase 4.3 AI suggestions** to **Phase 4.1/4.2 Taxonomy accepted truth** and **Phase 4.4 Search projection**.
+CL-02 Feature 08 — SH-121 acceptance, contextual-owner persistence, AI disposition, and Search handoff.
 
 ### Dependencies
 
 - Features 01–06;
-- Taxonomy accept/reject workflow/public interfaces;
+- confirmed SH-121 `applyAiSuggestion`: suggestion ID/version, target, selected canonical term, reviewer, reason, idempotency key, audit evidence; contextual owner assignment contract;
 - U-AI-10 resolved: direct application command vs Taxonomy outbox event;
 - Search SH-091 available to **Taxonomy**, not AI generation;
 - SH-045/046 if event-driven.
@@ -1042,7 +1050,7 @@ AI Taxonomy side:
 - stable `getSuggestionForDecision` contract;
 - `recordSuggestionDisposition` implementation/event handler;
 - idempotent accepted/rejected status transition;
-- authoritative Taxonomy decision reference storage;
+- successful accepted-mutation/decision reference storage before AI acceptance disposition;
 - contradiction handling;
 - integration contract tests proving no AI write to taxonomy/search tables.
 
@@ -1051,10 +1059,10 @@ Cluster coordination test:
 ```text
 AI proposed suggestion
 → Taxonomy validates current term/path + target rules
-→ Taxonomy writes accepted/rejected truth
-→ Taxonomy publishes/calls disposition fact
+→ contextual entity owner commits accepted assignment
+→ successful accepted mutation is acknowledged to AI through the approved handoff
 → AI updates proposal status
-→ if accepted classification changed searchable source, Taxonomy calls Search refresh
+→ owner of changed accepted source truth requests SH-091; proposal-only rejection remains AI-owned with no Search effect
 ```
 
 ### Out of Scope
@@ -1076,6 +1084,8 @@ Updates `AiSuggestion.status`, decision reference/reason/time only.
 
 ### Shared Operations Used
 
+- **SH-121 `applyAiSuggestion`** — confirmed canonical acceptance workflow; no alternate canonical name;
+- **SH-123 `validateOwnedTargetReference`** — target owner confirms relationship eligibility/version;
 - **SH-023 `validateTaxonomyAssignment`** — owned by Taxonomy during decision path;
 - **SH-044 `executeIdempotentCommand`** — AI disposition command if direct;
 - **SH-045 `deduplicateDomainEvent`** — if event-driven;
@@ -1088,12 +1098,12 @@ Updates `AiSuggestion.status`, decision reference/reason/time only.
 - only `proposed` can become accepted/rejected;
 - identical repeated decision replays;
 - accepted then rejected (or inverse) through same decision identity is conflict;
-- AI status does not prove which taxonomy join was written; decision reference points to Taxonomy proof;
+- AI status alone does not prove acceptance; its reference identifies the successful contextual owner mutation and canonical decision;
 - Taxonomy term deactivation after acceptance does not let AI reverse accepted business truth.
 
 ### Authorization / Compliance
 
-Trusted Module-to-Module/system context for disposition. Human actor authorization belongs to Taxonomy's acceptance workflow, not duplicated in AI.
+Trusted Module/system context acknowledges successful acceptance. SH-121 authorizes the reviewer for acceptance; AI proposal-only rejection uses its own documented action authorization through shared authority mechanisms.
 
 ### Database / Transaction Behavior
 
@@ -1109,7 +1119,7 @@ None.
 
 ### UI / Admin Surface
 
-A composed Taxonomy admin screen may show AI evidence, but the accept/reject control calls Taxonomy. AI UI code must not mutate taxonomy joins.
+A composed review screen calls SH-121 for acceptance and AI-owned proposal lifecycle for rejection. UI code must not mutate taxonomy joins.
 
 ### Failure Behavior
 
@@ -1162,7 +1172,7 @@ An authorized Professional/Marketplace workflow can request classification for a
 
 ### Cluster Build-Plan Link
 
-Extends root **Phase 4.3** when **Phase 5 — Professional Supply & Readiness** supplies real source records/interfaces.
+CL-02 Feature 09 — Professional/Offering AI classification-input integration; requires Professional/Offering owner contracts (distinct from Search projections).
 
 ### Dependencies
 
@@ -1170,7 +1180,7 @@ Extends root **Phase 4.3** when **Phase 5 — Professional Supply & Readiness** 
 - Feature 07 Taxonomy decision contract for complete workflow;
 - Professional Eligibility public source interface;
 - Marketplace Supply public source interface;
-- source Modules built sufficiently in root Phase 5;
+- Professional/Offering source-owner contracts available for the integrated targets;
 - source-specific authorization facts.
 
 ### In Scope
@@ -1264,7 +1274,7 @@ Source UI may offer “suggest classification” using AI public command. It mus
 
 ### Exit Gate
 
-Professional/Offering contract tests and at least one controlled end-to-end test pass; root Phase 5 dependency versions are recorded.
+Professional/Offering contract tests and at least one controlled end-to-end test pass; Professional/Offering owner-contract dependency versions are recorded.
 
 ---
 
@@ -1280,7 +1290,7 @@ Authorized organization workflows can request Organization/Job taxonomy suggesti
 
 ### Cluster Build-Plan Link
 
-Extends root **Phase 4.3** when **Phase 8 — Organization Hiring and Candidate Pipeline** supplies Organization/Job source contracts.
+CL-02 Feature 09 — Organization/Job AI classification-input integration; requires Organization Hiring source contracts.
 
 ### Dependencies
 
@@ -1288,7 +1298,7 @@ Extends root **Phase 4.3** when **Phase 8 — Organization Hiring and Candidate 
 - Feature 07;
 - Organization Hiring public source interfaces and Role owner facts;
 - Job Compliance boundary documented;
-- root Phase 8 source records available.
+- Organization/Job owner source records and public contracts available.
 
 ### In Scope
 
@@ -1369,7 +1379,7 @@ Real Organization/Job requests work through owner interfaces, classification rem
 
 ### Exit Gate
 
-Cross-module tests pass with root Phase 8 implementation; review confirms no `evaluateJobCompliance` duplication or AI-driven Job publication.
+Cross-module tests pass with Organization Hiring source-owner implementation; review confirms no `evaluateJobCompliance` duplication or AI-driven Job publication.
 
 ---
 
@@ -1385,7 +1395,7 @@ A permitted candidate-controlled/internal workflow can request skill/classificat
 
 ### Cluster Build-Plan Link
 
-Extends root **Phase 4.3** during **Phase 8 — Candidate Pipeline**, while respecting Candidate Search privacy and later CL-08 Privacy orchestration.
+CL-02 Feature 10 — Candidate-safe AI integration; requires Candidate source/privacy/retention contracts, distinct from protected Search.
 
 ### Dependencies
 
@@ -1514,7 +1524,7 @@ An authorized administrator can start a bounded backfill for a supported registe
 
 ### Cluster Build-Plan Link
 
-Completes the root **Phase 4.3** “worker/backfill process” requirement; can expand as root Phases 5/8 register additional source types.
+CL-02 Feature 06 covers only targets with completed applicable prerequisites; Feature 12 coordinates broader backfill after AP 08–10 owner integrations. AP target-specific dependencies are unchanged.
 
 ### Dependencies
 
@@ -1668,7 +1678,7 @@ Privacy can enumerate AI-held subject data and issue an idempotent owner instruc
 
 ### Cluster Build-Plan Link
 
-AI-side privacy design begins in Phase 4 but formal orchestration aligns with root **Phase 10 — Privacy, Location Safety, Moderation, and Legal Workflows**. Audit/Ops integration reinforces the root Phase 3 support rail already required before Phase 4.
+CL-02 Features 11 and 13 — AI owner privacy executor/audit/Ops proof. Privacy design precedes affected data use; production orchestration requires Privacy owner contracts.
 
 ### Dependencies
 
@@ -1797,7 +1807,7 @@ No new Privacy UI. AI admin UI must reflect redaction/restriction without exposi
 
 ### Exit Gate
 
-Privacy contract/integration tests, audit/access tests, telemetry redaction tests, typecheck/lint/build all pass. Formal Privacy orchestrator integration is verified when root Phase 10 exists.
+Privacy contract/integration tests, audit/access tests, telemetry redaction tests, typecheck/lint/build all pass. Formal Privacy orchestrator integration is verified when the Privacy owner protocols are implemented.
 
 ---
 
@@ -1815,7 +1825,7 @@ The core AI classification journey remains deterministic and non-authoritative u
 
 ### Cluster Build-Plan Link
 
-Supports root **Phase 12 — Production Hardening and Launch Readiness**, while verifying CL-02 Phase 4 contracts.
+CL-02 Feature 13 — production hardening after applicable source, privacy, and provider gates.
 
 ### Dependencies
 
@@ -1959,7 +1969,7 @@ source owner target
 → AI request
 → queued/running/completed run
 → proposed suggestion
-→ Taxonomy acceptance/rejection
+→ SH-121 acceptance / AI-owned proposal rejection
 → AI disposition update
 → accepted classification only: Search refresh
 ```
@@ -2049,14 +2059,14 @@ A coding agent must not pull Features 08–10 forward by directly reading source
 
 Before implementing each numbered feature:
 
-1. Read root `project-overview.md` and `architecture.md`.
+1. Read `context/project-overview-v3.md` (orientation; see context map) and `architecture.md`.
 2. Read root `code-standards.md`.
 3. Read the current Canonical Shared Operations Registry.
-4. Read CL-02 architecture if present; otherwise the current CL-02 Cluster Registry section and root Phase 4 build plan.
+4. Read the current linked CL-02 architecture and Cluster build plan.
 5. Read this Module architecture and implementation plan.
 6. Read public-interface sections for every dependency used by the feature.
 7. Read current `schema.prisma` and relevant migrations.
-8. Confirm the previous feature exit gate and root-phase dependency.
+8. Confirm the previous feature exit gate, mapped CL-02 coordination point, and actual external owner dependencies.
 9. Check whether any Proposed Ruling or Unresolved Decision blocks the feature.
 10. Write a concise implementation specification for **this feature only**.
 11. Implement only the feature's in-scope work.

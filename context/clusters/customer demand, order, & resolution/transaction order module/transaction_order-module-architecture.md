@@ -8,6 +8,8 @@
 > **Document status:** Implementation-grade Module architecture. Confirmed rulings are binding. Proposed rulings require explicit acceptance before schema/API commitment. Unresolved decisions remain non-authoritative.  
 > **Audience:** coding agents, developers, reviewers, migration authors, test authors, provider-integration authors, maintainers.  
 
+**Shared Operation status (CL-04-R015/R016):** exact SH IDs/names resolve to the canonical registry. SH-046 publication/outbox is Confirmed. SH-003 `queryOwnerFacts` and SH-015 `returnDecisionResult` remain Proposed ruling: use owner-specific fact/decision DTOs, not binding APIs dependent on those proposals. SH-054, SH-073, and SH-111, wherever referenced, remain Proposed ruling and conditional on separate approval. All other referenced registered operations retain their registry status and owner.
+
 ---
 
 ## 1. Module Header
@@ -173,7 +175,7 @@ No public search projection is owned by this Module. Any Order list/detail DTO, 
 - agreement disclosure version/text hash;
 - signature-mark hash and signer execution timestamps;
 - document SHA-256 hash and previous-document hash;
-- agreement event hash-chain fields where the proposed `hashChainRecords` mechanism is adopted;
+- agreement event hash-chain fields where the proposed SH-073 `hashChainRecords` mechanism is adopted;
 - archival/retention-lock application fields on Agreement.
 
 ### 3.7 Policies/invariants owned
@@ -473,7 +475,7 @@ Question marks identify source-dependent stages whose exact applicability is unr
 
 **Terminal/reversal rules:** unresolved. `completed`, `cancelled`, `refunded` appear terminal-like, but dispute/reopen/refund interactions require explicit policy.
 
-**Concurrency:** use `executeIdempotentCommand` plus `acquireAggregateLock` or `withOptimisticConcurrency`; never in-memory locks.
+**Concurrency:** use SH-044 `executeIdempotentCommand` plus SH-051 `acquireAggregateLock` or SH-052 `withOptimisticConcurrency`; never in-memory locks.
 
 **History proof:** Order mutation and `OrderEvent` append must occur in the same transaction.
 
@@ -565,30 +567,30 @@ TTL, one-time-use versus reusable semantics, and renewal rules require explicit 
 
 | Command | Purpose | Actor/context | Preconditions | Writes | Shared operations | Effects | Idempotency/failures |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `createOrderFromOffering` | Create Order from an immutable Offering checkout source. | buyer/system + CustomerProfile | valid source DTO/version; authority; seller/source facts; source integrity | Order + initial OrderEvent + outbox | `resolveAuthenticatedActor`, `authorizeResourceAction`, `executeIdempotentCommand`, concurrency primitive, `appendDomainLifecycleEvent`, `publishDomainEvent` | `OrderCreated` | replay same semantic result; source unavailable/stale = no partial write. |
+| `createOrderFromOffering` | Create Order from an immutable Offering checkout source. | buyer/system + CustomerProfile | valid source DTO/version; authority; seller/source facts; source integrity | Order + initial OrderEvent + outbox | SH-001 `resolveAuthenticatedActor`, SH-002 `authorizeResourceAction`, SH-044 `executeIdempotentCommand`, concurrency primitive, SH-031 `appendDomainLifecycleEvent`, SH-046 `publishDomainEvent` | `OrderCreated` | replay same semantic result; source unavailable/stale = no partial write. |
 | `createOrderFromGigAssignment` | Create Order from accepted GigAssignment. | customer/system | accepted assignment source; one Order per assignment | Order + event/outbox | same as above | `OrderCreated` | unique assignment prevents duplicate transaction. |
-| `resolveAndSnapshotOrderPricing` | Freeze base price, buyer fee/waiver, seller commission and evidence. | system/application workflow | Order at approved freeze point; Track decisions available | Order pricing/snapshot fields + event | `resolveEntitlement`, optional `consumeMeteredEntitlement`, idempotency | pricing-ready event | no silent fallback if policy unavailable unless explicitly approved. |
-| `instantiateAgreementForOrder` | Create Order-specific Agreement from approved template/version. | system/buyer workflow | agreement required; active template; no conflicting current Agreement | Agreement + event | auth/authority as needed, `executeIdempotentCommand`, `appendDomainLifecycleEvent` | agreement-created notification/event | inactive template or duplicate/conflict fails deterministically. |
-| `recordAgreementElectronicConsent` | Bind Agreement-specific execution consent to User and optional ConsentLog proof. | signer | correct disclosure/version, signer authorization | AgreementElectronicConsent + AgreementEvent | `queryConsentProof`, auth/authority, audit | consent event | duplicate same proof replays; mismatched proof denied. |
+| `resolveAndSnapshotOrderPricing` | Freeze base price, buyer fee/waiver, seller commission and evidence. | system/application workflow | Order at approved freeze point; Track decisions available | Order pricing/snapshot fields + event | SH-005 `resolveEntitlement`, optional SH-006 `consumeMeteredEntitlement`, idempotency | pricing-ready event | no silent fallback if policy unavailable unless explicitly approved. |
+| `instantiateAgreementForOrder` | Create Order-specific Agreement from approved template/version. | system/buyer workflow | agreement required; active template; no conflicting current Agreement | Agreement + event | auth/authority as needed, SH-044 `executeIdempotentCommand`, SH-031 `appendDomainLifecycleEvent` | agreement-created notification/event | inactive template or duplicate/conflict fails deterministically. |
+| `recordAgreementElectronicConsent` | Bind Agreement-specific execution consent to User and optional ConsentLog proof. | signer | correct disclosure/version, signer authorization | AgreementElectronicConsent + AgreementEvent | SH-008 `queryConsentProof`, auth/authority, audit | consent event | duplicate same proof replays; mismatched proof denied. |
 | `recordManualSignatureOptOut` | Record approved manual execution choice. | signer/admin per policy | manual path available; required disclosure shown | AgreementElectronicConsent + event | consent query, audit | manual-signature workflow event | unsupported template = denial. |
 | `requestAgreementSignatures` | Establish required signer records/request state. | system/admin | contextual consent satisfied where required | AgreementSignature rows/status + AgreementEvent | idempotency, lifecycle transition | notification requests | duplicates do not create duplicate signer semantics. |
 | `recordAgreementSignature` | Record one signer's execution evidence. | signer or normalized provider adapter | role/identity valid; consent/gate satisfied | AgreementSignature + Agreement/Document state as applicable + event | auth/authority, idempotency, audit | signature event | stale signer state = conflict; provider raw payload never enters domain API. |
-| `generateAgreementDocument` | Queue/render Agreement document from frozen facts. | system/admin | approved template and source snapshot | worker state via queue; later snapshot/event | `enqueueReliableJob`, `executeRetryWithBackoff`, request context | document-generation events | retry technical failures; no duplicate version generation for same semantic job. |
-| `recordAgreementDocumentSnapshot` | Bind ready private MediaAsset bytes and hash to immutable snapshot version. | worker/system | ready MediaAsset, exact hash, expected version | AgreementDocumentSnapshot + event | `calculateChecksum`, Media public interface, idempotency/concurrency | snapshot event | unique `(agreementId, version)` and exact-byte verification. |
+| `generateAgreementDocument` | Queue/render Agreement document from frozen facts. | system/admin | approved template and source snapshot | worker state via queue; later snapshot/event | SH-047 `enqueueReliableJob`, SH-048 `executeRetryWithBackoff`, request context | document-generation events | retry technical failures; no duplicate version generation for same semantic job. |
+| `recordAgreementDocumentSnapshot` | Bind ready private MediaAsset bytes and hash to immutable snapshot version. | worker/system | ready MediaAsset, exact hash, expected version | AgreementDocumentSnapshot + event | SH-086 `calculateChecksum`, Media public interface, idempotency/concurrency | snapshot event | unique `(agreementId, version)` and exact-byte verification. |
 | `finalizeAgreementDocument` | Mark required final execution/document proof complete. | system/worker | all required evidence satisfied | snapshot/Agreement status + timestamps + event | lifecycle transition, hash primitive, audit | `document_finalized` | duplicate finalization replays; missing signer/consent/hash fails. |
-| `issueAgreementAccessGrant` | Authorize short-lived contract retrieval. | buyer/professional/admin/support if authorized | participant/resource authority; document available; hold/privacy restrictions | AgreementAccessGrant + event | `authorizeResourceAction`, `generateSecureToken`, `manageTemporaryAccessGrant`, `recordSensitiveAccess` | Media signed-access request | denied/expired/revoked paths stable and audited. |
-| `revokeAgreementAccessGrant` | Revoke contextual grant. | participant/admin/system | authority and active grant | grant status/timestamps + event | `revokeTemporaryAccessGrant`, audit | access revoked event | idempotent. |
+| `issueAgreementAccessGrant` | Authorize short-lived contract retrieval. | buyer/professional/admin/support if authorized | participant/resource authority; document available; hold/privacy restrictions | AgreementAccessGrant + event | SH-002 `authorizeResourceAction`, SH-074 `generateSecureToken`, SH-088 `manageTemporaryAccessGrant`, SH-030 `recordSensitiveAccess` | Media signed-access request | denied/expired/revoked paths stable and audited. |
+| `revokeAgreementAccessGrant` | Revoke contextual grant. | participant/admin/system | authority and active grant | grant status/timestamps + event | SH-089 `revokeTemporaryAccessGrant`, audit | access revoked event | idempotent. |
 | `applyPaymentConfirmationToOrder` | Apply verified normalized payment success. | Payment module/system | current Order/gates; normalized result; idempotency | Order status/payment references/paidAt + OrderEvent/outbox | idempotency, concurrency, lifecycle transition | `OrderPaid` | duplicate provider result becomes one business effect; conflicting result -> reconciliation/manual review. |
 | `applyPaymentFailureToOrder` | Apply normalized payment failure without provider-specific leakage. | Payment module/system | trusted normalized result | event and approved status/reference effect | idempotency | failure event/notification | provider outage does not fabricate failure/success. |
 | `acceptOrder` | Apply seller acceptance if required by approved transition matrix. | ProfessionalProfile actor | authorization/readiness/holds/current state | Order status/acceptedAt + event | auth, authority, readiness, hold, concurrency | event/notification | unsupported source/delivery path denied. |
 | `startOrderFulfillment` | Move eligible Order into active work. | seller/system | approved state and gates | Order + event | authority, hold, lifecycle transition | event | stale transition conflict. |
-| `recordOrderDelivery` | Record transaction-level delivery milestone. | seller/system | approved fulfillment evidence | Order delivery fields + OrderFile refs + event | authority, `attachValidatedMedia`, lifecycle transition | delivery event | does not create Media truth. |
+| `recordOrderDelivery` | Record transaction-level delivery milestone. | seller/system | approved fulfillment evidence | Order delivery fields + OrderFile refs + event | authority, SH-090 `attachValidatedMedia`, lifecycle transition | delivery event | does not create Media truth. |
 | `completeOrder` | Establish completed transaction truth. | approved actor/system | completion semantics satisfied | Order/completedAt + event/outbox | idempotency, concurrency, hold, lifecycle transition | completion event to payout/review/rewards/delivery consumers | duplicate completion replays. |
 | `cancelOrder` | Cancel eligible Order. | buyer/seller/admin/system per policy | transition/financial rules satisfied | Order/cancelledAt + event | authority, lifecycle transition | refund/payment handoff if required | never assumes refund occurred. |
 | `applyRefundOutcomeToOrder` | Apply normalized partial/full/denied refund result. | Payment or settlement workflow | trusted result + matching Order | refundStatus and permitted Order status/event | idempotency, concurrency | refund-effect event | financial execution remains Payment-owned. |
 | `enterOrderDisputeState` | Apply transaction effect of Review/Dispute-owned open dispute. | Review / Dispute/system | trusted dispute reference | Order status/event | idempotency/concurrency/hold evaluation | dispute transaction event | does not create Dispute or hold. |
 | `resolveOrderDisputeState` | Apply Order effect after adjudication/settlement result. | Review/Dispute or Payment workflow | approved normalized outcome | Order/refund state/event | idempotency/concurrency | settlement event | exact reopen/close mapping unresolved. |
-| `attachOrderFile` | Create OrderFile context for a ready MediaAsset. | authorized participant/system | Media readiness + upload context + Order authority | OrderFile | `attachValidatedMedia`, authority | optional event | no direct object-storage mutation. |
+| `attachOrderFile` | Create OrderFile context for a ready MediaAsset. | authorized participant/system | Media readiness + upload context + Order authority | OrderFile | SH-090 `attachValidatedMedia`, authority | optional event | no direct object-storage mutation. |
 | `executeOrderPrivacyTarget` | Apply Privacy-owned disposition to local records. | Privacy worker/system | validated privacy target + retention decision | anonymize/detach/revoke/retain local truth | privacy target contract, audit, Media revoke/delete handoffs | privacy result | destructive retention-sensitive behavior blocked until policy approved. |
 
 ---
@@ -602,20 +604,29 @@ TTL, one-time-use versus reusable semantics, and renewal rules require explicit 
 | `getOrderTimeline` | participants/admin/support | Order ID + actor | evidence | ordered OrderEvent DTOs | generic AuditEvent or provider history. |
 | `getOrderPaymentRequirements` | checkout/Payment | Order ID | contextual facts/decision | frozen amount/currency, agreement gate, hold/readiness reason codes, source version | Stripe fields/status. |
 | `evaluateOrderPrePaymentGates` | checkout/Payment | Order + requested payment action | decision | allowed/denied/warning/review with stable local reasons and evidence refs | compliance owner raw tables. |
-| `authorizeOrderEntitlement` | Booking, Media, Digital Goods, Video | Order ID + actor + action/item | decision | Order state/participant facts/refund/dispute effect + allow/deny reasons | downstream access-grant truth. |
+| SH-025 `authorizeOrderEntitlement` | Booking, Media, Digital Goods, Video | Order ID + actor + action/item | decision | Order state/participant facts/refund/dispute effect + allow/deny reasons | downstream access-grant truth. |
 | `getAgreementPackage` | signer/participants/admin | Agreement/Order + actor | source truth/evidence | template/version, consent/signature progress, snapshot metadata, access options | Media signed URL entitlement until grant/Media checks pass. |
 | `queryOrderParticipantFacts` | Role / Authority, Messaging, Notification | Order ID | owner facts | buyer/seller IDs/profiles and safe relationships | permission itself. |
 | `getOrderSettlementFacts` | Review/Dispute, Payment, Payout | Order ID | contextual facts | Order/refund/dispute attachment facts and frozen pricing evidence | Dispute adjudication or payout availability. |
 | `enumerateOrderPrivacyData` | Privacy / Data Erasure | subject + scope | evidence inventory | local records/targets and sensitivity/retention hints | legal disposition. |
 
-Decision result shape should use the canonical shared contract: `allowed`, `denied`, `warning`, `review_required`, `step_up_required`, or `unavailable`, with owner-specific reason codes, safe explanation, evidence references, source/policy version, evaluatedAt, retryability, and remediation.
+The owner-specific decision result may express: `allowed`, `denied`, `warning`, `review_required`, `step_up_required`, or `unavailable`, with owner-specific reason codes, safe explanation, evidence references, source/policy version, evaluatedAt, retryability, and remediation.
 
 ---
 
 ## 12. Public Module Interface
 
+**Approved refund coordination (CL-04-R001).** Review / Dispute adjudicates → Transaction / Order coordinates SH-108 `requestOrderRefund` → Payment / Payout / Tax executes the provider refund → Order applies the verified provider-neutral result to RefundStatus/Order → Review / Dispute consumes settlement. Review / Dispute must not call Payment's refund executor directly.
+
+SH-108 accepts the authorized source decision, Order reference, amount/currency, reason/basis, actor authority, idempotency and correlation. It returns correlated asynchronous execution/settlement facts; an unavailable or failed Payment rail must not be recorded as refund success.
+
 ### Public commands
 
+- SH-108 `requestOrderRefund`
+- `createAgreementTemplate` — authorized administrative command
+- `activateAgreementTemplate` — authorized administrative command
+- `retireAgreementTemplate` — authorized administrative command
+- `requestOrderPayment` — Order-owned application/module command delegating the provider rail to Payment
 - `createOrderFromOffering`
 - `createOrderFromGigAssignment`
 - `resolveAndSnapshotOrderPricing`
@@ -641,6 +652,10 @@ Decision result shape should use the canonical shared contract: `allowed`, `deni
 - `resolveOrderDisputeState`
 - `attachOrderFile`
 
+### Internal/background integrity operation
+
+SH-112 `verifyAgreementDocumentHash` is Transaction / Order internal/background integrity work. It is not a generally consumable public API; public exposure requires a later approved consumer contract.
+
 ### Public queries/decisions
 
 - `getOrder`
@@ -648,7 +663,7 @@ Decision result shape should use the canonical shared contract: `allowed`, `deni
 - `getOrderTimeline`
 - `getOrderPaymentRequirements`
 - `evaluateOrderPrePaymentGates`
-- `authorizeOrderEntitlement`
+- SH-025 `authorizeOrderEntitlement`
 - `getAgreementPackage`
 - `queryOrderParticipantFacts`
 - `getOrderSettlementFacts`
@@ -680,22 +695,22 @@ This Module may own a provider-neutral **Agreement document renderer port** and,
 
 | Owning Module/capability | Public operation/interface consumed | Why required | Minimum information | Can block? | Must not copy locally |
 | --- | --- | --- | --- | --- | --- |
-| Identity & Access | `resolveAuthenticatedActor` | trusted actor context | actor ID/type/session assurance | yes | current-user/session helper. |
-| Role / Authority | `authorizeResourceAction` | protected commands/reads | action + resource + owner facts | yes | RBAC engine. |
-| Customer / Buyer Profile | `resolveCustomerActor` | buyer commercial identity | CustomerProfile ID/status/owner User | yes | User-only buyer inference. |
-| Professional Eligibility | `evaluateProfessionalReadiness` | selected seller actions | ProfessionalProfile + action + decision reasons | yes | verification/KYC/hold reconstruction. |
+| Identity & Access | SH-001 `resolveAuthenticatedActor` | trusted actor context | actor ID/type/session assurance | yes | current-user/session helper. |
+| Role / Authority | SH-002 `authorizeResourceAction` | protected commands/reads | action + resource + owner facts | yes | RBAC engine. |
+| Customer / Buyer Profile | SH-004 `resolveCustomerActor` | buyer commercial identity | CustomerProfile ID/status/owner User | yes | User-only buyer inference. |
+| Professional Eligibility | SH-016 `evaluateProfessionalReadiness` | selected seller actions | ProfessionalProfile + action + decision reasons | yes | verification/KYC/hold reconstruction. |
 | Marketplace Supply | immutable Offering checkout source | source identity/pricing/delivery facts | Offering/PricingTier/seller/source version/required flags | yes | Offering repository reads/mutations. |
 | Gig / Demand | `getGigAssignmentCheckoutSource` | accepted-demand source | assignment ID, buyer, seller, agreed amount/currency, version/status | yes | Gig tables. |
-| Track Subscription & Entitlement | `resolveEntitlement`, `consumeMeteredEntitlement` | buyer fee waiver/seller commission and usage proof | typed key/value/effective evidence/grant refs | yes at freeze point | premium/commission helpers/counters. |
-| Consent & Disclosure | `queryConsentProof` and active-version interfaces | generic disclosure evidence | type/version/proof ID/acceptedAt/validity | yes for electronic path | consent table/version catalog. |
-| Admin Review / Compliance Hold | `evaluateComplianceHold` | reusable stop signs | target/action/hold IDs/safe reasons/expiry | yes | local blocked flag. |
+| Track Subscription & Entitlement | SH-005 `resolveEntitlement`, SH-006 `consumeMeteredEntitlement` | buyer fee waiver/seller commission and usage proof | typed key/value/effective evidence/grant refs | yes at freeze point | premium/commission helpers/counters. |
+| Consent & Disclosure | SH-008 `queryConsentProof` and active-version interfaces | generic disclosure evidence | type/version/proof ID/acceptedAt/validity | yes for electronic path | consent table/version catalog. |
+| Admin Review / Compliance Hold | SH-011 `evaluateComplianceHold` | reusable stop signs | target/action/hold IDs/safe reasons/expiry | yes | local blocked flag. |
 | Payment / Payout / Tax | payment/refund command + normalized result contract | execute financial rail and return verified result | Order ref, frozen amount/tax context; normalized status/result | yes | Stripe client/webhook/dedupe/tax/ledger. |
-| Media / File Access | ready asset facts, `issueSignedMediaUrl`, upload/access contracts | OrderFile and agreement document mechanics | MediaAsset ID/readiness/sensitivity; signed-access result | yes | R2/S3 client, scanner, MediaAccessGrant. |
+| Media / File Access | ready asset facts, SH-087 `issueSignedMediaUrl`, upload/access contracts | OrderFile and agreement document mechanics | MediaAsset ID/readiness/sensitivity; signed-access result | yes | R2/S3 client, scanner, MediaAccessGrant. |
 | Booking & Calendar | public hold/booking facts | source-dependent live-service gates/completion facts | booking/hold IDs/status/version | yes for affected actions | Booking repository/calendar provider. |
 | Review / Dispute | dispute adjudication/settlement command facts | apply Order dispute/refund effects | dispute ID/outcome/version | yes for affected transition | Dispute lifecycle. |
 | Privacy / Data Erasure | privacy-target request/retention exemption refs | legal data-rights execution | disposition, target, exemption/evidence | yes for destructive actions | privacy workflow. |
 | Audit / Event Ledger | audit/access commands | generic evidence | action/target/outcome/safe metadata | no business truth | local audit table. |
-| Notification | `requestNotification` | user alerts | recipients/template/sensitivity/variables | no source truth | email/SMS/push client. |
+| Notification | SH-041 `requestNotification` | user alerts | recipients/template/sensitivity/variables | no source truth | email/SMS/push client. |
 | Observability / Ops | request context/log/failure/metric APIs | safe operation diagnostics | IDs, operation, category, retryability | no source truth | custom telemetry stack. |
 
 ---
@@ -705,7 +720,7 @@ This Module may own a provider-neutral **Agreement document renderer port** and,
 | Consumer | What it may consume | Typical trigger/effect | What Transaction / Order must not do |
 | --- | --- | --- | --- |
 | Payment / Payout / Tax | Order amount, pricing snapshot, completion/refund facts | payment, ledger, payout/tax coordination | mutate Payment/Payout/Tax records directly. |
-| Booking & Calendar | `authorizeOrderEntitlement`, Order state | create/confirm/continue paid booking | create Booking or calendar state directly. |
+| Booking & Calendar | SH-025 `authorizeOrderEntitlement`, Order state | create/confirm/continue paid booking | create Booking or calendar state directly. |
 | Media / File Access | contextual Order/Agreement access decision | signed file access | issue storage URL directly. |
 | Digital Goods / Video | Order entitlement decision | create download/playback grants | create their grants/provider resources. |
 | Review / Dispute | completed/order participant/settlement facts | review eligibility/dispute workflows | create Review/Dispute rows. |
@@ -721,41 +736,41 @@ This Module has no direct public-search projection requirement. If future privat
 
 ## 15. Canonical Shared Operations Used
 
-The supplied canonical registry does not provide binding permanent `SH-###` identifiers. This document therefore uses canonical operation names only and does not invent IDs.
+Use the permanent IDs, canonical owners, and statuses in [Shared Operations](<../../../shared/shared-operations.md>). Confirmed references retain their registered boundaries; proposed references are conditional only.
 
 | Canonical operation | Owner/class | Why used / invocation point | Local policy retained here | Expected contract/result | Prohibited duplicate names |
 | --- | --- | --- | --- | --- | --- |
-| `resolveAuthenticatedActor` | Identity & Access; platform capability | every protected command/read | Order/Agreement action context | typed trusted actor | `currentUser`, `requireUser`, `orderAuth`. |
-| `authorizeResourceAction` | Role / Authority; cross-cutting capability | before protected resource action | participant facts and action vocabulary | allow/deny decision with safe reasons | `orderPermissions`, `agreementRbac`. |
-| `resolveCustomerActor` | Customer / Buyer Profile public interface | buyer-domain create/read commands | whether command requires active CustomerProfile | CustomerProfile owner facts | `customerFromUser`. |
-| `resolveEntitlement` | Track commercial-policy capability | pricing freeze | how waiver/commission changes Order snapshot | typed value + grant/evidence + reason | `isPremium`, `feeWaiverService`, `commissionForPlan`. |
-| `consumeMeteredEntitlement` | Track | when approved transaction event consumes a perk | which event counts | idempotent usage receipt | local usage counter. |
-| `queryConsentProof` | Consent & Disclosure | agreement execution gate | whether exact proof satisfies Agreement requirement | proof ID/type/version/acceptedAt/validity | `agreementConsentLookup` over local table. |
-| `evaluateProfessionalReadiness` | Professional Eligibility public interface | source-dependent seller actions | which Order action requires readiness | DecisionResult | `canSellerAccept`. |
-| `evaluateComplianceHold` | Hold owner | payment/fulfillment/access transitions | which hold blocks which action | safe hold decision/evidence | `orderBlocked`. |
-| `appendAuditEvent` | Audit / Event Ledger | significant admin/template/agreement actions | when generic audit is required | append acknowledgement | `contractAuditLog`. |
-| `recordSensitiveAccess` | Audit / Event Ledger | contract view/download/sign/tamper evidence | target sensitivity and context | access-audit acknowledgement | `agreementViewLog`. |
-| `appendDomainLifecycleEvent` | shared persistence mechanism; separate truth | same transaction as Order/Agreement mutation | event type/name/meaning | appended domain event | universal lifecycle ledger. |
-| `executeIdempotentCommand` | platform primitive | commercial and retryable mutations | semantic key/conflict/replay rules | claimed/replayed command result | `orderIdempotency`. |
-| `acquireAggregateLock` / `withOptimisticConcurrency` | platform primitive | creation/transition/finalization races | lock key/stale-write behavior | serialized or version-checked mutation | `orderMutex`, in-memory lock. |
-| `transitionLifecycleState` | shared mechanism/separate truth | Order/Agreement transitions | legal transition graph | validated transition + event hook | generic Order policy table. |
-| `publishDomainEvent` | platform outbox | after authoritative write commits | event vocabulary/payload minimization | versioned outbox event | fire-and-forget bus call. |
-| `deduplicateDomainEvent` | platform inbox | inbound event handlers | handler identity/side effect | once-per-handler receipt | ad hoc processed-event table. |
-| `enqueueReliableJob` | shared queue | PDF/finalization/expiry/reconciliation | payload/completion semantics | durable job ID | `agreementQueue` framework. |
-| `executeRetryWithBackoff` | shared queue | worker technical retry | retryability classification | bounded retry/dead-letter | custom retry loop. |
-| `runDeadlineExpiration` | shared scheduler | AgreementAccessGrant expiration; future approved expiries | what expiry means locally | owner command invocation | cron directly updating status. |
-| `calculateChecksum` | shared hash primitive | exact finalized contract bytes | binding checksum to Agreement document legal proof | SHA-256 checksum metadata | `contractHash.ts`, divergent SHA helper. |
-| `hashChainRecords` | proposed cross-cutting primitive | optional AgreementEvent tamper chain | Agreement canonical fields and response to failure | chain/verification result | bespoke chain helper if canonical ruling accepted. |
-| `generateSecureToken` | security primitive | AgreementAccessGrant secret | TTL/target/use semantics | secret once + stored hash | `agreementToken.ts` random helper. |
-| `manageTemporaryAccessGrant` | shared mechanism/separate truth | AgreementAccessGrant lifecycle | contract authorization/scope | status/expiry/token mechanics | generic grant table. |
-| `revokeTemporaryAccessGrant` | shared pattern | privacy/moderation/refund/security revocation | whether Agreement grant must revoke | idempotent revocation | custom token revoker. |
-| `attachValidatedMedia` | Media/context contract | OrderFile creation | Order role/context | ready MediaAsset + join result | `orderUploadService`. |
-| `issueSignedMediaUrl` | Media / File Access | after AgreementAccessGrant authorization | Agreement contextual entitlement | short-lived Media URL result | `agreementSignedUrl`. |
-| `createRequestContext` | Observability | every request/job/event | local safe dimensions only | request/correlation/causation IDs | local correlation helper. |
-| `writeStructuredLog` | Observability | operations/workers | safe domain dimensions | structured log acknowledgement | custom logger. |
-| `sanitizeTelemetryMetadata` | Observability/Audit payload policy | before logs/events/audits | domain sensitivity classification | safe allowlisted metadata | custom redaction regexes. |
-| `recordIntegrationFailure` | Observability / Ops | provider/worker degradation | business truth remains local | normalized failure record | failure status as Order truth. |
-| `requestNotification` | Notification | committed lifecycle facts | event meaning/recipients/safe variables | notification request acknowledgement | direct SES/SMS/push calls. |
+| SH-001 `resolveAuthenticatedActor` | Identity & Access; platform capability | every protected command/read | Order/Agreement action context | typed trusted actor | `currentUser`, `requireUser`, `orderAuth`. |
+| SH-002 `authorizeResourceAction` | Role / Authority; cross-cutting capability | before protected resource action | participant facts and action vocabulary | allow/deny decision with safe reasons | `orderPermissions`, `agreementRbac`. |
+| SH-004 `resolveCustomerActor` | Customer / Buyer Profile public interface | buyer-domain create/read commands | whether command requires active CustomerProfile | CustomerProfile owner facts | `customerFromUser`. |
+| SH-005 `resolveEntitlement` | Track commercial-policy capability | pricing freeze | how waiver/commission changes Order snapshot | typed value + grant/evidence + reason | `isPremium`, `feeWaiverService`, `commissionForPlan`. |
+| SH-006 `consumeMeteredEntitlement` | Track | when approved transaction event consumes a perk | which event counts | idempotent usage receipt | local usage counter. |
+| SH-008 `queryConsentProof` | Consent & Disclosure | agreement execution gate | whether exact proof satisfies Agreement requirement | proof ID/type/version/acceptedAt/validity | `agreementConsentLookup` over local table. |
+| SH-016 `evaluateProfessionalReadiness` | Professional Eligibility public interface | source-dependent seller actions | which Order action requires readiness | DecisionResult | `canSellerAccept`. |
+| SH-011 `evaluateComplianceHold` | Hold owner | payment/fulfillment/access transitions | which hold blocks which action | safe hold decision/evidence | `orderBlocked`. |
+| SH-029 `appendAuditEvent` | Audit / Event Ledger | significant admin/template/agreement actions | when generic audit is required | append acknowledgement | `contractAuditLog`. |
+| SH-030 `recordSensitiveAccess` | Audit / Event Ledger | contract view/download/sign/tamper evidence | target sensitivity and context | access-audit acknowledgement | `agreementViewLog`. |
+| SH-031 `appendDomainLifecycleEvent` | shared persistence mechanism; separate truth | same transaction as Order/Agreement mutation | event type/name/meaning | appended domain event | universal lifecycle ledger. |
+| SH-044 `executeIdempotentCommand` | platform primitive | commercial and retryable mutations | semantic key/conflict/replay rules | claimed/replayed command result | `orderIdempotency`. |
+| SH-051 `acquireAggregateLock` / SH-052 `withOptimisticConcurrency` | platform primitive | creation/transition/finalization races | lock key/stale-write behavior | serialized or version-checked mutation | `orderMutex`, in-memory lock. |
+| SH-053 `transitionLifecycleState` | shared mechanism/separate truth | Order/Agreement transitions | legal transition graph | validated transition + event hook | generic Order policy table. |
+| SH-046 `publishDomainEvent` | platform outbox | after authoritative write commits | event vocabulary/payload minimization | versioned outbox event | fire-and-forget bus call. |
+| SH-045 `deduplicateDomainEvent` | platform inbox | inbound event handlers | handler identity/side effect | once-per-handler receipt | ad hoc processed-event table. |
+| SH-047 `enqueueReliableJob` | shared queue | PDF/finalization/expiry/reconciliation | payload/completion semantics | durable job ID | `agreementQueue` framework. |
+| SH-048 `executeRetryWithBackoff` | shared queue | worker technical retry | retryability classification | bounded retry/dead-letter | custom retry loop. |
+| SH-055 `runDeadlineExpiration` | shared scheduler | AgreementAccessGrant expiration; future approved expiries | what expiry means locally | owner command invocation | cron directly updating status. |
+| SH-086 `calculateChecksum` | shared hash primitive | exact finalized contract bytes | binding checksum to Agreement document legal proof | SHA-256 checksum metadata | `contractHash.ts`, divergent SHA helper. |
+| SH-073 `hashChainRecords` | proposed cross-cutting primitive | optional AgreementEvent tamper chain | Agreement canonical fields and response to failure | chain/verification result | bespoke chain helper if canonical ruling accepted. |
+| SH-074 `generateSecureToken` | security primitive | AgreementAccessGrant secret | TTL/target/use semantics | secret once + stored hash | `agreementToken.ts` random helper. |
+| SH-088 `manageTemporaryAccessGrant` | shared mechanism/separate truth | AgreementAccessGrant lifecycle | contract authorization/scope | status/expiry/token mechanics | generic grant table. |
+| SH-089 `revokeTemporaryAccessGrant` | shared pattern | privacy/moderation/refund/security revocation | whether Agreement grant must revoke | idempotent revocation | custom token revoker. |
+| SH-090 `attachValidatedMedia` | Media/context contract | OrderFile creation | Order role/context | ready MediaAsset + join result | `orderUploadService`. |
+| SH-087 `issueSignedMediaUrl` | Media / File Access | after AgreementAccessGrant authorization | Agreement contextual entitlement | short-lived Media URL result | `agreementSignedUrl`. |
+| SH-032 `createRequestContext` | Observability | every request/job/event | local safe dimensions only | request/correlation/causation IDs | local correlation helper. |
+| SH-033 `writeStructuredLog` | Observability | operations/workers | safe domain dimensions | structured log acknowledgement | custom logger. |
+| SH-034 `sanitizeTelemetryMetadata` | Observability/Audit payload policy | before logs/events/audits | domain sensitivity classification | safe allowlisted metadata | custom redaction regexes. |
+| SH-037 `recordIntegrationFailure` | Observability / Ops | provider/worker degradation | business truth remains local | normalized failure record | failure status as Order truth. |
+| SH-041 `requestNotification` | Notification | committed lifecycle facts | event meaning/recipients/safe variables | notification request acknowledgement | direct SES/SMS/push calls. |
 
 ### Another Module public interfaces, not neutral shared primitives
 
@@ -805,13 +820,13 @@ The supplied canonical registry does not provide binding permanent `SH-###` iden
 
 ## 18. Authentication and Authorization
 
-- Every protected command begins with `resolveAuthenticatedActor` unless invoked by an authenticated internal system/event context.
+- Every protected command begins with SH-001 `resolveAuthenticatedActor` unless invoked by an authenticated internal system/event context.
 - Role / Authority owns interpretation. Transaction / Order supplies minimum relationship facts: buyer User/CustomerProfile, seller ProfessionalProfile, signer role, Agreement target, and action name.
 - Resource actions include create/read/cancel/accept/deliver/complete/order-admin-correct, agreement-template-admin, sign, view/download agreement, issue/revoke access grant, and settlement-effect application.
 - CustomerProfile is the buyer commercial actor for new workflows; User remains authentication/audit identity.
 - Seller authority derives from ProfessionalProfile relationship, not arbitrary User equality.
-- Admin/support access is not blanket access to contracts. Sensitive agreement access must pass explicit authority/context and `recordSensitiveAccess`.
-- Exact step-up action matrix is unresolved. Do not add local MFA flags. When root policy requires step-up, call Identity & Access `requireStepUpForSensitiveAction`.
+- Admin/support access is not blanket access to contracts. Sensitive agreement access must pass explicit authority/context and SH-030 `recordSensitiveAccess`.
+- Refund/release actions that cause or authorize financial movement require Identity & Access SH-014 `requireStepUpForSensitiveAction`. Remaining action-specific rules stay unresolved; do not add local MFA flags.
 
 ---
 
@@ -819,12 +834,12 @@ The supplied canonical registry does not provide binding permanent `SH-###` iden
 
 | Gate | Underlying owner | Query consumed | Transaction / Order action | Local composition |
 | --- | --- | --- | --- | --- |
-| buyer actor | Customer / Buyer Profile | `resolveCustomerActor` | create/read/cancel Order | require correct CustomerProfile relationship. |
-| seller readiness | Professional Eligibility | `evaluateProfessionalReadiness` | selected create/accept/fulfillment actions | map external decision to local action allow/deny. |
-| buyer fee waiver | Track | `resolveEntitlement` | pricing freeze | freeze effective fee result and evidence. |
-| seller commission | Track | `resolveEntitlement` | pricing freeze | freeze effective BPS/amount and evidence. |
-| generic e-sign disclosure | Consent & Disclosure | `queryConsentProof` | Agreement electronic execution | contextual Agreement consent remains local. |
-| reusable hold | Admin Review / Compliance Hold | `evaluateComplianceHold` | payment, fulfillment, agreement access, settlement actions | define action-specific block behavior. |
+| buyer actor | Customer / Buyer Profile | SH-004 `resolveCustomerActor` | create/read/cancel Order | require correct CustomerProfile relationship. |
+| seller readiness | Professional Eligibility | SH-016 `evaluateProfessionalReadiness` | selected create/accept/fulfillment actions | map external decision to local action allow/deny. |
+| buyer fee waiver | Track | SH-005 `resolveEntitlement` | pricing freeze | freeze effective fee result and evidence. |
+| seller commission | Track | SH-005 `resolveEntitlement` | pricing freeze | freeze effective BPS/amount and evidence. |
+| generic e-sign disclosure | Consent & Disclosure | SH-008 `queryConsentProof` | Agreement electronic execution | contextual Agreement consent remains local. |
+| reusable hold | Admin Review / Compliance Hold | SH-011 `evaluateComplianceHold` | payment, fulfillment, agreement access, settlement actions | define action-specific block behavior. |
 | payment verified | Payment / Payout / Tax | normalized result | transition to paid/refund effect | apply once through local state machine. |
 | media ready/private | Media | Media readiness/access interface | OrderFile/document snapshot/access | local context does not override Media safety. |
 | booking/delivery facts | Booking/delivery owner | public facts | source-specific fulfillment transition | Order consumes only approved facts. |
@@ -857,7 +872,7 @@ Adapter choices may include Puppeteer, PDFKit, external provider, or manual uplo
 Optional and unresolved. If adopted:
 
 - create a provider-neutral e-sign port;
-- use shared `verifyProviderWebhookSignature` shell;
+- use shared SH-059 `verifyProviderWebhookSignature` shell;
 - maintain provider-specific dedupe truth separate from Stripe/calendar/video ledgers;
 - translate provider status to canonical Agreement commands;
 - reconcile provider state through shared worker framework;
@@ -890,11 +905,11 @@ Use canonical event envelope fields:
 
 ### Outbox
 
-**Proposed ruling from CL-04:** cross-Module effects should use a transactional outbox. Order/Agreement write + lifecycle event + outbox record belong to one transaction where downstream effects are required.
+**Confirmed SH-046:** cross-Module effects use the canonical transactional outbox. Order/Agreement write + lifecycle event + outbox record belong to one transaction where downstream effects are required.
 
 ### Consumer idempotency
 
-Consumers use `deduplicateDomainEvent`. Event facts never encode hidden commands such as “set payout paid”; consumers interpret the event through their own policies/public commands.
+Consumers use SH-045 `deduplicateDomainEvent`. Event facts never encode hidden commands such as “set payout paid”; consumers interpret the event through their own policies/public commands.
 
 ### Payload minimization
 
@@ -917,7 +932,7 @@ Never emit full contract text, signatures, tax/payment secrets, raw provider pay
 
 ### Agreement access-grant expiration
 
-Use `runDeadlineExpiration` to find expired active AgreementAccessGrant rows and invoke the owner transition. Scheduler does not update status directly.
+Use SH-055 `runDeadlineExpiration` to find expired active AgreementAccessGrant rows and invoke the owner transition. Scheduler does not update status directly.
 
 ### Hash verification/reconciliation worker
 
@@ -1010,7 +1025,7 @@ Same idempotency key + same semantic fingerprint returns the original semantic r
 - contract files remain private;
 - no permanent public agreement URL;
 - signed URL is transport, not entitlement;
-- viewing/downloading finalized agreements uses `recordSensitiveAccess`;
+- viewing/downloading finalized agreements uses SH-030 `recordSensitiveAccess`;
 - deleting OrderFile context does not delete MediaAsset automatically;
 - retention may require preserving underlying agreement MediaAsset.
 
@@ -1142,9 +1157,9 @@ Operational failures never become Order/Agreement business state unless the doma
 - require auth/authority/context gates server-side;
 - use CustomerProfile and ProfessionalProfile owner facts;
 - use canonical idempotency and DB concurrency controls;
-- use canonical `calculateChecksum` SHA-256 primitive for exact document bytes;
+- use canonical SH-086 `calculateChecksum` SHA-256 primitive for exact document bytes;
 - store access/signature/session secrets only as approved hashes/protected forms;
-- use `generateSecureToken` for grant secrets;
+- use SH-074 `generateSecureToken` for grant secrets;
 - keep contract files private;
 - issue signed URLs only through Media after contextual grant decision;
 - raw payment webhooks never enter Transaction / Order domain services;
@@ -1349,14 +1364,33 @@ Do not generate inside `transaction_order`:
 
 ---
 
+**Confirmed commercial freeze boundary (CL-04-R003):** resolve authoritative source and Track entitlement decisions, then freeze source pricing, buyer fee-waiver effect, seller commission effect, and supporting Track grant/evidence references before Agreement execution or payment initiation. An initial/draft Order may exist before freeze. Frozen effects must never be recomputed from later subscription state.
+
+**Confirmed actor semantics (CL-04-R007):** CustomerProfile is required semantic buyer identity for new CL-04 buyer-domain records; User remains authenticated account/audit identity. After CustomerProfile migration, Gig/GigAssignment/Order buyer ownership must not be authorized from User ID alone. A Review author resolves to the Order's buyer CustomerProfile. Dispute opener proof must distinguish customer, professional, and privileged/admin initiation with an unambiguous typed domain actor; this representation requirement does not approve which actors may open a Dispute. Historical backfill, permanent legacy-User reference semantics, and the physical typed-opener schema remain unresolved.
+
+**Binding source invariant (CL-04-R008):** `sourceType=offering` requires non-null `offeringId` and null `gigAssignmentId`; `sourceType=gig_assignment` requires non-null `gigAssignmentId` and null `offeringId`. Neither, both, or a mismatched discriminator is invalid. Transaction / Order must enforce this in domain validation and a later approved database constraint/migration. Current schema does not yet enforce it; this pass makes no schema change.
+
+**Binding retention boundary (CL-04-R011):** hard deletion of an Order must not cascade-delete retained transaction, Agreement, Review, Dispute, or domain-history evidence without owner-specific Privacy/retention evaluation. Privacy issues the instruction; each owner enumerates its targets, evaluates retention/exemption facts, erases/anonymizes eligible data, preserves/minimizes retained evidence, and returns proof to Privacy. Database cascades must not provide an alternate destructive path. Existing cascade behavior requires a later approved database correction; legal retention durations remain unresolved.
+
+**Confirmed sensitive-action gate (CL-04-R021):** refund/release adjudication or actions that cause or authorize financial movement require SH-014 `requireStepUpForSensitiveAction`, owned by Identity & Access. This gate does not approve finality, grant TTL/reuse/renewal, manual-signature procedure, non-payout hold effects, signer anonymization, or retention periods. Optional external e-sign adoption must not block the provider-neutral Agreement domain.
+
+### Approved local Shared Operation mappings
+
+- SH-107 `createChargeableOrder` — Confirmed; Transaction / Order owns creation. `createOrderFromOffering` and `createOrderFromGigAssignment` are typed source-specific specializations of this responsibility, not separate creation engines.
+- SH-109 `snapshotExternalDecision` — Confirmed; Order freezes external Track decision/evidence while Track retains current policy truth.
+- SH-110 `createDomainSnapshot` — Confirmed; Order owns immutable source/commercial snapshots where the registered semantics apply.
+- SH-026 `authorizeContextualResourceAccess` — Confirmed; the context owner decides Agreement/Dispute business access; Media retains signed transport mechanics.
+- SH-125 `recordDomainAccessEvent` — Confirmed; Agreement/domain access proof remains separate from generic AccessAuditLog.
+- SH-111 `renderDocument` — Proposed ruling, conditional future shared normalization; not a required confirmed dependency. Transaction / Order retains its owner-local/provider-neutral rendering workflow until separate Shared Operations approval.
+
 ## 35. Unresolved Decisions
 
 The following are not implementation details; affected production work must stop until explicitly resolved:
 
-1. Does `customerProfileId` become non-null for new Orders, and what are the migration/backfill semantics for legacy `buyerUserId`?
+1. CustomerProfile is required semantic buyer identity for new Orders; physical enforcement, historical backfill, and permanent legacy `buyerUserId` semantics remain unresolved.
 2. What is the exact valid Order transition matrix by source and delivery kind?
-3. Exactly when is commercial policy frozen: Order create, payment initiation, agreement lock, or another approved point?
-4. What database rule/check constraint enforces exactly one source and consistency with `sourceType`?
+3. Commercial freeze ordering is confirmed by CL-04-R003; detailed fee/tax/proceeds field meanings remain unresolved.
+4. Source XOR/type consistency and domain + database enforcement are binding under CL-04-R008; the later approved constraint/migration is still required.
 5. What are the authoritative meanings of `priceCents`, `applicationFeeCents`, `buyerPlatformFeeCents`, seller commission, tax, processor fee, and seller proceeds?
 6. Which Stripe/provider correlation fields remain on Order long-term, and what is the meaning of `stripeTransferId` given Payment-owned `PayoutTransfer[]`?
 7. Are Track subscription/grant snapshot references foreign keys or intentionally non-FK historical identifiers?
@@ -1369,12 +1403,12 @@ The following are not implementation details; affected production work must stop
 14. Are `organization_member` and `candidate` valid signer roles for Order agreements, or merely shared enum vocabulary for future contexts?
 15. What is the approved manual-signature operational workflow after opt-out?
 16. Is an external e-sign provider used for MVP; if so, which provider-event dedupe record/contract is owned here?
-17. Is AgreementEvent hash chaining required for MVP? `hashChainRecords` is a proposed shared ruling, not confirmed ownership.
+17. Is AgreementEvent hash chaining required for MVP? SH-073 `hashChainRecords` is a proposed shared ruling, not confirmed ownership.
 18. What are AgreementAccessGrant TTL, one-time/reuse, renewal, and download rules?
 19. What are full/partial refund allocation and reversal semantics?
 20. How exactly does Order exit or remain in `disputed` after Review / Dispute adjudication and financial settlement?
 21. Which `ComplianceHold` reasons block which Order/Agreement actions?
-22. Which actions require step-up authentication under root security policy?
+22. Refund/release actions causing or authorizing financial movement require SH-014; any remaining action-specific step-up matrix is unresolved.
 23. Which Transaction / Order records require retention exemptions, and for what duration?
 24. Which actor/signer fields may be anonymized while preserving required transaction/contract proof?
 
@@ -1397,12 +1431,15 @@ The following are not implementation details; affected production work must stop
 11. Finalized agreement documents are immutable and hashed from exact archived bytes.
 12. Cross-Module effects use stable public contracts/events; no direct neighboring lifecycle mutation.
 
+### Confirmed reconciliation rulings
+
+- **Confirmed CL-04-R007:** require CustomerProfile semantically on new buyer-domain writes; physical migration/backfill remains separately gated;
+- **Confirmed SH-046 (not a proposal):** use transactional outbox for cross-Module effects.
+
 ### Proposed rulings carried from CL-04
 
-- require CustomerProfile on new buyer-domain writes after explicit migration approval;
 - use immutable source DTOs instead of cross-Module repositories;
 - use canonical DB concurrency + idempotency for commercial transitions;
-- use transactional outbox for cross-Module effects.
 
 ### Unresolved rulings
 

@@ -3,8 +3,8 @@
 > **Module ID:** `booking_calendar`  
 > **Module:** Booking & Calendar Module  
 > **Primary Cluster:** `CL-05 — Scheduling, Media & Digital Delivery`  
-> **Companion architecture:** `module-architecture.md`  
-> **Repository target:** `context/clusters/scheduling-media-digital-delivery/modules/booking_calendar/implementation-plan.md`  
+> **Companion architecture:** [booking-calendar-module-architecture.md](booking-calendar-module-architecture.md)\
+> **Repository target:** `context/clusters/scheduling, media, & digital delivery/booking-calendar-module/booking-calendar-module-implementation-plan.md`\
 > **Plan status:** Module-level implementation sequence subordinate to the root Workin Ants build plan and CL-05 build plan. It does not independently change Cluster sequence or ownership.
 
 ---
@@ -32,7 +32,7 @@ This Module plan is deliberately narrower than CL-05 `build-plan.md`. It impleme
 
 ## Build Rules
 
-1. Follow root project overview, root architecture/build plan/code standards, Canonical Shared Operations, CL-05 architecture/build plan, and `module-architecture.md`.
+1. Follow [context-map.md](../../../context-map.md) for authority by concern and actual artifact paths, the [CL-05 architecture](../scheduling-media-digital-delivery-cluster-architecture.md), [CL-05 build plan](../scheduling-media-digital-delivery-cluster-build-plan.md), [Shared Operations registry](../../../shared/shared-operations.md), and [Booking architecture](booking-calendar-module-architecture.md). Referenced root architecture/build-plan/code-standard files are currently unavailable; do not infer a global phase from them.
 2. Booking & Calendar writes only its declared source truth.
 3. Cross-Module reads/commands use approved public interfaces; do not import foreign repositories for convenience.
 4. Reuse canonical SH-### operations. If a required canonical implementation is missing, depend on its interface/test double or coordinate the owner prerequisite; do not create a Booking-local substitute.
@@ -151,8 +151,9 @@ Tests/dev harness can instantiate Booking-owned repositories/services against th
 ### Cluster Build-Plan Link
 
 - Prerequisite to CL-05 Feature **07**.
-- Supports root schema/source-of-truth baseline and root delivery Phase 7.
+- Supports the Booking schema/source-of-truth prerequisite for CL-05 Feature **07**; no root delivery phase is asserted.
 - Does not reorder CL-05; it prepares the Booking owner for Feature 07 implementation.
+- Its owner-query contract must supply Video with current Booking ID/version or freshness marker, status, scheduled start/end, authorized participants, and `overtimeGraceMinutes`; Video must not hardcode the default or read Booking repositories.
 
 ### Dependencies
 
@@ -1039,6 +1040,8 @@ First half of CL-05 Feature **09 — Cronofy Calendar Connection and Free/Busy S
 - **SH-007 / SH-008** — record/query current calendar disclosure consent;
 - **SH-064 `authorizeExternalProviderConnection`** — state/nonce/redirect/scopes;
 - **SH-067 `invokeCalendarProvider`** — only provider access point;
+- **SH-070 `deleteProviderResource` — provider-owning Module (Booking).** Approved resource deletion/revocation during disconnect returns typed outcome/evidence; no deletion client in a consumer;
+- **SH-078 `minimizeAndRedactProviderInput` — source-data owner policy/shared serializer.** Minimize calendar authorization, sync, writeback, deletion, and reconciliation payloads at the provider boundary; no Booking-local generic serializer;
 - SH-044 — idempotent connection command/callback;
 - SH-029/030 — audit/sensitive access where policy requires;
 - SH-032/034/037 — request context/redaction/provider failure;
@@ -1193,6 +1196,7 @@ Completes CL-05 Feature **09**.
 - **SH-061 `translateProviderStatus`** — Cronofy mapping stays adapter-local;
 - **SH-062 `reconcileProviderState`** — compare and safely repair;
 - SH-067 — fetch free/busy/provider state;
+- SH-078 `minimizeAndRedactProviderInput` — owner-approved minimum provider request fields/scopes;
 - SH-072 — provider payload/version/availability hash where needed;
 - SH-044/047/048 — idempotent sync/jobs/retry;
 - SH-030 — sensitive access audit where calendar policy requires;
@@ -1361,6 +1365,7 @@ A confirmed/rescheduled/cancelled Booking creates one semantic `BookingOrchestra
 - SH-044/047/048 — idempotent durable step execution/retry;
 - SH-046 — trigger/outbox facts;
 - **SH-067** — Booking-owned calendar writeback;
+- SH-078 `minimizeAndRedactProviderInput` — purpose-bound calendar writeback payload;
 - **SH-113** — idempotent Messaging Thread;
 - **SH-041** — Notification request;
 - **SH-027** — Location Safety decision/proof;
@@ -1565,7 +1570,9 @@ Potentially affected:
 - **SH-097 `evaluateRetentionRequirement`** — owner facts, Privacy-owned exemption;
 - SH-044/047/048 — idempotent/retryable destructive/provider work;
 - SH-029/030 — audit/sensitive access;
-- SH-037 — provider execution failure.
+- SH-037 — provider execution failure;
+- SH-070 `deleteProviderResource` — Booking-owned approved provider disconnect/deletion with typed deleted/absent/retained/retryable-failure/terminal-failure evidence;
+- SH-078 `minimizeAndRedactProviderInput` — minimized deletion/reconciliation provider input, using source-owner policy and the shared serializer.
 
 ### Domain Logic
 

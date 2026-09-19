@@ -3,9 +3,24 @@
 > **Module ID:** `location_safety`  
 > **Module:** Location Safety Module  
 > **Primary Cluster:** CL-08 Privacy & Location Safety  
-> **Companion architecture:** `location_safety/module-architecture.md`  
+> **Companion architecture:** `context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md`<br>
 > **Plan status:** Ordered Module implementation plan; decision-gated where CL-08 safety/privacy decisions remain unresolved  
-> **Relationship to Cluster plan:** Subordinate to `context/privacy-location-safety/build-plan.md`. This plan decomposes only the Location Safety work inside CL-08 Features 03, 07, 08, 09, 10, and 11. It does not change Cluster sequencing, legal gates, or ownership.
+> **Relationship to Cluster plan:** Subordinate to `context/clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md`. This plan decomposes only the Location Safety work inside CL-08 Features 03, 07, 08, 09, 10, and 11. It does not change Cluster sequencing, legal gates, or ownership.
+
+**Shared Operation status:** References use permanent IDs and canonical names from `context/shared/shared-operations.md`; that registry controls owner, classification, status, and reusable boundary. SH-003 queryOwnerFacts remains **Proposed ruling** and is not an unconditional prerequisite or an approved universal DTO/API. Adoption requires separate Shared Operations approval before API/schema commitment. Existing source-owner-specific public queries may be consumed within their approved contracts; direct cross-domain Prisma/repository reads remain prohibited. SH-015 returnDecisionResult and SH-069 geocodeAddress remain **Proposed ruling** wherever referenced; this pass does not approve them.
+
+### Current context paths and missing artifact roles
+
+Read `context/context-map.md` first for authority by concern, then the existing artifacts relevant to the feature:
+
+- Overview: `context/project-overview-v3.md`.
+- Shared Operations: `context/shared/shared-operations.md`.
+- Cluster architecture: `context/clusters/Privacy & Location Safety/privacy-location-safety-architecture.md`.
+- Cluster build plan: `context/clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md`.
+- Module architecture: `context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md`.
+- Module implementation plan: `context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-implementation-plan.md`.
+
+Root/repository-root and context-root `architecture.md`, `build-plan.md`, `code-standards.md`, and dedicated `progress-tracker.md` are currently **missing**. References to those global artifacts below describe future roles, not loadable files or current authority. Do not create local substitutes or infer global approval. Apply existing concern owners through the context map; stop work that needs a missing global decision. Until a dedicated tracker is available, report progress/blockers in the task completion report; progress does not approve architecture.
 
 ---
 
@@ -41,7 +56,7 @@ Do not invent map rendering, directions, service-area calculation, dispatch, log
 
 ## Build Rules
 
-1. Follow root Workin Ants architecture, root code standards, the CL-08 architecture, and the CL-08 build plan.
+1. Follow the CL-08 architecture and build plan within `context/context-map.md` authority by concern; root architecture/code standards are currently missing.
 2. Location Safety owns only its declared truth: `FuzzyLocationCache`, `LocationReveal`, `LocationPrecision`, `LocationRevealStatus`, and the policies governing safe precision/fuzzing and exact reveal.
 3. Source Modules remain owners of exact/source location facts and source-object lifecycles.
 4. Booking, Order, source, Search, Audit, Privacy, Identity, Role / Authority, Compliance Hold, and Ops truth must be consumed through approved public interfaces.
@@ -55,7 +70,7 @@ Do not invent map rendering, directions, service-area calculation, dispatch, log
 12. `LocationReveal` remains separate from `AccessAuditLog` and `AuditEvent`.
 13. Privacy / Data Erasure owns `PrivacyRequest`, privacy jobs/targets, retention exemptions, and aggregate fulfillment. Location Safety implements only its own executor.
 14. Provider details stay behind a provider-neutral geocoding port if and only if geocoder adapter ownership/provider choice is approved.
-15. Location-owned jobs are durable, retryable, correlated, and observable through canonical shared infrastructure.
+15. Location-owned jobs are durable, retryable, correlated, and observable through canonical shared infrastructure, including `SH-038 recordQueueTelemetry`.
 16. No production fuzzy radius, stability, expiry, reveal predicate, directionality, revocation rule, retention period, context uniqueness rule, or provider choice may be guessed.
 17. Every numbered feature ends with automated tests and an explicit exit gate.
 18. If a decision-gated feature depends on unresolved architecture, stop that feature and record the blocker. Do not make tests green by inventing policy.
@@ -192,7 +207,7 @@ Supports:
 - current Prisma schema;
 - root runtime validation/error conventions;
 - Canonical Shared Operations definitions;
-- `location_safety/module-architecture.md`;
+- `context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md`;
 - owner-fact interface placeholders or contract fakes.
 
 ### In Scope
@@ -234,11 +249,11 @@ No new source truth is introduced.
 Declare and validate:
 
 ```text
-applyFuzzyPublicLocation
+applyFuzzyPublicLocation # SH-028 applyFuzzyPublicLocation
 getPublicLocationProjection
 refreshFuzzyLocationProjection
 invalidateFuzzyLocationProjection
-resolveLocationReveal
+resolveLocationReveal # SH-027 resolveLocationReveal
 getLocationRevealStatus
 revokeLocationReveal
 listLocationRevealHistory
@@ -247,19 +262,19 @@ listLocationRevealHistory
 Declare Location Safety's implementation shape for the Privacy executor protocol:
 
 ```text
-enumerateSubjectData
-evaluateRetentionRequirement
-executePrivacyInstruction
+enumerateSubjectData # SH-096 enumerateSubjectData
+evaluateRetentionRequirement # SH-097 evaluateRetentionRequirement
+executePrivacyInstruction # SH-095 executePrivacyInstruction
 ```
 
-`resolveLocationReveal` and privacy mutation paths remain disabled/decision-gated until later features.
+`SH-027 resolveLocationReveal` and privacy mutation paths remain disabled/decision-gated until later features.
 
 ### Shared Operations Used
 
-- `queryOwnerFacts` — owned by each source Module under the shared owner-facts contract; used to shape inbound DTOs. Location policy remains local. **Do not build:** a universal cross-domain repository.
-- `validateOwnedTargetReference` — source target owner; validates source identity/context. **Do not build:** direct target-existence Prisma helpers.
-- `returnDecisionResult` — shared contract if/when root adopts it; used only for normalized response shape. Location owns reason/policy semantics. **Do not build:** a second generic decision framework.
-- `createRequestContext` / `sanitizeTelemetryMetadata` — platform/Ops; used in contract tests and delivery boundaries. Location owns which fields are sensitive. **Do not build:** Location-specific request tracing or telemetry sanitizer framework.
+- `SH-003 queryOwnerFacts (Proposed ruling; adoption gated)` — owned by each source Module; proposed shared contract only. Use already-approved owner-specific queries; do not shape or commit a universal DTO from this proposal. Location policy remains local. **Do not build:** a universal cross-domain repository.
+- `SH-123 validateOwnedTargetReference` — source target owner; validates source identity/context. **Do not build:** direct target-existence Prisma helpers.
+- `SH-015 returnDecisionResult (Proposed ruling; adoption gated)` — shared contract if/when root adopts it; used only for normalized response shape. Location owns reason/policy semantics. **Do not build:** a second generic decision framework.
+- `SH-032 createRequestContext` / `SH-034 sanitizeTelemetryMetadata` — platform/Ops; used in contract tests and delivery boundaries. Location owns which fields are sensitive. **Do not build:** Location-specific request tracing or telemetry sanitizer framework.
 
 ### Domain Logic
 
@@ -376,7 +391,7 @@ Directly implements the Location Safety portion of CL-08 Feature 03 — Fuzzy Pu
 - local precision policy interface;
 - local `fuzzCoordinates` operation;
 - explicit deterministic **nonproduction** safety-policy fixture;
-- `applyFuzzyPublicLocation`;
+- `SH-028 applyFuzzyPublicLocation`;
 - `getPublicLocationProjection`;
 - `refreshFuzzyLocationProjection`;
 - owner-local cache upsert;
@@ -403,7 +418,7 @@ Directly implements the Location Safety portion of CL-08 Feature 03 — Fuzzy Pu
 Activate:
 
 ```text
-applyFuzzyPublicLocation
+applyFuzzyPublicLocation # SH-028 applyFuzzyPublicLocation
 getPublicLocationProjection
 refreshFuzzyLocationProjection
 ```
@@ -412,10 +427,10 @@ refreshFuzzyLocationProjection
 
 ### Shared Operations Used
 
-- `executeIdempotentCommand` — platform owner; wraps semantic projection mutation. Local policy defines target/source/policy fingerprint. **Do not build:** Location idempotency table/service.
-- `acquireAggregateLock` or `withOptimisticConcurrency` — shared persistence; protects one current projection per target. Local policy defines aggregate key. **Do not build:** in-memory mutex.
-- `queryOwnerFacts` / `validateOwnedTargetReference` — source owner; provide source input/reference. Local policy defines what data is required. **Do not build:** direct source repository.
-- `sanitizeTelemetryMetadata` — Ops/platform; removes unsafe fields according to Location sensitivity policy. **Do not build:** ad hoc logging sanitizer framework.
+- `SH-044 executeIdempotentCommand` — platform owner; wraps semantic projection mutation. Local policy defines target/source/policy fingerprint. **Do not build:** Location idempotency table/service.
+- `SH-051 acquireAggregateLock` or `SH-052 withOptimisticConcurrency` — shared persistence; protects one current projection per target. Local policy defines aggregate key. **Do not build:** in-memory mutex.
+- `SH-003 queryOwnerFacts (Proposed ruling; adoption gated)` / `SH-123 validateOwnedTargetReference` — source owner; provide source input/reference. Local policy defines what data is required. **Do not build:** direct source repository.
+- `SH-034 sanitizeTelemetryMetadata` — Ops/platform; removes unsafe fields according to Location sensitivity policy. **Do not build:** ad hoc logging sanitizer framework.
 
 ### Domain Logic
 
@@ -551,7 +566,7 @@ Supports:
 ### Dependencies
 
 - Features 01–02;
-- Search `requestSearchProjectionRefresh` contract;
+- Search `SH-091 requestSearchProjectionRefresh` contract;
 - shared reliable-job, scheduler, and observability operations;
 - approved source-change events if event-driven refresh is used.
 
@@ -594,18 +609,18 @@ invalidateFuzzyLocationProjection
 Consume:
 
 ```text
-requestSearchProjectionRefresh
+requestSearchProjectionRefresh # SH-091 requestSearchProjectionRefresh
 ```
 
 ### Shared Operations Used
 
-- `requestSearchProjectionRefresh` — Search owner; invoked after Location commit. Local policy supplies only safe fuzzy payload/reason. **Do not build:** direct Typesense/SearchUpsertEvent writer.
-- `enqueueReliableJob` — shared queue; dispatches retryable refresh/removal. Local policy supplies business idempotency/correlation. **Do not build:** `locationQueue`.
-- `runDeadlineExpiration` — shared scheduler; invokes cache-expiry work. Local policy defines expiry semantics only after approval. **Do not build:** custom cron scheduler.
-- `executeIdempotentCommand` — platform; protects repeated invalidation/refresh.
-- `deduplicateDomainEvent` — platform inbox; used only for approved source events. **Do not build:** per-worker dedupe table.
-- `recordIntegrationFailure` — Ops; records Search/source-provider operational failure. **Do not build:** Location-owned ops failure table.
-- `createRequestContext` / `sanitizeTelemetryMetadata` — correlation/redaction.
+- `SH-091 requestSearchProjectionRefresh` — Search owner; invoked after Location commit. Local policy supplies only safe fuzzy payload/reason. **Do not build:** direct Typesense/SearchUpsertEvent writer.
+- `SH-047 enqueueReliableJob` — shared queue; dispatches retryable refresh/removal. Local policy supplies business idempotency/correlation. **Do not build:** `locationQueue`.
+- `SH-055 runDeadlineExpiration` — shared scheduler; invokes cache-expiry work. Local policy defines expiry semantics only after approval. **Do not build:** custom cron scheduler.
+- `SH-044 executeIdempotentCommand` — platform; protects repeated invalidation/refresh.
+- `SH-045 deduplicateDomainEvent` — platform inbox; used only for approved source events. **Do not build:** per-worker dedupe table.
+- `SH-037 recordIntegrationFailure` — Ops; records Search/source-provider operational failure. **Do not build:** Location-owned ops failure table.
+- `SH-032 createRequestContext` / `SH-034 sanitizeTelemetryMetadata` — correlation/redaction.
 
 ### Domain Logic
 
@@ -613,6 +628,7 @@ requestSearchProjectionRefresh
 - Search receives only Location Safety-approved fuzzy data.
 - Invalidation is idempotent.
 - Search failure becomes pending/retryable; it does not restore an unsafe/stale Location projection.
+- Location may complete its own cache/projection-source mutation independently. SH-091 requestSearchProjectionRefresh acceptance does not prove completed Search deletion for a required Privacy target; that target needs Search-owned completion evidence. The durable receipt representation remains unresolved.
 - Expiry acts only under explicit approved/test policy.
 - If source-version evidence exists, stale events cannot overwrite newer projection state.
 - If version semantics are absent, do not invent a production last-writer policy beyond safe transactional conflict handling.
@@ -717,7 +733,7 @@ Implement the safe read surface and exact-reveal decision scaffolding without re
 
 - `getLocationRevealStatus` can read existing authoritative reveal metadata without returning exact location.
 - `listLocationRevealHistory` is capability-gated and returns minimized metadata.
-- `resolveLocationReveal` request/result validation exists, but production execution returns an explicit decision-gated result until required architecture is approved.
+- `SH-027 resolveLocationReveal` request/result validation exists, but production execution returns an explicit decision-gated result until required architecture is approved.
 - Booking/Order consumers cannot treat their own status fields as Location Safety reveal authority.
 
 ### Cluster Build-Plan Link
@@ -771,17 +787,17 @@ listLocationRevealHistory
 Scaffold but keep production-disabled:
 
 ```text
-resolveLocationReveal
+resolveLocationReveal # SH-027 resolveLocationReveal
 revokeLocationReveal
 ```
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor` — Identity & Access; establishes viewer/admin. Location owns requested reveal/history purpose. **Do not build:** current-user helper.
-- `authorizeResourceAction` — Role / Authority; decides permission to read status/history. Location owns reveal safety semantics. **Do not build:** `locationPermissionService`.
-- `queryOwnerFacts` — source owners; contract types may be wired but no reveal decision yet. **Do not build:** Booking/Order repositories.
-- `recordSensitiveAccess` — Audit owner; use for protected history access only if canonical audit policy requires it. **Do not build:** Location history audit table.
-- `createRequestContext` / `sanitizeTelemetryMetadata` — platform/Ops.
+- `SH-001 resolveAuthenticatedActor` — Identity & Access; establishes viewer/admin. Location owns requested reveal/history purpose. **Do not build:** current-user helper.
+- `SH-002 authorizeResourceAction` — Role / Authority; decides permission to read status/history. Location owns reveal safety semantics. **Do not build:** `locationPermissionService`.
+- `SH-003 queryOwnerFacts (Proposed ruling; adoption gated)` — source owners; contract types may be wired but no reveal decision yet. **Do not build:** Booking/Order repositories.
+- `SH-030 recordSensitiveAccess` — Audit owner; use for protected history access only if canonical audit policy requires it. **Do not build:** Location history audit table.
+- `SH-032 createRequestContext` / `SH-034 sanitizeTelemetryMetadata` — platform/Ops.
 
 ### Domain Logic
 
@@ -870,11 +886,13 @@ If U-08-12/U-08-19 are approved during implementation, update Module and Cluster
 
 ## 05 Exact Location Reveal and Viewer-Specific Lifecycle
 
+Reuse `SH-088 manageTemporaryAccessGrant` for common temporary reveal mechanics and `SH-089 revokeTemporaryAccessGrant` for revocation mechanics where invoked. Location Safety alone owns `LocationReveal` policy, transitions, and proof; production remains subject to the existing decision gates.
+
 **Decision-Gated Feature. Do not implement production behavior until every decision required by the enabled reveal context is approved and architecture is updated.**
 
 ### Objective
 
-Implement `resolveLocationReveal` as the single authoritative exact-location disclosure decision and `LocationReveal` as viewer/context reveal truth.
+Implement `SH-027 resolveLocationReveal` as the single authoritative exact-location disclosure decision and `LocationReveal` as viewer/context reveal truth.
 
 ### Observable Result
 
@@ -948,7 +966,7 @@ Apply only migrations already approved in architecture.
 Activate:
 
 ```text
-resolveLocationReveal
+resolveLocationReveal # SH-027 resolveLocationReveal
 getLocationRevealStatus
 listLocationRevealHistory
 ```
@@ -957,19 +975,19 @@ If approved architecture separates decision from value issuance, expose separate
 
 ### Shared Operations Used
 
-- `resolveAuthenticatedActor` — Identity; fresh viewer identity. Local policy defines requested reveal action. **Prohibited duplicate:** local session helper.
-- `authorizeResourceAction` — Role / Authority; general permission. Local policy remains the final reveal safety decision. **Prohibited duplicate:** Location generic permission engine.
-- `authorizeContextualResourceAccess` — relevant context owner/shared contract; returns contextual access facts/decision shape. Location remains final reveal owner. **Prohibited duplicate:** one universal entitlement/access engine.
-- `queryOwnerFacts` — Booking/Order/source owners; fresh minimal facts. **Prohibited duplicate:** cross-domain Prisma queries.
-- `evaluateComplianceHold` — Hold owner, only when U-08-13 makes a hold relevant. Location maps applicable holds into reveal policy. **Prohibited duplicate:** `revealBlocked` flag.
-- `encryptSensitiveValue` / approved decrypt operation — shared crypto; protects reversible exact data. Location owns when decryption is permitted. **Prohibited duplicate:** `addressCrypto`.
-- `normalizeAndHashIdentifier` — shared crypto; produces non-plaintext IP/request evidence where required. **Prohibited duplicate:** local HMAC/IP hash helper.
-- `executeIdempotentCommand` — platform; duplicate reveal safety. Location supplies semantic input fingerprint. **Prohibited duplicate:** local idempotency table.
-- `acquireAggregateLock` / `withOptimisticConcurrency` — persistence primitive; protects reveal aggregate. Location defines aggregate key after U-08-12/U-08-19. **Prohibited duplicate:** in-memory reveal mutex.
-- `transitionLifecycleState` — shared state-machine mechanism; Location supplies the approved transition matrix. **Prohibited duplicate:** generic global policy table.
-- `recordSensitiveAccess` — Audit owner; records exact-location access decision/result according to U-08-16. **Prohibited duplicate:** LocationAccessLog.
-- `appendAuditEvent` — Audit owner; records important reveal/review/admin action where required. **Prohibited duplicate:** generic Location audit table.
-- `sanitizeTelemetryMetadata` — Ops/platform; exact fields removed according to local sensitivity policy.
+- `SH-001 resolveAuthenticatedActor` — Identity; fresh viewer identity. Local policy defines requested reveal action. **Prohibited duplicate:** local session helper.
+- `SH-002 authorizeResourceAction` — Role / Authority; general permission. Local policy remains the final reveal safety decision. **Prohibited duplicate:** Location generic permission engine.
+- `SH-026 authorizeContextualResourceAccess` — relevant context owner/shared contract; returns contextual access facts/decision shape. Location remains final reveal owner. **Prohibited duplicate:** one universal entitlement/access engine.
+- `SH-003 queryOwnerFacts (Proposed ruling; adoption gated)` — Booking/Order/source owners; fresh minimal facts. **Prohibited duplicate:** cross-domain Prisma queries.
+- `SH-011 evaluateComplianceHold` — Hold owner, only when U-08-13 makes a hold relevant. Location maps applicable holds into reveal policy. **Prohibited duplicate:** `revealBlocked` flag.
+- `SH-075 encryptSensitiveValue` / approved decrypt operation — shared crypto; protects reversible exact data. Location owns when decryption is permitted. **Prohibited duplicate:** `addressCrypto`.
+- `SH-076 normalizeAndHashIdentifier` — shared crypto; produces non-plaintext IP/request evidence where required. **Prohibited duplicate:** local HMAC/IP hash helper.
+- `SH-044 executeIdempotentCommand` — platform; duplicate reveal safety. Location supplies semantic input fingerprint. **Prohibited duplicate:** local idempotency table.
+- `SH-051 acquireAggregateLock` / `SH-052 withOptimisticConcurrency` — persistence primitive; protects reveal aggregate. Location defines aggregate key after U-08-12/U-08-19. **Prohibited duplicate:** in-memory reveal mutex.
+- `SH-053 transitionLifecycleState` — shared state-machine mechanism; Location supplies the approved transition matrix. **Prohibited duplicate:** generic global policy table.
+- `SH-030 recordSensitiveAccess` — Audit owner; records exact-location access decision/result according to U-08-16. **Prohibited duplicate:** LocationAccessLog.
+- `SH-029 appendAuditEvent` — Audit owner; records important reveal/review/admin action where required. **Prohibited duplicate:** generic Location audit table.
+- `SH-034 sanitizeTelemetryMetadata` — Ops/platform; exact fields removed according to local sensitivity policy.
 
 ### Domain Logic
 
@@ -1141,6 +1159,8 @@ After completion, update progress tracker with enabled contexts, directionality,
 
 ## 06 Revocation and Gate-Change Reconciliation
 
+Reuse `SH-088 manageTemporaryAccessGrant` for common temporary reveal mechanics and `SH-089 revokeTemporaryAccessGrant` for revocation mechanics where invoked. Location Safety alone owns `LocationReveal` policy, transitions, and proof; production remains subject to the existing decision gates.
+
 **Decision-Gated Feature. Requires approved revocation triggers, reveal state model, and source event/fact contracts.**
 
 ### Objective
@@ -1208,14 +1228,14 @@ Consume approved source events/fact queries.
 
 ### Shared Operations Used
 
-- `deduplicateDomainEvent` — event infrastructure; one source event causes one Location effect. Local policy maps event to affected reveals. **Do not build:** local processed-event table.
-- `enqueueReliableJob` — shared queue; durable re-evaluation. Local policy supplies affected context. **Do not build:** Location queue framework.
-- `executeRetryWithBackoff` if canonical operation exists in root shared registry; used for transient owner-fact/integration failures. **Do not build:** custom retry loop framework.
-- `queryOwnerFacts` — Booking/Order/source owners; reload fresh facts. **Do not build:** direct event-payload lifecycle interpretation as truth when owner query is required.
-- `executeIdempotentCommand` — duplicate revoke safety.
+- `SH-045 deduplicateDomainEvent` — event infrastructure; one source event causes one Location effect. Local policy maps event to affected reveals. **Do not build:** local processed-event table.
+- `SH-047 enqueueReliableJob` — shared queue; durable re-evaluation. Local policy supplies affected context. **Do not build:** Location queue framework.
+- `SH-048 executeRetryWithBackoff` if canonical operation exists in root shared registry; used for transient owner-fact/integration failures. **Do not build:** custom retry loop framework.
+- `SH-003 queryOwnerFacts (Proposed ruling; adoption gated)` — Booking/Order/source owners; reload fresh facts. **Do not build:** direct event-payload lifecycle interpretation as truth when owner query is required.
+- `SH-044 executeIdempotentCommand` — duplicate revoke safety.
 - aggregate lock/CAS — reveal vs revoke serialization.
-- `recordSensitiveAccess` / `appendAuditEvent` — Audit owner; safe evidence.
-- `recordIntegrationFailure` / telemetry operations — Ops owner.
+- `SH-030 recordSensitiveAccess` / `SH-029 appendAuditEvent` — Audit owner; safe evidence.
+- `SH-037 recordIntegrationFailure` / telemetry operations — Ops owner.
 
 ### Domain Logic
 
@@ -1385,24 +1405,24 @@ Potential additions to `DataErasureTargetType` remain Privacy-owned schema chang
 Implement the Privacy-owned protocol as Location Safety's owner implementation:
 
 ```text
-enumerateSubjectData
-evaluateRetentionRequirement
-executePrivacyInstruction
+enumerateSubjectData # SH-096 enumerateSubjectData
+evaluateRetentionRequirement # SH-097 evaluateRetentionRequirement
+executePrivacyInstruction # SH-095 executePrivacyInstruction
 ```
 
 Location Safety does not expose a competing Privacy request API.
 
 ### Shared Operations Used
 
-- `enumerateSubjectData` — Privacy-defined contract / owner implementation; Location enumerates only Location truth. **Prohibited duplicate:** global privacy crawler.
-- `evaluateRetentionRequirement` — owner-facts contract; Location supplies safety/security retention facts. Privacy owns final exemption record. **Prohibited duplicate:** Location retention-exemption table.
-- `executePrivacyInstruction` — owner command contract; Location mutates only its own records. **Prohibited duplicate:** local PrivacyRequest workflow.
-- `validateOwnedTargetReference` — target owner; validates any source linkage needed to identify the subject safely.
-- `executeIdempotentCommand` — privacy retry/replay safety.
+- `SH-096 enumerateSubjectData` — Privacy-defined contract / owner implementation; Location enumerates only Location truth. **Prohibited duplicate:** global privacy crawler.
+- `SH-097 evaluateRetentionRequirement` — owner-facts contract; Location supplies safety/security retention facts. Privacy owns final exemption record. **Prohibited duplicate:** Location retention-exemption table.
+- `SH-095 executePrivacyInstruction` — owner command contract; Location mutates only its own records. **Prohibited duplicate:** local PrivacyRequest workflow.
+- `SH-123 validateOwnedTargetReference` — target owner; validates any source linkage needed to identify the subject safely.
+- `SH-044 executeIdempotentCommand` — privacy retry/replay safety.
 - aggregate lock/CAS — protects privacy action against refresh/reveal/revoke races.
-- `requestSearchProjectionRefresh` — Search owner; remove/update downstream public projection after Location commit.
-- `recordSensitiveAccess` / `appendAuditEvent` — Audit owner where privacy execution/access policy requires proof.
-- `recordIntegrationFailure` / telemetry operations — Ops owner.
+- `SH-091 requestSearchProjectionRefresh` — Search owner; remove/update downstream public projection after Location commit.
+- `SH-030 recordSensitiveAccess` / `SH-029 appendAuditEvent` — Audit owner where privacy execution/access policy requires proof.
+- `SH-037 recordIntegrationFailure` / telemetry operations — Ops owner.
 
 ### Domain Logic
 
@@ -1435,7 +1455,7 @@ Location Safety does not expose a competing Privacy request API.
 
 ### Events / Jobs
 
-Privacy execution may run through `enqueueReliableJob` under Privacy/owner coordination.
+Privacy execution may run through `SH-047 enqueueReliableJob` under Privacy/owner coordination.
 
 Location may emit approved Location projection/reveal facts if root event contracts already exist, but it must not emit a fake Privacy completion event.
 
@@ -1537,8 +1557,8 @@ Supports:
 
 ### In Scope
 
-- real Search `requestSearchProjectionRefresh` integration;
-- real Audit `appendAuditEvent` / `recordSensitiveAccess` integration;
+- real Search `SH-091 requestSearchProjectionRefresh` integration;
+- real Audit `SH-029 appendAuditEvent` / `SH-030 recordSensitiveAccess` integration;
 - real Booking minimal location/gate facts DTO;
 - real Order minimal participant/transaction gate facts DTO;
 - real source-location facts DTO for approved target types;
@@ -1570,11 +1590,11 @@ This feature validates use of:
 Verify/freeze compatible versions for Location outputs:
 
 ```text
-applyFuzzyPublicLocation
+applyFuzzyPublicLocation # SH-028 applyFuzzyPublicLocation
 getPublicLocationProjection
 refreshFuzzyLocationProjection
 invalidateFuzzyLocationProjection
-resolveLocationReveal          # if enabled
+resolveLocationReveal          # if enabled # SH-027 resolveLocationReveal
 getLocationRevealStatus
 revokeLocationReveal           # if enabled
 listLocationRevealHistory
@@ -1586,19 +1606,19 @@ Inbound dependency contracts:
 Booking owner facts
 Order owner facts
 source-location facts
-requestSearchProjectionRefresh
-appendAuditEvent
-recordSensitiveAccess
-recordIntegrationFailure / request context
+requestSearchProjectionRefresh # SH-091 requestSearchProjectionRefresh
+appendAuditEvent # SH-029 appendAuditEvent
+recordSensitiveAccess # SH-030 recordSensitiveAccess
+recordIntegrationFailure / request context # SH-037 recordIntegrationFailure
 ```
 
 ### Shared Operations Used
 
-- `queryOwnerFacts` — each owner; real owner DTOs replace fakes. Local Location policy remains separate. **Prohibited duplicate:** direct neighboring repositories.
-- `validateOwnedTargetReference` — source owner; target validation.
-- `requestSearchProjectionRefresh` — Search owner; safe projection only.
-- `appendAuditEvent` / `recordSensitiveAccess` — Audit owner; generic proof only.
-- `createRequestContext`, `writeStructuredLog`, `sanitizeTelemetryMetadata`, `recordIntegrationFailure` — Ops/platform.
+- `SH-003 queryOwnerFacts (Proposed ruling; adoption gated)` — each owner; real owner DTOs replace fakes. Local Location policy remains separate. **Prohibited duplicate:** direct neighboring repositories.
+- `SH-123 validateOwnedTargetReference` — source owner; target validation.
+- `SH-091 requestSearchProjectionRefresh` — Search owner; safe projection only.
+- `SH-029 appendAuditEvent` / `SH-030 recordSensitiveAccess` — Audit owner; generic proof only.
+- `SH-032 createRequestContext`, `SH-033 writeStructuredLog`, `SH-034 sanitizeTelemetryMetadata`, `SH-037 recordIntegrationFailure` — Ops/platform.
 - idempotency/event/job/concurrency primitives already introduced in prior features.
 
 ### Domain Logic
@@ -1740,7 +1760,7 @@ Completes production aspects of CL-08 Feature 03 and supports CL-08 Feature 11 p
 - U-08-17 fuzzy policy;
 - U-08-18 controlled target vocabulary;
 - U-08-20 geocoder selection;
-- explicit architecture approval that Location Safety owns the geocoder adapter for canonical `geocodeAddress`;
+- explicit architecture approval that Location Safety owns the geocoder adapter for canonical `SH-069 geocodeAddress (Proposed ruling; adoption gated)`;
 - approved policy/source version representation if production reconciliation requires it;
 - secret-management/provider configuration.
 
@@ -1781,17 +1801,17 @@ No new business interface is required. Existing fuzzy operations become producti
 Provider-neutral port becomes active:
 
 ```text
-geocodeAddress
+geocodeAddress # SH-069 geocodeAddress (Proposed ruling; adoption gated)
 ```
 
 ### Shared Operations Used
 
-- `geocodeAddress` — Location Safety provider-adapter pattern once approved; adapter normalizes provider result. Local Location policy performs fuzzing. **Prohibited duplicate:** provider SDK calls in Search/Booking/business Modules.
-- `enqueueReliableJob` / shared retry-backoff — durable provider/refresh work. **Prohibited duplicate:** custom queue/retry framework.
-- `recordIntegrationFailure` — Ops owner; provider failures. **Prohibited duplicate:** provider failure as cache status truth.
-- `executeIdempotentCommand` + lock/CAS — projection write correctness.
-- `requestSearchProjectionRefresh` — Search owner after commit.
-- `sanitizeTelemetryMetadata` — provider request/response redaction.
+- `SH-069 geocodeAddress (Proposed ruling; adoption gated)` — Location Safety provider-adapter pattern once approved; adapter normalizes provider result. Local Location policy performs fuzzing. **Prohibited duplicate:** provider SDK calls in Search/Booking/business Modules.
+- `SH-047 enqueueReliableJob` / shared retry-backoff — durable provider/refresh work. **Prohibited duplicate:** custom queue/retry framework.
+- `SH-037 recordIntegrationFailure` — Ops owner; provider failures. **Prohibited duplicate:** provider failure as cache status truth.
+- `SH-044 executeIdempotentCommand` + lock/CAS — projection write correctness.
+- `SH-091 requestSearchProjectionRefresh` — Search owner after commit.
+- `SH-034 sanitizeTelemetryMetadata` — provider request/response redaction.
 
 ### Domain Logic
 
@@ -1808,7 +1828,7 @@ geocodeAddress
 
 - provider calls are server-side only;
 - credentials remain in approved secret management;
-- geocoding input is minimized to provider necessity;
+- geocoding input uses `SH-078 minimizeAndRedactProviderInput` with source-owner policy and purpose-bound field allowlists;
 - provider telemetry excludes exact address/coordinate payload where not necessary;
 - public endpoints cannot expose the underlying provider request or source exact location.
 
@@ -1959,7 +1979,7 @@ Implements the Location Safety portion of CL-08 Feature 11 — Security, Reconci
 - Privacy executor replay/concurrency if enabled;
 - root rate-limit integration for abuse-sensitive endpoints;
 - security/privacy test suite;
-- safe health/metrics/diagnostics;
+- safe health/diagnostics and `SH-036 emitMetric` operational metrics;
 - migration rollback verification;
 - performance bounds for workers/queries;
 - release checklist recording disabled decision-gated capabilities.
@@ -1994,15 +2014,15 @@ Disabled decision-gated operations must return explicit safe disabled/policy-not
 
 All relevant canonical operations, especially:
 
-- `executeIdempotentCommand` — duplicate command replay;
-- `deduplicateDomainEvent` — duplicate source-event replay;
-- `enqueueReliableJob` — durable work;
+- `SH-044 executeIdempotentCommand` — duplicate command replay;
+- `SH-045 deduplicateDomainEvent` — duplicate source-event replay;
+- `SH-047 enqueueReliableJob` — durable work;
 - canonical retry/backoff operation — transient dependency handling;
-- `runDeadlineExpiration` — fuzzy expiry scheduling;
-- `acquireAggregateLock` / `withOptimisticConcurrency` — race control;
-- `requestSearchProjectionRefresh` and Search-owned reconciliation interface — downstream projection repair;
-- `recordIntegrationFailure`, service-health/incident correlation, telemetry sanitizer — Ops;
-- `appendAuditEvent` / `recordSensitiveAccess` — Audit;
+- `SH-055 runDeadlineExpiration` — fuzzy expiry scheduling;
+- `SH-051 acquireAggregateLock` / `SH-052 withOptimisticConcurrency` — race control;
+- `SH-091 requestSearchProjectionRefresh` and Search-owned reconciliation interface — downstream projection repair;
+- `SH-037 recordIntegrationFailure`, service-health/incident correlation, telemetry sanitizer — Ops;
+- `SH-029 appendAuditEvent` / `SH-030 recordSensitiveAccess` — Audit;
 - shared crypto/key management — exact-location protection;
 - root rate-limit primitive — abuse control.
 
@@ -2289,10 +2309,10 @@ A generic statement that "all tests passed" is insufficient. The completion repo
 
 Before implementing each numbered feature:
 
-1. Read root project overview, architecture, and code standards.
+1. Read `context/context-map.md` and `context/project-overview-v3.md`; root architecture/code standards are currently missing.
 2. Read the Canonical Shared Operations Registry.
 3. Read CL-08 architecture and build plan.
-4. Read `location_safety/module-architecture.md`.
+4. Read `context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md`.
 5. Read this implementation plan.
 6. Read public-interface sections for every direct dependency used by the feature.
 7. Confirm the prior feature exit gate.

@@ -1,12 +1,26 @@
 # Privacy & Location Safety Architecture
 
-> **Repository location:** `context/privacy-location-safety/architecture.md`  
+> **Repository location:** `context/clusters/Privacy & Location Safety/privacy-location-safety-architecture.md`<br>
 > **Cluster ID:** CL-08  
 > **Cluster name:** Privacy & Location Safety  
 > **Cluster type:** `privacy_compliance_safety_control`  
 > **Document status:** Implementation-grade cluster architecture with explicit decision gates  
 > **Audience:** Coding agents, developers, reviewers, maintainers, compliance reviewers, and future architecture agents  
 > **Update rule:** Update this file whenever a binding CL-08 architectural decision changes. Build progress must not redefine this architecture.
+
+**Shared Operation status:** References use permanent IDs and canonical names from `context/shared/shared-operations.md`; that registry controls owner, classification, status, and reusable boundary. SH-003 queryOwnerFacts remains **Proposed ruling** and is not an unconditional prerequisite or an approved universal DTO/API. Adoption requires separate Shared Operations approval before API/schema commitment. Existing source-owner-specific public queries may be consumed within their approved contracts; direct cross-domain Prisma/repository reads remain prohibited. SH-069 geocodeAddress remains **Proposed ruling** wherever referenced; this pass does not approve it.
+
+### Current context paths and missing artifact roles
+
+Read `context/context-map.md` first for authority by concern, then the existing artifacts relevant to the feature:
+
+- Overview: `context/project-overview-v3.md`.
+- Shared Operations: `context/shared/shared-operations.md`.
+- Cluster architecture: `context/clusters/Privacy & Location Safety/privacy-location-safety-architecture.md`.
+- Cluster build plan: `context/clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md`.
+- Member Module pairs: use the Privacy / Data Erasure and Location Safety paths in `context/context-map.md`.
+
+Root/repository-root and context-root `architecture.md`, `build-plan.md`, `code-standards.md`, and dedicated `progress-tracker.md` are currently **missing**. References to those global artifacts below describe future roles, not loadable files or current authority. Do not create local substitutes or infer global approval. Apply existing concern owners through the context map; stop work that needs a missing global decision. Until a dedicated tracker is available, report progress/blockers in the task completion report; progress does not approve architecture.
 
 ---
 
@@ -19,16 +33,16 @@ CL-08 coordinates two Deep Modules:
 
 This Cluster is a planning, integration, and controlled-context boundary. It is **not** a source-of-truth owner and does not take ownership of either Module's lifecycle.
 
-The root Workin Ants architecture remains authoritative for platform-wide rules such as actor identity, authorization, consent proof, entitlements, compliance holds, search projection, media/file mechanics, audit, observability, provider boundaries, and shared operations. This document narrows those rules to the privacy and location-safety workflows.
+Once reconciled and finalized, the currently missing root Workin Ants architecture will be authoritative for platform-wide rules such as actor identity, authorization, consent proof, entitlements, compliance holds, search projection, media/file mechanics, audit, observability, provider boundaries, and shared operations. This document narrows those rules to the privacy and location-safety workflows.
 
 Module architectures remain authoritative for Module-local truth. Where this Cluster document introduces a required decision that is not yet established by stronger evidence, it is labeled **Proposed Ruling**. Proposed Rulings are not silently binding until approved. Items that still lack sufficient evidence are recorded in **Deferred / Unresolved Decisions** and must not be invented during implementation.
 
 ### Source reconciliation notes
 
-Two source inconsistencies are material to CL-08:
+The following source relationships are material to CL-08:
 
-1. The Deep Module Registry, Location Safety extract, glossary definition of Exact Location Reveal, and Canonical Shared Operations all place exact-location reveal policy and `LocationReveal` truth with Location Safety. A compliance-inventory row also associates the fuzzy-geolocation/exact-reveal control with Booking & Calendar. **Binding interpretation:** Booking is supporting gate evidence; Location Safety remains the lifecycle and policy owner. The compliance inventory should be synchronized.
-2. Privacy / Data Erasure declares both GDPR/CCPA rights and contract-retention exemptions as compliance responsibilities, while its `complianceSatisfied` mapping explicitly lists only the GDPR/CCPA term. This is a registry synchronization gap, not a transfer of retention-exemption ownership.
+1. The Deep Module Registry, Location Safety extract, glossary definition of Exact Location Reveal, and Canonical Shared Operations place exact-location reveal policy and `LocationReveal` truth with Location Safety. Booking & Calendar also participates in the fuzzy-geolocation/exact-reveal compliance control by supplying supporting Booking/gate proof. This is compatible participation, not competing lifecycle ownership; preserve the supporting compliance mapping.
+2. Privacy / Data Erasure declares GDPR/CCPA rights and contract-retention exemptions as compliance responsibilities. The Deep Module Registry now represents both in `complianceMet` and `complianceSatisfied`, with `DataRetentionExemption` as the contract-retention proof record. This is mechanical synchronization of existing Privacy ownership; retention policy remains decision-gated.
 
 ---
 
@@ -175,19 +189,19 @@ User / Admin
    ▼
 route / server action / API
    │
-   ├─ resolveAuthenticatedActor
+   ├─ resolveAuthenticatedActor # SH-001 resolveAuthenticatedActor
    ├─ validate input
-   └─ authorizeResourceAction
+   └─ authorizeResourceAction # SH-002 authorizeResourceAction
           │
           ▼
 Privacy / Data Erasure application service
    │
    ├─ PrivacyRequest truth
    ├─ identity-verification orchestration
-   ├─ enumerateSubjectData protocol
-   ├─ evaluateRetentionRequirement protocol
+   ├─ enumerateSubjectData protocol # SH-096 enumerateSubjectData
+   ├─ evaluateRetentionRequirement protocol # SH-097 evaluateRetentionRequirement
    ├─ DataErasureJob / DataErasureTarget truth
-   └─ orchestratePrivacyFulfillment
+   └─ orchestratePrivacyFulfillment # SH-099 orchestratePrivacyFulfillment
           │
           ├─────────────► source Module executor A
           ├─────────────► source Module executor B
@@ -203,7 +217,7 @@ Privacy / Data Erasure application service
 
 Asynchronous work:
 Privacy truth
-   → enqueueReliableJob
+   → enqueueReliableJob # SH-047 enqueueReliableJob
    → owner-specific worker
    → owner truth/provider adapter
    → typed privacy disposition result
@@ -216,21 +230,21 @@ Privacy truth
 ```text
 Source Module or protected viewer request
    │
-   ├─ resolveAuthenticatedActor
-   ├─ authorizeResourceAction
-   └─ queryOwnerFacts from Booking / Order / source owner
+   ├─ resolveAuthenticatedActor # SH-001 resolveAuthenticatedActor
+   ├─ authorizeResourceAction # SH-002 authorizeResourceAction
+   └─ queryOwnerFacts from Booking / Order / source owner # SH-003 queryOwnerFacts (Proposed ruling; adoption gated)
           │
           ▼
 Location Safety application service
    │
    ├─ classify precision
-   ├─ applyFuzzyPublicLocation
-   ├─ resolveLocationReveal
+   ├─ applyFuzzyPublicLocation # SH-028 applyFuzzyPublicLocation
+   ├─ resolveLocationReveal # SH-027 resolveLocationReveal
    └─ write LocationReveal / FuzzyLocationCache truth
           │
-          ├─────────────► encryptSensitiveValue / normalizeAndHashIdentifier
-          ├─────────────► recordSensitiveAccess
-          └─────────────► requestSearchProjectionRefresh
+          ├─────────────► encryptSensitiveValue / normalizeAndHashIdentifier # SH-075 encryptSensitiveValue; SH-076 normalizeAndHashIdentifier
+          ├─────────────► recordSensitiveAccess # SH-030 recordSensitiveAccess
+          └─────────────► requestSearchProjectionRefresh # SH-091 requestSearchProjectionRefresh
 ```
 
 ### Cross-Module database rule
@@ -255,9 +269,10 @@ The repository should preserve Module ownership in code. The following structure
 
 ```text
 context/
-└── privacy-location-safety/
-    ├── architecture.md
-    └── build-plan.md
+└── clusters/
+    └── Privacy & Location Safety/
+        ├── privacy-location-safety-architecture.md
+        └── privacy-location-safety-build-plan.md
 
 src/
 ├── modules/
@@ -505,7 +520,7 @@ failed
 skipped
 ```
 
-The source Module performs the underlying action. Privacy records the authoritative target disposition returned through `executePrivacyInstruction`.
+The source Module performs the underlying action. Privacy records the authoritative target disposition returned through `SH-095 executePrivacyInstruction`.
 
 A target-level `retained` result requires a Privacy-owned `DataRetentionExemption` based on owner-supplied retention facts.
 
@@ -572,19 +587,19 @@ Until a schema reconciliation is approved, treat `Booking.locationPrecision`, `B
 | `submitPrivacyRequest` | Privacy | self-service UI, support/admin | Create formal privacy request. | actor, request type, minimized request details | request ID, status, requestedAt | truth | fulfillment eligibility or completion |
 | `getPrivacyRequest` | Privacy | requester, authorized admin | Read request state. | actor, request ID | status, dates, safe summary, bundle summary where applicable | truth | source Module state |
 | `listUserPrivacyRequests` | Privacy | requester, authorized admin | Read request history. | actor/subject, filters | request summaries | truth | data-owner inventory |
-| `orchestratePrivacyFulfillment` | Privacy | Privacy worker only | Drive verification, inventory, retention, execution, aggregation, export, completion. | request ID, correlation context | aggregate outcome | truth/workflow result | owner record semantics |
-| `enumerateSubjectData` | each data owner through Privacy-defined contract | Privacy | Enumerate owner-held subject data and supported dispositions. | subject, request type, cursor | stable target descriptors, sensitivity, supported actions | owner evidence | permission to mutate |
-| `evaluateRetentionRequirement` | data owner supplies facts; Privacy records exemption | Privacy | Determine mandatory retention facts. | target descriptor, request context | required?, reason, basis, retainUntil, minimum fields, permitted anonymization | evidence/decision input | final privacy-request outcome |
-| `executePrivacyInstruction` | each data owner | Privacy | Apply owner-local erase/anonymize/export/restrict/etc. | target, requested action, request ID, idempotency key | typed disposition/result/evidence | owner result | privacy request completion |
-| `createPrivacyExportArtifact` | Privacy with Media mechanics | requester via Privacy | Assemble and stage export. | request, owner export sections | `DataExportBundle` + Media reference | truth + artifact reference | permanent file entitlement |
+| `SH-099 orchestratePrivacyFulfillment` | Privacy | Privacy worker only | Drive verification, inventory, retention, execution, aggregation, export, completion. | request ID, correlation context | aggregate outcome | truth/workflow result | owner record semantics |
+| `SH-096 enumerateSubjectData` | each data owner through Privacy-defined contract | Privacy | Enumerate owner-held subject data and supported dispositions. | subject, request type, cursor | stable target descriptors, sensitivity, supported actions | owner evidence | permission to mutate |
+| `SH-097 evaluateRetentionRequirement` | data owner supplies facts; Privacy records exemption | Privacy | Determine mandatory retention facts. | target descriptor, request context | required?, reason, basis, retainUntil, minimum fields, permitted anonymization | evidence/decision input | final privacy-request outcome |
+| `SH-095 executePrivacyInstruction` | each data owner | Privacy | Apply owner-local erase/anonymize/export/restrict/etc. | target, requested action, request ID, idempotency key | typed disposition/result/evidence | owner result | privacy request completion |
+| `SH-100 createPrivacyExportArtifact` | Privacy with Media mechanics | requester via Privacy | Assemble and stage export. | request, owner export sections | `DataExportBundle` + Media reference | truth + artifact reference | permanent file entitlement |
 
 ### Location Safety interfaces
 
 | Interface | Owner | Consumers | Purpose | Minimum input | Minimum output | Returns | Consumers must not infer |
 |---|---|---|---|---|---|---|---|
-| `applyFuzzyPublicLocation` | Location Safety | Search; Marketplace; Gig; Hiring; map/public surfaces | Return approved approximate location. | target identity, owner-provided source version/location input or existing cache | fuzzy coordinates/area, radius, precision, expiry/source version | projection | exact coordinates |
+| `SH-028 applyFuzzyPublicLocation` | Location Safety | Search; Marketplace; Gig; Hiring; map/public surfaces | Return approved approximate location. | target identity, owner-provided source version/location input or existing cache | fuzzy coordinates/area, radius, precision, expiry/source version | projection | exact coordinates |
 | `getPublicLocationProjection` | Location Safety | Search/public consumers | Read current safe projection. | target type, target ID | safe projection + freshness | projection | source location |
-| `resolveLocationReveal` | Location Safety | Booking, Order, protected UI | Decide whether exact private location may be shown. | actor/viewer, Booking/Order context, owner gate facts, purpose | allow/deny, permitted precision, reason codes, reveal ID/state, expiry/revocation context | decision + domain proof | authorization from paid/provider state alone |
+| `SH-027 resolveLocationReveal` | Location Safety | Booking, Order, protected UI | Decide whether exact private location may be shown. | actor/viewer, Booking/Order context, owner gate facts, purpose | allow/deny, permitted precision, reason codes, reveal ID/state, expiry/revocation context | decision + domain proof | authorization from paid/provider state alone |
 | `getLocationRevealStatus` | Location Safety | Booking/Order UI, authorized support | Read status without returning exact value. | viewer/context | status, safe reason, timestamps | truth | exact location |
 | `revokeLocationReveal` | Location Safety | Booking/Order workflow, authorized admin | Revoke access. | reveal/context, actor/system reason, idempotency key | revoked state | truth | source lifecycle change |
 | `listLocationRevealHistory` | Location Safety | authorized compliance/support | Inspect reveal metadata without exact address. | authorized actor, filters | reveal metadata | truth | generic audit ledger |
@@ -605,43 +620,45 @@ CL-08 depends on narrow owner DTOs rather than direct repository reads:
 
 ## 11. Canonical Shared Operations Used by This Cluster
 
-The supplied Canonical Shared Operations Registry uses canonical names but does not supply numeric IDs. Only CL-08-relevant operations are listed here.
+Common temporary reveal mechanics consume `SH-088 manageTemporaryAccessGrant`; revocation mechanics consume `SH-089 revokeTemporaryAccessGrant`. Location Safety supplies the approved policy and performs its own transitions/evidence. `LocationReveal` remains separate from `MediaAccessGrant` and all other grant truth; unresolved reveal/revocation policies remain gated.
+
+The canonical registry supplies permanent SH IDs. Only operations consumed here are listed; Proposed references remain adoption-gated.
 
 | Canonical operation | Plain-English meaning | Canonical owner | CL-08 consumers | Reusable mechanism | Local policy that remains local | Invocation point | Must not be duplicated |
 |---|---|---|---|---|---|---|---|
-| `resolveAuthenticatedActor` | Resolve trusted actor context. | Identity & Access | both Modules | request/session actor resolution | privacy requester/reveal viewer intent | every protected entry point | feature-local current-user helpers |
-| `authorizeResourceAction` | Decide platform/org/participant/ownership permission. | Role / Authority | both Modules | typed authorization decision | privacy owner/admin scope; location contextual safety | before protected queries/mutations | `privacyAuth.ts`, `locationPermission.ts` policy engines |
-| `queryOwnerFacts` | Read minimum owner facts through owner DTO. | each source Module | both | shared contract, separate implementation | exact facts needed by Privacy/Location | before retention/reveal decisions | cross-domain repositories |
-| `evaluateComplianceHold` | Return active reusable stop signs. | Admin Review / Compliance Hold | Location Safety; Privacy where legally applicable | hold query | whether a hold is relevant to the requested action | before action if policy says hold applies | local block flags |
-| `authorizeContextualResourceAccess` | Standard shape for context-specific access decisions. | relevant context owner | Location Safety and export access | shared response contract | location/export business predicates | before issuing sensitive result | universal entitlement service |
-| `resolveLocationReveal` | Decide exact-location reveal and create LocationReveal proof. | Location Safety | Booking/Order/public protected UI | Module public interface | reveal predicate and lifecycle | exact-location request | Booking/Order reveal service |
-| `applyFuzzyPublicLocation` | Produce safe approximate public location. | Location Safety | Search/public source Modules | Module public interface | fuzzing/radius/stability policy | before public projection | Search-side coordinate fuzzing |
-| `appendAuditEvent` | Append generic important-action proof. | Audit / Event Ledger | both | insert-only audit command | event meaning and safe metadata | important lifecycle decisions | local audit tables |
-| `recordSensitiveAccess` | Append protected-data access proof. | Audit / Event Ledger | both | `AccessAuditLog` writer | exact sensitivity and context | export issuance/download, location reveal | `LocationAccessLog`, `PrivacyAccessLog` |
-| `requestNotification` | Deliver a canonical notification request. | Notification | Privacy | channel routing/delivery | message meaning, sensitivity, recipients from owner facts | status-ready/failure notices where approved | direct SES/SMS/push dispatch |
-| `executeIdempotentCommand` | Guarantee one business effect under retry. | platform application infrastructure | both | idempotency claim/result | semantic key and conflict behavior | every retryable mutation | Module-local idempotency frameworks |
-| `publishDomainEvent` | Publish versioned event after source commit. | platform outbox | both | transactional outbox | event name/payload/emission policy | post-commit cross-Module effects | ad hoc fire-and-forget |
-| `deduplicateDomainEvent` | Prevent repeated consumer effect. | platform event infrastructure | both workers | transactional inbox | handler-specific side effect | event consumers | per-worker dedupe tables without shared mechanism |
-| `enqueueReliableJob` | Durable async work with retries/dead-letter. | shared queue infrastructure | Privacy and Location workers | queue/lease/heartbeat | business payload and terminal meaning | slow or retryable work | Module-specific queue frameworks |
-| `orchestrateWorkflowSteps` | Run persisted multi-step orchestration. | workflow owner using shared runner | Privacy | workflow runner | privacy sequence and compensation/partial semantics | fulfillment | generic Privacy replacement workflow |
-| `reconcileWorkflowStatus` | Aggregate step outcomes into owner status. | workflow owner + shared helper | Privacy | deterministic aggregation hook | privacy-specific complete/partial/fail meaning | after target results | QueueJob-derived business status |
-| `transitionLifecycleState` | Reuse state-machine plumbing. | shared mechanism; lifecycle owner supplies policy | both | transition validation/update/event hook | privacy and reveal transition graphs | every lifecycle mutation | generic lifecycle policy table |
-| `acquireAggregateLock` / `withOptimisticConcurrency` | Serialize conflicting writes or reject stale updates. | shared persistence infrastructure | both | DB lock/CAS | lock key and conflict semantics | request/reveal/target updates | in-memory locks |
-| `runDeadlineExpiration` | Invoke owner-defined expiry behavior. | shared scheduler/queue | Privacy exports; fuzzy caches | cursor/schedule dispatch | expiry semantics | `expiresAt` handling | custom cron frameworks |
-| `geocodeAddress` | Resolve protected address through provider-neutral adapter. | **proposed:** Location Safety adapter | Location Safety | adapter contract | location privacy, retention, public-safety rules | before fuzzy projection if coordinates absent | map-provider calls in Search/Booking |
-| `deleteProviderResource` | Delete/revoke provider resource after authorized instruction. | provider-owning Module | Privacy orchestration | shared provider result contract | provider-specific mapping/retention | owner executor | provider SDKs in Privacy |
-| `encryptSensitiveValue` | Managed reversible encryption. | shared security/crypto capability | Location Safety/source owner | envelope encryption | whether/when exact location may be decrypted | exact-location storage/read | local AES helpers |
-| `normalizeAndHashIdentifier` | Keyed non-plaintext evidence hash. | shared security/crypto capability | Location Safety, Privacy | HMAC/normalization | which metadata is necessary and retention | IP/request proof | `location-ip-hash.ts` |
-| `requestSearchProjectionRefresh` | Ask Search to index/update/hide/remove/restore. | Search / Public Visibility | both | Search command/queue | CL-08 reason and safe source version | privacy/fuzzy-location change | direct `SearchUpsertEvent` writes or Typesense calls |
-| `executePrivacyInstruction` | Execute one owner-local privacy disposition. | Privacy orchestrates; each owner executes | Privacy + Location executor | typed protocol | owner-specific fields/retention | per target | local PrivacyRequest workflow |
-| `enumerateSubjectData` | Enumerate owner-held subject data. | each data owner through Privacy contract | Privacy | typed protocol | owner schema mapping | scope discovery | global database crawler |
-| `evaluateRetentionRequirement` | Return owner-held mandatory retention facts. | data owner supplies facts; Privacy records exemption | Privacy | typed protocol | tax/contract/fraud/etc. facts | before target execution | owner-local exemption tables |
-| `anonymizePersonalFields` | Shared field-level anonymization mechanism. | shared primitive; record owner supplies mapping | owner executors | versioned anonymization mechanism | exact fields/invariants | retained/erasable target execution | global unscoped scrubber |
-| `orchestratePrivacyFulfillment` | Coordinate Privacy request end to end. | Privacy / Data Erasure | Privacy | owner-local orchestration over shared mechanisms | privacy workflow meaning | after verification | privacy workflows in feature Modules |
-| `createPrivacyExportArtifact` | Build encrypted/private temporary export artifact. | Privacy owns bundle; Media owns storage | Privacy | artifact assembly + Media mechanics | export contents/eligibility/expiry | export request | R2/signed-URL implementation in Privacy |
-| `issueSignedMediaUrl` | Issue short-lived private Media URL after gates. | Media / File Access | Privacy exports | signed URL mechanics | Privacy export entitlement | export download | custom presigning in Privacy |
-| `validateOwnedTargetReference` | Validate a cross-Module target through its owner. | target owner | both | owner-specific validation contract | target relationship/eligibility | target registration/reveal context | direct cross-Module existence checks |
-| `createRequestContext`, `writeStructuredLog`, `sanitizeTelemetryMetadata`, `recordIntegrationFailure` | Correlate and observe execution safely. | Observability / platform | both | request IDs, structured logs, redaction, failure records | domain failure status and sensitive-field policy | all workflows | business state in logs |
+| `SH-001 resolveAuthenticatedActor` | Resolve trusted actor context. | Identity & Access | both Modules | request/session actor resolution | privacy requester/reveal viewer intent | every protected entry point | feature-local current-user helpers |
+| `SH-002 authorizeResourceAction` | Decide platform/org/participant/ownership permission. | Role / Authority | both Modules | typed authorization decision | privacy owner/admin scope; location contextual safety | before protected queries/mutations | `privacyAuth.ts`, `locationPermission.ts` policy engines |
+| `SH-003 queryOwnerFacts (Proposed ruling; adoption gated)` | Read minimum owner facts through owner DTO. | Each source Module | both | shared contract, separate implementation | exact facts needed by Privacy/Location | before retention/reveal decisions | cross-domain repositories |
+| `SH-011 evaluateComplianceHold` | Return active reusable stop signs. | Admin Review / Compliance Hold | Location Safety; Privacy where legally applicable | hold query | whether a hold is relevant to the requested action | before action if policy says hold applies | local block flags |
+| `SH-026 authorizeContextualResourceAccess` | Standard shape for context-specific access decisions. | Relevant context owner | Location Safety and export access | shared response contract | location/export business predicates | before issuing sensitive result | universal entitlement service |
+| `SH-027 resolveLocationReveal` | Decide exact-location reveal and create LocationReveal proof. | Location Safety | Booking/Order/public protected UI | Module public interface | reveal predicate and lifecycle | exact-location request | Booking/Order reveal service |
+| `SH-028 applyFuzzyPublicLocation` | Produce safe approximate public location. | Location Safety | Search/public source Modules | Module public interface | fuzzing/radius/stability policy | before public projection | Search-side coordinate fuzzing |
+| `SH-029 appendAuditEvent` | Append generic important-action proof. | Audit / Event Ledger | both | insert-only audit command | event meaning and safe metadata | important lifecycle decisions | local audit tables |
+| `SH-030 recordSensitiveAccess` | Append protected-data access proof. | Audit / Event Ledger | both | `AccessAuditLog` writer | exact sensitivity and context | export issuance/download, location reveal | `LocationAccessLog`, `PrivacyAccessLog` |
+| `SH-041 requestNotification` | Deliver a canonical notification request. | Notification | Privacy | channel routing/delivery | message meaning, sensitivity, recipients from owner facts | status-ready/failure notices where approved | direct SES/SMS/push dispatch |
+| `SH-044 executeIdempotentCommand` | Guarantee one business effect under retry. | Platform application infrastructure | both | idempotency claim/result | semantic key and conflict behavior | every retryable mutation | Module-local idempotency frameworks |
+| `SH-046 publishDomainEvent` | Publish versioned event after source commit. | Platform event/outbox infrastructure | both | transactional outbox | event name/payload/emission policy | post-commit cross-Module effects | ad hoc fire-and-forget |
+| `SH-045 deduplicateDomainEvent` | Prevent repeated consumer effect. | Platform event infrastructure; consumer owns inbox | both workers | transactional inbox | handler-specific side effect | event consumers | per-worker dedupe tables without shared mechanism |
+| `SH-047 enqueueReliableJob` | Durable async work with retries/dead-letter. | Shared queue infrastructure | Privacy and Location workers | queue/lease/heartbeat | business payload and terminal meaning | slow or retryable work | Module-specific queue frameworks |
+| `SH-049 orchestrateWorkflowSteps` | Run persisted multi-step orchestration. | Workflow-owning Module using shared runner | Privacy | workflow runner | privacy sequence and compensation/partial semantics | fulfillment | generic Privacy replacement workflow |
+| `SH-050 reconcileWorkflowStatus` | Aggregate step outcomes into owner status. | Workflow owner using shared helper | Privacy | deterministic aggregation hook | privacy-specific complete/partial/fail meaning | after target results | QueueJob-derived business status |
+| `SH-053 transitionLifecycleState` | Reuse state-machine plumbing. | Shared mechanism; lifecycle owner supplies policy | both | transition validation/update/event hook | privacy and reveal transition graphs | every lifecycle mutation | generic lifecycle policy table |
+| `SH-051 acquireAggregateLock` / `SH-052 withOptimisticConcurrency` | Serialize conflicting writes or reject stale updates. | Shared persistence infrastructure | both | DB lock/CAS | lock key and conflict semantics | request/reveal/target updates | in-memory locks |
+| `SH-055 runDeadlineExpiration` | Invoke owner-defined expiry behavior. | Shared scheduler/queue infrastructure | Privacy exports; fuzzy caches | cursor/schedule dispatch | expiry semantics | `expiresAt` handling | custom cron frameworks |
+| `SH-069 geocodeAddress (Proposed ruling; adoption gated)` | Resolve protected address through provider-neutral adapter. | Location Safety adapter ownership proposed | Location Safety | adapter contract | location privacy, retention, public-safety rules | before fuzzy projection if coordinates absent | map-provider calls in Search/Booking |
+| `SH-070 deleteProviderResource` | Delete/revoke provider resource after authorized instruction. | Provider-owning Module | Privacy orchestration | shared provider result contract | provider-specific mapping/retention | owner executor | provider SDKs in Privacy |
+| `SH-075 encryptSensitiveValue` | Managed reversible encryption. | Shared security/cryptography capability | Location Safety/source owner | envelope encryption | whether/when exact location may be decrypted | exact-location storage/read | local AES helpers |
+| `SH-076 normalizeAndHashIdentifier` | Keyed non-plaintext evidence hash. | Shared security/cryptography capability | Location Safety, Privacy | HMAC/normalization | which metadata is necessary and retention | IP/request proof | `location-ip-hash.ts` |
+| `SH-091 requestSearchProjectionRefresh` | Ask Search to index/update/hide/remove/restore. | Search / Public Visibility | both | Search command/queue | CL-08 reason and safe source version | privacy/fuzzy-location change | direct `SearchUpsertEvent` writes or Typesense calls |
+| `SH-095 executePrivacyInstruction` | Execute one owner-local privacy disposition. | Privacy orchestrates; each data owner executes | Privacy + Location executor | typed protocol | owner-specific fields/retention | per target | local PrivacyRequest workflow |
+| `SH-096 enumerateSubjectData` | Enumerate owner-held subject data. | Each data-owning Module through Privacy-defined interface | Privacy | typed protocol | owner schema mapping | scope discovery | global database crawler |
+| `SH-097 evaluateRetentionRequirement` | Return owner-held mandatory retention facts. | Data owner supplies facts; Privacy records exemption | Privacy | typed protocol | tax/contract/fraud/etc. facts | before target execution | owner-local exemption tables |
+| `SH-098 anonymizePersonalFields` | Shared field-level anonymization mechanism. | Shared primitive; record owner supplies mapping | owner executors | versioned anonymization mechanism | exact fields/invariants | retained/erasable target execution | global unscoped scrubber |
+| `SH-099 orchestratePrivacyFulfillment` | Coordinate Privacy request end to end. | Privacy / Data Erasure | Privacy | owner-local orchestration over shared mechanisms | privacy workflow meaning | after verification | privacy workflows in feature Modules |
+| `SH-100 createPrivacyExportArtifact` | Build encrypted/private temporary export artifact. | Privacy owns bundle; Media/storage owns object mechanics | Privacy | artifact assembly + Media mechanics | export contents/eligibility/expiry | export request | R2/signed-URL implementation in Privacy |
+| `SH-087 issueSignedMediaUrl` | Issue short-lived private Media URL after gates. | Media / File Access | Privacy exports | signed URL mechanics | Privacy export entitlement | export download | custom presigning in Privacy |
+| `SH-123 validateOwnedTargetReference` | Validate a cross-Module target through its owner. | Target owner | both | owner-specific validation contract | target relationship/eligibility | target registration/reveal context | direct cross-Module existence checks |
+| `SH-032 createRequestContext`, `SH-033 writeStructuredLog`, `SH-034 sanitizeTelemetryMetadata`, `SH-037 recordIntegrationFailure` | Correlate and observe execution safely. | Per-operation owner in the canonical registry | both | request IDs, structured logs, redaction, failure records | domain failure status and sensitive-field policy | all workflows | business state in logs |
 
 ---
 
@@ -649,37 +666,41 @@ The supplied Canonical Shared Operations Registry uses canonical names but does 
 
 ### 12.1 Privacy request intake
 
+Login/authentication, SH-001 resolveAuthenticatedActor, SH-014 requireStepUpForSensitiveAction, and account-recovery proof are not automatically sufficient Privacy identity verification. Identity owns assurance/proof mechanics; Privacy alone decides whether the approved proof permits its `verified` transition. U-08-01 remains unresolved; no proof shape, assurance level, expiry, or schema representation is approved here.
+
 ```text
 User
-→ Identity.resolveAuthenticatedActor
-→ Role/Authority.authorizeResourceAction(self privacy request)
+→ Identity.resolveAuthenticatedActor # SH-001 resolveAuthenticatedActor
+→ Role/Authority.authorizeResourceAction(self privacy request) # SH-002 authorizeResourceAction
 → Privacy.submitPrivacyRequest
 → Privacy writes PrivacyRequest(status=submitted)
-→ Audit.appendAuditEvent
-→ optional Notification.requestNotification
+→ Audit.appendAuditEvent # SH-029 appendAuditEvent
+→ optional Notification.requestNotification # SH-041 requestNotification
 ```
 
 Privacy alone owns the request state.
 
 ### 12.2 Privacy erasure fulfillment
 
+SH-091 requestSearchProjectionRefresh acceptance or queue acknowledgement is not proof of completed Search deletion. A Privacy target whose required disposition includes Search removal remains non-successful until Search supplies completion evidence under the approved Privacy executor contract. Accepted/queued work may be recorded as pending operational progress. Location Safety may independently complete its own cache/projection-source mutation. The durable completion receipt, correlation, and acknowledgement representation remain unresolved; this rule does not define that contract.
+
 ```text
 PrivacyRequest verified
 → Privacy starts processing
 → Privacy creates DataErasureJob
-→ each owner.enumerateSubjectData
+→ each owner.enumerateSubjectData # SH-096 enumerateSubjectData
 → Privacy registers DataErasureTarget rows
-→ each owner.evaluateRetentionRequirement
+→ each owner.evaluateRetentionRequirement # SH-097 evaluateRetentionRequirement
 → if retention required:
      Privacy writes DataRetentionExemption
      → owner executes permitted anonymization
      → Privacy marks target retained/anonymized as contract dictates
   else:
-     Privacy dispatches executePrivacyInstruction
+     Privacy dispatches executePrivacyInstruction # SH-095 executePrivacyInstruction
      → owner mutates its own records/providers
      → owner returns typed result
      → Privacy updates DataErasureTarget
-→ Privacy.reconcileWorkflowStatus
+→ Privacy.reconcileWorkflowStatus # SH-050 reconcileWorkflowStatus
 → Privacy updates DataErasureJob
 → Privacy updates PrivacyRequest aggregate result
 → Audit records sanitized lifecycle proof
@@ -690,14 +711,14 @@ PrivacyRequest verified
 
 ```text
 verified export request
-→ owner.enumerateSubjectData / owner export serializers
+→ owner.enumerateSubjectData / owner export serializers # SH-096 enumerateSubjectData
 → Privacy assembles purpose-limited manifest
-→ Privacy.createPrivacyExportArtifact
+→ Privacy.createPrivacyExportArtifact # SH-100 createPrivacyExportArtifact
 → Media stores private artifact and returns MediaAsset reference
 → Privacy writes DataExportBundle(ready)
 → requester passes authorization
-→ Media.issueSignedMediaUrl
-→ Audit.recordSensitiveAccess
+→ Media.issueSignedMediaUrl # SH-087 issueSignedMediaUrl
+→ Audit.recordSensitiveAccess # SH-030 recordSensitiveAccess
 → expiry worker marks bundle expired and asks Media to remove object
 ```
 
@@ -706,7 +727,7 @@ verified export request
 ```text
 verified request
 → owner enumeration
-→ owner executes correction/restriction through executePrivacyInstruction
+→ owner executes correction/restriction through executePrivacyInstruction # SH-095 executePrivacyInstruction
 → owner returns target-level proof
 → Privacy aggregates request outcome
 ```
@@ -717,10 +738,10 @@ verified request
 
 ```text
 source owner location created/changed
-→ source owner calls LocationSafety.applyFuzzyPublicLocation
+→ source owner calls LocationSafety.applyFuzzyPublicLocation # SH-028 applyFuzzyPublicLocation
    or emits approved source-location event
 → Location Safety obtains protected source facts through owner interface
-→ optional geocodeAddress adapter
+→ optional geocodeAddress adapter # SH-069 geocodeAddress (Proposed ruling; adoption gated)
 → Location Safety applies precision/fuzzing policy
 → write/replace FuzzyLocationCache
 → Location Safety requests Search projection refresh
@@ -733,16 +754,16 @@ Search never receives exact coordinates unless an entirely separate protected in
 
 ```text
 viewer requests exact location
-→ resolveAuthenticatedActor
-→ authorizeResourceAction
+→ resolveAuthenticatedActor # SH-001 resolveAuthenticatedActor
+→ authorizeResourceAction # SH-002 authorizeResourceAction
 → Booking/Order owner facts
-→ optional evaluateComplianceHold if policy applies
-→ LocationSafety.resolveLocationReveal
+→ optional evaluateComplianceHold if policy applies # SH-011 evaluateComplianceHold
+→ LocationSafety.resolveLocationReveal # SH-027 resolveLocationReveal
 → if denied: return safe denial; optionally audit denial
 → if allowed:
      obtain/decrypt exact source location through approved owner/crypto boundary
      → write LocationReveal proof
-     → recordSensitiveAccess(location_revealed)
+     → recordSensitiveAccess(location_revealed) # SH-030 recordSensitiveAccess
      → return exact value only to authorized request
 ```
 
@@ -766,11 +787,11 @@ Booking/Order/source location event
 
 | Source | Destination | Information / command | Authoritative owner | Interface / event | Forbidden coupling |
 |---|---|---|---|---|---|
-| CL-01 Identity & Access | CL-08 | actor and privacy identity-proof result | Identity | `resolveAuthenticatedActor`; privacy verification interface | Privacy reading auth-provider internals |
-| CL-01 Role / Authority | CL-08 | permission decision | Role / Authority | `authorizeResourceAction` | local permission engine |
-| CL-01 Customer / Buyer Profile | CL-08 | customer subject data and privacy execution | Customer | `enumerateSubjectData`, `executePrivacyInstruction` | Privacy mutating CustomerProfile directly |
+| CL-01 Identity & Access | CL-08 | actor and privacy identity-proof result | Identity | `SH-001 resolveAuthenticatedActor`; privacy verification interface | Privacy reading auth-provider internals |
+| CL-01 Role / Authority | CL-08 | permission decision | Role / Authority | `SH-002 authorizeResourceAction` | local permission engine |
+| CL-01 Customer / Buyer Profile | CL-08 | customer subject data and privacy execution | Customer | `SH-096 enumerateSubjectData`, `SH-095 executePrivacyInstruction` | Privacy mutating CustomerProfile directly |
 | CL-01 Track Subscription & Entitlement | CL-08 | subscription/usage target data and retention facts | Track | privacy executor protocol | local premium/retention booleans in Privacy |
-| CL-02 Search | CL-08 | projection refresh acknowledgement; public projection consumer | Search for index; Location for safe payload | `requestSearchProjectionRefresh`, `applyFuzzyPublicLocation` | Privacy/Location calling Typesense directly |
+| CL-02 Search | CL-08 | projection refresh acknowledgement; public projection consumer | Search for index; Location for safe payload | `SH-091 requestSearchProjectionRefresh`, `SH-028 applyFuzzyPublicLocation` | Privacy/Location calling Typesense directly |
 | CL-03 Marketplace Supply | CL-08 | location-bearing Offering facts and privacy targets where supported | source Module | owner facts + Location interface | Location owning Offering |
 | CL-03 Payment / Payout / Tax | CL-08 | mandatory financial retention facts and provider execution | Payment | retention/executor protocol | Privacy interpreting Stripe state |
 | CL-04 Gig / Demand | CL-08 | Gig location facts and privacy targets where supported | Gig | owner facts + Location interface | Location owning Gig |
@@ -782,11 +803,11 @@ Booking/Order/source location event
 | CL-05 Digital Goods Access | CL-08 | grants/events/accessibility targets | Digital Goods | privacy executor | Privacy owning paid-access truth |
 | CL-06 Hiring | CL-08 | candidate/job location safe projection and privacy targets | Hiring/Candidate owners | owner facts + executor | Location/Privacy owning hiring lifecycles |
 | CL-07 Messaging | CL-08 | messages/threads subject inventory and execution | Messaging | privacy executor | Privacy direct message deletion |
-| CL-07 Notification | CL-08 | privacy status notification delivery; notification data execution | Notification | `requestNotification`, privacy executor | direct channel provider calls |
-| CL-09 Admin Holds | CL-08 | reusable stop-sign facts where applicable | Hold Module | `evaluateComplianceHold` | local CL-08 blocked flags |
-| CL-09 Audit | CL-08 | generic and sensitive-access proof | Audit | `appendAuditEvent`, `recordSensitiveAccess` | LocationReveal/PrivacyRequest replaced by audit |
+| CL-07 Notification | CL-08 | privacy status notification delivery; notification data execution | Notification | `SH-041 requestNotification`, privacy executor | direct channel provider calls |
+| CL-09 Admin Holds | CL-08 | reusable stop-sign facts where applicable | Hold Module | `SH-011 evaluateComplianceHold` | local CL-08 blocked flags |
+| CL-09 Audit | CL-08 | generic and sensitive-access proof | Audit | `SH-029 appendAuditEvent`, `SH-030 recordSensitiveAccess` | LocationReveal/PrivacyRequest replaced by audit |
 | CL-09 Observability | CL-08 | queue/integration failure visibility | Ops | canonical ops interfaces | IntegrationFailure replacing domain failure |
-| CL-08 Privacy | CL-08 Location | approved location-data privacy instruction | Privacy request truth; Location executes own data | `executePrivacyInstruction` | Privacy directly deleting Location tables |
+| CL-08 Privacy | CL-08 Location | approved location-data privacy instruction | Privacy request truth; Location executes own data | `SH-095 executePrivacyInstruction` | Privacy directly deleting Location tables |
 
 The Cluster Registry's explicit CL-08 → CL-01 bridge for CustomerProfile and Track data is binding: Privacy owns request/job/target lifecycle; Customer and Track execute or preserve according to retention rules.
 
@@ -796,13 +817,13 @@ The Cluster Registry's explicit CL-08 → CL-01 bridge for CustomerProfile and T
 
 ### Authenticated actor
 
-Every public privacy or location command begins with `resolveAuthenticatedActor`.
+Every public privacy or location command begins with `SH-001 resolveAuthenticatedActor`.
 
 Anonymous public discovery may call only interfaces that return public-safe projections and must never be able to select exact precision.
 
 ### Authorization
 
-`authorizeResourceAction` owns permission interpretation.
+`SH-002 authorizeResourceAction` owns permission interpretation.
 
 CL-08 supplies contextual facts:
 
@@ -823,11 +844,11 @@ At minimum, the following are sensitive:
 - revealing exact location;
 - accessing retained-target notes containing personal or legal context.
 
-`recordSensitiveAccess` is required when the canonical audit policy classifies the action as sensitive.
+`SH-030 recordSensitiveAccess` is required when the canonical audit policy classifies the action as sensitive.
 
 ### Step-up
 
-`requireStepUpForSensitiveAction` exists as the canonical platform mechanism. The evidence does **not** establish that all privacy exports or location reveals require step-up. Do not invent that policy. If root security architecture later requires step-up for these actions, CL-08 consumes the canonical Identity capability.
+`SH-014 requireStepUpForSensitiveAction` exists as the canonical platform mechanism. The evidence does **not** establish that all privacy exports or location reveals require step-up. Do not invent that policy. If root security architecture later requires step-up for these actions, CL-08 consumes the canonical Identity capability.
 
 ---
 
@@ -884,7 +905,7 @@ Only Location Safety returns the exact-reveal decision.
 
 ### Transactional outbox
 
-Cross-Module events must use `publishDomainEvent` after the owning source-of-truth transaction commits.
+Cross-Module events must use `SH-046 publishDomainEvent` after the owning source-of-truth transaction commits.
 
 Potential event families are architectural contracts only when explicitly versioned and approved. No `PrivacyRequestEvent` or `LocationRevealEvent` table currently exists.
 
@@ -909,7 +930,7 @@ These names are **Proposed Ruling PR-08-03** and must be registered in the root 
 
 ### Jobs
 
-CL-08 uses canonical `enqueueReliableJob` for:
+CL-08 uses canonical `SH-047 enqueueReliableJob` for:
 
 - privacy target discovery;
 - per-owner target execution;
@@ -987,7 +1008,7 @@ Provider-event dedupe truth remains with each provider owner.
 
 ### Geocoding
 
-Canonical Shared Operations lists `geocodeAddress` with **Location Safety adapter ownership proposed**.
+Canonical Shared Operations lists `SH-069 geocodeAddress (Proposed ruling; adoption gated)` with **Location Safety adapter ownership proposed**.
 
 Provider is intentionally undecided.
 
@@ -1007,7 +1028,7 @@ Provider response is input/evidence, not Workin Ants truth.
 
 ### Reconciliation
 
-Provider-owning Modules use `reconcileProviderState` for missed or inconsistent provider state. Privacy consumes the typed result; it does not run a generic provider sweeper.
+Provider-owning Modules use `SH-062 reconcileProviderState` for missed or inconsistent provider state. Privacy consumes the typed result; it does not run a generic provider sweeper.
 
 ### Operational failures
 
@@ -1030,7 +1051,7 @@ Search:
 
 ### Privacy de-indexing
 
-Privacy requests projection removal through `requestSearchProjectionRefresh`.
+Privacy requests projection removal through `SH-091 requestSearchProjectionRefresh`.
 
 Search owns:
 
@@ -1061,7 +1082,7 @@ At minimum:
 - `DataExportBundle` is Privacy truth.
 - export bytes live in Media-managed private storage.
 - `mediaAssetId` points to the Media asset used for the bundle.
-- `issueSignedMediaUrl` provides short-lived access after Privacy authorization.
+- `SH-087 issueSignedMediaUrl` provides short-lived access after Privacy authorization.
 - export access is sensitive and must be audited.
 
 **Proposed Ruling PR-08-04 — DataExportBundle media relation**  
@@ -1090,9 +1111,9 @@ EXIF/GPS scrubbing remains Media-owned. Location Safety may provide semantic sen
 
 Every personal-data-owning Module that participates in CL-08 must implement, as applicable:
 
-1. `enumerateSubjectData`
-2. `evaluateRetentionRequirement`
-3. `executePrivacyInstruction`
+1. `SH-096 enumerateSubjectData`
+2. `SH-097 evaluateRetentionRequirement`
+3. `SH-095 executePrivacyInstruction`
 4. export serialization
 5. idempotent result proof
 6. provider deletion through its own adapter
@@ -1139,8 +1160,8 @@ Relevant actions include:
 
 Use:
 
-- `appendAuditEvent` for important lifecycle/action proof;
-- `recordSensitiveAccess` for protected access/issuance/download/reveal proof.
+- `SH-029 appendAuditEvent` for important lifecycle/action proof;
+- `SH-030 recordSensitiveAccess` for protected access/issuance/download/reveal proof.
 
 Audit metadata must use identifiers, reason codes, outcomes, and sanitized context. Do not store exact addresses, export contents, raw message bodies, raw resumes, tax details, provider secrets, or unnecessary personal data in audit metadata.
 
@@ -1157,11 +1178,13 @@ None substitutes for another.
 
 Use:
 
-- `createRequestContext`;
-- `writeStructuredLog`;
-- `sanitizeTelemetryMetadata`;
-- `recordIntegrationFailure`;
-- queue telemetry and incidents.
+- `SH-032 createRequestContext`;
+- `SH-033 writeStructuredLog`;
+- `SH-034 sanitizeTelemetryMetadata`;
+- `SH-037 recordIntegrationFailure`;
+- `SH-036 emitMetric` for operational counters/timings;
+- `SH-038 recordQueueTelemetry` for worker attempts, retries, and outcomes;
+- incidents through Ops.
 
 Correlation/request IDs must cross web request → job → owner executor → provider → result → audit.
 
@@ -1181,8 +1204,8 @@ Operational logs must redact:
 1. Validate all request payloads server-side.
 2. Resolve actor and authorize on the server for every protected operation.
 3. Never expose exact private location through a public projection or client-supplied precision switch.
-4. Use canonical `encryptSensitiveValue` for reversible exact-location storage where required.
-5. Use canonical `normalizeAndHashIdentifier` for non-plaintext request/IP evidence.
+4. Use canonical `SH-075 encryptSensitiveValue` for reversible exact-location storage where required.
+5. Use canonical `SH-076 normalizeAndHashIdentifier` for non-plaintext request/IP evidence.
 6. Do not log plaintext exact address/coordinates.
 7. Do not put exact location in search documents.
 8. Use short-lived signed access for privacy export files.
@@ -1191,7 +1214,7 @@ Operational logs must redact:
 11. Use idempotency for request submission, target execution, export generation, fuzzy refresh, reveal, and revoke.
 12. Use database concurrency controls for lifecycle writes.
 13. Provider secrets live only in approved secret management and provider adapters.
-14. Geocoding requests must minimize payload and use only the scope needed for location resolution.
+14. Geocoding requests use `SH-078 minimizeAndRedactProviderInput` with source-owner policy to minimize payload and restrict purpose to location resolution.
 15. Rate limits for privacy request abuse, export access, and reveal attempts must use the root platform rate-limit mechanism once its policy is defined; do not create a CL-08-only limiter.
 16. Telemetry and analytics must not contain exact location or exported personal-data payloads.
 17. Cross-Module target references must be validated through the target owner.
@@ -1223,11 +1246,11 @@ Location:
 
 ### Public-interface contract tests
 
-- `enumerateSubjectData`
-- `evaluateRetentionRequirement`
-- `executePrivacyInstruction`
-- `applyFuzzyPublicLocation`
-- `resolveLocationReveal`
+- `SH-096 enumerateSubjectData`
+- `SH-097 evaluateRetentionRequirement`
+- `SH-095 executePrivacyInstruction`
+- `SH-028 applyFuzzyPublicLocation`
+- `SH-027 resolveLocationReveal`
 - owner fact DTOs from Booking/Order
 - Media/Search/Audit interfaces
 
@@ -1412,7 +1435,7 @@ They may not invent production legal/safety values to make tests green.
 8. Media owns storage/file mechanics; Privacy owns export-bundle lifecycle.
 9. Audit and observability remain separate from domain truth.
 10. Canonical shared operations are mandatory anti-duplication boundaries.
-11. The compliance-inventory ownership row that associates exact-reveal ownership with Booking is treated as supporting evidence only; stronger ownership evidence keeps Location Safety as owner.
+11. Booking's fuzzy/exact-location compliance participation supplies supporting proof. Location Safety alone owns fuzzy/exact-location policy and reveal truth; Booking must not independently implement reveal policy.
 12. Privacy retention exemptions are Privacy-owned records based on source-owner facts.
 
 ### Proposed rulings awaiting approval
@@ -1431,16 +1454,16 @@ No implementation may treat a Proposed Ruling as approved merely because it appe
 
 Before changing CL-08, an implementation agent must read, in order:
 
-1. Root `project-overview.md`
-2. Root `architecture.md`
-3. Root `code-standards.md`
+1. `context/project-overview-v3.md`
+2. Root architecture is currently missing; stop at any required global decision gap
+3. Root code standards are currently missing; do not invent replacement standards
 4. Canonical Shared Operations Registry
 5. This Cluster `architecture.md`
 6. This Cluster `build-plan.md`
 7. Target Module architecture
 8. Target Module implementation plan
 9. Relevant dependency Module public-interface sections
-10. Current progress tracker
+10. Dedicated progress tracker is currently missing; use the task completion report for progress/blockers
 
 For exact-location work, also read Booking & Calendar, Transaction / Order, Role / Authority, Audit / Event Ledger, Search / Public Visibility, and shared crypto interfaces.
 

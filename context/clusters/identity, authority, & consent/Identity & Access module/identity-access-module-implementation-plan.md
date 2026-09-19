@@ -3,9 +3,9 @@
 > **Module ID:** `identity_access`  
 > **Module:** Identity & Access Module  
 > **Primary Cluster:** `CL-01 — Identity, Authority, Consent & Entitlements`  
-> **Repository target:** `context/modules/identity_access/implementation-plan.md`  
+> **Repository target:** `context/clusters/identity, authority, & consent/Identity & Access module/identity-access-module-implementation-plan.md`\
 > **Companion architecture:** `module-architecture.md`  
-> **Plan status:** Sequential Module implementation plan. It is subordinate to the root Workin Ants architecture, CL-01 `architecture.md`, and CL-01 `build-plan.md`.  
+> **Plan status:** Sequential Module implementation plan. It is subordinate to the root Workin Ants architecture, CL-01 `context/clusters/identity, authority, & consent/identity-authority-consent-architecture.md`, and CL-01 `context/clusters/identity, authority, & consent/identity-authority-consent-build-plan.md`.\
 > **Implementation posture:** Build only Identity-owned truth and stable public interfaces. Unresolved security/provider/privacy decisions are architecture gates, not implementation invitations.
 
 ---
@@ -43,7 +43,7 @@ A feature may be observable through a public contract, persisted lifecycle, prov
 
 ## Build Rules
 
-1. Follow root `project-overview.md`, root `architecture.md`, root `code-standards.md`, the Canonical Shared Operations Registry, CL-01 `architecture.md`, and CL-01 `build-plan.md`.
+1. Follow `context/project-overview-v3.md`, root `architecture.md`, root `code-standards.md`, the Canonical Shared Operations Registry, CL-01 `context/clusters/identity, authority, & consent/identity-authority-consent-architecture.md`, and CL-01 `context/clusters/identity, authority, & consent/identity-authority-consent-build-plan.md`.
 2. Implement only truth declared as Identity-owned in `module-architecture.md`.
 3. Do not absorb Role / Authority permission interpretation, Customer/Professional/Candidate profiles, organization membership, consent proof, Track entitlement, payment/payout/tax, KYC, marketplace verification, generic holds, generic audit, Notification delivery, Privacy orchestration, Media mechanics, Search execution, or Ops persistence.
 4. Consume other Modules through approved public interfaces or contract fixtures. Direct foreign Prisma repositories are not the default.
@@ -433,7 +433,7 @@ Allow a User to safely link, inspect, disable/revoke, and evaluate authenticatio
 
 ### Cluster Build-Plan Link
 
-Supports the provider/security foundation of **CL-01 Feature 01** and prepares **CL-01 Feature 03 — Security Posture, Passkeys, and Step-Up Assurance**.
+Supports the provider/security foundation of **CL-01 Feature 01** and prepares **CL-01 Feature 03 — Authentication Methods, Passkeys, and Security Posture** and **CL-01 Feature 04 — Sensitive-Action Step-Up and Temporary Security Sessions**.
 
 ### Dependencies
 
@@ -648,7 +648,7 @@ Implement passkey/WebAuthn enrollment and revocation as Identity-owned credentia
 
 ### Cluster Build-Plan Link
 
-Implements the passkey portion of **CL-01 Feature 03 — Security Posture, Passkeys, and Step-Up Assurance**.
+Implements the passkey portion of **CL-01 Feature 03 — Authentication Methods, Passkeys, and Security Posture**.
 
 ### Dependencies
 
@@ -861,7 +861,7 @@ Make SH-014 the canonical action-scoped assurance path: sensitive-action consume
 
 ### Cluster Build-Plan Link
 
-Implements the assurance portion of **CL-01 Feature 03 — Security Posture, Passkeys, and Step-Up Assurance**.
+Implements the assurance portion of **CL-01 Feature 04 — Sensitive-Action Step-Up and Temporary Security Sessions**.
 
 ### Dependencies
 
@@ -1098,7 +1098,7 @@ Create the first half of the Identity-owned account-recovery workflow: initiate 
 
 ### Cluster Build-Plan Link
 
-Implements the initiation/email-proof portion of **CL-01 Feature 04 — Account Recovery and Session-Safety Hooks**.
+Implements the initiation/email-proof portion of **CL-01 Feature 05 — Changed-Phone Account Recovery and Security Event Integrity**.
 
 ### Dependencies
 
@@ -1324,7 +1324,7 @@ When a production gate remains unresolved, the implemented contract may safely s
 
 ### Cluster Build-Plan Link
 
-Completes **CL-01 Feature 04 — Account Recovery and Session-Safety Hooks**.
+Completes **CL-01 Feature 05 — Changed-Phone Account Recovery and Security Event Integrity**.
 
 ### Dependencies
 
@@ -1786,7 +1786,7 @@ Prove that Identity can compose the platform’s cross-cutting support rails wit
 
 ### Cluster Build-Plan Link
 
-Supports **CL-01 Feature 15 — Privacy, Holds, Audit, Notification, and Operational Support Bridges**. Privacy itself is implemented in Feature 09 below.
+Supports **CL-01 Feature 16 — Privacy, Holds, Audit, Notification, and Operational Support Bridges**. Privacy itself is implemented in Feature 09 below.
 
 ### Dependencies
 
@@ -2001,7 +2001,7 @@ Implement Identity’s side of the Privacy / Data Erasure protocol: enumerate Id
 
 ### Cluster Build-Plan Link
 
-Implements Identity’s portion of **CL-01 Feature 15 — Privacy, Holds, Audit, Notification, and Operational Support Bridges**.
+Implements Identity’s portion of **CL-01 Feature 16 — Privacy, Holds, Audit, Notification, and Operational Support Bridges**.
 
 ### Dependencies
 
@@ -2222,7 +2222,7 @@ Contract/integration fixtures prove:
 
 ### Cluster Build-Plan Link
 
-Supports **CL-01 Phase 4 — Cross-Cluster Contract Proof (Features 13–15)**, especially **Feature 15** for support/privacy bridges, and validates the Identity contracts relied upon by all protected Clusters.
+Supports **CL-01 Phase 4 — Cross-Cluster Contract Proof (Features 14–16)**, especially **Feature 16** for support/privacy bridges, and validates the Identity contracts relied upon by all protected Clusters.
 
 ### Dependencies
 
@@ -2415,7 +2415,7 @@ Prove Identity & Access is safe under production failure modes: provider degrada
 
 ### Cluster Build-Plan Link
 
-Implements the Identity portion of **CL-01 Feature 16 — Security, Concurrency, Reconciliation, Backfill, and Production Hardening**.
+Implements the Identity portion of **CL-01 Feature 17 — Backfills, Reconciliation, and Migration Safety** and **Feature 18 — Security, Privacy, Concurrency, and Production Readiness Hardening**.
 
 ### Dependencies
 
@@ -2868,7 +2868,7 @@ Before treating this Module plan as executable context, verify:
 8. UserSecurityEvent, generic audit/access, integration events, and observability are distinct.
 9. Privacy orchestration remains Privacy-owned.
 10. Search remains projection and no public User projection is introduced while U-IA-13 is unresolved.
-11. Numbered Module features align with CL-01 Features 01, 03, 04, 15, 16 and the Cluster integration sequence without independently reordering Cluster ownership.
+11. Numbered Module features align with CL-01 Features 01–05 and 16–18 and the Cluster integration sequence without independently reordering Cluster ownership.
 12. Every numbered feature specifies tests, acceptance criteria, and an exit gate.
 13. A coding agent can implement each slice without inventing security/provider/privacy architecture.
 

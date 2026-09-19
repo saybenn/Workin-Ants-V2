@@ -5,17 +5,19 @@
 > **Module type:** `compliance_feature_ecosystem`  
 > **Build status:** `mvp_active_legal_gated`  
 > **Primary Cluster:** `CL-10` — Incentives, Rewards & Prize Economy  
-> **Repository target:** `context/modules/sweepstakes_prize/module-architecture.md`  
+> **Repository target:** `context/clusters/incentives, rewards & prize economy/sweepstakes-module/sweepstakes-prize-module-architecture.md`\
 > **Document status:** Implementation-grade Module architecture derived from the current Workin Ants evidence set. Confirmed facts, inherited Proposed Rulings, and unresolved decisions are distinguished explicitly.  
 > **Audience:** Coding agents, developers, reviewers, maintainers, architects, compliance reviewers, and operators implementing or reviewing this Module.
 
 ---
 
+**Context routing and availability:** Follow [context/context-map.md](<../../../context-map.md>) for authority by concern and actual artifact paths; use [context/project-overview-v3.md](<../../../project-overview-v3.md>) as the overview entry point. Root architecture/build plan, `context/code-standards.md`, and the dedicated progress tracker are unavailable in the current context inventory. References below to those artifacts or their standards are conditional prerequisites, not evidence of an existing global sequence or approval. Do not invent missing root decisions or artifacts.
+
 ## 1. Module Header
 
 ### Relationship to root architecture
 
-This document is subordinate to the root Workin Ants project architecture, project overview, code standards, and canonical source-of-truth rules. It does not redefine platform identity, authorization, consent, payment, tax, hold, notification, audit, privacy, queue, provider, or observability architecture.
+This document follows the authority-by-concern rules in `context/context-map.md`; root architecture and code standards are currently unavailable, and the overview provides product context. It does not redefine platform identity, authorization, consent, payment, tax, hold, notification, audit, privacy, queue, provider, or observability architecture.
 
 The root rule that matters most here is **one owner per lifecycle**. The Sweepstakes / Prize Module owns chance-based drawing, entry, winning, prize-value, and prize-fulfillment-state truth. It consumes other owners through their public interfaces rather than rebuilding their records or interpreting their provider state.
 
@@ -473,6 +475,8 @@ src/
 
 **Uniqueness:** `@@unique([userId, taxYear, currency])`.
 
+**Unresolved SH-117 mismatch (CL-10-R009):** this key has no jurisdiction dimension. Production SH-117 aggregation and jurisdiction-sensitive annual reporting remain blocked until an approved interpretation either constrains the applicable jurisdiction with authoritative evidence elsewhere or preserves jurisdiction in the aggregate structure. Neither solution is approved; do not assume a single jurisdiction or add a field during this reconciliation.
+
 **Important fields:** FMV total, winning count, reporting threshold snapshot, reportingRequired, thresholdMetAt, optional TaxProfile ref.
 
 **Concurrency:** incremental updates must be transaction-safe and idempotent; reconciliation must be able to fully rebuild the aggregate.
@@ -901,7 +905,7 @@ Only canonical operations relevant to Sweepstakes are included.
 
 - **Class:** shared mechanism / separate truth.
 - **Owner:** each value owner; Sweepstakes owns PrizeTaxYearSummary.
-- **Invocation:** recognized winning and reconciliation.
+- **Invocation:** recognized winning and reconciliation only after the CL-10-R009 jurisdiction/grain contract is approved; production SH-117 aggregation remains blocked until then.
 - **Local policy:** inclusion/recognition/year/currency/reversal semantics.
 - **Prohibited:** merged prize+reward+earnings local tax cache.
 
@@ -1245,6 +1249,25 @@ At minimum, Sweepstakes may hold user-linked:
 
 Implement SH-095/096/097/098 contracts, not a local privacy workflow.
 
+### Owner target/executor contract (CL-10-R015)
+
+**Protocol owner:** Privacy / Data Erasure. **Executing owner:** `sweepstakes_prize`. The following maps existing owner records, not new DataErasureTargetType enum values:
+
+| Subject inventory | Existing owner identity | Export contribution |
+|---|---|---|
+| `PrizeEntry` by `userId` | `id` | Entry history and owned Order/Consent proof references |
+| `PrizeWinning` by `userId` | `id` | Winning/value history and owned fulfillment references |
+| `PrizeTaxYearSummary` by `userId` | `id`; current unique key `(userId, taxYear, currency)` | Prize-year history subject to CL-10-R009 |
+| Subject-linked drawing-run proof, once approved | Identity from the future approved U-CL10-02 contract | Permitted subject-linked run evidence only |
+
+SH-096 accepts the Privacy subject/cursor context and returns minimized descriptors using Privacy's fields: `ownerModule`, `targetType`, `targetId` or `externalRef`, `subjectId`, `supportedActions`, `sensitivity`, `sourceVersion`, `retentionCandidate`, and `exportSerializerVersion`, with cursoring. Validate subject association in this Module; referenced foreign records remain their owners' inventory. Configuration records enter inventory only where a subject association or incidental personal data is established. Future provider/run-proof targets require their separately approved ownership/schema first.
+
+SH-097 accepts the owned target and proposed action and returns required retention facts, reason/policy basis, authoritative `retainUntil` when available, minimum fields, permitted anonymization, and source references. Unknown policy is not permission to erase or a fabricated retention basis; Privacy records any exemption.
+
+SH-095 accepts Privacy request/job/target references, the typed owner target, requested disposition, idempotency and execution context. Revalidate owner/subject/target and approved action before changing owned records. SH-098 uses only an approved versioned field map. Return Privacy's canonical target result: owner, requested disposition, idempotency key, result (erased, anonymized, retained, restricted, exported, detached, revoked, skipped, retryable failure, or terminal failure, as applicable under approved policy), evidence/exemption references, safe counts/completion metadata, and provider result only where applicable. Replays must not repeat side effects; unsupported targets/actions cannot be reported as successful execution. Privacy owns recorded target disposition and orchestration.
+
+**Still unresolved:** bilateral registration of stable `targetType`/target-ID encoding, source-version strategy, per-target supported actions and result mappings; retain/anonymize/erase dispositions depend on CL-10-R014. This mapping documents owner participation without choosing those pending details. Production execution requires their approval. Do not infer an enum mapping, use a generic database crawler, create a local PrivacyRequest/DataErasureJob, or decide legal retention here.
+
 ### Disposition policy
 
 The exact erase/anonymize/retain matrix is not fully resolved. Until legal/retention policy is approved:
@@ -1520,6 +1543,10 @@ Current PrizeWinning has no direct PrizeEntry relation. U-CL10-02 must guarantee
 
 No external prize fulfillment provider or generic fulfillment-proof schema is confirmed. Automated provider fulfillment remains disabled until owned explicitly.
 
+### CL-10-R009 — SH-117 jurisdiction/grain
+
+Section 8.5 records the current unique-key mismatch. The architectural interpretation remains unresolved and blocks production SH-117 aggregation; no single-jurisdiction limitation or schema solution has been selected.
+
 ### Retention matrix
 
 Exact legal retention/anonymization rules for entry, rules, drawing-run, winning, and prize-tax evidence remain to be approved with Privacy/legal context.
@@ -1564,14 +1591,14 @@ These remain proposed until approved by the governing architecture process.
 
 Before implementing a Sweepstakes / Prize feature, the agent must read:
 
-1. root `context/project-overview.md`;
-2. root `context/architecture.md`, when present;
-3. root `context/code-standards.md`, when present;
+1. root `context/project-overview-v3.md`;
+2. root `context/architecture.md`, currently unavailable; consult only if recovered and reconciled;
+3. root `context/code-standards.md`, currently unavailable; consult only when present;
 4. `context/shared/shared-operations.md`;
-5. `context/clusters/incentives-rewards-prize-economy/architecture.md`;
-6. `context/clusters/incentives-rewards-prize-economy/build-plan.md`;
-7. this `module-architecture.md`;
-8. this Module `implementation-plan.md`;
+5. `context/clusters/incentives, rewards & prize economy/incentives-rewards-prize-economy-cluster-architecture.md`;
+6. `context/clusters/incentives, rewards & prize economy/incentives-rewards-prize-economy-cluster-build-plan.md`;
+7. `context/clusters/incentives, rewards & prize economy/sweepstakes-module/sweepstakes-prize-module-architecture.md`;
+8. `context/clusters/incentives, rewards & prize economy/sweepstakes-module/sweepstakes-prize-implementation-plan.md`;
 9. public-interface sections for Consent & Disclosure, Transaction / Order, Payment / Payout / Tax, Admin Review / Compliance Hold, Notification, Audit / Event Ledger, Privacy / Data Erasure, Identity & Access, and Role / Authority as needed by the feature;
 10. the current Prisma schema/migrations;
 11. the progress tracker/current implementation status.
