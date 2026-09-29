@@ -39,7 +39,7 @@ Evidence posture used here:
 
 ### Governing evidence conflict
 
-The historical Deep Module Registry lists `OrganizationMember`, `OrganizationRole`, and `ThreadParticipant` as Role / Authority-owned. Stronger shared-schema ownership rules and the CL-01 architecture place organization membership lifecycle with Organization Hiring and thread participation lifecycle with Messaging. This file adopts **Proposed Ruling PR-CL01-02** as the implementation boundary:
+The historical Deep Module Registry lists `OrganizationMember`, `OrganizationRole`, and `ThreadParticipant` as Role / Authority-owned. Stronger shared-schema ownership rules and the CL-01 architecture place organization membership lifecycle with Organization Hiring and thread participation lifecycle with Messaging. PR-CL01-02 is **confirmed** by SH-002 and readiness ruling WA-R001 (2026-09-29). The implementation boundary is:
 
 - Organization Hiring owns `OrganizationMember` creation, role assignment, suspension/removal, and the `OrganizationRole` vocabulary attached to that lifecycle.
 - Messaging owns `ThreadParticipant` creation/removal and participation lifecycle.
@@ -333,8 +333,8 @@ This is intentional. A capability can own authoritative policy without owning a 
 | `User` | Identity & Access | Base account actor identity | Actor must come from trusted Identity context, not request input |
 | `UserRole` | Identity & Access | Structural attachment of `PlatformRole` to User | Current schema uses composite identity by user + role; Role only interprets |
 | `PlatformRole` | Identity & Access | `user`, `admin`, `support` vocabulary | Role owns action mapping, not enum lifecycle |
-| `OrganizationMember` | Organization Hiring — Proposed Ruling | Membership fact scoped to one organization | Composite organization/user scope prevents cross-org authority inference |
-| `OrganizationRole` | Organization Hiring — Proposed Ruling | Current role values such as owner/admin/recruiter | Role interprets; deferred values must not be activated here |
+| `OrganizationMember` | Organization Hiring — Confirmed (WA-R001) | Membership fact scoped to one organization | Composite organization/user scope prevents cross-org authority inference |
+| `OrganizationRole` | Organization Hiring — Confirmed (WA-R001) | Current role values such as owner/admin/recruiter | Role interprets; deferred values must not be activated here |
 | `ThreadParticipant` | Messaging — Proposed Ruling | Participation fact for one thread | Composite thread/user fact; Role never adds/removes participant |
 | `CustomerProfile` | Customer / Buyer Profile | Buyer identity/ownership context | User and customer actor are not interchangeable assumptions |
 | `ProfessionalProfile` | Professional domain owner | Seller/profile ownership context | Does not imply professional readiness |

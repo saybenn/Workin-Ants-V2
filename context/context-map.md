@@ -7,6 +7,12 @@ This is the authoritative routing document for **which artifact owns which conce
 > Progress records what has actually been completed.
 > A plan or progress update may never silently redefine architecture.
 
+## Current inventory note — 2026-09-29
+
+The dated baseline below is preserved as historical evidence. Current verification is recorded in [development-readiness-status.md](reconciliation/development-readiness-status.md). All 10 Cluster pairs and 34 Module pairs exist. Shared Operations now has SH-001–SH-132 (109 Confirmed, 23 Proposed ruling); its final adjudication supersedes conflicting refresh recommendations. [Progress tracking](progress-tracker.md), [scoped platform rulings](reconciliation/platform-architecture-rulings.md), and [database evidence](reconciliation/database-readiness.md) now exist. Root architecture/build plan remain missing; development readiness has not passed.
+
+Historical “currently missing” and SH-126-count statements below describe the earlier baseline, not the newly verified inventory. Authority-by-concern remains unchanged. New rulings amend only the concerns and source files they explicitly identify.
+
 # Artifact Baseline
 
 - **Baseline date:** 2026-09-08, America/New_York.

@@ -679,7 +679,7 @@ Supports **CL-01 Feature 11** (effective grants) and prepares **CL-01 Feature 13
 
 - Stripe webhooks;
 - choosing default free-plan representation;
-- temporary feature grants under SH-119 while ownership unresolved;
+- temporary reward-grant activation until its execution/compensation contract is bound; SH-119 ownership is confirmed under Track (WA-R002);
 - rewriting usage history;
 - consumer business lifecycle.
 

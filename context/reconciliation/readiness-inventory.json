@@ -1,0 +1,2182 @@
+{
+  "scope": "Structural evidence only; no semantic-readiness certification",
+  "errors": [],
+  "warnings": [
+    "124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay"
+  ],
+  "counts": {
+    "clusters": 10,
+    "modules": 34,
+    "cluster_documents": 20,
+    "module_documents": 68,
+    "handoffs": 10,
+    "shared_operations": 132,
+    "shared_statuses": {
+      "Confirmed": 109,
+      "Proposed ruling": 23
+    },
+    "prisma_models": 177,
+    "prisma_enums": 207,
+    "sql_migrations": 1,
+    "created_tables": 53,
+    "created_enums": 31
+  },
+  "module_paths": {
+    "consent_disclosure": {
+      "cluster": "CL-01",
+      "files": [
+        "context/clusters/identity, authority, & consent/Consent & Disclosure Module/consent-disclosure-module-architecture.md",
+        "context/clusters/identity, authority, & consent/Consent & Disclosure Module/consent-disclosure-implementation-plan.md"
+      ]
+    },
+    "customer_buyer_profile": {
+      "cluster": "CL-01",
+      "files": [
+        "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-module-architecture.md",
+        "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-implementation-plan.md"
+      ]
+    },
+    "identity_access": {
+      "cluster": "CL-01",
+      "files": [
+        "context/clusters/identity, authority, & consent/Identity & Access module/identity-access-module-architecture.md",
+        "context/clusters/identity, authority, & consent/Identity & Access module/identity-access-module-implementation-plan.md"
+      ]
+    },
+    "role_authority": {
+      "cluster": "CL-01",
+      "files": [
+        "context/clusters/identity, authority, & consent/Role & Authority Module/role-authority-module-architecture.md",
+        "context/clusters/identity, authority, & consent/Role & Authority Module/role-authority-implementation-plan.md"
+      ]
+    },
+    "track_subscription_entitlement": {
+      "cluster": "CL-01",
+      "files": [
+        "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md",
+        "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-implementation-plan.md"
+      ]
+    },
+    "ai_taxonomy": {
+      "cluster": "CL-02",
+      "files": [
+        "context/clusters/discovery classification & taxonomy/AI Taxonomy module/ai-taxonomy-module-architecture.md",
+        "context/clusters/discovery classification & taxonomy/AI Taxonomy module/ai-taxonomy-module-implementation-plan.md"
+      ]
+    },
+    "search_public_visibility": {
+      "cluster": "CL-02",
+      "files": [
+        "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-architecture.md",
+        "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-implementation-plan.md"
+      ]
+    },
+    "taxonomy_classification": {
+      "cluster": "CL-02",
+      "files": [
+        "context/clusters/discovery classification & taxonomy/Taxonomy Classification Module/taxonomy-classification-module-architecture.md",
+        "context/clusters/discovery classification & taxonomy/Taxonomy Classification Module/taxonomy-classification-module-implementation-plan.md"
+      ]
+    },
+    "healthcare_regulated_services": {
+      "cluster": "CL-03",
+      "files": [
+        "context/clusters/professional supply & readiness/Healthcare Regulated Services module/healthcare-regulated-services-module-architecture.md",
+        "context/clusters/professional supply & readiness/Healthcare Regulated Services module/healthcare-regulated-services-module-implementation-plan.md"
+      ]
+    },
+    "marketplace_supply": {
+      "cluster": "CL-03",
+      "files": [
+        "context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-architecture.md",
+        "context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-implementation-plan.md"
+      ]
+    },
+    "payment_payout_tax": {
+      "cluster": "CL-03",
+      "files": [
+        "context/clusters/professional supply & readiness/Payment Payout & Tax Module/payment-payout-tax-module-architecture.md",
+        "context/clusters/professional supply & readiness/Payment Payout & Tax Module/payment-payout-tax-module-implementation-plan.md"
+      ]
+    },
+    "professional_eligibility": {
+      "cluster": "CL-03",
+      "files": [
+        "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-architecture.md",
+        "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-implementation-plan.md"
+      ]
+    },
+    "trust_verification_screening": {
+      "cluster": "CL-03",
+      "files": [
+        "context/clusters/professional supply & readiness/Trust verification Screening Module/trust-verification-screening-module-architecture.md",
+        "context/clusters/professional supply & readiness/Trust verification Screening Module/trust-verification-screening-implementation-plan.md"
+      ]
+    },
+    "gig_demand": {
+      "cluster": "CL-04",
+      "files": [
+        "context/clusters/customer demand, order, & resolution/gig demand module/gig-demand-module-architecture.md",
+        "context/clusters/customer demand, order, & resolution/gig demand module/gig-demand-implementation-plan.md"
+      ]
+    },
+    "review_dispute": {
+      "cluster": "CL-04",
+      "files": [
+        "context/clusters/customer demand, order, & resolution/review dispute module/review-dispute-module-architecture.md",
+        "context/clusters/customer demand, order, & resolution/review dispute module/review-dispute-implementation-plan.md"
+      ]
+    },
+    "transaction_order": {
+      "cluster": "CL-04",
+      "files": [
+        "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-module-architecture.md",
+        "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-implementation-plan.md"
+      ]
+    },
+    "booking_calendar": {
+      "cluster": "CL-05",
+      "files": [
+        "context/clusters/scheduling, media, & digital delivery/booking-calendar-module/booking-calendar-module-architecture.md",
+        "context/clusters/scheduling, media, & digital delivery/booking-calendar-module/booking-calendar-module-implementation-plan.md"
+      ]
+    },
+    "digital_goods_access": {
+      "cluster": "CL-05",
+      "files": [
+        "context/clusters/scheduling, media, & digital delivery/digital-goods-access-module/digital-goods-access-module-architecture.md",
+        "context/clusters/scheduling, media, & digital delivery/digital-goods-access-module/digital-goods-access-implementation-plan.md"
+      ]
+    },
+    "media_file_access": {
+      "cluster": "CL-05",
+      "files": [
+        "context/clusters/scheduling, media, & digital delivery/media-asset-module/media-asset-module-architecture.md",
+        "context/clusters/scheduling, media, & digital delivery/media-asset-module/media-asset-module-implementation-plan.md"
+      ]
+    },
+    "video_session": {
+      "cluster": "CL-05",
+      "files": [
+        "context/clusters/scheduling, media, & digital delivery/video-session-module/video-session-module-architecture.md",
+        "context/clusters/scheduling, media, & digital delivery/video-session-module/video-session-module-implementation-plan.md"
+      ]
+    },
+    "candidate_application_resume_privacy": {
+      "cluster": "CL-06",
+      "files": [
+        "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-architecture.md",
+        "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-implementation-plan.md"
+      ]
+    },
+    "job_compliance": {
+      "cluster": "CL-06",
+      "files": [
+        "context/clusters/Organization Hiring & Candidate Pipeline/Job Compliance Module/job-compliance-module-architecture.md",
+        "context/clusters/Organization Hiring & Candidate Pipeline/Job Compliance Module/job-compliance-module-implementation-plan.md"
+      ]
+    },
+    "job_interview": {
+      "cluster": "CL-06",
+      "files": [
+        "context/clusters/Organization Hiring & Candidate Pipeline/Job Interview Module/job-interview-module-architecture.md",
+        "context/clusters/Organization Hiring & Candidate Pipeline/Job Interview Module/job-interview-module-implementation-plan.md"
+      ]
+    },
+    "messaging": {
+      "cluster": "CL-07",
+      "files": [
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-implementation-plan.md"
+      ]
+    },
+    "notification": {
+      "cluster": "CL-07",
+      "files": [
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-implementation-plan.md"
+      ]
+    },
+    "location_safety": {
+      "cluster": "CL-08",
+      "files": [
+        "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-implementation-plan.md"
+      ]
+    },
+    "privacy_data_erasure": {
+      "cluster": "CL-08",
+      "files": [
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md"
+      ]
+    },
+    "admin_review_compliance_hold": {
+      "cluster": "CL-09",
+      "files": [
+        "context/clusters/Moderation holds Audits and Ops/Admin Review & Compliance Hold Module/admin-review-compliance-hold-module-architecture.md",
+        "context/clusters/Moderation holds Audits and Ops/Admin Review & Compliance Hold Module/admin-review-compliance-hold-module-implementation-plan.md"
+      ]
+    },
+    "audit_event_ledger": {
+      "cluster": "CL-09",
+      "files": [
+        "context/clusters/Moderation holds Audits and Ops/Audit Event Ledger Module/audit-event-ledger-module-architecture.md",
+        "context/clusters/Moderation holds Audits and Ops/Audit Event Ledger Module/audit-event-ledger-module-implementation-plan.md"
+      ]
+    },
+    "content_moderation_legal_notice": {
+      "cluster": "CL-09",
+      "files": [
+        "context/clusters/Moderation holds Audits and Ops/Content Moderation & Legal Notice Module/content-moderation-legal-notice-module-architecture.md",
+        "context/clusters/Moderation holds Audits and Ops/Content Moderation & Legal Notice Module/content-moderation-legal-notice-module-implementation-plan.md"
+      ]
+    },
+    "observability_ops": {
+      "cluster": "CL-09",
+      "files": [
+        "context/clusters/Moderation holds Audits and Ops/Observability Ops Module/observability-ops-module-architecture.md",
+        "context/clusters/Moderation holds Audits and Ops/Observability Ops Module/observability-ops-module-implementation-plan.md"
+      ]
+    },
+    "gamification_rewards": {
+      "cluster": "CL-10",
+      "files": [
+        "context/clusters/incentives, rewards & prize economy/gamification-rewards-module/gamification-rewards-module-architecture(1).md",
+        "context/clusters/incentives, rewards & prize economy/gamification-rewards-module/gamification-rewards-module-implementation-plan(1).md"
+      ]
+    },
+    "sweepstakes_prize": {
+      "cluster": "CL-10",
+      "files": [
+        "context/clusters/incentives, rewards & prize economy/sweepstakes-module/sweepstakes-prize-module-architecture.md",
+        "context/clusters/incentives, rewards & prize economy/sweepstakes-module/sweepstakes-prize-implementation-plan.md"
+      ]
+    },
+    "organization_hiring": {
+      "cluster": "CL-06",
+      "files": [
+        "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-architecture.md",
+        "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-implementation-plan.md"
+      ]
+    }
+  },
+  "shared_operations": [
+    {
+      "id": "SH-001",
+      "name": "resolveAuthenticatedActor",
+      "Plain English": "Turn a valid provider session or system credential into the trusted Workin Ants actor context used by server-side operations.",
+      "Owner": "Identity & Access",
+      "Classification": "Platform capability",
+      "Status": "Confirmed",
+      "Boundary": "Authentication ends at actor resolution. Feature Modules still decide what the actor is trying to do.",
+      "Build rule": "Implement once as request middleware plus a typed actor context. Prohibit feature-local current-user helpers.",
+      "Candidate aliases / narrower variants": "authenticateActor; requireAuthenticatedActor; getAuthenticatedActor; getAuthenticatedActorContext; Authentication/session resolution; Authenticated actor context"
+    },
+    {
+      "id": "SH-002",
+      "name": "authorizeResourceAction",
+      "Plain English": "Decide whether an authenticated actor may perform a named action on a protected resource in platform, organization, participant, or ownership scope.",
+      "Owner": "Role / Authority",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "Role interprets permission. Hiring owns organization membership; Messaging owns ThreadParticipant. Read owner facts only; never absorb foreign lifecycles.",
+      "Build rule": "Expose a typed decision API and matching route/RLS enforcement. Do not embed business readiness or entitlement policy.",
+      "Candidate aliases / narrower variants": "authorizeAction; authorizeDomainAction; authorizeScopedAction; authorizeBusinessAction; Authorization decision; contextual ownership check; organization-role authorization; thread-participant authorization"
+    },
+    {
+      "id": "SH-003",
+      "name": "queryOwnerFacts",
+      "Plain English": "Read the minimum relationship or ownership facts needed by another Module without transferring lifecycle ownership.",
+      "Owner": "Each source Module",
+      "Classification": "Shared contract; separate implementations",
+      "Status": "Proposed ruling",
+      "Boundary": "Owner-specific queries may exist independently. No mandatory universal DTO, generic facts repository, or cross-domain Prisma reader.",
+      "Build rule": "Define small owner-specific DTOs. Reject a universal polymorphic repository or cross-domain direct Prisma reads."
+    },
+    {
+      "id": "SH-004",
+      "name": "resolveCustomerActor",
+      "Plain English": "Resolve an authenticated User into the CustomerProfile that acts as the commercial buyer.",
+      "Owner": "Customer / Buyer Profile",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "Resolve/provision CustomerProfile for new buyer actions. User stays account/audit identity; destinations own historical cutover.",
+      "Build rule": "Provide an idempotent lookup/provisioning interface for CustomerProfile before new buyer actions. Destination owners implement required buyer references and historical cutover; existing User foreign keys do not waive the semantic requirement."
+    },
+    {
+      "id": "SH-005",
+      "name": "resolveEntitlement",
+      "Plain English": "Return the effective feature, quota, waiver, boost, commission, priority, or perk for a specific actor track and entitlement key.",
+      "Owner": "Track Subscription & Entitlement",
+      "Classification": "Platform commercial-policy capability",
+      "Status": "Confirmed",
+      "Boundary": "Consuming Modules own how the result affects their action and historical snapshots. No local premium booleans.",
+      "Build rule": "Use typed keys and typed values, effective dates, grant precedence, reason codes, and evidence references.",
+      "Candidate aliases / narrower variants": "evaluateEntitlement; lookupEntitlement; getActiveEntitlement; getEffectiveEntitlements; resolveEffectiveEntitlement; Entitlement lookup"
+    },
+    {
+      "id": "SH-006",
+      "name": "consumeMeteredEntitlement",
+      "Plain English": "Atomically confirm that a limited entitlement can be used and record the permitted quantity as immutable usage proof.",
+      "Owner": "Track Subscription & Entitlement",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "The source Module defines when the business event actually counts; Track owns usage periods, counters, and receipts.",
+      "Build rule": "Use one transaction, idempotency key, immutable TrackUsageEvent, and rebuildable counter projection.",
+      "Candidate aliases / narrower variants": "recordUsageEvent; Usage metering; consumeUsageAtomically; atomicCounterIncrement"
+    },
+    {
+      "id": "SH-007",
+      "name": "recordConsentProof",
+      "Plain English": "Persist version-specific evidence that a User accepted a particular consent, disclosure, authorization, or agreement.",
+      "Owner": "Consent & Disclosure",
+      "Classification": "Platform consent capability",
+      "Status": "Confirmed",
+      "Boundary": "ConsentLog proves acceptance; it does not grant the downstream permission or replace contextual consent records.",
+      "Build rule": "Expose one acceptance command with exact type, version, acceptedAt, and minimized request evidence."
+    },
+    {
+      "id": "SH-008",
+      "name": "queryConsentProof",
+      "Plain English": "Return whether the required consent type and version was accepted, including the proof reference.",
+      "Owner": "Consent & Disclosure",
+      "Classification": "Platform consent capability",
+      "Status": "Confirmed",
+      "Boundary": "The consuming Module determines whether that proof is sufficient for its current action.",
+      "Build rule": "Return proof ID, type, version, acceptedAt, and validity status; never duplicate consent tables in consumers.",
+      "Candidate aliases / narrower variants": "lookupConsentProof; getConsentProof; resolveConsentProof; verifyConsentProof; Consent proof lookup"
+    },
+    {
+      "id": "SH-009",
+      "name": "resolveActiveConsentVersion",
+      "Plain English": "Select the currently applicable consent or disclosure version for type, locale, jurisdiction, and effective date.",
+      "Owner": "Consent & Disclosure",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "Material-change and re-consent policy remain Consent-owned.",
+      "Build rule": "Use an immutable version catalog with effective dates, content hash, locale, and jurisdiction."
+    },
+    {
+      "id": "SH-010",
+      "name": "presentStandaloneConsent",
+      "Plain English": "Render a high-risk disclosure separately and submit its acceptance through the canonical consent command.",
+      "Owner": "Consent & Disclosure",
+      "Classification": "Cross-cutting UI/application capability",
+      "Status": "Confirmed",
+      "Boundary": "The owning workflow supplies context; Consent owns version rendering and generic acceptance proof.",
+      "Build rule": "Build one reusable shell with version lookup, accessibility, evidence capture, and no provider-specific side effects."
+    },
+    {
+      "id": "SH-011",
+      "name": "evaluateComplianceHold",
+      "Plain English": "Return active reusable stop signs that apply to a target and requested action.",
+      "Owner": "Admin Review / Compliance Hold",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "Evaluate current target/action against all applicable active Holds. Cached association/released Hold is not permission. Consumer owns lifecycle consequence.",
+      "Build rule": "Query by target type/ID and action; return safe reason codes, hold IDs, scope, and expiration.",
+      "Candidate aliases / narrower variants": "checkComplianceHold; checkActiveComplianceHold; evaluateComplianceHolds; applyComplianceHoldGate"
+    },
+    {
+      "id": "SH-012",
+      "name": "requestComplianceHold",
+      "Plain English": "Ask the hold owner to create an authoritative platform stop sign for a target.",
+      "Owner": "Admin Review / Compliance Hold",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "Exactly one typed primary target plus scope, reason, requester/system, source evidence and replay identity. No local blocked flag.",
+      "Build rule": "Use a typed, idempotent command with target, reason, source, evidence references, requested scope, and actor."
+    },
+    {
+      "id": "SH-013",
+      "name": "releaseComplianceHold",
+      "Plain English": "Ask the hold owner to release an existing hold after the source condition is resolved.",
+      "Owner": "Admin Review / Compliance Hold",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "Require source-owner release evidence plus Hold authority. Only Hold changes Hold status. No universal readiness auto-release.",
+      "Build rule": "Require hold ID, source decision reference, actor, reason, and idempotency key; append audit proof."
+    },
+    {
+      "id": "SH-014",
+      "name": "requireStepUpForSensitiveAction",
+      "Plain English": "Require fresh MFA, passkey, or equivalent assurance before a high-risk action proceeds.",
+      "Owner": "Identity & Access",
+      "Classification": "Platform security capability",
+      "Status": "Confirmed",
+      "Boundary": "Feature Modules declare which actions require step-up; Identity owns challenge, expiry, attempt, and assurance-session lifecycles.",
+      "Build rule": "Bind SensitiveActionSession to actor, action, target, assurance level, and short expiry; enforce server-side."
+    },
+    {
+      "id": "SH-015",
+      "name": "returnDecisionResult",
+      "Plain English": "Offer optional decision-result envelope conventions without centralizing a participating Module\u2019s policy or replacing its result vocabulary.",
+      "Owner": "Policy owner varies",
+      "Classification": "Shared contract; separate policy",
+      "Status": "Proposed ruling",
+      "Boundary": "Optional envelope conventions only. Preserve owner enums; do not coerce unavailable/review-required into generic allow/deny.",
+      "Build rule": "Offer common envelope fields for reasons, evidence, warnings, evaluatedAt, policy version, expiry, and next action where appropriate. Preserve owner decision enums and unavailable/review-required distinctions; no mandatory universal allow/deny DTO.",
+      "Candidate aliases / narrower variants": "buildReadinessDecision; composeReadinessDecision; returnReadinessDecision; evaluateReadinessResult; evaluateReadiness response shape; Access-denial translation"
+    },
+    {
+      "id": "SH-016",
+      "name": "evaluateProfessionalReadiness",
+      "Plain English": "Determine whether a ProfessionalProfile may perform a named selling action.",
+      "Owner": "Professional Eligibility",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "The action-to-gate composition remains Professional Eligibility policy; underlying verification, healthcare, financial, entitlement, and hold truth stays external.",
+      "Build rule": "Expose action-specific decisions such as publish_offering, respond_to_gig, and participate_in_order."
+    },
+    {
+      "id": "SH-017",
+      "name": "resolveVerificationRequirements",
+      "Plain English": "Return the verification checks required by accepted taxonomy and target context.",
+      "Owner": "Trust Verification / Screening",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "Requirement resolution does not assert that the checks are satisfied.",
+      "Build rule": "Return requirement IDs, check types, severity, applicability, expiry expectations, and owning evidence."
+    },
+    {
+      "id": "SH-018",
+      "name": "evaluateVerificationReadiness",
+      "Plain English": "Determine whether the required verification checks and credentials are currently satisfied.",
+      "Owner": "Trust Verification / Screening",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "Consumers must not reconstruct readiness from badges or raw provider statuses.",
+      "Build rule": "Evaluate VerificationRequirement and VerificationCheck truth; return a DecisionResult with safe evidence references."
+    },
+    {
+      "id": "SH-019",
+      "name": "evaluateFinancialReadiness",
+      "Plain English": "Determine KYC, tax-profile, payout-account, available-balance, and financial-restriction readiness.",
+      "Owner": "Payment / Payout / Tax",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "Financial readiness may expose tax-specific fulfillment action/result. Generic financial readiness cannot independently clear prize/tax fulfillment.",
+      "Build rule": "Return separate readiness dimensions and reasons rather than one opaque boolean."
+    },
+    {
+      "id": "SH-020",
+      "name": "evaluateHealthcareReadiness",
+      "Plain English": "Determine whether healthcare-lane, provider, BAA, and data-boundary requirements are satisfied.",
+      "Owner": "Healthcare / Regulated Services",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "Readiness/BAA/vendor evaluation remains separate from SH-130 privileged payload access.",
+      "Build rule": "Return healthcare-lane, provider, BAA, and data-boundary readiness with policy version. SH-130 separately evaluates privileged protected-payload access and handling/redaction; readiness never grants that access."
+    },
+    {
+      "id": "SH-021",
+      "name": "evaluateJobCompliance",
+      "Plain English": "Evaluate a versioned Job snapshot against jurisdiction-aware employment-posting rules.",
+      "Owner": "Job Compliance",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "Result vocabulary: allowed, denied, warning, review_required, unavailable. Remediation metadata is not a separate result truth.",
+      "Build rule": "Accept canonical Job input and rule-set version; return allowed, denied, warning, review_required, or unavailable with findings, remediation metadata, and snapshot hash."
+    },
+    {
+      "id": "SH-022",
+      "name": "resolveTaxonomyRequirements",
+      "Plain English": "Translate accepted Domain, Category, and Tag combinations into verification, healthcare, location, license, or sensitivity requirements.",
+      "Owner": "Taxonomy & Classification",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "Only approved represented trigger families. No arbitrary-tag inference or hardcoded consumer requirement lists.",
+      "Build rule": "Return requirement identifiers, owner Module, trigger source, severity, and applicability."
+    },
+    {
+      "id": "SH-023",
+      "name": "validateTaxonomyAssignment",
+      "Plain English": "Validate canonical Domain, Category, Tag, hierarchy, active status, and entity-assignment compatibility.",
+      "Owner": "Taxonomy & Classification",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "Taxonomy validates canonical compatibility; contextual source owner mutates its own assignment joins.",
+      "Build rule": "Expose normalized validation errors and canonical IDs; prevent local tag cleaners and taxonomy copies."
+    },
+    {
+      "id": "SH-024",
+      "name": "evaluatePublicReadiness",
+      "Plain English": "Return whether source truth may appear in a specified public or protected discovery surface.",
+      "Owner": "Source/compliance owner; Search composes",
+      "Classification": "Shared contract; separate policy",
+      "Status": "Confirmed",
+      "Boundary": "Search must not rebuild professional, Offering, Job, candidate privacy, healthcare, verification, moderation, or hold policy.",
+      "Build rule": "Require owner-issued decisions and source version; Search only composes them into index, update, or removal."
+    },
+    {
+      "id": "SH-025",
+      "name": "authorizeOrderEntitlement",
+      "Plain English": "Confirm that an authoritative Order currently permits a requested booking, file, download, playback, or delivery action.",
+      "Owner": "Transaction / Order",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "Order remains transaction truth; delivery Modules retain their own grant and usage policy.",
+      "Build rule": "Return Order state, participant relationship, qualifying line/item, refund/dispute effects, and decision evidence."
+    },
+    {
+      "id": "SH-026",
+      "name": "authorizeContextualResourceAccess",
+      "Plain English": "Return the business-context decision required before Media, video, location, resume, agreement, or digital access is granted.",
+      "Owner": "Relevant context owner",
+      "Classification": "Shared contract; separate implementations",
+      "Status": "Confirmed",
+      "Boundary": "Actor/resource/context/action-bound contextual decision. Media still independently applies Media gates; no universal access oracle.",
+      "Build rule": "Use owner-specific actor/resource/context/action-bound implementations. Media independently applies its gates; prohibit a generic service that infers authorization for all domains."
+    },
+    {
+      "id": "SH-027",
+      "name": "resolveLocationReveal",
+      "Plain English": "Decide whether an exact private location may be decrypted and shown to a particular viewer in an Order or Booking context.",
+      "Owner": "Location Safety",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "Exact service location is private by default. Location Safety makes a fresh server-side reveal decision only for the Professional/provider legitimately performing the active in-person service, limited to the service-performance window. Source Modules own source location facts; Booking/Order/payment facts are inputs, not reveal authorization. Completion ends service justification; cancellation, refund, or dispute revokes/masks access; rescheduling re-evaluates the current relationship without a second reveal lifecycle. Public, Search, and map consumers never receive exact location.",
+      "Build rule": "Return reveal eligibility, permitted precision, expiry/revocation context, and LocationReveal proof under Location Safety. Do not build a Booking/Order reveal lifecycle or reveal flags, frontend/cached reveal authorization, or public exact-coordinate fallback."
+    },
+    {
+      "id": "SH-028",
+      "name": "applyFuzzyPublicLocation",
+      "Plain English": "Generate, update, or invalidate an approved approximate public location without exposing exact coordinates.",
+      "Owner": "Location Safety",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "Keep generation/update/invalidation semantics here. SH-131 performs side-effect-free current projection reads. No consumer-side fuzzing or exact leakage.",
+      "Build rule": "Produce a stable fuzzy projection with coordinates/area, radius, expiry, and source version without exact-location leakage. SH-131 performs side-effect-free current reads. No consumer-side fuzzing or read-triggered refresh recursion."
+    },
+    {
+      "id": "SH-029",
+      "name": "appendAuditEvent",
+      "Plain English": "Append generic proof that an important actor or system action occurred.",
+      "Owner": "Audit / Event Ledger",
+      "Classification": "Platform audit capability",
+      "Status": "Confirmed",
+      "Boundary": "Preserve actor/action/target/outcome/correlation and safe metadata; support system attribution. Audit does not replace business state.",
+      "Build rule": "Expose an insert-only command with actor, action, target, outcome, request ID, and schema-validated safe metadata.",
+      "Candidate aliases / narrower variants": "recordAuditEvent; writeAuditEvent; Generic audit event append"
+    },
+    {
+      "id": "SH-030",
+      "name": "recordSensitiveAccess",
+      "Plain English": "Append proof that protected data or access credentials were viewed, issued, downloaded, denied, blocked, or redacted.",
+      "Owner": "Audit / Event Ledger",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "Generic sensitive-access vocabulary stays Audit-owned; healthcare-specific decision enums do not become universal authorization truth.",
+      "Build rule": "Use Audit-owned generic sensitive-access actions/outcomes, target references, request context, and minimized payloads. Reconcile the Healthcare-specific AccessAuditLog decision field before persistence commitment; its enum is not the generic authorization contract.",
+      "Candidate aliases / narrower variants": "appendSensitiveAccessLog; appendSensitiveAccessAudit; writeSensitiveAccessLog; Sensitive-access logging"
+    },
+    {
+      "id": "SH-031",
+      "name": "appendDomainLifecycleEvent",
+      "Plain English": "Append an immutable domain-owned transition record transactionally with the owning aggregate change.",
+      "Owner": "Shared persistence mechanism; each domain owns truth",
+      "Classification": "Shared mechanism; separate truth",
+      "Status": "Confirmed",
+      "Boundary": "OrderEvent, BookingEvent, JobInterviewEvent, UserSecurityEvent, PointLedgerEntry, and similar records must not be merged.",
+      "Build rule": "Provide insert-only repository conventions, actor/time capture, optional hash support, and transaction hooks.",
+      "Candidate aliases / narrower variants": "appendDomainEvent; Domain event ledger append; appendDomainLedgerEntry (mechanism only); recordDomainAccessEvent (domain-specific variant)"
+    },
+    {
+      "id": "SH-032",
+      "name": "createRequestContext",
+      "Plain English": "Create and propagate request, correlation, trace, environment, and actor identifiers across synchronous and asynchronous work.",
+      "Owner": "Observability / platform infrastructure",
+      "Classification": "Platform primitive",
+      "Status": "Confirmed",
+      "Boundary": "Only safe identifiers may enter telemetry; domain payloads remain source-owned.",
+      "Build rule": "Use async context propagation and include correlation IDs in provider calls, jobs, audit requests, and logs."
+    },
+    {
+      "id": "SH-033",
+      "name": "writeStructuredLog",
+      "Plain English": "Emit consistent machine-readable operational logs.",
+      "Owner": "Observability / Ops",
+      "Classification": "Platform capability",
+      "Status": "Confirmed",
+      "Boundary": "Logs diagnose execution and must not become business or compliance truth.",
+      "Build rule": "Implement one logger with controlled fields, levels, environments, redaction, and request context."
+    },
+    {
+      "id": "SH-034",
+      "name": "sanitizeTelemetryMetadata",
+      "Plain English": "Remove secrets, PHI, payment data, credentials, raw documents, and unnecessary personal data from telemetry and audit metadata.",
+      "Owner": "Observability/Ops mechanism; Audit controls Audit payload acceptance",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "Reuse sanitation implementation without allowing Ops to define retained Audit evidence or source sensitivity policy.",
+      "Build rule": "Use allowlists, sensitive-key detection, truncation, safe serialization, and test fixtures for prohibited fields."
+    },
+    {
+      "id": "SH-035",
+      "name": "captureException",
+      "Plain English": "Send an exception to the monitoring provider with safe grouping and request context.",
+      "Owner": "Observability / Ops",
+      "Classification": "Provider adapter",
+      "Status": "Confirmed",
+      "Boundary": "Feature Modules provide operation context but must not instantiate separate Sentry clients.",
+      "Build rule": "Wrap the provider once; apply sampling, release/environment tags, redaction, and correlation IDs."
+    },
+    {
+      "id": "SH-036",
+      "name": "emitMetric",
+      "Plain English": "Publish counters, gauges, timings, queue depth, retries, and failure rates through one metrics client.",
+      "Owner": "Observability / Ops",
+      "Classification": "Platform capability",
+      "Status": "Confirmed",
+      "Boundary": "Metric semantics remain operational; avoid user-level high-cardinality dimensions.",
+      "Build rule": "Define a naming registry, allowed dimensions, cardinality limits, and alert ownership."
+    },
+    {
+      "id": "SH-037",
+      "name": "recordIntegrationFailure",
+      "Plain English": "Persist normalized operational evidence that a provider, worker, or integration failed or degraded.",
+      "Owner": "Observability / Ops",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "The owning Module still writes any business-relevant failure status. IntegrationFailure does not replace domain truth.",
+      "Build rule": "Accept provider, operation, source reference, safe diagnostics, retryability, request ID, and incident linkage.",
+      "Candidate aliases / narrower variants": "appendOperationalFailure; recordOperationalFailure; reportIntegrationFailure; Operational failure recording"
+    },
+    {
+      "id": "SH-038",
+      "name": "recordQueueTelemetry",
+      "Plain English": "Record queue claim, attempt, heartbeat, duration, retry, completion, and dead-letter state.",
+      "Owner": "Observability/Ops telemetry; shared queue infrastructure executes",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "Queue execution observations are operational evidence only. Never replace owner workflow state or invent local queue/failure ledgers.",
+      "Build rule": "Instrument the shared worker runner and expose QueueJob/metrics without custom per-Module queue ledgers."
+    },
+    {
+      "id": "SH-039",
+      "name": "checkServiceHealth",
+      "Plain English": "Return standardized healthy, degraded, unavailable, or delayed status for an application component or dependency.",
+      "Owner": "Observability / Ops coordinates; owner supplies check",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "Each owner defines what health means for its source truth and provider.",
+      "Build rule": "Register typed health checks with bounded timeouts, no sensitive payloads, and readiness/liveness separation."
+    },
+    {
+      "id": "SH-040",
+      "name": "correlateOpsIncident",
+      "Plain English": "Group related failures, system events, queue signals, and alerts into one operational incident.",
+      "Owner": "Observability / Ops",
+      "Classification": "Module-internal public ops interface",
+      "Status": "Confirmed",
+      "Boundary": "Business Modules must not create competing generic incident systems.",
+      "Build rule": "Use correlation IDs, grouping rules, severity, assignment, mitigation, and resolution transitions."
+    },
+    {
+      "id": "SH-041",
+      "name": "requestNotification",
+      "Plain English": "Submit a business, security, compliance, or operational alert through one canonical delivery interface.",
+      "Owner": "Notification",
+      "Classification": "Platform notification capability",
+      "Status": "Confirmed",
+      "Boundary": "Generic alerts use Notification. Identity challenge/OTP transport remains inside Identity authentication protocol. Delivery is not business/legal completion.",
+      "Build rule": "Use a typed command with recipients, template key, sensitivity, priority, variables, idempotency key, and action route.",
+      "Candidate aliases / narrower variants": "sendNotification; enqueueNotification; dispatchNotification; dispatchWorkflowNotification; requestNotificationDelivery; Notification request"
+    },
+    {
+      "id": "SH-042",
+      "name": "renderNotificationTemplate",
+      "Plain English": "Render validated, localized, channel-specific content from a named/versioned template.",
+      "Owner": "Notification",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "Legal or business owners approve meaning and versions; Notification enforces safe variables and channel limits.",
+      "Build rule": "Centralize template rendering and variable schemas; prohibit per-Module provider dispatch and ad hoc HTML builders."
+    },
+    {
+      "id": "SH-043",
+      "name": "resolveNotificationRecipients",
+      "Plain English": "Resolve domain-owned recipient groups into concrete User IDs while retaining delivery routing in Notification.",
+      "Owner": "Source owner resolves eligibility; Notification routes",
+      "Classification": "Shared contract; separate policy",
+      "Status": "Confirmed",
+      "Boundary": "Source relationships/settings decide eligible recipients; Notification deduplicates/routes/fans out. Distinguish empty, unavailable, unauthorized.",
+      "Build rule": "Expose owner-specific recipient queries and let Notification handle dedupe, channel preference, and fan-out."
+    },
+    {
+      "id": "SH-044",
+      "name": "executeIdempotentCommand",
+      "Plain English": "Ensure a retried command produces one business effect and can replay the original result.",
+      "Owner": "Platform application infrastructure",
+      "Classification": "Platform primitive",
+      "Status": "Confirmed",
+      "Boundary": "Each Module defines semantic command identity, conflict rules, and valid replay behavior.",
+      "Build rule": "Use request fingerprint, idempotency key, atomic claim/result persistence, transaction boundary, and expiry policy.",
+      "Candidate aliases / narrower variants": "withIdempotency; applyIdempotencyKey; enforceIdempotentCommand; idempotentCommandExecution; runIdempotentCommand"
+    },
+    {
+      "id": "SH-045",
+      "name": "deduplicateDomainEvent",
+      "Plain English": "Prevent one published domain event from causing the same consumer-side effect more than once.",
+      "Owner": "Platform event infrastructure; consumer owns inbox/effect",
+      "Classification": "Platform primitive",
+      "Status": "Confirmed",
+      "Boundary": "One inbox mechanism, but consumer owns handler/version/effect identity and transactional recovery.",
+      "Build rule": "Use transactional inbox claims keyed by event ID plus handler/version, with idempotent completion."
+    },
+    {
+      "id": "SH-046",
+      "name": "publishDomainEvent",
+      "Plain English": "Reliably publish a versioned domain event after the source-of-truth transaction commits.",
+      "Owner": "Platform event/outbox infrastructure",
+      "Classification": "Platform primitive",
+      "Status": "Confirmed",
+      "Boundary": "The source Module owns event names, payload meaning, privacy filtering, and emission conditions.",
+      "Build rule": "Use a transactional outbox, stable envelope, aggregate version, correlation/causation IDs, retries, and schema versioning.",
+      "Candidate aliases / narrower variants": "publishOutboxEvent; publishTransactionalDomainEvent; transactional outbox; publishDomainEvent"
+    },
+    {
+      "id": "SH-047",
+      "name": "enqueueReliableJob",
+      "Plain English": "Persist asynchronous work with correlation, retries, leases, and visible terminal failure.",
+      "Owner": "Shared queue infrastructure",
+      "Classification": "Platform primitive",
+      "Status": "Confirmed",
+      "Boundary": "The owning Module defines payload, completion meaning, and business state; QueueJob is operational only.",
+      "Build rule": "Provide one queue client/worker shell with idempotency, lease, heartbeat, dead-letter, and telemetry.",
+      "Candidate aliases / narrower variants": "enqueueRetryableJob; enqueueBackgroundJob; enqueueIdempotentJob; enqueueDomainJob; enqueueReliableWork"
+    },
+    {
+      "id": "SH-048",
+      "name": "executeRetryWithBackoff",
+      "Plain English": "Retry transient technical failures while stopping on permanent, unsafe, or manual-review failures.",
+      "Owner": "Shared queue/platform infrastructure",
+      "Classification": "Platform primitive",
+      "Status": "Confirmed",
+      "Boundary": "Retry technical retryable failures only. Terminal business reopening, replacement, or compensation requires explicit owner command.",
+      "Build rule": "Use bounded exponential backoff, jitter, max attempts, timeout, circuit breaking, and dead-letter routing.",
+      "Candidate aliases / narrower variants": "retryQueuedWork; executeWithRetry; runQueuedJobWithRetry; runRetryableProviderOperation; processQueueRetryAndDeadLetter"
+    },
+    {
+      "id": "SH-049",
+      "name": "orchestrateWorkflowSteps",
+      "Plain English": "Persist and execute a multi-step cross-Module sequence without taking ownership of participant truth.",
+      "Owner": "Workflow-owning Module using shared runner",
+      "Classification": "Shared mechanism; separate workflow truth",
+      "Status": "Confirmed",
+      "Boundary": "Booking, Order, Privacy, Moderation, and Dispute sequences retain separate run/step semantics.",
+      "Build rule": "Provide reusable run/step, dependency, retry, compensation, correlation, and acknowledgment primitives."
+    },
+    {
+      "id": "SH-050",
+      "name": "reconcileWorkflowStatus",
+      "Plain English": "Aggregate child-step outcomes into the owning workflow\u2019s parent status.",
+      "Owner": "Workflow owner using shared helper",
+      "Classification": "Shared mechanism; separate policy",
+      "Status": "Confirmed",
+      "Boundary": "Completed, partial, failed, retained, skipped, or compensated meanings remain workflow-specific.",
+      "Build rule": "Provide deterministic aggregation hooks; never encode all domain statuses in one generic table."
+    },
+    {
+      "id": "SH-051",
+      "name": "acquireAggregateLock",
+      "Plain English": "Serialize conflicting commands against the same aggregate or constrained resource.",
+      "Owner": "Shared persistence infrastructure",
+      "Classification": "Platform primitive",
+      "Status": "Confirmed",
+      "Boundary": "The Module defines lock key, conflicting actions, and safe retry behavior.",
+      "Build rule": "Prefer Postgres row/advisory locks or serializable transactions; prohibit in-memory mutexes for distributed work.",
+      "Candidate aliases / narrower variants": "acquireDomainLock; acquireContextLock; lockMutableAggregate; lockAggregateForTransition; concurrencyGuard; acquireResourceLock"
+    },
+    {
+      "id": "SH-052",
+      "name": "withOptimisticConcurrency",
+      "Plain English": "Reject stale writes when the expected aggregate version or updatedAt value no longer matches.",
+      "Owner": "Shared persistence infrastructure",
+      "Classification": "Platform primitive",
+      "Status": "Confirmed",
+      "Boundary": "Use opaque owner-issued expected concurrency token; owner defines backing version/stale behavior. No unsafe read-then-write fallback.",
+      "Build rule": "Accept an opaque owner-issued expected concurrency token and apply the owner\u2019s compare-and-set/version strategy. Owner defines stale-conflict behavior and exposed version details; no unsafe read-then-write fallback."
+    },
+    {
+      "id": "SH-053",
+      "name": "transitionLifecycleState",
+      "Plain English": "Apply reusable state-machine plumbing while preserving each Module\u2019s transition graph and invariants.",
+      "Owner": "Shared mechanism; lifecycle owner supplies policy",
+      "Classification": "Shared mechanism; separate truth",
+      "Status": "Confirmed",
+      "Boundary": "No generic policy table may own Order, Booking, Job, Review, Hold, or other lifecycle semantics.",
+      "Build rule": "Provide transition validation, transactional update, event hook, and explicit reason/actor metadata."
+    },
+    {
+      "id": "SH-054",
+      "name": "claimWorkItem",
+      "Plain English": "Prevent multiple reviewers or workers from simultaneously owning the same manual-review item.",
+      "Owner": "Shared work-queue/locking capability",
+      "Classification": "Cross-cutting capability",
+      "Status": "Proposed ruling",
+      "Boundary": "Reviewer eligibility, assignment, lease duration, escalation, and decision remain with the review owner.",
+      "Build rule": "Use transactional claim/lease, optimistic versioning, reassignment, expiry, and audit hooks."
+    },
+    {
+      "id": "SH-055",
+      "name": "runDeadlineExpiration",
+      "Plain English": "Find time-bound records whose deadline passed and invoke their owner-defined expiration transition.",
+      "Owner": "Shared scheduler/queue infrastructure",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "Gig, grant, subscription, hold, booking, and session expiration rules remain local.",
+      "Build rule": "Use cursor batching, owner command dispatch, idempotency, retries, and clock-controlled tests."
+    },
+    {
+      "id": "SH-056",
+      "name": "executeAtomicReservation",
+      "Plain English": "Atomically reserve scarce value or inventory so concurrent commands cannot overspend or over-allocate it.",
+      "Owner": "Shared database primitive",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "Points, reward inventory, funds, slots, and other reserves retain domain-specific sufficiency and release rules.",
+      "Build rule": "Use a transaction plus row/range lock, reservation proof where needed, and idempotent release/commit."
+    },
+    {
+      "id": "SH-057",
+      "name": "consumeCounterAtomically",
+      "Plain English": "Increment a bounded counter and enforce its maximum without concurrency races.",
+      "Owner": "Shared database primitive",
+      "Classification": "Platform primitive",
+      "Status": "Confirmed",
+      "Boundary": "Usage period, maximum, quantity, reversal, and denial semantics remain with the owning Module.",
+      "Build rule": "Use atomic upsert/compare-and-update or row lock and return a receipt containing before/after/remaining."
+    },
+    {
+      "id": "SH-058",
+      "name": "acquireIntervalLock",
+      "Plain English": "Reserve a time interval and reject prohibited overlap.",
+      "Owner": "Booking & Calendar policy over shared Postgres mechanism",
+      "Classification": "Cluster-local capability",
+      "Status": "Confirmed",
+      "Boundary": "Booking owns active interval and conflict policy; Job Interview may consume a distinct scheduling interface but not BookingSlotLock truth.",
+      "Build rule": "Use range types/exclusion constraints and transactionally create the booking hold or lock."
+    },
+    {
+      "id": "SH-059",
+      "name": "verifyProviderWebhookSignature",
+      "Plain English": "Verify raw webhook bytes, timestamp, and provider signature before accepting an external event.",
+      "Owner": "Shared integration-security shell; provider adapter supplies algorithm",
+      "Classification": "Provider-adapter contract",
+      "Status": "Confirmed",
+      "Boundary": "Provider secrets, accepted endpoints, algorithms, tolerance, and event types remain adapter-local.",
+      "Build rule": "Build one raw-body verifier contract and provider implementations; reject before parsing or side effects.",
+      "Candidate aliases / narrower variants": "verifyWebhookSignature; verifyProviderWebhook; verifyWebhookSignature; Webhook signature verification"
+    },
+    {
+      "id": "SH-060",
+      "name": "deduplicateProviderEvent",
+      "Plain English": "Atomically claim a provider event so the same callback cannot repeat side effects.",
+      "Owner": "Provider-owning Module using shared primitive",
+      "Classification": "Shared mechanism; separate truth",
+      "Status": "Confirmed",
+      "Boundary": "Partition by provider/account/domain/event. Receipt claim does not equal completed effect; retain retry/recovery evidence.",
+      "Build rule": "Partition by provider, account, domain, and event identity, with payload hash and owner-specific effect/recovery results. Receipt claim is distinct from completed effect; transactionally protect the owner effect without suppressing unfinished recovery.",
+      "Candidate aliases / narrower variants": "Provider-event deduplication; verifyAndDeduplicateProviderWebhook (dedupe portion)"
+    },
+    {
+      "id": "SH-061",
+      "name": "translateProviderStatus",
+      "Plain English": "Convert provider-native statuses and errors into the owning Module\u2019s canonical result and transition vocabulary.",
+      "Owner": "Provider-owning adapter",
+      "Classification": "Provider-adapter contract",
+      "Status": "Confirmed",
+      "Boundary": "Payment, calendar, video, verification, subscription, notification, storage, and fulfillment mappings must not be centralized.",
+      "Build rule": "Require explicit mapping tables, unknown-status handling, mapping version, and normalized result envelope.",
+      "Candidate aliases / narrower variants": "Provider-status translation; translateProviderResult; translateProviderFailure (operational mapping variant)"
+    },
+    {
+      "id": "SH-062",
+      "name": "reconcileProviderState",
+      "Plain English": "Compare Workin Ants source truth with provider state and safely repair missed or inconsistent effects.",
+      "Owner": "Each provider-owning Module using shared worker framework",
+      "Classification": "Shared mechanism; separate policy",
+      "Status": "Confirmed",
+      "Boundary": "Only the owner decides which discrepancies can be repaired automatically.",
+      "Build rule": "Use pagination/cursors, time windows, dry run, discrepancy report, idempotent repair commands, and incident creation."
+    },
+    {
+      "id": "SH-063",
+      "name": "captureProviderSnapshot",
+      "Plain English": "Preserve a timestamped, immutable representation of provider state needed for explanation, support, or audit.",
+      "Owner": "Provider-owning Module",
+      "Classification": "Shared snapshot mechanism; separate truth",
+      "Status": "Confirmed",
+      "Boundary": "The fields and domain meaning remain adapter- and Module-specific.",
+      "Build rule": "Store normalized fields, provider/account reference, source event, schema version, and payload hash; avoid secrets/raw sensitive payloads."
+    },
+    {
+      "id": "SH-064",
+      "name": "authorizeExternalProviderConnection",
+      "Plain English": "Initiate an OAuth, hosted authorization, checkout, or linked-account flow owned by an integration Module.",
+      "Owner": "Provider-owning Module",
+      "Classification": "Provider-adapter capability",
+      "Status": "Confirmed",
+      "Boundary": "Consent proof may be a precondition, but Consent & Disclosure does not own the external connection.",
+      "Build rule": "Use state/nonce, redirect allowlist, scoped permissions, callback validation, encryption, and provider-reference lifecycle."
+    },
+    {
+      "id": "SH-065",
+      "name": "invokeFoundationModel",
+      "Plain English": "Invoke a configured foundation model with request correlation, timeout, retry classification, and safe telemetry.",
+      "Owner": "AI Taxonomy initially",
+      "Classification": "Provider-adapter contract",
+      "Status": "Proposed ruling",
+      "Boundary": "AI Taxonomy maintains initial adapter. Broader stewardship waits for a real second consumer; prompts, schemas, purpose/privacy remain local.",
+      "Build rule": "Expose a provider-neutral port with Bedrock implementation, model/version capture, token limits, and no unnecessary sensitive input."
+    },
+    {
+      "id": "SH-066",
+      "name": "validateStructuredProviderOutput",
+      "Plain English": "Parse and validate structured provider output before any domain workflow uses it.",
+      "Owner": "Shared validation primitive; consuming Module owns schema",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "Exact AI/provider schema, referenced IDs, confidence rules, and semantic validation remain local.",
+      "Build rule": "Use Zod/JSON Schema, reject unknown fields, produce typed failures, and never trust provider JSON directly."
+    },
+    {
+      "id": "SH-067",
+      "name": "invokeCalendarProvider",
+      "Plain English": "Create, update, cancel, and synchronize external calendar resources through a provider-neutral adapter.",
+      "Owner": "Booking & Calendar",
+      "Classification": "Module provider interface",
+      "Status": "Confirmed",
+      "Boundary": "Calendar provider mechanics may support Booking and JobInterview without transferring Booking lifecycle. Interview owns its policy.",
+      "Build rule": "Provide Cronofy adapter methods, idempotent request keys, normalized results, webhook/reconciliation support, and safe event descriptions."
+    },
+    {
+      "id": "SH-068",
+      "name": "invokeVideoProvider",
+      "Plain English": "Provision rooms/assets and issue provider-bound playback or join credentials through a provider-neutral video adapter.",
+      "Owner": "`video_session`",
+      "Classification": "Module provider interface",
+      "Status": "Confirmed",
+      "Boundary": "Immutable owner is `video_session`; \u201cVideo Session\u201d/\u201cVideo Infrastructure\u201d are display aliases only.",
+      "Build rule": "Separate live-room and on-demand asset ports; enforce time windows, participant claims, deletion, callbacks, and status mapping."
+    },
+    {
+      "id": "SH-069",
+      "name": "geocodeAddress",
+      "Plain English": "Convert a protected normalized address into provider coordinates without making the provider response platform truth.",
+      "Owner": "Location Safety recommended adapter owner",
+      "Classification": "Provider-adapter contract",
+      "Status": "Proposed ruling",
+      "Boundary": "Location owns geocoder adapter use; Tax and Job Compliance independently choose authoritative jurisdiction evidence. Provider/privacy contract remains gated.",
+      "Build rule": "Use input normalization, purpose restriction, rate limiting, timeout/retry, normalized response, and no public exact-coordinate leakage."
+    },
+    {
+      "id": "SH-070",
+      "name": "deleteProviderResource",
+      "Plain English": "Delete or revoke an external provider resource after an authorized privacy, moderation, security, or lifecycle command.",
+      "Owner": "Provider-owning Module",
+      "Classification": "Provider-adapter contract",
+      "Status": "Confirmed",
+      "Boundary": "Privacy or Moderation owns the instruction; the provider Module owns deletion mechanics and resulting local state.",
+      "Build rule": "Return typed deleted, absent, retained, retryable-failure, or terminal-failure result with provider evidence."
+    },
+    {
+      "id": "SH-071",
+      "name": "publishRealtimeChange",
+      "Plain English": "Publish committed changes to authorized connected clients through one realtime adapter.",
+      "Owner": "Platform realtime adapter; Messaging is primary consumer",
+      "Classification": "Infrastructure adapter",
+      "Status": "Proposed ruling",
+      "Boundary": "The source Module defines safe payload and audience; realtime delivery is not source truth.",
+      "Build rule": "Use authorized channel names, participant filtering, event version, health/fallback behavior, and no sensitive overbroadcast."
+    },
+    {
+      "id": "SH-072",
+      "name": "hashCanonicalPayload",
+      "Plain English": "Create a stable cryptographic digest over canonical bytes or fields for integrity, idempotency, provenance, or comparison.",
+      "Owner": "Shared security/cryptography capability",
+      "Classification": "Platform primitive",
+      "Status": "Confirmed",
+      "Boundary": "Each owner defines canonical input and what the hash proves. Media checksum, agreement hash, consent text hash, and AI input hash remain distinct meanings.",
+      "Build rule": "Use SHA-256 or versioned HMAC as appropriate, canonical serialization, purpose/version metadata, and test vectors."
+    },
+    {
+      "id": "SH-073",
+      "name": "hashChainRecords",
+      "Plain English": "Cryptographically link ordered evidence records so alteration, deletion, or reordering can be detected.",
+      "Owner": "Shared security/cryptography infrastructure; evidence owners retain chains",
+      "Classification": "Platform primitive",
+      "Status": "Proposed ruling",
+      "Boundary": "Share cryptographic mechanism only. No universal evidence chain or implied anchoring/tamper-proof guarantee.",
+      "Build rule": "Use previous hash, entry hash, canonical serialization, chain head, atomic sequence allocation, and verification worker."
+    },
+    {
+      "id": "SH-074",
+      "name": "generateSecureToken",
+      "Plain English": "Generate an unguessable secret while storing only a hash or protected representation.",
+      "Owner": "Shared security capability",
+      "Classification": "Platform primitive",
+      "Status": "Confirmed",
+      "Boundary": "Grant TTL, binding, usage, and revocation remain domain-specific.",
+      "Build rule": "Use cryptographically secure randomness, purpose-bound hash, constant-time verification, rotation/version metadata, and one-time display."
+    },
+    {
+      "id": "SH-075",
+      "name": "encryptSensitiveValue",
+      "Plain English": "Encrypt data that must later be recovered using managed keys and versioned envelope encryption.",
+      "Owner": "Shared security/cryptography capability",
+      "Classification": "Platform primitive",
+      "Status": "Confirmed",
+      "Boundary": "Identity, location, notification, healthcare, payment, and agreement owners decide necessity, access, rotation effects, and retention.",
+      "Build rule": "Centralize KMS/envelope encryption, authenticated encryption, key version, access audit, and rotation tooling."
+    },
+    {
+      "id": "SH-076",
+      "name": "normalizeAndHashIdentifier",
+      "Plain English": "Normalize a sensitive identifier or request attribute and create a stable non-plaintext comparison value.",
+      "Owner": "Shared security/cryptography capability",
+      "Classification": "Platform primitive",
+      "Status": "Confirmed",
+      "Boundary": "Jurisdiction-specific license normalization, IP evidence needs, phone lookup rules, and retention remain local.",
+      "Build rule": "Use purpose-specific keyed HMAC, normalization version, key rotation, collision-safe storage, and no raw value in logs."
+    },
+    {
+      "id": "SH-077",
+      "name": "buildCanonicalTextSnapshot",
+      "Plain English": "Build deterministic normalized text/field input for scanning, hashing, comparison, or decision provenance.",
+      "Owner": "Shared text canonicalization mechanism",
+      "Classification": "Cross-cutting primitive",
+      "Status": "Confirmed",
+      "Boundary": "Each Module defines included fields, interpretation, and canonicalization version.",
+      "Build rule": "Use stable ordering, Unicode normalization, newline/whitespace policy, explicit version, and snapshot hash."
+    },
+    {
+      "id": "SH-078",
+      "name": "minimizeAndRedactProviderInput",
+      "Plain English": "Construct the minimum purpose-bound payload allowed to leave Workin Ants for a provider.",
+      "Owner": "Source-data owner supplies policy; shared serializer enforces",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "Candidate privacy, healthcare, payment, identity, and other sensitivity policies cannot be recreated by the provider consumer.",
+      "Build rule": "Use field allowlists, sensitivity labels, redaction/tokenization, purpose code, schema validation, and telemetry-safe copy."
+    },
+    {
+      "id": "SH-079",
+      "name": "normalizeControlledTerm",
+      "Plain English": "Normalize case, whitespace, punctuation, Unicode, and slug form before matching controlled vocabulary.",
+      "Owner": "Taxonomy & Classification policy over shared text primitive",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "Canonical matching, alias, collisions, hierarchy, and acceptance into taxonomy remain Taxonomy-owned.",
+      "Build rule": "Provide deterministic normalized key and slug helper; consumers never create taxonomy terms directly."
+    },
+    {
+      "id": "SH-080",
+      "name": "manageVersionedRules",
+      "Plain English": "Activate, retire, and resolve effective-dated, jurisdiction- or context-scoped rule/configuration versions.",
+      "Owner": "Each policy Module using shared versioning mechanism",
+      "Classification": "Shared mechanism; separate policy",
+      "Status": "Confirmed",
+      "Boundary": "Employment, healthcare, tax, moderation, consent, and other rule meanings remain separate.",
+      "Build rule": "Use immutable versions, effective intervals, status, jurisdiction/context, validation, provenance, and no in-place mutation."
+    },
+    {
+      "id": "SH-081",
+      "name": "runPatternScanner",
+      "Plain English": "Run configured text patterns and return raw structured matches with offsets and scanner version.",
+      "Owner": "Shared scanner mechanism; Job Compliance/Moderation own policy",
+      "Classification": "Shared mechanism; separate truth",
+      "Status": "Proposed ruling",
+      "Boundary": "Scanner returns deterministic matches/offsets/version; legal meaning, findings and decisions remain owner-specific.",
+      "Build rule": "Separate tokenizer/pattern execution from policy; return deterministic offsets, rule IDs, and scanner version."
+    },
+    {
+      "id": "SH-082",
+      "name": "validateUploadedFile",
+      "Plain English": "Validate file size, extension, claimed MIME, binary signature, encryption/archive restrictions, and upload context.",
+      "Owner": "Media / File Access",
+      "Classification": "Cross-cutting media capability",
+      "Status": "Confirmed",
+      "Boundary": "Context owners decide whether a clean ready MediaAsset is suitable for their business attachment.",
+      "Build rule": "Use MediaUploadPolicy, server-side byte inspection, quarantine-first flow, standardized rejection reasons, and fail closed."
+    },
+    {
+      "id": "SH-083",
+      "name": "scanFileForMalware",
+      "Plain English": "Scan untrusted bytes and prevent infected or unscanned required files from becoming ready.",
+      "Owner": "Media / File Access",
+      "Classification": "Cross-cutting media capability",
+      "Status": "Confirmed",
+      "Boundary": "MediaUploadPolicy controls whether scanning is required; context Modules do not own scanner proof.",
+      "Build rule": "Use one scanner adapter, retry classification, quarantine, immutable scan result, signatures/version, and fail-closed status."
+    },
+    {
+      "id": "SH-084",
+      "name": "scrubFileMetadata",
+      "Plain English": "Remove EXIF, GPS, PDF metadata, and other unnecessary identifying information before publication or access.",
+      "Owner": "Media / File Access",
+      "Classification": "Cross-cutting media capability",
+      "Status": "Confirmed",
+      "Boundary": "Required processing varies by MediaUploadContext and policy.",
+      "Build rule": "Implement deterministic processing actions, original/derivative linkage, checksums, and processing-result proof."
+    },
+    {
+      "id": "SH-085",
+      "name": "generatePrivateObjectKey",
+      "Plain English": "Generate an opaque provider object key that does not expose or execute the user-supplied filename.",
+      "Owner": "Media / File Access / storage primitive",
+      "Classification": "Platform storage primitive",
+      "Status": "Confirmed",
+      "Boundary": "Media chooses bucket class, quarantine/promoted path, visibility, and derivative context.",
+      "Build rule": "Use UUID/random identifiers, controlled path segments, reserved-character avoidance, and retain original name only as protected metadata if needed."
+    },
+    {
+      "id": "SH-086",
+      "name": "calculateChecksum",
+      "Plain English": "Hash stored bytes to prove binary integrity and transformation relationships.",
+      "Owner": "Shared hash primitive consumed by Media",
+      "Classification": "Platform primitive",
+      "Status": "Confirmed",
+      "Boundary": "A file checksum is not legal agreement proof unless the Agreement owner binds it to its snapshot.",
+      "Build rule": "Calculate SHA-256 on upload and derivatives; store algorithm/version and compare using exact bytes."
+    },
+    {
+      "id": "SH-087",
+      "name": "issueSignedMediaUrl",
+      "Plain English": "Issue a short-lived provider URL for a private MediaAsset after authority and contextual entitlement gates pass.",
+      "Owner": "Media / File Access",
+      "Classification": "Module-internal reused signing mechanism",
+      "Status": "Confirmed",
+      "Boundary": "Internal Media signing substep after gates. External consumers use SH-127. Never expose a second public signer.",
+      "Build rule": "Run only as an internal Media signing substep after MediaAsset readiness/freeze/erasure, contextual entitlement, grant, action, TTL, and response-header gates. Record issuance/access evidence. External consumers use SH-127; never expose a second public signer.",
+      "Candidate aliases / narrower variants": "issueSignedObjectUrl; issueTemporaryMediaAccess; issueTemporaryFileAccess; Signed media URL issuance"
+    },
+    {
+      "id": "SH-088",
+      "name": "manageTemporaryAccessGrant",
+      "Plain English": "Apply common issue, validate, expire, deny, use, and revoke mechanics to a domain-owned temporary grant.",
+      "Owner": "Shared grant mechanism; each domain owns its record",
+      "Classification": "Shared mechanism; separate truth",
+      "Status": "Confirmed",
+      "Boundary": "SensitiveActionSession, MediaAccessGrant, AgreementAccessGrant, DigitalDownloadGrant, CourseVideoPlaybackGrant, and LocationReveal must not merge.",
+      "Build rule": "Provide common status/expiry/token/actor/target helpers while retaining separate schemas, enums, repositories, and policy.",
+      "Candidate aliases / narrower variants": "temporaryAccessGrantPrimitive; temporaryAccessGrantMechanism; manageTemporaryAccessState; Temporary access grants"
+    },
+    {
+      "id": "SH-089",
+      "name": "revokeTemporaryAccessGrant",
+      "Plain English": "Revoke applicable domain-owned grants after moderation, privacy, refund, security, or lifecycle changes.",
+      "Owner": "Each grant owner using shared primitive",
+      "Classification": "Cross-cutting command pattern",
+      "Status": "Confirmed",
+      "Boundary": "The instructing Module supplies authority; each grant owner performs its own transition and evidence.",
+      "Build rule": "Use typed revocation request, reason/source reference, idempotency, cascade registry, and domain event/access log."
+    },
+    {
+      "id": "SH-090",
+      "name": "attachValidatedMedia",
+      "Plain English": "Attach a ready MediaAsset to a business object using a contextual join owned by that business Module.",
+      "Owner": "Contextual domain owner; Media owns asset truth",
+      "Classification": "Shared contract; separate contextual truth",
+      "Status": "Confirmed",
+      "Boundary": "Every attachment has an explicit contextual owner. Media owns readiness/mechanics; prohibit universal polymorphic media ownership.",
+      "Build rule": "Require ready asset, valid upload context, actor authorization, role/sort metadata, and transactional join creation."
+    },
+    {
+      "id": "SH-091",
+      "name": "requestSearchProjectionRefresh",
+      "Plain English": "Provide one controlled command for source Modules to request index, update, hide, remove, or restore work.",
+      "Owner": "Search / Public Visibility",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "Search owns request identity/currentness/stale/superseded/completion receipt. Queue acceptance does not mean de-index/restore completed.",
+      "Build rule": "Validate SearchEntityType, entity ID, action, reason, source version, requester Module, and idempotency key.",
+      "Candidate aliases / narrower variants": "enqueueSearchProjection; enqueueProjectionUpdate; enqueueProjectionWork; requestSearchProjectionUpdate; enqueueSearchProjectionChange; deindexEntity"
+    },
+    {
+      "id": "SH-092",
+      "name": "writeSearchProjection",
+      "Plain English": "Create, replace, batch, or delete a provider search document through one adapter and collection registry.",
+      "Owner": "Search / Public Visibility",
+      "Classification": "Provider adapter",
+      "Status": "Confirmed",
+      "Boundary": "Each collection retains distinct schema, visibility, ranking, and document identity policy.",
+      "Build rule": "Centralize Typesense client, health, schema/version management, error translation, batch operations, and protected/public collection boundaries."
+    },
+    {
+      "id": "SH-093",
+      "name": "reconcileSearchProjection",
+      "Plain English": "Compare authoritative searchable entities with provider documents and repair missing, stale, or orphaned projections.",
+      "Owner": "Search / Public Visibility",
+      "Classification": "Module-internal worker using shared queue",
+      "Status": "Confirmed",
+      "Boundary": "Source Modules expose approved projection inputs but never run their own Typesense reconciliation.",
+      "Build rule": "Use cursor/checkpoint, dry run, projection version, orphan deletion, privacy/moderation verification, and repair report."
+    },
+    {
+      "id": "SH-094",
+      "name": "buildSourceProjection",
+      "Plain English": "Produce the privacy-safe source projection that Search is allowed to index.",
+      "Owner": "Each source Module",
+      "Classification": "Shared pattern; separate source projection",
+      "Status": "Confirmed",
+      "Boundary": "Only Search-safe source projections. AI-input DTOs remain separate purpose/minimization contracts.",
+      "Build rule": "Use deterministic versioned builders, allowlisted fields, public-readiness decision, safe location/trust signals, and rebuild support."
+    },
+    {
+      "id": "SH-095",
+      "name": "executePrivacyInstruction",
+      "Plain English": "Execute erase, anonymize, export, restrict, detach, revoke, delete-provider, or retain action against one Module\u2019s owned records.",
+      "Owner": "Privacy orchestrates; each owner executes",
+      "Classification": "Cross-cutting protocol",
+      "Status": "Confirmed",
+      "Boundary": "Typed owner routing, disposition, replay/freshness and owner/provider results. Preserve completed/retained/partial/failed/unsupported distinctions.",
+      "Build rule": "Define typed owner targets, supported dispositions, replay/freshness, idempotency, retries, evidence, and owner/provider results. Preserve completed, retained, partial, failed, and unsupported distinctions; acceptance or unsupported work is not completion.",
+      "Candidate aliases / narrower variants": "executePrivacyTarget; executeErasureTarget; processPrivacyErasureTarget; executePrivacyErasureTarget; applyPrivacyDisposition; executePrivacyTargetAction"
+    },
+    {
+      "id": "SH-096",
+      "name": "enumerateSubjectData",
+      "Plain English": "Return the records and provider references a Module holds about a data subject and the supported privacy dispositions.",
+      "Owner": "Each data owner through Privacy-defined interface",
+      "Classification": "Cross-cutting protocol",
+      "Status": "Confirmed",
+      "Boundary": "Enumerate owned parents, children, provider references, supported dispositions and serializers. Privacy orchestrates; no generic database crawler.",
+      "Build rule": "Require stable target types, identifiers, sensitivity, retention candidates, export serializer, and cursoring."
+    },
+    {
+      "id": "SH-097",
+      "name": "evaluateRetentionRequirement",
+      "Plain English": "Return whether owner-held data must be retained and what anonymization remains permitted.",
+      "Owner": "Data owner supplies facts; Privacy records exemption",
+      "Classification": "Cross-cutting protocol",
+      "Status": "Confirmed",
+      "Boundary": "Query retention facts only. `applyRetentionExemption` is a Privacy workflow step, not an alias. Unknown law is not permission to erase.",
+      "Build rule": "Return required, reason code, legal/policy basis, retainUntil, minimum fields, permitted anonymization, and source reference.",
+      "Candidate aliases / narrower variants": "applyRetentionDecision; retainLegallyRequiredRecord; resolveRetentionDecision; handleRetentionDecision"
+    },
+    {
+      "id": "SH-098",
+      "name": "anonymizePersonalFields",
+      "Plain English": "Apply approved field-level pseudonymization or scrubbing while preserving required relational and compliance truth.",
+      "Owner": "Shared primitive; record owner supplies mapping",
+      "Classification": "Cross-cutting capability",
+      "Status": "Confirmed",
+      "Boundary": "Each owner decides exact fields and invariants; no global crawler bypasses Module policy.",
+      "Build rule": "Use versioned field maps, deterministic pseudonyms where needed, referential strategy, dry run, and result proof."
+    },
+    {
+      "id": "SH-099",
+      "name": "orchestratePrivacyFulfillment",
+      "Plain English": "Own verification, target discovery, ordering, retention exemptions, execution, aggregation, export, and completion of a privacy request.",
+      "Owner": "Privacy / Data Erasure",
+      "Classification": "Module-internal orchestration with public interfaces",
+      "Status": "Confirmed",
+      "Boundary": "PrivacyRequest, DataErasureJob, DataErasureTarget, DataRetentionExemption, and DataExportBundle remain Privacy truth.",
+      "Build rule": "Use shared queues/audit/authorization, owner executors, deadlines, retries, partial completion, and final evidence."
+    },
+    {
+      "id": "SH-100",
+      "name": "createPrivacyExportArtifact",
+      "Plain English": "Assemble, encrypt, store privately, and temporarily deliver a user privacy export.",
+      "Owner": "Privacy / Data Erasure; Media supplies file mechanics",
+      "Classification": "Module public interface, cross-Cluster composition",
+      "Status": "Confirmed",
+      "Boundary": "Privacy owns bundle contents/eligibility/manifest/hash/encryption/expiry; Media owns private artifact mechanics/access.",
+      "Build rule": "Create manifest, per-owner sections, archive hash/encryption, expiry/cleanup, MediaAccessGrant, and sensitive-access audit."
+    },
+    {
+      "id": "SH-101",
+      "name": "submitModerationReport",
+      "Plain English": "Submit an abuse, safety, copyright, privacy, spam, harassment, or legal allegation against a typed target.",
+      "Owner": "Content Moderation & Legal Notice",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "The content-bearing Module supplies target/evidence context but does not create competing Report or ModerationCase truth.",
+      "Build rule": "Use typed target, reason/source, reporter context, evidence references, idempotency, rate limits, and intake status."
+    },
+    {
+      "id": "SH-102",
+      "name": "resolveModerationTarget",
+      "Plain English": "Resolve a typed moderation target into a validated, minimized reviewer summary through the owning Module.",
+      "Owner": "Moderation resolver contract; target owners supply facts",
+      "Classification": "Shared contract; separate policy",
+      "Status": "Proposed ruling",
+      "Boundary": "Moderation owns supported resolver/action registry; targets supply minimized facts. No cross-domain repository.",
+      "Build rule": "Use typed target adapters, authorization, sensitivity/redaction, source version, and unavailable/erased outcomes."
+    },
+    {
+      "id": "SH-103",
+      "name": "executeModerationDecision",
+      "Plain English": "Apply an authoritative moderation/legal action inside each affected source or delivery Module.",
+      "Owner": "Moderation decides; target owner executes",
+      "Classification": "Cross-cutting protocol",
+      "Status": "Confirmed",
+      "Boundary": "Moderation/legal decisions only. Holds remain SH-011\u2013013. Distinguish primary target and affected resource/grant; acknowledgement is not completion.",
+      "Build rule": "Dispatch an authorized moderation/legal action envelope with case/action IDs, typed primary target, affected resource/grant, and replay identity. Target owners execute supported effects and return unsupported where necessary. Acknowledgment is distinct from completed/failed/restored evidence; Holds remain SH-011\u2013SH-013."
+    },
+    {
+      "id": "SH-104",
+      "name": "preserveEvidenceSnapshot",
+      "Plain English": "Capture immutable or retention-protected content and metadata before enforcement can change it.",
+      "Owner": "Decision/evidence owner using Media and hash primitives",
+      "Classification": "Shared evidence mechanism; ownership case-specific",
+      "Status": "Proposed ruling",
+      "Boundary": "The proof record\u2019s legal meaning remains with Moderation, Hold, Verification, or another decision owner; Audit does not absorb it.",
+      "Build rule": "Use canonical snapshot, private storage, hash, policy/source versions, chain of custody, retention lock, and controlled access."
+    },
+    {
+      "id": "SH-105",
+      "name": "correlateEnforcementResult",
+      "Plain English": "Track acknowledgment, success, failure, retry, and reversal of each downstream step authorized by one moderation action.",
+      "Owner": "Content Moderation & Legal Notice",
+      "Classification": "Cluster-local orchestration",
+      "Status": "Proposed ruling",
+      "Boundary": "Downstream Modules retain execution truth; they do not create competing ModerationAction state.",
+      "Build rule": "Use action/step IDs, required-step policy, idempotent dispatch, acknowledgments, retries, reconciliation, and restoration logic."
+    },
+    {
+      "id": "SH-106",
+      "name": "computeContentFingerprint",
+      "Plain English": "Generate optional perceptual/content-review fingerprints as similarity signals; exact-byte checksum integrity remains SH-086.",
+      "Owner": "Media/specialized adapter, final ownership unresolved",
+      "Classification": "Provider/cross-cutting capability",
+      "Status": "Proposed ruling",
+      "Boundary": "Approved deferred/optional perceptual/content-review capability: automated similarity detection is not required at launch and may be introduced later as supporting evidence, an investigative tool, an experiment, or moderation assistance. Launch copyright enforcement is user/rights-holder initiated through SH-101 and Content Moderation / Legal Notice review, evidence, and existing enforcement contracts. Exact-byte checksum/integrity remains SH-086. Similarity is never infringement truth, automatic enforcement authority, or a substitute for moderation/legal review.",
+      "Build rule": "Product scope is settled: not launch-critical, optional later. Before implementation, settle final adapter ownership, contract, provider capability, provider/version, thresholds, and explainable similarity results. Do not block launch on SH-106, treat similarity as infringement/enforcement truth, or duplicate SH-086 exact checksums."
+    },
+    {
+      "id": "SH-107",
+      "name": "createChargeableOrder",
+      "Plain English": "Create an authoritative Order for a paid platform workflow and initiate the approved payment path.",
+      "Owner": "Transaction / Order",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "Support exactly one valid source family per Order: existing seller-backed Offering/GigAssignment or a distinct platform-facilitated screening-service source. Screening references and snapshots a Trust-owned VerificationPackage/check-package quote and requires no Professional seller. Trust owns screening requirements, packages, checks, provider results, and lifecycle; Order owns transaction snapshot/lifecycle; Payment owns the financial provider rail. Prohibit fake Offering/Gig/seller creation. Background screening is optional by default for Candidates and Professionals, not a universal participation prerequisite. Voluntary screening is subject-initiated and subject-paid by default. A specific regulated, high-risk, otherwise approved, Organization, or hiring workflow may require qualifying screening before its gated action. Organizations use EIN/business-identity verification, not the personal background-check lifecycle.",
+      "Build rule": "Require buyer/customer actor, valid source-specific seller or platform context, frozen item/package quote, price/tax inputs, disclosure/consent requirements, idempotency, and returned Order reference. For screening, authoritative paid outcome precedes Trust lifecycle continuation. No fake Professional seller, Offering, Gig, or screening lifecycle inside Order. For voluntary Candidate/Professional screening, the subject initiates and pays by default. Different initiation/payment requires a future explicitly approved Organization-sponsored workflow and is not the default. Trust determines qualifying screening readiness before any workflow-gated action; payment alone is not screening clearance. Order source schema representation remains an implementation decision."
+    },
+    {
+      "id": "SH-108",
+      "name": "requestOrderRefund",
+      "Plain English": "Submit an authorized refund decision to Order and Payment for execution and transaction recording.",
+      "Owner": "Transaction / Order; Payment executes processor rail",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "Order owns refund command/status/evidence; Review supplies adjudication; Payment returns provider result. No direct Review-to-processor path.",
+      "Build rule": "Use amount, currency, reason, source decision, actor authority, idempotency, correlation, and asynchronous result events."
+    },
+    {
+      "id": "SH-109",
+      "name": "snapshotExternalDecision",
+      "Plain English": "Freeze a policy, entitlement, pricing, commission, fee, tax, or priority decision at the moment a historical domain record is created.",
+      "Owner": "Consuming domain owner",
+      "Classification": "Shared snapshot pattern; separate truth",
+      "Status": "Confirmed",
+      "Boundary": "The policy owner supplies current decision; Order, Booking, or other consumer owns historical snapshot.",
+      "Build rule": "Store value, source plan/grant/record IDs, policy/version, evaluatedAt, relevant inputs, and hash where material.",
+      "Candidate aliases / narrower variants": "snapshotCommercialDecision; snapshotExternalPolicyDecision; snapshotDecisionInputs; recordPolicySnapshot"
+    },
+    {
+      "id": "SH-110",
+      "name": "createDomainSnapshot",
+      "Plain English": "Freeze source values when a downstream lifecycle requires immutable historical truth.",
+      "Owner": "Downstream lifecycle owner",
+      "Classification": "Shared snapshot pattern; separate truth",
+      "Status": "Confirmed",
+      "Boundary": "Marketplace supplies current Offering/PricingTier facts; Order owns transaction snapshot. Similar consumers own their own snapshots.",
+      "Build rule": "Use versioned immutable schema, source IDs/versions, copied values, provenance, and no later recalculation."
+    },
+    {
+      "id": "SH-111",
+      "name": "renderDocument",
+      "Plain English": "Generate a document from a versioned template and frozen data through a provider-neutral renderer.",
+      "Owner": "Document-owning Module; Transaction / Order initially",
+      "Classification": "Cross-cutting document mechanism",
+      "Status": "Proposed ruling",
+      "Boundary": "Agreement template, signer, finalization, supersession, and legal meaning remain Transaction / Order policy.",
+      "Build rule": "Provide renderer port, deterministic template/version, asset embedding, hash, private storage handoff, retry/idempotency, and render metadata."
+    },
+    {
+      "id": "SH-112",
+      "name": "verifyAgreementDocumentHash",
+      "Plain English": "Verify that a finalized Agreement document matches its retained bytes, version, and legal snapshot hash.",
+      "Owner": "Transaction / Order",
+      "Classification": "Module-internal",
+      "Status": "Confirmed",
+      "Boundary": "Internal/background integrity check only; never public permission/readiness API.",
+      "Build rule": "Use an internal/background check to read exact bytes, recompute hash, compare algorithm/version, and record sensitive-access/integrity evidence. Owner lifecycle handles mismatch; never expose this as public permission or readiness."
+    },
+    {
+      "id": "SH-113",
+      "name": "ensureContextThread",
+      "Plain English": "Idempotently create or retrieve the one Messaging Thread permitted for a canonical business context.",
+      "Owner": "Messaging",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "Messaging owns Thread/participant uniqueness and supported contexts. Source owner supplies verified context/participants; generic wording cannot enable unsupported context types.",
+      "Build rule": "Require ThreadContextType, context ID, initial participants/roles, idempotency; enforce unique context and authorization."
+    },
+    {
+      "id": "SH-114",
+      "name": "provisionOneToOneProfile",
+      "Plain English": "Idempotently create the actor-branch profile associated one-to-one with a User.",
+      "Owner": "Each profile Module using shared provisioning mechanism",
+      "Classification": "Shared mechanism; separate truth",
+      "Status": "Confirmed",
+      "Boundary": "CustomerProfile may be automatic; CandidateProfile and ProfessionalProfile have different opt-in and readiness lifecycles.",
+      "Build rule": "Use unique userId, transactional upsert, owner defaults, idempotency, reconciliation, and owner-specific events."
+    },
+    {
+      "id": "SH-115",
+      "name": "buildAggregateProjection",
+      "Plain English": "Build or rebuild a derived balance, leaderboard, rating, usage, or dashboard read model from authoritative records.",
+      "Owner": "Projection owner",
+      "Classification": "Shared projection mechanism; separate policy",
+      "Status": "Confirmed",
+      "Boundary": "Review calculates reputation facts; Professional owns its projection; Search consumes projection. Transport/rebuild mechanics transfer no policy.",
+      "Build rule": "Use projection version, event/cursor checkpoint, idempotent writes, full rebuild, lag metrics, and source reconciliation.",
+      "Candidate aliases / narrower variants": "buildProjection; recomputeAggregateProjection; rebuildProjection; Candidate projection generation (specific implementation)"
+    },
+    {
+      "id": "SH-116",
+      "name": "secureRandomSelection",
+      "Plain English": "Select one or more entries using an unbiased cryptographically secure random source.",
+      "Owner": "Sweepstakes / Prize",
+      "Classification": "Module-internal capability over shared CSPRNG",
+      "Status": "Confirmed",
+      "Boundary": "Eligible population, weighting, winner count, replacement, redraw, repeat-winner, and proof remain Sweepstakes policy.",
+      "Build rule": "Use CSPRNG/unbiased sampling, frozen eligible population, seed/randomness evidence where appropriate, immutable run proof, and audit."
+    },
+    {
+      "id": "SH-117",
+      "name": "aggregateYearlyReportableValue",
+      "Plain English": "Maintain a year-level total of reportable value with reconciliation and rebuild support.",
+      "Owner": "Each value owner; Tax consumes",
+      "Classification": "Shared aggregation mechanism; separate truth",
+      "Status": "Confirmed",
+      "Boundary": "Logical grain includes tax subject + jurisdiction + year + currency, preserving separate aggregates and reversal identity. Physical design remains gated.",
+      "Build rule": "Use source-event uniqueness and reversal identity at the logical tax-subject + jurisdiction + year + currency grain, preserving separate value-owner aggregates. Physical design remains gated; provide transactional updates and reconciliation/rebuild support."
+    },
+    {
+      "id": "SH-118",
+      "name": "reportTaxableValue",
+      "Plain English": "Send a recognized prize, reward, earning, or other reportable value to the tax-owning Module.",
+      "Owner": "Payment / Payout / Tax",
+      "Classification": "Cross-cutting public interface",
+      "Status": "Confirmed",
+      "Boundary": "Source owns recognition/FMV/source/reversal identity; Payment owns reporting/tax. Accepted report does not clear fulfillment.",
+      "Build rule": "Require subject, value/currency, jurisdiction, source type/ID, recognition date, valuation evidence, and idempotency."
+    },
+    {
+      "id": "SH-119",
+      "name": "applyTemporaryFeatureGrant",
+      "Plain English": "Apply a deterministic, time-bound commercial Track benefit earned outside subscription billing.",
+      "Owner": "Track Subscription & Entitlement",
+      "Classification": "Module public interface",
+      "Status": "Confirmed",
+      "Boundary": "Track owns temporary commercial benefit/grant lifecycle. Source/reward owner owns why the benefit was earned and compensation; destination feature owns its effect. Noncommercial reward truth remains local. No local premium, boost, ranking, fee-waiver, or priority source truth and no sweepstakes-odds benefit. Gamification / Rewards may award temporary or scoped commercial benefits by requesting a Track grant; Track records the authoritative grant and consumers resolve the benefit through Track. Duplicate equivalent benefits never stack automatically.",
+      "Build rule": "Represent source, commercial entitlement/benefit key, effective interval, value, revocation, and consumption through Track. Each commercial-benefit reward must explicitly declare equivalent-benefit behavior, such as extending duration, increasing quota, issuing a separately scoped benefit, or providing no additional effect. Do not silently rewrite a User\u2019s base paid/free plan, create feature-local commercial grant/premium/boost state, or create a second subscription/entitlement lifecycle in Gamification. Apply the declared reward semantics through Track; no automatic stacking and no sweepstakes-odds benefit."
+    },
+    {
+      "id": "SH-120",
+      "name": "normalizeJurisdictionContext",
+      "Plain English": "Normalize country, region/state, city, postal, remote-role, and evidence source for a jurisdiction-dependent decision.",
+      "Owner": "Each jurisdiction-dependent owner interprets; normalization mechanism shared",
+      "Classification": "Shared contract; separate policy",
+      "Status": "Proposed ruling",
+      "Boundary": "Share normalized geography/provenance/ambiguity only. Location, Job Compliance, and Payment remain independent legal/evidence authorities.",
+      "Build rule": "Return normalized jurisdiction DTO, confidence/evidence source, validation errors, and no public exact-location leakage."
+    },
+    {
+      "id": "SH-121",
+      "name": "applyAiSuggestion",
+      "Plain English": "Convert an administrator-approved AI classification proposal into accepted taxonomy truth.",
+      "Owner": "Taxonomy validates; contextual owner commits; AI records disposition",
+      "Classification": "Shared contract; separate truth",
+      "Status": "Confirmed",
+      "Boundary": "Context owner performs assignment mutation after canonical validation; AI records accepted outcome only after success.",
+      "Build rule": "Require suggestion ID/version, target, selected canonical term, reviewer, reason, idempotency, and audit evidence. Taxonomy validates; the contextual owner commits its assignment joins; AI records accepted disposition only after success."
+    },
+    {
+      "id": "SH-122",
+      "name": "mergeCanonicalRecord",
+      "Plain English": "Move references from a duplicate/retired controlled term to one canonical replacement transactionally.",
+      "Owner": "Taxonomy & Classification for taxonomy terms",
+      "Classification": "Module-internal reusable operation",
+      "Status": "Proposed ruling",
+      "Boundary": "Taxonomy merge remains disabled until owner-local merge policy approved. Foreign owners rebind their own joins; no cross-domain mega-transaction.",
+      "Build rule": "Keep execution disabled until Taxonomy owner-local merge policy is approved. Use scoped locks, compatibility validation, owner-mediated reference rebinding, affected counts, provenance/alias preservation, recovery, and idempotency. Foreign owners rebind their own joins; no cross-domain mega-transaction."
+    },
+    {
+      "id": "SH-123",
+      "name": "validateOwnedTargetReference",
+      "Plain English": "Validate that a cross-Module target exists and is eligible for the requested relationship through its owner\u2019s interface.",
+      "Owner": "Target owner",
+      "Classification": "Shared contract; separate implementations",
+      "Status": "Confirmed",
+      "Boundary": "Referencing another Module\u2019s schema does not grant direct lifecycle or repository access.",
+      "Build rule": "Use typed owner query, target version/status, allowed relationship context, and not-found/forbidden separation."
+    },
+    {
+      "id": "SH-124",
+      "name": "generateUniqueSlug",
+      "Plain English": "Generate a canonical, reserved-word-safe, collision-resistant public slug.",
+      "Owner": "Public entity owner using shared text primitive",
+      "Classification": "Cross-cutting primitive; policy local",
+      "Status": "Proposed ruling",
+      "Boundary": "Organization, Offering, and other public entities retain rename, redirect, reservation, and URL rules.",
+      "Build rule": "Normalize, validate reserved words, transactionally claim uniqueness, retry suffix strategy, and preserve redirect/history where required."
+    },
+    {
+      "id": "SH-125",
+      "name": "recordDomainAccessEvent",
+      "Plain English": "Persist domain-specific access or delivery proof in addition to any generic AccessAuditLog.",
+      "Owner": "Domain owner",
+      "Classification": "Shared append-only mechanism; separate truth",
+      "Status": "Confirmed",
+      "Boundary": "ResumeAccessLog, MediaAccessEvent, DigitalDownloadEvent, video access, and Agreement access remain distinct.",
+      "Build rule": "Define domain action/reason, context relationships, expiry/usage/provider details, immutable append, and optional generic audit request."
+    },
+    {
+      "id": "SH-126",
+      "name": "getCustomerAggregateView",
+      "Plain English": "Assemble a customer-facing commerce/history dashboard without copying source lifecycles into CustomerProfile.",
+      "Owner": "Customer application facade; source Modules retain facts",
+      "Classification": "Module public interface, read-model composition",
+      "Status": "Proposed ruling",
+      "Boundary": "Customer may federate authorized owner queries with freshness/partial-failure state. No durable foreign lifecycle mirror by default.",
+      "Build rule": "Compose authorized owner queries in a Customer application facade with source links, freshness, and partial/unavailable outcomes. No durable foreign lifecycle mirror by default."
+    },
+    {
+      "id": "SH-127",
+      "name": "requestMediaAccess",
+      "Plain English": "Composite short-lived protected-media access request after contextual-owner and Media approval.",
+      "Owner": "Media / File Access",
+      "Classification": "Module public interface",
+      "Status": "Proposed ruling",
+      "Boundary": "Composite short-lived protected-media access request after contextual-owner and Media approval. Contextual owner decides why access is permitted; Media decides readiness, grants, TTL, signing, and file proof. Not duplicate of: SH-026 contextual permission, SH-088 grant plumbing, SH-087 internal signing.",
+      "Build rule": "Do not build: feature-local signed-URL endpoint, permanent private URL, second public Media signer."
+    },
+    {
+      "id": "SH-128",
+      "name": "getMediaReadiness",
+      "Plain English": "Side-effect-free safe read of upload/scan/processing readiness.",
+      "Owner": "Media / File Access",
+      "Classification": "Module public interface",
+      "Status": "Proposed ruling",
+      "Boundary": "Side-effect-free safe read of upload/scan/processing readiness. Contextual suitability, attachment role, publication, and entitlement remain outside Media readiness.",
+      "Build rule": "Do not build: feature-local scan/readiness interpretation or treating `ready` as access authorization."
+    },
+    {
+      "id": "SH-129",
+      "name": "queryActiveModerationRestriction",
+      "Plain English": "Current moderation/legal restriction query for typed target/action.",
+      "Owner": "Content Moderation / Legal Notice",
+      "Classification": "Module public interface",
+      "Status": "Proposed ruling",
+      "Boundary": "Current moderation/legal restriction query for typed target/action. Target owner decides/executes supported local lifecycle effect; ComplianceHold remains independent.",
+      "Build rule": "Do not build: consumers directly reading moderation cases or reconstructing legal restriction state."
+    },
+    {
+      "id": "SH-130",
+      "name": "evaluateHealthcareAdminAccess",
+      "Plain English": "Healthcare-specific protected-payload access and handling/redaction decision.",
+      "Owner": "Healthcare / Regulated Services",
+      "Classification": "Module public interface",
+      "Status": "Proposed ruling",
+      "Boundary": "Healthcare-specific protected-payload access and handling/redaction decision. Role retains general authority; resource owner retains contextual entitlement, effect execution, and redaction execution.",
+      "Build rule": "Do not build: universal healthcare permission engine or misuse SH-020 readiness as privileged-data access."
+    },
+    {
+      "id": "SH-131",
+      "name": "getPublicLocationProjection",
+      "Plain English": "Side-effect-free read of current approved fuzzy public location.",
+      "Owner": "Location Safety",
+      "Classification": "Module public interface",
+      "Status": "Proposed ruling",
+      "Boundary": "Side-effect-free read of current approved fuzzy public location. Location owns precision/freshness; source owns private original; Search/public consumer owns permitted presentation behavior. Distinct from SH-028: SH-028 produces/updates/invalidates; SH-131 reads.",
+      "Build rule": "Do not build: consumer-side fuzzing, exact-coordinate fallback, or read-triggered refresh recursion."
+    },
+    {
+      "id": "SH-132",
+      "name": "enforceRateLimit",
+      "Plain English": "Distributed atomic request-admission/rate-limit execution.",
+      "Owner": "Shared platform security infrastructure",
+      "Classification": "Platform primitive",
+      "Status": "Proposed ruling",
+      "Boundary": "Distributed atomic request-admission/rate-limit execution. Caller specifies key scope, action, window, limit, bypass, retry response and failure posture. Distinct from: SH-006 commercial usage metering, SH-044 idempotency, SH-051 locking, SH-057 generic counter increments.",
+      "Build rule": "Do not build: per-feature generic rate-limit infrastructure. Do not use rate limiting as commercial metering or include raw sensitive identifiers in diagnostics. Track separately owns paid usage quotas."
+    }
+  ],
+  "unknown_shared_references": [],
+  "models_without_table_creation": [
+    "VerificationPackage",
+    "VerificationPackageItem",
+    "ConsentLog",
+    "PrivacyRequest",
+    "AgeGateAttempt",
+    "AgeGateBlock",
+    "FuzzyLocationCache",
+    "LocationReveal",
+    "KycVerification",
+    "TaxProfile",
+    "TaxDocument",
+    "TaxYearEarningsSummary",
+    "TaxReportingSubmission",
+    "TaxReportingRecipient",
+    "PayoutAccount",
+    "ProviderRequirementSnapshot",
+    "ProfessionalBalanceLedgerEntry",
+    "PayoutRequest",
+    "PayoutTransfer",
+    "ComplianceHold",
+    "DataErasureJob",
+    "DataErasureTarget",
+    "DataRetentionExemption",
+    "DataExportBundle",
+    "Report",
+    "LegalNotice",
+    "ModerationCase",
+    "ModerationAction",
+    "PrizeDrawing",
+    "SweepstakesEntryMethod",
+    "PrizeEntry",
+    "PrizeWinning",
+    "PrizeTaxYearSummary",
+    "HealthcareComplianceProfile",
+    "BaaAgreement",
+    "HealthcareDataBoundary",
+    "HealthcareAdminAccessPolicy",
+    "AccessAuditLog",
+    "GamificationProgram",
+    "GamificationRule",
+    "PointLedgerEntry",
+    "Challenge",
+    "ChallengeParticipant",
+    "Leaderboard",
+    "LeaderboardEntry",
+    "Reward",
+    "RewardRedemption",
+    "VerificationRequirement",
+    "VerificationConsent",
+    "VerificationCheck",
+    "FcraAdverseActionWorkflow",
+    "ProfessionalLicenseCredential",
+    "TrustBadge",
+    "OrganizationFeatureAccess",
+    "CustomerProfile",
+    "JobCompensationDisclosure",
+    "JobApplicationViewEvent",
+    "JobInterview",
+    "JobInterviewParticipant",
+    "JobInterviewEvent",
+    "JobInterviewVideoRoom",
+    "JobComplianceCheck",
+    "JobComplianceRule",
+    "JobComplianceFinding",
+    "JobApplicationMedia",
+    "CandidateSearchProjection",
+    "ResumeParseResult",
+    "ResumeAccessLog",
+    "AgreementTemplate",
+    "AgreementElectronicConsent",
+    "AgreementSignature",
+    "AgreementDocumentSnapshot",
+    "AgreementEvent",
+    "AgreementAccessGrant",
+    "MediaUploadPolicy",
+    "MediaUploadSession",
+    "MediaValidationResult",
+    "MediaScanResult",
+    "MediaProcessingResult",
+    "MediaAccessGrant",
+    "MediaAccessEvent",
+    "BookingSlotLock",
+    "BookingOrchestrationRun",
+    "BookingOrchestrationStep",
+    "Booking",
+    "BookingHold",
+    "BookingEvent",
+    "BookingVideoRoom",
+    "ProcessedCalendarEvent",
+    "NotificationSubscription",
+    "NotificationDelivery",
+    "NotificationSubscriptionEvent",
+    "OrganizationNotificationSetting",
+    "UserSecurityProfile",
+    "AuthProviderAccount",
+    "PasskeyCredential",
+    "StepUpChallenge",
+    "SensitiveActionSession",
+    "AccountRecoveryRequest",
+    "UserSecurityEvent",
+    "CourseVideoAsset",
+    "CourseVideoPlaybackGrant",
+    "CourseVideoPlaybackEvent",
+    "ProcessedVideoProviderEvent",
+    "DigitalGoodsPolicy",
+    "DigitalGoodsTermsAcceptance",
+    "DigitalDownloadAsset",
+    "DigitalDownloadGrant",
+    "DigitalDownloadEvent",
+    "SalesTaxCalculation",
+    "SalesTaxLineItem",
+    "SalesTaxTransaction",
+    "ChildDirectedContentDeclaration",
+    "MinorPrivacyControl",
+    "CourseAccessibilityAsset",
+    "TrackPlan",
+    "TrackPlanPrice",
+    "TrackEntitlementDefinition",
+    "TrackPlanEntitlement",
+    "TrackSubscription",
+    "TrackEntitlementGrant",
+    "TrackUsageEvent",
+    "TrackUsageCounter",
+    "TrackSubscriptionEvent"
+  ],
+  "artifact_fingerprints": [
+    {
+      "path": "context/Workin_Ants_Canonical_Shared_Operations_Architecture.docx",
+      "sha256": "35cdc3e8b523394a750697d985799a808389a8897e9bc976093f879bf171142f"
+    },
+    {
+      "path": "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-architecture.md",
+      "sha256": "4c57ea1d6e8ca55470313071c4a9561af4918d7fed739843a79f72ade5e09697"
+    },
+    {
+      "path": "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-implementation-plan.md",
+      "sha256": "8602f3cece1c4f51d9d12ed6f1da6928ddf0b0052d1c367b2e6b5cb59f6d98f0"
+    },
+    {
+      "path": "context/clusters/Messaging Notification Rail/Notification Module/notification-module-architecture.md",
+      "sha256": "b456bd3c9280d1e709a1bd235a968e9cca1fb11eb2536e284c5d40c855e65e7e"
+    },
+    {
+      "path": "context/clusters/Messaging Notification Rail/Notification Module/notification-module-implementation-plan.md",
+      "sha256": "764598c46170d0494a84ff765787b855640a091cda7c7359323fc9b9e8a98c88"
+    },
+    {
+      "path": "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+      "sha256": "ef8821d599522978c0fbcaf83bb2a52713abcfca566a9d47bb02264f93e6320f"
+    },
+    {
+      "path": "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md",
+      "sha256": "38bd7a3a85dfb76c49a15286e815ba76ae8e1b15687eec598c694349e40b5938"
+    },
+    {
+      "path": "context/clusters/Moderation holds Audits and Ops/Admin Review & Compliance Hold Module/admin-review-compliance-hold-module-architecture.md",
+      "sha256": "b06516a2ae024e00e197c49dbb1efc4b0f3ddfcf7ed24358e0d7394c799c6e7f"
+    },
+    {
+      "path": "context/clusters/Moderation holds Audits and Ops/Admin Review & Compliance Hold Module/admin-review-compliance-hold-module-implementation-plan.md",
+      "sha256": "9586bb823add80b7f9e71cf60586baab2a606ccd35838af79e0e589c6056f798"
+    },
+    {
+      "path": "context/clusters/Moderation holds Audits and Ops/Audit Event Ledger Module/audit-event-ledger-module-architecture.md",
+      "sha256": "27d870080be98a480f5fd577004c740d201e50ca1d1ddcdd6d3aceda52a66618"
+    },
+    {
+      "path": "context/clusters/Moderation holds Audits and Ops/Audit Event Ledger Module/audit-event-ledger-module-implementation-plan.md",
+      "sha256": "c635d14c37040ee81a59767e3a9675e5acaf03153bfcba15ca7f08f6ace236c6"
+    },
+    {
+      "path": "context/clusters/Moderation holds Audits and Ops/Content Moderation & Legal Notice Module/content-moderation-legal-notice-module-architecture.md",
+      "sha256": "cc2844a3cde6cbcea3d3a34e03a143bd33ca483c2128622175f9f9bf45c5b7b8"
+    },
+    {
+      "path": "context/clusters/Moderation holds Audits and Ops/Content Moderation & Legal Notice Module/content-moderation-legal-notice-module-implementation-plan.md",
+      "sha256": "7087c7c0e7b8336338d19b89ace99145426c5a952cef5b192e6c5f2e4289b9d8"
+    },
+    {
+      "path": "context/clusters/Moderation holds Audits and Ops/Observability Ops Module/observability-ops-module-architecture.md",
+      "sha256": "28288e6f9cda973eae0cbf0bc335dbb0848a3bcf1d8b43289a0230e15a92f4ca"
+    },
+    {
+      "path": "context/clusters/Moderation holds Audits and Ops/Observability Ops Module/observability-ops-module-implementation-plan.md",
+      "sha256": "616b5360894961d765e6c85f96559b83cd0ef8493877d52564934c00d516e128"
+    },
+    {
+      "path": "context/clusters/Moderation holds Audits and Ops/moderation-holds-audit-ops-architecture.md",
+      "sha256": "a5c0fb09b4923ddadec7eda054c7d0f5a4c5f2344c1107aa621b52d502231f3d"
+    },
+    {
+      "path": "context/clusters/Moderation holds Audits and Ops/moderation-holds-audit-ops-build-plan.md",
+      "sha256": "ce0de8c3ebb2b414a9681514ad0f7a232e4a3ac7455306d8de467a0b795ea5b0"
+    },
+    {
+      "path": "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-architecture.md",
+      "sha256": "08d7648899c2d02e0054d1df622a72d1b8ad67b6edaa900c0177299dc71f976a"
+    },
+    {
+      "path": "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-implementation-plan.md",
+      "sha256": "b05c4d012eefb438bffff578e0a31dd8f2423ca0239d01054a4ccee9ec74ac73"
+    },
+    {
+      "path": "context/clusters/Organization Hiring & Candidate Pipeline/Job Compliance Module/job-compliance-module-architecture.md",
+      "sha256": "82082b8095e9053ff562b9c97994984471513299bb63de13aab266f1e66388b9"
+    },
+    {
+      "path": "context/clusters/Organization Hiring & Candidate Pipeline/Job Compliance Module/job-compliance-module-implementation-plan.md",
+      "sha256": "ceab6975660280cf650e0f8e180b581cb6e66aab80f9f77a4d2569550a34e4c6"
+    },
+    {
+      "path": "context/clusters/Organization Hiring & Candidate Pipeline/Job Interview Module/job-interview-module-architecture.md",
+      "sha256": "fe91cdc756e8b85b8cb2b5574c6c4fdaa109f998ae39e60d3ecd31b360eab12d"
+    },
+    {
+      "path": "context/clusters/Organization Hiring & Candidate Pipeline/Job Interview Module/job-interview-module-implementation-plan.md",
+      "sha256": "2b877d8f554b54a71b1386bbbb67a143f9a4398841bf077bf680af74273c5713"
+    },
+    {
+      "path": "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-architecture.md",
+      "sha256": "c8f043c8495ea17d0d953f7b876f61ac2e247afb32b719ebad40c914c246922e"
+    },
+    {
+      "path": "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-implementation-plan.md",
+      "sha256": "5ef2ac330bf1d7a921b412aeae7169dfce030428940fb7b0b77a909de2939a1d"
+    },
+    {
+      "path": "context/clusters/Organization Hiring & Candidate Pipeline/organization-hiring-candidate-piepline-architecture.md",
+      "sha256": "6ce7872b6c70174339fea2860b294e8b592e52e491e2081ffd9123c84a949ba9"
+    },
+    {
+      "path": "context/clusters/Organization Hiring & Candidate Pipeline/organization-hiring-candidate-pipeline-build-plan.md",
+      "sha256": "d3477b8dfb4f5592ebfceb78b71d42e3561141e01d8c98f445a948ee38fa3835"
+    },
+    {
+      "path": "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md",
+      "sha256": "2c93832a0187deb364fb628d882ea08b691bb8b7334218ae7fc9e86996da5245"
+    },
+    {
+      "path": "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-implementation-plan.md",
+      "sha256": "be5652cfef431f2329e5fd440a68e7deca97d3b6ae80bf53602a59a1577d52a5"
+    },
+    {
+      "path": "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+      "sha256": "3760b1ef974c4a625b838de64d1010b16ee5cfbb590e9eef064f3c5f3b3150c1"
+    },
+    {
+      "path": "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md",
+      "sha256": "8ef94c600e6a15792f6ad6fdeac9ed43beb1f9fcb86864d2db38ae6e34bf3fa2"
+    },
+    {
+      "path": "context/clusters/Privacy & Location Safety/privacy-location-safety-architecture.md",
+      "sha256": "ecd2ccc0b39830312d85ef747df1ca151d8e4b14a51acd02701be46b3fd1499b"
+    },
+    {
+      "path": "context/clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md",
+      "sha256": "0f47343da5ec722ef462b2b487ff105691ef8e9a31dfd5bb39469cf1b7bb49b1"
+    },
+    {
+      "path": "context/clusters/customer demand, order, & resolution/customer-demand-order-resolution-architecture.md",
+      "sha256": "a93df76e00387c07218f8926d97af9d228a74f075e4f3a580967c60028dc8e3c"
+    },
+    {
+      "path": "context/clusters/customer demand, order, & resolution/customer-demand-order-resolution-build-plan.md",
+      "sha256": "b48ba481a3e21fed6b7d1d444c6fb0a1f1db378d7fa40fec57a7ac799892e265"
+    },
+    {
+      "path": "context/clusters/customer demand, order, & resolution/gig demand module/gig-demand-implementation-plan.md",
+      "sha256": "771b4aea3a9c615fb6c2b14779fd916978ace16e1c518ee6f86132af1a8f95d1"
+    },
+    {
+      "path": "context/clusters/customer demand, order, & resolution/gig demand module/gig-demand-module-architecture.md",
+      "sha256": "6ce47fb3ddeb696f4a5f22949ccaeca2592a45f633adc59b1b6a3dab5bdc7a18"
+    },
+    {
+      "path": "context/clusters/customer demand, order, & resolution/review dispute module/review-dispute-implementation-plan.md",
+      "sha256": "d2353d9f73863d070efdc303e92588c1409648da07b173c7c4270ccb6511d06d"
+    },
+    {
+      "path": "context/clusters/customer demand, order, & resolution/review dispute module/review-dispute-module-architecture.md",
+      "sha256": "ba04d3dfc607897ee47344b9384ac4fe549215ef1708d59ffdb0c720aabe0af0"
+    },
+    {
+      "path": "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-implementation-plan.md",
+      "sha256": "0bb7d4eed2c2481f22de069fce690351acb12bde5d9df6634e380aff5df6c5f9"
+    },
+    {
+      "path": "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-module-architecture.md",
+      "sha256": "56eb3c29ee24b5eb19e4c14f6b0a37111d6c11e3c0281dc23fcba5f2e53580ab"
+    },
+    {
+      "path": "context/clusters/discovery classification & taxonomy/AI Taxonomy module/ai-taxonomy-module-architecture.md",
+      "sha256": "d86d1b9029ab6160c77dd8c295945388f05c5aaa2099077e0fa8760b3e0f67c9"
+    },
+    {
+      "path": "context/clusters/discovery classification & taxonomy/AI Taxonomy module/ai-taxonomy-module-implementation-plan.md",
+      "sha256": "961169431b944bf4b1b2ca0c913c573ed6f05a45939240a66eb7e31920ee34f5"
+    },
+    {
+      "path": "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-architecture.md",
+      "sha256": "62fcbb4f52a15880741fadde267a48c6c2870832d834b0e2b6c245bdbd4af499"
+    },
+    {
+      "path": "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-implementation-plan.md",
+      "sha256": "d96c8c3a17805ad87d3c6d3376b5e43f6480dd532304bd39e68159cc587ddd2c"
+    },
+    {
+      "path": "context/clusters/discovery classification & taxonomy/Taxonomy Classification Module/taxonomy-classification-module-architecture.md",
+      "sha256": "a8adcf7ecbcc9931dd20c9e78f8504d88649328d9411b2f215f8e1f1dc5bd4b3"
+    },
+    {
+      "path": "context/clusters/discovery classification & taxonomy/Taxonomy Classification Module/taxonomy-classification-module-implementation-plan.md",
+      "sha256": "6f72b30e981239ab98ea7cf4d10096296830a88ef32b963180045f2a32658493"
+    },
+    {
+      "path": "context/clusters/discovery classification & taxonomy/discovery-classification-architecture.md",
+      "sha256": "d8110ef6966381b52d2b40f0fc43b1c8b5e100cd9814d4b54a534fa8bbd805cf"
+    },
+    {
+      "path": "context/clusters/discovery classification & taxonomy/discovery-classification-build-plan.md",
+      "sha256": "c9f5f232db3df1601ebe6d338064129b18ba8e747ba9987b3f459c8b3417f3d1"
+    },
+    {
+      "path": "context/clusters/identity, authority, & consent/Consent & Disclosure Module/consent-disclosure-implementation-plan.md",
+      "sha256": "270355436820e60afdd6ceb9d1ad340e9a659aec9e84aa9e3445caf2ae625ee9"
+    },
+    {
+      "path": "context/clusters/identity, authority, & consent/Consent & Disclosure Module/consent-disclosure-module-architecture.md",
+      "sha256": "e55f35666bb79f5eed85d1861fc36b269f60108db51592fbbe648b434ff3af74"
+    },
+    {
+      "path": "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-implementation-plan.md",
+      "sha256": "d5b7927b9558ed2618300f08ed32e7a5f9701cb2bf49cbcec44de9446ad4d3c9"
+    },
+    {
+      "path": "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-module-architecture.md",
+      "sha256": "b63d73f4d7ae0feb9da82455768379082261c6604fe030b2f3c7f7ab3b2fd6e3"
+    },
+    {
+      "path": "context/clusters/identity, authority, & consent/Identity & Access module/identity-access-module-architecture.md",
+      "sha256": "3a446b9467d439397e9a4a9ad8a363169bfc3cd3178bfa4abc192a0e2394ad27"
+    },
+    {
+      "path": "context/clusters/identity, authority, & consent/Identity & Access module/identity-access-module-implementation-plan.md",
+      "sha256": "7eb2b3e5a05e401296bd221c4ed1e0e87cb645b5f193b0f186e2235d0f606e6a"
+    },
+    {
+      "path": "context/clusters/identity, authority, & consent/Role & Authority Module/role-authority-implementation-plan.md",
+      "sha256": "c6cd863ad71b34de2e0601f5114c2b7b96f37cd90ceb731338249b0d08d11075"
+    },
+    {
+      "path": "context/clusters/identity, authority, & consent/Role & Authority Module/role-authority-module-architecture.md",
+      "sha256": "666dec5b60b144831e0f901eb2faa8e28a6e81da559b27704f898680733809cf"
+    },
+    {
+      "path": "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-implementation-plan.md",
+      "sha256": "17a1faf51fe6d69a56eb0adf811b66d54da0f40e662f6708092faf4cdea6c502"
+    },
+    {
+      "path": "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md",
+      "sha256": "e0293fc7dc4f3dc7609e716b89397910b5083871f18030f95e5c4352a1b26e78"
+    },
+    {
+      "path": "context/clusters/identity, authority, & consent/identity-authority-consent-architecture.md",
+      "sha256": "538a3fa8f4dae343225bc9890138ae8d6bd8b57b2d077429ab81a07bb44cc32c"
+    },
+    {
+      "path": "context/clusters/identity, authority, & consent/identity-authority-consent-build-plan.md",
+      "sha256": "891b6ec1072baeb4a4acc4ef9b744b3b6269afb31b35be39562f2ca2f9eacc18"
+    },
+    {
+      "path": "context/clusters/incentives, rewards & prize economy/gamification-rewards-module/gamification-rewards-module-architecture(1).md",
+      "sha256": "87ffa213bfc41b8dc9a376ccf9f6bedc01a812e35a90a8d4494b1c979d0ee913"
+    },
+    {
+      "path": "context/clusters/incentives, rewards & prize economy/gamification-rewards-module/gamification-rewards-module-implementation-plan(1).md",
+      "sha256": "a96377af1187c64322da519ed2d70d17efaeee697d5b289c908a7b6b392b9c36"
+    },
+    {
+      "path": "context/clusters/incentives, rewards & prize economy/incentives-rewards-prize-economy-cluster-architecture.md",
+      "sha256": "b8a81fb2799edc38c5e8c747e33a15bf67c10a032ace13dac20e9697760aa5fa"
+    },
+    {
+      "path": "context/clusters/incentives, rewards & prize economy/incentives-rewards-prize-economy-cluster-build-plan.md",
+      "sha256": "ae977aa10e0bf2c1daaa5b0069e53834f7e65342ec4f7c3a8ae5643404e3d085"
+    },
+    {
+      "path": "context/clusters/incentives, rewards & prize economy/sweepstakes-module/sweepstakes-prize-implementation-plan.md",
+      "sha256": "a70015049cd2b7072de6f56cb666714386697b5d25cc18d91cd007ef8b173c98"
+    },
+    {
+      "path": "context/clusters/incentives, rewards & prize economy/sweepstakes-module/sweepstakes-prize-module-architecture.md",
+      "sha256": "c67c633d366ef456371012a7d12b7b42ca30c54110806d7e485a53127f4c9b33"
+    },
+    {
+      "path": "context/clusters/professional supply & readiness/Healthcare Regulated Services module/healthcare-regulated-services-module-architecture.md",
+      "sha256": "7a3168b416c88dfd95e570342ff36ea1add652c3a24fc37f3ff62a185edc9997"
+    },
+    {
+      "path": "context/clusters/professional supply & readiness/Healthcare Regulated Services module/healthcare-regulated-services-module-implementation-plan.md",
+      "sha256": "53063c0d8e8287fb9c10a1861daff89dfb095a431ca17733eb2a549ecce05b25"
+    },
+    {
+      "path": "context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-architecture.md",
+      "sha256": "e88253f4c9431a6e47e237f8df30d1f16cf4cb2181ee5e89b305b37ddbae7677"
+    },
+    {
+      "path": "context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-implementation-plan.md",
+      "sha256": "b3013449372c81285092971074c333b540e243d699acd4b374cc65b57eb97815"
+    },
+    {
+      "path": "context/clusters/professional supply & readiness/Payment Payout & Tax Module/payment-payout-tax-module-architecture.md",
+      "sha256": "63a38936239f7ccf92ee92a4d62c65c2d2350917fcd63c60a898853bac81bd0f"
+    },
+    {
+      "path": "context/clusters/professional supply & readiness/Payment Payout & Tax Module/payment-payout-tax-module-implementation-plan.md",
+      "sha256": "23ce98cb44ffd2614e4a2e4c0dff1f7966429ab4d45095d8dbf23b5e1b9cb4fe"
+    },
+    {
+      "path": "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-architecture.md",
+      "sha256": "c11559081528e19275a6d642f9130f9733d843c0e90b6d7ee44f45cfd51ddbfb"
+    },
+    {
+      "path": "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-implementation-plan.md",
+      "sha256": "8ab8fb4cff893b1b69b46e150e24f3025a210d3c8db5484b59aee88bdf4bcaaf"
+    },
+    {
+      "path": "context/clusters/professional supply & readiness/Trust verification Screening Module/trust-verification-screening-implementation-plan.md",
+      "sha256": "77886135572e56e78b28f6052550cf9e888b560688a93775f2637fdfc26c6f7a"
+    },
+    {
+      "path": "context/clusters/professional supply & readiness/Trust verification Screening Module/trust-verification-screening-module-architecture.md",
+      "sha256": "3cb2cd991723ae4ff60de4c6640168fa2ea2e22c8d33f4db128e92df47b50c9b"
+    },
+    {
+      "path": "context/clusters/professional supply & readiness/professional-supply-readiness-architecture.md",
+      "sha256": "574934878ac1b699a760f94d5c68f4a6835fb2d29e01521b7085137cf2534284"
+    },
+    {
+      "path": "context/clusters/professional supply & readiness/professional-supply-readiness-build-plan.md",
+      "sha256": "8b15bd5fddb14224310f59f9f49b4654bf5527824f63ff9189438ba4c4da4564"
+    },
+    {
+      "path": "context/clusters/scheduling, media, & digital delivery/booking-calendar-module/booking-calendar-module-architecture.md",
+      "sha256": "4e31465abb7e820ab7cb76adb3923de5f659fef13003fb941af700c30610c200"
+    },
+    {
+      "path": "context/clusters/scheduling, media, & digital delivery/booking-calendar-module/booking-calendar-module-implementation-plan.md",
+      "sha256": "215b03625152776a24672c875668b433d8b4ffc588477b2ad653c6a6018807d1"
+    },
+    {
+      "path": "context/clusters/scheduling, media, & digital delivery/digital-goods-access-module/digital-goods-access-implementation-plan.md",
+      "sha256": "e5ce68a3744ed6b630d24b70bceb6029e38584d92fa02a886cd7c3d6349b6692"
+    },
+    {
+      "path": "context/clusters/scheduling, media, & digital delivery/digital-goods-access-module/digital-goods-access-module-architecture.md",
+      "sha256": "b42cfe1f83430e77e04a7f2a73c803082ead50e9fd7e610ff7ffa33cb077f842"
+    },
+    {
+      "path": "context/clusters/scheduling, media, & digital delivery/media-asset-module/media-asset-module-architecture.md",
+      "sha256": "dfcd3c83665e9b8cbfe854013a165506b9204365cb0ec72d65c3c422e64108f4"
+    },
+    {
+      "path": "context/clusters/scheduling, media, & digital delivery/media-asset-module/media-asset-module-implementation-plan.md",
+      "sha256": "598eba513d79a854235f47e0f0f6d6fdf86da129fa3002695c36033cd4090f2c"
+    },
+    {
+      "path": "context/clusters/scheduling, media, & digital delivery/scheduling-media-digital-delivery-cluster-architecture.md",
+      "sha256": "83eeffb430425419925ea15362425248c23f030a64ae323eb442e3e4574ede7e"
+    },
+    {
+      "path": "context/clusters/scheduling, media, & digital delivery/scheduling-media-digital-delivery-cluster-build-plan.md",
+      "sha256": "cc2b1a77c88165b439841ae0c1fe73ccbe251ea8c02d1085d391b9cc5d466c8f"
+    },
+    {
+      "path": "context/clusters/scheduling, media, & digital delivery/video-session-module/video-session-module-architecture.md",
+      "sha256": "2275ee9a3a5b1312d965156e6085f2f43ba79e9efcff5bcd825cfd92daffcf8a"
+    },
+    {
+      "path": "context/clusters/scheduling, media, & digital delivery/video-session-module/video-session-module-implementation-plan.md",
+      "sha256": "7582e7b859603c8b4bb697020dd6b382bfd17d001d0309908c5206dfe30d2835"
+    },
+    {
+      "path": "context/context-map.md",
+      "sha256": "7def6f8ec077744e68f0f645660356a11939c30d7cfae92aa39af0d3e4c579a4"
+    },
+    {
+      "path": "context/progress-tracker.md",
+      "sha256": "4912a1da4d517252bfcff547ee3c79bf7a487271466ffcc44396d6f57e926af6"
+    },
+    {
+      "path": "context/project-overview-v2.md",
+      "sha256": "661a62bc2f58c09c1b61e618014298f70542031b3a858c1db42649835471db25"
+    },
+    {
+      "path": "context/project-overview-v3.md",
+      "sha256": "8cdf5f1a5c9adeb46450a0898867923ea22ebc77948c9e9da0068b5045c6c293"
+    },
+    {
+      "path": "context/reconciliation/clusters/CL-01-handoff.md",
+      "sha256": "f7ce6cb7462cab34378981e9d563add0f15e92988cc36d849bfd04e2819c7cad"
+    },
+    {
+      "path": "context/reconciliation/clusters/CL-02-handoff.md",
+      "sha256": "8bbc2827ab7aa729ab7719d0ad1bf9ad46c92477590f4af3cff959360637f807"
+    },
+    {
+      "path": "context/reconciliation/clusters/CL-03-handoff.md",
+      "sha256": "b6b9e93bf08d4dc815b943b87603de96c341874108d9f72e2a64b82d288d2413"
+    },
+    {
+      "path": "context/reconciliation/clusters/CL-04-handoff.md",
+      "sha256": "baba8a8c644b42891e0d370cae909cbcb7cf88f305735127fd2c643d07c1ac71"
+    },
+    {
+      "path": "context/reconciliation/clusters/CL-05-handoff.md",
+      "sha256": "7ac400855424c0e38aaea6ce287a9fab0dd8cdcae1d904bdcf3168c5d9a3b0af"
+    },
+    {
+      "path": "context/reconciliation/clusters/CL-06-handoff.md",
+      "sha256": "fb9dd311e88d649a60410e6e1b3864e3b082bdad2a04f4cdddd50071bf549c39"
+    },
+    {
+      "path": "context/reconciliation/clusters/CL-07-handoff.md",
+      "sha256": "c9c2a30b4c9b0b78f33e009ce19c7e39fcbaa2e2f370ed272226789b5e0a7dd3"
+    },
+    {
+      "path": "context/reconciliation/clusters/CL-08-handoff.md",
+      "sha256": "df20aa13b1ec11e82f765ca98ec1d305900ad8a0c888aa43f50f15b6cc0fcd5c"
+    },
+    {
+      "path": "context/reconciliation/clusters/CL-09-handoff.md",
+      "sha256": "53b76cfef1989f4a7501565e2bcb764c35bf1431e37e232ddab1c4293233b2b9"
+    },
+    {
+      "path": "context/reconciliation/clusters/CL-10-handoff.md",
+      "sha256": "5a46b18cb9c1b3a14def26ed43e458d52f28ed9181e90a17fcb2ea698a0f5e1c"
+    },
+    {
+      "path": "context/reconciliation/database-readiness.md",
+      "sha256": "3b770dc45dd2c127f0e800ae0c72c0f9796a53028e0ec9829ac39854e7f443ef"
+    },
+    {
+      "path": "context/reconciliation/development-readiness-status.md",
+      "sha256": "b3f79442b8412ec2825fabfd990abc510158ca032eb054c7d95dbfd57804e077"
+    },
+    {
+      "path": "context/reconciliation/platform-architecture-rulings.md",
+      "sha256": "fc52cf0bd311ff806b0813da046797f49153d0d4122bd861ac2a20aa8b607330"
+    },
+    {
+      "path": "context/reconciliation/shared-operations-refresh-report.md",
+      "sha256": "37c41afb2da45ed1a6cf610d780083fdbbe6cfc51c75cfa47163ff0e766dee40"
+    },
+    {
+      "path": "context/reconciliation/shared-operations-validation.md",
+      "sha256": "ad7aa6eb0e8587b358e09a357e811f15fc20b58b440104557fa60a8908cb997e"
+    },
+    {
+      "path": "context/shared/shared-operations.md",
+      "sha256": "8007feec7281f8de6902c9bf828086bed9039ac49d88afc8f7361740ce619765"
+    },
+    {
+      "path": "context/workin_ants_ubiquitous_language_pack_v2_2_full_compliance_schema_module (1).docx",
+      "sha256": "b06177cff2f0364691e11d3b40c68945ad529c30beed44467c34b980e78c1de1"
+    }
+  ]
+}

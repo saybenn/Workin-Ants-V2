@@ -791,7 +791,7 @@ These appear in the Canonical Shared Operations synthesis as **Proposed Ruling**
 
 ### 11.3 Unresolved shared capability
 
-SH-106 `computeContentFingerprint` remains unresolved. Exact checksums may be Media-owned mechanics, but perceptual matching/provider choice, threshold policy, persistence, and infringement meaning are not established. A fingerprint match may only be a signal; it must never automatically become legal infringement truth or a moderation action.
+SH-106 `computeContentFingerprint` is **Proposed ruling**, with product scope settled as optional after launch (WA-R004). Launch uses report-driven Moderation / Legal Notice. Exact checksums remain SH-086; perceptual adapter ownership, provider choice, thresholds and persistence remain technical/provider gates. A fingerprint match may only be a signal; it must never automatically become legal infringement truth or a moderation action.
 
 ---
 
@@ -1375,7 +1375,7 @@ Coding agents must not create any of the following inside CL-09 or its consumers
 | U-05 | How is legal-notice validation decision/provenance/version stored? | Status fields exist, but no explicit validation result/policy version. | Legal requirements/policy versioning not supplied. | Auditable legal validation beyond simple status. |
 | U-06 | What durable record tracks downstream moderation action execution/acknowledgments? | `ModerationAction` has no execution status. | SH-105 `correlateEnforcementResult` is only proposed. | Reliable multi-owner enforcement/reconciliation. |
 | U-07 | What is repeat-infringer truth? | Responsibility claimed; no schema or policy. | No source record, threshold, legal policy, or hold relationship. | Repeat-infringer automation/escalation. |
-| U-08 | Is duplicate/piracy fingerprinting MVP, and who owns it? | Registry desire exists; canonical SH-106 `computeContentFingerprint` unresolved. | Provider/algorithm/threshold/persistence/owner absent. | Proactive duplicate-content detection. |
+| U-08 | Scope RESOLVED by WA-R004: optional after launch; final adapter ownership remains gated | SH-106 is Proposed ruling; report-driven moderation is the launch path | Provider/algorithm/threshold/persistence/adapter contract remain prerequisites to later activation | Later proactive detection only; no launch dependency |
 | U-09 | Is legal correspondence a dedicated timeline, Messaging thread, or Notification-only delivery? | Current models do not capture replies/supplements as legal workflow history. | No correspondence ownership ruling. | Complete legal communication history. |
 | U-10 / CL-09-R006 | Which physical structure implements one typed Hold target? | Exactly one typed target and explicit applicability are confirmed; current nullable FKs are not final. | Physical representation, supported target vocabulary, and migration strategy remain unresolved. | General-purpose Hold persistence/API implementation. |
 | U-11 | What persistent review queue/claim/escalation model backs Hold review? | Manual review queues/escalation are claimed but absent. | SH-054 `claimWorkItem` is proposed, no schema. | Concurrent reviewer claim/escalation workflow. |

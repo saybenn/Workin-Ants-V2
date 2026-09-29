@@ -112,7 +112,7 @@ Order is platform transaction truth and has a lifecycle distinct from Offering, 
 
 | Record | Meaning |
 | --- | --- |
-| `Order` | Authoritative commercial transaction record sourced from one Offering or one accepted GigAssignment. |
+| `Order` | Authoritative commercial transaction record sourced from one Offering, accepted GigAssignment, or approved platform-facilitated screening service (WA-R003; screening representation pending). |
 | `OrderEvent` | Append-only domain timeline for Order lifecycle changes and meaningful transaction events. |
 | `OrderFile` | Transaction-context relationship between an Order and a MediaAsset, with buyer/professional/admin/system role meaning. |
 | `AgreementTemplate` | Versioned reusable agreement template configuration used to instantiate Order-specific agreements. |
@@ -246,9 +246,9 @@ Specific prohibitions:
 ## 5. Module Architecture Principles
 
 1. **Order is transaction truth.** Provider financial state can cause a verified Order transition but cannot replace Order.
-2. **Exactly one commercial source.** An Order is sourced from either an Offering or a GigAssignment according to `OrderSourceType`; invalid or mismatched combinations are rejected and must be database-enforced after the schema ruling is accepted.
+2. **Exactly one commercial source.** An Order has one valid source family: Offering, GigAssignment, or the approved platform-facilitated screening source (WA-R003). Each family requires its own source/reference constraints; reject mixed/mismatched sources. Screening schema/activation remains gated.
 3. **CustomerProfile is buyer-domain truth.** `buyerUserId` may remain auth/audit traceability, but new commercial behavior must not treat User as the complete buyer domain identity.
-4. **ProfessionalProfile is seller identity.** User cannot be substituted for seller context.
+4. **ProfessionalProfile is marketplace seller identity.** User cannot be substituted for seller context. Platform-facilitated screening uses explicit platform service context and requires no Professional seller (WA-R003).
 5. **Historical commercial policy is frozen.** Current Track policy never retroactively changes a historical Order.
 6. **Payment rail is external.** Payment / Payout / Tax verifies, deduplicates, and translates provider events before this Module applies a normalized result.
 7. **Agreement proof is contextual.** ConsentLog, MediaAsset, AuditEvent, and provider envelopes support Agreement but do not replace its lifecycle.
@@ -1368,7 +1368,7 @@ Do not generate inside `transaction_order`:
 
 **Confirmed actor semantics (CL-04-R007):** CustomerProfile is required semantic buyer identity for new CL-04 buyer-domain records; User remains authenticated account/audit identity. After CustomerProfile migration, Gig/GigAssignment/Order buyer ownership must not be authorized from User ID alone. A Review author resolves to the Order's buyer CustomerProfile. Dispute opener proof must distinguish customer, professional, and privileged/admin initiation with an unambiguous typed domain actor; this representation requirement does not approve which actors may open a Dispute. Historical backfill, permanent legacy-User reference semantics, and the physical typed-opener schema remain unresolved.
 
-**Binding source invariant (CL-04-R008):** `sourceType=offering` requires non-null `offeringId` and null `gigAssignmentId`; `sourceType=gig_assignment` requires non-null `gigAssignmentId` and null `offeringId`. Neither, both, or a mismatched discriminator is invalid. Transaction / Order must enforce this in domain validation and a later approved database constraint/migration. Current schema does not yet enforce it; this pass makes no schema change.
+**Binding marketplace-source invariant (CL-04-R008, scope amended by WA-R003):** for seller-backed marketplace Orders, `sourceType=offering` requires only its Offering source and `sourceType=gig_assignment` requires only its GigAssignment source. Mixed sources or mismatched discriminators are invalid. The approved platform-facilitated screening source is a separate family: it references a Trust-owned package/quote, requires no Professional seller, and must not fabricate an Offering or GigAssignment. Its discriminator, reference, participant constraints and migration are not yet represented in Prisma. Transaction / Order must enforce one valid source family in domain validation and coordinated database constraints before enabling that family. No schema/deployment change is implied.
 
 **Binding retention boundary (CL-04-R011):** hard deletion of an Order must not cascade-delete retained transaction, Agreement, Review, Dispute, or domain-history evidence without owner-specific Privacy/retention evaluation. Privacy issues the instruction; each owner enumerates its targets, evaluates retention/exemption facts, erases/anonymizes eligible data, preserves/minimizes retained evidence, and returns proof to Privacy. Database cascades must not provide an alternate destructive path. Existing cascade behavior requires a later approved database correction; legal retention durations remain unresolved.
 
@@ -1463,3 +1463,13 @@ Before implementing any numbered Transaction / Order feature, read in this order
 10. current progress tracker.
 
 Before coding, verify that every unresolved decision required by the feature has an approved ruling. If not, stop the feature at that boundary and record the blocker rather than inventing policy.
+
+## WA-R003 — Approved platform-facilitated screening source (2026-09-29)
+
+SH-107 authorizes three conceptual source families: Offering, accepted GigAssignment, and platform-facilitated screening service. The first two retain their Professional seller rules. Screening has a Customer buyer and explicit platform service context, with no Professional seller. Organization verification uses the business/EIN path; it is not a personal screening subject.
+
+Trust owns VerificationPackage/check-package meaning, itemized quote, requirements, consent sufficiency and screening results. Order freezes the authoritative package/quote reference, source version, amount/currency, applicable fee/tax/disclosure facts and buyer attribution; Payment executes the financial rail. An authoritative paid Order outcome permits Trust to continue, but never proves screening clearance. Source contracts must reject stale/unavailable quotes and replay the original Order under the same semantic purchase key.
+
+Voluntary Candidate/Professional screening is optional, subject-initiated and subject-paid by default. A required workflow gate does not silently create employer sponsorship; a different payer/initiator requires the separately approved sponsored workflow described by the canonical registry.
+
+Implementation remains gated on a source-specific schema/constraint and transition contract, paid-result correlation, replay/refund/recovery semantics, and provider/legal requirements. Do not reuse marketplace seller-acceptance or fulfillment assumptions for screening. These are execution prerequisites, not a question about whether paid screening is allowed. Existing Prisma `OrderSourceType` values describe represented structure only.

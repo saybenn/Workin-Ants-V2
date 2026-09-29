@@ -942,7 +942,7 @@ The canonical `context/shared/shared-operations.md` registry supplies permanent 
 | SH-102 `resolveModerationTarget` | **Proposed Ruling** | typed registry + owner resolvers | Reviewer-safe target composition. | Case review. | fields/actions allowed | minimized target summary | universal repository |
 | SH-104 `preserveEvidenceSnapshot` | **Proposed Ruling** | decision/evidence owner using Media/hash | Immutable legal evidence proof. | Before destructive effect. | evidence-required matrix/legal meaning | snapshot/reference | Audit generic blob |
 | SH-105 `correlateEnforcementResult` | **Proposed Ruling** | This Module | Durable acknowledgment/retry/restoration correlation. | Enforcement/reconciliation. | required-step/partial meaning | orchestration state | copying target lifecycle state |
-| SH-106 `computeContentFingerprint` | **Unresolved** | Media/specialized adapter unresolved | Future duplicate/piracy signal. | Not implemented until ruled. | match meaning/infringement decision | signal only | local piracy detector |
+| SH-106 `computeContentFingerprint` | **Proposed ruling; optional after launch (WA-R004)** | Media/specialized adapter technical ownership remains gated | Future duplicate/piracy signal; report-driven moderation ships without it. | Technical/provider gates before later activation. | match meaning/infringement decision | signal only | local piracy detector |
 
 ---
 

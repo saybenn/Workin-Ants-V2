@@ -138,7 +138,7 @@ The Module owns a coherent set of truths that have different semantics from adja
 - rewards are not prizes;
 - leaderboard rank is not source truth;
 - a challenge is not a drawing;
-- a deterministic profile benefit is not a Track subscription entitlement;
+- an earned reward is Gamification truth; any resulting commercial benefit is a Track-owned grant rather than a new paid subscription;
 - reward value may be tax-relevant without making Gamification the tax owner.
 
 Keeping these truths in one owner prevents payment, search, subscription, and sweepstakes implementations from inventing local point/reward logic.
@@ -1084,7 +1084,7 @@ A `RewardFulfillmentPort` may be introduced only after U-GR-09 identifies an eff
 | Audit / Event Ledger | SH-029/030 | material action/sensitive access proof | actor/action/target/safe metadata | No to domain truth; audit policy may require success semantics | AuditEvent/AccessAuditLog storage |
 | Observability / Ops | SH-032/033/034/037/038 | trace, logs, failures, queue telemetry | safe operational identifiers | No to business truth | local logger/incident/queue tables |
 | Privacy / Data Erasure | SH-095–098 | legal privacy orchestration | target/action, subject, retention decision | May block erasure | local privacy workflow |
-| Track Subscription & Entitlement | SH-119 only if approved | deterministic temporary benefit effect | source reward, benefit key/value/interval | Yes for that effect | local entitlement/premium flag |
+| Track Subscription & Entitlement | SH-119 for approved reward effects | deterministic temporary benefit effect | source reward, benefit key/value/interval | Yes for that effect | local entitlement/premium flag |
 | Search / affected feature | future approved effect interface | implement `profile_boost` or similar effect | approved grant/effect reference | Yes for that effect | Typesense/Search writes |
 | Sweepstakes / Prize | only explicitly approved bridge | future deterministic fact may be consumed by Sweepstakes | bounded event/command facts | Yes for bridge only | PrizeEntry/drawing/odds logic |
 
@@ -1350,13 +1350,13 @@ Only operations relevant to this Module are listed. The canonical definitions re
 **Do not build:** 1099/tax filing service.
 
 ### SH-119 — `applyTemporaryFeatureGrant`
-**Classification:** proposed cross-cutting public interface  
-**Owner:** unresolved between Track Subscription & Entitlement / affected feature  
+**Classification:** Module public interface
+**Owner:** Track Subscription & Entitlement
 **Why used:** only for supported deterministic reward effects such as `profile_boost`.  
 **Invocation:** after approved redemption/effect decision.  
 **Local policy:** why reward was earned and when Gamification considers its effect satisfied.  
 **Do not build:** `profileBoost=true`, `premiumReward`, local temporary entitlement.  
-**Status:** **Proposed; must not be implemented as confirmed until U-GR-10 is resolved.**
+**Status:** **Confirmed by SH-119 / WA-R002. U-GR-10 ownership is resolved; the bilateral execution contract remains a feature prerequisite.**
 
 ---
 
@@ -1390,7 +1390,7 @@ Only operations relevant to this Module are listed. The canonical definitions re
 6. **Queue/retry:** SH-047/048 are shared; job payload, completion, compensation, and permanent-failure behavior remain local.
 7. **Provider status translation:** SH-061 is a provider-adapter pattern only if this Module later owns a reward provider; status mappings remain adapter-local and cannot become a global fulfillment vocabulary.
 8. **Privacy protocol:** SH-095–098 are shared; this Module defines its subject-data map and retention facts while Privacy owns orchestration.
-9. **Temporary feature grant:** SH-119, if approved, reuses a grant mechanism while Gamification retains RewardRedemption truth and the affected feature retains effect truth.
+9. **Temporary feature grant:** SH-119, owned by Track, reuses a grant mechanism while Gamification retains RewardRedemption truth and the affected feature retains effect truth.
 10. **Decision result:** SH-015 may standardize response shape if approved; it does not centralize reward eligibility policy.
 
 ---
@@ -1457,7 +1457,7 @@ The root security owner decides final step-up policy.
 | Tax/financial readiness | Payment / Payout / Tax | SH-019 | tax-sensitive reward approval/fulfillment | determine whether this Reward requires tax gate; never interpret provider state | allow / pending_tax / blocked/review |
 | Taxable value reporting | Payment / Payout / Tax | SH-118 | recognition of reportable Reward value | supply local FMV/value snapshot and approved recognition moment | report accepted/retryable failure |
 | Step-up | Identity & Access | SH-014 | high-risk admin point/financial actions | declare action sensitivity; do not own assurance lifecycle | allow / step_up_required |
-| Temporary deterministic benefit | SH-119 owner unresolved | SH-119 if approved | profile boost or similar benefit | Gamification owns reason; effect owner applies benefit | fulfilled effect / unsupported |
+| Temporary deterministic benefit | Track owns SH-119; effect contract remains gated | SH-119 for approved reward effects | profile boost or similar benefit | Gamification owns reason; effect owner applies benefit | fulfilled effect / unsupported |
 | Track entitlement | Track Subscription & Entitlement | SH-005 only after explicit ruling | no baseline action currently | ordinary points/rewards are not implicitly plan-gated | unresolved/disabled |
 | No-paid-prize-odds | Gamification local + Sweepstakes boundary | local policy; no cross-domain write | all Program/Rule/Reward config and effects | reject any effect intended to improve chance odds | deny |
 | Fraud/abuse review | shared owner unresolved; Hold owner confirmed | local signals + SH-012 | suspicious adjustment/redemption | local evidence may request hold; no generic fraud truth | continue / review requested |
@@ -1653,7 +1653,7 @@ Both must be rebuildable through SH-115.
 
 Gamification does not own Typesense or Search projection.
 
-`RewardType.profile_boost` is architecture-blocked until SH-119 ownership/effect contract is approved.
+`RewardType.profile_boost` is architecture-blocked until Track grant/effect contract is bound (ownership is settled).
 
 A future approved flow is conceptually:
 
@@ -2053,7 +2053,7 @@ No E2E should directly insert another Module's source truth except controlled fi
 36. No sensitive source/provider payload may be dumped into `metadata`, audit, logs, or events.
 37. Privacy requests remain Privacy-owned; this Module only executes its target instructions.
 38. Retained tax/fraud evidence must not be erased without an approved Privacy retention decision.
-39. Proposed shared operation SH-119 must not be treated as confirmed.
+39. Confirmed SH-119 ownership does not prove reward-effect implementation or activation readiness.
 40. Unresolved decisions must fail closed rather than being settled in implementation code.
 
 ---
@@ -2085,7 +2085,7 @@ No E2E should directly insert another Module's source truth except controlled fi
 | `pointsBalance` mutable source table/column | SH-115 projection |
 | `cl10PrivacyService.ts` owning requests/jobs | SH-095–098 |
 | `annualReward1099Summary` or local tax filing table | SH-118 + Payment/Tax |
-| `profileBoost=true`, `premiumReward=true`, local entitlement table | SH-119 once approved |
+| `profileBoost=true`, `premiumReward=true`, local entitlement table | Confirmed SH-119 through Track |
 | direct Typesense/Search client for reward boost | affected owner/Search contract after SH-119 |
 | local Stripe/tax/notification provider adapter | canonical provider-owning Modules |
 | `PrizeEntry` creation from point/reward code | Sweepstakes / Prize interface only after explicit approved bridge |
@@ -2160,7 +2160,7 @@ Maps to U-CL10-05. Define authoritative effect path for each `RewardType`.
 
 ### U-GR-10 — Temporary benefit grant ownership
 
-Maps to U-CL10-06 / SH-119. Determine owner for `profile_boost` and other deterministic time-bound benefits.
+Maps to U-CL10-06 / SH-119. **RESOLVED by WA-R002:** Track owns commercial grants for `profile_boost` and other approved time-bound commercial benefits. Gamification owns earning/redemption. Bind grant execution, idempotency, compensation and feature application before activation.
 
 ### U-GR-11 — Direct Track entitlement dependency
 
@@ -2233,7 +2233,7 @@ For provider/manual reward fulfillment, what record preserves attempts, provider
 - PR-CL10-04: Program/Challenge transition graph described above.
 - PR-CL10-05: explicit RewardRedemption transition matrix; no fulfillment from pending-tax/blocked; correction through reversal/compensation.
 - PR-CL10-09: high-risk Gamification admin actions are candidates for central step-up.
-- SH-119 remains proposed, not approved.
+- SH-119 is Confirmed; Track owns commercial grants. Effect execution still requires a bound contract.
 
 ### Implementation blockers
 

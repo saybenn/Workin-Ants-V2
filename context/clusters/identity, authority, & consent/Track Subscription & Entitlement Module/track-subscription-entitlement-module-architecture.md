@@ -235,7 +235,7 @@ This Module must not own or duplicate the following.
 | Privacy / Data Erasure | `PrivacyRequest`, `DataErasureJob`, `DataErasureTarget`, retention-exemption orchestration/export bundle | Implement Track target inventory/execution only. |
 | Admin Review / Compliance Hold | `ComplianceHold` lifecycle | Query hold or request/release through owner; no generic `isBlocked` truth. |
 | Media / File Access | upload, scan, file storage, signed URL, MediaAsset lifecycle | This Module currently owns no file attachment semantics. |
-| Organization Hiring | organization ATS feature-access model until `U-CL01-33` is resolved | Do not silently add `organization` to `AccountTrack`. |
+| Organization Hiring | Organization identity and hiring lifecycle; Track owns ATS commercial policy under WA-R005 | Do not silently add `organization` to `AccountTrack`. |
 
 ### Specific anti-theft rules
 
@@ -499,7 +499,7 @@ candidate
 professional
 ```
 
-These are current account tracks. `organization` must not be added until `U-CL01-33` is resolved.
+These are User account tracks. WA-R005 confirms a separate Organization-scoped ATS commercial lane; do not add `organization` to `AccountTrack` as a shortcut.
 
 ### 9.2 TrackPlan lifecycle
 
@@ -1233,9 +1233,9 @@ Only operations materially relevant to this Module are listed.
 
 ### SH-119 — `applyTemporaryFeatureGrant`
 
-- **Status:** proposed ruling; ownership partly unresolved.
-- **Why relevant:** future deterministic temporary boosts may need a Track grant.
-- **Rule:** do not implement until ownership is resolved. Never use it as justification for arbitrary local feature flags.
+- **Status:** Confirmed; Track Subscription & Entitlement owns SH-119 (WA-R002).
+- **Why relevant:** approved deterministic rewards may request a scoped commercial grant. Gamification retains earning/redemption truth.
+- **Rule:** Track records authoritative grants; consumers use SH-005. Each reward declares duration extension, quota increase, separate scope, or no additional effect for equivalent benefits. No automatic stacking, base-plan rewrite, local premium flag, or sweepstakes-odds effect. Owner-specific execution/replay/compensation contracts remain prerequisites to activation.
 
 ---
 
@@ -1865,7 +1865,7 @@ Provider-native error strings/codes may be logged safely in adapter diagnostics 
 2. `User`, CustomerProfile, CandidateProfile, ProfessionalProfile, Order, Booking, Search, Video, and Digital Goods must not acquire current Track policy booleans as source truth.
 3. A Track decision must be bound to the correct User, AccountTrack, and actor profile.
 4. `customer` maps to CustomerProfile, `candidate` to CandidateProfile, and `professional` to ProfessionalProfile where profile-scoped context is required.
-5. `organization` is not an AccountTrack until `U-CL01-33` is resolved.
+5. `organization` is not a User AccountTrack; its ATS commercial lane is separately scoped (WA-R005).
 6. `TrackPlan`, `TrackSubscription`, `TrackEntitlementGrant`, `TrackUsageEvent`, `TrackUsageCounter`, and `TrackSubscriptionEvent` remain Track-owned.
 7. Order may snapshot Track decisions but never mutate Track source records.
 8. Booking may apply priority but never own Track priority entitlement truth.
@@ -1964,7 +1964,7 @@ These are binding implementation gates inherited from CL-01 or identified by cur
 | `U-CL01-30` | What are buyer-fee/seller-commission rounding, basis-point and snapshot rules? | Entitlement value types exist; transaction computation rules do not. | final `quoteOrderTrackPolicy`/Order integration |
 | `U-CL01-31` | What does priority scheduling rank mean and does use consume quota? | Track entitlement exists; Booking semantics absent. | final Booking integration |
 | `U-CL01-32` | What billing/subscription evidence must be retained/anonymized and for how long? | Legal/privacy duration and field policy absent. | destructive privacy paths |
-| `U-CL01-33` | Does organization commercial access remain a separate model or become another AccountTrack? | Shared-ops registry explicitly leaves owner unresolved. | future org plans; does not block current three tracks |
+| `U-CL01-33` | RESOLVED: separate Organization ATS commercial lane (WA-R005) | Track owns commercial policy; Organization owns hiring identity/lifecycle | Organization-scoped storage/billing/feature allocation remains deferred; current User tracks stay separate |
 | `U-TSE-01` | Which price field is canonical after catalog activation: TrackPlan.monthlyPriceCents or TrackPlanPrice.amountCents? | Current schema stores both without reconciliation rule. | production price mutation/plan presentation |
 | `U-TSE-02` | Should billing cadence have a dedicated enum instead of TrackUsagePeriod? | Current interval field overloads quota-period vocabulary. | schema hardening before broader billing cadence support |
 | `U-TSE-03` | What DB constraints enforce exact profile binding and one active subscription per actor track? | Application invariant is confirmed but schema does not enforce it. | production subscription/grant creation |
@@ -2036,3 +2036,7 @@ Before coding a numbered Module feature, confirm:
 - all architecture gates named by that feature are resolved or intentionally fixture-only/fail-closed;
 - the prior Module feature exit gate passed;
 - no new SH operation is being invented when a canonical one already exists.
+
+## WA-R005 — Organization ATS commercial policy
+
+Organization ATS is a separate commercial lane, with ATS Free, ATS Plus and ATS Pro placeholders as defined by the canonical registry. Track remains the authoritative commercial-policy owner; Organization Hiring retains identity, membership, Jobs and ATS workflow truth. Do not model Organizations as another User actor track or create consumer-local premium flags. OrganizationFeatureAccess is existing structural evidence, not permission to create a second subscription engine. Exact pricing, limits, feature allocation, Organization-scoped persistence and billing contracts remain deferred and must be settled before enabling the affected commercial behavior.

@@ -94,7 +94,7 @@ If these are missing, they are canonical-owner/platform prerequisites, not local
 | U-GR-06 participant status vocabulary or approved conservative subset | Feature 05 participant transitions |
 | U-GR-08 inventory semantics | finite-inventory Reward activation/redemption in Features 07–08 |
 | U-GR-09 reward fulfillment/effect contract | Feature 09 for each affected RewardType |
-| U-GR-10 SH-119 owner | Feature 09 profile-boost/time-bound benefit |
+| U-GR-10 resolved owner; remaining grant/effect contract | Feature 09 profile-boost/time-bound benefit |
 | U-GR-13 delivery-on-time source owner | activating that Rule trigger |
 | U-GR-14 redemption consent linkage requirement | production redemption compliance proof in Feature 08 |
 | U-GR-15 taxable-value recognition moment | production SH-118 use in Feature 09 |
@@ -1203,7 +1203,7 @@ No SH-005 entitlement check unless U-GR-11 is resolved.
 - pointCost/value/inventory fields pass typed validation.
 - activation requires an approved effect contract where the type needs execution.
 - finite inventory requires U-GR-08 before activation.
-- profile_boost requires U-GR-10/SH-119 approval.
+- profile_boost requires U-GR-10/SH-119 effect-contract binding.
 - cash_bonus remains external financial effect; no local payout.
 - platform_credit remains unsupported until ledger/effect owner defined.
 - badge must not imply TrustBadge verification.
@@ -1542,7 +1542,7 @@ Implements **CL-10 Feature 05 — Reward Tax, Hold, Fulfillment, and Determinist
 **SH-047/048:** durable tax/effect jobs.  
 **SH-037/038:** operational failure/queue telemetry.  
 **SH-029/030:** material admin/fulfillment audit and sensitive reads.  
-**SH-119:** only after ownership approval for temporary deterministic benefit.  
+**SH-119:** Track-owned for temporary deterministic commercial benefits; bind the effect contract before activation.
 **SH-061/062:** only if Gamification becomes explicit provider owner.
 
 #### Domain Logic
@@ -1616,7 +1616,7 @@ Do not expose raw TaxProfile/provider payloads.
 - effect provider/downstream failure -> not fulfilled; retry/manual review.
 - unknown provider status -> normalized manual review.
 - unapproved RewardType -> `UNSUPPORTED_REWARD_EFFECT`.
-- SH-119 unresolved -> profile boost remains disabled.
+- Missing Track grant/effect execution contract -> profile boost remains disabled; SH-119 ownership is settled.
 
 #### Tests
 
@@ -1635,7 +1635,7 @@ Do not expose raw TaxProfile/provider payloads.
 #### Documentation Updates
 
 - U-GR-09 effect support matrix.
-- U-GR-10 if SH-119 approved.
+- U-GR-10 ownership is resolved; bind the SH-119 execution contract for enabled effects.
 - U-GR-15 recognition moment.
 - U-GR-16 compensation behavior.
 - provider ownership and dedupe/reconciliation if added.
@@ -1916,7 +1916,7 @@ Prove correct consumption of:
 - SH-095–098;
 - SH-115;
 - SH-118;
-- SH-119 only if approved.
+- SH-119 for approved reward effects.
 
 Integration tests must fail if a local duplicate substitutes for the canonical contract.
 

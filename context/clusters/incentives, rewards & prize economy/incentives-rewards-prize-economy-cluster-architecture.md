@@ -625,7 +625,7 @@ Only CL-10-relevant operations are listed here. The global definitions remain in
 
 ### Conditional / proposed shared operation
 
-**SH-119 `applyTemporaryFeatureGrant`** is a **Proposed Ruling** in the canonical registry. It is required only if a deterministic reward such as `profile_boost` is implemented as a time-bound platform benefit. Gamification owns why the reward was earned; Track Subscription & Entitlement or the affected feature owns the grant/effect according to the final ruling. It must never affect sweepstakes odds. Do not implement `profileBoost=true` or a local premium flag while SH-119 ownership remains unapproved.
+**SH-119 `applyTemporaryFeatureGrant`** is **Confirmed** and owned by Track Subscription & Entitlement (WA-R002). Gamification owns earning/redemption and requests the scoped grant; Track records commercial truth; consumers resolve through SH-005. Each reward declares equivalent-benefit behavior: duration extension, quota increase, separately scoped benefit, or no additional effect. No automatic stacking, base-plan rewrite, local premium flags, or effect on sweepstakes odds. Bind the grant/effect execution contract before activation.
 
 ### Proposed rule-integrity primitives
 
@@ -782,7 +782,7 @@ Tax-blocked prizes must never be marked fulfilled merely because a shipment/mess
 | CL-04 Review / Dispute | Gamification / Rewards | High-rating event | Review / Dispute | Versioned owner event | Gamification reading/modifying review internals |
 | CL-03 Professional Eligibility | Gamification / Rewards | Profile-completed event/context | Professional Eligibility | Owner event / narrow query | Gamification setting profile status |
 | CL-01 Consent & Disclosure | Both | Versioned acceptance proof | Consent & Disclosure | SH-008/009 | Local ConsentLog copies |
-| CL-01 Track Subscription & Entitlement | Gamification / affected feature | Approved deterministic benefit/entitlement effect | Track/affected feature per contract | SH-119 if approved; SH-005 only where a defined feature gate exists | Entitlement-driven prize odds; local premium flags |
+| CL-01 Track Subscription & Entitlement | Gamification / affected feature | Approved deterministic benefit/entitlement effect | Track owns grant; affected feature applies resolved benefit | SH-119 for approved reward effects; SH-005 only where a defined feature gate exists | Entitlement-driven prize odds; local premium flags |
 | CL-09 Admin Review / Compliance Hold | Both | Active/released hold decisions | Admin Review / Compliance Hold | SH-011/012 | Local hold systems |
 | CL-03 Payment / Payout / Tax | Both | Tax readiness and reporting handoff | Payment / Payout / Tax | SH-019/118 | CL-10 TaxProfile verification/provider interpretation |
 | CL-07 Notification | Both | Message delivery request/status | Notification | SH-041 / notification events | Treating delivery as domain fulfillment |
@@ -1058,7 +1058,7 @@ These use shared projection/aggregation mechanisms without becoming Search docum
 
 `RewardType.profile_boost` does not authorize Gamification to write Typesense, `SearchUpsertEvent`, or profile ranking fields directly.
 
-If SH-119 is approved:
+For approved SH-119 reward effects:
 
 ```text
 RewardRedemption fulfilled/approved deterministic benefit
@@ -1350,7 +1350,7 @@ At minimum:
 37. Never silently invent a reward fulfillment mechanism for an enum value merely because the enum exists.
 38. Never silently invent a dedicated ChallengeParticipant lifecycle enum or migrate the schema without resolving U-CL10-04.
 39. Never silently create official-rules snapshot or drawing-run models without resolving the named unresolved decisions.
-40. Never implement a proposed SH-119 ownership choice as though it were confirmed.
+40. Use confirmed Track ownership for SH-119; do not infer that effect contracts or runtime implementation are complete.
 
 ---
 
@@ -1377,7 +1377,7 @@ Coding agents must not create the following CL-10-local substitutes when the can
 | `winnerEmailService.ts`, `prizePush.ts`, `rewardNotificationService.ts` | SH-041 |
 | `raffleRandom.ts` using ordinary PRNG | SH-116 |
 | CL-10 `annual1099Service.ts`, `prizeFilingService.ts` | SH-117/118 + Payment / Payout / Tax |
-| `profileBoost=true`, `premiumReward=true`, local temporary entitlement table | SH-119 once approved |
+| `profileBoost=true`, `premiumReward=true`, local temporary entitlement table | Confirmed SH-119 through Track |
 | `cl10PrivacyService.ts` owning privacy requests | SH-095–098 + Privacy owner |
 | `processed_stripe_events` copy under Sweepstakes | Payment / Payout / Tax `ProcessedStripeEvent` |
 | generic `fraudRiskAssessment` service with no approved owner | Keep unresolved; use owner-local deterministic validation + SH-012 escalation until architecture assigns shared risk ownership |
@@ -1425,10 +1425,9 @@ Coding agents must not create the following CL-10-local substitutes when the can
 
 ### U-CL10-06 — SH-119 temporary feature grant ownership
 
-- **Question:** Does Track Subscription & Entitlement or the affected feature own deterministic time-bound grants earned from rewards?
-- **Why unresolved:** SH-119 is a Proposed Ruling in the canonical registry.
-- **Missing evidence:** approved owner and grant contract.
-- **Blocks:** `profile_boost` or similar reward effects that need a temporary platform grant.
+- **Disposition:** AI_RESOLVED, WA-R002; Track owns the commercial grant, Gamification owns earning/redemption, and feature owners apply resolved benefits.
+- **Remaining implementation prerequisite:** bilateral grant/effect execution, replay and compensation contract.
+- **Blocks:** activation of an effect lacking that contract; ownership is no longer open.
 
 ### U-CL10-07 — Direct entitlement dependency for ordinary gamification
 

@@ -1982,3 +1982,9 @@ Before treating these Module files as implementation context, verify:
 14. Every numbered feature contains tests, acceptance criteria, and an exit gate.
 15. Features stop at unresolved decisions rather than inventing architecture.
 16. A coding agent can implement the plan without creating a generic commerce service or provider-owned truth inside this Module.
+
+## WA-R003 sequencing amendment — screening source
+
+The Offering/GigAssignment feature slices above remain marketplace slices, not an exhaustive statement of approved Order sources. Before enabling paid screening, extend source-contract validation and Order creation with the architecture's platform-facilitated screening family, then prove quote freezing, source XOR/participant constraints, semantic replay, authoritative paid-result correlation and owner-specific refund/recovery behavior. Coordinate schema changes through one migration owner. Trust check continuation follows paid outcome and required consent; payment never marks a check passed. Unsupported screening must return an explicit unavailable/unsupported result, never a fake seller or Offering.
+
+Exit evidence: source-family contract tests reject mixed references and marketplace seller substitution; duplicate purchase requests replay; stale quotes and unavailable prerequisites cause no partial purchase/check; provider receipt alone cannot resume screening; refunded/cancelled paths use the approved Order/Trust contract. No screening implementation or migration is completed by this amendment.

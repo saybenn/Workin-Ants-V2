@@ -295,7 +295,7 @@ Rules:
 
 The Deep Module Registry historically assigns `OrganizationMember`, `OrganizationRole`, and `ThreadParticipant` to Role. The Ubiquitous Language and adjacent Modules assign membership to Organization Hiring and thread participation to Messaging.
 
-**Proposed Ruling PR-CL01-02:** Organization Hiring owns OrganizationMember/OrganizationRole lifecycle; Messaging owns ThreadParticipant lifecycle; Role owns interpretation only. Until approved/amended, Role may implement read-only owner-fact contracts but no mutations.
+**Confirmed Ruling PR-CL01-02 (WA-R001, 2026-09-29):** Organization Hiring owns OrganizationMember/OrganizationRole lifecycle; Messaging owns ThreadParticipant lifecycle; Role owns permission interpretation only. Role consumes owner facts and must never mutate these foreign lifecycles. SH-003 remains a proposed generic shape; concrete owner queries do not wait for its adoption.
 
 ---
 
@@ -834,7 +834,7 @@ Required test layers:
 | U-CL01-08 | Recovery provider-event receipt/dedupe/manual-review model? | no clear processed-event truth | live recovery callbacks |
 | U-CL01-09 | Identity security/age/recovery retention? | legal/security retention absent | destructive Identity privacy |
 | U-CL01-10 | Single authorization policy source + RLS generation/parity method? | code/SQL drift risk | broad production authorization |
-| U-CL01-11 | Is PR-CL01-02 accepted? | registry/glossary conflict | foreign lifecycle mutation; read-only policy can proceed |
+| U-CL01-11 | RESOLVED by WA-R001: PR-CL01-02 is confirmed | SH-002 and owner architectures agree; registry corrected | owner-specific DTO completion only; foreign mutation remains forbidden |
 | U-CL01-12 | UserRole assignment/revocation history model? | current structure incomplete | advanced admin role history |
 | U-CL01-13 | Consent version/content/hash/effective-date catalog model? | only log version string exists | active version/presentation/re-consent |
 | U-CL01-14 | Consent retry idempotency vs legitimate re-acceptance? | no semantic uniqueness rule | production consent mutation |
@@ -856,7 +856,7 @@ Required test layers:
 | U-CL01-30 | Buyer-fee/pro commission rounding/basis-point snapshot rules? | impacts historical Order truth | Order bridge |
 | U-CL01-31 | Priority scheduling rank/ties/quota/expiry meaning? | entitlement lacks scheduling semantics | Booking bridge |
 | U-CL01-32 | Track billing/subscription retention/anonymization? | legal minimum/duration absent | destructive Track privacy |
-| U-CL01-33 | Organization commercial access stays OrganizationFeatureAccess or becomes a Track? | outside current 3-track model | future org plans only |
+| U-CL01-33 | RESOLVED product model (WA-R005): separate Organization ATS commercial lane | Track remains commercial-policy owner; Organization is not a fourth User track | Organization-scoped persistence, pricing/quotas/feature allocation and billing contracts remain deferred |
 
 When a feature reaches an unresolved item, update architecture with a ruling first or keep dependent production behavior disabled/fail-closed.
 

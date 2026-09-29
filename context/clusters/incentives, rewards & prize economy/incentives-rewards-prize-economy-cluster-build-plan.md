@@ -138,7 +138,7 @@ Features can prove owner behavior with versioned contract fixtures while preserv
 - **U-GR-03/14:** historical source-event/exact-rule and accepted Consent proof linkage — proof gates in Features 01–02/04; no unspecified metadata sufficiency claim (CL-10-R010).
 - **U-GR-06 / U-CL10-04:** no production participant transition subset approved; Feature 03 requires the Module ruling (CL-10-R001).
 - **CL-10-R009:** SH-117 jurisdiction/grain interpretation — before production annual prize aggregation/reporting in Feature 09.
-- **U-CL10-05/06:** specific reward effect/fulfillment and SH-119 ownership — before those reward types are activated in Feature 05.
+- **U-CL10-05/06:** specific reward effect/fulfillment; SH-119 Track ownership is settled — before those reward types are activated in Feature 05.
 - **U-CL10-11/12:** redraw and jurisdiction/legal policy — before those behaviors are offered.
 
 ---
@@ -736,14 +736,14 @@ A RewardRedemption can move safely from pending state through tax/hold evaluatio
 - **Tax readiness/reporting:** Payment / Payout / Tax.
 - **ComplianceHold lifecycle:** Admin Review / Compliance Hold.
 - **Notification delivery:** Notification.
-- **Temporary benefit grant:** unresolved under SH-119.
+- **Temporary benefit grant:** Track owns Confirmed SH-119; specific grant/effect execution remains gated.
 - Any fulfillment provider is owned only after explicit architecture assignment.
 
 #### Dependencies
 
 - Feature 04.
 - SH-019, SH-011/012, SH-118, SH-041, SH-047/048, SH-037, SH-029/030.
-- SH-119 only if its ownership is approved.
+- SH-119 through Track after the effect contract is bound.
 - U-CL10-05/06 must be resolved before affected reward types are activated.
 
 #### Shared Operations Used
@@ -755,7 +755,7 @@ A RewardRedemption can move safely from pending state through tax/hold evaluatio
 - **SH-047/048**; durable fulfillment/value-report jobs and retries. Do not build local queue/retry loops.
 - **SH-037**; record normalized integration/downstream failures. Do not use failure record as redemption status.
 - **SH-029/030**; audit material fulfillment actions and sensitive admin access.
-- **SH-119 — applyTemporaryFeatureGrant** only after approval. Gamification owns reward cause; grant/effect owner owns actual benefit. Never alter prize odds.
+- **SH-119 — applyTemporaryFeatureGrant** is Track-owned and Confirmed. Bind the effect contract before activation. Gamification owns reward cause; Track owns the commercial grant and consumers apply its resolved benefit. Never alter prize odds.
 
 #### Data / Schema
 
@@ -780,7 +780,7 @@ Complete:
 - Payment/Tax consumer calls via SH-019/118
 - Hold calls via SH-011/012
 - `requestNotification`
-- conditional `applyTemporaryFeatureGrant` after SH-119 approval
+- conditional `applyTemporaryFeatureGrant` after SH-119 effect-contract binding
 - provider-neutral `RewardFulfillmentPort` only if U-CL10-05 assigns a provider/effect to Gamification and specifies proof persistence.
 
 #### Logic
@@ -790,7 +790,7 @@ Complete:
 - Reevaluate after external owner fact changes rather than letting external owner mutate status.
 - Report recognized value once with reward/redemption IDs and valuation evidence.
 - For `cash_bonus`, financial movement must be through Payment/Payout/Tax; Gamification records the resulting outcome only.
-- For `profile_boost`, use SH-119 only after approval; never write Search/entitlement flags directly.
+- For `profile_boost`, use SH-119 through Track after effect-contract binding; never write Search/entitlement flags directly.
 - For `platform_credit`, do not implement until the owner ledger/effect is identified.
 - For physical/gift-card/other provider fulfillment, require approved provider/evidence contract before `fulfilled` is reachable automatically.
 - `reversed` requires compensating point/effect semantics defined for that reward type.
@@ -828,7 +828,7 @@ Sensitive tax details stay in Payment/Tax interfaces; CL-10 UI displays only min
 - Hold active → fulfillment denied; owner state remains explainable.
 - Provider/effect failure → no `fulfilled`; record operational failure and retry/manual review according to approved policy.
 - Unknown provider status → normalized failure/manual review; no raw status mapped ad hoc.
-- SH-119 unresolved → profile boost remains unsupported, not local flag fallback.
+- Missing Track grant/effect execution contract → profile boost remains unsupported, not local flag fallback.
 
 #### Tests
 
@@ -1533,7 +1533,7 @@ Additional focus:
 - **SH-096 — enumerateSubjectData**; enumerate CL-10 subject records/provider refs. Do not use a global schema crawler.
 - **SH-097 — evaluateRetentionRequirement**; return reward/prize/tax/fraud retention facts. Privacy records exemptions. Do not create local exemption tables.
 - **SH-098 — anonymizePersonalFields**; use approved mapping while preserving necessary truth. Do not implement blanket deletion.
-- **SH-119** only if approved for a deterministic temporary benefit; never for prize odds.
+- **SH-119** for an approved effect involving a deterministic temporary benefit; never for prize odds.
 
 #### Data / Schema
 

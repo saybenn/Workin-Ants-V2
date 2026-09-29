@@ -1541,3 +1541,9 @@ Before this implementation plan is considered executed, verify:
 21. No prohibited shared-infrastructure duplicate exists in Trust.
 22. Every Trust write traces to one owner service, every external fact to one owner interface, and every downstream effect to one canonical operation/event.
 
+
+## WA-R003 — screening transaction alignment
+
+Consume the distinct platform-facilitated screening source under Confirmed SH-107. Trust supplies its owned package/quote and owns screening requirements/results; Order owns the purchase snapshot/lifecycle and Payment owns financial-provider execution. Voluntary Candidate/Professional screening is optional, self-initiated and self-paid; business/EIN Organization verification is separate. Required workflow screening does not automatically imply employer sponsorship. No fake Professional seller, Offering or Gig.
+
+Paid continuation requires authoritative Order payment outcome plus sufficient required consent; payment is not clearance. Source schema/constraints, bilateral correlation/replay/refund/recovery and provider/legal requirements must pass before paid activation. Marketplace-only source examples in older Order feature slices do not revoke this approved source family.
