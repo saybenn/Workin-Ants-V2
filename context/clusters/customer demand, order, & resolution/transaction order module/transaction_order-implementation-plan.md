@@ -84,7 +84,7 @@ These may be contract-stubbed in isolated unit tests, but production feature exi
 | Professional Eligibility | selected Features 01, 06–07 | SH-016 `evaluateProfessionalReadiness` for approved Order action contexts. |
 | Track Subscription & Entitlement | Feature 03 onward | SH-005 `resolveEntitlement`, optional SH-006 `consumeMeteredEntitlement`. |
 | Consent & Disclosure | Feature 04 onward | SH-008 `queryConsentProof`, active consent version if needed. |
-| Media / File Access | Features 05, 07, 10 | ready asset facts, contextual attachment validation, SH-087 `issueSignedMediaUrl`. |
+| Media / File Access | Features 05, 07, 10 | ready asset facts, contextual attachment validation, SH-127 `requestMediaAccess`. |
 | Payment / Payout / Tax | Feature 06 onward | provider-neutral payment/refund initiation and normalized result contracts. |
 | Admin Review / Compliance Hold | Features 06–10 | SH-011 `evaluateComplianceHold`; no local hold truth. |
 | Booking/delivery Modules | Feature 07 onward | public facts/entitlement consumers only. |
@@ -834,7 +834,7 @@ SH-112 `verifyAgreementDocumentHash` is internal/background integrity work, not 
 - **SH-073 `hashChainRecords`:** use only if approved; Agreement defines canonical fields/partition; do not assume proposed ruling is binding.
 - **SH-074 `generateSecureToken`:** grant secret creation; no weak/random local token helper.
 - **SH-088 `manageTemporaryAccessGrant` / SH-089 `revokeTemporaryAccessGrant`:** shared status/TTL/token plumbing; `AgreementAccessGrant` stays separate truth.
-- **SH-087 `issueSignedMediaUrl` — Media:** actual transport URL after local contextual grant; prohibit R2/S3 presign code here.
+- **SH-127 `requestMediaAccess` — Media:** actual transport URL after local contextual grant; prohibit R2/S3 presign code here.
 - **SH-030 `recordSensitiveAccess`:** agreement view/download/hash/access denial evidence.
 - **SH-031 `appendDomainLifecycleEvent` / SH-046 `publishDomainEvent` / SH-029 `appendAuditEvent`:** document and access lifecycle evidence/effects.
 - **SH-032 `createRequestContext`, SH-033 `writeStructuredLog`, SH-034 `sanitizeTelemetryMetadata`, SH-037 `recordIntegrationFailure`:** safe worker/provider observability.
@@ -1988,3 +1988,7 @@ Before treating these Module files as implementation context, verify:
 The Offering/GigAssignment feature slices above remain marketplace slices, not an exhaustive statement of approved Order sources. Before enabling paid screening, extend source-contract validation and Order creation with the architecture's platform-facilitated screening family, then prove quote freezing, source XOR/participant constraints, semantic replay, authoritative paid-result correlation and owner-specific refund/recovery behavior. Coordinate schema changes through one migration owner. Trust check continuation follows paid outcome and required consent; payment never marks a check passed. Unsupported screening must return an explicit unavailable/unsupported result, never a fake seller or Offering.
 
 Exit evidence: source-family contract tests reject mixed references and marketplace seller substitution; duplicate purchase requests replay; stale quotes and unavailable prerequisites cause no partial purchase/check; provider receipt alone cannot resume screening; refunded/cancelled paths use the approved Order/Trust contract. No screening implementation or migration is completed by this amendment.
+
+## WA-R008 — Media public-access integration
+
+This consumer invokes SH-127 `requestMediaAccess` with its own actor/resource/action-bound contextual authorization and required evidence. Media independently evaluates asset safety, grant, scope, expiry and revocation, then performs SH-087 `issueSignedMediaUrl` internally. The consumer never calls the signer or reads storage directly. SH-127's identity is approved; its registry status remains Proposed ruling for owner-specific integration completion. Bind the caller's exact contextual decision and failure/access-proof semantics before production use. A Media failure must not be recorded as successful file access.

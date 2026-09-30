@@ -1690,3 +1690,9 @@ Before marking Organization Hiring complete, verify:
 15. No obsolete U-CL06-17 repair is performed; R008 and the unverified migration baseline remain separate database-pass issues.
 16. Every numbered feature passed its tests and exit gate.
 17. A coding agent can implement the Module without inventing architecture.
+
+## WA-R010 — Split compensation stewardship from contract-job meaning
+
+The ownership part of U-CL06-07 / PR-JC-03 is AI_RESOLVED: Organization Hiring owns CompensationPeriod because it owns the offered Job compensation facts. Job Compliance reads and snapshots the same vocabulary; it does not acquire Job source truth or create another enum. Registry ownership is aligned, with no schema/value change.
+
+The meaning of EmploymentType.contract remains PRODUCT_OWNER_CHOICE P03: fixed-term employment, independent-contractor work, or distinct supported categories. Until answered, do not enable ambiguous contract-type posting or infer its legal treatment. This narrow product gate must not block compensation-period handling for other already-defined employment types. Legal classification rules remain external after the product vocabulary is chosen.

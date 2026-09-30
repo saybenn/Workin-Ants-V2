@@ -943,7 +943,7 @@ Provider-facing interfaces are not public domain APIs for other Modules.
 | Professional Eligibility | `getProfessionalProfileContext` / owner facts | Professional subject identity/context | profile ID, User relation, status/safe classification refs | yes for professional check | ProfessionalProfile repository |
 | Candidate/Hiring owners | narrow candidate/Job/organization/request context | hiring screening target and actor context | IDs/relationship/permissible workflow facts approved | yes | Job/Application lifecycle |
 | Transaction / Order | SH-107 `createChargeableOrder` + authoritative Order query/event | paid screening | Order ID, status, amount/currency/source | yes when fee required | screening checkout/payment system |
-| Media / File Access | SH-090 `attachValidatedMedia`; SH-087 `issueSignedMediaUrl` | credential evidence and restricted viewing | ready asset ID/context/sensitivity/access result | yes when document needed | upload/scan/storage/signed URL |
+| Media / File Access | SH-090 `attachValidatedMedia`; SH-127 `requestMediaAccess` | credential evidence and restricted viewing | ready asset ID/context/sensitivity/access result | yes when document needed | upload/scan/storage/signed URL |
 | Admin Review / Compliance Hold | SH-011/012/013 | reusable stop sign | hold IDs/reasons/scope/expiry | context-dependent | local blocked flags/hold table |
 | Notification | SH-041 `requestNotification` | user/admin screening/FCRA/expiry communications | recipient, template intent, safe variables, correlation | delivery should not change Trust truth | SES/SMS/push clients |
 | Audit / Event Ledger | SH-029/030 | generic action and sensitive access proof | actor/action/target/safe metadata | logging failure policy per root | local audit/access-log tables |
@@ -1034,7 +1034,7 @@ Trust may request an effect from another owner or emit a fact. It does not updat
 | **SH-062 `reconcileProviderState`** | shared worker/separate policy | repair missed/divergent state | scheduled/admin recovery | Trust divergence/repair rules | reconciliation result | cross-module provider reconciler truth |
 | **SH-070 `deleteProviderResource`** | provider owner | privacy deletion | approved Privacy instruction | Trust retention/provider semantics | delete/not-supported/retained result | Privacy calling Checkr/Certn directly |
 | **SH-078 `minimizeAndRedactProviderInput`** | shared serializer | minimize outbound/telemetry data | provider call/logging | Trust required fields | allowlisted payload | whole Prisma object serialization |
-| **SH-087 `issueSignedMediaUrl`** | Media | private evidence access | authorized review/provider handoff | Trust contextual entitlement | short-lived URL/grant | local presigned URL helper |
+| **SH-127 `requestMediaAccess`** | Media | private evidence access | authorized review/provider handoff | Trust contextual entitlement | short-lived URL/grant | local presigned URL helper |
 | **SH-090 `attachValidatedMedia`** | contextual owner + Media asset truth | attach ready evidence context | credential/evidence link | Trust business role | attachment result | local upload/scan implementation |
 | **SH-091 `requestSearchProjectionRefresh`** | Search | reindex/remove public trust projection | badge/readiness public change | safe source projection | accepted refresh request | direct SearchUpsertEvent/Typesense |
 | **SH-094 `buildSourceProjection`** | source owner pattern | build safe Trust public input | before Search refresh | allowlisted TrustBadge/public fields | deterministic source DTO/version | Search reading raw Trust tables |
@@ -1371,7 +1371,7 @@ The registry states these files are capped at 5 MB by upload policy, must remain
 
 - attach only ready/validated MediaAsset through SH-090;
 - a clean scan is not credential verification;
-- use SH-087 for short-lived private access after Trust contextual authorization;
+- use SH-127 for short-lived private access after Trust contextual authorization;
 - restricted evidence access uses SH-030 where policy requires;
 - prefer vendor-hosted sensitive collection for SSNs and full background data;
 - do not store full sensitive ID images unless required and legally reviewed;
@@ -1764,7 +1764,7 @@ Do not generate the following inside this Module:
 - `globalProviderStatus.ts` — use SH-061 adapter pattern with Trust enums;
 - `verificationProviderReconciler` that owns other Modules — use SH-062 owner-local worker;
 - `licenseUploadValidator.ts`, `idDocumentScanner.ts` — use Media file validation;
-- `verificationSignedUrl.ts`, `licenseDocumentUrl.ts` — use SH-087;
+- `verificationSignedUrl.ts`, `licenseDocumentUrl.ts` — use SH-127;
 - local R2/S3/Storage client for verification evidence;
 - `verificationIndexer.ts`, `badgeTypesense.ts` — use SH-091/094 and Search owner;
 - `sendAdverseEmail.ts`, SES/SMS/push client — use SH-041;
@@ -1899,3 +1899,7 @@ Before coding a numbered Module feature, the agent must also:
 Consume the distinct platform-facilitated screening source under Confirmed SH-107. Trust supplies its owned package/quote and owns screening requirements/results; Order owns the purchase snapshot/lifecycle and Payment owns financial-provider execution. Voluntary Candidate/Professional screening is optional, self-initiated and self-paid; business/EIN Organization verification is separate. Required workflow screening does not automatically imply employer sponsorship. No fake Professional seller, Offering or Gig.
 
 Paid continuation requires authoritative Order payment outcome plus sufficient required consent; payment is not clearance. Source schema/constraints, bilateral correlation/replay/refund/recovery and provider/legal requirements must pass before paid activation. Marketplace-only source examples in older Order feature slices do not revoke this approved source family.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.

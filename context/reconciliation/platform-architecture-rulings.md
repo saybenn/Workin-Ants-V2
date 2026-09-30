@@ -47,3 +47,33 @@ Class: **AI_RESOLVED** by existing product adjudication. Canonical SH-106 is Pro
 ## WA-R005 — Separate Organization ATS lane
 
 Class: **AI_RESOLVED** by canonical adjudicated product rules. Organization ATS is a separate Organization-scoped commercial lane with Free/Plus/Pro placeholders; it is not a fourth User AccountTrack. Track owns commercial policy; Hiring owns Organization/hiring truth. CL-01 and Track architecture now close U-CL01-33's product-model question. Organization-scoped persistence, billing, exact limits/prices and feature allocation remain deferred prerequisites; do not infer paid/free status from absent billing or local flags. This does not certify all Hiring/Search consumer contracts as aligned.
+
+## WA-R006 — Search reads Location; consumers do not call Agreement internals
+
+Class: **AI_RESOLVED**, STALE_REFERENCE. SH-028 produces/invalidates fuzzy public projections; SH-131 is the side-effect-free read. Updated all CL-02 Search/Cluster architecture and plan references at their read sites. Source generation remains Location-owned, and no read-triggered recursion or exact fallback is permitted. Evidence: canonical SH-028/131, Location architecture public contracts, Search's prior SH-028 dependency tables, refresh C09; duplicate collapse CL-02 D055 and the corresponding CL-08/CL-05 read/generate ambiguity, only as to boundary identity. Freshness/schema completion remains a bounded technical prerequisite.
+
+Also corrected CL-05's Agreement bridge: consumers call Order's public readiness/access interfaces; SH-112 remains internal/background integrity verification. This closes the public-exposure ambiguity in CL-05-U058, not any missing consumer DTO.
+
+## WA-R007 — Remove competing contextual attachment ownership claims
+
+Class: **AI_RESOLVED**, STALE_REFERENCE. Removed Media's duplicate owned claims for OfferingMedia, GigMedia, OrganizationMedia and CandidateProfileMedia and retained them as references. Existing contextual owners stay Marketplace Supply, Gig Demand, Organization Hiring and Candidate Application. Evidence: Media architecture §3.2 / MFA-PR-01, SH-090 and the corresponding registry owner entries. Prisma placement and runtime code are unchanged. ProfessionalProfileMedia and MessageMedia already have their contextual owners and need no registry move. ProfileStatus is shared vocabulary, not a shared lifecycle: each profile owner keeps its own transition policy; one coordinated schema steward handles enum changes.
+
+## WA-R008 — Public file-access consumers use the composite Media boundary
+
+Class: **AI_RESOLVED**, STALE_REFERENCE / MISSING_CONTRACT distinction. Order Agreement retrieval, Candidate resume access, and Privacy export delivery now name SH-127 `requestMediaAccess` in their architecture and plan call sites. SH-087 remains Media-internal. Context owners authorize business access; Media independently gates readiness/grants/expiry/revocation and produces bounded credentials/proof. No new signer or blanket grant is introduced.
+
+Evidence: Media `requestMediaAccess` public contract, canonical SH-026/087/127, existing bilateral Messaging/Digital Goods access rulings, and direct signing references in the three consuming pairs. Duplicate collapse: refresh C08 and CL-05-U059 public-wrapper identity. Exact caller bindings/access-log meanings remain technical requirements; legal meaning of access remains a separate external/product question. SH-127 is not promoted to Confirmed by replacing a stale call name.
+
+### WA-R008 additional consumer application
+
+Applied the same public-access correction to remaining external protected-file consumers (Customer, Supply, Gig, Review/Dispute, Trust, Healthcare, Payment and CL-08 composition) while retaining explicit Media-internal/transitive signing references. Media deletion is a separate owner contract, not a signing side effect. Existing CL-05/Digital Goods/Messaging descriptions that already invoke signing inside the composite remain valid.
+
+## WA-R009 — Jurisdiction is shared normalization, separate policy
+
+Class: **AI_RESOLVED**, STALE_REFERENCE. Canonical SH-120 is Proposed ruling with per-purpose owner interpretation, not an Unresolved universal jurisdiction authority. Aligned CL-03/CL-06 consumer references and added explicit owner-binding gates. Evidence: canonical SH-120; refresh C17 as superseded by final adjudication; Payment/Job Compliance jurisdiction dependency and unresolved sections. Legal facts/provider capabilities remain EXTERNAL_REQUIREMENT; exact DTO/representation is DEFERRED_IMPLEMENTATION_DETAIL after source evidence and purpose are bound. This closes only stale identity/ownership/status, not legal applicability.
+
+## WA-R010 — CompensationPeriod belongs to the Job fact owner
+
+Class: **AI_RESOLVED** for structural vocabulary stewardship, independently of the product meaning of `EmploymentType.contract`. Adopt PR-JC-03: Organization Hiring owns CompensationPeriod; Job Compliance consumes/snapshots it. Registry and CL-06/Hiring/Compliance pairs now state this split. No enum values or database columns changed.
+
+Evidence: Job Compliance architecture §3 and U-CL06-07/PR-JC-03; Hiring Job-source truth; Prisma Job compensation fields; glossary controlled-vocabulary entries. Duplicate collapse: CL-06-U007 and U-CL06-07 ownership portion. **P03** retains the genuinely different product interpretations of `contract`; selecting storage or enum ownership cannot decide that meaning.

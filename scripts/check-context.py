@@ -84,6 +84,34 @@ def inspect():
     if unknown:
         errors.append(f'{len(unknown)} nonexistent SH references in current Cluster/Module documents')
     schema = read('prisma/schema.prisma')
+    model_names = set(re.findall(r'^model (\w+) ', schema, re.M))
+    model_owners = {}
+    for module in modules:
+        for model in module['schemasOwnedResponsibleForOver']:
+            if model in model_names:
+                model_owners.setdefault(model, []).append(module['id'])
+    for model, owners in model_owners.items():
+        if len(owners) > 1:
+            errors.append(f'{model}: competing registered model owners: {owners}')
+    expected_handoffs = {c['clusterId'] + '-handoff.md' for c in clusters}
+    actual_handoffs = {p.name for p in ROOT.glob('context/reconciliation/clusters/CL-*-handoff.md')}
+    if expected_handoffs != actual_handoffs:
+        errors.append('Cluster handoff set does not match registered Clusters')
+    # Check explicit single-operation consumer names; grouped headings are positional.
+    for path in source_files:
+        for line_number, line in enumerate(path.read_text().splitlines(), 1):
+            sh_ids = set(re.findall(r'SH-\d{3}', line))
+            if len(sh_ids) != 1:
+                continue
+            match = re.search(r'(SH-\d{3})(?:\*\*)?(?:\s*[—–:]\s*|\s+)`([a-z][A-Za-z0-9]+)`', line)
+            if not match:
+                continue
+            entry = canonical.get(match[1])
+            if entry and match[2] != entry['name']:
+                # Candidate aliases are recorded explicitly by the canonical registry.
+                aliases = entry.get('Candidate aliases / narrower variants', '').split('; ')
+                if match[2] not in aliases:
+                    errors.append(f'{path.relative_to(ROOT)}:{line_number}: {match[1]} uses noncanonical name {match[2]}')
     migrations = sorted(ROOT.glob('prisma/migrations/*/migration.sql'))
     sql = '\n'.join(p.read_text() for p in migrations)
     created = set(re.findall(r'CREATE TABLE\s+"(\w+)"\."(\w+)"', sql))

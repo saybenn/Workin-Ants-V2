@@ -688,7 +688,7 @@ Search must consume, not recreate:
 
 - **SH-094 `buildSourceProjection`** — each source Module returns an approved Search-facing DTO;
 - **SH-024 `evaluatePublicReadiness`** — each source/compliance owner returns its decision; Search composes;
-- **SH-028 `applyFuzzyPublicLocation`** — Location Safety returns fuzzy location;
+- **SH-131 `getPublicLocationProjection`** — Location Safety returns fuzzy location;
 - **SH-005 `resolveEntitlement`** — Track supplies boost or protected-feature policy;
 - Job Compliance, Professional Eligibility, Trust, Healthcare, Moderation, Privacy, and Hold public interfaces as required by entity/surface.
 
@@ -709,7 +709,7 @@ Only operations materially required by CL-02 are listed here. Their full definit
 | SH-022 `resolveTaxonomyRequirements` | Taxonomy & Classification | source/compliance consumers; Search composition where needed | accepted classification → requirement refs | taxonomy trigger rules | after accepted classification | local requirement maps |
 | SH-023 `validateTaxonomyAssignment` | Taxonomy & Classification | source owners, AI acceptance workflow | canonical classification validation | hierarchy/compatibility/active semantics | before accepted assignment write | local tag/category validators |
 | SH-024 `evaluatePublicReadiness` | source/compliance owner; Search composes | Search | shared decision contract | each owner’s actual readiness policy | before index/update | universal Search eligibility engine |
-| SH-028 `applyFuzzyPublicLocation` | Location Safety | Search | approved fuzzy public location | Search filter/display use | projection build | coordinate fuzzers |
+| SH-131 `getPublicLocationProjection` | Location Safety | Search | approved fuzzy public location | Search filter/display use | projection build | coordinate fuzzers |
 | SH-029 `appendAuditEvent` | Audit / Event Ledger | all three | generic audit proof | which admin/sensitive actions require audit | after/with important admin action | local audit tables |
 | SH-030 `recordSensitiveAccess` | Audit / Event Ledger | AI, Search protected candidate/admin surfaces | protected-data access proof | which CL-02 data is sensitive and safe metadata | access to sensitive AI/candidate data | local access logs |
 | SH-032–038 request/log/telemetry operations | Observability / Ops | all three | correlation, structured logs, redaction, errors, metrics, integration/queue telemetry | CL-02 operation names and safe dimensions | every request/job/provider path | local loggers/failure ledgers |
@@ -902,7 +902,7 @@ Taxonomy never converts a trigger into a successful compliance result.
 | CL-03 Professional Eligibility | CL-02 Search | Professional public readiness/projection | Professional Eligibility | SH-016/SH-024 + SH-094 + SH-091 | Search reconstructing selling readiness |
 | CL-03 Trust Verification | CL-02 Taxonomy/Search | verification requirements and approved display signals | Trust Verification | SH-017/018; public TrustBadge query | badge as verification truth |
 | CL-03 Healthcare | CL-02 AI/Search | provider-input/public-readiness boundary | Healthcare | SH-020 / healthcare data-boundary interface | AI/Search deciding PHI policy |
-| CL-08 Location Safety | CL-02 Search | fuzzy public location | Location Safety | SH-028 | exact coordinates or local fuzzing |
+| CL-08 Location Safety | CL-02 Search | fuzzy public location | Location Safety | SH-131 | exact coordinates or local fuzzing |
 | CL-08 Privacy | CL-02 AI/Search | erasure/export/restriction instructions | Privacy | SH-095–098 | CL-02 PrivacyRequest workflow |
 | CL-09 Moderation | CL-02 Search | hide/restore/freeze decision | Content Moderation | SH-103 + SH-091 | Search moderation case logic |
 | CL-09 Holds | CL-02 | active stop-sign decision | Admin Review / Compliance Hold | SH-011 | local blocked booleans |
@@ -1749,3 +1749,7 @@ The agent must then:
 - update this architecture only when a binding architecture decision legitimately changes;
 - never use progress or implementation convenience to silently change ownership.
 
+
+## WA-R006 — Public-location read boundary
+
+Search consumes SH-131 `getPublicLocationProjection`, the Location-owned side-effect-free read of current safe public fields. SH-028 remains Location's generation/update/invalidation command and is not called by Search projection reads. Never fall back to exact coordinates, local fuzzing or a read-triggered refresh loop. An unavailable/stale public projection must be withheld; where location is required for the document's eligibility, withhold that document until current safe data is available. This correction normalizes identity/use only: SH-131 retains Proposed ruling status until its owner-specific freshness/result contract is bound before production integration.

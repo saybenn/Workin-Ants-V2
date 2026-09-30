@@ -8,7 +8,7 @@
 
 This plan converts the Job Compliance Module architecture into ordered, testable implementation work. It is intentionally narrower than the CL-06 build plan and does not change Cluster sequencing or ownership.
 
-Production Job publication remains blocked until U-CL06-05/07 are approved and the binding U-CL06-06 evidence invariant has an approved implemented persistence design. Jurisdiction-aware production additionally requires an approved owner/interface for unresolved SH-120 `normalizeJurisdictionContext` (Unresolved). Features may be contract-stubbed or implemented below that boundary only where the feature explicitly permits it; no unresolved decision may be silently implemented as permissive behavior.
+Production Job publication remains blocked until U-CL06-05/07 are approved and the binding U-CL06-06 evidence invariant has an approved implemented persistence design. Jurisdiction-aware production additionally requires an approved owner/interface for proposed SH-120 `normalizeJurisdictionContext` (Proposed ruling). Features may be contract-stubbed or implemented below that boundary only where the feature explicitly permits it; no unresolved decision may be silently implemented as permissive behavior.
 
 ## Core Principle
 
@@ -293,7 +293,7 @@ Supports **CL-06 Feature 02** and resolves the reproducibility portion of its ex
 - Feature 01;
 - Organization Hiring public Job facts/input contract;
 - SH-003 `queryOwnerFacts` (Proposed ruling) pattern;
-- SH-120 `normalizeJurisdictionContext` (Unresolved) remains Unresolved: approved owner/interface required for production; deterministic fixtures may supply explicit normalized jurisdiction context below that gate, with no local replacement or raw-string inference;
+- SH-120 `normalizeJurisdictionContext` (Proposed ruling) remains Proposed ruling: approved owner/interface required for production; deterministic fixtures may supply explicit normalized jurisdiction context below that gate, with no local replacement or raw-string inference;
 - SH-077 `buildCanonicalTextSnapshot` (Confirmed);
 - SH-072 `hashCanonicalPayload` (Confirmed);
 - the binding U-CL06-06 invariant requires a separately approved persistence design before migration/code for its record begins; this reconciliation does not select schema;
@@ -338,7 +338,7 @@ Supports **CL-06 Feature 02** and resolves the reproducibility portion of its ex
 ### Shared Operations Used
 
 - SH-003 `queryOwnerFacts` (Proposed ruling) — Organization Hiring implementation; fetch minimal authoritative Job/Organization facts; **no cross-domain Prisma repository**.
-- SH-120 `normalizeJurisdictionContext` (Unresolved) — shared capability; produce normalized context/evidence; Job Compliance owns rule applicability after normalization; **no local jurisdiction platform service**.
+- SH-120 `normalizeJurisdictionContext` (Proposed ruling) — shared capability; produce normalized context/evidence; Job Compliance owns rule applicability after normalization; **no local jurisdiction platform service**.
 - SH-077 `buildCanonicalTextSnapshot` (Confirmed) — shared primitive; normalize stable ordered text/fields; Job Compliance owns field inclusion; **no `jobTextBuilder` mechanics**.
 - SH-072 `hashCanonicalPayload` (Confirmed) — shared crypto primitive; produce source/rule-set fingerprints; Job Compliance owns what each hash proves; **no `sha256.ts`**.
 - SH-052 `withOptimisticConcurrency` (Confirmed) — staleness/owner-issued opaque expectedConcurrencyToken for the source revision where owner contract supports it; **no ad-hoc version check scattered in routes**.
@@ -414,7 +414,7 @@ No new UI required. Admin report may later show source/rule version references, 
 
 ### Exit Gate
 
-PASS only if binding U-CL06-06 has an approved implemented persistence design, relevant U-CL06-07 policy is resolved, and jurisdiction-aware production has an approved SH-120 `normalizeJurisdictionContext` (Unresolved) owner/interface; historical proof is reproducible, canonicalization/hash test vectors pass, stale source fails closed, and all contract/migration/typecheck/lint/tests pass.
+PASS only if binding U-CL06-06 has an approved implemented persistence design, relevant U-CL06-07 policy is resolved, and jurisdiction-aware production has an approved SH-120 `normalizeJurisdictionContext` (Proposed ruling) owner/interface; historical proof is reproducible, canonicalization/hash test vectors pass, stale source fails closed, and all contract/migration/typecheck/lint/tests pass.
 
 ---
 
@@ -1765,3 +1765,13 @@ Before declaring the Job Compliance Module implementation complete, verify:
 18. CL-06 sequencing remains intact.
 19. U-CL06-05/07 policy is resolved and binding U-CL06-06 proof has approved implemented persistence before production Job publication.
 20. A coding agent can explain which source record owns every write made by this Module.
+
+## WA-R009 — Jurisdiction normalization status and ownership
+
+SH-120 is Proposed ruling, not Unresolved. It shares normalization/provenance mechanics while each jurisdiction-dependent owner selects and interprets evidence for its own purpose. Location's geography does not become neutral tax/employment authority; Payment owns tax interpretation and Job Compliance owns employment-jurisdiction interpretation. An owner-specific normalized-input contract may be implemented without adopting a universal jurisdiction DTO. Production use still requires sufficient legal/provider/source evidence and an explicit binding. No local competing universal normalizer or generic legal decision service is authorized.
+
+## WA-R010 — Split compensation stewardship from contract-job meaning
+
+The ownership part of U-CL06-07 / PR-JC-03 is AI_RESOLVED: Organization Hiring owns CompensationPeriod because it owns the offered Job compensation facts. Job Compliance reads and snapshots the same vocabulary; it does not acquire Job source truth or create another enum. Registry ownership is aligned, with no schema/value change.
+
+The meaning of EmploymentType.contract remains PRODUCT_OWNER_CHOICE P03: fixed-term employment, independent-contractor work, or distinct supported categories. Until answered, do not enable ambiguous contract-type posting or infer its legal treatment. This narrow product gate must not block compensation-period handling for other already-defined employment types. Legal classification rules remain external after the product vocabulary is chosen.

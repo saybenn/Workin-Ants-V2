@@ -629,7 +629,7 @@ Trigger: participant submits MediaAsset ID with Message
 → Messaging creates MessageMedia join transactionally
 → later preview/download:
    Messaging returns actor/Thread/Message/MediaAsset/action-bound SH-026 contextual decision
-   → Media requestMediaAccess applies its own readiness/grant/TTL gates and SH-087 signed URL issuance
+   → Media requestMediaAccess applies its own readiness/grant/TTL gates and SH-087 signed URL issuance internally
    → sensitive access evidence as policy requires
 ```
 
@@ -1284,3 +1284,7 @@ Before changing CL-07, an implementation agent must read, in this order:
 10. `progress-tracker.md`.
 
 Before implementation, the agent must also check the Unresolved Decisions table. If the requested feature depends on an unresolved decision, stop and obtain the architecture ruling rather than encoding an assumption in code. If implementation discovers a binding conflict with this file, update architecture first, then adjust the build plan; never let build progress silently become architecture.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.

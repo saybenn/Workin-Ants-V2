@@ -445,7 +445,7 @@ Production `changeCustomerProfileStatus`, `archiveCustomerProfile`, and `restore
 - **Inputs:** profile ID, `mediaAssetId`, expected version.
 - **Preconditions:** actor authorization; Media confirms asset validity/readiness; Customer confirms contextual attachment.
 - **Writes:** `avatarMediaId` only.
-- **Shared operations:** SH-090 `attachValidatedMedia`; Media operations SH-082/083/084 as owned by Media where required; SH-087 only for display access, never for attachment write itself.
+- **Shared operations:** SH-090 `attachValidatedMedia`; Media operations SH-082/083/084 as owned by Media where required; SH-127 only for display access, never for attachment write itself.
 - **Effects:** optional update event/audit.
 - **Idempotency:** attaching the same approved asset is safe.
 - **Failures:** invalid/unready asset, Media unavailable, authorization failure, stale version.
@@ -565,7 +565,7 @@ None.
 | --- | --- | --- | --- | --- | --- |
 | Identity & Access | SH-001 `resolveAuthenticatedActor` + User-provisioned fact | trusted User identity and post-signup trigger | user ID, actor/security context, event ID | Yes for protected actions | session/auth helpers, User lifecycle |
 | Role / Authority | SH-002 `authorizeResourceAction` | owner/admin/support protection | actor, action, resource, Customer owner facts | Yes | permission engine, role tables |
-| Media / File Access | SH-090 + Media readiness interfaces; SH-087 for display access | safe avatar relation and URL | media ID, readiness/safety/ownership-compatible facts | Yes for avatar change | upload, scan, storage, presign |
+| Media / File Access | SH-090 + Media readiness interfaces; SH-127 for display access | safe avatar relation and URL | media ID, readiness/safety/ownership-compatible facts | Yes for avatar change | upload, scan, storage, presign |
 | Privacy / Data Erasure | SH-095 protocol + target instruction | legal/privacy execution | target, disposition, retention ref, idempotency/correlation | Yes for destructive action | PrivacyRequest/job/target lifecycle |
 | Audit / Event Ledger | SH-029 / SH-030 | generic proof for material admin/sensitive access | safe action/target/outcome metadata | Usually side effect; policy may require atomicity | audit/access tables |
 | Notification | SH-041 | user-facing profile/security notice when policy requires | notification intent, recipient ref, safe variables | No for source mutation unless explicit policy says otherwise | templates/provider delivery |
@@ -633,7 +633,7 @@ Only operations materially relevant to this Module are listed.
 | **SH-052 `withOptimisticConcurrency`** | Platform persistence primitive | prevent lost profile updates/status changes | metadata/status mutation | expected version/timestamp | success/conflict | ad hoc stale-write handling |
 | **SH-053 `transitionLifecycleState`** | Shared mechanism / separate truth | implement approved CustomerProfile transition matrix | status command after U-CL01-21 | Customer transition policy | valid transition/result | generic profile lifecycle service |
 | **SH-082/083/084** | Media capabilities — Media / File Access | validation/scan/scrub as Media requires | avatar upload pipeline, not Customer implementation | Customer only requires a ready attachable asset | Media safety result | avatar validator/scanner |
-| **SH-087 `issueSignedMediaUrl`** | Media capability | display private avatar when needed | profile rendering | whether requester may view avatar context | short-lived Media access result | `customerAvatarPresign.ts` |
+| **SH-127 `requestMediaAccess`** | Media capability | display private avatar when needed | profile rendering | whether requester may view avatar context | short-lived Media access result | `customerAvatarPresign.ts` |
 | **SH-090 `attachValidatedMedia`** | Shared contract / separate contextual truth | attach validated MediaAsset as avatar | avatar command | actor may attach this asset to this profile | contextual attachment decision/write | profile-local file lifecycle |
 | **SH-095 `executePrivacyInstruction`** | Privacy protocol / owner execution | perform Customer target disposition | Privacy target command | Customer field/row disposition | standardized owner result | `customerGdprWorkflow.ts` |
 | **SH-096 `enumerateSubjectData`** | Privacy protocol | inventory Customer-owned subject data | Privacy discovery/export | Customer-only inventory | stable target refs/metadata | cross-domain export crawler |
@@ -895,7 +895,7 @@ Customer avatar attachment requires a Media result demonstrating the asset is at
 
 ### Signed access
 
-Display access uses Media's SH-087. Customer never returns a permanent private storage URL.
+Display access uses Media's SH-127. Customer never returns a permanent private storage URL.
 
 ### Unresolved relation
 
@@ -1344,3 +1344,7 @@ If code, schema comments, registry text, or context files conflict:
 3. do not silently normalize architecture to existing code;
 4. resolve/update the binding architecture if the decision legitimately changes;
 5. then implement the approved state.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.

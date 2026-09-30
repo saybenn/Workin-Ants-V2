@@ -849,7 +849,7 @@ None directly owned.
 | Role / Authority | SH-002 `authorizeResourceAction` | Permission to review, assign, decide, access evidence. | actor, action, target relationship facts. | Yes. | Moderator/admin permission engine. |
 | Identity & Access | SH-014 `requireStepUpForSensitiveAction` | High-assurance action where policy designates it. | actor/action/target/assurance requirement. | Yes when configured. | OTP/passkey implementation. |
 | Target owner | SH-123 `validateOwnedTargetReference` / owner facts query | Prevent orphan/IDOR polymorphic targets and obtain safe context. | type, ID, requested action, safe owner version. | Yes. | universal Prisma target repository. |
-| Context owner / Media / File Access | SH-026 `authorizeContextualResourceAccess` then Media-owned SH-087 `issueSignedMediaUrl` for protected evidence; Media freeze/public-URL commands for effects | Context owner authorizes; Media supplies delivery and file effects; SH-030 `recordSensitiveAccess` where required. | Media refs, action/case source refs, contextual access decision. | Yes for evidence access and evidence-required destructive actions. | R2, CL-09 signer, authorization bypass, freeze logic. |
+| Context owner / Media / File Access | SH-026 `authorizeContextualResourceAccess` then Media-owned SH-127 `requestMediaAccess` for protected evidence; Media freeze/public-URL commands for effects | Context owner authorizes; Media supplies delivery and file effects; SH-030 `recordSensitiveAccess` where required. | Media refs, action/case source refs, contextual access decision. | Yes for evidence access and evidence-required destructive actions. | R2, CL-09 signer, authorization bypass, freeze logic. |
 | Search / Public Visibility | SH-091 `requestSearchProjectionRefresh` | Hide/remove/restore public projection. | entity type/ID, action, reason, source version, idempotency. | Async effect may remain pending. | Typesense/SearchUpsertEvent writes. |
 | Admin Review / Compliance Hold | SH-012 `requestComplianceHold` | Reusable stop sign for payout/profile/order/etc. | target, reason, source evidence, scope. | Yes when hold required. | local block state. |
 | Audit / Event Ledger | SH-029 `appendAuditEvent`, SH-030 `recordSensitiveAccess` | Generic action/access proof. | safe IDs/outcome/metadata. | Required proof failure may fail closed per workflow. | audit tables/loggers. |
@@ -1633,3 +1633,7 @@ For each numbered feature:
 - implement only declared Module truth;
 - use canonical operations and owner contracts;
 - record any architecture change explicitly rather than embedding it in code.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.

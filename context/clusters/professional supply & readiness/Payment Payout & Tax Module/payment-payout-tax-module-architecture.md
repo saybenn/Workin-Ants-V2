@@ -737,7 +737,7 @@ Applies normalized provider callback/reconciliation result to `PayoutTransfer`, 
 - **Inputs:** Order ID/version or immutable checkout snapshot, buyer tax-location evidence, line items/tax codes through owner contracts, currency, idempotency key.
 - **Preconditions:** Order facts current and authorized; provider supported; sufficient location evidence.
 - **Writes:** `SalesTaxCalculation` + `SalesTaxLineItem`.
-- **Shared operations:** SH-044, SH-078, SH-123 where owner reference validation is required; SH-120 must not be assumed while unresolved.
+- **Shared operations:** SH-044, SH-078, SH-123 where owner reference validation is required; SH-120 must not be assumed without an approved owner-specific binding.
 - **Failure:** provider unavailable/unsupported jurisdiction → explicit unavailable; no local guessed tax.
 
 ### 10.10 `finalizeSalesTaxCalculation` / `voidSalesTaxCalculation`
@@ -934,7 +934,7 @@ Payment consumes only the minimum facts/interfaces needed to execute Payment pol
 | Location/checkout evidence owner | approved buyer tax-location facts | Sales-tax jurisdiction input | country/region/postal/city only as required, evidence source/version | Yes if tax provider needs it | public location, coordinate fuzzing, generic jurisdiction owner |
 | Sweepstakes / Prize | SH-118 input / source recognition fact | Include recognized prize value in tax reporting | subject, value/currency, jurisdiction, winning/source ID, recognition date, valuation evidence | Tax intake may reject invalid input, but does not change prize lifecycle | PrizeWinning/drawing/fulfillment lifecycle |
 | Gamification / Rewards | SH-118 input / source recognition fact | Include recognized reward value in tax reporting | subject, value/currency, source ID/date/evidence | Same | reward/redemption/point rules |
-| Media / File Access | SH-087 only when an approved tax/financial document is stored as MediaAsset | Secure private file access | MediaAsset ID, ready/clean state, contextual entitlement | Yes for file view | upload/scan/storage/signed URLs |
+| Media / File Access | SH-127 only when an approved tax/financial document is stored as MediaAsset | Secure private file access | MediaAsset ID, ready/clean state, contextual entitlement | Yes for file view | upload/scan/storage/signed URLs |
 | Privacy / Data Erasure | SH-095/096/097 instruction protocol | Fulfill subject requests across Payment-owned truth | target instruction, subject, disposition, exemption references | Yes for destructive action pending retention | privacy request/orchestration/exemption lifecycle |
 | Audit / Event Ledger | SH-029/030 | Generic action/access proof | safe action/target/outcome/request context | Audit failure handling per root policy; must not silently bypass mandatory proof | AuditEvent/AccessAuditLog tables/writers |
 | Notification | SH-041 | Deliver business messages | intent, recipient reference, safe template variables/sensitivity | No business truth mutation; delivery may retry | SES/SMS/push clients |
@@ -1018,7 +1018,7 @@ Only operations materially relevant to this Module are listed. The canonical reg
 | **SH-063 `captureProviderSnapshot`** | Owner-specific provider state snapshot. | Explain payout/KYC requirements safely. | After provider account requirement update/reconcile. | allowlisted fields/retention. | ProviderRequirementSnapshot | generic provider snapshot truth |
 | **SH-070 `deleteProviderResource`** | Provider resource deletion/revocation after authorized Privacy/lifecycle command. | Execute approved external deletion while respecting retention/provider capability. | Privacy executor. | retain/delete semantics and local aftermath. | deleted/absent/retained/retryable/terminal | Privacy calling Stripe directly |
 | **SH-078 `minimizeAndRedactProviderInput`** | Minimum purpose-bound provider payload. | Prevent sensitive leakage to providers/logging. | Before provider call/telemetry serialization. | required fields/purpose/sensitivity. | validated minimized payload | serializing domain object wholesale |
-| **SH-087 `issueSignedMediaUrl`** | Media-owned short-lived private URL. | Only if approved Payment contextual docs are MediaAsset-backed. | Protected document view. | Payment business entitlement/sensitivity. | short-lived URL/grant evidence | local presign/S3/R2 helpers |
+| **SH-127 `requestMediaAccess`** | Media-owned short-lived private URL. | Only if approved Payment contextual docs are MediaAsset-backed. | Protected document view. | Payment business entitlement/sensitivity. | short-lived URL/grant evidence | local presign/S3/R2 helpers |
 | **SH-095 `executePrivacyInstruction`** | Execute Privacy-owned disposition against owner data. | Payment privacy fulfillment. | Privacy dispatch. | field/provider/retention handling. | typed execution result | Payment PrivacyRequest workflow |
 | **SH-096 `enumerateSubjectData`** | List Payment-owned subject data. | Privacy inventory/export/planning. | Privacy request orchestration. | Payment record/provider scope. | target list/counts/safe refs | generic cross-domain scan |
 | **SH-097 `evaluateRetentionRequirement`** | Supply retention facts; Privacy owns exemption. | Prevent illegal destructive financial/tax deletion. | Before destructive instruction. | Payment record class/legal reason/known period. | retain/erasable facts + evidence | local exemption flag/table |
@@ -1027,7 +1027,7 @@ Only operations materially relevant to this Module are listed. The canonical reg
 | **SH-109 `snapshotExternalDecision`** | Persist external decision at historical lifecycle owner. | Preserve commission/entitlement/tax decision where history requires. | Transaction creation/settlement policy snapshot. | Which decision/fields are historically required. | immutable snapshot at consuming owner | re-read today's plan/price for old Order |
 | **SH-117 `aggregateYearlyReportableValue`** | Source-event-safe yearly aggregation; separate truths. | Build TaxYearEarningsSummary without stealing source domains. | SH-118/source event intake. | Payment tax buckets/regime/jurisdiction rules. | updated/reconciled summary | cross-domain tax ownership |
 | **SH-118 `reportTaxableValue`** | Canonical tax-reporting intake owned by Payment. | Prize/Reward/earning owners report recognized value. | After source recognition event. | tax subject/year/jurisdiction aggregation and filing policy. | accepted/replayed/rejected tax intake result | Payment prize/reward logic |
-| **SH-120 `normalizeJurisdictionContext`** — **Unresolved** | Proposed shared jurisdiction normalization; owner unresolved. | Potential future input normalizer for tax. | **Do not depend on now.** | Payment keeps tax evidence/selection policy until root ruling. | none until approved | locally declaring SH-120 canonical or building universal jurisdiction service |
+| **SH-120 `normalizeJurisdictionContext`** — **Proposed ruling** | Proposed shared jurisdiction normalization; owner-specific technical binding pending. | Potential future input normalizer for tax. | **Do not depend on now.** | Payment keeps tax evidence/selection policy until root ruling. | none until approved | locally declaring SH-120 canonical or building universal jurisdiction service |
 | **SH-123 `validateOwnedTargetReference`** | Target owner validates external reference. | Validate polymorphic/context source refs when needed. | Before persisting reference/using tax context. | Which target types Payment accepts. | valid target facts/ref version | arbitrary target-type Prisma lookup |
 
 ### Shared-operation status rule
@@ -1386,7 +1386,7 @@ The current Payment schema primarily stores provider references (`providerDocId`
 - Payment owns only business meaning/entitlement of a contextual tax/financial document reference.
 - Upload must use Media's validated upload context and allowed type/size/sensitivity policy.
 - Private asset must be READY/clean before use.
-- Access uses SH-087 signed Media URL mechanics.
+- Access uses SH-127 signed Media URL mechanics.
 - Sensitive view uses SH-014/SH-002/SH-030 as required.
 - No permanent public URL.
 - No raw original filename as object key.
@@ -1738,7 +1738,7 @@ A stale Order/version, status transition, payout reservation, or idempotency fin
 23. Payment never owns Offering/Product/Course/DigitalGoodsPolicy lifecycle merely because tax needs item context.
 24. Marketplace/Digital Goods do not own `SalesTaxLineItem`; they supply source context through owner contracts.
 25. Sales tax must use approved provider-backed calculation/evidence; do not implement a homemade jurisdiction/rate engine.
-26. SH-120 jurisdiction normalization is unresolved and must not be silently implemented as canonical platform infrastructure here.
+26. SH-120 jurisdiction normalization has a pending owner-specific contract and must not be silently implemented as canonical platform infrastructure here.
 27. Buyer tax-location evidence is private tax input; it is not public location/search data.
 28. Finalized sales-tax proof must bind to the correct Order/pricing/version; stale context is a conflict.
 29. Unsupported partial/multiple tax refund allocation must fail explicitly rather than inventing arithmetic/evidence.
@@ -1785,10 +1785,10 @@ Do not add independent files/services with these responsibilities inside this Mo
 | `FinancialAuditLog`, `PayoutAccessLog`, `TaxViewLog` as generic audit systems | SH-029/030 Audit/Event Ledger |
 | `PaymentIntegrationFailure`, `StripeIncident` as business state | Observability SH-037/038 |
 | `sendPayoutEmail.ts`, `sendTaxSms.ts`, SES/Twilio/FCM clients | SH-041 Notification |
-| `taxFileStorage.ts`, `kycPresign.ts`, local R2/S3/scanner | Media / File Access + SH-087 if needed |
+| `taxFileStorage.ts`, `kycPresign.ts`, local R2/S3/scanner | Media / File Access + SH-127 if needed |
 | `paymentPrivacyRequest.ts`, `eraseFinancialUser.ts` orchestration | SH-095/096/097 + Privacy owner; Payment executor only |
 | `paymentRetentionExemption` table/flag | Privacy-owned DataRetentionExemption; SH-097 supplies facts |
-| `customTaxCalculator.ts`, local state/rate tables guessed from jurisdiction | approved SalesTaxProvider adapter/rules; unresolved SH-120 not locally claimed |
+| `customTaxCalculator.ts`, local state/rate tables guessed from jurisdiction | approved SalesTaxProvider adapter/rules; proposed SH-120 not locally claimed |
 | `OrderPaymentStatus` / Payment-owned refund case lifecycle replacing Order | Order public commands + SH-108 |
 | `currentCommissionService.ts` for settled Order | Order historical snapshot / SH-109 pattern |
 | Prize/Reward tax lifecycle copy | SH-118 intake; source Module remains owner |
@@ -1890,3 +1890,11 @@ Before coding, the agent must identify which assertions are Confirmed, Proposed 
 - or leave that path disabled and report the blocker.
 
 The implementation must never silently create new financial truth, provider-event truth, tax policy, retention rules, foreign lifecycle writes, or shared infrastructure merely to make a feature appear complete.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.
+
+## WA-R009 — Jurisdiction normalization status and ownership
+
+SH-120 is Proposed ruling, not Unresolved. It shares normalization/provenance mechanics while each jurisdiction-dependent owner selects and interprets evidence for its own purpose. Location's geography does not become neutral tax/employment authority; Payment owns tax interpretation and Job Compliance owns employment-jurisdiction interpretation. An owner-specific normalized-input contract may be implemented without adopting a universal jurisdiction DTO. Production use still requires sufficient legal/provider/source evidence and an explicit binding. No local competing universal normalizer or generic legal decision service is authorized.

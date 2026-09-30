@@ -110,7 +110,7 @@ Contract tests may use approved fakes/stubs for:
 - `SH-095 executePrivacyInstruction`;
 - `SH-123 validateOwnedTargetReference`;
 - Media private artifact creation/finalization;
-- `SH-087 issueSignedMediaUrl`;
+- `SH-127 requestMediaAccess`;
 - Search `SH-091 requestSearchProjectionRefresh`;
 - Notification `SH-041 requestNotification`;
 - Audit `SH-029 appendAuditEvent` / `SH-030 recordSensitiveAccess`;
@@ -1006,7 +1006,7 @@ Supports CL-08 **Feature 05 — Privacy Export Bundle and Secure Delivery**.
 - authoritative verified `export` request;
 - owner export serializers;
 - Media private artifact create/finalize;
-- `SH-087 issueSignedMediaUrl`;
+- `SH-127 requestMediaAccess`;
 - canonical queue/expiry;
 - Audit;
 - approved shared encryption/hash implementation satisfying mandatory SH-100 createPrivacyExportArtifact protections; production remains gated until available.
@@ -1069,7 +1069,7 @@ Actual file issuance:
 
 ```text
 Privacy authorize
-→ Media issueSignedMediaUrl # SH-087 issueSignedMediaUrl
+→ Media requestMediaAccess # SH-127 requestMediaAccess
 ```
 
 ### Shared Operations Used
@@ -1083,7 +1083,7 @@ Privacy authorize
 #### `SH-096 enumerateSubjectData`
 - obtain exportable owner sections/references.
 
-#### `SH-087 issueSignedMediaUrl`
+#### `SH-127 requestMediaAccess`
 - **Owner:** Media
 - **Invocation:** after fresh Privacy access allow
 - **Local policy:** bundle ready/unexpired and requester authorization
@@ -1741,7 +1741,7 @@ Consume:
 requestSearchProjectionRefresh # SH-091 requestSearchProjectionRefresh
 Media privacy executor
 Media private artifact create/finalize
-issueSignedMediaUrl # SH-087 issueSignedMediaUrl
+requestMediaAccess # SH-127 requestMediaAccess
 appendAuditEvent # SH-029 appendAuditEvent
 recordSensitiveAccess # SH-030 recordSensitiveAccess
 requestNotification # SH-041 requestNotification
@@ -2536,3 +2536,7 @@ Before marking the Module implementation plan complete, verify:
 14. Every numbered feature has automated tests and an exit gate.
 15. Decision-gated semantics are disabled rather than guessed.
 16. A coding agent can implement the next feature without inventing ownership, provider placement, lifecycle truth, or cross-Module access patterns.
+
+## WA-R008 — Media public-access integration
+
+This consumer invokes SH-127 `requestMediaAccess` with its own actor/resource/action-bound contextual authorization and required evidence. Media independently evaluates asset safety, grant, scope, expiry and revocation, then performs SH-087 `issueSignedMediaUrl` internally. The consumer never calls the signer or reads storage directly. SH-127's identity is approved; its registry status remains Proposed ruling for owner-specific integration completion. Bind the caller's exact contextual decision and failure/access-proof semantics before production use. A Media failure must not be recorded as successful file access.

@@ -656,7 +656,7 @@ The canonical registry supplies permanent SH IDs. Only operations consumed here 
 | `SH-098 anonymizePersonalFields` | Shared field-level anonymization mechanism. | Shared primitive; record owner supplies mapping | owner executors | versioned anonymization mechanism | exact fields/invariants | retained/erasable target execution | global unscoped scrubber |
 | `SH-099 orchestratePrivacyFulfillment` | Coordinate Privacy request end to end. | Privacy / Data Erasure | Privacy | owner-local orchestration over shared mechanisms | privacy workflow meaning | after verification | privacy workflows in feature Modules |
 | `SH-100 createPrivacyExportArtifact` | Build encrypted/private temporary export artifact. | Privacy owns bundle; Media/storage owns object mechanics | Privacy | artifact assembly + Media mechanics | export contents/eligibility/expiry | export request | R2/signed-URL implementation in Privacy |
-| `SH-087 issueSignedMediaUrl` | Issue short-lived private Media URL after gates. | Media / File Access | Privacy exports | signed URL mechanics | Privacy export entitlement | export download | custom presigning in Privacy |
+| `SH-127 requestMediaAccess` | Issue short-lived private Media URL after gates. | Media / File Access | Privacy exports | signed URL mechanics | Privacy export entitlement | export download | custom presigning in Privacy |
 | `SH-123 validateOwnedTargetReference` | Validate a cross-Module target through its owner. | Target owner | both | owner-specific validation contract | target relationship/eligibility | target registration/reveal context | direct cross-Module existence checks |
 | `SH-032 createRequestContext`, `SH-033 writeStructuredLog`, `SH-034 sanitizeTelemetryMetadata`, `SH-037 recordIntegrationFailure` | Correlate and observe execution safely. | Per-operation owner in the canonical registry | both | request IDs, structured logs, redaction, failure records | domain failure status and sensitive-field policy | all workflows | business state in logs |
 
@@ -717,7 +717,7 @@ verified export request
 → Media stores private artifact and returns MediaAsset reference
 → Privacy writes DataExportBundle(ready)
 → requester passes authorization
-→ Media.issueSignedMediaUrl # SH-087 issueSignedMediaUrl
+→ Media.requestMediaAccess # SH-127 requestMediaAccess
 → Audit.recordSensitiveAccess # SH-030 recordSensitiveAccess
 → expiry worker marks bundle expired and asks Media to remove object
 ```
@@ -1082,7 +1082,7 @@ At minimum:
 - `DataExportBundle` is Privacy truth.
 - export bytes live in Media-managed private storage.
 - `mediaAssetId` points to the Media asset used for the bundle.
-- `SH-087 issueSignedMediaUrl` provides short-lived access after Privacy authorization.
+- `SH-127 requestMediaAccess` provides short-lived access after Privacy authorization.
 - export access is sensitive and must be audited.
 
 **Proposed Ruling PR-08-04 — DataExportBundle media relation**  
@@ -1470,3 +1470,7 @@ For exact-location work, also read Booking & Calendar, Transaction / Order, Role
 For privacy fulfillment, also read every source Module whose records are in the requested executor set plus Media, Search, Audit, Observability, Identity, Customer / Buyer Profile, and Track Subscription & Entitlement.
 
 If a required dependency interface or one of U-08-01 through U-08-23 remains unresolved, stop at that boundary and record the blocker. Do not replace missing architecture with a direct database read, local boolean, provider SDK call, or guessed legal rule.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.

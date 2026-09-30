@@ -499,7 +499,7 @@ Never expose `setBaaStatus`.
 - **SH-044 / platform:** command replay protection. Local policy: semantic identity per BAA/action/evidence version.
 - **SH-046 / platform:** transactional BAA/profile/readiness event publication.
 - **SH-051/052/053 / persistence/state machine:** serialize/validate transitions. Local policy: transition graph/evidence.
-- **SH-087/090 / Media:** private evidence access/attachment if approved. Local policy: business meaning and access entitlement. Prohibited duplicate: R2/signed URL pipeline.
+- **SH-127/090 / Media:** private evidence access/attachment if approved. Local policy: business meaning and access entitlement. Prohibited duplicate: R2/signed URL pipeline.
 - **SH-034 / Ops:** safe audit/telemetry metadata.
 
 ### Domain Logic
@@ -1258,7 +1258,7 @@ Primary Healthcare participation in **CL-03 Feature 11 cross-cluster integration
   - Transaction / Order.
 - SH-002 general authority;
 - SH-030 sensitive access;
-- SH-087 signed media URL where file access is tested;
+- SH-127 signed media URL where file access is tested;
 - Video/session token public interfaces from Video owner;
 - U-09/U-10 limitations remain exact-target unless resolved.
 - U-HC-08 redaction instruction contract approved for each consumer path.
@@ -1298,7 +1298,7 @@ No new source model. Uses boundaries, admin policies, SH-020/vendor-readiness po
 
 - **SH-002 / Role:** general permission in owner/route path. Prohibited duplicate: Healthcare role engine.
 - **SH-030 / Audit:** actual sensitive access evidence. Local Healthcare context: sensitivity/decision; resource owner reports actual issuance/view outcome.
-- **SH-087 / Media:** short-lived private evidence/file access. Local policy: Healthcare allows contextual access. Prohibited duplicate: presigner.
+- **SH-127 / Media:** short-lived private evidence/file access. Local policy: Healthcare allows contextual access. Prohibited duplicate: presigner.
 - **SH-090 / Media contextual attachment:** if BAA/evidence context is attached. Prohibited duplicate: Media processing.
 - **SH-123 / target owner:** validate contextual target.
 - **SH-034 / Ops:** telemetry minimization.
@@ -1502,7 +1502,7 @@ No Privacy/Audit/Notification/Hold/Ops source rows are owned here.
 - **SH-011/012/013 / Hold:** evaluate/request/release reusable stop sign. Local policy: healthcare source condition. Prohibited duplicate: local blocked state.
 - **SH-034 / Ops:** sanitize metadata.
 - **SH-037/038 / Ops:** provider/integration/queue failure visibility. Prohibited duplicate: using Ops status as business state.
-- **SH-087/Media deletion contracts:** Healthcare never deletes private object directly.
+- **SH-127/Media deletion contracts:** Healthcare never deletes private object directly.
 
 ### Domain Logic
 
@@ -1681,7 +1681,7 @@ Hardening verifies, rather than recreates:
 - SH-047/048/051/052/053/055 jobs/concurrency/lifecycle;
 - SH-059–062 provider shell where enabled;
 - SH-070/078 provider privacy/security;
-- SH-087/090 Media boundary;
+- SH-127/090 Media boundary;
 - SH-091 Search boundary through source owner;
 - SH-095–098 Privacy protocol;
 - SH-123 target-owner validation.
@@ -2025,3 +2025,7 @@ Before treating these context files as implementation-ready and before closing M
 19. Every numbered feature aligns to CL-03 Feature 06, 11, 12, or 13 without changing Cluster order.
 20. Every numbered feature has tests, acceptance criteria, and an exit gate.
 21. A coding agent can execute the plan without inventing architecture or legal/provider semantics.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.

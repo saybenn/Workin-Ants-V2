@@ -83,7 +83,7 @@ Before the affected production feature begins, architecture must resolve:
 - U-CL06-10/11/12/13 for candidate search/pipeline/access semantics;
 - residual U-CL06-14 participant removal/eligibility and U-CL06-15 reschedule policy; Job Interview participant ownership is confirmed;
 - residual U-CL06-16 JobInterview-local external event/sync/error-field semantics for persisted calendar integration; Booking & Calendar provider ownership is confirmed;
-- unresolved SH-120 `normalizeJurisdictionContext` (Unresolved) owner/interface before jurisdiction-aware production compliance.
+- proposed SH-120 `normalizeJurisdictionContext` (Proposed ruling) owner/interface before jurisdiction-aware production compliance.
 
 External providers may be contract-stubbed before their integration feature. Do not fake their domain decisions.
 
@@ -186,7 +186,7 @@ An authorized Job Compliance evaluation produces durable rule-version, check, fi
 
 #### Dependencies
 
-Feature 01 must expose Organization Hiring's compliance-input snapshot and scoped/cursor rescan-enumeration owner contracts before this feature consumes them. U-CL06-05/07 remain policy blockers; U-CL06-06 is a binding evidence invariant whose persistence design/implementation requires a later approved schema pass. SH-120 `normalizeJurisdictionContext` (Unresolved) remains Unresolved: production jurisdiction-aware evaluation requires its approved owner/interface. Rule/check persistence, owner-local scanner mechanics and deterministic fixtures with explicitly supplied normalized jurisdiction context may proceed below that gate; raw location strings are not canonical evidence and no local replacement is permitted. Shared proposed scanner/decision/owner-facts APIs require separate approval before cross-platform commitment.
+Feature 01 must expose Organization Hiring's compliance-input snapshot and scoped/cursor rescan-enumeration owner contracts before this feature consumes them. U-CL06-05/07 remain policy blockers; U-CL06-06 is a binding evidence invariant whose persistence design/implementation requires a later approved schema pass. SH-120 `normalizeJurisdictionContext` (Proposed ruling) remains Proposed ruling: production jurisdiction-aware evaluation requires its approved owner/interface. Rule/check persistence, owner-local scanner mechanics and deterministic fixtures with explicitly supplied normalized jurisdiction context may proceed below that gate; raw location strings are not canonical evidence and no local replacement is permitted. Shared proposed scanner/decision/owner-facts APIs require separate approval before cross-platform commitment.
 
 #### Shared Operations Used
 
@@ -230,7 +230,7 @@ Job lifecycle mutation, Search writes, candidate screening, generic moderation.
 
 #### Exit Gate
 
-PASS only if U-CL06-05/07 are resolved, the binding U-CL06-06 invariant has an approved implemented persistence design, SH-120 `normalizeJurisdictionContext` (Unresolved) has an approved owner/interface, and any proposed SH API/schema commitment has separate approval; both Organization source contracts pass consumer tests; identical immutable input and complete applied-rule proof reproduce the result after later Job/rule changes; zero-finding pass records every applied rule; technical failure cannot approve; Job Compliance never owns Job lifecycle; reviewer/admin actions are authorized/audited; all tests/build checks pass.
+PASS only if U-CL06-05/07 are resolved, the binding U-CL06-06 invariant has an approved implemented persistence design, SH-120 `normalizeJurisdictionContext` (Proposed ruling) has an approved owner/interface, and any proposed SH API/schema commitment has separate approval; both Organization source contracts pass consumer tests; identical immutable input and complete applied-rule proof reproduce the result after later Job/rule changes; zero-finding pass records every applied rule; technical failure cannot approve; Job Compliance never owns Job lifecycle; reviewer/admin actions are authorized/audited; all tests/build checks pass.
 
 
 ### 03 Controlled Job Publication and Search Handoff
@@ -1239,3 +1239,13 @@ After each feature, report:
 - Exit-gate result: **PASS / FAIL**, with evidence
 
 A feature whose exit gate fails is incomplete. Do not begin the next feature until failure is resolved or architecture/build plan is explicitly revised.
+
+## WA-R009 — Jurisdiction normalization status and ownership
+
+SH-120 is Proposed ruling, not Unresolved. It shares normalization/provenance mechanics while each jurisdiction-dependent owner selects and interprets evidence for its own purpose. Location's geography does not become neutral tax/employment authority; Payment owns tax interpretation and Job Compliance owns employment-jurisdiction interpretation. An owner-specific normalized-input contract may be implemented without adopting a universal jurisdiction DTO. Production use still requires sufficient legal/provider/source evidence and an explicit binding. No local competing universal normalizer or generic legal decision service is authorized.
+
+## WA-R010 — Split compensation stewardship from contract-job meaning
+
+The ownership part of U-CL06-07 / PR-JC-03 is AI_RESOLVED: Organization Hiring owns CompensationPeriod because it owns the offered Job compensation facts. Job Compliance reads and snapshots the same vocabulary; it does not acquire Job source truth or create another enum. Registry ownership is aligned, with no schema/value change.
+
+The meaning of EmploymentType.contract remains PRODUCT_OWNER_CHOICE P03: fixed-term employment, independent-contractor work, or distinct supported categories. Until answered, do not enable ambiguous contract-type posting or infer its legal treatment. This narrow product gate must not block compensation-period handling for other already-defined employment types. Legal classification rules remain external after the product vocabulary is chosen.

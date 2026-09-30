@@ -467,7 +467,7 @@ Public DTOs must be schema-validated and versioned. Raw Prisma records, unrestri
 | Observability / Ops | request context, logging, metrics, exception/failure/queue telemetry | Correlation and safe operational diagnostics | Optional telemetry may degrade; required operational job persistence may block async scheduling | Logger, Sentry, failure/queue/incident schemas |
 | Shared application infrastructure | idempotency, outbox/inbox, locks/CAS, lifecycle plumbing, queues/retries | Effectively-once command/event/job execution | Yes where required | Local idempotency/queue/outbox/lock packages |
 | Privacy / Data Erasure | Privacy instruction protocol and exemption reference | Authorized request/job/target, desired disposition, exemption ID if retained | Yes for privacy execution | Privacy orchestration/exemption truth |
-| Context owner / Media / File Access | SH-026 `authorizeContextualResourceAccess` then Media-owned SH-087 `issueSignedMediaUrl`, if review evidence uses Media | Context owner authorizes first; Media provides protected short-lived access; SH-030 `recordSensitiveAccess` where policy requires | Yes for evidence access, not ordinary hold truth | File/storage/grant mechanics or a CL-09 signer |
+| Context owner / Media / File Access | SH-026 `authorizeContextualResourceAccess` then Media-owned SH-127 `requestMediaAccess`, if review evidence uses Media | Context owner authorizes first; Media provides protected short-lived access; SH-030 `recordSensitiveAccess` where policy requires | Yes for evidence access, not ordinary hold truth | File/storage/grant mechanics or a CL-09 signer |
 
 Direct dependency examples include Payment/Payout/Tax, Trust Verification, Professional Eligibility, Job Compliance, Content Moderation, Review/Dispute, Healthcare, Sweepstakes/Prize, Rewards, Candidate Privacy, Transaction/Order, and Identity/Security. Each supplies only its own public facts; none grants permission for a consolidated cross-domain repository.
 
@@ -1067,3 +1067,7 @@ Then:
 - update progress and any legitimately changed binding architecture;
 - record assumptions, known failures, remaining risks, and deferred decisions.
 
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.

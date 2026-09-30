@@ -860,7 +860,7 @@ Healthcare can own professional lane status, BAA state, explicit sensitive-data 
 - **SH-044/046** — idempotent healthcare mutations and owner events.
 - **SH-059/060/061/062** — provider callback pattern only when U-08/provider selection is approved.
 - **SH-078** — provider/telemetry minimization.
-- **SH-087/090** — Media signed access/context attachment where BAA/evidence documents are stored; Healthcare owns entitlement/context, not signing.
+- **SH-127/090** — Media signed access/context attachment where BAA/evidence documents are stored; Healthcare owns entitlement/context, not signing.
 - **SH-123** — validate external boundary target through target owner rather than generic polymorphic Prisma reads.
 
 ### Data / Schema
@@ -1422,7 +1422,7 @@ An existing authoritative Order can be priced/taxed/paid/refunded through Paymen
 - CL-04 stable Order payment/query contracts.
 - Stripe/Stripe Tax configuration.
 - Any Digital Goods tax-code input comes through the owning Module/public context, not Marketplace ownership theft.
-- U-120/SH-120 global jurisdiction helper remains unresolved; do not depend on it.
+- U-120/SH-120 global jurisdiction helper remains Proposed ruling; do not depend on it.
 
 ### Shared Operations Used
 
@@ -2161,3 +2161,11 @@ After each feature, the coding agent must report:
 - Exit-gate result: **PASS / FAIL**, with failed criteria listed exactly.
 
 If the exit gate is **FAIL**, the next numbered feature must not begin unless the build plan itself explicitly declares the failed item non-blocking and the architecture supports that declaration.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.
+
+## WA-R009 — Jurisdiction normalization status and ownership
+
+SH-120 is Proposed ruling, not Unresolved. It shares normalization/provenance mechanics while each jurisdiction-dependent owner selects and interprets evidence for its own purpose. Location's geography does not become neutral tax/employment authority; Payment owns tax interpretation and Job Compliance owns employment-jurisdiction interpretation. An owner-specific normalized-input contract may be implemented without adopting a universal jurisdiction DTO. Production use still requires sufficient legal/provider/source evidence and an explicit binding. No local competing universal normalizer or generic legal decision service is authorized.

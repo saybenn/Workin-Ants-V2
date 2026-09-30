@@ -658,7 +658,7 @@ Provider-specific DTOs must not leak into the public Module contract.
 | Marketplace Supply | `getOfferingEligibilityContext` | Determine Offering healthcare trigger/use case. | Offering ID/version, professional ID, kind, taxonomy refs, sensitivity/delivery facts | Context-dependent | direct Offering repository/status mutation |
 | Trust Verification / Screening | SH-018 only if a Healthcare-owned policy explicitly requires Trust evidence | Keep license/screening truth separate. | decision/evidence refs only | Only when explicitly approved | license/background-check reconstruction |
 | Admin Review / Compliance Hold | SH-011/012/013 | Evaluate/request/release reusable stop signs. | target/action/hold IDs/scope/reason refs | Yes where mapped | local generic blocked flag |
-| Media / File Access | ready MediaAsset facts, SH-087 signed access, SH-090 contextual attachment as applicable | Store/access BAA or healthcare evidence privately. | asset ID, readiness, sensitivity/access result | Yes for file operations | R2 client, scan, MIME, signed URL service |
+| Media / File Access | ready MediaAsset facts, SH-127 signed access, SH-090 contextual attachment as applicable | Store/access BAA or healthcare evidence privately. | asset ID, readiness, sensitivity/access result | Yes for file operations | R2 client, scan, MIME, signed URL service |
 | Resource owners | SH-123 `validateOwnedTargetReference` / owner-specific facts | Validate polymorphic boundary/policy targets. | target existence/type/version and minimum parent/context facts | Yes | generic cross-domain target repository |
 | Audit / Event Ledger | SH-029, SH-030 | Record generic action proof and sensitive access. | actor/action/target/outcome/safe metadata | Critical where required | local audit/access log table |
 | Notification | SH-041 `requestNotification` | Deliver status/remediation messages. | template/event key + safe IDs/data | No to domain mutation unless product policy says critical | SES/SMS/push provider clients |
@@ -725,7 +725,7 @@ Only confirmed/necessary operations are binding dependencies. Proposed shared co
 | SH-062 `reconcileProviderState` | Provider-adapter contract | Repair missed/stuck provider state. | Scheduled/manual reconciliation. | Healthcare discrepancy/transition policy. | normalized reconciliation result | provider object as truth |
 | SH-070 `deleteProviderResource` | Provider/privacy contract | Execute provider-side deletion where allowed. | Privacy fulfillment. | healthcare retention/legal decision remains external input. | deletion/anonymization result | Privacy module direct provider SDK |
 | SH-078 `minimizeAndRedactProviderInput` | Provider/privacy security capability | Send only approved minimum to provider and telemetry. | Before provider request/logging. | healthcare necessary fields. | minimized DTO | provider payload dump |
-| SH-087 `issueSignedMediaUrl` | Media public capability | Access private BAA/evidence file after Healthcare entitlement decision. | Evidence viewing. | Whether actor/context may receive access. | short-lived signed access | local R2 presign |
+| SH-127 `requestMediaAccess` | Media public capability | Access private BAA/evidence file after Healthcare entitlement decision. | Evidence viewing. | Whether actor/context may receive access. | short-lived signed access | local R2 presign |
 | SH-090 `attachValidatedMedia` | Shared contextual contract — Media mechanics remain Media-owned | Associate a ready MediaAsset to healthcare evidence/context where approved. | BAA/evidence attachment. | healthcare business meaning. | validated ready asset/context link | scan/upload pipeline |
 | SH-095 `executePrivacyInstruction` | Privacy protocol / owner executor | Apply an approved privacy instruction to Healthcare truth. | Privacy worker callback. | field/record disposition. | execution result/evidence | local PrivacyRequest workflow |
 | SH-096 `enumerateSubjectData` | Privacy protocol | Enumerate Healthcare-owned subject data. | Privacy planning/export. | Healthcare inventory. | typed target inventory | global cross-table scan |
@@ -773,7 +773,7 @@ These operations contain healthcare domain meaning and therefore remain local ev
 | Queue/retry/dead letter | SH-047/048 | BAA expiry/reconciliation/provider work payload and business completion semantics. |
 | Immutable document hashing/snapshot mechanics | Shared crypto/snapshot mechanisms if approved | BAA-specific parties, document identity, version, hash, signatures, effective state, retention. Transaction `AgreementDocumentSnapshot` is not BAA truth. |
 | Sensitive access ledger | SH-030 / Audit-owned `AccessAuditLog` | Healthcare sensitivity, healthcare decision, target context, and access requirement. |
-| File storage/signed URL | Media SH-087/090 | BAA/evidence business meaning and Healthcare access entitlement. |
+| File storage/signed URL | Media SH-127/090 | BAA/evidence business meaning and Healthcare access entitlement. |
 | Readiness response shape | SH-015 if approved | Healthcare policy, reason codes, evidence, and policy version. |
 | Search projection runner | SH-091/Search | Healthcare/source public-readiness facts; Search inclusion/execution remains Search-owned. |
 | Privacy workflow | SH-095–098 | Healthcare record inventory, field mappings, and retention facts. |
@@ -1157,7 +1157,7 @@ BAA/evidence access requires:
 general authorization
 + Healthcare contextual access decision
 + Media-owned file entitlement/mechanics
-→ SH-087 short-lived access
+→ SH-127 short-lived access
 → SH-030 sensitive access proof where required
 ```
 
@@ -1599,3 +1599,7 @@ The agent must then:
 - stop and report a blocker when an unresolved ruling is required;
 - never satisfy a dependency by creating a local duplicate;
 - update architecture only when a binding decision legitimately changes, never merely because implementation was convenient.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.

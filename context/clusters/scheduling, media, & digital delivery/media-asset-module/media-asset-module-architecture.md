@@ -2441,3 +2441,7 @@ Does it change a binding lifecycle/provider/security/privacy decision?
 ```
 
 If the answer implies a new architecture decision, update architecture first or record the unresolved decision. Do not let implementation silently become architecture.
+
+## WA-R007 — Contextual attachment ownership registry alignment
+
+The registry now lists OfferingMedia, GigMedia, OrganizationMedia and CandidateProfileMedia as referenced by Media rather than owned by Media. Their existing source owners remain Marketplace Supply, Gig Demand, Organization Hiring and Candidate Application respectively. No schema placement/migration changed. This applies the existing contextual-join lifecycle split; it does not create a generic attachment owner or change MediaAsset technical ownership. Shared ProfileStatus vocabulary is an enum-stewardship concern, not a shared profile lifecycle.

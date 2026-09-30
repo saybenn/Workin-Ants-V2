@@ -907,7 +907,7 @@ Privacy verifies request and creates DataErasureJob/targets
 | CL-03 Marketplace Supply | Video/Digital Goods/Media | Offering/Product/Course identity and attachment context | Marketplace Supply | target-validation/public facts interface | CL-05 editing Offering lifecycle |
 | CL-03 Healthcare | Media/Video/Booking | healthcare readiness/data-boundary decision | Healthcare | SH-020 | provider lane decided inside Media/Video |
 | CL-04 Transaction / Order | Booking/Video/Digital Goods/Media | delivery entitlement, Order participant/item facts, refund/dispute effects | Order | SH-025 + domain events | Stripe reads, local paid booleans |
-| CL-04 Agreement | Booking/Media | agreement readiness/access decision | Transaction / Order | owner public interface; SH-112 for hash verification | Booking generating/owning Agreement proof |
+| CL-04 Agreement | Booking/Media | agreement readiness/access decision | Transaction / Order | Order public readiness/access interface; SH-112 stays Order-internal/background | Booking generating/owning Agreement proof |
 | CL-06 Job Interview | Video | interview/participant/time context | Job Interview | owner facts + Video public command | Video scheduling/interview transitions |
 | CL-07 Messaging | Booking | context thread | Messaging | SH-113 | Booking-owned chat/thread tables |
 | CL-07 Notification | all four | alert delivery | Notification | SH-041 | direct SES/SMS/push clients in CL-05 |

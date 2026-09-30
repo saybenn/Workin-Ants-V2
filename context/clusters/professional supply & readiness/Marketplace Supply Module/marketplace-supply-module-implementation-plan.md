@@ -1453,7 +1453,7 @@ Hardening verifies correct use of, and forbids replacements for:
 - SH-044/045/046 idempotency/inbox/outbox;
 - SH-047/048 jobs/retry;
 - SH-051/052/053 concurrency/lifecycle;
-- SH-087/090 Media boundary;
+- SH-127/090 Media boundary;
 - SH-091/094 Search boundary;
 - SH-095–098 Privacy;
 - SH-103 Moderation enforcement;
@@ -1732,3 +1732,7 @@ Before declaring the Marketplace Supply plan implemented, verify:
 12. every numbered feature has passed tests and its exit gate.
 13. U-01/U-13/U-14/U-15/U-16 and Marketplace MA-U items were not silently invented.
 14. a coding agent can implement the next feature from context without making an ownership decision on its own.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.

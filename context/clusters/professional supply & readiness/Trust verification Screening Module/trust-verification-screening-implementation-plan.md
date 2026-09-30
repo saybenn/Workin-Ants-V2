@@ -93,7 +93,7 @@ Before production use of the behavior that depends on them, the repository must 
 - Taxonomy/target facts: **SH-022 `resolveTaxonomyRequirements`**, **SH-123 `validateOwnedTargetReference`** where approved.
 - Subject/context owners: narrow ProfessionalProfile/CandidateProfile/Job/Application context interfaces as needed.
 - Order: **SH-107 `createChargeableOrder`** and authoritative fee/payment facts when paid screening is enabled.
-- Media: **SH-090** validated contextual asset and **SH-087** signed access before local document evidence is enabled.
+- Media: **SH-090** validated contextual asset and **SH-127** signed access before local document evidence is enabled.
 - Holds: **SH-011/012/013**.
 - Notification: **SH-041** before automated delivery requests are enabled.
 - Search: **SH-091** before public Trust projection refresh is enabled.
@@ -824,7 +824,7 @@ Raw ID/document storage in Trust, upload/scan/signed URL mechanics, “clean fil
 
 - **SH-001/002:** subject/reviewer authorization; prohibit credential-local auth engine.
 - **SH-090:** accept only validated Media evidence; Trust owns credential meaning; prohibit local file pipeline.
-- **SH-087:** signed evidence access; Trust supplies contextual entitlement; prohibit presigned URL helper.
+- **SH-127:** signed evidence access; Trust supplies contextual entitlement; prohibit presigned URL helper.
 - **SH-030:** sensitive evidence access proof; prohibit duplicate license-view access ledger.
 - **SH-029:** admin credential action audit; prohibit generic credential audit store.
 - **SH-044/051/053:** idempotency/concurrency/lifecycle mechanics; Trust owns aggregate key/graph; prohibit in-memory locks/generic status setter.
@@ -1320,7 +1320,7 @@ Hardening verifies, rather than duplicates:
 - SH-055 deadlines;
 - SH-059–062 provider callback/reconciliation;
 - SH-078 provider minimization;
-- SH-087/090 Media;
+- SH-127/090 Media;
 - SH-091 Search;
 - SH-095–098 Privacy;
 - SH-107 Order;
@@ -1547,3 +1547,7 @@ Before this implementation plan is considered executed, verify:
 Consume the distinct platform-facilitated screening source under Confirmed SH-107. Trust supplies its owned package/quote and owns screening requirements/results; Order owns the purchase snapshot/lifecycle and Payment owns financial-provider execution. Voluntary Candidate/Professional screening is optional, self-initiated and self-paid; business/EIN Organization verification is separate. Required workflow screening does not automatically imply employer sponsorship. No fake Professional seller, Offering or Gig.
 
 Paid continuation requires authoritative Order payment outcome plus sufficient required consent; payment is not clearance. Source schema/constraints, bilateral correlation/replay/refund/recovery and provider/legal requirements must pass before paid activation. Marketplace-only source examples in older Order feature slices do not revoke this approved source family.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.

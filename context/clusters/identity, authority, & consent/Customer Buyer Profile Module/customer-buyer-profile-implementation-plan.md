@@ -554,7 +554,7 @@ If root UI requires a separate command to clear avatar, define it as a Customer 
 | SH-029 | Audit | material admin mutation where required | safe Customer action metadata | Customer audit table |
 | SH-030 | Audit | sensitive profile/admin read if policy classifies it | sensitivity/purpose | Customer access log |
 | SH-082/083/084 | Media | Media upload/processing side before attachment | Customer requires approved ready asset | avatar scanner/processor |
-| SH-087 | Media | display private avatar where required | requester may view profile/avatar context | avatar presign helper |
+| SH-127 | Media | display private avatar where required | requester may view profile/avatar context | avatar presign helper |
 | SH-090 `attachValidatedMedia` | contextual Customer + Media truth | avatar command | this actor may attach this asset to this profile | profile-owned file lifecycle |
 | SH-032–037 | platform/Ops | diagnostics and dependency failure | safe profile IDs/reasons | local logger/metrics/failure store |
 | SH-046 | platform outbox | only if a real consumer requires update event | minimized changed categories | local event bus |
@@ -1763,3 +1763,7 @@ Before declaring the Module implementation plan satisfied, verify:
 19. Every numbered feature has tests and a passed exit gate before dependent work proceeds.
 20. The implementation still matches the parent CL-01 build sequence and does not silently move Cluster milestones.
 21. A coding agent can execute the next approved feature without inventing architecture.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.

@@ -1038,7 +1038,7 @@ Completes the review/evidence portion of **CL-04 Feature 11**.
 - SH-054 `claimWorkItem` if approved;
 - SH-053 `transitionLifecycleState`;
 - SH-044 `executeIdempotentCommand`;
-- SH-087 `issueSignedMediaUrl`;
+- SH-127 `requestMediaAccess`;
 - SH-030 `recordSensitiveAccess`;
 - SH-029 `appendAuditEvent`;
 - SH-046 `publishDomainEvent`;
@@ -1607,7 +1607,7 @@ Completes Module-specific cross-cutting work needed before **CL-04 Feature 13 �
 - SH-030 `recordSensitiveAccess`;
 - SH-041 `requestNotification`;
 - SH-043 `resolveNotificationRecipients`;
-- SH-087 `issueSignedMediaUrl`;
+- SH-127 `requestMediaAccess`;
 - SH-045 `deduplicateDomainEvent`;
 - SH-034 `sanitizeTelemetryMetadata`;
 - SH-033 `writeStructuredLog`;
@@ -2309,3 +2309,7 @@ Before declaring the Module plan complete or the implementation production-ready
 18. Features align with CL-04 Features 10–14 and do not independently reorder the Cluster.
 19. Unresolved decisions remain documented rather than encoded by guess.
 20. A coding agent can execute each feature without inventing architecture.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.

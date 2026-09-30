@@ -48,3 +48,20 @@ Structural checks verify registry membership, all 44 document pairs, permanent S
 No product-owner choice is currently requested. Do not ask again about settled ATS, reward-benefit, screening-default or content-similarity scope. Continue the unresolved architecture review autonomously. Database provenance is external evidence, not permission to halt unrelated reconciliation.
 
 Next: finish Gate 1 consumer alignment, then adjudicate every remaining handoff record against its owning architecture. Keep historical evidence intact. Do not mark the whole task complete from this checkpoint.
+
+## Continuation checkpoint — 2026-09-29 evening
+
+Resumed the clean local commit `2517479e2c9f1a668ec8c6298f2c1c1a47076434`; did not restart the completed inventory audit. Added WA-R006–010 and applied them to owner/consumer architecture and plans:
+
+- Search/CL-02 uses SH-131 for read-only public-location projections; SH-028 stays generation/invalidation.
+- CL-05 no longer exposes Order-internal SH-112 as a public Agreement prerequisite.
+- External protected-file consumers use SH-127; SH-087 remains Media-internal. Existing internal/transitive references are retained.
+- Removed Media's four competing contextual attachment ownership claims; corrected CompensationPeriod stewardship to Hiring.
+- Reconciled SH-120 status and purpose-specific interpretation in CL-03/CL-06 consumers without inventing a universal legal authority.
+- Extended structural checking to detect competing registered Prisma-model owners, missing handoff files and explicit single-ID operation-name drift.
+
+**Validation:** structural checks and diff whitespace checks pass. Mutation checks verify rejection of a competing model owner, a missing handoff, and a stale operation name while preserving grouped SH headings. Canonical SH identities/statuses and Prisma/migrations are unchanged. No live database commands or product implementation were performed.
+
+**Reason for returning control:** three genuine behavior choices in [product-owner-decisions.md](product-owner-decisions.md): priority scheduling, purchased-session cardinality, and contract-Job meaning. These are scoped Booking/Hiring contract gates, not technical questions. Other unreviewed handoff records are not implicitly closed.
+
+**Gate state:** Gate 1 consumer alignment advanced but not certified complete; Gate 2 remains in progress. Final bridge inventory, root artifacts, lane qualification and final readiness remain unfinished. The GitHub publish rejection from the earlier checkpoint remains in effect; this continuation makes no remote write attempt. Next after answers: apply only their affected owner contracts, finish remaining consumer and handoff reconciliation, and continue the gate sequence.

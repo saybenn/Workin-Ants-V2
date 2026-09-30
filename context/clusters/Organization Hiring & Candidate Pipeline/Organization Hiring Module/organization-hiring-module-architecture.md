@@ -120,7 +120,7 @@ Organization and Job lifecycles are distinct business truths. They are consumed 
 | `JobVisibility` | `public`, `private`, `invite_only` |
 | `EmploymentType` | `full_time`, `part_time`, `contract`, `internship`, `temporary` |
 
-`CompensationPeriod` appears on `Job` but its structural owner is unresolved by `U-CL06-07`. This Module may use it only after the architecture ruling confirms the vocabulary.
+Organization Hiring owns the `CompensationPeriod` vocabulary used by its Job compensation facts (WA-R010); Job Compliance consumes/snapshots it. `EmploymentType.contract` remains a separate product-meaning question under U-CL06-07.
 
 ### 3.3 Lifecycles owned
 
@@ -1617,7 +1617,7 @@ U-CL06-06 is resolved as an evidence invariant: immutable exact evaluated input 
 
 ### U-CL06-07 — `CompensationPeriod` ownership and `EmploymentType.contract`
 
-Resolve structural owner of compensation-period vocabulary and whether `contract` means fixed-term employee or independent contractor. Blocks final employment/compliance semantics.
+Compensation-period vocabulary stewardship is resolved to Organization Hiring by WA-R010. The product meaning of `contract` (fixed-term employee, independent contractor, or distinct supported categories) remains P03. Blocks final employment/compliance semantics.
 
 ### U-CL06-08 — Classification join persistence
 
@@ -1684,3 +1684,9 @@ Before implementing this Module, an agent must read:
 12. approved decisions resolving every `U-CL06-*` touched by the feature.
 
 Confirm the prior feature exit gate before starting the next feature. Never resolve an Unresolved Decision implicitly in code.
+
+## WA-R010 — Split compensation stewardship from contract-job meaning
+
+The ownership part of U-CL06-07 / PR-JC-03 is AI_RESOLVED: Organization Hiring owns CompensationPeriod because it owns the offered Job compensation facts. Job Compliance reads and snapshots the same vocabulary; it does not acquire Job source truth or create another enum. Registry ownership is aligned, with no schema/value change.
+
+The meaning of EmploymentType.contract remains PRODUCT_OWNER_CHOICE P03: fixed-term employment, independent-contractor work, or distinct supported categories. Until answered, do not enable ambiguous contract-type posting or infer its legal treatment. This narrow product gate must not block compensation-period handling for other already-defined employment types. Legal classification rules remain external after the product vocabulary is chosen.

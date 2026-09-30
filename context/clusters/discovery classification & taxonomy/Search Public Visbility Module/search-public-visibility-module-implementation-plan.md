@@ -1204,7 +1204,7 @@ CL-02 Feature 09 — real public-source integrations as Professional/Offering, G
 - SH-046/045 outbox/inbox where event-driven;
 - SH-091 Search command;
 - SH-094/024 source contracts;
-- SH-028 Location Safety;
+- SH-131 Location Safety;
 - SH-005 Track candidate boost signal when relevant;
 - Trust/Professional/Job/Healthcare readiness interfaces as source owners require.
 
@@ -1231,7 +1231,7 @@ Target public types:
 
 Also integrate:
 
-- SH-028 fuzzy location through source projection/document mapper;
+- SH-131 fuzzy location through source projection/document mapper;
 - Track entitlement change → candidate reindex signal only when the candidate source integration exists;
 - accepted taxonomy changes → affected projection refresh; AI suggestions alone must not trigger public indexing.
 
@@ -1258,7 +1258,7 @@ Consumes source events/interfaces; exposes SH-091. No source-specific parallel S
 - SH-094 source projection;
 - SH-024 public readiness;
 - SH-046 `publishDomainEvent` + SH-045 `deduplicateDomainEvent` when source change is event-driven;
-- SH-028 fuzzy location;
+- SH-131 fuzzy location;
 - SH-016/018/020/021 only through the approved owner composition path when a source interface requires them;
 - SH-005 for candidate boost signal when later connected.
 
@@ -2154,3 +2154,7 @@ Before considering this Module plan executed, verify all of the following:
 19. Every numbered feature has tests and a passed exit gate or is explicitly blocked/deferred.
 20. Root/Cluster sequencing has not been silently reordered.
 21. A coding agent can implement the next feature without inventing ownership, provider topology, privacy authority, or duplicate shared infrastructure.
+
+## WA-R006 — Public-location read boundary
+
+Search consumes SH-131 `getPublicLocationProjection`, the Location-owned side-effect-free read of current safe public fields. SH-028 remains Location's generation/update/invalidation command and is not called by Search projection reads. Never fall back to exact coordinates, local fuzzing or a read-triggered refresh loop. An unavailable/stale public projection must be withheld; where location is required for the document's eligibility, withhold that document until current safe data is available. This correction normalizes identity/use only: SH-131 retains Proposed ruling status until its owner-specific freshness/result contract is bound before production integration.

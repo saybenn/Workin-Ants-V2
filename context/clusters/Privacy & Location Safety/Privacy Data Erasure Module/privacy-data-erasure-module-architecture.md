@@ -1146,7 +1146,7 @@ All provider actions occur through provider-owning Module interfaces such as:
 ```text
 deleteProviderResource # SH-070 deleteProviderResource
 requestSearchProjectionRefresh # SH-091 requestSearchProjectionRefresh
-issueSignedMediaUrl # SH-087 issueSignedMediaUrl
+requestMediaAccess # SH-127 requestMediaAccess
 ```
 
 ---
@@ -1163,7 +1163,7 @@ issueSignedMediaUrl # SH-087 issueSignedMediaUrl
 | each data owner | `SH-095 executePrivacyInstruction` | owner-local mutation | typed disposition/evidence | yes | cross-Module writes |
 | target owner | `SH-123 validateOwnedTargetReference` | prevent stale/wrong-target execution | target exists/version/context/allowed relationship | yes | direct existence query |
 | Media / File Access | Media privacy executor | delete/anonymize Media data | target result | yes for Media target | R2 client |
-| Media / File Access | private artifact create/finalize + `SH-087 issueSignedMediaUrl` | export storage/delivery | Media reference/access result | yes for export | signed URL/storage code |
+| Media / File Access | private artifact create/finalize + `SH-127 requestMediaAccess` | export storage/delivery | Media reference/access result | yes for export | signed URL/storage code |
 | Search / Public Visibility | `SH-091 requestSearchProjectionRefresh` | remove/update public projection | target, action, safe source version/reason | projection can lag but must be reconciled | `SearchUpsertEvent` write/Typesense |
 | Audit / Event Ledger | `SH-029 appendAuditEvent` | generic lifecycle/action proof | actor/system, action, target, outcome, correlation, safe metadata | criticality follows root policy | privacy audit table |
 | Audit / Event Ledger | `SH-030 recordSensitiveAccess` | export issuance/download proof | actor, sensitivity, target, decision, correlation | access policy may require it | `PrivacyAccessLog` |
@@ -1250,7 +1250,7 @@ The canonical registry supplies permanent SH IDs. Only operations consumed here 
 | `SH-075 encryptSensitiveValue` | Platform primitive | Shared security/cryptography capability | mandatory SH-100 createPrivacyExportArtifact export archive protection; implementation remains gated | artifact generation | export content/expiry | encrypted output/reference | local AES helper |
 | `SH-076 normalizeAndHashIdentifier` | Platform primitive | Shared security/cryptography capability | non-plaintext request/IP evidence when required | intake/audit evidence | necessary identifiers/retention | normalized hash | `privacyIpHash` |
 | `SH-091 requestSearchProjectionRefresh` | Module public interface | Search / Public Visibility | privacy de-index/update | after owner truth change | privacy reason/action | Search command acknowledgement | `typesenseDelete`, direct SearchUpsertEvent write |
-| `SH-087 issueSignedMediaUrl` | Cross-cutting media capability | Media / File Access | short-lived export access | after Privacy access allow | export entitlement/expiry | signed Media URL/access ref | local presign code |
+| `SH-127 requestMediaAccess` | Cross-cutting media capability | Media / File Access | short-lived export access | after Privacy access allow | export entitlement/expiry | signed Media URL/access ref | local presign code |
 | `SH-070 deleteProviderResource` | Provider-adapter contract | Provider-owning Module | execute authorized external deletion | inside owner executor | Privacy requested disposition only | deleted/absent/retained/retryable/terminal result | R2/Stripe/Mux/etc clients in Privacy |
 | `SH-096 enumerateSubjectData` | Cross-cutting protocol | Each data-owning Module through Privacy-defined interface | inventory subject data | scope discovery/export | protocol shape/completeness | target page + cursor | global DB crawler |
 | `SH-097 evaluateRetentionRequirement` | Cross-cutting protocol | Data owner supplies facts; Privacy records exemption | determine mandatory retention input | before destructive disposition | exemption recording | required/reason/basis/etc. | tax/legal logic in Privacy |
@@ -1404,7 +1404,7 @@ Workers use an approved system actor/service identity with least privilege. Serv
 | ComplianceHold | Admin Review / Compliance Hold | `SH-011 evaluateComplianceHold` only where policy says applicable | specific action only | a hold cannot be presumed to defeat a statutory right | allow/block/review per approved policy |
 | consent proof | Consent & Disclosure | `SH-008 queryConsentProof` when evidence must be exported/retained | not a general gate to exercise privacy rights | classify proof as subject data/retention candidate | evidence only |
 | Track entitlement | Track Subscription & Entitlement | owner executor/retention interface | no general gate | Track data is itself a target; no premium requirement | no access gating |
-| Media access | Privacy + Role, then Media mechanics | `authorizePrivacyExportDownload` + `SH-087 issueSignedMediaUrl` | export delivery | bundle must be ready/unexpired and actor authorized | allow/deny |
+| Media access | Privacy + Role, then Media mechanics | `authorizePrivacyExportDownload` + `SH-127 requestMediaAccess` | export delivery | bundle must be ready/unexpired and actor authorized | allow/deny |
 | source owner target validity | target owner | `SH-123 validateOwnedTargetReference` | target registration/execution | fail closed on stale/wrong owner | valid/stale/not-found/forbidden |
 
 ### Legal gate status
@@ -2477,3 +2477,7 @@ Before coding, verify:
 - whether any Proposed Ruling has actually been approved.
 
 If a required interface or decision is missing, stop at the contract boundary and record the blocker. Do not replace missing architecture with direct Prisma access, provider calls, local auth/audit/queue helpers, or guessed legal policy.
+
+## WA-R008 — Media public-access integration
+
+This consumer invokes SH-127 `requestMediaAccess` with its own actor/resource/action-bound contextual authorization and required evidence. Media independently evaluates asset safety, grant, scope, expiry and revocation, then performs SH-087 `issueSignedMediaUrl` internally. The consumer never calls the signer or reads storage directly. SH-127's identity is approved; its registry status remains Proposed ruling for owner-specific integration completion. Bind the caller's exact contextual decision and failure/access-proof semantics before production use. A Media failure must not be recorded as successful file access.

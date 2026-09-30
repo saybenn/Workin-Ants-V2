@@ -22,3 +22,7 @@ See WA-R001–005 in platform-architecture-rulings.md: membership ownership, SH-
 Namespace integrity is not full Gate 1 completion. Owner-specific contracts, remaining semantic consumer alignment and cross-lane contract qualification need review. Registry Confirmed is not automatically FROZEN_FOR_IMPLEMENTATION; Proposed is not automatically a product-owner choice. No lane is activated by this report.
 
 Reproduce structural checks with `python scripts/check-context.py`. The checker does not perform a semantic audit, prove provider/legal readiness, validate deployed data, or execute migrations.
+
+## Continuation evidence
+
+WA-R006–009 normalize read-versus-generate Location use, internal Agreement hashing, composite Media access and jurisdiction status/purpose ownership in the affected consumers. The structural checker additionally rejects duplicate registered Prisma-model owners and explicit single-ID name drift; grouped operation headings are excluded from naive name pairing. This checkpoint still does not certify complete semantic consumer alignment or freeze cross-lane contracts.

@@ -722,7 +722,7 @@ Use the permanent IDs, canonical owners, and statuses in [Shared Operations](<..
 | SH-024 `evaluatePublicReadiness` | shared contract; source/compliance owners | public projection decision | publish/Search source build | Gig-local status/visibility rules | owner decision + version | Search reconstructing Gig policy |
 | SH-028 `applyFuzzyPublicLocation` | Location Safety | public-safe location | public projection | what location context Gig wants displayed | fuzzy projection/version | `gigLocationMask`, coordinate randomizer |
 | SH-090 `attachValidatedMedia` | contextual Module + Media truth | safe Gig attachment | media attach | role/sort/context semantics | validated join creation | `gigFileScanner`, direct Media writes |
-| SH-087 `issueSignedMediaUrl` | Media / File Access | temporary private media delivery | authorized Gig media read | contextual viewer entitlement facts | signed URL/access evidence | `gigPresignedUrl`, R2 client |
+| SH-127 `requestMediaAccess` | Media / File Access | temporary private media delivery | authorized Gig media read | contextual viewer entitlement facts | signed URL/access evidence | `gigPresignedUrl`, R2 client |
 | SH-113 `ensureContextThread` | Messaging; Module public interface | idempotent business-context conversation | after approved Gig/response/assignment point | context/participants | Thread ID | `gigChatService`, direct Thread insert |
 | SH-029 `appendAuditEvent` | Audit / Event Ledger | generic significant action proof | publish/cancel/accept/admin actions | safe Gig metadata | audit acknowledgement | `gigAuditLog` generic table |
 | SH-032 `createRequestContext` | platform/Observability | correlation/causation | request/job entry | safe domain IDs only | propagated context | custom correlation helper |
@@ -960,7 +960,7 @@ No in-memory mutex is acceptable for database-owned concurrency.
 - It must not mark MediaAsset ready, bypass malware/MIME/metadata processing, choose raw storage keys, or create permanent public URLs.
 - Public Gig projection may include only Media-approved public/processed references according to Media and Search contracts.
 - Private Gig media is delivered through Media signed access after contextual authorization.
-- SH-087 `issueSignedMediaUrl` is transport, not Gig entitlement truth.
+- SH-127 `requestMediaAccess` is transport, not Gig entitlement truth.
 - Detaching `GigMedia` does not automatically delete `MediaAsset`; Media/privacy/moderation retention rules decide object disposition.
 
 ---
@@ -1387,3 +1387,7 @@ Before implementing or changing this Module, an agent must read in order:
 10. `progress-tracker.md`.
 
 For each numbered feature, the agent must verify that required Proposed Rulings have been explicitly accepted before writing schema or lifecycle behavior that depends on them. If not, stop at the boundary, record the blocker, and implement only the already-settled behavior.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.

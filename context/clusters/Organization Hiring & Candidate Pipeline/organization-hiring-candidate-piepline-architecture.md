@@ -178,7 +178,7 @@ Rules:
 | `OrganizationCategory/Tag` | Taxonomy semantics + Organization contextual meaning; persistence command owner unresolved |
 | `OrganizationMedia` | Organization Hiring contextual meaning; Media mechanics |
 | `Job`, `JobStatus`, `JobVisibility`, `EmploymentType` | Organization Hiring |
-| `CompensationPeriod` | **Unresolved structural owner** |
+| `CompensationPeriod` | Organization Hiring — WA-R010 |
 | `JobTag` | Taxonomy semantics + Job contextual meaning; persistence command owner unresolved |
 | `JobMedia` | **Proposed:** Organization Hiring contextual meaning; Media mechanics |
 | `JobComplianceRule` and rule enums | Job Compliance |
@@ -371,14 +371,14 @@ The [Shared Operations registry](../../shared/shared-operations.md) governs perm
 | SH-077 `buildCanonicalTextSnapshot` (Confirmed), SH-072 `hashCanonicalPayload` (Confirmed) | deterministic compliance input | Shared text canonicalization mechanism; Shared security/cryptography capability | Job Compliance | canonicalization/hash | included Job fields | before check | duplicate hash/text utilities |
 | SH-080 `manageVersionedRules` (Confirmed), SH-081 `runPatternScanner` (Proposed ruling) | rule/scanner mechanics | Each policy Module using shared versioning mechanism; Shared scanner mechanism; policy owner unresolved | Job Compliance | effective-date/scanner runtime | employment rules/severity | compliance evaluation | generic policy truth |
 | SH-082 `validateUploadedFile` (Confirmed), SH-083 `scanFileForMalware` (Confirmed) | file safety | Media / File Access | Organization/Candidate | media pipeline | business attachment context | upload | local MIME/malware code |
-| SH-087 `issueSignedMediaUrl` (Confirmed), SH-088 `manageTemporaryAccessGrant` (Confirmed) | temporary private access | Media / File Access; Shared grant mechanism; each domain owns its record | Candidate | grant/signed URL | resume authorization | after candidate decision | local resume signer |
+| SH-127 `requestMediaAccess` (Proposed ruling; caller binding required), SH-088 `manageTemporaryAccessGrant` (Confirmed) | temporary private access | Media / File Access; Shared grant mechanism; each domain owns its record | Candidate | grant/signed URL | resume authorization | after candidate decision | local resume signer |
 | SH-090 `attachValidatedMedia` (Confirmed) | attach ready asset to context | Contextual domain Module; Media owns asset truth | Organization/Candidate | attachment contract | role/meaning | after media readiness | storage mutation shortcut |
 | SH-091 `requestSearchProjectionRefresh` (Confirmed) | enqueue search update/remove | Search / Public Visibility | Organization/Candidate; compliance effects | Search public API | source inclusion | source/readiness change | direct Typesense |
 | SH-094 `buildSourceProjection` (Confirmed) | owner-built sanitized projection | Each source Module | Organization/Candidate | projection pattern | fields/privacy | before Search refresh | Search reconstructing truth |
 | SH-096 `enumerateSubjectData` (Confirmed), SH-095 `executePrivacyInstruction` (Confirmed), SH-097 `evaluateRetentionRequirement` (Confirmed) | privacy target protocol | Each data-owning Module through Privacy-defined interface; Privacy orchestrates; each data owner executes; Data owner supplies facts; Privacy records exemption | all four | request/result contract | local erase/retain mapping | Privacy worker | local PrivacyRequest flow |
 | SH-113 `ensureContextThread` (Confirmed) | context-bound thread | Messaging | Candidate, Interview | Messaging API | participant/context facts | application/interview | Thread ownership |
 | SH-067 `invokeCalendarProvider` (Confirmed) | provider-neutral calendar call | Booking & Calendar | Job Interview | adapter | interview meaning | after source commit | direct Cronofy call |
-| SH-120 `normalizeJurisdictionContext` (Unresolved) | normalized jurisdiction DTO/evidence | Shared commerce/location capability ownership unresolved | Job Compliance | shared normalization | rule applicability | production jurisdiction-aware evaluation; approved owner/interface required | local normalizer replacing unresolved shared capability |
+| SH-120 `normalizeJurisdictionContext` (Proposed ruling) | normalized jurisdiction DTO/evidence | Shared normalization mechanism; each jurisdiction-dependent owner retains evidence interpretation | Job Compliance | shared normalization | rule applicability | production jurisdiction-aware evaluation; approved owner/interface required | local normalizer replacing the shared normalization mechanism |
 | SH-114 `provisionOneToOneProfile` (Confirmed) | idempotent one-to-one profile creation | Each profile Module using shared provisioning mechanism | Candidate Application | provisioning | candidate opt-in/defaults/lifecycle | CandidateProfile creation | local duplicate provisioning mechanism |
 | SH-125 `recordDomainAccessEvent` (Confirmed) | domain access proof append | Domain owner | Candidate Application | shared append-only mechanism | ResumeAccessLog meaning | approved resume access outcome | generic audit replacing resume proof |
 | SH-076 `normalizeAndHashIdentifier` (Confirmed) | sensitive identifier normalization/hashing | Shared security/cryptography capability | Candidate Application | hashing | captured identifiers and evidence policy | access metadata preparation | local identifier hash utility |
@@ -911,7 +911,7 @@ Define source truth and precedence across latest check, disclosure, Job summary 
 
 ### U-CL06-07 — `CompensationPeriod` ownership and `EmploymentType.contract`
 
-Resolve structural owner of compensation-period vocabulary and whether `contract` means fixed-term employee or independent contractor. **Blocks final employment/compliance semantics.**
+Compensation-period vocabulary stewardship is resolved to Organization Hiring by WA-R010. The product meaning of `contract` (fixed-term employee, independent contractor, or distinct supported categories) remains P03. **Blocks final employment/compliance semantics.**
 
 ### U-CL06-08 — Classification join persistence
 
@@ -990,3 +990,17 @@ Before changing CL-06, read:
 12. architecture decisions resolving any relevant `U-CL06-*`.
 
 Confirm the previous feature exit gate before starting the next feature. Never resolve an Unresolved Decision implicitly in code.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.
+
+## WA-R009 — Jurisdiction normalization status and ownership
+
+SH-120 is Proposed ruling, not Unresolved. It shares normalization/provenance mechanics while each jurisdiction-dependent owner selects and interprets evidence for its own purpose. Location's geography does not become neutral tax/employment authority; Payment owns tax interpretation and Job Compliance owns employment-jurisdiction interpretation. An owner-specific normalized-input contract may be implemented without adopting a universal jurisdiction DTO. Production use still requires sufficient legal/provider/source evidence and an explicit binding. No local competing universal normalizer or generic legal decision service is authorized.
+
+## WA-R010 — Split compensation stewardship from contract-job meaning
+
+The ownership part of U-CL06-07 / PR-JC-03 is AI_RESOLVED: Organization Hiring owns CompensationPeriod because it owns the offered Job compensation facts. Job Compliance reads and snapshots the same vocabulary; it does not acquire Job source truth or create another enum. Registry ownership is aligned, with no schema/value change.
+
+The meaning of EmploymentType.contract remains PRODUCT_OWNER_CHOICE P03: fixed-term employment, independent-contractor work, or distinct supported categories. Until answered, do not enable ambiguous contract-type posting or infer its legal treatment. This narrow product gate must not block compensation-period handling for other already-defined employment types. Legal classification rules remain external after the product vocabulary is chosen.

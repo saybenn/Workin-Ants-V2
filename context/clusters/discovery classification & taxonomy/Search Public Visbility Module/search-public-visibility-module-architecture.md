@@ -201,7 +201,7 @@ No dedicated Search domain-event ledger, search-access ledger, provider-event de
 | AI Taxonomy | AI suggestion/run provenance | accepted result only after Taxonomy ownership transition | AI provider/prompt logic, direct AI-to-index publication |
 | Trust Verification / Screening | `VerificationCheck`, requirements, credentials, `TrustBadge` truth | approved trust-display/ranking signal | verification status translation/readiness reconstruction |
 | Healthcare / Regulated Services | healthcare-lane/data-boundary readiness | owner-issued readiness decision | healthcare policy/PHI logic |
-| Location Safety | exact location, fuzzy location generation, location reveal | `applyFuzzyPublicLocation` result | coordinate fuzzing, exact-location decryption |
+| Location Safety | exact location, fuzzy location generation, location reveal | `getPublicLocationProjection` result | coordinate fuzzing, exact-location decryption |
 | Content Moderation & Legal Notice | Reports, LegalNotice, ModerationCase, ModerationAction decision truth | enforcement instruction | moderation decision workflow or legal-notice lifecycle |
 | Privacy / Data Erasure | PrivacyRequest, DataErasureJob, targets, retention exemptions | privacy instruction | privacy request/job workflow or legal retention decision |
 | Admin Review / Compliance Hold | ComplianceHold lifecycle | `evaluateComplianceHold` | local `isBlocked`/`searchBlocked` truth |
@@ -677,7 +677,7 @@ The preferred dependency shape is **owner projection + owner readiness**, not Se
 | Taxonomy & Classification | SH-022/023 or source projection taxonomy facts | accepted taxonomy/facets | canonical IDs/labels/active state | Yes if source owner says required | taxonomy copies/normalizers |
 | Trust Verification / Screening | trust display signal / SH-018 only when needed | display/ranking input, not eligibility shortcut | safe active badge/signal + version | Possibly through source readiness | raw verification/provider status |
 | Healthcare / Regulated Services | SH-020 through source owner where possible | regulated visibility boundary | decision + policy version | Yes | PHI/healthcare policy |
-| Location Safety | SH-028 | public fuzzy location | approved fuzzy area/coordinates, source version | Yes if public location required | fuzzing/exact location |
+| Location Safety | SH-131 | public fuzzy location | approved fuzzy area/coordinates, source version | Yes if public location required | fuzzing/exact location |
 | Content Moderation & Legal Notice | SH-103 | hide/remove/restore instruction | target/action/reference/version | Yes | case/legal decision lifecycle |
 | Privacy / Data Erasure | SH-095/096 | remove/restrict/export Search-held subject data | target/action/job refs | Yes | privacy orchestration/retention truth |
 | Admin Review / Compliance Hold | SH-011 | honor stop signs affecting discovery | hold decision/reason/reference | Yes | local blocked flags |
@@ -745,7 +745,7 @@ Only operations materially relevant to this Module are listed.
 | **SH-011 `evaluateComplianceHold`** | Cross-cutting — Hold owner | honor discovery-affecting holds | projection composition where owner contract requires it | map hold to remove/exclude | hold decision | `searchBlocked` flag |
 | **SH-015 `returnDecisionResult`** | Shared contract, Proposed Ruling | normalized decision envelope | dependency/composition contracts | Search-specific reason codes only | allow/deny/warning/review envelope | one universal policy engine |
 | **SH-024 `evaluatePublicReadiness`** | Shared contract; policy stays with source/compliance owner | decide whether source may appear on a surface | before any upsert/rebuild | compose owner decisions into projection outcome | decision + reason/evidence/source version | local professional/job/candidate readiness recreation |
-| **SH-028 `applyFuzzyPublicLocation`** | Location Safety public interface | prevent exact location leakage | source projection/document build | how approved fuzzy fields are filtered/faceted | safe fuzzy location + version | `searchLocationFuzzer.ts` |
+| **SH-131 `getPublicLocationProjection`** | Location Safety public interface | prevent exact location leakage | source projection/document build | how approved fuzzy fields are filtered/faceted | safe fuzzy location + version | `searchLocationFuzzer.ts` |
 | **SH-029 `appendAuditEvent`** | Audit platform capability | manual reindex/deindex/backfill/debug actions as policy requires | admin operation completion | which Search admin actions merit generic audit | AuditEvent reference | `SearchAuditLog` generic table |
 | **SH-030 `recordSensitiveAccess`** | Audit cross-cutting | protected candidate/admin data access where designated sensitive | after allowed protected access/denial | sensitivity classification remains source/Search-surface policy | AccessAuditLog reference | local sensitive access table |
 | **SH-032 `createRequestContext`** | Platform primitive — Observability | correlation across request/job/provider | every entry/job | safe Search identifiers | request/correlation context | local correlation helper |
@@ -861,7 +861,7 @@ Search's gate composition is intentionally narrow.
 | Moderation | Content Moderation | SH-103 | upsert/remove/restore | enforcement instruction wins over stale projection |
 | Privacy | Privacy/Data Erasure + candidate owner | SH-095/024 | all affected docs | restrict/remove and prevent rebuild |
 | ComplianceHold | Hold owner | SH-011 | hold-sensitive discovery | remove/exclude while applicable |
-| Fuzzy location | Location Safety | SH-028 | public document fields | exact location prohibited |
+| Fuzzy location | Location Safety | SH-131 | public document fields | exact location prohibited |
 | Search boost entitlement | Track | SH-005 | ranking metadata only | can reorder eligible candidate, never confer eligibility |
 | Candidate protected access | Candidate owner + Role + Track where required | owner privacy decision + SH-002/005 | protected query | fail closed on missing gate |
 
@@ -1531,3 +1531,7 @@ The agent must then:
 - run contract/unit/integration/security/privacy/provider checks appropriate to the slice;
 - update progress and only change architecture when a binding decision actually changes;
 - never treat a convenient direct Prisma read or local helper as permission to bypass Module ownership.
+
+## WA-R006 — Public-location read boundary
+
+Search consumes SH-131 `getPublicLocationProjection`, the Location-owned side-effect-free read of current safe public fields. SH-028 remains Location's generation/update/invalidation command and is not called by Search projection reads. Never fall back to exact coordinates, local fuzzing or a read-triggered refresh loop. An unavailable/stale public projection must be withheld; where location is required for the document's eligibility, withhold that document until current safe data is available. This correction normalizes identity/use only: SH-131 retains Proposed ruling status until its owner-specific freshness/result contract is bound before production integration.

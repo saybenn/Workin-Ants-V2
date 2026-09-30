@@ -1193,7 +1193,7 @@ Use SH-125 `recordDomainAccessEvent` (Confirmed) for ResumeAccessLog/domain proo
 - Organization owner facts;
 - Media readiness query;
 - SH-088 `manageTemporaryAccessGrant` (Confirmed) — Media/shared grant mechanism;
-- SH-087 `issueSignedMediaUrl` (Confirmed) — Media;
+- SH-127 `requestMediaAccess` (Proposed ruling; approved identity, caller binding required) — Media;
 - SH-030 `recordSensitiveAccess` (Confirmed) — Audit;
 - SH-044 `executeIdempotentCommand` (Confirmed) — access request replay;
 - shared IP hashing/minimization primitive;
@@ -2194,3 +2194,7 @@ Before the Module is considered implementation-ready or before these artifacts a
 16. Every numbered feature has tests and a hard exit gate.
 17. Every unresolved architecture item blocks only the behavior it actually governs and is never silently guessed.
 18. A coding agent can implement the next feature without inventing ownership, lifecycle, provider, privacy, or shared-operation architecture.
+
+## WA-R008 — Media public-access integration
+
+This consumer invokes SH-127 `requestMediaAccess` with its own actor/resource/action-bound contextual authorization and required evidence. Media independently evaluates asset safety, grant, scope, expiry and revocation, then performs SH-087 `issueSignedMediaUrl` internally. The consumer never calls the signer or reads storage directly. SH-127's identity is approved; its registry status remains Proposed ruling for owner-specific integration completion. Bind the caller's exact contextual decision and failure/access-proof semantics before production use. A Media failure must not be recorded as successful file access.

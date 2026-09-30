@@ -705,7 +705,7 @@ This Module may own a provider-neutral **Agreement document renderer port** and,
 | Consent & Disclosure | SH-008 `queryConsentProof` and active-version interfaces | generic disclosure evidence | type/version/proof ID/acceptedAt/validity | yes for electronic path | consent table/version catalog. |
 | Admin Review / Compliance Hold | SH-011 `evaluateComplianceHold` | reusable stop signs | target/action/hold IDs/safe reasons/expiry | yes | local blocked flag. |
 | Payment / Payout / Tax | payment/refund command + normalized result contract | execute financial rail and return verified result | Order ref, frozen amount/tax context; normalized status/result | yes | Stripe client/webhook/dedupe/tax/ledger. |
-| Media / File Access | ready asset facts, SH-087 `issueSignedMediaUrl`, upload/access contracts | OrderFile and agreement document mechanics | MediaAsset ID/readiness/sensitivity; signed-access result | yes | R2/S3 client, scanner, MediaAccessGrant. |
+| Media / File Access | ready asset facts, SH-127 `requestMediaAccess`, upload/access contracts | OrderFile and agreement document mechanics | MediaAsset ID/readiness/sensitivity; signed-access result | yes | R2/S3 client, scanner, MediaAccessGrant. |
 | Booking & Calendar | public hold/booking facts | source-dependent live-service gates/completion facts | booking/hold IDs/status/version | yes for affected actions | Booking repository/calendar provider. |
 | Review / Dispute | dispute adjudication/settlement command facts | apply Order dispute/refund effects | dispute ID/outcome/version | yes for affected transition | Dispute lifecycle. |
 | Privacy / Data Erasure | privacy-target request/retention exemption refs | legal data-rights execution | disposition, target, exemption/evidence | yes for destructive actions | privacy workflow. |
@@ -765,7 +765,7 @@ Use the permanent IDs, canonical owners, and statuses in [Shared Operations](<..
 | SH-088 `manageTemporaryAccessGrant` | shared mechanism/separate truth | AgreementAccessGrant lifecycle | contract authorization/scope | status/expiry/token mechanics | generic grant table. |
 | SH-089 `revokeTemporaryAccessGrant` | shared pattern | privacy/moderation/refund/security revocation | whether Agreement grant must revoke | idempotent revocation | custom token revoker. |
 | SH-090 `attachValidatedMedia` | Media/context contract | OrderFile creation | Order role/context | ready MediaAsset + join result | `orderUploadService`. |
-| SH-087 `issueSignedMediaUrl` | Media / File Access | after AgreementAccessGrant authorization | Agreement contextual entitlement | short-lived Media URL result | `agreementSignedUrl`. |
+| SH-127 `requestMediaAccess` | Media / File Access | after AgreementAccessGrant authorization | Agreement contextual entitlement | short-lived Media URL result | `agreementSignedUrl`. |
 | SH-032 `createRequestContext` | Observability | every request/job/event | local safe dimensions only | request/correlation/causation IDs | local correlation helper. |
 | SH-033 `writeStructuredLog` | Observability | operations/workers | safe domain dimensions | structured log acknowledgement | custom logger. |
 | SH-034 `sanitizeTelemetryMetadata` | Observability/Audit payload policy | before logs/events/audits | domain sensitivity classification | safe allowlisted metadata | custom redaction regexes. |
@@ -1473,3 +1473,7 @@ Trust owns VerificationPackage/check-package meaning, itemized quote, requiremen
 Voluntary Candidate/Professional screening is optional, subject-initiated and subject-paid by default. A required workflow gate does not silently create employer sponsorship; a different payer/initiator requires the separately approved sponsored workflow described by the canonical registry.
 
 Implementation remains gated on a source-specific schema/constraint and transition contract, paid-result correlation, replay/refund/recovery semantics, and provider/legal requirements. Do not reuse marketplace seller-acceptance or fulfillment assumptions for screening. These are execution prerequisites, not a question about whether paid screening is allowed. Existing Prisma `OrderSourceType` values describe represented structure only.
+
+## WA-R008 — Media public-access integration
+
+This consumer invokes SH-127 `requestMediaAccess` with its own actor/resource/action-bound contextual authorization and required evidence. Media independently evaluates asset safety, grant, scope, expiry and revocation, then performs SH-087 `issueSignedMediaUrl` internally. The consumer never calls the signer or reads storage directly. SH-127's identity is approved; its registry status remains Proposed ruling for owner-specific integration completion. Bind the caller's exact contextual decision and failure/access-proof semantics before production use. A Media failure must not be recorded as successful file access.

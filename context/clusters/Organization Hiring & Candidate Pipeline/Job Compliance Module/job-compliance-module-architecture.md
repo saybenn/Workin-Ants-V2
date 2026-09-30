@@ -8,7 +8,7 @@
 
 This document defines what the Job Compliance Module owns, what it may transform, the stable interfaces it exposes, the dependencies it may consume, and the responsibilities it must never absorb. It is intentionally narrower than the CL-06 architecture.
 
-The current evidence set establishes the Module boundary but leaves **U-CL06-05 effective decision semantics and U-CL06-07 `CompensationPeriod` / `EmploymentType.contract` semantics** unresolved. U-CL06-06 is now a binding historical-evidence invariant whose persistence design/implementation remains for a later approved database pass. None of the remaining choices may be silently resolved in code.
+The current evidence set establishes the Module boundary but leaves **U-CL06-05 effective decision semantics and U-CL06-07 `EmploymentType.contract` product meaning** unresolved; CompensationPeriod stewardship is resolved by WA-R010. U-CL06-06 is now a binding historical-evidence invariant whose persistence design/implementation remains for a later approved database pass. None of the remaining choices may be silently resolved in code.
 
 ## 1. Module Header
 
@@ -126,7 +126,7 @@ Job posting compliance has independent legal/policy meaning, versioning, evidenc
 **Split or unresolved vocabulary:**
 
 - `JobComplianceStatus` is stored on Organization Hiring-owned `Job`. The CL-06 architecture proposes that this field is an Organization Hiring-owned summary mirror written only from the Job Compliance decision. Job Compliance owns the semantics of the decision it returns; it must not directly mutate `Job.complianceStatus` unless a later explicit owner command says otherwise.
-- `CompensationPeriod` is claimed historically by Job Compliance but is used as core `Job` compensation vocabulary. U-CL06-07 remains unresolved. This Module must consume the canonical value and must not create a second compensation-period enum.
+- `CompensationPeriod` is Organization Hiring-owned Job compensation vocabulary (WA-R010). Job Compliance consumes and snapshots the canonical value; it must not create a second compensation-period enum. The separate `EmploymentType.contract` product meaning remains P03.
 - `EmploymentType` belongs to Organization Hiring. The meaning of `EmploymentType.contract` remains unresolved under U-CL06-07 and must not be reinterpreted locally.
 
 ### 3.3 Lifecycles owned
@@ -824,7 +824,7 @@ None owned at present. The scanner consumes shared scanner mechanics, not an ext
 | Organization Hiring | dedicated compliance-input snapshot contract | exact source input and source revision/token | Job ID, authoritative Job facts and taxonomy/location/business-compensation references | Yes if required source is missing/stale/ineligible | direct Organization repository access or disclosure evidence as originating business truth |
 | Organization Hiring | scoped/cursor compliance rescan-enumeration contract | enumerate eligible Jobs by rule/jurisdiction/effective scope | eligible Job IDs, source revision/token, pagination cursor | Yes if unavailable | direct Organization repository enumeration |
 | Taxonomy & Classification | SH-022 `resolveTaxonomyRequirements` (Confirmed) / SH-023 `validateTaxonomyAssignment` (Confirmed) where rule applicability depends on taxonomy | accepted classification/context facts | canonical IDs and relevant requirement triggers | May force review/unavailable if required context cannot be resolved | taxonomy copies/hardcoded terms |
-| Shared jurisdiction capability | SH-120 `normalizeJurisdictionContext` (Unresolved) (currently unresolved owner) | normalize country/state/city/remote evidence | normalized jurisdiction DTO + evidence/confidence | Yes for jurisdiction-dependent production rules | local geo normalization library as policy truth |
+| Shared jurisdiction capability | SH-120 `normalizeJurisdictionContext` (Proposed ruling) (owner-specific technical binding pending) | normalize country/state/city/remote evidence | normalized jurisdiction DTO + evidence/confidence | Yes for jurisdiction-dependent production rules | local geo normalization library as policy truth |
 | Admin Review / Compliance Hold | SH-012 `requestComplianceHold` (Confirmed), optionally SH-011 `evaluateComplianceHold` (Confirmed) for review context | request reusable admin stop sign when needed | target, reason, evidence refs, scope | Hold may block final publication, but final hold composition belongs Organization Hiring | local blocked table |
 | Audit / Event Ledger | SH-029 `appendAuditEvent` (Confirmed) | privileged rule/review/override proof | actor, action, target, evidence refs, reason, correlation | Audit transaction policy may fail the privileged action | local AuditEvent |
 | Notification | SH-041 `requestNotification` (Confirmed) only for Job Compliance-owned admin/review intent | alert reviewers/admins without owning delivery | safe template intent, recipients/recipient facts, Job/check IDs | Delivery failure must not rewrite compliance truth | email/SMS/push code |
@@ -877,7 +877,7 @@ The [Shared Operations registry](../../../shared/shared-operations.md) governs p
 | SH-001 `resolveAuthenticatedActor` (Confirmed) | Platform capability — Identity & Access | trusted actor context | public human command/query entry | what Job Compliance action is attempted | typed actor context | `getCurrentUser`, `jobComplianceAuth`, `requireUser` |
 | SH-002 `authorizeResourceAction` (Confirmed) | Cross-cutting capability — Role / Authority | reviewer/admin/org action authorization | before protected command/report read | action vocabulary + resource facts | typed allow/deny decision | `canReviewJob`, `canManageComplianceRules`, `jobPermission` |
 | SH-003 `queryOwnerFacts` (Proposed ruling) | Shared contract; separate implementations — Each source Module | obtain minimal Job/Organization facts | evaluation and authorization | which Job fields compliance needs | owner DTO with source version | cross-domain Prisma repository |
-| SH-120 `normalizeJurisdictionContext` (Unresolved) | Cross-cutting capability — Shared commerce/location capability ownership unresolved | jurisdiction-dependent rule input | before rule resolution | which jurisdiction evidence is sufficient | normalized jurisdiction DTO or validation failure | `stateRuleResolver`, local address normalizer |
+| SH-120 `normalizeJurisdictionContext` (Proposed ruling) | Cross-cutting capability — Shared normalization mechanism; each jurisdiction-dependent owner retains evidence interpretation | jurisdiction-dependent rule input | before rule resolution | which jurisdiction evidence is sufficient | normalized jurisdiction DTO or validation failure | `stateRuleResolver`, local address normalizer |
 | SH-077 `buildCanonicalTextSnapshot` (Confirmed) | Cross-cutting primitive — Shared text canonicalization mechanism | deterministic evaluation input | before hash/scanner | included Job fields and canonicalization version | normalized ordered snapshot | `jobTextBuilder`, `normalizeJobText` |
 | SH-072 `hashCanonicalPayload` (Confirmed) | Platform primitive — Shared security/cryptography capability | source/rule-set integrity and provenance | after canonicalization | what the hash proves | stable digest + purpose/version | `jobHash`, `sha256Helper` |
 | SH-080 `manageVersionedRules` (Confirmed) | Shared mechanism; separate policy — Each policy Module using shared versioning mechanism | version lifecycle/effective resolution | rule admin and evaluation | employment rule meaning, jurisdiction, severity | effective rule versions / transition result | generic Job Compliance rule engine |
@@ -1520,7 +1520,7 @@ Organization Job draft
 2. Job Compliance never directly sets `Job.status`, `Job.visibility`, or Search projection state.
 3. Job Compensation business truth remains Organization Hiring-owned; disclosure is compliance proof.
 4. `Job.complianceStatus`, if retained, is not an independent Job Compliance policy engine.
-5. `CompensationPeriod` is not duplicated; its structural owner remains blocked by U-CL06-07 until ruled.
+5. `CompensationPeriod` is not duplicated; Organization Hiring is its structural steward (WA-R010), and Job Compliance consumes it.
 6. Candidate screening, `VerificationCheck`, and FCRA adverse action never move into this Module.
 7. General moderation findings/cases never move into this Module merely because text scanning is similar.
 8. Every production evaluation is tied to an authoritative Job source version.
@@ -1603,7 +1603,7 @@ This proposal is not binding until approved and reflected in CL-06/root context.
 
 **Blocks:** final employment/compliance semantics.
 
-**Proposed Ruling PR-JC-03:** because compensation period is part of the Organization Hiring-owned Job offer and Job Compliance merely evaluates/snapshots it, Organization Hiring should be the structural owner of `CompensationPeriod`; Job Compliance consumes the canonical enum and copies the value into compliance proof. `EmploymentType.contract` must remain opaque until its employment-law/business meaning is separately approved.
+**Confirmed Ruling PR-JC-03 / WA-R010:** because compensation period is part of the Organization Hiring-owned Job offer and Job Compliance merely evaluates/snapshots it, Organization Hiring is the structural owner of `CompensationPeriod`; Job Compliance consumes the canonical enum and copies the value into compliance proof. `EmploymentType.contract` must remain opaque until its employment-law/business meaning is separately approved.
 
 ### Finding-field duplication
 
@@ -1619,7 +1619,7 @@ No final Job Compliance proof-retention schedule is supplied. Privacy dispositio
 
 ### Jurisdiction capability owner
 
-SH-120 `normalizeJurisdictionContext` (Unresolved) is canonical but its platform owner is unresolved. Job Compliance must consume the approved shared interface rather than become its de facto platform owner.
+SH-120 `normalizeJurisdictionContext` (Proposed ruling) is canonical but each jurisdiction-dependent owner retains evidence interpretation. Job Compliance must consume the approved shared interface rather than become its de facto platform owner.
 
 ## 36. Architecture Decision Summary
 
@@ -1663,3 +1663,13 @@ Before implementing any Job Compliance feature, the coding agent must read, in o
 12. the architecture decisions resolving U-CL06-05/07 policy, approving persistence satisfying binding U-CL06-06, and resolving any later blockers relevant to the feature.
 
 Before coding, confirm the prior numbered feature’s exit gate and write the required feature implementation specification. If implementation discovers a binding ownership/schema/lifecycle/public-contract change, stop and update architecture before continuing.
+
+## WA-R009 — Jurisdiction normalization status and ownership
+
+SH-120 is Proposed ruling, not Unresolved. It shares normalization/provenance mechanics while each jurisdiction-dependent owner selects and interprets evidence for its own purpose. Location's geography does not become neutral tax/employment authority; Payment owns tax interpretation and Job Compliance owns employment-jurisdiction interpretation. An owner-specific normalized-input contract may be implemented without adopting a universal jurisdiction DTO. Production use still requires sufficient legal/provider/source evidence and an explicit binding. No local competing universal normalizer or generic legal decision service is authorized.
+
+## WA-R010 — Split compensation stewardship from contract-job meaning
+
+The ownership part of U-CL06-07 / PR-JC-03 is AI_RESOLVED: Organization Hiring owns CompensationPeriod because it owns the offered Job compensation facts. Job Compliance reads and snapshots the same vocabulary; it does not acquire Job source truth or create another enum. Registry ownership is aligned, with no schema/value change.
+
+The meaning of EmploymentType.contract remains PRODUCT_OWNER_CHOICE P03: fixed-term employment, independent-contractor work, or distinct supported categories. Until answered, do not enable ambiguous contract-type posting or infer its legal treatment. This narrow product gate must not block compensation-period handling for other already-defined employment types. Legal classification rules remain external after the product vocabulary is chosen.

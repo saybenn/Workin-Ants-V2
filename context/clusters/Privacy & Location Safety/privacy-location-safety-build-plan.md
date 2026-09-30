@@ -127,7 +127,7 @@ runDeadlineExpiration # SH-055 runDeadlineExpiration
 encryptSensitiveValue # SH-075 encryptSensitiveValue
 normalizeAndHashIdentifier # SH-076 normalizeAndHashIdentifier
 requestSearchProjectionRefresh # SH-091 requestSearchProjectionRefresh
-issueSignedMediaUrl # SH-087 issueSignedMediaUrl
+requestMediaAccess # SH-127 requestMediaAccess
 enumerateSubjectData # SH-096 enumerateSubjectData
 evaluateRetentionRequirement # SH-097 evaluateRetentionRequirement
 executePrivacyInstruction # SH-095 executePrivacyInstruction
@@ -952,7 +952,7 @@ For a verified export request:
 
 - `SH-100 createPrivacyExportArtifact` — Privacy owns bundle; Media owns storage.
 - `SH-096 enumerateSubjectData` — owner export sections.
-- `SH-087 issueSignedMediaUrl` — Media owner.
+- `SH-127 requestMediaAccess` — Media owner.
 - `SH-072 hashCanonicalPayload` — mandatory artifact/manifest integrity for SH-100 createPrivacyExportArtifact.
 - `SH-075 encryptSensitiveValue` or an approved shared archive encryption mechanism — mandatory archive protection for SH-100 createPrivacyExportArtifact; implementation remains decision-gated.
 - `SH-030 recordSensitiveAccess` — issuance/download.
@@ -1606,7 +1606,7 @@ Neighbor Module public interfaces must be implementation-ready.
 ### Shared Operations Used
 
 - `SH-091 requestSearchProjectionRefresh`
-- `SH-087 issueSignedMediaUrl`
+- `SH-127 requestMediaAccess`
 - `SH-070 deleteProviderResource` through provider owners
 - `SH-029 appendAuditEvent`
 - `SH-030 recordSensitiveAccess`
@@ -1637,7 +1637,7 @@ Integrate real implementations for:
 
 ```text
 requestSearchProjectionRefresh # SH-091 requestSearchProjectionRefresh
-issueSignedMediaUrl # SH-087 issueSignedMediaUrl
+requestMediaAccess # SH-127 requestMediaAccess
 Media privacy executor
 appendAuditEvent # SH-029 appendAuditEvent
 recordSensitiveAccess # SH-030 recordSensitiveAccess
@@ -2186,3 +2186,7 @@ After each feature, the coding agent must report:
 - Exit-gate result
 
 A feature is not complete when its code merely compiles. The exit gate must pass, ownership boundaries must remain intact, and any required architectural decision must already be approved.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.

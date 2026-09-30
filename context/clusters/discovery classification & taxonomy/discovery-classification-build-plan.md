@@ -1375,7 +1375,7 @@ Make the public marketplace/hiring discovery surfaces project only current, owne
 - Features 01–08;
 - stable SH-094 and SH-024 contracts for each source;
 - Professional Eligibility, Job Compliance, Trust/Healthcare as applicable;
-- SH-028 fuzzy location;
+- SH-131 fuzzy location;
 - Typesense schema additions approved under `U-CL02-09`.
 
 ### Shared Operations Used
@@ -1386,7 +1386,7 @@ Make the public marketplace/hiring discovery surfaces project only current, owne
 - **SH-021 `evaluateJobCompliance` — Job Compliance.** Search consumes result, does not parse Job law rules.
 - **SH-018 `evaluateVerificationReadiness` / approved TrustBadge query.** Only where source readiness policy needs it.
 - **SH-020 `evaluateHealthcareReadiness`.** Only where healthcare classification requires it.
-- **SH-028.** Fuzzy public location.
+- **SH-131.** Fuzzy public location.
 - **SH-091/092/115.** Refresh, provider write, projection build.
 - **SH-011.** Hold decision where source/public-readiness policy requires it.
 
@@ -1534,7 +1534,7 @@ Allow an authorized Organization actor to search privacy-safe candidate projecti
 - **SH-024.** Candidate owner supplies protected/public readiness decision.
 - **SH-091/092.** Candidate projection refresh/write.
 - **SH-030 `recordSensitiveAccess`.** Record protected candidate search/access where policy requires.
-- **SH-028.** Fuzzy location only.
+- **SH-131.** Fuzzy location only.
 - **SH-044.** Idempotent refresh.
 
 ### Data / Schema
@@ -1676,7 +1676,7 @@ Make public/protected Search react correctly to moderation, privacy, holds, read
 - SH-095–098;
 - SH-103;
 - SH-011;
-- SH-028;
+- SH-131;
 - Search SH-091/092;
 - AI subject-data enumeration.
 
@@ -1688,7 +1688,7 @@ Make public/protected Search react correctly to moderation, privacy, holds, read
 - **SH-097 `evaluateRetentionRequirement`.** AI/Search supply record facts; Privacy records exemption.
 - **SH-098 `anonymizePersonalFields`.** Apply approved anonymization mappings.
 - **SH-011 `evaluateComplianceHold`.** Consume platform stop signs; no local flags.
-- **SH-028.** Fuzzy location.
+- **SH-131.** Fuzzy location.
 - **SH-091/092.** Refresh/delete provider documents.
 - **SH-029/030.** Audit sensitive/destructive actions/access where required.
 - **SH-037.** Operational failure.
@@ -1732,7 +1732,7 @@ Taxonomy join owner:
 - restore → reevaluate SH-024 before any upsert;
 - privacy erase → delete provider doc, then owner-specific records according to instruction;
 - hold/readiness change → refresh and compose current decisions;
-- location change → refresh using only SH-028 output;
+- location change → refresh using only SH-131 output;
 - every external decision reference remains source-owned.
 
 ### UI / Administrative Surface
@@ -2287,3 +2287,7 @@ After each feature, the coding agent must report:
 
 The completion report must explicitly state if any direct foreign repository access, provider client, local queue, local audit helper, local entitlement flag, or local readiness rule was introduced. The expected answer is normally **none** unless architecture explicitly approved an exception.
 
+
+## WA-R006 — Public-location read boundary
+
+Search consumes SH-131 `getPublicLocationProjection`, the Location-owned side-effect-free read of current safe public fields. SH-028 remains Location's generation/update/invalidation command and is not called by Search projection reads. Never fall back to exact coordinates, local fuzzing or a read-triggered refresh loop. An unavailable/stale public projection must be withheld; where location is required for the document's eligibility, withhold that document until current safe data is available. This correction normalizes identity/use only: SH-131 retains Proposed ruling status until its owner-specific freshness/result contract is bound before production integration.

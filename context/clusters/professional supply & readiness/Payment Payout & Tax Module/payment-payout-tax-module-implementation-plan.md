@@ -39,7 +39,7 @@ This Module plan is intentionally narrower than the CL-03 build plan. It explain
 4. Consume ProfessionalProfile, Order, Dispute, Hold, Track, Prize, Reward, Digital Goods, Media, Privacy, Audit, Notification, and Ops through approved public contracts/events.
 5. Never write `Order`, `RefundStatus`, `OrderEvent`, `ProfessionalProfile`, Dispute, ComplianceHold, Prize, Reward, Search, Audit, Notification, Privacy, or Media source tables directly from Payment implementation.
 6. Reuse canonical Shared Operations by permanent `SH-###` identifier; do not create local aliases with independent semantics.
-7. Proposed Shared Operations may guide types but cannot become new platform-wide dependencies until approved. SH-120 remains unresolved and must not be silently built here.
+7. Proposed Shared Operations may guide types but cannot become new platform-wide dependencies until approved. SH-120 remains Proposed ruling and must not be silently built here.
 8. Validate every server, worker, webhook, provider, and cross-Module payload at runtime. TypeScript alone is not a trust-boundary validator.
 9. Every protected mutation/read uses SH-001/002; sensitive financial operations use SH-014/030 as specified.
 10. Every lifecycle mutation validates expected current state and uses DB-safe concurrency/idempotency.
@@ -1126,7 +1126,7 @@ Implements the sales-tax calculation portion of **CL-03 Feature 10 — Payment a
 - Approved buyer tax-location evidence input.
 - SalesTaxProvider adapter (Stripe Tax current path).
 - SH-044/061/062/078/123.
-- **SH-120 remains unresolved and is not a dependency.**
+- **SH-120 remains Proposed ruling and is not a dependency.**
 - **UD-16** calculation selection/finalization strategy must be constrained.
 - **CL-03-R015 / UD-17:** line-level liability evidence is mandatory when lines can differ; the current schema gap and exact persistence design must be addressed before mixed-liability production.
 - **UD-19** location provenance minimum must be approved enough for evidence.
@@ -1923,7 +1923,7 @@ This is the Module's explicit **integration phase**, supporting **CL-03 Feature 
 - Stable owner contracts for Professional Eligibility, Order, Review/Dispute, Hold, Privacy, Audit, Notification, Ops, and CL-10 sources.
 - SH-095/096/097 Privacy protocol.
 - Retention policy/UD-03 disposition for destructive paths; unresolved retention may remain a documented blocker with non-destructive executor behavior.
-- Media SH-087 only if Payment file attachment workflow actually exists.
+- Media SH-127 only if Payment file attachment workflow actually exists.
 
 ### In Scope
 
@@ -1979,7 +1979,7 @@ Document retry/idempotency/conflict/unavailable behavior and deprecation rules.
 - **SH-045/046 — inbox/outbox:** replay-safe cross-Module facts.
 - **SH-047/048 — async retry:** owner-handoff/reconciliation.
 - **SH-070 — provider deletion:** under Privacy instruction.
-- **SH-087 — Media signed access:** only if approved Payment document exists.
+- **SH-127 — Media signed access:** only if approved Payment document exists.
 - **SH-095/096/097/098 — Privacy:** enumerate/retention/execute/anonymize; no Payment PrivacyRequest.
 - **SH-108 — refund:** Order coordinates; Payment rail only.
 - **SH-117/118 — tax source bridge:** source lifecycle remains external.
@@ -2512,3 +2512,11 @@ Before declaring `payment_payout_tax` implementation complete, verify:
 18. The relevant CL-03 build-plan exit gates remain passing.
 19. Every unresolved architecture item is resolved, a production blocker, or explicitly out of production scope—none is silently bypassed.
 20. A coding agent or reviewer can trace every financial effect to authoritative source facts, Payment-owned policy, and durable proof without reconstructing intent from provider/Audit/Ops state.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.
+
+## WA-R009 — Jurisdiction normalization status and ownership
+
+SH-120 is Proposed ruling, not Unresolved. It shares normalization/provenance mechanics while each jurisdiction-dependent owner selects and interprets evidence for its own purpose. Location's geography does not become neutral tax/employment authority; Payment owns tax interpretation and Job Compliance owns employment-jurisdiction interpretation. An owner-specific normalized-input contract may be implemented without adopting a universal jurisdiction DTO. Production use still requires sufficient legal/provider/source evidence and an explicit binding. No local competing universal normalizer or generic legal decision service is authorized.

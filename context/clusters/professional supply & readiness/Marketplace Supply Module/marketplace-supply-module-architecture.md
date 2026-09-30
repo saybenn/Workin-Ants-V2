@@ -740,7 +740,7 @@ None. Marketplace Supply owns no current direct provider integration or webhook 
 | Track Subscription & Entitlement | SH-005 `resolveEntitlement` | Seller access/perk if Marketplace action explicitly consumes entitlement. | actor/track, typed key, evaluation time | Yes where policy says so | premium/seller-plan flags |
 | Taxonomy & Classification | SH-023 `validateTaxonomyAssignment`; SH-022 `resolveTaxonomyRequirements` | Canonical classification and triggered requirement context. | domain/category/tag IDs, entity type/version | Yes for required classification/publication | local taxonomy cleaner/map |
 | Admin Review / Compliance Hold | SH-011 `evaluateComplianceHold` | Reusable stop signs. | target/action | Yes | `offeringBlocked` flag/table |
-| Media / File Access | SH-090 `attachValidatedMedia`; SH-087 for protected reads if needed | Ready asset validation and signed-access mechanics. | asset ID/context/actor | Yes for required media | upload/scanner/R2/signed URL |
+| Media / File Access | SH-090 `attachValidatedMedia`; SH-127 for protected reads if needed | Ready asset validation and signed-access mechanics. | asset ID/context/actor | Yes for required media | upload/scanner/R2/signed URL |
 | Digital Goods Access | owner delivery-readiness query | Downloadable product/course policy, asset, child-directed, accessibility readiness. | Offering/product/course IDs and mode | Yes for digital publication | DigitalGoodsPolicy/DownloadAsset/grants |
 | Video Infrastructure | owner course-video readiness query | Course asset/provider readiness. | Offering/course IDs and expected usage | Yes for required video | Mux/provider/playback state |
 | Content Moderation & Legal Notice | SH-103 `executeModerationDecision` envelope / current restriction facts | Enforce external moderation/legal decisions. | action/case/source IDs, target/version, reason | Yes | moderation case/legal lifecycle |
@@ -801,7 +801,7 @@ Only operations relevant to Marketplace Supply are listed.
 | SH-051 `acquireAggregateLock` | Shared persistence | Serialize critical lifecycle races. | Publish/restrict/restore when needed. | Lock key/conflicting actions. | lock acquisition result | in-memory mutex |
 | SH-052 `withOptimisticConcurrency` | Shared persistence | Reject stale edits/transitions. | Mutable aggregate commands. | conflict/merge policy. | success/stale conflict | last-write-wins writes |
 | SH-053 `transitionLifecycleState` | Shared mechanism/separate truth | Reuse transition plumbing. | Offering lifecycle commands. | Marketplace transition graph/reasons. | applied/denied transition | global status policy table |
-| SH-087 `issueSignedMediaUrl` | Media capability | Protected Offering media access where needed. | Authorized read. | Business entitlement/context. | short-lived URL/access evidence | R2 presign helper |
+| SH-127 `requestMediaAccess` | Media capability | Protected Offering media access where needed. | Authorized read. | Business entitlement/context. | short-lived URL/access evidence | R2 presign helper |
 | SH-090 `attachValidatedMedia` | Shared contract/separate contextual truth | Attach ready MediaAsset. | OfferingMedia create. | gallery role/order. | attachment eligibility/ready proof | upload/scan helper |
 | SH-091 `requestSearchProjectionRefresh` | Search public interface | Index/update/hide/remove/restore. | After source/public readiness change. | action/reason/source version. | accepted Search request | direct SearchUpsertEvent/Typesense |
 | SH-094 `buildSourceProjection` | Shared pattern/separate projection | Produce safe Offering index input. | Before SH-091. | public field allowlist/readiness. | versioned source document | Search raw DB reconstruction |
@@ -1003,7 +1003,7 @@ Use SH-090. A raw object key or client URL is never accepted as proof that an as
 
 ### Access
 
-Public Offering presentation may consume public-processed media according to Media policy. Protected assets use SH-087 and contextual authorization. Marketplace never creates a permanent public URL for private/protected Offering material.
+Public Offering presentation may consume public-processed media according to Media policy. Protected assets use SH-127 and contextual authorization. Marketplace never creates a permanent public URL for private/protected Offering material.
 
 ## 25. Search / Projection
 
@@ -1366,3 +1366,7 @@ Before coding a numbered feature the agent must:
 - stop when a required Proposed/Unresolved operation or policy would require invented semantics;
 - reject direct cross-domain repository access unless architecture explicitly authorizes it;
 - update this architecture only when a binding decision legitimately changes.
+
+## WA-R008 — Public Media boundary alignment
+
+External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.
