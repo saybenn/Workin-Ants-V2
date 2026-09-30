@@ -831,8 +831,8 @@ Same provider/lifecycle gates as checkout. Hosted portal initiation also uses SH
 
 - **Consumer:** Booking & Calendar.
 - **Input:** Customer track/profile and scheduling context.
-- **Result:** priority rank/class and evidence; optional metering requirement if approved.
-- **Blocked details:** `U-CL01-31`.
+- **Result:** early-access eligibility, policy/grant evidence, evaluatedAt and expiry (WA-R011); not a queue rank or consumable quota.
+- **Product effect resolved:** U-CL01-31 by P01 / WA-R011; release-window configuration and contract implementation remain prerequisites.
 - **Consumer must not infer:** slot availability or booking ownership.
 
 ### 11.8 `evaluateCandidateSearchBoost`
@@ -1962,7 +1962,7 @@ These are binding implementation gates inherited from CL-01 or identified by cur
 | `U-CL01-28` | How are subscription/recurring-billing/plan-change consents immutably bound? | Consent proof owner is known; Track schema has no settled binding/snapshot. | production paid enrollment/change |
 | `U-CL01-29` | What are candidate application-limit period, timezone and refund/reversal semantics? | UsagePeriod exists but product policy is missing. | candidate quota integration |
 | `U-CL01-30` | What are buyer-fee/seller-commission rounding, basis-point and snapshot rules? | Entitlement value types exist; transaction computation rules do not. | final `quoteOrderTrackPolicy`/Order integration |
-| `U-CL01-31` | What does priority scheduling rank mean and does use consume quota? | Track entitlement exists; Booking semantics absent. | final Booking integration |
+| `U-CL01-31` | RESOLVED P01 / WA-R011: eligibility for earlier slot access; no quota consumption | Track supplies eligibility/evidence; Booking release-time policy | contract implementation and configured release window |
 | `U-CL01-32` | What billing/subscription evidence must be retained/anonymized and for how long? | Legal/privacy duration and field policy absent. | destructive privacy paths |
 | `U-CL01-33` | RESOLVED: separate Organization ATS commercial lane (WA-R005) | Track owns commercial policy; Organization owns hiring identity/lifecycle | Organization-scoped storage/billing/feature allocation remains deferred; current User tracks stay separate |
 | `U-TSE-01` | Which price field is canonical after catalog activation: TrackPlan.monthlyPriceCents or TrackPlanPrice.amountCents? | Current schema stores both without reconciliation rule. | production price mutation/plan presentation |
@@ -2040,3 +2040,14 @@ Before coding a numbered Module feature, confirm:
 ## WA-R005 — Organization ATS commercial policy
 
 Organization ATS is a separate commercial lane, with ATS Free, ATS Plus and ATS Pro placeholders as defined by the canonical registry. Track remains the authoritative commercial-policy owner; Organization Hiring retains identity, membership, Jobs and ATS workflow truth. Do not model Organizations as another User actor track or create consumer-local premium flags. OrganizationFeatureAccess is existing structural evidence, not permission to create a second subscription engine. Exact pricing, limits, feature allocation, Organization-scoped persistence and billing contracts remain deferred and must be settled before enabling the affected commercial behavior.
+
+
+## WA-R011 — Approved early-access scheduling (P01)
+
+Product-owner ruling approved 2026-09-29: premium priority affects **when eligible customers may access newly released availability**. It never overrides an existing Booking, displaces a customer, reserves inventory permanently, or bypasses eligibility/conflict rules. This closes U-BC-05 / U-CL01-31 / CL-05-U017's product-effect choice.
+
+Track owns the effective Customer-track benefit and returns eligibility, entitlement/grant evidence, policy version, evaluation time and expiry. Booking owns the release schedule and enforces the resulting access time on both slot queries and hold/confirmation commands. An early-access decision is not a slot reservation. Unavailable entitlement evidence cannot grant early access; ordinary access remains available once general release is reached, subject to normal gates. Existing holds follow their original bounded expiry; premium expiry cannot displace an already confirmed Booking.
+
+Technical ruling: store timezone-independent release instants and a versioned release-window policy. Resolve the benefit against server time when creating a hold, bind evidence to that hold, and recheck normal conversion gates. No quota is consumed by this access-time benefit; SH-006 is not invoked unless a separately approved metered product is later introduced. Do not translate legacy priorityRank into request ordering. Missing release-window configuration disables early release for that availability; it does not invent a duration or disable ordinary booking. Exact window configuration is a launch prerequisite, not another ownership decision.
+
+Implementation acceptance: premium/nonpremium boundary instants; expired/unavailable entitlement; concurrent claims; direct-command bypass attempts; replay of hold creation; no displacement; ordinary access at general release. Schema/API work must represent these facts before activation; this ruling is not implementation evidence.

@@ -8,7 +8,7 @@
 
 This plan converts the Job Compliance Module architecture into ordered, testable implementation work. It is intentionally narrower than the CL-06 build plan and does not change Cluster sequencing or ownership.
 
-Production Job publication remains blocked until U-CL06-05/07 are approved and the binding U-CL06-06 evidence invariant has an approved implemented persistence design. Jurisdiction-aware production additionally requires an approved owner/interface for proposed SH-120 `normalizeJurisdictionContext` (Proposed ruling). Features may be contract-stubbed or implemented below that boundary only where the feature explicitly permits it; no unresolved decision may be silently implemented as permissive behavior.
+Production Job publication remains blocked until U-CL06-05 is resolved and approved WA-R013 is implemented and the binding U-CL06-06 evidence invariant has an approved implemented persistence design. Jurisdiction-aware production additionally requires an approved owner/interface for proposed SH-120 `normalizeJurisdictionContext` (Proposed ruling). Features may be contract-stubbed or implemented below that boundary only where the feature explicitly permits it; no unresolved decision may be silently implemented as permissive behavior.
 
 ## Core Principle
 
@@ -94,7 +94,7 @@ Before production implementation of the corresponding behavior:
 
 - **U-CL06-05:** approve effective decision/mirror/hold precedence and warning/failed mapping.
 - **U-CL06-06:** binding source/rule-set evidence invariant; exact persistence schema and retention details require a later approved database pass, not a new decision about whether proof is required.
-- **U-CL06-07:** approve `CompensationPeriod` structural ownership and `EmploymentType.contract` semantics.
+- **U-CL06-07:** ownership/meaning approved by WA-R010/013; implement distinct work arrangements and verify legacy clarification.
 - finding-field duplicate semantics must be settled before migrations/code depend on both old/new variants.
 - if legal-grade review history requires more than AuditEvent + outbox, approve its schema before review feature completion.
 
@@ -1774,4 +1774,15 @@ SH-120 is Proposed ruling, not Unresolved. It shares normalization/provenance me
 
 The ownership part of U-CL06-07 / PR-JC-03 is AI_RESOLVED: Organization Hiring owns CompensationPeriod because it owns the offered Job compensation facts. Job Compliance reads and snapshots the same vocabulary; it does not acquire Job source truth or create another enum. Registry ownership is aligned, with no schema/value change.
 
-The meaning of EmploymentType.contract remains PRODUCT_OWNER_CHOICE P03: fixed-term employment, independent-contractor work, or distinct supported categories. Until answered, do not enable ambiguous contract-type posting or infer its legal treatment. This narrow product gate must not block compensation-period handling for other already-defined employment types. Legal classification rules remain external after the product vocabulary is chosen.
+P03 is APPROVED in WA-R013: fixed-term employment and independent-contractor work are distinct canonical concepts. Ambiguous historical contract values require source clarification; production activation requires the coordinated schema/API/filter change and applicable legal rules. The product choice is closed; implementation and legal evidence are separate prerequisites.
+
+
+## WA-R013 — Explicit work arrangements (P03)
+
+Product-owner ruling approved 2026-09-29: distinguish **fixed-term employment** and **independent-contractor work** as separate canonical concepts. A generic CONTRACT/contract value must not hide the distinction. This closes the product-meaning portion of U-CL06-07 / CL-06-U007. WA-R010 already assigns CompensationPeriod stewardship to Organization Hiring.
+
+Hiring owns the work-arrangement vocabulary and source selection. The canonical concepts are FIXED_TERM_EMPLOYMENT and INDEPENDENT_CONTRACTOR; exact persisted enum spelling follows schema conventions in the coordinated database pass. Job Compliance consumes the explicit arrangement, preserves it in evaluated input/rule evidence and applies the relevant approved rule set. A selected label is not a legal determination of worker classification. Applicable jurisdictional legal rules remain an external gate.
+
+Search projects the explicit owner-provided concepts and presents distinct filters/labels; it cannot derive them from job title, compensation period, or old contract text. Legacy EmploymentType.contract is ambiguous: preserve historical value, require authorized source clarification before affected republication/re-evaluation, and do not silently map every old row to either new concept. Reindex only after owner correction. Existing unambiguous employment types remain unchanged. Organization contractor Jobs remain Hiring work, not automatically Gigs or Offerings.
+
+Implementation acceptance: distinct create/edit/publication and query/filter paths; exact compliance input and evidence for each concept; ambiguous historical rows blocked from new publication until clarified; no mass inferred backfill; no legal conclusion based only on employer-selected label. Prisma's present enum is implementation reality, not evidence that this ruling has been migrated.

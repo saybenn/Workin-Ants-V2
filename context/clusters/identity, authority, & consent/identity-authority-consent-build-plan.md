@@ -1723,7 +1723,7 @@ Validate current Track decisions and metered usage at real consumer boundaries a
 
 - Features 10–13 as applicable.
 - Destination public contract fixtures.
-- Resolve U-CL01-29 application-limit semantics before production quota bridge, U-CL01-30 fee/commission snapshot rules before live Order pricing, and U-CL01-31 priority scheduling semantics before live Booking priority.
+- Resolve U-CL01-29 application-limit semantics before production quota bridge, U-CL01-30 fee/commission snapshot rules before live Order pricing, and implement approved WA-R011 early-access semantics before live Booking priority.
 - Search projection-refresh public interface.
 
 ### Shared Operations Used
@@ -2309,3 +2309,14 @@ If the exit gate does not pass, the report must say so explicitly. A partial fea
 8. No feature may make Privacy orchestrate by directly rewriting every CL-01 table; owner executors remain responsible for their records.
 9. No feature may make CL-01 own Media, Search, Notification, Audit, Observability, or neighboring business lifecycles.
 10. No phase may pass while a production-enabled high-risk unresolved architecture decision remains silently encoded in implementation.
+
+
+## WA-R011 — Approved early-access scheduling (P01)
+
+Product-owner ruling approved 2026-09-29: premium priority affects **when eligible customers may access newly released availability**. It never overrides an existing Booking, displaces a customer, reserves inventory permanently, or bypasses eligibility/conflict rules. This closes U-BC-05 / U-CL01-31 / CL-05-U017's product-effect choice.
+
+Track owns the effective Customer-track benefit and returns eligibility, entitlement/grant evidence, policy version, evaluation time and expiry. Booking owns the release schedule and enforces the resulting access time on both slot queries and hold/confirmation commands. An early-access decision is not a slot reservation. Unavailable entitlement evidence cannot grant early access; ordinary access remains available once general release is reached, subject to normal gates. Existing holds follow their original bounded expiry; premium expiry cannot displace an already confirmed Booking.
+
+Technical ruling: store timezone-independent release instants and a versioned release-window policy. Resolve the benefit against server time when creating a hold, bind evidence to that hold, and recheck normal conversion gates. No quota is consumed by this access-time benefit; SH-006 is not invoked unless a separately approved metered product is later introduced. Do not translate legacy priorityRank into request ordering. Missing release-window configuration disables early release for that availability; it does not invent a duration or disable ordinary booking. Exact window configuration is a launch prerequisite, not another ownership decision.
+
+Implementation acceptance: premium/nonpremium boundary instants; expired/unavailable entitlement; concurrent claims; direct-command bypass attempts; replay of hold creation; no displacement; ordinary access at general release. Schema/API work must represent these facts before activation; this ruling is not implementation evidence.

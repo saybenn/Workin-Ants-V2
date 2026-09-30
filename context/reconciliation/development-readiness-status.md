@@ -22,7 +22,7 @@ Repository: `saybenn/Workin-Ants-V2`. Audited starting branch: `main`; starting 
 | Root code standards / library docs | MISSING | Harness still incomplete |
 | Progress tracker | NEW, CURRENT BUT INCOMPLETE | Tracks readiness work; no product phase or lane is authorized |
 | AGENTS.md / CLAUDE.md | Present; readiness loading/continuation rules added | Existing database laws and Next documentation requirement retained; screening exception aligned |
-| Global bridge inventory / parallel lane map | MISSING | Handoff and refresh bridge records exist but are not yet a final bilateral inventory |
+| Global bridge inventory / parallel lane map | PARTIAL / MISSING | Five P01–P03 bridge records now exist; remaining bridge coverage, rail matrices and lane qualification incomplete |
 | Context validation | NEW, limited structural checker | `python scripts/check-context.py`; not a semantic readiness certificate |
 
 ## Gates
@@ -33,7 +33,7 @@ Repository: `saybenn/Workin-Ants-V2`. Audited starting branch: `main`; starting 
 | 1 Shared Operations | IN PROGRESS | Permanent namespace verified; consumer alignment and cross-lane contract qualification incomplete |
 | 2 Ten handoffs | IN PROGRESS | WA-R001–005 close named issues only; remaining records need adjudication |
 | 3 Apply rulings | IN PROGRESS | Membership, reward owner, screening source, optional similarity scope and ATS model corrections applied; follow-up scan required |
-| 4 Final bridges | NOT STARTED | Compare producers/consumers, consolidate duplicates and qualify every edge |
+| 4 Final bridges | PARTIAL SLICE ONLY | Five approved-product bridges captured; full consolidation and rail matrices remain |
 | 5 Platform audit | NOT STARTED | Fresh audit after rulings/bridge completion |
 | 6 Database posture | EVIDENCE GATE IDENTIFIED | Read database-readiness.md; live provenance unresolved, no destructive workaround |
 | 7 Root architecture | NOT STARTED | Depends on reconciled lower-level truth |
@@ -45,7 +45,7 @@ Repository: `saybenn/Workin-Ants-V2`. Audited starting branch: `main`; starting 
 
 Structural checks verify registry membership, all 44 document pairs, permanent SH IDs/required fields/compact-index equality and references to existing IDs. They identify migration creation coverage. They do not prove lifecycle compatibility, event symmetry, provider capability, legal sufficiency, deployed state or safe parallelism.
 
-No product-owner choice is currently requested. Do not ask again about settled ATS, reward-benefit, screening-default or content-similarity scope. Continue the unresolved architecture review autonomously. Database provenance is external evidence, not permission to halt unrelated reconciliation.
+Current product questions are P04/P05 only; P01–P03 are approved. Do not ask again about settled ATS, reward-benefit, screening-default or content-similarity scope. Continue the unresolved architecture review autonomously. Database provenance is external evidence, not permission to halt unrelated reconciliation.
 
 Next: finish Gate 1 consumer alignment, then adjudicate every remaining handoff record against its owning architecture. Keep historical evidence intact. Do not mark the whole task complete from this checkpoint.
 
@@ -65,3 +65,16 @@ Resumed the clean local commit `2517479e2c9f1a668ec8c6298f2c1c1a47076434`; did n
 **Reason for returning control:** three genuine behavior choices in [product-owner-decisions.md](product-owner-decisions.md): priority scheduling, purchased-session cardinality, and contract-Job meaning. These are scoped Booking/Hiring contract gates, not technical questions. Other unreviewed handoff records are not implicitly closed.
 
 **Gate state:** Gate 1 consumer alignment advanced but not certified complete; Gate 2 remains in progress. Final bridge inventory, root artifacts, lane qualification and final readiness remain unfinished. The GitHub publish rejection from the earlier checkpoint remains in effect; this continuation makes no remote write attempt. Next after answers: apply only their affected owner contracts, finish remaining consumer and handoff reconciliation, and continue the gate sequence.
+
+
+## Approved-product continuation — 2026-09-29 20:38 owner message
+
+P01–P03 explicitly approved and applied as WA-R011–013. Updated Booking/Track, Supply/Order, Hiring/Job Compliance/Search and their Cluster architecture/plan pairs. Stale priority/contract-choice sections and status tables were corrected. Canonical Shared Operations records the product amendments without changing any SH entry identity/owner/class/status. Current Prisma remains unchanged; its generic employment enum and incomplete session representation are still implementation gaps.
+
+WA-R014 resolves Gamification signed-delta arithmetic, immutable award causation, unique original-entry reversal linkage and redemption terms/proof binding. It is applied to Gamification and CL-10 pairs. Five bilateral bridge records now capture P01–P03 failure/security/recovery and sequencing constraints; each is explicitly UNSTABLE until schema/DTO/fixture qualification, not silently frozen.
+
+Validation: structural context check and diff whitespace check passed. Existing canonical SH entry metadata, historical handoffs, Prisma and migrations were preserved. No application build, production lifecycle test, migration replay or live database verification is claimed. Readiness-inventory.json is regenerated from this checkpoint.
+
+**Exact reason for returning control:** P04 determines whether point value is spendable User-wide or only within each Program; this changes the account/spending contract and cannot be chosen as a schema detail. P05 determines whether earned points expire; it gates expiration behavior only. Both are genuine PRODUCT_OWNER_CHOICE records supported by current Gamification architecture, the CL-10 handoff and glossary review. Recommendations are not adopted. Other unresolved handoff rows remain unadjudicated, not implicitly deferred or complete.
+
+Gate 1/2 remain in progress; full bridges, platform audit, root architecture/build plan/lane map and final readiness validation remain unfinished. Continue from these changes after the product answers. No remote publication attempted; earlier push-approval rejection remains in effect.

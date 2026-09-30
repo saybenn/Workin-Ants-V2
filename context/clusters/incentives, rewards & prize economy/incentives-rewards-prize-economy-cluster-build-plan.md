@@ -1977,3 +1977,16 @@ After each feature, the coding agent must report:
 - Exit-gate result: **PASS / FAIL**, with evidence
 
 A feature whose exit gate fails is incomplete. The next numbered feature does not begin until the failure is resolved or the architecture/build plan is explicitly revised.
+
+
+## WA-R014 — Point ledger arithmetic and historical causation
+
+Class: **AI_RESOLVED** for signed-delta convention, durable causation, reversal linkage and acceptance proof. Does not select spend scope (P04), expiration policy (P05), reward effect or compensation policy.
+
+Gamification owns an append-only signed point ledger. `earned` is strictly positive; `spent` and an authorized `expired` entry are strictly negative; `adjusted` is a nonzero signed delta with authorized reason/evidence. A `reversed` entry refers to one original entry in the same approved account and has exactly its opposite signed value. Ordinary reversal is full, at most once per original, and cannot target another reversal. Partial corrections use an explicitly authorized adjustment with causation rather than pretending to be a full reversal. No zero-value ledger rows or mutation of an original amount. This closes U-GR-02 and the linkage/double-reversal portion of U-GR-04; downstream compensation and insufficiency behavior remain U-GR-16 and cannot be guessed from these signs.
+
+Every award binds the owner source-event identity/version, beneficiary, rule identity and immutable effective rule version (including exact evaluated rule content/hash), evaluation time and semantic effect key. Duplicate delivery through SH-045 or repeated commands through SH-044 cannot create a second effect. Persist award and owner outbox atomically; shared inbox/idempotency infrastructure supplies the mechanism, not a competing Gamification-wide event bus. Historical proof survives mutable rule edits. This resolves U-GR-03's evidence strategy; exact schema fields/indexes are DEFERRED_IMPLEMENTATION_DETAIL in the coordinated database pass.
+
+For terms-dependent redemption, persist the exact accepted terms version/content identity and Consent proof reference bound to that redemption and acceptance context. Runtime lookup of today's active terms or a generic audit event alone is insufficient proof of what was accepted. Consent owns acceptance proof; Gamification owns the redemption's contextual binding. This resolves U-GR-14's proof strategy without choosing retention duration or a cascade-delete behavior.
+
+Implementation acceptance: all sign/type combinations, sum equals available-effect projection under the approved account policy, duplicate event/key returns original effect, conflicting key payload rejected, concurrent reversal yields exactly one opposite entry, cross-account/reversal-of-reversal rejected, rule/terms changes do not rewrite historical proof. Production earning/spending still waits for P04; expiration waits for P05 and any applicable legal policy. These are architecture requirements, not test execution claims.

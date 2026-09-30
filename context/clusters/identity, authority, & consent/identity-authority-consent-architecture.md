@@ -854,7 +854,7 @@ Required test layers:
 | U-CL01-28 | Track subscription transition table + Stripe receipt/dedupe + consent binding? | statuses exist, provider semantics incomplete | live paid subscriptions |
 | U-CL01-29 | Usage period/timezone/refund/reversal/idempotency/counter uniqueness? | quota semantics incomplete | production metering |
 | U-CL01-30 | Buyer-fee/pro commission rounding/basis-point snapshot rules? | impacts historical Order truth | Order bridge |
-| U-CL01-31 | Priority scheduling rank/ties/quota/expiry meaning? | entitlement lacks scheduling semantics | Booking bridge |
+| U-CL01-31 | RESOLVED P01 / WA-R011: early-access benefit, no queue rank/quota | Track eligibility; Booking release instants | implement and validate Booking bridge |
 | U-CL01-32 | Track billing/subscription retention/anonymization? | legal minimum/duration absent | destructive Track privacy |
 | U-CL01-33 | RESOLVED product model (WA-R005): separate Organization ATS commercial lane | Track remains commercial-policy owner; Organization is not a fourth User track | Organization-scoped persistence, pricing/quotas/feature allocation and billing contracts remain deferred |
 
@@ -912,3 +912,14 @@ Before changing CL-01, read:
 10. progress tracker
 
 Also inspect current Prisma schema/migrations before data changes. If code and architecture disagree, record the discrepancy, determine which is stale, update binding context first when a real decision changed, then implement.
+
+
+## WA-R011 — Approved early-access scheduling (P01)
+
+Product-owner ruling approved 2026-09-29: premium priority affects **when eligible customers may access newly released availability**. It never overrides an existing Booking, displaces a customer, reserves inventory permanently, or bypasses eligibility/conflict rules. This closes U-BC-05 / U-CL01-31 / CL-05-U017's product-effect choice.
+
+Track owns the effective Customer-track benefit and returns eligibility, entitlement/grant evidence, policy version, evaluation time and expiry. Booking owns the release schedule and enforces the resulting access time on both slot queries and hold/confirmation commands. An early-access decision is not a slot reservation. Unavailable entitlement evidence cannot grant early access; ordinary access remains available once general release is reached, subject to normal gates. Existing holds follow their original bounded expiry; premium expiry cannot displace an already confirmed Booking.
+
+Technical ruling: store timezone-independent release instants and a versioned release-window policy. Resolve the benefit against server time when creating a hold, bind evidence to that hold, and recheck normal conversion gates. No quota is consumed by this access-time benefit; SH-006 is not invoked unless a separately approved metered product is later introduced. Do not translate legacy priorityRank into request ordering. Missing release-window configuration disables early release for that availability; it does not invent a duration or disable ordinary booking. Exact window configuration is a launch prerequisite, not another ownership decision.
+
+Implementation acceptance: premium/nonpremium boundary instants; expired/unavailable entitlement; concurrent claims; direct-command bypass attempts; replay of hold creation; no displacement; ordinary access at general release. Schema/API work must represent these facts before activation; this ruling is not implementation evidence.

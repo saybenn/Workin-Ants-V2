@@ -1694,3 +1694,8 @@ When architecture work changes a shared operation:
 6. If an operation is deprecated or superseded, retain its row and mark the status instead of deleting/reusing the ID.
 
 This file is the canonical reference target for `Shared Operations Used` sections throughout Workin Ants context.
+
+
+## Additional product-owner rulings — 2026-09-29
+
+P01–P03 are approved, not pending choices. WA-R011 gives Customer premium earlier access to newly released availability through Track eligibility and Booking release policy, with no conflict bypass or displacement. WA-R012 permits bounded multiple sessions explicitly purchased in an Order package; Order owns authorization/terms, Booking owns each appointment. WA-R013 separates fixed-term employment and independent-contractor Hiring concepts; generic contract cannot hide the distinction. See owner architectures and product-owner-decisions.md in context/reconciliation for application/evidence. These amendments preserve all SH IDs, names, owners, classes and status labels; they do not claim schema or implementation completion.

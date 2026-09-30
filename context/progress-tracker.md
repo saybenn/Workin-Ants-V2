@@ -5,8 +5,8 @@ Updated 2026-09-29. Status evidence only; this file does not own architecture.
 - **Stage:** development-readiness reconciliation, Gate 1/2 in progress.
 - **Implementation phase:** not yet authorized by a finalized root build plan.
 - **Active development lanes:** none.
-- **Completed readiness work:** current inventory; structural validation; ten scoped rulings WA-R001–010 applied to named artifacts.
-- **Current work:** full Shared Operations consumer alignment and remaining handoff adjudication. P01–P03 in `context/reconciliation/product-owner-decisions.md` require product behavior choices; unrelated findings remain unadjudicated.
+- **Completed readiness work:** current inventory; structural validation; fourteen scoped rulings WA-R001–014 applied to named artifacts.
+- **Current work:** full Shared Operations consumer alignment and remaining handoff adjudication. P01–P03 are approved and applied. P04/P05 in `context/reconciliation/product-owner-decisions.md` remain genuine product choices about point spend scope and expiration; unrelated findings remain unadjudicated.
 - **Last inspected baseline:** `526bb1ab30480d66ca8b7da08d16badc6e613c1d`; working changes are documented in the readiness status and Git diff. A future commit containing this tracker must not be described as validated merely because it exists.
 - **Feature completion:** no new product feature completed by this task. Historical Phase 2 database report remains historical evidence, not a current full-schema deployment certificate.
 - **External evidence:** database provenance, legal facts and provider capabilities remain scoped gates. Database evidence must not block independent architecture work.
@@ -14,3 +14,5 @@ Updated 2026-09-29. Status evidence only; this file does not own architecture.
 - **Integration checkpoint:** reconcile branch changes against current main, run context checks, review every changed owner/consumer boundary, and continue Gate 1 before synthesizing final root artifacts.
 
 Read `context/reconciliation/development-readiness-status.md`, `platform-architecture-rulings.md`, `shared-operations-validation.md` and `database-readiness.md` for the detailed evidence and limits. These filenames after the first live under `context/reconciliation/`.
+
+Latest work: updated approved scheduling/package/work-arrangement owner and consumer pairs; resolved ledger arithmetic/provenance/reversal/proof; added five partial bridge records with explicit UNSTABLE status. No parallel lane or product implementation authorized.

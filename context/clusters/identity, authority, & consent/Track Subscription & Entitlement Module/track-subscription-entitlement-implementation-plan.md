@@ -121,7 +121,7 @@ Stripe Billing / Checkout / Customer Portal may be adapter-stubbed until CL-01 F
 | U-CL01-28 consent binding | paid enrollment/plan change |
 | U-CL01-29 candidate usage period/refund rules | final Candidate Application quota integration |
 | U-CL01-30 fee/commission calculation/snapshot rules | final Order pricing bridge |
-| U-CL01-31 priority scheduling semantics | final Booking priority bridge |
+| U-CL01-31 resolved by P01 / WA-R011 | implement early-access Booking bridge; no further product-choice gate |
 | U-CL01-32 billing retention/anonymization | destructive privacy behavior |
 | PR-CL01-04 / PR-TSE-02 provider ownership | Track-owned live Stripe Billing adapter |
 | U-TSE-01/02 pricing/billing-interval schema | production catalog price mutation where affected |
@@ -1383,7 +1383,7 @@ Track returns boost; Search composes boost with privacy/readiness/moderation. Tr
 
 #### Booking bridge
 
-Track returns priority semantics only after U-CL01-31. Booking owns slot/hold/booking record and any priority application.
+Track returns early-access eligibility/evidence under approved WA-R011. Booking owns release-time enforcement and slot/hold/booking truth.
 
 #### Professional readiness bridge
 
@@ -1419,7 +1419,7 @@ None required.
 - snapshot write failure → consumer transaction does not pretend historical decision was stored;
 - Search refresh failure → retry;
 - usage consumed but consumer source mutation fails → follow approved U-CL01-29/integration compensation policy; do not invent a reversal.
-- unresolved U-CL01-30/U-CL01-31 → final consumer behavior disabled.
+- unresolved U-CL01-30 → dependent Order policy disabled; U-CL01-31 is resolved by WA-R011, with early access gated on configuration and verified implementation.
 
 ### Tests
 
@@ -1434,7 +1434,7 @@ None required.
 
 ### Documentation Updates
 
-Resolve U-CL01-29/U-CL01-30/U-CL01-31 in both relevant consumer Module architecture and Track architecture before production integration.
+Resolve U-CL01-29/U-CL01-30; implement and validate the approved U-CL01-31 / WA-R011 contract in Track and Booking before production integration.
 
 ### Acceptance Criteria
 
@@ -1995,3 +1995,14 @@ Before treating this plan as ready for implementation, verify:
 13. Every numbered feature has tests, acceptance criteria, and an exit gate.
 14. Module sequencing aligns with CL-01 Features 10–18.
 15. A coding agent can execute the next feature without inventing ownership, lifecycle, provider, or concurrency architecture.
+
+
+## WA-R011 — Approved early-access scheduling (P01)
+
+Product-owner ruling approved 2026-09-29: premium priority affects **when eligible customers may access newly released availability**. It never overrides an existing Booking, displaces a customer, reserves inventory permanently, or bypasses eligibility/conflict rules. This closes U-BC-05 / U-CL01-31 / CL-05-U017's product-effect choice.
+
+Track owns the effective Customer-track benefit and returns eligibility, entitlement/grant evidence, policy version, evaluation time and expiry. Booking owns the release schedule and enforces the resulting access time on both slot queries and hold/confirmation commands. An early-access decision is not a slot reservation. Unavailable entitlement evidence cannot grant early access; ordinary access remains available once general release is reached, subject to normal gates. Existing holds follow their original bounded expiry; premium expiry cannot displace an already confirmed Booking.
+
+Technical ruling: store timezone-independent release instants and a versioned release-window policy. Resolve the benefit against server time when creating a hold, bind evidence to that hold, and recheck normal conversion gates. No quota is consumed by this access-time benefit; SH-006 is not invoked unless a separately approved metered product is later introduced. Do not translate legacy priorityRank into request ordering. Missing release-window configuration disables early release for that availability; it does not invent a duration or disable ordinary booking. Exact window configuration is a launch prerequisite, not another ownership decision.
+
+Implementation acceptance: premium/nonpremium boundary instants; expired/unavailable entitlement; concurrent claims; direct-command bypass attempts; replay of hold creation; no displacement; ordinary access at general release. Schema/API work must represent these facts before activation; this ruling is not implementation evidence.

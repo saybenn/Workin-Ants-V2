@@ -2097,6 +2097,8 @@ No E2E should directly insert another Module's source truth except controlled fi
 
 ### U-GR-01 — Point account scope
 
+**PRODUCT_OWNER_CHOICE P04 — OPEN.** See the product decision packet; User-wide is recommended but not adopted.
+
 Does one point balance belong to:
 - User globally;
 - User + Program;
@@ -2109,23 +2111,19 @@ Does one point balance belong to:
 
 ### U-GR-02 — Point signed-delta convention
 
-What exact sign combinations are valid for `earned`, `spent`, `reversed`, `expired`, and `adjusted`?
-
-**Blocks:** point ledger implementation tests and balance math.
+**RESOLVED by WA-R014.** Earned positive; spent/expired negative; adjusted nonzero signed; full linked reversal opposite original. Production policy gates remain as stated in WA-R014.
 
 ### U-GR-03 — Historical rule/causation proof
 
-How is the exact applied Rule semantic identity/version preserved for an award when `GamificationRule` can change and `PointLedgerEntry` has no `ruleId`/`sourceEventId` fields?
-
-**Constraint:** use SH-045/044 for dedupe; do not invent a local processed-event table.
+**RESOLVED by WA-R014.** Durable source-event identity/version plus immutable effective rule identity/content/hash and semantic award key. Use shared SH-044/045 mechanisms and owner-atomic effect/outbox; schema implementation remains pending.
 
 ### U-GR-04 — Reversal linkage
 
-Should a reversed PointLedgerEntry explicitly reference the original entry, and how is double reversal prevented?
-
-**Blocks:** production reversal semantics beyond conservative audited adjustments.
+**RESOLVED linkage and duplicate prevention by WA-R014.** Original-entry reference, same account, full inverse delta and durable uniqueness per original. U-GR-16 still governs whether/when compensation is authorized; this does not approve a negative available balance or restore already-delivered external benefits.
 
 ### U-GR-05 — Point expiration
+
+**PRODUCT_OWNER_CHOICE P05 — OPEN.** No initial expiration is recommended but not adopted. Only expiration behavior is gated by this question.
 
 Do points expire? If yes:
 - what earns an expiration date;
@@ -2180,9 +2178,7 @@ Maps to U-CL10-10. Identify authoritative owner/event before activating that tri
 
 ### U-GR-14 — Redemption consent proof linkage
 
-Should `RewardRedemption` snapshot accepted terms version and/or Consent proof ID, or is runtime proof + audit reference sufficient?
-
-**Constraint:** ConsentLog remains externally owned.
+**RESOLVED by WA-R014.** Persist the redemption binding to exact accepted terms content/version and Consent proof. Consent owns the proof; runtime current-proof lookup plus generic audit alone is insufficient. Retention and physical FK design remain separate gates.
 
 ### U-GR-15 — Reward taxable-value recognition moment
 
@@ -2280,3 +2276,16 @@ If repository code differs from this architecture:
 - prefer canonical Shared Operations/public interfaces;
 - update architecture before making a binding new decision;
 - never let implementation progress silently settle a Proposed Ruling or Unresolved Decision.
+
+
+## WA-R014 — Point ledger arithmetic and historical causation
+
+Class: **AI_RESOLVED** for signed-delta convention, durable causation, reversal linkage and acceptance proof. Does not select spend scope (P04), expiration policy (P05), reward effect or compensation policy.
+
+Gamification owns an append-only signed point ledger. `earned` is strictly positive; `spent` and an authorized `expired` entry are strictly negative; `adjusted` is a nonzero signed delta with authorized reason/evidence. A `reversed` entry refers to one original entry in the same approved account and has exactly its opposite signed value. Ordinary reversal is full, at most once per original, and cannot target another reversal. Partial corrections use an explicitly authorized adjustment with causation rather than pretending to be a full reversal. No zero-value ledger rows or mutation of an original amount. This closes U-GR-02 and the linkage/double-reversal portion of U-GR-04; downstream compensation and insufficiency behavior remain U-GR-16 and cannot be guessed from these signs.
+
+Every award binds the owner source-event identity/version, beneficiary, rule identity and immutable effective rule version (including exact evaluated rule content/hash), evaluation time and semantic effect key. Duplicate delivery through SH-045 or repeated commands through SH-044 cannot create a second effect. Persist award and owner outbox atomically; shared inbox/idempotency infrastructure supplies the mechanism, not a competing Gamification-wide event bus. Historical proof survives mutable rule edits. This resolves U-GR-03's evidence strategy; exact schema fields/indexes are DEFERRED_IMPLEMENTATION_DETAIL in the coordinated database pass.
+
+For terms-dependent redemption, persist the exact accepted terms version/content identity and Consent proof reference bound to that redemption and acceptance context. Runtime lookup of today's active terms or a generic audit event alone is insufficient proof of what was accepted. Consent owns acceptance proof; Gamification owns the redemption's contextual binding. This resolves U-GR-14's proof strategy without choosing retention duration or a cascade-delete behavior.
+
+Implementation acceptance: all sign/type combinations, sum equals available-effect projection under the approved account policy, duplicate event/key returns original effect, conflicting key payload rejected, concurrent reversal yields exactly one opposite entry, cross-account/reversal-of-reversal rejected, rule/terms changes do not rewrite historical proof. Production earning/spending still waits for P04; expiration waits for P05 and any applicable legal policy. These are architecture requirements, not test execution claims.

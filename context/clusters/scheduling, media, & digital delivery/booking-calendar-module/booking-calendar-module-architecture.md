@@ -1981,17 +1981,11 @@ Cluster/root rules establish `CustomerProfile` as buyer actor truth and current 
 
 ### U-BC-02 — One Order to one or many Bookings
 
-`Booking.orderId` is not unique.
-
-**Question:** does one Order intentionally support multiple scheduled sessions?
-
-**Blocks:** code that assumes one Booking per Order or adds uniqueness.
+**RESOLVED — P02 / WA-R012.** Multiple Bookings are authorized only by the explicitly purchased bounded session allowance. Order owns purchased terms and per-session authorization; Booking owns appointments. Booking.orderId must remain nonunique. See WA-R012 for reservation/replay/recovery and acceptance requirements.
 
 ### U-BC-03 — One SlotLock to one or many Bookings
 
-Current `BookingSlotLock.bookings[]` and nonunique `Booking.slotLockId` permit more than one Booking reference.
-
-**Proposed Ruling:** ordinary hold conversion should produce exactly one Booking per SlotLock; add/confirm a uniqueness constraint if no approved multi-Booking use case exists.
+**AI_RESOLVED — WA-R012.** Ordinary conversion produces at most one Booking per SlotLock, enforced durably in the coordinated schema pass. An Order package allocates separate session authorizations/locks; it does not permit one lock to convert twice. Validate existing data before adding the constraint.
 
 ### U-BC-04 — BookingHold duplicate lock reference
 
@@ -2003,11 +1997,7 @@ Current `BookingSlotLock.bookings[]` and nonunique `Booking.slotLockId` permit m
 
 ### U-BC-05 — Priority scheduling semantics
 
-Entitlement truth exists, but the exact local effect of `priorityRank` is not defined.
-
-Possible meanings—earlier booking window, queue ordering, reserved inventory, ranking, or tie-break—are materially different.
-
-**Rule:** do not invent the effect. Implement entitlement lookup/snapshot plumbing and feature-flag/disable behavior that requires undefined semantics.
+**RESOLVED — P01 / WA-R011.** Premium customers receive earlier access to newly released slots. No displacement, conflict bypass, queue preference or permanently reserved capacity. Track resolves eligibility; Booking enforces release instants. See WA-R011 for expiry/failure/configuration and acceptance requirements.
 
 ### U-BC-06 — Agreement generation orchestration step
 
@@ -2097,7 +2087,7 @@ Do not introduce a reverse dependency until a concrete need such as `hasBookable
 ### Implementation blockers / deferred decisions
 
 - exact in-person location snapshot/read/write/reveal contract;
-- priority scheduling behavioral semantics;
+- WA-R011 early-access configuration and verified contract implementation;
 - BookingHold lock relationship cleanup;
 - SlotLock→Booking cardinality;
 - Order→Booking cardinality assumptions;
@@ -2139,3 +2129,27 @@ Does this feature touch an unresolved ruling?
 ```
 
 If the requested implementation would decide an unresolved item, contradict an owner boundary, or require a new shared operation, stop that portion, record the architecture issue, and update context before committing the conflicting behavior.
+
+
+## WA-R011 — Approved early-access scheduling (P01)
+
+Product-owner ruling approved 2026-09-29: premium priority affects **when eligible customers may access newly released availability**. It never overrides an existing Booking, displaces a customer, reserves inventory permanently, or bypasses eligibility/conflict rules. This closes U-BC-05 / U-CL01-31 / CL-05-U017's product-effect choice.
+
+Track owns the effective Customer-track benefit and returns eligibility, entitlement/grant evidence, policy version, evaluation time and expiry. Booking owns the release schedule and enforces the resulting access time on both slot queries and hold/confirmation commands. An early-access decision is not a slot reservation. Unavailable entitlement evidence cannot grant early access; ordinary access remains available once general release is reached, subject to normal gates. Existing holds follow their original bounded expiry; premium expiry cannot displace an already confirmed Booking.
+
+Technical ruling: store timezone-independent release instants and a versioned release-window policy. Resolve the benefit against server time when creating a hold, bind evidence to that hold, and recheck normal conversion gates. No quota is consumed by this access-time benefit; SH-006 is not invoked unless a separately approved metered product is later introduced. Do not translate legacy priorityRank into request ordering. Missing release-window configuration disables early release for that availability; it does not invent a duration or disable ordinary booking. Exact window configuration is a launch prerequisite, not another ownership decision.
+
+Implementation acceptance: premium/nonpremium boundary instants; expired/unavailable entitlement; concurrent claims; direct-command bypass attempts; replay of hold creation; no displacement; ordinary access at general release. Schema/API work must represent these facts before activation; this ruling is not implementation evidence.
+
+
+## WA-R012 — Purchased session allowance and Booking cardinality (P02)
+
+Product-owner ruling approved 2026-09-29: an Order may authorize multiple scheduled sessions **only when the purchased Offering/package explicitly includes them**. Four purchased sessions permit at most four allocated session entitlements, not unlimited Bookings. This closes U-BC-02 / CL-05-U014's product choice. Do not add uniqueness on Booking.orderId.
+
+Supply owns the offered package description. Order validates and snapshots the purchased positive integer session allowance, source/version and applicable fulfillment/cancellation/refund terms; later Offering edits cannot change the purchase. Booking owns each appointment and its conflict, hold and scheduling lifecycle. Neither a paid flag nor counting local Booking rows supplies purchase authorization.
+
+Technical ruling: Order owns durable per-session authorization identities bounded by the purchased allowance. An idempotent reservation command binds Order/session identity to one Booking command intent and reports authorized, exhausted, denied, or unavailable with the Order version. Concurrent attempts cannot reserve the same session twice or exceed the allowance. Booking persists the reservation identity with its local conversion; an outbox acknowledgement confirms attachment. An uncertain cross-owner outcome remains reserved until reconciliation queries Booking's durable result; never release merely on transport timeout. Failed conversion with proven absence can release its reservation idempotently. This is a recoverable workflow, not a cross-owner Prisma transaction.
+
+Rescheduling retains the session authorization through the replacement chain and does not consume another session. A completed, cancelled or no-show appointment does not itself restore allowance or prove full Order completion. Order applies the purchased terms and owner-confirmed session outcomes; refunds and cancellation adjustments are Order decisions through Payment's rail. No automatic equal-price-per-session refund or forfeiture policy is invented. Packages cannot activate without explicit applicable terms. A normal SlotLock converts at most once (U-BC-03); that safety invariant is separate from Order multiplicity.
+
+Implementation acceptance: four-session package permits four distinct authorizations and rejects a concurrent fifth; retry returns the same identity; single-session package remains bounded; reschedule reuses authorization; timeout recovery avoids double release/allocation; source edits do not rewrite terms; partial fulfillment does not finish the whole Order; refund/cancel outcome follows snapshotted terms. Current schema lacks this complete contract; the coordinated database pass must implement it before package activation.

@@ -26,3 +26,8 @@ Reproduce structural checks with `python scripts/check-context.py`. The checker 
 ## Continuation evidence
 
 WA-R006–009 normalize read-versus-generate Location use, internal Agreement hashing, composite Media access and jurisdiction status/purpose ownership in the affected consumers. The structural checker additionally rejects duplicate registered Prisma-model owners and explicit single-ID name drift; grouped operation headings are excluded from naive name pairing. This checkpoint still does not certify complete semantic consumer alignment or freeze cross-lane contracts.
+
+
+## Approved-product continuation
+
+P01–P03 product semantics are recorded in the registry without changing canonical entry metadata or SH namespace. Current consumer status-table scan found no single-operation Confirmed/Proposed/Unresolved mismatch; the only lexical hit was an Audit row describing proposed metadata, not an operation status. This scan is narrow structural evidence, not full consumer semantic alignment. WA-R011–013 correct the dependent product contracts; five corresponding bridge records retain UNSTABLE status. Per-contract qualification for the entire cross-lane registry remains unfinished.

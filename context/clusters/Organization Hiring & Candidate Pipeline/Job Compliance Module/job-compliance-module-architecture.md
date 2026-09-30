@@ -8,7 +8,7 @@
 
 This document defines what the Job Compliance Module owns, what it may transform, the stable interfaces it exposes, the dependencies it may consume, and the responsibilities it must never absorb. It is intentionally narrower than the CL-06 architecture.
 
-The current evidence set establishes the Module boundary but leaves **U-CL06-05 effective decision semantics and U-CL06-07 `EmploymentType.contract` product meaning** unresolved; CompensationPeriod stewardship is resolved by WA-R010. U-CL06-06 is now a binding historical-evidence invariant whose persistence design/implementation remains for a later approved database pass. None of the remaining choices may be silently resolved in code.
+The current evidence set establishes the Module boundary but leaves **U-CL06-05 effective decision semantics and U-CL06-07 `EmploymentType.contract` schema conversion** pending under approved WA-R013; CompensationPeriod stewardship is resolved by WA-R010. U-CL06-06 is now a binding historical-evidence invariant whose persistence design/implementation remains for a later approved database pass. None of the remaining choices may be silently resolved in code.
 
 ## 1. Module Header
 
@@ -126,8 +126,8 @@ Job posting compliance has independent legal/policy meaning, versioning, evidenc
 **Split or unresolved vocabulary:**
 
 - `JobComplianceStatus` is stored on Organization Hiring-owned `Job`. The CL-06 architecture proposes that this field is an Organization Hiring-owned summary mirror written only from the Job Compliance decision. Job Compliance owns the semantics of the decision it returns; it must not directly mutate `Job.complianceStatus` unless a later explicit owner command says otherwise.
-- `CompensationPeriod` is Organization Hiring-owned Job compensation vocabulary (WA-R010). Job Compliance consumes and snapshots the canonical value; it must not create a second compensation-period enum. The separate `EmploymentType.contract` product meaning remains P03.
-- `EmploymentType` belongs to Organization Hiring. The meaning of `EmploymentType.contract` remains unresolved under U-CL06-07 and must not be reinterpreted locally.
+- `CompensationPeriod` is Organization Hiring-owned Job compensation vocabulary (WA-R010). Job Compliance consumes and snapshots the canonical value; it must not create a second compensation-period enum. The separate P03 product meaning is approved in WA-R013; schema conversion remains pending.
+- `EmploymentType` belongs to Organization Hiring. WA-R013 resolves the product meaning into distinct fixed-term employment and independent-contractor concepts; the current generic schema value must not be reinterpreted locally.
 
 ### 3.3 Lifecycles owned
 
@@ -1603,7 +1603,7 @@ This proposal is not binding until approved and reflected in CL-06/root context.
 
 **Blocks:** final employment/compliance semantics.
 
-**Confirmed Ruling PR-JC-03 / WA-R010:** because compensation period is part of the Organization Hiring-owned Job offer and Job Compliance merely evaluates/snapshots it, Organization Hiring is the structural owner of `CompensationPeriod`; Job Compliance consumes the canonical enum and copies the value into compliance proof. `EmploymentType.contract` must remain opaque until its employment-law/business meaning is separately approved.
+**Confirmed Ruling PR-JC-03 / WA-R010:** because compensation period is part of the Organization Hiring-owned Job offer and Job Compliance merely evaluates/snapshots it, Organization Hiring is the structural owner of `CompensationPeriod`; Job Compliance consumes the canonical enum and copies the value into compliance proof. WA-R013 approves distinct work arrangements; legacy `EmploymentType.contract` remains ambiguous until owner clarification, and legal classification is a separate evidence gate.
 
 ### Finding-field duplication
 
@@ -1672,4 +1672,15 @@ SH-120 is Proposed ruling, not Unresolved. It shares normalization/provenance me
 
 The ownership part of U-CL06-07 / PR-JC-03 is AI_RESOLVED: Organization Hiring owns CompensationPeriod because it owns the offered Job compensation facts. Job Compliance reads and snapshots the same vocabulary; it does not acquire Job source truth or create another enum. Registry ownership is aligned, with no schema/value change.
 
-The meaning of EmploymentType.contract remains PRODUCT_OWNER_CHOICE P03: fixed-term employment, independent-contractor work, or distinct supported categories. Until answered, do not enable ambiguous contract-type posting or infer its legal treatment. This narrow product gate must not block compensation-period handling for other already-defined employment types. Legal classification rules remain external after the product vocabulary is chosen.
+P03 is APPROVED in WA-R013: fixed-term employment and independent-contractor work are distinct canonical concepts. Ambiguous historical contract values require source clarification; production activation requires the coordinated schema/API/filter change and applicable legal rules. The product choice is closed; implementation and legal evidence are separate prerequisites.
+
+
+## WA-R013 — Explicit work arrangements (P03)
+
+Product-owner ruling approved 2026-09-29: distinguish **fixed-term employment** and **independent-contractor work** as separate canonical concepts. A generic CONTRACT/contract value must not hide the distinction. This closes the product-meaning portion of U-CL06-07 / CL-06-U007. WA-R010 already assigns CompensationPeriod stewardship to Organization Hiring.
+
+Hiring owns the work-arrangement vocabulary and source selection. The canonical concepts are FIXED_TERM_EMPLOYMENT and INDEPENDENT_CONTRACTOR; exact persisted enum spelling follows schema conventions in the coordinated database pass. Job Compliance consumes the explicit arrangement, preserves it in evaluated input/rule evidence and applies the relevant approved rule set. A selected label is not a legal determination of worker classification. Applicable jurisdictional legal rules remain an external gate.
+
+Search projects the explicit owner-provided concepts and presents distinct filters/labels; it cannot derive them from job title, compensation period, or old contract text. Legacy EmploymentType.contract is ambiguous: preserve historical value, require authorized source clarification before affected republication/re-evaluation, and do not silently map every old row to either new concept. Reindex only after owner correction. Existing unambiguous employment types remain unchanged. Organization contractor Jobs remain Hiring work, not automatically Gigs or Offerings.
+
+Implementation acceptance: distinct create/edit/publication and query/filter paths; exact compliance input and evidence for each concept; ambiguous historical rows blocked from new publication until clarified; no mass inferred backfill; no legal conclusion based only on employer-selected label. Prisma's present enum is implementation reality, not evidence that this ruling has been migrated.
