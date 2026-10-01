@@ -40,3 +40,10 @@ WA-R016 explicitly changes SH-069 owner metadata to Location Safety and SH-106 t
 The new qualification index covers SH-001–132 once each, preserves canonical names/owners/registry statuses/build semantics, and lists mentioning Modules for review (not certified invocation sites). All contracts are conservatively UNSTABLE or EXTERNALLY_GATED; no consumer lane is activated. Full semantic consumer qualification remains Gate 1/2 work.
 
 Checker now validates qualification coverage, metadata alignment, valid status vocabulary and evidence on any frozen/compatible promotion. Negative mutation checks: missing identity, changed owner, unsupported status and unproved freeze must fail; the unmodified checkpoint must pass. These checks validate drift detection, not business behavior or completed interface contracts.
+
+
+## P06–P08 continuation validation
+
+The handoff coverage checker independently extracts 661 decision IDs from all ten historical handoffs. Baseline passes. In-memory mutations verify rejection of a missing decision, duplicated decision, changed source fingerprint, invalid classification, PARTIAL without remaining work and nonexistent ruling. Original files remain untouched by these mutation checks. check-context.py invokes this coverage check. This validates index integrity, not semantic closure.
+
+P06–P08 source/consumer amendments and WA-R027/028 preserve all 132 permanent Shared Operation identities and statuses. The mentioning-Module index is refreshed; mentions are not invocations or qualification evidence. Prisma, migration SQL and historical handoffs remain unchanged. Structural checks and git diff whitespace checks pass. No application runtime tests, legal approval, provider qualification, database replay or deployment are claimed.

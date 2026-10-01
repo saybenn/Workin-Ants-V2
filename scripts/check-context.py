@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import re
+import runpy
 from collections import Counter
 from pathlib import Path
 
@@ -139,6 +140,8 @@ def inspect():
                     errors.append(f"{q['id']}: qualification references an unknown Module")
         except (KeyError, TypeError, ValueError) as exc:
             errors.append(f'Invalid shared-operation qualification index: {exc}')
+    handoff_check = runpy.run_path(str(ROOT / 'scripts/check-handoff-adjudication.py'))['inspect']()
+    errors.extend('Handoff adjudication: ' + e for e in handoff_check['errors'])
     migrations = sorted(ROOT.glob('prisma/migrations/*/migration.sql'))
     sql = '\n'.join(p.read_text() for p in migrations)
     created = set(re.findall(r'CREATE TABLE\s+"(\w+)"\."(\w+)"', sql))

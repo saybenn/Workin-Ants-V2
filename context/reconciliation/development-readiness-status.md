@@ -31,7 +31,7 @@ Repository: `saybenn/Workin-Ants-V2`. Audited starting branch: `main`; starting 
 |---|---|---|
 | 0 Current-state audit | COMPLETE for inventory and identified gaps | Deep semantic findings continue under later gates |
 | 1 Shared Operations | IN PROGRESS | Permanent namespace verified; consumer alignment and cross-lane contract qualification incomplete |
-| 2 Ten handoffs | IN PROGRESS | WA-R001–025 close named issues only; remaining records need adjudication |
+| 2 Ten handoffs | IN PROGRESS | WA-R001–028 close named issues only; remaining records need adjudication |
 | 3 Apply rulings | IN PROGRESS | Membership, reward owner, screening source, optional similarity scope and ATS model corrections applied; follow-up scan required |
 | 4 Final bridges | PARTIAL SLICE ONLY | Five approved-product bridges captured; full consolidation and rail matrices remain |
 | 5 Platform audit | NOT STARTED | Fresh audit after rulings/bridge completion |
@@ -45,7 +45,7 @@ Repository: `saybenn/Workin-Ants-V2`. Audited starting branch: `main`; starting 
 
 Structural checks verify registry membership, all 44 document pairs, permanent SH IDs/required fields/compact-index equality and references to existing IDs. They identify migration creation coverage. They do not prove lifecycle compatibility, event symmetry, provider capability, legal sufficiency, deployed state or safe parallelism.
 
-P01–P05 are approved; current batched questions are P06–P08. Do not ask again about settled ATS, reward-benefit, screening-default or content-similarity scope. Continue the unresolved architecture review autonomously. Database provenance is external evidence, not permission to halt unrelated reconciliation.
+P01–P08 are approved and binding; P09–P11 are now open in the decision packet. Do not ask again about settled ATS, reward-benefit, screening-default or content-similarity scope. Continue the unresolved architecture review autonomously. Database provenance is external evidence, not permission to halt unrelated reconciliation.
 
 Next: finish Gate 1 consumer alignment, then adjudicate every remaining handoff record against its owning architecture. Keep historical evidence intact. Do not mark the whole task complete from this checkpoint.
 
@@ -93,3 +93,12 @@ Added shared-operation-contract-status.md/json covering all 132 identities. Qual
 **Exact reason for returning control:** P06–P08 are genuine Review/Dispute product choices, supported by the current owner architecture, CL-04 handoff and glossary. The rating Int does not select a 1–5 scale; pending does not select pre-moderation; Order uniqueness does not decide dispute openers or reopening. Technical ownership, evidence, retry and settlement finality are separately resolved in WA-R022/023. The compact decision packet contains recommendations and alternatives; none is adopted without an answer.
 
 **Remaining gates:** Gate 1/2 not yet fully certified; bridge inventory remains a partial five-edge slice. Full rail matrices, platform audit, root architecture/build plan/lane map, harness completion and final readiness remain unfinished. This is not a final NOT DEVELOPMENT READY verdict based merely on later legal/provider gates; it is a substantive work checkpoint at genuine product choices. No remote publication attempted.
+
+
+## P06–P08 applied; continued technical adjudication — 2026-10-01
+
+WA-R026 applies all P06–P08 clarifications, including later dispute episodes for a multi-session Order and no financial replay on reopening. WA-R027 resolves Identity mapping, safe linkage, assurance/recovery concurrency and revocation evidence. WA-R028 defines immutable digital policy content and separate issuance/transfer/delivery evidence without inventing refund or consumption policy. The affected Module architectures were amended before dependent plans.
+
+Created the full 661-record handoff decision coverage ledger: 163 adjudicated, 19 partial, 479 pending. Adjudicated includes open external/product classifications, not universal completion. Added source-hash, coverage, duplicate, classification and ruling-reference checks to the offline harness. The global bridge inventory is still a partial slice; no final readiness claim or active parallel lanes.
+
+**Exact return-control blocker:** P09/P10 are genuine digital refund/allowance behavior choices; P11 determines capture before or after seller agreement to perform. The existing enum/proposed graph cannot select them. Concrete recommendations and alternatives are prepared in product-owner-decisions.md. P01–P08 remain settled. No deployment, live database operation or remote publication was attempted.

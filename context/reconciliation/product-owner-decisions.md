@@ -1,6 +1,6 @@
 # Product-owner decisions
 
-Current checkpoint: 2026-10-01. P01–P05 are binding approvals. P06–P08 below are recommendations only; no answer is inferred. Architecture and code may not silently adopt them.
+Current checkpoint: 2026-10-01. P01–P08 are binding approvals. P09–P11 below are new open PRODUCT_OWNER_CHOICE records; recommendations are not adopted. The P06–P08 options are historical decision context; the owner approved them on 2026-10-01 with the tighter constraints recorded in WA-R026. Only P09–P11 are currently open in this packet.
 
 ## Approved — do not reopen
 
@@ -54,4 +54,39 @@ Opening/appeal windows are explicit versioned product-policy configuration that 
 
 ## Response shorthand and boundary
 
-**P06 A, P07 A, P08 A** approves the three recommendations. Modify individual parts if needed. These are genuine PRODUCT_OWNER_CHOICE records; technical persistence, audit/retry, ownership and projection questions around them have been ruled separately. This packet does not claim all remaining handoff rows are adjudicated or that these are the final possible product questions in the uncompleted review.
+**P06 A, P07 A, P08 A are approved.** WA-R026 incorporates whole-number 1–5 input, safety-checked immutable revisions, authorized restoration, both Order participants, represented support, one durable case with repeat cycles including later sessions, independently authorized idempotent financial effects, and versioned opening/appeal policy without invented deadlines. No deployment or remote publication is authorized. Remaining handoff review is not implicitly complete.
+
+
+## P09 — Digital access and refund finality (OPEN)
+
+**Recommended:** no automatic `final_after_access` refund denial at launch. Preserve access evidence for Order/Dispute adjudication under the applicable approved policy. Neither accepting terms, issuing a URL, starting playback/download nor a delivery observation alone denies a refund. This does not promise unconditional refunds or override applicable rights/provider rules. A later automatic finality policy requires an explicitly approved event, exceptions, applicable jurisdictions, disclosure and legal review.
+
+**Alternative:** enable automatic finality at a separately selected access event, subject to approved legal policy and exceptions. Selecting this requires defining that event; the enum alone is insufficient.
+
+**Why the owner must choose:** changes the buyer's refund experience and the seller's commercial risk. WA-R028 defines reliable observations, not the commercial consequence. Blocks automatic access-based refund decisions only; evidence mechanics can proceed.
+
+**Evidence:** CL-05-U045; Digital Goods architecture §35.1–35.2; Order and Review consume digital delivery evidence, not Media refund decisions.
+
+## P10 — Download allowance consumption (OPEN)
+
+**Recommended:** consume one allowance for a successfully completed logical download established by trusted server/provider delivery evidence. Retries/resumptions of that same logical download count once. URL issuance, terms acceptance, failed or unverified delivery do not consume it. Reserve in-flight capacity to enforce the cap; reconcile unknown outcomes before releasing capacity. `used` means a finite allowance is exhausted. Unlimited grants end through expiry/revocation rather than first use. Existing authorization and security checks apply on each access.
+
+**Alternative:** consume an allowance when an authorized transfer starts, with an explicit support/compensation policy for failed transfers. This tolerates less delivery observability but may charge an allowance for an unsuccessful download.
+
+**Why the owner must choose:** determines what the buyer receives and whether failure costs a purchased allowance. A completion-based choice requires a qualified delivery adapter; unknown cannot be fabricated as success. No assertion that bytes delivered proves human consumption. This consumption rule is independent of refund finality in P09.
+
+**Evidence:** CL-05-U045/U046; Digital Goods architecture §8.4, §35.2/35.3 and proposed finite-exhaustion interpretation. WA-R028 supplies reservation/retry/evidence mechanics without adopting a consumption threshold.
+
+## P11 — Seller acceptance before payment capture (OPEN)
+
+**Recommended source policy:** live/service purchases require the seller's acceptance of the frozen scope before payment capture and fulfillment. An explicit Gig award accepted by that Professional satisfies acceptance for its matching frozen Order; do not demand duplicate consent. Approved published standalone downloads/self-paced courses can accept automatically. Platform screening has no fabricated seller acceptance. For an explicitly sold multi-session service package, purchase acceptance covers the package; each Booking still requires current scheduling/eligibility/conflict checks.
+
+A payment authorization/reservation before acceptance is permitted only where the qualified payment flow supports it; it is not capture or a guarantee of fulfillment. Seller decline or expiry cancels the pending purchase and releases/voids only its outstanding reservations/authorizations through their owners. Any already captured amount follows an independently authorized refund workflow. Response windows are versioned product policy; no numerical timeout is invented. Required Agreement/Consent/readiness checks still apply.
+
+**Alternative:** capture payment before seller acceptance and handle decline/timeout through an approved refund workflow. This differs materially in buyer experience, funds handling and dispute exposure.
+
+**Why the owner must choose:** determines whether a customer is charged before a Professional agrees to perform. `awaiting_seller` and `paid` enum values do not select that experience. Blocks source-specific acceptance/payment transitions, not ordinary Order drafting or evidence design.
+
+**Evidence:** CL04-U019; Order architecture §9.1 (non-binding conceptual progression) and §35 item 10. P02 defines purchased session count but does not decide when a seller accepts the purchase. Neither recommendation activates payment/provider behavior.
+
+**Requested decision:** approve or amend P09, P10 and P11 as product rulings. No request for deployment, publishing or legal certification is included.

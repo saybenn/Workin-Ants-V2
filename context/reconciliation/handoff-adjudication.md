@@ -1,0 +1,688 @@
+# Handoff adjudication coverage
+
+Current checkpoint: 2026-10-01. Scope: the decision sections of all ten historical handoffs, not their separate bridge/rail tables. Historical handoffs remain unchanged. The machine-readable ledger preserves each question, original evidence body and source fingerprint. Authority stays with current owner/consumer architecture and the scoped applied ruling, not this index.
+
+`ADJUDICATED` means a scoped disposition has been recorded; it can still be an open PRODUCT_OWNER_CHOICE or EXTERNAL_REQUIREMENT. `PARTIAL` states the remaining work explicitly. `PENDING` is unreviewed and is not a deferred/closed classification. No coverage count certifies Gate 1, Gate 2 or implementation readiness.
+
+P01–P08 are binding approvals. P09–P11 require product decisions; see product-owner-decisions.md. WA-R027 settles Identity technical choices; WA-R028 settles delivery evidence/content persistence without choosing consumption/refund policy.
+
+| Cluster | Records | Adjudicated | Partial | Pending |
+|---|---:|---:|---:|---:|
+| CL-01 | 113 | 60 | 8 | 45 |
+| CL-02 | 56 | 5 | 0 | 51 |
+| CL-03 | 85 | 10 | 3 | 72 |
+| CL-04 | 63 | 15 | 2 | 46 |
+| CL-05 | 65 | 10 | 2 | 53 |
+| CL-06 | 70 | 7 | 0 | 63 |
+| CL-07 | 55 | 13 | 1 | 41 |
+| CL-08 | 47 | 20 | 1 | 26 |
+| CL-09 | 60 | 11 | 0 | 49 |
+| CL-10 | 47 | 12 | 2 | 33 |
+
+Total: 661 records; 163 adjudicated, 19 partial, 479 pending. Class counts include dispositions on partial records and must not be reported as resolved-record counts.
+
+Run `python scripts/check-handoff-adjudication.py` or `python scripts/check-context.py`. Validation checks coverage, duplicates, source hashes, status/classification and ruling references, not semantic sufficiency.
+
+| Decision | Review status | Class / ruling | Remaining |
+|---|---|---|---|
+| CL-01:U-CL01-01 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:U-CL01-02 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:U-CL01-03 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:U-CL01-04 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | Approved jurisdiction/age policy and actual provider pre-account capability evidence remain external requirements. |
+| CL-01:U-CL01-05 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | Approved jurisdiction/age policy and actual provider pre-account capability evidence remain external requirements. |
+| CL-01:U-CL01-06 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:U-CL01-07 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R023; WA-R027 | Per-resource action inventory and provider-qualified assurance configuration still require technical completion. |
+| CL-01:U-CL01-08 | ADJUDICATED | AI_RESOLVED / WA-R018; WA-R027 | — |
+| CL-01:U-CL01-09 | ADJUDICATED | EXTERNAL_REQUIREMENT / WA-R020; WA-R027 | — |
+| CL-01:U-CL01-10 | PENDING | — | — |
+| CL-01:U-CL01-11 | ADJUDICATED | AI_RESOLVED / WA-R001 | — |
+| CL-01:U-CL01-12 | PENDING | — | — |
+| CL-01:U-CL01-13 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
+| CL-01:U-CL01-14 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
+| CL-01:U-CL01-15 | ADJUDICATED | EXTERNAL_REQUIREMENT / WA-R020 | — |
+| CL-01:U-CL01-16 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
+| CL-01:U-CL01-17 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
+| CL-01:U-CL01-18 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
+| CL-01:U-CL01-19 | PENDING | — | — |
+| CL-01:U-CL01-20 | ADJUDICATED | AI_RESOLVED / WA-R007 | — |
+| CL-01:U-CL01-21 | PENDING | — | — |
+| CL-01:U-CL01-22 | PENDING | — | — |
+| CL-01:U-CL01-23 | ADJUDICATED | EXTERNAL_REQUIREMENT / WA-R020 | — |
+| CL-01:U-CL01-24 | PENDING | — | — |
+| CL-01:U-CL01-25 | PENDING | — | — |
+| CL-01:U-CL01-26 | PENDING | — | — |
+| CL-01:U-CL01-27 | PENDING | — | — |
+| CL-01:U-CL01-28 | PENDING | — | — |
+| CL-01:U-CL01-29 | PENDING | — | — |
+| CL-01:U-CL01-30 | PENDING | — | — |
+| CL-01:U-CL01-31 | ADJUDICATED | AI_RESOLVED / WA-R011 | — |
+| CL-01:U-CL01-32 | ADJUDICATED | EXTERNAL_REQUIREMENT / WA-R020 | — |
+| CL-01:U-CL01-33 | ADJUDICATED | AI_RESOLVED / WA-R005 | — |
+| CL-01:U-IA-01 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:U-IA-02 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | Approved jurisdiction/age policy and actual provider pre-account capability evidence remain external requirements. |
+| CL-01:U-IA-03 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:U-IA-04 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:U-IA-05 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:U-IA-06 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:U-IA-07 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:U-IA-08 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:U-IA-09 | ADJUDICATED | AI_RESOLVED / WA-R018; WA-R027 | — |
+| CL-01:U-IA-10 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:U-IA-11 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:U-IA-12 | ADJUDICATED | EXTERNAL_REQUIREMENT / WA-R020; WA-R027 | — |
+| CL-01:U-IA-13 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:U-IA-14 | ADJUDICATED | EXTERNAL_REQUIREMENT / WA-R019; WA-R027 | — |
+| CL-01:U-IA-15 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:U-IA-16 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:U-IA-17 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | Approved jurisdiction/age policy and actual provider pre-account capability evidence remain external requirements. |
+| CL-01:U-IA-18 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R023; WA-R027 | Per-resource action inventory and provider-qualified assurance configuration still require technical completion. |
+| CL-01:PR-CL01-02 | ADJUDICATED | AI_RESOLVED / WA-R001 | — |
+| CL-01:CL01-HU-001 | PENDING | — | — |
+| CL-01:CL01-HU-002 | PENDING | — | — |
+| CL-01:CL01-HU-003 | PENDING | — | — |
+| CL-01:CL01-HU-004 | PARTIAL | AI_RESOLVED / WA-R017 | Concrete per-owner minimal DTO fields/version coverage still needs bilateral qualification; WA-R017 settles the pattern only. |
+| CL-01:CL01-HU-005 | ADJUDICATED | AI_RESOLVED / WA-R017 | — |
+| CL-01:CL01-HU-006 | PENDING | — | — |
+| CL-01:CL01-HU-007 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
+| CL-01:CL01-HU-008 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
+| CL-01:CL01-HU-009 | PENDING | — | — |
+| CL-01:CL01-HU-010 | PENDING | — | — |
+| CL-01:CL01-HU-011 | PENDING | — | — |
+| CL-01:CL01-HU-012 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
+| CL-01:U-CD-01 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
+| CL-01:U-CD-02 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
+| CL-01:U-CD-03 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
+| CL-01:CL01-HU-013 | PENDING | — | — |
+| CL-01:CBP-U-01 | PENDING | — | — |
+| CL-01:CBP-U-02 | PENDING | — | — |
+| CL-01:CBP-U-03 | ADJUDICATED | AI_RESOLVED / WA-R019 | — |
+| CL-01:CBP-U-04 | ADJUDICATED | EXTERNAL_REQUIREMENT / WA-R020 | — |
+| CL-01:CBP-U-05 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
+| CL-01:U-TSE-01 | PENDING | — | — |
+| CL-01:U-TSE-02 | PENDING | — | — |
+| CL-01:U-TSE-03 | PENDING | — | — |
+| CL-01:U-TSE-04 | PENDING | — | — |
+| CL-01:U-TSE-05 | PENDING | — | — |
+| CL-01:PR-CL01-01 | PENDING | — | — |
+| CL-01:PR-CL01-03 | ADJUDICATED | AI_RESOLVED / WA-R007 | — |
+| CL-01:PR-CL01-04 | PENDING | — | — |
+| CL-01:PR-CL01-05 | PENDING | — | — |
+| CL-01:PR-IA-01 | PENDING | — | — |
+| CL-01:PR-IA-02 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:PR-IA-03 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:PR-IA-04 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:PR-IA-05 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:PR-IA-06 | ADJUDICATED | AI_RESOLVED / WA-R018; WA-R027 | — |
+| CL-01:PR-IA-07 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:PR-IA-08 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
+| CL-01:CL01-HU-014 | PENDING | — | — |
+| CL-01:CL01-HU-015 | ADJUDICATED | AI_RESOLVED / WA-R017 | — |
+| CL-01:CD-PR-01 | PENDING | — | — |
+| CL-01:CD-PR-02 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
+| CL-01:CD-PR-03 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
+| CL-01:CD-PR-04 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
+| CL-01:CBP-PR-01 | PENDING | — | — |
+| CL-01:PR-TSE-01 | PENDING | — | — |
+| CL-01:PR-TSE-02 | PENDING | — | — |
+| CL-01:PR-TSE-03 | PENDING | — | — |
+| CL-01:PR-TSE-04 | PENDING | — | — |
+| CL-01:PR-TSE-05 | ADJUDICATED | AI_RESOLVED / WA-R018 | — |
+| CL-01:CL01-HU-016 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
+| CL-01:CL01-HU-017 | ADJUDICATED | EXTERNAL_REQUIREMENT / database-readiness.md | — |
+| CL-01:CL01-HU-018 | PENDING | — | — |
+| CL-01:CL01-HU-019 | PENDING | — | — |
+| CL-01:CL01-HU-020 | PENDING | — | — |
+| CL-01:CL01-HU-021 | PENDING | — | — |
+| CL-01:CL01-HU-022 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R016 | Owner-specific chain partition/anchoring requirement and enabled usage still need qualification. |
+| CL-01:CL01-HU-023 | ADJUDICATED | AI_RESOLVED / WA-R002 | — |
+| CL-01:CL01-HU-024 | PENDING | — | — |
+| CL-01:CL01-HU-025 | PENDING | — | — |
+| CL-01:CL01-HU-026 | PENDING | — | — |
+| CL-02:D001 | PENDING | — | — |
+| CL-02:D002 | PENDING | — | — |
+| CL-02:D003 | PENDING | — | — |
+| CL-02:D004 | PENDING | — | — |
+| CL-02:D005 | PENDING | — | — |
+| CL-02:D006 | PENDING | — | — |
+| CL-02:D007 | PENDING | — | — |
+| CL-02:D008 | PENDING | — | — |
+| CL-02:D009 | PENDING | — | — |
+| CL-02:D010 | PENDING | — | — |
+| CL-02:D011 | PENDING | — | — |
+| CL-02:D012 | PENDING | — | — |
+| CL-02:D013 | PENDING | — | — |
+| CL-02:D014 | PENDING | — | — |
+| CL-02:D015 | PENDING | — | — |
+| CL-02:D016 | PENDING | — | — |
+| CL-02:D017 | PENDING | — | — |
+| CL-02:D018 | PENDING | — | — |
+| CL-02:D019 | PENDING | — | — |
+| CL-02:D020 | PENDING | — | — |
+| CL-02:D021 | PENDING | — | — |
+| CL-02:D022 | PENDING | — | — |
+| CL-02:D023 | ADJUDICATED | AI_RESOLVED / WA-R005 | — |
+| CL-02:D024 | PENDING | — | — |
+| CL-02:D025 | PENDING | — | — |
+| CL-02:D026 | PENDING | — | — |
+| CL-02:D027 | PENDING | — | — |
+| CL-02:D028 | PENDING | — | — |
+| CL-02:D029 | PENDING | — | — |
+| CL-02:D030 | PENDING | — | — |
+| CL-02:D031 | PENDING | — | — |
+| CL-02:D032 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R016 | — |
+| CL-02:D033 | PENDING | — | — |
+| CL-02:D034 | PENDING | — | — |
+| CL-02:D035 | PENDING | — | — |
+| CL-02:D036 | PENDING | — | — |
+| CL-02:D037 | PENDING | — | — |
+| CL-02:D038 | PENDING | — | — |
+| CL-02:D039 | PENDING | — | — |
+| CL-02:D040 | PENDING | — | — |
+| CL-02:D041 | PENDING | — | — |
+| CL-02:D042 | PENDING | — | — |
+| CL-02:D043 | PENDING | — | — |
+| CL-02:D044 | PENDING | — | — |
+| CL-02:D045 | PENDING | — | — |
+| CL-02:D046 | PENDING | — | — |
+| CL-02:D047 | PENDING | — | — |
+| CL-02:D048 | ADJUDICATED | AI_RESOLVED / WA-R017 | — |
+| CL-02:D049 | PENDING | — | — |
+| CL-02:D050 | PENDING | — | — |
+| CL-02:D051 | PENDING | — | — |
+| CL-02:D052 | PENDING | — | — |
+| CL-02:D053 | ADJUDICATED | EXTERNAL_REQUIREMENT / database-readiness.md | — |
+| CL-02:D054 | PENDING | — | — |
+| CL-02:D055 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R006; WA-R025 | — |
+| CL-02:D056 | PENDING | — | — |
+| CL-03:CL03-HD001 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R024 | — |
+| CL-03:CL03-HD002 | ADJUDICATED | AI_RESOLVED / WA-R007 | — |
+| CL-03:CL03-HD003 | PENDING | — | — |
+| CL-03:CL03-HD004 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R018 | Owner-specific field contract and applicable provider/retention evidence still need completion. |
+| CL-03:CL03-HD005 | PENDING | — | — |
+| CL-03:CL03-HD006 | PENDING | — | — |
+| CL-03:CL03-HD007 | PENDING | — | — |
+| CL-03:CL03-HD008 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R018 | Owner-specific field contract and applicable provider/retention evidence still need completion. |
+| CL-03:CL03-HD009 | PENDING | — | — |
+| CL-03:CL03-HD010 | PENDING | — | — |
+| CL-03:CL03-HD011 | PENDING | — | — |
+| CL-03:CL03-HD012 | PENDING | — | — |
+| CL-03:CL03-HD013 | PENDING | — | — |
+| CL-03:CL03-HD014 | PENDING | — | — |
+| CL-03:CL03-HD015 | PENDING | — | — |
+| CL-03:CL03-HD016 | PENDING | — | — |
+| CL-03:CL03-HD017 | PENDING | — | — |
+| CL-03:CL03-HD018 | ADJUDICATED | EXTERNAL_REQUIREMENT / WA-R020 | — |
+| CL-03:CL03-HD019 | PENDING | — | — |
+| CL-03:CL03-HD020 | PENDING | — | — |
+| CL-03:CL03-HD021 | PENDING | — | — |
+| CL-03:CL03-HD022 | PENDING | — | — |
+| CL-03:CL03-HD023 | PENDING | — | — |
+| CL-03:CL03-HD024 | PENDING | — | — |
+| CL-03:CL03-HD025 | PENDING | — | — |
+| CL-03:CL03-HD026 | ADJUDICATED | EXTERNAL_REQUIREMENT / WA-R020 | — |
+| CL-03:CL03-HD027 | PENDING | — | — |
+| CL-03:CL03-HD028 | PENDING | — | — |
+| CL-03:CL03-HD029 | PENDING | — | — |
+| CL-03:CL03-HD030 | PENDING | — | — |
+| CL-03:CL03-HD031 | PENDING | — | — |
+| CL-03:CL03-HD032 | PENDING | — | — |
+| CL-03:CL03-HD033 | ADJUDICATED | EXTERNAL_REQUIREMENT / WA-R020 | — |
+| CL-03:CL03-HD034 | PENDING | — | — |
+| CL-03:CL03-HD035 | PENDING | — | — |
+| CL-03:CL03-HD036 | PENDING | — | — |
+| CL-03:CL03-HD037 | PENDING | — | — |
+| CL-03:CL03-HD038 | PENDING | — | — |
+| CL-03:CL03-HD039 | PENDING | — | — |
+| CL-03:CL03-HD040 | PENDING | — | — |
+| CL-03:CL03-HD041 | PENDING | — | — |
+| CL-03:CL03-HD042 | PENDING | — | — |
+| CL-03:CL03-HD043 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R018 | Owner-specific field contract and applicable provider/retention evidence still need completion. |
+| CL-03:CL03-HD044 | PENDING | — | — |
+| CL-03:CL03-HD045 | PENDING | — | — |
+| CL-03:CL03-HD046 | PENDING | — | — |
+| CL-03:CL03-HD047 | PENDING | — | — |
+| CL-03:CL03-HD048 | PENDING | — | — |
+| CL-03:CL03-HD049 | PENDING | — | — |
+| CL-03:CL03-HD050 | PENDING | — | — |
+| CL-03:CL03-HD051 | PENDING | — | — |
+| CL-03:CL03-HD052 | PENDING | — | — |
+| CL-03:CL03-HD053 | PENDING | — | — |
+| CL-03:CL03-HD054 | PENDING | — | — |
+| CL-03:CL03-HD055 | PENDING | — | — |
+| CL-03:CL03-HD056 | PENDING | — | — |
+| CL-03:CL03-HD057 | PENDING | — | — |
+| CL-03:CL03-HD058 | PENDING | — | — |
+| CL-03:CL03-HD059 | PENDING | — | — |
+| CL-03:CL03-HD060 | ADJUDICATED | AI_RESOLVED / WA-R003 | — |
+| CL-03:CL03-HD061 | PENDING | — | — |
+| CL-03:CL03-HD062 | PENDING | — | — |
+| CL-03:CL03-HD063 | PENDING | — | — |
+| CL-03:CL03-HD064 | PENDING | — | — |
+| CL-03:CL03-HD065 | PENDING | — | — |
+| CL-03:CL03-HD066 | PENDING | — | — |
+| CL-03:CL03-HD067 | PENDING | — | — |
+| CL-03:CL03-HD068 | PENDING | — | — |
+| CL-03:CL03-HD069 | PENDING | — | — |
+| CL-03:CL03-HD070 | PENDING | — | — |
+| CL-03:CL03-HD071 | ADJUDICATED | AI_RESOLVED / WA-R009; WA-R017 | — |
+| CL-03:CL03-HD072 | PENDING | — | — |
+| CL-03:CL03-HD073 | PENDING | — | — |
+| CL-03:CL03-HD074 | PENDING | — | — |
+| CL-03:CL03-HD075 | PENDING | — | — |
+| CL-03:CL03-HD076 | PENDING | — | — |
+| CL-03:CL03-HD077 | PENDING | — | — |
+| CL-03:CL03-HD078 | ADJUDICATED | EXTERNAL_REQUIREMENT / database-readiness.md | — |
+| CL-03:CL03-HD079 | ADJUDICATED | AI_RESOLVED / WA-R017 | — |
+| CL-03:CL03-HD080 | PENDING | — | — |
+| CL-03:CL03-HD081 | PENDING | — | — |
+| CL-03:CL03-HD082 | PENDING | — | — |
+| CL-03:CL03-HD083 | PENDING | — | — |
+| CL-03:CL03-HD084 | PENDING | — | — |
+| CL-03:CL03-HD085 | ADJUDICATED | AI_RESOLVED / WA-R002; WA-R015 | — |
+| CL-04:CL04-U001 | PENDING | — | — |
+| CL-04:CL04-U002 | PENDING | — | — |
+| CL-04:CL04-U003 | PENDING | — | — |
+| CL-04:CL04-U004 | PENDING | — | — |
+| CL-04:CL04-U005 | PENDING | — | — |
+| CL-04:CL04-U006 | PENDING | — | — |
+| CL-04:CL04-U007 | PENDING | — | — |
+| CL-04:CL04-U008 | PENDING | — | — |
+| CL-04:CL04-U009 | PENDING | — | — |
+| CL-04:CL04-U010 | PENDING | — | — |
+| CL-04:CL04-U011 | PENDING | — | — |
+| CL-04:CL04-U012 | PENDING | — | — |
+| CL-04:CL04-U013 | PENDING | — | — |
+| CL-04:CL04-U014 | PENDING | — | — |
+| CL-04:CL04-U015 | PENDING | — | — |
+| CL-04:CL04-U016 | PENDING | — | — |
+| CL-04:CL04-U017 | PENDING | — | — |
+| CL-04:CL04-U018 | PENDING | — | — |
+| CL-04:CL04-U019 | ADJUDICATED | PRODUCT_OWNER_CHOICE / product-owner-decisions.md | — |
+| CL-04:CL04-U020 | PENDING | — | — |
+| CL-04:CL04-U021 | PENDING | — | — |
+| CL-04:CL04-U022 | PENDING | — | — |
+| CL-04:CL04-U023 | PENDING | — | — |
+| CL-04:CL04-U024 | PENDING | — | — |
+| CL-04:CL04-U025 | PENDING | — | — |
+| CL-04:CL04-U026 | PENDING | — | — |
+| CL-04:CL04-U027 | PENDING | — | — |
+| CL-04:CL04-U028 | PENDING | — | — |
+| CL-04:CL04-U029 | PENDING | — | — |
+| CL-04:CL04-U030 | PENDING | — | — |
+| CL-04:CL04-U031 | PENDING | — | — |
+| CL-04:CL04-U032 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | Per-resource sensitive action registry still requires completion. |
+| CL-04:CL04-U033 | PENDING | — | — |
+| CL-04:CL04-U034 | ADJUDICATED | AI_RESOLVED / WA-R026 | — |
+| CL-04:CL04-U035 | ADJUDICATED | AI_RESOLVED / WA-R026 | — |
+| CL-04:CL04-U036 | ADJUDICATED | AI_RESOLVED / WA-R026 | — |
+| CL-04:CL04-U037 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R022; WA-R026 | Exact payload/transport and real consumer readiness still need bilateral qualification. |
+| CL-04:CL04-U038 | ADJUDICATED | AI_RESOLVED / WA-R026 | — |
+| CL-04:CL04-U039 | ADJUDICATED | DEFERRED_IMPLEMENTATION_DETAIL / WA-R026 | — |
+| CL-04:CL04-U040 | ADJUDICATED | AI_RESOLVED / WA-R026 | — |
+| CL-04:CL04-U041 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R022; WA-R026 | — |
+| CL-04:CL04-U042 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R022; WA-R026 | — |
+| CL-04:CL04-U043 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R022; WA-R026 | — |
+| CL-04:CL04-U044 | PENDING | — | — |
+| CL-04:CL04-U045 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R022; WA-R026 | — |
+| CL-04:CL04-U046 | ADJUDICATED | AI_RESOLVED / WA-R017 | — |
+| CL-04:CL04-U047 | PENDING | — | — |
+| CL-04:CL04-U048 | PENDING | — | — |
+| CL-04:CL04-U049 | PENDING | — | — |
+| CL-04:CL04-U050 | ADJUDICATED | AI_RESOLVED / WA-R003 | — |
+| CL-04:CL04-U051 | PENDING | — | — |
+| CL-04:CL04-U052 | PENDING | — | — |
+| CL-04:CL04-U053 | PENDING | — | — |
+| CL-04:CL04-U054 | ADJUDICATED | AI_RESOLVED / WA-R019 | — |
+| CL-04:CL04-U055 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R018 | — |
+| CL-04:CL04-U056 | PENDING | — | — |
+| CL-04:CL04-U057 | PENDING | — | — |
+| CL-04:CL04-U058 | PENDING | — | — |
+| CL-04:CL04-U059 | PENDING | — | — |
+| CL-04:CL04-U060 | PENDING | — | — |
+| CL-04:CL04-U061 | PENDING | — | — |
+| CL-04:CL04-U062 | PENDING | — | — |
+| CL-04:CL04-U063 | PENDING | — | — |
+| CL-05:CL-05-U001 | PENDING | — | — |
+| CL-05:CL-05-U002 | PENDING | — | — |
+| CL-05:CL-05-U003 | PARTIAL | AI_RESOLVED / WA-R007 | Physical stewardship of all contextual joins, beyond the four corrected WA-R007 claims, remains to be checked. |
+| CL-05:CL-05-U004 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R025 | Exact bilateral DTO and field-specific retention remain to be qualified. |
+| CL-05:CL-05-U005 | PENDING | — | — |
+| CL-05:CL-05-U006 | PENDING | — | — |
+| CL-05:CL-05-U007 | PENDING | — | — |
+| CL-05:CL-05-U008 | PENDING | — | — |
+| CL-05:CL-05-U009 | PENDING | — | — |
+| CL-05:CL-05-U010 | PENDING | — | — |
+| CL-05:CL-05-U011 | PENDING | — | — |
+| CL-05:CL-05-U012 | PENDING | — | — |
+| CL-05:CL-05-U013 | PENDING | — | — |
+| CL-05:CL-05-U014 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R012 | — |
+| CL-05:CL-05-U015 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R012 | — |
+| CL-05:CL-05-U016 | PENDING | — | — |
+| CL-05:CL-05-U017 | ADJUDICATED | AI_RESOLVED / WA-R011 | — |
+| CL-05:CL-05-U018 | PENDING | — | — |
+| CL-05:CL-05-U019 | PENDING | — | — |
+| CL-05:CL-05-U020 | PENDING | — | — |
+| CL-05:CL-05-U021 | PENDING | — | — |
+| CL-05:CL-05-U022 | PENDING | — | — |
+| CL-05:CL-05-U023 | PENDING | — | — |
+| CL-05:CL-05-U024 | PENDING | — | — |
+| CL-05:CL-05-U025 | PENDING | — | — |
+| CL-05:CL-05-U026 | PENDING | — | — |
+| CL-05:CL-05-U027 | PENDING | — | — |
+| CL-05:CL-05-U028 | PENDING | — | — |
+| CL-05:CL-05-U029 | PENDING | — | — |
+| CL-05:CL-05-U030 | PENDING | — | — |
+| CL-05:CL-05-U031 | PENDING | — | — |
+| CL-05:CL-05-U032 | PENDING | — | — |
+| CL-05:CL-05-U033 | PENDING | — | — |
+| CL-05:CL-05-U034 | PENDING | — | — |
+| CL-05:CL-05-U035 | PENDING | — | — |
+| CL-05:CL-05-U036 | PENDING | — | — |
+| CL-05:CL-05-U037 | PENDING | — | — |
+| CL-05:CL-05-U038 | PENDING | — | — |
+| CL-05:CL-05-U039 | PENDING | — | — |
+| CL-05:CL-05-U040 | PENDING | — | — |
+| CL-05:CL-05-U041 | PENDING | — | — |
+| CL-05:CL-05-U042 | PENDING | — | — |
+| CL-05:CL-05-U043 | PENDING | — | — |
+| CL-05:CL-05-U044 | PENDING | — | — |
+| CL-05:CL-05-U045 | ADJUDICATED | PRODUCT_OWNER_CHOICE / product-owner-decisions.md | — |
+| CL-05:CL-05-U046 | ADJUDICATED | PRODUCT_OWNER_CHOICE / product-owner-decisions.md | — |
+| CL-05:CL-05-U047 | PENDING | — | — |
+| CL-05:CL-05-U048 | PENDING | — | — |
+| CL-05:CL-05-U049 | PENDING | — | — |
+| CL-05:CL-05-U050 | PENDING | — | — |
+| CL-05:CL-05-U051 | PENDING | — | — |
+| CL-05:CL-05-U052 | ADJUDICATED | DEFERRED_IMPLEMENTATION_DETAIL / WA-R004; WA-R016 | — |
+| CL-05:CL-05-U053 | ADJUDICATED | AI_RESOLVED / WA-R017 | — |
+| CL-05:CL-05-U054 | PENDING | — | — |
+| CL-05:CL-05-U055 | PENDING | — | — |
+| CL-05:CL-05-U056 | PENDING | — | — |
+| CL-05:CL-05-U057 | PENDING | — | — |
+| CL-05:CL-05-U058 | ADJUDICATED | AI_RESOLVED / WA-R006 | — |
+| CL-05:CL-05-U059 | ADJUDICATED | AI_RESOLVED / WA-R008 | — |
+| CL-05:CL-05-U060 | PENDING | — | — |
+| CL-05:CL-05-U061 | PENDING | — | — |
+| CL-05:CL-05-U062 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
+| CL-05:CL-05-U063 | PENDING | — | — |
+| CL-05:CL-05-U064 | PENDING | — | — |
+| CL-05:CL-05-U065 | PENDING | — | — |
+| CL-06:CL-06-U001 | PENDING | — | — |
+| CL-06:CL-06-U002 | PENDING | — | — |
+| CL-06:CL-06-U003 | PENDING | — | — |
+| CL-06:CL-06-U004 | ADJUDICATED | AI_RESOLVED / WA-R005 | — |
+| CL-06:CL-06-U005 | PENDING | — | — |
+| CL-06:CL-06-U006 | PENDING | — | — |
+| CL-06:CL-06-U007 | PENDING | — | — |
+| CL-06:CL-06-U008 | PENDING | — | — |
+| CL-06:CL-06-U009 | PENDING | — | — |
+| CL-06:CL-06-U010 | PENDING | — | — |
+| CL-06:CL-06-U011 | PENDING | — | — |
+| CL-06:CL-06-U012 | PENDING | — | — |
+| CL-06:CL-06-U013 | PENDING | — | — |
+| CL-06:CL-06-U014 | PENDING | — | — |
+| CL-06:CL-06-U015 | PENDING | — | — |
+| CL-06:CL-06-U016 | PENDING | — | — |
+| CL-06:CL-06-U017 | ADJUDICATED | EXTERNAL_REQUIREMENT / database-readiness.md | — |
+| CL-06:CL-06-U018 | PENDING | — | — |
+| CL-06:CL-06-U019 | PENDING | — | — |
+| CL-06:CL-06-U020 | PENDING | — | — |
+| CL-06:CL-06-U021 | PENDING | — | — |
+| CL-06:CL-06-U022 | PENDING | — | — |
+| CL-06:CL-06-U023 | PENDING | — | — |
+| CL-06:CL-06-U024 | PENDING | — | — |
+| CL-06:CL-06-U025 | PENDING | — | — |
+| CL-06:CL-06-U026 | PENDING | — | — |
+| CL-06:CL-06-U027 | PENDING | — | — |
+| CL-06:CL-06-U028 | PENDING | — | — |
+| CL-06:CL-06-U029 | PENDING | — | — |
+| CL-06:CL-06-U030 | PENDING | — | — |
+| CL-06:CL-06-U031 | PENDING | — | — |
+| CL-06:CL-06-U032 | PENDING | — | — |
+| CL-06:CL-06-U033 | PENDING | — | — |
+| CL-06:CL-06-U034 | PENDING | — | — |
+| CL-06:CL-06-U035 | PENDING | — | — |
+| CL-06:CL-06-U036 | PENDING | — | — |
+| CL-06:CL-06-U037 | PENDING | — | — |
+| CL-06:CL-06-U038 | PENDING | — | — |
+| CL-06:CL-06-U039 | PENDING | — | — |
+| CL-06:CL-06-U040 | PENDING | — | — |
+| CL-06:CL-06-U041 | ADJUDICATED | AI_RESOLVED / WA-R017 | — |
+| CL-06:CL-06-U042 | ADJUDICATED | AI_RESOLVED / WA-R017 | — |
+| CL-06:CL-06-U043 | ADJUDICATED | AI_RESOLVED / WA-R016 | — |
+| CL-06:CL-06-U044 | ADJUDICATED | AI_RESOLVED / WA-R009 | — |
+| CL-06:CL-06-U045 | PENDING | — | — |
+| CL-06:CL-06-U046 | PENDING | — | — |
+| CL-06:CL-06-U047 | PENDING | — | — |
+| CL-06:CL-06-U048 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
+| CL-06:CL-06-U049 | PENDING | — | — |
+| CL-06:CL-06-U050 | PENDING | — | — |
+| CL-06:CL-06-U051 | PENDING | — | — |
+| CL-06:CL-06-U052 | PENDING | — | — |
+| CL-06:CL-06-U053 | PENDING | — | — |
+| CL-06:CL-06-U054 | PENDING | — | — |
+| CL-06:CL-06-U055 | PENDING | — | — |
+| CL-06:CL-06-U056 | PENDING | — | — |
+| CL-06:CL-06-U057 | PENDING | — | — |
+| CL-06:CL-06-U058 | PENDING | — | — |
+| CL-06:CL-06-U059 | PENDING | — | — |
+| CL-06:CL-06-U060 | PENDING | — | — |
+| CL-06:CL-06-U061 | PENDING | — | — |
+| CL-06:CL-06-U062 | PENDING | — | — |
+| CL-06:CL-06-U063 | PENDING | — | — |
+| CL-06:CL-06-U064 | PENDING | — | — |
+| CL-06:CL-06-U065 | PENDING | — | — |
+| CL-06:CL-06-U066 | PENDING | — | — |
+| CL-06:CL-06-U067 | PENDING | — | — |
+| CL-06:CL-06-U068 | PENDING | — | — |
+| CL-06:CL-06-U069 | PENDING | — | — |
+| CL-06:CL-06-U070 | PENDING | — | — |
+| CL-07:U-CL07-01 | PENDING | — | — |
+| CL-07:U-CL07-02 | PENDING | — | — |
+| CL-07:U-CL07-03 | PENDING | — | — |
+| CL-07:U-CL07-04 | PENDING | — | — |
+| CL-07:U-CL07-05 | PENDING | — | — |
+| CL-07:U-CL07-06 | PENDING | — | — |
+| CL-07:U-CL07-07 | PENDING | — | — |
+| CL-07:U-CL07-08 | PENDING | — | — |
+| CL-07:U-CL07-09 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R021 | — |
+| CL-07:U-CL07-10 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R021 | — |
+| CL-07:U-CL07-11 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R021 | — |
+| CL-07:U-CL07-12 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R021 | — |
+| CL-07:U-CL07-13 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R021 | — |
+| CL-07:U-CL07-14 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R018; WA-R021 | — |
+| CL-07:U-CL07-15 | PENDING | — | — |
+| CL-07:U-CL07-16 | PENDING | — | — |
+| CL-07:U-CL07-17 | PENDING | — | — |
+| CL-07:U-CL07-18 | PENDING | — | — |
+| CL-07:U-CL07-19 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R021 | WA-R021 separates delivery/interaction but exact immutable interaction record and click/open/close contract still need completion. |
+| CL-07:U-CL07-20 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R021 | — |
+| CL-07:U-CL07-21 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R021 | — |
+| CL-07:CL-07-H01 | PENDING | — | — |
+| CL-07:CL-07-H02 | PENDING | — | — |
+| CL-07:CL-07-H03 | PENDING | — | — |
+| CL-07:CL-07-H04 | PENDING | — | — |
+| CL-07:CL-07-H05 | PENDING | — | — |
+| CL-07:CL-07-H06 | PENDING | — | — |
+| CL-07:CL-07-H07 | PENDING | — | — |
+| CL-07:CL-07-H08 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R018; WA-R021 | — |
+| CL-07:CL-07-H09 | PENDING | — | — |
+| CL-07:CL-07-H10 | PENDING | — | — |
+| CL-07:CL-07-H11 | PENDING | — | — |
+| CL-07:CL-07-H12 | PENDING | — | — |
+| CL-07:CL-07-H13 | PENDING | — | — |
+| CL-07:CL-07-H14 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R018; WA-R021 | — |
+| CL-07:CL-07-H15 | ADJUDICATED | EXTERNAL_REQUIREMENT / database-readiness.md | — |
+| CL-07:CL-07-H16 | PENDING | — | — |
+| CL-07:CL-07-H17 | ADJUDICATED | AI_RESOLVED / WA-R017 | — |
+| CL-07:CL-07-H18 | PENDING | — | — |
+| CL-07:CL-07-H19 | PENDING | — | — |
+| CL-07:CL-07-H20 | PENDING | — | — |
+| CL-07:CL-07-H21 | PENDING | — | — |
+| CL-07:CL-07-H22 | PENDING | — | — |
+| CL-07:CL-07-H23 | PENDING | — | — |
+| CL-07:CL-07-H24 | PENDING | — | — |
+| CL-07:CL-07-H25 | PENDING | — | — |
+| CL-07:CL-07-H26 | PENDING | — | — |
+| CL-07:CL-07-H27 | PENDING | — | — |
+| CL-07:CL-07-H28 | PENDING | — | — |
+| CL-07:CL-07-H29 | PENDING | — | — |
+| CL-07:CL-07-H30 | PENDING | — | — |
+| CL-07:CL-07-H31 | PENDING | — | — |
+| CL-07:CL-07-H32 | PENDING | — | — |
+| CL-07:CL-07-H33 | PENDING | — | — |
+| CL-07:CL-07-H34 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R020 | — |
+| CL-08:U-08-01 | PENDING | — | — |
+| CL-08:U-08-02 | PENDING | — | — |
+| CL-08:U-08-03 | PENDING | — | — |
+| CL-08:U-08-04 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R020 | — |
+| CL-08:U-08-05 | PENDING | — | — |
+| CL-08:U-08-06 | PENDING | — | — |
+| CL-08:U-08-07 | PENDING | — | — |
+| CL-08:U-08-08 | PENDING | — | — |
+| CL-08:U-08-09 | PENDING | — | — |
+| CL-08:U-08-10 | PENDING | — | — |
+| CL-08:U-08-11 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R025 | — |
+| CL-08:U-08-12 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R025 | — |
+| CL-08:U-08-13 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R025 | — |
+| CL-08:U-08-14 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R025 | — |
+| CL-08:U-08-15 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R025 | — |
+| CL-08:U-08-16 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R025 | — |
+| CL-08:U-08-17 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R025 | — |
+| CL-08:U-08-18 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R025 | — |
+| CL-08:U-08-19 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R025 | — |
+| CL-08:U-08-20 | PENDING | — | — |
+| CL-08:U-08-21 | PENDING | — | — |
+| CL-08:U-08-22 | PENDING | — | — |
+| CL-08:U-08-23 | PENDING | — | — |
+| CL-08:CL-08-HU-01 | PENDING | — | — |
+| CL-08:CL-08-HU-02 | PENDING | — | — |
+| CL-08:CL-08-HU-03 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R020 | — |
+| CL-08:CL-08-HU-04 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R020 | — |
+| CL-08:CL-08-HU-05 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R020 | — |
+| CL-08:CL-08-HU-06 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R020 | — |
+| CL-08:CL-08-HU-07 | PENDING | — | — |
+| CL-08:CL-08-HU-08 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R020 | — |
+| CL-08:CL-08-HU-09 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
+| CL-08:CL-08-HU-10 | PENDING | — | — |
+| CL-08:CL-08-HU-11 | PENDING | — | — |
+| CL-08:CL-08-HU-12 | PENDING | — | — |
+| CL-08:CL-08-HU-13 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R025 | Exact source DTO fields/currentness contracts remain to be frozen; policy boundary is settled. |
+| CL-08:CL-08-HU-14 | ADJUDICATED | AI_RESOLVED / WA-R017 | — |
+| CL-08:CL-08-HU-15 | ADJUDICATED | AI_RESOLVED / WA-R017 | — |
+| CL-08:CL-08-HU-16 | ADJUDICATED | AI_RESOLVED / WA-R016 | — |
+| CL-08:CL-08-HU-17 | PENDING | — | — |
+| CL-08:CL-08-HU-18 | PENDING | — | — |
+| CL-08:CL-08-HU-19 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
+| CL-08:CL-08-HU-20 | PENDING | — | — |
+| CL-08:CL-08-HU-21 | PENDING | — | — |
+| CL-08:CL-08-HU-22 | PENDING | — | — |
+| CL-08:CL-08-HU-23 | PENDING | — | — |
+| CL-08:CL-08-HU-24 | PENDING | — | — |
+| CL-09:CL-09-D001 | PENDING | — | — |
+| CL-09:CL-09-D002 | PENDING | — | — |
+| CL-09:CL-09-D003 | PENDING | — | — |
+| CL-09:CL-09-D004 | PENDING | — | — |
+| CL-09:CL-09-D005 | PENDING | — | — |
+| CL-09:CL-09-D006 | PENDING | — | — |
+| CL-09:CL-09-D007 | ADJUDICATED | DEFERRED_IMPLEMENTATION_DETAIL / WA-R004; WA-R016 | — |
+| CL-09:CL-09-D008 | PENDING | — | — |
+| CL-09:CL-09-D009 | PENDING | — | — |
+| CL-09:CL-09-D010 | PENDING | — | — |
+| CL-09:CL-09-D011 | PENDING | — | — |
+| CL-09:CL-09-D012 | PENDING | — | — |
+| CL-09:CL-09-D013 | PENDING | — | — |
+| CL-09:CL-09-D014 | PENDING | — | — |
+| CL-09:CL-09-D015 | PENDING | — | — |
+| CL-09:CL-09-D016 | PENDING | — | — |
+| CL-09:CL-09-D017 | PENDING | — | — |
+| CL-09:CL-09-D018 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R018 | — |
+| CL-09:CL-09-D019 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R018 | — |
+| CL-09:CL-09-D020 | PENDING | — | — |
+| CL-09:CL-09-D021 | PENDING | — | — |
+| CL-09:CL-09-D022 | PENDING | — | — |
+| CL-09:CL-09-D023 | PENDING | — | — |
+| CL-09:CL-09-D024 | PENDING | — | — |
+| CL-09:CL-09-D025 | PENDING | — | — |
+| CL-09:CL-09-D026 | PENDING | — | — |
+| CL-09:CL-09-D027 | PENDING | — | — |
+| CL-09:CL-09-D028 | PENDING | — | — |
+| CL-09:CL-09-D029 | PENDING | — | — |
+| CL-09:CL-09-D030 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
+| CL-09:CL-09-D031 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
+| CL-09:CL-09-D032 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
+| CL-09:CL-09-D033 | PENDING | — | — |
+| CL-09:CL-09-D034 | PENDING | — | — |
+| CL-09:CL-09-D035 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
+| CL-09:CL-09-D036 | PENDING | — | — |
+| CL-09:CL-09-D037 | PENDING | — | — |
+| CL-09:CL-09-D038 | PENDING | — | — |
+| CL-09:CL-09-D039 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R018 | — |
+| CL-09:CL-09-D040 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R018 | — |
+| CL-09:CL-09-D041 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R018 | — |
+| CL-09:CL-09-D042 | PENDING | — | — |
+| CL-09:CL-09-D043 | PENDING | — | — |
+| CL-09:CL-09-D044 | PENDING | — | — |
+| CL-09:CL-09-D045 | PENDING | — | — |
+| CL-09:CL-09-D046 | PENDING | — | — |
+| CL-09:CL-09-D047 | PENDING | — | — |
+| CL-09:CL-09-D048 | PENDING | — | — |
+| CL-09:CL-09-D049 | PENDING | — | — |
+| CL-09:CL-09-D050 | PENDING | — | — |
+| CL-09:CL-09-D051 | PENDING | — | — |
+| CL-09:CL-09-D052 | PENDING | — | — |
+| CL-09:CL-09-D053 | PENDING | — | — |
+| CL-09:CL-09-D054 | PENDING | — | — |
+| CL-09:CL-09-D055 | PENDING | — | — |
+| CL-09:CL-09-D056 | PENDING | — | — |
+| CL-09:CL-09-D057 | PENDING | — | — |
+| CL-09:CL-09-D058 | PENDING | — | — |
+| CL-09:CL-09-D059 | PENDING | — | — |
+| CL-09:CL-09-D060 | ADJUDICATED | AI_RESOLVED / WA-R017 | — |
+| CL-10:U-CL10-01 | PENDING | — | — |
+| CL-10:U-CL10-02 | PENDING | — | — |
+| CL-10:U-CL10-03 | PENDING | — | — |
+| CL-10:U-CL10-04 | PENDING | — | — |
+| CL-10:U-CL10-05 | PENDING | — | — |
+| CL-10:U-CL10-06 | ADJUDICATED | AI_RESOLVED / WA-R002; WA-R015 | — |
+| CL-10:U-CL10-07 | PENDING | — | — |
+| CL-10:U-CL10-08 | PENDING | — | — |
+| CL-10:U-CL10-09 | PENDING | — | — |
+| CL-10:U-CL10-10 | PENDING | — | — |
+| CL-10:U-CL10-11 | PENDING | — | — |
+| CL-10:U-CL10-12 | PENDING | — | — |
+| CL-10:U-CL10-13 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R018 | — |
+| CL-10:U-GR-01 | ADJUDICATED | AI_RESOLVED / WA-R015 | — |
+| CL-10:U-GR-02 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R014 | — |
+| CL-10:U-GR-03 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R014 | — |
+| CL-10:U-GR-04 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R014 | — |
+| CL-10:U-GR-05 | ADJUDICATED | AI_RESOLVED / WA-R015 | — |
+| CL-10:U-GR-07 | PENDING | — | — |
+| CL-10:U-GR-14 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R014 | — |
+| CL-10:U-GR-15 | PENDING | — | — |
+| CL-10:U-GR-16 | PENDING | — | — |
+| CL-10:U-GR-17 | PENDING | — | — |
+| CL-10:CL-10-R009 | PENDING | — | — |
+| CL-10:CL-10-HU025 | PENDING | — | — |
+| CL-10:CL-10-HU026 | PENDING | — | — |
+| CL-10:CL-10-HU027 | PENDING | — | — |
+| CL-10:CL-10-HU028 | PENDING | — | — |
+| CL-10:CL-10-HU029 | PENDING | — | — |
+| CL-10:CL-10-HU030 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
+| CL-10:CL-10-HU031 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
+| CL-10:CL-10-HU032 | PENDING | — | — |
+| CL-10:CL-10-HU033 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R020 | Full owner/record target registration and field-level export/disposition coverage remain to be completed. |
+| CL-10:CL-10-HU034 | PENDING | — | — |
+| CL-10:PR-CL10-02 | PENDING | — | — |
+| CL-10:PR-CL10-03 | PENDING | — | — |
+| CL-10:PR-CL10-04 | PENDING | — | — |
+| CL-10:PR-CL10-05 | PENDING | — | — |
+| CL-10:PR-CL10-06 | PENDING | — | — |
+| CL-10:PR-CL10-07 | PENDING | — | — |
+| CL-10:PR-CL10-08 | PENDING | — | — |
+| CL-10:PR-CL10-09 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | Concrete action inventory/provider-qualified assurance settings remain implementation prerequisites. |
+| CL-10:CL-10-HU043 | PENDING | — | — |
+| CL-10:CL-10-HU044 | PENDING | — | — |
+| CL-10:CL-10-HU045 | ADJUDICATED | AI_RESOLVED / WA-R017 | — |
+| CL-10:CL-10-HU046 | ADJUDICATED | DEFERRED_IMPLEMENTATION_DETAIL / WA-R015 | — |
+| CL-10:CL-10-HU047 | PENDING | — | — |

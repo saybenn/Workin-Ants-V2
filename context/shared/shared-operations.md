@@ -1709,3 +1709,8 @@ WA-R015 approves one User-wide points balance across programs and no automatic e
 ## Adapter ownership qualification — 2026-09-30
 
 WA-R016 adopts Location Safety for SH-069 and Media / File Access for optional SH-106. Their Proposed ruling status continues to represent uncompleted contract/provider gates, not an unresolved owner election. AI Taxonomy remains the initial SH-065 owner. See platform-architecture-rulings.md for the tradeoffs and duplicate collapse.
+
+
+## Review and Dispute product-owner rulings — 2026-10-01
+
+P06–P08 / WA-R026 approve whole-number 1–5 rating input and fractional aggregates; automatic eligible publication and safety-checked immutable author revisions without restoration by edit; and one Dispute case per Order with repeated authorized cycles, including later multi-session episodes. Reopening creates no automatic financial effect. Each effect requires current owner authorization and cycle/decision-bound idempotency. Opening/appeal windows remain versioned policy with no invented numerical deadline. SH identities/statuses are unchanged.
