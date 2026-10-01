@@ -31,7 +31,7 @@ Repository: `saybenn/Workin-Ants-V2`. Audited starting branch: `main`; starting 
 |---|---|---|
 | 0 Current-state audit | COMPLETE for inventory and identified gaps | Deep semantic findings continue under later gates |
 | 1 Shared Operations | IN PROGRESS | Permanent namespace verified; consumer alignment and cross-lane contract qualification incomplete |
-| 2 Ten handoffs | IN PROGRESS | WA-R001–005 close named issues only; remaining records need adjudication |
+| 2 Ten handoffs | IN PROGRESS | WA-R001–025 close named issues only; remaining records need adjudication |
 | 3 Apply rulings | IN PROGRESS | Membership, reward owner, screening source, optional similarity scope and ATS model corrections applied; follow-up scan required |
 | 4 Final bridges | PARTIAL SLICE ONLY | Five approved-product bridges captured; full consolidation and rail matrices remain |
 | 5 Platform audit | NOT STARTED | Fresh audit after rulings/bridge completion |
@@ -45,7 +45,7 @@ Repository: `saybenn/Workin-Ants-V2`. Audited starting branch: `main`; starting 
 
 Structural checks verify registry membership, all 44 document pairs, permanent SH IDs/required fields/compact-index equality and references to existing IDs. They identify migration creation coverage. They do not prove lifecycle compatibility, event symmetry, provider capability, legal sufficiency, deployed state or safe parallelism.
 
-Current product questions are P04/P05 only; P01–P03 are approved. Do not ask again about settled ATS, reward-benefit, screening-default or content-similarity scope. Continue the unresolved architecture review autonomously. Database provenance is external evidence, not permission to halt unrelated reconciliation.
+P01–P05 are approved; current batched questions are P06–P08. Do not ask again about settled ATS, reward-benefit, screening-default or content-similarity scope. Continue the unresolved architecture review autonomously. Database provenance is external evidence, not permission to halt unrelated reconciliation.
 
 Next: finish Gate 1 consumer alignment, then adjudicate every remaining handoff record against its owning architecture. Keep historical evidence intact. Do not mark the whole task complete from this checkpoint.
 
@@ -78,3 +78,18 @@ Validation: structural context check and diff whitespace check passed. Existing 
 **Exact reason for returning control:** P04 determines whether point value is spendable User-wide or only within each Program; this changes the account/spending contract and cannot be chosen as a schema detail. P05 determines whether earned points expire; it gates expiration behavior only. Both are genuine PRODUCT_OWNER_CHOICE records supported by current Gamification architecture, the CL-10 handoff and glossary review. Recommendations are not adopted. Other unresolved handoff rows remain unadjudicated, not implicitly deferred or complete.
 
 Gate 1/2 remain in progress; full bridges, platform audit, root architecture/build plan/lane map and final readiness validation remain unfinished. Continue from these changes after the product answers. No remote publication attempted; earlier push-approval rejection remains in effect.
+
+
+## Continued checkpoint — 2026-10-01
+
+Resumed local e351620 and preserved the pending edits. P04/P05 are binding in WA-R015; Gamification/Track/Sweepstakes pairs now require one User-wide balance, no implicit commercial/prize conversion and no launch expiration. Prior P04/P05 open labels are historical, not current gates.
+
+Applied WA-R016–025 in the relevant Module/Cluster architecture and plan pairs: adapter owners (Location geocoder; Media optional fingerprinting); concrete owner-facts/result boundaries; shared durable execution and Ops persistence direction; Consent catalog/proof and synchronous buyer resolution; Privacy descriptor/completion protocol; Notification recipient/parent/attempt design; Review/Dispute history/adjudication; audit and step-up failure boundaries; action-specific financial readiness; provider-only Location reveal/revocation and fuzzy-projection alignment. Every ruling lists its bounded duplicate-collapse scope. Adjacent product/legal questions are not bulk-closed.
+
+Added shared-operation-contract-status.md/json covering all 132 identities. Qualification is conservative (UNSTABLE or EXTERNALLY_GATED), with gaps stated; no architecture label is treated as proof of a portable implemented interface. Extended scripts/check-context.py to reject namespace gaps/duplicates, metadata drift, invalid statuses and promotions lacking qualification evidence. This supplements, rather than replaces, the remaining semantic audit.
+
+**Actual validation:** structural context/qualification checks and whitespace pass; negative qualification mutations are checked as recorded in shared-operations-validation.md. All permanent SH ID/name pairs are preserved. SH-069/106 owner metadata is explicitly clarified by WA-R016; statuses are unchanged. Prisma/migrations and historical handoffs remain untouched. No runtime, schema replay, legal/provider approval or deployment claim is made.
+
+**Exact reason for returning control:** P06–P08 are genuine Review/Dispute product choices, supported by the current owner architecture, CL-04 handoff and glossary. The rating Int does not select a 1–5 scale; pending does not select pre-moderation; Order uniqueness does not decide dispute openers or reopening. Technical ownership, evidence, retry and settlement finality are separately resolved in WA-R022/023. The compact decision packet contains recommendations and alternatives; none is adopted without an answer.
+
+**Remaining gates:** Gate 1/2 not yet fully certified; bridge inventory remains a partial five-edge slice. Full rail matrices, platform audit, root architecture/build plan/lane map, harness completion and final readiness remain unfinished. This is not a final NOT DEVELOPMENT READY verdict based merely on later legal/provider gates; it is a substantive work checkpoint at genuine product choices. No remote publication attempted.

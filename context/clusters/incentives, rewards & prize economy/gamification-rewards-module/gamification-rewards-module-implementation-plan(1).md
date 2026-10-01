@@ -87,7 +87,7 @@ If these are missing, they are canonical-owner/platform prerequisites, not local
 
 | Decision | Required before |
 |---|---|
-| U-GR-01 point account scope | Feature 03 authoritative point balance/spend semantics |
+| U-GR-01 resolved by P04 / WA-R015 | Implement User-wide point balance/spend semantics in Feature 03 |
 | U-GR-02 signed point-delta convention | Feature 03 ledger production writes |
 | U-GR-03 historical rule/causation evidence | Feature 03 production point awards |
 | U-GR-04 reversal linkage policy | Feature 04 production reversal |
@@ -700,7 +700,7 @@ Completes the Module portion of **CL-10 Feature 02**.
 - SH-001, SH-002, conditional SH-014, SH-029, SH-031, SH-044, SH-046.
 - U-GR-01/02 already resolved.
 - **U-GR-04 must be resolved before production reversal.**
-- U-GR-05 may remain unresolved; point expiration is out of scope until approved.
+- U-GR-05 is resolved by P05 / WA-R015: automatic point expiration is disabled at launch.
 
 #### In Scope
 
@@ -826,7 +826,7 @@ UI never edits rows directly.
 
 #### Exit Gate
 
-PASS only when U-GR-04 is resolved for production reversal and all ledger/query/correction tests pass. U-GR-05 may remain deferred with expiration disabled.
+PASS only when U-GR-04 is resolved for production reversal and all ledger/query/correction tests pass. U-GR-05 is resolved by WA-R015; launch expiration remains disabled.
 
 ---
 
@@ -1458,7 +1458,7 @@ No provider/tax UI.
 
 #### Exit Gate
 
-Hold-dependent production behavior is BLOCKED until the approved Hold target/action applicability and creation contracts and real provider capability are available; the production provider readiness prerequisite above applies (CL-10-R007). U-GR-01/02/14, U-GR-08 for finite inventory, U-GR-09 for enabled effects, and U-GR-16 for enabled compensation remain unresolved production prerequisites; generic metadata does not establish historical consent proof.
+Hold-dependent production behavior is BLOCKED until the approved Hold target/action applicability and creation contracts and real provider capability are available; the production provider readiness prerequisite above applies (CL-10-R007). U-GR-01/02/14 are resolved by WA-R014/015/019 and require implementation proof. U-GR-08 for finite inventory, U-GR-09 for enabled effects, and U-GR-16 for enabled compensation remain scoped prerequisites; generic metadata does not establish historical consent proof.
 
 PASS only when U-GR-14 is resolved for production compliance proof, atomicity/concurrency tests pass, and unsupported inventory/effects remain fail-closed.
 
@@ -2429,4 +2429,28 @@ Every award binds the owner source-event identity/version, beneficiary, rule ide
 
 For terms-dependent redemption, persist the exact accepted terms version/content identity and Consent proof reference bound to that redemption and acceptance context. Runtime lookup of today's active terms or a generic audit event alone is insufficient proof of what was accepted. Consent owns acceptance proof; Gamification owns the redemption's contextual binding. This resolves U-GR-14's proof strategy without choosing retention duration or a cascade-delete behavior.
 
-Implementation acceptance: all sign/type combinations, sum equals available-effect projection under the approved account policy, duplicate event/key returns original effect, conflicting key payload rejected, concurrent reversal yields exactly one opposite entry, cross-account/reversal-of-reversal rejected, rule/terms changes do not rewrite historical proof. Production earning/spending still waits for P04; expiration waits for P05 and any applicable legal policy. These are architecture requirements, not test execution claims.
+Implementation acceptance: all sign/type combinations, sum equals available-effect projection under the approved account policy, duplicate event/key returns original effect, conflicting key payload rejected, concurrent reversal yields exactly one opposite entry, cross-account/reversal-of-reversal rejected, rule/terms changes do not rewrite historical proof. P04/P05 are now approved by WA-R015: User-wide accounting, no launch expiration. Implementation and any future-policy prerequisites remain separate. These are architecture requirements, not test execution claims.
+
+
+## WA-R015 — User-wide points and no launch expiration (P04/P05)
+
+**Binding product-owner ruling, approved 2026-09-30.** One User-wide Workin Ants points balance applies across Gamification/Rewards programs. Programs independently define earning rules and reward eligibility; they do not create separate point currencies or balances. This closes U-GR-01 / P04. Account identity and the atomic spending/ledger lock scope are User ID; optional program/profile references are provenance or eligibility context, never alternate wallets. All program-specific earning events credit the same account; reward eligibility is checked separately from point sufficiency. Cross-program spending uses the same canonical balance and cannot bypass a reward's eligibility conditions.
+
+Points do not automatically function as cash, a Track/commercial entitlement, a purchased sweepstakes entry, or a mechanism for increasing chance-based prize odds. A separately approved conversion to a commercial benefit follows the explicit boundary and owner: Gamification owns redemption, Track owns commercial grants (SH-119), and the affected feature applies the granted benefit. No direct premium flag, implicit currency conversion, or automatic prize-entry creation is permitted.
+
+**No automatic point expiration at launch.** Existing points remain valid unless spent, reversed or otherwise adjusted through an approved ledger operation. This closes U-GR-05 / P05 for launch. The `expired` enum remains reserved; launch commands, scheduled jobs and rules cannot append expiration effects. Program closure, inactivity, tier changes or profile changes do not expire a User's points. A future expiration feature requires explicit approved policy covering applicability, notice, effective dates, existing balances and auditable ledger behavior. Retention of proof is a separate concern and cannot be used to erase spendable value.
+
+Technical application: calculate balance from the append-only owner ledger under WA-R014; serialize spending by User account, enforce sufficient available points atomically, and use immutable idempotent spend proof tied to redemption. Programs remain metadata/eligibility predicates, not lock partitions. Rebuildable balance/leaderboard projections never become source truth. Do not infer existing production balances or run a migration/backfill from this ruling.
+
+Acceptance requirements: earnings from two programs combine into one balance; concurrent redemptions across programs cannot overspend it; reward eligibility can deny redemption despite sufficient points; profile/track changes preserve the account; program closure does not expire points; launch expiration attempts are rejected; replay creates no second spend; approved commercial conversion uses Track and never changes prize odds. These are future implementation tests, not a completion claim.
+
+
+## WA-R019 — Consent catalog, acceptance causation and buyer provisioning
+
+**Applied architecture ruling (AI_RESOLVED_WITH_TRADEOFF), 2026-09-30.** The [WA-R019 contract](../../../reconciliation/platform-architecture-rulings.md#wa-r019--consent-catalog-acceptance-causation-and-buyer-provisioning) amends this document for the scoped concerns below. Earlier unresolved/proposed labels on those concerns are superseded; adjacent legal/product gates remain.
+
+Consent owns an immutable version/content catalog, including consent type, version, exact content or immutable content reference/hash, locale, jurisdiction applicability and effective interval. Existing logs cannot prove an unrecorded presentation. Bind acceptance to the catalog entry and the actual rendered presentation identity/version, subject, action/context and time; preserve an immutable rendering descriptor where composition changes presentation. SH-009 selects applicable content, SH-007 stores acceptance, and SH-008 queries proof. Same acceptance command key/fingerprint replays; a new intentional re-acceptance is a new command/proof, not a uniqueness collision on User+type+version. Current-state eligibility queries use current applicable proof; Orders, screening authorizations, digital terms, redemptions and other historically binding actions preserve their specific proof reference/content-version binding. A generic audit log alone is not that binding.
+
+Withdrawal/decline is recorded separately as an append-only disposition, not by rewriting an earlier acceptance; the consuming policy evaluates its effect. Legal re-consent/material-change obligations and retention periods are external facts. ConsentType.age_gate can prove acknowledgment only; Identity separately evaluates age eligibility. This resolves proof/catalog/retry architecture, not legal sufficiency for every category.
+
+Customer provisioning uses the Customer owner synchronously and idempotently at the first buyer action (SH-004), with durable uniqueness on User. Optional registration-time outbox provisioning can warm the profile but never substitutes for this precondition. Customer aggregate views use the existing SH-126 Customer application facade over authorized owner queries; default to query composition, introducing a durable projection only with a demonstrated query need and invalidation contract. Legacy backfill/deletion awaits the database-evidence gate; User remains authentication identity. Tradeoff: first buyer action depends on Customer availability, but avoids an eventually missing commercial actor and duplicate local provisioning.

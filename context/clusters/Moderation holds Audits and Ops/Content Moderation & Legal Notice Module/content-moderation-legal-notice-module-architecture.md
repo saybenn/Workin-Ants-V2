@@ -942,7 +942,7 @@ The canonical `context/shared/shared-operations.md` registry supplies permanent 
 | SH-102 `resolveModerationTarget` | **Proposed Ruling** | typed registry + owner resolvers | Reviewer-safe target composition. | Case review. | fields/actions allowed | minimized target summary | universal repository |
 | SH-104 `preserveEvidenceSnapshot` | **Proposed Ruling** | decision/evidence owner using Media/hash | Immutable legal evidence proof. | Before destructive effect. | evidence-required matrix/legal meaning | snapshot/reference | Audit generic blob |
 | SH-105 `correlateEnforcementResult` | **Proposed Ruling** | This Module | Durable acknowledgment/retry/restoration correlation. | Enforcement/reconciliation. | required-step/partial meaning | orchestration state | copying target lifecycle state |
-| SH-106 `computeContentFingerprint` | **Proposed ruling; optional after launch (WA-R004)** | Media/specialized adapter technical ownership remains gated | Future duplicate/piracy signal; report-driven moderation ships without it. | Technical/provider gates before later activation. | match meaning/infringement decision | signal only | local piracy detector |
+| SH-106 `computeContentFingerprint` | **Proposed ruling; optional after launch (WA-R004)** | Media / File Access adapter owner (WA-R016); technical/provider contract remains gated | Future duplicate/piracy signal; report-driven moderation ships without it. | Technical/provider gates before later activation. | match meaning/infringement decision | signal only | local piracy detector |
 
 ---
 
@@ -1637,3 +1637,14 @@ For each numbered feature:
 ## WA-R008 — Public Media boundary alignment
 
 External file-access calls above use SH-127 `requestMediaAccess`; Media alone performs SH-087 signing internally after contextual authorization and Media safety/grant checks. SH-127 retains Proposed ruling status for owner-specific integration completion. Required caller bindings, expiry, revocation and access-proof contracts must pass before production use. Existing supported public-processed media rules are unchanged.
+
+
+## WA-R016 — Remaining shared adapter ownership
+
+Class: **AI_RESOLVED_WITH_TRADEOFF**. Adopt Location Safety as the SH-069 geocoder adapter owner. It owns location normalization/protected-coordinate handling and already declares that boundary. Job Compliance and Payment independently select/interpret jurisdiction evidence; geocoding is not universal legal truth. Provider choice, permitted processing and purpose-specific evidence remain external/contract gates. Duplicate collapse: CL-08-HU-16 and SH-069 owner proposal, not the provider-policy question U-08-20.
+
+Adopt Media / File Access as SH-106's optional content-fingerprint adapter owner, with a specialized implementation behind that owner. Media handles authorized file bytes/mechanics; Moderation determines investigative use/threshold policy and owns case/enforcement meaning. This avoids a new platform business Module and a competing detector in Moderation. The tradeoff is Media coordinating another optional processor; it gains no infringement authority. Scope remains optional after launch. No new provider or sensitive-input permission is implied. Duplicate collapse: CL-09-D007 / Moderation U-08 owner portion; WA-R004 already settles launch scope. Algorithm/provider/version, permitted input and explainable result contract remain later gates.
+
+SH-065 stays inside AI Taxonomy for the current taxonomy use case; speculative future cross-domain AI use does not require creating another owner now. Consumers cannot import its provider SDK. Broader reuse requires an explicit future purpose/owner contract. SH-073 is shared cryptographic mechanism with separate owner chains; SH-081 is shared scanner mechanism with independent Job Compliance/Moderation policy and evidence. Neither creates a new business owner. SH-132 is platform security rate limiting and never Track metering.
+
+All affected SH statuses remain Proposed ruling because contract/provider completion remains scoped. This ruling settles owner placement only; it does not mark provider readiness or approve a universal owner-facts/decision DTO. Shared normalization/mechanisms never acquire foreign lifecycle truth.

@@ -112,6 +112,33 @@ def inspect():
                 aliases = entry.get('Candidate aliases / narrower variants', '').split('; ')
                 if match[2] not in aliases:
                     errors.append(f'{path.relative_to(ROOT)}:{line_number}: {match[1]} uses noncanonical name {match[2]}')
+    qualification_path = ROOT / 'context/reconciliation/shared-operation-contract-status.json'
+    if not qualification_path.is_file():
+        errors.append('Missing shared-operation contract qualification index')
+    else:
+        try:
+            qualifications = json.loads(qualification_path.read_text())['contracts']
+            qualified_ids = [q['id'] for q in qualifications]
+            if Counter(qualified_ids) != Counter(canonical.keys()):
+                errors.append('Shared-operation qualification coverage differs from canonical namespace')
+            allowed_statuses = {'FROZEN_FOR_IMPLEMENTATION', 'EVOLVABLE_COMPATIBLY', 'UNSTABLE', 'EXTERNALLY_GATED'}
+            for q in qualifications:
+                e = canonical.get(q['id'])
+                if not e:
+                    continue
+                for key, expected in [('name', e['name']), ('owner', e['Owner']), ('registry_status', e['Status']), ('required_semantics', e['Build rule'])]:
+                    if q.get(key) != expected:
+                        errors.append(f"{q['id']}: qualification {key} drifts from canonical registry")
+                if q.get('parallel_status') not in allowed_statuses:
+                    errors.append(f"{q['id']}: invalid parallel-contract status")
+                if q.get('parallel_status') in {'FROZEN_FOR_IMPLEMENTATION', 'EVOLVABLE_COMPATIBLY'} and not q.get('qualification_evidence'):
+                    errors.append(f"{q['id']}: contract promotion lacks qualification evidence")
+                if q.get('parallel_status') in {'UNSTABLE', 'EXTERNALLY_GATED'} and not q.get('qualification_gap'):
+                    errors.append(f"{q['id']}: gated contract lacks a stated qualification gap")
+                if set(q.get('mentioning_modules', [])) - set(ids):
+                    errors.append(f"{q['id']}: qualification references an unknown Module")
+        except (KeyError, TypeError, ValueError) as exc:
+            errors.append(f'Invalid shared-operation qualification index: {exc}')
     migrations = sorted(ROOT.glob('prisma/migrations/*/migration.sql'))
     sql = '\n'.join(p.read_text() for p in migrations)
     created = set(re.findall(r'CREATE TABLE\s+"(\w+)"\."(\w+)"', sql))

@@ -31,3 +31,12 @@ WA-R006–009 normalize read-versus-generate Location use, internal Agreement ha
 ## Approved-product continuation
 
 P01–P03 product semantics are recorded in the registry without changing canonical entry metadata or SH namespace. Current consumer status-table scan found no single-operation Confirmed/Proposed/Unresolved mismatch; the only lexical hit was an Audit row describing proposed metadata, not an operation status. This scan is narrow structural evidence, not full consumer semantic alignment. WA-R011–013 correct the dependent product contracts; five corresponding bridge records retain UNSTABLE status. Per-contract qualification for the entire cross-lane registry remains unfinished.
+
+
+## Qualification and continuation — 2026-10-01
+
+WA-R016 explicitly changes SH-069 owner metadata to Location Safety and SH-106 to Media / File Access with its specialized adapter. ID/name pairs and all status labels remain unchanged. Owner/consumer pairs record the split; optional similarity remains after launch. WA-R025 removes the stale unresolved Location predicate/directionality gates already settled by the product ruling.
+
+The new qualification index covers SH-001–132 once each, preserves canonical names/owners/registry statuses/build semantics, and lists mentioning Modules for review (not certified invocation sites). All contracts are conservatively UNSTABLE or EXTERNALLY_GATED; no consumer lane is activated. Full semantic consumer qualification remains Gate 1/2 work.
+
+Checker now validates qualification coverage, metadata alignment, valid status vocabulary and evidence on any frozen/compatible promotion. Negative mutation checks: missing identity, changed owner, unsupported status and unproved freeze must fail; the unmodified checkpoint must pass. These checks validate drift detection, not business behavior or completed interface contracts.

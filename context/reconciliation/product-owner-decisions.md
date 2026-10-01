@@ -1,76 +1,57 @@
-# Product-owner decisions — scoped checkpoint
+# Product-owner decisions
 
-Date: 2026-09-29, America/New_York. **P01–P03 APPROVED by the product owner on 2026-09-29.** The recorded recommendation options below are decision history, not open alternatives. The approved directions and tighter constraints are applied as WA-R011–013 in the owner/consumer architectures and plans. Schema implementation, legal facts and provider evidence remain separately gated.
+Current checkpoint: 2026-10-01. P01–P05 are binding approvals. P06–P08 below are recommendations only; no answer is inferred. Architecture and code may not silently adopt them.
 
-## P01 — What should Hive Club priority scheduling actually do?
+## Approved — do not reopen
 
-**Why it matters:** the paid benefit is approved, but Booking cannot implement it without choosing a customer experience. Track can resolve/snapshot the entitlement independently.
+| ID | Binding ruling | Application |
+|---|---|---|
+| P01 | Premium means earlier access to newly released availability; no displacement or conflict/eligibility bypass | WA-R011; Track eligibility, Booking release policy |
+| P02 | Multiple sessions per Order only when explicitly included in the bounded purchased package | WA-R012; Order owns allowance/terms, Booking owns each appointment |
+| P03 | Distinguish fixed-term employment and independent-contractor work; generic CONTRACT cannot hide the distinction | WA-R013; Hiring source, Compliance interpretation, Search projection |
+| P04 | One User-wide points balance across programs; programs define earning/eligibility, not separate currencies. No automatic cash, entitlement, prize-entry or chance-odds benefit; conversion follows its approved owner | WA-R015; User-scoped atomic accounting, SH-119 Track commercial grants |
+| P05 | No automatic expiration at launch. Points remain valid unless spent/reversed/otherwise adjusted through approved ledger operations. Future expiration requires approved applicability, notice, effective dates, existing-balance treatment and auditable ledger behavior | WA-R015; launch expiration disabled |
 
-- **A — Earlier access to newly available appointment slots (recommended).** Premium customers can book before the general release. Existing confirmed bookings and slot-conflict rules remain protected. The release-window duration can be configured later.
-- **B — Priority when waiting/competing for the same opening.** Premium affects the ordering of eligible requests. This requires an explicit waiting/competition workflow; it must not silently displace existing bookings.
-- **C — Premium-reserved appointment inventory.** Professionals or platform policy reserve some slots for premium customers; allocation/release rules must then be specified.
+Sources: explicit owner approvals on 2026-09-29 (P01–P03) and 2026-09-30 (P04/P05). Earlier alternatives are preserved in Git history. No schema deployment or remote publication is authorized by those approvals.
 
-**Former product-choice gate (now closed; implementation prerequisites remain):** Booking's priority effect, consumption policy if any, and its exact Track-to-Booking contract. Ordinary booking conflict safety and entitlement resolution are not blocked.
+## P06 — Rating scale
 
-**Evidence:** Booking architecture U-BC-05 explicitly lists materially different effects and forbids inventing one; Track architecture §11.7 and U-CL01-31 defer that same effect; canonical registry approves priority as a benefit without selecting its mechanics. Collapse: CL-05-U017, U-BC-05, U-CL01-31. No legal/provider lookup can select the intended customer benefit.
+**Question:** What rating scale should a buyer use for a completed Order?
 
-## P02 — Can one paid Order cover several scheduled sessions?
+- **A — Recommended:** whole-number 1–5 stars; no zero, half-star input or unrated Review with an implicit zero. Aggregate averages may be fractional.
+- **B:** whole-number 1–10 ratings.
+- **C:** binary positive/negative feedback.
 
-**Why it matters:** this determines whether a purchased service/package can schedule multiple appointments and how fulfillment is measured. A nonunique database foreign key is not product approval.
+**Why it matters / blocked:** Review input/DB validation, public display and reputation aggregation must use one meaning. An Int field cannot choose it. Existing source truth says post-Order feedback affects Professional reputation but supplies no range.
 
-- **A — Yes, when the purchased offering/package explicitly includes multiple sessions (recommended).** One Order can have bounded sessions consistent with what was sold. This does not allow unlimited duplicate bookings or merge individual Booking lifecycles.
-- **B — No, one scheduled session per Order for the initial release.** Additional sessions require separate Orders. Any later package support needs an explicit contract expansion.
+**Evidence:** CL04-U034; Review / Dispute architecture §35 rating-scale question; Prisma Review.rating Int; glossary Review entry and completed-Order example. Search and Professional Eligibility consume Review's aggregate, not a competing scale. WA-R022 settles the aggregate owner/transport/version boundary without choosing the scale.
 
-**Former product-choice gate (now closed; implementation prerequisites remain):** Order-to-Booking cardinality constraints, multi-session fulfillment and corresponding refund/cancellation interpretation. An ordinary SlotLock must still not be converted twice; that separate invariant is not an answer to Order multiplicity.
+## P07 — Review publication and author revisions
 
-**Evidence:** Booking architecture §8 / U-BC-02 says `Booking.orderId` is nonunique but requires a business ruling before code relies on multiplicity; Booking implementation prerequisites preserve that gate; CL-05-U014 repeats it. Order owns transaction truth, not the number of appointments implied by an unspecified sold package.
+**Question:** Should eligible buyer reviews publish immediately, and may the author revise them?
 
-## P03 — What does a “contract” Job mean?
+- **A — Recommended:** automatically publish after completed-Order, buyer-author and applicable safety checks; allow author rating/comment revisions with immutable history and the same checks. Editing never restores a hidden/removed review or bypasses a restriction. Staff can hide/remove through the owner/Moderation boundary.
+- **B:** staff approval before each initial publication and before revised content becomes public.
+- **C:** automatic eligible publication, but no author edits at launch; corrections require authorized support.
 
-**Why it matters:** fixed-term employment and independent-contractor hiring are different products and need distinguishable compliance inputs. The existing `EmploymentType.contract` label does not distinguish them.
+**Why it matters / blocked:** these are different customer experiences and staffing needs. Schema default pending is not approval of a permanent pre-moderation workflow. Blocks the publication/revision transition policy and corresponding reputation updates. Authorized restoration of a moderation restriction still requires the original owner decision/evidence; it is not granted by an author edit.
 
-- **A — Support both with distinct labels (recommended).** Separate fixed-term employment from independent-contractor hiring; a precise value mapping follows the decision.
-- **B — Fixed-term employment only.** “Contract” means an employee position with a defined term.
-- **C — Independent-contractor hiring only.** “Contract” means a contractor engagement posted by an Organization.
+**Evidence:** CL04-U035/036; Review / Dispute architecture §9.1 and §35 explicitly leave auto-publication/edit/restoration open. WA-R022 now provides durable revision/history and stale-projection protection; it does not select the product workflow.
 
-**Former product-choice gate (now closed; implementation prerequisites remain):** ambiguous contract-type Job publication, related form/filter semantics and compliance-input mapping. Other defined employment types and CompensationPeriod handling are not blocked. Legal classification rules remain external evidence after the product vocabulary is chosen; a selected label does not determine legal worker status.
+## P08 — Who can dispute, and how does a case reopen?
 
-**Evidence:** CL-06 U-CL06-07; Organization Hiring architecture U-CL06-07; Job Compliance architecture U-CL06-07 / PR-JC-03; the glossary lists `contract` without choosing between these meanings. WA-R010 independently resolves CompensationPeriod stewardship; it does not choose a product meaning. Collapse: CL-06-U007 and U-CL06-07's employment-type portion.
+**Question:** Which participant/case model should launch use?
 
-## Response shorthand
+- **A — Recommended:** the Order's buyer Customer or seller Professional may open a commercial dispute; authorized support may record one on behalf of an identified participant. Keep one case identity per Order, with an authorized reviewer able to reopen that case for new evidence or a documented correction. Preserve each decision/settlement cycle; no automatic second financial effect on reopening.
+- **B:** buyer-initiated disputes only, one case per Order, with the same controlled reviewer reopening.
+- **C:** both participants may open, but permit separate sequential case identities per Order; at most one active case.
 
-`P01 A, P02 A, P03 A` accepts the recommended behavior directions. Exact DTOs, field names, provider adapters and migration mechanics remain the orchestrator's responsibility. These decisions do not authorize deployment, a destructive migration, or GitHub publication.
+**Why it matters / blocked:** participant permissions and whether an old case is reopened versus replaced cannot be chosen from orderId uniqueness. Blocks dispute-opening authorization and case/reopen constraints. Recommendations do not allow unrelated parties or an arbitrary system actor to start cases.
 
+Opening/appeal windows are explicit versioned product-policy configuration that must be approved before activation; no numerical deadline is invented here. Platform case policy does not determine statutory/provider dispute rights. WA-R022 independently resolves adjudication versus settlement versus closed and preserves the evidence needed for any selected model.
 
-## Accepted ruling and application
+**Evidence:** CL04-U038/039/040; Review / Dispute architecture §9.2/§35 and CL-04-R007 actor representation; current Prisma orderId uniqueness; glossary Dispute is an Order-attached commercial conflict, not a ModerationCase.
 
-- P01 A → WA-R011: access timing only; no displacement or eligibility/conflict bypass.
-- P02 A → WA-R012: explicit purchased bounded session allowance; Order owns purchase, Booking owns each appointment.
-- P03 A → WA-R013: distinct fixed-term employment and independent-contractor concepts; generic CONTRACT is not a canonical substitute.
+## Response shorthand and boundary
 
-Source: product-owner message approving all three recommendations with the tighter architectural constraints. This is affirmative product approval, not inferred consent. No deployment, destructive migration or remote publication is authorized by these decisions.
-
-
-## P04 — Can earned points be spent across programs? OPEN PRODUCT_OWNER_CHOICE
-
-**Recommendation:** one User-wide point balance. Program and ProfessionalProfile references describe how points were earned; they do not create separate wallets. Reward-specific eligibility still applies, points are not cash, points cannot be purchased, and deterministic points do not improve prize odds.
-
-**Alternative:** separate balances per User + Program; points earned in one program cannot fund another program's rewards. Profile-scoped balances would be another explicit product model, not an inference from an optional foreign key.
-
-**Why your decision is required:** this changes what users can buy with earned points. It determines the account identity, balance query and atomic spending boundary, so it cannot be deferred as schema naming. Current architecture expressly prohibits selecting User-only or Program-only scope from the schema. Recommendation is NOT adopted.
-
-**Evidence:** current Gamification architecture §35 U-GR-01 and §24 lock-key warning; CL-10 handoff U-GR-01. Glossary PointLedgerEntry/Reward/RewardRedemption entries establish ledger ownership and redemption, but not cross-program spendability. Master product rules settle Track benefits and prize-odds separation, not point fungibility. WA-R014 resolves technical ledger math/provenance independently.
-
-**Blocks:** final point-account contract, production balance/earn/spend/redemption integration. Other readiness work is not implicitly certified or blocked.
-
-## P05 — Do points expire? OPEN PRODUCT_OWNER_CHOICE
-
-**Recommendation:** no automatic point expiration in the initial release. Do not introduce an expiration worker or silently expire existing value. Any future expiration policy must be explicitly approved, disclosed and implemented prospectively under applicable legal requirements.
-
-**Alternative:** points expire under an explicit program policy. If selected, the policy must specify the expiration basis/window and treatment of already-earned points before activation; the technical lot/spend/reversal implementation will follow that ruling.
-
-**Why your decision is required:** expiration removes earned user value; the existence of an `expired` enum is not authorization. Recommendation is NOT adopted. This question gates only expiration behavior, not all Gamification work.
-
-**Evidence:** Gamification architecture §35 U-GR-05, expiration-worker gate and CL-10 handoff U-GR-05; glossary lists expired as a possible entry type without a product policy. No numerical retention/expiration period is inferred.
-
-Response shorthand for these new choices: **P04 User-wide; P05 no initial expiration** accepts both recommendations. P01–P03 remain approved and must not be reopened.
+**P06 A, P07 A, P08 A** approves the three recommendations. Modify individual parts if needed. These are genuine PRODUCT_OWNER_CHOICE records; technical persistence, audit/retry, ownership and projection questions around them have been ruled separately. This packet does not claim all remaining handoff rows are adjudicated or that these are the final possible product questions in the uncompleted review.

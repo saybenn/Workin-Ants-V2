@@ -745,7 +745,7 @@ The registry remains in the canonical source order. Every entry contains the req
 ### SH-069 — `geocodeAddress`
 
 - **Plain English:** Convert a protected normalized address into provider coordinates without making the provider response platform truth.
-- **Owner:** Location Safety recommended adapter owner
+- **Owner:** Location Safety
 - **Classification:** Provider-adapter contract
 - **Status:** Proposed ruling
 - **Boundary:** Location owns geocoder adapter use; Tax and Job Compliance independently choose authoritative jurisdiction evidence. Provider/privacy contract remains gated.
@@ -1087,11 +1087,11 @@ The registry remains in the canonical source order. Every entry contains the req
 ### SH-106 — `computeContentFingerprint`
 
 - **Plain English:** Generate optional perceptual/content-review fingerprints as similarity signals; exact-byte checksum integrity remains SH-086.
-- **Owner:** Media/specialized adapter, final ownership unresolved
+- **Owner:** Media / File Access; specialized adapter behind owner
 - **Classification:** Provider/cross-cutting capability
 - **Status:** Proposed ruling
 - **Boundary:** Approved deferred/optional perceptual/content-review capability: automated similarity detection is not required at launch and may be introduced later as supporting evidence, an investigative tool, an experiment, or moderation assistance. Launch copyright enforcement is user/rights-holder initiated through SH-101 and Content Moderation / Legal Notice review, evidence, and existing enforcement contracts. Exact-byte checksum/integrity remains SH-086. Similarity is never infringement truth, automatic enforcement authority, or a substitute for moderation/legal review.
-- **Build rule:** Product scope is settled: not launch-critical, optional later. Before implementation, settle final adapter ownership, contract, provider capability, provider/version, thresholds, and explainable similarity results. Do not block launch on SH-106, treat similarity as infringement/enforcement truth, or duplicate SH-086 exact checksums.
+- **Build rule:** Product scope is settled: not launch-critical, optional later. Adapter ownership is Media / File Access under WA-R016. Before implementation, settle contract, provider capability, provider/version, thresholds, and explainable similarity results. Do not block launch on SH-106, treat similarity as infringement/enforcement truth, or duplicate SH-086 exact checksums.
 
 ## H. Cluster-Local and Module-Owned Reusable Operations
 
@@ -1617,7 +1617,7 @@ H06 exact-location behavior and privacy-verification architecture are resolved; 
 | SH-066 | `validateStructuredProviderOutput` | Shared validation primitive; consuming Module owns schema | Cross-cutting capability | Confirmed |
 | SH-067 | `invokeCalendarProvider` | Booking & Calendar | Module provider interface | Confirmed |
 | SH-068 | `invokeVideoProvider` | `video_session` | Module provider interface | Confirmed |
-| SH-069 | `geocodeAddress` | Location Safety recommended adapter owner | Provider-adapter contract | Proposed ruling |
+| SH-069 | `geocodeAddress` | Location Safety | Provider-adapter contract | Proposed ruling |
 | SH-070 | `deleteProviderResource` | Provider-owning Module | Provider-adapter contract | Confirmed |
 | SH-071 | `publishRealtimeChange` | Platform realtime adapter; Messaging is primary consumer | Infrastructure adapter | Proposed ruling |
 | SH-072 | `hashCanonicalPayload` | Shared security/cryptography capability | Platform primitive | Confirmed |
@@ -1654,7 +1654,7 @@ H06 exact-location behavior and privacy-verification architecture are resolved; 
 | SH-103 | `executeModerationDecision` | Moderation decides; target owner executes | Cross-cutting protocol | Confirmed |
 | SH-104 | `preserveEvidenceSnapshot` | Decision/evidence owner using Media and hash primitives | Shared evidence mechanism; ownership case-specific | Proposed ruling |
 | SH-105 | `correlateEnforcementResult` | Content Moderation & Legal Notice | Cluster-local orchestration | Proposed ruling |
-| SH-106 | `computeContentFingerprint` | Media/specialized adapter, final ownership unresolved | Provider/cross-cutting capability | Proposed ruling |
+| SH-106 | `computeContentFingerprint` | Media / File Access; specialized adapter behind owner | Provider/cross-cutting capability | Proposed ruling |
 | SH-107 | `createChargeableOrder` | Transaction / Order | Module public interface | Confirmed |
 | SH-108 | `requestOrderRefund` | Transaction / Order; Payment executes processor rail | Module public interface | Confirmed |
 | SH-109 | `snapshotExternalDecision` | Consuming domain owner | Shared snapshot pattern; separate truth | Confirmed |
@@ -1699,3 +1699,13 @@ This file is the canonical reference target for `Shared Operations Used` section
 ## Additional product-owner rulings — 2026-09-29
 
 P01–P03 are approved, not pending choices. WA-R011 gives Customer premium earlier access to newly released availability through Track eligibility and Booking release policy, with no conflict bypass or displacement. WA-R012 permits bounded multiple sessions explicitly purchased in an Order package; Order owns authorization/terms, Booking owns each appointment. WA-R013 separates fixed-term employment and independent-contractor Hiring concepts; generic contract cannot hide the distinction. See owner architectures and product-owner-decisions.md in context/reconciliation for application/evidence. These amendments preserve all SH IDs, names, owners, classes and status labels; they do not claim schema or implementation completion.
+
+
+## Points product-owner ruling — 2026-09-30
+
+WA-R015 approves one User-wide points balance across programs and no automatic expiration at launch. Programs define earning/eligibility, not separate currencies. Points confer no cash value, commercial entitlement or sweepstakes entry/odds by default; approved conversions use their canonical owner (including SH-119 for Track grants). Future expiration needs explicit policy on applicability, notice, dates, existing balances and ledger proof. No SH identity/status or implemented schema is changed by this ruling.
+
+
+## Adapter ownership qualification — 2026-09-30
+
+WA-R016 adopts Location Safety for SH-069 and Media / File Access for optional SH-106. Their Proposed ruling status continues to represent uncompleted contract/provider gates, not an unresolved owner election. AI Taxonomy remains the initial SH-065 owner. See platform-architecture-rulings.md for the tradeoffs and duplicate collapse.
