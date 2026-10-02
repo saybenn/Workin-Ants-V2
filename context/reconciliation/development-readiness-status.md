@@ -30,8 +30,8 @@ Repository: `saybenn/Workin-Ants-V2`. Audited starting branch: `main`; starting 
 | Gate | Status | Remaining |
 |---|---|---|
 | 0 Current-state audit | COMPLETE for inventory and identified gaps | Deep semantic findings continue under later gates |
-| 1 Shared Operations | IN PROGRESS | Permanent namespace verified; consumer alignment and cross-lane contract qualification incomplete |
-| 2 Ten handoffs | IN PROGRESS | WA-R001–028 close named issues only; remaining records need adjudication |
+| 1 Shared Operations | COMPLETE — registry/reference gate | All 132 classified; concrete interfaces remain UNSTABLE/EXTERNALLY_GATED for later qualification |
+| 2 Ten handoffs | IN PROGRESS | WA-R001–031 close named issues only; remaining records need adjudication |
 | 3 Apply rulings | IN PROGRESS | Membership, reward owner, screening source, optional similarity scope and ATS model corrections applied; follow-up scan required |
 | 4 Final bridges | PARTIAL SLICE ONLY | Five approved-product bridges captured; full consolidation and rail matrices remain |
 | 5 Platform audit | NOT STARTED | Fresh audit after rulings/bridge completion |
@@ -45,9 +45,9 @@ Repository: `saybenn/Workin-Ants-V2`. Audited starting branch: `main`; starting 
 
 Structural checks verify registry membership, all 44 document pairs, permanent SH IDs/required fields/compact-index equality and references to existing IDs. They identify migration creation coverage. They do not prove lifecycle compatibility, event symmetry, provider capability, legal sufficiency, deployed state or safe parallelism.
 
-P01–P08 are approved and binding; P09–P11 are now open in the decision packet. Do not ask again about settled ATS, reward-benefit, screening-default or content-similarity scope. Continue the unresolved architecture review autonomously. Database provenance is external evidence, not permission to halt unrelated reconciliation.
+P01–P11 are approved and binding; WA-R029 applies the newest clarifications. P12/P13 are new open commercial policies. Earlier return-control paragraphs are historical. Do not ask again about settled ATS, reward-benefit, screening-default or content-similarity scope. Continue the unresolved architecture review autonomously. Database provenance is external evidence, not permission to halt unrelated reconciliation.
 
-Next: finish Gate 1 consumer alignment, then adjudicate every remaining handoff record against its owning architecture. Keep historical evidence intact. Do not mark the whole task complete from this checkpoint.
+Next: continue Gate 2 adjudication of every remaining handoff record against its owning architecture; Gate 1 registry/reference exit criteria are complete. Keep historical evidence intact. Do not mark the whole task complete from this checkpoint.
 
 ## Continuation checkpoint — 2026-09-29 evening
 
@@ -102,3 +102,18 @@ WA-R026 applies all P06–P08 clarifications, including later dispute episodes f
 Created the full 661-record handoff decision coverage ledger: 163 adjudicated, 19 partial, 479 pending. Adjudicated includes open external/product classifications, not universal completion. Added source-hash, coverage, duplicate, classification and ruling-reference checks to the offline harness. The global bridge inventory is still a partial slice; no final readiness claim or active parallel lanes.
 
 **Exact return-control blocker:** P09/P10 are genuine digital refund/allowance behavior choices; P11 determines capture before or after seller agreement to perform. The existing enum/proposed graph cannot select them. Concrete recommendations and alternatives are prepared in product-owner-decisions.md. P01–P08 remain settled. No deployment, live database operation or remote publication was attempted.
+
+
+## P09–P11 applied and Gate 1 completed — 2026-10-01 owner-local date
+
+Resumed clean local 5332959. WA-R029 applies the full refund/download/acceptance ruling, including intentional valid precommitted acceptance, capture versus authorization and no second Order/Booking lifecycle. Updated the affected Digital Goods/Media/Video, Supply/Gig, Order/Review, Payment and Booking owner/consumer pairs before their dependent plans.
+
+Gate 1 is complete against the master's namespace/ownership/reference-normalization exit criteria; see shared-operations-validation.md. All 132 entries retain IDs/names/statuses and explicit parallel statuses (119 UNSTABLE, 13 EXTERNALLY_GATED). This does not claim frozen implementation interfaces or authorize parallel feature work. Remaining DTO/lifecycle/bridge qualification stays Gate 2/4.
+
+WA-R030 resolves free/base enrollment, immutable plan/price/grant history, typed catalog/composition, billing adapter separation, quota reservation/commit/reconciliation, non-metered Candidate boost and deterministic fee-quote arithmetic. WA-R031 resolves code-first Role policy with server/RLS parity fixtures, conservative authority matrix, Customer lifecycle/display/history/backfill, Module-first logical boundaries and fenced work claims. Removed exactly one obsolete Identity TrackEntitlement registry reference; no model was renamed or added, and schema.prisma/migration SQL remain unchanged.
+
+Coverage now records 206 adjudicated, 23 partial and 432 pending of 661 source decisions. Three source records identify two new true product choices P12/P13. Adjudicated is a classification, not blanket prerequisite completion. Full bridge/rail matrices, platform audit, root architecture/build plan/lane map and final readiness remain unfinished.
+
+**Exact return-control blocker:** P12 defines paid-term cancellation/downgrade and failed-renewal benefit timing; P13 defines the actual monthly application allowance/reset and withdrawal benefit. Recommendations are prepared and not adopted. Neither paid subscription enum nor “15/month” determines these customer promises. No ordinary gate caused the stop.
+
+**Validation:** structural context and 661-record coverage/reference checks pass; diff whitespace passes. No feature runtime, provider capability, legal sufficiency or database replay test is claimed. No live database operation, application implementation or remote publication attempted. Next: apply answers to Track and affected consumers, then continue Gate 2 rather than reopening Gate 1 or restarting the audit.

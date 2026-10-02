@@ -1,27 +1,27 @@
 # Handoff adjudication coverage
 
-Current checkpoint: 2026-10-01. Scope: the decision sections of all ten historical handoffs, not their separate bridge/rail tables. Historical handoffs remain unchanged. The machine-readable ledger preserves each question, original evidence body and source fingerprint. Authority stays with current owner/consumer architecture and the scoped applied ruling, not this index.
+Current checkpoint: 2026-10-01 America/New_York / 2026-10-02 UTC. Scope: the decision sections of all ten historical handoffs, not their separate bridge/rail tables. Historical handoffs remain unchanged. The machine-readable ledger preserves each question, original evidence body and source fingerprint. Authority remains with current owner/consumer architecture and scoped rulings.
 
-`ADJUDICATED` means a scoped disposition has been recorded; it can still be an open PRODUCT_OWNER_CHOICE or EXTERNAL_REQUIREMENT. `PARTIAL` states the remaining work explicitly. `PENDING` is unreviewed and is not a deferred/closed classification. No coverage count certifies Gate 1, Gate 2 or implementation readiness.
+`ADJUDICATED` records a disposition, including open PRODUCT_OWNER_CHOICE or EXTERNAL_REQUIREMENT; it does not mean implemented or every prerequisite satisfied. `PARTIAL` states remaining work. `PENDING` is unreviewed and is not deferred/closed. No count certifies readiness.
 
-P01–P08 are binding approvals. P09–P11 require product decisions; see product-owner-decisions.md. WA-R027 settles Identity technical choices; WA-R028 settles delivery evidence/content persistence without choosing consumption/refund policy.
+P01–P11 are binding. P12/P13 are the only currently open choices in the decision packet (three duplicate source records). WA-R029 applies P09–P11; WA-R030 resolves Track representation/protocols; WA-R031 resolves authority/Customer/claim architecture. Gate 1 registry/reference criteria are complete, while concrete contracts remain UNSTABLE/EXTERNALLY_GATED and Gate 2 remains incomplete.
 
 | Cluster | Records | Adjudicated | Partial | Pending |
 |---|---:|---:|---:|---:|
-| CL-01 | 113 | 60 | 8 | 45 |
-| CL-02 | 56 | 5 | 0 | 51 |
+| CL-01 | 113 | 98 | 11 | 4 |
+| CL-02 | 56 | 6 | 0 | 50 |
 | CL-03 | 85 | 10 | 3 | 72 |
 | CL-04 | 63 | 15 | 2 | 46 |
 | CL-05 | 65 | 10 | 2 | 53 |
-| CL-06 | 70 | 7 | 0 | 63 |
+| CL-06 | 70 | 11 | 1 | 58 |
 | CL-07 | 55 | 13 | 1 | 41 |
 | CL-08 | 47 | 20 | 1 | 26 |
 | CL-09 | 60 | 11 | 0 | 49 |
 | CL-10 | 47 | 12 | 2 | 33 |
 
-Total: 661 records; 163 adjudicated, 19 partial, 479 pending. Class counts include dispositions on partial records and must not be reported as resolved-record counts.
+Total: 661 records; 206 adjudicated, 23 partial, 432 pending. Disposition-class counts also include partial records; do not equate them with resolved-record counts.
 
-Run `python scripts/check-handoff-adjudication.py` or `python scripts/check-context.py`. Validation checks coverage, duplicates, source hashes, status/classification and ruling references, not semantic sufficiency.
+Run `python scripts/check-handoff-adjudication.py` or `python scripts/check-context.py`. These validate coverage/reference integrity, not semantic sufficiency.
 
 | Decision | Review status | Class / ruling | Remaining |
 |---|---|---|---|
@@ -34,27 +34,27 @@ Run `python scripts/check-handoff-adjudication.py` or `python scripts/check-cont
 | CL-01:U-CL01-07 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R023; WA-R027 | Per-resource action inventory and provider-qualified assurance configuration still require technical completion. |
 | CL-01:U-CL01-08 | ADJUDICATED | AI_RESOLVED / WA-R018; WA-R027 | — |
 | CL-01:U-CL01-09 | ADJUDICATED | EXTERNAL_REQUIREMENT / WA-R020; WA-R027 | — |
-| CL-01:U-CL01-10 | PENDING | — | — |
+| CL-01:U-CL01-10 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
 | CL-01:U-CL01-11 | ADJUDICATED | AI_RESOLVED / WA-R001 | — |
-| CL-01:U-CL01-12 | PENDING | — | — |
+| CL-01:U-CL01-12 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
 | CL-01:U-CL01-13 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
 | CL-01:U-CL01-14 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
 | CL-01:U-CL01-15 | ADJUDICATED | EXTERNAL_REQUIREMENT / WA-R020 | — |
 | CL-01:U-CL01-16 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
 | CL-01:U-CL01-17 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
 | CL-01:U-CL01-18 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
-| CL-01:U-CL01-19 | PENDING | — | — |
+| CL-01:U-CL01-19 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
 | CL-01:U-CL01-20 | ADJUDICATED | AI_RESOLVED / WA-R007 | — |
-| CL-01:U-CL01-21 | PENDING | — | — |
-| CL-01:U-CL01-22 | PENDING | — | — |
+| CL-01:U-CL01-21 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
+| CL-01:U-CL01-22 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
 | CL-01:U-CL01-23 | ADJUDICATED | EXTERNAL_REQUIREMENT / WA-R020 | — |
-| CL-01:U-CL01-24 | PENDING | — | — |
-| CL-01:U-CL01-25 | PENDING | — | — |
-| CL-01:U-CL01-26 | PENDING | — | — |
-| CL-01:U-CL01-27 | PENDING | — | — |
-| CL-01:U-CL01-28 | PENDING | — | — |
-| CL-01:U-CL01-29 | PENDING | — | — |
-| CL-01:U-CL01-30 | PENDING | — | — |
+| CL-01:U-CL01-24 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
+| CL-01:U-CL01-25 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
+| CL-01:U-CL01-26 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
+| CL-01:U-CL01-27 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
+| CL-01:U-CL01-28 | ADJUDICATED | PRODUCT_OWNER_CHOICE / product-owner-decisions.md; WA-R030 | — |
+| CL-01:U-CL01-29 | ADJUDICATED | PRODUCT_OWNER_CHOICE / product-owner-decisions.md; WA-R030 | — |
+| CL-01:U-CL01-30 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
 | CL-01:U-CL01-31 | ADJUDICATED | AI_RESOLVED / WA-R011 | — |
 | CL-01:U-CL01-32 | ADJUDICATED | EXTERNAL_REQUIREMENT / WA-R020 | — |
 | CL-01:U-CL01-33 | ADJUDICATED | AI_RESOLVED / WA-R005 | — |
@@ -77,37 +77,37 @@ Run `python scripts/check-handoff-adjudication.py` or `python scripts/check-cont
 | CL-01:U-IA-17 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | Approved jurisdiction/age policy and actual provider pre-account capability evidence remain external requirements. |
 | CL-01:U-IA-18 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R023; WA-R027 | Per-resource action inventory and provider-qualified assurance configuration still require technical completion. |
 | CL-01:PR-CL01-02 | ADJUDICATED | AI_RESOLVED / WA-R001 | — |
-| CL-01:CL01-HU-001 | PENDING | — | — |
-| CL-01:CL01-HU-002 | PENDING | — | — |
-| CL-01:CL01-HU-003 | PENDING | — | — |
+| CL-01:CL01-HU-001 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | Complete the per-resource action inventory and bilateral facts/obligations fixtures before activating each protected endpoint. |
+| CL-01:CL01-HU-002 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | Complete the per-resource action inventory and bilateral facts/obligations fixtures before activating each protected endpoint. |
+| CL-01:CL01-HU-003 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | Complete the per-resource action inventory and bilateral facts/obligations fixtures before activating each protected endpoint. |
 | CL-01:CL01-HU-004 | PARTIAL | AI_RESOLVED / WA-R017 | Concrete per-owner minimal DTO fields/version coverage still needs bilateral qualification; WA-R017 settles the pattern only. |
 | CL-01:CL01-HU-005 | ADJUDICATED | AI_RESOLVED / WA-R017 | — |
-| CL-01:CL01-HU-006 | PENDING | — | — |
+| CL-01:CL01-HU-006 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
 | CL-01:CL01-HU-007 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
 | CL-01:CL01-HU-008 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
-| CL-01:CL01-HU-009 | PENDING | — | — |
-| CL-01:CL01-HU-010 | PENDING | — | — |
-| CL-01:CL01-HU-011 | PENDING | — | — |
+| CL-01:CL01-HU-009 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
+| CL-01:CL01-HU-010 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
+| CL-01:CL01-HU-011 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
 | CL-01:CL01-HU-012 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
 | CL-01:U-CD-01 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
 | CL-01:U-CD-02 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
 | CL-01:U-CD-03 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
-| CL-01:CL01-HU-013 | PENDING | — | — |
-| CL-01:CBP-U-01 | PENDING | — | — |
-| CL-01:CBP-U-02 | PENDING | — | — |
+| CL-01:CL01-HU-013 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
+| CL-01:CBP-U-01 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
+| CL-01:CBP-U-02 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
 | CL-01:CBP-U-03 | ADJUDICATED | AI_RESOLVED / WA-R019 | — |
 | CL-01:CBP-U-04 | ADJUDICATED | EXTERNAL_REQUIREMENT / WA-R020 | — |
 | CL-01:CBP-U-05 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
-| CL-01:U-TSE-01 | PENDING | — | — |
-| CL-01:U-TSE-02 | PENDING | — | — |
-| CL-01:U-TSE-03 | PENDING | — | — |
-| CL-01:U-TSE-04 | PENDING | — | — |
-| CL-01:U-TSE-05 | PENDING | — | — |
-| CL-01:PR-CL01-01 | PENDING | — | — |
+| CL-01:U-TSE-01 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
+| CL-01:U-TSE-02 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
+| CL-01:U-TSE-03 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
+| CL-01:U-TSE-04 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
+| CL-01:U-TSE-05 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
+| CL-01:PR-CL01-01 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
 | CL-01:PR-CL01-03 | ADJUDICATED | AI_RESOLVED / WA-R007 | — |
-| CL-01:PR-CL01-04 | PENDING | — | — |
-| CL-01:PR-CL01-05 | PENDING | — | — |
-| CL-01:PR-IA-01 | PENDING | — | — |
+| CL-01:PR-CL01-04 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
+| CL-01:PR-CL01-05 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
+| CL-01:PR-IA-01 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
 | CL-01:PR-IA-02 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
 | CL-01:PR-IA-03 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
 | CL-01:PR-IA-04 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
@@ -115,29 +115,29 @@ Run `python scripts/check-handoff-adjudication.py` or `python scripts/check-cont
 | CL-01:PR-IA-06 | ADJUDICATED | AI_RESOLVED / WA-R018; WA-R027 | — |
 | CL-01:PR-IA-07 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
 | CL-01:PR-IA-08 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R027 | — |
-| CL-01:CL01-HU-014 | PENDING | — | — |
+| CL-01:CL01-HU-014 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
 | CL-01:CL01-HU-015 | ADJUDICATED | AI_RESOLVED / WA-R017 | — |
-| CL-01:CD-PR-01 | PENDING | — | — |
+| CL-01:CD-PR-01 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
 | CL-01:CD-PR-02 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
 | CL-01:CD-PR-03 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
 | CL-01:CD-PR-04 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
-| CL-01:CBP-PR-01 | PENDING | — | — |
-| CL-01:PR-TSE-01 | PENDING | — | — |
-| CL-01:PR-TSE-02 | PENDING | — | — |
-| CL-01:PR-TSE-03 | PENDING | — | — |
-| CL-01:PR-TSE-04 | PENDING | — | — |
+| CL-01:CBP-PR-01 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
+| CL-01:PR-TSE-01 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
+| CL-01:PR-TSE-02 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
+| CL-01:PR-TSE-03 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
+| CL-01:PR-TSE-04 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
 | CL-01:PR-TSE-05 | ADJUDICATED | AI_RESOLVED / WA-R018 | — |
 | CL-01:CL01-HU-016 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R019 | — |
 | CL-01:CL01-HU-017 | ADJUDICATED | EXTERNAL_REQUIREMENT / database-readiness.md | — |
-| CL-01:CL01-HU-018 | PENDING | — | — |
+| CL-01:CL01-HU-018 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
 | CL-01:CL01-HU-019 | PENDING | — | — |
 | CL-01:CL01-HU-020 | PENDING | — | — |
-| CL-01:CL01-HU-021 | PENDING | — | — |
+| CL-01:CL01-HU-021 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R031 | — |
 | CL-01:CL01-HU-022 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R016 | Owner-specific chain partition/anchoring requirement and enabled usage still need qualification. |
 | CL-01:CL01-HU-023 | ADJUDICATED | AI_RESOLVED / WA-R002 | — |
 | CL-01:CL01-HU-024 | PENDING | — | — |
 | CL-01:CL01-HU-025 | PENDING | — | — |
-| CL-01:CL01-HU-026 | PENDING | — | — |
+| CL-01:CL01-HU-026 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
 | CL-02:D001 | PENDING | — | — |
 | CL-02:D002 | PENDING | — | — |
 | CL-02:D003 | PENDING | — | — |
@@ -161,7 +161,7 @@ Run `python scripts/check-handoff-adjudication.py` or `python scripts/check-cont
 | CL-02:D021 | PENDING | — | — |
 | CL-02:D022 | PENDING | — | — |
 | CL-02:D023 | ADJUDICATED | AI_RESOLVED / WA-R005 | — |
-| CL-02:D024 | PENDING | — | — |
+| CL-02:D024 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
 | CL-02:D025 | PENDING | — | — |
 | CL-02:D026 | PENDING | — | — |
 | CL-02:D027 | PENDING | — | — |
@@ -297,7 +297,7 @@ Run `python scripts/check-handoff-adjudication.py` or `python scripts/check-cont
 | CL-04:CL04-U016 | PENDING | — | — |
 | CL-04:CL04-U017 | PENDING | — | — |
 | CL-04:CL04-U018 | PENDING | — | — |
-| CL-04:CL04-U019 | ADJUDICATED | PRODUCT_OWNER_CHOICE / product-owner-decisions.md | — |
+| CL-04:CL04-U019 | ADJUDICATED | AI_RESOLVED / WA-R029 | — |
 | CL-04:CL04-U020 | PENDING | — | — |
 | CL-04:CL04-U021 | PENDING | — | — |
 | CL-04:CL04-U022 | PENDING | — | — |
@@ -386,8 +386,8 @@ Run `python scripts/check-handoff-adjudication.py` or `python scripts/check-cont
 | CL-05:CL-05-U042 | PENDING | — | — |
 | CL-05:CL-05-U043 | PENDING | — | — |
 | CL-05:CL-05-U044 | PENDING | — | — |
-| CL-05:CL-05-U045 | ADJUDICATED | PRODUCT_OWNER_CHOICE / product-owner-decisions.md | — |
-| CL-05:CL-05-U046 | ADJUDICATED | PRODUCT_OWNER_CHOICE / product-owner-decisions.md | — |
+| CL-05:CL-05-U045 | ADJUDICATED | AI_RESOLVED / WA-R029 | — |
+| CL-05:CL-05-U046 | ADJUDICATED | AI_RESOLVED / WA-R029 | — |
 | CL-05:CL-05-U047 | PENDING | — | — |
 | CL-05:CL-05-U048 | PENDING | — | — |
 | CL-05:CL-05-U049 | PENDING | — | — |
@@ -433,7 +433,7 @@ Run `python scripts/check-handoff-adjudication.py` or `python scripts/check-cont
 | CL-06:CL-06-U024 | PENDING | — | — |
 | CL-06:CL-06-U025 | PENDING | — | — |
 | CL-06:CL-06-U026 | PENDING | — | — |
-| CL-06:CL-06-U027 | PENDING | — | — |
+| CL-06:CL-06-U027 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
 | CL-06:CL-06-U028 | PENDING | — | — |
 | CL-06:CL-06-U029 | PENDING | — | — |
 | CL-06:CL-06-U030 | PENDING | — | — |
@@ -455,12 +455,12 @@ Run `python scripts/check-handoff-adjudication.py` or `python scripts/check-cont
 | CL-06:CL-06-U046 | PENDING | — | — |
 | CL-06:CL-06-U047 | PENDING | — | — |
 | CL-06:CL-06-U048 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R023 | — |
-| CL-06:CL-06-U049 | PENDING | — | — |
-| CL-06:CL-06-U050 | PENDING | — | — |
-| CL-06:CL-06-U051 | PENDING | — | — |
+| CL-06:CL-06-U049 | ADJUDICATED | PRODUCT_OWNER_CHOICE / product-owner-decisions.md; WA-R030 | — |
+| CL-06:CL-06-U050 | PARTIAL | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | Paid subscription lifecycle product policy still needs approval before activation. |
+| CL-06:CL-06-U051 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
 | CL-06:CL-06-U052 | PENDING | — | — |
 | CL-06:CL-06-U053 | PENDING | — | — |
-| CL-06:CL-06-U054 | PENDING | — | — |
+| CL-06:CL-06-U054 | ADJUDICATED | AI_RESOLVED_WITH_TRADEOFF / WA-R030 | — |
 | CL-06:CL-06-U055 | PENDING | — | — |
 | CL-06:CL-06-U056 | PENDING | — | — |
 | CL-06:CL-06-U057 | PENDING | — | — |

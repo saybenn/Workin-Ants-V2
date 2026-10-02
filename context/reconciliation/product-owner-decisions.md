@@ -1,6 +1,6 @@
 # Product-owner decisions
 
-Current checkpoint: 2026-10-01. P01–P08 are binding approvals. P09–P11 below are new open PRODUCT_OWNER_CHOICE records; recommendations are not adopted. The P06–P08 options are historical decision context; the owner approved them on 2026-10-01 with the tighter constraints recorded in WA-R026. Only P09–P11 are currently open in this packet.
+Current checkpoint: 2026-10-01 America/New_York. P01–P11 are binding approvals. WA-R029 applies all P09–P11 clarifications, including valid intentional precommitted service acceptance. P01–P11 alternatives below are historical. P12/P13 are new open product choices; their recommendations are not adopted.
 
 ## Approved — do not reopen
 
@@ -57,7 +57,7 @@ Opening/appeal windows are explicit versioned product-policy configuration that 
 **P06 A, P07 A, P08 A are approved.** WA-R026 incorporates whole-number 1–5 input, safety-checked immutable revisions, authorized restoration, both Order participants, represented support, one durable case with repeat cycles including later sessions, independently authorized idempotent financial effects, and versioned opening/appeal policy without invented deadlines. No deployment or remote publication is authorized. Remaining handoff review is not implicitly complete.
 
 
-## P09 — Digital access and refund finality (OPEN)
+## P09 — Digital access and refund finality (APPROVED — WA-R029)
 
 **Recommended:** no automatic `final_after_access` refund denial at launch. Preserve access evidence for Order/Dispute adjudication under the applicable approved policy. Neither accepting terms, issuing a URL, starting playback/download nor a delivery observation alone denies a refund. This does not promise unconditional refunds or override applicable rights/provider rules. A later automatic finality policy requires an explicitly approved event, exceptions, applicable jurisdictions, disclosure and legal review.
 
@@ -67,7 +67,7 @@ Opening/appeal windows are explicit versioned product-policy configuration that 
 
 **Evidence:** CL-05-U045; Digital Goods architecture §35.1–35.2; Order and Review consume digital delivery evidence, not Media refund decisions.
 
-## P10 — Download allowance consumption (OPEN)
+## P10 — Download allowance consumption (APPROVED — WA-R029)
 
 **Recommended:** consume one allowance for a successfully completed logical download established by trusted server/provider delivery evidence. Retries/resumptions of that same logical download count once. URL issuance, terms acceptance, failed or unverified delivery do not consume it. Reserve in-flight capacity to enforce the cap; reconcile unknown outcomes before releasing capacity. `used` means a finite allowance is exhausted. Unlimited grants end through expiry/revocation rather than first use. Existing authorization and security checks apply on each access.
 
@@ -77,7 +77,7 @@ Opening/appeal windows are explicit versioned product-policy configuration that 
 
 **Evidence:** CL-05-U045/U046; Digital Goods architecture §8.4, §35.2/35.3 and proposed finite-exhaustion interpretation. WA-R028 supplies reservation/retry/evidence mechanics without adopting a consumption threshold.
 
-## P11 — Seller acceptance before payment capture (OPEN)
+## P11 — Seller acceptance before payment capture (APPROVED — WA-R029)
 
 **Recommended source policy:** live/service purchases require the seller's acceptance of the frozen scope before payment capture and fulfillment. An explicit Gig award accepted by that Professional satisfies acceptance for its matching frozen Order; do not demand duplicate consent. Approved published standalone downloads/self-paced courses can accept automatically. Platform screening has no fabricated seller acceptance. For an explicitly sold multi-session service package, purchase acceptance covers the package; each Booking still requires current scheduling/eligibility/conflict checks.
 
@@ -89,4 +89,31 @@ A payment authorization/reservation before acceptance is permitted only where th
 
 **Evidence:** CL04-U019; Order architecture §9.1 (non-binding conceptual progression) and §35 item 10. P02 defines purchased session count but does not decide when a seller accepts the purchase. Neither recommendation activates payment/provider behavior.
 
-**Requested decision:** approve or amend P09, P10 and P11 as product rulings. No request for deployment, publishing or legal certification is included.
+**Approved:** P09–P11 with the full owner clarifications in WA-R029. The seller-acceptance ruling includes valid intentional instant-book/precommitted policies; the earlier recommendation is superseded where narrower. No deployment, publication or legal certification is implied.
+
+
+## P12 — Paid subscription cancellation, renewal failure and benefit timing (OPEN)
+
+**Recommended launch policy:** free→paid benefits start only after verified successful paid enrollment. Cancellation or downgrade to free takes effect at the end of the already-paid benefit period; paid benefits continue until that boundary. Failed renewal creates no additional unpaid grace period: after the paid-through boundary, fall back to the explicit free baseline. Core account access/security and existing purchased Order rights remain available under their owners. Preserve the fee/commission/benefit snapshots already bound to an accepted purchase; a later subscription change does not reprice it.
+
+Do not automatically offer trials, paid pauses, prorated refunds or paid-to-paid plan changes at launch without an approved policy. This does not block free→paid enrollment or normal period-end cancellation, and does not override an authorized billing correction/refund or required external rule. Immediate security/Hold restrictions remain separate from commercial cancellation.
+
+**Alternative:** immediate cancellation/downgrade with an approved unused-period credit/refund policy, and/or a specified grace period after failed renewal. Those choices change paid customer rights and must state the financial/access consequences.
+
+**Why this requires the product owner:** buying a month, cancelling and losing benefits immediately differs from retaining the paid term; unpaid renewal grace is also a commercial promise. Neither Stripe status nor a local enum decides it. No grace duration, proration amount or automatic refund is inferred. WA-R030 has already resolved catalog/versioning/receipt/storage architecture independently.
+
+**Affected records:** CL-01 U-CL01-28; CL-06-U050 and other consumers of effective paid benefit periods. **Scoped block:** final paid subscription transition/access policy; free representation, provider-neutral foundations and unrelated readiness work are not thereby blocked.
+
+## P13 — Candidate application monthly quota and withdrawals (OPEN)
+
+**Recommended launch policy:** the free allowance is 15 successfully submitted applications per UTC calendar month. A successful submission consumes one; editing it, a retry or duplicate transport does not consume another. A failed or never-committed submission consumes nothing. Withdrawal or employer rejection does not restore an allowance after successful submission. Any permitted later genuinely new application follows Candidate's own submission eligibility and counts as a new successful submission; this ruling does not independently permit reapplying.
+
+Paid Candidate participation is unlimited while effective. Keep same-period usage history across upgrades/downgrades, so switching plans never resets a free quota. No destructive monthly reset. WA-R030 already defines atomic reservation/commit/reconcile and authorized corrections for proven erroneous/duplicate consumption; such corrections are not a general withdrawal refund.
+
+**Alternatives:** use an enrollment/billing-anniversary month instead of UTC calendar month, and/or restore allowance when the Candidate withdraws. State those choices explicitly if preferred; they change reset timing and how reusable the free allowance is.
+
+**Why this requires the product owner:** “15 applications/month” does not say when a month starts or whether one allowance can repeatedly be reused by withdrawing. These determine the actual free benefit, while timezone implementation and race safety follow the selected policy.
+
+**Affected records:** U-CL01-29; CL-06-U049. **Scoped block:** live Candidate quota activation/withdrawal accounting; technical quota and application protocol architecture is already resolved.
+
+**Requested decision:** approve or amend P12 and P13. These are customer-facing commercial policies, not permission to implement, deploy, publish or select a database baseline.

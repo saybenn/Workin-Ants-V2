@@ -1714,3 +1714,7 @@ WA-R016 adopts Location Safety for SH-069 and Media / File Access for optional S
 ## Review and Dispute product-owner rulings — 2026-10-01
 
 P06–P08 / WA-R026 approve whole-number 1–5 rating input and fractional aggregates; automatic eligible publication and safety-checked immutable author revisions without restoration by edit; and one Dispute case per Order with repeated authorized cycles, including later multi-session episodes. Reopening creates no automatic financial effect. Each effect requires current owner authorization and cycle/decision-bound idempotency. Opening/appeal windows remain versioned policy with no invented numerical deadline. SH identities/statuses are unchanged.
+
+## Product amendments P09–P11 — 2026-10-01 owner approval
+
+WA-R029 binds refund/access separation, verified logical-download consumption and seller acceptance before final capture (explicit or valid intentional precommit). Order owns acceptance/capture authorization, Payment executes its rail, Booking owns sessions and Digital Goods owns access/allowances. These amendments do not renumber or rename SH entries, promote registry statuses or permit consumer-local substitutes.

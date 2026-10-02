@@ -47,3 +47,26 @@ Checker now validates qualification coverage, metadata alignment, valid status v
 The handoff coverage checker independently extracts 661 decision IDs from all ten historical handoffs. Baseline passes. In-memory mutations verify rejection of a missing decision, duplicated decision, changed source fingerprint, invalid classification, PARTIAL without remaining work and nonexistent ruling. Original files remain untouched by these mutation checks. check-context.py invokes this coverage check. This validates index integrity, not semantic closure.
 
 P06–P08 source/consumer amendments and WA-R027/028 preserve all 132 permanent Shared Operation identities and statuses. The mentioning-Module index is refreshed; mentions are not invocations or qualification evidence. Prisma, migration SQL and historical handoffs remain unchanged. Structural checks and git diff whitespace checks pass. No application runtime tests, legal approval, provider qualification, database replay or deployment are claimed.
+
+
+## Gate 1 final disposition — 2026-10-01 continuation
+
+**COMPLETE against the master Gate 1 exit criteria.** This closes namespace/owner/boundary/reference normalization, not production interface qualification or Gate 2. Earlier incomplete checkpoint labels are superseded by this disposition.
+
+| Master exit criterion | Evidence / disposition |
+|---|---|
+| Namespace valid; no duplicate/reused identity | 132 contiguous unique identities; current entry/index equality; pre-refresh comparison preserved all original 126 ID/name pairs and added only 127–132 |
+| No unresolved architecture-resolvable operation owner conflict | Reviewed all 132 owner placements; WA-R001/002/007/010/016 settle membership, grants, contextual joins, enum stewardship and adapters. Source-specific/shared mechanisms retain separate named policy owners rather than inventing a universal domain owner |
+| New additions justified | 127 composite Media access vs internal signing; 128 read-only readiness vs permission; 129 current moderation restriction vs Hold; 130 Healthcare protected-payload access vs readiness/general Role; 131 public-location read vs generation; 132 admission rate limits vs Track quota/idempotency. No new identity added by readiness work |
+| Consumer references normalized | Explicit SH references in all 88 current owner/consumer documents resolve; explicit ID/name pairs checked. WA-R006/008/009/016/017/025 amend actual Location, Media, Agreement, jurisdiction, adapter and facts/result consumers. Latest scan corrected the last CL-09 fingerprint owner gate to the approved Media placement |
+| Legal/provider facts scoped | Registry status is separate from activation; no legal/provider condition changes permanent identity or transfers domain authority |
+| Every cross-lane contract classified | Index covers all 132 identities: 119 UNSTABLE and 13 EXTERNALLY_GATED. Qualification gaps stated; no unsupported FROZEN/EVOLVABLE promotion |
+
+The phrase “consumer references can be normalized” in Gate 1 does not require every future DTO/fixture/provider implementation already to exist. Those are explicit UNSTABLE/EXTERNALLY_GATED contracts and remain Gate 2/4/8 work. This disposition does not erase partial handoff records or claim every consumer event is bilateral/frozen. Registry Confirmed continues to mean accepted reusable boundary, not implemented or ready for parallel coding. No active cross-lane implementation is authorized.
+
+Gate 2 now owns the remaining concrete target/action/DTO/lifecycle and protocol questions, including the already indexed partial records. Gate 4 owns final bilateral bridge and rail coverage. Keep both gates visibly incomplete until their own evidence passes.
+
+
+## P09–P11 continuation validation
+
+WA-R029–031 do not change canonical SH entry identities, names, owners or statuses. Mention indexes are refreshed and remain distinct from invocation/qualification evidence. Context checks include all 661 handoff decisions; classified/partial/pending states remain explicit. Git diff whitespace passes. The one Deep Module Registry edit removes a nonexistent Identity schema reference under WA-R031; it does not transfer schema ownership or alter Prisma/migrations. Full interface/runtime/schema replay proof remains separate.
