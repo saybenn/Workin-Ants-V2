@@ -1718,3 +1718,7 @@ P06–P08 / WA-R026 approve whole-number 1–5 rating input and fractional aggre
 ## Product amendments P09–P11 — 2026-10-01 owner approval
 
 WA-R029 binds refund/access separation, verified logical-download consumption and seller acceptance before final capture (explicit or valid intentional precommit). Order owns acceptance/capture authorization, Payment executes its rail, Booking owns sessions and Digital Goods owns access/allowances. These amendments do not renumber or rename SH entries, promote registry statuses or permit consumer-local substitutes.
+
+## Product amendments P12/P13 — binding 2026-10-01
+
+WA-R032 binds paid-through cancellation, no unpaid renewal grace, recovery without retroactive usage rights, preservation of independently acquired rights and no launch automatic trials/pauses/prorated cancellation refunds. Candidate allowance is 15 durable successful submissions per UTC calendar month; all successful Premium-period submissions remain recorded for later same-month Free allowance, without constraining Premium. SH identity/owner/status is unchanged.

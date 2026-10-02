@@ -4,7 +4,7 @@ Updated 2026-10-01. Progress evidence only; architecture authority remains conce
 
 - Stage: development-readiness reconciliation; Gate 1 registry/reference alignment is complete; Gate 2 handoff adjudication and concrete interface qualification remain incomplete.
 - Implementation phase / active lanes: none authorized by a final root plan.
-- Applied rulings: WA-R001–031, scoped to their explicit concerns; no blanket closure of historical handoffs.
+- Applied rulings: WA-R001–032, scoped to their explicit concerns; no blanket closure of historical handoffs.
 - P01–P11: approved and applied. WA-R026 binds the rating/revision and durable multi-episode Dispute rules; none of these product choices remains open.
 - Current work completed: User-wide/no-expiration point policy; adapter ownership; owner-specific facts/results; durable execution/Ops evidence; Consent catalog and Customer provisioning; Privacy routing/completion; Notification parent/attempt model; Review/Dispute evidence; audit/security failure boundaries; action-specific financial readiness; Location consumer alignment.
 - Shared namespace: 132 unchanged permanent ID/name pairs; two owner metadata clarifications under WA-R016; 109 Confirmed / 23 Proposed ruling. Conservative status index covers all 132, with no certified frozen interface or active parallel consumer lane.
@@ -34,3 +34,21 @@ WA-R029 is applied to owner and consumer architecture/plan pairs. The previous s
 WA-R029–031 applied to owner/consumer architecture and dependent plans. Gate 1 registry/reference alignment is complete; 132 contracts retain conservative parallel statuses. Gate 2 now tracks 206 adjudicated, 23 partial, 432 pending records. The new Track and authority/Customer protocols reduce technical choices without selecting paid cancellation/grace or Candidate quota product policy.
 
 P12/P13 in product-owner-decisions.md are the exact current PRODUCT_OWNER_CHOICE stop condition. Prior P09–P11 stop is resolved. Remaining gates are not certified. Context/coverage/whitespace validation passes; Prisma schema, SQL migrations and historical handoffs unchanged. The sole registry correction removes obsolete Identity TrackEntitlement reference because Identity supplies actor facts rather than reading Track schemas. Nothing pushed or deployed.
+
+
+## Active continuation — P12/P13 approved
+
+WA-R032 applies all owner clarifications to affected architectures/plans. Previous P12/P13 stop is resolved; Gate 2 continues autonomously. Earlier dated counts and stop conditions are historical; no product question currently remains open in the packet.
+
+
+## Current checkpoint — P12/P13 applied; Gig product boundary
+
+Continuation preserved the existing uncommitted WA-R032–038 work on top of aadac09; no audit restart or rollback. Verified P12/P13 paid-through, no-grace, late-recovery, acquired-rights preservation and Premium-inclusive monthly usage semantics. Existing continuation changes cover Taxonomy/AI, Search, Supply, Healthcare, Payment and Trust owner/consumer architectures and plans. This checkpoint adds WA-R039 for Gig winner constraints, immutable proposal/accepted-term history, checkout-source binding and Order/Dispute synchronization.
+
+The current machine and human coverage ledgers agree: **338 adjudicated, 24 partial, 299 pending** out of 661 decisions. ADJUDICATED includes unresolved external and product requirements, not blanket closure. Gate 1 remains complete; Gate 2 and subsequent bridge/platform/root-plan/harness gates remain unfinished. No interface promoted to frozen or lane activated.
+
+**Exact return-control blocker:** P14 defines whether a Professional may revise a viewed/shortlisted Gig proposal; P15 defines the status of other proposals after one wins. Both are explicitly unresolved in CL04-U003 and the Gig owner architecture. Recommendations remain unadopted in product-owner-decisions.md. Concurrency, evidence and ownership were resolved independently; those do not decide the customer experience. P01–P13 must not be reopened.
+
+**Validation:** context structural checks, all 661 source-fingerprint/coverage/reference checks and Git whitespace checks pass. Prisma, migration SQL and historical handoff source files remain unchanged from aadac09. No runtime/provider/legal sufficiency, database replay, feature completion or final readiness is claimed. No remote publication attempted.
+
+Next: apply the P14/P15 owner selection to Gig and its consumers, qualify the remaining partial lifecycle mappings, and continue the pending Gate 2 records. The external database provenance requirement continues to gate database baseline/deployment decisions only.

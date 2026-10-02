@@ -31,7 +31,7 @@ Repository: `saybenn/Workin-Ants-V2`. Audited starting branch: `main`; starting 
 |---|---|---|
 | 0 Current-state audit | COMPLETE for inventory and identified gaps | Deep semantic findings continue under later gates |
 | 1 Shared Operations | COMPLETE — registry/reference gate | All 132 classified; concrete interfaces remain UNSTABLE/EXTERNALLY_GATED for later qualification |
-| 2 Ten handoffs | IN PROGRESS | WA-R001–031 close named issues only; remaining records need adjudication |
+| 2 Ten handoffs | IN PROGRESS | WA-R001–039 close named issues only; remaining records need adjudication |
 | 3 Apply rulings | IN PROGRESS | Membership, reward owner, screening source, optional similarity scope and ATS model corrections applied; follow-up scan required |
 | 4 Final bridges | PARTIAL SLICE ONLY | Five approved-product bridges captured; full consolidation and rail matrices remain |
 | 5 Platform audit | NOT STARTED | Fresh audit after rulings/bridge completion |
@@ -45,7 +45,7 @@ Repository: `saybenn/Workin-Ants-V2`. Audited starting branch: `main`; starting 
 
 Structural checks verify registry membership, all 44 document pairs, permanent SH IDs/required fields/compact-index equality and references to existing IDs. They identify migration creation coverage. They do not prove lifecycle compatibility, event symmetry, provider capability, legal sufficiency, deployed state or safe parallelism.
 
-P01–P11 are approved and binding; WA-R029 applies the newest clarifications. P12/P13 are new open commercial policies. Earlier return-control paragraphs are historical. Do not ask again about settled ATS, reward-benefit, screening-default or content-similarity scope. Continue the unresolved architecture review autonomously. Database provenance is external evidence, not permission to halt unrelated reconciliation.
+P01–P13 are approved and binding; WA-R032 applies the latest subscription/quota clarifications. P14/P15 are open Gig product choices. Earlier return-control paragraphs are historical. Do not ask again about settled ATS, reward-benefit, screening-default or content-similarity scope. Continue the unresolved architecture review autonomously. Database provenance is external evidence, not permission to halt unrelated reconciliation.
 
 Next: continue Gate 2 adjudication of every remaining handoff record against its owning architecture; Gate 1 registry/reference exit criteria are complete. Keep historical evidence intact. Do not mark the whole task complete from this checkpoint.
 
@@ -117,3 +117,21 @@ Coverage now records 206 adjudicated, 23 partial and 432 pending of 661 source d
 **Exact return-control blocker:** P12 defines paid-term cancellation/downgrade and failed-renewal benefit timing; P13 defines the actual monthly application allowance/reset and withdrawal benefit. Recommendations are prepared and not adopted. Neither paid subscription enum nor “15/month” determines these customer promises. No ordinary gate caused the stop.
 
 **Validation:** structural context and 661-record coverage/reference checks pass; diff whitespace passes. No feature runtime, provider capability, legal sufficiency or database replay test is claimed. No live database operation, application implementation or remote publication attempted. Next: apply answers to Track and affected consumers, then continue Gate 2 rather than reopening Gate 1 or restarting the audit.
+
+
+## Active continuation — P12/P13 approved
+
+WA-R032 applies all owner clarifications to affected architectures/plans. Previous P12/P13 stop is resolved; Gate 2 continues autonomously. Earlier dated counts and stop conditions are historical; no product question currently remains open in the packet.
+
+
+## Current checkpoint — P12/P13 applied; Gig product boundary
+
+Continuation preserved the existing uncommitted WA-R032–038 work on top of aadac09; no audit restart or rollback. Verified P12/P13 paid-through, no-grace, late-recovery, acquired-rights preservation and Premium-inclusive monthly usage semantics. Existing continuation changes cover Taxonomy/AI, Search, Supply, Healthcare, Payment and Trust owner/consumer architectures and plans. This checkpoint adds WA-R039 for Gig winner constraints, immutable proposal/accepted-term history, checkout-source binding and Order/Dispute synchronization.
+
+The current machine and human coverage ledgers agree: **338 adjudicated, 24 partial, 299 pending** out of 661 decisions. ADJUDICATED includes unresolved external and product requirements, not blanket closure. Gate 1 remains complete; Gate 2 and subsequent bridge/platform/root-plan/harness gates remain unfinished. No interface promoted to frozen or lane activated.
+
+**Exact return-control blocker:** P14 defines whether a Professional may revise a viewed/shortlisted Gig proposal; P15 defines the status of other proposals after one wins. Both are explicitly unresolved in CL04-U003 and the Gig owner architecture. Recommendations remain unadopted in product-owner-decisions.md. Concurrency, evidence and ownership were resolved independently; those do not decide the customer experience. P01–P13 must not be reopened.
+
+**Validation:** context structural checks, all 661 source-fingerprint/coverage/reference checks and Git whitespace checks pass. Prisma, migration SQL and historical handoff source files remain unchanged from aadac09. No runtime/provider/legal sufficiency, database replay, feature completion or final readiness is claimed. No remote publication attempted.
+
+Next: apply the P14/P15 owner selection to Gig and its consumers, qualify the remaining partial lifecycle mappings, and continue the pending Gate 2 records. The external database provenance requirement continues to gate database baseline/deployment decisions only.

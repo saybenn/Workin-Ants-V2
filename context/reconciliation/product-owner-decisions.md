@@ -1,6 +1,6 @@
 # Product-owner decisions
 
-Current checkpoint: 2026-10-01 America/New_York. P01–P11 are binding approvals. WA-R029 applies all P09–P11 clarifications, including valid intentional precommitted service acceptance. P01–P11 alternatives below are historical. P12/P13 are new open product choices; their recommendations are not adopted.
+Current checkpoint: 2026-10-01 America/New_York. P01–P13 are binding approvals. WA-R032 applies P12/P13 including paid-recovery timing and Premium-period usage on downgrade. P14/P15 below are new open Gig product choices; alternatives for P01–P13 remain historical.
 
 ## Approved — do not reopen
 
@@ -92,7 +92,7 @@ A payment authorization/reservation before acceptance is permitted only where th
 **Approved:** P09–P11 with the full owner clarifications in WA-R029. The seller-acceptance ruling includes valid intentional instant-book/precommitted policies; the earlier recommendation is superseded where narrower. No deployment, publication or legal certification is implied.
 
 
-## P12 — Paid subscription cancellation, renewal failure and benefit timing (OPEN)
+## P12 — Paid subscription cancellation, renewal failure and benefit timing (APPROVED — WA-R032)
 
 **Recommended launch policy:** free→paid benefits start only after verified successful paid enrollment. Cancellation or downgrade to free takes effect at the end of the already-paid benefit period; paid benefits continue until that boundary. Failed renewal creates no additional unpaid grace period: after the paid-through boundary, fall back to the explicit free baseline. Core account access/security and existing purchased Order rights remain available under their owners. Preserve the fee/commission/benefit snapshots already bound to an accepted purchase; a later subscription change does not reprice it.
 
@@ -104,7 +104,7 @@ Do not automatically offer trials, paid pauses, prorated refunds or paid-to-paid
 
 **Affected records:** CL-01 U-CL01-28; CL-06-U050 and other consumers of effective paid benefit periods. **Scoped block:** final paid subscription transition/access policy; free representation, provider-neutral foundations and unrelated readiness work are not thereby blocked.
 
-## P13 — Candidate application monthly quota and withdrawals (OPEN)
+## P13 — Candidate application monthly quota and withdrawals (APPROVED — WA-R032)
 
 **Recommended launch policy:** the free allowance is 15 successfully submitted applications per UTC calendar month. A successful submission consumes one; editing it, a retry or duplicate transport does not consume another. A failed or never-committed submission consumes nothing. Withdrawal or employer rejection does not restore an allowance after successful submission. Any permitted later genuinely new application follows Candidate's own submission eligibility and counts as a new successful submission; this ruling does not independently permit reapplying.
 
@@ -116,4 +116,29 @@ Paid Candidate participation is unlimited while effective. Keep same-period usag
 
 **Affected records:** U-CL01-29; CL-06-U049. **Scoped block:** live Candidate quota activation/withdrawal accounting; technical quota and application protocol architecture is already resolved.
 
-**Requested decision:** approve or amend P12 and P13. These are customer-facing commercial policies, not permission to implement, deploy, publish or select a database baseline.
+**Approved:** P12/P13 with the full clarifications in WA-R032. No deployment, publication or database-baseline authorization is implied.
+
+
+## P14 — Gig proposal revisions after viewing (OPEN)
+
+**Question:** May a Professional revise a proposal after the customer has viewed or shortlisted it?
+
+**Recommended A:** allow revisions while submitted/viewed/shortlisted, until acceptance, rejection or withdrawal. Preserve every revision; show that terms changed; acceptance binds the exact latest revision and rejects stale acceptance attempts. Accepted terms cannot be edited through this command.
+
+**Alternative B:** lock proposal terms once viewed; changes require a separately approved replacement workflow. A narrower alternative locks only when shortlisted.
+
+**Why this needs you:** both protect accepted contracts, but one lets a Professional change a proposal under consideration while the other promises the customer stable terms once reviewed. Architecture cannot choose that customer experience.
+
+**Blocked:** response revision eligibility, UI promises and the complete revise-versus-accept contract. **Evidence:** CL04-U003; Gig architecture §9.3 and §35. WA-R039 resolves versioning, immutable history and race safety independently.
+
+## P15 — Other Gig proposals after an award (OPEN)
+
+**Question:** What should happen to the other proposals when the customer accepts one?
+
+**Recommended A:** automatically mark remaining nonterminal proposals rejected with reason another_response_selected, preserving history. Already withdrawn/rejected proposals remain unchanged. Any notification follows the source-owner/Notification contract.
+
+**Alternative B:** retain their statuses as inactive historical proposals, with further acceptance disabled while the winner exists; do not imply they are still competing for the awarded Gig.
+
+**Why this needs you:** single-award controls how many win, but does not determine the outcome shown to other Professionals. This changes their proposal status and customer experience.
+
+**Blocked:** full award side effects and nonwinning-response presentation. Neither choice authorizes re-award or automatic reopening after cancellation. **Evidence:** CL04-U003 and confirmed CL-04-R002 explicitly leave losing-response treatment unresolved; WA-R039 resolves the single-winner database and transaction contract.
