@@ -556,3 +556,27 @@ Required implementation verification: competing award attempts; revise/withdraw 
 P14: viewed/shortlisted response edit rights are not settled by ownership or concurrency. Recommend allowing revisions in submitted/viewed/shortlisted until acceptance, rejection or withdrawal, with immutable history and acceptance of the exact current revision. Alternative: lock terms once viewed (or shortlisted). Production edit eligibility remains blocked pending the owner.
 
 P15: single-award cardinality does not decide whether other proposals are automatically rejected. Recommend mark remaining nonterminal responses rejected with reason another_response_selected after successful award, preserving history; keep withdrawn/rejected records unchanged. Alternative: retain their statuses as inactive historical proposals, with acceptance disabled while the winner exists. Neither option authorizes cancellation-driven reopening or re-award. Production loser disposition remains blocked pending the owner.
+
+
+## WA-R040 — Approved proposal revisions and award-capacity rejection (P14/P15)
+
+Binding product-owner ruling received 2026-10-02. Supersedes WA-R039's open P14/P15 recommendations.
+
+Professionals may revise active submitted, viewed or shortlisted proposals until accepted, rejected or withdrawn. Preserve immutable revisions. Material changes to price, scope, timing, included work or other acceptance-relevant terms must be visibly identified to the Customer. Viewing or shortlisting does not lock the proposal.
+
+Acceptance binds an immutable snapshot of the latest revision actually presented for acceptance. The request carries that presented revision and terms fingerprint; under the Gig award lock compare it with the current proposal revision. If it changed, reject stale acceptance and require presentation of the new terms. Never silently substitute unseen newer terms. Accepted proposal terms cannot be rewritten by proposal editing; changes go through the owning Order/agreement/change workflow.
+
+When a single-award Gig selects its winner, automatically reject other active submitted/viewed/shortlisted proposals with canonical reason ANOTHER_RESPONSE_SELECTED. Preserve records and immutable histories; leave previously terminal responses unchanged. Award, capacity exhaustion, rejection decisions and outbox effects commit under one serialized owner transaction so concurrent edits/submissions/acceptance cannot escape the closed award capacity. Retries reproduce the same effects. Notification delivery occurs after commit and is idempotent per source transition.
+
+Launch capacity remains one. This rule is defined at award-capacity exhaustion; a future explicitly approved multi-award Gig must reject remaining active proposals only when its remaining capacity is exhausted. The launch unique-winner constraint is a launch implementation constraint, not a permanent prohibition on a future approved capacity model. No multi-award feature, re-award or cancellation-driven reopening is activated by this ruling.
+
+Required implementation checks: edit after viewed/shortlisted; visible material-change marker; acceptance of presented current revision; stale presented revision conflict; edit-versus-accept serialization; accepted terms immutable; winner plus loser rejection consistency; concurrent submission after exhaustion denied; replay without duplicate effects; terminal proposal preservation; future capacity-policy test proving rejection is conditional on exhaustion. These are acceptance requirements, not executed runtime evidence.
+
+
+## WA-R041 — Retention-safe commercial snapshot links
+
+Classification: AI_RESOLVED_WITH_TRADEOFF. Resolves CL04-U016; complements WA-R030/032/037.
+
+Order retains an immutable purchase snapshot with the applied Track plan/price/grant policy identities and revisions, exact values used for fee/commission calculation, effective decision time and source decision references. Current catalog selection is separate. Historical identifiers remain meaningful even when an enrollment or catalog revision stops being current. Any navigation FK must restrict deletion or detach only that optional navigation while preserving the lawful retained immutable proof; never cascade-delete Order purchase evidence from Track cleanup. Actual lawful erasure/minimization follows Privacy's approved field disposition and retention policy, not indefinite retention by this ruling.
+
+This resolves snapshot semantics and deletion behavior; exact FK names and coordinated forward migration remain implementation work. No catalog change reprices an accepted purchase. Verify retired plans, ended enrollment, valid privacy disposition, missing navigation target and historical refund reconstruction against the original basis.

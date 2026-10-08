@@ -1,6 +1,6 @@
 # Product-owner decisions
 
-Current checkpoint: 2026-10-01 America/New_York. P01–P13 are binding approvals. WA-R032 applies P12/P13 including paid-recovery timing and Premium-period usage on downgrade. P14/P15 below are new open Gig product choices; alternatives for P01–P13 remain historical.
+Current checkpoint: 2026-10-01 America/New_York. P01–P13 are binding approvals. WA-R032 applies P12/P13 including paid-recovery timing and Premium-period usage on downgrade. P01–P15 are binding approvals; WA-R040 applies all P14/P15 clarifications. Earlier alternatives are historical.
 
 ## Approved — do not reopen
 
@@ -119,7 +119,7 @@ Paid Candidate participation is unlimited while effective. Keep same-period usag
 **Approved:** P12/P13 with the full clarifications in WA-R032. No deployment, publication or database-baseline authorization is implied.
 
 
-## P14 — Gig proposal revisions after viewing (OPEN)
+## P14 — Gig proposal revisions after viewing (APPROVED — WA-R040)
 
 **Question:** May a Professional revise a proposal after the customer has viewed or shortlisted it?
 
@@ -131,7 +131,7 @@ Paid Candidate participation is unlimited while effective. Keep same-period usag
 
 **Blocked:** response revision eligibility, UI promises and the complete revise-versus-accept contract. **Evidence:** CL04-U003; Gig architecture §9.3 and §35. WA-R039 resolves versioning, immutable history and race safety independently.
 
-## P15 — Other Gig proposals after an award (OPEN)
+## P15 — Other Gig proposals after an award (APPROVED — WA-R040)
 
 **Question:** What should happen to the other proposals when the customer accepts one?
 
@@ -142,3 +142,48 @@ Paid Candidate participation is unlimited while effective. Keep same-period usag
 **Why this needs you:** single-award controls how many win, but does not determine the outcome shown to other Professionals. This changes their proposal status and customer experience.
 
 **Blocked:** full award side effects and nonwinning-response presentation. Neither choice authorizes re-award or automatic reopening after cancellation. **Evidence:** CL04-U003 and confirmed CL-04-R002 explicitly leave losing-response treatment unresolved; WA-R039 resolves the single-winner database and transaction contract.
+
+
+P14/P15 approved with immutable latest-presented revision binding, visible material changes, and ANOTHER_RESPONSE_SELECTED rejection only on award-capacity exhaustion. See WA-R040; launch remains single-award.
+
+
+## P16 — Booking completion and no-show authority (OPEN)
+
+**Question:** Who may confirm that a service session was completed or missed?
+
+**Recommended:** either participant may submit an outcome report. The Professional or authorized support may confirm the operational session outcome; the Customer may confirm or contest it. A contest preserves both reports and routes to the existing Order/Review dispute process. A report, elapsed appointment time or no-show label alone does not authorize payout, forfeiture, refund or full multi-session Order completion.
+
+**Alternative:** require Customer confirmation before final session completion, with an approved support-resolution route for nonresponse. This changes whether the Professional depends on a Customer response to close a session.
+
+**Blocked:** final Booking completion/no-show action authority and contested-outcome behavior. Evidence: CL-05-U026; Booking architecture §10 PR-BC-03 and §36. State enums and general Role policy do not select this product promise. Recommended policy remains unadopted; no numeric response window is invented.
+
+## P17 — Candidate employer-search participation (OPEN)
+
+**Question:** Must Candidates choose to appear in employer search?
+
+**Recommended:** explicit opt-in, off by default. Opt-out removes the searchable projection; submitting an application does not silently opt the Candidate into discovery. Existing application access remains governed by Candidate/Organization workflow rights. Search participation does not expose the raw resume or bypass audience permissions.
+
+**Alternative:** profiles become searchable by eligible employers by default, with clear notice and opt-out. This materially changes the privacy expectation.
+
+**Blocked:** Candidate search activation/default and participation control. Evidence: CL-06-U010; Candidate architecture U-CL06-10 (§35), §25 and projection lifecycle. Existing WA-R034 protects transport/audience but does not approve participation. Legal sufficiency of any required disclosure remains a separate external gate.
+
+## P18 — Interview invitation expiration (OPEN)
+
+**Question:** Should unanswered interview proposals automatically expire at launch?
+
+**Recommended:** no automatic expiration at launch. Authorized organizers may cancel or replace a pending proposal; any manual no-response record must preserve the actual invitation/response evidence and cannot imply that the recipient read it. Scheduling validity and passed appointment time still constrain acceptance.
+
+**Alternative:** automatic expiration under an explicitly approved deadline policy, shown to participants. A deadline and its anchor must be chosen before that feature activates; no numeric duration is inferred.
+
+**Blocked:** expiration worker and no_response transition policy only. Evidence: CL-06-U039; Job Interview architecture §22.1 and U-JI-10. Other Interview contracts can continue independently.
+
+
+## P19 — Booking and Dispute conversations (OPEN)
+
+**Question:** Should service-session and commercial-dispute discussion share the Order conversation or have separate conversations?
+
+**Recommended:** reuse the Order conversation for participant discussion about its Bookings and Dispute, with clear context labels. Private support/adjudication notes remain in their authorized owner workflow and never enter the participant thread automatically. Current authorized thread membership still controls every disclosure; a case assignment does not silently add support to participant conversation.
+
+**Alternative:** separate Booking and Dispute conversations, requiring explicit participant membership, history visibility and context contracts.
+
+**Blocked:** creation/routing of Booking-specific and Dispute-specific conversations only. Evidence: CL-07 U-CL07-02; Messaging architecture §35 questions 3/4. Existing typed FK uniqueness and consumer references do not choose the customer conversation experience. This question does not approve unsolicited direct/group admission, a support-case product, or multi-thread expansion.
