@@ -1718,7 +1718,7 @@ No additional domain event is registered for this Module by this ruling; existin
 Consumer obligations:
 
 - `track.entitlement_changed.v1`: consume only the effect naming this Module — Professional, Candidate, Marketplace, Video: refresh eligibility; Search: current projection reevaluation; preserve acquired rights.
-- `taxonomy.policy_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Hiring/Healthcare/Trust/Search: targeted reevaluation.
+- `taxonomy.policy_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Hiring/Candidate/Gig/Healthcare/Trust/Search: targeted reevaluation; Job Compliance/Location only for registered requirement mappings.
 - `professional.readiness_changed.v1`: consume only the effect naming this Module — Marketplace/Search: reevaluate publication; Gig/Order: fresh checks before new action.
 - `offering.publication_changed.v1`: consume only the effect naming this Module — Search: refresh/remove; Order: freshness-check checkout snapshot.
 - `healthcare.boundary_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Media/Video/Search: invalidate current grants/projections as applicable.
@@ -1730,3 +1730,7 @@ Consumer obligations:
 Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
 
 Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.
+
+## WA-R080 — Taxonomy event and enumerator bindings (BF-046/052/072/170)
+
+Use scoped enumerateTaxonomyAffectedTargets.v1 and current owner projections; enumeration does not publish private targets. The complete typed input/result, currentness, retry, failure, privacy and activation contract in `context/reconciliation/platform-architecture-rulings.md` WA-R080 is incorporated for this owner only. No foreign lifecycle or implementation qualification is implied.

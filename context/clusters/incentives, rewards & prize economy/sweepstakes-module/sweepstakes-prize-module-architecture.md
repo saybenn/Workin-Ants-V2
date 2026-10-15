@@ -1693,3 +1693,7 @@ Order purchase facts are evidence only, never purchased entries, paid odds advan
 ## WA-R075 — Typed Hold action applicability and source readiness
 
 This owner adopts its source/consumer obligations in `context/reconciliation/hold-action-contracts.md`. The appendix defines the versioned query/action fields, current-source checks, denial/unavailable behavior and privacy limits; it does not transfer lifecycle ownership or freeze an implementation interface. Implement the named owner port or consumer call with typed fixtures for stale authority, unsupported scope, duplicate effects and minimized fields before activation. Existing product rights and all other applicable gates remain.
+
+## WA-R079 — Optional Order prize-entry display remains disabled (BF-265)
+
+Keep subject/drawing query scope unchanged; no Order projection is registered, and official-rule/entry truth stays local. The complete typed input/result, currentness, retry, failure, privacy and activation contract in `context/reconciliation/platform-architecture-rulings.md` WA-R079 is incorporated for this owner only. No foreign lifecycle or implementation qualification is implied.

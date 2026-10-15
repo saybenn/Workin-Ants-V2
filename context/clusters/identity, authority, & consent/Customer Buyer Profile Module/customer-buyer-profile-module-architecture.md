@@ -1421,3 +1421,7 @@ Persist source history and outbox intent atomically; use event identity/fingerpr
 ## WA-R074 — Contextual Customer display and Gig participation requirements
 
 This owner adopts its source/consumer obligations in `context/reconciliation/context-query-contracts.md`. The appendix defines the versioned query/action fields, current-source checks, denial/unavailable behavior and privacy limits; it does not transfer lifecycle ownership or freeze an implementation interface. Implement the named owner port or consumer call with typed fixtures for stale authority, unsupported scope, duplicate effects and minimized fields before activation. Existing product rights and all other applicable gates remain.
+
+## WA-R078 — Default-Free enrollment handoff (BF-035)
+
+After SH-004 profile creation, commit/reconcile the same typed Customer-track intent; buyer identity resolution does not wait for Track. The complete typed input/result, currentness, retry, failure, privacy and activation contract in `context/reconciliation/platform-architecture-rulings.md` WA-R078 is incorporated for this owner only. No foreign lifecycle or implementation qualification is implied.

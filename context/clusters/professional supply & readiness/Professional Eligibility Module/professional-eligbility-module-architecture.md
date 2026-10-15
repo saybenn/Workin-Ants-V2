@@ -1897,7 +1897,7 @@ Producer obligations:
 Consumer obligations:
 
 - `track.entitlement_changed.v1`: consume only the effect naming this Module — Professional, Candidate, Marketplace, Video: refresh eligibility; Search: current projection reevaluation; preserve acquired rights.
-- `taxonomy.policy_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Hiring/Healthcare/Trust/Search: targeted reevaluation.
+- `taxonomy.policy_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Hiring/Candidate/Gig/Healthcare/Trust/Search: targeted reevaluation; Job Compliance/Location only for registered requirement mappings.
 - `payment.financial_readiness_changed.v1`: consume only the effect naming this Module — Professional, Track, Order, Gamification, Sweepstakes: action-specific reevaluation.
 - `verification.readiness_changed.v1`: consume only the effect naming this Module — Professional/Healthcare/Hiring where registered requirement applies: reevaluate; no raw report.
 - `healthcare.boundary_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Media/Video/Search: invalidate current grants/projections as applicable.
@@ -1926,3 +1926,11 @@ This owner adopts its source/consumer obligations in `context/reconciliation/con
 ## WA-R075 — Typed Hold action applicability and source readiness
 
 This owner adopts its source/consumer obligations in `context/reconciliation/hold-action-contracts.md`. The appendix defines the versioned query/action fields, current-source checks, denial/unavailable behavior and privacy limits; it does not transfer lifecycle ownership or freeze an implementation interface. Implement the named owner port or consumer call with typed fixtures for stale authority, unsupported scope, duplicate effects and minimized fields before activation. Existing product rights and all other applicable gates remain.
+
+## WA-R078 — Default-Free enrollment handoff (BF-035)
+
+Commit the narrow Track command intent with Professional profile creation and retain retry/reconciliation state; selling readiness remains separate. The complete typed input/result, currentness, retry, failure, privacy and activation contract in `context/reconciliation/platform-architecture-rulings.md` WA-R078 is incorporated for this owner only. No foreign lifecycle or implementation qualification is implied.
+
+## WA-R080 — Taxonomy event and enumerator bindings (BF-046/052/072/170)
+
+Expose both named enumerators for ProfessionalProfile under R070; revalidate own assignments/readiness before projection refresh. The complete typed input/result, currentness, retry, failure, privacy and activation contract in `context/reconciliation/platform-architecture-rulings.md` WA-R080 is incorporated for this owner only. No foreign lifecycle or implementation qualification is implied.

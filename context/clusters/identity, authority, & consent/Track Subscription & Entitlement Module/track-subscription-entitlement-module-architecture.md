@@ -689,10 +689,10 @@ The names below define public/module-owned mutation responsibilities. They are i
 ### 10.6 `assignDefaultFreeTrack`
 
 - **Purpose:** provision default commercial access when a track actor is created.
-- **Status:** **Blocked for production by `U-CL01-24`.**
-- **Actor/context:** trusted system event/command.
-- **Writes:** either TrackSubscription, grants, or both — unresolved.
-- **Rule:** profile provisioning must not depend on a Track record existing; Track may react after actor creation.
+- **Status:** architecture settled by WA-R030/WA-R078; physical/runtime qualification remains required.
+- **Actor/context:** typed owner outbox command `assignDefaultFreeTrack.v1`, with current source binding verified by Track.
+- **Writes:** explicit provider-neutral Free enrollment under WA-R030, retaining one current base selection and immutable receipt/history; never duplicate grants or replace a valid paid selection.
+- **Rule:** profile creation commits before asynchronous Track handling; dependent entitlement checks do not infer Free from absence. See WA-R078 for retry/conflict/recovery.
 
 ### 10.7 `createManualEntitlementGrant`, `suspendEntitlementGrant`, `restoreEntitlementGrant`, `revokeEntitlementGrant`
 
@@ -2168,3 +2168,7 @@ Consumer obligations:
 Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
 
 Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.
+
+## WA-R078 — Default-Free enrollment handoff (BF-035)
+
+Implement assignDefaultFreeTrack.v1 with current owner-binding verification, one current base selection and durable replay receipt; never downgrade a current paid selection. The complete typed input/result, currentness, retry, failure, privacy and activation contract in `context/reconciliation/platform-architecture-rulings.md` WA-R078 is incorporated for this owner only. No foreign lifecycle or implementation qualification is implied.

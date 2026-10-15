@@ -1952,3 +1952,7 @@ Disabling discovery invalidates future candidate-search exposure immediately at 
 ## WA-R070 — Source descriptors, assignment receipts and affected-target enumeration
 
 AI owns the source descriptor/provider allowlist; Taxonomy coordinates affected-target enumeration and receipts; contextual owners write accepted joins and supply stable scoped snapshots. Search consumes accepted owner facts only. Publish these WA-R070 contracts before dependent workers, qualify cursor/currentness/denial fixtures and keep provider/seeds activation evidence explicit.
+
+## Domain bridge integration — 2026-10-15
+
+Apply WA-R080 from `context/reconciliation/platform-architecture-rulings.md` only to this Cluster's named owner/consumer boundaries. The affected Module architectures incorporate the typed contracts. R077 assigns private checkout tax evidence to Order and tax interpretation to Payment; R078 uses the existing Track command with durable owner intents; R079 keeps optional reverse prize display disabled; R080 binds owner enumerators and scoped Taxonomy recipients. No cross-Cluster repository access, generic tax-location authority, duplicate actor stream or AI Gig scope is introduced. Untouched concerns retain their existing owners. Review evidence is `context/reconciliation/bridge-review-domain.json`; seven families reviewed does not complete Gate 4.

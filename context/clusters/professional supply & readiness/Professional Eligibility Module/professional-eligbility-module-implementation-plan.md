@@ -2656,3 +2656,11 @@ This owner adopts its source/consumer obligations in `context/reconciliation/con
 ## WA-R075 — Typed Hold action applicability and source readiness
 
 This owner adopts its source/consumer obligations in `context/reconciliation/hold-action-contracts.md`. The appendix defines the versioned query/action fields, current-source checks, denial/unavailable behavior and privacy limits; it does not transfer lifecycle ownership or freeze an implementation interface. Implement the named owner port or consumer call with typed fixtures for stale authority, unsupported scope, duplicate effects and minimized fields before activation. Existing product rights and all other applicable gates remain.
+
+## WA-R078 — Bilateral qualification sequence
+
+Commit the narrow Track command intent with Professional profile creation and retain retry/reconciliation state; selling readiness remains separate. Follow the owner architecture and WA-R078 in `context/reconciliation/platform-architecture-rulings.md`. Qualify its named stale-source, wrong-scope, retry/conflict, unavailable and privacy cases on both sides before activation. External policy/provider and database prerequisites remain separate; no interface is frozen by this appendix.
+
+## WA-R080 — Bilateral qualification sequence
+
+Expose both named enumerators for ProfessionalProfile under R070; revalidate own assignments/readiness before projection refresh. Follow the owner architecture and WA-R080 in `context/reconciliation/platform-architecture-rulings.md`. Qualify its named stale-source, wrong-scope, retry/conflict, unavailable and privacy cases on both sides before activation. External policy/provider and database prerequisites remain separate; no interface is frozen by this appendix.

@@ -1610,7 +1610,7 @@ Producer obligations:
 Consumer obligations:
 
 - `track.entitlement_changed.v1`: consume only the effect naming this Module — Professional, Candidate, Marketplace, Video: refresh eligibility; Search: current projection reevaluation; preserve acquired rights.
-- `taxonomy.policy_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Hiring/Healthcare/Trust/Search: targeted reevaluation.
+- `taxonomy.policy_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Hiring/Candidate/Gig/Healthcare/Trust/Search: targeted reevaluation; Job Compliance/Location only for registered requirement mappings.
 - `professional.readiness_changed.v1`: consume only the effect naming this Module — Marketplace/Search: reevaluate publication; Gig/Order: fresh checks before new action.
 - `healthcare.boundary_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Media/Video/Search: invalidate current grants/projections as applicable.
 
@@ -1630,3 +1630,7 @@ classificationText is a purpose-approved sensitivity-reviewed projection, not un
 ## WA-R075 — Typed Hold action applicability and source readiness
 
 This owner adopts its source/consumer obligations in `context/reconciliation/hold-action-contracts.md`. The appendix defines the versioned query/action fields, current-source checks, denial/unavailable behavior and privacy limits; it does not transfer lifecycle ownership or freeze an implementation interface. Implement the named owner port or consumer call with typed fixtures for stale authority, unsupported scope, duplicate effects and minimized fields before activation. Existing product rights and all other applicable gates remain.
+
+## WA-R080 — Taxonomy event and enumerator bindings (BF-046/052/072/170)
+
+Expose both named enumerators for Offering under R070; own joins and publication gates. The complete typed input/result, currentness, retry, failure, privacy and activation contract in `context/reconciliation/platform-architecture-rulings.md` WA-R080 is incorporated for this owner only. No foreign lifecycle or implementation qualification is implied.

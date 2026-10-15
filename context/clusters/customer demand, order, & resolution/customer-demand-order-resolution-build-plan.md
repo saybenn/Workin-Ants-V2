@@ -2072,3 +2072,7 @@ Sequence the named owner contract amendments before dependent adapters. Gig part
 ## WA-R071 — Purpose-specific Location facts and disclosure — implementation obligations
 
 Sequence the named owner contract amendments before dependent adapters. Order supplies current service/session/participant/restriction facts to Location, which remains the sole reveal owner. Booking/Order mismatch or unavailable facts denies disclosure; public events never include exact location. Require bilateral denial, stale-revision and replay fixtures before activation; this pass supplies architecture, not executed qualification.
+
+## Domain bridge qualification — 2026-10-15
+
+For WA-R077; WA-R079; WA-R080, sequence the relevant owner contract/DTO fixtures, shared durable mechanism qualification and bilateral negative/replay/currentness checks before dependent consumer activation. Use the exact Module architecture ports and source scopes. Database posture D and policy/provider requirements gate their affected slices; no broad product implementation or parallel lane is authorized by this reconciliation. R079 creates no required Order-to-Sweepstakes dependency. Do not treat a successful queue dispatch, enumerator page or provider response as completion of the originating lifecycle.

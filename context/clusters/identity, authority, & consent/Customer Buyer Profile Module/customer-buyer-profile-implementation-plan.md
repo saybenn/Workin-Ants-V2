@@ -1836,3 +1836,7 @@ DTO/server-RLS parity, executable fixtures, outbox/inbox recovery and provider/s
 ## WA-R074 — Contextual Customer display and Gig participation requirements
 
 This owner adopts its source/consumer obligations in `context/reconciliation/context-query-contracts.md`. The appendix defines the versioned query/action fields, current-source checks, denial/unavailable behavior and privacy limits; it does not transfer lifecycle ownership or freeze an implementation interface. Implement the named owner port or consumer call with typed fixtures for stale authority, unsupported scope, duplicate effects and minimized fields before activation. Existing product rights and all other applicable gates remain.
+
+## WA-R078 — Bilateral qualification sequence
+
+After SH-004 profile creation, commit/reconcile the same typed Customer-track intent; buyer identity resolution does not wait for Track. Follow the owner architecture and WA-R078 in `context/reconciliation/platform-architecture-rulings.md`. Qualify its named stale-source, wrong-scope, retry/conflict, unavailable and privacy cases on both sides before activation. External policy/provider and database prerequisites remain separate; no interface is frozen by this appendix.

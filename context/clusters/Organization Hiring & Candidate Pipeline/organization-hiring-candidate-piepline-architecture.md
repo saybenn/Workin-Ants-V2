@@ -1243,3 +1243,7 @@ Hiring owns JobMedia and Organization/Job history; Candidate owns contextual med
 ## WA-R073 — Interview access interval and bounded credentials
 
 Invitation acceptance requires future startsAt under P18; joining accepted current interviews requires startsAt <= serverNow < endsAt. No timer expiry or implicit pre/post grace; new timing policy can change future behavior without rewriting history.
+
+## Domain bridge integration — 2026-10-15
+
+Apply WA-R078; WA-R080 from `context/reconciliation/platform-architecture-rulings.md` only to this Cluster's named owner/consumer boundaries. The affected Module architectures incorporate the typed contracts. R077 assigns private checkout tax evidence to Order and tax interpretation to Payment; R078 uses the existing Track command with durable owner intents; R079 keeps optional reverse prize display disabled; R080 binds owner enumerators and scoped Taxonomy recipients. No cross-Cluster repository access, generic tax-location authority, duplicate actor stream or AI Gig scope is introduced. Untouched concerns retain their existing owners. Review evidence is `context/reconciliation/bridge-review-domain.json`; seven families reviewed does not complete Gate 4.

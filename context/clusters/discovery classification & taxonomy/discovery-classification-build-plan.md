@@ -2490,3 +2490,7 @@ Disabling discovery invalidates future candidate-search exposure immediately at 
 ## WA-R070 — Source descriptors, assignment receipts and affected-target enumeration — implementation obligations
 
 Sequence the named owner contract amendments before dependent adapters. AI owns the source descriptor/provider allowlist; Taxonomy coordinates affected-target enumeration and receipts; contextual owners write accepted joins and supply stable scoped snapshots. Search consumes accepted owner facts only. Publish these WA-R070 contracts before dependent workers, qualify cursor/currentness/denial fixtures and keep provider/seeds activation evidence explicit. Require bilateral denial, stale-revision and replay fixtures before activation; this pass supplies architecture, not executed qualification.
+
+## Domain bridge qualification — 2026-10-15
+
+For WA-R080, sequence the relevant owner contract/DTO fixtures, shared durable mechanism qualification and bilateral negative/replay/currentness checks before dependent consumer activation. Use the exact Module architecture ports and source scopes. Database posture D and policy/provider requirements gate their affected slices; no broad product implementation or parallel lane is authorized by this reconciliation. R079 creates no required Order-to-Sweepstakes dependency. Do not treat a successful queue dispatch, enumerator page or provider response as completion of the originating lifecycle.

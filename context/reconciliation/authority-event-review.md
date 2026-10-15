@@ -11,3 +11,7 @@ R069 producer payloads and recipient effects were compared against the named own
 The incorporated producer/consumer protocol binds immutable event identity, source revisions, atomic outbox intent, subscriber deduplication, effect-specific idempotency, correction lineage, tombstones, gap recovery and minimized recipient payloads. Events never become current authority or substitute for Privacy/Moderation effect commands. R031, approved Privacy verification-generation policy and the absence of generic Professional moderation permissions are preserved.
 
 This is source-level contract consistency evidence. Runtime replay, DTO compatibility, RLS parity, actual provider behavior, template qualification, and legal/program values remain unverified activation gates. Broader Cluster/bridge convergence and stale historical wording remain subject to Gate 4/5.
+
+## Subsequent source review — WA-R080
+
+Taxonomy bridge review adds four explicitly scoped recipients of the existing taxonomy.policy_changed.v1 event: Candidate and Gig contextual assignment owners, plus Job Compliance and Location only for registered requirement mappings. The canonical recipient row, producer/consumer appendices and reviewed machine snapshot were updated together. The namespace remains 46 events; no interface is frozen. These are distinct from the five initial propagation omissions described above.

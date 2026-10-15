@@ -3,7 +3,7 @@
   "date": "2026-10-15",
   "baseline_commit": "d672ea2f609d64762685e847f1e3d2da2a046421",
   "authority": "authority-event-contracts.md under WA-R068/069; this file is reviewed propagation evidence, not an independent event registry.",
-  "registry_sha256": "a11550f66c7a749efa6f815cb29be082d620be4054c42b80901a63db2cba5d44",
+  "registry_sha256": "9ba29b5c1ad20d3229d5893d1c29e2987d6a5b9a3f87d6a007b4a1e83aa716ce",
   "scope": "All 34 owner architecture/plan pairs, exact producer names and named subscriber routes; generic Hold/context/realtime routes retain their separate typed registration gates.",
   "modules": {
     "consent_disclosure": {
@@ -150,7 +150,8 @@
       "producer": [],
       "consumer": [
         "customer.lifecycle_changed.v1",
-        "order.outcome_changed.v1"
+        "order.outcome_changed.v1",
+        "taxonomy.policy_changed.v1"
       ]
     },
     "review_dispute": {
@@ -254,7 +255,8 @@
         "track.entitlement_changed.v1",
         "track.usage_changed.v1",
         "organization.membership_changed.v1",
-        "job.lifecycle_changed.v1"
+        "job.lifecycle_changed.v1",
+        "taxonomy.policy_changed.v1"
       ]
     },
     "job_compliance": {
@@ -263,7 +265,9 @@
       "producer": [
         "job_compliance.decision_changed.v1"
       ],
-      "consumer": []
+      "consumer": [
+        "taxonomy.policy_changed.v1"
+      ]
     },
     "job_interview": {
       "architecture": "context/clusters/Organization Hiring & Candidate Pipeline/Job Interview Module/job-interview-module-architecture.md",
@@ -317,7 +321,8 @@
       "consumer": [
         "booking.confirmed.v1",
         "booking.rescheduled.v1",
-        "booking.cancelled.v1"
+        "booking.cancelled.v1",
+        "taxonomy.policy_changed.v1"
       ]
     },
     "privacy_data_erasure": {
@@ -470,5 +475,6 @@
     "Source revisions/replay/tombstones/idempotency/privacy rules verified in incorporated owner appendices; executable fixtures remain activation gates.",
     "R031 no speculative Role stream/cache, Privacy approved-generation assurance and no generic Professional moderation action preserved.",
     "Historical sections and broader Cluster/bridge convergence remain Gate 4/5 work."
-  ]
+  ],
+  "subsequent_review": "WA-R080 adds four scoped Taxonomy recipient routes after bilateral source review of BF-072/BF-170; still 46 events, no duplicate namespace."
 }

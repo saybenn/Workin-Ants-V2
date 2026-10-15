@@ -1903,3 +1903,7 @@ Owner action scope: `requestClassificationSuggestions / recordSuggestionDisposit
 No additional domain event is registered for this Module by this ruling; existing explicit command/receipt contracts remain authoritative.
 
 Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.
+
+## WA-R080 — Taxonomy event and enumerator bindings (BF-046/052/072/170)
+
+Consume enumerateClassificationSourceTargets.v1 only for registered R070 target/purpose scopes; Gig AI stays disabled. The complete typed input/result, currentness, retry, failure, privacy and activation contract in `context/reconciliation/platform-architecture-rulings.md` WA-R080 is incorporated for this owner only. No foreign lifecycle or implementation qualification is implied.

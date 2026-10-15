@@ -1982,7 +1982,7 @@ Producer obligations:
 Consumer obligations:
 
 - `consent.proof_changed.v1`: consume only the effect naming this Module — Track, Trust, Healthcare, Digital, Sweepstakes: reevaluate only applicable proof; no bulk entitlement revocation.
-- `taxonomy.policy_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Hiring/Healthcare/Trust/Search: targeted reevaluation.
+- `taxonomy.policy_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Hiring/Candidate/Gig/Healthcare/Trust/Search: targeted reevaluation; Job Compliance/Location only for registered requirement mappings.
 
 Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
 

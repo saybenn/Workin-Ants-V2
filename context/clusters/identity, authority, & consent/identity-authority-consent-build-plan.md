@@ -2554,3 +2554,7 @@ Implementation follows the corresponding applied owner architecture ruling. Requ
 ## WA-R064 — Source-qualified authority, event and cryptographic contracts
 
 Implementation follows the corresponding applied owner architecture ruling. Required acceptance evidence before activation: registered versus unknown actions; stale/missing owner facts; support-role escalation rejection; consent-purpose mismatch; delayed invalidation events; separate owner hash chains with tamper detection. Finish the per-port action/facts inventory and bilateral event fixture registry before declaring any affected interface frozen. Root synthesis is still a separate gate.
+
+## Domain bridge qualification — 2026-10-15
+
+For WA-R078, sequence the relevant owner contract/DTO fixtures, shared durable mechanism qualification and bilateral negative/replay/currentness checks before dependent consumer activation. Use the exact Module architecture ports and source scopes. Database posture D and policy/provider requirements gate their affected slices; no broad product implementation or parallel lane is authorized by this reconciliation. R079 creates no required Order-to-Sweepstakes dependency. Do not treat a successful queue dispatch, enumerator page or provider response as completion of the originating lifecycle.

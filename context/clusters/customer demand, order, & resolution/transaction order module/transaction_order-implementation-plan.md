@@ -2367,3 +2367,11 @@ This owner adopts its source/consumer obligations in `context/reconciliation/hol
 ## WA-R076 — Coordinated representation qualification
 
 Before activating the affected paths, implement the owner architecture dispositions for CL-04:CL04-U014, CL-04:CL04-U023, CL-04:CL04-U048. Inventory legacy readers/writers, preserve authoritative evidence, quarantine ambiguity, and propose the exact constraints/columns to the single migration integration owner. Test wrong source/buyer/relationship, conflicting legacy evidence, invalid state and replay as applicable. Require schema validation and disposable replay of the selected preservation strategy before schema-dependent activation. Live strategy selection remains database posture D; this plan does not authorize migration execution.
+
+## WA-R077 — Bilateral qualification sequence
+
+Own collection/revisions and the two protected checkout evidence ports; freeze the selected Payment calculation against exact quote/line/currency/evidence identities. Follow the owner architecture and WA-R077 in `context/reconciliation/platform-architecture-rulings.md`. Qualify its named stale-source, wrong-scope, retry/conflict, unavailable and privacy cases on both sides before activation. External policy/provider and database prerequisites remain separate; no interface is frozen by this appendix.
+
+## WA-R079 — Bilateral qualification sequence
+
+Keep optional Order-context prize display disabled; no reverse Sweepstakes dependency is required for baseline Order work. Follow the owner architecture and WA-R079 in `context/reconciliation/platform-architecture-rulings.md`. Qualify its named stale-source, wrong-scope, retry/conflict, unavailable and privacy cases on both sides before activation. External policy/provider and database prerequisites remain separate; no interface is frozen by this appendix.

@@ -1867,3 +1867,11 @@ This owner adopts its source/consumer obligations in `context/reconciliation/hol
 **Agreement migration provenance (CL-04:CL04-U048).** Target identity, data-preservation requirements, migration ledger and schema-only comparison are absent. Keep database posture D for baseline/deployment decisions; no Agreement migration or deployment readiness claim. Reproducible forward migration and disposable replay depend on that evidence; static schema presence is insufficient.
 
 Physical implementation follows the single migration integration owner and database-readiness.md posture D. These dispositions settle the named historical architecture questions; they do not certify migration execution or runtime behavior.
+
+## WA-R077 — Private checkout tax-location evidence (BF-220)
+
+Own collection/revisions and the two protected checkout evidence ports; freeze the selected Payment calculation against exact quote/line/currency/evidence identities. The complete typed input/result, currentness, retry, failure, privacy and activation contract in `context/reconciliation/platform-architecture-rulings.md` WA-R077 is incorporated for this owner only. No foreign lifecycle or implementation qualification is implied.
+
+## WA-R079 — Optional Order prize-entry display remains disabled (BF-265)
+
+Keep optional Order-context prize display disabled; no reverse Sweepstakes dependency is required for baseline Order work. The complete typed input/result, currentness, retry, failure, privacy and activation contract in `context/reconciliation/platform-architecture-rulings.md` WA-R079 is incorporated for this owner only. No foreign lifecycle or implementation qualification is implied.

@@ -1,3 +1,5 @@
+> Current review pointer (2026-10-15): `bridge-review-domain.md/json` records seven prioritized domain families under R077–R080; 183 domain families and rail integration remain. The historical five-bridge slice below is not the final 563-record inventory.
+
 # Cross-cluster bridge inventory — partial adjudicated slice
 
 2026-09-29. **IN PROGRESS, not the final Gate 4 inventory.** These records capture the newly approved P01–P03 boundaries and keep schema/implementation requirements distinct from product decisions. Remaining historical bridge records and rail matrices are not yet fully adjudicated. No parallel lane is activated.

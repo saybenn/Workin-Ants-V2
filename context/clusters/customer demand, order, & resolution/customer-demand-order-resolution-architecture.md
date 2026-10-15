@@ -1606,3 +1606,7 @@ Gig participates in owner enumeration/assignment receipts, while AI support rema
 ## WA-R071 — Purpose-specific Location facts and disclosure
 
 Order supplies current service/session/participant/restriction facts to Location, which remains the sole reveal owner. Booking/Order mismatch or unavailable facts denies disclosure; public events never include exact location.
+
+## Domain bridge integration — 2026-10-15
+
+Apply WA-R077; WA-R079; WA-R080 from `context/reconciliation/platform-architecture-rulings.md` only to this Cluster's named owner/consumer boundaries. The affected Module architectures incorporate the typed contracts. R077 assigns private checkout tax evidence to Order and tax interpretation to Payment; R078 uses the existing Track command with durable owner intents; R079 keeps optional reverse prize display disabled; R080 binds owner enumerators and scoped Taxonomy recipients. No cross-Cluster repository access, generic tax-location authority, duplicate actor stream or AI Gig scope is introduced. Untouched concerns retain their existing owners. Review evidence is `context/reconciliation/bridge-review-domain.json`; seven families reviewed does not complete Gate 4.

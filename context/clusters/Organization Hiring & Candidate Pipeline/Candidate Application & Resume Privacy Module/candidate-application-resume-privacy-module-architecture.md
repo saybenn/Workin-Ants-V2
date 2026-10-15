@@ -1656,6 +1656,7 @@ Producer obligations:
 
 Consumer obligations:
 
+- `taxonomy.policy_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Hiring/Candidate/Gig/Healthcare/Trust/Search: targeted reevaluation; Job Compliance/Location only for registered requirement mappings.
 - `interview.proposed.v1 / interview.scheduled.v1 / interview.rescheduled.v1 / interview.cancelled.v1 / interview.completed.v1`: consume only the effect naming this Module — Calendar/Video: desired-state reconcile by current parent; Candidate: optional owner-governed stage handling, never direct assignment.
 - `track.entitlement_changed.v1`: consume only the effect naming this Module — Professional, Candidate, Marketplace, Video: refresh eligibility; Search: current projection reevaluation; preserve acquired rights.
 - `track.usage_changed.v1`: consume only the effect naming this Module — Candidate: refresh usage display; atomic quota acceptance remains owner command, not eventual event.
@@ -1665,3 +1666,11 @@ Consumer obligations:
 Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
 
 Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.
+
+## WA-R078 — Default-Free enrollment handoff (BF-035)
+
+Commit the narrow Track command intent with Candidate profile creation and retain retry/reconciliation state; same-month usage never resets. The complete typed input/result, currentness, retry, failure, privacy and activation contract in `context/reconciliation/platform-architecture-rulings.md` WA-R078 is incorporated for this owner only. No foreign lifecycle or implementation qualification is implied.
+
+## WA-R080 — Taxonomy event and enumerator bindings (BF-046/052/072/170)
+
+Expose both named enumerators for CandidateProfile; revalidate assignment/discovery generation without enabling discovery or disclosing resumes. The complete typed input/result, currentness, retry, failure, privacy and activation contract in `context/reconciliation/platform-architecture-rulings.md` WA-R080 is incorporated for this owner only. No foreign lifecycle or implementation qualification is implied.

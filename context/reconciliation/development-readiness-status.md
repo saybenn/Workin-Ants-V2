@@ -6,7 +6,9 @@
 - Gates 0/1 remain complete. Gates 2/3 advanced; Gate 4 domain review is active. Full bridge/rail convergence, fresh platform audit, root architecture/build plan, harness alignment and final readiness are unfinished. **NOT DEVELOPMENT READY; no implementation lanes authorized.**
 - Validation: context, adjudication, family, bridge-source, authority-event and whitespace checks pass. Three deliberate event/assurance/appendix regressions were rejected. No runtime/RLS/provider/schema replay or live database verification is claimed. Prisma, migrations and historical source handoffs remain unchanged.
 - Publication: the recovered baseline is remotely verified. Continuation changes are local until separately remotely verified. Git write authentication remains an operational issue; successful fetch does not prove push access. It does not block local readiness work.
-- Next: named domain findings BF-220, BF-035, BF-265 and BF-046/052/072/170; then the remaining domain families and rail integration. No owner decision required.
+- Domain bridge checkpoint: BF-220, BF-035, BF-265 and BF-046/052/072/170 source-reviewed and applied through R077–R080, with owner/consumer and affected Cluster plan propagation. Seven of 190 domain families reviewed; 183 remain. No contract frozen.
+- Last validated local commit before bridge batch: `1e00d2b` (R068/R069 and COM-13). New bridge work is local until remote verification.
+- Next: remaining 183 domain families, current rail integration and complete 563-record inventory; then fresh platform audit and root synthesis. No owner decision required.
 
 ## Historical checkpoints
 

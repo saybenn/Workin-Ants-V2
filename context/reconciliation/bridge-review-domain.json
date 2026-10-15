@@ -1,0 +1,434 @@
+{
+  "schema_version": 1,
+  "status": "PARTIAL_SOURCE_REVIEW",
+  "baseline_commit": "1e00d2b",
+  "scope": "Seven prioritized domain families reviewed against both source/consumer contracts; remaining 183 domain families not reviewed in this report. Rail report is separate and requires integration.",
+  "families": [
+    {
+      "id": "BF-035",
+      "record_ids": [
+        "CL-01-B051"
+      ],
+      "source_sha256": {
+        "CL-01-B051": "afae6f80a99462a613dfa60abc11b13c970ed2a94cc7b3c5ffd6cb30cd42b4bd"
+      },
+      "ruling": "WA-R078",
+      "disposition": "ARCHITECTURE_RESOLVED_IMPLEMENTATION_UNQUALIFIED",
+      "contract_status": "UNSTABLE",
+      "frozen": false,
+      "assessment": "Use the existing Track-owned `assignDefaultFreeTrack` command as versioned `assignDefaultFreeTrack.v1`; do not add a second actor-created event stream. R030 already selects explicit provider-neutral free enrollment, one current base selection per User/track and typed actor binding. Profile creation remains owned by Customer, Professional or Candidate; Track does not create profiles and profile creation does not wait on Track.\n\nThe creating owner commits profile identity/history and a durable outbox command intent atomically. Input to Track is authenticated source-service identity, source owner, User ID, track, typed profile ID, source creation revision/receipt and semantic key `(source owner, profile ID, default-free enrollment v1)`. Track verifies the current canonical owner binding, permitted lifecycle and exact User/track/profile correspondence; the event or caller assertion alone is not authority. This command is a narrowly registered service action, not a public grant/admin bypass. It carries no profile content, secrets or paid-price decision.\n\nTrack atomically serializes on User/track, retains the source receipt and returns enrolled, already_enrolled, conflict, denied or unavailable with enrollment/selection revision and durable receipt. Replays reuse the result; same key/different fingerprint conflicts. An existing valid current Free or paid base selection is preserved; delayed Free provisioning never downgrades paid access, duplicates grants, resets monthly quota or rewrites enrollment history. Command timeout is unknown: retry/reconcile the same semantic key. The source outbox keeps failed/unavailable work pending until an actual receipt or terminal explained disposition is recorded. Dependent actions resolve Track facts and fail unavailable as required; they never infer Free from absence. A pre-existing source without a recorded intent can be repaired only through owner-verified enumeration/reconciliation with the same semantic identity, not a blind table scan or a new paid enrollment.\n\nThe source profile lifecycle, commercial enrollment and action-specific readiness remain distinct; creation does not authorize selling, applying or purchasing. Qualify concurrent creation/retry, wrong User/profile, archive/revocation before retry, unavailable Track, lost response, Free/paid race and unchanged same-month usage. Physical source outbox/receipt/enrollment constraints remain implementation gates under database posture D.\n\nEvidence: CL-01-B051, Track \u00a710.6 and R030, Professional createProfessionalProfile, Candidate createCandidateProfile, Customer SH-004/R031. Rejected alternatives: synchronous distributed profile/Track transaction, inferred-Free absence, provider-created $0 subscription and another overlapping creation stream. This is technical propagation of settled commercial policy.",
+      "owner_consumer_evidence": [
+        {
+          "owner": "track_subscription_entitlement",
+          "architecture": "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md",
+          "plan": "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-implementation-plan.md",
+          "obligation": "Implement assignDefaultFreeTrack.v1 with current owner-binding verification, one current base selection and durable replay receipt; never downgrade a current paid selection."
+        },
+        {
+          "owner": "professional_eligibility",
+          "architecture": "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-architecture.md",
+          "plan": "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-implementation-plan.md",
+          "obligation": "Commit the narrow Track command intent with Professional profile creation and retain retry/reconciliation state; selling readiness remains separate."
+        },
+        {
+          "owner": "candidate_application_resume_privacy",
+          "architecture": "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-architecture.md",
+          "plan": "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-implementation-plan.md",
+          "obligation": "Commit the narrow Track command intent with Candidate profile creation and retain retry/reconciliation state; same-month usage never resets."
+        },
+        {
+          "owner": "customer_buyer_profile",
+          "architecture": "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-module-architecture.md",
+          "plan": "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-implementation-plan.md",
+          "obligation": "After SH-004 profile creation, commit/reconcile the same typed Customer-track intent; buyer identity resolution does not wait for Track."
+        }
+      ],
+      "inherited_profiles": []
+    },
+    {
+      "id": "BF-046",
+      "record_ids": [
+        "CL-02-B016"
+      ],
+      "source_sha256": {
+        "CL-02-B016": "4b04dbc94dc2251958ca688400257bb5f43617f8b4a4f363bc0a9aab8f9db33b"
+      },
+      "ruling": "WA-R080",
+      "disposition": "ARCHITECTURE_RESOLVED_IMPLEMENTATION_UNQUALIFIED",
+      "contract_status": "UNSTABLE",
+      "frozen": false,
+      "assessment": "R033/R070 already settle contextual join ownership, purpose-limited descriptors and stable snapshot enumeration. Bind the missing port names and recipient routes without introducing foreign join access or a new Taxonomy stream.\n\nEach contextual assignment owner exposes `enumerateTaxonomyAffectedTargets.v1` for its registered target types. Taxonomy's authorized impact/merge workflow and registered Search revalidation work use the R070 request/response envelope: owner/purpose scope, expected term versions, snapshot/high-watermark, bounded cursor/page, target/source/assignment tokens and explicit completion evidence. Professional owns ProfessionalProfile, Marketplace owns Offering, Hiring owns Organization/Job, Candidate owns CandidateProfile and Gig owns Gig assignments. The owner authenticates service purpose and minimizes identifiers; nonpublic targets are available only to authorized owner revalidation, never public Search results. Stable page retries, invalid cursor restart, concurrent-change reconciliation and full receipt completion are mandatory. No incomplete walk proves deletion or merge completion.\n\nFor AI backfill, those approved source owners expose `enumerateClassificationSourceTargets.v1` with the same snapshot/cursor/currentness discipline and a registered target/purpose filter. Only R070's ProfessionalProfile/Offering/Organization/Job/CandidateProfile targets and explicit purpose/field allowlists qualify. Gig remains unsupported for AI. Enumeration returns identifiers/tokens, not raw text; each subsequent descriptor fetch rechecks current source authority and allowed fields. Cursor transport/encoding is an implementation detail, not permission to invent a different completion contract.\n\n`taxonomy.policy_changed.v1` is the sole registered term/policy-change fact. Its existing term/domain, policy revision and affected-target scope drive current reevaluation. Add the omitted Candidate and Gig contextual assignment consumers, and Job Compliance/Location requirement interpreters only where an explicit R033 versioned mapping applies. Existing Professional/Marketplace/Hiring/Healthcare/Trust/Search consumers retain their scopes. Ordinary Gig taxonomy remains supported although Gig AI is disabled. Hiring supplies authoritative Job snapshots and owns publication; Compliance owns rule evaluation and emits job_compliance.decision_changed.v1 back to Hiring. No event independently publishes a Job or grants readiness; absent mappings cannot imply clearance. Source owners request their own Search refresh after current revalidation, preserving generation/tombstone rules and private-source filtering.\n\nCanonical R069 recipient text and affected owner/plan appendices are updated together. Historical taxonomy.* examples remain aliases, never duplicate publication. Test expired cursor, scope substitution, interrupted walk, concurrent assignment changes, old term revision, private target leakage, Gig AI rejection, missing requirement mapping and stale Compliance-to-Hiring result. DTO fixtures and runtime delivery remain UNSTABLE; external rule/reference-data/provider gates remain isolated.\n\nEvidence: CL-02-B016/B024/B054 and CL-06-B015; R033/R069/R070; Taxonomy affected-target contract, AI backfill and contextual owner appendices; Hiring/Compliance current-source publication boundary. Rejected alternatives: blanket closure from SH matches, Taxonomy scanning foreign joins, AI processing unsupported Gig targets, or treating event delivery as completed owner revalidation.",
+      "owner_consumer_evidence": [
+        {
+          "owner": "taxonomy_classification",
+          "architecture": "context/clusters/discovery classification & taxonomy/Taxonomy Classification Module/taxonomy-classification-module-architecture.md",
+          "plan": "context/clusters/discovery classification & taxonomy/Taxonomy Classification Module/taxonomy-classification-module-implementation-plan.md",
+          "obligation": "Own taxonomy.policy_changed.v1 and impact/merge coordination; use named owner enumerators and required receipts without foreign joins."
+        },
+        {
+          "owner": "ai_taxonomy",
+          "architecture": "context/clusters/discovery classification & taxonomy/AI Taxonomy module/ai-taxonomy-module-architecture.md",
+          "plan": "context/clusters/discovery classification & taxonomy/AI Taxonomy module/ai-taxonomy-module-implementation-plan.md",
+          "obligation": "Consume enumerateClassificationSourceTargets.v1 only for registered R070 target/purpose scopes; Gig AI stays disabled."
+        },
+        {
+          "owner": "search_public_visibility",
+          "architecture": "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-architecture.md",
+          "plan": "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-implementation-plan.md",
+          "obligation": "Use scoped enumerateTaxonomyAffectedTargets.v1 and current owner projections; enumeration does not publish private targets."
+        },
+        {
+          "owner": "professional_eligibility",
+          "architecture": "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-architecture.md",
+          "plan": "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-implementation-plan.md",
+          "obligation": "Expose both named enumerators for ProfessionalProfile under R070; revalidate own assignments/readiness before projection refresh."
+        },
+        {
+          "owner": "marketplace_supply",
+          "architecture": "context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-architecture.md",
+          "plan": "context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-implementation-plan.md",
+          "obligation": "Expose both named enumerators for Offering under R070; own joins and publication gates."
+        },
+        {
+          "owner": "organization_hiring",
+          "architecture": "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-architecture.md",
+          "plan": "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-implementation-plan.md",
+          "obligation": "Expose both named enumerators for Organization/Job; own Job input/publication and invoke current Compliance evaluation where required."
+        },
+        {
+          "owner": "candidate_application_resume_privacy",
+          "architecture": "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-architecture.md",
+          "plan": "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-implementation-plan.md",
+          "obligation": "Expose both named enumerators for CandidateProfile; revalidate assignment/discovery generation without enabling discovery or disclosing resumes."
+        },
+        {
+          "owner": "gig_demand",
+          "architecture": "context/clusters/customer demand, order, & resolution/gig demand module/gig-demand-module-architecture.md",
+          "plan": "context/clusters/customer demand, order, & resolution/gig demand module/gig-demand-implementation-plan.md",
+          "obligation": "Expose only enumerateTaxonomyAffectedTargets.v1 for Gig assignments; consume term changes for current revalidation, with no Gig AI activation."
+        },
+        {
+          "owner": "job_compliance",
+          "architecture": "context/clusters/Organization Hiring & Candidate Pipeline/Job Compliance Module/job-compliance-module-architecture.md",
+          "plan": "context/clusters/Organization Hiring & Candidate Pipeline/Job Compliance Module/job-compliance-module-implementation-plan.md",
+          "obligation": "Consume taxonomy.policy_changed.v1 only for registered requirement mappings; obtain current Hiring snapshots, evaluate own rules and return version-bound decisions."
+        },
+        {
+          "owner": "location_safety",
+          "architecture": "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md",
+          "plan": "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-implementation-plan.md",
+          "obligation": "Consume taxonomy.policy_changed.v1 only for registered purpose-specific requirement mappings; a term change is not disclosure permission."
+        }
+      ],
+      "inherited_profiles": [
+        "CL-02-PROFILE-ENUM"
+      ]
+    },
+    {
+      "id": "BF-052",
+      "record_ids": [
+        "CL-02-B024"
+      ],
+      "source_sha256": {
+        "CL-02-B024": "bea3ad3ca3544e8342c78eb1927648824ab387a455d90955223f0b2a4d840bcc"
+      },
+      "ruling": "WA-R080",
+      "disposition": "ARCHITECTURE_RESOLVED_IMPLEMENTATION_UNQUALIFIED",
+      "contract_status": "UNSTABLE",
+      "frozen": false,
+      "assessment": "R033/R070 already settle contextual join ownership, purpose-limited descriptors and stable snapshot enumeration. Bind the missing port names and recipient routes without introducing foreign join access or a new Taxonomy stream.\n\nEach contextual assignment owner exposes `enumerateTaxonomyAffectedTargets.v1` for its registered target types. Taxonomy's authorized impact/merge workflow and registered Search revalidation work use the R070 request/response envelope: owner/purpose scope, expected term versions, snapshot/high-watermark, bounded cursor/page, target/source/assignment tokens and explicit completion evidence. Professional owns ProfessionalProfile, Marketplace owns Offering, Hiring owns Organization/Job, Candidate owns CandidateProfile and Gig owns Gig assignments. The owner authenticates service purpose and minimizes identifiers; nonpublic targets are available only to authorized owner revalidation, never public Search results. Stable page retries, invalid cursor restart, concurrent-change reconciliation and full receipt completion are mandatory. No incomplete walk proves deletion or merge completion.\n\nFor AI backfill, those approved source owners expose `enumerateClassificationSourceTargets.v1` with the same snapshot/cursor/currentness discipline and a registered target/purpose filter. Only R070's ProfessionalProfile/Offering/Organization/Job/CandidateProfile targets and explicit purpose/field allowlists qualify. Gig remains unsupported for AI. Enumeration returns identifiers/tokens, not raw text; each subsequent descriptor fetch rechecks current source authority and allowed fields. Cursor transport/encoding is an implementation detail, not permission to invent a different completion contract.\n\n`taxonomy.policy_changed.v1` is the sole registered term/policy-change fact. Its existing term/domain, policy revision and affected-target scope drive current reevaluation. Add the omitted Candidate and Gig contextual assignment consumers, and Job Compliance/Location requirement interpreters only where an explicit R033 versioned mapping applies. Existing Professional/Marketplace/Hiring/Healthcare/Trust/Search consumers retain their scopes. Ordinary Gig taxonomy remains supported although Gig AI is disabled. Hiring supplies authoritative Job snapshots and owns publication; Compliance owns rule evaluation and emits job_compliance.decision_changed.v1 back to Hiring. No event independently publishes a Job or grants readiness; absent mappings cannot imply clearance. Source owners request their own Search refresh after current revalidation, preserving generation/tombstone rules and private-source filtering.\n\nCanonical R069 recipient text and affected owner/plan appendices are updated together. Historical taxonomy.* examples remain aliases, never duplicate publication. Test expired cursor, scope substitution, interrupted walk, concurrent assignment changes, old term revision, private target leakage, Gig AI rejection, missing requirement mapping and stale Compliance-to-Hiring result. DTO fixtures and runtime delivery remain UNSTABLE; external rule/reference-data/provider gates remain isolated.\n\nEvidence: CL-02-B016/B024/B054 and CL-06-B015; R033/R069/R070; Taxonomy affected-target contract, AI backfill and contextual owner appendices; Hiring/Compliance current-source publication boundary. Rejected alternatives: blanket closure from SH matches, Taxonomy scanning foreign joins, AI processing unsupported Gig targets, or treating event delivery as completed owner revalidation.",
+      "owner_consumer_evidence": [
+        {
+          "owner": "taxonomy_classification",
+          "architecture": "context/clusters/discovery classification & taxonomy/Taxonomy Classification Module/taxonomy-classification-module-architecture.md",
+          "plan": "context/clusters/discovery classification & taxonomy/Taxonomy Classification Module/taxonomy-classification-module-implementation-plan.md",
+          "obligation": "Own taxonomy.policy_changed.v1 and impact/merge coordination; use named owner enumerators and required receipts without foreign joins."
+        },
+        {
+          "owner": "ai_taxonomy",
+          "architecture": "context/clusters/discovery classification & taxonomy/AI Taxonomy module/ai-taxonomy-module-architecture.md",
+          "plan": "context/clusters/discovery classification & taxonomy/AI Taxonomy module/ai-taxonomy-module-implementation-plan.md",
+          "obligation": "Consume enumerateClassificationSourceTargets.v1 only for registered R070 target/purpose scopes; Gig AI stays disabled."
+        },
+        {
+          "owner": "search_public_visibility",
+          "architecture": "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-architecture.md",
+          "plan": "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-implementation-plan.md",
+          "obligation": "Use scoped enumerateTaxonomyAffectedTargets.v1 and current owner projections; enumeration does not publish private targets."
+        },
+        {
+          "owner": "professional_eligibility",
+          "architecture": "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-architecture.md",
+          "plan": "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-implementation-plan.md",
+          "obligation": "Expose both named enumerators for ProfessionalProfile under R070; revalidate own assignments/readiness before projection refresh."
+        },
+        {
+          "owner": "marketplace_supply",
+          "architecture": "context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-architecture.md",
+          "plan": "context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-implementation-plan.md",
+          "obligation": "Expose both named enumerators for Offering under R070; own joins and publication gates."
+        },
+        {
+          "owner": "organization_hiring",
+          "architecture": "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-architecture.md",
+          "plan": "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-implementation-plan.md",
+          "obligation": "Expose both named enumerators for Organization/Job; own Job input/publication and invoke current Compliance evaluation where required."
+        },
+        {
+          "owner": "candidate_application_resume_privacy",
+          "architecture": "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-architecture.md",
+          "plan": "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-implementation-plan.md",
+          "obligation": "Expose both named enumerators for CandidateProfile; revalidate assignment/discovery generation without enabling discovery or disclosing resumes."
+        },
+        {
+          "owner": "gig_demand",
+          "architecture": "context/clusters/customer demand, order, & resolution/gig demand module/gig-demand-module-architecture.md",
+          "plan": "context/clusters/customer demand, order, & resolution/gig demand module/gig-demand-implementation-plan.md",
+          "obligation": "Expose only enumerateTaxonomyAffectedTargets.v1 for Gig assignments; consume term changes for current revalidation, with no Gig AI activation."
+        },
+        {
+          "owner": "job_compliance",
+          "architecture": "context/clusters/Organization Hiring & Candidate Pipeline/Job Compliance Module/job-compliance-module-architecture.md",
+          "plan": "context/clusters/Organization Hiring & Candidate Pipeline/Job Compliance Module/job-compliance-module-implementation-plan.md",
+          "obligation": "Consume taxonomy.policy_changed.v1 only for registered requirement mappings; obtain current Hiring snapshots, evaluate own rules and return version-bound decisions."
+        },
+        {
+          "owner": "location_safety",
+          "architecture": "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md",
+          "plan": "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-implementation-plan.md",
+          "obligation": "Consume taxonomy.policy_changed.v1 only for registered purpose-specific requirement mappings; a term change is not disclosure permission."
+        }
+      ],
+      "inherited_profiles": [
+        "CL-02-PROFILE-ENUM"
+      ]
+    },
+    {
+      "id": "BF-072",
+      "record_ids": [
+        "CL-02-B054"
+      ],
+      "source_sha256": {
+        "CL-02-B054": "82accd9ab1397f07830fb14ccb2365c45594725f2ad7e6c3287ee9e520c4a60b"
+      },
+      "ruling": "WA-R080",
+      "disposition": "ARCHITECTURE_RESOLVED_IMPLEMENTATION_UNQUALIFIED",
+      "contract_status": "UNSTABLE",
+      "frozen": false,
+      "assessment": "R033/R070 already settle contextual join ownership, purpose-limited descriptors and stable snapshot enumeration. Bind the missing port names and recipient routes without introducing foreign join access or a new Taxonomy stream.\n\nEach contextual assignment owner exposes `enumerateTaxonomyAffectedTargets.v1` for its registered target types. Taxonomy's authorized impact/merge workflow and registered Search revalidation work use the R070 request/response envelope: owner/purpose scope, expected term versions, snapshot/high-watermark, bounded cursor/page, target/source/assignment tokens and explicit completion evidence. Professional owns ProfessionalProfile, Marketplace owns Offering, Hiring owns Organization/Job, Candidate owns CandidateProfile and Gig owns Gig assignments. The owner authenticates service purpose and minimizes identifiers; nonpublic targets are available only to authorized owner revalidation, never public Search results. Stable page retries, invalid cursor restart, concurrent-change reconciliation and full receipt completion are mandatory. No incomplete walk proves deletion or merge completion.\n\nFor AI backfill, those approved source owners expose `enumerateClassificationSourceTargets.v1` with the same snapshot/cursor/currentness discipline and a registered target/purpose filter. Only R070's ProfessionalProfile/Offering/Organization/Job/CandidateProfile targets and explicit purpose/field allowlists qualify. Gig remains unsupported for AI. Enumeration returns identifiers/tokens, not raw text; each subsequent descriptor fetch rechecks current source authority and allowed fields. Cursor transport/encoding is an implementation detail, not permission to invent a different completion contract.\n\n`taxonomy.policy_changed.v1` is the sole registered term/policy-change fact. Its existing term/domain, policy revision and affected-target scope drive current reevaluation. Add the omitted Candidate and Gig contextual assignment consumers, and Job Compliance/Location requirement interpreters only where an explicit R033 versioned mapping applies. Existing Professional/Marketplace/Hiring/Healthcare/Trust/Search consumers retain their scopes. Ordinary Gig taxonomy remains supported although Gig AI is disabled. Hiring supplies authoritative Job snapshots and owns publication; Compliance owns rule evaluation and emits job_compliance.decision_changed.v1 back to Hiring. No event independently publishes a Job or grants readiness; absent mappings cannot imply clearance. Source owners request their own Search refresh after current revalidation, preserving generation/tombstone rules and private-source filtering.\n\nCanonical R069 recipient text and affected owner/plan appendices are updated together. Historical taxonomy.* examples remain aliases, never duplicate publication. Test expired cursor, scope substitution, interrupted walk, concurrent assignment changes, old term revision, private target leakage, Gig AI rejection, missing requirement mapping and stale Compliance-to-Hiring result. DTO fixtures and runtime delivery remain UNSTABLE; external rule/reference-data/provider gates remain isolated.\n\nEvidence: CL-02-B016/B024/B054 and CL-06-B015; R033/R069/R070; Taxonomy affected-target contract, AI backfill and contextual owner appendices; Hiring/Compliance current-source publication boundary. Rejected alternatives: blanket closure from SH matches, Taxonomy scanning foreign joins, AI processing unsupported Gig targets, or treating event delivery as completed owner revalidation.",
+      "owner_consumer_evidence": [
+        {
+          "owner": "taxonomy_classification",
+          "architecture": "context/clusters/discovery classification & taxonomy/Taxonomy Classification Module/taxonomy-classification-module-architecture.md",
+          "plan": "context/clusters/discovery classification & taxonomy/Taxonomy Classification Module/taxonomy-classification-module-implementation-plan.md",
+          "obligation": "Own taxonomy.policy_changed.v1 and impact/merge coordination; use named owner enumerators and required receipts without foreign joins."
+        },
+        {
+          "owner": "ai_taxonomy",
+          "architecture": "context/clusters/discovery classification & taxonomy/AI Taxonomy module/ai-taxonomy-module-architecture.md",
+          "plan": "context/clusters/discovery classification & taxonomy/AI Taxonomy module/ai-taxonomy-module-implementation-plan.md",
+          "obligation": "Consume enumerateClassificationSourceTargets.v1 only for registered R070 target/purpose scopes; Gig AI stays disabled."
+        },
+        {
+          "owner": "search_public_visibility",
+          "architecture": "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-architecture.md",
+          "plan": "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-implementation-plan.md",
+          "obligation": "Use scoped enumerateTaxonomyAffectedTargets.v1 and current owner projections; enumeration does not publish private targets."
+        },
+        {
+          "owner": "professional_eligibility",
+          "architecture": "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-architecture.md",
+          "plan": "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-implementation-plan.md",
+          "obligation": "Expose both named enumerators for ProfessionalProfile under R070; revalidate own assignments/readiness before projection refresh."
+        },
+        {
+          "owner": "marketplace_supply",
+          "architecture": "context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-architecture.md",
+          "plan": "context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-implementation-plan.md",
+          "obligation": "Expose both named enumerators for Offering under R070; own joins and publication gates."
+        },
+        {
+          "owner": "organization_hiring",
+          "architecture": "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-architecture.md",
+          "plan": "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-implementation-plan.md",
+          "obligation": "Expose both named enumerators for Organization/Job; own Job input/publication and invoke current Compliance evaluation where required."
+        },
+        {
+          "owner": "candidate_application_resume_privacy",
+          "architecture": "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-architecture.md",
+          "plan": "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-implementation-plan.md",
+          "obligation": "Expose both named enumerators for CandidateProfile; revalidate assignment/discovery generation without enabling discovery or disclosing resumes."
+        },
+        {
+          "owner": "gig_demand",
+          "architecture": "context/clusters/customer demand, order, & resolution/gig demand module/gig-demand-module-architecture.md",
+          "plan": "context/clusters/customer demand, order, & resolution/gig demand module/gig-demand-implementation-plan.md",
+          "obligation": "Expose only enumerateTaxonomyAffectedTargets.v1 for Gig assignments; consume term changes for current revalidation, with no Gig AI activation."
+        },
+        {
+          "owner": "job_compliance",
+          "architecture": "context/clusters/Organization Hiring & Candidate Pipeline/Job Compliance Module/job-compliance-module-architecture.md",
+          "plan": "context/clusters/Organization Hiring & Candidate Pipeline/Job Compliance Module/job-compliance-module-implementation-plan.md",
+          "obligation": "Consume taxonomy.policy_changed.v1 only for registered requirement mappings; obtain current Hiring snapshots, evaluate own rules and return version-bound decisions."
+        },
+        {
+          "owner": "location_safety",
+          "architecture": "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md",
+          "plan": "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-implementation-plan.md",
+          "obligation": "Consume taxonomy.policy_changed.v1 only for registered purpose-specific requirement mappings; a term change is not disclosure permission."
+        }
+      ],
+      "inherited_profiles": [
+        "CL-02-PROFILE-ENUM"
+      ]
+    },
+    {
+      "id": "BF-170",
+      "record_ids": [
+        "CL-06-B015"
+      ],
+      "source_sha256": {
+        "CL-06-B015": "8c69a7b8e7aa54dd6d3b3eb13deca216f560cf04b4e19c40712a3e9642ae8f70"
+      },
+      "ruling": "WA-R080",
+      "disposition": "ARCHITECTURE_RESOLVED_IMPLEMENTATION_UNQUALIFIED",
+      "contract_status": "UNSTABLE",
+      "frozen": false,
+      "assessment": "R033/R070 already settle contextual join ownership, purpose-limited descriptors and stable snapshot enumeration. Bind the missing port names and recipient routes without introducing foreign join access or a new Taxonomy stream.\n\nEach contextual assignment owner exposes `enumerateTaxonomyAffectedTargets.v1` for its registered target types. Taxonomy's authorized impact/merge workflow and registered Search revalidation work use the R070 request/response envelope: owner/purpose scope, expected term versions, snapshot/high-watermark, bounded cursor/page, target/source/assignment tokens and explicit completion evidence. Professional owns ProfessionalProfile, Marketplace owns Offering, Hiring owns Organization/Job, Candidate owns CandidateProfile and Gig owns Gig assignments. The owner authenticates service purpose and minimizes identifiers; nonpublic targets are available only to authorized owner revalidation, never public Search results. Stable page retries, invalid cursor restart, concurrent-change reconciliation and full receipt completion are mandatory. No incomplete walk proves deletion or merge completion.\n\nFor AI backfill, those approved source owners expose `enumerateClassificationSourceTargets.v1` with the same snapshot/cursor/currentness discipline and a registered target/purpose filter. Only R070's ProfessionalProfile/Offering/Organization/Job/CandidateProfile targets and explicit purpose/field allowlists qualify. Gig remains unsupported for AI. Enumeration returns identifiers/tokens, not raw text; each subsequent descriptor fetch rechecks current source authority and allowed fields. Cursor transport/encoding is an implementation detail, not permission to invent a different completion contract.\n\n`taxonomy.policy_changed.v1` is the sole registered term/policy-change fact. Its existing term/domain, policy revision and affected-target scope drive current reevaluation. Add the omitted Candidate and Gig contextual assignment consumers, and Job Compliance/Location requirement interpreters only where an explicit R033 versioned mapping applies. Existing Professional/Marketplace/Hiring/Healthcare/Trust/Search consumers retain their scopes. Ordinary Gig taxonomy remains supported although Gig AI is disabled. Hiring supplies authoritative Job snapshots and owns publication; Compliance owns rule evaluation and emits job_compliance.decision_changed.v1 back to Hiring. No event independently publishes a Job or grants readiness; absent mappings cannot imply clearance. Source owners request their own Search refresh after current revalidation, preserving generation/tombstone rules and private-source filtering.\n\nCanonical R069 recipient text and affected owner/plan appendices are updated together. Historical taxonomy.* examples remain aliases, never duplicate publication. Test expired cursor, scope substitution, interrupted walk, concurrent assignment changes, old term revision, private target leakage, Gig AI rejection, missing requirement mapping and stale Compliance-to-Hiring result. DTO fixtures and runtime delivery remain UNSTABLE; external rule/reference-data/provider gates remain isolated.\n\nEvidence: CL-02-B016/B024/B054 and CL-06-B015; R033/R069/R070; Taxonomy affected-target contract, AI backfill and contextual owner appendices; Hiring/Compliance current-source publication boundary. Rejected alternatives: blanket closure from SH matches, Taxonomy scanning foreign joins, AI processing unsupported Gig targets, or treating event delivery as completed owner revalidation.",
+      "owner_consumer_evidence": [
+        {
+          "owner": "taxonomy_classification",
+          "architecture": "context/clusters/discovery classification & taxonomy/Taxonomy Classification Module/taxonomy-classification-module-architecture.md",
+          "plan": "context/clusters/discovery classification & taxonomy/Taxonomy Classification Module/taxonomy-classification-module-implementation-plan.md",
+          "obligation": "Own taxonomy.policy_changed.v1 and impact/merge coordination; use named owner enumerators and required receipts without foreign joins."
+        },
+        {
+          "owner": "ai_taxonomy",
+          "architecture": "context/clusters/discovery classification & taxonomy/AI Taxonomy module/ai-taxonomy-module-architecture.md",
+          "plan": "context/clusters/discovery classification & taxonomy/AI Taxonomy module/ai-taxonomy-module-implementation-plan.md",
+          "obligation": "Consume enumerateClassificationSourceTargets.v1 only for registered R070 target/purpose scopes; Gig AI stays disabled."
+        },
+        {
+          "owner": "search_public_visibility",
+          "architecture": "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-architecture.md",
+          "plan": "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-implementation-plan.md",
+          "obligation": "Use scoped enumerateTaxonomyAffectedTargets.v1 and current owner projections; enumeration does not publish private targets."
+        },
+        {
+          "owner": "professional_eligibility",
+          "architecture": "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-architecture.md",
+          "plan": "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-implementation-plan.md",
+          "obligation": "Expose both named enumerators for ProfessionalProfile under R070; revalidate own assignments/readiness before projection refresh."
+        },
+        {
+          "owner": "marketplace_supply",
+          "architecture": "context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-architecture.md",
+          "plan": "context/clusters/professional supply & readiness/Marketplace Supply Module/marketplace-supply-module-implementation-plan.md",
+          "obligation": "Expose both named enumerators for Offering under R070; own joins and publication gates."
+        },
+        {
+          "owner": "organization_hiring",
+          "architecture": "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-architecture.md",
+          "plan": "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-implementation-plan.md",
+          "obligation": "Expose both named enumerators for Organization/Job; own Job input/publication and invoke current Compliance evaluation where required."
+        },
+        {
+          "owner": "candidate_application_resume_privacy",
+          "architecture": "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-architecture.md",
+          "plan": "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-implementation-plan.md",
+          "obligation": "Expose both named enumerators for CandidateProfile; revalidate assignment/discovery generation without enabling discovery or disclosing resumes."
+        },
+        {
+          "owner": "gig_demand",
+          "architecture": "context/clusters/customer demand, order, & resolution/gig demand module/gig-demand-module-architecture.md",
+          "plan": "context/clusters/customer demand, order, & resolution/gig demand module/gig-demand-implementation-plan.md",
+          "obligation": "Expose only enumerateTaxonomyAffectedTargets.v1 for Gig assignments; consume term changes for current revalidation, with no Gig AI activation."
+        },
+        {
+          "owner": "job_compliance",
+          "architecture": "context/clusters/Organization Hiring & Candidate Pipeline/Job Compliance Module/job-compliance-module-architecture.md",
+          "plan": "context/clusters/Organization Hiring & Candidate Pipeline/Job Compliance Module/job-compliance-module-implementation-plan.md",
+          "obligation": "Consume taxonomy.policy_changed.v1 only for registered requirement mappings; obtain current Hiring snapshots, evaluate own rules and return version-bound decisions."
+        },
+        {
+          "owner": "location_safety",
+          "architecture": "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md",
+          "plan": "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-implementation-plan.md",
+          "obligation": "Consume taxonomy.policy_changed.v1 only for registered purpose-specific requirement mappings; a term change is not disclosure permission."
+        }
+      ],
+      "inherited_profiles": []
+    },
+    {
+      "id": "BF-220",
+      "record_ids": [
+        "CL-08-B015"
+      ],
+      "source_sha256": {
+        "CL-08-B015": "8ce4dc31ee32913210bfe732739b4852c6b7f4ed0bb7e6e6ebddf6a7f87091a6"
+      },
+      "ruling": "WA-R077",
+      "disposition": "ARCHITECTURE_RESOLVED_IMPLEMENTATION_UNQUALIFIED",
+      "contract_status": "UNSTABLE",
+      "frozen": false,
+      "assessment": "Order owns collection and immutable revision of private checkout tax-location evidence for its quote/Order. Payment owns tax-policy validation, provider mapping and SalesTaxCalculation truth. Location public/fuzzy output and service exact-reveal decisions are not tax evidence. This completes R037's previously unnamed checkout evidence source; it does not determine legal sufficiency, tax liability, required jurisdiction fields or provider capability.\n\nOrder exposes `recordCheckoutTaxLocationEvidence.v1` to the current authorized checkout buyer or a specifically scoped source service. It binds request/semantic key, buyer User/Customer, checkout/quote identity and expected revision, declared source/method, captured/effective time, evidence revision and a closed versioned field set approved for the selected tax purpose. Initial collection is not validation; preserve unverified/validated/rejected classification and validation provenance without claiming a provider checked it. Extra/unapproved fields reject. Concurrent quote/evidence changes conflict; same key/fingerprint replays, changed fingerprint conflicts. Corrected evidence creates a new revision; finalized historical tax proof is immutable.\n\n`getCheckoutTaxLocationEvidence.v1` is a protected Order query for that buyer context or Payment's registered tax-calculation service. It returns only the approved minimized descriptor, source/evidence revision, quote binding, validation provenance and readiness, with denied/unavailable/stale distinguished and no existence leak. Payment's existing calculate/finalize ports consume that exact owner-bound descriptor and independently apply approved tax policy. Missing, stale, mismatched or unqualified evidence blocks the dependent tax calculation/finalization; never fall back to fuzzy coordinates, public consent, arbitrary profile address or a guessed jurisdiction. Current owner/service authorization and applicable sensitive-access proof precede disclosure. No raw tax-location payload enters public events, Search, diagnostics or notifications.\n\nOrder binds the selected Payment calculation to the same immutable quote/line/currency/evidence revisions before committing the purchase. A changed quote/evidence revision requires a new calculation; old provider responses cannot overwrite current selection. Failure remains retriable with the same semantic calculation identity or explicit reconcile-required receipt. Legal/provider field requirements, validation methods, retention and physical representation are scoped activation gates. Test wrong buyer/quote, changed evidence, out-of-order provider result, conflicting retry, unauthorized read and public-location fallback denial.\n\nEvidence: CL-08-B015; Payment \u00a710.9/10.10 and inbound dependency table; Order/Payment R037 tax evidence binding; Location R071 purpose boundary. Rejected alternatives: Location as universal tax collector, Payment taking ownership of checkout, and inferring tax facts from public location. Versioned descriptors permit prospective evolution without rewriting finalized history.",
+      "owner_consumer_evidence": [
+        {
+          "owner": "transaction_order",
+          "architecture": "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-module-architecture.md",
+          "plan": "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-implementation-plan.md",
+          "obligation": "Own collection/revisions and the two protected checkout evidence ports; freeze the selected Payment calculation against exact quote/line/currency/evidence identities."
+        },
+        {
+          "owner": "payment_payout_tax",
+          "architecture": "context/clusters/professional supply & readiness/Payment Payout & Tax Module/payment-payout-tax-module-architecture.md",
+          "plan": "context/clusters/professional supply & readiness/Payment Payout & Tax Module/payment-payout-tax-module-implementation-plan.md",
+          "obligation": "Consume only the Order-bound private descriptor; own tax validation/provider mapping/calculation evidence and reject stale or unqualified input."
+        },
+        {
+          "owner": "location_safety",
+          "architecture": "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md",
+          "plan": "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-implementation-plan.md",
+          "obligation": "Public/fuzzy/reveal projections are not checkout tax evidence; no universal tax-location authority is added."
+        }
+      ],
+      "inherited_profiles": []
+    },
+    {
+      "id": "BF-265",
+      "record_ids": [
+        "CL-10-B030"
+      ],
+      "source_sha256": {
+        "CL-10-B030": "570e7ae3c5a73b77e9c08b2329d9bfdada01feb5af021cfef4311ae4b3588ea0"
+      },
+      "ruling": "WA-R079",
+      "disposition": "OPTIONAL_DISABLED_PENDING_FUTURE_CONTRACT",
+      "contract_status": "UNSTABLE",
+      "frozen": false,
+      "assessment": "The reverse Sweepstakes-to-Order prize-entry/result display is optional and has no qualified contextual Order projection. Keep it disabled. Existing `getUserDrawingEntries` is scoped to subject and drawing; it does not silently become an Order-scoped query. Order's purchase/outcome facts remain the forward source evidence under R069 and do not manufacture entry rights, paid odds or a required reverse dependency.\n\nBefore future activation, Sweepstakes must register a versioned contextual projection with exact Order/subject binding, current viewer authority, minimized fields, source revisions, unavailable behavior and bilateral fixtures; Order may then render only the authorized projection. No endpoint, event or schema is invented in this ruling. Unavailable or absent optional display cannot alter checkout, Order state, entry eligibility or prize truth; never infer zero entries from a missing contract. Sweepstakes retains PrizeEntry/PrizeWinning truth and approved official-rule gates. Baseline Order work has no dependency on mature Sweepstakes.\n\nEvidence: CL-10-B030 explicitly marks optional commerce display; Sweepstakes \u00a714 and getUserDrawingEntries; Order's forward R069 producer list. Rejected alternative: expand a subject/drawing query into an unapproved Order projection or make an optional display a platform readiness blocker. The deferral is reversible through an explicit later contract decision.",
+      "owner_consumer_evidence": [
+        {
+          "owner": "transaction_order",
+          "architecture": "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-module-architecture.md",
+          "plan": "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-implementation-plan.md",
+          "obligation": "Keep optional Order-context prize display disabled; no reverse Sweepstakes dependency is required for baseline Order work."
+        },
+        {
+          "owner": "sweepstakes_prize",
+          "architecture": "context/clusters/incentives, rewards & prize economy/sweepstakes-module/sweepstakes-prize-module-architecture.md",
+          "plan": "context/clusters/incentives, rewards & prize economy/sweepstakes-module/sweepstakes-prize-implementation-plan.md",
+          "obligation": "Keep subject/drawing query scope unchanged; no Order projection is registered, and official-rule/entry truth stays local."
+        }
+      ],
+      "inherited_profiles": []
+    }
+  ],
+  "metrics": {
+    "domain_families_total": 190,
+    "reviewed": 7,
+    "remaining": 183,
+    "reviewed_historical_records": 7,
+    "frozen": 0
+  }
+}
