@@ -154,3 +154,7 @@ git diff --check
 ```
 
 Do not run migration/seed/reset, publish a production release, merge main or begin product features as part of resuming this readiness sweep.
+
+## Publication outcome and portable fallback
+
+The first transfer commit was saved locally as `2f05c0e` but Git push failed because no Git transport credentials were available (`could not read Username for https://github.com`). No dedicated remote branch was created. This handoff is followed by a recovery-record commit; the final exact local SHA is in the delivered package RECOVERY.md and final response. See [account-transfer-recovery.md](account-transfer-recovery.md). The delivered complete-history bundle is the usable transfer path until an authenticated environment pushes the branch. Do not mistake the repository/branch URL for verified publication. The original eight readiness commits plus transfer/recovery commits remain preserved without rewrite.

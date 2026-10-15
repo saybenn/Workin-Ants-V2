@@ -30,3 +30,5 @@ git diff --check
 12. Commit logical authorized local batches on the dedicated branch. The prior user authorized pushing the transfer branch, not merging main or deployment. Do not force-push, rewrite history, delete branches, deploy, execute destructive migrations, or begin full product development. Finish with honest readiness classification and an unambiguous next bounded implementation slice, including what can later run in parallel and which external gates remain.
 
 Your job is to continue from the recorded unfinished contracts, not reconstruct the project from scratch. If GitHub is newer than this handoff, reconcile the delta by concern and preserve later work before proceeding.
+
+If the dedicated branch is not yet on GitHub: the source push was blocked by missing Git transport authentication. Upload/extract the delivered `Workin_Ants_Account_Transfer.zip` in this Work thread and follow `RECOVERY.md` to clone its full-history bundle. Verify exact HEAD, set the original GitHub remote, then use the same bootstrap above. Publish from an authenticated environment without forcing or rewriting history; do not recreate the project from main alone.
