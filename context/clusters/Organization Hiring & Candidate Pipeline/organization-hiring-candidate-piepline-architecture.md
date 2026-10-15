@@ -1178,3 +1178,68 @@ Requirement rules are immutable schema-versioned records keyed to supported acti
 Identity checks establish only their named verified identity claim; financial readiness stays Payment-owned; a healthcare credential check establishes that credential only, never BAA or Healthcare lane clearance. Broad platform_verified/gold_trust_check/healthcare_verified badges have no launch issuance or authorization effect without explicit scoped claim definitions; preserve legacy facts without minting misleading composite assurance. Public badge DTOs contain the approved claim label/type, subject profile reference, validity and evidence revision only. A badge never replaces current owner readiness.
 
 FCRA technical evidence must link immutable notice template/version/content hash, identified recipient, approved purpose/check/report revision, delivery attempt and verified delivery outcome, policy/jurisdiction version, legally determined timing anchors, dispute submissions and outcome, final-action authorization and history. Notification delivery receipt is evidence, not a legal conclusion. Exact notice content, channels, required waits, adverse-action transitions and retention remain EXTERNAL_REQUIREMENT; no numeric windows or automated adverse decisions are approved here. Required tests cover consent-link mismatch, recheck history, expired supporting evidence, duplicate/late callback, secret exclusion and subject-context mismatch.
+
+
+## WA-R042 — Approved service reports, discovery choice, invitation validity and conversations
+
+Binding P16–P19 owner rulings, received 2026-10-07 America/New_York. Supersede open recommendations; no implementation completion implied.
+
+### P17
+
+Candidate discovery/search participation is explicit opt-in and off by default. Persist the Candidate-owned participation choice with version, actor and time; no default database visibility boolean or JobApplication submission implies opt-in. Application workflow can expose the Candidate/application to that specific authorized hiring Organization independently of general discovery.
+
+Disabling discovery invalidates future candidate-search exposure immediately at the authoritative query boundary and requests removal through Search/privacy contracts with durable completion evidence. Delayed provider deletion cannot authorize stale result disclosure. Opt-out preserves valid JobApplications and authorized hiring history under their owners. It grants no raw-resume access and does not enable anonymous Candidate indexing.
+
+
+### P18
+
+Do not automatically expire interview invitations by timer at launch. Organizers cancel, replace or reschedule through Job Interview lifecycle with immutable history. Invitation pending state alone does not prove a currently actionable slot: every new acceptance validates the current invitation/revision and server-authoritative scheduling facts. An already-elapsed interview slot cannot be newly accepted; present a stale-slot outcome and require authorized replacement/rescheduling. This validity check is not an automatic expiration transition and does not invent a deadline. Preserve existing response and schedule history; no_response is not proof of recipient reading.
+
+## WA-R043–047 — Integrated CL-06 owner contracts
+
+These applied owner rulings supersede earlier unresolved/proposed statements only for the same concerns. Hiring owns business verification evidence, membership/owner transfer, Job history and contextual joins (WA-R043). Compliance owns reproducible input/rule/check/review evidence; Hiring alone publishes from a current qualified decision (WA-R044). Candidate owns opt-in projection state, application graph/history, view/resume evidence and parser attempt lineage (WA-R045). Interview owns invitation responses/revocation and successor scheduling, never application stages or provider mechanics (WA-R046). Each owner implements its constrained Moderation/Privacy adapter and registered sensitive-action facts (WA-R047).
+
+P17/P18 under WA-R042 settle discovery default-off and no timer expiration while rejecting acceptance of past slots. Participant-facing service Order conversations under P19 do not replace hiring interview/applicant context. Cross-Cluster consumers must qualify typed contracts before activation. Root rails, forward schema/history constraints, legal rule/retention content, provider capabilities and exact event/DTO fixtures remain scoped prerequisites, not production-readiness claims.
+
+
+## WA-R066 — Finite Notification source and recipient contracts
+
+Classification: AI_RESOLVED_WITH_TRADEOFF. Architecture contract; implementation and external qualification remain explicit gates.
+
+SH-041 uses the following finite versioned semantic-intent/template registrations. These are architecture contracts, not implemented renderers, selected delivery vendors or proof of delivery. Sources emit an intent only after the corresponding durable owner transition. Every intent binds source owner, typed aggregate ID/revision, immutable semantic intent ID, template key/version, owner-resolved local User recipients, safe authenticated route, sensitivity and event kind. Notification owns channel consent, current endpoint generation, eligible delivery, attempts and receipts. Sources never ask Notification to scan foreign memberships or reconstruct business state.
+
+| Intent/template | Committed source and recipients | Safe additional content |
+| --- | --- | --- |
+| message.new.v1 | Messaging messaging.message_created.v1; other currently eligible Thread participants selected by Messaging, excluding sender | Thread/Message references only; no message body or attachment URL |
+| order.outcome.v1 | Order order.outcome_changed.v1; currently authorized Order participants selected by Order for its source kind | Safe operational outcome code and Order link; no financial consequence implied |
+| booking.schedule.v1 | Booking confirmed/rescheduled/cancelled facts; currently authorized affected Booking participants | Safe change kind and authenticated schedule link; no exact address or meeting credential |
+| interview.invitation.v1 | Interview invitation/current schedule revision; invited eligible Candidate and authorized Organization participants selected by Interview | Interview reference and safe proposed/scheduled kind |
+| interview.schedule.v1 | Interview cancellation/reschedule/replacement; currently authorized affected participants selected by Interview | Safe change kind and authorized predecessor/successor references; no new removed-user notice |
+| application.status.v1 | Candidate accepted_offer or withdrawn: current authorized hiring Organization recipients selected by Candidate through Hiring facts; Candidate rejected or hired: the application Candidate User | Application reference and exactly accepted_offer/withdrawn/rejected/hired change code; no view/stage alert or general Candidate exposure |
+| privacy.verification_needed.v1 | Privacy durable request transition requiring verification; request subject through Privacy/Identity-authorized route | Request reference and safe action-needed code; no verification secret |
+| privacy.outcome.v1 | Privacy accounted terminal outcome; currently authorized request subject/representative | Safe terminal category and link; no restricted exemption evidence or other parties' data |
+| privacy.export_ready.v1 | Privacy complete manifest and ready exact Media version/current generation; currently authorized export requester | Request/bundle reference; no signed credential or stored public URL |
+| security.notice.v1 | Identity committed security intent; affected local User only | Generic change and authenticated-context link; no OTP, recovery token, precise IP or factor details |
+| supply.status.v1 | Professional/Marketplace committed status/remediation intent under R035; owner-resolved Professional User | Generic status/remediation code; no Healthcare/provider/Hold detail |
+
+Candidate registers `candidate.application_status_changed.v1` with eventId, application ID/revision, committed time, semantic command identity, old/new status, authorized actor reference and safe typed Candidate/Organization subject references. This event contains no resume, message, employer notes or protected evidence. The source owner derives notification recipients from current Hiring authority. Only the four listed successful status transitions may create application.status.v1 at launch; application views, recruiter stages and retry transport do not. Candidate acceptance must already satisfy R045 current-offer proof, and withdrawal does not restore quota. Sending a notification never makes an application or Candidate publicly discoverable.
+
+Deduplicate one semantic intent × resolved User; channel attempts are children of that intent. Changed payload under the same fingerprint conflicts. Retries preserve identity. Current protected-context access is rechecked before rendering/dereference; loss of membership suppresses the protected notice. Do not create a removed-user notice without its own approved source policy. Delayed invitation links must recheck P18/current schedule. Notification failure never rolls back source truth. No message bodies, resumes, exact locations, raw provider failures, adjudication evidence or credentials may enter generic variables.
+
+Material proposal changes remain visibly surfaced by Gig's current-revision presentation under P14; a delivered notice is not evidence the latest terms were presented for acceptance. Participant-facing Dispute updates reuse Order conversation under P19, but a Review fact cannot be relabeled as an Order event; any separate Review alert remains disabled until registered. Optional viewed/shortlisted, Location, Interview completion/no-show and other undeclared alerts remain disabled. This finite registration does not provide legally sufficient notice policy. Exact copy, renderer/schema fixtures, provider/account/channel qualification and delivery recovery proof remain activation prerequisites. Existing broad notification suggestions are narrowed by this explicit source/recipient matrix for these intents.
+
+## WA-R070 — Source descriptors, assignment receipts and affected-target enumeration
+
+Hiring and Candidate expose distinct minimized purpose-approved AI source descriptors, stable owner enumeration and atomic contextual assignment receipts; P17 opt-in is not AI-purpose consent.
+
+## WA-R071 — Purpose-specific Location facts and disclosure
+
+Hiring public geography consumes approved coarse Location fields; Interview meetingLocation/meetingPhone use a distinct participant-purpose policy and durable proof. Recruitment role is not blanket exact access.
+
+## WA-R072 — Hiring compatibility and forward migration stewardship
+
+Hiring owns JobMedia and Organization/Job history; Candidate owns contextual media joins and application view/access history; Interview owns participants and invitation/response history. Additive/backfill/parity/removal sequence requires proven original identities and preserves history; database D gates activation.
+
+## WA-R073 — Interview access interval and bounded credentials
+
+Invitation acceptance requires future startsAt under P18; joining accepted current interviews requires startsAt <= serverNow < endsAt. No timer expiry or implicit pre/post grace; new timing policy can change future behavior without rewriting history.

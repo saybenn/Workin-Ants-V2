@@ -839,3 +839,148 @@ Maintain an explicit effective BAA reference per Healthcare profile and covered 
 lockedHealthcareFlag is a derived UI/edit restriction indicator only; source policy and revision must be queried for authority. It does not replace a boundary, BAA, Hold or readiness. BAA proof contains agreement/scope, party legal identifiers and represented authority, document version and canonical bytes hash, signer/countersigner identities/roles, signature intent and timestamp, provider envelope/reference and verified evidence provenance. Required legal parties, signature sufficiency, text, effective terms and retention are EXTERNAL_REQUIREMENT before live Healthcare contracting. Technical storage of those fields is not legal approval. documentMediaId becomes an explicit Healthcare-owned evidence attachment relation to MediaAsset with immutable evidence version/hash; Media lifecycle cannot overwrite executed bytes. No public/eager signed URL in BAA DTOs.
 
 Healthcare-owned provider event effects follow WA-R018 with unique provider/account/event/handler version, payload fingerprint, agreement target, received time, processing status, attempt history, verified normalized outcome, effect receipt and reconcile status. Event arrival is not BAA execution. Unknown provider states stay unresolved. Provider-specific e-sign selection/capability, storage and video BAA coverage must come from actual qualified provider/account/region/configuration evidence through the corresponding provider owner; Healthcare evaluates it. No provider brand implies coverage. Required tests include ancestor restriction precedence, unknown mask denial, replacement race, late signed callback after revocation, and summary rebuild; provider/legal qualification remains separate.
+
+
+## WA-R042 — Approved service reports, discovery choice, invitation validity and conversations
+
+Binding P16–P19 owner rulings, received 2026-10-07 America/New_York. Supersede open recommendations; no implementation completion implied.
+
+### P19
+
+Booking and participant-facing Dispute discussion associated with the same Order reuse that Order's conversation. Context labels/session/case references aid navigation, but do not create duplicate buyer/seller threads. Messaging resolves the canonical Order thread and current membership through its public interface; source owners supply authoritative context and participant facts. Reuse does not automatically enroll a reviewer/support actor or expose unrelated history.
+
+Private adjudication notes, reviewer deliberation, restricted evidence, internal support/moderation material and decision-making records remain separate from the participant conversation under their owning access/audit boundaries. No generic attachment forwarding or notification may leak those records into the thread. Sharing a conversation transfers none of Booking, Dispute, Messaging, Moderation or Order lifecycle ownership.
+
+## WA-R053 — Messaging context identity and durable history
+
+Classification: AI_RESOLVED_WITH_TRADEOFF; external activation and implementation qualification gates below remain explicit. This ruling supersedes conflicting historical proposals only for its stated scope.
+
+SH-113 ensureContextThread accepts typed source owner/type/id, source revision, source-approved participant facts and logical command identity. Messaging validates current source applicability and Role authority, then converges under source-identity uniqueness to one Thread. Order is the participant conversation for its Booking sessions and commercial Dispute under P19/WA-R042; retain session/case navigation references without granting extra membership. Other existing typed Gig, response, assignment, application and interview contexts remain independently keyed to their actual source, not automatically merged by participant overlap. A typed FK is context truth; generic contextId is derived compatibility metadata and must equal that FK. Exactly the matching typed context reference is populated; mismatches block migration/creation, never select whichever field was read first.
+
+Direct two-person identity is the sorted distinct local User pair under a uniqueness lock. Explicit group requests have their own stable Messaging conversation identity and logical create key; do not dedupe a group by mutable membership or silently convert a pair conversation into a group. Support remains a Messaging context with explicit purpose and authorized participant scope; no new support-case lifecycle is created. These identity mechanics do not authorize unsolicited enrollment. Immediate admission requires current source-authorized relationship or explicit authorized conversation request; arbitrary client-supplied recipient arrays fail. Any future invitation product requires its own approved policy. Per-user archive is a viewing preference; no global Thread closed/frozen business lifecycle is added. Restrictions and privacy erasure independently control use.
+
+Persist current ThreadParticipant separately from immutable membership addition/removal history: actor, subject, time, source/policy revision, reason and command identity. Removal invalidates subsequent reads, subscriptions and file authorization; historical presence is not current permission. Concurrent ensure/admission uses current owner version and same-command fingerprint conflict detection. A re-add requires fresh authority and a new membership episode; no inherited access from the old episode.
+
+Persist immutable Message revisions with original sender, revision author, edit time, parent Message identity, content/sensitivity revision and command provenance. Update current revision using expected-version comparison; product deletion hides the Message and cannot be reversed through editing. Do not invent an undelete function. Stable pagination uses (createdAt,id) with a deterministic tie-breaker; no cross-domain sequence service. Historical revisions are subject to approved Privacy disposition, not an exemption from erasure. Where non-null content requires a tombstone, replace authorized erased text with a fixed nonpersonal marker and remove superseded personal revision content through the executor; erasedAt alone is insufficient. Pseudonymization of sender/history follows accepted retention disposition, not ordinary message deletion.
+
+Verification must cover duplicate context creation, conflicting typed/generic IDs, pair/group identity, stale source admission, membership remove/re-add, concurrent edit, deleted/erased edit denial, and cursor ties. Forward schema and applicable retention schedules remain implementation/external prerequisites.
+
+## WA-R054 — Messaging restrictions and authorized realtime
+
+Classification: AI_RESOLVED_WITH_TRADEOFF; external activation and implementation qualification gates below remain explicit. This ruling supersedes conflicting historical proposals only for its stated scope.
+
+Messaging owns persistent Thread/Message restrictions and their immutable imposition/restoration evidence. SH-103 execution binds an authorized Moderation decision, exact typed target/action, expected target version and semantic effect key; repeated identical instruction returns its original receipt. Record accepted versus completed execution distinctly. A restoration requires a fresh authorized owner decision and current applicable gates; an edit, new participant episode or generic Hold release cannot clear a restriction. Moderation owns the case/decision and Messaging owns enforcement on its records.
+
+Role checks precede disclosure. Healthcare evaluates applicable ancestry, purpose and each Message/attachment sensitivity under WA-R036; Thread protection enforces the intersection of all applicable category/purpose controls under WA-R065; categories are not ranked, and no item may be downgraded. A new high-sensitivity item strengthens the serving boundary before disclosure. Unknown policy/ancestry fails closed. Source-owned field masks apply before serialization, Media access and notification intent rendering. Protected message/attachment views and exports require durable scoped access evidence under WA-R023; safe inbox metadata follows its separately registered access policy. Sensitive bulk export requires registered authority and fresh action-bound assurance, never a commercial entitlement substitute.
+
+Register messaging.message_created.v1, messaging.message_revised.v1, messaging.message_hidden.v1 and messaging.membership_changed.v1 as minimal owner facts: eventId, Thread ID/revision, affected Message or membership ID/revision, occurredAt, causation/correlation and safe actor reference. Commit history and outbox with owner mutation. Do not include content, attachment URLs or private evidence in the event. Realtime carries only authorized minimal invalidation/delta after commit, never a source of truth. Authenticate subscriptions against current Thread membership/restrictions; revalidate on membership/restriction changes and before protected emission, terminate revoked audiences, and re-query owner truth on reconnect. An event being queued is not proof it was delivered. Provider/channel implementation of SH-071 remains qualified separately; no provider permission is inferred from event names.
+
+Private Message search, Notification attachments and durable unread projections remain deferred optional capabilities. Bounded owner inbox/unread queries are the baseline. Retention/backfill jobs use shared durable execution only after owner policy is approved. Verify removal between subscription and emit, sensitive item in ordinary Thread, masked attachment access, edit-restoration bypass, duplicate enforcement and unavailable audit before interface freeze.
+
+## WA-R057 — Privacy owner inventory and private export handoff
+
+Classification: AI_RESOLVED_WITH_TRADEOFF; external activation and implementation qualification gates below remain explicit. This ruling supersedes conflicting historical proposals only for its stated scope.
+
+Each owner implements WA-R020 versioned enumerateSubjectData/evaluateRetentionRequirement/executePrivacyInstruction descriptors. Inventory is explicit, paginated with completion evidence and stable target/version identity; no generic other target or assumed database cascade can count as coverage. Messaging covers Thread, participant current state/history, Message/revisions/restrictions and MessageMedia joins. Notification covers Notification/interaction evidence, NotificationSubscription/credential generations, Delivery attempts and SubscriptionEvent. Location covers FuzzyLocationCache, reveal/revocation evidence and its provider references; exact source facts remain inventoried by their source owner. Restricted proof is accounted even when excluded from requester disclosure. Owner field/action matrices must identify erase, minimize, retain, export or restrict disposition with policy basis and executor receipts before destructive activation.
+
+Privacy owns an immutable export manifest: subject/request/job/generation, owner contribution IDs and versions, authorized field scope, safely stated exclusions with disposition evidence, assembly completion, byte hash/algorithm, creation time and actor/correlation. Exact Location subject data may be included only under approved access policy after removing other parties' data; encryption keys, provider credentials and access tokens are never export content. Record opaque key-version/storage evidence where required, never keys. A complete manifest describes actual serialized bytes, not promised future contributions.
+
+Use Media's WA-R050 createMediaUploadSession→bounded upload→completeMediaUpload→getMediaUploadStatus/getMediaReadiness protocol, with Privacy job/bundle revision as semantic key and purpose-bound private artifact authorization. Same key and bytes replay; changed bytes require a new revision or conflict. Upload acknowledgment never means ready. Require exact immutable ready Media version, matching hash/size and completed manifest before bundle ready. Bind through an explicit Privacy-owned MediaAsset/version reference, not polymorphic ownership. Failed scan/partial assembly keeps download unavailable. Terminal upload retry uses a linked Media attempt per WA-R050 while preserving bundle-generation lineage.
+
+At download, Privacy rechecks requester/action/scope and current generation; Media rechecks asset safety/revocation and issues bounded access through SH-127. Commit required access evidence before protected disclosure. Superseded/expired/revoked generations cannot receive fresh access even if cleanup worker is late. Retain prior manifest/status evidence under approved retention while deleting bytes through Media's executor when authorized. No stored public URL, direct storage SDK or convenience export endpoint may bypass owner gates. Audit exports use the same Media mechanism but an Audit-owned manifest; this ruling does not transfer Audit export ownership.
+
+Legal retention/exemption duration, backup-expiry representation and final retained shell require approved external policy. Location's geocoder/account/region/purpose and key lifecycle qualification remain external activation gates; consumers cannot choose their own geocoder or crypto. Verify omitted child inventory, partial serializer, hash mismatch, scan failure, changed-byte retry, stale generation access, retained shared Media references and provider-deletion uncertainty. Concrete schema, executor field matrices and bilateral fixtures remain implementation qualification, not unresolved architecture permission.
+
+
+### WA-R065 — Sensitivity catalog convergence
+
+Role & Authority owns the versioned category/purpose access-policy catalog. The source owner supplies context and Healthcare determines regulated applicability. Categories are not an ordered ranking: enforce every applicable restriction, field mask, evidence and qualified-provider requirement together. Unknown classification or missing purpose denies protected disclosure. Media enforces this intersection for exact asset versions and grants; Audit preserves declared classification and enforces scoped queries; Messaging applies the intersection to Thread and item disclosures. None owns a competing catalog. Changed classification invalidates stale access/projections; normal never implies public. Implementation must exercise mixed-category and unknown-policy denial before interface qualification. Retention remains Privacy/policy-owned.
+
+
+## WA-R066 — Finite Notification source and recipient contracts
+
+Classification: AI_RESOLVED_WITH_TRADEOFF. Architecture contract; implementation and external qualification remain explicit gates.
+
+SH-041 uses the following finite versioned semantic-intent/template registrations. These are architecture contracts, not implemented renderers, selected delivery vendors or proof of delivery. Sources emit an intent only after the corresponding durable owner transition. Every intent binds source owner, typed aggregate ID/revision, immutable semantic intent ID, template key/version, owner-resolved local User recipients, safe authenticated route, sensitivity and event kind. Notification owns channel consent, current endpoint generation, eligible delivery, attempts and receipts. Sources never ask Notification to scan foreign memberships or reconstruct business state.
+
+| Intent/template | Committed source and recipients | Safe additional content |
+| --- | --- | --- |
+| message.new.v1 | Messaging messaging.message_created.v1; other currently eligible Thread participants selected by Messaging, excluding sender | Thread/Message references only; no message body or attachment URL |
+| order.outcome.v1 | Order order.outcome_changed.v1; currently authorized Order participants selected by Order for its source kind | Safe operational outcome code and Order link; no financial consequence implied |
+| booking.schedule.v1 | Booking confirmed/rescheduled/cancelled facts; currently authorized affected Booking participants | Safe change kind and authenticated schedule link; no exact address or meeting credential |
+| interview.invitation.v1 | Interview invitation/current schedule revision; invited eligible Candidate and authorized Organization participants selected by Interview | Interview reference and safe proposed/scheduled kind |
+| interview.schedule.v1 | Interview cancellation/reschedule/replacement; currently authorized affected participants selected by Interview | Safe change kind and authorized predecessor/successor references; no new removed-user notice |
+| application.status.v1 | Candidate accepted_offer or withdrawn: current authorized hiring Organization recipients selected by Candidate through Hiring facts; Candidate rejected or hired: the application Candidate User | Application reference and exactly accepted_offer/withdrawn/rejected/hired change code; no view/stage alert or general Candidate exposure |
+| privacy.verification_needed.v1 | Privacy durable request transition requiring verification; request subject through Privacy/Identity-authorized route | Request reference and safe action-needed code; no verification secret |
+| privacy.outcome.v1 | Privacy accounted terminal outcome; currently authorized request subject/representative | Safe terminal category and link; no restricted exemption evidence or other parties' data |
+| privacy.export_ready.v1 | Privacy complete manifest and ready exact Media version/current generation; currently authorized export requester | Request/bundle reference; no signed credential or stored public URL |
+| security.notice.v1 | Identity committed security intent; affected local User only | Generic change and authenticated-context link; no OTP, recovery token, precise IP or factor details |
+| supply.status.v1 | Professional/Marketplace committed status/remediation intent under R035; owner-resolved Professional User | Generic status/remediation code; no Healthcare/provider/Hold detail |
+
+Candidate registers `candidate.application_status_changed.v1` with eventId, application ID/revision, committed time, semantic command identity, old/new status, authorized actor reference and safe typed Candidate/Organization subject references. This event contains no resume, message, employer notes or protected evidence. The source owner derives notification recipients from current Hiring authority. Only the four listed successful status transitions may create application.status.v1 at launch; application views, recruiter stages and retry transport do not. Candidate acceptance must already satisfy R045 current-offer proof, and withdrawal does not restore quota. Sending a notification never makes an application or Candidate publicly discoverable.
+
+Deduplicate one semantic intent × resolved User; channel attempts are children of that intent. Changed payload under the same fingerprint conflicts. Retries preserve identity. Current protected-context access is rechecked before rendering/dereference; loss of membership suppresses the protected notice. Do not create a removed-user notice without its own approved source policy. Delayed invitation links must recheck P18/current schedule. Notification failure never rolls back source truth. No message bodies, resumes, exact locations, raw provider failures, adjudication evidence or credentials may enter generic variables.
+
+Material proposal changes remain visibly surfaced by Gig's current-revision presentation under P14; a delivered notice is not evidence the latest terms were presented for acceptance. Participant-facing Dispute updates reuse Order conversation under P19, but a Review fact cannot be relabeled as an Order event; any separate Review alert remains disabled until registered. Optional viewed/shortlisted, Location, Interview completion/no-show and other undeclared alerts remain disabled. This finite registration does not provide legally sufficient notice policy. Exact copy, renderer/schema fixtures, provider/account/channel qualification and delivery recovery proof remain activation prerequisites. Existing broad notification suggestions are narrowed by this explicit source/recipient matrix for these intents.
+
+
+## WA-R067 — Typed moderation execution and normalized receipts
+
+Classification: AI_RESOLVED_WITH_TRADEOFF. Architecture contract; implementation and external qualification remain explicit gates.
+
+SH-103 remains the existing cross-cutting execution protocol; no new Shared Operation ID or schema change is authorized. Each instruction carries authorized decision/action ID, case/cycle, typed owner target ID and expected owner revision, approved effect, actor/service authority, purpose/policy/evidence references, semantic effect key and correlation. Owners validate target/action compatibility and current authority before mutation. The following versioned ports name existing owner handlers, not new lifecycle ownership or permission.
+
+| Existing primary target / typed downstream effect | Owner port v1 | Allowed effect and guard |
+| --- | --- | --- |
+| job, organization | Hiring applyHiringModerationDecision.v1 | Publication suppression/eligible restoration under R047; compliance, lifecycle and all restrictions still apply |
+| candidate_profile, with owned current search projection reference | Candidate applyCandidateModerationDecision.v1 | Search-projection suppression/eligible restoration only; current explicit opt-in/readiness required. No application mutation or new Candidate Hold target |
+| thread, message | Messaging applyMessagingModerationDecision.v1 | Persistent content restriction/authorized restoration under R054; current membership, sensitivity and all restriction sources still apply |
+| media_asset, media_access_grant | Media executeMediaModerationInstruction.v1 | Existing asset freeze, public exposure/grant revocation, evidence preservation and eligible file exposure restoration; source context and safety remain required |
+| digital_download_asset, affected owned grant references | Digital Goods applyDigitalModerationDecision.v1 | Disable/restore asset and revoke affected grants; current Order entitlement/Media safety/purchased policy required, no revival of terminal grant |
+| course_video_asset, affected owned playback grant references | Video applyVideoModerationDecision.v1 | Disable/restore asset and revoke affected playback grants; current entitlement/safety/provider evidence required |
+| review | Review applyReviewModerationDecision.v1 | Existing hide/remove/authorized restoration under R026; restore current eligible accepted revision and adjust original reputation contribution exactly once |
+| offering | Marketplace applyOfferingModerationDecision.v1 | Valid moderation restriction/clearance under R035; clearance returns to draft, fresh publish remains separate |
+
+Existing unversioned Media/Digital/Video handler names become aliases of their listed v1 contract and must not create duplicate effects. CandidateSearchProjection, DigitalDownloadGrant and playback-grant references are owner-local downstream effects under existing primary targets, not new ModerationTargetType values. The owner validates their parent/target relationship. Each port returns semantic effect key, source decision/action, target/revision, effect state, safe outcome/retry classification and durable receipt identity. No secret/provider payload or private evidence is returned.
+
+| Local result | Canonical effect state | Required semantics |
+| --- | --- | --- |
+| accepted/queued | acknowledged | Durable acceptance only; mutation/provider effect not yet proved |
+| applied | completed | Exact requested effect durable, resulting owner revision and proof retained |
+| restoration applied | restored | New authorized linked restoration completed; original restriction/history untouched |
+| already-applied | Original receipt state | Replay exact stored receipt, including pending state; dedupe alone is not completion |
+| unsupported/denied/stale conflict | failed with terminal or reevaluate classification | No mutation; conflict requires fresh facts and applicable authorized decision, never silent overwrite |
+| known retryable failure | failed with retryable classification | Retry the same semantic effect identity |
+| uncertain owner/provider outcome | acknowledged with reconcile_required outcome | Durable unknown-state evidence; reconcile original effect before redispatch, never claim completed/restored |
+
+Multi-owner work retains per-step receipts; Report/Case action_taken requires every required successful effect under R058. Search refresh and provider request acknowledgments do not prove de-indexing or revocation. Restoration is a new effect linked to the original, not an edit of the original receipt. Partial bulk revocation remains incomplete until its target inventory is accounted.
+
+Order/payout reusable stops use Hold's registered typed action/command boundary per CL-09-R007/R059, not direct Moderation writes to Order/Payment. Release triggers current owner reevaluation, never financial execution, content restoration, service completion or review eligibility. Candidate Hold types absent from the typed Hold schema remain disabled. CL-01 has no generic moderation executor under R063: only separately named authorized security/entitlement/Hold/lifecycle commands may act. Enumeration of user or profile targets is not permission. Other target/effect families not listed here must have an existing explicit owner registration before activation; this scoped matrix does not invent their semantics or silently delete their historical proposals. Unsupported combinations return unsupported, with no fallback mutation.
+
+R026 already settles explicitly authorized Review restoration; old unresolved base text is superseded. R042 settles Booking Professional reports, authorized support adjudication and Customer contest, with no automatic consequence; R052 completed/no_show aliases are performance-report facts, not final financial/review truth. These are existing rulings, not new product decisions. Contract adapters/fixtures, typed receipt persistence and coordinated migrations remain implementation qualification.
+
+
+## WA-R068 / WA-R069 — Authority facts and committed event obligations
+
+This Module adopts its `messaging` action/fact row and specifically registered producer/consumer effects in `context/reconciliation/authority-event-contracts.md`. Role interprets the catalog; this owner retains facts and lifecycle. Register each concrete protected port before activation; a grouped port row does not authorize unspecified commands.
+
+Owner action scope: `createDirectThread / removeThreadParticipant / getThreadParticipantFacts`. Permitted relationships: current contextual participant; registered context owner manages derived membership. Required owner facts: Thread/context binding, participant membership revision, per-action restrictions, Message revision, historical-access policy. Assurance: ordinary B; restricted evidence A; privileged restoration S. These facts include typed target, source revision, subject relationship, purpose/action and evaluation time; missing/stale/unavailable facts cannot authorize, and current revisions are checked again at effect. B/S/A have the precise appendix meanings; source services cannot invent human assurance.
+
+Producer obligations:
+
+- `messaging.message_created.v1 / messaging.message_revised.v1 / messaging.message_hidden.v1 / messaging.membership_changed.v1`: Thread revision plus affected Message/membership reference/revision. Registered effect: authorized realtime invalidation only; Notification gets separate message.new.v1 intent.
+
+Consumer obligations:
+
+- `booking.confirmed.v1 / booking.rescheduled.v1 / booking.cancelled.v1`: consume only the effect naming this Module — Video/Location/Messaging: fresh scope reevaluation; Notification via separate source intent; Calendar owner handles provider.
+- `organization.membership_changed.v1`: consume only the effect naming this Module — Candidate/Interview/Messaging: revoke derived access; all protected requests use current membership.
+- `interview.participant_changed.v1`: consume only the effect naming this Module — Video/Calendar/Messaging if context exists: reevaluate current authorized audience.
+
+Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
+
+Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.
+
+
+## WA-R074 — Contextual Customer display and Gig participation requirements
+
+This owner adopts its source/consumer obligations in `context/reconciliation/context-query-contracts.md`. The appendix defines the versioned query/action fields, current-source checks, denial/unavailable behavior and privacy limits; it does not transfer lifecycle ownership or freeze an implementation interface. Implement the named owner port or consumer call with typed fixtures for stale authority, unsupported scope, duplicate effects and minimized fields before activation. Existing product rights and all other applicable gates remain.

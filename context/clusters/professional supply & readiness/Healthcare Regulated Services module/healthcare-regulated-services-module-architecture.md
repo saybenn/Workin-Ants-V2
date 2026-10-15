@@ -1672,3 +1672,33 @@ Requirement rules are immutable schema-versioned records keyed to supported acti
 Identity checks establish only their named verified identity claim; financial readiness stays Payment-owned; a healthcare credential check establishes that credential only, never BAA or Healthcare lane clearance. Broad platform_verified/gold_trust_check/healthcare_verified badges have no launch issuance or authorization effect without explicit scoped claim definitions; preserve legacy facts without minting misleading composite assurance. Public badge DTOs contain the approved claim label/type, subject profile reference, validity and evidence revision only. A badge never replaces current owner readiness.
 
 FCRA technical evidence must link immutable notice template/version/content hash, identified recipient, approved purpose/check/report revision, delivery attempt and verified delivery outcome, policy/jurisdiction version, legally determined timing anchors, dispute submissions and outcome, final-action authorization and history. Notification delivery receipt is evidence, not a legal conclusion. Exact notice content, channels, required waits, adverse-action transitions and retention remain EXTERNAL_REQUIREMENT; no numeric windows or automated adverse decisions are approved here. Required tests cover consent-link mismatch, recheck history, expired supporting evidence, duplicate/late callback, secret exclusion and subject-context mismatch.
+
+
+## WA-R065 — Shared sensitivity policy governance and Healthcare applicability
+
+Role & Authority owns the versioned platform security classification-to-access policy catalog as part of its existing authorization-policy concern; it does not own source records, clinical decisions or retention law. DataSensitivity remains the shared vocabulary: normal, sensitive, healthcare, financial, identity_document, resume, legal_contract and private_message. These are categories, not a numeric ranking, and normal does not mean public. Source owners declare field/attachment context and purposes; Healthcare owns whether healthcare-sensitive obligations apply. Payment, Identity, Candidate, Agreement and Messaging respectively establish their own financial, identity, resume, contract and message context. Media never invents a competing classification or decides clinical applicability from a file extension.
+
+Each catalog entry binds category plus purpose to approved actor/relationship predicates, allowed response fields, required sensitive-access evidence, transport/storage controls and provider qualification requirements. All categories require authenticated transport and access-controlled encrypted storage; the sensitive categories additionally require purpose-limited disclosure and WA-R023 durable sensitive-access proof. Credentials, raw report tokens and protected identity/tax material require the shared envelope-encryption/secret-handling mechanism; healthcare handling additionally requires current Healthcare-approved provider/account/configuration coverage. Public publication is a separately authorized source projection, never an implication of normal. Shared security/cryptography owns mechanisms and key references, not a second sensitivity lifecycle.
+
+Where multiple contexts apply, combine applicable restrictions and require every applicable policy; do not downgrade by choosing one enum value. If the current scalar schema cannot preserve all required context, source owner retains explicit contextual evidence and denies an affected disclosure until the adapter can enforce the intersection. Unknown classification, missing purpose, unsupported provider coverage or unqualified key handling cannot fall back to normal. Classification corrections produce a new source/policy revision and invalidate stale grants/projections. Classification alone establishes neither lawful collection nor consent nor retention: source owner/Consent/Privacy/Healthcare retain those separate decisions, and absent legal/provider evidence remains external qualification.
+
+
+## WA-R068 / WA-R069 — Authority facts and committed event obligations
+
+This Module adopts its `healthcare_regulated_services` action/fact row and specifically registered producer/consumer effects in `context/reconciliation/authority-event-contracts.md`. Role interprets the catalog; this owner retains facts and lifecycle. Register each concrete protected port before activation; a grouped port row does not authorize unspecified commands.
+
+Owner action scope: `createBaaAgreement / revokeBaaAgreement / evaluateHealthcareAdminAccess`. Permitted relationships: specifically authorized agreement signatory/compliance operator. Required owner facts: subject/context, agreement version, coverage/account/region configuration, Healthcare boundary and permitted fields. Assurance: execution/revocation S; protected evidence A. These facts include typed target, source revision, subject relationship, purpose/action and evaluation time; missing/stale/unavailable facts cannot authorize, and current revisions are checked again at effect. B/S/A have the precise appendix meanings; source services cannot invent human assurance.
+
+Producer obligations:
+
+- `healthcare.boundary_changed.v1`: typed context, boundary/coverage revision, safe applicability class. Registered effect: Professional/Marketplace/Media/Video/Search: invalidate current grants/projections as applicable.
+
+Consumer obligations:
+
+- `consent.proof_changed.v1`: consume only the effect naming this Module — Track, Trust, Healthcare, Digital, Sweepstakes: reevaluate only applicable proof; no bulk entitlement revocation.
+- `taxonomy.policy_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Hiring/Healthcare/Trust/Search: targeted reevaluation.
+- `verification.readiness_changed.v1`: consume only the effect naming this Module — Professional/Healthcare/Hiring where registered requirement applies: reevaluate; no raw report.
+
+Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
+
+Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.

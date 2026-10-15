@@ -7,7 +7,7 @@ from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CLASSES = {'AI_RESOLVED', 'AI_RESOLVED_WITH_TRADEOFF', 'DEFERRED_IMPLEMENTATION_DETAIL',
+CLASSES = {'AI_RESOLVED_WITH_PRODUCT_JUDGMENT', 'AI_RESOLVED', 'AI_RESOLVED_WITH_TRADEOFF', 'DEFERRED_IMPLEMENTATION_DETAIL',
            'EXTERNAL_REQUIREMENT', 'PRODUCT_OWNER_CHOICE'}
 
 
@@ -67,6 +67,10 @@ def inspect():
         for d in r.get('dispositions', []):
             if d.get('classification') not in CLASSES or not d.get('decision') or not d.get('ruling'):
                 errors.append(f"{r['key']}: invalid disposition")
+            if d.get('classification') == 'AI_RESOLVED_WITH_PRODUCT_JUDGMENT':
+                required = {'evidence', 'owner', 'reasoning', 'alternatives_rejected', 'reversibility', 'affected_artifacts'}
+                if any(not d.get(k) for k in required):
+                    errors.append(f"{r['key']}: product judgment lacks required provenance")
             for ruling in re.findall(r'WA-R\d+', d.get('ruling', '')):
                 if not re.search(r'^## '+re.escape(ruling)+r'\b', rulings, re.M):
                     errors.append(f"{r['key']}: missing ruling {ruling}")

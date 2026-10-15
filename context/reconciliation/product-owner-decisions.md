@@ -1,3 +1,9 @@
+# Governing queue policy
+
+The 2026-10-12 owner instruction in operating-policy.md supersedes historical return-control rules below. P01–P19 remain approved. Ordinary reversible/configurable defaults are AI_RESOLVED_WITH_PRODUCT_JUDGMENT; consequential choices are queued and batched. No current open owner choice is recorded.
+
+Current authority: P01–P19 are approved; WA-R042 contains the full latest clarifications. Historical questions/alternatives below do not reopen these decisions.
+
 # Product-owner decisions
 
 Current checkpoint: 2026-10-01 America/New_York. P01–P13 are binding approvals. WA-R032 applies P12/P13 including paid-recovery timing and Premium-period usage on downgrade. P01–P15 are binding approvals; WA-R040 applies all P14/P15 clarifications. Earlier alternatives are historical.
@@ -147,7 +153,7 @@ Paid Candidate participation is unlimited while effective. Keep same-period usag
 P14/P15 approved with immutable latest-presented revision binding, visible material changes, and ANOTHER_RESPONSE_SELECTED rejection only on award-capacity exhaustion. See WA-R040; launch remains single-award.
 
 
-## P16 — Booking completion and no-show authority (OPEN)
+## P16 — Booking completion and no-show authority (APPROVED — WA-R042)
 
 **Question:** Who may confirm that a service session was completed or missed?
 
@@ -157,7 +163,7 @@ P14/P15 approved with immutable latest-presented revision binding, visible mater
 
 **Blocked:** final Booking completion/no-show action authority and contested-outcome behavior. Evidence: CL-05-U026; Booking architecture §10 PR-BC-03 and §36. State enums and general Role policy do not select this product promise. Recommended policy remains unadopted; no numeric response window is invented.
 
-## P17 — Candidate employer-search participation (OPEN)
+## P17 — Candidate employer-search participation (APPROVED — WA-R042)
 
 **Question:** Must Candidates choose to appear in employer search?
 
@@ -167,7 +173,7 @@ P14/P15 approved with immutable latest-presented revision binding, visible mater
 
 **Blocked:** Candidate search activation/default and participation control. Evidence: CL-06-U010; Candidate architecture U-CL06-10 (§35), §25 and projection lifecycle. Existing WA-R034 protects transport/audience but does not approve participation. Legal sufficiency of any required disclosure remains a separate external gate.
 
-## P18 — Interview invitation expiration (OPEN)
+## P18 — Interview invitation expiration (APPROVED — WA-R042)
 
 **Question:** Should unanswered interview proposals automatically expire at launch?
 
@@ -178,7 +184,7 @@ P14/P15 approved with immutable latest-presented revision binding, visible mater
 **Blocked:** expiration worker and no_response transition policy only. Evidence: CL-06-U039; Job Interview architecture §22.1 and U-JI-10. Other Interview contracts can continue independently.
 
 
-## P19 — Booking and Dispute conversations (OPEN)
+## P19 — Booking and Dispute conversations (APPROVED — WA-R042)
 
 **Question:** Should service-session and commercial-dispute discussion share the Order conversation or have separate conversations?
 

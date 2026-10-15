@@ -1473,3 +1473,34 @@ Each delivery attempt has its own immutable attempt identity and correlation to 
 Persist dismissedAt/expiresAt when these actions/policies apply. User interaction is Notification-owned append-only evidence separate from Delivery receipts. Template versions are immutable and schema-validated; source supplies a registered semantic template intent plus allowlisted variables. Generic external channels carry minimal safe summaries/deep links, never raw message bodies, financial/tax documents, exact addresses or regulated data by default. Identity challenge-provider transport stays Identity-owned. Concrete provider selection/configuration and legally sufficient notice delivery remain external prerequisites.
 
 Tradeoff: explicit parent/attempt representation needs schema alignment but avoids multiple inbox items per channel and false completion. Acceptance: organization fan-out dedupe, removed member sensitive access, duplicate send, partial channel failure, expiry/dismissal independence, callback before/after retry, unsupported channel and secret redaction.
+
+
+## WA-R060 — Audit vocabulary and bounded operator evidence
+
+**Applied architecture ruling — 2026-10-08.** This scoped amendment supersedes earlier proposed/unresolved labels only for the concerns below. It records architecture, not implemented schema, successful tests, deployment or legal approval.
+
+Audit persists request/correlation identity, normalized outcome, typed actor kind (user/service/system/provider), owner-namespaced versioned action and typed target references, occurrence/recording time and minimal evidence references. Owners declare their vocabulary and classification; Audit validates declared namespace/shape and stores proof without querying another owner's repository or deciding its lifecycle. DataSensitivity meaning follows platform vocabulary; each owner supplies classification and Healthcare supplies its regulated interpretation. Exact enum/column names and forward backfill are implementation decisions.
+
+Accept PR-AUD-02: unused hash/chain fields remain unpopulated; an append-only application contract is not a tamper-proof cryptographic chain. Any later chain requires a separately reviewed partition/sequence/canonicalization/algorithm/version/anchor/privacy contract. Do not manufacture hashes merely to satisfy nullable fields.
+
+Ops and Admin viewers use bounded paginated Audit-owner queries before introducing a durable projection. Owner queries enforce current scope, redaction and mandatory access proof; unavailable mandatory proof fails closed under WA-R023. Register stable action IDs with Role; apply the established sensitive-action step-up rules to bulk sensitive exports, financial effects, drawing/reversal and protective-control release. No dashboard or diagnostic signal grants mutation authority. Ghost-account/inactivity signals are diagnostic; Identity alone owns account action, and there is no automatic deletion policy. Versioned grouping/alert/action registries and fixtures precede enablement. Preserve WA-R018 operational persistence/lifecycles; Ops recovery state cannot finish another owner's workflow.
+
+
+## WA-R068 / WA-R069 — Authority facts and committed event obligations
+
+This Module adopts its `observability_ops` action/fact row and specifically registered producer/consumer effects in `context/reconciliation/authority-event-contracts.md`. Role interprets the catalog; this owner retains facts and lifecycle. Register each concrete protected port before activation; a grouped port row does not authorize unspecified commands.
+
+Owner action scope: `recordIntegrationFailure / updateOpsIncident / getOperationalHealth`. Permitted relationships: registered telemetry producer; scoped operator. Required owner facts: incident/attempt revision, originating owner, redacted diagnostic scope, lease/fence for recovery. Assurance: diagnostics B; recovery reauthorizes actual owner action; no generic Ops override. These facts include typed target, source revision, subject relationship, purpose/action and evaluation time; missing/stale/unavailable facts cannot authorize, and current revisions are checked again at effect. B/S/A have the precise appendix meanings; source services cannot invent human assurance.
+
+Producer obligations:
+
+- `ops.incident_changed.v1`: incident ID/revision, safe severity/status, owner correlation. Registered effect: authorized operator Notification intent; never domain lifecycle mutation.
+
+Consumer obligations:
+
+- `privacy.request_changed.v1 / privacy.execution_changed.v1`: consume only the effect naming this Module — Ops restricted recovery/diagnostics; requester Notification via safe intent. Executors receive explicit commands, not broadcast deletion.
+- `moderation.disposition_changed.v1`: consume only the effect naming this Module — Ops/restricted case views; target effects still explicit executeModerationDecision command and receipt.
+
+Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
+
+Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.

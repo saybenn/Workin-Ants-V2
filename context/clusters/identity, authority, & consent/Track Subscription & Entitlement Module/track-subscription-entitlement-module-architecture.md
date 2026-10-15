@@ -2146,3 +2146,25 @@ Classification: AI_RESOLVED_WITH_TRADEOFF. Resolves CL04-U016; complements WA-R0
 Order retains an immutable purchase snapshot with the applied Track plan/price/grant policy identities and revisions, exact values used for fee/commission calculation, effective decision time and source decision references. Current catalog selection is separate. Historical identifiers remain meaningful even when an enrollment or catalog revision stops being current. Any navigation FK must restrict deletion or detach only that optional navigation while preserving the lawful retained immutable proof; never cascade-delete Order purchase evidence from Track cleanup. Actual lawful erasure/minimization follows Privacy's approved field disposition and retention policy, not indefinite retention by this ruling.
 
 This resolves snapshot semantics and deletion behavior; exact FK names and coordinated forward migration remain implementation work. No catalog change reprices an accepted purchase. Verify retired plans, ended enrollment, valid privacy disposition, missing navigation target and historical refund reconstruction against the original basis.
+
+
+## WA-R068 / WA-R069 — Authority facts and committed event obligations
+
+This Module adopts its `track_subscription_entitlement` action/fact row and specifically registered producer/consumer effects in `context/reconciliation/authority-event-contracts.md`. Role interprets the catalog; this owner retains facts and lifecycle. Register each concrete protected port before activation; a grouped port row does not authorize unspecified commands.
+
+Owner action scope: `cancelTrackSubscription / createManualEntitlementGrant / revokeEntitlementGrant / resolveEntitlement`. Permitted relationships: own subscription; explicit entitlement operator for manual grant/revoke; authorized benefit caller. Required owner facts: User, track, benefit/action, paid-through interval, grant/subscription revision, UTC usage identity. Assurance: own cancellation B; manual grant/revoke S. These facts include typed target, source revision, subject relationship, purpose/action and evaluation time; missing/stale/unavailable facts cannot authorize, and current revisions are checked again at effect. B/S/A have the precise appendix meanings; source services cannot invent human assurance.
+
+Producer obligations:
+
+- `track.entitlement_changed.v1`: User/track, benefit scope, entitlement revision, effective interval. Registered effect: Professional, Candidate, Marketplace, Video: refresh eligibility; Search: current projection reevaluation; preserve acquired rights.
+- `track.usage_changed.v1`: User/track, quota key, UTC period, accounting revision. Registered effect: Candidate: refresh usage display; atomic quota acceptance remains owner command, not eventual event.
+
+Consumer obligations:
+
+- `consent.proof_changed.v1`: consume only the effect naming this Module — Track, Trust, Healthcare, Digital, Sweepstakes: reevaluate only applicable proof; no bulk entitlement revocation.
+- `payment.financial_readiness_changed.v1`: consume only the effect naming this Module — Professional, Track, Order, Gamification, Sweepstakes: action-specific reevaluation.
+- `payment.effect_recorded.v1`: consume only the effect naming this Module — Order/Track/Gamification/Sweepstakes: correlate only their instruction; reconcile unknown; no provider secrets.
+
+Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
+
+Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.

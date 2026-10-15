@@ -783,7 +783,7 @@ The signatures below are stable conceptual contracts; transport follows root cod
 - Transitions confirmed → no_show under an approved actor/evidence policy.
 - Financial/refund consequences remain external.
 
-**Proposed Ruling PR-BC-03:** initial MVP authority for completion/no-show should be restricted to the Professional, authorized admin/support, or trusted system workflow; buyer self-report alone should not be authoritative until dispute policy is defined.
+**RESOLVED — P16 / WA-R042:** Professional reports, authorized support confirmation/correction/adjudication and Customer contest retain actor/evidence/alleged absentee. No autonomous trusted-system adjudication or automatic financial/review consequence follows. WA-R052 aliases are performance reports.
 
 ### `connectCalendar`
 
@@ -2080,7 +2080,7 @@ Do not introduce a reverse dependency until a concrete need such as `hasBookable
 
 - PR-BC-01: `BookingEventActor` and `BookingLocationType` are Booking-owned vocabularies.
 - PR-BC-02: `BookingStatus.external_sync_failed` should not be used as core Booking lifecycle; `externalSyncStatus` represents provider writeback state.
-- PR-BC-03: completion/no-show authority starts with Professional/admin/trusted system until buyer-report/dispute semantics are approved.
+- PR-BC-03 is superseded by P16 / WA-R042: Professional report, authorized support adjudication, Customer contest and separate consequence-owner evaluation.
 - PR-BC-04: adopt the versioned `booking.*` / `calendar.*` domain event namespace defined in Section 12.
 - PR-BC-05: duplicate provider callbacks do not overwrite the original ProcessedCalendarEvent state with `ignored_duplicate`; duplicate observation remains operational unless a separate attempt model is approved.
 
@@ -2298,3 +2298,119 @@ Public Professional projection allowlist: professionalProfileId, slug, display n
 priceFromCents is a rebuildable minimum of currently eligible active pricing options in one currency, not purchase truth. Missing or mixed-currency options produce no priceFrom value, never zero/implicit conversion. Orders bind the selected immutable price/package. isFeatured has no ranking or commercial effect at launch; promotion is deferred pending a separately approved owner policy. Heterogeneous bundle Offering creation remains disabled; this does not disable P02 multi-session packages within supported kinds. No new seller entitlement gates: supported effects remain approved Professional commission terms; unknown keys cannot gate drafting or fabricate quota. SH-016 action keys are activate_profile, public_visibility, publish_offering, respond_to_gig, participate_in_order; payout stays Payment-owned.
 
 Owner status/remediation notifications use committed source-event identity, generic status/remediation template and safe authenticated destination; no sensitive provider/Healthcare/hold details. Notifications do not prove readiness. No generic admin force-ready override: each source owner must authorize and record its own correction, followed by reevaluation. Required verification includes stale-resume versus restriction, archive/restore preserving obligations, projection field exclusion, duplicate first-completion award, and reputation version replay. These are implementation acceptance criteria, not tests already executed.
+
+
+## WA-R042 — Approved service reports, discovery choice, invitation validity and conversations
+
+Binding P16–P19 owner rulings, received 2026-10-07 America/New_York. Supersede open recommendations; no implementation completion implied.
+
+### P16
+
+A Professional may report completion or no-show for an authorized service session. Authorized support may confirm, correct or adjudicate the service-performance state where policy permits; the Customer can contest the report. Preserve immutable report/correction history, reporting actor and authority, occurrence/recorded time, evidence references, affected session and which participant allegedly failed to attend. A correction references the original; it does not erase it. Reported outcome and contested/adjudicated status are distinguishable, so a Professional assertion is never represented as independent support verification.
+
+Completion/no-show status alone must not automatically trigger refund, charge, payout release, forfeiture, review eligibility or any other financial consequence. Order, Payment/Payout, Review/Dispute, Booking and the applicable policy owner each evaluate their owned consequences from current authorized evidence. A single session report never proves full multi-session Order completion. Clock passage does not fabricate a performance report.
+
+
+### P18
+
+Do not automatically expire interview invitations by timer at launch. Organizers cancel, replace or reschedule through Job Interview lifecycle with immutable history. Invitation pending state alone does not prove a currently actionable slot: every new acceptance validates the current invitation/revision and server-authoritative scheduling facts. An already-elapsed interview slot cannot be newly accepted; present a stale-slot outcome and require authorized replacement/rescheduling. This validity check is not an automatic expiration transition and does not invent a deadline. Preserve existing response and schedule history; no_response is not proof of recipient reading.
+
+
+### P19
+
+Booking and participant-facing Dispute discussion associated with the same Order reuse that Order's conversation. Context labels/session/case references aid navigation, but do not create duplicate buyer/seller threads. Messaging resolves the canonical Order thread and current membership through its public interface; source owners supply authoritative context and participant facts. Reuse does not automatically enroll a reviewer/support actor or expose unrelated history.
+
+Private adjudication notes, reviewer deliberation, restricted evidence, internal support/moderation material and decision-making records remain separate from the participant conversation under their owning access/audit boundaries. No generic attachment forwarding or notification may leak those records into the thread. Sharing a conversation transfers none of Booking, Dispute, Messaging, Moderation or Order lifecycle ownership.
+
+
+## WA-R049 — Calendar connections, parent references and Location reads
+
+Classification: AI_RESOLVED_WITH_TRADEOFF. This scoped ruling supersedes earlier proposed/unresolved alternatives for the concerns explicitly specified here; other policy/provider gates remain.
+
+Booking owns CalendarConnection semantics and provider event mappings through SH-067. Canonical access mode is a controlled enum mapped to allowed operations; freeBusyOnly/metadataReadAllowed/eventWriteAllowed and legacy accessMode text are derived compatibility projections, never independent authority. Effective permission is the intersection of current canonical Consent proof, requested canonical mode, current provider scopes and current Role authority. Conflicting legacy fields block writes until normalized; scope strings alone never establish Consent. Preserve consent version/proof and provider account/calendar identity privately.
+
+Expose `synchronizeContextCalendarEvent.v1` and `cancelContextCalendarEvent.v1` through the Booking-owned Calendar service. Input: authenticated owner service context, typed parent `{kind: booking|job_interview, id, revision}`, canonical connection reference, current schedule `{start,end,timeZone}`, operation idempotency key and owner-issued participant/authority decision references. The service validates the parent through its owner and connection permissions; Interview remains its lifecycle owner and is never converted into Booking. Output: normalized pending/applied/rejected/reconcile_required state, stable mapping ID, parent revision, effect receipt and safe reason. No raw OAuth secret or provider response leaves the adapter. Provider event IDs are private mapping attributes, distinct from Booking/Interview IDs, connection IDs and orchestration IDs. Legacy provider reference fields are read-only correlation projections pending migration.
+
+One mapping per connection/calendar/typed parent is current; record every schedule revision and provider effect receipt. Serializing on that mapping and rejecting stale revisions prevents an old reschedule from overwriting the new one. Cancellation targets the mapped event and revision, including replacement lineage; retries reuse logical effect identity. Ambiguous provider timeout produces reconcile_required and owner provider-state lookup before a second create. Disconnect/revocation disables further writes and invalidates sync readiness; provider deletion acknowledgement is distinct from local disconnect. A provider success never changes Booking or Interview acceptance/performance state. Interview's P18 past-slot guard belongs to Interview even when a calendar entry remains visible.
+
+Booking exact-location data is a non-authorizing cache of Location's versioned source reference. Keep Location-owned record identity/source revision and minimal scheduling metadata, not an independent reveal policy. `getBookingOwnerFacts` supplies Booking id/revision, Order/session authorization reference, current status, start/end, participant references and overtime policy. Location combines fresh facts with its own reveal rules. An unavailable/mismatched Location decision denies exact disclosure; cached exact coordinates/address cannot bypass it. Location revocation or source change invalidates caches and credentials; delayed events require current owner revalidation at use. Exact addresses, provider event payloads and credentials stay out of public events/search.
+
+Verify consent withdrawal versus sync, mismatched legacy modes, replacement/cancel race, ambiguous create response, old provider callback, cross-parent mapping attempts and reveal after cache revocation. Provider capability verification, numerical TTL configuration and forward mapping migration remain required before production.
+
+
+## WA-R052 — Commerce source events and projection contracts
+
+Classification: AI_RESOLVED_WITH_TRADEOFF. This scoped ruling supersedes earlier proposed/unresolved alternatives for the concerns explicitly specified here; other policy/provider gates remain.
+
+Owner events carry immutable eventId, event name/schemaVersion, aggregate ID/revision, occurredAt, causationId/correlationId, safe typed actor reference and minimum immutable outcome evidence. Write owner history and outbox atomically. Consumers retain durable semantic effect identity and last applied source version beyond transport inbox expiry; duplicate aliases cannot repeat effects. Public commands and queries remain distinct from facts.
+
+| Producer contract | Minimum scoped payload | Consumer effect |
+| --- | --- | --- |
+| order.outcome_changed.v1 | Order ID/revision, source kind/id, frozen purchase revision, operational outcome, dispute cycle reference if relevant, authorized disposition reference | Gig records matching assignment projection; Digital Goods/Booking reevaluate their own current rights; no automatic financial or review action |
+| booking.performance_reported.v1 | Booking ID/revision, Order/session authorization ref, completed/no_show allegation, reporting actor, alleged absentee for no-show, evidence ref, contest state | Order records evidence and evaluates policy; never treats allegation as automatic package completion |
+| booking.performance_adjudicated.v1 | same identity plus support authority, prior report ref, correction/adjudication outcome and evidence | Order reevaluates; preserve original report and prior decisions |
+| booking.confirmed.v1 / rescheduled.v1 / cancelled.v1 | Booking ID/revision, Order/session ref, schedule revision, authorized participant refs, safe reason | Video/calendar/Messaging setup or invalidation through their owners; Notification receives source-directed safe recipient references |
+| review.reputation_changed.v1 | Professional ID, source/projection version and changed Review ID/revision; no private comment/evidence | Professional/Search refresh via getProfessionalReputation.v1, apply only current version |
+
+Booking owns BookingEventActor and BookingLocationType vocabularies. Domain actor values distinguish customer/professional/support/system and retain authenticated User attribution where lawful; no free-text role can authorize a transition. Its existing completed/no_show event aliases normalize to performance-report facts, not adjudicated or commercial-completion facts. Existing proposed booking.* / calendar.* names in §12 become the owner event namespace; only the specific registered semantics qualify integration. Existing OrderCreated/OrderCompleted-style aliases normalize at ingress to their owner versioned equivalent with original event identity, never publish duplicate semantic facts. This table is architecture, not evidence of implemented producer/consumer compatibility.
+
+Review owns `getProfessionalReputation.v1`: request Professional ID with caller context and optional known projection version; response ratingAverage (nullable when count=0), ratingCount, source revision, projection revision, asOf and readiness/staleness result. Fractional aggregate is valid under P06. A refresh event invalidates/reloads this query; consumers cannot recompute from private Review rows or mistake missing/unready result for a zero rating. Hidden/removed Reviews withdraw exactly their existing contribution; revision updates do not add a rating count. Bilateral race, tombstone and replay fixtures are required before freeze.
+
+Notification routing remains source-selected and asynchronous: material accepted-term/proposal changes and appointment/case participant-visible changes carry an authorized destination and affected participant references; failure to deliver cannot roll back owner truth. Private adjudication/evidence never enters participant notifications. P19 uses the Order conversation with Booking/case links; those links do not expand access. Optional viewed/shortlisted alerts stay inactive absent an approved trigger/template policy. This identifies source facts; final template/recipient fan-out matrix remains with Notification convergence.
+
+Gamification may qualify Order completion or eligible reputation changes only through its versioned rule catalog and original source event identity; propagated Gig completion is not a second earning fact. Hold consumers evaluate scoped action decisions and preserve restriction provenance; release only triggers reevaluation, never automatic restoration. Moderation commands use authorized target/action/revision plus durable receipt and local owner execution. Exact shared action, assurance, reward rule and Notification contracts still require canonical cross-rail convergence; this owner event contract does not promote adjacent proposed SH operations.
+
+
+## WA-R066 — Finite Notification source and recipient contracts
+
+Classification: AI_RESOLVED_WITH_TRADEOFF. Architecture contract; implementation and external qualification remain explicit gates.
+
+SH-041 uses the following finite versioned semantic-intent/template registrations. These are architecture contracts, not implemented renderers, selected delivery vendors or proof of delivery. Sources emit an intent only after the corresponding durable owner transition. Every intent binds source owner, typed aggregate ID/revision, immutable semantic intent ID, template key/version, owner-resolved local User recipients, safe authenticated route, sensitivity and event kind. Notification owns channel consent, current endpoint generation, eligible delivery, attempts and receipts. Sources never ask Notification to scan foreign memberships or reconstruct business state.
+
+| Intent/template | Committed source and recipients | Safe additional content |
+| --- | --- | --- |
+| message.new.v1 | Messaging messaging.message_created.v1; other currently eligible Thread participants selected by Messaging, excluding sender | Thread/Message references only; no message body or attachment URL |
+| order.outcome.v1 | Order order.outcome_changed.v1; currently authorized Order participants selected by Order for its source kind | Safe operational outcome code and Order link; no financial consequence implied |
+| booking.schedule.v1 | Booking confirmed/rescheduled/cancelled facts; currently authorized affected Booking participants | Safe change kind and authenticated schedule link; no exact address or meeting credential |
+| interview.invitation.v1 | Interview invitation/current schedule revision; invited eligible Candidate and authorized Organization participants selected by Interview | Interview reference and safe proposed/scheduled kind |
+| interview.schedule.v1 | Interview cancellation/reschedule/replacement; currently authorized affected participants selected by Interview | Safe change kind and authorized predecessor/successor references; no new removed-user notice |
+| application.status.v1 | Candidate accepted_offer or withdrawn: current authorized hiring Organization recipients selected by Candidate through Hiring facts; Candidate rejected or hired: the application Candidate User | Application reference and exactly accepted_offer/withdrawn/rejected/hired change code; no view/stage alert or general Candidate exposure |
+| privacy.verification_needed.v1 | Privacy durable request transition requiring verification; request subject through Privacy/Identity-authorized route | Request reference and safe action-needed code; no verification secret |
+| privacy.outcome.v1 | Privacy accounted terminal outcome; currently authorized request subject/representative | Safe terminal category and link; no restricted exemption evidence or other parties' data |
+| privacy.export_ready.v1 | Privacy complete manifest and ready exact Media version/current generation; currently authorized export requester | Request/bundle reference; no signed credential or stored public URL |
+| security.notice.v1 | Identity committed security intent; affected local User only | Generic change and authenticated-context link; no OTP, recovery token, precise IP or factor details |
+| supply.status.v1 | Professional/Marketplace committed status/remediation intent under R035; owner-resolved Professional User | Generic status/remediation code; no Healthcare/provider/Hold detail |
+
+Candidate registers `candidate.application_status_changed.v1` with eventId, application ID/revision, committed time, semantic command identity, old/new status, authorized actor reference and safe typed Candidate/Organization subject references. This event contains no resume, message, employer notes or protected evidence. The source owner derives notification recipients from current Hiring authority. Only the four listed successful status transitions may create application.status.v1 at launch; application views, recruiter stages and retry transport do not. Candidate acceptance must already satisfy R045 current-offer proof, and withdrawal does not restore quota. Sending a notification never makes an application or Candidate publicly discoverable.
+
+Deduplicate one semantic intent × resolved User; channel attempts are children of that intent. Changed payload under the same fingerprint conflicts. Retries preserve identity. Current protected-context access is rechecked before rendering/dereference; loss of membership suppresses the protected notice. Do not create a removed-user notice without its own approved source policy. Delayed invitation links must recheck P18/current schedule. Notification failure never rolls back source truth. No message bodies, resumes, exact locations, raw provider failures, adjudication evidence or credentials may enter generic variables.
+
+Material proposal changes remain visibly surfaced by Gig's current-revision presentation under P14; a delivered notice is not evidence the latest terms were presented for acceptance. Participant-facing Dispute updates reuse Order conversation under P19, but a Review fact cannot be relabeled as an Order event; any separate Review alert remains disabled until registered. Optional viewed/shortlisted, Location, Interview completion/no-show and other undeclared alerts remain disabled. This finite registration does not provide legally sufficient notice policy. Exact copy, renderer/schema fixtures, provider/account/channel qualification and delivery recovery proof remain activation prerequisites. Existing broad notification suggestions are narrowed by this explicit source/recipient matrix for these intents.
+
+## WA-R071 — Purpose-specific Location facts and disclosure
+
+Location alone decides precision/reveal under WA-R071. Supply current typed owner facts and opaque source revisions; an event or cache is not authorization. Changes emit only source/context identity, revision and change kind, never exact coordinates/address/phone. Source relocation, cancellation, disqualifying refund/dispute, completion, participant/restriction/policy changes invalidate prior allow; fresh queries must prevent stale events from restoring it.
+
+Supply Booking revision, consistent Order/session reference, reported versus adjudicated performance state, in-person mode, authorized start/end, explicitly approved overtime boundary, performing participants and location source identity/revision. Missing evidence of active authorized service denies new disclosure. Exact-location caches never authorize, and invalidate by matching source/revision. The performance report alone creates no financial or Review consequence.
+
+
+## WA-R068 / WA-R069 — Authority facts and committed event obligations
+
+This Module adopts its `booking_calendar` action/fact row and specifically registered producer/consumer effects in `context/reconciliation/authority-event-contracts.md`. Role interprets the catalog; this owner retains facts and lifecycle. Register each concrete protected port before activation; a grouped port row does not authorize unspecified commands.
+
+Owner action scope: `createBookingHold / cancelBooking / getBookingOwnerFacts`. Permitted relationships: authorized Order participant; scoped support for performance adjudication; connection owner. Required owner facts: Order entitlement and participants, Booking/session/schedule revision, connection owner/scopes, performance report actor/evidence/alleged absentee. Assurance: ordinary B; provider credential replacement or privileged override S; protected location A. These facts include typed target, source revision, subject relationship, purpose/action and evaluation time; missing/stale/unavailable facts cannot authorize, and current revisions are checked again at effect. B/S/A have the precise appendix meanings; source services cannot invent human assurance.
+
+Producer obligations:
+
+- `booking.confirmed.v1 / booking.rescheduled.v1 / booking.cancelled.v1`: Booking/Order, schedule revision, safe transition and changed participant references. Registered effect: Video/Location/Messaging: fresh scope reevaluation; Notification via separate source intent; Calendar owner handles provider.
+- `booking.performance_reported.v1 / booking.performance_adjudicated.v1`: Booking/Order/session, report/disposition revision, reporting actor, alleged absentee reference, restricted evidence reference. Registered effect: Order/Review may separately evaluate; no automatic money/review eligibility consequence.
+
+Consumer obligations:
+
+- `order.outcome_changed.v1`: consume only the effect naming this Module — Gig projection; Review eligibility; Booking/Digital access reevaluation; Gamification/Sweepstakes qualification.
+- `interview.proposed.v1 / interview.scheduled.v1 / interview.rescheduled.v1 / interview.cancelled.v1 / interview.completed.v1`: consume only the effect naming this Module — Calendar/Video: desired-state reconcile by current parent; Candidate: optional owner-governed stage handling, never direct assignment.
+- `interview.participant_changed.v1`: consume only the effect naming this Module — Video/Calendar/Messaging if context exists: reevaluate current authorized audience.
+
+Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
+
+Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.

@@ -18,7 +18,16 @@ def inspect():
         errors.append('Record occurs in multiple families')
     if len({f['id'] for f in families}) != len(families):
         errors.append('Duplicate family ID')
+    groups = index.get('canonical_groups', [])
+    group_members = [m for g in groups for m in g['members']]
+    if any(n != 1 for n in Counter(group_members).values()):
+        errors.append('Evidence facet occurs in multiple canonical groups')
+    if set(group_members) - {f['id'] for f in families}:
+        errors.append('Canonical group references unknown evidence facet')
     for f in families:
+        expected_group = next((g['id'] for g in groups if f['id'] in g['members']), f['id'])
+        if f.get('canonical_family') != expected_group:
+            errors.append(f"{f['id']}: canonical concern mapping mismatch")
         if not f['decision'] or not f['evidence']:
             errors.append(f"{f['id']}: missing decision/evidence")
         for key in f['records']:

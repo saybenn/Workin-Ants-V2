@@ -822,7 +822,7 @@ Reason codes should be stable, provider-neutral, and safe for the consumer.
 **Proposed event contracts**, emitted only if an actual consumer needs them:
 
 - `identity.user.provisioned.v1`
-- `identity.platform_role.changed.v1`
+- `identity.platform_role_changed.v1`
 - `identity.auth_provider.linked.v1`
 - `identity.auth_provider.revoked.v1`
 - `identity.auth_credential.compromised.v1`
@@ -2053,3 +2053,57 @@ Adopt feature/Module-first logical domain/application/contracts/infrastructure/w
 SH-054 shared work claiming is a persistence capability: claim by work-kind/owner item ID with holder, lease deadline, monotonically increasing fencing token and expected owner version; renew/release/complete compare token. Expired holder cannot commit a decision or acknowledge another holder's work. Manual reviewers obtain Role authority and domain evidence separately; a lease does not approve a case. Review workflow truth remains in the owning Module. Use the shared Postgres transaction/locking layer, not a new generic moderation/recovery case. Capability activation requires concurrent claim, stale holder, renewal failure and crash/reclaim tests. Proposed registry status remains until concrete shared API qualification; technical placement is resolved.
 
 Acceptance: public/client table access denied unless explicitly reviewed; server/RLS parity; stale membership and private-target denial; support cannot escalate; owner transfer cannot lose the final owner; profile archive preserves outstanding obligations; suspension cannot be self-restored; buyer backfill conflict quarantined; stale review lease cannot commit. Per-resource action registration/fixtures, legal retention and actual DB grants remain explicit implementation requirements, not claims of completed runtime validation.
+
+
+## WA-R063 — Identity provider qualification, devices and explicit moderation scope
+
+WA-R027 remains the age-gate protocol: no local User creation before applicable age-policy proof, single-use attempt/state binding, and callback revalidation. Qualification must exercise every enabled provider entry route (signup, social callback, retry, linking and provider provisioning trigger) and demonstrate that missing/expired/mismatched proof cannot create a local User or obtain an authorized local session. A provider shadow account is not platform membership. Identity records adapter/account/configuration version and qualification evidence; approved jurisdiction/threshold/proof-retention policy comes from the designated legal policy source. Missing external policy or provider evidence disables that signup route, not unrelated qualified routes. No external requirement is marked passed by this architecture.
+
+Identity owns authenticated self-list and self-revoke of session/provider device registrations: accept resolved actor, opaque owned registration reference and expected security generation for revocation; return only safe device label, last-seen/status and local opaque identity. Provider session/device references and tokens are not returned. Unknown/unowned references are non-enumerating. Revocation advances Identity's security generation, records actor/reason and invalidates corresponding assurance/session use before success; provider cleanup may be pending and must report that honestly. Administrative revocation uses an explicit registered security action and fresh assurance, not the self port. Notification owns push endpoints, subscriptions, channel consent/preferences and delivery. A push endpoint is never an Identity session; logout/session revocation cannot silently mean unsubscribing every channel or deleting delivery history. If an endpoint is bound to a revoked session, Notification receives a minimal revocation fact and re-evaluates endpoint eligibility; it owns endpoint invalidation and receipt.
+
+Identity emits security notification intent only to the affected local User with approved safe variables and an opaque authenticated-context link. Notification resolves current eligible verified delivery channel; no password, OTP, bearer recovery token, exact IP or sensitive factor details in general payload/log. Delivery request acceptance never proves delivery or security success.
+
+CL-01 registers no generic SH-103 moderation executor at launch. A Moderation decision cannot directly rewrite Identity, Role, Consent, Track or Customer state. An explicitly authorized security restriction, Hold, entitlement grant/revocation or Customer lifecycle action must call its named owner command with current authority and purpose. Unsupported moderation target/effect returns unsupported with no mutation. Adding a new CL-01 effect requires an owner-specific allowlist, restoration semantics and evidence contract; existence of a profile row is insufficient.
+
+
+## WA-R066 — Finite Notification source and recipient contracts
+
+Classification: AI_RESOLVED_WITH_TRADEOFF. Architecture contract; implementation and external qualification remain explicit gates.
+
+SH-041 uses the following finite versioned semantic-intent/template registrations. These are architecture contracts, not implemented renderers, selected delivery vendors or proof of delivery. Sources emit an intent only after the corresponding durable owner transition. Every intent binds source owner, typed aggregate ID/revision, immutable semantic intent ID, template key/version, owner-resolved local User recipients, safe authenticated route, sensitivity and event kind. Notification owns channel consent, current endpoint generation, eligible delivery, attempts and receipts. Sources never ask Notification to scan foreign memberships or reconstruct business state.
+
+| Intent/template | Committed source and recipients | Safe additional content |
+| --- | --- | --- |
+| message.new.v1 | Messaging messaging.message_created.v1; other currently eligible Thread participants selected by Messaging, excluding sender | Thread/Message references only; no message body or attachment URL |
+| order.outcome.v1 | Order order.outcome_changed.v1; currently authorized Order participants selected by Order for its source kind | Safe operational outcome code and Order link; no financial consequence implied |
+| booking.schedule.v1 | Booking confirmed/rescheduled/cancelled facts; currently authorized affected Booking participants | Safe change kind and authenticated schedule link; no exact address or meeting credential |
+| interview.invitation.v1 | Interview invitation/current schedule revision; invited eligible Candidate and authorized Organization participants selected by Interview | Interview reference and safe proposed/scheduled kind |
+| interview.schedule.v1 | Interview cancellation/reschedule/replacement; currently authorized affected participants selected by Interview | Safe change kind and authorized predecessor/successor references; no new removed-user notice |
+| application.status.v1 | Candidate accepted_offer or withdrawn: current authorized hiring Organization recipients selected by Candidate through Hiring facts; Candidate rejected or hired: the application Candidate User | Application reference and exactly accepted_offer/withdrawn/rejected/hired change code; no view/stage alert or general Candidate exposure |
+| privacy.verification_needed.v1 | Privacy durable request transition requiring verification; request subject through Privacy/Identity-authorized route | Request reference and safe action-needed code; no verification secret |
+| privacy.outcome.v1 | Privacy accounted terminal outcome; currently authorized request subject/representative | Safe terminal category and link; no restricted exemption evidence or other parties' data |
+| privacy.export_ready.v1 | Privacy complete manifest and ready exact Media version/current generation; currently authorized export requester | Request/bundle reference; no signed credential or stored public URL |
+| security.notice.v1 | Identity committed security intent; affected local User only | Generic change and authenticated-context link; no OTP, recovery token, precise IP or factor details |
+| supply.status.v1 | Professional/Marketplace committed status/remediation intent under R035; owner-resolved Professional User | Generic status/remediation code; no Healthcare/provider/Hold detail |
+
+Candidate registers `candidate.application_status_changed.v1` with eventId, application ID/revision, committed time, semantic command identity, old/new status, authorized actor reference and safe typed Candidate/Organization subject references. This event contains no resume, message, employer notes or protected evidence. The source owner derives notification recipients from current Hiring authority. Only the four listed successful status transitions may create application.status.v1 at launch; application views, recruiter stages and retry transport do not. Candidate acceptance must already satisfy R045 current-offer proof, and withdrawal does not restore quota. Sending a notification never makes an application or Candidate publicly discoverable.
+
+Deduplicate one semantic intent × resolved User; channel attempts are children of that intent. Changed payload under the same fingerprint conflicts. Retries preserve identity. Current protected-context access is rechecked before rendering/dereference; loss of membership suppresses the protected notice. Do not create a removed-user notice without its own approved source policy. Delayed invitation links must recheck P18/current schedule. Notification failure never rolls back source truth. No message bodies, resumes, exact locations, raw provider failures, adjudication evidence or credentials may enter generic variables.
+
+Material proposal changes remain visibly surfaced by Gig's current-revision presentation under P14; a delivered notice is not evidence the latest terms were presented for acceptance. Participant-facing Dispute updates reuse Order conversation under P19, but a Review fact cannot be relabeled as an Order event; any separate Review alert remains disabled until registered. Optional viewed/shortlisted, Location, Interview completion/no-show and other undeclared alerts remain disabled. This finite registration does not provide legally sufficient notice policy. Exact copy, renderer/schema fixtures, provider/account/channel qualification and delivery recovery proof remain activation prerequisites. Existing broad notification suggestions are narrowed by this explicit source/recipient matrix for these intents.
+
+
+## WA-R068 / WA-R069 — Authority facts and committed event obligations
+
+This Module adopts its `identity_access` action/fact row and specifically registered producer/consumer effects in `context/reconciliation/authority-event-contracts.md`. Role interprets the catalog; this owner retains facts and lifecycle. Register each concrete protected port before activation; a grouped port row does not authorize unspecified commands.
+
+Owner action scope: `revokeAuthProviderAccount / revokePasskeyCredential; assignPlatformRole / removePlatformRole`. Permitted relationships: self credential owner; explicitly granted security/role operator for other subjects. Required owner facts: User ID, owned credential/provider registration ID, security epoch, current role assignments/revision, target role and scope. Assurance: S; privileged role mutation S. These facts include typed target, source revision, subject relationship, purpose/action and evaluation time; missing/stale/unavailable facts cannot authorize, and current revisions are checked again at effect. B/S/A have the precise appendix meanings; source services cannot invent human assurance.
+
+Producer obligations:
+
+- `identity.security_changed.v1`: User, security generation, affected opaque session scope, change kind. Registered effect: Notification: reevaluate session-bound endpoints; protected consumers always check current Identity facts.
+- `identity.platform_role_changed.v1`: User, assignment revision, safe action/scope, security generation. Registered effect: Identity invalidates assurance; Role evaluates fresh assignment on next request. No Role-owned event/cache.
+
+Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.
+
+Platform-role mutation is persisted Identity truth with immutable security evidence and outbox intent; publish identity.platform_role_changed.v1, not a Role-owned stream. The historical identity.platform_role.changed.v1 spelling is an alias, never a second publication. Invalidate bound assurance through the current security generation; no authorization cache is introduced.

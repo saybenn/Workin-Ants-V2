@@ -1,0 +1,459 @@
+{
+  "rulings": [
+    {
+      "id": "WA-R053",
+      "title": "Messaging context identity and durable history",
+      "body": "SH-113 ensureContextThread accepts typed source owner/type/id, source revision, source-approved participant facts and logical command identity. Messaging validates current source applicability and Role authority, then converges under source-identity uniqueness to one Thread. Order is the participant conversation for its Booking sessions and commercial Dispute under P19/WA-R042; retain session/case navigation references without granting extra membership. Other existing typed Gig, response, assignment, application and interview contexts remain independently keyed to their actual source, not automatically merged by participant overlap. A typed FK is context truth; generic contextId is derived compatibility metadata and must equal that FK. Exactly the matching typed context reference is populated; mismatches block migration/creation, never select whichever field was read first.\n\nDirect two-person identity is the sorted distinct local User pair under a uniqueness lock. Explicit group requests have their own stable Messaging conversation identity and logical create key; do not dedupe a group by mutable membership or silently convert a pair conversation into a group. Support remains a Messaging context with explicit purpose and authorized participant scope; no new support-case lifecycle is created. These identity mechanics do not authorize unsolicited enrollment. Immediate admission requires current source-authorized relationship or explicit authorized conversation request; arbitrary client-supplied recipient arrays fail. Any future invitation product requires its own approved policy. Per-user archive is a viewing preference; no global Thread closed/frozen business lifecycle is added. Restrictions and privacy erasure independently control use.\n\nPersist current ThreadParticipant separately from immutable membership addition/removal history: actor, subject, time, source/policy revision, reason and command identity. Removal invalidates subsequent reads, subscriptions and file authorization; historical presence is not current permission. Concurrent ensure/admission uses current owner version and same-command fingerprint conflict detection. A re-add requires fresh authority and a new membership episode; no inherited access from the old episode.\n\nPersist immutable Message revisions with original sender, revision author, edit time, parent Message identity, content/sensitivity revision and command provenance. Update current revision using expected-version comparison; product deletion hides the Message and cannot be reversed through editing. Do not invent an undelete function. Stable pagination uses (createdAt,id) with a deterministic tie-breaker; no cross-domain sequence service. Historical revisions are subject to approved Privacy disposition, not an exemption from erasure. Where non-null content requires a tombstone, replace authorized erased text with a fixed nonpersonal marker and remove superseded personal revision content through the executor; erasedAt alone is insufficient. Pseudonymization of sender/history follows accepted retention disposition, not ordinary message deletion.\n\nVerification must cover duplicate context creation, conflicting typed/generic IDs, pair/group identity, stale source admission, membership remove/re-add, concurrent edit, deleted/erased edit denial, and cursor ties. Forward schema and applicable retention schedules remain implementation/external prerequisites.",
+      "files": [
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md"
+      ]
+    },
+    {
+      "id": "WA-R054",
+      "title": "Messaging restrictions and authorized realtime",
+      "body": "Messaging owns persistent Thread/Message restrictions and their immutable imposition/restoration evidence. SH-103 execution binds an authorized Moderation decision, exact typed target/action, expected target version and semantic effect key; repeated identical instruction returns its original receipt. Record accepted versus completed execution distinctly. A restoration requires a fresh authorized owner decision and current applicable gates; an edit, new participant episode or generic Hold release cannot clear a restriction. Moderation owns the case/decision and Messaging owns enforcement on its records.\n\nRole checks precede disclosure. Healthcare evaluates applicable ancestry, purpose and each Message/attachment sensitivity under WA-R036; Thread protection inherits the highest required protection and cannot downgrade a more restricted item. A new high-sensitivity item strengthens the serving boundary before disclosure. Unknown policy/ancestry fails closed. Source-owned field masks apply before serialization, Media access and notification intent rendering. Protected message/attachment views and exports require durable scoped access evidence under WA-R023; safe inbox metadata follows its separately registered access policy. Sensitive bulk export requires registered authority and fresh action-bound assurance, never a commercial entitlement substitute.\n\nRegister messaging.message_created.v1, messaging.message_revised.v1, messaging.message_hidden.v1 and messaging.membership_changed.v1 as minimal owner facts: eventId, Thread ID/revision, affected Message or membership ID/revision, occurredAt, causation/correlation and safe actor reference. Commit history and outbox with owner mutation. Do not include content, attachment URLs or private evidence in the event. Realtime carries only authorized minimal invalidation/delta after commit, never a source of truth. Authenticate subscriptions against current Thread membership/restrictions; revalidate on membership/restriction changes and before protected emission, terminate revoked audiences, and re-query owner truth on reconnect. An event being queued is not proof it was delivered. Provider/channel implementation of SH-071 remains qualified separately; no provider permission is inferred from event names.\n\nPrivate Message search, Notification attachments and durable unread projections remain deferred optional capabilities. Bounded owner inbox/unread queries are the baseline. Retention/backfill jobs use shared durable execution only after owner policy is approved. Verify removal between subscription and emit, sensitive item in ordinary Thread, masked attachment access, edit-restoration bypass, duplicate enforcement and unavailable audit before interface freeze.",
+      "files": [
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md"
+      ]
+    },
+    {
+      "id": "WA-R055",
+      "title": "Notification intents and credential generations",
+      "body": "Extend WA-R021 without creating another business lifecycle. SH-041 intake binds source owner, source aggregate/revision, immutable semantic intent ID, template/schema version, owner-resolved User recipients, safe context route, sensitivity and channel requirements. Deduplicate on source intent plus resolved User, not display text or provider ID. A changed payload under the same intent fingerprint is a conflict. Recipient resolution comes from the source owner's authorized facts; Notification never scans foreign memberships or application tables. Current access is rechecked for protected context before rendering or route dereference.\n\nRegister only concrete source outcomes: Messaging committed new-message fact requests a minimal new-message alert to other currently eligible participants; Order/Booking participant-visible outcome or schedule changes use the source-selected participants; Hiring uses its authorized application/interview recipient facts; Privacy requests verification-needed, terminal-outcome or export-ready intents only after its own corresponding durable transition. Material proposal change visibility is source-owned under P14; private adjudication records never become generic alert variables. Optional viewed/shortlisted, Location notices and unrelated new business triggers remain disabled absent an approved owner trigger. Failed notification delivery cannot roll back source truth. Source legal owners determine legally sufficient notice; transport acceptance, open/click or retry success never proves legal service.\n\nNotification owns append-only interaction evidence (recipient/notification, action, occurrence/received times, command/source evidence) independently of provider attempts. Browser observations are untrusted interaction evidence until validated and do not establish completed domain action. Template versions and channel-safe variable schemas are immutable. Source intent carries safe references rather than raw messages, resumes, exact locations, legal documents or credentials. Consent selects the currently applicable content/version for push acceptance and binds the actual presented version; client-supplied version or browser permission alone is not Consent proof.\n\nEach live push credential is uniquely bound by provider/account/environment and credential fingerprint to one authorized recipient/device generation. Raw endpoint/token stays in protected Notification credential storage; logs/audit contain only safe references. Rotation atomically supersedes the old generation and records actor/provenance; dispatch checks current generation immediately before send. A delayed failure/revocation callback may affect only its matching generation, never disable the replacement. Migration inventories collisions and quarantines ambiguous ownership; no last-write or arbitrary winner. Provider uncertain outcomes reconcile the same attempt before resend under WA-R021.\n\nNotification owns generic email/SMS/Web Push adapter configuration; Identity challenge delivery remains Identity-owned. Selected provider/account/environment, consent/payload permission, capability, callback verification and actual send/recovery evidence are EXTERNAL_REQUIREMENT per enabled channel. No enum activates a vendor. Verify duplicate source intents, revoked recipients, raw-payload rejection, partial channel failure, same token across accounts, late old-generation callback and rotation/send race. These fixtures plus the final source/template matrix gate deployment.",
+      "files": [
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md"
+      ]
+    },
+    {
+      "id": "WA-R056",
+      "title": "Privacy verification and request execution history",
+      "body": "Privacy alone owns request transition decisions. Identity supplies immutable verification evidence bound to request subject, requested action/purpose, assurance, method, issuer, verifiedAt, expiry and logical attempt. Privacy verifies applicability against its approved policy revision before submitted\u2192verifying_identity\u2192verified. Failed verification may remain verifying for a permitted new attempt or receive authorized rejection; no guessed legal deadline or attempt limit. Verified\u2192processing dispatches only an immutable execution generation with target inventory and policy/source versions under WA-R020.\n\nAccess and export share owner-provided subject-data inventory but differ in output: access is a scoped authorized rights response; export creates a portable private artifact. Neither authorizes another participant's data. Correction/restriction executors acknowledge accepted work separately from completed effect; only verified owner receipts advance completion. Serialize conflicting subject mutations and re-evaluate current policy/source state before each effect. Identity privacy flags project Privacy's outcome; they cannot drive request completion. Search removal requires its qualifying target/generation receipt, not queue acknowledgment.\n\nCancellation is an authorized request decision for eligible nonterminal work: record actor/reason/version, prevent new dispatch, reconcile in-flight effects and preserve all completed receipts. It never reverses erasure or manufactures rollback. Late receipts remain attached to the cancelled generation and are disclosed in its accounted outcome. Rejection records controlled policy reason, authority, source evidence and applied policy revision, not free-text notes alone. Reopening starts a linked new execution generation after fresh verification/eligibility as required; prior terminal history and effects remain immutable. Notes are minimized append-only annotations with author/time, separate from decision proof. No terminal row overwrite or automatic reexecution of prior completed effects.\n\nPrivacy completion follows WA-R020: all targets must have confirmed effect or valid accepted exemption; pending/failed targets cannot be hidden by aggregate completed. A lawful accounted exemption is not automatically technical partial failure. Export readiness requires complete contribution inventory. Exact statutory verification sufficiency, rejection grounds, deadlines, retention periods, backup treatment and final identity disposition remain EXTERNAL_REQUIREMENT, supplied as approved jurisdiction/version policy before the affected path activates. Hold existence alone is not a statutory exemption. Verify stale verification proof, concurrent requests, cancellation during effect, late receipt, reopen after erasure and incomplete export before enabling execution.",
+      "files": [
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-architecture.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md"
+      ]
+    },
+    {
+      "id": "WA-R057",
+      "title": "Privacy owner inventory and private export handoff",
+      "body": "Each owner implements WA-R020 versioned enumerateSubjectData/evaluateRetentionRequirement/executePrivacyInstruction descriptors. Inventory is explicit, paginated with completion evidence and stable target/version identity; no generic other target or assumed database cascade can count as coverage. Messaging covers Thread, participant current state/history, Message/revisions/restrictions and MessageMedia joins. Notification covers Notification/interaction evidence, NotificationSubscription/credential generations, Delivery attempts and SubscriptionEvent. Location covers FuzzyLocationCache, reveal/revocation evidence and its provider references; exact source facts remain inventoried by their source owner. Restricted proof is accounted even when excluded from requester disclosure. Owner field/action matrices must identify erase, minimize, retain, export or restrict disposition with policy basis and executor receipts before destructive activation.\n\nPrivacy owns an immutable export manifest: subject/request/job/generation, owner contribution IDs and versions, authorized field scope, safely stated exclusions with disposition evidence, assembly completion, byte hash/algorithm, creation time and actor/correlation. Exact Location subject data may be included only under approved access policy after removing other parties' data; encryption keys, provider credentials and access tokens are never export content. Record opaque key-version/storage evidence where required, never keys. A complete manifest describes actual serialized bytes, not promised future contributions.\n\nUse Media's WA-R050 createMediaUploadSession\u2192bounded upload\u2192completeMediaUpload\u2192getMediaUploadStatus/getMediaReadiness protocol, with Privacy job/bundle revision as semantic key and purpose-bound private artifact authorization. Same key and bytes replay; changed bytes require a new revision or conflict. Upload acknowledgment never means ready. Require exact immutable ready Media version, matching hash/size and completed manifest before bundle ready. Bind through an explicit Privacy-owned MediaAsset/version reference, not polymorphic ownership. Failed scan/partial assembly keeps download unavailable. Terminal upload retry uses a linked Media attempt per WA-R050 while preserving bundle-generation lineage.\n\nAt download, Privacy rechecks requester/action/scope and current generation; Media rechecks asset safety/revocation and issues bounded access through SH-127. Commit required access evidence before protected disclosure. Superseded/expired/revoked generations cannot receive fresh access even if cleanup worker is late. Retain prior manifest/status evidence under approved retention while deleting bytes through Media's executor when authorized. No stored public URL, direct storage SDK or convenience export endpoint may bypass owner gates. Audit exports use the same Media mechanism but an Audit-owned manifest; this ruling does not transfer Audit export ownership.\n\nLegal retention/exemption duration, backup-expiry representation and final retained shell require approved external policy. Location's geocoder/account/region/purpose and key lifecycle qualification remain external activation gates; consumers cannot choose their own geocoder or crypto. Verify omitted child inventory, partial serializer, hash mismatch, scan failure, changed-byte retry, stale generation access, retained shared Media references and provider-deletion uncertainty. Concrete schema, executor field matrices and bilateral fixtures remain implementation qualification, not unresolved architecture permission.",
+      "files": [
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md",
+        "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-architecture.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md"
+      ]
+    }
+  ],
+  "families": [
+    {
+      "id": "RAILS-01",
+      "status": "APPLIED",
+      "ruling_id": "WA-R053",
+      "decision": "Messaging context identity and durable history",
+      "records": [
+        "CL-07:U-CL07-01",
+        "CL-07:U-CL07-02",
+        "CL-07:U-CL07-03",
+        "CL-07:U-CL07-04",
+        "CL-07:CL-07-H03",
+        "CL-07:CL-07-H04"
+      ],
+      "files": [
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md"
+      ],
+      "remaining": ""
+    },
+    {
+      "id": "RAILS-02",
+      "status": "APPLIED",
+      "ruling_id": "WA-R053",
+      "decision": "Messaging context identity and durable history",
+      "records": [
+        "CL-07:CL-07-H01",
+        "CL-07:CL-07-H02",
+        "CL-07:CL-07-H05",
+        "CL-07:CL-07-H06",
+        "CL-07:CL-07-H07",
+        "CL-07:CL-07-H09"
+      ],
+      "files": [
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md"
+      ],
+      "remaining": ""
+    },
+    {
+      "id": "RAILS-03",
+      "status": "APPLIED",
+      "ruling_id": "WA-R054",
+      "decision": "Messaging restrictions and authorized realtime",
+      "records": [
+        "CL-07:U-CL07-05",
+        "CL-07:U-CL07-06",
+        "CL-07:U-CL07-07",
+        "CL-07:CL-07-H23",
+        "CL-07:CL-07-H28"
+      ],
+      "files": [
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md"
+      ],
+      "remaining": ""
+    },
+    {
+      "id": "RAILS-04",
+      "status": "EXTERNAL",
+      "ruling_id": "WA-R055",
+      "decision": "Notification intents and credential generations",
+      "records": [
+        "CL-07:U-CL07-15",
+        "CL-07:U-CL07-16",
+        "CL-07:U-CL07-17",
+        "CL-07:CL-07-H29"
+      ],
+      "files": [
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md"
+      ],
+      "remaining": "Selected channel provider/configuration and verified delivery capability required."
+    },
+    {
+      "id": "RAILS-05",
+      "status": "APPLIED",
+      "ruling_id": "WA-R055",
+      "decision": "Notification intents and credential generations",
+      "records": [
+        "CL-07:U-CL07-18"
+      ],
+      "files": [
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md"
+      ],
+      "remaining": ""
+    },
+    {
+      "id": "RAILS-06",
+      "status": "APPLIED",
+      "ruling_id": "WA-R055",
+      "decision": "Notification intents and credential generations",
+      "records": [
+        "CL-07:U-CL07-19",
+        "CL-07:CL-07-H13",
+        "CL-07:CL-07-H21",
+        "CL-08:CL-08-HU-21",
+        "CL-08:CL-08-HU-22"
+      ],
+      "files": [
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md"
+      ],
+      "remaining": ""
+    },
+    {
+      "id": "RAILS-07",
+      "status": "PARTIAL",
+      "ruling_id": "WA-R054",
+      "decision": "Messaging restrictions and authorized realtime",
+      "records": [
+        "CL-07:CL-07-H10",
+        "CL-07:CL-07-H11",
+        "CL-07:CL-07-H18",
+        "CL-08:CL-08-HU-02"
+      ],
+      "files": [
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md"
+      ],
+      "remaining": "Root consumer event registry and SH-071 adapter qualification still required; only Messaging event schema specified here."
+    },
+    {
+      "id": "RAILS-08",
+      "status": "APPLIED",
+      "ruling_id": "WA-R057",
+      "decision": "Privacy owner inventory and private export handoff",
+      "records": [
+        "CL-07:CL-07-H12",
+        "CL-08:CL-08-HU-17",
+        "CL-08:CL-08-HU-24",
+        "CL-08:U-08-23"
+      ],
+      "files": [
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md",
+        "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-architecture.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md"
+      ],
+      "remaining": ""
+    },
+    {
+      "id": "RAILS-09",
+      "status": "EXTERNAL",
+      "ruling_id": "WA-R057",
+      "decision": "Privacy owner inventory and private export handoff",
+      "records": [
+        "CL-07:U-CL07-08",
+        "CL-07:CL-07-H20",
+        "CL-08:U-08-06",
+        "CL-08:U-08-08",
+        "CL-08:U-08-09",
+        "CL-08:U-08-21",
+        "CL-08:CL-08-HU-07",
+        "CL-08:CL-08-HU-18",
+        "CL-08:CL-08-HU-20"
+      ],
+      "files": [
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md",
+        "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-architecture.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md"
+      ],
+      "remaining": "Approved jurisdiction retention, exemptions, deadlines and final disposition required."
+    },
+    {
+      "id": "RAILS-10",
+      "status": "DEFERRED",
+      "ruling_id": "WA-R054",
+      "decision": "Messaging restrictions and authorized realtime",
+      "records": [
+        "CL-07:CL-07-H24",
+        "CL-07:CL-07-H25",
+        "CL-07:CL-07-H26",
+        "CL-07:CL-07-H27"
+      ],
+      "files": [
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md"
+      ],
+      "remaining": "Optional search, attachment and projection extensions remain disabled."
+    },
+    {
+      "id": "RAILS-11",
+      "status": "EXTERNAL",
+      "ruling_id": "WA-R055",
+      "decision": "Notification intents and credential generations",
+      "records": [
+        "CL-07:CL-07-H22"
+      ],
+      "files": [
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md"
+      ],
+      "remaining": "Source legal owner must approve notice requirements and sufficiency."
+    },
+    {
+      "id": "RAILS-12",
+      "status": "PARTIAL",
+      "ruling_id": "WA-R054",
+      "decision": "Messaging restrictions and authorized realtime",
+      "records": [
+        "CL-07:CL-07-H16",
+        "CL-07:CL-07-H30",
+        "CL-07:CL-07-H31",
+        "CL-07:CL-07-H33",
+        "CL-08:CL-08-HU-23"
+      ],
+      "files": [
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md"
+      ],
+      "remaining": "Root runtime/harness/deployment qualification remains outside CL07/08."
+    },
+    {
+      "id": "RAILS-13",
+      "status": "APPLIED",
+      "ruling_id": "WA-R055",
+      "decision": "Notification intents and credential generations",
+      "records": [
+        "CL-07:CL-07-H32"
+      ],
+      "files": [
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md"
+      ],
+      "remaining": ""
+    },
+    {
+      "id": "RAILS-14",
+      "status": "APPLIED",
+      "ruling_id": "WA-R056",
+      "decision": "Privacy verification and request execution history",
+      "records": [
+        "CL-08:U-08-01",
+        "CL-08:U-08-02",
+        "CL-08:U-08-05",
+        "CL-08:CL-08-HU-10"
+      ],
+      "files": [
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-architecture.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md"
+      ],
+      "remaining": ""
+    },
+    {
+      "id": "RAILS-15",
+      "status": "APPLIED",
+      "ruling_id": "WA-R056",
+      "decision": "Privacy verification and request execution history",
+      "records": [
+        "CL-08:U-08-03",
+        "CL-08:U-08-07",
+        "CL-08:CL-08-HU-01",
+        "CL-08:CL-08-HU-12"
+      ],
+      "files": [
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-architecture.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md"
+      ],
+      "remaining": ""
+    },
+    {
+      "id": "RAILS-16",
+      "status": "APPLIED",
+      "ruling_id": "WA-R057",
+      "decision": "Privacy owner inventory and private export handoff",
+      "records": [
+        "CL-08:U-08-22",
+        "CL-08:CL-08-HU-11"
+      ],
+      "files": [
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md",
+        "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-architecture.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md"
+      ],
+      "remaining": ""
+    },
+    {
+      "id": "RAILS-17",
+      "status": "APPLIED",
+      "ruling_id": "WA-R057",
+      "decision": "Privacy owner inventory and private export handoff",
+      "records": [
+        "CL-08:U-08-10",
+        "CL-08:CL-08-HU-13"
+      ],
+      "files": [
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md",
+        "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-architecture.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md"
+      ],
+      "remaining": "Producer-specific source DTOs and fixtures remain implementation qualification; WA-R025 already establishes source ownership."
+    },
+    {
+      "id": "RAILS-18",
+      "status": "EXTERNAL",
+      "ruling_id": "WA-R057",
+      "decision": "Privacy owner inventory and private export handoff",
+      "records": [
+        "CL-08:U-08-20"
+      ],
+      "files": [
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md",
+        "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Location Safety Module/location-safety-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Messaging Module/messaging-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-architecture.md",
+        "context/clusters/Messaging Notification Rail/Notification Module/notification-module-implementation-plan.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-architecture.md",
+        "context/clusters/Messaging Notification Rail/messaging-notification-rail-build-plan.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-architecture.md",
+        "context/clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md"
+      ],
+      "remaining": "Geocoder and key provider/account/purpose/capability qualification required."
+    }
+  ]
+}

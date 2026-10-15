@@ -1653,3 +1653,111 @@ Before writing code, the agent must confirm:
 - shared operations already exist or are supplied as versioned fixtures/contracts rather than rebuilt locally;
 - any schema change is an approved owner change, invariant, or persistence need rather than convenience duplication.
 
+
+
+## WA-R042 — Approved service reports, discovery choice, invitation validity and conversations
+
+Binding P16–P19 owner rulings, received 2026-10-07 America/New_York. Supersede open recommendations; no implementation completion implied.
+
+### P18
+
+Do not automatically expire interview invitations by timer at launch. Organizers cancel, replace or reschedule through Job Interview lifecycle with immutable history. Invitation pending state alone does not prove a currently actionable slot: every new acceptance validates the current invitation/revision and server-authoritative scheduling facts. An already-elapsed interview slot cannot be newly accepted; present a stale-slot outcome and require authorized replacement/rescheduling. This validity check is not an automatic expiration transition and does not invent a deadline. Preserve existing response and schedule history; no_response is not proof of recipient reading.
+
+## WA-R046 — Interview participation, schedule successors and integration facts
+
+Binding architecture adjudication. This section supersedes earlier proposed/unresolved wording only for the named concerns below; schema, provider and legal activation gates remain.
+
+Job Interview owns the following graph: draft→proposed/cancelled; proposed→scheduled/cancelled; scheduled→completed/cancelled/no_show/rescheduled. Terminal completed/cancelled/no_show/rescheduled do not reopen. expired is inactive at launch under P18/WA-R042; no timer or no_response generator is enabled. No direct draft→scheduled shortcut. New invitation acceptance and scheduling require a future startsAt and valid startsAt<endsAt; a past slot is unavailable even without a persisted expiry transition. Participant acceptance is bound to the exact schedule revision shown; schedule changes require fresh confirmation.
+
+Every interview has exactly one Candidate participant tied to the application's Candidate User, and an organizer authorized by current Hiring/Role facts. Other organization-side participants must be current authorized Organization members; arbitrary external observers are unsupported at launch. Invitations/response/revocation are immutable history, with a current participant selection and explicit revocation marker (forward persistence required). Removing a participant revokes future access and requests Messaging/Video/Calendar reconciliation without deleting invitation evidence. Candidate cannot simply be removed leaving an apparently schedulable interview; cancel the interview instead. invited→accepted/declined/tentative and tentative→accepted/declined are supported for the invited User on the current schedule revision; revoked/declined invitations cannot be revived by late callbacks. Scheduling requires accepted Candidate and organizer evidence, and accepted participation for each retained required attendee. Optional attendees do not acquire access by another person's acceptance.
+
+Reschedule is one atomic owner operation under predecessor revision/lock: mark a scheduled predecessor rescheduled, preserve old schedule/history, and create exactly one linked proposed successor with new revision and fresh invitation evidence. A second distinct reschedule against that predecessor conflicts; identical retry returns the same successor. Changes before scheduling create a new proposal schedule revision and invalidate earlier acceptance evidence. Do not copy accepted participant statuses or provider credentials to a successor. Parent integer aggregate revision covers schedule and participant mutations. No-show records structured absent participant IDs/roles, reporting actor and evidence references in retained Interview history, avoiding sensitive free text. This hiring outcome does not confer service-Booking/financial meaning.
+
+Application withdrawn/rejected/hired (or owner-confirmed non-interviewable state) prevents future interview actions immediately by fresh Candidate owner checks. Interview consumes committed state events idempotently and cancels still-proposed/scheduled interviews with history, then requests access/provider revocation; completed historical records are retained. Events are acceleration, not authorization caches. Interview never writes or automatically advances application status/stage; any recruiter progression is a separate Candidate owner command.
+
+Calendar requests carry typed Interview context, schedule revision, participant references and the authorized calendar connection. Calendar returns opaque resource/receipt/status. Interview externalCalendarEventId/provider/sync/error fields are correlated attachment/status projections only; minimized errors must omit secrets. externalMeetingUrl remains disabled without an approved adapter; provider access uses Video's freshly authorized participant/session-bound credentials, not reusable URLs. Video consumes current schedule/participant/revocation facts; no early joining absent an approved timing policy, and credentials cannot outlive authorized interval. Exact security TTL and provider qualification belong to Video. Integration failure records a durable retry/receipt and never rolls back truthful Interview history.
+
+Freeze each event wire name/version and producer/consumer fixture bilaterally before activation: immutable event ID, owner/aggregate ID, revision, semantic command ID, schema version, committed time and minimal change facts. Consumers re-query current authority. Interview invitation/scheduling/cancellation/reschedule notices resolve concrete current participant User IDs, plus revoked recipients where a safe removal notice is authorized, and secure contextual links. Notification owns channel eligibility and delivery, and Messaging alone writes thread participants. Optional view/completion/no-show notices stay disabled until an explicit feature policy exists; request acceptance is never delivery proof.
+
+## WA-R047 — Hiring moderation, privacy and restricted disclosure contracts
+
+Binding architecture adjudication. This section supersedes earlier proposed/unresolved wording only for the named concerns below; schema, provider and legal activation gates remain.
+
+Hiring's SH-103 executor allowlist is Job/Organization publication suppression and eligible restoration; Candidate's allowlist is Candidate search-projection suppression and eligible restoration. These are owner effects of an authorized Moderation decision, not replacement domain lifecycles. Bind decision ID, target, expected owner revision, effect key, actor and policy/evidence references; return applied/already-applied/unsupported/conflict/retryable/terminal with durable receipt and resulting revision. Restoration rechecks current participation, readiness, Holds, other restrictions and erasure; it cannot make an opted-out Candidate searchable. Identity/Track effects require their specific owner commands; no generic profile mutation is implied. Bilateral Moderation effect registration and fixtures remain prerequisites.
+
+Privacy routes typed owner-qualified Organization, Job, CandidateProfile, JobApplication, JobInterview, participant and owner-event inventory; use the canonical Privacy executor protocol with owner target IDs and versions. Never use an ambiguous other bucket to authorize mutation. Inventory includes parent/child relationships and distinct raw resume/parse data, business/compliance history, access proof and provider attachment references. Active retention/exemption blocks destructive parent cascades; return retained/redacted/detached/erased outcomes and evidence instead of deleting retained children. Raw text can be redacted separately from retained minimal decision proof when approved policy permits it. Exact legal retention periods/bases, field disposition maps and export serializers remain qualification gates; no numeric schedule is invented.
+
+Hiring's public Organization/Job/Candidate geography uses only purpose-approved coarse Location output, not raw candidate address or meeting detail. Exact Interview location/phone is disclosed only to currently authorized participants/support for the approved purpose after durable sensitive-access proof; recruitment role alone grants no blanket meeting-secret access. Notification payloads contain contextual links, not exact location/phone/meeting credentials. If Location lacks a supported hiring target/field policy, the affected exposure remains disabled; the active-service Booking reveal rule does not automatically apply to hiring. Location/Privacy field contracts and retention must be frozen bilaterally before that surface activates.
+
+CL-06 sensitive actions register owner action/resource facts in Role: membership transfer/removal, Job publication, Compliance rule/review/override, Candidate search, application/resume detail access, Interview participant/schedule mutation and restricted export. Consent remains purpose-specific: Trust/Consent for screening; Calendar for its connections; P17 for Candidate participation. No universal hiring-consent checkbox is invented. Shared rails and missing root placement are synthesis dependencies; exact action DTOs, constants, schema constraints and provider fixtures remain implementation qualification, not ownership uncertainty.
+
+
+## WA-R066 — Finite Notification source and recipient contracts
+
+Classification: AI_RESOLVED_WITH_TRADEOFF. Architecture contract; implementation and external qualification remain explicit gates.
+
+SH-041 uses the following finite versioned semantic-intent/template registrations. These are architecture contracts, not implemented renderers, selected delivery vendors or proof of delivery. Sources emit an intent only after the corresponding durable owner transition. Every intent binds source owner, typed aggregate ID/revision, immutable semantic intent ID, template key/version, owner-resolved local User recipients, safe authenticated route, sensitivity and event kind. Notification owns channel consent, current endpoint generation, eligible delivery, attempts and receipts. Sources never ask Notification to scan foreign memberships or reconstruct business state.
+
+| Intent/template | Committed source and recipients | Safe additional content |
+| --- | --- | --- |
+| message.new.v1 | Messaging messaging.message_created.v1; other currently eligible Thread participants selected by Messaging, excluding sender | Thread/Message references only; no message body or attachment URL |
+| order.outcome.v1 | Order order.outcome_changed.v1; currently authorized Order participants selected by Order for its source kind | Safe operational outcome code and Order link; no financial consequence implied |
+| booking.schedule.v1 | Booking confirmed/rescheduled/cancelled facts; currently authorized affected Booking participants | Safe change kind and authenticated schedule link; no exact address or meeting credential |
+| interview.invitation.v1 | Interview invitation/current schedule revision; invited eligible Candidate and authorized Organization participants selected by Interview | Interview reference and safe proposed/scheduled kind |
+| interview.schedule.v1 | Interview cancellation/reschedule/replacement; currently authorized affected participants selected by Interview | Safe change kind and authorized predecessor/successor references; no new removed-user notice |
+| application.status.v1 | Candidate accepted_offer or withdrawn: current authorized hiring Organization recipients selected by Candidate through Hiring facts; Candidate rejected or hired: the application Candidate User | Application reference and exactly accepted_offer/withdrawn/rejected/hired change code; no view/stage alert or general Candidate exposure |
+| privacy.verification_needed.v1 | Privacy durable request transition requiring verification; request subject through Privacy/Identity-authorized route | Request reference and safe action-needed code; no verification secret |
+| privacy.outcome.v1 | Privacy accounted terminal outcome; currently authorized request subject/representative | Safe terminal category and link; no restricted exemption evidence or other parties' data |
+| privacy.export_ready.v1 | Privacy complete manifest and ready exact Media version/current generation; currently authorized export requester | Request/bundle reference; no signed credential or stored public URL |
+| security.notice.v1 | Identity committed security intent; affected local User only | Generic change and authenticated-context link; no OTP, recovery token, precise IP or factor details |
+| supply.status.v1 | Professional/Marketplace committed status/remediation intent under R035; owner-resolved Professional User | Generic status/remediation code; no Healthcare/provider/Hold detail |
+
+Candidate registers `candidate.application_status_changed.v1` with eventId, application ID/revision, committed time, semantic command identity, old/new status, authorized actor reference and safe typed Candidate/Organization subject references. This event contains no resume, message, employer notes or protected evidence. The source owner derives notification recipients from current Hiring authority. Only the four listed successful status transitions may create application.status.v1 at launch; application views, recruiter stages and retry transport do not. Candidate acceptance must already satisfy R045 current-offer proof, and withdrawal does not restore quota. Sending a notification never makes an application or Candidate publicly discoverable.
+
+Deduplicate one semantic intent × resolved User; channel attempts are children of that intent. Changed payload under the same fingerprint conflicts. Retries preserve identity. Current protected-context access is rechecked before rendering/dereference; loss of membership suppresses the protected notice. Do not create a removed-user notice without its own approved source policy. Delayed invitation links must recheck P18/current schedule. Notification failure never rolls back source truth. No message bodies, resumes, exact locations, raw provider failures, adjudication evidence or credentials may enter generic variables.
+
+Material proposal changes remain visibly surfaced by Gig's current-revision presentation under P14; a delivered notice is not evidence the latest terms were presented for acceptance. Participant-facing Dispute updates reuse Order conversation under P19, but a Review fact cannot be relabeled as an Order event; any separate Review alert remains disabled until registered. Optional viewed/shortlisted, Location, Interview completion/no-show and other undeclared alerts remain disabled. This finite registration does not provide legally sufficient notice policy. Exact copy, renderer/schema fixtures, provider/account/channel qualification and delivery recovery proof remain activation prerequisites. Existing broad notification suggestions are narrowed by this explicit source/recipient matrix for these intents.
+
+## WA-R071 — Purpose-specific Location facts and disclosure
+
+Location alone decides precision/reveal under WA-R071. Supply current typed owner facts and opaque source revisions; an event or cache is not authorization. Changes emit only source/context identity, revision and change kind, never exact coordinates/address/phone. Source relocation, cancellation, disqualifying refund/dispute, completion, participant/restriction/policy changes invalidate prior allow; fresh queries must prevent stale events from restoring it.
+
+Supply current schedule revision, interval, participant/revocation facts and protected meeting-location/phone source references for interview_participation. Location authorizes meetingLocation and meetingPhone individually for current authorized participants/purpose-authorized support after durable access proof. Service-Professional-only predicates do not apply to this distinct purpose. Invitation notices carry secure contextual links, never exact fields.
+
+## WA-R072 — Hiring compatibility and forward migration stewardship
+
+Interview owns participant current selection, invitation/response history and Interview events under WA-R046. Registry stewardship now names JobInterviewParticipant and its role/status vocabulary. Forward persistence must retain immutable schedule-bound invitation/response evidence and explicit current selections; no migration has run. WA-R072 additive migration, proven-identity backfill/quarantine, parity cutover and separately reviewed removal sequence applies. Database D remains the deployment/baseline evidence gate.
+
+## WA-R073 — Interview access interval and bounded credentials
+
+Classification: AI_RESOLVED_WITH_PRODUCT_JUDGMENT for the explicit launch interval default; credential bounding/currentness follows existing WA-R023/046/051.
+
+Make WA-R046’s no-early-join constraint concrete with the launch default `startsAt <= serverNow < endsAt`, for the current scheduled Interview revision and accepted, nonrevoked participant. There is no implicit post-end or pre-start grace. Invitation acceptance still requires a future slot under P18; that is distinct from joining an already accepted current slot. Application terminal/restricted status, Interview cancellation/reschedule or participant revocation immediately blocks new credential issuance despite a previously accepted invitation.
+
+Video resolves its current session generation and parent facts at issuance. Set `expiresAt = min(serverNow + configuredSecurityTTL, interview.endsAt, currentAuthorityEvidenceExpiry, applicableProviderMaximumExpiry)` using only applicable finite limits. Missing/invalid TTL or provider inability to honor the required bound disables issuance. The credential binds viewer, typed Interview ID, schedule revision, session generation and audience; never reuse predecessor credentials after reschedule. Clock tolerance may only make denial more conservative unless an explicit approved policy permits otherwise. Provider callbacks cannot extend parent authority.
+
+Provider revocation/expiry capability and disconnect semantics must be qualified; a short TTL alone must not be falsely represented as immediate revocation of an already connected session. Unsupported mandatory revocation remains a provider activation gate. Numerical security TTL, provider clock handling and maximum session limits belong to Video security configuration and evidence, not a new product vote. Any future early-join interval requires an explicit policy version and does not reopen P18's no timer invitation expiry.
+
+Reasoning: a half-open scheduled interval makes the existing no-early-join constraint deterministic and avoids unapproved exposure. Rejected: arbitrary pre/post grace or provider-default lifetime, because neither is supported by approved timing policy. Reversible/configurable through a future explicit timing policy version; preserve issued credential and schedule evidence, never retroactively extend past rights.
+
+
+## WA-R068 / WA-R069 — Authority facts and committed event obligations
+
+This Module adopts its `job_interview` action/fact row and specifically registered producer/consumer effects in `context/reconciliation/authority-event-contracts.md`. Role interprets the catalog; this owner retains facts and lifecycle. Register each concrete protected port before activation; a grouped port row does not authorize unspecified commands.
+
+Owner action scope: `cancelInterview / removeInterviewParticipant / getInterviewAuthorizationFacts`. Permitted relationships: authorized organizer/assigned hiring member; Candidate only own invitation response. Required owner facts: Interview/application/Organization binding, participant role/current response, schedule revision/start, application interviewability. Assurance: ordinary B; no new acceptance after elapsed start; credentials A through Video. These facts include typed target, source revision, subject relationship, purpose/action and evaluation time; missing/stale/unavailable facts cannot authorize, and current revisions are checked again at effect. B/S/A have the precise appendix meanings; source services cannot invent human assurance.
+
+Producer obligations:
+
+- `interview.proposed.v1 / interview.scheduled.v1 / interview.rescheduled.v1 / interview.cancelled.v1 / interview.completed.v1`: Interview/Application/Organization, schedule/lifecycle revision, start/end where necessary, predecessor/successor. Registered effect: Calendar/Video: desired-state reconcile by current parent; Candidate: optional owner-governed stage handling, never direct assignment.
+- `interview.participant_changed.v1`: Interview/participant reference, membership/response revision, schedule revision. Registered effect: Video/Calendar/Messaging if context exists: reevaluate current authorized audience.
+
+Consumer obligations:
+
+- `organization.membership_changed.v1`: consume only the effect naming this Module — Candidate/Interview/Messaging: revoke derived access; all protected requests use current membership.
+- `job.lifecycle_changed.v1`: consume only the effect naming this Module — Search remove/refresh; Candidate/Interview recheck actionable workflow.
+- `application.lifecycle_changed.v1`: consume only the effect naming this Module — Interview: cancel nonterminal interviews when non-interviewable; Messaging reevaluates explicit context membership.
+
+Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
+
+Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.

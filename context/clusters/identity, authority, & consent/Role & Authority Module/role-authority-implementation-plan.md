@@ -2130,3 +2130,24 @@ Maintain an explicit effective BAA reference per Healthcare profile and covered 
 lockedHealthcareFlag is a derived UI/edit restriction indicator only; source policy and revision must be queried for authority. It does not replace a boundary, BAA, Hold or readiness. BAA proof contains agreement/scope, party legal identifiers and represented authority, document version and canonical bytes hash, signer/countersigner identities/roles, signature intent and timestamp, provider envelope/reference and verified evidence provenance. Required legal parties, signature sufficiency, text, effective terms and retention are EXTERNAL_REQUIREMENT before live Healthcare contracting. Technical storage of those fields is not legal approval. documentMediaId becomes an explicit Healthcare-owned evidence attachment relation to MediaAsset with immutable evidence version/hash; Media lifecycle cannot overwrite executed bytes. No public/eager signed URL in BAA DTOs.
 
 Healthcare-owned provider event effects follow WA-R018 with unique provider/account/event/handler version, payload fingerprint, agreement target, received time, processing status, attempt history, verified normalized outcome, effect receipt and reconcile status. Event arrival is not BAA execution. Unknown provider states stay unresolved. Provider-specific e-sign selection/capability, storage and video BAA coverage must come from actual qualified provider/account/region/configuration evidence through the corresponding provider owner; Healthcare evaluates it. No provider brand implies coverage. Required tests include ancestor restriction precedence, unknown mask denial, replacement race, late signed callback after revocation, and summary rebuild; provider/legal qualification remains separate.
+
+
+## WA-R064 — Source-qualified authority, event and cryptographic contracts
+
+Implementation follows the corresponding applied owner architecture ruling. Required acceptance evidence before activation: registered versus unknown actions; stale/missing owner facts; support-role escalation rejection; consent-purpose mismatch; delayed invalidation events; separate owner hash chains with tamper detection. Finish the per-port action/facts inventory and bilateral event fixture registry before declaring any affected interface frozen. Root synthesis is still a separate gate.
+
+
+## WA-R065 — Shared sensitivity policy governance and Healthcare applicability
+
+Implementation follows the corresponding applied owner architecture ruling. Required acceptance evidence before activation: unknown category denial; normal data remains private without publication authority; multi-context restriction intersection; stale classification grant invalidation; audit-unavailable disclosure denial; unqualified Healthcare provider denial. The versioned policy catalog and actual cryptographic/provider evidence must exist before enabling the protected surface.
+
+
+## WA-R068 / WA-R069 — Authority/event qualification sequence
+
+Implement the `role_authority` obligations in this Module's architecture and `context/reconciliation/authority-event-contracts.md` before dependent event consumers activate. First register concrete action ports (`authorizeResourceAction / evaluateOrganizationPermission`), source fact fields/revisions and required B/S/A assurance; then qualify producer outbox/history and the specifically named subscriber effects. Do not implement the entire cross-platform matrix inside this Module.
+
+Acceptance evidence must show wrong relationship/target and stale source facts deny; action-bound assurance cannot replay cross-target; source outage cannot become allowed; duplicate event replay has one effect; same ID/different fingerprint quarantines; late revisions/tombstones cannot resurrect access; correction preserves history and reevaluates the original logical effect. Verify registered payload field minimization and subscriber audience independently of transport delivery. Existing explicit commands and notification intents retain their separate receipts/qualification.
+
+WA-R031 governs: launch has neither a Role-owned event stream nor an authorization cache. Identity supplies persisted platform-role assignment facts. R064 references to Role assignment changes mean Identity assignment revision, and references to cache invalidation mean fresh current-fact evaluation at launch. Govern the action catalog and policy interpretation without owning assignments or source lifecycles.
+
+DTO/server-RLS parity, executable fixtures, outbox/inbox recovery and provider/security configuration are implementation qualification, not unresolved ownership. Legal/program/provider values remain scoped activation gates; unsupported paths stay disabled. Architecture integration does not claim frozen interfaces, successful runtime tests or permission to change schemas.

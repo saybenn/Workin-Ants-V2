@@ -1,6 +1,8 @@
+> **Account transfer checkpoint — 2026-10-15:** Read `context/reconciliation/account-transfer-handoff.md` (repository-root path) and current `normalization-metrics.json` before continuing. Current decision coverage is 638 adjudicated / 23 partial / 0 pending; 2 canonical architecture concerns and 11 external families remain. R001–R075 are recorded. Domain bridge review and Gates 4–10 are unfinished. Older dated counts below are historical. The user authorized the dedicated-branch transfer push; no main merge or deployment.
+
 # Development readiness status
 
-Date: 2026-09-29. **NOT DEVELOPMENT READY** — reconciliation in progress, no active implementation lanes.
+Updated: 2026-10-09. **NOT DEVELOPMENT READY** — reconciliation in progress, no active implementation lanes. Current metrics are in normalization-metrics.json; older dated checkpoints below are historical.
 
 ## Repository evidence
 
@@ -19,7 +21,7 @@ Repository: `saybenn/Workin-Ants-V2`. Audited starting branch: `main`; starting 
 | Shared source DOCX / language and compliance DOCX | Present supporting source material | Canonical terminology/constraints consulted; pending legal homework is not approval |
 | Prisma / migrations | Present; CURRENT BUT INCOMPLETE coverage | 177 models/207 enums; sole migration creates 53 tables/31 enums; no live state inferred |
 | Root architecture / build plan | MISSING | Do not invent authoritative synthesis before reconciliation |
-| Root code standards / library docs | MISSING | Harness still incomplete |
+| Root code standards / library docs | DRAFTED, pending final plan alignment | Harness still incomplete |
 | Progress tracker | NEW, CURRENT BUT INCOMPLETE | Tracks readiness work; no product phase or lane is authorized |
 | AGENTS.md / CLAUDE.md | Present; readiness loading/continuation rules added | Existing database laws and Next documentation requirement retained; screening exception aligned |
 | Global bridge inventory / parallel lane map | PARTIAL / MISSING | Five P01–P03 bridge records now exist; remaining bridge coverage, rail matrices and lane qualification incomplete |
@@ -31,9 +33,9 @@ Repository: `saybenn/Workin-Ants-V2`. Audited starting branch: `main`; starting 
 |---|---|---|
 | 0 Current-state audit | COMPLETE for inventory and identified gaps | Deep semantic findings continue under later gates |
 | 1 Shared Operations | COMPLETE — registry/reference gate | All 132 classified; concrete interfaces remain UNSTABLE/EXTERNALLY_GATED for later qualification |
-| 2 Ten handoffs | IN PROGRESS | WA-R001–039 close named issues only; remaining records need adjudication |
+| 2 Ten handoffs | IN PROGRESS | WA-R001–065 applied; 0 pending, 75 partial records; 12 canonical architecture families plus 11 external families remain |
 | 3 Apply rulings | IN PROGRESS | Membership, reward owner, screening source, optional similarity scope and ATS model corrections applied; follow-up scan required |
-| 4 Final bridges | PARTIAL SLICE ONLY | Five approved-product bridges captured; full consolidation and rail matrices remain |
+| 4 Final bridges | PARTIAL SLICE ONLY | 563 historical bridges extracted with exact coverage; bilateral reconciliation and rail matrices remain |
 | 5 Platform audit | NOT STARTED | Fresh audit after rulings/bridge completion |
 | 6 Database posture | EVIDENCE GATE IDENTIFIED | Read database-readiness.md; live provenance unresolved, no destructive workaround |
 | 7 Root architecture | NOT STARTED | Depends on reconciled lower-level truth |
@@ -45,7 +47,7 @@ Repository: `saybenn/Workin-Ants-V2`. Audited starting branch: `main`; starting 
 
 Structural checks verify registry membership, all 44 document pairs, permanent SH IDs/required fields/compact-index equality and references to existing IDs. They identify migration creation coverage. They do not prove lifecycle compatibility, event symmetry, provider capability, legal sufficiency, deployed state or safe parallelism.
 
-P01–P13 are approved and binding; WA-R032 applies the latest subscription/quota clarifications. P14/P15 are approved under WA-R040; P16–P19 are the current open choices. Earlier return-control paragraphs are historical. Do not ask again about settled ATS, reward-benefit, screening-default or content-similarity scope. Continue the unresolved architecture review autonomously. Database provenance is external evidence, not permission to halt unrelated reconciliation.
+P01–P13 are approved and binding; WA-R032 applies the latest subscription/quota clarifications. P14/P15 are approved under WA-R040; P16–P19 are approved under WA-R042. No current product question is open. Earlier return-control paragraphs are historical. Do not ask again about settled ATS, reward-benefit, screening-default or content-similarity scope. Continue the unresolved architecture review autonomously. Database provenance is external evidence, not permission to halt unrelated reconciliation.
 
 Next: continue Gate 2 adjudication of every remaining handoff record against its owning architecture; Gate 1 registry/reference exit criteria are complete. Keep historical evidence intact. Do not mark the whole task complete from this checkpoint.
 
@@ -148,3 +150,14 @@ The normalization index is handoff-families.json; recommendations marked REVIEWE
 Exact return-control blocker: P16 Booking completion/no-show authority, P17 Candidate employer-search participation default, P18 Interview automatic expiration, and P19 shared versus separate Booking/Dispute conversation. Current owner architecture explicitly leaves these product behaviors undecided; recommendations are in product-owner-decisions.md and remain unadopted. Ordinary gates did not cause the stop.
 
 Next: apply owner answers, then process the normalized family queue and merge overlapping event/authority/privacy/notification/export families through the single integration ledger. Complete cross-Cluster reconciliation before root synthesis. Gate 1 remains complete; Gates 2–10 are unfinished. No database migration, product runtime implementation, remote push or deployment occurred.
+
+
+## Active integration — 2026-10-09
+
+P01–P19 are binding. All five lane reports are preserved in lane-reports/ and integrated into the single canonical ledger. WA-R043–065 apply Hiring, Commerce, Messaging/Privacy, Risk/Rewards and Foundation owner contracts. Root corrected the non-ranked sensitivity intersection in Messaging, Media and Audit under WA-R065. Source evidence remains immutable.
+
+All 661 decision records have been reviewed: 586 adjudicated and 75 partial, zero pending. The original 323-record normalization slice remains covered by 92 evidence facets, now 76 canonical concerns. Twelve canonical architecture concerns remain unfinished and eleven carry scoped external requirements. Existing-ruling closures: 22; deduplication-only closures: 0; new rulings since baseline: 26; open product questions: 0. These counts do not certify implementation readiness.
+
+Gate 4 now has all 563 historical bridge records with raw evidence, hashes and inherited profiles in bridge-catalog.json/md. They remain explicitly unfrozen and await bilateral reconciliation; extraction alone is not completion. Root architecture and build plan remain unwritten pending that convergence. Code standards and library qualification docs are drafted. Database posture D still gates baseline/deployment decisions only.
+
+Validation: check-context.py and diff whitespace checks pass. No product runtime, schema mutation, migration replay, external approval, remote push or deployment performed. Continue cross-contract reconciliation and bridge normalization autonomously. This checkpoint introduces no request for user approval.

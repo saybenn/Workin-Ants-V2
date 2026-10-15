@@ -577,7 +577,7 @@ No Observability-specific status or severity enums are confirmed in the supplied
 
 | Record / concept | Owner outside CL-09 | CL-09 use |
 | --- | --- | --- |
-| `DataSensitivity` | Shared/schema ownership not cleanly resolved in supplied registry; consumed by Audit and sensitivity owners. | Classifies access evidence. |
+| `DataSensitivity` | RESOLVED WA-R065: Role governs security policy catalog; source owners declare context and Healthcare applicability remains Healthcare-owned. | Classifies access evidence. |
 | `HealthcareAccessDecision` | Healthcare / Regulated Services | Audit records the healthcare-owned allow/redact/block/deny outcome. |
 | `SearchUpsertEvent` | Search / Public Visibility | Search projection queue truth; CL-09 requests work but does not write it. |
 | `MediaAsset`, `MediaAccessGrant`, media processing records | Media / File Access | Evidence/file context and execution. |
@@ -1589,3 +1589,74 @@ Tax subject is a Payment-owned stable subject reference mapped to an identified 
 Order binds final calculation ID to exact immutable quote/order revision, currency, line IDs and buyer-tax-location evidence revision. Payment preserves line-level taxable basis, tax, jurisdiction, provider tax code and liability role even for mixed-liability lines. Tax-location provenance includes approved source owner, source/evidence revision, validation method/result and captured/effective time, minimum required location fields; it is not public-location consent. Each authorized refund has immutable line allocations against the original captured quantities/basis/tax and links its own provider refund and tax reversal attempts. Cumulative refunds cannot exceed captured refundable allocation; lock the operation allocation counters and reject mismatched currency. Use deterministic minor-unit residual allocation only within an approved tax/provider allocation policy; do not guess rates or liability. Partial/multiple refund representation requires separate child records, not one overwritten reversalId. Provider unsupported/ambiguous results stay pending/manual review, never fabricated successful tax reversal. Full provider/rule qualification remains external before affected execution.
 
 Required verification: concurrent reservation conservation, duplicate callback/compensation, timeout followed by paid result, multiple holds, account changes before dispatch, line-level cumulative refund cap, subject/jurisdiction separation, replacement filing traceability. No live financial test or migration is claimed by this architecture decision.
+
+
+## WA-R058 — Moderation execution receipts and review cycles
+
+**Applied architecture ruling — 2026-10-08.** This scoped amendment supersedes earlier proposed/unresolved labels only for the concerns below. It records architecture, not implemented schema, successful tests, deployment or legal approval.
+
+Moderation owns intake, case decisions, legal correspondence and immutable action history. A case aggregates reports through retained explicit links; report identity/history survives consolidation. Each action carries case/cycle, target owner/type/ID and version, authorized actor, policy version, requested effect, reason, evidence references and correlation/idempotency identity. SH-102 resolves only registered typed owner targets/actions. Missing, unavailable or unsupported targets remain unresolved intake; no actionable target or authorization is fabricated.
+
+Before a destructive effect, preserve the authorized evidence snapshot or retained immutable content/reference/hash through Media under its access contract. A URL alone is not evidence. Preservation is purpose/retention constrained and must not copy restricted adjudication material into participant conversations (WA-R042/P19). Moderation records its action before dispatch; each owner executor returns acknowledged, completed, failed or restored evidence with effect identity, source version, retryability and receipt. Acknowledgment is not completion. Persist the run and steps; reconcile unknown outcomes before retry. Restoration is a new authorized owner effect linked to the original, never an edited historical action. Restrict cascades over decisions/actions/receipts; Privacy governs lawful retained-field disposition.
+
+Report graph: submitted→triaged; triaged→under_review or dismissed; under_review→action_taken only after required owner receipts, or dismissed; action_taken/dismissed→closed. Duplicates retain their own triage evidence and link to the original report/case before dismissal. Ordinary closed reports are terminal; later evidence creates a linked review cycle without rewriting the original outcome. Case graph: opened→triaged→under_review; under_review→escalated or waiting_for_counter_notice only when applicable approved policy requires it; those waiting states return to under_review upon authorized new evidence. under_review→action_taken requires all required successful effects; under_review→dismissed records the no-action decision; action_taken/dismissed→closed. Authorized reopening of a closed case creates a new immutable cycle and resumes under_review, preserving earlier disposition. A reopened case never repeats prior enforcement automatically.
+
+LegalNotice validation, counter-notice eligibility, deadline, restoration entitlement and mandatory correspondence remain externally approved legal policy. Store policy version and evidence with each allowed transition; unavailable policy prevents that legal mutation. This ruling supplies the execution protocol and ordinary Report/Case graphs, not numerical legal deadlines or permission to infer legal validity from notification, Search or Hold outcomes. Each target/action mapping must identify its actual owner executor and denial/unavailable behavior before activation; unsupported mappings fail closed.
+
+
+## WA-R059 — Hold provenance and safe release
+
+**Applied architecture ruling — 2026-10-08.** This scoped amendment supersedes earlier proposed/unresolved labels only for the concerns below. It records architecture, not implemented schema, successful tests, deployment or legal approval.
+
+Hold owns one validated typed primary target, immutable creation/review/release evidence, and the active→released lifecycle. A new justified stop after release/expiry is a new linked generation, never a historical status rewrite. Multiple sources may independently justify Holds: dedupe only equivalent source-owner + source-cause + typed target + action scope + reason-policy identity. Exact retry returns the same Hold; distinct causes remain separately evaluated. Retain durable reviewer claim/lease and expected revision so concurrent reviewers cannot silently overwrite decisions.
+
+Register explicit action scopes and safe reason exposure with each target owner. A Hold decision returns applicability, opaque Hold/evidence identity and safe denial classification; it does not copy sensitive reasons to arbitrary consumers. Existing supported targets keep their established typed mapping; Candidate/Application/Resume or other absent targets require coordinated typed schema registration before activation. Their scope is only the registered action, never all activity or statutory rights. Foreign reason/status is source provenance, not an imported lifecycle.
+
+Release requires fresh source-owner readiness evidence, current Hold policy/authority and expected active revision. Missing/unavailable source facts cannot release. Administrative authority alone never overrides legal/provider constraints. Expiry requires explicit approved policy, effective evidence and auditable owner transition; no generic timer default is introduced. Competing release/expiry attempts serialize and return the committed result or conflict. blockedByHoldId is a rebuildable association; every protected action evaluates all currently applicable Holds. Release emits a fact for owner reevaluation, never automatically fulfills a reward, releases money, completes service, restores content or grants review eligibility (WA-R042).
+
+
+## WA-R060 — Audit vocabulary and bounded operator evidence
+
+**Applied architecture ruling — 2026-10-08.** This scoped amendment supersedes earlier proposed/unresolved labels only for the concerns below. It records architecture, not implemented schema, successful tests, deployment or legal approval.
+
+Audit persists request/correlation identity, normalized outcome, typed actor kind (user/service/system/provider), owner-namespaced versioned action and typed target references, occurrence/recording time and minimal evidence references. Owners declare their vocabulary and classification; Audit validates declared namespace/shape and stores proof without querying another owner's repository or deciding its lifecycle. DataSensitivity meaning follows platform vocabulary; each owner supplies classification and Healthcare supplies its regulated interpretation. Exact enum/column names and forward backfill are implementation decisions.
+
+Accept PR-AUD-02: unused hash/chain fields remain unpopulated; an append-only application contract is not a tamper-proof cryptographic chain. Any later chain requires a separately reviewed partition/sequence/canonicalization/algorithm/version/anchor/privacy contract. Do not manufacture hashes merely to satisfy nullable fields.
+
+Ops and Admin viewers use bounded paginated Audit-owner queries before introducing a durable projection. Owner queries enforce current scope, redaction and mandatory access proof; unavailable mandatory proof fails closed under WA-R023. Register stable action IDs with Role; apply the established sensitive-action step-up rules to bulk sensitive exports, financial effects, drawing/reversal and protective-control release. No dashboard or diagnostic signal grants mutation authority. Ghost-account/inactivity signals are diagnostic; Identity alone owns account action, and there is no automatic deletion policy. Versioned grouping/alert/action registries and fixtures precede enablement. Preserve WA-R018 operational persistence/lifecycles; Ops recovery state cannot finish another owner's workflow.
+
+
+## WA-R067 — Typed moderation execution and normalized receipts
+
+Classification: AI_RESOLVED_WITH_TRADEOFF. Architecture contract; implementation and external qualification remain explicit gates.
+
+SH-103 remains the existing cross-cutting execution protocol; no new Shared Operation ID or schema change is authorized. Each instruction carries authorized decision/action ID, case/cycle, typed owner target ID and expected owner revision, approved effect, actor/service authority, purpose/policy/evidence references, semantic effect key and correlation. Owners validate target/action compatibility and current authority before mutation. The following versioned ports name existing owner handlers, not new lifecycle ownership or permission.
+
+| Existing primary target / typed downstream effect | Owner port v1 | Allowed effect and guard |
+| --- | --- | --- |
+| job, organization | Hiring applyHiringModerationDecision.v1 | Publication suppression/eligible restoration under R047; compliance, lifecycle and all restrictions still apply |
+| candidate_profile, with owned current search projection reference | Candidate applyCandidateModerationDecision.v1 | Search-projection suppression/eligible restoration only; current explicit opt-in/readiness required. No application mutation or new Candidate Hold target |
+| thread, message | Messaging applyMessagingModerationDecision.v1 | Persistent content restriction/authorized restoration under R054; current membership, sensitivity and all restriction sources still apply |
+| media_asset, media_access_grant | Media executeMediaModerationInstruction.v1 | Existing asset freeze, public exposure/grant revocation, evidence preservation and eligible file exposure restoration; source context and safety remain required |
+| digital_download_asset, affected owned grant references | Digital Goods applyDigitalModerationDecision.v1 | Disable/restore asset and revoke affected grants; current Order entitlement/Media safety/purchased policy required, no revival of terminal grant |
+| course_video_asset, affected owned playback grant references | Video applyVideoModerationDecision.v1 | Disable/restore asset and revoke affected playback grants; current entitlement/safety/provider evidence required |
+| review | Review applyReviewModerationDecision.v1 | Existing hide/remove/authorized restoration under R026; restore current eligible accepted revision and adjust original reputation contribution exactly once |
+| offering | Marketplace applyOfferingModerationDecision.v1 | Valid moderation restriction/clearance under R035; clearance returns to draft, fresh publish remains separate |
+
+Existing unversioned Media/Digital/Video handler names become aliases of their listed v1 contract and must not create duplicate effects. CandidateSearchProjection, DigitalDownloadGrant and playback-grant references are owner-local downstream effects under existing primary targets, not new ModerationTargetType values. The owner validates their parent/target relationship. Each port returns semantic effect key, source decision/action, target/revision, effect state, safe outcome/retry classification and durable receipt identity. No secret/provider payload or private evidence is returned.
+
+| Local result | Canonical effect state | Required semantics |
+| --- | --- | --- |
+| accepted/queued | acknowledged | Durable acceptance only; mutation/provider effect not yet proved |
+| applied | completed | Exact requested effect durable, resulting owner revision and proof retained |
+| restoration applied | restored | New authorized linked restoration completed; original restriction/history untouched |
+| already-applied | Original receipt state | Replay exact stored receipt, including pending state; dedupe alone is not completion |
+| unsupported/denied/stale conflict | failed with terminal or reevaluate classification | No mutation; conflict requires fresh facts and applicable authorized decision, never silent overwrite |
+| known retryable failure | failed with retryable classification | Retry the same semantic effect identity |
+| uncertain owner/provider outcome | acknowledged with reconcile_required outcome | Durable unknown-state evidence; reconcile original effect before redispatch, never claim completed/restored |
+
+Multi-owner work retains per-step receipts; Report/Case action_taken requires every required successful effect under R058. Search refresh and provider request acknowledgments do not prove de-indexing or revocation. Restoration is a new effect linked to the original, not an edit of the original receipt. Partial bulk revocation remains incomplete until its target inventory is accounted.
+
+Order/payout reusable stops use Hold's registered typed action/command boundary per CL-09-R007/R059, not direct Moderation writes to Order/Payment. Release triggers current owner reevaluation, never financial execution, content restoration, service completion or review eligibility. Candidate Hold types absent from the typed Hold schema remain disabled. CL-01 has no generic moderation executor under R063: only separately named authorized security/entitlement/Hold/lifecycle commands may act. Enumeration of user or profile targets is not permission. Other target/effect families not listed here must have an existing explicit owner registration before activation; this scoped matrix does not invent their semantics or silently delete their historical proposals. Unsupported combinations return unsupported, with no fallback mutation.
+
+R026 already settles explicitly authorized Review restoration; old unresolved base text is superseded. R042 settles Booking Professional reports, authorized support adjudication and Customer contest, with no automatic consequence; R052 completed/no_show aliases are performance-report facts, not final financial/review truth. These are existing rulings, not new product decisions. Contract adapters/fixtures, typed receipt persistence and coordinated migrations remain implementation qualification.

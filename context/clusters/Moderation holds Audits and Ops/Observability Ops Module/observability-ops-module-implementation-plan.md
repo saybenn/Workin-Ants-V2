@@ -1883,3 +1883,25 @@ Each delivery attempt has its own immutable attempt identity and correlation to 
 Persist dismissedAt/expiresAt when these actions/policies apply. User interaction is Notification-owned append-only evidence separate from Delivery receipts. Template versions are immutable and schema-validated; source supplies a registered semantic template intent plus allowlisted variables. Generic external channels carry minimal safe summaries/deep links, never raw message bodies, financial/tax documents, exact addresses or regulated data by default. Identity challenge-provider transport stays Identity-owned. Concrete provider selection/configuration and legally sufficient notice delivery remain external prerequisites.
 
 Tradeoff: explicit parent/attempt representation needs schema alignment but avoids multiple inbox items per channel and false completion. Acceptance: organization fan-out dedupe, removed member sensitive access, duplicate send, partial channel failure, expiry/dismissal independence, callback before/after retry, unsupported channel and secret redaction.
+
+
+## WA-R060 — Audit vocabulary and bounded operator evidence
+
+**Applied architecture ruling — 2026-10-08.** This scoped amendment supersedes earlier proposed/unresolved labels only for the concerns below. It records architecture, not implemented schema, successful tests, deployment or legal approval.
+
+Audit persists request/correlation identity, normalized outcome, typed actor kind (user/service/system/provider), owner-namespaced versioned action and typed target references, occurrence/recording time and minimal evidence references. Owners declare their vocabulary and classification; Audit validates declared namespace/shape and stores proof without querying another owner's repository or deciding its lifecycle. DataSensitivity meaning follows platform vocabulary; each owner supplies classification and Healthcare supplies its regulated interpretation. Exact enum/column names and forward backfill are implementation decisions.
+
+Accept PR-AUD-02: unused hash/chain fields remain unpopulated; an append-only application contract is not a tamper-proof cryptographic chain. Any later chain requires a separately reviewed partition/sequence/canonicalization/algorithm/version/anchor/privacy contract. Do not manufacture hashes merely to satisfy nullable fields.
+
+Ops and Admin viewers use bounded paginated Audit-owner queries before introducing a durable projection. Owner queries enforce current scope, redaction and mandatory access proof; unavailable mandatory proof fails closed under WA-R023. Register stable action IDs with Role; apply the established sensitive-action step-up rules to bulk sensitive exports, financial effects, drawing/reversal and protective-control release. No dashboard or diagnostic signal grants mutation authority. Ghost-account/inactivity signals are diagnostic; Identity alone owns account action, and there is no automatic deletion policy. Versioned grouping/alert/action registries and fixtures precede enablement. Preserve WA-R018 operational persistence/lifecycles; Ops recovery state cannot finish another owner's workflow.
+
+Implementation sequence: specify owner storage/typed contract and forward migration; implement concurrency-safe owner commands; then wire consumers. Before activation verify replay, stale version, concurrent decisions, denied/unavailable dependencies, evidence retention, and failure/recovery fixtures. Exact physical names and executable tests remain implementation work. No cross-owner direct writes.
+
+
+## WA-R068 / WA-R069 — Authority/event qualification sequence
+
+Implement the `observability_ops` obligations in this Module's architecture and `context/reconciliation/authority-event-contracts.md` before dependent event consumers activate. First register concrete action ports (`recordIntegrationFailure / updateOpsIncident / getOperationalHealth`), source fact fields/revisions and required B/S/A assurance; then qualify producer outbox/history and the specifically named subscriber effects. Do not implement the entire cross-platform matrix inside this Module.
+
+Acceptance evidence must show wrong relationship/target and stale source facts deny; action-bound assurance cannot replay cross-target; source outage cannot become allowed; duplicate event replay has one effect; same ID/different fingerprint quarantines; late revisions/tombstones cannot resurrect access; correction preserves history and reevaluates the original logical effect. Verify registered payload field minimization and subscriber audience independently of transport delivery. Existing explicit commands and notification intents retain their separate receipts/qualification.
+
+DTO/server-RLS parity, executable fixtures, outbox/inbox recovery and provider/security configuration are implementation qualification, not unresolved ownership. Legal/program/provider values remain scoped activation gates; unsupported paths stay disabled. Architecture integration does not claim frozen interfaces, successful runtime tests or permission to change schemas.

@@ -1834,3 +1834,22 @@ Use immutable code/config prompt versions with hashes at launch; no new database
 Contextual owner commits accepted assignment and an immutable acceptance receipt/outbox fact atomically after fresh Taxonomy and source-version checks. AI consumes the receipt idempotently to record disposition; a timeout queries the contextual owner receipt rather than repeats the mutation with a new key. This is recoverable choreography over owner truth, not a generic CL-02 saga. Taxonomy admin composition may display proposal evidence and route assignment decisions through the actual context owner; shared review leases use WA-R031 and do not confer approval. No baseline AI→Search proposal feed or end-user classification notification. Broad backfill/configuration/merge and sensitive evidence exports require registered Role actions and fresh step-up under WA-R023/031; low confidence never creates a Hold by itself.
 
 Required implementation checks: confidence source/range, unaudited verified claim, ancestor inactivity, normalization collision, alias cycle, stale assignment/term version, merge owner failure, late cancelled response, disposition-before-mutation rejection, duplicate acceptance receipt and raw/sensitive provider input rejection. Physical migrations, per-target DTO field allowlists, approved seeds, legal retention and provider capability are still separately qualified before activation.
+
+## Readiness implementation gates — WA-R044, WA-R047
+
+The corresponding owner architecture sections are binding and supersede earlier U-CL06/U-JI/U-CARP proposal gates only for their named resolved semantics. No implementation is marked complete. Execute in this order:
+
+1. Freeze owner-specific typed commands, queries, event schemas and denied-action fixtures against the binding graphs and evidence rules. Preserve P17/P18 under WA-R042; reject obsolete opt-in/expiry alternatives.
+2. Through the single migration owner, add required immutable history, aggregate revisions/current selectors, typed references and retention-safe constraints. Inspect/backfill legacy conflicts without destructive resets; database replay/RLS evidence remains required.
+3. Verify concurrency and retry cases: stale revision, duplicate logical command, terminal-state replay, removed authority, stale provider callback and late suppression/restoration. Include current owner revalidation before disclosure and mandatory evidence failure.
+4. Qualify bilateral Search, Role, Moderation, Privacy, Media and applicable Calendar/Video/Notification contracts. Test owner effect receipt and unavailable/denied paths; provider receipt is not domain approval.
+5. Keep legal/provider-dependent surfaces disabled until named qualification evidence exists. Test parent/child retention before any erasure capability and restrict export field sets.
+
+
+## WA-R068 / WA-R069 — Authority/event qualification sequence
+
+Implement the `job_compliance` obligations in this Module's architecture and `context/reconciliation/authority-event-contracts.md` before dependent event consumers activate. First register concrete action ports (`requestJobComplianceEvaluation / publishJobComplianceRuleVersion / getJobComplianceReport`), source fact fields/revisions and required B/S/A assurance; then qualify producer outbox/history and the specifically named subscriber effects. Do not implement the entire cross-platform matrix inside this Module.
+
+Acceptance evidence must show wrong relationship/target and stale source facts deny; action-bound assurance cannot replay cross-target; source outage cannot become allowed; duplicate event replay has one effect; same ID/different fingerprint quarantines; late revisions/tombstones cannot resurrect access; correction preserves history and reevaluates the original logical effect. Verify registered payload field minimization and subscriber audience independently of transport delivery. Existing explicit commands and notification intents retain their separate receipts/qualification.
+
+DTO/server-RLS parity, executable fixtures, outbox/inbox recovery and provider/security configuration are implementation qualification, not unresolved ownership. Legal/program/provider values remain scoped activation gates; unsupported paths stay disabled. Architecture integration does not claim frozen interfaces, successful runtime tests or permission to change schemas.

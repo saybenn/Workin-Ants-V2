@@ -1868,3 +1868,38 @@ SH-091 returns accepted work identity, not completion. Search exposes a versione
 Start reconciliation/maintenance through authorized bounded manual commands; automatic cadence is versioned operational configuration added only with run budgets/coverage evidence. No periodic AI reclassification, end-user notification, query-history analytics store or speculative provider callback is implied. Per-action request/backfill/model cost limits use SH-132 and shared execution with explicit configured budgets and fail posture; never substitute Track commercial metering. No intrinsic Taxonomy cron or extra business-run table is required for normal maintenance. Operational telemetry is minimized and separate from domain completion evidence. Legal retention for subject-linked work/access receipts and actual provider configuration remain external requirements.
 
 Required implementation checks: delayed stale upsert after deletion, provider write uncertainty, current-source denial at query time, protected collection isolation/totals, audit failure, incomplete enumeration, interrupted generation cutover, duplicate refresh, superseded removal receipt and consumer completion correlation. These contracts require adapter and bilateral fixture evidence before parallel-interface promotion; this architecture pass does not execute provider/schema/runtime tests.
+
+## WA-R070 — Source descriptors, assignment receipts and affected-target enumeration
+
+WA-R043 already determines contextual join-write ownership. Adopt a versioned source descriptor per owner/type/purpose. The internal envelope is:
+
+`descriptorVersion, sourceOwner, targetType, targetId, sourceToken, purpose, allowedFieldSetVersion, sensitivityCategories, policyVersions, fields`.
+
+`sourceToken` is owner-issued opaque currentness evidence. `fields` is validated against the descriptor's closed schema; extra fields are rejected. IDs, policy evidence and actor context are internal routing/authorization metadata, not automatically provider payload. Source owner authorizes the specific purpose on current data; AI and Search do not obtain direct repository access. Candidate discovery opt-in is a Search participation fact, not consent for every AI processing purpose. No extraction permission is inferred from submitting an application.
+
+Launch AI field allowlist (semantic DTO names; physical field mapping belongs to each owner):
+
+| Target | Owner-projected allowed provider fields | Explicitly excluded |
+|---|---|---|
+| ProfessionalProfile | `classificationText` derived from authorized professional bio; `acceptedCategoryIds`; `acceptedTagIds` | User/account identifiers, contact/address, licenses/background evidence, transactions, private messages |
+| Offering | `title`, `summary`, `classificationText` derived from authorized offering description; `acceptedCategoryIds`; `acceptedTagIds` | Buyer or delivery facts, exact service address, prices/payment details, private attachments or client data |
+| Organization | `classificationText` derived from authorized business description; `acceptedCategoryIds`; `acceptedTagIds` | EIN, representative identity, verification evidence, memberships, applicant records, exact address |
+| Job | `title`, `classificationText` derived from authorized job description; `acceptedCategoryIds`; `acceptedTagIds` | Applications, recruiter notes, compensation/payment evidence, private interview details and credentials |
+| CandidateProfile | `normalizedSkillLabels`, `normalizedExperienceCategories`; accepted canonical category/tag references where owned and relevant | Name/contact/address, employer-identifying narrative, raw resume, application/cover-letter text, parser raw output, recruiter decisions |
+
+`classificationText` is a source-owned, purpose-approved minimized projection, never an alias that permits forwarding an entire description unchanged without sensitivity review. Text lengths, array bounds and allowed language/output schema are explicit versioned serializer limits. Missing source authority, unqualified Healthcare context, unsupported target/purpose or unsafe text returns denied/unavailable; it must not broaden the allowlist. Gig remains unsupported for AI under WA-R033. Both `taxonomy_suggestion` and `skill_extraction` require explicit target-purpose registration; listing a target does not automatically enable both. No new model/table or forced collection of missing Candidate experience categories is required: unsupported input is omitted or the operation is unavailable.
+
+
+
+Taxonomy’s WA-R070 affected-target enumerator and contextual-owner assignment receipt define the input and acceptance boundary. AI accepts only the resulting contextual-owner durable receipt, not an attempted mutation; duplicate receipt consumption cannot duplicate a suggestion disposition.
+
+
+## WA-R068 / WA-R069 — Authority facts and committed event obligations
+
+This Module adopts its `ai_taxonomy` action/fact row and specifically registered producer/consumer effects in `context/reconciliation/authority-event-contracts.md`. Role interprets the catalog; this owner retains facts and lifecycle. Register each concrete protected port before activation; a grouped port row does not authorize unspecified commands.
+
+Owner action scope: `requestClassificationSuggestions / recordSuggestionDisposition`. Permitted relationships: authorized context editor/reviewer; disposition command remains contextual owner. Required owner facts: typed context owner target/revision, proposal/model version, reviewer lease/fence, accepted assignment receipt. Assurance: B; bulk sensitive evidence export S+A. These facts include typed target, source revision, subject relationship, purpose/action and evaluation time; missing/stale/unavailable facts cannot authorize, and current revisions are checked again at effect. B/S/A have the precise appendix meanings; source services cannot invent human assurance.
+
+No additional domain event is registered for this Module by this ruling; existing explicit command/receipt contracts remain authoritative.
+
+Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.

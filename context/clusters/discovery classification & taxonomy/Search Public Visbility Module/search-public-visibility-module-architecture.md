@@ -1684,3 +1684,48 @@ Public Professional projection allowlist: professionalProfileId, slug, display n
 priceFromCents is a rebuildable minimum of currently eligible active pricing options in one currency, not purchase truth. Missing or mixed-currency options produce no priceFrom value, never zero/implicit conversion. Orders bind the selected immutable price/package. isFeatured has no ranking or commercial effect at launch; promotion is deferred pending a separately approved owner policy. Heterogeneous bundle Offering creation remains disabled; this does not disable P02 multi-session packages within supported kinds. No new seller entitlement gates: supported effects remain approved Professional commission terms; unknown keys cannot gate drafting or fabricate quota. SH-016 action keys are activate_profile, public_visibility, publish_offering, respond_to_gig, participate_in_order; payout stays Payment-owned.
 
 Owner status/remediation notifications use committed source-event identity, generic status/remediation template and safe authenticated destination; no sensitive provider/Healthcare/hold details. Notifications do not prove readiness. No generic admin force-ready override: each source owner must authorize and record its own correction, followed by reevaluation. Required verification includes stale-resume versus restriction, archive/restore preserving obligations, projection field exclusion, duplicate first-completion award, and reputation version replay. These are implementation acceptance criteria, not tests already executed.
+
+
+## WA-R042 — Approved service reports, discovery choice, invitation validity and conversations
+
+Binding P16–P19 owner rulings, received 2026-10-07 America/New_York. Supersede open recommendations; no implementation completion implied.
+
+### P17
+
+Candidate discovery/search participation is explicit opt-in and off by default. Persist the Candidate-owned participation choice with version, actor and time; no default database visibility boolean or JobApplication submission implies opt-in. Application workflow can expose the Candidate/application to that specific authorized hiring Organization independently of general discovery.
+
+Disabling discovery invalidates future candidate-search exposure immediately at the authoritative query boundary and requests removal through Search/privacy contracts with durable completion evidence. Delayed provider deletion cannot authorize stale result disclosure. Opt-out preserves valid JobApplications and authorized hiring history under their owners. It grants no raw-resume access and does not enable anonymous Candidate indexing.
+
+## WA-R070 — Source descriptors, assignment receipts and affected-target enumeration
+
+Consume the WA-R070 owner enumerator response: ownerScope, snapshotToken, pageIdentity, typed target/sourceToken/assignmentToken, nextCursor, explicit complete and checkpointEvidence. Bind work to target and source/assignment version. The first snapshot and all pages share scope/filter; expired cursor is restart-required. Missing targets in an incomplete walk never justify removal. Concurrent changes require owner change-feed reconciliation or a new comparable snapshot. Taxonomy merge completion remains owner-receipt based. AI’s provider-field allowlist is not Search’s public/protected projection allowlist.
+
+## WA-R071 — Purpose-specific Location facts and disclosure
+
+Location alone decides precision/reveal under WA-R071. Supply current typed owner facts and opaque source revisions; an event or cache is not authorization. Changes emit only source/context identity, revision and change kind, never exact coordinates/address/phone. Source relocation, cancellation, disqualifying refund/dispute, completion, participant/restriction/policy changes invalidate prior allow; fresh queries must prevent stale events from restoring it.
+
+Use only Location-approved coarse locality/region/country and optional configured fuzzy coordinates for registered targets/purposes, revalidating source/participation/policy validity. Unavailable numerical policy/source is unavailable output, never local geocoding or exact fallback. Candidate opt-out wins over delayed projection updates.
+
+
+## WA-R068 / WA-R069 — Authority facts and committed event obligations
+
+This Module adopts its `search_public_visibility` action/fact row and specifically registered producer/consumer effects in `context/reconciliation/authority-event-contracts.md`. Role interprets the catalog; this owner retains facts and lifecycle. Register each concrete protected port before activation; a grouped port row does not authorize unspecified commands.
+
+Owner action scope: `requestSearchProjectionRefresh / executePrivacyInstruction`. Permitted relationships: registered source/Privacy/Moderation service; no client direct indexing. Required owner facts: typed source target, instruction identity, source/policy generation, deletion tombstone. Assurance: service scope B; no inferred publication authority. These facts include typed target, source revision, subject relationship, purpose/action and evaluation time; missing/stale/unavailable facts cannot authorize, and current revisions are checked again at effect. B/S/A have the precise appendix meanings; source services cannot invent human assurance.
+
+No additional domain event is registered for this Module by this ruling; existing explicit command/receipt contracts remain authoritative.
+
+Consumer obligations:
+
+- `taxonomy.policy_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Hiring/Healthcare/Trust/Search: targeted reevaluation.
+- `professional.readiness_changed.v1`: consume only the effect naming this Module — Marketplace/Search: reevaluate publication; Gig/Order: fresh checks before new action.
+- `offering.publication_changed.v1`: consume only the effect naming this Module — Search: refresh/remove; Order: freshness-check checkout snapshot.
+- `healthcare.boundary_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Media/Video/Search: invalidate current grants/projections as applicable.
+- `review.reputation_changed.v1`: consume only the effect naming this Module — Professional/Search reputation projection; Gamification high_rating_received; removal/correction retracts qualification.
+- `job.lifecycle_changed.v1`: consume only the effect naming this Module — Search remove/refresh; Candidate/Interview recheck actionable workflow.
+- `candidate.discovery_changed.v1`: consume only the effect naming this Module — Search: generation-bound removal on optout; existing authorized application history retained.
+- `location.disclosure_changed.v1`: consume only the effect naming this Module — Search: public projection refresh; Media/Video/context consumers invalidate scoped location disclosure; no exact coordinates.
+
+Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
+
+Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.

@@ -1,10 +1,12 @@
+> **Account transfer checkpoint — 2026-10-15:** Read `context/reconciliation/account-transfer-handoff.md` (repository-root path) and current `normalization-metrics.json` before continuing. Current decision coverage is 638 adjudicated / 23 partial / 0 pending; 2 canonical architecture concerns and 11 external families remain. R001–R075 are recorded. Domain bridge review and Gates 4–10 are unfinished. Older dated counts below are historical. The user authorized the dedicated-branch transfer push; no main merge or deployment.
+
 # Workin Ants progress
 
-Updated 2026-10-01. Progress evidence only; architecture authority remains concern-specific.
+Updated 2026-10-09. Progress evidence only; architecture authority remains concern-specific.
 
 - Stage: development-readiness reconciliation; Gate 1 registry/reference alignment is complete; Gate 2 handoff adjudication and concrete interface qualification remain incomplete.
 - Implementation phase / active lanes: none authorized by a final root plan.
-- Applied rulings: WA-R001–032, scoped to their explicit concerns; no blanket closure of historical handoffs.
+- Applied rulings: WA-R001–065, scoped to their explicit concerns; no blanket closure of historical handoffs.
 - P01–P11: approved and applied. WA-R026 binds the rating/revision and durable multi-episode Dispute rules; none of these product choices remains open.
 - Current work completed: User-wide/no-expiration point policy; adapter ownership; owner-specific facts/results; durable execution/Ops evidence; Consent catalog and Customer provisioning; Privacy routing/completion; Notification parent/attempt model; Review/Dispute evidence; audit/security failure boundaries; action-specific financial readiness; Location consumer alignment.
 - Shared namespace: 132 unchanged permanent ID/name pairs; two owner metadata clarifications under WA-R016; 109 Confirmed / 23 Proposed ruling. Conservative status index covers all 132, with no certified frozen interface or active parallel consumer lane.
@@ -65,3 +67,8 @@ The normalization index is handoff-families.json; recommendations marked REVIEWE
 Exact return-control blocker: P16 Booking completion/no-show authority, P17 Candidate employer-search participation default, P18 Interview automatic expiration, and P19 shared versus separate Booking/Dispute conversation. Current owner architecture explicitly leaves these product behaviors undecided; recommendations are in product-owner-decisions.md and remain unadopted. Ordinary gates did not cause the stop.
 
 Next: apply owner answers, then process the normalized family queue and merge overlapping event/authority/privacy/notification/export families through the single integration ledger. Complete cross-Cluster reconciliation before root synthesis. Gate 1 remains complete; Gates 2–10 are unfinished. No database migration, product runtime implementation, remote push or deployment occurred.
+
+
+## Active checkpoint — 2026-10-09
+
+P01–P19 approved; no current product-owner question. Five durable lane reports integrated. Decision coverage: 586 adjudicated, 75 partial, 0 pending; 76 canonical concerns from 92 evidence facets. Twelve unresolved architecture families and eleven external-requirement families remain; 22 records closed by existing rulings, zero by deduplication alone, 26 new rulings since normalization baseline. All 563 historical bridge records are extracted but not yet bilaterally reconciled or frozen. Current work continues through bridge/rail reconciliation before root synthesis. Code standards and library qualification drafts exist. Structural and whitespace checks pass; database/schema/runtime/provider qualification is not claimed. No push or deployment.

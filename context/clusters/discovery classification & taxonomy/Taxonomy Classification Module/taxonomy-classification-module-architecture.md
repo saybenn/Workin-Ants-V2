@@ -1266,3 +1266,32 @@ SH-091 returns accepted work identity, not completion. Search exposes a versione
 Start reconciliation/maintenance through authorized bounded manual commands; automatic cadence is versioned operational configuration added only with run budgets/coverage evidence. No periodic AI reclassification, end-user notification, query-history analytics store or speculative provider callback is implied. Per-action request/backfill/model cost limits use SH-132 and shared execution with explicit configured budgets and fail posture; never substitute Track commercial metering. No intrinsic Taxonomy cron or extra business-run table is required for normal maintenance. Operational telemetry is minimized and separate from domain completion evidence. Legal retention for subject-linked work/access receipts and actual provider configuration remain external requirements.
 
 Required implementation checks: delayed stale upsert after deletion, provider write uncertainty, current-source denial at query time, protected collection isolation/totals, audit failure, incomplete enumeration, interrupted generation cutover, duplicate refresh, superseded removal receipt and consumer completion correlation. These contracts require adapter and bilateral fixture evidence before parallel-interface promotion; this architecture pass does not execute provider/schema/runtime tests.
+
+## WA-R070 — Source descriptors, assignment receipts and affected-target enumeration
+
+Affected-target enumeration request:
+
+`requestId, ownerScope, operationPurpose, termIdsWithExpectedVersions, descriptorVersion, snapshotToken?, cursor?, boundedPageSize`.
+
+Response:
+
+`ownerScope, snapshotToken, pageIdentity, targets[{targetType,targetId,sourceToken,assignmentToken}], nextCursor?, complete, checkpointEvidence`.
+
+The first request establishes a snapshot/high-watermark; every page and cursor is bound to that scope, filter and snapshot. The owner enumerates its own joins, including currently nonpublic targets affected by a Taxonomy change when needed for owner revalidation; it does not expose arbitrary source content. Retries of a page are stable. Expired/incompatible cursor returns restart-required and does not masquerade as an empty page. `complete=true` plus a null continuation is explicit completion evidence, not a timeout interpretation. Concurrent changes require owner change-feed reconciliation or a new comparable snapshot; absence from an incomplete walk never proves deletion. Search/AI work deduplicates by target and source/assignment version. Taxonomy merge waits for required owner receipts rather than assuming enumerator dispatch completed the merge.
+
+Assignment command is contextual-owner specific: `commandId, targetId, expectedSourceToken, expectedAssignmentToken, proposedTermIdsAndVersions, proposalReference?, actorAndReviewEvidence`. It rechecks Taxonomy effective activity/category compatibility and current owner authority, writes accepted joins plus immutable receipt/outbox atomically, then returns `applied|already_applied|conflict|denied|invalid_terms|unavailable` with resulting source/assignment token and receipt. Same key/different fingerprint conflicts. No consumer writes a foreign join. Physical DTO classes, cursor encoding and transport are deferred implementation details; the bounded schema, currentness/completion semantics and owner responsibilities are architectural requirements.
+
+AI source descriptors and provider-field restrictions are defined by the AI owner’s WA-R070 contract. Taxonomy coordinates its own change/merge receipts and never scans or writes contextual-owner repositories.
+
+
+## WA-R068 / WA-R069 — Authority facts and committed event obligations
+
+This Module adopts its `taxonomy_classification` action/fact row and specifically registered producer/consumer effects in `context/reconciliation/authority-event-contracts.md`. Role interprets the catalog; this owner retains facts and lifecycle. Register each concrete protected port before activation; a grouped port row does not authorize unspecified commands.
+
+Owner action scope: `createTaxonomyDomain / updateTaxonomyCategoryPolicy / updateTaxonomyTag`. Permitted relationships: specifically granted taxonomy maintainer. Required owner facts: typed term, parent/domain, current revision, controlled classification and affected policy scope. Assurance: ordinary maintained term B; broad policy/merge/backfill S. These facts include typed target, source revision, subject relationship, purpose/action and evaluation time; missing/stale/unavailable facts cannot authorize, and current revisions are checked again at effect. B/S/A have the precise appendix meanings; source services cannot invent human assurance.
+
+Producer obligations:
+
+- `taxonomy.policy_changed.v1`: typed term/domain, policy revision, affected target scope. Registered effect: Professional/Marketplace/Hiring/Healthcare/Trust/Search: targeted reevaluation.
+
+Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.

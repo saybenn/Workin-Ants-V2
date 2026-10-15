@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-15",
+  "stable_base": "55c0036715ec6bdec2c61b43811f251fee32d7e9",
+  "checks": [
+    {
+      "command": "python scripts/check-context.py",
+      "exit_code": 0,
+      "stdout": "{\n  \"clusters\": 10,\n  \"modules\": 34,\n  \"cluster_documents\": 20,\n  \"module_documents\": 68,\n  \"handoffs\": 10,\n  \"shared_operations\": 132,\n  \"shared_statuses\": {\n    \"Confirmed\": 109,\n    \"Proposed ruling\": 23\n  },\n  \"prisma_models\": 177,\n  \"prisma_enums\": 207,\n  \"sql_migrations\": 1,\n  \"created_tables\": 53,\n  \"created_enums\": 31\n}\nWARNINGS: 124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay\nStructural checks PASSED; semantic readiness is a separate gate.\n",
+      "stderr": ""
+    },
+    {
+      "command": "python scripts/check-handoff-adjudication.py",
+      "exit_code": 0,
+      "stdout": "{\n  \"errors\": [],\n  \"source_decisions\": 661,\n  \"review_statuses\": {\n    \"ADJUDICATED\": 638,\n    \"PARTIAL\": 23\n  },\n  \"disposition_classes\": {\n    \"AI_RESOLVED_WITH_TRADEOFF\": 581,\n    \"EXTERNAL_REQUIREMENT\": 80,\n    \"AI_RESOLVED\": 86,\n    \"DEFERRED_IMPLEMENTATION_DETAIL\": 34,\n    \"AI_RESOLVED_WITH_PRODUCT_JUDGMENT\": 1\n  },\n  \"scope\": \"Coverage and reference integrity only; ADJUDICATED includes open product/external gates, not implementation readiness.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": "python scripts/check-handoff-families.py",
+      "exit_code": 0,
+      "stdout": "{\n  \"errors\": [],\n  \"covered_records\": 323,\n  \"families\": 92,\n  \"scope\": \"Coverage only; proposed family decisions do not authorize implementation.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": "python scripts/check-bridge-catalog.py",
+      "exit_code": 0,
+      "stdout": "{\n  \"errors\": [],\n  \"records\": 563,\n  \"scope\": \"Source integrity only; not bilateral reconciliation.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "scope": "Offline structural/source integrity and whitespace only; no runtime/provider/DB replay or final readiness certification.",
+  "cold_start_review": {
+    "project_and_authority": true,
+    "decisions_and_approval_distinctions": true,
+    "current_gate_and_remaining_work": true,
+    "specific_next_action": true,
+    "branch_and_stable_base": true,
+    "validation_commands": true,
+    "approval_and_autonomy_rules": true,
+    "interrupted_work_preserved": true
+  },
+  "secret_scan": "No matches for private-key blocks, common token/access-key formats or credential-bearing database URLs in intended changed files; manual path/diff review also performed."
+}
