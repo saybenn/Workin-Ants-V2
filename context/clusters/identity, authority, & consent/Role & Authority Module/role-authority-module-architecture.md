@@ -1463,9 +1463,7 @@ Owner action scope: `authorizeResourceAction / evaluateOrganizationPermission`. 
 
 No additional domain event is registered for this Module by this ruling; existing explicit command/receipt contracts remain authoritative.
 
-Consumer obligations:
-
-- `identity.platform_role_changed.v1`: consume only the effect naming this Module — Identity invalidates assurance; Role evaluates fresh assignment on next request. No Role-owned event/cache.
+Current-fact obligation (not an event subscription): Identity invalidates assurance on `identity.platform_role_changed.v1`; Role evaluates fresh Identity assignments on each protected request. No Role-owned stream, subscriber cache or event-derived authority.
 
 Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
 

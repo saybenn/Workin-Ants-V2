@@ -2639,6 +2639,7 @@ No additional domain event is registered for this Module by this ruling; existin
 
 Consumer obligations:
 
+- `location.disclosure_changed.v1`: consume only the effect naming this Module — Search: public projection refresh; Media/Video/context consumers invalidate scoped location disclosure; no exact coordinates.
 - `healthcare.boundary_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Media/Video/Search: invalidate current grants/projections as applicable.
 
 Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
@@ -2646,3 +2647,11 @@ Each audience receives only its needed fields. Obtain fresh source facts before 
 Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.
 
 A Privacy worker binds approved instruction scope, execution generation and the assurance required by Privacy verification policy. It cannot manufacture human step-up proof, and this integration introduces no universal new requester step-up requirement.
+
+## WA-R076 — Migration representation boundary
+
+**Immutable policy representation (CL-05:CL-05-U042).** Each upload attempt binds an immutable policy revision and exact historical policy content/identity with effective context/time selection. Activated policy revisions are immutable; new policy changes create new revisions. SH-080 supplies versioning mechanics while Media owns policy meaning. Physical columns/constraints follow the coordinated convention; mutable updatedAt or context/status uniqueness is insufficient historical proof.
+
+**Upload attempt state (CL-05:CL-05-U043).** Use dedicated upload-attempt state separate from MediaAsset status: initiated, uploading, uploaded, validating, required scanning/processing, completed; failed/rejected/cancelled/expired terminate an attempt. Terminal retries create linked attempts. Provider success cannot bypass required stages. Exact enum/columns and legacy mapping are deferred to coordinated migration; unknown legacy values cannot be inferred ready.
+
+Physical implementation follows the single migration integration owner and database-readiness.md posture D. These dispositions settle the named historical architecture questions; they do not certify migration execution or runtime behavior.

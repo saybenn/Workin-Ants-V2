@@ -1038,6 +1038,11 @@ Adopt authority-event-contracts.md WA-R069 committed fact registry, registered c
 files: ["context/reconciliation/authority-event-contracts.md"]
 
 
+### R068/R069 application verification — 2026-10-15
+
+Exact producer/subscriber review and bounded propagation corrections are recorded in authority-event-review.md/json. All 34 action rows and 26 coordinated appendices are present; missing named consumer registrations are repaired. Role current-fact checks and Notification semantic intents are explicitly distinguished from subscriptions. No new event, product behavior, blanket permission, interface freeze or runtime qualification is introduced.
+
+
 ## WA-R070 — Source descriptors, assignment receipts and affected-target enumeration
 
 Classification: AI_RESOLVED_WITH_TRADEOFF.
@@ -1202,3 +1207,57 @@ Reason values are source provenance, not an automatic action set. `admin_hold`, 
 After release, `hold.applicability_changed.v1` carries only opaque target/action/revision evidence. Each registered owner queries current aggregate facts and every applicable Hold again. Search consumes the source owner's eligibility/projection outcome, never direct hold-release permission. Audit preserves creation/evaluation/review/release provenance with restricted reason access. Privacy execution must still apply approved retention law; a Hold is not an automatic exemption or a bar to statutory access.
 
 Alternative rejected: reason-to-global-ban lookup, consumer-local blocked flags, and direct financial effects on release would merge independent lifecycles. Explicit versioned action mapping is extensible without rewriting existing Hold history. Physical one-target constraints, legacy provenance reconciliation, source adapter schemas and concurrency/denial fixtures precede activation; the catalog does not claim migration completion. No automatic expiry deadline is introduced.
+
+## WA-R076 — COM-13 migration representation and preservation boundaries
+
+Classification: AI_RESOLVED_WITH_TRADEOFF for the compatibility boundaries; ten source records are DEFERRED_IMPLEMENTATION_DETAIL and one is EXTERNAL_REQUIREMENT. This adjudicates architectural meaning without selecting a live migration strategy or certifying physical schema.
+
+Evidence: the eleven immutable COM-13 handoff source records, current owner sections and Prisma representations, R003/R012/R029/R031/R048–052, and database-readiness.md. Exact per-record provenance and decisions are in com13-migration-review.json. CF-ROOT remains open until root architecture/plan/harness synthesis is actually completed.
+
+### CL-04:CL04-U014 — Order source XOR
+
+DEFERRED_IMPLEMENTATION_DETAIL. Exactly one approved source variant must match its discriminator and required source/participant facts. Platform screening uses its distinct approved source with no fake Professional seller. Enforce both domain validation and database constraints in the coordinated schema slice; nullable foreign keys alone do not enforce the invariant. Exact SQL/constraint layout is deferred; existing rows require provenance and conflict review before migration.
+
+### CL-04:CL04-U023 — Agreement legacy mirrors
+
+DEFERRED_IMPLEMENTATION_DETAIL. Normalized immutable execution revision, signature and document records own proof. buyerSigUrl/professionalSigUrl/pdfMediaId/finalDocumentHash are read-only compatibility mirrors and never fallback authorization. Inventory readers/writers, compare to authoritative proof, quarantine conflicts, then remove redundant writers/columns only through a reviewed preservation migration. Never invent signatures or copy prior signatures as new acceptance.
+
+### CL-04:CL04-U048 — Agreement migration provenance
+
+EXTERNAL_REQUIREMENT. Target identity, data-preservation requirements, migration ledger and schema-only comparison are absent. Keep database posture D for baseline/deployment decisions; no Agreement migration or deployment readiness claim. Reproducible forward migration and disposable replay depend on that evidence; static schema presence is insufficient.
+
+### CL-05:CL-05-U013 — Booking buyer requiredness
+
+DEFERRED_IMPLEMENTATION_DETAIL. New buyer workflows synchronously resolve and populate CustomerProfile through SH-004 and bind it to the Order buyer; User remains authentication/audit identity. Retain nullable legacy storage until existing rows are inventoried and validated. Add requiredness only through the coordinated preservation migration; never guess a buyer from arbitrary User data.
+
+### CL-05:CL-05-U016 — BookingHold lock relation
+
+DEFERRED_IMPLEMENTATION_DETAIL. BookingSlotLock.bookingHoldId is the authoritative hold-to-lock relation. Do not require or independently write both relation paths. Treat BookingHold.lockId only as a legacy compatibility value to compare/quarantine before cleanup. Ordinary lock conversion produces at most one Booking; Order multiplicity uses separate authorized sessions/locks.
+
+### CL-05:CL-05-U023 — Reserved sync failure status
+
+DEFERRED_IMPLEMENTATION_DETAIL. external_sync_failed is reserved legacy representation, not a permitted core Booking transition. Provider failures use externalSyncStatus and separate attempt evidence. Preserve historical ambiguous rows until evidence determines their actual appointment state; do not guess confirmed or delete the enum to match documentation.
+
+### CL-05:CL-05-U028 — Live URL compatibility
+
+DEFERRED_IMPLEMENTATION_DETAIL. Persisted roomUrl and join URL fields may contain only non-authorizing metadata or opaque references. Participant credentials are issued on demand for current parent/room generation and actor/time scope; reusable plaintext bearer credentials are prohibited. Inventory legacy contents securely and quarantine unsafe values before reuse. Removal/repurposing/encryption design is a coordinated physical task; encryption alone does not make a reusable credential authoritative.
+
+### CL-05:CL-05-U030 — Course identity redundancy
+
+DEFERRED_IMPLEMENTATION_DETAIL. CourseDetails.offeringId is canonical identity; CourseVideoAsset.courseDetailsId identifies that course/Offering. Any retained redundant offeringId must equal it. Validate through Video owner facts; mismatch denies the affected association and is quarantined for repair. Choose removal or durable equality constraint in the coordinated migration, without changing identity semantics.
+
+### CL-05:CL-05-U042 — Immutable policy representation
+
+DEFERRED_IMPLEMENTATION_DETAIL. Each upload attempt binds an immutable policy revision and exact historical policy content/identity with effective context/time selection. Activated policy revisions are immutable; new policy changes create new revisions. SH-080 supplies versioning mechanics while Media owns policy meaning. Physical columns/constraints follow the coordinated convention; mutable updatedAt or context/status uniqueness is insufficient historical proof.
+
+### CL-05:CL-05-U043 — Upload attempt state
+
+DEFERRED_IMPLEMENTATION_DETAIL. Use dedicated upload-attempt state separate from MediaAsset status: initiated, uploading, uploaded, validating, required scanning/processing, completed; failed/rejected/cancelled/expired terminate an attempt. Terminal retries create linked attempts. Provider success cannot bypass required stages. Exact enum/columns and legacy mapping are deferred to coordinated migration; unknown legacy values cannot be inferred ready.
+
+### CL-05:CL-05-U049 — Digital buyer/access identity
+
+DEFERRED_IMPLEMENTATION_DETAIL. User is the authenticated access principal; CustomerProfile is commercial buyer truth resolved through SH-004 or the authoritative Order binding. Validate User/Customer/Order consistency and retained acquired rights before access. No parallel buyer identity, arbitrary profile inference or mandatory redundant customerProfileId column is introduced. Any future persisted buyer reference must preserve that owner binding and pass coordinated migration review.
+
+The single migration integration owner must inventory affected readers/writers and existing data shape, bind owner/consumer contracts, define preservation and conflict/quarantine rules, and prove the selected forward representation with disposable replay and negative constraint fixtures before activation. New-flow domain guards cannot substitute for required physical invariants. No destructive reset, guessed backfill, rewritten used migration, or migration execution is authorized here. Database posture D remains the external prerequisite for choosing baseline, continuation or recovery.
+
+Rejected alternatives: blanket-closing from a family label; treating static schema as deployment proof; forcing every deferred physical detail into a product-owner question; changing nullable/enum/credential columns without provenance. The selected policy preserves history and existing product rights while allowing safe contract and offline fixture work.

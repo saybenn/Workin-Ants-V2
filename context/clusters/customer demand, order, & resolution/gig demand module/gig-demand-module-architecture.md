@@ -1615,6 +1615,8 @@ Consumer obligations:
 - `customer.lifecycle_changed.v1`: consume only the effect naming this Module — Order/Gig: reevaluate new participation; existing rights remain owner-governed.
 - `order.outcome_changed.v1`: consume only the effect naming this Module — Gig projection; Review eligibility; Booking/Digital access reevaluation; Gamification/Sweepstakes qualification.
 
+Current-fact obligation: professional.readiness_changed.v1 does not substitute for a fresh Professional readiness check before each new protected action.
+
 Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
 
 Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.

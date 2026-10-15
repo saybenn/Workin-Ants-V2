@@ -2823,8 +2823,14 @@ Update the JobMedia source adapter to use Hiring authorization/association contr
 
 Implement the `media_file_access` obligations in this Module's architecture and `context/reconciliation/authority-event-contracts.md` before dependent event consumers activate. First register concrete action ports (`createMediaUploadSession / requestMediaAccess / executeMediaPrivacyInstruction`), source fact fields/revisions and required B/S/A assurance; then qualify producer outbox/history and the specifically named subscriber effects. Do not implement the entire cross-platform matrix inside this Module.
 
+Qualify location.disclosure_changed.v1 only for registered location-dependent access scopes. Replay/stale generations must not restore a revoked scoped grant; payloads contain no exact coordinates and unrelated assets remain unaffected.
+
 Acceptance evidence must show wrong relationship/target and stale source facts deny; action-bound assurance cannot replay cross-target; source outage cannot become allowed; duplicate event replay has one effect; same ID/different fingerprint quarantines; late revisions/tombstones cannot resurrect access; correction preserves history and reevaluates the original logical effect. Verify registered payload field minimization and subscriber audience independently of transport delivery. Existing explicit commands and notification intents retain their separate receipts/qualification.
 
 A Privacy worker binds approved instruction scope, execution generation and the assurance required by Privacy verification policy. It cannot manufacture human step-up proof, and this integration introduces no universal new requester step-up requirement.
 
 DTO/server-RLS parity, executable fixtures, outbox/inbox recovery and provider/security configuration are implementation qualification, not unresolved ownership. Legal/program/provider values remain scoped activation gates; unsupported paths stay disabled. Architecture integration does not claim frozen interfaces, successful runtime tests or permission to change schemas.
+
+## WA-R076 — Coordinated representation qualification
+
+Before activating the affected paths, implement the owner architecture dispositions for CL-05:CL-05-U042, CL-05:CL-05-U043. Inventory legacy readers/writers, preserve authoritative evidence, quarantine ambiguity, and propose the exact constraints/columns to the single migration integration owner. Test wrong source/buyer/relationship, conflicting legacy evidence, invalid state and replay as applicable. Require schema validation and disposable replay of the selected preservation strategy before schema-dependent activation. Live strategy selection remains database posture D; this plan does not authorize migration execution.

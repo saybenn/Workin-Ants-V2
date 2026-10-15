@@ -1,0 +1,34 @@
+{
+  "baseline": {
+    "errors": [],
+    "modules": 34,
+    "events": 46,
+    "preserved_coordinated_appendices": 26,
+    "scope": "Static reviewed registrations and authority propagation; no runtime, RLS, provider or interface-freeze claim."
+  },
+  "negative_checks": [
+    {
+      "mutation": "missing Search entitlement subscription",
+      "rejected": true,
+      "errors": [
+        "search_public_visibility: consumer registrations differ from reviewed routes"
+      ]
+    },
+    {
+      "mutation": "duplicated transferred appendix",
+      "rejected": true,
+      "errors": [
+        "media_file_access: missing or duplicated integrated appendix",
+        "Missing/duplicated transfer appendix: context/clusters/scheduling, media, & digital delivery/media-asset-module/media-asset-module-architecture.md"
+      ]
+    },
+    {
+      "mutation": "weakened action assurance",
+      "rejected": true,
+      "errors": [
+        "professional_eligibility: R068 action/facts/assurance differs from registry"
+      ]
+    }
+  ],
+  "scope": "Offline documentation-regression checks, not runtime integration tests."
+}

@@ -4805,18 +4805,24 @@
       "id": "CL04-U014",
       "key": "CL-04:CL04-U014",
       "source_sha256": "baba8a8c644b42891e0d370cae909cbcb7cf88f305735127fd2c643d07c1ac71",
-      "review_status": "PARTIAL",
+      "review_status": "ADJUDICATED",
       "dispositions": [
         {
           "classification": "AI_RESOLVED_WITH_TRADEOFF",
           "ruling": "WA-R050",
           "decision": "Media stewardship, access evidence and export artifacts"
+        },
+        {
+          "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+          "ruling": "WA-R076",
+          "decision": "Exactly one approved source variant must match its discriminator and required source/participant facts. Platform screening uses its distinct approved source with no fake Professional seller. Enforce both domain validation and database constraints in the coordinated schema slice; nullable foreign keys alone do not enforce the invariant. Exact SQL/constraint layout is deferred; existing rows require provenance and conflict review before migration.",
+          "evidence": "context/reconciliation/com13-migration-review.json"
         }
       ],
       "normalized_family": "COM-13",
-      "closure_basis": "NEW_RULING",
+      "closure_basis": "SOURCE_REVIEW_AND_APPLIED_RULING",
       "qualification_remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required.",
-      "remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required."
+      "remaining": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
     },
     {
       "heading": "CL04-U015 \u2014 Long-term provider correlation fields on Order",
@@ -4987,18 +4993,24 @@
       "id": "CL04-U023",
       "key": "CL-04:CL04-U023",
       "source_sha256": "baba8a8c644b42891e0d370cae909cbcb7cf88f305735127fd2c643d07c1ac71",
-      "review_status": "PARTIAL",
+      "review_status": "ADJUDICATED",
       "dispositions": [
         {
           "classification": "AI_RESOLVED_WITH_TRADEOFF",
           "ruling": "WA-R050",
           "decision": "Media stewardship, access evidence and export artifacts"
+        },
+        {
+          "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+          "ruling": "WA-R076",
+          "decision": "Normalized immutable execution revision, signature and document records own proof. buyerSigUrl/professionalSigUrl/pdfMediaId/finalDocumentHash are read-only compatibility mirrors and never fallback authorization. Inventory readers/writers, compare to authoritative proof, quarantine conflicts, then remove redundant writers/columns only through a reviewed preservation migration. Never invent signatures or copy prior signatures as new acceptance.",
+          "evidence": "context/reconciliation/com13-migration-review.json"
         }
       ],
       "normalized_family": "COM-13",
-      "closure_basis": "NEW_RULING",
+      "closure_basis": "SOURCE_REVIEW_AND_APPLIED_RULING",
       "qualification_remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required.",
-      "remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required."
+      "remaining": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
     },
     {
       "heading": "CL04-U024 \u2014 Valid signer roles for Order Agreements",
@@ -5483,18 +5495,24 @@
       "id": "CL04-U048",
       "key": "CL-04:CL04-U048",
       "source_sha256": "baba8a8c644b42891e0d370cae909cbcb7cf88f305735127fd2c643d07c1ac71",
-      "review_status": "PARTIAL",
+      "review_status": "ADJUDICATED",
       "dispositions": [
         {
           "classification": "AI_RESOLVED_WITH_TRADEOFF",
           "ruling": "WA-R050",
           "decision": "Media stewardship, access evidence and export artifacts"
+        },
+        {
+          "classification": "EXTERNAL_REQUIREMENT",
+          "ruling": "WA-R076",
+          "decision": "Target identity, data-preservation requirements, migration ledger and schema-only comparison are absent. Keep database posture D for baseline/deployment decisions; no Agreement migration or deployment readiness claim. Reproducible forward migration and disposable replay depend on that evidence; static schema presence is insufficient.",
+          "evidence": "context/reconciliation/com13-migration-review.json"
         }
       ],
       "normalized_family": "COM-13",
-      "closure_basis": "NEW_RULING",
+      "closure_basis": "SOURCE_REVIEW_AND_APPLIED_RULING",
       "qualification_remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required.",
-      "remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required."
+      "remaining": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
     },
     {
       "heading": "CL04-U049 \u2014 Database enforcement of retention-safe deletion",
@@ -6085,18 +6103,24 @@
       "id": "CL-05-U013",
       "key": "CL-05:CL-05-U013",
       "source_sha256": "7ac400855424c0e38aaea6ce287a9fab0dd8cdcae1d904bdcf3168c5d9a3b0af",
-      "review_status": "PARTIAL",
+      "review_status": "ADJUDICATED",
       "dispositions": [
         {
           "classification": "AI_RESOLVED_WITH_TRADEOFF",
           "ruling": "WA-R050",
           "decision": "Media stewardship, access evidence and export artifacts"
+        },
+        {
+          "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+          "ruling": "WA-R076",
+          "decision": "New buyer workflows synchronously resolve and populate CustomerProfile through SH-004 and bind it to the Order buyer; User remains authentication/audit identity. Retain nullable legacy storage until existing rows are inventoried and validated. Add requiredness only through the coordinated preservation migration; never guess a buyer from arbitrary User data.",
+          "evidence": "context/reconciliation/com13-migration-review.json"
         }
       ],
       "normalized_family": "COM-13",
-      "closure_basis": "NEW_RULING",
+      "closure_basis": "SOURCE_REVIEW_AND_APPLIED_RULING",
       "qualification_remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required.",
-      "remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required."
+      "remaining": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
     },
     {
       "heading": "CL-05-U014 \u2014 Order/Booking cardinality",
@@ -6140,18 +6164,24 @@
       "id": "CL-05-U016",
       "key": "CL-05:CL-05-U016",
       "source_sha256": "7ac400855424c0e38aaea6ce287a9fab0dd8cdcae1d904bdcf3168c5d9a3b0af",
-      "review_status": "PARTIAL",
+      "review_status": "ADJUDICATED",
       "dispositions": [
         {
           "classification": "AI_RESOLVED_WITH_TRADEOFF",
           "ruling": "WA-R050",
           "decision": "Media stewardship, access evidence and export artifacts"
+        },
+        {
+          "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+          "ruling": "WA-R076",
+          "decision": "BookingSlotLock.bookingHoldId is the authoritative hold-to-lock relation. Do not require or independently write both relation paths. Treat BookingHold.lockId only as a legacy compatibility value to compare/quarantine before cleanup. Ordinary lock conversion produces at most one Booking; Order multiplicity uses separate authorized sessions/locks.",
+          "evidence": "context/reconciliation/com13-migration-review.json"
         }
       ],
       "normalized_family": "COM-13",
-      "closure_basis": "NEW_RULING",
+      "closure_basis": "SOURCE_REVIEW_AND_APPLIED_RULING",
       "qualification_remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required.",
-      "remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required."
+      "remaining": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
     },
     {
       "heading": "CL-05-U017 \u2014 Priority semantics",
@@ -6287,18 +6317,24 @@
       "id": "CL-05-U023",
       "key": "CL-05:CL-05-U023",
       "source_sha256": "7ac400855424c0e38aaea6ce287a9fab0dd8cdcae1d904bdcf3168c5d9a3b0af",
-      "review_status": "PARTIAL",
+      "review_status": "ADJUDICATED",
       "dispositions": [
         {
           "classification": "AI_RESOLVED_WITH_TRADEOFF",
           "ruling": "WA-R050",
           "decision": "Media stewardship, access evidence and export artifacts"
+        },
+        {
+          "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+          "ruling": "WA-R076",
+          "decision": "external_sync_failed is reserved legacy representation, not a permitted core Booking transition. Provider failures use externalSyncStatus and separate attempt evidence. Preserve historical ambiguous rows until evidence determines their actual appointment state; do not guess confirmed or delete the enum to match documentation.",
+          "evidence": "context/reconciliation/com13-migration-review.json"
         }
       ],
       "normalized_family": "COM-13",
-      "closure_basis": "NEW_RULING",
+      "closure_basis": "SOURCE_REVIEW_AND_APPLIED_RULING",
       "qualification_remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required.",
-      "remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required."
+      "remaining": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
     },
     {
       "heading": "CL-05-U024 \u2014 Eligibility reverse dependency",
@@ -6396,18 +6432,24 @@
       "id": "CL-05-U028",
       "key": "CL-05:CL-05-U028",
       "source_sha256": "7ac400855424c0e38aaea6ce287a9fab0dd8cdcae1d904bdcf3168c5d9a3b0af",
-      "review_status": "PARTIAL",
+      "review_status": "ADJUDICATED",
       "dispositions": [
         {
           "classification": "AI_RESOLVED_WITH_TRADEOFF",
           "ruling": "WA-R050",
           "decision": "Media stewardship, access evidence and export artifacts"
+        },
+        {
+          "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+          "ruling": "WA-R076",
+          "decision": "Persisted roomUrl and join URL fields may contain only non-authorizing metadata or opaque references. Participant credentials are issued on demand for current parent/room generation and actor/time scope; reusable plaintext bearer credentials are prohibited. Inventory legacy contents securely and quarantine unsafe values before reuse. Removal/repurposing/encryption design is a coordinated physical task; encryption alone does not make a reusable credential authoritative.",
+          "evidence": "context/reconciliation/com13-migration-review.json"
         }
       ],
       "normalized_family": "COM-13",
-      "closure_basis": "NEW_RULING",
+      "closure_basis": "SOURCE_REVIEW_AND_APPLIED_RULING",
       "qualification_remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required.",
-      "remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required."
+      "remaining": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
     },
     {
       "heading": "CL-05-U029 \u2014 Live access proof schema",
@@ -6437,18 +6479,24 @@
       "id": "CL-05-U030",
       "key": "CL-05:CL-05-U030",
       "source_sha256": "7ac400855424c0e38aaea6ce287a9fab0dd8cdcae1d904bdcf3168c5d9a3b0af",
-      "review_status": "PARTIAL",
+      "review_status": "ADJUDICATED",
       "dispositions": [
         {
           "classification": "AI_RESOLVED_WITH_TRADEOFF",
           "ruling": "WA-R050",
           "decision": "Media stewardship, access evidence and export artifacts"
+        },
+        {
+          "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+          "ruling": "WA-R076",
+          "decision": "CourseDetails.offeringId is canonical identity; CourseVideoAsset.courseDetailsId identifies that course/Offering. Any retained redundant offeringId must equal it. Validate through Video owner facts; mismatch denies the affected association and is quarantined for repair. Choose removal or durable equality constraint in the coordinated migration, without changing identity semantics.",
+          "evidence": "context/reconciliation/com13-migration-review.json"
         }
       ],
       "normalized_family": "COM-13",
-      "closure_basis": "NEW_RULING",
+      "closure_basis": "SOURCE_REVIEW_AND_APPLIED_RULING",
       "qualification_remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required.",
-      "remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required."
+      "remaining": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
     },
     {
       "heading": "CL-05-U031 \u2014 isDownloadable",
@@ -6688,18 +6736,24 @@
       "id": "CL-05-U042",
       "key": "CL-05:CL-05-U042",
       "source_sha256": "7ac400855424c0e38aaea6ce287a9fab0dd8cdcae1d904bdcf3168c5d9a3b0af",
-      "review_status": "PARTIAL",
+      "review_status": "ADJUDICATED",
       "dispositions": [
         {
           "classification": "AI_RESOLVED_WITH_TRADEOFF",
           "ruling": "WA-R050",
           "decision": "Media stewardship, access evidence and export artifacts"
+        },
+        {
+          "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+          "ruling": "WA-R076",
+          "decision": "Each upload attempt binds an immutable policy revision and exact historical policy content/identity with effective context/time selection. Activated policy revisions are immutable; new policy changes create new revisions. SH-080 supplies versioning mechanics while Media owns policy meaning. Physical columns/constraints follow the coordinated convention; mutable updatedAt or context/status uniqueness is insufficient historical proof.",
+          "evidence": "context/reconciliation/com13-migration-review.json"
         }
       ],
       "normalized_family": "COM-13",
-      "closure_basis": "NEW_RULING",
+      "closure_basis": "SOURCE_REVIEW_AND_APPLIED_RULING",
       "qualification_remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required.",
-      "remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required."
+      "remaining": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
     },
     {
       "heading": "CL-05-U043 \u2014 Session status migration",
@@ -6709,18 +6763,24 @@
       "id": "CL-05-U043",
       "key": "CL-05:CL-05-U043",
       "source_sha256": "7ac400855424c0e38aaea6ce287a9fab0dd8cdcae1d904bdcf3168c5d9a3b0af",
-      "review_status": "PARTIAL",
+      "review_status": "ADJUDICATED",
       "dispositions": [
         {
           "classification": "AI_RESOLVED_WITH_TRADEOFF",
           "ruling": "WA-R050",
           "decision": "Media stewardship, access evidence and export artifacts"
+        },
+        {
+          "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+          "ruling": "WA-R076",
+          "decision": "Use dedicated upload-attempt state separate from MediaAsset status: initiated, uploading, uploaded, validating, required scanning/processing, completed; failed/rejected/cancelled/expired terminate an attempt. Terminal retries create linked attempts. Provider success cannot bypass required stages. Exact enum/columns and legacy mapping are deferred to coordinated migration; unknown legacy values cannot be inferred ready.",
+          "evidence": "context/reconciliation/com13-migration-review.json"
         }
       ],
       "normalized_family": "COM-13",
-      "closure_basis": "NEW_RULING",
+      "closure_basis": "SOURCE_REVIEW_AND_APPLIED_RULING",
       "qualification_remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required.",
-      "remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required."
+      "remaining": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
     },
     {
       "heading": "CL-05-U044 \u2014 Scanner callbacks",
@@ -6824,18 +6884,24 @@
       "id": "CL-05-U049",
       "key": "CL-05:CL-05-U049",
       "source_sha256": "7ac400855424c0e38aaea6ce287a9fab0dd8cdcae1d904bdcf3168c5d9a3b0af",
-      "review_status": "PARTIAL",
+      "review_status": "ADJUDICATED",
       "dispositions": [
         {
           "classification": "AI_RESOLVED_WITH_TRADEOFF",
           "ruling": "WA-R050",
           "decision": "Media stewardship, access evidence and export artifacts"
+        },
+        {
+          "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+          "ruling": "WA-R076",
+          "decision": "User is the authenticated access principal; CustomerProfile is commercial buyer truth resolved through SH-004 or the authoritative Order binding. Validate User/Customer/Order consistency and retained acquired rights before access. No parallel buyer identity, arbitrary profile inference or mandatory redundant customerProfileId column is introduced. Any future persisted buyer reference must preserve that owner binding and pass coordinated migration review.",
+          "evidence": "context/reconciliation/com13-migration-review.json"
         }
       ],
       "normalized_family": "COM-13",
-      "closure_basis": "NEW_RULING",
+      "closure_basis": "SOURCE_REVIEW_AND_APPLIED_RULING",
       "qualification_remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required.",
-      "remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required."
+      "remaining": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
     },
     {
       "heading": "CL-05-U050 \u2014 External storage mode",

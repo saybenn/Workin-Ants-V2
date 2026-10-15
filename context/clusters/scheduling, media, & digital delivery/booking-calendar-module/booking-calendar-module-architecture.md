@@ -2414,3 +2414,13 @@ Consumer obligations:
 Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
 
 Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.
+
+## WA-R076 — Migration representation boundary
+
+**Booking buyer requiredness (CL-05:CL-05-U013).** New buyer workflows synchronously resolve and populate CustomerProfile through SH-004 and bind it to the Order buyer; User remains authentication/audit identity. Retain nullable legacy storage until existing rows are inventoried and validated. Add requiredness only through the coordinated preservation migration; never guess a buyer from arbitrary User data.
+
+**BookingHold lock relation (CL-05:CL-05-U016).** BookingSlotLock.bookingHoldId is the authoritative hold-to-lock relation. Do not require or independently write both relation paths. Treat BookingHold.lockId only as a legacy compatibility value to compare/quarantine before cleanup. Ordinary lock conversion produces at most one Booking; Order multiplicity uses separate authorized sessions/locks.
+
+**Reserved sync failure status (CL-05:CL-05-U023).** external_sync_failed is reserved legacy representation, not a permitted core Booking transition. Provider failures use externalSyncStatus and separate attempt evidence. Preserve historical ambiguous rows until evidence determines their actual appointment state; do not guess confirmed or delete the enum to match documentation.
+
+Physical implementation follows the single migration integration owner and database-readiness.md posture D. These dispositions settle the named historical architecture questions; they do not certify migration execution or runtime behavior.

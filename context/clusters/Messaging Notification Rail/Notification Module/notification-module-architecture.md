@@ -1755,9 +1755,8 @@ No additional domain event is registered for this Module by this ruling; existin
 Consumer obligations:
 
 - `identity.security_changed.v1`: consume only the effect naming this Module — Notification: reevaluate session-bound endpoints; protected consumers always check current Identity facts.
-- `messaging.message_created.v1 / messaging.message_revised.v1 / messaging.message_hidden.v1 / messaging.membership_changed.v1`: consume only the effect naming this Module — authorized realtime invalidation only; Notification gets separate message.new.v1 intent.
-- `privacy.request_changed.v1 / privacy.execution_changed.v1`: consume only the effect naming this Module — Ops restricted recovery/diagnostics; requester Notification via safe intent. Executors receive explicit commands, not broadcast deletion.
-- `ops.incident_changed.v1`: consume only the effect naming this Module — authorized operator Notification intent; never domain lifecycle mutation.
+
+Separate intent obligations: Messaging, Privacy and Ops use the WA-R066 source-specific notification intents. Their domain events are not Notification subscriptions and cannot create deliveries.
 
 Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
 

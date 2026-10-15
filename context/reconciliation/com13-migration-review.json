@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "family": "COM-13",
+  "date": "2026-10-15",
+  "ruling": "WA-R076",
+  "records": [
+    {
+      "key": "CL-04:CL04-U014",
+      "owner": "transaction_order",
+      "title": "Order source XOR",
+      "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+      "existing_authority": "WA-R003, WA-R048",
+      "source_evidence": {
+        "architecture": "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-module-architecture.md",
+        "section": "\u00a723/35; schema Order/OrderSourceType",
+        "schema": "prisma/schema.prisma"
+      },
+      "decision": "Exactly one approved source variant must match its discriminator and required source/participant facts. Platform screening uses its distinct approved source with no fake Professional seller. Enforce both domain validation and database constraints in the coordinated schema slice; nullable foreign keys alone do not enforce the invariant. Exact SQL/constraint layout is deferred; existing rows require provenance and conflict review before migration.",
+      "activation_gate": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
+    },
+    {
+      "key": "CL-04:CL04-U023",
+      "owner": "transaction_order",
+      "title": "Agreement legacy mirrors",
+      "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+      "existing_authority": "WA-R048",
+      "source_evidence": {
+        "architecture": "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-module-architecture.md",
+        "section": "WA-R048 appendix; schema Agreement and normalized signatures/snapshots",
+        "schema": "prisma/schema.prisma"
+      },
+      "decision": "Normalized immutable execution revision, signature and document records own proof. buyerSigUrl/professionalSigUrl/pdfMediaId/finalDocumentHash are read-only compatibility mirrors and never fallback authorization. Inventory readers/writers, compare to authoritative proof, quarantine conflicts, then remove redundant writers/columns only through a reviewed preservation migration. Never invent signatures or copy prior signatures as new acceptance.",
+      "activation_gate": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
+    },
+    {
+      "key": "CL-04:CL04-U048",
+      "owner": "transaction_order",
+      "title": "Agreement migration provenance",
+      "classification": "EXTERNAL_REQUIREMENT",
+      "existing_authority": "database-readiness.md",
+      "source_evidence": {
+        "architecture": "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-module-architecture.md",
+        "section": "Database posture D; checked-in migration inventory",
+        "schema": "prisma/schema.prisma"
+      },
+      "decision": "Target identity, data-preservation requirements, migration ledger and schema-only comparison are absent. Keep database posture D for baseline/deployment decisions; no Agreement migration or deployment readiness claim. Reproducible forward migration and disposable replay depend on that evidence; static schema presence is insufficient.",
+      "activation_gate": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
+    },
+    {
+      "key": "CL-05:CL-05-U013",
+      "owner": "booking_calendar",
+      "title": "Booking buyer requiredness",
+      "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+      "existing_authority": "WA-R031, WA-R012",
+      "source_evidence": {
+        "architecture": "context/clusters/scheduling, media, & digital delivery/booking-calendar-module/booking-calendar-module-architecture.md",
+        "section": "\u00a735 U-BC-01; Booking/Hold/SlotLock schema",
+        "schema": "prisma/schema.prisma"
+      },
+      "decision": "New buyer workflows synchronously resolve and populate CustomerProfile through SH-004 and bind it to the Order buyer; User remains authentication/audit identity. Retain nullable legacy storage until existing rows are inventoried and validated. Add requiredness only through the coordinated preservation migration; never guess a buyer from arbitrary User data.",
+      "activation_gate": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
+    },
+    {
+      "key": "CL-05:CL-05-U016",
+      "owner": "booking_calendar",
+      "title": "BookingHold lock relation",
+      "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+      "existing_authority": "WA-R012",
+      "source_evidence": {
+        "architecture": "context/clusters/scheduling, media, & digital delivery/booking-calendar-module/booking-calendar-module-architecture.md",
+        "section": "\u00a735 U-BC-04; BookingSlotLock.bookingHoldId",
+        "schema": "prisma/schema.prisma"
+      },
+      "decision": "BookingSlotLock.bookingHoldId is the authoritative hold-to-lock relation. Do not require or independently write both relation paths. Treat BookingHold.lockId only as a legacy compatibility value to compare/quarantine before cleanup. Ordinary lock conversion produces at most one Booking; Order multiplicity uses separate authorized sessions/locks.",
+      "activation_gate": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
+    },
+    {
+      "key": "CL-05:CL-05-U023",
+      "owner": "booking_calendar",
+      "title": "Reserved sync failure status",
+      "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+      "existing_authority": "WA-R049, WA-R052",
+      "source_evidence": {
+        "architecture": "context/clusters/scheduling, media, & digital delivery/booking-calendar-module/booking-calendar-module-architecture.md",
+        "section": "\u00a735 U-BC-13 / PR-BC-02; BookingStatus",
+        "schema": "prisma/schema.prisma"
+      },
+      "decision": "external_sync_failed is reserved legacy representation, not a permitted core Booking transition. Provider failures use externalSyncStatus and separate attempt evidence. Preserve historical ambiguous rows until evidence determines their actual appointment state; do not guess confirmed or delete the enum to match documentation.",
+      "activation_gate": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
+    },
+    {
+      "key": "CL-05:CL-05-U028",
+      "owner": "video_session",
+      "title": "Live URL compatibility",
+      "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+      "existing_authority": "WA-R051",
+      "source_evidence": {
+        "architecture": "context/clusters/scheduling, media, & digital delivery/video-session-module/video-session-module-architecture.md",
+        "section": "\u00a735 U-VS-03; live room schema",
+        "schema": "prisma/schema.prisma"
+      },
+      "decision": "Persisted roomUrl and join URL fields may contain only non-authorizing metadata or opaque references. Participant credentials are issued on demand for current parent/room generation and actor/time scope; reusable plaintext bearer credentials are prohibited. Inventory legacy contents securely and quarantine unsafe values before reuse. Removal/repurposing/encryption design is a coordinated physical task; encryption alone does not make a reusable credential authoritative.",
+      "activation_gate": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
+    },
+    {
+      "key": "CL-05:CL-05-U030",
+      "owner": "video_session",
+      "title": "Course identity redundancy",
+      "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+      "existing_authority": "WA-R051",
+      "source_evidence": {
+        "architecture": "context/clusters/scheduling, media, & digital delivery/video-session-module/video-session-module-architecture.md",
+        "section": "\u00a735 U-VS-05; CourseDetails/CourseVideoAsset",
+        "schema": "prisma/schema.prisma"
+      },
+      "decision": "CourseDetails.offeringId is canonical identity; CourseVideoAsset.courseDetailsId identifies that course/Offering. Any retained redundant offeringId must equal it. Validate through Video owner facts; mismatch denies the affected association and is quarantined for repair. Choose removal or durable equality constraint in the coordinated migration, without changing identity semantics.",
+      "activation_gate": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
+    },
+    {
+      "key": "CL-05:CL-05-U042",
+      "owner": "media_file_access",
+      "title": "Immutable policy representation",
+      "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+      "existing_authority": "WA-R050",
+      "source_evidence": {
+        "architecture": "context/clusters/scheduling, media, & digital delivery/media-asset-module/media-asset-module-architecture.md",
+        "section": "\u00a78.2 MFA-PR-02; \u00a735 MFA-UR-07; MediaUploadPolicy",
+        "schema": "prisma/schema.prisma"
+      },
+      "decision": "Each upload attempt binds an immutable policy revision and exact historical policy content/identity with effective context/time selection. Activated policy revisions are immutable; new policy changes create new revisions. SH-080 supplies versioning mechanics while Media owns policy meaning. Physical columns/constraints follow the coordinated convention; mutable updatedAt or context/status uniqueness is insufficient historical proof.",
+      "activation_gate": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
+    },
+    {
+      "key": "CL-05:CL-05-U043",
+      "owner": "media_file_access",
+      "title": "Upload attempt state",
+      "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+      "existing_authority": "WA-R050",
+      "source_evidence": {
+        "architecture": "context/clusters/scheduling, media, & digital delivery/media-asset-module/media-asset-module-architecture.md",
+        "section": "\u00a78.3 MFA-PR-03; \u00a735 MFA-UR-08; MediaUploadSession",
+        "schema": "prisma/schema.prisma"
+      },
+      "decision": "Use dedicated upload-attempt state separate from MediaAsset status: initiated, uploading, uploaded, validating, required scanning/processing, completed; failed/rejected/cancelled/expired terminate an attempt. Terminal retries create linked attempts. Provider success cannot bypass required stages. Exact enum/columns and legacy mapping are deferred to coordinated migration; unknown legacy values cannot be inferred ready.",
+      "activation_gate": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
+    },
+    {
+      "key": "CL-05:CL-05-U049",
+      "owner": "digital_goods_access",
+      "title": "Digital buyer/access identity",
+      "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
+      "existing_authority": "WA-R031, WA-R029",
+      "source_evidence": {
+        "architecture": "context/clusters/scheduling, media, & digital delivery/digital-goods-access-module/digital-goods-access-module-architecture.md",
+        "section": "CustomerProfile / User binding; \u00a735.10; DigitalDownloadGrant and terms acceptance",
+        "schema": "prisma/schema.prisma"
+      },
+      "decision": "User is the authenticated access principal; CustomerProfile is commercial buyer truth resolved through SH-004 or the authoritative Order binding. Validate User/Customer/Order consistency and retained acquired rights before access. No parallel buyer identity, arbitrary profile inference or mandatory redundant customerProfileId column is introduced. Any future persisted buyer reference must preserve that owner binding and pass coordinated migration review.",
+      "activation_gate": "Database posture D plus coordinated representation/fixture/replay qualification; no blanket feature activation."
+    }
+  ],
+  "scope": "Architecture adjudication only; no schema mutation, migration, replay or live provenance verification."
+}

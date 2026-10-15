@@ -1656,6 +1656,7 @@ Producer obligations:
 
 Consumer obligations:
 
+- `interview.proposed.v1 / interview.scheduled.v1 / interview.rescheduled.v1 / interview.cancelled.v1 / interview.completed.v1`: consume only the effect naming this Module — Calendar/Video: desired-state reconcile by current parent; Candidate: optional owner-governed stage handling, never direct assignment.
 - `track.entitlement_changed.v1`: consume only the effect naming this Module — Professional, Candidate, Marketplace, Video: refresh eligibility; Search: current projection reevaluation; preserve acquired rights.
 - `track.usage_changed.v1`: consume only the effect naming this Module — Candidate: refresh usage display; atomic quota acceptance remains owner command, not eventual event.
 - `organization.membership_changed.v1`: consume only the effect naming this Module — Candidate/Interview/Messaging: revoke derived access; all protected requests use current membership.

@@ -27,3 +27,7 @@ Shared-model changes require all affected owner/consumer contracts to be reconci
 ## Validation remaining
 
 Prisma CLI validation, clean disposable database replay, full structural diff and live provenance reconciliation have **not** been performed by this audit. No live credentials were accessed and no migration/seed/db-integrity command was run against Supabase.
+
+## COM-13 source review — 2026-10-15
+
+WA-R076 adjudicates all eleven source records: ten physical representation details are deferred with explicit owner invariants; CL04-U048 remains an external migration-provenance requirement. This closes the COM-13 architecture family, not its implementation or database activation. Posture D is unchanged. The historical 177-model/53-table coverage evidence still does not prove a live mismatch. No schema, migration SQL, environment or database data was changed in this review.

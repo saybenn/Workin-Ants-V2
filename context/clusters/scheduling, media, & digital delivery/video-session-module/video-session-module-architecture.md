@@ -2318,6 +2318,7 @@ No additional domain event is registered for this Module by this ruling; existin
 
 Consumer obligations:
 
+- `location.disclosure_changed.v1`: consume only the effect naming this Module — Search: public projection refresh; Media/Video/context consumers invalidate scoped location disclosure; no exact coordinates.
 - `track.entitlement_changed.v1`: consume only the effect naming this Module — Professional, Candidate, Marketplace, Video: refresh eligibility; Search: current projection reevaluation; preserve acquired rights.
 - `healthcare.boundary_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Media/Video/Search: invalidate current grants/projections as applicable.
 - `booking.confirmed.v1 / booking.rescheduled.v1 / booking.cancelled.v1`: consume only the effect naming this Module — Video/Location/Messaging: fresh scope reevaluation; Notification via separate source intent; Calendar owner handles provider.
@@ -2327,3 +2328,11 @@ Consumer obligations:
 Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
 
 Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.
+
+## WA-R076 — Migration representation boundary
+
+**Live URL compatibility (CL-05:CL-05-U028).** Persisted roomUrl and join URL fields may contain only non-authorizing metadata or opaque references. Participant credentials are issued on demand for current parent/room generation and actor/time scope; reusable plaintext bearer credentials are prohibited. Inventory legacy contents securely and quarantine unsafe values before reuse. Removal/repurposing/encryption design is a coordinated physical task; encryption alone does not make a reusable credential authoritative.
+
+**Course identity redundancy (CL-05:CL-05-U030).** CourseDetails.offeringId is canonical identity; CourseVideoAsset.courseDetailsId identifies that course/Offering. Any retained redundant offeringId must equal it. Validate through Video owner facts; mismatch denies the affected association and is quarantined for repair. Choose removal or durable equality constraint in the coordinated migration, without changing identity semantics.
+
+Physical implementation follows the single migration integration owner and database-readiness.md posture D. These dispositions settle the named historical architecture questions; they do not certify migration execution or runtime behavior.

@@ -1839,6 +1839,8 @@ Consumer obligations:
 - `payment.effect_recorded.v1`: consume only the effect naming this Module — Order/Track/Gamification/Sweepstakes: correlate only their instruction; reconcile unknown; no provider secrets.
 - `booking.performance_reported.v1 / booking.performance_adjudicated.v1`: consume only the effect naming this Module — Order/Review may separately evaluate; no automatic money/review eligibility consequence.
 
+Current-fact obligation: professional.readiness_changed.v1 does not substitute for a fresh Professional readiness check before each new protected action. Likewise offering.publication_changed.v1 requires checkout to validate the current Offering revision against the proposed immutable purchase snapshot; an event is not checkout authorization.
+
 Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
 
 Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.
@@ -1855,3 +1857,13 @@ Supply current Order revision, service/session authorization identity, buyer and
 ## WA-R075 — Typed Hold action applicability and source readiness
 
 This owner adopts its source/consumer obligations in `context/reconciliation/hold-action-contracts.md`. The appendix defines the versioned query/action fields, current-source checks, denial/unavailable behavior and privacy limits; it does not transfer lifecycle ownership or freeze an implementation interface. Implement the named owner port or consumer call with typed fixtures for stale authority, unsupported scope, duplicate effects and minimized fields before activation. Existing product rights and all other applicable gates remain.
+
+## WA-R076 — Migration representation boundary
+
+**Order source XOR (CL-04:CL04-U014).** Exactly one approved source variant must match its discriminator and required source/participant facts. Platform screening uses its distinct approved source with no fake Professional seller. Enforce both domain validation and database constraints in the coordinated schema slice; nullable foreign keys alone do not enforce the invariant. Exact SQL/constraint layout is deferred; existing rows require provenance and conflict review before migration.
+
+**Agreement legacy mirrors (CL-04:CL04-U023).** Normalized immutable execution revision, signature and document records own proof. buyerSigUrl/professionalSigUrl/pdfMediaId/finalDocumentHash are read-only compatibility mirrors and never fallback authorization. Inventory readers/writers, compare to authoritative proof, quarantine conflicts, then remove redundant writers/columns only through a reviewed preservation migration. Never invent signatures or copy prior signatures as new acceptance.
+
+**Agreement migration provenance (CL-04:CL04-U048).** Target identity, data-preservation requirements, migration ledger and schema-only comparison are absent. Keep database posture D for baseline/deployment decisions; no Agreement migration or deployment readiness claim. Reproducible forward migration and disposable replay depend on that evidence; static schema presence is insufficient.
+
+Physical implementation follows the single migration integration owner and database-readiness.md posture D. These dispositions settle the named historical architecture questions; they do not certify migration execution or runtime behavior.

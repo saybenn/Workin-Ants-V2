@@ -873,7 +873,7 @@ None are owned by Digital Goods for the normal MVP path.
 | Notification | SH-041 | user/admin alert request | recipient context/template key/safe variables | no rollback of domain truth | provider dispatch |
 | Observability / Ops | SH-032–039 | request context, safe telemetry, failure evidence | correlation, operation, safe dimensions | no business authority | ops ledgers/clients |
 
-### CustomerProfile / User binding — Proposed Ruling
+### CustomerProfile / User binding — settled by WA-R031 / WA-R076
 
 The current schema binds `DigitalGoodsTermsAcceptance` and `DigitalDownloadGrant` to `userId`, while current platform architecture defines `CustomerProfile` as commercial buyer truth. For the MVP, treat:
 
@@ -1760,7 +1760,7 @@ Current schema cascade paths may erase policy/assets/grants/events when an Offer
 
 ### 35.10 CustomerProfile persistence on Digital Goods records
 
-Current schema stores `userId` rather than `customerProfileId`. This document proposes User as access principal plus CustomerProfile/Order as commercial buyer context. A schema change requires explicit root/Cluster decision.
+Current schema stores `userId` rather than `customerProfileId`. WA-R076 confirms User as access principal plus CustomerProfile/Order as commercial buyer context. A schema change requires explicit root/Cluster decision.
 
 ### 35.11 Step-up action matrix
 
@@ -1945,3 +1945,9 @@ Consumer obligations:
 Each audience receives only its needed fields. Obtain fresh source facts before protected decisions; invalidation is not authority.
 
 Persist source history and outbox intent atomically; use event identity/fingerprint deduplication, source-revision watermarks, tombstones and correction lineage as specified by WA-R069. Delayed facts cannot restore revoked exposure; gaps require owner replay/current snapshot. Registered Hold applicability may prompt current reevaluation only for existing typed targets/actions; release is never automatic restoration or financial execution. Source events cannot substitute for explicit Privacy/Moderation/provider effect commands or WA-R066 notification intents.
+
+## WA-R076 — Migration representation boundary
+
+**Digital buyer/access identity (CL-05:CL-05-U049).** User is the authenticated access principal; CustomerProfile is commercial buyer truth resolved through SH-004 or the authoritative Order binding. Validate User/Customer/Order consistency and retained acquired rights before access. No parallel buyer identity, arbitrary profile inference or mandatory redundant customerProfileId column is introduced. Any future persisted buyer reference must preserve that owner binding and pass coordinated migration review.
+
+Physical implementation follows the single migration integration owner and database-readiness.md posture D. These dispositions settle the named historical architecture questions; they do not certify migration execution or runtime behavior.

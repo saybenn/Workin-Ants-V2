@@ -2146,6 +2146,8 @@ Implementation follows the corresponding applied owner architecture ruling. Requ
 
 Implement the `role_authority` obligations in this Module's architecture and `context/reconciliation/authority-event-contracts.md` before dependent event consumers activate. First register concrete action ports (`authorizeResourceAction / evaluateOrganizationPermission`), source fact fields/revisions and required B/S/A assurance; then qualify producer outbox/history and the specifically named subscriber effects. Do not implement the entire cross-platform matrix inside this Module.
 
+Verify fresh Identity assignment facts on every protected evaluation; identity.platform_role_changed.v1 does not create a Role subscriber/cache or replace request-time authority.
+
 Acceptance evidence must show wrong relationship/target and stale source facts deny; action-bound assurance cannot replay cross-target; source outage cannot become allowed; duplicate event replay has one effect; same ID/different fingerprint quarantines; late revisions/tombstones cannot resurrect access; correction preserves history and reevaluates the original logical effect. Verify registered payload field minimization and subscriber audience independently of transport delivery. Existing explicit commands and notification intents retain their separate receipts/qualification.
 
 WA-R031 governs: launch has neither a Role-owned event stream nor an authorization cache. Identity supplies persisted platform-role assignment facts. R064 references to Role assignment changes mean Identity assignment revision, and references to cache invalidation mean fresh current-fact evaluation at launch. Govern the action catalog and policy interpretation without owning assignments or source lifecycles.

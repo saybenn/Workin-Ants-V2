@@ -2534,6 +2534,8 @@ Material proposal changes remain visibly surfaced by Gig's current-revision pres
 
 Implement the `notification` obligations in this Module's architecture and `context/reconciliation/authority-event-contracts.md` before dependent event consumers activate. First register concrete action ports (`requestNotification / revokePushSubscription / getNotificationDeliveryState`), source fact fields/revisions and required B/S/A assurance; then qualify producer outbox/history and the specifically named subscriber effects. Do not implement the entire cross-platform matrix inside this Module.
 
+Verify Messaging, Privacy and Ops notification work arrives through the separate WA-R066 semantic intent and current recipient checks. Their domain events cannot directly create notification deliveries. Identity security events only invalidate endpoint eligibility.
+
 Acceptance evidence must show wrong relationship/target and stale source facts deny; action-bound assurance cannot replay cross-target; source outage cannot become allowed; duplicate event replay has one effect; same ID/different fingerprint quarantines; late revisions/tombstones cannot resurrect access; correction preserves history and reevaluates the original logical effect. Verify registered payload field minimization and subscriber audience independently of transport delivery. Existing explicit commands and notification intents retain their separate receipts/qualification.
 
 Source domain events do not replace WA-R066 semantic intents or establish recipient authority. Identity security changes only reevaluate session-bound endpoint eligibility; provider/channel qualification and source-specific current recipient checks remain required.

@@ -1717,6 +1717,7 @@ No additional domain event is registered for this Module by this ruling; existin
 
 Consumer obligations:
 
+- `track.entitlement_changed.v1`: consume only the effect naming this Module — Professional, Candidate, Marketplace, Video: refresh eligibility; Search: current projection reevaluation; preserve acquired rights.
 - `taxonomy.policy_changed.v1`: consume only the effect naming this Module — Professional/Marketplace/Hiring/Healthcare/Trust/Search: targeted reevaluation.
 - `professional.readiness_changed.v1`: consume only the effect naming this Module — Marketplace/Search: reevaluate publication; Gig/Order: fresh checks before new action.
 - `offering.publication_changed.v1`: consume only the effect naming this Module — Search: refresh/remove; Order: freshness-check checkout snapshot.

@@ -563,13 +563,13 @@
         "CL-05:CL-05-U043",
         "CL-05:CL-05-U049"
       ],
-      "classification": "AI_RESOLVED_WITH_TRADEOFF",
+      "classification": "DEFERRED_IMPLEMENTATION_DETAIL",
       "existing_rulings": [
         "WA-R003",
         "WA-R018",
         "WA-R031"
       ],
-      "decision": "Media stewardship, access evidence and export artifacts",
+      "decision": "Eleven source-reviewed representation dispositions; physical implementation deferred, Agreement migration provenance explicitly external.",
       "evidence": [
         {
           "key": "CL-04:CL04-U014",
@@ -627,13 +627,14 @@
           "question": "DG, Customer, Order; 05/01/04 | [DA] 13/35.10; [SC] | Current User + SH-004/Order commercial context proposed | Persistence change requires explicit ruling | Buyer-schema changes; no arbitrary inference | SH-004,SH-025"
         }
       ],
-      "remaining": "Media/Order representation is specified; full family includes other schemas and migration qualification still required.",
+      "remaining": "Architecture questions adjudicated; database posture D and physical constraints/legacy preservation/replay remain activation gates. See com13-migration-review.json.",
       "product_question": "",
       "lane": "commerce",
-      "integration_status": "PARTIALLY_APPLIED",
-      "integration_note": "Integrated owner-document ruling; remaining qualification is explicit. No interface freeze.",
+      "integration_status": "APPLIED",
+      "integration_note": "Per-record source/owner/schema review under WA-R076, not grouping-based closure; CF-ROOT unchanged.",
       "applied_rulings": [
-        "WA-R050"
+        "WA-R050",
+        "WA-R076"
       ],
       "application_evidence": [
         {
@@ -647,6 +648,21 @@
             "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-implementation-plan.md",
             "context/clusters/scheduling, media, & digital delivery/scheduling-media-digital-delivery-cluster-architecture.md",
             "context/clusters/scheduling, media, & digital delivery/scheduling-media-digital-delivery-cluster-build-plan.md"
+          ]
+        },
+        {
+          "report": "context/reconciliation/com13-migration-review.json",
+          "files": [
+            "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-module-architecture.md",
+            "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-implementation-plan.md",
+            "context/clusters/scheduling, media, & digital delivery/booking-calendar-module/booking-calendar-module-architecture.md",
+            "context/clusters/scheduling, media, & digital delivery/booking-calendar-module/booking-calendar-module-implementation-plan.md",
+            "context/clusters/scheduling, media, & digital delivery/video-session-module/video-session-module-architecture.md",
+            "context/clusters/scheduling, media, & digital delivery/video-session-module/video-session-module-implementation-plan.md",
+            "context/clusters/scheduling, media, & digital delivery/media-asset-module/media-asset-module-architecture.md",
+            "context/clusters/scheduling, media, & digital delivery/media-asset-module/media-asset-module-implementation-plan.md",
+            "context/clusters/scheduling, media, & digital delivery/digital-goods-access-module/digital-goods-access-module-architecture.md",
+            "context/clusters/scheduling, media, & digital delivery/digital-goods-access-module/digital-goods-access-implementation-plan.md"
           ]
         }
       ],

@@ -972,6 +972,7 @@ Producer obligations:
 
 Consumer obligations:
 
+- `application.lifecycle_changed.v1`: consume only the effect naming this Module — Interview: cancel nonterminal interviews when non-interviewable; Messaging reevaluates explicit context membership.
 - `booking.confirmed.v1 / booking.rescheduled.v1 / booking.cancelled.v1`: consume only the effect naming this Module — Video/Location/Messaging: fresh scope reevaluation; Notification via separate source intent; Calendar owner handles provider.
 - `organization.membership_changed.v1`: consume only the effect naming this Module — Candidate/Interview/Messaging: revoke derived access; all protected requests use current membership.
 - `interview.participant_changed.v1`: consume only the effect naming this Module — Video/Calendar/Messaging if context exists: reevaluate current authorized audience.

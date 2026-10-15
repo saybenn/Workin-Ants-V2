@@ -1,3 +1,17 @@
+## Current continuation — 2026-10-15
+
+- Priority 0 COMPLETE: independent fetch and GitHub comparison verify branch `codex/development-readiness-2026-09-29` at `d672ea2f609d64762685e847f1e3d2da2a046421`, tree `a7eae29de396a0fbae1ec824ba0e91ca1f433da7`, ahead/behind 0/0 and clean starting tree. All 15 commits, including ten previously unpublished commits, are preserved. Evidence: reconciliation/publication-verification-2026-10-15.json.
+- R068/R069 source verification complete: 34 action/fact/assurance rows, 46 named events, 26 preserved coordinated appendices. Five missing consumer registrations corrected; current-fact and separate-intent routes clarified. See reconciliation/authority-event-review.md/json and authority-event-validation.json.
+- COM-13 reviewed record by record under WA-R076: ten deferred physical representation details, one external Agreement provenance gate; all eleven architecture dispositions applied. Coverage: **649 ADJUDICATED / 12 PARTIAL / 0 PENDING**. CF-ROOT is the sole remaining handoff architecture concern; eleven external families plus database posture D remain scoped gates.
+- Gates 0/1 remain complete. Gates 2/3 advanced; Gate 4 domain review is active. Full bridge/rail convergence, fresh platform audit, root architecture/build plan, harness alignment and final readiness are unfinished. **NOT DEVELOPMENT READY; no implementation lanes authorized.**
+- Validation: context, adjudication, family, bridge-source, authority-event and whitespace checks pass. Three deliberate event/assurance/appendix regressions were rejected. No runtime/RLS/provider/schema replay or live database verification is claimed. Prisma, migrations and historical source handoffs remain unchanged.
+- Publication: the recovered baseline is remotely verified. Continuation changes are local until separately remotely verified. Git write authentication remains an operational issue; successful fetch does not prove push access. It does not block local readiness work.
+- Next: named domain findings BF-220, BF-035, BF-265 and BF-046/052/072/170; then the remaining domain families and rail integration. No owner decision required.
+
+## Historical checkpoints
+
+The dated material below is preserved as provenance; its counts, publication blockers and next actions do not supersede the current continuation above.
+
 > **Account transfer checkpoint — 2026-10-15:** Read `context/reconciliation/account-transfer-handoff.md` (repository-root path) and current `normalization-metrics.json` before continuing. Current decision coverage is 638 adjudicated / 23 partial / 0 pending; 2 canonical architecture concerns and 11 external families remain. R001–R075 are recorded. Domain bridge review and Gates 4–10 are unfinished. Older dated counts below are historical. The user authorized the dedicated-branch transfer push; no main merge or deployment.
 
 # Workin Ants progress

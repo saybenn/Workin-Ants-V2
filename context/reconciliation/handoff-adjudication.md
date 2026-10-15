@@ -5,21 +5,21 @@ P01–P19 approved and binding. Canonical dispositions live in handoff-adjudicat
 ## Current metrics
 
 - raw_pending: 0
-- raw_partial: 23
+- raw_partial: 12
 - family_candidates: 92
 - normalized_families: 76
-- unresolved_architecture_families: 2
+- unresolved_architecture_families: 1
 - external_requirement_families: 11
-- unresolved_families: 13
+- unresolved_families: 12
 - closed_existing_ruling: 22
 - closed_deduplication: 0
-- new_rulings: 36
+- new_rulings: 37
 - ai_resolved_families: 50
 - ai_resolved_with_product_judgment_families: 1
 - duplicate_facets_collapsed: 16
 - product_questions: 0
 
-Full ledger: 638 adjudicated, 23 partial, 0 pending (661 total). New-ruling count is since the normalization baseline (WA-R040 onward). Original 323-record coverage is preserved. Deduplication means verified alias closure, not just merging concern groups.
+Full ledger: 649 adjudicated, 12 partial, 0 pending (661 total). New-ruling count is since the normalization baseline (WA-R040 onward). Original 323-record coverage is preserved. Deduplication means verified alias closure, not just merging concern groups.
 
 ## Canonical family facets
 
@@ -37,7 +37,7 @@ Full ledger: 638 adjudicated, 23 partial, 0 pending (661 total). New-ruling coun
 | COM-10 — Privacy disposition and retention | COM-10 | 3 | EXTERNAL_REQUIREMENT | APPLIED |
 | COM-11 — Legal content and manual execution | COM-11 | 5 | EXTERNAL_REQUIREMENT | APPLIED |
 | COM-12 — Provider qualification | COM-12 | 5 | EXTERNAL_REQUIREMENT | APPLIED |
-| COM-13 — Migration representation work | COM-13 | 11 | AI_RESOLVED_WITH_TRADEOFF | PARTIALLY_APPLIED |
+| COM-13 — Migration representation work | COM-13 | 11 | DEFERRED_IMPLEMENTATION_DETAIL | APPLIED |
 | COM-14 — Inactive optional scope | COM-14 | 9 | DEFERRED_IMPLEMENTATION_DETAIL | APPLIED |
 | COM-15 — Missing root artifacts | CF-ROOT | 2 | DEFERRED_IMPLEMENTATION_DETAIL | APPLIED |
 | COM-16 — Booking completion and no-show authority | COM-16 | 1 | AI_RESOLVED_WITH_TRADEOFF | APPLIED |
@@ -120,7 +120,6 @@ Full ledger: 638 adjudicated, 23 partial, 0 pending (661 total). New-ruling coun
 
 ## Remaining work
 
-- **COM-13:** Media/Order representation is specified; full family includes other schemas and migration qualification still required.
 - **FH-04:** Root architecture/build plan and harness still missing; do not close this scheduled synthesis dependency.
 - **RAILS-12:** Root runtime/harness/deployment qualification remains outside CL07/08.
 
