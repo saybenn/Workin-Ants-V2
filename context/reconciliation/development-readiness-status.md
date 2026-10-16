@@ -1,3 +1,15 @@
+## Brain Directive 002 — checkpoint 002, 2026-10-16
+
+- Priority 0 remains COMPLETE. Fresh fetch independently verifies Checkpoint 001 at full remote/local baseline `beba4e211bf4130a67fc58065daeb50b81de8b6e`, tree `a3b7443f4d7139e5107e40c24bfd171be2f51e78`, ahead/behind 0/0 at entry; it advanced since the user-reported d672 baseline. New continuation is local until separately remotely verified.
+- **Gate 4 architectural review COMPLETE:** 563/563 unique historical records; 268/268 families = 190 domain (306 records) + 78 rail (257 records); all 17 inherited profiles; zero missing, duplicate or unreviewed source coverage. All remaining 183 domain families reviewed; seven prior rulings preserved. Explicit CL-01/07/08/09 matrices are in cross-cluster-bridge-inventory.md.
+- Added R081–084: named owner query/receipt and backup evidence bindings; Media availability invalidation; scoped disabled optional bridges; fresh Gate5 correction registering Payment for Order outcome reconciliation. R069 now has 47 named events, 34 owner pairs, 26 preserved coordinated appendices. P01–P19 and all 132 SH identities/statuses unchanged.
+- Handoff coverage remains **649 ADJUDICATED / 12 PARTIAL / 0 PENDING**. CF-ROOT and scoped external requirements remain; bridge completion is not executable contract or final semantic certification.
+- **Gate 5 IN PROGRESS:** nine fresh owner-flow/dependency reviews; one producer/subscriber mismatch corrected under R084. Full lifecycle/action matrix, remaining platform dependency/cycle/rail exceptions and root shared-runtime convergence are next. Root architecture/build plan are not authorized yet.
+- No interface frozen, no lane active, no broad product implementation/migration/deployment/main merge. **NOT DEVELOPMENT READY.** DTO/physical/RLS/runtime/adapter qualification, complete Privacy field/action fixtures, legal/provider/policy evidence and database posture D remain activation gates.
+- OPS-GIT-AUTH-001 remains open/nonblocking: dry-run push exit128, missing password/authentication. No credential provisioning capability exposed. Continue local readiness; use a newly verified full-history bundle for user-authenticated publication. Exact final local HEAD/tree/checksum are in the downloadable checkpoint evidence.
+
+Earlier dated checkpoints below are retained history and do not supersede this continuation.
+
 ## Current continuation — 2026-10-15
 
 - Priority 0 COMPLETE: independent fetch and GitHub comparison verify branch `codex/development-readiness-2026-09-29` at `d672ea2f609d64762685e847f1e3d2da2a046421`, tree `a7eae29de396a0fbae1ec824ba0e91ca1f433da7`, ahead/behind 0/0 and clean starting tree. All 15 commits, including ten previously unpublished commits, are preserved. Evidence: reconciliation/publication-verification-2026-10-15.json.

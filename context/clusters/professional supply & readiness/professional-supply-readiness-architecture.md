@@ -1517,3 +1517,15 @@ Professional and Marketplace supply their own minimized WA-R070 descriptors and 
 ## Domain bridge integration — 2026-10-15
 
 Apply WA-R077; WA-R078; WA-R080 from `context/reconciliation/platform-architecture-rulings.md` only to this Cluster's named owner/consumer boundaries. The affected Module architectures incorporate the typed contracts. R077 assigns private checkout tax evidence to Order and tax interpretation to Payment; R078 uses the existing Track command with durable owner intents; R079 keeps optional reverse prize display disabled; R080 binds owner enumerators and scoped Taxonomy recipients. No cross-Cluster repository access, generic tax-location authority, duplicate actor stream or AI Gig scope is introduced. Untouched concerns retain their existing owners. Review evidence is `context/reconciliation/bridge-review-domain.json`; seven families reviewed does not complete Gate 4.
+
+## WA-R081–083 — Gate 4 bridge obligations
+
+Coordinate the Module-owned contracts in `context/reconciliation/bridge-contract-bindings.md` and the complete inventory. Source facts, semantic commands and completion receipts are separate. Optional disabled paths do not become Cluster prerequisites. Retain all existing P01–P19, permanent SH identities, source lifecycles and external gates. No contract is frozen.
+
+Reviewed directional families touching this Cluster: BF-005, BF-009, BF-010, BF-011, BF-012, BF-017, BF-025, BF-026, BF-027, BF-033, BF-034, BF-039, BF-040, BF-041, BF-042, BF-043, BF-045, BF-047, BF-048, BF-050, BF-053, BF-054, BF-055, BF-056, BF-057, BF-058, BF-063, BF-065, BF-066, BF-067, BF-068, BF-071, BF-074, BF-075, BF-076, BF-077, BF-078, BF-079, BF-080, BF-082, BF-083, BF-084, BF-085, BF-086, BF-087, BF-088, BF-089, BF-090, BF-093, BF-094, BF-097, BF-099, BF-100, BF-101, BF-102, BF-105, BF-106, BF-107, BF-108, BF-109, BF-110, BF-111, BF-112, BF-113, BF-114, BF-115, BF-116, BF-117, BF-119, BF-129, BF-131, BF-133, BF-134, BF-135, BF-138, BF-141, BF-142, BF-145, BF-152, BF-153, BF-154, BF-155, BF-156, BF-157, BF-158, BF-159, BF-160, BF-162, BF-163, BF-164, BF-165, BF-166, BF-171, BF-172, BF-174, BF-175, BF-176, BF-177, BF-188, BF-196, BF-203, BF-204, BF-205, BF-210, BF-211, BF-218, BF-221, BF-223, BF-224, BF-225, BF-230, BF-231, BF-232, BF-236, BF-237, BF-240, BF-242, BF-246, BF-248, BF-249, BF-256, BF-257, BF-260, BF-262, BF-266, BF-267.
+
+Integrate current R068/069/075; Media invalidation uses R082 only for registered Customer/Candidate subscribers. Privacy field/action fixtures remain required despite source enumeration reconciliation. Cluster sequencing must use contract/foundation dependencies, not whole neighboring-Cluster completion.
+
+## WA-R084 — Order/Payment source event symmetry
+
+Order outcome facts include Payment as a registered reconciliation consumer. Payment queries bound historical purchase and current settlement facts, preserving R037 economic dedupe and existing dispatch authority. This is an asynchronous source-fact edge, not an Order/Payment commit dependency or permission to send money. Bilateral runtime fixtures remain unqualified.

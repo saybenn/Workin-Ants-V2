@@ -2550,3 +2550,7 @@ Sequence the named owner contract amendments before dependent adapters. Hiring o
 ## WA-R073 — Interview access interval and bounded credentials — implementation obligations
 
 Sequence the named owner contract amendments before dependent adapters. Interview is the parent authority for Video credentials. Launch join interval is half-open scheduled time, without implicit grace; bound credential expiry to parent/current authority/provider limits and qualify revocation/disconnect separately. Require bilateral denial, stale-revision and replay fixtures before activation; this pass supplies architecture, not executed qualification.
+
+## WA-R081–083 — Integrated bridge sequence
+
+Follow Module owner contracts and the complete bridge inventory before cross-Cluster integration. CONTRACT_ONLY work may establish schemas/fakes; FOUNDATION_CAPABILITY is required before actual effects; executable bilateral and external evidence precede freeze/activation. R081 named queries/receipts, R082 Media invalidation, and R083 disabled optional paths supersede only the corresponding historical open labels. Keep current source checks at action/disclosure boundaries. Do not begin whole-Cluster parallel work, root synthesis or runtime implementation from source-coverage counts alone.

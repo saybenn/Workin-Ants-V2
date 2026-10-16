@@ -1982,3 +1982,11 @@ Hiring owns JobMedia association stewardship; Media remains byte/readiness/acces
 ## WA-R073 — Interview access interval and bounded credentials
 
 Interview is the parent authority for Video credentials. Launch join interval is half-open scheduled time, without implicit grace; bound credential expiry to parent/current authority/provider limits and qualify revocation/disconnect separately.
+
+## WA-R081–083 — Gate 4 bridge obligations
+
+Coordinate the Module-owned contracts in `context/reconciliation/bridge-contract-bindings.md` and the complete inventory. Source facts, semantic commands and completion receipts are separate. Optional disabled paths do not become Cluster prerequisites. Retain all existing P01–P19, permanent SH identities, source lifecycles and external gates. No contract is frozen.
+
+Reviewed directional families touching this Cluster: BF-006, BF-008, BF-009, BF-010, BF-011, BF-013, BF-017, BF-025, BF-026, BF-027, BF-031, BF-033, BF-036, BF-038, BF-048, BF-057, BF-063, BF-065, BF-066, BF-067, BF-071, BF-082, BF-083, BF-084, BF-085, BF-086, BF-087, BF-088, BF-094, BF-099, BF-102, BF-106, BF-107, BF-115, BF-116, BF-117, BF-118, BF-119, BF-120, BF-121, BF-129, BF-131, BF-136, BF-138, BF-139, BF-140, BF-141, BF-142, BF-143, BF-144, BF-145, BF-146, BF-147, BF-148, BF-152, BF-153, BF-154, BF-155, BF-156, BF-157, BF-158, BF-159, BF-160, BF-162, BF-163, BF-164, BF-166, BF-167, BF-171, BF-175, BF-176, BF-177, BF-178, BF-179, BF-180, BF-181, BF-182, BF-186, BF-188, BF-196, BF-198, BF-203, BF-204, BF-205, BF-210, BF-211, BF-222, BF-223, BF-224, BF-229, BF-230, BF-231, BF-232, BF-235, BF-236, BF-240, BF-242, BF-246, BF-248, BF-249, BF-256, BF-257, BF-263, BF-266, BF-268.
+
+Integrate current R068/069/075; Media invalidation uses R082 only for registered Customer/Candidate subscribers. Privacy field/action fixtures remain required despite source enumeration reconciliation. Cluster sequencing must use contract/foundation dependencies, not whole neighboring-Cluster completion.

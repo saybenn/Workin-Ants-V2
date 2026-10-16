@@ -142,7 +142,7 @@ def inspect():
             errors.append(f'Invalid shared-operation qualification index: {exc}')
     handoff_check = runpy.run_path(str(ROOT / 'scripts/check-handoff-adjudication.py'))['inspect']()
     errors.extend('Handoff adjudication: ' + e for e in handoff_check['errors'])
-    for checker in ['check-handoff-families.py', 'check-bridge-catalog.py', 'check-authority-events.py']:
+    for checker in ['check-handoff-families.py', 'check-bridge-catalog.py', 'check-authority-events.py', 'check-bridge-convergence.py']:
         result = runpy.run_path(str(ROOT / 'scripts' / checker))['inspect']()
         errors.extend(checker + ': ' + e for e in result['errors'])
     migrations = sorted(ROOT.glob('prisma/migrations/*/migration.sql'))

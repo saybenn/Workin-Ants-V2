@@ -1,0 +1,99 @@
+{
+  "date": "2026-10-16",
+  "validated_base": "beba4e211bf4130a67fc58065daeb50b81de8b6e",
+  "results": [
+    {
+      "command": [
+        "python",
+        "scripts/render-handoff-progress.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"raw_pending\": 0,\n  \"raw_partial\": 12,\n  \"family_candidates\": 92,\n  \"normalized_families\": 76,\n  \"unresolved_architecture_families\": 1,\n  \"external_requirement_families\": 11,\n  \"unresolved_families\": 12,\n  \"closed_existing_ruling\": 22,\n  \"closed_deduplication\": 0,\n  \"new_rulings\": 45,\n  \"ai_resolved_families\": 50,\n  \"ai_resolved_with_product_judgment_families\": 1,\n  \"duplicate_facets_collapsed\": 16,\n  \"product_questions\": 0\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "scripts/check-context.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"clusters\": 10,\n  \"modules\": 34,\n  \"cluster_documents\": 20,\n  \"module_documents\": 68,\n  \"handoffs\": 10,\n  \"shared_operations\": 132,\n  \"shared_statuses\": {\n    \"Confirmed\": 109,\n    \"Proposed ruling\": 23\n  },\n  \"prisma_models\": 177,\n  \"prisma_enums\": 207,\n  \"sql_migrations\": 1,\n  \"created_tables\": 53,\n  \"created_enums\": 31\n}\nWARNINGS: 124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay\nStructural checks PASSED; semantic readiness is a separate gate.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "scripts/check-handoff-adjudication.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"errors\": [],\n  \"source_decisions\": 661,\n  \"review_statuses\": {\n    \"ADJUDICATED\": 649,\n    \"PARTIAL\": 12\n  },\n  \"disposition_classes\": {\n    \"AI_RESOLVED_WITH_TRADEOFF\": 581,\n    \"EXTERNAL_REQUIREMENT\": 81,\n    \"AI_RESOLVED\": 86,\n    \"DEFERRED_IMPLEMENTATION_DETAIL\": 44,\n    \"AI_RESOLVED_WITH_PRODUCT_JUDGMENT\": 1\n  },\n  \"scope\": \"Coverage and reference integrity only; ADJUDICATED includes open product/external gates, not implementation readiness.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "scripts/check-handoff-families.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"errors\": [],\n  \"covered_records\": 323,\n  \"families\": 92,\n  \"scope\": \"Coverage only; proposed family decisions do not authorize implementation.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "scripts/check-bridge-catalog.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"errors\": [],\n  \"records\": 563,\n  \"scope\": \"Source integrity only; not bilateral reconciliation.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "scripts/check-authority-events.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"errors\": [],\n  \"modules\": 34,\n  \"events\": 47,\n  \"preserved_coordinated_appendices\": 26,\n  \"scope\": \"Static reviewed registrations and authority propagation; no runtime, RLS, provider or interface-freeze claim.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "scripts/check-bridge-convergence.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"errors\": [],\n  \"metrics\": {\n    \"historical_records\": 563,\n    \"unique_source_records\": 563,\n    \"families\": 268,\n    \"domain_families\": 190,\n    \"rail_families\": 78,\n    \"domain_records\": 306,\n    \"rail_records\": 257,\n    \"inherited_profiles\": 17,\n    \"missing_source_records\": 0,\n    \"duplicate_source_records\": 0,\n    \"unreviewed_families\": 0,\n    \"frozen_contracts\": 0\n  },\n  \"scope\": \"Static source preservation, reviewed bindings and evidence drift only; no semantic/runtime certification.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "beba4e211bf4130a67fc58065daeb50b81de8b6e",
+        "--",
+        "prisma",
+        "context/shared/shared-operations.md",
+        "context/reconciliation/bridge-catalog.json",
+        "context/reconciliation/bridge-family-index.json",
+        "context/reconciliation/clusters",
+        "context/reconciliation/product-owner-decisions.md"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "negative_regressions": "bridge-convergence-validation.json: nine deliberate mutations rejected",
+  "scope": "Static validators/source preservation and semantic architecture review evidence only; no runtime/RLS/provider/database replay tests."
+}

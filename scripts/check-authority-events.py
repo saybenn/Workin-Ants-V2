@@ -49,6 +49,8 @@ def inspect(root=ROOT):
         for role in actual:
             if sorted(actual[role]) != sorted(expected[role]):
                 errors.append(f'{owner}: {role} registrations differ from reviewed routes')
+        if actual['producer'] and 'No additional domain event is registered' in block:
+            errors.append(f'{owner}: producer list contradicts no-event statement')
         canonical = sorted(e for e, p in producers.items() if p == owner)
         if sorted(actual['producer']) != canonical:
             errors.append(f'{owner}: producer list differs from canonical registry')

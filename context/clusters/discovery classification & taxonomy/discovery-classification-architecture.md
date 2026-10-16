@@ -1956,3 +1956,11 @@ AI owns the source descriptor/provider allowlist; Taxonomy coordinates affected-
 ## Domain bridge integration — 2026-10-15
 
 Apply WA-R080 from `context/reconciliation/platform-architecture-rulings.md` only to this Cluster's named owner/consumer boundaries. The affected Module architectures incorporate the typed contracts. R077 assigns private checkout tax evidence to Order and tax interpretation to Payment; R078 uses the existing Track command with durable owner intents; R079 keeps optional reverse prize display disabled; R080 binds owner enumerators and scoped Taxonomy recipients. No cross-Cluster repository access, generic tax-location authority, duplicate actor stream or AI Gig scope is introduced. Untouched concerns retain their existing owners. Review evidence is `context/reconciliation/bridge-review-domain.json`; seven families reviewed does not complete Gate 4.
+
+## WA-R081–083 — Gate 4 bridge obligations
+
+Coordinate the Module-owned contracts in `context/reconciliation/bridge-contract-bindings.md` and the complete inventory. Source facts, semantic commands and completion receipts are separate. Optional disabled paths do not become Cluster prerequisites. Retain all existing P01–P19, permanent SH identities, source lifecycles and external gates. No contract is frozen.
+
+Reviewed directional families touching this Cluster: BF-009, BF-010, BF-011, BF-015, BF-026, BF-027, BF-033, BF-037, BF-038, BF-039, BF-040, BF-041, BF-042, BF-043, BF-045, BF-047, BF-048, BF-049, BF-050, BF-051, BF-053, BF-054, BF-055, BF-056, BF-057, BF-058, BF-063, BF-065, BF-066, BF-067, BF-068, BF-069, BF-070, BF-071, BF-074, BF-099, BF-102, BF-113, BF-114, BF-131, BF-138, BF-159, BF-160, BF-162, BF-163, BF-164, BF-168, BF-169, BF-172, BF-173, BF-174, BF-203, BF-204, BF-205, BF-210, BF-211, BF-212, BF-222, BF-223, BF-224, BF-229, BF-230, BF-231, BF-232, BF-234, BF-235, BF-236, BF-237, BF-240, BF-249, BF-256, BF-257, BF-262, BF-266.
+
+Integrate current R068/069/075; Media invalidation uses R082 only for registered Customer/Candidate subscribers. Privacy field/action fixtures remain required despite source enumeration reconciliation. Cluster sequencing must use contract/foundation dependencies, not whole neighboring-Cluster completion.

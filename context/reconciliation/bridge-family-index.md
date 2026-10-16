@@ -1,3 +1,5 @@
+> Current review: Gate 4 is complete in `cross-cluster-bridge-inventory.md` and `bridge-review-complete.json`. This immutable normalization index remains historical grouping evidence, not the disposition authority.
+
 # Bridge boundary family index
 
 All **563** historical records are assigned exactly once to **268 conservative boundary families**. This is normalization only: zero duplicate closures and zero frozen contracts. The [machine-readable index](bridge-family-index.json) preserves source hashes, producer/consumer facets, inherited profiles and reverse membership.

@@ -1173,3 +1173,11 @@ SH-073 remains shared security/cryptography machinery, with separate owner-scope
 ## Domain bridge integration — 2026-10-15
 
 Apply WA-R078 from `context/reconciliation/platform-architecture-rulings.md` only to this Cluster's named owner/consumer boundaries. The affected Module architectures incorporate the typed contracts. R077 assigns private checkout tax evidence to Order and tax interpretation to Payment; R078 uses the existing Track command with durable owner intents; R079 keeps optional reverse prize display disabled; R080 binds owner enumerators and scoped Taxonomy recipients. No cross-Cluster repository access, generic tax-location authority, duplicate actor stream or AI Gig scope is introduced. Untouched concerns retain their existing owners. Review evidence is `context/reconciliation/bridge-review-domain.json`; seven families reviewed does not complete Gate 4.
+
+## WA-R081–083 — Gate 4 bridge obligations
+
+Coordinate the Module-owned contracts in `context/reconciliation/bridge-contract-bindings.md` and the complete inventory. Source facts, semantic commands and completion receipts are separate. Optional disabled paths do not become Cluster prerequisites. Retain all existing P01–P19, permanent SH identities, source lifecycles and external gates. No contract is frozen.
+
+Reviewed directional families touching this Cluster: BF-005, BF-006, BF-007, BF-008, BF-009, BF-010, BF-011, BF-012, BF-013, BF-015, BF-017, BF-020, BF-025, BF-026, BF-027, BF-030, BF-031, BF-033, BF-034, BF-036, BF-037, BF-038, BF-048, BF-063, BF-065, BF-066, BF-071, BF-082, BF-083, BF-084, BF-094, BF-099, BF-102, BF-109, BF-115, BF-116, BF-117, BF-131, BF-136, BF-138, BF-152, BF-153, BF-154, BF-155, BF-156, BF-157, BF-158, BF-159, BF-160, BF-162, BF-163, BF-164, BF-167, BF-168, BF-175, BF-176, BF-177, BF-179, BF-183, BF-196, BF-203, BF-204, BF-205, BF-210, BF-211, BF-213, BF-214, BF-215, BF-224, BF-230, BF-231, BF-232, BF-234, BF-236, BF-242, BF-246, BF-248, BF-249, BF-256, BF-257, BF-262, BF-266.
+
+Integrate current R068/069/075; Media invalidation uses R082 only for registered Customer/Candidate subscribers. Privacy field/action fixtures remain required despite source enumeration reconciliation. Cluster sequencing must use contract/foundation dependencies, not whole neighboring-Cluster completion.

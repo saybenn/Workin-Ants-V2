@@ -13,7 +13,7 @@ P01–P19 approved and binding. Canonical dispositions live in handoff-adjudicat
 - unresolved_families: 12
 - closed_existing_ruling: 22
 - closed_deduplication: 0
-- new_rulings: 41
+- new_rulings: 45
 - ai_resolved_families: 50
 - ai_resolved_with_product_judgment_families: 1
 - duplicate_facets_collapsed: 16
