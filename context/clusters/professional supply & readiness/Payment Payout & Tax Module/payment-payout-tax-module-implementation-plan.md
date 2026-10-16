@@ -2678,3 +2678,14 @@ Implement only the owner architecture's reviewed bridge obligations (BF-009, BF-
 ## WA-R084 — Settlement subscriber qualification
 
 Bind the Order outcome producer and Payment subscriber with exact immutable purchase/current settlement queries before financial-source-effect integration. Qualify duplicate economic key, stale event, unknown source, all-Hold reevaluation and no dispatch from event alone. The 47-event registry is architecture evidence, not implemented transport.
+
+
+## WA-R085–087 — Platform qualification dependencies
+
+Follow this owner's platform-convergence architecture and the platform lifecycle/action matrix. Current lifecycle scope: Owner KYC/account/tax setup; immutable economic effects; payout request/transfer; tax evidence and reporting; normalized rail results.
+
+Qualify source-fact leaves and exact required owner ports against fixtures before composed decisions, then local persistence/receipts and actual adapters. A contract dependency is not a requirement that the whole upstream Module/Cluster be mature. Production activation still requires every actual port and action-specific external requirement. Do not wait for downstream Search/Notification/telemetry to commit source truth or to bootstrap shared primitives.
+
+Bilateral R085 ports for this owner: `getHoldSourceCauseFacts.v1`. Implement the source/consumer role documented in architecture, including fenced noncommit, complete inventory and cause-only readiness where applicable.
+
+Negative qualification must cover the relevant cycles in platform-dependency-graph.json, stale/revoked source facts, changed fingerprints, unknown external outcomes, projection-as-authority, recursive fact/access calls and actual mandatory proof failures. No schema migration, provider activation, DTO freeze, root build plan or parallel lane approval follows from static review. Preserve Privacy per-owner field/action/serializer coverage as a separate gate.

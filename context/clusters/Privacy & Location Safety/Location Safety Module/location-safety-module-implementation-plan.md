@@ -2568,3 +2568,12 @@ Consume taxonomy.policy_changed.v1 only for registered purpose-specific requirem
 ## WA-R081–083 — Bridge qualification sequence
 
 Implement only the owner architecture's reviewed bridge obligations (BF-010, BF-026, BF-027, BF-030, BF-033, BF-042, BF-043, BF-048, BF-063, BF-065, BF-066, BF-071, BF-093, BF-102, BF-120, BF-129, BF-131, BF-148, BF-160, BF-162, BF-163, BF-164, BF-171, BF-188, BF-203, BF-204, BF-205, BF-210, BF-211, BF-214, BF-218, BF-221, BF-222, BF-223, BF-225, BF-229, BF-230, BF-231, BF-232, BF-234, BF-235, BF-236, BF-237, BF-249, BF-256, BF-257, BF-266). Load `context/reconciliation/bridge-contract-bindings.md` and the final inventory for current versions and disabled facets. First bind closed schemas and current source/actor/purpose fixtures; then qualify shared persistence/outbox/idempotency/receipt mechanisms; then connect producer and consumer. Required denial, stale/replay/conflicting-key, late-result and sensitive-field negative fixtures precede interface freeze. Provider/legal/database evidence gates only the affected activation. No full-Cluster dependency or parallel lane is implied, and no optional path is enabled by a fake or a passing structural checker. Preserve historical snapshots and P01–P19; do not implement schema/provider/product slices during readiness.
+
+
+## WA-R085–087 — Platform qualification dependencies
+
+Follow this owner's platform-convergence architecture and the platform lifecycle/action matrix. Current lifecycle scope: Source-bound fuzzy projection; exact reveal/grant/revoke; separate Interview meeting-location purpose.
+
+Qualify source-fact leaves and exact required owner ports against fixtures before composed decisions, then local persistence/receipts and actual adapters. A contract dependency is not a requirement that the whole upstream Module/Cluster be mature. Production activation still requires every actual port and action-specific external requirement. Do not wait for downstream Search/Notification/telemetry to commit source truth or to bootstrap shared primitives.
+
+Negative qualification must cover the relevant cycles in platform-dependency-graph.json, stale/revoked source facts, changed fingerprints, unknown external outcomes, projection-as-authority, recursive fact/access calls and actual mandatory proof failures. No schema migration, provider activation, DTO freeze, root build plan or parallel lane approval follows from static review. Preserve Privacy per-owner field/action/serializer coverage as a separate gate.

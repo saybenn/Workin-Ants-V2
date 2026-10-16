@@ -1181,3 +1181,12 @@ Coordinate the Module-owned contracts in `context/reconciliation/bridge-contract
 Reviewed directional families touching this Cluster: BF-005, BF-006, BF-007, BF-008, BF-009, BF-010, BF-011, BF-012, BF-013, BF-015, BF-017, BF-020, BF-025, BF-026, BF-027, BF-030, BF-031, BF-033, BF-034, BF-036, BF-037, BF-038, BF-048, BF-063, BF-065, BF-066, BF-071, BF-082, BF-083, BF-084, BF-094, BF-099, BF-102, BF-109, BF-115, BF-116, BF-117, BF-131, BF-136, BF-138, BF-152, BF-153, BF-154, BF-155, BF-156, BF-157, BF-158, BF-159, BF-160, BF-162, BF-163, BF-164, BF-167, BF-168, BF-175, BF-176, BF-177, BF-179, BF-183, BF-196, BF-203, BF-204, BF-205, BF-210, BF-211, BF-213, BF-214, BF-215, BF-224, BF-230, BF-231, BF-232, BF-234, BF-236, BF-242, BF-246, BF-248, BF-249, BF-256, BF-257, BF-262, BF-266.
 
 Integrate current R068/069/075; Media invalidation uses R082 only for registered Customer/Candidate subscribers. Privacy field/action fixtures remain required despite source enumeration reconciliation. Cluster sequencing must use contract/foundation dependencies, not whole neighboring-Cluster completion.
+
+
+## WA-R085–087 — Platform convergence
+
+Current platform reconciliation covers `consent_disclosure`, `customer_buyer_profile`, `identity_access`, `role_authority`, `track_subscription_entitlement`. Module owners retain all lifecycles and source facts. R085 separates terminating fact inputs from composed permissions, readiness, credential issuance and Hold release; R086 locates one shared execution capability and bootstrap dependencies; R087 routes Organization commercial schema responsibility to Track without enabling monetized ATS.
+
+Coordinate required ports and semantic fixtures before actual adapters; do not require complete upstream Clusters from a contract edge. Source commits precede outbox delivery and downstream projection/Notification/provider setup. Recovery reuses stable effect identity and cannot infer completion from acknowledgment, telemetry or a read model. The platform dependency graph records typed edges and critical cycle dispositions; action-specific external gates remain scoped.
+
+Root architecture synthesis is conditional on the recorded Gate 5 exit and Gate 6 posture confirmation. A root build plan, runtime choice, database migration, interface freeze and parallel implementation lanes remain later prerequisites. No such implementation approval is made by this coordination appendix.

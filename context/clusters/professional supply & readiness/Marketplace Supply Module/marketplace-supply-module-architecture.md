@@ -1732,3 +1732,20 @@ This owner adopts the scoped contracts in `context/reconciliation/bridge-contrac
 | BF-256 | consumer/composer | SH-044–058 durable commands/outbox/inbox/queue/locks/CAS/reservations; owner lifecycle and proof mechanisms. Shared infrastructure provides durable claims/leases/fences/retry/semantic fingerprint and owner-local transaction hooks. Owner chooses aggregate keys, transitions, deadlines, effect/compensation identities and access rules. No shared business lifecycle, distributed transaction or exactly-once transport; unknown result reconciles before reservation release. Runtime placement/implementation is Gate5/8 work, not a new Module. |
 | BF-257 | consumer/composer | Versioned canonical hashing, tokens, envelope encryption, normalization, structured validation; owner adapters. Mechanisms retain permanent SH identities; owners select exact purpose/input/version and retain proof meaning. Key/provider choices and rotation/expiry fixtures precede live use. SH-073 optional chain fields remain unpopulated absent owner partition/sequence/canonicalization qualification; no universal chain/tamper-proof claim or plaintext fallback. |
 | BF-266 | consumer/composer | SH-044–058 durable commands/outbox/inbox/queue/locks/CAS/reservations; owner lifecycle and proof mechanisms. Shared infrastructure provides durable claims/leases/fences/retry/semantic fingerprint and owner-local transaction hooks. Owner chooses aggregate keys, transitions, deadlines, effect/compensation identities and access rules. No shared business lifecycle, distributed transaction or exactly-once transport; unknown result reconciles before reservation release. Runtime placement/implementation is Gate5/8 work, not a new Module. |
+
+
+## WA-R085–087 — Platform convergence
+
+This current owner review applies WA-R085 terminating facts and WA-R086 shared-runtime placement. It preserves the prior lifecycle rulings and R068/R069 registrations; historical proposed event names or resolved unknown-owner labels above do not authorize an additional stream or reopen a settled decision.
+
+**Authoritative lifecycle.** Draft Offering local editing; request publication/pause/archive/restrict/restore through owner policy; immutable checkout snapshot.
+
+**Incoming source facts.** Professional publish decision; Taxonomy; current Media; Digital/Video delivery readiness from source-only requirements.
+
+**Action checks.** Organization cannot sell; required assets/accessibility/policy ready before publish; live current publication distinct from acquired purchase snapshot.
+
+**Consumer and recovery obligations.** Commit source before Search refresh; readiness unavailable denies new publication; leaf requirements cannot call composed publish readiness; change does not rewrite purchased terms.
+
+**Terminating contracts.** R085 source-fact branches validate narrowly registered service/purpose/target/field scope and current source tokens without re-entering the composed authorization/readiness/access decision. User-facing protected queries still enforce full Role and owner checks. Unregistered purposes deny. Sensitive disclosure still requires durable proof; no generic service bypass or source projection as permission.
+
+The platform action matrix records this owner plus its specific coordinated action slices. Actual DTO/failure/replay/freshness fixtures and all applicable external gates remain prerequisites before activation; no contract is FROZEN_FOR_IMPLEMENTATION.

@@ -1979,3 +1979,28 @@ This owner adopts the scoped contracts in `context/reconciliation/bridge-contrac
 ## WA-R084 — Order/Payment outcome symmetry
 
 Produce the existing committed Order outcome fact for Payment as well as registered consumers. Preserve immutable purchase/source revision and no money instruction. The full R084 protocol is binding; executable late/duplicate/correction/unknown-result fixtures remain required.
+
+
+## WA-R085–087 — Platform convergence
+
+This current owner review applies WA-R085 terminating facts and WA-R086 shared-runtime placement. It preserves the prior lifecycle rulings and R068/R069 registrations; historical proposed event names or resolved unknown-owner labels above do not authorize an additional stream or reopen a settled decision.
+
+**Authoritative lifecycle.** Source snapshot and pricing freeze; agreement execution revision; seller acceptance before capture; fulfillment/completion; separate dispute overlay/refund consequences.
+
+**Incoming source facts.** Marketplace/Gig/Trust source; Customer and seller where applicable; Track at pricing freeze; Consent/Agreement evidence; Payment normalized result; Booking/Digital actual delivery.
+
+**Action checks.** Order alone owns transaction state; completion requires all purchased obligations; no provider callback/Booking allegation/Notification dispatch as completion.
+
+**Consumer and recovery obligations.** Stable source conversion and payment/refund keys; unknown financial or reservation outcome reconciles; immutable purchase rights and agreement artifact versions retained; source commit before outcome subscribers.
+
+**Terminating contracts.** R085 source-fact branches validate narrowly registered service/purpose/target/field scope and current source tokens without re-entering the composed authorization/readiness/access decision. User-facing protected queries still enforce full Role and owner checks. Unregistered purposes deny. Sensitive disclosure still requires durable proof; no generic service bypass or source projection as permission.
+
+**reserveOrderSession.v1 — source implementation.** Booking supplies stable conversion intent, Order/purchase revision and session binding. Order returns durable authorized reservation or exhausted/denied/unavailable. Same source intent replays; no second quota.
+
+**getBookingConversionOutcome.v1 — consumer/composer.** Order supplies conversion intent/reservation. Booking returns committed attachment, pending, fenced_noncommit, denied or unavailable. Noncommit fence prevents any later conversion; timeout alone cannot release allowance.
+
+**getHoldSourceCauseFacts.v1 — source implementation.** R075 cause-owner implementations serve trusted Hold queries for exact cause/target/action/policy and return ready/not_ready/unavailable/unsupported plus source revision/time/evidence. Hold composes getHoldReleaseReadiness.v1; source query cannot ask whether its own Hold is already released.
+
+The platform action matrix records this owner plus its specific coordinated action slices. Actual DTO/failure/replay/freshness fixtures and all applicable external gates remain prerequisites before activation; no contract is FROZEN_FOR_IMPLEMENTATION.
+
+**WA-R003/085 source-specific screening sequence.** Paid screening is a separate Order source under WA-R003: createChargeableOrder uses the authoritative Trust package quote and actual purchaser/subject relationship, not Professional seller readiness and not completion of the check being purchased. Trust initiates the paid check only after the source-bound Order qualification. evaluateVerificationReadiness reads existing requirement/evidence; it does not synchronously create a purchase or start a new check. Ordinary marketplace seller gates remain on their actual source/action, and acquired Order entitlement is evaluated separately from new-purchase seller eligibility. This terminates the initial paid-screening dependency without a fake seller or a free screening bypass.

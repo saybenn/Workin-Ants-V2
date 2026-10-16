@@ -1907,3 +1907,22 @@ This owner adopts the scoped contracts in `context/reconciliation/bridge-contrac
 | BF-260 | Producer/source | R069 profile completion, Order reward/purchase/delivery timing and Review-qualified facts. Use original source event/beneficiary/rule revision with durable one-effect identity and linked correction. Full Order completion differs from Booking report and propagated Gig completion. Rating eligibility/subject is Review-owned; punctuality needs contractual deadline plus reliable delivery evidence. Sweepstakes independently checks approved method/AMOE/limits; neither payment nor points improves odds. |
 | BF-266 | consumer/composer | SH-044–058 durable commands/outbox/inbox/queue/locks/CAS/reservations; owner lifecycle and proof mechanisms. Shared infrastructure provides durable claims/leases/fences/retry/semantic fingerprint and owner-local transaction hooks. Owner chooses aggregate keys, transitions, deadlines, effect/compensation identities and access rules. No shared business lifecycle, distributed transaction or exactly-once transport; unknown result reconciles before reservation release. Runtime placement/implementation is Gate5/8 work, not a new Module. |
 | BF-267 | Producer/source | R069 reward-qualified facts and source-owned beneficiary mapping. Award subject follows source User/Profile beneficiary evidence, never event actor. Seller fulfillment, buyer purchase and Professional rating recipients stay distinct; missing/changed mapping rejects or reconciles without foreign joins. |
+
+
+## WA-R085–087 — Platform convergence
+
+This current owner review applies WA-R085 terminating facts and WA-R086 shared-runtime placement. It preserves the prior lifecycle rulings and R068/R069 registrations; historical proposed event names or resolved unknown-owner labels above do not authorize an additional stream or reopen a settled decision.
+
+**Authoritative lifecycle.** Review eligibility/publication/correction; Dispute case/cycle adjudication and settlement tracking.
+
+**Incoming source facts.** Order participants/commercial history; Professional target; protected Media evidence; Hold current cause/action; normalized Order settlement.
+
+**Action checks.** Refunds through Order SH-108; release only requests Payment reevaluation; neither Review nor Hold releases money; Booking report is allegation.
+
+**Consumer and recovery obligations.** Retain adjudication and evidence; pending settlement stays pending; reputation correction invalidates reward qualification; Order projection never becomes dispute source.
+
+**Terminating contracts.** R085 source-fact branches validate narrowly registered service/purpose/target/field scope and current source tokens without re-entering the composed authorization/readiness/access decision. User-facing protected queries still enforce full Role and owner checks. Unregistered purposes deny. Sensitive disclosure still requires durable proof; no generic service bypass or source projection as permission.
+
+**getHoldSourceCauseFacts.v1 — source implementation.** R075 cause-owner implementations serve trusted Hold queries for exact cause/target/action/policy and return ready/not_ready/unavailable/unsupported plus source revision/time/evidence. Hold composes getHoldReleaseReadiness.v1; source query cannot ask whether its own Hold is already released.
+
+The platform action matrix records this owner plus its specific coordinated action slices. Actual DTO/failure/replay/freshness fixtures and all applicable external gates remain prerequisites before activation; no contract is FROZEN_FOR_IMPLEMENTATION.

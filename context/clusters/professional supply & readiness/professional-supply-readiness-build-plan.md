@@ -2459,3 +2459,14 @@ Follow Module owner contracts and the complete bridge inventory before cross-Clu
 ## WA-R084 — Order/Payment source event symmetry
 
 Order outcome facts include Payment as a registered reconciliation consumer. Payment queries bound historical purchase and current settlement facts, preserving R037 economic dedupe and existing dispatch authority. This is an asynchronous source-fact edge, not an Order/Payment commit dependency or permission to send money. Bilateral runtime fixtures remain unqualified.
+
+
+## WA-R085–087 — Platform convergence
+
+Current platform reconciliation covers `healthcare_regulated_services`, `marketplace_supply`, `payment_payout_tax`, `professional_eligibility`, `trust_verification_screening`. Module owners retain all lifecycles and source facts. R085 separates terminating fact inputs from composed permissions, readiness, credential issuance and Hold release; R086 locates one shared execution capability and bootstrap dependencies; R087 routes Organization commercial schema responsibility to Track without enabling monetized ATS.
+
+Coordinate required ports and semantic fixtures before actual adapters; do not require complete upstream Clusters from a contract edge. Source commits precede outbox delivery and downstream projection/Notification/provider setup. Recovery reuses stable effect identity and cannot infer completion from acknowledgment, telemetry or a read model. The platform dependency graph records typed edges and critical cycle dispositions; action-specific external gates remain scoped.
+
+Root architecture synthesis is conditional on the recorded Gate 5 exit and Gate 6 posture confirmation. A root build plan, runtime choice, database migration, interface freeze and parallel implementation lanes remain later prerequisites. No such implementation approval is made by this coordination appendix.
+
+**WA-R003/085 screening coordination.** Paid screening is a separate Order source under WA-R003: createChargeableOrder uses the authoritative Trust package quote and actual purchaser/subject relationship, not Professional seller readiness and not completion of the check being purchased. Trust initiates the paid check only after the source-bound Order qualification. evaluateVerificationReadiness reads existing requirement/evidence; it does not synchronously create a purchase or start a new check. Ordinary marketplace seller gates remain on their actual source/action, and acquired Order entitlement is evaluated separately from new-purchase seller eligibility. This terminates the initial paid-screening dependency without a fake seller or a free screening bypass.

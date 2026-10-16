@@ -2036,3 +2036,22 @@ This owner adopts the scoped contracts in `context/reconciliation/bridge-contrac
 | BF-262 | consumer/composer | Registered reward effect request/receipt under WA-R062; no enabled profile_boost handler. Commercial benefit belongs Track, financial effect Payment, feature effect actual owner. No approved profile_boost benefit is inferred from RewardType; unsupported type stays inactive and no GR profile/Search writes. Receipt must prove effect before fulfillment; unknown holds reservation. |
 | BF-266 | consumer/composer | SH-044–058 durable commands/outbox/inbox/queue/locks/CAS/reservations; owner lifecycle and proof mechanisms. Shared infrastructure provides durable claims/leases/fences/retry/semantic fingerprint and owner-local transaction hooks. Owner chooses aggregate keys, transitions, deadlines, effect/compensation identities and access rules. No shared business lifecycle, distributed transaction or exactly-once transport; unknown result reconciles before reservation release. Runtime placement/implementation is Gate5/8 work, not a new Module. |
 | BF-267 | Producer/source | R069 reward-qualified facts and source-owned beneficiary mapping. Award subject follows source User/Profile beneficiary evidence, never event actor. Seller fulfillment, buyer purchase and Professional rating recipients stay distinct; missing/changed mapping rejects or reconciles without foreign joins. |
+
+
+## WA-R085–087 — Platform convergence
+
+This current owner review applies WA-R085 terminating facts and WA-R086 shared-runtime placement. It preserves the prior lifecycle rulings and R068/R069 registrations; historical proposed event names or resolved unknown-owner labels above do not authorize an additional stream or reopen a settled decision.
+
+**Authoritative lifecycle.** Profile creation/status and action-specific eligibility; contextual classification and public source projection.
+
+**Incoming source facts.** Track typed benefit; Trust requirements/evidence; Healthcare applicability; Payment dimension for actual action; Marketplace/Gig/Order leaf context.
+
+**Action checks.** Seller is Professional; no generic financial-ready flag for every action; current Hold only explicit target/action; profile identity query is not composed readiness.
+
+**Consumer and recovery obligations.** Default-Free asynchronous; current source token/vector for readiness event; Search invalidates/requeries; profile change cannot mutate past commercial rights.
+
+**Terminating contracts.** R085 source-fact branches validate narrowly registered service/purpose/target/field scope and current source tokens without re-entering the composed authorization/readiness/access decision. User-facing protected queries still enforce full Role and owner checks. Unregistered purposes deny. Sensitive disclosure still requires durable proof; no generic service bypass or source projection as permission.
+
+The platform action matrix records this owner plus its specific coordinated action slices. Actual DTO/failure/replay/freshness fixtures and all applicable external gates remain prerequisites before activation; no contract is FROZEN_FOR_IMPLEMENTATION.
+
+**WA-R003/085 source-specific screening sequence.** Paid screening is a separate Order source under WA-R003: createChargeableOrder uses the authoritative Trust package quote and actual purchaser/subject relationship, not Professional seller readiness and not completion of the check being purchased. Trust initiates the paid check only after the source-bound Order qualification. evaluateVerificationReadiness reads existing requirement/evidence; it does not synchronously create a purchase or start a new check. Ordinary marketplace seller gates remain on their actual source/action, and acquired Order entitlement is evaluated separately from new-purchase seller eligibility. This terminates the initial paid-screening dependency without a fake seller or a free screening bypass.

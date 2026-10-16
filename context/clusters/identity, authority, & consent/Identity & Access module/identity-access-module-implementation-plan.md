@@ -3018,3 +3018,12 @@ DTO/server-RLS parity, executable fixtures, outbox/inbox recovery and provider/s
 ## WA-R081–083 — Bridge qualification sequence
 
 Implement only the owner architecture's reviewed bridge obligations (BF-020, BF-025, BF-026, BF-027, BF-030, BF-033, BF-034, BF-048, BF-063, BF-065, BF-066, BF-094, BF-099, BF-102, BF-131, BF-160, BF-162, BF-163, BF-164, BF-203, BF-204, BF-205, BF-210, BF-211, BF-213, BF-215, BF-230, BF-231, BF-232, BF-234, BF-246, BF-248, BF-249, BF-256, BF-257, BF-266). Load `context/reconciliation/bridge-contract-bindings.md` and the final inventory for current versions and disabled facets. First bind closed schemas and current source/actor/purpose fixtures; then qualify shared persistence/outbox/idempotency/receipt mechanisms; then connect producer and consumer. Required denial, stale/replay/conflicting-key, late-result and sensitive-field negative fixtures precede interface freeze. Provider/legal/database evidence gates only the affected activation. No full-Cluster dependency or parallel lane is implied, and no optional path is enabled by a fake or a passing structural checker. Preserve historical snapshots and P01–P19; do not implement schema/provider/product slices during readiness.
+
+
+## WA-R085–087 — Platform qualification dependencies
+
+Follow this owner's platform-convergence architecture and the platform lifecycle/action matrix. Current lifecycle scope: Eligibility before User provisioning; credential revoke/compromise terminal; step-up pending to verified/failed/expired; recovery one nonterminal request; role assignment history plus security generation.
+
+Qualify source-fact leaves and exact required owner ports against fixtures before composed decisions, then local persistence/receipts and actual adapters. A contract dependency is not a requirement that the whole upstream Module/Cluster be mature. Production activation still requires every actual port and action-specific external requirement. Do not wait for downstream Search/Notification/telemetry to commit source truth or to bootstrap shared primitives.
+
+Negative qualification must cover the relevant cycles in platform-dependency-graph.json, stale/revoked source facts, changed fingerprints, unknown external outcomes, projection-as-authority, recursive fact/access calls and actual mandatory proof failures. No schema migration, provider activation, DTO freeze, root build plan or parallel lane approval follows from static review. Preserve Privacy per-owner field/action/serializer coverage as a separate gate.

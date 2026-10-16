@@ -31,3 +31,9 @@ Prisma CLI validation, clean disposable database replay, full structural diff an
 ## COM-13 source review — 2026-10-15
 
 WA-R076 adjudicates all eleven source records: ten physical representation details are deferred with explicit owner invariants; CL04-U048 remains an external migration-provenance requirement. This closes the COM-13 architecture family, not its implementation or database activation. Posture D is unchanged. The historical 177-model/53-table coverage evidence still does not prove a live mismatch. No schema, migration SQL, environment or database data was changed in this review.
+
+## Gate 6 posture confirmation — 2026-10-16
+
+Repository-only checks reconfirm 177 models / 207 enums, one SQL migration creating 53 tables / 31 enums, and 124 mapped models without a checked-in CREATE TABLE. Schema and migration bytes are unchanged from `731491b393df205478c012bd2d5998ca08181ed2`. Evidence: database-posture-confirmation-2026-10-16.json.
+
+**Gate 6 posture confirmation is complete; posture D remains externally gated.** No live environment, migration ledger, structural comparison, disposable replay, Prisma CLI validation, migration/seed/reset or credentials check was performed. This is not database readiness for implementation or deployment. Required environment identity, preservation obligations, ledger and schema-only comparison remain outstanding. Gate 5 permits root architectural synthesis despite this scoped limitation; root may not choose A/B/C, migration baseline or destructive policy.

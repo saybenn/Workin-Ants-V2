@@ -8,18 +8,21 @@ P01–P19 approved and binding. Canonical dispositions live in handoff-adjudicat
 - raw_partial: 12
 - family_candidates: 92
 - normalized_families: 76
-- unresolved_architecture_families: 1
+- unresolved_architecture_families: 0
+- scheduled_readiness_families: 1
 - external_requirement_families: 11
 - unresolved_families: 12
 - closed_existing_ruling: 22
 - closed_deduplication: 0
-- new_rulings: 45
+- new_rulings: 48
 - ai_resolved_families: 50
 - ai_resolved_with_product_judgment_families: 1
 - duplicate_facets_collapsed: 16
 - product_questions: 0
 
 Full ledger: 649 adjudicated, 12 partial, 0 pending (661 total). New-ruling count is since the normalization baseline (WA-R040 onward). Original 323-record coverage is preserved. Deduplication means verified alias closure, not just merging concern groups.
+
+Scheduled readiness families retain partial source records for uncompleted plan/harness/runtime obligations; architectural route resolution is not implementation closure.
 
 ## Canonical family facets
 
@@ -120,7 +123,7 @@ Full ledger: 649 adjudicated, 12 partial, 0 pending (661 total). New-ruling coun
 
 ## Remaining work
 
-- **FH-04:** Root architecture/build plan and harness still missing; do not close this scheduled synthesis dependency.
-- **RAILS-12:** Root runtime/harness/deployment qualification remains outside CL07/08.
+- **FH-04:** CF-ROOT architecture route is resolved by WA-R086 and context/architecture.md. Root build plan, executable harness, runtime/provider and database qualifications remain incomplete; no parallel implementation permission.
+- **RAILS-12:** CF-ROOT architecture route is resolved by WA-R086 and context/architecture.md. Root build plan, executable harness, runtime/provider and database qualifications remain incomplete; no parallel implementation permission.
 
 Bridge evidence is separately inventoried in bridge-catalog.json/md; extraction does not imply bilateral reconciliation or freeze. No product implementation, external approval, provider qualification or deployment is certified here.

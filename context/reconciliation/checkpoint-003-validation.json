@@ -1,0 +1,122 @@
+{
+  "date_utc": "2026-10-16T11:55:53.404644+00:00",
+  "baseline_commit": "731491b393df205478c012bd2d5998ca08181ed2",
+  "commands": [
+    {
+      "command": [
+        "python",
+        "scripts/check-context.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"clusters\": 10,\n  \"modules\": 34,\n  \"cluster_documents\": 20,\n  \"module_documents\": 68,\n  \"handoffs\": 10,\n  \"shared_operations\": 132,\n  \"shared_statuses\": {\n    \"Confirmed\": 109,\n    \"Proposed ruling\": 23\n  },\n  \"prisma_models\": 177,\n  \"prisma_enums\": 207,\n  \"sql_migrations\": 1,\n  \"created_tables\": 53,\n  \"created_enums\": 31\n}\nWARNINGS: 124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay\nStructural checks PASSED; semantic readiness is a separate gate.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "scripts/check-handoff-adjudication.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"errors\": [],\n  \"source_decisions\": 661,\n  \"review_statuses\": {\n    \"ADJUDICATED\": 649,\n    \"PARTIAL\": 12\n  },\n  \"disposition_classes\": {\n    \"AI_RESOLVED_WITH_TRADEOFF\": 581,\n    \"EXTERNAL_REQUIREMENT\": 81,\n    \"AI_RESOLVED\": 86,\n    \"DEFERRED_IMPLEMENTATION_DETAIL\": 44,\n    \"AI_RESOLVED_WITH_PRODUCT_JUDGMENT\": 1\n  },\n  \"scope\": \"Coverage and reference integrity only; ADJUDICATED includes open product/external gates, not implementation readiness.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "scripts/check-handoff-families.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"errors\": [],\n  \"covered_records\": 323,\n  \"families\": 92,\n  \"scope\": \"Coverage only; proposed family decisions do not authorize implementation.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "scripts/check-bridge-catalog.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"errors\": [],\n  \"records\": 563,\n  \"scope\": \"Source integrity only; not bilateral reconciliation.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "scripts/check-authority-events.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"errors\": [],\n  \"modules\": 34,\n  \"events\": 47,\n  \"preserved_coordinated_appendices\": 26,\n  \"scope\": \"Static reviewed registrations and authority propagation; no runtime, RLS, provider or interface-freeze claim.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "scripts/check-bridge-convergence.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"errors\": [],\n  \"metrics\": {\n    \"historical_records\": 563,\n    \"unique_source_records\": 563,\n    \"families\": 268,\n    \"domain_families\": 190,\n    \"rail_families\": 78,\n    \"domain_records\": 306,\n    \"rail_records\": 257,\n    \"inherited_profiles\": 17,\n    \"missing_source_records\": 0,\n    \"duplicate_source_records\": 0,\n    \"unreviewed_families\": 0,\n    \"frozen_contracts\": 0\n  },\n  \"scope\": \"Static source preservation, reviewed bindings and evidence drift only; no semantic/runtime certification.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "scripts/check-platform-convergence.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"errors\": [],\n  \"metrics\": {\n    \"modules\": 34,\n    \"clusters\": 10,\n    \"shared_operations\": 132,\n    \"historical_records\": 563,\n    \"families\": 268,\n    \"action_rows\": 80,\n    \"explicit_action_slices\": 46,\n    \"typed_dependency_edges\": 828,\n    \"registered_events\": 47,\n    \"critical_cycle_reviews\": 18,\n    \"model_owners\": 177,\n    \"compatibility_mirror_cases\": 12,\n    \"open_ai_resolvable_actual_conflicts\": 0,\n    \"frozen_contracts\": 0,\n    \"owner_surface_operations\": 684\n  },\n  \"module_level_sccs\": [\n    [\n      \"admin_review_compliance_hold\",\n      \"ai_taxonomy\",\n      \"audit_event_ledger\",\n      \"booking_calendar\",\n      \"candidate_application_resume_privacy\",\n      \"consent_disclosure\",\n      \"content_moderation_legal_notice\",\n      \"customer_buyer_profile\",\n      \"digital_goods_access\",\n      \"gamification_rewards\",\n      \"gig_demand\",\n      \"healthcare_regulated_services\",\n      \"identity_access\",\n      \"job_compliance\",\n      \"job_interview\",\n      \"location_safety\",\n      \"marketplace_supply\",\n      \"media_file_access\",\n      \"messaging\",\n      \"notification\",\n      \"observability_ops\",\n      \"organization_hiring\",\n      \"payment_payout_tax\",\n      \"privacy_data_erasure\",\n      \"professional_eligibility\",\n      \"review_dispute\",\n      \"role_authority\",\n      \"search_public_visibility\",\n      \"sweepstakes_prize\",\n      \"taxonomy_classification\",\n      \"track_subscription_entitlement\",\n      \"transaction_order\",\n      \"trust_verification_screening\",\n      \"video_session\"\n    ]\n  ],\n  \"synchronous_action_cycles\": [],\n  \"startup_cycles\": [],\n  \"scope\": \"Static coverage, source integrity and architectural dependency assertions only; not executable DTO/RLS/concurrency/provider/Privacy/runtime certification.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "scripts/check-root-synthesis.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"errors\": [],\n  \"root\": \"context/architecture.md\",\n  \"sections\": 9,\n  \"status\": \"GATE_7_SYNTHESIZED_NOT_IMPLEMENTATION_APPROVAL\",\n  \"scope\": \"Synthesis traceability and gate boundaries only; implementation and external qualification remain open.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "platform_negative_cases": 20,
+  "platform_negative_status": "PASS",
+  "existing_bridge_negative_cases": 9,
+  "protected_baseline_paths_unchanged": [
+    "prisma/schema.prisma",
+    "prisma/migrations",
+    "context/shared/shared-operations.md",
+    "context/reconciliation/bridge-catalog.json",
+    "context/reconciliation/bridge-family-index.json",
+    "context/reconciliation/clusters"
+  ],
+  "prior_rulings_R001_R084_unchanged": true,
+  "historical_handoff_source_fields_and_statuses_unchanged": true,
+  "scope": "Repository structural and architectural evidence only. No runtime, DTO, RLS, live database, migration/replay, provider or Privacy field executor tests executed.",
+  "negative_commands": [
+    {
+      "command": [
+        "python",
+        "scripts/check-platform-convergence-negative.py"
+      ],
+      "exit_code": 0,
+      "rejected_cases": 20,
+      "evidence": "platform-convergence-negative-validation.json"
+    },
+    {
+      "command": [
+        "python",
+        "scripts/check-bridge-convergence-negative.py"
+      ],
+      "exit_code": 0,
+      "rejected_cases": 9,
+      "evidence": "bridge-convergence-validation-checkpoint-003.json"
+    }
+  ]
+}

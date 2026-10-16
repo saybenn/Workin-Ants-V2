@@ -2132,3 +2132,22 @@ This owner adopts the scoped contracts in `context/reconciliation/bridge-contrac
 ## WA-R084 — Order/Payment outcome symmetry
 
 Consume Order outcome facts with durable economic keys; requery bound immutable purchase and current settlement restrictions, never reprice, replay money effects or mutate Order. The full R084 protocol is binding; executable late/duplicate/correction/unknown-result fixtures remain required.
+
+
+## WA-R085–087 — Platform convergence
+
+This current owner review applies WA-R085 terminating facts and WA-R086 shared-runtime placement. It preserves the prior lifecycle rulings and R068/R069 registrations; historical proposed event names or resolved unknown-owner labels above do not authorize an additional stream or reopen a settled decision.
+
+**Authoritative lifecycle.** Owner KYC/account/tax setup; immutable economic effects; payout request/transfer; tax evidence and reporting; normalized rail results.
+
+**Incoming source facts.** Order immutable purchase/tax-location/settlement facts; relevant dispute disposition; actual provider/account receipts; every applicable Hold.
+
+**Action checks.** No current Track repricing; immutable effect identity beyond event dedupe; conserved per-currency balances/reservations; payout approval separate from dispatch.
+
+**Consumer and recovery obligations.** Unknown financial effects retain reservation until reconciliation; callbacks cannot write Order; reevaluateSettlement is non-dispatch; tax reports use actual recognized value/correction lineage.
+
+**Terminating contracts.** R085 source-fact branches validate narrowly registered service/purpose/target/field scope and current source tokens without re-entering the composed authorization/readiness/access decision. User-facing protected queries still enforce full Role and owner checks. Unregistered purposes deny. Sensitive disclosure still requires durable proof; no generic service bypass or source projection as permission.
+
+**getHoldSourceCauseFacts.v1 — source implementation.** R075 cause-owner implementations serve trusted Hold queries for exact cause/target/action/policy and return ready/not_ready/unavailable/unsupported plus source revision/time/evidence. Hold composes getHoldReleaseReadiness.v1; source query cannot ask whether its own Hold is already released.
+
+The platform action matrix records this owner plus its specific coordinated action slices. Actual DTO/failure/replay/freshness fixtures and all applicable external gates remain prerequisites before activation; no contract is FROZEN_FOR_IMPLEMENTATION.

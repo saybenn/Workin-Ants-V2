@@ -1639,3 +1639,12 @@ Coordinate the Module-owned contracts in `context/reconciliation/bridge-contract
 Reviewed directional families touching this Cluster: BF-008, BF-010, BF-026, BF-027, BF-030, BF-033, BF-042, BF-043, BF-048, BF-063, BF-065, BF-066, BF-071, BF-082, BF-093, BF-102, BF-116, BF-117, BF-120, BF-129, BF-131, BF-148, BF-153, BF-155, BF-156, BF-157, BF-158, BF-159, BF-160, BF-162, BF-163, BF-164, BF-166, BF-168, BF-169, BF-171, BF-176, BF-177, BF-186, BF-188, BF-198, BF-203, BF-204, BF-205, BF-210, BF-211, BF-213, BF-214, BF-215, BF-218, BF-221, BF-222, BF-223, BF-224, BF-225, BF-229, BF-230, BF-231, BF-232, BF-233, BF-234, BF-235, BF-236, BF-237, BF-242, BF-249, BF-256, BF-257, BF-266, BF-268.
 
 Integrate current R068/069/075; Media invalidation uses R082 only for registered Customer/Candidate subscribers. Privacy field/action fixtures remain required despite source enumeration reconciliation. Cluster sequencing must use contract/foundation dependencies, not whole neighboring-Cluster completion.
+
+
+## WA-R085–087 — Platform convergence
+
+Current platform reconciliation covers `location_safety`, `privacy_data_erasure`. Module owners retain all lifecycles and source facts. R085 separates terminating fact inputs from composed permissions, readiness, credential issuance and Hold release; R086 locates one shared execution capability and bootstrap dependencies; R087 routes Organization commercial schema responsibility to Track without enabling monetized ATS.
+
+Coordinate required ports and semantic fixtures before actual adapters; do not require complete upstream Clusters from a contract edge. Source commits precede outbox delivery and downstream projection/Notification/provider setup. Recovery reuses stable effect identity and cannot infer completion from acknowledgment, telemetry or a read model. The platform dependency graph records typed edges and critical cycle dispositions; action-specific external gates remain scoped.
+
+Root architecture synthesis is conditional on the recorded Gate 5 exit and Gate 6 posture confirmation. A root build plan, runtime choice, database migration, interface freeze and parallel implementation lanes remain later prerequisites. No such implementation approval is made by this coordination appendix.

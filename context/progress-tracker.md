@@ -1,3 +1,15 @@
+## Current continuation — Checkpoint 003, 2026-10-16
+
+- **Gate 5 PASSED for architectural synthesis.** Fresh 34-Module / 10-Cluster review: 80 action rows (34 owner scopes + 46 coordinated slices), 828 typed edges, 18 critical cycles resolved architecturally, zero remaining synchronous action/startup cycles. All 563 historical records / 268 families remain uniquely covered. See reconciliation/platform-convergence-review.md and structured evidence.
+- **R085–R087 applied.** Terminating source-fact/cause queries, six explicit recovery/input ports, source-specific paid-screening sequence, shared-runtime stewardship/bootstrap and existing Track OrganizationFeatureAccess ownership metadata. Prior R084 Order→Payment correction retained. All 34 owner architecture/plan pairs and ten Cluster pairs updated; permanent SH IDs/statuses and P01–P19 preserved.
+- **Gate 6 posture confirmation COMPLETE, D externally gated.** Repository counts unchanged: 177 models / 207 enums; one migration creates 53 tables / 31 enums; 124 static creation gaps. No live database/migration/seed/reset/replay evidence claimed.
+- **Gate 7 root architecture SYNTHESIZED** at context/architecture.md from the converged lower-level invariants. Root build plan and implementation lanes are not created/approved. Next: Gate 8 plan synthesis and Gate 9 executable harness qualification under the master sequence, with posture D and qualified-contract requirements intact.
+- Handoff coverage remains **649 ADJUDICATED / 12 PARTIAL / 0 PENDING**. Zero unresolved canonical architecture concerns; CF-ROOT remains one scheduled readiness family for plan/harness/runtime obligations. Eleven external families remain. Privacy protocol agreement is separate from unproven per-owner field/action executor coverage.
+- Validation: established structural/source/event checks pass; new platform dependency/semantic assertions pass; 20 new platform mutations and nine existing bridge/event mutations rejected. No DTO/concurrency/RLS/provider/Privacy executor/runtime qualification is inferred. All 132 Shared Operation statuses remain 119 UNSTABLE / 13 EXTERNALLY_GATED; zero frozen.
+- Publication remains separate: last verified remote HEAD beba4e211bf4130a67fc58065daeb50b81de8b6e. Newer commits remain local until independently verified remotely. OPS-GIT-AUTH-001 is open/nonblocking; preserve earlier bundles and create a newly independently verified full-history bundle at this checkpoint.
+
+Earlier dated checkpoints below are historical and do not supersede this continuation.
+
 ## Brain Directive 002 — checkpoint 002, 2026-10-16
 
 - Priority 0 remains COMPLETE. Fresh fetch independently verifies Checkpoint 001 at full remote/local baseline `beba4e211bf4130a67fc58065daeb50b81de8b6e`, tree `a3b7443f4d7139e5107e40c24bfd171be2f51e78`, ahead/behind 0/0 at entry; it advanced since the user-reported d672 baseline. New continuation is local until separately remotely verified.

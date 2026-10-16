@@ -2116,3 +2116,14 @@ DTO/server-RLS parity, executable fixtures, outbox/inbox recovery and provider/s
 ## WA-R081–083 — Bridge qualification sequence
 
 Implement only the owner architecture's reviewed bridge obligations (BF-010, BF-017, BF-025, BF-026, BF-027, BF-033, BF-039, BF-040, BF-041, BF-042, BF-043, BF-057, BF-063, BF-065, BF-066, BF-071, BF-082, BF-083, BF-084, BF-085, BF-093, BF-094, BF-099, BF-101, BF-102, BF-110, BF-115, BF-116, BF-131, BF-152, BF-153, BF-154, BF-159, BF-160, BF-162, BF-163, BF-164, BF-175, BF-176, BF-196, BF-203, BF-204, BF-205, BF-210, BF-211, BF-224, BF-230, BF-231, BF-232, BF-236, BF-246, BF-248, BF-249, BF-256, BF-257, BF-266). Load `context/reconciliation/bridge-contract-bindings.md` and the final inventory for current versions and disabled facets. First bind closed schemas and current source/actor/purpose fixtures; then qualify shared persistence/outbox/idempotency/receipt mechanisms; then connect producer and consumer. Required denial, stale/replay/conflicting-key, late-result and sensitive-field negative fixtures precede interface freeze. Provider/legal/database evidence gates only the affected activation. No full-Cluster dependency or parallel lane is implied, and no optional path is enabled by a fake or a passing structural checker. Preserve historical snapshots and P01–P19; do not implement schema/provider/product slices during readiness.
+
+
+## WA-R085–087 — Platform qualification dependencies
+
+Follow this owner's platform-convergence architecture and the platform lifecycle/action matrix. Current lifecycle scope: BAA immutable agreement/evidence generations; regulated boundary creation/revision; explicit compliance restriction/restoration.
+
+Qualify source-fact leaves and exact required owner ports against fixtures before composed decisions, then local persistence/receipts and actual adapters. A contract dependency is not a requirement that the whole upstream Module/Cluster be mature. Production activation still requires every actual port and action-specific external requirement. Do not wait for downstream Search/Notification/telemetry to commit source truth or to bootstrap shared primitives.
+
+Bilateral R085 ports for this owner: `getHoldSourceCauseFacts.v1`. Implement the source/consumer role documented in architecture, including fenced noncommit, complete inventory and cause-only readiness where applicable.
+
+Negative qualification must cover the relevant cycles in platform-dependency-graph.json, stale/revoked source facts, changed fingerprints, unknown external outcomes, projection-as-authority, recursive fact/access calls and actual mandatory proof failures. No schema migration, provider activation, DTO freeze, root build plan or parallel lane approval follows from static review. Preserve Privacy per-owner field/action/serializer coverage as a separate gate.

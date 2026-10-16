@@ -1724,3 +1724,12 @@ Coordinate the Module-owned contracts in `context/reconciliation/bridge-contract
 Reviewed directional families touching this Cluster: BF-009, BF-011, BF-025, BF-026, BF-027, BF-033, BF-063, BF-065, BF-066, BF-094, BF-097, BF-102, BF-108, BF-129, BF-131, BF-133, BF-134, BF-135, BF-138, BF-160, BF-162, BF-163, BF-164, BF-165, BF-171, BF-188, BF-198, BF-203, BF-204, BF-205, BF-210, BF-211, BF-230, BF-231, BF-232, BF-246, BF-248, BF-249, BF-256, BF-257, BF-260, BF-262, BF-263, BF-264, BF-266, BF-267, BF-268.
 
 Integrate current R068/069/075; Media invalidation uses R082 only for registered Customer/Candidate subscribers. Privacy field/action fixtures remain required despite source enumeration reconciliation. Cluster sequencing must use contract/foundation dependencies, not whole neighboring-Cluster completion.
+
+
+## WA-R085–087 — Platform convergence
+
+Current platform reconciliation covers `gamification_rewards`, `sweepstakes_prize`. Module owners retain all lifecycles and source facts. R085 separates terminating fact inputs from composed permissions, readiness, credential issuance and Hold release; R086 locates one shared execution capability and bootstrap dependencies; R087 routes Organization commercial schema responsibility to Track without enabling monetized ATS.
+
+Coordinate required ports and semantic fixtures before actual adapters; do not require complete upstream Clusters from a contract edge. Source commits precede outbox delivery and downstream projection/Notification/provider setup. Recovery reuses stable effect identity and cannot infer completion from acknowledgment, telemetry or a read model. The platform dependency graph records typed edges and critical cycle dispositions; action-specific external gates remain scoped.
+
+Root architecture synthesis is conditional on the recorded Gate 5 exit and Gate 6 posture confirmation. A root build plan, runtime choice, database migration, interface freeze and parallel implementation lanes remain later prerequisites. No such implementation approval is made by this coordination appendix.
