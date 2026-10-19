@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:workin-ants:SH-114:v1",
+  "$defs": {
+    "request": {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "SH-114.v1"
+        },
+        "requestId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "correlationId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "input": {
+          "type": "object",
+          "properties": {
+            "variant": {
+              "enum": [
+                "customer_buyer_profile.provisionOneToOneProfile.v1",
+                "professional_eligibility.provisionOneToOneProfile.v1",
+                "candidate_application_resume_privacy.provisionOneToOneProfile.v1"
+              ]
+            },
+            "userId": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+            },
+            "profileKind": {
+              "type": "string",
+              "enum": [
+                "customer",
+                "professional",
+                "candidate"
+              ]
+            },
+            "sourceEligibility": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/EvidenceRef"
+            },
+            "semanticKey": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+            }
+          },
+          "required": [
+            "variant",
+            "userId",
+            "profileKind",
+            "sourceEligibility",
+            "semanticKey"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "contract",
+        "requestId",
+        "correlationId",
+        "input"
+      ],
+      "additionalProperties": false
+    },
+    "success": {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "SH-114.v1"
+        },
+        "requestId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "status": {
+          "const": "ok"
+        },
+        "value": {
+          "type": "object",
+          "properties": {
+            "profileId": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+            },
+            "sourceToken": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Token"
+            },
+            "receipt": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Receipt"
+            }
+          },
+          "required": [
+            "profileId",
+            "sourceToken",
+            "receipt"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "contract",
+        "requestId",
+        "status",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "rejected": {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "SH-114.v1"
+        },
+        "requestId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "status": {
+          "enum": [
+            "denied",
+            "not_found",
+            "stale",
+            "conflict",
+            "unsupported",
+            "unavailable",
+            "invalid"
+          ]
+        },
+        "reasonCode": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+        },
+        "retryable": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Bool"
+        },
+        "safeMessageKey": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+        }
+      },
+      "required": [
+        "contract",
+        "requestId",
+        "status",
+        "reasonCode",
+        "retryable",
+        "safeMessageKey"
+      ],
+      "additionalProperties": false
+    },
+    "response": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "SH-114.v1"
+            },
+            "requestId": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+            },
+            "status": {
+              "const": "ok"
+            },
+            "value": {
+              "type": "object",
+              "properties": {
+                "profileId": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                },
+                "sourceToken": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Token"
+                },
+                "receipt": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Receipt"
+                }
+              },
+              "required": [
+                "profileId",
+                "sourceToken",
+                "receipt"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "contract",
+            "requestId",
+            "status",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "SH-114.v1"
+            },
+            "requestId": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+            },
+            "status": {
+              "enum": [
+                "denied",
+                "not_found",
+                "stale",
+                "conflict",
+                "unsupported",
+                "unavailable",
+                "invalid"
+              ]
+            },
+            "reasonCode": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+            },
+            "retryable": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Bool"
+            },
+            "safeMessageKey": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+            }
+          },
+          "required": [
+            "contract",
+            "requestId",
+            "status",
+            "reasonCode",
+            "retryable",
+            "safeMessageKey"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/request"
+    },
+    {
+      "$ref": "#/$defs/response"
+    }
+  ]
+}

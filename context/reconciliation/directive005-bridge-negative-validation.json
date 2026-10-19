@@ -1,0 +1,90 @@
+{
+  "date": "2026-10-16",
+  "baseline": {
+    "errors": [],
+    "metrics": {
+      "historical_records": 563,
+      "unique_source_records": 563,
+      "families": 268,
+      "domain_families": 190,
+      "rail_families": 78,
+      "domain_records": 306,
+      "rail_records": 257,
+      "inherited_profiles": 17,
+      "missing_source_records": 0,
+      "duplicate_source_records": 0,
+      "unreviewed_families": 0,
+      "frozen_contracts": 0
+    },
+    "scope": "Static source preservation, reviewed bindings and evidence drift only; no semantic/runtime certification."
+  },
+  "negative_regressions": [
+    {
+      "case": "missing source coverage",
+      "result": "REJECTED",
+      "errors": [
+        "Missing or duplicate primary source-record coverage",
+        "Claimed coverage metrics differ from evidence"
+      ]
+    },
+    {
+      "case": "duplicate source coverage",
+      "result": "REJECTED",
+      "errors": [
+        "Missing or duplicate primary source-record coverage",
+        "Claimed coverage metrics differ from evidence"
+      ]
+    },
+    {
+      "case": "lost directional facet",
+      "result": "REJECTED",
+      "errors": [
+        "BF-001: lost/changed directional source facet"
+      ]
+    },
+    {
+      "case": "wrong family mapping",
+      "result": "REJECTED",
+      "errors": [
+        "CL-01-B001: wrong family mapping"
+      ]
+    },
+    {
+      "case": "unsupported frozen claim",
+      "result": "REJECTED",
+      "errors": [
+        "BF-001: unsupported contract freeze/promotion",
+        "Claimed coverage metrics differ from evidence"
+      ]
+    },
+    {
+      "case": "missing rail matrix",
+      "result": "REJECTED",
+      "errors": [
+        "CL-08: incomplete rail matrix"
+      ]
+    },
+    {
+      "case": "owner contract evidence drift",
+      "result": "REJECTED",
+      "errors": [
+        "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-architecture.md: reviewed owner/consumer evidence drift"
+      ]
+    },
+    {
+      "case": "missing candidate_application_resume_privacy subscriber for media.availability_changed.v1",
+      "result": "REJECTED",
+      "errors": [
+        "candidate_application_resume_privacy: consumer registrations differ from reviewed routes"
+      ]
+    },
+    {
+      "case": "missing payment_payout_tax subscriber for order.outcome_changed.v1",
+      "result": "REJECTED",
+      "errors": [
+        "payment_payout_tax: consumer registrations differ from reviewed routes"
+      ]
+    }
+  ],
+  "scope": "Static evidence/coverage/registration mutation tests only; these do not execute producer/consumer runtime or prove semantic correctness."
+}

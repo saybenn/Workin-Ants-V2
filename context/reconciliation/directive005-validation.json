@@ -1,0 +1,519 @@
+{
+  "directive": "005",
+  "execution_date": "2026-10-19",
+  "status": "PASS",
+  "pre_final_context_regression": {
+    "result": "REJECTED_MISSING_ARTIFACT_LINK",
+    "detail": "Final report link to directive005-validation.json was validated before this record existed. Creating this actual record and rerunning resolves ordering; no validator weakened."
+  },
+  "commands": [
+    {
+      "command": "python scripts/check-shared-contracts.py",
+      "exit_code": 0,
+      "result": {
+        "errors": [],
+        "metrics": {
+          "contracts": 132,
+          "schemas": 133,
+          "consumer_bindings": 907,
+          "event_payloads": 47,
+          "positive_wire_cases": 924,
+          "negative_wire_cases": 792,
+          "source_variant_wire_cases": 758,
+          "bilateral_expectation_checks": 907,
+          "common_type_smoke_cases": 385,
+          "semantic_shape_cases": 16,
+          "cross_field_request_cases": 1,
+          "dispositions": {
+            "EVOLVABLE_COMPATIBLY": 119,
+            "EXTERNALLY_GATED": 13
+          }
+        },
+        "scope": "Executable schema/wire and declared consumer expectations. These are not tests of real owner implementations, database concurrency, RLS, providers or full Privacy field/action coverage."
+      }
+    },
+    {
+      "command": "python tests/contracts/reference_protocols.py",
+      "exit_code": 0,
+      "result": {
+        "status": "PASS",
+        "cases": [
+          {
+            "case": "same command replay once; changed fingerprint conflicts",
+            "contracts": [
+              "SH-044",
+              "SH-060",
+              "SH-107",
+              "SH-108"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "bounded sessions; unknown release denied; late commit fenced",
+            "contracts": [
+              "SH-056",
+              "SH-058",
+              "SH-006"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "all event orderings preserve newest tombstone",
+            "contracts": [
+              "SH-045",
+              "SH-046",
+              "SH-091",
+              "SH-092",
+              "SH-093",
+              "SH-094"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "economic identity independent of event duplicate identity",
+            "contracts": [
+              "SH-045",
+              "SH-060",
+              "SH-108",
+              "SH-117",
+              "SH-118"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "Privacy accepted/unsupported/unknown never completes",
+            "contracts": [
+              "SH-095",
+              "SH-096",
+              "SH-099",
+              "SH-100",
+              "SH-070"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "lawfully accounted retention distinct from failed/erased",
+            "contracts": [
+              "SH-097",
+              "SH-098",
+              "SH-099"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "empty Privacy inventory is not complete coverage",
+            "contracts": [
+              "SH-096",
+              "SH-099"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "one Hold release cannot waive another or dispatch money",
+            "contracts": [
+              "SH-011",
+              "SH-013",
+              "SH-019"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "unknown source does not release Hold",
+            "contracts": [
+              "SH-012",
+              "SH-013"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "current participant and generation before join credential",
+            "contracts": [
+              "SH-026",
+              "SH-068",
+              "SH-088",
+              "SH-127"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "server interval checked despite delayed expiry worker",
+            "contracts": [
+              "SH-055",
+              "SH-068",
+              "SH-088"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "month boundary requires reauthorized reservation",
+            "contracts": [
+              "SH-005",
+              "SH-006",
+              "SH-057"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "revoked audience excluded at actual emission",
+            "contracts": [
+              "SH-043",
+              "SH-071",
+              "SH-113"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "liveness separate from dependent business readiness",
+            "contracts": [
+              "SH-039",
+              "SH-047",
+              "SH-038"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "diagnostic startup backedge detected",
+            "contracts": [
+              "SH-038",
+              "SH-039",
+              "SH-047"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "workflow acyclic and required dependencies registered",
+            "contracts": [
+              "SH-049",
+              "SH-050"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "stale reviewer fence cannot acknowledge new holder",
+            "contracts": [
+              "SH-051",
+              "SH-052",
+              "SH-053",
+              "SH-054"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "exact SHA-256 known vectors, no semantic-similarity claim",
+            "contracts": [
+              "SH-072",
+              "SH-086",
+              "SH-112"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "purpose-bound identifier HMAC differs across purposes",
+            "contracts": [
+              "SH-072",
+              "SH-076"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "Unicode scanner offsets are code points not bytes/UTF16",
+            "contracts": [
+              "SH-077",
+              "SH-081"
+            ],
+            "result": "PASS"
+          },
+          {
+            "case": "financial conservation is per currency, not cross-currency cancellation",
+            "contracts": [
+              "SH-019",
+              "SH-108",
+              "SH-117",
+              "SH-118"
+            ],
+            "result": "PASS"
+          }
+        ],
+        "count": 21,
+        "scope": "Executable architectural reference models and known vectors only. In-memory atomic methods do NOT prove Postgres locking, crash durability, server/RLS, real adapters, CSPRNG/KMS or provider behavior."
+      }
+    },
+    {
+      "command": "python scripts/check-foundation-negative.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "cases": 26,
+      "evidence": "foundation-negative-validation.json",
+      "execution_date": "2026-10-19",
+      "note": "The bridge runner carries its historical original date field; this is the current execution date."
+    },
+    {
+      "command": "python scripts/check-platform-convergence-negative.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "cases": 20,
+      "evidence": "directive005-platform-negative-validation.json",
+      "execution_date": "2026-10-19",
+      "note": "The bridge runner carries its historical original date field; this is the current execution date."
+    },
+    {
+      "command": "python scripts/check-bridge-convergence-negative.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "cases": 9,
+      "evidence": "directive005-bridge-negative-validation.json",
+      "execution_date": "2026-10-19",
+      "note": "The bridge runner carries its historical original date field; this is the current execution date."
+    },
+    {
+      "command": "python scripts/check-context.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "stdout": "{\n  \"clusters\": 10,\n  \"modules\": 34,\n  \"cluster_documents\": 20,\n  \"module_documents\": 68,\n  \"handoffs\": 10,\n  \"shared_operations\": 132,\n  \"shared_statuses\": {\n    \"Confirmed\": 109,\n    \"Proposed ruling\": 23\n  },\n  \"prisma_models\": 177,\n  \"prisma_enums\": 207,\n  \"sql_migrations\": 1,\n  \"created_tables\": 53,\n  \"created_enums\": 31\n}\nWARNINGS: 124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay\nStructural checks PASSED; semantic readiness is a separate gate.\n",
+      "integrated_validators": [
+        "check-handoff-adjudication.py",
+        "check-handoff-families.py",
+        "check-bridge-catalog.py",
+        "check-authority-events.py",
+        "check-bridge-convergence.py",
+        "check-platform-convergence.py",
+        "check-root-synthesis.py",
+        "check-foundation.py"
+      ]
+    },
+    {
+      "command": "python scripts/check-foundation.py",
+      "exit_code": 0,
+      "result": {
+        "errors": [],
+        "metrics": {
+          "contracts": 132,
+          "workflows": 13,
+          "cold_start_routes": 6,
+          "candidate_lanes": 8,
+          "authorized_parallel_lanes": 0,
+          "synchronous_contract_cycles": [],
+          "current_context_links_checked": 2838,
+          "feature_source_files_scanned": 0,
+          "specified_token_contrast_pairs": 12,
+          "dispositions": {
+            "EVOLVABLE_COMPATIBLY": 119,
+            "EXTERNALLY_GATED": 13
+          }
+        },
+        "token_contrast": [
+          {
+            "theme": "light",
+            "pair": [
+              "text",
+              "canvas"
+            ],
+            "ratio": 17.93
+          },
+          {
+            "theme": "light",
+            "pair": [
+              "mutedText",
+              "canvas"
+            ],
+            "ratio": 7.81
+          },
+          {
+            "theme": "light",
+            "pair": [
+              "onAction",
+              "action"
+            ],
+            "ratio": 6.7
+          },
+          {
+            "theme": "light",
+            "pair": [
+              "success",
+              "successSurface"
+            ],
+            "ratio": 6.81
+          },
+          {
+            "theme": "light",
+            "pair": [
+              "warning",
+              "warningSurface"
+            ],
+            "ratio": 6.84
+          },
+          {
+            "theme": "light",
+            "pair": [
+              "danger",
+              "dangerSurface"
+            ],
+            "ratio": 5.91
+          },
+          {
+            "theme": "dark",
+            "pair": [
+              "text",
+              "canvas"
+            ],
+            "ratio": 16.91
+          },
+          {
+            "theme": "dark",
+            "pair": [
+              "mutedText",
+              "canvas"
+            ],
+            "ratio": 7.85
+          },
+          {
+            "theme": "dark",
+            "pair": [
+              "onAction",
+              "action"
+            ],
+            "ratio": 10.98
+          },
+          {
+            "theme": "dark",
+            "pair": [
+              "success",
+              "successSurface"
+            ],
+            "ratio": 10.62
+          },
+          {
+            "theme": "dark",
+            "pair": [
+              "warning",
+              "warningSurface"
+            ],
+            "ratio": 10.39
+          },
+          {
+            "theme": "dark",
+            "pair": [
+              "danger",
+              "dangerSurface"
+            ],
+            "ratio": 8.51
+          }
+        ],
+        "scope": "Static ownership/workflow/context/schema and executable wire/reference assertions. No real producer/consumer, framework, database, RLS, provider, Privacy executor or full rendered UI proof. Empty feature-source inventory is reported explicitly, not runtime boundary certification."
+      }
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "python scripts/render-handoff-progress.py",
+      "exit_code": 0,
+      "result": {
+        "raw_pending": 0,
+        "raw_partial": 12,
+        "family_candidates": 92,
+        "normalized_families": 76,
+        "unresolved_architecture_families": 0,
+        "scheduled_readiness_families": 1,
+        "external_requirement_families": 11,
+        "unresolved_families": 12,
+        "closed_existing_ruling": 22,
+        "closed_deduplication": 0,
+        "new_rulings": 51,
+        "ai_resolved_families": 50,
+        "ai_resolved_with_product_judgment_families": 1,
+        "duplicate_facets_collapsed": 16,
+        "product_questions": 0
+      }
+    },
+    {
+      "command": "git diff --cached --check",
+      "exit_code": 0,
+      "result": "PASS",
+      "note": "Includes all new files, after CRLF mirror normalization."
+    }
+  ],
+  "unrun_or_blocked": [
+    {
+      "id": "TECH-LOCK-001",
+      "owner": "platform integration/toolchain steward",
+      "kind": "TECHNICAL_IMPLEMENTATION_REQUIREMENT",
+      "evidence": "npm ci offline EUSAGE: missing @emnapi/core/runtime lock entries; offline lock-only resolution ENOTCACHED for @tailwindcss/oxide-wasm32-wasi",
+      "smallest_action": "Obtain required package artifacts in an approved environment; establish exact compatible package-manager resolution, inspect lock diff and prove clean install. Do not upgrade packages by assumption."
+    },
+    {
+      "id": "TECH-ROUTER-001",
+      "owner": "platform integration/frontend steward",
+      "kind": "IMPLEMENTATION_QUALIFICATION",
+      "evidence": "App Router intent versus App Router-style files under pages/; WA-R090 resolves intended convention, code normalization unperformed",
+      "smallest_action": "Read installed pinned Next guide; preserve skeleton bytes/security in app/ normalization; lint/typecheck/build and safe dev/prod route smoke tests."
+    },
+    {
+      "id": "EXT-DB-D",
+      "owner": "environment owner and migration integrator",
+      "kind": "EXTERNAL_REQUIREMENT",
+      "evidence": "No actual target identity/data-preservation/migration-ledger/schema-only structural diff; static 177 models versus 53 table creations does not prove live state",
+      "smallest_action": "Provide environment identity, preservation obligations, migration ledger and schema-only comparison before selecting baseline/continuation and disposable replay."
+    },
+    {
+      "id": "TECH-RUNTIME-001",
+      "owner": "platform runtime steward and source owners",
+      "kind": "IMPLEMENTATION_QUALIFICATION",
+      "evidence": "No actual owner producer/consumer adapters or durable runner/Postgres/RLS/concurrent recovery qualification",
+      "smallest_action": "After proven DB posture, implement one shared runtime and bounded real ports; pass actual replay/conflict/CAS/lease/noncommit/crash/server-RLS integration tests."
+    },
+    {
+      "id": "TECH-PRIVACY-001",
+      "owner": "Privacy orchestrator plus each actual data/provider owner",
+      "kind": "FIELD_ACTION_AND_EXTERNAL_QUALIFICATION",
+      "evidence": "Protocol/wire schemas do not prove owner field/action/provider inventory, lawful retention, serializers, backup/restore or actual exported bytes",
+      "smallest_action": "Inventory real fields/actions/providers/serializers, obtain lawful disposition evidence, test generation receipts and complete actual-byte manifest/removal/restore behavior."
+    },
+    {
+      "id": "EXT-PROVIDERS-POLICY",
+      "owner": "respective provider/policy concern owners",
+      "kind": "EXTERNAL_REQUIREMENT",
+      "evidence": "13 named operation gates plus workflow legal/retention/BAA/official rules/jurisdiction/real account capabilities remain",
+      "smallest_action": "Record actual approved scope/version/account/capability and owner-specific positive/negative/unknown/revocation/deletion evidence before affected activation."
+    }
+  ],
+  "evidence_limits": "Structural checks, wire fixtures, declared retained consumer schemas and in-memory reference models are separate from actual production producer/consumer/DB/RLS/provider/runtime qualification.",
+  "runtime_qualification": "NOT_QUALIFIED",
+  "database_posture": "D",
+  "unrun_tests": [
+    "npm clean install/framework lint/typecheck/build and dev+production route smoke",
+    "Prisma CLI validation/migration disposable replay/live schema-only comparison",
+    "actual Postgres competing transaction/CAS/crash/outbox/lease/recovery",
+    "real server authorization/RLS/grants parity and sensitive disclosure receipts",
+    "actual producer/consumer owner adapter compatibility",
+    "actual provider callback/revocation/deletion/currentness",
+    "complete Privacy owner field/action/provider/serializer/backup/export bytes coverage",
+    "rendered UI keyboard/focus/screen-reader behavior"
+  ],
+  "toolchain_attempts": [
+    {
+      "command": "npm ci --offline --ignore-scripts --no-audit --no-fund",
+      "exit_code": 1,
+      "code": "EUSAGE",
+      "finding": "Missing @emnapi/core and @emnapi/runtime resolution entries under available npm",
+      "log_sha256": "c0a47d54d77eddc6eda1613f2719ab05ff20fa0eaec9e9cd7d90196a41ba3663"
+    },
+    {
+      "command": "npm install --package-lock-only --offline --ignore-scripts --no-audit --no-fund",
+      "exit_code": 1,
+      "code": "ENOTCACHED",
+      "finding": "@tailwindcss/oxide-wasm32-wasi4.3.0 artifact unavailable offline",
+      "log_sha256": "a6959b9e204f3e22f4c09c3009c0f328d8038f7563860da15b1c171389746c4d"
+    }
+  ],
+  "available_node": "24.19.0",
+  "available_npm": "11.9.0",
+  "package_and_lock_unchanged": true,
+  "precommit_whitespace_regression": {
+    "result": "CORRECTED",
+    "finding": "Staged diff check detected CRLF trailing whitespace in newly imported Directive 005 mirror. Historical source handoffs were unaffected.",
+    "correction": "Normalized only the repository directive mirror to LF, recorded original-byte SHA and normalized mirror SHA in directives/brain-directive-005-source.json; original user attachment unchanged."
+  }
+}

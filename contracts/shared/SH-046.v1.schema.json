@@ -1,0 +1,1129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:workin-ants:SH-046:v1",
+  "$defs": {
+    "request": {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "SH-046.v1"
+        },
+        "requestId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "correlationId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "input": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_consent_proof_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_consent_proof_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_customer_lifecycle_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_customer_lifecycle_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_identity_security_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_identity_security_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_identity_platform_role_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_identity_platform_role_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_track_entitlement_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_track_entitlement_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_track_usage_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_track_usage_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_taxonomy_policy_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_taxonomy_policy_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_healthcare_boundary_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_healthcare_boundary_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_offering_publication_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_offering_publication_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_payment_financial_readiness_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_payment_financial_readiness_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_payment_effect_recorded_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_payment_effect_recorded_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_professional_readiness_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_professional_readiness_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_professional_profile_completion_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_professional_profile_completion_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_verification_readiness_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_verification_readiness_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_review_reputation_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_review_reputation_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_order_outcome_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_order_outcome_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_order_purchase_qualification_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_order_purchase_qualification_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_order_delivery_timeliness_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_order_delivery_timeliness_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_booking_confirmed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_booking_confirmed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_booking_rescheduled_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_booking_rescheduled_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_booking_cancelled_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_booking_cancelled_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_booking_performance_reported_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_booking_performance_reported_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_booking_performance_adjudicated_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_booking_performance_adjudicated_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_media_availability_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_media_availability_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_candidate_discovery_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_candidate_discovery_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_application_lifecycle_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_application_lifecycle_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_job_compliance_decision_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_job_compliance_decision_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_interview_proposed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_interview_proposed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_interview_scheduled_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_interview_scheduled_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_interview_rescheduled_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_interview_rescheduled_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_interview_cancelled_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_interview_cancelled_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_interview_completed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_interview_completed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_interview_participant_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_interview_participant_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_messaging_message_created_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_messaging_message_created_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_messaging_message_revised_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_messaging_message_revised_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_messaging_message_hidden_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_messaging_message_hidden_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_messaging_membership_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_messaging_membership_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_location_disclosure_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_location_disclosure_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_privacy_request_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_privacy_request_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_privacy_execution_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_privacy_execution_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_hold_applicability_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_hold_applicability_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_moderation_disposition_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_moderation_disposition_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_ops_incident_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_ops_incident_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_reward_fulfillment_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_reward_fulfillment_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_prize_fulfillment_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_prize_fulfillment_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_organization_membership_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_organization_membership_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Envelope_job_lifecycle_changed_v1"
+                },
+                "payload": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/EventPayload_job_lifecycle_changed_v1"
+                },
+                "ownerTransaction": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+                }
+              },
+              "required": [
+                "event",
+                "payload",
+                "ownerTransaction"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "contract",
+        "requestId",
+        "correlationId",
+        "input"
+      ],
+      "additionalProperties": false
+    },
+    "success": {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "SH-046.v1"
+        },
+        "requestId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "status": {
+          "const": "ok"
+        },
+        "value": {
+          "type": "object",
+          "properties": {
+            "outbox": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Receipt"
+            }
+          },
+          "required": [
+            "outbox"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "contract",
+        "requestId",
+        "status",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "rejected": {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "SH-046.v1"
+        },
+        "requestId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "status": {
+          "enum": [
+            "denied",
+            "not_found",
+            "stale",
+            "conflict",
+            "unsupported",
+            "unavailable",
+            "invalid"
+          ]
+        },
+        "reasonCode": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+        },
+        "retryable": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Bool"
+        },
+        "safeMessageKey": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+        }
+      },
+      "required": [
+        "contract",
+        "requestId",
+        "status",
+        "reasonCode",
+        "retryable",
+        "safeMessageKey"
+      ],
+      "additionalProperties": false
+    },
+    "response": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "SH-046.v1"
+            },
+            "requestId": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+            },
+            "status": {
+              "const": "ok"
+            },
+            "value": {
+              "type": "object",
+              "properties": {
+                "outbox": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Receipt"
+                }
+              },
+              "required": [
+                "outbox"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "contract",
+            "requestId",
+            "status",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "SH-046.v1"
+            },
+            "requestId": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+            },
+            "status": {
+              "enum": [
+                "denied",
+                "not_found",
+                "stale",
+                "conflict",
+                "unsupported",
+                "unavailable",
+                "invalid"
+              ]
+            },
+            "reasonCode": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+            },
+            "retryable": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Bool"
+            },
+            "safeMessageKey": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+            }
+          },
+          "required": [
+            "contract",
+            "requestId",
+            "status",
+            "reasonCode",
+            "retryable",
+            "safeMessageKey"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/request"
+    },
+    {
+      "$ref": "#/$defs/response"
+    }
+  ]
+}

@@ -1264,3 +1264,16 @@ This current owner review applies WA-R085 terminating facts and WA-R086 shared-r
 **getHoldSourceCauseFacts.v1 — consumer/composer.** R075 cause-owner implementations serve trusted Hold queries for exact cause/target/action/policy and return ready/not_ready/unavailable/unsupported plus source revision/time/evidence. Hold composes getHoldReleaseReadiness.v1; source query cannot ask whether its own Hold is already released.
 
 The platform action matrix records this owner plus its specific coordinated action slices. Actual DTO/failure/replay/freshness fixtures and all applicable external gates remain prerequisites before activation; no contract is FROZEN_FOR_IMPLEMENTATION.
+
+
+## WA-R088 — Contract qualification reference
+
+The full-platform v1 contract companion elaborates existing owner responsibilities under Directive 005; no permanent SH identity/status or source lifecycle is transferred. Read the relevant journey in `context/workflows/platform-workflows.md`, then the specific resource under `context/shared/contracts/`.
+
+Source/owner implementation or owner-policy variants in this Module: SH-003, SH-011, SH-012, SH-013, SH-015, SH-031, SH-043, SH-053, SH-095, SH-096, SH-097, SH-098, SH-123. These registrations are bounded to the existing source/action/purpose; a protocol family does not prove every field executor or activate every possible target.
+
+Selected consuming integration contracts: SH-001, SH-002, SH-003, SH-014, SH-015, SH-026, SH-029, SH-030, SH-031, SH-032, SH-041, SH-044, SH-046, SH-051, SH-052, SH-053, SH-054, SH-123, SH-127, SH-130. The 907 concrete consumer expectation records across the platform are declarations and synthetic wire checks, not real adapter qualification. Other textual mentions remain discovery references until a concrete route is registered.
+
+EVOLVABLE_COMPATIBLY means specified architecture and exact v1 compatibility obligations; all actual runtime qualifications remain NOT_QUALIFIED. No freeze or parallel permission is created. The 13 external contract gates and action-specific legal/provider/retention/database gates are cumulative. Trusted invocation context comes from the server, never client/fixture assertions.
+
+Owner-specific fact/result/Privacy/access variants and closed event schemas are defined by the companion; they remain separate implementations with owner-held records and policy. Missing/extra fields, source revisions, denial, replay, unknown and noncommit fences require actual port tests. Do not substitute generic loaders, readiness flags, local premium/Hold state or public signers.

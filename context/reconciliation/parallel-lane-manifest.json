@@ -1,0 +1,1028 @@
+{
+  "schema_version": 1,
+  "directive": "005",
+  "integration_owner": "one designated platform integration owner",
+  "actual_concurrent_implementation_authorized": false,
+  "candidate_lanes": [
+    {
+      "id": "L-ID",
+      "title": "Identity, authority and commercial actor foundations",
+      "modules": [
+        "identity_access",
+        "role_authority",
+        "consent_disclosure",
+        "customer_buyer_profile",
+        "track_subscription_entitlement"
+      ],
+      "status": "CANDIDATE_ONLY",
+      "authorized": false,
+      "boundary_basis": "Verified identity/actor/policy and commercial binding contracts feed every workflow; keep actor/entitlement sources under one initial integration boundary.",
+      "workflows": [
+        "WF-01",
+        "WF-02"
+      ],
+      "entry_conditions": "Current actor/action facts, exact Consent catalog, quota/default-Free proofs, real server/RLS parity and pinned consumer contracts.",
+      "owned_file_roots": [
+        "features/identity_access/",
+        "features/role_authority/",
+        "features/consent_disclosure/",
+        "features/customer_buyer_profile/",
+        "features/track_subscription_entitlement/",
+        "integrations/identity_access/",
+        "integrations/role_authority/",
+        "integrations/consent_disclosure/",
+        "integrations/customer_buyer_profile/",
+        "integrations/track_subscription_entitlement/",
+        "tests/modules/identity_access/",
+        "tests/modules/role_authority/",
+        "tests/modules/consent_disclosure/",
+        "tests/modules/customer_buyer_profile/",
+        "tests/modules/track_subscription_entitlement/",
+        "tests/integration/L-ID/"
+      ],
+      "forbidden_write_roots": [
+        "contracts/shared/",
+        "context/shared/",
+        "context/architecture.md",
+        "context/build-plan.md",
+        "context/parallel-development-plan.md",
+        "prisma/",
+        "server/platform/",
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "schema_policy": "Propose owner model/enum/constraint change; sole integration owner authors ordered shared migration after D resolved, disposable replay and preservation evidence. Lane never independently generates/applies migration.",
+      "shared_contract_policy": "Pin exact used version; any shared/type/variant/wire/security change is an integration proposal before consumer code proceeds. EVOLVABLE alone does not activate lane.",
+      "independent_tests": [
+        "Owned source lifecycle/authorization positive and negative",
+        "Pinned producer/consumer compatibility against actual adapter",
+        "Stale/revoked/fingerprint/replay/unknown/crash/compensation cases relevant to workflow",
+        "No forbidden source reads/writes or local policy duplicates"
+      ],
+      "merge_checkpoint": "Clean isolated branch/worktree; owner/model/contract diff manifest; real tests and migration/fixture impact reviewed; integration owner merges to development branch only after convergence checks. No merge main or deployment authority.",
+      "blocked_reasons": [
+        "No actual production contract freeze or qualified producer/consumer evidence",
+        "Shared database/environment/RLS/runtime requirements unproven",
+        "Applicable external/legal/provider/Privacy executor data unavailable"
+      ]
+    },
+    {
+      "id": "L-SUP",
+      "title": "Controlled supply and regulated readiness",
+      "modules": [
+        "professional_eligibility",
+        "marketplace_supply",
+        "trust_verification_screening",
+        "healthcare_regulated_services",
+        "taxonomy_classification",
+        "ai_taxonomy"
+      ],
+      "status": "CANDIDATE_ONLY",
+      "authorized": false,
+      "boundary_basis": "Publication composes seller/classification/verification/regulated facts and actual delivery readiness, with source leaves preventing recursion.",
+      "workflows": [
+        "WF-03",
+        "WF-04"
+      ],
+      "entry_conditions": "Qualified actor/entitlement ports; source descriptor/assignment receipts; approved Trust/Healthcare/provider/policy data; delivery-readiness fixture then actual port.",
+      "owned_file_roots": [
+        "features/professional_eligibility/",
+        "features/marketplace_supply/",
+        "features/trust_verification_screening/",
+        "features/healthcare_regulated_services/",
+        "features/taxonomy_classification/",
+        "features/ai_taxonomy/",
+        "integrations/professional_eligibility/",
+        "integrations/marketplace_supply/",
+        "integrations/trust_verification_screening/",
+        "integrations/healthcare_regulated_services/",
+        "integrations/taxonomy_classification/",
+        "integrations/ai_taxonomy/",
+        "tests/modules/professional_eligibility/",
+        "tests/modules/marketplace_supply/",
+        "tests/modules/trust_verification_screening/",
+        "tests/modules/healthcare_regulated_services/",
+        "tests/modules/taxonomy_classification/",
+        "tests/modules/ai_taxonomy/",
+        "tests/integration/L-SUP/"
+      ],
+      "forbidden_write_roots": [
+        "contracts/shared/",
+        "context/shared/",
+        "context/architecture.md",
+        "context/build-plan.md",
+        "context/parallel-development-plan.md",
+        "prisma/",
+        "server/platform/",
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "schema_policy": "Propose owner model/enum/constraint change; sole integration owner authors ordered shared migration after D resolved, disposable replay and preservation evidence. Lane never independently generates/applies migration.",
+      "shared_contract_policy": "Pin exact used version; any shared/type/variant/wire/security change is an integration proposal before consumer code proceeds. EVOLVABLE alone does not activate lane.",
+      "independent_tests": [
+        "Owned source lifecycle/authorization positive and negative",
+        "Pinned producer/consumer compatibility against actual adapter",
+        "Stale/revoked/fingerprint/replay/unknown/crash/compensation cases relevant to workflow",
+        "No forbidden source reads/writes or local policy duplicates"
+      ],
+      "merge_checkpoint": "Clean isolated branch/worktree; owner/model/contract diff manifest; real tests and migration/fixture impact reviewed; integration owner merges to development branch only after convergence checks. No merge main or deployment authority.",
+      "blocked_reasons": [
+        "No actual production contract freeze or qualified producer/consumer evidence",
+        "Shared database/environment/RLS/runtime requirements unproven",
+        "Applicable external/legal/provider/Privacy executor data unavailable"
+      ]
+    },
+    {
+      "id": "L-COM",
+      "title": "Commerce source, financial rail and adjudication",
+      "modules": [
+        "gig_demand",
+        "transaction_order",
+        "review_dispute",
+        "payment_payout_tax"
+      ],
+      "status": "CANDIDATE_ONLY",
+      "authorized": false,
+      "boundary_basis": "Accepted demand, immutable purchase, financial effects and adjudicated refunds require consistent economic identity and source snapshots.",
+      "workflows": [
+        "WF-05",
+        "WF-06"
+      ],
+      "entry_conditions": "Source quotes/participants and authority qualified; financial concurrency/reservations/effect receipts/provider/account/tax data; correct screening source model and one migration integrator.",
+      "owned_file_roots": [
+        "features/gig_demand/",
+        "features/transaction_order/",
+        "features/review_dispute/",
+        "features/payment_payout_tax/",
+        "integrations/gig_demand/",
+        "integrations/transaction_order/",
+        "integrations/review_dispute/",
+        "integrations/payment_payout_tax/",
+        "tests/modules/gig_demand/",
+        "tests/modules/transaction_order/",
+        "tests/modules/review_dispute/",
+        "tests/modules/payment_payout_tax/",
+        "tests/integration/L-COM/"
+      ],
+      "forbidden_write_roots": [
+        "contracts/shared/",
+        "context/shared/",
+        "context/architecture.md",
+        "context/build-plan.md",
+        "context/parallel-development-plan.md",
+        "prisma/",
+        "server/platform/",
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "schema_policy": "Propose owner model/enum/constraint change; sole integration owner authors ordered shared migration after D resolved, disposable replay and preservation evidence. Lane never independently generates/applies migration.",
+      "shared_contract_policy": "Pin exact used version; any shared/type/variant/wire/security change is an integration proposal before consumer code proceeds. EVOLVABLE alone does not activate lane.",
+      "independent_tests": [
+        "Owned source lifecycle/authorization positive and negative",
+        "Pinned producer/consumer compatibility against actual adapter",
+        "Stale/revoked/fingerprint/replay/unknown/crash/compensation cases relevant to workflow",
+        "No forbidden source reads/writes or local policy duplicates"
+      ],
+      "merge_checkpoint": "Clean isolated branch/worktree; owner/model/contract diff manifest; real tests and migration/fixture impact reviewed; integration owner merges to development branch only after convergence checks. No merge main or deployment authority.",
+      "blocked_reasons": [
+        "No actual production contract freeze or qualified producer/consumer evidence",
+        "Shared database/environment/RLS/runtime requirements unproven",
+        "Applicable external/legal/provider/Privacy executor data unavailable"
+      ]
+    },
+    {
+      "id": "L-DEL",
+      "title": "Purchased scheduling and protected delivery",
+      "modules": [
+        "booking_calendar",
+        "digital_goods_access",
+        "media_file_access",
+        "video_session"
+      ],
+      "status": "CANDIDATE_ONLY",
+      "authorized": false,
+      "boundary_basis": "Paid session allowance, interval locks, exact media bytes and playback/contextual grants compose one delivery boundary with separate owners.",
+      "workflows": [
+        "WF-07",
+        "WF-08"
+      ],
+      "entry_conditions": "Qualified acquired Order rights, reservation/noncommit, Media readiness versus access, proof-before-secret, real scanner/storage/video/Calendar capabilities and regulated intersection.",
+      "owned_file_roots": [
+        "features/booking_calendar/",
+        "features/digital_goods_access/",
+        "features/media_file_access/",
+        "features/video_session/",
+        "integrations/booking_calendar/",
+        "integrations/digital_goods_access/",
+        "integrations/media_file_access/",
+        "integrations/video_session/",
+        "tests/modules/booking_calendar/",
+        "tests/modules/digital_goods_access/",
+        "tests/modules/media_file_access/",
+        "tests/modules/video_session/",
+        "tests/integration/L-DEL/"
+      ],
+      "forbidden_write_roots": [
+        "contracts/shared/",
+        "context/shared/",
+        "context/architecture.md",
+        "context/build-plan.md",
+        "context/parallel-development-plan.md",
+        "prisma/",
+        "server/platform/",
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "schema_policy": "Propose owner model/enum/constraint change; sole integration owner authors ordered shared migration after D resolved, disposable replay and preservation evidence. Lane never independently generates/applies migration.",
+      "shared_contract_policy": "Pin exact used version; any shared/type/variant/wire/security change is an integration proposal before consumer code proceeds. EVOLVABLE alone does not activate lane.",
+      "independent_tests": [
+        "Owned source lifecycle/authorization positive and negative",
+        "Pinned producer/consumer compatibility against actual adapter",
+        "Stale/revoked/fingerprint/replay/unknown/crash/compensation cases relevant to workflow",
+        "No forbidden source reads/writes or local policy duplicates"
+      ],
+      "merge_checkpoint": "Clean isolated branch/worktree; owner/model/contract diff manifest; real tests and migration/fixture impact reviewed; integration owner merges to development branch only after convergence checks. No merge main or deployment authority.",
+      "blocked_reasons": [
+        "No actual production contract freeze or qualified producer/consumer evidence",
+        "Shared database/environment/RLS/runtime requirements unproven",
+        "Applicable external/legal/provider/Privacy executor data unavailable"
+      ]
+    },
+    {
+      "id": "L-HIR",
+      "title": "Hiring source, applications and Interviews",
+      "modules": [
+        "organization_hiring",
+        "candidate_application_resume_privacy",
+        "job_compliance",
+        "job_interview"
+      ],
+      "status": "CANDIDATE_ONLY",
+      "authorized": false,
+      "boundary_basis": "Compensation input/evaluation, current recruiter scope, Candidate quota/resume privacy and Interview successor generations must converge together.",
+      "workflows": [
+        "WF-09"
+      ],
+      "entry_conditions": "Actual Hiring/Candidate authority facts, source/rule-bound check, current-month quota reservation, resume access proof, field/action privacy and parent-generation sync fixtures/ports.",
+      "owned_file_roots": [
+        "features/organization_hiring/",
+        "features/candidate_application_resume_privacy/",
+        "features/job_compliance/",
+        "features/job_interview/",
+        "integrations/organization_hiring/",
+        "integrations/candidate_application_resume_privacy/",
+        "integrations/job_compliance/",
+        "integrations/job_interview/",
+        "tests/modules/organization_hiring/",
+        "tests/modules/candidate_application_resume_privacy/",
+        "tests/modules/job_compliance/",
+        "tests/modules/job_interview/",
+        "tests/integration/L-HIR/"
+      ],
+      "forbidden_write_roots": [
+        "contracts/shared/",
+        "context/shared/",
+        "context/architecture.md",
+        "context/build-plan.md",
+        "context/parallel-development-plan.md",
+        "prisma/",
+        "server/platform/",
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "schema_policy": "Propose owner model/enum/constraint change; sole integration owner authors ordered shared migration after D resolved, disposable replay and preservation evidence. Lane never independently generates/applies migration.",
+      "shared_contract_policy": "Pin exact used version; any shared/type/variant/wire/security change is an integration proposal before consumer code proceeds. EVOLVABLE alone does not activate lane.",
+      "independent_tests": [
+        "Owned source lifecycle/authorization positive and negative",
+        "Pinned producer/consumer compatibility against actual adapter",
+        "Stale/revoked/fingerprint/replay/unknown/crash/compensation cases relevant to workflow",
+        "No forbidden source reads/writes or local policy duplicates"
+      ],
+      "merge_checkpoint": "Clean isolated branch/worktree; owner/model/contract diff manifest; real tests and migration/fixture impact reviewed; integration owner merges to development branch only after convergence checks. No merge main or deployment authority.",
+      "blocked_reasons": [
+        "No actual production contract freeze or qualified producer/consumer evidence",
+        "Shared database/environment/RLS/runtime requirements unproven",
+        "Applicable external/legal/provider/Privacy executor data unavailable"
+      ]
+    },
+    {
+      "id": "L-COMM",
+      "title": "Context communications and derived discovery",
+      "modules": [
+        "messaging",
+        "notification",
+        "search_public_visibility"
+      ],
+      "status": "CANDIDATE_ONLY",
+      "authorized": false,
+      "boundary_basis": "Source-owned audience and eligibility drive safe messages/intents/realtime/indexing; none supplies source truth or legal completion.",
+      "workflows": [
+        "WF-10"
+      ],
+      "entry_conditions": "Finite source intents/templates/routes and actual current recipients; isolated collections, tombstones/complete enumeration, endpoint generations and provider callback/revocation qualification.",
+      "owned_file_roots": [
+        "features/messaging/",
+        "features/notification/",
+        "features/search_public_visibility/",
+        "integrations/messaging/",
+        "integrations/notification/",
+        "integrations/search_public_visibility/",
+        "tests/modules/messaging/",
+        "tests/modules/notification/",
+        "tests/modules/search_public_visibility/",
+        "tests/integration/L-COMM/"
+      ],
+      "forbidden_write_roots": [
+        "contracts/shared/",
+        "context/shared/",
+        "context/architecture.md",
+        "context/build-plan.md",
+        "context/parallel-development-plan.md",
+        "prisma/",
+        "server/platform/",
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "schema_policy": "Propose owner model/enum/constraint change; sole integration owner authors ordered shared migration after D resolved, disposable replay and preservation evidence. Lane never independently generates/applies migration.",
+      "shared_contract_policy": "Pin exact used version; any shared/type/variant/wire/security change is an integration proposal before consumer code proceeds. EVOLVABLE alone does not activate lane.",
+      "independent_tests": [
+        "Owned source lifecycle/authorization positive and negative",
+        "Pinned producer/consumer compatibility against actual adapter",
+        "Stale/revoked/fingerprint/replay/unknown/crash/compensation cases relevant to workflow",
+        "No forbidden source reads/writes or local policy duplicates"
+      ],
+      "merge_checkpoint": "Clean isolated branch/worktree; owner/model/contract diff manifest; real tests and migration/fixture impact reviewed; integration owner merges to development branch only after convergence checks. No merge main or deployment authority.",
+      "blocked_reasons": [
+        "No actual production contract freeze or qualified producer/consumer evidence",
+        "Shared database/environment/RLS/runtime requirements unproven",
+        "Applicable external/legal/provider/Privacy executor data unavailable"
+      ]
+    },
+    {
+      "id": "L-SAFE",
+      "title": "Data rights, protective controls and evidence",
+      "modules": [
+        "privacy_data_erasure",
+        "location_safety",
+        "content_moderation_legal_notice",
+        "admin_review_compliance_hold",
+        "audit_event_ledger",
+        "observability_ops"
+      ],
+      "status": "CANDIDATE_ONLY",
+      "authorized": false,
+      "boundary_basis": "Privacy generations, exact/public Location separation, typed enforcement, independent Hold causes and durable evidence are cross-cutting constraints.",
+      "workflows": [
+        "WF-11",
+        "WF-12"
+      ],
+      "entry_conditions": "Actual owner field/action/provider inventories and retention decisions, mandatory proof persistence, supported target/effect/cause registration, backup/restore and legal/provider evidence.",
+      "owned_file_roots": [
+        "features/privacy_data_erasure/",
+        "features/location_safety/",
+        "features/content_moderation_legal_notice/",
+        "features/admin_review_compliance_hold/",
+        "features/audit_event_ledger/",
+        "features/observability_ops/",
+        "integrations/privacy_data_erasure/",
+        "integrations/location_safety/",
+        "integrations/content_moderation_legal_notice/",
+        "integrations/admin_review_compliance_hold/",
+        "integrations/audit_event_ledger/",
+        "integrations/observability_ops/",
+        "tests/modules/privacy_data_erasure/",
+        "tests/modules/location_safety/",
+        "tests/modules/content_moderation_legal_notice/",
+        "tests/modules/admin_review_compliance_hold/",
+        "tests/modules/audit_event_ledger/",
+        "tests/modules/observability_ops/",
+        "tests/integration/L-SAFE/"
+      ],
+      "forbidden_write_roots": [
+        "contracts/shared/",
+        "context/shared/",
+        "context/architecture.md",
+        "context/build-plan.md",
+        "context/parallel-development-plan.md",
+        "prisma/",
+        "server/platform/",
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "schema_policy": "Propose owner model/enum/constraint change; sole integration owner authors ordered shared migration after D resolved, disposable replay and preservation evidence. Lane never independently generates/applies migration.",
+      "shared_contract_policy": "Pin exact used version; any shared/type/variant/wire/security change is an integration proposal before consumer code proceeds. EVOLVABLE alone does not activate lane.",
+      "independent_tests": [
+        "Owned source lifecycle/authorization positive and negative",
+        "Pinned producer/consumer compatibility against actual adapter",
+        "Stale/revoked/fingerprint/replay/unknown/crash/compensation cases relevant to workflow",
+        "No forbidden source reads/writes or local policy duplicates"
+      ],
+      "merge_checkpoint": "Clean isolated branch/worktree; owner/model/contract diff manifest; real tests and migration/fixture impact reviewed; integration owner merges to development branch only after convergence checks. No merge main or deployment authority.",
+      "blocked_reasons": [
+        "No actual production contract freeze or qualified producer/consumer evidence",
+        "Shared database/environment/RLS/runtime requirements unproven",
+        "Applicable external/legal/provider/Privacy executor data unavailable"
+      ]
+    },
+    {
+      "id": "L-INC",
+      "title": "Qualified incentives and chance-based fulfillment",
+      "modules": [
+        "gamification_rewards",
+        "sweepstakes_prize"
+      ],
+      "status": "CANDIDATE_ONLY",
+      "authorized": false,
+      "boundary_basis": "Original fact/rule identity, signed points, frozen draw population and supported actual effects must avoid duplicated money/entitlement/tax truth.",
+      "workflows": [
+        "WF-13"
+      ],
+      "entry_conditions": "Approved official rules/eligibility/valuation, frozen run/randomness receipt, conserved inventory/points and actual Track/Payment effect/compensation ports; no odds advantage.",
+      "owned_file_roots": [
+        "features/gamification_rewards/",
+        "features/sweepstakes_prize/",
+        "integrations/gamification_rewards/",
+        "integrations/sweepstakes_prize/",
+        "tests/modules/gamification_rewards/",
+        "tests/modules/sweepstakes_prize/",
+        "tests/integration/L-INC/"
+      ],
+      "forbidden_write_roots": [
+        "contracts/shared/",
+        "context/shared/",
+        "context/architecture.md",
+        "context/build-plan.md",
+        "context/parallel-development-plan.md",
+        "prisma/",
+        "server/platform/",
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "schema_policy": "Propose owner model/enum/constraint change; sole integration owner authors ordered shared migration after D resolved, disposable replay and preservation evidence. Lane never independently generates/applies migration.",
+      "shared_contract_policy": "Pin exact used version; any shared/type/variant/wire/security change is an integration proposal before consumer code proceeds. EVOLVABLE alone does not activate lane.",
+      "independent_tests": [
+        "Owned source lifecycle/authorization positive and negative",
+        "Pinned producer/consumer compatibility against actual adapter",
+        "Stale/revoked/fingerprint/replay/unknown/crash/compensation cases relevant to workflow",
+        "No forbidden source reads/writes or local policy duplicates"
+      ],
+      "merge_checkpoint": "Clean isolated branch/worktree; owner/model/contract diff manifest; real tests and migration/fixture impact reviewed; integration owner merges to development branch only after convergence checks. No merge main or deployment authority.",
+      "blocked_reasons": [
+        "No actual production contract freeze or qualified producer/consumer evidence",
+        "Shared database/environment/RLS/runtime requirements unproven",
+        "Applicable external/legal/provider/Privacy executor data unavailable"
+      ]
+    }
+  ],
+  "integration_owned_roots": [
+    "contracts/shared/",
+    "context/shared/",
+    "context/architecture.md",
+    "context/build-plan.md",
+    "context/parallel-development-plan.md",
+    "prisma/",
+    "server/platform/",
+    "AGENTS.md",
+    "CLAUDE.md"
+  ],
+  "runtime_file_ownership": "Owner-first feature/application/domain/contracts/infrastructure where needed; no empty skeleton proliferation or direct cross-owner imports.",
+  "source_models": [
+    {
+      "identity_access": [
+        "User",
+        "UserRole",
+        "PlatformRole",
+        "AgeGateAttempt",
+        "AgeGateResult",
+        "AgeGateBlock",
+        "AuthProviderType",
+        "AuthCredentialStatus",
+        "UserSecurityTier",
+        "StepUpActionType",
+        "StepUpChallengeType",
+        "StepUpChallengeStatus",
+        "StepUpFailureReason",
+        "AccountRecoveryStatus",
+        "AccountRecoveryReason",
+        "AccountRecoveryIdentityProvider",
+        "SecurityEventType",
+        "UserSecurityProfile",
+        "AuthProviderAccount",
+        "PasskeyCredential",
+        "StepUpChallenge",
+        "SensitiveActionSession",
+        "AccountRecoveryRequest",
+        "UserSecurityEvent"
+      ]
+    },
+    {
+      "role_authority": []
+    },
+    {
+      "consent_disclosure": [
+        "ConsentLog",
+        "ConsentType",
+        "ConsentType.passkey_login",
+        "ConsentType.sms_mfa",
+        "ConsentType.sensitive_financial_access",
+        "ConsentType.account_recovery_identity_verification",
+        "ConsentType.phone_number_update",
+        "ConsentType.calendar_free_busy_access",
+        "ConsentType.calendar_writeback_access",
+        "ConsentType.calendar_disconnect_notice",
+        "ConsentType.web_push_notifications",
+        "ConsentType.pwa_install_guidance"
+      ]
+    },
+    {
+      "privacy_data_erasure": [
+        "PrivacyRequest",
+        "PrivacyRequestType",
+        "PrivacyRequestStatus",
+        "DataErasureJob",
+        "DataErasureJobStatus",
+        "DataErasureTarget",
+        "DataErasureTargetType",
+        "DataErasureTargetStatus",
+        "DataRetentionExemption",
+        "DataRetentionExemptionReason",
+        "DataExportBundle",
+        "DataExportStatus"
+      ]
+    },
+    {
+      "taxonomy_classification": [
+        "TaxonomyDomain",
+        "TaxonomyCategory",
+        "TaxonomyTag",
+        "TagSource"
+      ]
+    },
+    {
+      "professional_eligibility": [
+        "ProfessionalCategory",
+        "ProfessionalTag",
+        "ProfessionalProfile",
+        "ProfessionalProfileMedia",
+        "ProfileStatus"
+      ]
+    },
+    {
+      "trust_verification_screening": [
+        "VerificationRequirement",
+        "VerificationRequirementTargetType",
+        "VerificationSubjectType",
+        "VerificationCheck",
+        "VerificationCheckType",
+        "VerificationCheckStatus",
+        "VerificationVendor",
+        "VerificationConsent",
+        "VerificationPackage",
+        "VerificationPackageItem",
+        "VerificationPackageType",
+        "VerificationPackageStatus",
+        "FcraAdverseActionWorkflow",
+        "FcraAdverseActionStatus",
+        "ProfessionalLicenseCredential",
+        "ProfessionalLicenseStatus",
+        "TrustBadge",
+        "TrustBadgeType",
+        "TrustBadgeStatus"
+      ]
+    },
+    {
+      "marketplace_supply": [
+        "Offering",
+        "OfferingKind",
+        "OfferingStatus",
+        "ServiceDetails",
+        "ServiceDeliveryMode",
+        "ProductDetails",
+        "ProductDeliveryMode",
+        "CourseDetails",
+        "CourseDeliveryMode",
+        "PricingTier",
+        "OfferingMedia",
+        "OfferingTag"
+      ]
+    },
+    {
+      "gig_demand": [
+        "Gig",
+        "GigStatus",
+        "GigVisibility",
+        "GigResponse",
+        "GigResponseStatus",
+        "GigAssignment",
+        "GigAssignmentStatus",
+        "GigMedia",
+        "GigTag"
+      ]
+    },
+    {
+      "transaction_order": [
+        "Order",
+        "OrderStatus",
+        "OrderSourceType",
+        "OrderEvent",
+        "OrderEventActor",
+        "OrderFile",
+        "FileRole",
+        "Agreement",
+        "AgreementStatus",
+        "RefundStatus",
+        "AgreementTemplate",
+        "AgreementTemplateStatus",
+        "AgreementGenerationEngine",
+        "AgreementDocumentStatus",
+        "AgreementSignatureRole",
+        "AgreementSignatureStatus",
+        "AgreementConsentStatus",
+        "AgreementConsentMethod",
+        "AgreementEventType",
+        "AgreementAccessGrantStatus",
+        "AgreementHashAlgorithm",
+        "AgreementElectronicConsent",
+        "AgreementSignature",
+        "AgreementDocumentSnapshot",
+        "AgreementEvent",
+        "AgreementAccessGrant"
+      ]
+    },
+    {
+      "payment_payout_tax": [
+        "ProcessedStripeEvent",
+        "KycVerification",
+        "KycStatus",
+        "TaxProfile",
+        "TaxProfileStatus",
+        "TaxDocument",
+        "TaxDocumentType",
+        "TaxYearEarningsSummary",
+        "PayoutAccount",
+        "PayoutAccountStatus",
+        "ProfessionalBalanceLedgerEntry",
+        "ProfessionalBalanceLedgerEntryType",
+        "PayoutRequest",
+        "PayoutRequestStatus",
+        "PayoutTransfer",
+        "PayoutTransferStatus",
+        "TaxReportingSubmission",
+        "TaxReportingRecipient",
+        "TaxReportingRegime",
+        "ProviderRequirementSnapshot",
+        "SalesTaxProvider",
+        "SalesTaxCalculationStatus",
+        "SalesTaxLineItemType",
+        "SalesTaxLiabilityRole",
+        "SalesTaxTransactionStatus",
+        "SalesTaxCalculation",
+        "SalesTaxLineItem",
+        "SalesTaxTransaction"
+      ]
+    },
+    {
+      "booking_calendar": [
+        "AvailabilityRule",
+        "AvailabilityRuleSource",
+        "CalendarConnection",
+        "CalendarConnectionStatus",
+        "CalendarSourceProvider",
+        "CalendarIntegrationProvider",
+        "CalendarSyncDirection",
+        "BusyWindow",
+        "BusyWindowSource",
+        "BookingHold",
+        "BookingHoldStatus",
+        "Booking",
+        "BookingStatus",
+        "BookingEvent",
+        "ProcessedCalendarEvent",
+        "CalendarEventSyncStatus",
+        "CalendarAccessMode",
+        "CalendarConnectionProviderStatus",
+        "BookingSlotLock",
+        "BookingSlotLockStatus",
+        "BookingOrchestrationRun",
+        "BookingOrchestrationStatus",
+        "BookingOrchestrationStep",
+        "BookingOrchestrationStepType",
+        "BookingOrchestrationStepStatus",
+        "CalendarProviderEventType",
+        "CalendarProviderEventStatus"
+      ]
+    },
+    {
+      "video_session": [
+        "BookingVideoRoom",
+        "BookingVideoProvider",
+        "BookingVideoRoomStatus",
+        "JobInterviewVideoRoom",
+        "JobInterviewVideoProvider",
+        "JobInterviewVideoRoomStatus",
+        "CourseVideoProvider",
+        "CourseVideoAssetStatus",
+        "CourseVideoPlaybackPolicy",
+        "CourseVideoPlaybackGrantStatus",
+        "CourseVideoPlaybackEventType",
+        "VideoProviderEventProvider",
+        "VideoProviderEventStatus",
+        "CourseVideoAsset",
+        "CourseVideoPlaybackGrant",
+        "CourseVideoPlaybackEvent",
+        "ProcessedVideoProviderEvent"
+      ]
+    },
+    {
+      "organization_hiring": [
+        "JobTag",
+        "Organization",
+        "OrganizationStatus",
+        "OrganizationMember",
+        "OrganizationRole",
+        "Job",
+        "JobStatus",
+        "JobVisibility",
+        "EmploymentType",
+        "OrganizationNotificationSetting",
+        "OrganizationCategory",
+        "OrganizationTag",
+        "OrganizationMedia",
+        "CompensationPeriod",
+        "JobMedia"
+      ]
+    },
+    {
+      "job_compliance": [
+        "JobComplianceCheck",
+        "JobComplianceFinding",
+        "JobComplianceStatus",
+        "JobComplianceCheckStatus",
+        "JobComplianceFindingType",
+        "JobComplianceSeverity",
+        "JobComplianceRule",
+        "JobComplianceRuleType",
+        "JobComplianceRuleStatus",
+        "JobCompensationDisclosure",
+        "JobCompensationDisclosureStatus"
+      ]
+    },
+    {
+      "candidate_application_resume_privacy": [
+        "CandidateProfile",
+        "JobApplication",
+        "JobApplicationStatus",
+        "JobApplicationStage",
+        "JobApplicationMedia",
+        "ResumeParseResult",
+        "ResumeParseStatus",
+        "ResumeAccessLog",
+        "ResumeAccessReason",
+        "CandidateCategory",
+        "CandidateTag",
+        "CandidateProfileMedia",
+        "CandidateSearchProjection",
+        "CandidateSearchProjectionStatus",
+        "JobApplicationViewEvent"
+      ]
+    },
+    {
+      "job_interview": [
+        "JobInterview",
+        "JobInterviewStatus",
+        "JobInterviewLocationType",
+        "JobInterviewEvent",
+        "JobInterviewEventActor",
+        "JobInterviewParticipant",
+        "JobInterviewParticipantRole",
+        "JobInterviewParticipantStatus"
+      ]
+    },
+    {
+      "messaging": [
+        "Thread",
+        "ThreadContextType",
+        "ThreadParticipant",
+        "Message",
+        "MessageMedia"
+      ]
+    },
+    {
+      "notification": [
+        "Notification",
+        "NotificationStatus",
+        "NotificationChannel",
+        "NotificationPriority",
+        "NotificationSubscription",
+        "NotificationSubscriptionProvider",
+        "NotificationPlatform",
+        "NotificationSubscriptionStatus",
+        "NotificationDelivery",
+        "NotificationDeliveryStatus",
+        "NotificationPermissionStatus",
+        "NotificationSubscriptionEventType",
+        "PwaInstallStatus",
+        "NotificationPayloadSensitivity",
+        "NotificationSubscriptionEvent"
+      ]
+    },
+    {
+      "media_file_access": [
+        "MediaAsset",
+        "MediaAssetStatus",
+        "UserMedia",
+        "MediaUploadContext",
+        "MediaStorageVisibility",
+        "MediaStorageBucketClass",
+        "MediaValidationStatus",
+        "MediaScanStatus",
+        "MediaProcessingStatus",
+        "MediaRejectionReason",
+        "MediaAccessGrantStatus",
+        "MediaAccessEventType",
+        "MediaProcessingActionType",
+        "MediaUploadPolicyStatus",
+        "MediaUploadPolicy",
+        "MediaUploadSession",
+        "MediaValidationResult",
+        "MediaScanResult",
+        "MediaProcessingResult",
+        "MediaAccessGrant",
+        "MediaAccessEvent"
+      ]
+    },
+    {
+      "search_public_visibility": [
+        "SearchUpsertEvent",
+        "SearchEntityType"
+      ]
+    },
+    {
+      "review_dispute": [
+        "Review",
+        "ReviewStatus",
+        "Dispute",
+        "DisputeStatus"
+      ]
+    },
+    {
+      "content_moderation_legal_notice": [
+        "Report",
+        "ReportReason",
+        "ReportStatus",
+        "ReportSource",
+        "LegalNotice",
+        "LegalNoticeType",
+        "LegalNoticeStatus",
+        "ModerationCase",
+        "ModerationCaseStatus",
+        "ModerationAction",
+        "ModerationActionType",
+        "ModerationTargetType"
+      ]
+    },
+    {
+      "audit_event_ledger": [
+        "AuditEvent",
+        "AuditEventType",
+        "AuditEventActor",
+        "AccessAuditLog",
+        "AccessAuditAction"
+      ]
+    },
+    {
+      "admin_review_compliance_hold": [
+        "ComplianceHold",
+        "ComplianceHoldReason",
+        "ComplianceHoldStatus"
+      ]
+    },
+    {
+      "sweepstakes_prize": [
+        "PrizeDrawing",
+        "PrizeDrawingStatus",
+        "PrizeEntry",
+        "PrizeEntrySource",
+        "PrizeWinning",
+        "PrizeWinningStatus",
+        "PrizeTaxYearSummary",
+        "SweepstakesEntryMethod",
+        "SweepstakesEntryMethodType",
+        "SweepstakesEntryMethodStatus"
+      ]
+    },
+    {
+      "gamification_rewards": [
+        "GamificationProgram",
+        "GamificationProgramStatus",
+        "GamificationRule",
+        "GamificationRuleTrigger",
+        "PointLedgerEntry",
+        "PointLedgerEntryType",
+        "PointLedgerEntrySource",
+        "Challenge",
+        "ChallengeStatus",
+        "ChallengeParticipant",
+        "Leaderboard",
+        "LeaderboardEntry",
+        "Reward",
+        "RewardType",
+        "RewardStatus",
+        "RewardRedemption",
+        "RewardRedemptionStatus"
+      ]
+    },
+    {
+      "healthcare_regulated_services": [
+        "HealthcareComplianceProfile",
+        "HealthcareComplianceStatus",
+        "HealthcareDataBoundary",
+        "HealthcareDataBoundaryTargetType",
+        "HealthcareAdminAccessPolicy",
+        "HealthcareAdminAccessMode",
+        "HealthcareAccessDecision",
+        "BaaAgreement",
+        "BaaAgreementStatus"
+      ]
+    },
+    {
+      "location_safety": [
+        "LocationPrecision",
+        "LocationRevealStatus",
+        "LocationReveal",
+        "FuzzyLocationCache"
+      ]
+    },
+    {
+      "ai_taxonomy": [
+        "AiClassificationLog",
+        "AiSuggestion"
+      ]
+    },
+    {
+      "observability_ops": [
+        "SystemEvent",
+        "IntegrationFailure",
+        "QueueJob",
+        "OpsIncident"
+      ]
+    },
+    {
+      "digital_goods_access": [
+        "DigitalGoodsPolicy",
+        "DigitalGoodsLicenseType",
+        "DigitalGoodsRefundPolicyType",
+        "DigitalGoodsTermsAcceptance",
+        "DigitalDownloadAsset",
+        "DigitalDownloadAssetStatus",
+        "DigitalStorageProvider",
+        "DigitalDownloadGrant",
+        "DigitalDownloadGrantStatus",
+        "DigitalDownloadEvent",
+        "DigitalDownloadEventType",
+        "ChildDirectedContentDeclaration",
+        "ChildDirectedDeclarationStatus",
+        "MinorPrivacyControl",
+        "CourseAccessibilityAsset",
+        "AccessibilityAssetType",
+        "AccessibilityAssetStatus",
+        "ConsentType.electronic_records_consent",
+        "ConsentType.electronic_signature_consent",
+        "ConsentType.agreement_execution_consent",
+        "ConsentType.manual_signature_opt_out"
+      ]
+    },
+    {
+      "customer_buyer_profile": [
+        "CustomerProfile",
+        "ProfileStatus"
+      ]
+    },
+    {
+      "track_subscription_entitlement": [
+        "AccountTrack",
+        "TrackPlanStatus",
+        "TrackBillingModel",
+        "TrackBillingProvider",
+        "TrackSubscriptionStatus",
+        "TrackEntitlementValueType",
+        "TrackEntitlementGrantStatus",
+        "TrackUsageEventType",
+        "TrackUsagePeriod",
+        "TrackPlan",
+        "TrackPlanPrice",
+        "TrackEntitlementDefinition",
+        "TrackPlanEntitlement",
+        "TrackSubscription",
+        "TrackEntitlementGrant",
+        "TrackUsageEvent",
+        "TrackUsageCounter",
+        "TrackSubscriptionEvent",
+        "OrganizationFeatureAccess",
+        "OrganizationFeatureKey",
+        "OrganizationFeatureAccessStatus"
+      ]
+    }
+  ],
+  "activation_rule": "Each candidate explicitly activated only after shared version qualification, file/model ownership, actual integration tests and applicable external gates; no whole-upstream-Cluster completion inferred."
+}

@@ -50,8 +50,8 @@ Use one integration owner for migration sequencing; no competing canonical model
 
 No consumer-local authorization, entitlement, provider, queue, Search, Media or
 lifecycle substitute may bypass its canonical owner. Missing contracts must be
-resolved in that owner before dependent consumers implement them. Do not invent a
-parallel lane map or mark a boundary frozen because documents merely exist.
+resolved in that owner before dependent consumers implement them. Directive 005 authorizes a candidate parallel lane map; do not activate a lane
+or mark a boundary frozen because documents merely exist.
 
 When resuming, preserve current branch work; inspect Git status/HEAD, read the
 rulings already applied, continue the earliest unfinished gate and record actual
@@ -63,3 +63,16 @@ claim is authorized by this checkpoint.
 ## Readiness autonomy policy — 2026-10-12
 
 Read `context/reconciliation/operating-policy.md` for the governing decision and stopping rules. Use `AI_RESOLVED_WITH_PRODUCT_JUDGMENT` for authorized reasonable product defaults and record evidence, reasoning, alternatives, reversibility and affected artifacts. Queue only consequential unresolved owner choices; batch at ten or the stated dependency/sweep limits. Scoped legal/provider/database gates do not stop unrelated work. Continue ordinary readiness gates autonomously. This supersedes earlier stop-on-question instructions; frozen rulings and publication/data safety boundaries remain.
+
+
+## Directive 005 — mandatory implementation context
+
+Read `context/reconciliation/development-readiness-report.md` for the current decision, then `context/architecture.md`, `context/build-plan.md` Phase 0 and `context/parallel-development-plan.md`. Use `context/context-map.md` for exact owner paths. Load the relevant journey from `context/workflows/platform-workflows.md`, its named SH resources in `context/shared/contracts/`, and both actual owner/consumer architectures and plans before implementing a dependent action.
+
+All 132 Shared Operations have explicit specified architecture; the ledger distinguishes that from NOT_QUALIFIED runtime. EVOLVABLE_COMPATIBLY preserves exact v1 wire/security/failure semantics and does not authorize concurrent implementation. Canonical Confirmed/Proposed markers stay independent. Unknown fields/enums/variants reject; schema/reference fixtures do not prove real producers, consumers, database concurrency, RLS, Privacy fields or providers. No FROZEN_FOR_IMPLEMENTATION operation or active parallel lane is certified at this checkpoint.
+
+Use the root code/library/UI standards. UI context must be read before substantial UI work; actual component states and paths are in ui-registry.md/json. WA-R090 selects App Router intent under app/; the current pages/ skeleton remains unnormalized until a bounded P0-B patch reads the installed pinned Next guide and proves clean install/lint/typecheck/build and safe routes. Do not change framework code without that guide or invent a second routing model. Existing lock/toolchain failure is a qualification issue, not permission to upgrade dependencies blindly.
+
+One integration owner controls canonical contracts/types, shared runtime, root context, Prisma/migrations and convergence. Candidate lane roots/model responsibilities are in the lane manifest; no lane activates itself. Keep owner repositories private; no feature-local authorization/entitlement/Hold/Media/Search/provider/queue substitutes. Source facts terminate under R085 and do not bypass trusted caller/action/field scope. A caller/actor/evidence ID in input or a fixture never supplies its own authority.
+
+For context/contracts/boundary changes run `python scripts/check-foundation.py`; for actual implementation also run phase-specific real adapter/database/provider/framework tests and record blocked/unrun checks explicitly. Feature completion requires owning plan IDs, file/model/contract impact, positive/negative/compatibility evidence and applicable external qualification. Preserve D until real environment/provenance evidence; no migration/seed/reset, main merge, deployment or broad product implementation is authorized by this readiness directive.

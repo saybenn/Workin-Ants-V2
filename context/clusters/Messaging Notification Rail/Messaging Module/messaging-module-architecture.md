@@ -1064,3 +1064,16 @@ This current owner review applies WA-R085 terminating facts and WA-R086 shared-r
 **Terminating contracts.** R085 source-fact branches validate narrowly registered service/purpose/target/field scope and current source tokens without re-entering the composed authorization/readiness/access decision. User-facing protected queries still enforce full Role and owner checks. Unregistered purposes deny. Sensitive disclosure still requires durable proof; no generic service bypass or source projection as permission.
 
 The platform action matrix records this owner plus its specific coordinated action slices. Actual DTO/failure/replay/freshness fixtures and all applicable external gates remain prerequisites before activation; no contract is FROZEN_FOR_IMPLEMENTATION.
+
+
+## WA-R088 — Contract qualification reference
+
+The full-platform v1 contract companion elaborates existing owner responsibilities under Directive 005; no permanent SH identity/status or source lifecycle is transferred. Read the relevant journey in `context/workflows/platform-workflows.md`, then the specific resource under `context/shared/contracts/`.
+
+Source/owner implementation or owner-policy variants in this Module: SH-003, SH-015, SH-026, SH-031, SH-043, SH-053, SH-090, SH-095, SH-096, SH-097, SH-098, SH-102, SH-103, SH-113, SH-123, SH-125. These registrations are bounded to the existing source/action/purpose; a protocol family does not prove every field executor or activate every possible target.
+
+Selected consuming integration contracts: SH-001, SH-002, SH-003, SH-015, SH-020, SH-030, SH-031, SH-032, SH-041, SH-044, SH-045, SH-046, SH-071, SH-090, SH-101, SH-123, SH-125, SH-127, SH-128, SH-129, SH-130. The 907 concrete consumer expectation records across the platform are declarations and synthetic wire checks, not real adapter qualification. Other textual mentions remain discovery references until a concrete route is registered.
+
+EVOLVABLE_COMPATIBLY means specified architecture and exact v1 compatibility obligations; all actual runtime qualifications remain NOT_QUALIFIED. No freeze or parallel permission is created. The 13 external contract gates and action-specific legal/provider/retention/database gates are cumulative. Trusted invocation context comes from the server, never client/fixture assertions.
+
+Owner-specific fact/result/Privacy/access variants and closed event schemas are defined by the companion; they remain separate implementations with owner-held records and policy. Missing/extra fields, source revisions, denial, replay, unknown and noncommit fences require actual port tests. Do not substitute generic loaders, readiness flags, local premium/Hold state or public signers.

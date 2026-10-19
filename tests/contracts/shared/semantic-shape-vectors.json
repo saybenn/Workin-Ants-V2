@@ -1,0 +1,266 @@
+{
+  "scope": "Closed shape invariants, not proof of actual authority, durable receipt, lawful disposition or runtime effect.",
+  "cases": [
+    {
+      "id": "allowed_media_requires_credential",
+      "type": "MediaAccess",
+      "value": {
+        "state": "allowed",
+        "mediaAssetId": "fixture-value",
+        "assetVersion": "fixture-value",
+        "action": "fixture-value",
+        "credential": null,
+        "grant": {
+          "grantId": "fixture-value",
+          "mediaAssetId": "fixture-value",
+          "assetVersion": "fixture-value",
+          "action": "fixture-value",
+          "context": {
+            "owner": "identity_access",
+            "type": "User",
+            "id": "fixture-value"
+          },
+          "generation": "fixture-value",
+          "expiresAt": "2026-10-19T00:00:00Z",
+          "evidence": []
+        },
+        "expiresAt": "2026-10-19T00:00:00Z"
+      },
+      "valid": false
+    },
+    {
+      "id": "denied_media_cannot_carry_credential",
+      "type": "MediaAccess",
+      "value": {
+        "state": "denied",
+        "mediaAssetId": "fixture-value",
+        "assetVersion": "fixture-value",
+        "action": "fixture-value",
+        "credential": {
+          "secretRef": "secret-ref:fixture-only",
+          "resource": {
+            "owner": "identity_access",
+            "type": "User",
+            "id": "fixture-value"
+          },
+          "version": "fixture-value",
+          "expiresAt": "2026-10-19T00:00:00Z",
+          "action": "fixture-value"
+        },
+        "grant": {
+          "grantId": "fixture-value",
+          "mediaAssetId": "fixture-value",
+          "assetVersion": "fixture-value",
+          "action": "fixture-value",
+          "context": {
+            "owner": "identity_access",
+            "type": "User",
+            "id": "fixture-value"
+          },
+          "generation": "fixture-value",
+          "expiresAt": "2026-10-19T00:00:00Z",
+          "evidence": []
+        },
+        "expiresAt": "2026-10-19T00:00:00Z"
+      },
+      "valid": false
+    },
+    {
+      "id": "denied_media_has_no_secret",
+      "type": "MediaAccess",
+      "value": {
+        "state": "denied",
+        "mediaAssetId": "fixture-value",
+        "assetVersion": "fixture-value",
+        "action": "fixture-value",
+        "credential": null,
+        "grant": null,
+        "expiresAt": "2026-10-19T00:00:00Z"
+      },
+      "valid": true
+    },
+    {
+      "id": "completed_privacy_cannot_have_remaining_actions",
+      "type": "PrivacyExecution",
+      "value": {
+        "target": {
+          "owner": "identity_access",
+          "type": "User",
+          "id": "fixture-value"
+        },
+        "generation": "fixture-value",
+        "state": "completed",
+        "executedActions": [],
+        "remainingActions": [
+          "erase"
+        ],
+        "evidence": [],
+        "receipt": {
+          "owner": "identity_access",
+          "id": "fixture-value",
+          "semanticKey": "fixture-value",
+          "fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "sourceToken": "fixture-value",
+          "recordedAt": "2026-10-19T00:00:00Z"
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "completed_privacy_requires_receipt",
+      "type": "PrivacyExecution",
+      "value": {
+        "target": {
+          "owner": "identity_access",
+          "type": "User",
+          "id": "fixture-value"
+        },
+        "generation": "fixture-value",
+        "state": "completed",
+        "executedActions": [],
+        "remainingActions": [],
+        "evidence": [],
+        "receipt": null
+      },
+      "valid": false
+    },
+    {
+      "id": "complete_shape_is_not_runtime_coverage_proof",
+      "type": "PrivacyExecution",
+      "value": {
+        "target": {
+          "owner": "identity_access",
+          "type": "User",
+          "id": "fixture-value"
+        },
+        "generation": "fixture-value",
+        "state": "completed",
+        "executedActions": [],
+        "remainingActions": [],
+        "evidence": [],
+        "receipt": {
+          "owner": "identity_access",
+          "id": "fixture-value",
+          "semanticKey": "fixture-value",
+          "fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "sourceToken": "fixture-value",
+          "recordedAt": "2026-10-19T00:00:00Z"
+        }
+      },
+      "valid": true
+    },
+    {
+      "id": "callback_claim_not_completed_effect",
+      "type": "ProviderEventReceipt",
+      "value": {
+        "provider": "fixture-value",
+        "accountRef": "fixture-value",
+        "eventId": "fixture-value",
+        "state": "completed",
+        "fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "effectReceipt": null
+      },
+      "valid": false
+    },
+    {
+      "id": "inbox_claim_not_effect_completion",
+      "type": "InboxClaim",
+      "value": {
+        "state": "completed",
+        "eventId": "fixture-value",
+        "effectKey": "fixture-value",
+        "receipt": null
+      },
+      "valid": false
+    },
+    {
+      "id": "required_outstanding_blocks_complete_shape",
+      "type": "WorkflowSummary",
+      "value": {
+        "variant": "fixture-value",
+        "state": "completed",
+        "requiredStepIds": [],
+        "outstandingStepIds": [
+          "remaining"
+        ],
+        "evidence": []
+      },
+      "valid": false
+    },
+    {
+      "id": "decimal_entitlement_must_be_numeric_string",
+      "type": "BenefitValue",
+      "value": {
+        "kind": "decimal_string",
+        "decimalValue": "premium"
+      },
+      "valid": false
+    },
+    {
+      "id": "decimal_entitlement_exact_string",
+      "type": "BenefitValue",
+      "value": {
+        "kind": "decimal_string",
+        "decimalValue": "1.15"
+      },
+      "valid": true
+    },
+    {
+      "id": "positive_refund_cannot_be_zero",
+      "type": "PositiveMoney",
+      "value": {
+        "amountMinor": 0,
+        "currency": "USD"
+      },
+      "valid": false
+    },
+    {
+      "id": "unsafe_javascript_integer_rejected",
+      "type": "Money",
+      "value": {
+        "amountMinor": -9007199254740992,
+        "currency": "USD"
+      },
+      "valid": false
+    },
+    {
+      "id": "order_context_cannot_bind_User",
+      "type": "ThreadContext",
+      "value": {
+        "kind": "order",
+        "source": {
+          "owner": "identity_access",
+          "type": "User",
+          "id": "fixture"
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "direct_pair_needs_distinct_users",
+      "type": "ThreadContext",
+      "value": {
+        "kind": "direct",
+        "identityMode": "pair",
+        "participantUserIds": [
+          "same",
+          "same"
+        ]
+      },
+      "valid": false
+    },
+    {
+      "id": "direct_pair_no_preexisting_Thread_prerequisite",
+      "type": "ThreadContext",
+      "value": {
+        "kind": "direct",
+        "identityMode": "pair",
+        "participantUserIds": [
+          "one",
+          "two"
+        ]
+      },
+      "valid": true
+    }
+  ]
+}

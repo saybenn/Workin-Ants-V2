@@ -1,0 +1,29 @@
+{
+  "scope": "Closed source-owned references, not source table existence/access permission.",
+  "physical_model_owner_source": "prisma/deep modules and schemas.json + current schema",
+  "architecture_only_source_entities": {
+    "role_authority": {
+      "types": [
+        "RolePolicyCatalog"
+      ],
+      "authority": "WA-R031 versioned code-first catalog; no Role source table"
+    },
+    "ai_taxonomy": {
+      "types": [
+        "AiClassificationLog",
+        "AiSuggestion"
+      ],
+      "authority": "WA-R033/R070 and actual AI owner architecture; physical qualification absent"
+    },
+    "observability_ops": {
+      "types": [
+        "SystemEvent",
+        "IntegrationFailure",
+        "QueueJob",
+        "OpsIncident"
+      ],
+      "authority": "WA-R018/R086 owner operational truth; QueueJob projection, not executable queue; physical qualification absent"
+    }
+  },
+  "actual_persistence_qualified": false
+}

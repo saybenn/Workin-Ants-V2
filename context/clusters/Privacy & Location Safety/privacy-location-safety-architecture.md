@@ -1648,3 +1648,8 @@ Current platform reconciliation covers `location_safety`, `privacy_data_erasure`
 Coordinate required ports and semantic fixtures before actual adapters; do not require complete upstream Clusters from a contract edge. Source commits precede outbox delivery and downstream projection/Notification/provider setup. Recovery reuses stable effect identity and cannot infer completion from acknowledgment, telemetry or a read model. The platform dependency graph records typed edges and critical cycle dispositions; action-specific external gates remain scoped.
 
 Root architecture synthesis is conditional on the recorded Gate 5 exit and Gate 6 posture confirmation. A root build plan, runtime choice, database migration, interface freeze and parallel implementation lanes remain later prerequisites. No such implementation approval is made by this coordination appendix.
+
+
+## WA-R088 — Connected contract qualification
+
+Directive 005 supplies the full 132-operation contract companion and thirteen end-to-end journeys. Coordinate the actual Module ports under their owner architecture, exact v1 schemas and retained consumer expectations. Architecture readiness (119 EVOLVABLE_COMPATIBLY / 13 EXTERNALLY_GATED) is distinct from all 132 NOT_QUALIFIED runtime implementations; no interface is frozen or lane activated. Root Phase 0 sequences actual port, persistence, authorization/RLS, concurrency, Privacy executor and provider evidence before dependent activation. Shared contract/schema changes have one integration owner; a whole upstream Cluster is not inferred from a narrow port dependency.

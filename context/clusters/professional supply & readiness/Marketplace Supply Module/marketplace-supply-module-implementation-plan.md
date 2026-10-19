@@ -1996,3 +1996,16 @@ Follow this owner's platform-convergence architecture and the platform lifecycle
 Qualify source-fact leaves and exact required owner ports against fixtures before composed decisions, then local persistence/receipts and actual adapters. A contract dependency is not a requirement that the whole upstream Module/Cluster be mature. Production activation still requires every actual port and action-specific external requirement. Do not wait for downstream Search/Notification/telemetry to commit source truth or to bootstrap shared primitives.
 
 Negative qualification must cover the relevant cycles in platform-dependency-graph.json, stale/revoked source facts, changed fingerprints, unknown external outcomes, projection-as-authority, recursive fact/access calls and actual mandatory proof failures. No schema migration, provider activation, DTO freeze, root build plan or parallel lane approval follows from static review. Preserve Privacy per-owner field/action/serializer coverage as a separate gate.
+
+
+## WA-R088 — Contract qualification reference
+
+The full-platform v1 contract companion elaborates existing owner responsibilities under Directive 005; no permanent SH identity/status or source lifecycle is transferred. Read the relevant journey in `context/workflows/platform-workflows.md`, then the specific resource under `context/shared/contracts/`.
+
+Source/owner implementation or owner-policy variants in this Module: SH-003, SH-015, SH-024, SH-031, SH-043, SH-053, SH-090, SH-094, SH-095, SH-096, SH-097, SH-098, SH-102, SH-103, SH-121, SH-123, SH-124. These registrations are bounded to the existing source/action/purpose; a protocol family does not prove every field executor or activate every possible target.
+
+Selected consuming integration contracts: SH-001, SH-002, SH-003, SH-005, SH-011, SH-015, SH-016, SH-020, SH-022, SH-023, SH-028, SH-031, SH-032, SH-041, SH-044, SH-046, SH-053, SH-090, SH-091, SH-101, SH-121, SH-123, SH-124, SH-127, SH-128, SH-129, SH-131. The 907 concrete consumer expectation records across the platform are declarations and synthetic wire checks, not real adapter qualification. Other textual mentions remain discovery references until a concrete route is registered.
+
+EVOLVABLE_COMPATIBLY means specified architecture and exact v1 compatibility obligations; all actual runtime qualifications remain NOT_QUALIFIED. No freeze or parallel permission is created. The 13 external contract gates and action-specific legal/provider/retention/database gates are cumulative. Trusted invocation context comes from the server, never client/fixture assertions.
+
+Follow Phase 0 in the root build plan before dependent activation: actual producer/consumer fixtures, source-currentness and denial, durable local transaction/outbox, CAS/reservation/fenced claims, server/RLS parity, Privacy field/action inventories and applicable provider evidence. Contract fixtures support isolated work without full upstream Cluster maturity; they never replace a real dependency at integration.

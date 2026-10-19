@@ -22,10 +22,18 @@ def inspect(root=ROOT):
             if not re.search(r'^## '+ruling+r'\b',rulings,re.M):errors.append('Unknown root ruling '+ruling)
         for path,expected in section['sources'].items():
             if not (root/path).is_file() or hashlib.sha256((root/path).read_bytes()).hexdigest()!=expected:errors.append('Root basis drift '+path)
-    for k in ['new_module_or_cluster','root_build_plan_created','parallel_implementation_authorized','executable_contract_freeze','database_or_provider_qualification']:
+    for k in ['new_module_or_cluster','parallel_implementation_authorized','executable_contract_freeze','database_or_provider_qualification']:
         if t[k]:errors.append('Unsupported root promotion '+k)
-    for path in ['context/build-plan.md','build-plan.md']:
-        if (root/path).exists():errors.append('Unexpected root build plan '+path)
+    planning=t.get('directive005_planning_authority')
+    if t.get('root_build_plan_created'):
+        if not planning:errors.append('Root plan lacks explicit Directive 005 authority')
+        else:
+            directive=root/planning['source']
+            if not directive.is_file() or hashlib.sha256(directive.read_bytes()).hexdigest()!=planning['sha256']:errors.append('Planning authority evidence drift')
+            for key in ['plan','candidate_lanes']:
+                if not (root/planning[key]).is_file():errors.append('Missing authorized root planning artifact')
+            if planning['actual_parallel_activation'] or planning['runtime_freeze']:errors.append('Root plan falsely activates implementation')
+    elif (root/'context/build-plan.md').exists():errors.append('Unexpected root build plan without scoped authority')
     return {'errors':errors,'root':t['root'],'sections':len(t['sections']),'status':t['status'],'scope':'Synthesis traceability and gate boundaries only; implementation and external qualification remain open.'}
 if __name__=='__main__':
     result=inspect();print(json.dumps(result,indent=2));raise SystemExit(bool(result['errors']))

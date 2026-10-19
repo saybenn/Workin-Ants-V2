@@ -1,9 +1,9 @@
 {
-  "status": "GATE_7_SYNTHESIZED_NOT_IMPLEMENTATION_APPROVAL",
+  "status": "ROOT_AND_DEVELOPMENT_CONTEXT_ALIGNED_NOT_PRODUCTION_READY",
   "gate5": "GATE_5_PASSED_ARCHITECTURAL_CONVERGENCE",
   "gate6": "D_EXTERNALLY_GATED_POSTURE_CONFIRMED",
   "root": "context/architecture.md",
-  "root_sha256": "296bee17273cb507bdc21cb4fedb71b6884bb1aaaabfa5ca5607a049573aaa3a",
+  "root_sha256": "61274b847fbdd16353f916f68839f197f89e87ab01f3ee413864f30120315beb",
   "sections": [
     {
       "section": "Authority and evidence",
@@ -13,7 +13,7 @@
         "WA-R083"
       ],
       "sources": {
-        "context/context-map.md": "80239b34c5b0fb04f8e880dde20f7605458c4350f1d22c41f9f82b143e9af057",
+        "context/context-map.md": "0bf5604768067400a82422bc952bc99a6dab6bea8da865b4eeacabac1ed5a12f",
         "context/shared/shared-operations.md": "6e4607e9fdaf6c25c8e5f87857b84d778f866a97c4dcd778e03b6e07b6fe8c67"
       }
     },
@@ -55,7 +55,7 @@
         "WA-R086"
       ],
       "sources": {
-        "context/reconciliation/platform-dependency-graph.json": "e5d6639be108f521085b5869026b2f54ace07e5c6526a42243a3829670815378"
+        "context/reconciliation/platform-dependency-graph.json": "bf04c8661aecbcc3fb5fdd81cc7e880d44e7bbb695dcef2afbd90881e3265a45"
       }
     },
     {
@@ -115,7 +115,7 @@
         "WA-R085"
       ],
       "sources": {
-        "context/reconciliation/cross-cluster-bridge-inventory.md": "d36c5fadbd1ca6fa906e53246d0f4f7b417b6d92dc6a1f0217e1bddb236a3176"
+        "context/reconciliation/cross-cluster-bridge-inventory.md": "739b8664eeda1053edc570c06bb461edb07d88f42d6f7968b1f87b1cef77108a"
       }
     },
     {
@@ -137,13 +137,36 @@
         "WA-R086"
       ],
       "sources": {
-        "context/reconciliation/platform-convergence-review.json": "d4a7c297d2e5702bc5d24e05d80bf0706d150e0ba4c1aa643cec399cfe5f71c3"
+        "context/reconciliation/platform-convergence-review.json": "f779b4b4d2a5e4720643f0a59d9e5c5691737c826aca49f720da128376e6c7c7"
+      }
+    },
+    {
+      "section": "Directive 005 \u2014 connected contracts and development foundation",
+      "rulings": [
+        "WA-R088",
+        "WA-R089",
+        "WA-R090"
+      ],
+      "sources": {
+        "context/shared/contracts/contract-catalog.json": "bf00295e199bef0bd225de24a82defa42cd39785141fb9c9b124b516ce05f83a",
+        "context/workflows/platform-workflows.json": "3e9ee7c8e217abced4b869523c04ddb92e73642d40b85015fcbf8f4a7ec55785",
+        "context/build-plan.md": "8020776df4750e4d0436bf5ddfacf49a5394417311eb718a170950ce516fe37f",
+        "context/parallel-development-plan.md": "b10b5852d7c3dd4817ff3999a969463d3d36df7131a24bee6f3ba8c03a0c85e9"
       }
     }
   ],
   "new_module_or_cluster": false,
-  "root_build_plan_created": false,
+  "root_build_plan_created": true,
   "parallel_implementation_authorized": false,
   "executable_contract_freeze": false,
-  "database_or_provider_qualification": false
+  "database_or_provider_qualification": false,
+  "directive005_planning_authority": {
+    "source": "context/reconciliation/directives/brain-directive-005.md",
+    "sha256": "cf6632b58ac407c94bb662f01ba5f5c5959e2d3a6613c8559734a112e51ad1a1",
+    "plan": "context/build-plan.md",
+    "candidate_lanes": "context/parallel-development-plan.md",
+    "actual_parallel_activation": false,
+    "runtime_freeze": false,
+    "source_provenance": "context/reconciliation/directives/brain-directive-005-source.json"
+  }
 }

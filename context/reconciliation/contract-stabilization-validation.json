@@ -1,0 +1,360 @@
+{
+  "directive": "005",
+  "date": "2026-10-19",
+  "status": "PASS",
+  "wire_and_consumer": {
+    "errors": [],
+    "metrics": {
+      "contracts": 132,
+      "schemas": 133,
+      "consumer_bindings": 907,
+      "event_payloads": 47,
+      "positive_wire_cases": 924,
+      "negative_wire_cases": 792,
+      "source_variant_wire_cases": 758,
+      "bilateral_expectation_checks": 907,
+      "common_type_smoke_cases": 385,
+      "semantic_shape_cases": 16,
+      "cross_field_request_cases": 1,
+      "dispositions": {
+        "EVOLVABLE_COMPATIBLY": 119,
+        "EXTERNALLY_GATED": 13
+      }
+    },
+    "scope": "Executable schema/wire and declared consumer expectations. These are not tests of real owner implementations, database concurrency, RLS, providers or full Privacy field/action coverage."
+  },
+  "reference_models": {
+    "status": "PASS",
+    "cases": [
+      {
+        "case": "same command replay once; changed fingerprint conflicts",
+        "contracts": [
+          "SH-044",
+          "SH-060",
+          "SH-107",
+          "SH-108"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "bounded sessions; unknown release denied; late commit fenced",
+        "contracts": [
+          "SH-056",
+          "SH-058",
+          "SH-006"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "all event orderings preserve newest tombstone",
+        "contracts": [
+          "SH-045",
+          "SH-046",
+          "SH-091",
+          "SH-092",
+          "SH-093",
+          "SH-094"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "economic identity independent of event duplicate identity",
+        "contracts": [
+          "SH-045",
+          "SH-060",
+          "SH-108",
+          "SH-117",
+          "SH-118"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "Privacy accepted/unsupported/unknown never completes",
+        "contracts": [
+          "SH-095",
+          "SH-096",
+          "SH-099",
+          "SH-100",
+          "SH-070"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "lawfully accounted retention distinct from failed/erased",
+        "contracts": [
+          "SH-097",
+          "SH-098",
+          "SH-099"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "empty Privacy inventory is not complete coverage",
+        "contracts": [
+          "SH-096",
+          "SH-099"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "one Hold release cannot waive another or dispatch money",
+        "contracts": [
+          "SH-011",
+          "SH-013",
+          "SH-019"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "unknown source does not release Hold",
+        "contracts": [
+          "SH-012",
+          "SH-013"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "current participant and generation before join credential",
+        "contracts": [
+          "SH-026",
+          "SH-068",
+          "SH-088",
+          "SH-127"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "server interval checked despite delayed expiry worker",
+        "contracts": [
+          "SH-055",
+          "SH-068",
+          "SH-088"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "month boundary requires reauthorized reservation",
+        "contracts": [
+          "SH-005",
+          "SH-006",
+          "SH-057"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "revoked audience excluded at actual emission",
+        "contracts": [
+          "SH-043",
+          "SH-071",
+          "SH-113"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "liveness separate from dependent business readiness",
+        "contracts": [
+          "SH-039",
+          "SH-047",
+          "SH-038"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "diagnostic startup backedge detected",
+        "contracts": [
+          "SH-038",
+          "SH-039",
+          "SH-047"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "workflow acyclic and required dependencies registered",
+        "contracts": [
+          "SH-049",
+          "SH-050"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "stale reviewer fence cannot acknowledge new holder",
+        "contracts": [
+          "SH-051",
+          "SH-052",
+          "SH-053",
+          "SH-054"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "exact SHA-256 known vectors, no semantic-similarity claim",
+        "contracts": [
+          "SH-072",
+          "SH-086",
+          "SH-112"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "purpose-bound identifier HMAC differs across purposes",
+        "contracts": [
+          "SH-072",
+          "SH-076"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "Unicode scanner offsets are code points not bytes/UTF16",
+        "contracts": [
+          "SH-077",
+          "SH-081"
+        ],
+        "result": "PASS"
+      },
+      {
+        "case": "financial conservation is per currency, not cross-currency cancellation",
+        "contracts": [
+          "SH-019",
+          "SH-108",
+          "SH-117",
+          "SH-118"
+        ],
+        "result": "PASS"
+      }
+    ],
+    "count": 21,
+    "scope": "Executable architectural reference models and known vectors only. In-memory atomic methods do NOT prove Postgres locking, crash durability, server/RLS, real adapters, CSPRNG/KMS or provider behavior."
+  },
+  "foundation": {
+    "errors": [],
+    "metrics": {
+      "contracts": 132,
+      "workflows": 13,
+      "cold_start_routes": 6,
+      "candidate_lanes": 8,
+      "authorized_parallel_lanes": 0,
+      "synchronous_contract_cycles": [],
+      "current_context_links_checked": 2838,
+      "feature_source_files_scanned": 0,
+      "specified_token_contrast_pairs": 12,
+      "dispositions": {
+        "EVOLVABLE_COMPATIBLY": 119,
+        "EXTERNALLY_GATED": 13
+      }
+    },
+    "token_contrast": [
+      {
+        "theme": "light",
+        "pair": [
+          "text",
+          "canvas"
+        ],
+        "ratio": 17.93
+      },
+      {
+        "theme": "light",
+        "pair": [
+          "mutedText",
+          "canvas"
+        ],
+        "ratio": 7.81
+      },
+      {
+        "theme": "light",
+        "pair": [
+          "onAction",
+          "action"
+        ],
+        "ratio": 6.7
+      },
+      {
+        "theme": "light",
+        "pair": [
+          "success",
+          "successSurface"
+        ],
+        "ratio": 6.81
+      },
+      {
+        "theme": "light",
+        "pair": [
+          "warning",
+          "warningSurface"
+        ],
+        "ratio": 6.84
+      },
+      {
+        "theme": "light",
+        "pair": [
+          "danger",
+          "dangerSurface"
+        ],
+        "ratio": 5.91
+      },
+      {
+        "theme": "dark",
+        "pair": [
+          "text",
+          "canvas"
+        ],
+        "ratio": 16.91
+      },
+      {
+        "theme": "dark",
+        "pair": [
+          "mutedText",
+          "canvas"
+        ],
+        "ratio": 7.85
+      },
+      {
+        "theme": "dark",
+        "pair": [
+          "onAction",
+          "action"
+        ],
+        "ratio": 10.98
+      },
+      {
+        "theme": "dark",
+        "pair": [
+          "success",
+          "successSurface"
+        ],
+        "ratio": 10.62
+      },
+      {
+        "theme": "dark",
+        "pair": [
+          "warning",
+          "warningSurface"
+        ],
+        "ratio": 10.39
+      },
+      {
+        "theme": "dark",
+        "pair": [
+          "danger",
+          "dangerSurface"
+        ],
+        "ratio": 8.51
+      }
+    ],
+    "scope": "Static ownership/workflow/context/schema and executable wire/reference assertions. No real producer/consumer, framework, database, RLS, provider, Privacy executor or full rendered UI proof. Empty feature-source inventory is reported explicitly, not runtime boundary certification."
+  },
+  "negative_mutation_reports": {
+    "foundation": {
+      "cases": 26,
+      "path": "context/reconciliation/foundation-negative-validation.json"
+    },
+    "platform": {
+      "cases": 20,
+      "path": "context/reconciliation/directive005-platform-negative-validation.json"
+    },
+    "bridge": {
+      "cases": 9,
+      "path": "context/reconciliation/directive005-bridge-negative-validation.json"
+    }
+  },
+  "scope": "Static specifications/declared consumer compatibility, restricted schema execution and in-memory reference protocols only. No production adapters, DB/concurrency/RLS/provider/Privacy executor/runtime qualification."
+}

@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:workin-ants:SH-089:v1",
+  "$defs": {
+    "request": {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "SH-089.v1"
+        },
+        "requestId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "correlationId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "input": {
+          "type": "object",
+          "properties": {
+            "variant": {
+              "enum": [
+                "identity_access.revokeTemporaryAccessGrant.v1",
+                "media_file_access.revokeTemporaryAccessGrant.v1",
+                "video_session.revokeTemporaryAccessGrant.v1",
+                "transaction_order.revokeTemporaryAccessGrant.v1",
+                "privacy_data_erasure.revokeTemporaryAccessGrant.v1",
+                "digital_goods_access.revokeTemporaryAccessGrant.v1"
+              ]
+            },
+            "grantId": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+            },
+            "expectedGeneration": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Token"
+            },
+            "cause": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Cause"
+            },
+            "semanticKey": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+            }
+          },
+          "required": [
+            "variant",
+            "grantId",
+            "expectedGeneration",
+            "cause",
+            "semanticKey"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "contract",
+        "requestId",
+        "correlationId",
+        "input"
+      ],
+      "additionalProperties": false
+    },
+    "success": {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "SH-089.v1"
+        },
+        "requestId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "status": {
+          "const": "ok"
+        },
+        "value": {
+          "type": "object",
+          "properties": {
+            "revocation": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/GrantRevocation"
+            },
+            "receipt": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Receipt"
+            }
+          },
+          "required": [
+            "revocation",
+            "receipt"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "contract",
+        "requestId",
+        "status",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "rejected": {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "SH-089.v1"
+        },
+        "requestId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "status": {
+          "enum": [
+            "denied",
+            "not_found",
+            "stale",
+            "conflict",
+            "unsupported",
+            "unavailable",
+            "invalid"
+          ]
+        },
+        "reasonCode": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+        },
+        "retryable": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Bool"
+        },
+        "safeMessageKey": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+        }
+      },
+      "required": [
+        "contract",
+        "requestId",
+        "status",
+        "reasonCode",
+        "retryable",
+        "safeMessageKey"
+      ],
+      "additionalProperties": false
+    },
+    "response": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "SH-089.v1"
+            },
+            "requestId": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+            },
+            "status": {
+              "const": "ok"
+            },
+            "value": {
+              "type": "object",
+              "properties": {
+                "revocation": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/GrantRevocation"
+                },
+                "receipt": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/Receipt"
+                }
+              },
+              "required": [
+                "revocation",
+                "receipt"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "contract",
+            "requestId",
+            "status",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "SH-089.v1"
+            },
+            "requestId": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+            },
+            "status": {
+              "enum": [
+                "denied",
+                "not_found",
+                "stale",
+                "conflict",
+                "unsupported",
+                "unavailable",
+                "invalid"
+              ]
+            },
+            "reasonCode": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+            },
+            "retryable": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Bool"
+            },
+            "safeMessageKey": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+            }
+          },
+          "required": [
+            "contract",
+            "requestId",
+            "status",
+            "reasonCode",
+            "retryable",
+            "safeMessageKey"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/request"
+    },
+    {
+      "$ref": "#/$defs/response"
+    }
+  ]
+}

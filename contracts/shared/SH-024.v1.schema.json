@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:workin-ants:SH-024:v1",
+  "$defs": {
+    "request": {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "SH-024.v1"
+        },
+        "requestId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "correlationId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "input": {
+          "type": "object",
+          "properties": {
+            "variant": {
+              "enum": [
+                "professional_eligibility.evaluatePublicReadiness.v1",
+                "marketplace_supply.evaluatePublicReadiness.v1",
+                "gig_demand.evaluatePublicReadiness.v1",
+                "organization_hiring.evaluatePublicReadiness.v1",
+                "candidate_application_resume_privacy.evaluatePublicReadiness.v1",
+                "taxonomy_classification.evaluatePublicReadiness.v1"
+              ]
+            },
+            "target": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Target"
+            },
+            "expectedSourceToken": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Token"
+            },
+            "surface": {
+              "type": "string",
+              "enum": [
+                "public",
+                "protected"
+              ]
+            }
+          },
+          "required": [
+            "variant",
+            "target",
+            "expectedSourceToken",
+            "surface"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "contract",
+        "requestId",
+        "correlationId",
+        "input"
+      ],
+      "additionalProperties": false
+    },
+    "success": {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "SH-024.v1"
+        },
+        "requestId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "status": {
+          "const": "ok"
+        },
+        "value": {
+          "type": "object",
+          "properties": {
+            "decision": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/PublicDecision"
+            }
+          },
+          "required": [
+            "decision"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "contract",
+        "requestId",
+        "status",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "rejected": {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "const": "SH-024.v1"
+        },
+        "requestId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "status": {
+          "enum": [
+            "denied",
+            "not_found",
+            "stale",
+            "conflict",
+            "unsupported",
+            "unavailable",
+            "invalid"
+          ]
+        },
+        "reasonCode": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+        },
+        "retryable": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Bool"
+        },
+        "safeMessageKey": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+        }
+      },
+      "required": [
+        "contract",
+        "requestId",
+        "status",
+        "reasonCode",
+        "retryable",
+        "safeMessageKey"
+      ],
+      "additionalProperties": false
+    },
+    "response": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "SH-024.v1"
+            },
+            "requestId": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+            },
+            "status": {
+              "const": "ok"
+            },
+            "value": {
+              "type": "object",
+              "properties": {
+                "decision": {
+                  "$ref": "urn:workin-ants:types:v1#/$defs/PublicDecision"
+                }
+              },
+              "required": [
+                "decision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "contract",
+            "requestId",
+            "status",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "contract": {
+              "const": "SH-024.v1"
+            },
+            "requestId": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+            },
+            "status": {
+              "enum": [
+                "denied",
+                "not_found",
+                "stale",
+                "conflict",
+                "unsupported",
+                "unavailable",
+                "invalid"
+              ]
+            },
+            "reasonCode": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+            },
+            "retryable": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Bool"
+            },
+            "safeMessageKey": {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Key"
+            }
+          },
+          "required": [
+            "contract",
+            "requestId",
+            "status",
+            "reasonCode",
+            "retryable",
+            "safeMessageKey"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/request"
+    },
+    {
+      "$ref": "#/$defs/response"
+    }
+  ]
+}

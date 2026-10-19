@@ -1,0 +1,230 @@
+{
+  "scope": "Context loading/ownership route checks, not agent intelligence or runtime feature tests.",
+  "cases": [
+    {
+      "id": "COLD-01",
+      "task": "Registration/profile/bootstrap",
+      "workflow": "WF-01",
+      "source_owners": [
+        "identity_access",
+        "consent_disclosure",
+        "customer_buyer_profile",
+        "track_subscription_entitlement"
+      ],
+      "contracts": [
+        "SH-001",
+        "SH-004",
+        "SH-007",
+        "SH-114"
+      ],
+      "required_context": [
+        "AGENTS.md",
+        "context/context-map.md",
+        "context/reconciliation/development-readiness-report.md",
+        "context/architecture.md",
+        "context/build-plan.md",
+        "context/workflows/WF-01.md",
+        "context/shared/contracts/SH-001.md",
+        "context/shared/contracts/SH-004.md",
+        "context/shared/contracts/SH-007.md",
+        "context/shared/contracts/SH-114.md",
+        "context/clusters/identity, authority, & consent/Identity & Access module/identity-access-module-architecture.md",
+        "context/clusters/identity, authority, & consent/Identity & Access module/identity-access-module-implementation-plan.md",
+        "context/clusters/identity, authority, & consent/Consent & Disclosure Module/consent-disclosure-module-architecture.md",
+        "context/clusters/identity, authority, & consent/Consent & Disclosure Module/consent-disclosure-implementation-plan.md",
+        "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-module-architecture.md",
+        "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-implementation-plan.md",
+        "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md",
+        "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-implementation-plan.md"
+      ],
+      "critical_constraint": "No local User before applicable age/provider proof; no Track wait for profile creation or inferred Free.",
+      "expected_current_action": "SEQUENTIAL_OFFLINE_QUALIFICATION_ONLY; production feature and parallel lane are blocked until actual Phase 0 entry evidence."
+    },
+    {
+      "id": "COLD-02",
+      "task": "Refund and financial recovery",
+      "workflow": "WF-06",
+      "source_owners": [
+        "transaction_order",
+        "review_dispute",
+        "payment_payout_tax"
+      ],
+      "contracts": [
+        "SH-108",
+        "SH-044",
+        "SH-060",
+        "SH-062"
+      ],
+      "required_context": [
+        "AGENTS.md",
+        "context/context-map.md",
+        "context/reconciliation/development-readiness-report.md",
+        "context/architecture.md",
+        "context/build-plan.md",
+        "context/workflows/WF-06.md",
+        "context/shared/contracts/SH-108.md",
+        "context/shared/contracts/SH-044.md",
+        "context/shared/contracts/SH-060.md",
+        "context/shared/contracts/SH-062.md",
+        "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-module-architecture.md",
+        "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-implementation-plan.md",
+        "context/clusters/customer demand, order, & resolution/review dispute module/review-dispute-module-architecture.md",
+        "context/clusters/customer demand, order, & resolution/review dispute module/review-dispute-implementation-plan.md",
+        "context/clusters/professional supply & readiness/Payment Payout & Tax Module/payment-payout-tax-module-architecture.md",
+        "context/clusters/professional supply & readiness/Payment Payout & Tax Module/payment-payout-tax-module-implementation-plan.md"
+      ],
+      "critical_constraint": "Review to Order to Payment actual effect; unknown reconciles same identity, no direct Review refund executor.",
+      "expected_current_action": "SEQUENTIAL_OFFLINE_QUALIFICATION_ONLY; production feature and parallel lane are blocked until actual Phase 0 entry evidence."
+    },
+    {
+      "id": "COLD-03",
+      "task": "Purchased Booking confirmation",
+      "workflow": "WF-07",
+      "source_owners": [
+        "booking_calendar",
+        "transaction_order",
+        "video_session"
+      ],
+      "contracts": [
+        "SH-025",
+        "SH-056",
+        "SH-058",
+        "SH-068"
+      ],
+      "required_context": [
+        "AGENTS.md",
+        "context/context-map.md",
+        "context/reconciliation/development-readiness-report.md",
+        "context/architecture.md",
+        "context/build-plan.md",
+        "context/workflows/WF-07.md",
+        "context/shared/contracts/SH-025.md",
+        "context/shared/contracts/SH-056.md",
+        "context/shared/contracts/SH-058.md",
+        "context/shared/contracts/SH-068.md",
+        "context/clusters/scheduling, media, & digital delivery/booking-calendar-module/booking-calendar-module-architecture.md",
+        "context/clusters/scheduling, media, & digital delivery/booking-calendar-module/booking-calendar-module-implementation-plan.md",
+        "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-module-architecture.md",
+        "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-implementation-plan.md",
+        "context/clusters/scheduling, media, & digital delivery/video-session-module/video-session-module-architecture.md",
+        "context/clusters/scheduling, media, & digital delivery/video-session-module/video-session-module-implementation-plan.md"
+      ],
+      "critical_constraint": "Preliminary slot not confirmation; Order reservation and Booking conversion receipt; timeout cannot release.",
+      "expected_current_action": "SEQUENTIAL_OFFLINE_QUALIFICATION_ONLY; production feature and parallel lane are blocked until actual Phase 0 entry evidence."
+    },
+    {
+      "id": "COLD-04",
+      "task": "Recruiter resume access",
+      "workflow": "WF-09",
+      "source_owners": [
+        "candidate_application_resume_privacy",
+        "organization_hiring",
+        "media_file_access"
+      ],
+      "contracts": [
+        "SH-002",
+        "SH-026",
+        "SH-030",
+        "SH-127",
+        "SH-128"
+      ],
+      "required_context": [
+        "AGENTS.md",
+        "context/context-map.md",
+        "context/reconciliation/development-readiness-report.md",
+        "context/architecture.md",
+        "context/build-plan.md",
+        "context/workflows/WF-09.md",
+        "context/shared/contracts/SH-002.md",
+        "context/shared/contracts/SH-026.md",
+        "context/shared/contracts/SH-030.md",
+        "context/shared/contracts/SH-127.md",
+        "context/shared/contracts/SH-128.md",
+        "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-architecture.md",
+        "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-implementation-plan.md",
+        "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-architecture.md",
+        "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-implementation-plan.md",
+        "context/clusters/scheduling, media, & digital delivery/media-asset-module/media-asset-module-architecture.md",
+        "context/clusters/scheduling, media, & digital delivery/media-asset-module/media-asset-module-implementation-plan.md"
+      ],
+      "critical_constraint": "Current Organization assignment and Candidate purpose proof; ready is not permission; source revoke denies despite event lag.",
+      "expected_current_action": "SEQUENTIAL_OFFLINE_QUALIFICATION_ONLY; production feature and parallel lane are blocked until actual Phase 0 entry evidence."
+    },
+    {
+      "id": "COLD-05",
+      "task": "Privacy export completion",
+      "workflow": "WF-11",
+      "source_owners": [
+        "privacy_data_erasure",
+        "media_file_access",
+        "search_public_visibility"
+      ],
+      "contracts": [
+        "SH-095",
+        "SH-096",
+        "SH-097",
+        "SH-099",
+        "SH-100"
+      ],
+      "required_context": [
+        "AGENTS.md",
+        "context/context-map.md",
+        "context/reconciliation/development-readiness-report.md",
+        "context/architecture.md",
+        "context/build-plan.md",
+        "context/workflows/WF-11.md",
+        "context/shared/contracts/SH-095.md",
+        "context/shared/contracts/SH-096.md",
+        "context/shared/contracts/SH-097.md",
+        "context/shared/contracts/SH-099.md",
+        "context/shared/contracts/SH-100.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md",
+        "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md",
+        "context/clusters/scheduling, media, & digital delivery/media-asset-module/media-asset-module-architecture.md",
+        "context/clusters/scheduling, media, & digital delivery/media-asset-module/media-asset-module-implementation-plan.md",
+        "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-architecture.md",
+        "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-implementation-plan.md"
+      ],
+      "critical_constraint": "Protocol not executor coverage; complete actual-byte manifest/ready exact artifact and generation receipts; unknown stays outstanding.",
+      "expected_current_action": "SEQUENTIAL_OFFLINE_QUALIFICATION_ONLY; production feature and parallel lane are blocked until actual Phase 0 entry evidence."
+    },
+    {
+      "id": "COLD-06",
+      "task": "Source restriction and Hold release",
+      "workflow": "WF-12",
+      "source_owners": [
+        "content_moderation_legal_notice",
+        "admin_review_compliance_hold",
+        "audit_event_ledger"
+      ],
+      "contracts": [
+        "SH-011",
+        "SH-013",
+        "SH-030",
+        "SH-103",
+        "SH-105"
+      ],
+      "required_context": [
+        "AGENTS.md",
+        "context/context-map.md",
+        "context/reconciliation/development-readiness-report.md",
+        "context/architecture.md",
+        "context/build-plan.md",
+        "context/workflows/WF-12.md",
+        "context/shared/contracts/SH-011.md",
+        "context/shared/contracts/SH-013.md",
+        "context/shared/contracts/SH-030.md",
+        "context/shared/contracts/SH-103.md",
+        "context/shared/contracts/SH-105.md",
+        "context/clusters/Moderation holds Audits and Ops/Content Moderation & Legal Notice Module/content-moderation-legal-notice-module-architecture.md",
+        "context/clusters/Moderation holds Audits and Ops/Content Moderation & Legal Notice Module/content-moderation-legal-notice-module-implementation-plan.md",
+        "context/clusters/Moderation holds Audits and Ops/Admin Review & Compliance Hold Module/admin-review-compliance-hold-module-architecture.md",
+        "context/clusters/Moderation holds Audits and Ops/Admin Review & Compliance Hold Module/admin-review-compliance-hold-module-implementation-plan.md",
+        "context/clusters/Moderation holds Audits and Ops/Audit Event Ledger Module/audit-event-ledger-module-architecture.md",
+        "context/clusters/Moderation holds Audits and Ops/Audit Event Ledger Module/audit-event-ledger-module-implementation-plan.md"
+      ],
+      "critical_constraint": "One cause release does not dispatch/restore or waive other Holds; acknowledged not completed; owner-only executor.",
+      "expected_current_action": "SEQUENTIAL_OFFLINE_QUALIFICATION_ONLY; production feature and parallel lane are blocked until actual Phase 0 entry evidence."
+    }
+  ]
+}

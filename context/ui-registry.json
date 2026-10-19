@@ -1,0 +1,212 @@
+{
+  "status": "FOUNDATION_CONTEXT_SPECIFIED",
+  "ruling": "WA-R089",
+  "components": [
+    {
+      "id": "UI-001",
+      "name": "EnvironmentBanner",
+      "owner": "platform_shell",
+      "status": "EXISTS_UNQUALIFIED",
+      "actual_path": "components/EnvironmentBanner.tsx",
+      "planned_path": null,
+      "behavior": "Nonproduction environment context only; no secret/config value dump. Actual production hiding/build needs smoke proof."
+    },
+    {
+      "id": "UI-002",
+      "name": "Root shell and diagnostic routes",
+      "owner": "platform_shell",
+      "status": "EXISTS_ROUTER_DEBT",
+      "actual_path": "pages/layout.tsx",
+      "planned_path": "app/layout.tsx",
+      "behavior": "Existing route bytes preserved in P0-B normalization; current folder convention conflicts with App Router intent."
+    },
+    {
+      "id": "UI-003",
+      "name": "Button / Link / Focus",
+      "owner": "shared_presentation",
+      "status": "SPECIFIED_NOT_IMPLEMENTED",
+      "actual_path": null,
+      "planned_path": "components/ui/",
+      "behavior": "Semantic action/navigation, pending/disabled reason and visible focus; never authority."
+    },
+    {
+      "id": "UI-004",
+      "name": "Input / Select / FormField",
+      "owner": "shared_presentation",
+      "status": "SPECIFIED_NOT_IMPLEMENTED",
+      "actual_path": null,
+      "planned_path": "components/ui/",
+      "behavior": "Visible labels and accessible errors; owner validation remains server-side."
+    },
+    {
+      "id": "UI-005",
+      "name": "Dialog / AlertDialog",
+      "owner": "shared_presentation",
+      "status": "SPECIFIED_NOT_IMPLEMENTED",
+      "actual_path": null,
+      "planned_path": "components/ui/",
+      "behavior": "Keyboard focus containment/restoration and explicit consequences; no policy bypass."
+    },
+    {
+      "id": "UI-006",
+      "name": "Status / Result / AsyncProgress",
+      "owner": "shared_presentation",
+      "status": "SPECIFIED_NOT_IMPLEMENTED",
+      "actual_path": null,
+      "planned_path": "components/ui/",
+      "behavior": "Distinct denied/stale/partial/unknown/accepted/completed states; no generic success coercion."
+    },
+    {
+      "id": "UI-007",
+      "name": "Table / List / Pagination",
+      "owner": "shared_presentation",
+      "status": "SPECIFIED_NOT_IMPLEMENTED",
+      "actual_path": null,
+      "planned_path": "components/ui/",
+      "behavior": "Accessible header/empty/partial/cursor states; no total-count privacy leak."
+    },
+    {
+      "id": "UI-008",
+      "name": "ProtectedMediaView",
+      "owner": "shared_presentation",
+      "status": "SPECIFIED_NOT_IMPLEMENTED",
+      "actual_path": null,
+      "planned_path": "components/ui/",
+      "behavior": "Exact owner permission/proof/expiry, protected credential handling and current generation."
+    },
+    {
+      "id": "UI-009",
+      "name": "ActorContextSelector",
+      "owner": "shared_presentation",
+      "status": "SPECIFIED_NOT_IMPLEMENTED",
+      "actual_path": null,
+      "planned_path": "components/ui/",
+      "behavior": "Show selected permitted actor branch; switching context is not granting permission."
+    },
+    {
+      "id": "UI-010",
+      "name": "ConsentPresentation",
+      "owner": "shared_presentation",
+      "status": "SPECIFIED_NOT_IMPLEMENTED",
+      "actual_path": null,
+      "planned_path": "components/ui/",
+      "behavior": "Exact immutable content/version and explicit affirmative action; presentation is not proof."
+    },
+    {
+      "id": "UI-011",
+      "name": "SourceActionForm",
+      "owner": "shared_presentation",
+      "status": "SPECIFIED_NOT_IMPLEMENTED",
+      "actual_path": null,
+      "planned_path": "components/ui/",
+      "behavior": "Stable semantic intent, conflict/retry/reconcile, safe retained input; no double side effect."
+    },
+    {
+      "id": "UI-012",
+      "name": "AppShell / Navigation / Breadcrumbs",
+      "owner": "shared_presentation",
+      "status": "SPECIFIED_NOT_IMPLEMENTED",
+      "actual_path": null,
+      "planned_path": "components/ui/",
+      "behavior": "Role/current owner context drives available links; hidden navigation is not server access control."
+    }
+  ],
+  "screen_patterns": [
+    {
+      "id": "SCREEN-01",
+      "name": "Account, security and actor setup",
+      "workflows": [
+        "WF-01",
+        "WF-02"
+      ],
+      "status": "PATTERN_SCOPE_ONLY_NOT_IMPLEMENTED",
+      "route": null,
+      "required": "Actual owner states/current authority, field privacy and approved workflow; no invented screen/product capability from a registry entry."
+    },
+    {
+      "id": "SCREEN-02",
+      "name": "Professional readiness and Offering management",
+      "workflows": [
+        "WF-03",
+        "WF-04"
+      ],
+      "status": "PATTERN_SCOPE_ONLY_NOT_IMPLEMENTED",
+      "route": null,
+      "required": "Actual owner states/current authority, field privacy and approved workflow; no invented screen/product capability from a registry entry."
+    },
+    {
+      "id": "SCREEN-03",
+      "name": "Gig response and commercial transaction",
+      "workflows": [
+        "WF-05",
+        "WF-06"
+      ],
+      "status": "PATTERN_SCOPE_ONLY_NOT_IMPLEMENTED",
+      "route": null,
+      "required": "Actual owner states/current authority, field privacy and approved workflow; no invented screen/product capability from a registry entry."
+    },
+    {
+      "id": "SCREEN-04",
+      "name": "Schedule, purchased access and protected delivery",
+      "workflows": [
+        "WF-07",
+        "WF-08"
+      ],
+      "status": "PATTERN_SCOPE_ONLY_NOT_IMPLEMENTED",
+      "route": null,
+      "required": "Actual owner states/current authority, field privacy and approved workflow; no invented screen/product capability from a registry entry."
+    },
+    {
+      "id": "SCREEN-05",
+      "name": "Hiring, application, resume and Interview views",
+      "workflows": [
+        "WF-09"
+      ],
+      "status": "PATTERN_SCOPE_ONLY_NOT_IMPLEMENTED",
+      "route": null,
+      "required": "Actual owner states/current authority, field privacy and approved workflow; no invented screen/product capability from a registry entry."
+    },
+    {
+      "id": "SCREEN-06",
+      "name": "Conversations, notifications and discovery",
+      "workflows": [
+        "WF-10"
+      ],
+      "status": "PATTERN_SCOPE_ONLY_NOT_IMPLEMENTED",
+      "route": null,
+      "required": "Actual owner states/current authority, field privacy and approved workflow; no invented screen/product capability from a registry entry."
+    },
+    {
+      "id": "SCREEN-07",
+      "name": "Privacy, compliance and operator evidence",
+      "workflows": [
+        "WF-11",
+        "WF-12"
+      ],
+      "status": "PATTERN_SCOPE_ONLY_NOT_IMPLEMENTED",
+      "route": null,
+      "required": "Actual owner states/current authority, field privacy and approved workflow; no invented screen/product capability from a registry entry."
+    },
+    {
+      "id": "SCREEN-08",
+      "name": "Reward and prize participation/fulfillment",
+      "workflows": [
+        "WF-13"
+      ],
+      "status": "PATTERN_SCOPE_ONLY_NOT_IMPLEMENTED",
+      "route": null,
+      "required": "Actual owner states/current authority, field privacy and approved workflow; no invented screen/product capability from a registry entry."
+    }
+  ],
+  "not_installed_intent": [
+    "shadcn/ui",
+    "Radix",
+    "Zod"
+  ],
+  "routing_status": "ACTUAL_PAGES_APP_ROUTER_STYLE_REQUIRES_P0B_NORMALIZATION",
+  "substantial_ui_implementation_authorized": false,
+  "declared_ui_libraries": [
+    "react",
+    "tailwindcss"
+  ]
+}

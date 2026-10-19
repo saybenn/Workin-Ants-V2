@@ -1,0 +1,46 @@
+{
+  "cases": [
+    {
+      "id": "event_envelope_payload_name_pair_must_match",
+      "contract": "SH-046",
+      "request": {
+        "contract": "SH-046.v1",
+        "requestId": "fixture-value",
+        "correlationId": "fixture-value",
+        "input": {
+          "event": {
+            "eventId": "fixture-value",
+            "eventName": "customer.lifecycle_changed.v1",
+            "schemaVersion": 1,
+            "producer": "customer_buyer_profile",
+            "aggregate": {
+              "owner": "customer_buyer_profile",
+              "type": "CustomerProfile",
+              "id": "fixture-aggregate"
+            },
+            "sourceRevision": "fixture-value",
+            "occurredAt": "2026-10-19T00:00:00Z",
+            "effectiveAt": "2026-10-19T00:00:00Z",
+            "correlationId": "fixture-value",
+            "causationId": "fixture-value",
+            "correctionOf": "fixture-value"
+          },
+          "payload": {
+            "eventName": "consent.proof_changed.v1",
+            "subjectUserId": "fixture-value",
+            "proofId": "fixture-value",
+            "context": {
+              "owner": "identity_access",
+              "type": "User",
+              "id": "fixture-value"
+            },
+            "disposition": "fixture-value",
+            "policyVersion": "fixture-value"
+          },
+          "ownerTransaction": "fixture-value"
+        }
+      },
+      "valid": false
+    }
+  ]
+}
