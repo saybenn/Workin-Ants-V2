@@ -8,6 +8,8 @@
 - **Qualification limits retained:**132 contracts remain119 EVOLVABLE_COMPATIBLY/13 EXTERNALLY_GATED,0frozen/0runtime-qualified. Eight lanes remain candidates,zero authorized. No broad product implementation or final production readiness. Actual shared runtime/RLS/concurrency/Privacy/provider/legal evidence is still required.
 - **Next:** controlled security remediation review and actual isolated DB provenance;P0-D actual durable runtime awaits the relevant database/security gate. Detailed commands,failures,scope and recovery:reconciliation/phase0-foundation-validation.json. Exact final HEAD/tree,remote status and independently verified full-history bundle are in the downloadable Checkpoint006 manifest;local commits are not published without verification.
 
+Fresh independent restore also passed all actual framework/HTTP/schema/context checks; a standard Python bytecode ignore follow-up keeps the documented validator workflow clean. No component or dependency version changed.
+
 Earlier dated checkpoints below are historical and do not supersede this continuation.
 
 ## Current continuation — Directive 005, 2026-10-19

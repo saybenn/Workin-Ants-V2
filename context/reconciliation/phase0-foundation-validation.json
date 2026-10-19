@@ -534,5 +534,21 @@
       "finding": "R091 append intentionally changed the full canonical ruling-file fingerprint",
       "result": "Prior R001\u2013R090 prefix independently compared unchanged;refreshed that reviewed fingerprint and root basis only. No lower-level source conflict reopened."
     }
-  ]
+  ],
+  "fresh_bundle_restore": {
+    "tested_head": "b9a5c6e51c51240d691cf58681d19e8196cfe8f3",
+    "commands_all_exit_zero": [
+      "clean_install",
+      "lint",
+      "typecheck",
+      "build",
+      "http_smoke",
+      "schema_validate",
+      "context"
+    ],
+    "real_http_cases": 41,
+    "installed_guidance_hashes_match": true,
+    "tracked_application_files_unchanged": true,
+    "cleanliness_finding": "Python checker generated untracked bytecode;standard root ignore rules added in a config-only follow-up. No application/dependency version change."
+  }
 }
