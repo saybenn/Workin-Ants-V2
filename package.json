@@ -7,13 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "check": "npm run lint && npm run typecheck && npm run build",
-    "db:validate": "prisma validate",
+    "db:validate": "prisma validate --config prisma.offline.config.ts",
     "db:format": "prisma format",
-    "db:migrate": "prisma migrate dev",
-    "db:seed": "node --experimental-strip-types prisma/seed.ts",
-    "db:check": "node --experimental-strip-types scripts/check-db-integrity.ts"
+    "db:migrate": "node scripts/database-write-gate.mjs migrate",
+    "db:seed": "node scripts/database-write-gate.mjs seed",
+    "db:check": "node scripts/database-write-gate.mjs check",
+    "test:foundation": "node scripts/smoke-foundation.mjs"
   },
   "dependencies": {
     "@prisma/client": "^7.8.0",
@@ -33,5 +34,10 @@
     "prisma": "^7.8.0",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "packageManager": "npm@11.9.0",
+  "engines": {
+    "node": "24.19.x",
+    "npm": "11.9.x"
   }
 }

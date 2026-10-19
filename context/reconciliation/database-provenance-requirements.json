@@ -1,0 +1,109 @@
+{
+  "status": "REQUIREMENTS_PREPARED_EXTERNAL_EVIDENCE_NOT_OBTAINED",
+  "database_posture": "D",
+  "preferred_target": "BRAND_NEW_ISOLATED_DEVELOPMENT_DATABASE_FOR_EVALUATION",
+  "strategy_selected": false,
+  "database_contacted": false,
+  "database_provisioned": false,
+  "migrations_executed": false,
+  "old_supabase_reused_reset_or_erased": false,
+  "requirements": [
+    {
+      "id": "DBP-01",
+      "required_evidence": "Intended isolated project/cluster/database identifier and endpoint fingerprint",
+      "owner": "Environment owner",
+      "handling": "No credentials; prove it differs from the previously referenced Supabase target.",
+      "actual_evidence": null,
+      "status": "NOT_OBTAINED"
+    },
+    {
+      "id": "DBP-02",
+      "required_evidence": "Development-only purpose, region, provider/account and isolation boundary",
+      "owner": "Environment owner",
+      "handling": "No production resource provisioning or shared old data assumed.",
+      "actual_evidence": null,
+      "status": "NOT_OBTAINED"
+    },
+    {
+      "id": "DBP-03",
+      "required_evidence": "Data-preservation and disposal obligations for both old and proposed targets",
+      "owner": "Data owner",
+      "handling": "Explicitly identify whether any data exists; never infer emptiness from a greenfield label.",
+      "actual_evidence": null,
+      "status": "NOT_OBTAINED"
+    },
+    {
+      "id": "DBP-04",
+      "required_evidence": "Postgres exact version, installed extensions and Supabase/Auth managed schemas",
+      "owner": "Database steward",
+      "handling": "Identify schemas/roles the application must not own or recreate.",
+      "actual_evidence": null,
+      "status": "NOT_OBTAINED"
+    },
+    {
+      "id": "DBP-05",
+      "required_evidence": "Actual migration ledger, checksums and application namespace emptiness",
+      "owner": "Migration integrator",
+      "handling": "New database ledger may be empty, but capture actual evidence; never mark old migrations applied to hide gaps.",
+      "actual_evidence": null,
+      "status": "NOT_OBTAINED"
+    },
+    {
+      "id": "DBP-06",
+      "required_evidence": "Schema-only catalog comparison: tables/columns/types/enums/constraints/FKs/indexes",
+      "owner": "Migration integrator",
+      "handling": "Compare reviewed candidate and actual isolated target; Prisma model count alone is insufficient.",
+      "actual_evidence": null,
+      "status": "NOT_OBTAINED"
+    },
+    {
+      "id": "DBP-07",
+      "required_evidence": "Views/materialized views, functions, triggers, ownership/search_path/extensions",
+      "owner": "Security/database steward",
+      "handling": "Include objects not represented by Prisma; classify privileged function behavior.",
+      "actual_evidence": null,
+      "status": "NOT_OBTAINED"
+    },
+    {
+      "id": "DBP-08",
+      "required_evidence": "Exposed Data API schemas, grants/default privileges, roles/BYPASSRLS and RLS/policies",
+      "owner": "Security steward",
+      "handling": "Never assume provider defaults; inspect actual role privileges and policy coverage.",
+      "actual_evidence": null,
+      "status": "NOT_OBTAINED"
+    },
+    {
+      "id": "DBP-09",
+      "required_evidence": "177 source-model routes,12 compatibility mirrors and architecture-required storage reconciliation",
+      "owner": "Module owners + integrator",
+      "handling": "Validate proposed physical constraints/source separation before candidate DDL; current schema validation is not this review.",
+      "actual_evidence": null,
+      "status": "NOT_OBTAINED"
+    },
+    {
+      "id": "DBP-10",
+      "required_evidence": "Disposable replay environment identity and reproducible toolchain/fixture plan",
+      "owner": "Migration/security integrator",
+      "handling": "No replay executed; require one ordered migration/RLS stream and actual allow/deny/constraint/concurrency tests.",
+      "actual_evidence": null,
+      "status": "NOT_OBTAINED"
+    },
+    {
+      "id": "DBP-11",
+      "required_evidence": "Backup/restore, retention, secrets handoff and nonproduction safe fixture obligations",
+      "owner": "Data/security owners",
+      "handling": "No real personal data or credentials in repository/evidence; lawful retention/provider facts remain external.",
+      "actual_evidence": null,
+      "status": "NOT_OBTAINED"
+    },
+    {
+      "id": "DBP-12",
+      "required_evidence": "Reviewed adoption decision and exact source/migration/RLS/build versions",
+      "owner": "Integration owner",
+      "handling": "A/B/C/posture selection requires actual evidence and recorded rationale; preference alone retains D.",
+      "actual_evidence": null,
+      "status": "NOT_OBTAINED"
+    }
+  ],
+  "smallest_external_action": "Identify an isolated development target and supply sanitized identity/isolation, preservation, actual ledger/catalog/security evidence through the environment owner. Do not send passwords, tokens, connection strings or personal rows."
+}

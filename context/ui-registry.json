@@ -1,24 +1,31 @@
 {
-  "status": "FOUNDATION_CONTEXT_SPECIFIED",
+  "status": "FOUNDATION_SHELL_HTTP_BUILD_QUALIFIED_PRODUCT_UI_UNIMPLEMENTED",
   "ruling": "WA-R089",
   "components": [
     {
       "id": "UI-001",
       "name": "EnvironmentBanner",
       "owner": "platform_shell",
-      "status": "EXISTS_UNQUALIFIED",
-      "actual_path": "components/EnvironmentBanner.tsx",
+      "status": "ARCHIVED_NOT_ACTIVE",
+      "actual_path": "legacy/checkpoint-005/application/components/EnvironmentBanner.tsx",
       "planned_path": null,
-      "behavior": "Nonproduction environment context only; no secret/config value dump. Actual production hiding/build needs smoke proof."
+      "behavior": "Exact legacy artifact retained for comparison; not imported or reused by the clean app."
     },
     {
       "id": "UI-002",
       "name": "Root shell and diagnostic routes",
       "owner": "platform_shell",
-      "status": "EXISTS_ROUTER_DEBT",
-      "actual_path": "pages/layout.tsx",
-      "planned_path": "app/layout.tsx",
-      "behavior": "Existing route bytes preserved in P0-B normalization; current folder convention conflicts with App Router intent."
+      "status": "FOUNDATION_FRAMEWORK_HTTP_QUALIFIED",
+      "actual_path": "app/layout.tsx",
+      "planned_path": null,
+      "behavior": "Minimal root html/body shell,static page and process-only diagnostics;41 real local dev/production HTTP checks pass. Product/UI accessibility and dependency security remain unqualified.",
+      "api": "RootLayout({children:ReactNode}); HomePage(); NotFoundPage()",
+      "classes": [
+        "foundation-frame",
+        "foundation-label"
+      ],
+      "tokens": "app/globals.css consumes context/ui-tokens.json; server component only,zero domain/provider/database access.",
+      "evidence": "context/reconciliation/phase0-foundation-validation.json"
     },
     {
       "id": "UI-003",
@@ -203,10 +210,39 @@
     "Radix",
     "Zod"
   ],
-  "routing_status": "ACTUAL_PAGES_APP_ROUTER_STYLE_REQUIRES_P0B_NORMALIZATION",
+  "routing_status": "CLEAN_APP_ROUTER_FOUNDATION_FUNCTIONAL_PASS_SECURITY_GATE_OPEN",
   "substantial_ui_implementation_authorized": false,
   "declared_ui_libraries": [
     "react",
     "tailwindcss"
+  ],
+  "implementation_slices": [
+    {
+      "id": "P0-B-clean-foundation",
+      "actual_reusable_components_added": [],
+      "foundation_entry_points": [
+        "app/layout.tsx",
+        "app/page.tsx",
+        "app/not-found.tsx"
+      ],
+      "legacy_components_archived": [
+        "UI-001"
+      ],
+      "planned_primitive_ids_unchanged": [
+        "UI-003",
+        "UI-004",
+        "UI-005",
+        "UI-006",
+        "UI-007",
+        "UI-008",
+        "UI-009",
+        "UI-010",
+        "UI-011",
+        "UI-012"
+      ],
+      "tests": "lint/typegen/strict typecheck/build and41 real HTTP smoke cases PASS; no full rendered accessibility claim",
+      "security_gate": "OPEN",
+      "maintenance": "Update actual paths,API/classes/token use,evidence and planned-only status after every implementation slice."
+    }
   ]
 }

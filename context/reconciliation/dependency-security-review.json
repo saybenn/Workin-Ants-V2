@@ -1,0 +1,182 @@
+{
+  "id": "TECH-DEPENDENCY-SECURITY-001",
+  "status": "OPEN_CONTROLLED_REMEDIATION_REQUIRED",
+  "audit_command": "npm audit --omit=dev --json",
+  "audit_exit": 1,
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 4,
+      "high": 10,
+      "critical": 1,
+      "total": 15
+    },
+    "dependencies": {
+      "prod": 121,
+      "dev": 372,
+      "optional": 91,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 528
+    }
+  },
+  "affected_packages": [
+    {
+      "name": "@hono/node-server",
+      "severity": "moderate",
+      "range": "<=1.19.14",
+      "fixAvailable": true,
+      "direct": false
+    },
+    {
+      "name": "@prisma/config",
+      "severity": "high",
+      "range": "6.13.0-dev.1 - 7.10.0 || 8.1.0-dev.1 - 8.1.0-dev.4",
+      "fixAvailable": true,
+      "direct": false
+    },
+    {
+      "name": "@prisma/dev",
+      "severity": "moderate",
+      "range": "<=0.24.16",
+      "fixAvailable": true,
+      "direct": false
+    },
+    {
+      "name": "baseline-browser-mapping",
+      "severity": "moderate",
+      "range": ">=2.0.0 <2.11.0",
+      "fixAvailable": true,
+      "direct": false
+    },
+    {
+      "name": "deepmerge-ts",
+      "severity": "high",
+      "range": "<8.0.0",
+      "fixAvailable": true,
+      "direct": false
+    },
+    {
+      "name": "fast-uri",
+      "severity": "high",
+      "range": "3.0.0 - 3.1.7",
+      "fixAvailable": true,
+      "direct": false
+    },
+    {
+      "name": "hono",
+      "severity": "high",
+      "range": "<=4.13.6",
+      "fixAvailable": true,
+      "direct": false
+    },
+    {
+      "name": "mysql2",
+      "severity": "high",
+      "range": "<=3.23.0",
+      "fixAvailable": true,
+      "direct": false
+    },
+    {
+      "name": "nanoid",
+      "severity": "high",
+      "range": "<=3.3.17",
+      "fixAvailable": true,
+      "direct": false
+    },
+    {
+      "name": "next",
+      "severity": "critical",
+      "range": "9.3.4-canary.0 - 16.3.7",
+      "fixAvailable": {
+        "name": "next",
+        "version": "16.4.2",
+        "isSemVerMajor": false
+      },
+      "direct": true
+    },
+    {
+      "name": "postcss",
+      "severity": "high",
+      "range": "<=8.5.22",
+      "fixAvailable": {
+        "name": "next",
+        "version": "16.4.2",
+        "isSemVerMajor": false
+      },
+      "direct": false
+    },
+    {
+      "name": "prisma",
+      "severity": "high",
+      "range": "6.13.0-dev.1 - 7.10.0 || 8.0.0-rc.3 - 8.1.0-dev.6",
+      "fixAvailable": true,
+      "direct": true
+    },
+    {
+      "name": "sharp",
+      "severity": "high",
+      "range": "<=0.35.5-rc.1",
+      "fixAvailable": {
+        "name": "next",
+        "version": "16.4.2",
+        "isSemVerMajor": false
+      },
+      "direct": false
+    },
+    {
+      "name": "source-map-js",
+      "severity": "high",
+      "range": "1.0.0 - 1.2.1",
+      "fixAvailable": true,
+      "direct": false
+    },
+    {
+      "name": "valibot",
+      "severity": "moderate",
+      "range": "<=1.4.1",
+      "fixAvailable": true,
+      "direct": false
+    }
+  ],
+  "verified_critical_primary_advisories": [
+    {
+      "id": "GHSA-p293-qw3h-jr36",
+      "primary": "https://github.com/vercel/next.js/security/advisories/GHSA-p293-qw3h-jr36",
+      "condition": "Windows-hosted filesystem; current qualification host is Linux.",
+      "patched_next": "16.3.3",
+      "current_scope_assessment": "Installed16.2.6 affected by version. Windows execution was not tested; do not treat Linux smoke as Windows qualification."
+    },
+    {
+      "id": "GHSA-2xp9-vwfh-vxw4",
+      "primary": "https://github.com/vercel/next.js/security/advisories/GHSA-2xp9-vwfh-vxw4",
+      "condition": "AVIF optimization via vulnerable sharp/libheif.",
+      "patched_next": "16.3.3",
+      "current_scope_assessment": "No application image/upload/provider integration was added. That static scope observation is not an exploit test or dependency security clearance."
+    },
+    {
+      "id": "GHSA-vcvr-r3jv-pc5j",
+      "primary": "https://github.com/vercel/next.js/security/advisories/GHSA-vcvr-r3jv-pc5j",
+      "condition": "Node ImageResponse/next-og path and attacker-controlled rendered content.",
+      "patched_next": "16.3.6",
+      "current_scope_assessment": "Current app does not import next/og or ImageResponse. This does not clear later feature exposure or other audit findings."
+    }
+  ],
+  "interpretation": "15 affected dependency packages,not15 distinct advisories andnot proof all are reachable. omit=dev can retain peer-linked tools; full dependency/runtime/build-time scope needs review. Current version pins were intentionally retained.",
+  "execution_host": {
+    "os": "Linux",
+    "node": "24.19.0",
+    "npm": "11.9.0"
+  },
+  "production_exposure_authorized": false,
+  "upgrade_executed": false,
+  "remediation_candidate": "npm audit suggests Next16.4.2 for the direct Next group. Treat that as an unapproved proposal; review matching eslint-config-next,all transitive fixes and Prisma7-compatible remediation before a controlled version diff. Do not run bulk audit fix or a Prisma major upgrade by assumption.",
+  "required_next_actions": [
+    "Review each advisory and runtime/build-time/OS reachability against exact installed graph.",
+    "Prepare a bounded version/lock diff satisfying current official advisories,approved dependency scope and compatibility; preserve this tested baseline for rollback.",
+    "Read the newly installed exact Next/Prisma guidance after any approved version change.",
+    "Repeat clean install,lint,typegen/typecheck,production build,41 HTTP/secret/restart cases and audit; add affected exploit-regression coverage before clearing the security gate."
+  ],
+  "evidence": "context/reconciliation/dependency-audit-2026-10-19.json"
+}

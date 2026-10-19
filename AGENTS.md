@@ -26,6 +26,16 @@ Before changing Prisma schema, inspect existing migrations and avoid destructive
 <!-- END:workinants-database-truth-rules -->
 <!-- END:nextjs-agent-rules -->
 
+## Directive006/006-A — current foundation scope and context loading
+
+At each session start read the nine foundational roles in order: `context/project-overview.md` (routing to V3), `context/architecture.md`, `context/build-plan.md`, `context/code-standards.md`, `context/library-docs.md`, `context/ui-tokens.md`, `context/ui-rules.md`, `context/ui-registry.md`, then the current section of `context/progress-tracker.md`. Also read `context/reconciliation/phase0-foundation-report.md` and the current Phase0 status/readiness boundary. Use `context/context-map.md` to selectively load the owning and consuming Module/Cluster architecture/plan, connected journey and exact SH variants required by the task. Do not recursively ingest every historical context artifact or import template example policies.
+
+Current work is the single sequential foundation branch/worktree under Directive006-A. `app/` is a new minimal App Router foundation. The old `pages/` skeleton, utilities and original configurations are preserved byte-for-byte under `legacy/checkpoint-005/` and in Git, outside active compiler/linter/router inputs. It is not a behavioral migration. WA-R091 supersedes the old contents-preserving in-place P0-B implementation instruction while retaining WA-R090 App Router intent. Read installed pinned Next guidance before any framework code change.
+
+Update `context/ui-registry.md` and its structured source after every implementation slice: actual path, API/classes/token usage, tests and limits versus planned-only components. Update progress and Phase0 evidence after every session. Actual foundation smoke qualification does not qualify any of the132 owner contracts, a whole product screen, the database or provider. All eight parallel lanes remain candidates; product implementation remains unapproved.
+
+The preferred database evaluation target is a brand-new isolated development database. Posture D persists until actual identity/preservation/ledger/schema evidence and reviewed migration/RLS replay/security gates pass. Existing `db:migrate`, `db:seed` and `db:check` aliases are deliberately blocked; the old db:check contains SQL writes. Use `db:validate` for environment-free schema validation only. Never run old seed/integrity SQL or restore legacy files to bypass the gate. No live database/migration/provisioning is authorized by this checkpoint.
+
 <!-- BEGIN:workinants-readiness-checkpoint -->
 # Development readiness work in progress
 
@@ -71,7 +81,7 @@ Read `context/reconciliation/development-readiness-report.md` for the current de
 
 All 132 Shared Operations have explicit specified architecture; the ledger distinguishes that from NOT_QUALIFIED runtime. EVOLVABLE_COMPATIBLY preserves exact v1 wire/security/failure semantics and does not authorize concurrent implementation. Canonical Confirmed/Proposed markers stay independent. Unknown fields/enums/variants reject; schema/reference fixtures do not prove real producers, consumers, database concurrency, RLS, Privacy fields or providers. No FROZEN_FOR_IMPLEMENTATION operation or active parallel lane is certified at this checkpoint.
 
-Use the root code/library/UI standards. UI context must be read before substantial UI work; actual component states and paths are in ui-registry.md/json. WA-R090 selects App Router intent under app/; the current pages/ skeleton remains unnormalized until a bounded P0-B patch reads the installed pinned Next guide and proves clean install/lint/typecheck/build and safe routes. Do not change framework code without that guide or invent a second routing model. Existing lock/toolchain failure is a qualification issue, not permission to upgrade dependencies blindly.
+Use the root code/library/UI standards. UI context must be read before substantial UI work; actual component states and paths are in ui-registry.md/json. WA-R090 selects App Router intent under app/; Directive006-A now uses a fresh app/ foundation and an inactive legacy archive under WA-R091; current Phase0 evidence records actual checks. Do not change framework code without that guide or invent a second routing model. Existing lock/toolchain failure is a qualification issue, not permission to upgrade dependencies blindly.
 
 One integration owner controls canonical contracts/types, shared runtime, root context, Prisma/migrations and convergence. Candidate lane roots/model responsibilities are in the lane manifest; no lane activates itself. Keep owner repositories private; no feature-local authorization/entitlement/Hold/Media/Search/provider/queue substitutes. Source facts terminate under R085 and do not bypass trusted caller/action/field scope. A caller/actor/evidence ID in input or a fixture never supplies its own authority.
 

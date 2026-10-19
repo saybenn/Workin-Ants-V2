@@ -9,3 +9,8 @@ Read `context/reconciliation/operating-policy.md` for the governing decision and
 ## Current context route — Directive 005
 
 `AGENTS.md` governs this repository. Start at the current readiness report and context-map, then root architecture/build plan/Phase 0, the relevant connected workflow and exact owner/consumer SH resources. Read code/library/UI context before that implementation scope. The candidate parallel map grants no active lane. Architecture statuses never replace runtime qualification or database posture D. Use the foundation validator and actual phase-specific tests; do not claim unrun checks, implementation freeze or publication.
+
+
+## Directive006-A current loading
+
+Follow AGENTS.md: load the nine foundational roles first, then only task-relevant owner/consumer/Cluster/SH/workflow context. The clean application and inactive legacy archive are distinct. UI registry and progress updates are required after every slice. Read phase0-foundation-status.json for qualified versus pending checks; database D and no parallel/product authorization persist.

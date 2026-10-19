@@ -1,0 +1,259 @@
+{
+  "status": "PASS",
+  "total": 30,
+  "cases": [
+    {
+      "case": "missing SH identity",
+      "expected": "identity/fixture coverage",
+      "rejected": true,
+      "errors": [
+        "Wire qualification: 132-contract identity/fixture coverage mismatch",
+        "Wire qualification: Unknown consumer contract SH-132",
+        "Wire qualification: Unknown consumer contract SH-132",
+        "Wire qualification: Unknown consumer contract SH-132",
+        "Wire qualification: Unknown consumer contract SH-132"
+      ]
+    },
+    {
+      "case": "duplicate SH identity",
+      "expected": "Missing/duplicated Shared Operation",
+      "rejected": true,
+      "errors": [
+        "Wire qualification: 132-contract identity/fixture coverage mismatch",
+        "Missing/duplicated Shared Operation"
+      ]
+    },
+    {
+      "case": "canonical owner changed",
+      "expected": "canonical owner/status drift",
+      "rejected": true,
+      "errors": [
+        "Wire qualification: SH-001: canonical owner/status drift"
+      ]
+    },
+    {
+      "case": "invented source owner",
+      "expected": "unapproved source owner",
+      "rejected": true,
+      "errors": [
+        "Wire qualification: SH-001: unapproved source owner",
+        "Wire qualification: SH-001: source owner/artifact mismatch"
+      ]
+    },
+    {
+      "case": "silent Proposed promotion",
+      "expected": "canonical owner/status drift",
+      "rejected": true,
+      "errors": [
+        "Wire qualification: SH-003: canonical owner/status drift"
+      ]
+    },
+    {
+      "case": "fake runtime qualification",
+      "expected": "runtime promotion",
+      "rejected": true,
+      "errors": [
+        "Wire qualification: SH-001: runtime promotion lacks actual producer/provider evidence"
+      ]
+    },
+    {
+      "case": "self-asserted freeze",
+      "expected": "qualification ledger/catalog mismatch",
+      "rejected": true,
+      "errors": [
+        "SH-001: qualification ledger/catalog mismatch"
+      ]
+    },
+    {
+      "case": "unexplained external gate",
+      "expected": "external gate lacks reason",
+      "rejected": true,
+      "errors": [
+        "Wire qualification: SH-017: external gate lacks reason"
+      ]
+    },
+    {
+      "case": "broken workflow backlink",
+      "expected": "broken contract/workflow backlink",
+      "rejected": true,
+      "errors": [
+        "SH-001: broken contract/workflow backlink",
+        "COLD-01: cold-start contract/workflow route mismatch"
+      ]
+    },
+    {
+      "case": "unregistered source event",
+      "expected": "unregistered event",
+      "rejected": true,
+      "errors": [
+        "WF-01: unregistered event"
+      ]
+    },
+    {
+      "case": "new synchronous contract cycle",
+      "expected": "synchronous dependency cycle",
+      "rejected": true,
+      "errors": [
+        "Shared Operation synchronous dependency cycle [['SH-072', 'SH-077']]"
+      ]
+    },
+    {
+      "case": "consumer requires absent result field",
+      "expected": "incompatible producer result",
+      "rejected": true,
+      "errors": [
+        "Wire qualification: SH-001:role_authority:v1: incompatible producer result/consumer requirement"
+      ]
+    },
+    {
+      "case": "consumer expects incompatible field type",
+      "expected": "incompatible retained consumer response schema",
+      "rejected": true,
+      "errors": [
+        "Wire qualification: SH-001:role_authority:v1: incompatible retained consumer response schema"
+      ]
+    },
+    {
+      "case": "unknown schema assertion silently ignored",
+      "expected": "Unsupported schema keywords",
+      "rejected": true,
+      "errors": [
+        "Contract schema/fixture invalid: Unsupported schema keywords ['allowUnknownActor']"
+      ]
+    },
+    {
+      "case": "unapproved concurrent lane",
+      "expected": "unapproved parallel activation",
+      "rejected": true,
+      "errors": [
+        "L-ID: unapproved parallel activation"
+      ]
+    },
+    {
+      "case": "overlapping candidate file ownership",
+      "expected": "Parallel file ownership overlaps",
+      "rejected": true,
+      "errors": [
+        "Parallel file ownership overlaps L-ID L-SUP features/identity_access/"
+      ]
+    },
+    {
+      "case": "candidate independently owns migrations",
+      "expected": "candidate owns shared integration path",
+      "rejected": true,
+      "errors": [
+        "L-ID: candidate owns shared integration path prisma/"
+      ]
+    },
+    {
+      "case": "foreign source repository",
+      "expected": "foreign source repository",
+      "rejected": true,
+      "errors": [
+        "features/transaction_order/repository.ts: foreign source repository verificationCheck"
+      ]
+    },
+    {
+      "case": "cross-owner private import",
+      "expected": "cross-owner private import",
+      "rejected": true,
+      "errors": [
+        "features/transaction_order/foreign.ts: cross-owner private import payment_payout_tax"
+      ]
+    },
+    {
+      "case": "consumer-local premium engine",
+      "expected": "duplicated local authority",
+      "rejected": true,
+      "errors": [
+        "features/transaction_order/premium.ts: duplicated local authority/entitlement/Hold/queue helper"
+      ]
+    },
+    {
+      "case": "unreviewed schema edit",
+      "expected": "Protected source/schema/migration drift",
+      "rejected": true,
+      "errors": [
+        "Protected source/schema/migration drift prisma/schema.prisma"
+      ]
+    },
+    {
+      "case": "broken current context link",
+      "expected": "broken current context link",
+      "rejected": true,
+      "errors": [
+        "context/ui-rules.md: broken current context link missing-source.md"
+      ]
+    },
+    {
+      "case": "invented implemented UI component",
+      "expected": "invented actual component",
+      "rejected": true,
+      "errors": [
+        "UI-003: invented actual component",
+        "UI-003: unproven UI completion"
+      ]
+    },
+    {
+      "case": "shared types changed without consumer review",
+      "expected": "Shared types changed without retained consumer compatibility review",
+      "rejected": true,
+      "errors": [
+        "Wire qualification: Shared types changed without retained consumer compatibility review"
+      ]
+    },
+    {
+      "case": "false production authorization",
+      "expected": "Unproven production/runtime/database readiness promotion",
+      "rejected": true,
+      "errors": [
+        "Unproven production/runtime/database readiness promotion"
+      ]
+    },
+    {
+      "case": "inaccessible specified text contrast",
+      "expected": "UI text contrast",
+      "rejected": true,
+      "errors": [
+        "light: UI text contrast text/canvas"
+      ]
+    },
+    {
+      "case": "existing dependency version changed",
+      "expected": "Unapproved existing dependency resolution",
+      "rejected": true,
+      "errors": [
+        "Unapproved existing dependency resolution change node_modules/next",
+        "Protected source/schema/migration drift package-lock.json"
+      ]
+    },
+    {
+      "case": "direct dependency silently added",
+      "expected": "Unapproved direct dependency change",
+      "rejected": true,
+      "errors": [
+        "Unapproved direct dependency change",
+        "Protected source/schema/migration drift package.json"
+      ]
+    },
+    {
+      "case": "schema added to package exception",
+      "expected": "Unexpected Phase0 protected-file exception",
+      "rejected": true,
+      "errors": [
+        "Unexpected Phase0 protected-file exception",
+        "Protected source/schema/migration drift package.json",
+        "Protected source/schema/migration drift package-lock.json"
+      ]
+    },
+    {
+      "case": "reviewed package fingerprint weakened",
+      "expected": "Protected source/schema/migration drift package.json",
+      "rejected": true,
+      "errors": [
+        "Protected source/schema/migration drift package.json"
+      ]
+    }
+  ],
+  "scope": "Negative static/wire/model checks only; injected fake feature files test detection. No real producer/provider/DB/RLS/runtime was exercised."
+}

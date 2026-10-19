@@ -1,0 +1,538 @@
+{
+  "date": "2026-10-19",
+  "scope": "Real pinned Linux framework/HTTP qualification and environment-free Prisma source validation;separate from actual DB/RLS/provider/owner-runtime qualification.",
+  "status": "FUNCTIONAL_FRAMEWORK_PASS_DEPENDENCY_SECURITY_GATE_OPEN",
+  "commands": [
+    {
+      "id": "initial_ci",
+      "command": "npm ci --ignore-scripts --no-audit --no-fund --fetch-retries=0 --fetch-timeout=20000",
+      "exit_code": 1,
+      "output_sha256": "fdc60cdeff1a84d7910fe502e161d700723f41f853710553e375c4752f37dde0",
+      "output": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\nnpm error code EUSAGE\nnpm error\nnpm error `npm ci` can only install packages when your package.json and package-lock.json or npm-shrinkwrap.json are in sync. Please update your lock file with `npm install` before continuing.\nnpm error\nnpm error Missing: @emnapi/runtime@1.11.3 from lock file\nnpm error Missing: @emnapi/core@1.11.3 from lock file\nnpm error Invalid: lock file's @emnapi/wasi-threads@1.2.1 does not satisfy @emnapi/wasi-threads@1.2.3\nnpm error Missing: @emnapi/core@1.10.0 from lock file\nnpm error Missing: @emnapi/runtime@1.10.0 from lock file\nnpm error Missing: @emnapi/wasi-threads@1.2.1 from lock file\nnpm error\nnpm error Clean install a project\nnpm error\nnpm error Usage:\nnpm error npm ci\nnpm error\nnpm error Options:\nnpm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]\nnpm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]\nnpm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]\nnpm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts]\nnpm error [--allow-git <all|none|root>] [--no-audit] [--no-bin-links] [--no-fund]\nnpm error [--dry-run]\nnpm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]\nnpm error [--workspaces] [--include-workspace-root] [--install-links]\nnpm error\nnpm error aliases: clean-install, ic, install-clean, isntall-clean\nnpm error\nnpm error Run \"npm help ci\" for more info\nnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-10-19T02_03_58_003Z-debug-0.log\n"
+    },
+    {
+      "id": "lock_repair",
+      "command": "npm install --package-lock-only --ignore-scripts --no-audit --no-fund --fetch-retries=0 --fetch-timeout=20000",
+      "exit_code": 0,
+      "output_sha256": "f5312c5b6ab2d53ff5c5be1ffe2d891f37d08ac9a9bfb1505750e0bbcc8bd30a",
+      "output": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\nup to date in 418ms\n"
+    },
+    {
+      "id": "clean_install",
+      "command": "npm ci --no-audit --no-fund --fetch-retries=0 --fetch-timeout=20000",
+      "exit_code": 0,
+      "output_sha256": "68d3c6a35b2c058cc0a9e623ff6375312ada26fae6a6ea2db7af932b42078055",
+      "output": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\nadded 453 packages in 10s\n"
+    },
+    {
+      "id": "lint",
+      "command": "npm run lint",
+      "exit_code": 0,
+      "output_sha256": "e3ab6fb848a1b3bb5984caae543d121c6850f10c87f96fe1b00d876d6736d9df",
+      "output": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\n> workin-ants-v2@0.1.0 lint\n> eslint .\n\n"
+    },
+    {
+      "id": "typecheck",
+      "command": "npm run typecheck",
+      "exit_code": 0,
+      "output_sha256": "f27630da9e66340f3febec0f70b6718dc56ae77f7dd20740c23f9d11df65aeaa",
+      "output": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\n> workin-ants-v2@0.1.0 typecheck\n> next typegen && tsc --noEmit\n\nGenerating route types...\n\u2713 Types generated successfully\n"
+    },
+    {
+      "id": "build",
+      "command": "npm run build",
+      "exit_code": 0,
+      "output_sha256": "e3e8b057f03f171ede480c8e9d0f20e2f5207b5cbafe05dbcb3d55197d8b923a",
+      "output": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\n> workin-ants-v2@0.1.0 build\n> next build\n\n\u25b2 Next.js 16.2.6 (Turbopack)\n\n  Creating an optimized production build ...\n\u2713 Compiled successfully in 1974ms\n  Running TypeScript ...\n  Finished TypeScript in 1378ms ...\n  Collecting page data using 7 workers ...\n  Generating static pages using 7 workers (0/6) ...\n  Generating static pages using 7 workers (1/6) \n  Generating static pages using 7 workers (2/6) \n"
+    },
+    {
+      "id": "http_smoke",
+      "command": "npm run test:foundation -- --output <evidence-path>",
+      "exit_code": 0,
+      "output_sha256": "eb2ca082ee8382a6971af7b386606c96c9924918d150b6d1d429c1c5c8e48e84",
+      "output": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\n> workin-ants-v2@0.1.0 test:foundation\n> node scripts/smoke-foundation.mjs --output /workspace/scratch/287cf937ab3b/directive006/http-smoke.json\n\n{\n  \"status\": \"PASS\",\n  \"total\": 41,\n  \"tests\": [\n    {\n      \"mode\": \"development\",\n      \"case\": \"root shell\",\n      \"method\": \"GET\",\n      \"path\": \"/\",\n      \"status\": 200,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"process liveness only\",\n      \"method\": \"GET\",\n      \"path\": \"/api/health\",\n      \"status\": 200,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"health HEAD\",\n      \"method\": \"HEAD\",\n      \"path\": \"/api/health\",\n      \"status\": 200,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"health has no mutation\",\n      \"method\": \"POST\",\n      \"path\": \"/api/health\",\n      \"status\": 405,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"unknown route\",\n      \"method\": \"GET\",\n      \"path\": \"/unregistered-foundation-route\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"old page filename is not a route\",\n      \"method\": \"GET\",\n      \"path\": \"/page\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"old diagnostic filename is not a route\",\n      \"method\": \"GET\",\n      \"path\": \"/dev/status/page\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"old handler filename is not a route\",\n      \"method\": \"GET\",\n      \"path\": \"/api/debug/env-check/route\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"development page execution-mode gate\",\n      \"method\": \"GET\",\n      \"path\": \"/dev/status\",\n      \"status\": 200,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"development page HEAD gate\",\n      \"method\": \"HEAD\",\n      \"path\": \"/dev/status\",\n      \"status\": 200,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"query/header cannot change execution mode\",\n      \"method\": \"GET\",\n      \"path\": \"/dev/status?NODE_ENV=development\",\n      \"status\": 200,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"debug endpoint method/mode gate\",\n      \"method\": \"GET\",\n      \"path\": \"/api/debug/env-check\",\n      \"status\": 200,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"debug endpoint method/mode gate\",\n      \"method\": \"HEAD\",\n      \"path\": \"/api/debug/env-check\",\n      \"status\": 200,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"debug endpoint method/mode gate\",\n      \"method\": \"POST\",\n      \"path\": \"/api/debug/env-check\",\n      \"status\": 405,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"debug endpoint method/mode gate\",\n      \"method\": \"PUT\",\n      \"path\": \"/api/debug/env-check\",\n      \"status\": 405,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"debug endpoint method/mode gate\",\n      \"method\": \"PATCH\",\n      \"path\": \"/api/debug/env-check\",\n      \"status\": 405,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"debug endpoint method/mode gate\",\n      \"method\": \"DELETE\",\n      \"path\": \"/api/debug/env-check\",\n      \"status\": 405,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"development\",\n      \"case\": \"debug endpoint method/mode gate\",\n      \"method\": \"OPTIONS\",\n      \"path\": \"/api/debug/env-check\",\n      \"status\": 405,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"root shell\",\n      \"method\": \"GET\",\n      \"path\": \"/\",\n      \"status\": 200,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"process liveness only\",\n      \"method\": \"GET\",\n      \"path\": \"/api/health\",\n      \"status\": 200,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"health HEAD\",\n      \"method\": \"HEAD\",\n      \"path\": \"/api/health\",\n      \"status\": 200,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"health has no mutation\",\n      \"method\": \"POST\",\n      \"path\": \"/api/health\",\n      \"status\": 405,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"unknown route\",\n      \"method\": \"GET\",\n      \"path\": \"/unregistered-foundation-route\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"old page filename is not a route\",\n      \"method\": \"GET\",\n      \"path\": \"/page\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"old diagnostic filename is not a route\",\n      \"method\": \"GET\",\n      \"path\": \"/dev/status/page\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"old handler filename is not a route\",\n      \"method\": \"GET\",\n      \"path\": \"/api/debug/env-check/route\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"development page execution-mode gate\",\n      \"method\": \"GET\",\n      \"path\": \"/dev/status\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"development page HEAD gate\",\n      \"method\": \"HEAD\",\n      \"path\": \"/dev/status\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"query/header cannot change execution mode\",\n      \"method\": \"GET\",\n      \"path\": \"/dev/status?NODE_ENV=development\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"debug endpoint method/mode gate\",\n      \"method\": \"GET\",\n      \"path\": \"/api/debug/env-check\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"debug endpoint method/mode gate\",\n      \"method\": \"HEAD\",\n      \"path\": \"/api/debug/env-check\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"debug endpoint method/mode gate\",\n      \"method\": \"POST\",\n      \"path\": \"/api/debug/env-check\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"debug endpoint method/mode gate\",\n      \"method\": \"PUT\",\n      \"path\": \"/api/debug/env-check\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"debug endpoint method/mode gate\",\n      \"method\": \"PATCH\",\n      \"path\": \"/api/debug/env-check\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"debug endpoint method/mode gate\",\n      \"method\": \"DELETE\",\n      \"path\": \"/api/debug/env-check\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"debug endpoint method/mode gate\",\n      \"method\": \"OPTIONS\",\n      \"path\": \"/api/debug/env-check\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"debug query/header cannot enable route\",\n      \"method\": \"GET\",\n      \"path\": \"/api/debug/env-check?NEXT_PUBLIC_APP_ENV=development\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"trailing slash remains denied\",\n      \"method\": \"GET\",\n      \"path\": \"/api/debug/env-check/\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"root client scripts do not contain secret canary\",\n      \"assets_checked\": 6,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"restart same build health recovery\",\n      \"method\": \"GET\",\n      \"path\": \"/api/health\",\n      \"status\": 200,\n      \"result\": \"PASS\"\n    },\n    {\n      \"mode\": \"production\",\n      \"case\": \"restart preserves diagnostic denial\",\n      \"method\": \"GET\",\n      \"path\": \"/api/debug/env-check\",\n      \"status\": 404,\n      \"result\": \"PASS\"\n    }\n  ],\n  \"limits\": \"Real local Next development/production HTTP and client-asset smoke only. No DB/provider/owner contract/runtime, full browser accessibility or deployed hosting qualification.\"\n}\n"
+    },
+    {
+      "id": "schema_validate",
+      "command": "npm run db:validate",
+      "exit_code": 0,
+      "output_sha256": "2902a82fb4d64d26e3f78b7e09b9cee1d550b78a0c893933df8a003b92a98966",
+      "output": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\n> workin-ants-v2@0.1.0 db:validate\n> prisma validate --config prisma.offline.config.ts\n\nLoaded Prisma config from prisma.offline.config.ts.\n\nPrisma schema loaded from prisma/schema.prisma.\nThe schema at prisma/schema.prisma is valid \ud83d\ude80\n"
+    },
+    {
+      "id": "dependency_audit",
+      "command": "npm audit --omit=dev --json",
+      "exit_code": 1,
+      "output_sha256": "ad8e928d741e25196bc9d52c02e0bebd14f64bba5876d743ce4b362756664d91",
+      "output": "See dependency-audit-2026-10-19.json;15 affected packages,security gate open."
+    },
+    {
+      "id": "database_write_gate_migrate",
+      "command": "npm run db:migrate",
+      "exit_code": 1,
+      "result": "EXPECTED_DENIAL_NO_DB_COMMAND",
+      "stdout": "\n> workin-ants-v2@0.1.0 db:migrate\n> node scripts/database-write-gate.mjs migrate\n\n",
+      "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\nDatabase posture D: database writes are disabled. Obtain target identity, preservation obligations, migration ledger and structural comparison, then qualify the reviewed isolated migration strategy. No database command was executed.\n"
+    },
+    {
+      "id": "database_write_gate_seed",
+      "command": "npm run db:seed",
+      "exit_code": 1,
+      "result": "EXPECTED_DENIAL_NO_DB_COMMAND",
+      "stdout": "\n> workin-ants-v2@0.1.0 db:seed\n> node scripts/database-write-gate.mjs seed\n\n",
+      "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\nDatabase posture D: database writes are disabled. Obtain target identity, preservation obligations, migration ledger and structural comparison, then qualify the reviewed isolated migration strategy. No database command was executed.\n"
+    },
+    {
+      "id": "database_write_gate_check",
+      "command": "npm run db:check",
+      "exit_code": 1,
+      "result": "EXPECTED_DENIAL_NO_DB_COMMAND",
+      "stdout": "\n> workin-ants-v2@0.1.0 db:check\n> node scripts/database-write-gate.mjs check\n\n",
+      "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\nDatabase posture D: database writes are disabled. Obtain target identity, preservation obligations, migration ledger and structural comparison, then qualify the reviewed isolated migration strategy. No database command was executed.\n"
+    }
+  ],
+  "http_smoke": {
+    "status": "PASS",
+    "total": 41,
+    "tests": [
+      {
+        "mode": "development",
+        "case": "root shell",
+        "method": "GET",
+        "path": "/",
+        "status": 200,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "process liveness only",
+        "method": "GET",
+        "path": "/api/health",
+        "status": 200,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "health HEAD",
+        "method": "HEAD",
+        "path": "/api/health",
+        "status": 200,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "health has no mutation",
+        "method": "POST",
+        "path": "/api/health",
+        "status": 405,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "unknown route",
+        "method": "GET",
+        "path": "/unregistered-foundation-route",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "old page filename is not a route",
+        "method": "GET",
+        "path": "/page",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "old diagnostic filename is not a route",
+        "method": "GET",
+        "path": "/dev/status/page",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "old handler filename is not a route",
+        "method": "GET",
+        "path": "/api/debug/env-check/route",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "development page execution-mode gate",
+        "method": "GET",
+        "path": "/dev/status",
+        "status": 200,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "development page HEAD gate",
+        "method": "HEAD",
+        "path": "/dev/status",
+        "status": 200,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "query/header cannot change execution mode",
+        "method": "GET",
+        "path": "/dev/status?NODE_ENV=development",
+        "status": 200,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "debug endpoint method/mode gate",
+        "method": "GET",
+        "path": "/api/debug/env-check",
+        "status": 200,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "debug endpoint method/mode gate",
+        "method": "HEAD",
+        "path": "/api/debug/env-check",
+        "status": 200,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "debug endpoint method/mode gate",
+        "method": "POST",
+        "path": "/api/debug/env-check",
+        "status": 405,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "debug endpoint method/mode gate",
+        "method": "PUT",
+        "path": "/api/debug/env-check",
+        "status": 405,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "debug endpoint method/mode gate",
+        "method": "PATCH",
+        "path": "/api/debug/env-check",
+        "status": 405,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "debug endpoint method/mode gate",
+        "method": "DELETE",
+        "path": "/api/debug/env-check",
+        "status": 405,
+        "result": "PASS"
+      },
+      {
+        "mode": "development",
+        "case": "debug endpoint method/mode gate",
+        "method": "OPTIONS",
+        "path": "/api/debug/env-check",
+        "status": 405,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "root shell",
+        "method": "GET",
+        "path": "/",
+        "status": 200,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "process liveness only",
+        "method": "GET",
+        "path": "/api/health",
+        "status": 200,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "health HEAD",
+        "method": "HEAD",
+        "path": "/api/health",
+        "status": 200,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "health has no mutation",
+        "method": "POST",
+        "path": "/api/health",
+        "status": 405,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "unknown route",
+        "method": "GET",
+        "path": "/unregistered-foundation-route",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "old page filename is not a route",
+        "method": "GET",
+        "path": "/page",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "old diagnostic filename is not a route",
+        "method": "GET",
+        "path": "/dev/status/page",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "old handler filename is not a route",
+        "method": "GET",
+        "path": "/api/debug/env-check/route",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "development page execution-mode gate",
+        "method": "GET",
+        "path": "/dev/status",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "development page HEAD gate",
+        "method": "HEAD",
+        "path": "/dev/status",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "query/header cannot change execution mode",
+        "method": "GET",
+        "path": "/dev/status?NODE_ENV=development",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "debug endpoint method/mode gate",
+        "method": "GET",
+        "path": "/api/debug/env-check",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "debug endpoint method/mode gate",
+        "method": "HEAD",
+        "path": "/api/debug/env-check",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "debug endpoint method/mode gate",
+        "method": "POST",
+        "path": "/api/debug/env-check",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "debug endpoint method/mode gate",
+        "method": "PUT",
+        "path": "/api/debug/env-check",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "debug endpoint method/mode gate",
+        "method": "PATCH",
+        "path": "/api/debug/env-check",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "debug endpoint method/mode gate",
+        "method": "DELETE",
+        "path": "/api/debug/env-check",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "debug endpoint method/mode gate",
+        "method": "OPTIONS",
+        "path": "/api/debug/env-check",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "debug query/header cannot enable route",
+        "method": "GET",
+        "path": "/api/debug/env-check?NEXT_PUBLIC_APP_ENV=development",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "trailing slash remains denied",
+        "method": "GET",
+        "path": "/api/debug/env-check/",
+        "status": 404,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "root client scripts do not contain secret canary",
+        "assets_checked": 6,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "restart same build health recovery",
+        "method": "GET",
+        "path": "/api/health",
+        "status": 200,
+        "result": "PASS"
+      },
+      {
+        "mode": "production",
+        "case": "restart preserves diagnostic denial",
+        "method": "GET",
+        "path": "/api/debug/env-check",
+        "status": 404,
+        "result": "PASS"
+      }
+    ],
+    "limits": "Real local Next development/production HTTP and client-asset smoke only. No DB/provider/owner contract/runtime, full browser accessibility or deployed hosting qualification."
+  },
+  "installed_guidance": [
+    {
+      "installed_path": "node_modules/next/dist/docs/01-app/01-getting-started/03-layouts-and-pages.md",
+      "sha256": "cbd9a01f7ecae3f5ef006fba44660dc211a5c2963fc9fef861ff07248f0a0287",
+      "next_version": "16.2.6",
+      "read_before_framework_edit": true
+    },
+    {
+      "installed_path": "node_modules/next/dist/docs/01-app/01-getting-started/15-route-handlers.md",
+      "sha256": "b2cffc8116b25978f5ec03ea18577550b2a6dc11a49b9dc68892bfa42464cfd0",
+      "next_version": "16.2.6",
+      "read_before_framework_edit": true
+    },
+    {
+      "installed_path": "node_modules/next/dist/docs/01-app/03-api-reference/04-functions/not-found.md",
+      "sha256": "bbe3bfafff9041c8dc414c765258347bc4d76466aa6ce3115c5b4079aff4160c",
+      "next_version": "16.2.6",
+      "read_before_framework_edit": true
+    },
+    {
+      "installed_path": "node_modules/next/dist/docs/01-app/02-guides/environment-variables.md",
+      "sha256": "bf33d9fa113f800d5fa40cd638b25b20db52e53772eb09d205386e2ad4cab9aa",
+      "next_version": "16.2.6",
+      "read_before_framework_edit": true
+    },
+    {
+      "installed_path": "node_modules/next/dist/docs/01-app/03-api-reference/05-config/01-next-config-js/turbopack.md",
+      "sha256": "195c7f6b18219a39ead606ded583763952239a3527646bd953441a5f9d7a7ba6",
+      "next_version": "16.2.6",
+      "read_before_framework_edit": true
+    },
+    {
+      "installed_path": "node_modules/next/dist/docs/01-app/03-api-reference/06-cli/next.md",
+      "sha256": "40d6d7f59ea015280f7bcc776f902187ee40a086f82a3b4c3f68d2d8690f3f1a",
+      "next_version": "16.2.6",
+      "read_before_framework_edit": true
+    },
+    {
+      "installed_path": "node_modules/next/dist/docs/01-app/03-api-reference/05-config/03-eslint.md",
+      "sha256": "68eb89e974438be0d7a95d155624b42e3108446328ac52d7b72cf3314ae4a219",
+      "next_version": "16.2.6",
+      "read_before_framework_edit": true
+    }
+  ],
+  "foundation_source_sha256": {
+    ".node-version": "7e8a2fa94951112b894a3dbe3d05efef5e9263741fa49125f0a70f40fedab4cc",
+    "app/api/debug/env-check/route.ts": "f763522d47580f483277bc6648f32205311d6f7d6b4ff1ea923db80234347c9d",
+    "app/api/health/route.ts": "d9224324286daf6201b3f8554fc219841933817ec0c31d5db044472fc4ee25a9",
+    "app/dev/status/page.tsx": "9f60f7562601f84e5576da9322023b1f2dcd35be4a802b0035507cfc4b080d79",
+    "app/globals.css": "353be371afb6bd71fe67eea3e48e3c074e6db80b9bd8b5720c74cb3044cd536e",
+    "app/layout.tsx": "5ca150b44a116032895ba0ec56e47c9ff56faa3cd02f1c59c7802e3c9fa7d049",
+    "app/not-found.tsx": "6c5239aea43051118cbf7b7a5ed7ebe57548c6a9d28b6d0c70a889dbbd14f977",
+    "app/page.tsx": "ec0b09bdc0e2d9e7b0a27784bb9a1215854441b938dcc50a3cdee6f6f480a890",
+    "context/ui-tokens.json": "1da51be416669a9852d36d0a76e68fecf852a3332a663a4ead979875dc00a003",
+    "eslint.config.mjs": "78f3a5bbc471597dda611c1f846ab25f2fdf30896179f9f8812d5a9b23abea95",
+    "next.config.ts": "2911daa8a390abf38fbab45aabd5d897a17a34b79572a64e5f51710f7c41cc7f",
+    "package-lock.json": "34fdd56e25d731dee972339adb313d5cd8575029423f39ea193cf0c01ee6d455",
+    "package.json": "149352ac27d1d4b77ff7c9adaaf46fb26923d706cc5dd53b2d9c7e8024e63dd7",
+    "postcss.config.mjs": "dfac7ac2d86d326a0e5adb024e7943c181393ed17a5fcb8f0315b24c7da6ddde",
+    "prisma.offline.config.ts": "4fcdb4a4ec068a03248be278135edac0fede7ca3ef3e786f3506c4af261f97c1",
+    "scripts/database-write-gate.mjs": "bc9ec3d043ad79466b630734ccc4ab3de473e82d86951310a6f728d3f215e4b1",
+    "scripts/smoke-foundation.mjs": "b1adc30ecb957d4bfce62724b1f10564a881aea0af3a434460a76e7118b0d8f1",
+    "tsconfig.json": "65b4cc640f4b3b9d4505de8a088a63329a1a3a51f895242b8de71259f8d8c36e"
+  },
+  "existing_dependency_versions_changed": 0,
+  "direct_dependency_declarations_changed": false,
+  "new_missing_lock_entries": 8,
+  "clean_install_lifecycle_scripts_enabled": true,
+  "clean_install_package_count": 453,
+  "archive_files_verified": 21,
+  "database_posture": "D",
+  "database_contacted": false,
+  "migrations_executed": false,
+  "runtime_shared_operations_qualified": 0,
+  "dependency_security_gate": "OPEN",
+  "limits": [
+    "Linux local loopback development and production start only;Windows/deployed hosting unqualified.",
+    "No Auth/DB/RLS/grants/concurrency/provider/Privacy executor exercised.",
+    "No full rendered UI accessibility or security exploit qualification.",
+    "npm audit failed with15 affected packages;not hidden by framework success."
+  ],
+  "architecture_validation": {
+    "command": "python scripts/check-context.py",
+    "exit_code": 0,
+    "output": "{\n  \"clusters\": 10,\n  \"modules\": 34,\n  \"cluster_documents\": 20,\n  \"module_documents\": 68,\n  \"handoffs\": 10,\n  \"shared_operations\": 132,\n  \"shared_statuses\": {\n    \"Confirmed\": 109,\n    \"Proposed ruling\": 23\n  },\n  \"prisma_models\": 177,\n  \"prisma_enums\": 207,\n  \"sql_migrations\": 1,\n  \"created_tables\": 53,\n  \"created_enums\": 31\n}\nWARNINGS: 124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay\nStructural checks PASSED; semantic readiness is a separate gate.\n"
+  },
+  "negative_regressions": [
+    {
+      "path": "context/reconciliation/phase0-foundation-negative-validation.json",
+      "result": "PASS",
+      "cases": 30,
+      "sha256": "7c1ad3e80f33afce4e609c96d096fa255b93691c790403f180e81d407161ae3c"
+    },
+    {
+      "path": "context/reconciliation/phase0-negative-validation.json",
+      "result": "PASS",
+      "cases": 13,
+      "sha256": "de5a3f8dc0aa738abb9a0a80266c9960a1600065f343f0c1cca2d83de2e95724"
+    }
+  ],
+  "lock_repair_review": {
+    "initial_unconstrained_optional_resolution": "Rejected newer @emnapi1.11.3/wasi-threads1.2.3 before final install;retained exact original versions and added only missing1.10.0-compatible metadata.",
+    "final_existing_version_changes": 0,
+    "no_force_legacy_peer_or_TLS_bypass": true
+  },
+  "integration_regressions": [
+    {
+      "finding": "R091 append intentionally changed the full canonical ruling-file fingerprint",
+      "result": "Prior R001\u2013R090 prefix independently compared unchanged;refreshed that reviewed fingerprint and root basis only. No lower-level source conflict reopened."
+    }
+  ]
+}

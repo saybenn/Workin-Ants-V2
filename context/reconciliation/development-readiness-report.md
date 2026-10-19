@@ -1,3 +1,7 @@
+## Directive006 foundation follow-up —2026-10-19
+
+P0-B pinned installation and real lint/typecheck/build/41 HTTP cases now pass on the clean isolated app/ foundation. The dependency audit introduces an explicit open security remediation gate;P0-C source validation/requirements/greenfield strategy advanced without DB contact and posture D persists. See [Phase0 status](phase0-foundation-status.json),[actual validation](phase0-foundation-validation.json) and [security review](dependency-security-review.md). The dated Gate10 audit below remains NOT_READY;no SH runtime freeze,product or parallel activation follows from this bounded qualification.
+
 # Development readiness report — Brain Directive 005
 
 Audit completed 2026-10-19 against the published f4e089902dcbcb303dc52976c4118f8903c135e5 baseline and this local continuation.

@@ -19,13 +19,13 @@ Use it to understand what Workin Ants is, who it serves, what it is trying to bu
 
 This file is intentionally compressed. It does **not** replace:
 
-- Cluster and Module architectures indexed by [context-map.md](context-map.md) for ownership and collaboration; root `architecture.md` is currently missing.
-- Cluster and Module plans indexed by [context-map.md](context-map.md) for available sequencing; root `build-plan.md` is currently missing.
-- provider/API documentation when needed; the referenced `library-docs.md` is currently missing.
+- Cluster and Module architectures indexed by [context-map.md](context-map.md) for ownership and collaboration; root [architecture.md](architecture.md) now synthesizes accepted platform invariants.
+- Cluster and Module plans indexed by [context-map.md](context-map.md) for available sequencing; root [build-plan.md](build-plan.md) supplies current phased sequencing.
+- provider/API documentation when needed; [library-docs.md](library-docs.md) routes current pinned usage evidence.
 - the Ubiquitous Language Pack for full glossary definitions.
 - the Cluster Digestion / Handout documents for presentation-level explanations.
 
-Agents should use [context-map.md](context-map.md) and this overview, then read the concern-specific Cluster/Module artifacts indexed there. Do not treat missing root/unversioned documents as available prerequisites.
+Agents should use [context-map.md](context-map.md) and this overview, then read the concern-specific Cluster/Module artifacts indexed there. The unversioned [project-overview.md](project-overview.md) routes the nine current foundational context roles.
 
 ---
 
@@ -600,49 +600,49 @@ Initial metrics should be calibrated from real usage, not invented before launch
 
 ## `architecture.md`
 
-**Availability:** this referenced root/context document is currently missing. Use [context-map.md](context-map.md) for actual artifacts; the intended role below does not establish availability.
+**Availability:** this context role is now present. Read its current content and [context-map.md](context-map.md); existence is not implementation or readiness certification.
 
 Use this for the deep architecture: 10 Clusters, 34 Deep Modules, schema ownership, module boundaries, source-of-truth rules, dependency bridges, compliance rails, and Bubble Map interpretation.
 
 ## `build-plan.md`
 
-**Availability:** this referenced root/context document is currently missing. Use [context-map.md](context-map.md) for actual artifacts; the intended role below does not establish availability.
+**Availability:** this context role is now present. Read its current content and [context-map.md](context-map.md); existence is not implementation or readiness certification.
 
 Use this for the implementation sequence: phases, vertical slices, dependencies, checkpoints, and what must be built before each major workflow can work.
 
 ## `code-standards.md`
 
-**Availability:** this referenced root/context document is currently missing. Use [context-map.md](context-map.md) for actual artifacts; the intended role below does not establish availability.
+**Availability:** this context role is now present. Read its current content and [context-map.md](context-map.md); existence is not implementation or readiness certification.
 
 Use this for naming, folder structure, services, server actions, validation, error handling, RLS, tests, provider adapter rules, and source-of-truth enforcement.
 
 ## `library-docs.md`
 
-**Availability:** this referenced root/context document is currently missing. Use [context-map.md](context-map.md) for actual artifacts; the intended role below does not establish availability.
+**Availability:** this context role is now present. Read its current content and [context-map.md](context-map.md); existence is not implementation or readiness certification.
 
 Use this for practical implementation notes for Supabase, Prisma, Stripe, Typesense, Cronofy, Mux, Cloudflare R2, Sentry, AI providers, notifications, testing, and background jobs.
 
 ## `ui-tokens.md`
 
-**Availability:** this referenced root/context document is currently missing. Use [context-map.md](context-map.md) for actual artifacts; the intended role below does not establish availability.
+**Availability:** this context role is now present. Read its current content and [context-map.md](context-map.md); existence is not implementation or readiness certification.
 
 Use this for visual tokens: colors, typography, spacing, radii, shadows, component states, layout rhythm, and theme rules.
 
 ## `ui-rules.md`
 
-**Availability:** this referenced root/context document is currently missing. Use [context-map.md](context-map.md) for actual artifacts; the intended role below does not establish availability.
+**Availability:** this context role is now present. Read its current content and [context-map.md](context-map.md); existence is not implementation or readiness certification.
 
 Use this for interaction rules, page patterns, loading/empty/error states, accessibility, responsive behavior, and dashboard UX patterns.
 
 ## `ui-registry.md`
 
-**Availability:** this referenced root/context document is currently missing. Use [context-map.md](context-map.md) for actual artifacts; the intended role below does not establish availability.
+**Availability:** this context role is now present. Read its current content and [context-map.md](context-map.md); existence is not implementation or readiness certification.
 
 Use this for reusable screen/component inventory and where each UI object lives.
 
 ## `progress-tracker.md`
 
-**Availability:** this referenced root/context document is currently missing. Use [context-map.md](context-map.md) for actual artifacts; the intended role below does not establish availability.
+**Availability:** this context role is now present. Read its current content and [context-map.md](context-map.md); existence is not implementation or readiness certification.
 
 Use this as the living state of the build: completed work, current phase, current branch, known blockers, next tasks, and agent handoff notes.
 

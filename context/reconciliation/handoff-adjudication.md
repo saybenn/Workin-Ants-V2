@@ -14,7 +14,7 @@ P01–P19 approved and binding. Canonical dispositions live in handoff-adjudicat
 - unresolved_families: 12
 - closed_existing_ruling: 22
 - closed_deduplication: 0
-- new_rulings: 51
+- new_rulings: 52
 - ai_resolved_families: 50
 - ai_resolved_with_product_judgment_families: 1
 - duplicate_facets_collapsed: 16
@@ -123,7 +123,7 @@ Scheduled readiness families retain partial source records for uncompleted plan/
 
 ## Remaining work
 
-- **FH-04:** CF-ROOT architecture is resolved (R086/Gate 7). Directive 005 completes the root plan, candidate lane map, essential context and offline schema/consumer/reference harness (R088–R090). Clean pinned toolchain/router, actual durable runtime/owner adapters, database posture D, RLS/concurrency/Privacy executor/provider and controlled activation qualifications remain; no production parallel implementation permission.
-- **RAILS-12:** CF-ROOT architecture is resolved (R086/Gate 7). Directive 005 completes the root plan, candidate lane map, essential context and offline schema/consumer/reference harness (R088–R090). Clean pinned toolchain/router, actual durable runtime/owner adapters, database posture D, RLS/concurrency/Privacy executor/provider and controlled activation qualifications remain; no production parallel implementation permission.
+- **FH-04:** CF-ROOT architecture,root plan,essential context,offline harness and bounded real P0-B framework/HTTP checks are complete in stated scope. Dependency security remediation is open; actual durable owner/runtime adapters,DB posture D,RLS/concurrency,Privacy executor/provider and activation evidence remain. No parallel/product authorization or SH runtime freeze.
+- **RAILS-12:** CF-ROOT architecture,root plan,essential context,offline harness and bounded real P0-B framework/HTTP checks are complete in stated scope. Dependency security remediation is open; actual durable owner/runtime adapters,DB posture D,RLS/concurrency,Privacy executor/provider and activation evidence remain. No parallel/product authorization or SH runtime freeze.
 
 Bridge evidence is separately inventoried in bridge-catalog.json/md; extraction does not imply bilateral reconciliation or freeze. No product implementation, external approval, provider qualification or deployment is certified here.

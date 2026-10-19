@@ -4,12 +4,12 @@
   "baseline_commit": "731491b393df205478c012bd2d5998ca08181ed2",
   "status": "GATE_5_PASSED_ARCHITECTURAL_CONVERGENCE",
   "entry_gate": "Gate 4 accepted architecturally reviewed, 563 unique records / 268 families; no runtime freeze",
-  "method": "Fresh current owner interface/dependency/lifecycle review; R068/R069 and canonical rulings against owner §9/12/13 and compatibility mirrors. Historical source facets retained, not treated as fresh audit alone.",
+  "method": "Fresh current owner interface/dependency/lifecycle review; R068/R069 and canonical rulings against owner \u00a79/12/13 and compatibility mirrors. Historical source facets retained, not treated as fresh audit alone.",
   "opening_review_flows": [
     {
       "id": "PA-001",
-      "scope": "Order ↔ Payment",
-      "finding": "Payment §15/16/21/22 requires inbound Order outcome reconciliation, but R069 omitted Payment.",
+      "scope": "Order \u2194 Payment",
+      "finding": "Payment \u00a715/16/21/22 requires inbound Order outcome reconciliation, but R069 omitted Payment.",
       "status": "CORRECTED_WA_R084",
       "cycle_and_truth_boundary": "Commit owner outcome/outbox first; Payment current settlement read and durable economic identity. Event is not dispatch. No synchronous cross-owner commit.",
       "evidence": [
@@ -27,7 +27,7 @@
     },
     {
       "id": "PA-002",
-      "scope": "Profile creation ↔ Track",
+      "scope": "Profile creation \u2194 Track",
       "finding": "R078 owner-created intent and Track typed binding compared with R030/032.",
       "status": "REVIEWED_SCOPED",
       "cycle_and_truth_boundary": "Profile commit does not await enrollment; Track validates owner facts after commit. No inferred Free, paid downgrade or quota reset.",
@@ -56,7 +56,7 @@
     },
     {
       "id": "PA-003",
-      "scope": "Offering ↔ delivery readiness",
+      "scope": "Offering \u2194 delivery readiness",
       "finding": "Marketplace getOfferingDeliveryRequirements and checkout facts compared with Digital/Video readiness contracts.",
       "status": "REVIEWED_SCOPED",
       "cycle_and_truth_boundary": "Delivery requirement query returns source facts without calling publication readiness again; Marketplace composes readiness after owner facts. Runtime recursion/freshness tests still needed.",
@@ -80,7 +80,7 @@
     },
     {
       "id": "PA-004",
-      "scope": "Order ↔ Booking",
+      "scope": "Order \u2194 Booking",
       "finding": "R012 and Booking confirmBooking/getBookingOwnerFacts compared with R048.",
       "status": "REVIEWED_SCOPED",
       "cycle_and_truth_boundary": "Slot selection/hold is not confirmed paid entitlement; Order session reservation and Booking attachment receipt reconcile. No cross-owner transaction or timeout release; package completion remains Order.",
@@ -99,7 +99,7 @@
     },
     {
       "id": "PA-005",
-      "scope": "Candidate ↔ Track",
+      "scope": "Candidate \u2194 Track",
       "finding": "R030 stable submission intent and R032 current-month reservation compared with Candidate application graph.",
       "status": "REVIEWED_SCOPED",
       "cycle_and_truth_boundary": "Candidate commits once against valid period authorization; Track consumes from durable acceptance. Unknown outcome cannot release capacity. Premium records usage; withdrawal does not credit.",
@@ -118,7 +118,7 @@
     },
     {
       "id": "PA-006",
-      "scope": "Location ↔ service/hiring sources",
+      "scope": "Location \u2194 service/hiring sources",
       "finding": "R049/071 source references, current service facts and distinct interview disclosure compared.",
       "status": "REVIEWED_SCOPED",
       "cycle_and_truth_boundary": "Source fact queries do not invoke reveal. Location checks fresh consistent context; non-authorizing Booking cache and event invalidation cannot grant exact data. Unregistered precision/purpose denies.",
@@ -157,7 +157,7 @@
     },
     {
       "id": "PA-007",
-      "scope": "Healthcare ↔ provider/access owners",
+      "scope": "Healthcare \u2194 provider/access owners",
       "finding": "R036/065 and R081 provider evidence/input field policy compared with Media/Video/Messaging composition.",
       "status": "REVIEWED_SCOPED",
       "cycle_and_truth_boundary": "Adapter query reports immutable configuration/capability evidence, not Healthcare approval. Healthcare decides coverage; access owner enforces all categories before rendering. No legal self-attestation loop.",
@@ -196,7 +196,7 @@
     },
     {
       "id": "PA-008",
-      "scope": "Privacy ↔ executor/storage/Search",
+      "scope": "Privacy \u2194 executor/storage/Search",
       "finding": "R020/050/056/057, R081 backup receipt and R034 Search tombstones compared.",
       "status": "REVIEWED_SCOPED",
       "cycle_and_truth_boundary": "Explicit generation instructions and durable accepted/completed receipts; source commit before downstream reconciliation. Complete actual-byte manifest before export-ready; provider uncertainty retained, no cascade completion.",
@@ -225,7 +225,7 @@
     },
     {
       "id": "PA-009",
-      "scope": "Source ↔ Notification/Messaging",
+      "scope": "Source \u2194 Notification/Messaging",
       "finding": "R053/054/055/066/069 participant/intent/realtime contracts compared.",
       "status": "REVIEWED_SCOPED",
       "cycle_and_truth_boundary": "Source commits before intent; Notification recipient query cannot become source mutation. Messaging rechecks current participants before disclosure/emission; private body and credentials excluded. Optional reverse Search/prize paths disabled.",
@@ -697,7 +697,7 @@
     "context/reconciliation/authority-event-contracts.md": "38620917e1f7080382b4dc4785a989afac54af78257597df2cc73e15caee02f8",
     "context/reconciliation/bridge-catalog.json": "43dc619e574fa5486c99c7e5bb03eb8d7d4f22fd5f33ce1a9885cbec640c15c8",
     "context/reconciliation/bridge-family-index.json": "7fda3c68d393f7371c70ee190b18ac6dd7b74e2bcfa6864d1dc1acda4fecb4af",
-    "context/reconciliation/platform-architecture-rulings.md": "6ea6f75955cedbb36dfb1e18545d14e298cd447bb5ee978f707b8b131c27ac6d",
+    "context/reconciliation/platform-architecture-rulings.md": "a15e71747452980e74944b2b01e59d89b4d6bff95c3ac335b4acfdb3a8868f7b",
     "context/shared/shared-operations.md": "6e4607e9fdaf6c25c8e5f87857b84d778f866a97c4dcd778e03b6e07b6fe8c67",
     "prisma/deep modules and schemas.json": "a8fd134444250095a796269d30541d25bca7e5c8ba79caa8ab96e2a8fa081a4e",
     "prisma/schema.prisma": "4a75be42a8b26001c20aaf46a1bb0e5dd7d0984090c9712274c308668908eebf"
@@ -738,7 +738,7 @@
   ],
   "root_synthesis_authorized": true,
   "runtime_qualification_claimed": false,
-  "exit_judgment": "No AI-resolvable ACTUAL_CONFLICT remains open in the reviewed architecture. Missing composition/recovery ports and runtime stewardship are corrected under R085–087; qualified DTO, concurrency, RLS, provider, field/action Privacy and database obligations remain explicitly unproven. Root synthesis is permitted after Gate 6 confirms scoped D; no implementation freeze or parallel implementation permission.",
+  "exit_judgment": "No AI-resolvable ACTUAL_CONFLICT remains open in the reviewed architecture. Missing composition/recovery ports and runtime stewardship are corrected under R085\u2013087; qualified DTO, concurrency, RLS, provider, field/action Privacy and database obligations remain explicitly unproven. Root synthesis is permitted after Gate 6 confirms scoped D; no implementation freeze or parallel implementation permission.",
   "validation_evidence": [
     "platform-convergence-validation.json",
     "platform-convergence-negative-validation.json",
@@ -757,5 +757,13 @@
     "ruling": "WA-R088",
     "runtime_qualification": false,
     "prior_gate5_findings_and_source_coverage_preserved": true
+  },
+  "directive006_followup": {
+    "ruling": "WA-R091",
+    "previous_rulings_unchanged": true,
+    "scope": "Clean sequential application foundation and greenfield evaluation route; no lower-level lifecycle,source graph or gate5 finding reopened.",
+    "qualification_evidence": "context/reconciliation/phase0-foundation-validation.json",
+    "dependency_security": "OPEN",
+    "database_posture": "D"
   }
 }

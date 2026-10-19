@@ -4,7 +4,7 @@ Read product overview, owner architecture, connected workflow and exact contract
 
 ## Routing and rendering boundary
 
-The intended framework is Next App Router in `app/` under WA-R090. The existing `pages/` tree contains App Router-style filenames and is unnormalized compatibility debt. Do not use it as a second architecture or add product pages to hide a router issue. P0-B must repair clean install, read the pinned installed guide and verify a contents-preserving router normalization before substantial UI work. Current official routing references are in library-docs.md; they do not substitute for pinned version behavior.
+The framework foundation is a fresh Next App Router app/ under WA-R090/R091 and Directive006-A. The old pages/ application remains inactive under legacy/checkpoint-005/ with exact inventory/hashes; do not import it as a second architecture. Real framework/HTTP checks qualify the bounded shell separately from product UI. Development-only diagnostic access is denied in production by server execution mode,not public flags. Read installed pinned Next guidance and actual Phase0 evidence before changing this boundary.
 
 Prefer server-owned data/permission boundaries and minimal client interaction islands. Thin route/handler validates input and delegates to owner application ports. Any framework caching, streaming, server action or client/server API must follow the actual installed version's guide and tests. Never put credentials, service-role database clients, provider SDKs or private repositories in browser imports. Client state is display/interaction state, not authority; protected refetch repeats current source checks.
 
@@ -36,3 +36,6 @@ Protected media/resume/location/Agreement/tax/healthcare/export views require cu
 Use ui-tokens.md and ui-registry.md before creating a shared component. Shared presentation primitives do not own domain policy. Place feature screens/components with their canonical owner; cross-owner facades compose actual public contracts. A new dependency requires a documented package/version/license/security/accessibility justification and integration-owner review; the product's shadcn/Radix/Zod intent is not proof they are installed.
 
 Each substantial UI feature needs actual framework build checks, owner contract/schema fixtures, keyboard/focus/screen-reader/contrast/reflow/reduced-motion testing, currentness/denial/unknown/retry/privacy cases and visual review in supported layouts. A registry row marked specified or a screenshot is not completed behavior. Do not implement substantial UI until the routing/toolchain and required source contracts/adapters are qualified.
+
+
+After every implementation slice update ui-registry.md/json with actual reusable component paths/API/classes/token usage and qualification limits; planned rows stay clearly unimplemented. Preserve source/contract/authority and accessibility obligations even when a foundation smoke check passes.

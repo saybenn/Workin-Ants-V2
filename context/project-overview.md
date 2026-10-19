@@ -1,0 +1,7 @@
+# Workin Ants project overview entry point
+
+[Project Overview V3](project-overview-v3.md) is the maintained product orientation: actors, capabilities, workflows and intended stack. Read it for product truth; approved [rulings](reconciliation/platform-architecture-rulings.md) and actual owner artifacts govern adjudicated concerns. V2 is historical. This entry point routes agents and creates no competing product definition.
+
+At session start load these nine foundational roles: project-overview.md, architecture.md, build-plan.md, code-standards.md, library-docs.md, ui-tokens.md, ui-rules.md, ui-registry.md and the current section of progress-tracker.md. Then use [context-map.md](context-map.md) to select the relevant Cluster/Module architecture and plan, [connected workflow](workflows/platform-workflows.md) and exact [Shared Operation](shared/contracts/README.md) source/consumer contracts. Do not recursively load all historical reports or every Module merely because they live under context/.
+
+Current authorization is sequential Phase0 Foundation Qualification under Directives006/006-A. Gate10 remains NOT_READY for production autonomous development; database posture D,13 external contract gates and zero active parallel lanes remain. The fresh application branch/worktree and qualification state are recorded in [progress](progress-tracker.md) and [Phase0 evidence](reconciliation/phase0-foundation-status.json). Architecture specification and offline fixtures do not prove real owner/runtime/provider/Privacy execution.

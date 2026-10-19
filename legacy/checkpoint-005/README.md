@@ -1,0 +1,5 @@
+# Checkpoint 005 application archive
+
+These files preserve the exact old application and baseline configuration from bbeb4c2a3a1ccd110273d7185f113db546549009. The SHA-256 inventory is context/reconciliation/legacy-application-inventory.json. They are inactive comparison/recovery material, excluded from active TypeScript and ESLint inputs and outside Next router roots. Do not import or re-activate them as a shortcut. Context/owner architecture remains authoritative; this archive implements no current product.
+
+Directive 006-A chooses a new minimal app/ foundation in an isolated branch/worktree. No old forms, error logging, service-key presence flags, broad logger or public environment-based security gate is carried into it. Old route contents remain here and in Git. New health means process liveness only. New diagnostic routes are development-only; production responds404. Restoring this old tree would restore its known routing/security debt and requires a reviewed change, not a file copy during feature work. No user environment or credentials are archived.

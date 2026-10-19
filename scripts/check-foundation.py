@@ -89,10 +89,38 @@ def inspect(root=ROOT):
     pairs=[(x['id'],d['operation']) for x in c for d in x['dependencies'] if d['kind']=='LOCAL_OR_PORT_CONTRACT']
     cycles=components(pairs)
     if cycles:errors.append('Shared Operation synchronous dependency cycle '+str(cycles))
-    # Canonical model/ID/source hashes stay fixed for this no-migration readiness pass.
+    # Historical baseline stays intact. Directive006 permits only two reviewed
+    # package files to differ; no schema/source-history exception is granted.
     baseline=read('context/reconciliation/directive005-preserved-source-baseline.json')
+    approved={}
+    review_path=root/'context/reconciliation/phase0-approved-file-changes.json'
+    if review_path.exists():
+        review=read('context/reconciliation/phase0-approved-file-changes.json')
+        if {f['path'] for f in review['files']}!={'package.json','package-lock.json'}:
+            errors.append('Unexpected Phase0 protected-file exception')
+        elif (review['ruling']!='WA-R091' or
+              hashlib.sha256((root/review['authority']).read_bytes()).hexdigest()!=review['authority_sha256'] or
+              not re.search(r'^## WA-R091\b',(root/'context/reconciliation/platform-architecture-rulings.md').read_text(),re.M)):
+            errors.append('Reviewed package change lacks Directive006 authority')
+        else:
+            for f in review['files']:
+                if f['previous_sha256']!=baseline['sha256'][f['path']]:errors.append('Reviewed package baseline mismatch')
+                else:approved[f['path']]=f['reviewed_sha256']
+        original=read('legacy/checkpoint-005/configuration/package.json');current=read('package.json')
+        if any(original[k]!=current[k] for k in ['dependencies','devDependencies']):errors.append('Unapproved direct dependency change')
+        original=read('legacy/checkpoint-005/configuration/package-lock.json')['packages'];current=read('package-lock.json')['packages']
+        for p,v in original.items():
+            if p and (p not in current or any(v.get(k)!=current[p].get(k) for k in ['version','resolved','integrity'])):
+                errors.append('Unapproved existing dependency resolution change '+p)
+        added={p for p in current if p not in original}
+        expected={'node_modules/@emnapi/core':'1.10.0','node_modules/@emnapi/runtime':'1.10.0'}
+        expected.update({'node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/'+p:v for p,v in {
+            '@emnapi/core':'1.10.0','@emnapi/runtime':'1.10.0','@emnapi/wasi-threads':'1.2.1',
+            '@napi-rs/wasm-runtime':'1.1.4','@tybys/wasm-util':'0.10.1','tslib':'2.8.1'}.items()})
+        if added!=set(expected) or any(current[p].get('version')!=v for p,v in expected.items() if p in current):errors.append('Unapproved missing-lock dependency set')
+        if review['existing_dependency_version_changes'] or review['direct_dependency_declaration_changes']:errors.append('Unapproved dependency upgrade qualification')
     for p,sha in baseline['sha256'].items():
-        if not (root/p).is_file() or hashlib.sha256((root/p).read_bytes()).hexdigest()!=sha:errors.append('Protected source/schema/migration drift '+p)
+        if not (root/p).is_file() or hashlib.sha256((root/p).read_bytes()).hexdigest()!=approved.get(p,sha):errors.append('Protected source/schema/migration drift '+p)
     all_modules={m['id'] for m in read('prisma/deep modules and schemas.json')};assigned=[m for l in lanes['candidate_lanes'] for m in l['modules']]
     if Counter(assigned)!=Counter(all_modules):errors.append('Candidate lanes missing/duplicate Module ownership')
     roots=[]
@@ -106,7 +134,7 @@ def inspect(root=ROOT):
             if a!=b and (p.startswith(q) or q.startswith(p)):errors.append('Parallel file ownership overlaps '+a+' '+b+' '+p)
     if lanes['actual_concurrent_implementation_authorized']:errors.append('Unapproved concurrent implementation')
     findings,scanned=boundary_findings(root,lanes);errors+=findings
-    required=['context/architecture.md','context/build-plan.md','context/parallel-development-plan.md','context/code-standards.md','context/library-docs.md','context/ui-tokens.md','context/ui-rules.md','context/ui-registry.md','context/progress-tracker.md','context/context-map.md','AGENTS.md','CLAUDE.md','context/reconciliation/development-readiness-report.md']
+    required=['context/project-overview.md','context/architecture.md','context/build-plan.md','context/parallel-development-plan.md','context/code-standards.md','context/library-docs.md','context/ui-tokens.md','context/ui-rules.md','context/ui-registry.md','context/progress-tracker.md','context/context-map.md','AGENTS.md','CLAUDE.md','context/reconciliation/development-readiness-report.md']
     current_docs=[root/p for p in required]+list((root/'context/shared/contracts').glob('*.md'))+list((root/'context/workflows').glob('*.md'))
     link_count=0
     for p in current_docs:

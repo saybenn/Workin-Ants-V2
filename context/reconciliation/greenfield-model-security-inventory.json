@@ -1,0 +1,3499 @@
+{
+  "status": "PROPOSED_RECONCILIATION_INVENTORY_NOT_BASELINE",
+  "schema_sha256": "4a75be42a8b26001c20aaf46a1bb0e5dd7d0984090c9712274c308668908eebf",
+  "models": [
+    {
+      "model": "VerificationPackage",
+      "source_owner": "trust_verification_screening",
+      "current_schema": "app",
+      "current_table": "verification_packages",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "VerificationPackageItem",
+      "source_owner": "trust_verification_screening",
+      "current_schema": "app",
+      "current_table": "verification_package_items",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ConsentLog",
+      "source_owner": "consent_disclosure",
+      "current_schema": "app",
+      "current_table": "consent_logs",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "PrivacyRequest",
+      "source_owner": "privacy_data_erasure",
+      "current_schema": "app",
+      "current_table": "privacy_requests",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "AgeGateAttempt",
+      "source_owner": "identity_access",
+      "current_schema": "app",
+      "current_table": "age_gate_attempts",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "AgeGateBlock",
+      "source_owner": "identity_access",
+      "current_schema": "app",
+      "current_table": "age_gate_blocks",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "FuzzyLocationCache",
+      "source_owner": "location_safety",
+      "current_schema": "app",
+      "current_table": "fuzzy_location_cache",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "LocationReveal",
+      "source_owner": "location_safety",
+      "current_schema": "app",
+      "current_table": "location_reveals",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "KycVerification",
+      "source_owner": "payment_payout_tax",
+      "current_schema": "app",
+      "current_table": "kyc_verifications",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TaxProfile",
+      "source_owner": "payment_payout_tax",
+      "current_schema": "app",
+      "current_table": "tax_profiles",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TaxDocument",
+      "source_owner": "payment_payout_tax",
+      "current_schema": "app",
+      "current_table": "tax_documents",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TaxYearEarningsSummary",
+      "source_owner": "payment_payout_tax",
+      "current_schema": "app",
+      "current_table": "tax_year_earnings_summaries",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TaxReportingSubmission",
+      "source_owner": "payment_payout_tax",
+      "current_schema": "app",
+      "current_table": "tax_reporting_submissions",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TaxReportingRecipient",
+      "source_owner": "payment_payout_tax",
+      "current_schema": "app",
+      "current_table": "tax_reporting_recipients",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "PayoutAccount",
+      "source_owner": "payment_payout_tax",
+      "current_schema": "app",
+      "current_table": "payout_accounts",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ProviderRequirementSnapshot",
+      "source_owner": "payment_payout_tax",
+      "current_schema": "app",
+      "current_table": "provider_requirement_snapshots",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ProfessionalBalanceLedgerEntry",
+      "source_owner": "payment_payout_tax",
+      "current_schema": "app",
+      "current_table": "professional_balance_ledger_entries",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "PayoutRequest",
+      "source_owner": "payment_payout_tax",
+      "current_schema": "app",
+      "current_table": "payout_requests",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "PayoutTransfer",
+      "source_owner": "payment_payout_tax",
+      "current_schema": "app",
+      "current_table": "payout_transfers",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ComplianceHold",
+      "source_owner": "admin_review_compliance_hold",
+      "current_schema": "app",
+      "current_table": "compliance_holds",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "DataErasureJob",
+      "source_owner": "privacy_data_erasure",
+      "current_schema": "app",
+      "current_table": "data_erasure_jobs",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "DataErasureTarget",
+      "source_owner": "privacy_data_erasure",
+      "current_schema": "app",
+      "current_table": "data_erasure_targets",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "DataRetentionExemption",
+      "source_owner": "privacy_data_erasure",
+      "current_schema": "app",
+      "current_table": "data_retention_exemptions",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "DataExportBundle",
+      "source_owner": "privacy_data_erasure",
+      "current_schema": "app",
+      "current_table": "data_export_bundles",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "Report",
+      "source_owner": "content_moderation_legal_notice",
+      "current_schema": "app",
+      "current_table": "reports",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "LegalNotice",
+      "source_owner": "content_moderation_legal_notice",
+      "current_schema": "app",
+      "current_table": "legal_notices",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ModerationCase",
+      "source_owner": "content_moderation_legal_notice",
+      "current_schema": "app",
+      "current_table": "moderation_cases",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ModerationAction",
+      "source_owner": "content_moderation_legal_notice",
+      "current_schema": "app",
+      "current_table": "moderation_actions",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "PrizeDrawing",
+      "source_owner": "sweepstakes_prize",
+      "current_schema": "app",
+      "current_table": "prize_drawings",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "SweepstakesEntryMethod",
+      "source_owner": "sweepstakes_prize",
+      "current_schema": "app",
+      "current_table": "sweepstakes_entry_methods",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "PrizeEntry",
+      "source_owner": "sweepstakes_prize",
+      "current_schema": "app",
+      "current_table": "prize_entries",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "PrizeWinning",
+      "source_owner": "sweepstakes_prize",
+      "current_schema": "app",
+      "current_table": "prize_winnings",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "PrizeTaxYearSummary",
+      "source_owner": "sweepstakes_prize",
+      "current_schema": "app",
+      "current_table": "prize_tax_year_summaries",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": {
+        "model": "PrizeTaxYearSummary",
+        "owner": "sweepstakes_prize",
+        "compatibility_fields_or_concepts": "totals",
+        "authoritative_source": "Payment legal tax subject/jurisdiction/year/currency/regime aggregate from actual fulfillment recognition",
+        "rulings": [
+          "WA-R037",
+          "WA-R061"
+        ],
+        "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+        "evidence": "context/clusters/incentives, rewards & prize economy/sweepstakes-module/sweepstakes-prize-module-architecture.md"
+      }
+    },
+    {
+      "model": "HealthcareComplianceProfile",
+      "source_owner": "healthcare_regulated_services",
+      "current_schema": "app",
+      "current_table": "healthcare_compliance_profiles",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "BaaAgreement",
+      "source_owner": "healthcare_regulated_services",
+      "current_schema": "app",
+      "current_table": "baa_agreements",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "HealthcareDataBoundary",
+      "source_owner": "healthcare_regulated_services",
+      "current_schema": "app",
+      "current_table": "healthcare_data_boundaries",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "HealthcareAdminAccessPolicy",
+      "source_owner": "healthcare_regulated_services",
+      "current_schema": "app",
+      "current_table": "healthcare_admin_access_policies",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "AccessAuditLog",
+      "source_owner": "audit_event_ledger",
+      "current_schema": "app",
+      "current_table": "access_audit_logs",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "GamificationProgram",
+      "source_owner": "gamification_rewards",
+      "current_schema": "app",
+      "current_table": "gamification_programs",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "GamificationRule",
+      "source_owner": "gamification_rewards",
+      "current_schema": "app",
+      "current_table": "gamification_rules",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "PointLedgerEntry",
+      "source_owner": "gamification_rewards",
+      "current_schema": "app",
+      "current_table": "point_ledger_entries",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "Challenge",
+      "source_owner": "gamification_rewards",
+      "current_schema": "app",
+      "current_table": "challenges",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ChallengeParticipant",
+      "source_owner": "gamification_rewards",
+      "current_schema": "app",
+      "current_table": "challenge_participants",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "Leaderboard",
+      "source_owner": "gamification_rewards",
+      "current_schema": "app",
+      "current_table": "leaderboards",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "LeaderboardEntry",
+      "source_owner": "gamification_rewards",
+      "current_schema": "app",
+      "current_table": "leaderboard_entries",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "Reward",
+      "source_owner": "gamification_rewards",
+      "current_schema": "app",
+      "current_table": "rewards",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "RewardRedemption",
+      "source_owner": "gamification_rewards",
+      "current_schema": "app",
+      "current_table": "reward_redemptions",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "VerificationRequirement",
+      "source_owner": "trust_verification_screening",
+      "current_schema": "app",
+      "current_table": "verification_requirements",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "VerificationConsent",
+      "source_owner": "trust_verification_screening",
+      "current_schema": "app",
+      "current_table": "verification_consents",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "VerificationCheck",
+      "source_owner": "trust_verification_screening",
+      "current_schema": "app",
+      "current_table": "verification_checks",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "FcraAdverseActionWorkflow",
+      "source_owner": "trust_verification_screening",
+      "current_schema": "app",
+      "current_table": "fcra_adverse_action_workflows",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ProfessionalLicenseCredential",
+      "source_owner": "trust_verification_screening",
+      "current_schema": "app",
+      "current_table": "professional_license_credentials",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TrustBadge",
+      "source_owner": "trust_verification_screening",
+      "current_schema": "app",
+      "current_table": "trust_badges",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "User",
+      "source_owner": "identity_access",
+      "current_schema": "app",
+      "current_table": "users",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "UserRole",
+      "source_owner": "identity_access",
+      "current_schema": "app",
+      "current_table": "user_roles",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "Organization",
+      "source_owner": "organization_hiring",
+      "current_schema": "app",
+      "current_table": "organizations",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "OrganizationMember",
+      "source_owner": "organization_hiring",
+      "current_schema": "app",
+      "current_table": "organization_members",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "OrganizationFeatureAccess",
+      "source_owner": "track_subscription_entitlement",
+      "current_schema": "app",
+      "current_table": "organization_feature_access",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ProfessionalProfile",
+      "source_owner": "professional_eligibility",
+      "current_schema": "app",
+      "current_table": "professional_profiles",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": {
+        "model": "ProfessionalProfile",
+        "owner": "professional_eligibility",
+        "compatibility_fields_or_concepts": "rating/readiness display",
+        "authoritative_source": "Review reputation facts and current dimensioned source decisions; profile identity remains source",
+        "rulings": [
+          "WA-R024",
+          "WA-R035",
+          "WA-R052"
+        ],
+        "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+        "evidence": "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-architecture.md"
+      }
+    },
+    {
+      "model": "CustomerProfile",
+      "source_owner": "customer_buyer_profile",
+      "current_schema": "app",
+      "current_table": "customer_profiles",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "CandidateProfile",
+      "source_owner": "candidate_application_resume_privacy",
+      "current_schema": "app",
+      "current_table": "candidate_profiles",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TaxonomyDomain",
+      "source_owner": "taxonomy_classification",
+      "current_schema": "app",
+      "current_table": "taxonomy_domains",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TaxonomyCategory",
+      "source_owner": "taxonomy_classification",
+      "current_schema": "app",
+      "current_table": "taxonomy_categories",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TaxonomyTag",
+      "source_owner": "taxonomy_classification",
+      "current_schema": "app",
+      "current_table": "taxonomy_tags",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ProfessionalCategory",
+      "source_owner": "professional_eligibility",
+      "current_schema": "app",
+      "current_table": "professional_categories",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ProfessionalTag",
+      "source_owner": "professional_eligibility",
+      "current_schema": "app",
+      "current_table": "professional_tags",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "CandidateCategory",
+      "source_owner": "candidate_application_resume_privacy",
+      "current_schema": "app",
+      "current_table": "candidate_categories",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "CandidateTag",
+      "source_owner": "candidate_application_resume_privacy",
+      "current_schema": "app",
+      "current_table": "candidate_tags",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "OrganizationCategory",
+      "source_owner": "organization_hiring",
+      "current_schema": "app",
+      "current_table": "organization_categories",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "OrganizationTag",
+      "source_owner": "organization_hiring",
+      "current_schema": "app",
+      "current_table": "organization_tags",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "Offering",
+      "source_owner": "marketplace_supply",
+      "current_schema": "app",
+      "current_table": "offerings",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ServiceDetails",
+      "source_owner": "marketplace_supply",
+      "current_schema": "app",
+      "current_table": "service_details",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ProductDetails",
+      "source_owner": "marketplace_supply",
+      "current_schema": "app",
+      "current_table": "product_details",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "CourseDetails",
+      "source_owner": "marketplace_supply",
+      "current_schema": "app",
+      "current_table": "course_details",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "PricingTier",
+      "source_owner": "marketplace_supply",
+      "current_schema": "app",
+      "current_table": "pricing_tiers",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "OfferingMedia",
+      "source_owner": "marketplace_supply",
+      "current_schema": "app",
+      "current_table": "offering_media",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "OfferingTag",
+      "source_owner": "marketplace_supply",
+      "current_schema": "app",
+      "current_table": "offering_tags",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "Gig",
+      "source_owner": "gig_demand",
+      "current_schema": "app",
+      "current_table": "gigs",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "GigTag",
+      "source_owner": "gig_demand",
+      "current_schema": "app",
+      "current_table": "gig_tags",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "GigResponse",
+      "source_owner": "gig_demand",
+      "current_schema": "app",
+      "current_table": "gig_responses",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "GigAssignment",
+      "source_owner": "gig_demand",
+      "current_schema": "app",
+      "current_table": "gig_assignments",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": {
+        "model": "GigAssignment",
+        "owner": "gig_demand",
+        "compatibility_fields_or_concepts": "status,orderId",
+        "authoritative_source": "Accepted proposal/winner slot is Gig source; commercial outcome only from matching Order source/version; no reaward from failure projection",
+        "rulings": [
+          "WA-R039",
+          "WA-R040",
+          "WA-R048"
+        ],
+        "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+        "evidence": "context/clusters/customer demand, order, & resolution/gig demand module/gig-demand-module-architecture.md"
+      }
+    },
+    {
+      "model": "Job",
+      "source_owner": "organization_hiring",
+      "current_schema": "app",
+      "current_table": "jobs",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": {
+        "model": "Job",
+        "owner": "organization_hiring",
+        "compatibility_fields_or_concepts": "complianceStatus",
+        "authoritative_source": "Current source/rule-bound JobComplianceCheck; originating compensation remains Hiring",
+        "rulings": [
+          "WA-R044",
+          "WA-R072"
+        ],
+        "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+        "evidence": "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-architecture.md"
+      }
+    },
+    {
+      "model": "JobCompensationDisclosure",
+      "source_owner": "job_compliance",
+      "current_schema": "app",
+      "current_table": "job_compensation_disclosures",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "JobApplication",
+      "source_owner": "candidate_application_resume_privacy",
+      "current_schema": "app",
+      "current_table": "job_applications",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "JobApplicationViewEvent",
+      "source_owner": "candidate_application_resume_privacy",
+      "current_schema": "app",
+      "current_table": "job_application_view_events",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "JobInterview",
+      "source_owner": "job_interview",
+      "current_schema": "app",
+      "current_table": "job_interviews",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": {
+        "model": "JobInterview",
+        "owner": "job_interview",
+        "compatibility_fields_or_concepts": "calendar/provider summary",
+        "authoritative_source": "Interview source revision/successor/participants, Calendar mapping journal and Video room generation each separate",
+        "rulings": [
+          "WA-R046",
+          "WA-R049",
+          "WA-R051"
+        ],
+        "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+        "evidence": "context/clusters/Organization Hiring & Candidate Pipeline/Job Interview Module/job-interview-module-architecture.md"
+      }
+    },
+    {
+      "model": "JobInterviewParticipant",
+      "source_owner": "job_interview",
+      "current_schema": "app",
+      "current_table": "job_interview_participants",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "JobInterviewEvent",
+      "source_owner": "job_interview",
+      "current_schema": "app",
+      "current_table": "job_interview_events",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "JobInterviewVideoRoom",
+      "source_owner": "video_session",
+      "current_schema": "app",
+      "current_table": "job_interview_video_rooms",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "JobTag",
+      "source_owner": "organization_hiring",
+      "current_schema": "app",
+      "current_table": "job_tags",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "JobComplianceCheck",
+      "source_owner": "job_compliance",
+      "current_schema": "app",
+      "current_table": "job_compliance_checks",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "JobComplianceRule",
+      "source_owner": "job_compliance",
+      "current_schema": "app",
+      "current_table": "job_compliance_rules",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "JobComplianceFinding",
+      "source_owner": "job_compliance",
+      "current_schema": "app",
+      "current_table": "job_compliance_findings",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": {
+        "model": "JobComplianceFinding",
+        "owner": "job_compliance",
+        "compatibility_fields_or_concepts": "fieldName,sourceField,matchedText,matchedSnippetPreview,suggestedText,suggestedReplacement",
+        "authoritative_source": "Canonical finding sourceField, bounded preview/hash, suggestedReplacement; conflicting legacy aliases quarantined",
+        "rulings": [
+          "WA-R044",
+          "WA-R076"
+        ],
+        "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+        "evidence": "context/clusters/Organization Hiring & Candidate Pipeline/Job Compliance Module/job-compliance-module-architecture.md"
+      }
+    },
+    {
+      "model": "JobApplicationMedia",
+      "source_owner": "candidate_application_resume_privacy",
+      "current_schema": "app",
+      "current_table": "job_application_media",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "CandidateSearchProjection",
+      "source_owner": "candidate_application_resume_privacy",
+      "current_schema": "app",
+      "current_table": "candidate_search_projections",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": {
+        "model": "CandidateSearchProjection",
+        "owner": "candidate_application_resume_privacy",
+        "compatibility_fields_or_concepts": "status,source",
+        "authoritative_source": "Current Candidate participation/source lineage and allowed projection generation; Search cannot authorize source",
+        "rulings": [
+          "WA-R034",
+          "WA-R045"
+        ],
+        "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+        "evidence": "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-architecture.md"
+      }
+    },
+    {
+      "model": "ResumeParseResult",
+      "source_owner": "candidate_application_resume_privacy",
+      "current_schema": "app",
+      "current_table": "resume_parse_results",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ResumeAccessLog",
+      "source_owner": "candidate_application_resume_privacy",
+      "current_schema": "app",
+      "current_table": "resume_access_logs",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "Order",
+      "source_owner": "transaction_order",
+      "current_schema": "app",
+      "current_table": "orders",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": {
+        "model": "Order",
+        "owner": "transaction_order",
+        "compatibility_fields_or_concepts": "stripeTransferId,buyerSigUrl,professionalSigUrl,pdfMediaId,finalDocumentHash",
+        "authoritative_source": "Payment effect references and normalized Agreement execution/signature/document records",
+        "rulings": [
+          "WA-R048",
+          "WA-R076"
+        ],
+        "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+        "evidence": "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-module-architecture.md"
+      }
+    },
+    {
+      "model": "OrderFile",
+      "source_owner": "transaction_order",
+      "current_schema": "app",
+      "current_table": "order_files",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "OrderEvent",
+      "source_owner": "transaction_order",
+      "current_schema": "app",
+      "current_table": "order_events",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "AgreementTemplate",
+      "source_owner": "transaction_order",
+      "current_schema": "app",
+      "current_table": "agreement_templates",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "AgreementElectronicConsent",
+      "source_owner": "transaction_order",
+      "current_schema": "app",
+      "current_table": "agreement_electronic_consents",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "AgreementSignature",
+      "source_owner": "transaction_order",
+      "current_schema": "app",
+      "current_table": "agreement_signatures",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "AgreementDocumentSnapshot",
+      "source_owner": "transaction_order",
+      "current_schema": "app",
+      "current_table": "agreement_document_snapshots",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "AgreementEvent",
+      "source_owner": "transaction_order",
+      "current_schema": "app",
+      "current_table": "agreement_events",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "AgreementAccessGrant",
+      "source_owner": "transaction_order",
+      "current_schema": "app",
+      "current_table": "agreement_access_grants",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "Agreement",
+      "source_owner": "transaction_order",
+      "current_schema": "app",
+      "current_table": "agreements",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "Review",
+      "source_owner": "review_dispute",
+      "current_schema": "app",
+      "current_table": "reviews",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "Dispute",
+      "source_owner": "review_dispute",
+      "current_schema": "app",
+      "current_table": "disputes",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "MediaAsset",
+      "source_owner": "media_file_access",
+      "current_schema": "app",
+      "current_table": "media_assets",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "MediaUploadPolicy",
+      "source_owner": "media_file_access",
+      "current_schema": "app",
+      "current_table": "media_upload_policies",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "MediaUploadSession",
+      "source_owner": "media_file_access",
+      "current_schema": "app",
+      "current_table": "media_upload_sessions",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "MediaValidationResult",
+      "source_owner": "media_file_access",
+      "current_schema": "app",
+      "current_table": "media_validation_results",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "MediaScanResult",
+      "source_owner": "media_file_access",
+      "current_schema": "app",
+      "current_table": "media_scan_results",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "MediaProcessingResult",
+      "source_owner": "media_file_access",
+      "current_schema": "app",
+      "current_table": "media_processing_results",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "MediaAccessGrant",
+      "source_owner": "media_file_access",
+      "current_schema": "app",
+      "current_table": "media_access_grants",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "MediaAccessEvent",
+      "source_owner": "media_file_access",
+      "current_schema": "app",
+      "current_table": "media_access_events",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "GigMedia",
+      "source_owner": "gig_demand",
+      "current_schema": "app",
+      "current_table": "gig_media",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "UserMedia",
+      "source_owner": "media_file_access",
+      "current_schema": "app",
+      "current_table": "user_media",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ProfessionalProfileMedia",
+      "source_owner": "professional_eligibility",
+      "current_schema": "app",
+      "current_table": "professional_profile_media",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "CandidateProfileMedia",
+      "source_owner": "candidate_application_resume_privacy",
+      "current_schema": "app",
+      "current_table": "candidate_profile_media",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "OrganizationMedia",
+      "source_owner": "organization_hiring",
+      "current_schema": "app",
+      "current_table": "organization_media",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "JobMedia",
+      "source_owner": "organization_hiring",
+      "current_schema": "app",
+      "current_table": "job_media",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "BookingSlotLock",
+      "source_owner": "booking_calendar",
+      "current_schema": "app",
+      "current_table": "booking_slot_locks",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "CalendarConnection",
+      "source_owner": "booking_calendar",
+      "current_schema": "app",
+      "current_table": "calendar_connections",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "AvailabilityRule",
+      "source_owner": "booking_calendar",
+      "current_schema": "app",
+      "current_table": "availability_rules",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "BusyWindow",
+      "source_owner": "booking_calendar",
+      "current_schema": "app",
+      "current_table": "busy_windows",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "BookingOrchestrationRun",
+      "source_owner": "booking_calendar",
+      "current_schema": "app",
+      "current_table": "booking_orchestration_runs",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "BookingOrchestrationStep",
+      "source_owner": "booking_calendar",
+      "current_schema": "app",
+      "current_table": "booking_orchestration_steps",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "Booking",
+      "source_owner": "booking_calendar",
+      "current_schema": "app",
+      "current_table": "bookings",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": {
+        "model": "Booking",
+        "owner": "booking_calendar",
+        "compatibility_fields_or_concepts": "calendar/provider summary",
+        "authoritative_source": "Booking source lifecycle distinct from provider desired/applied mapping; no-show allegation not Order completion",
+        "rulings": [
+          "WA-R042",
+          "WA-R049",
+          "WA-R076"
+        ],
+        "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+        "evidence": "context/clusters/scheduling, media, & digital delivery/booking-calendar-module/booking-calendar-module-architecture.md"
+      }
+    },
+    {
+      "model": "BookingHold",
+      "source_owner": "booking_calendar",
+      "current_schema": "app",
+      "current_table": "booking_holds",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "BookingEvent",
+      "source_owner": "booking_calendar",
+      "current_schema": "app",
+      "current_table": "booking_events",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "BookingVideoRoom",
+      "source_owner": "video_session",
+      "current_schema": "app",
+      "current_table": "booking_video_rooms",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ProcessedCalendarEvent",
+      "source_owner": "booking_calendar",
+      "current_schema": "app",
+      "current_table": "processed_calendar_events",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "Thread",
+      "source_owner": "messaging",
+      "current_schema": "app",
+      "current_table": "threads",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ThreadParticipant",
+      "source_owner": "messaging",
+      "current_schema": "app",
+      "current_table": "thread_participants",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "Message",
+      "source_owner": "messaging",
+      "current_schema": "app",
+      "current_table": "messages",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "MessageMedia",
+      "source_owner": "messaging",
+      "current_schema": "app",
+      "current_table": "message_media",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "SearchUpsertEvent",
+      "source_owner": "search_public_visibility",
+      "current_schema": "app",
+      "current_table": "search_upsert_events",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": {
+        "model": "SearchUpsertEvent",
+        "owner": "search_public_visibility",
+        "compatibility_fields_or_concepts": "processed,processedAt",
+        "authoritative_source": "Qualified generation/effect receipt required; existing boolean not sufficient for durable workflow proof",
+        "rulings": [
+          "WA-R034",
+          "WA-R076"
+        ],
+        "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+        "evidence": "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-architecture.md"
+      }
+    },
+    {
+      "model": "ProcessedStripeEvent",
+      "source_owner": "payment_payout_tax",
+      "current_schema": "app",
+      "current_table": "processed_stripe_events",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "AuditEvent",
+      "source_owner": "audit_event_ledger",
+      "current_schema": "app",
+      "current_table": "audit_events",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "Notification",
+      "source_owner": "notification",
+      "current_schema": "app",
+      "current_table": "notifications",
+      "historical_create_table_present": true,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "NotificationSubscription",
+      "source_owner": "notification",
+      "current_schema": "app",
+      "current_table": "notification_subscriptions",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "NotificationDelivery",
+      "source_owner": "notification",
+      "current_schema": "app",
+      "current_table": "notification_deliveries",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "NotificationSubscriptionEvent",
+      "source_owner": "notification",
+      "current_schema": "app",
+      "current_table": "notification_subscription_events",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "OrganizationNotificationSetting",
+      "source_owner": "organization_hiring",
+      "current_schema": "app",
+      "current_table": "organization_notification_settings",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "UserSecurityProfile",
+      "source_owner": "identity_access",
+      "current_schema": "app",
+      "current_table": "user_security_profiles",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "AuthProviderAccount",
+      "source_owner": "identity_access",
+      "current_schema": "app",
+      "current_table": "auth_provider_accounts",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "PasskeyCredential",
+      "source_owner": "identity_access",
+      "current_schema": "app",
+      "current_table": "passkey_credentials",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "StepUpChallenge",
+      "source_owner": "identity_access",
+      "current_schema": "app",
+      "current_table": "step_up_challenges",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "SensitiveActionSession",
+      "source_owner": "identity_access",
+      "current_schema": "app",
+      "current_table": "sensitive_action_sessions",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "AccountRecoveryRequest",
+      "source_owner": "identity_access",
+      "current_schema": "app",
+      "current_table": "account_recovery_requests",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "UserSecurityEvent",
+      "source_owner": "identity_access",
+      "current_schema": "app",
+      "current_table": "user_security_events",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "CourseVideoAsset",
+      "source_owner": "video_session",
+      "current_schema": "app",
+      "current_table": "course_video_assets",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "CourseVideoPlaybackGrant",
+      "source_owner": "video_session",
+      "current_schema": "app",
+      "current_table": "course_video_playback_grants",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "CourseVideoPlaybackEvent",
+      "source_owner": "video_session",
+      "current_schema": "app",
+      "current_table": "course_video_playback_events",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ProcessedVideoProviderEvent",
+      "source_owner": "video_session",
+      "current_schema": "app",
+      "current_table": "processed_video_provider_events",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "DigitalGoodsPolicy",
+      "source_owner": "digital_goods_access",
+      "current_schema": "app",
+      "current_table": "digital_goods_policies",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "DigitalGoodsTermsAcceptance",
+      "source_owner": "digital_goods_access",
+      "current_schema": "app",
+      "current_table": "digital_goods_terms_acceptances",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "DigitalDownloadAsset",
+      "source_owner": "digital_goods_access",
+      "current_schema": "app",
+      "current_table": "digital_download_assets",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "DigitalDownloadGrant",
+      "source_owner": "digital_goods_access",
+      "current_schema": "app",
+      "current_table": "digital_download_grants",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "DigitalDownloadEvent",
+      "source_owner": "digital_goods_access",
+      "current_schema": "app",
+      "current_table": "digital_download_events",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "SalesTaxCalculation",
+      "source_owner": "payment_payout_tax",
+      "current_schema": "app",
+      "current_table": "sales_tax_calculations",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "SalesTaxLineItem",
+      "source_owner": "payment_payout_tax",
+      "current_schema": "app",
+      "current_table": "sales_tax_line_items",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "SalesTaxTransaction",
+      "source_owner": "payment_payout_tax",
+      "current_schema": "app",
+      "current_table": "sales_tax_transactions",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "ChildDirectedContentDeclaration",
+      "source_owner": "digital_goods_access",
+      "current_schema": "app",
+      "current_table": "child_directed_content_declarations",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "MinorPrivacyControl",
+      "source_owner": "digital_goods_access",
+      "current_schema": "app",
+      "current_table": "minor_privacy_controls",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "CourseAccessibilityAsset",
+      "source_owner": "digital_goods_access",
+      "current_schema": "app",
+      "current_table": "course_accessibility_assets",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TrackPlan",
+      "source_owner": "track_subscription_entitlement",
+      "current_schema": "app",
+      "current_table": "track_plans",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TrackPlanPrice",
+      "source_owner": "track_subscription_entitlement",
+      "current_schema": "app",
+      "current_table": "track_plan_prices",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TrackEntitlementDefinition",
+      "source_owner": "track_subscription_entitlement",
+      "current_schema": "app",
+      "current_table": "track_entitlement_definitions",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TrackPlanEntitlement",
+      "source_owner": "track_subscription_entitlement",
+      "current_schema": "app",
+      "current_table": "track_plan_entitlements",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TrackSubscription",
+      "source_owner": "track_subscription_entitlement",
+      "current_schema": "app",
+      "current_table": "track_subscriptions",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TrackEntitlementGrant",
+      "source_owner": "track_subscription_entitlement",
+      "current_schema": "app",
+      "current_table": "track_entitlement_grants",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TrackUsageEvent",
+      "source_owner": "track_subscription_entitlement",
+      "current_schema": "app",
+      "current_table": "track_usage_events",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    },
+    {
+      "model": "TrackUsageCounter",
+      "source_owner": "track_subscription_entitlement",
+      "current_schema": "app",
+      "current_table": "track_usage_counters",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": {
+        "model": "TrackUsageCounter",
+        "owner": "track_subscription_entitlement",
+        "compatibility_fields_or_concepts": "usedCount",
+        "authoritative_source": "Immutable accepted usage/reservations by UTC period; no destructive monthly reset",
+        "rulings": [
+          "WA-R030",
+          "WA-R032"
+        ],
+        "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+        "evidence": "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md"
+      }
+    },
+    {
+      "model": "TrackSubscriptionEvent",
+      "source_owner": "track_subscription_entitlement",
+      "current_schema": "app",
+      "current_table": "track_subscription_events",
+      "historical_create_table_present": false,
+      "baseline_disposition": "RECONCILE_THEN_REVIEW_NOT_ADOPTED",
+      "browser_default": "DENY_NO_GRANT_NO_ALLOW_POLICY",
+      "server_access": "REGISTERED_OWNER_PORT_ONLY_CURRENT_AUTHORITY",
+      "required_security_vectors": [
+        "anon CRUD denied",
+        "authenticated direct CRUD denied unless separately approved exact surface",
+        "foreign principal/Organization/actor denied",
+        "registered owner command allow and stale/revoked/hold denial",
+        "private projection/export/field disclosure prohibited without exact qualified policy/proof"
+      ],
+      "compatibility_review": null
+    }
+  ],
+  "coverage": {
+    "models": 177,
+    "unique_models": 177,
+    "owned_models": 177,
+    "historical_created_tables": 53,
+    "models_without_historical_creation": 124,
+    "compatibility_mirror_cases": 12,
+    "physical_mirror_models": 11,
+    "architecture_only_mirror_cases": 1
+  },
+  "architecture_only_storage_work": [
+    "R003 platform-screening Order source/participants and enforced source/participant XOR without a fake Professional seller",
+    "Normalized Agreement evidence and source/financial compatibility references under R048/R076",
+    "Required durable command/inbox/outbox/lease/fence/reservation/effect receipts under R018/R031/R086; Ops QueueJob is a projection, not the runner source",
+    "Role code-first policy catalog, AI and Ops logical references are not fabricated physical tables",
+    "Complete actual Privacy field/action/provider/serializer/export/retention mappings remain unproven"
+  ],
+  "limits": "177 rows route current source models and denial-first review. They do not invent new source records, actual RLS policies, complete field coverage, an adopted schema or a migration baseline.",
+  "compatibility_cases": [
+    {
+      "model": "Order",
+      "owner": "transaction_order",
+      "compatibility_fields_or_concepts": "stripeTransferId,buyerSigUrl,professionalSigUrl,pdfMediaId,finalDocumentHash",
+      "authoritative_source": "Payment effect references and normalized Agreement execution/signature/document records",
+      "rulings": [
+        "WA-R048",
+        "WA-R076"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-module-architecture.md"
+    },
+    {
+      "model": "GigAssignment",
+      "owner": "gig_demand",
+      "compatibility_fields_or_concepts": "status,orderId",
+      "authoritative_source": "Accepted proposal/winner slot is Gig source; commercial outcome only from matching Order source/version; no reaward from failure projection",
+      "rulings": [
+        "WA-R039",
+        "WA-R040",
+        "WA-R048"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/customer demand, order, & resolution/gig demand module/gig-demand-module-architecture.md"
+    },
+    {
+      "model": "Job",
+      "owner": "organization_hiring",
+      "compatibility_fields_or_concepts": "complianceStatus",
+      "authoritative_source": "Current source/rule-bound JobComplianceCheck; originating compensation remains Hiring",
+      "rulings": [
+        "WA-R044",
+        "WA-R072"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-architecture.md"
+    },
+    {
+      "model": "JobComplianceFinding",
+      "owner": "job_compliance",
+      "compatibility_fields_or_concepts": "fieldName,sourceField,matchedText,matchedSnippetPreview,suggestedText,suggestedReplacement",
+      "authoritative_source": "Canonical finding sourceField, bounded preview/hash, suggestedReplacement; conflicting legacy aliases quarantined",
+      "rulings": [
+        "WA-R044",
+        "WA-R076"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/Organization Hiring & Candidate Pipeline/Job Compliance Module/job-compliance-module-architecture.md"
+    },
+    {
+      "model": "CandidateSearchProjection",
+      "owner": "candidate_application_resume_privacy",
+      "compatibility_fields_or_concepts": "status,source",
+      "authoritative_source": "Current Candidate participation/source lineage and allowed projection generation; Search cannot authorize source",
+      "rulings": [
+        "WA-R034",
+        "WA-R045"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-architecture.md"
+    },
+    {
+      "model": "Booking",
+      "owner": "booking_calendar",
+      "compatibility_fields_or_concepts": "calendar/provider summary",
+      "authoritative_source": "Booking source lifecycle distinct from provider desired/applied mapping; no-show allegation not Order completion",
+      "rulings": [
+        "WA-R042",
+        "WA-R049",
+        "WA-R076"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/scheduling, media, & digital delivery/booking-calendar-module/booking-calendar-module-architecture.md"
+    },
+    {
+      "model": "JobInterview",
+      "owner": "job_interview",
+      "compatibility_fields_or_concepts": "calendar/provider summary",
+      "authoritative_source": "Interview source revision/successor/participants, Calendar mapping journal and Video room generation each separate",
+      "rulings": [
+        "WA-R046",
+        "WA-R049",
+        "WA-R051"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/Organization Hiring & Candidate Pipeline/Job Interview Module/job-interview-module-architecture.md"
+    },
+    {
+      "model": "ProfessionalProfile",
+      "owner": "professional_eligibility",
+      "compatibility_fields_or_concepts": "rating/readiness display",
+      "authoritative_source": "Review reputation facts and current dimensioned source decisions; profile identity remains source",
+      "rulings": [
+        "WA-R024",
+        "WA-R035",
+        "WA-R052"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-architecture.md"
+    },
+    {
+      "model": "TrackUsageCounter",
+      "owner": "track_subscription_entitlement",
+      "compatibility_fields_or_concepts": "usedCount",
+      "authoritative_source": "Immutable accepted usage/reservations by UTC period; no destructive monthly reset",
+      "rulings": [
+        "WA-R030",
+        "WA-R032"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md"
+    },
+    {
+      "model": "QueueJob",
+      "owner": "observability_ops",
+      "compatibility_fields_or_concepts": "status",
+      "authoritative_source": "Shared runner attempt/lease telemetry projection only, not executable queue/business completion",
+      "rulings": [
+        "WA-R018",
+        "WA-R086"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/Moderation holds Audits and Ops/Observability Ops Module/observability-ops-module-architecture.md"
+    },
+    {
+      "model": "SearchUpsertEvent",
+      "owner": "search_public_visibility",
+      "compatibility_fields_or_concepts": "processed,processedAt",
+      "authoritative_source": "Qualified generation/effect receipt required; existing boolean not sufficient for durable workflow proof",
+      "rulings": [
+        "WA-R034",
+        "WA-R076"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-architecture.md"
+    },
+    {
+      "model": "PrizeTaxYearSummary",
+      "owner": "sweepstakes_prize",
+      "compatibility_fields_or_concepts": "totals",
+      "authoritative_source": "Payment legal tax subject/jurisdiction/year/currency/regime aggregate from actual fulfillment recognition",
+      "rulings": [
+        "WA-R037",
+        "WA-R061"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/incentives, rewards & prize economy/sweepstakes-module/sweepstakes-prize-module-architecture.md"
+    }
+  ],
+  "architecture_only_compatibility_cases": [
+    {
+      "model": "QueueJob",
+      "owner": "observability_ops",
+      "compatibility_fields_or_concepts": "status",
+      "authoritative_source": "Shared runner attempt/lease telemetry projection only, not executable queue/business completion",
+      "rulings": [
+        "WA-R018",
+        "WA-R086"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/Moderation holds Audits and Ops/Observability Ops Module/observability-ops-module-architecture.md"
+    }
+  ]
+}

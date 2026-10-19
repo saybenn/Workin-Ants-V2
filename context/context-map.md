@@ -1,3 +1,7 @@
+## Current foundation routing — Directive006/006-A
+
+Start with the nine foundational roles routed by [project-overview.md](project-overview.md),then selectively load the actual Module/Cluster/source-consumer contract/workflow paths below. [Phase0 report](reconciliation/phase0-foundation-report.md), [Phase0 status](reconciliation/phase0-foundation-status.json) and [context comparison](reconciliation/context-foundation-review.md) distinguish implemented foundation evidence from historic planning. The clean sequential worktree uses app/; prior application/configuration remains inactive in legacy/checkpoint-005/ under WA-R091. The [greenfield strategy](reconciliation/greenfield-database-strategy.md) is evaluation only; DB D and no active product/parallel lanes persist. Earlier dated routing/status paragraphs are history where this explicit directive supersedes them.
+
 # Workin Ants Context Map
 
 ## Current agent entry — Directive 005, 2026-10-19

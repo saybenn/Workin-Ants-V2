@@ -15,8 +15,8 @@ def main():
     results=[]
     with tempfile.TemporaryDirectory(prefix='wa-foundation-negative-') as name:
         root=Path(name)
-        for directory in ['context','contracts','tests','scripts','prisma','features','components','pages']:
-            shutil.copytree(ROOT/directory,root/directory,ignore=shutil.ignore_patterns('*.docx','*.bundle','__pycache__'))
+        for directory in ['context','contracts','tests','scripts','prisma','features','components','pages','app','legacy']:
+            if (ROOT/directory).exists():shutil.copytree(ROOT/directory,root/directory,ignore=shutil.ignore_patterns('*.docx','*.bundle','__pycache__'))
         for file in ['AGENTS.md','CLAUDE.md','package.json','package-lock.json']:shutil.copy2(ROOT/file,root/file)
         baseline=CHECK(root)
         if baseline['errors']:raise SystemExit('Baseline failed: '+str(baseline['errors'][:4]))
@@ -58,6 +58,11 @@ def main():
         jsoncase('shared types changed without consumer review','contracts/shared/types.v1.schema.json',lambda j:j['$defs']['Key'].update(maxLength=256),'Shared types changed without retained consumer compatibility review')
         jsoncase('false production authorization','context/reconciliation/development-readiness-audit.json',lambda j:j.update(production_development_authorized=True),'Unproven production/runtime/database readiness promotion')
         jsoncase('inaccessible specified text contrast','context/ui-tokens.json',lambda j:j['themes']['light'].update(text='#ffffff'),'UI text contrast')
+        if (root/'context/reconciliation/phase0-approved-file-changes.json').exists():
+            jsoncase('existing dependency version changed','package-lock.json',lambda j:j['packages']['node_modules/next'].update(version='16.4.2'),'Unapproved existing dependency resolution')
+            jsoncase('direct dependency silently added','package.json',lambda j:j['dependencies'].update(unapproved_parser='1.0.0'),'Unapproved direct dependency change')
+            jsoncase('schema added to package exception','context/reconciliation/phase0-approved-file-changes.json',lambda j:j['files'].append({'path':'prisma/schema.prisma'}),'Unexpected Phase0 protected-file exception')
+            jsoncase('reviewed package fingerprint weakened','context/reconciliation/phase0-approved-file-changes.json',lambda j:j['files'][0].update(reviewed_sha256='0'*64),'Protected source/schema/migration drift package.json')
     report={'status':'PASS' if all(r['rejected'] for r in results) else 'FAIL','total':len(results),'cases':results,'scope':'Negative static/wire/model checks only; injected fake feature files test detection. No real producer/provider/DB/RLS/runtime was exercised.'}
     print(json.dumps(report,indent=2));return not all(r['rejected'] for r in results)
 if __name__=='__main__':raise SystemExit(main())
