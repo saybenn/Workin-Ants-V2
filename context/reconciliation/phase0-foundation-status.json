@@ -1,12 +1,13 @@
 {
   "directive": [
     "006",
-    "006-A"
+    "006-A",
+    "007-resumption"
   ],
   "baseline": "bbeb4c2a3a1ccd110273d7185f113db546549009",
   "branch": "codex/phase0-clean-foundation-2026-10-19",
   "application_approach": "FRESH_APP_ROUTER_FOUNDATION_LEGACY_ARCHIVED",
-  "P0_B": "FRAMEWORK_ACCEPTANCE_PASS_DEPENDENCY_SECURITY_GATE_OPEN",
+  "P0_B": "FRAMEWORK_ACCEPTANCE_PASS_DEPENDENCY_SECURITY_REQUALIFIED",
   "TECH_LOCK_001": "RESOLVED_CLEAN_PINNED_INSTALL_ZERO_EXISTING_VERSION_CHANGES",
   "TECH_ROUTER_001": "RESOLVED_CLEAN_APP_REAL_FRAMEWORK_HTTP_PASS",
   "P0_C": "D_PROVENANCE_PACKET_AND_GREENFIELD_STRATEGY_PREPARED_SOURCE_SCHEMA_VALID",
@@ -18,12 +19,17 @@
   "candidate_lanes": 8,
   "authorized_parallel_lanes": 0,
   "production_development_authorized": false,
-  "next_safe_task": "Controlled dependency security review/remediation proposal;obtain actual isolated DB provenance before replay/P0-D. Existing production/parallel/runtime gates persist.",
-  "dependency_security_gate": "OPEN",
+  "next_safe_task": "P0-C: identify the actual isolated development target and obtain the 12 provenance items using the prepared schema-only handoff. D persists; no migration/provisioning/contact or P0-D database runtime qualification performed.",
+  "dependency_security_gate": "PASS_KNOWN_ADVISORIES_REMEDIATED",
   "dependency_security_issue": "TECH-DEPENDENCY-SECURITY-001",
-  "real_http_smoke_cases": 41,
+  "real_http_smoke_cases": 47,
   "nine_context_roles": 9,
   "archived_files": 21,
   "checkpoint_report": "context/reconciliation/phase0-foundation-report.md",
-  "negative_regressions_passed": 43
+  "negative_regressions_passed": 53,
+  "qualification_evidence": "phase0-security-requalification.json",
+  "P0_D": "BLOCKED_ACTUAL_P0_C_DATABASE_PREREQUISITES",
+  "P0_E": "NOT_QUALIFIED",
+  "P0_F": "NOT_QUALIFIED",
+  "P0_G": "NOT_QUALIFIED"
 }

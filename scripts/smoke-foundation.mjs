@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { createServer as createHttpServer } from "node:http";
 import { createServer } from "node:net";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
@@ -10,6 +11,25 @@ const root = process.cwd();
 const results = [];
 const canary = `foundation-test-only-${randomUUID()}`;
 const active = new Set();
+const agentsBefore = await readFile(path.join(root, "AGENTS.md"), "utf8");
+const truthStart = "<!-- BEGIN:workinants-database-truth-rules -->";
+const truthEnd = "<!-- END:workinants-database-truth-rules -->";
+const truthRules = agentsBefore.slice(agentsBefore.indexOf(truthStart), agentsBefore.indexOf(truthEnd) + truthEnd.length);
+assert(agentsBefore.indexOf(truthStart) > agentsBefore.indexOf("<!-- END:nextjs-agent-rules -->"), "Project rules must live outside Next's generated block");
+assert(truthRules.includes("Supabase/Postgres is the source of truth."));
+let outboundHits = 0;
+const outboundCanary = createHttpServer((_request, response) => {
+  outboundHits += 1;
+  response.writeHead(200, { "content-type": "image/svg+xml" });
+  response.end('<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>');
+});
+await new Promise((resolve, reject) => {
+  outboundCanary.once("error", reject);
+  outboundCanary.listen(0, "127.0.0.1", resolve);
+});
+const outboundAddress = outboundCanary.address();
+assert(outboundAddress && typeof outboundAddress === "object");
+const forbiddenImage = new URLSearchParams({ url: `http://127.0.0.1:${outboundAddress.port}/test.svg`, w: "640", q: "75" });
 
 async function freePort() {
   const socket = createServer();
@@ -100,6 +120,9 @@ try {
       await check(server, mode, "health HEAD", "/api/health", 200, { method: "HEAD" }, (body) => assert.equal(body, ""));
       await check(server, mode, "health has no mutation", "/api/health", 405, { method: "POST" });
       await check(server, mode, "unknown route", "/unregistered-foundation-route", 404);
+      await check(server, mode, "unapproved image source denied", `/_next/image?${forbiddenImage}`, 400);
+      assert.equal(outboundHits, 0, "Image optimizer contacted a forbidden local source");
+      await check(server, mode, "non-HTTP image scheme denied", "/_next/image?url=data%3Aimage%2Fsvg%2Bxml%2Cinvalid&w=640&q=75", 400);
       await check(server, mode, "old page filename is not a route", "/page", 404);
       await check(server, mode, "old diagnostic filename is not a route", "/dev/status/page", 404);
       await check(server, mode, "old handler filename is not a route", "/api/debug/env-check/route", 404);
@@ -116,6 +139,7 @@ try {
         });
       }
       if (mode === "production") {
+        await check(server, mode, "internal-looking headers do not enable diagnostics", "/api/debug/env-check", 404, { headers: { "x-middleware-subrequest": "middleware:middleware:middleware:middleware:middleware", "x-invoke-path": "/dev/status" } });
         await check(server, mode, "debug query/header cannot enable route", "/api/debug/env-check?NEXT_PUBLIC_APP_ENV=development", 404, { headers: { "x-node-env": "development" } });
         await check(server, mode, "trailing slash remains denied", "/api/debug/env-check/", 404);
         const rootResponse = await fetch(server.url);
@@ -138,7 +162,12 @@ try {
     await check(restarted, "production", "restart same build health recovery", "/api/health", 200);
     await check(restarted, "production", "restart preserves diagnostic denial", "/api/debug/env-check", 404);
   } finally { await stop(restarted); }
-  const report = { status: "PASS", total: results.length, tests: results, limits: "Real local Next development/production HTTP and client-asset smoke only. No DB/provider/owner contract/runtime, full browser accessibility or deployed hosting qualification." };
+  assert.equal(outboundHits, 0);
+  const agentsAfter = await readFile(path.join(root, "AGENTS.md"), "utf8");
+  assert(agentsAfter.includes(truthRules), "Next startup removed or altered the project database rules");
+  assert.equal(agentsAfter, agentsBefore, "Next startup unexpectedly rewrote agent instructions");
+  results.push({ mode: "development/production", case: "project database rules survive framework startup", result: "PASS" });
+  const report = { status: "PASS", total: results.length, tests: results, limits: "Real local Next development/production HTTP, image-source denial, instruction preservation and client-asset smoke only. No Windows execution, universal exploit immunity, DB/provider/owner contract/runtime, full browser accessibility or deployed hosting qualification." };
   const outputIndex = process.argv.indexOf("--output");
   if (outputIndex !== -1) {
     const output = process.argv[outputIndex + 1];
@@ -149,4 +178,5 @@ try {
   console.log(JSON.stringify(report, null, 2));
 } finally {
   for (const server of active) await stop(server);
+  await new Promise((resolve) => outboundCanary.close(resolve));
 }

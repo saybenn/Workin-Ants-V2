@@ -1,5 +1,7 @@
 # Dependency security qualification —2026-10-19
 
+**Historical Checkpoint006 result.** Current bounded remediation passed on26 October2026;see [the remediation review](dependency-security-remediation-2026-10-26.md) and [actual evidence](phase0-security-requalification.json). Original JSON/audit remain unchanged.
+
 **Open: TECH-DEPENDENCY-SECURITY-001.** A real `npm audit --omit=dev --json` returned exit1:15 affected packages (1 critical, 10 high, 4 moderate by package classification). This is separate from the successful pinned install, framework build and41 local HTTP smoke cases. It is not15 distinct advisories or proof that every affected dependency is reachable. Peer-linked tools may remain in the omit-dev graph; actual runtime/build/OS reachability still needs review.
 
 The structured review and raw audit retain exact package ranges and fix suggestions. Maintainer advisories were independently read for the three critical Next reports: Windows-hosted filesystem RCE (GHSA-p293-qw3h-jr36, fixed16.3.3); AVIF/sharp/libheif optimization RCE (GHSA-2xp9-vwfh-vxw4, fixed16.3.3); next/og ImageResponse RCE (GHSA-vcvr-r3jv-pc5j, fixed16.3.6). Installed Next16.2.6 falls in their affected ranges. Qualification ran on Linux; the clean app does not import next/og/ImageResponse or add image/upload integration. These are scope observations, not exploit tests or clearance. Additional Next and transitive findings remain in the audit.

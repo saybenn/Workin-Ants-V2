@@ -1,5 +1,7 @@
 # Workin Ants Project Overview
 
+> **First-release scope:** [Approved launch baseline](reconciliation/launch-scope-baseline.md), recorded 26 October 2026, governs launch eligibility, geography and unavailable features. The broader capability descriptions below preserve long-term architecture and do not activate deferred features.
+
 > **Repository location:** `context/project-overview-v3.md`<br>
 > **Project name:** Workin Ants  
 > **Project state:** Greenfield MVP architecture planning  

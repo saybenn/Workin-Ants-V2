@@ -1,3 +1,9 @@
+## Current pinned usage — Directive007,26 October2026
+
+Current qualified foundation:Node 24.22.1/npm 11.9.0,Next/eslint-config-next16.4.3,React/react-dom19.2.4,Prisma/client7.10.1. Lockfile and [current requalification](reconciliation/phase0-security-requalification.json) govern exact resolution/guidance. Full and production audits report zero known vulnerabilities at this checkpoint. Read exact installed Next guidance before framework edits. Use explicit prisma.offline.config.ts for environment-free CLI commands;default historical Prisma configuration expects DATABASE_URL and remains outside qualification. No target is configured or contacted by offline validation.
+
+No product UI,owner port,database/provider or Windows-hosting qualification follows. Earlier dated version observations below are historical.
+
 ## Current pinned foundation usage — Directive006
 
 Node24.19.0/npm11.9.0 and exact Next16.2.6/React19.2.4 are the tested baseline; package-lock governs every resolution. Missing lock records are repaired without an existing dependency version change. Read the installed Next guides listed in phase0-foundation-validation.json,not an unpinned future major's docs. app/layout.tsx owns html/body; page.tsx is a Server Component; app/api/*/route.ts uses Web Response.json. NODE_ENV selects execution mode; NEXT_PUBLIC variables are inlined/browser-visible and cannot authorize diagnostics. No font/provider network fetch is required by the clean shell.

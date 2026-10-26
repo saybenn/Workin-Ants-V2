@@ -2,6 +2,7 @@
 """Phase0 source/evidence preservation. Actual HTTP/framework checks run separately."""
 import hashlib
 import json
+import runpy
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,6 +26,10 @@ def inspect(root=ROOT):
     if [x['path'] for x in review['roles']]!=['context/'+p for p in ROLES]:errors.append('Nine context role mapping incomplete')
     for p in ROLES:
         if not (root/'context'/p).is_file() or ('context/'+p) not in (root/'AGENTS.md').read_text():errors.append('Nine-role startup route missing '+p)
+    agents=(root/'AGENTS.md').read_text()
+    truth_start=agents.find('<!-- BEGIN:workinants-database-truth-rules -->')
+    truth_end=agents.find('<!-- END:workinants-database-truth-rules -->')
+    if truth_start < agents.find('<!-- END:nextjs-agent-rules -->') or truth_end < truth_start or 'Supabase/Postgres is the source of truth.' not in agents[truth_start:truth_end]:errors.append('Project database rules missing or inside generated framework block')
     for p in (root/'app').rglob('*'):
         if p.suffix in ['.ts','.tsx'] and '@/legacy' in p.read_text():errors.append('Active app imports inactive legacy source')
     if 'legacy' not in read('tsconfig.json')['exclude'] or 'legacy/**' not in (root/'eslint.config.mjs').read_text():errors.append('Legacy source entered active compiler/lint scope')
@@ -40,8 +45,11 @@ def inspect(root=ROOT):
     for action in ['migrate','seed','check']:
         if read('package.json')['scripts']['db:'+action]!='node scripts/database-write-gate.mjs '+action:errors.append('Database write alias bypass '+action)
     if 'datasource' in (root/'prisma.offline.config.ts').read_text() or 'dotenv' in (root/'prisma.offline.config.ts').read_text():errors.append('Offline schema validation unexpectedly configures a datasource')
-    evidence_path=base/'phase0-foundation-validation.json'
-    evidence=read('context/reconciliation/phase0-foundation-validation.json') if evidence_path.exists() else {}
+    evidence_name=status.get('qualification_evidence','phase0-foundation-validation.json')
+    if evidence_name not in ['phase0-foundation-validation.json','phase0-security-requalification.json']:
+        errors.append('Unregistered Phase0 qualification evidence');evidence_name='phase0-foundation-validation.json'
+    evidence_path=base/evidence_name
+    evidence=read('context/reconciliation/'+evidence_name) if evidence_path.exists() else {}
     if status['P0_B'].startswith('FRAMEWORK_ACCEPTANCE_PASS'):
         commands={c['id']:c for c in evidence.get('commands',[])}
         for id in ['clean_install','lint','typecheck','build','http_smoke','schema_validate']:
@@ -51,7 +59,11 @@ def inspect(root=ROOT):
         for p,expected_sha in evidence.get('foundation_source_sha256',{}).items():
             if not (root/p).is_file() or hashlib.sha256((root/p).read_bytes()).hexdigest()!=expected_sha:errors.append('Qualified foundation source drift '+p)
         security=read('context/reconciliation/dependency-security-review.json')
-        if security['status']!='OPEN_CONTROLLED_REMEDIATION_REQUIRED' or status.get('dependency_security_gate')!='OPEN':errors.append('Known dependency security gate silently cleared')
+        if status.get('dependency_security_gate')=='PASS_KNOWN_ADVISORIES_REMEDIATED' and evidence_name=='phase0-security-requalification.json':
+            errors.extend(runpy.run_path(str(root/'scripts/phase0_security_evidence.py'))['inspect_qualification'](root,evidence))
+            previous=read('context/reconciliation/phase0-approved-file-changes.json')
+            errors.extend(runpy.run_path(str(root/'scripts/phase0_security_evidence.py'))['inspect_change_review'](root,previous)['errors'])
+        elif security['status']!='OPEN_CONTROLLED_REMEDIATION_REQUIRED' or status.get('dependency_security_gate')!='OPEN':errors.append('Known dependency security gate silently cleared')
     return {'errors':errors,'nine_roles':len(review['roles']),'archived_files':len(inventory['files']),'source_models':len(models),'database_posture':'D','status':status['P0_B'],'scope':'Static source/evidence/context/denial gate checks. Real installed framework/HTTP execution is separately recorded; no actual DB/RLS/provider/SH qualification.'}
 
 

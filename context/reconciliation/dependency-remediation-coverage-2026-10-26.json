@@ -1,0 +1,762 @@
+{
+  "review_date": "2026-10-26",
+  "status": "ALL_19_PRIOR_AFFECTED_PACKAGES_RESOLVED_IN_RECORDED_FULL_AUDIT",
+  "rows": [
+    {
+      "package": "@hono/node-server",
+      "previous_severity": "moderate",
+      "previous_affected_range": "<=1.19.14",
+      "previous_paths": [
+        "node_modules/@hono/node-server"
+      ],
+      "resolution_after": [],
+      "disposition": "NO_LONGER_PRESENT_IN_SELECTED_GRAPH",
+      "scope_assessment": "Prisma/toolchain dependency; no database/client/provider integration in the clean app. Configuration and build exposure still included in full audit.",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-92pp-h63x-v22m",
+          "title": "@hono/node-server: Middleware bypass via repeated slashes in serveStatic",
+          "range": "<1.19.13"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-frvp-7c67-39w9",
+          "title": "Node.js Adapter for Hono: Path traversal in `serve-static` on Windows via encoded backslash (`%5C`)",
+          "range": "<1.19.15"
+        }
+      ]
+    },
+    {
+      "package": "@prisma/config",
+      "previous_severity": "high",
+      "previous_affected_range": "6.13.0-dev.1 - 7.10.0 || 8.1.0-dev.1 - 8.1.0-dev.4",
+      "previous_paths": [
+        "node_modules/@prisma/config"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/@prisma/config",
+          "version": "7.10.1"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Prisma/toolchain dependency; no database/client/provider integration in the clean app. Configuration and build exposure still included in full audit.",
+      "advisories": []
+    },
+    {
+      "package": "@prisma/dev",
+      "previous_severity": "moderate",
+      "previous_affected_range": "<=0.24.16",
+      "previous_paths": [
+        "node_modules/@prisma/dev"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/@prisma/dev",
+          "version": "0.24.17"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Prisma/toolchain dependency; no database/client/provider integration in the clean app. Configuration and build exposure still included in full audit.",
+      "advisories": []
+    },
+    {
+      "package": "baseline-browser-mapping",
+      "previous_severity": "moderate",
+      "previous_affected_range": ">=2.0.0 <2.11.0",
+      "previous_paths": [
+        "node_modules/baseline-browser-mapping"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/baseline-browser-mapping",
+          "version": "2.11.33"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Framework runtime/build; optional image libraries depend on used feature and platform.",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-w5vr-8v7q-w6rv",
+          "title": "baseline-browser-mapping process termination on invalid input causes denial of service",
+          "range": ">=2.0.0 <2.11.0"
+        }
+      ]
+    },
+    {
+      "package": "brace-expansion",
+      "previous_severity": "high",
+      "previous_affected_range": "<=1.1.20 || 3.0.0 - 5.0.11",
+      "previous_paths": [
+        "node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion",
+        "node_modules/brace-expansion"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion",
+          "version": "5.0.12"
+        },
+        {
+          "path": "node_modules/brace-expansion",
+          "version": "1.1.21"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Tooling/transitive configuration; not evidence of a running application endpoint.",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+          "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+          "range": "<1.1.16"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+          "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+          "range": ">=3.0.0 <5.0.7"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+          "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+          "range": "<1.1.17"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+          "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+          "range": ">=4.0.0 <5.0.8"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+          "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+          "range": ">=4.0.0 <5.0.9"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+          "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+          "range": "<1.1.18"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+          "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+          "range": "<1.1.21"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+          "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+          "range": ">=4.0.0 <5.0.12"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+          "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+          "range": "<1.1.20"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+          "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+          "range": ">=4.0.0 <5.0.11"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+          "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+          "range": "<1.1.19"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+          "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+          "range": ">=4.0.0 <5.0.10"
+        }
+      ]
+    },
+    {
+      "package": "browserslist",
+      "previous_severity": "high",
+      "previous_affected_range": "<=4.28.6",
+      "previous_paths": [
+        "node_modules/browserslist"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/browserslist",
+          "version": "4.29.4"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Framework runtime/build; optional image libraries depend on used feature and platform.",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-c83g-rgw3-j3cx",
+          "title": "Browserslist: Unbounded memory growth (no cache eviction) via distinct query results, leading to eventual OOM",
+          "range": "<=4.28.6"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-73wf-gq98-2v4g",
+          "title": "Browserslist: Uncaught crash / prototype write via untrusted browserslist-stats.json custom stats (normalizeStats)",
+          "range": "<=4.28.6"
+        }
+      ]
+    },
+    {
+      "package": "deepmerge-ts",
+      "previous_severity": "high",
+      "previous_affected_range": "<8.0.0",
+      "previous_paths": [
+        "node_modules/deepmerge-ts"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/deepmerge-ts",
+          "version": "8.0.2"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Prisma/toolchain dependency; no database/client/provider integration in the clean app. Configuration and build exposure still included in full audit.",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-ggr8-5vv4-36mx",
+          "title": "DeepmergeTS has stack exhaustion when merging recursive object graphs",
+          "range": "<8.0.0"
+        }
+      ]
+    },
+    {
+      "package": "fast-uri",
+      "previous_severity": "high",
+      "previous_affected_range": "3.0.0 - 3.1.8",
+      "previous_paths": [
+        "node_modules/fast-uri"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/fast-uri",
+          "version": "3.1.9"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Tooling/transitive configuration; not evidence of a running application endpoint.",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-v2hh-gcrm-f6hx",
+          "title": "fast-uri vulnerable to host confusion via literal backslash authority delimiter",
+          "range": ">=3.0.0 <=3.1.3"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-7p8r-x3mc-p8w7",
+          "title": "fast-uri vulnerable to host confusion via backslash authority introducer",
+          "range": ">=3.0.0 <3.1.5"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-f65p-4m7j-42xc",
+          "title": "fast-uri vulnerable to server-side request forgery via malformed IPv6 normalization",
+          "range": ">=3.0.0 <3.1.6"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-fph4-wmhf-6fwf",
+          "title": "fast-uri vulnerable to server-side request forgery via repeated hostname percent-decoding",
+          "range": ">=3.1.2 <3.1.6"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-jqff-g426-hqxp",
+          "title": "fast-uri vulnerable to host confusion via percent-encoded scheme normalization",
+          "range": ">=3.0.0 <3.1.6"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-4c8g-83qw-93j6",
+          "title": "fast-uri vulnerable to host confusion via failed IDN canonicalization",
+          "range": ">=3.0.0 <3.1.3"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-qw65-cvwx-89v3",
+          "title": "fast-uri vulnerable to authority injection via an unvalidated port in serialize",
+          "range": ">=3.0.0 <3.1.7"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-hrr3-gc8f-f4qj",
+          "title": "fast-uri vulnerable to inconsistent host case normalization via percent-encoded octets",
+          "range": ">=3.0.0 <3.1.8"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-w74x-v6f9-j3xg",
+          "title": "fast-uri vulnerable to URI scheme spoofing via percent-encoded scheme decoding",
+          "range": ">=3.0.0 <3.1.9"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-xhq7-xmqj-769h",
+          "title": "fast-uri vulnerable to improper path equivalence in relative reference normalization",
+          "range": ">=3.0.0 <3.1.9"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-333x-w4r6-6crp",
+          "title": "fast-uri vulnerable to scheme injection via an unescaped first-segment colon in suffix references",
+          "range": ">=3.0.0 <3.1.9"
+        }
+      ]
+    },
+    {
+      "package": "hono",
+      "previous_severity": "high",
+      "previous_affected_range": "<=4.13.10",
+      "previous_paths": [
+        "node_modules/hono"
+      ],
+      "resolution_after": [],
+      "disposition": "NO_LONGER_PRESENT_IN_SELECTED_GRAPH",
+      "scope_assessment": "Prisma/toolchain dependency; no database/client/provider integration in the clean app. Configuration and build exposure still included in full audit.",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-rv63-4mwf-qqc2",
+          "title": "hono: Body Limit Middleware can be bypassed on AWS Lambda by understating `Content-Length`",
+          "range": "<4.12.25"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-wgpf-jwqj-8h8p",
+          "title": "hono: Lambda@Edge adapter keeps only the last value of a repeated request header, dropping the rest",
+          "range": "<4.12.25"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-88fw-hqm2-52qc",
+          "title": "hono: CORS Middleware reflects any Origin with credentials when `origin` defaults to the wildcard",
+          "range": "<4.12.25"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-wwfh-h76j-fc44",
+          "title": "hono: Path traversal in `serve-static` on Windows via encoded backslash (`%5C`)",
+          "range": "<4.12.25"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-j6c9-x7qj-28xf",
+          "title": "hono: AWS Lambda adapter merges multiple `Set-Cookie` headers into one value, dropping cookies on ALB single-header and Lattice",
+          "range": "<4.12.25"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-xgm2-5f3f-mvvc",
+          "title": "Hono: API Gateway v1 adapter can drop a distinct repeated request header value during de-duplication",
+          "range": ">=4.3.3 <4.12.27"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-hvrm-45r6-mjfj",
+          "title": "hono/jsx does not isolate context per request, leading to cross-request data disclosure",
+          "range": ">=4.11.8 <4.12.27"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-w62v-xxxg-mg59",
+          "title": "Hono: Server-Side XSS via JSX Escaping Bypass in cx() Utility",
+          "range": ">=4.0.0 <4.12.27"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-8j4g-w8fx-2239",
+          "title": "Hono: ReDoS in CORS middleware via Access-Control-Request-Headers",
+          "range": "<4.12.34"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-f23p-vx2j-j53r",
+          "title": "Hono: `memo()` retains SSR output across requests, leading to cross-user data disclosure",
+          "range": ">=3.8.0 <4.12.34"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-79qm-7rj5-m7r9",
+          "title": "Hono: Proxy Helper does not remove response headers listed in the `Connection` header",
+          "range": ">=4.7.0 <4.12.34"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-54fx-42gc-7vw4",
+          "title": "Hono: Algorithmic Complexity DoS in Language Middleware",
+          "range": ">=4.12.0 <4.12.34"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-gqvv-2mrq-wpjv",
+          "title": "Hono: Incomplete fix for CVE-2026-39408: `toSSG()` still writes files outside the output directory",
+          "range": "<4.13.5"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-g6gw-c38x-mqfc",
+          "title": "Hono: Unbounded dot-notation nesting in `parseBody()` can cause memory exhaustion",
+          "range": "<4.13.5"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-crvj-82cr-hjcx",
+          "title": "Hono: Query parser reads parameters after the URL fragment, causing cache-key and proxy interpretation differentials",
+          "range": "<4.13.5"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-hxh3-vqpv-xpqv",
+          "title": "hono/jsx renders plain strings unescaped in boundary components, leading to XSS",
+          "range": "<4.13.7"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-5r4p-p66f-jhc7",
+          "title": "Hono: `serveStatic` decodes the request path a second time, leading to bypass of middleware on static paths",
+          "range": ">=4.12.4 <4.13.11"
+        }
+      ]
+    },
+    {
+      "package": "js-yaml",
+      "previous_severity": "high",
+      "previous_affected_range": "4.0.0 - 4.3.1",
+      "previous_paths": [
+        "node_modules/js-yaml"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/js-yaml",
+          "version": "4.3.2"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Tooling/transitive configuration; not evidence of a running application endpoint.",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-h67p-54hq-rp68",
+          "title": "JS-YAML: Quadratic-complexity DoS in merge key handling via repeated aliases",
+          "range": ">=4.0.0 <=4.1.1"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-52cp-r559-cp3m",
+          "title": "js-yaml: YAML merge-key chains can force quadratic CPU consumption",
+          "range": ">=4.0.0 <4.3.0"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-5p4m-2wfm-xmqj",
+          "title": "JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) \u2014 CVE-2026-59870 fix not backported",
+          "range": ">=4.0.0 <4.3.1"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-2883-xcg3-v3hh",
+          "title": "js-yaml: maxTotalMergeKeys does not limit CPU use for empty merge sources",
+          "range": ">=4.0.0 <4.3.2"
+        }
+      ]
+    },
+    {
+      "package": "mysql2",
+      "previous_severity": "high",
+      "previous_affected_range": "<=3.23.0",
+      "previous_paths": [
+        "node_modules/mysql2"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/mysql2",
+          "version": "3.24.4"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Prisma/toolchain dependency; no database/client/provider integration in the clean app. Configuration and build exposure still included in full audit.",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-3f6p-5ww8-9rcr",
+          "title": "MySQL2: Auth Plugin Downgrade to mysql_clear_password Leaks Plaintext Credentials",
+          "range": "<3.22.0"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-rgwj-5xj2-c3m3",
+          "title": "MySQL2: Unbounded zlib inflate in compressed MySQL protocol handler allows decompression-bomb DoS",
+          "range": "<=3.23.0"
+        }
+      ]
+    },
+    {
+      "package": "nanoid",
+      "previous_severity": "high",
+      "previous_affected_range": "<=3.3.17",
+      "previous_paths": [
+        "node_modules/nanoid"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/nanoid",
+          "version": "3.3.20"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Prisma/toolchain dependency; no database/client/provider integration in the clean app. Configuration and build exposure still included in full audit.",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-28wg-ghj8-5hjv",
+          "title": "nanoid: non-secure generators can loop indefinitely with negative size",
+          "range": "<3.3.16"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-2v37-7h3g-55p8",
+          "title": "nanoid: custom generators can loop indefinitely when size is zero",
+          "range": "<3.3.18"
+        }
+      ]
+    },
+    {
+      "package": "next",
+      "previous_severity": "critical",
+      "previous_affected_range": "9.3.4-canary.0 - 16.4.0",
+      "previous_paths": [
+        "node_modules/next"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/next",
+          "version": "16.4.3"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Framework runtime/build; optional image libraries depend on used feature and platform.",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-6gpp-xcg3-4w24",
+          "title": "Next.js: Middleware / Proxy bypass in App Router applications using Turbopack and single locale",
+          "range": ">=16.0.0 <16.2.11"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-m99w-x7hq-7vfj",
+          "title": "Next.js: Denial of Service in App Router using Server Actions",
+          "range": ">=16.0.0 <16.2.11"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-89xv-2m56-2m9x",
+          "title": "Next.js: Server-Side Request Forgery in Server Actions on custom servers",
+          "range": ">=16.0.0 <16.2.11"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-68g3-v927-f742",
+          "title": "Next.js: Cache confusion of response bodies for requests with bodies",
+          "range": ">=16.0.0 <16.2.11"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-4633-3j49-mh5q",
+          "title": "Next.js: Cache confusion of response bodies for requests with bodies containing invalid UTF-8 byte sequences",
+          "range": ">=16.0.0 <16.2.11"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-4c39-4ccg-62r3",
+          "title": "Next.js: Unbounded Server Action payload in Edge runtime",
+          "range": ">=16.0.0 <16.2.11"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-p9j2-gv94-2wf4",
+          "title": "Next.js: Server-Side Request Forgery in rewrites via attacker-controlled destination hostname",
+          "range": ">=16.0.0 <16.2.11"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-q8wf-6r8g-63ch",
+          "title": "Next.js: Denial of Service in the Image Optimization API using SVGs",
+          "range": ">=16.0.0 <16.2.11"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-955p-x3mx-jcvp",
+          "title": "Next.js: Unauthenticated disclosure of internal Server Function endpoints",
+          "range": ">=16.0.0 <16.2.11"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-p293-qw3h-jr36",
+          "title": "Next.js: Unauthenticated Remote Code Execution on windows-hosted servers",
+          "range": ">=16.0.0 <16.3.3"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-2xp9-vwfh-vxw4",
+          "title": "Next.js: Unauthenticated Remote Code Execution in Image Optimization API when AVIF files are used",
+          "range": ">=16.0.0 <16.3.3"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-vcvr-r3jv-pc5j",
+          "title": "Next.js: Remote Code Execution in next/og ImageResponse",
+          "range": ">=16.2.0 <16.3.6"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-4jqv-mc3x-m676",
+          "title": "Next.js has cache poisoning of SSG and ISR pages in self-hosted applications",
+          "range": ">=16.0.0 <16.3.8"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-39w2-rjm5-chcv",
+          "title": "Next.js has information disclosure in development server's Model Context Protocol endpoint",
+          "range": ">=16.0.0 <16.3.8"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-f87g-xv8r-7p7x",
+          "title": "Next.js has information disclosure in App Router metadata image routes via dynamicParams bypass",
+          "range": ">=16.0.0 <16.3.8"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-mcj8-r9mp-w47p",
+          "title": "Next.js has cache poisoning in SSG/ISR rendering that leads to cross-user content substitution and persistent denial of service",
+          "range": ">=16.0.0 <16.3.8"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-cjq9-62q9-8jv4",
+          "title": "Next.js has Server-Side Request Forgery in Image Optimization",
+          "range": ">=16.0.0 <16.3.8"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-2464-fhr4-w9xw",
+          "title": "Next.js: Unauthenticated Remote Code Execution in Image Optimization API when SVG files are used",
+          "range": ">=16.0.0 <=16.4.0"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-p3m5-59mp-jv5r",
+          "title": "Next.js: Denial of Service in App Router using Server Actions",
+          "range": ">=16.0.0 <=16.4.0"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-673q-mjm6-r5xr",
+          "title": "Next.js: Unauthenticated Remote Code Execution in `use cache` functions returning typed arrays",
+          "range": ">=16.0.0 <=16.4.0"
+        }
+      ]
+    },
+    {
+      "package": "postcss",
+      "previous_severity": "high",
+      "previous_affected_range": "<=8.5.22",
+      "previous_paths": [
+        "node_modules/next/node_modules/postcss",
+        "node_modules/postcss"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/postcss",
+          "version": "8.5.23"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Framework runtime/build; optional image libraries depend on used feature and platform.",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-qx2v-qp2m-jg93",
+          "title": "PostCSS has XSS via Unescaped </style> in its CSS Stringify Output",
+          "range": "<8.5.10"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-6g55-p6wh-862q",
+          "title": "PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments",
+          "range": "<=8.5.11"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-fxqj-rqcc-2cmp",
+          "title": "PostCSS: incomplete fix of GHSA-6g55-p6wh-862q \u2014 attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset",
+          "range": "<=8.5.22"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-r28c-9q8g-f849",
+          "title": "PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure",
+          "range": "<=8.5.17"
+        }
+      ]
+    },
+    {
+      "package": "prisma",
+      "previous_severity": "high",
+      "previous_affected_range": "6.13.0-dev.1 - 7.10.0 || 8.0.0-rc.3 - 8.1.0-dev.6",
+      "previous_paths": [
+        "node_modules/prisma"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/prisma",
+          "version": "7.10.1"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Prisma/toolchain dependency; no database/client/provider integration in the clean app. Configuration and build exposure still included in full audit.",
+      "advisories": []
+    },
+    {
+      "package": "sharp",
+      "previous_severity": "high",
+      "previous_affected_range": "<=0.35.5-rc.1",
+      "previous_paths": [
+        "node_modules/sharp"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/sharp",
+          "version": "0.35.5"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Framework runtime/build; optional image libraries depend on used feature and platform.",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+          "title": "sharp inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591",
+          "range": "<0.35.0"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-rgj7-g3m4-5g8c",
+          "title": "sharp: Vulnerabilities in libheif: GHSA-g89c-p67h-r497 and GHSA-2jg2-4ch7-h545",
+          "range": "<0.35.4"
+        },
+        {
+          "url": "https://github.com/advisories/GHSA-wq5f-xc86-pv6w",
+          "title": "sharp : Vulnerability in librsvg dependency CVE-2026-96889",
+          "range": "<0.35.5"
+        }
+      ]
+    },
+    {
+      "package": "source-map-js",
+      "previous_severity": "high",
+      "previous_affected_range": "1.0.0 - 1.2.1",
+      "previous_paths": [
+        "node_modules/source-map-js"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/source-map-js",
+          "version": "1.2.2"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Framework runtime/build; optional image libraries depend on used feature and platform.",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-68fv-2mgg-jv7q",
+          "title": "source-map-js allows event-loop denial of service through indexed source-map section offsets",
+          "range": ">=1.0.0 <1.2.2"
+        }
+      ]
+    },
+    {
+      "package": "valibot",
+      "previous_severity": "moderate",
+      "previous_affected_range": "<=1.4.1",
+      "previous_paths": [
+        "node_modules/valibot"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/valibot",
+          "version": "1.4.2"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Prisma/toolchain dependency; no database/client/provider integration in the clean app. Configuration and build exposure still included in full audit.",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-5qjj-4xww-7phc",
+          "title": "Valibot: record() issue paths can make flatten() throw for inherited Object property names",
+          "range": "<=1.4.1"
+        }
+      ]
+    },
+    {
+      "package": "zod",
+      "previous_severity": "high",
+      "previous_affected_range": "<4.6.6",
+      "previous_paths": [
+        "node_modules/zod"
+      ],
+      "resolution_after": [
+        {
+          "path": "node_modules/zod",
+          "version": "4.6.7"
+        }
+      ],
+      "disposition": "UPDATED_TO_AUDIT_CLEAN_RESOLUTION",
+      "scope_assessment": "Prisma/toolchain dependency; no database/client/provider integration in the clean app. Configuration and build exposure still included in full audit.",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5",
+          "title": "Zod can exhaust memory while validating oversized constrained collections",
+          "range": "<4.6.6"
+        }
+      ]
+    }
+  ],
+  "limits": "Version/graph/reachability assessment and recorded package audit, not exploit tests for every advisory. Reachability is not used to waive a finding."
+}

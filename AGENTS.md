@@ -1,7 +1,12 @@
 <!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
 
 <!-- BEGIN:workinants-database-truth-rules -->
 # WorkinAnts Database Truth Rules
@@ -24,9 +29,10 @@ Prisma schema changes must preserve these object laws:
 
 Before changing Prisma schema, inspect existing migrations and avoid destructive resets unless explicitly approved.
 <!-- END:workinants-database-truth-rules -->
-<!-- END:nextjs-agent-rules -->
 
 ## Directive006/006-A — current foundation scope and context loading
+
+Current continuation is bounded by `context/reconciliation/directives/brain-directive-007-resumption.md`. Read `context/reconciliation/launch-scope-baseline.md` for approved launch decisions and `context/phase0-roadmap.md` for the preserved 20-step/P0-A–G sequence. Complete controlled dependency-security remediation/requalification before dependent foundation work; do not treat proposed legal terms, fees, retention periods or future-scope capabilities as approved launch policy. Existing database posture D and runtime/feature/parallel/release boundaries remain until actual evidence changes them.
 
 At each session start read the nine foundational roles in order: `context/project-overview.md` (routing to V3), `context/architecture.md`, `context/build-plan.md`, `context/code-standards.md`, `context/library-docs.md`, `context/ui-tokens.md`, `context/ui-rules.md`, `context/ui-registry.md`, then the current section of `context/progress-tracker.md`. Also read `context/reconciliation/phase0-foundation-report.md` and the current Phase0 status/readiness boundary. Use `context/context-map.md` to selectively load the owning and consuming Module/Cluster architecture/plan, connected journey and exact SH variants required by the task. Do not recursively ingest every historical context artifact or import template example policies.
 

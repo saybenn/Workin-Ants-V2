@@ -106,18 +106,22 @@ def inspect(root=ROOT):
             for f in review['files']:
                 if f['previous_sha256']!=baseline['sha256'][f['path']]:errors.append('Reviewed package baseline mismatch')
                 else:approved[f['path']]=f['reviewed_sha256']
-        original=read('legacy/checkpoint-005/configuration/package.json');current=read('package.json')
-        if any(original[k]!=current[k] for k in ['dependencies','devDependencies']):errors.append('Unapproved direct dependency change')
-        original=read('legacy/checkpoint-005/configuration/package-lock.json')['packages'];current=read('package-lock.json')['packages']
-        for p,v in original.items():
-            if p and (p not in current or any(v.get(k)!=current[p].get(k) for k in ['version','resolved','integrity'])):
-                errors.append('Unapproved existing dependency resolution change '+p)
-        added={p for p in current if p not in original}
-        expected={'node_modules/@emnapi/core':'1.10.0','node_modules/@emnapi/runtime':'1.10.0'}
-        expected.update({'node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/'+p:v for p,v in {
-            '@emnapi/core':'1.10.0','@emnapi/runtime':'1.10.0','@emnapi/wasi-threads':'1.2.1',
-            '@napi-rs/wasm-runtime':'1.1.4','@tybys/wasm-util':'0.10.1','tslib':'2.8.1'}.items()})
-        if added!=set(expected) or any(current[p].get('version')!=v for p,v in expected.items() if p in current):errors.append('Unapproved missing-lock dependency set')
+        if (root/'context/reconciliation/phase0-security-file-changes.json').exists():
+            extension=runpy.run_path(str(root/'scripts/phase0_security_evidence.py'))['inspect_change_review'](root,review)
+            errors.extend(extension['errors']);approved.update(extension['approved'])
+        else:
+            original=read('legacy/checkpoint-005/configuration/package.json');current=read('package.json')
+            if any(original[k]!=current[k] for k in ['dependencies','devDependencies']):errors.append('Unapproved direct dependency change')
+            original=read('legacy/checkpoint-005/configuration/package-lock.json')['packages'];current=read('package-lock.json')['packages']
+            for p,v in original.items():
+                if p and (p not in current or any(v.get(k)!=current[p].get(k) for k in ['version','resolved','integrity'])):
+                    errors.append('Unapproved existing dependency resolution change '+p)
+            added={p for p in current if p not in original}
+            expected={'node_modules/@emnapi/core':'1.10.0','node_modules/@emnapi/runtime':'1.10.0'}
+            expected.update({'node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/'+p:v for p,v in {
+                '@emnapi/core':'1.10.0','@emnapi/runtime':'1.10.0','@emnapi/wasi-threads':'1.2.1',
+                '@napi-rs/wasm-runtime':'1.1.4','@tybys/wasm-util':'0.10.1','tslib':'2.8.1'}.items()})
+            if added!=set(expected) or any(current[p].get('version')!=v for p,v in expected.items() if p in current):errors.append('Unapproved missing-lock dependency set')
         if review['existing_dependency_version_changes'] or review['direct_dependency_declaration_changes']:errors.append('Unapproved dependency upgrade qualification')
     for p,sha in baseline['sha256'].items():
         if not (root/p).is_file() or hashlib.sha256((root/p).read_bytes()).hexdigest()!=approved.get(p,sha):errors.append('Protected source/schema/migration drift '+p)

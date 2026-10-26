@@ -1,3 +1,9 @@
+## Directive007 foundation follow-up — 26 October 2026
+
+Controlled P0-B security remediation/requalification passed:Next/eslint-config-next16.4.3,Prisma/client7.10.1,exact Node 24.22.1/npm 11.9.0,clean install/lint/typecheck/build/offline validation,47HTTP cases and zero known findings in full/production audits. See [current evidence](phase0-security-requalification.json). [Approved launch scope](launch-scope-baseline.md) is recorded without adopting proposals. P0-C is next:actual isolated target/provenance unavailable,D persists;no DB/runtime/RLS/Privacy/provider qualification or product/parallel activation inferred. [The master roadmap](../phase0-roadmap.md) preserves Steps1–20.
+
+Earlier dated results below are historical.
+
 ## Directive006 foundation follow-up —2026-10-19
 
 P0-B pinned installation and real lint/typecheck/build/41 HTTP cases now pass on the clean isolated app/ foundation. The dependency audit introduces an explicit open security remediation gate;P0-C source validation/requirements/greenfield strategy advanced without DB contact and posture D persists. See [Phase0 status](phase0-foundation-status.json),[actual validation](phase0-foundation-validation.json) and [security review](dependency-security-review.md). The dated Gate10 audit below remains NOT_READY;no SH runtime freeze,product or parallel activation follows from this bounded qualification.

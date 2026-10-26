@@ -1,5 +1,7 @@
 # Workin Ants project overview entry point
 
+Current launch scope is recorded in [launch-scope-baseline.md](reconciliation/launch-scope-baseline.md): all 50 U.S. states, account holders 18+, specified launch capabilities, conditional screening and deferred therapy/prescribing/child-directed/prize paths. Read it alongside the long-term overview. The [master roadmap](phase0-roadmap.md) preserves Steps 1–20 and the current P0-A–G sequence.
+
 [Project Overview V3](project-overview-v3.md) is the maintained product orientation: actors, capabilities, workflows and intended stack. Read it for product truth; approved [rulings](reconciliation/platform-architecture-rulings.md) and actual owner artifacts govern adjudicated concerns. V2 is historical. This entry point routes agents and creates no competing product definition.
 
 At session start load these nine foundational roles: project-overview.md, architecture.md, build-plan.md, code-standards.md, library-docs.md, ui-tokens.md, ui-rules.md, ui-registry.md and the current section of progress-tracker.md. Then use [context-map.md](context-map.md) to select the relevant Cluster/Module architecture and plan, [connected workflow](workflows/platform-workflows.md) and exact [Shared Operation](shared/contracts/README.md) source/consumer contracts. Do not recursively load all historical reports or every Module merely because they live under context/.
