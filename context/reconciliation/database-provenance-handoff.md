@@ -1,10 +1,20 @@
 # P0-C — fresh database evidence handoff
 
-Prepared 26 October 2026. **Posture D; no target contacted and no provisioning, migration, seed, reset or replay performed.** This turns the existing 12-item requirement ledger into a concrete next action. It does not create a second migration plan or approve the current 177-model schema as a baseline.
+Updated 26 October 2026. **Posture D; supplied existing target inspected read-only; no provisioning, migration, seed, reset or replay performed.** The fresh-target verification requirements are still unsatisfied. Current results and limitations are in [Checkpoint 008](checkpoint-008.md).
+
+## Supplied target and verified access
+
+Supabase access is connected. The owner-supplied project `sdceenkakajslwpctbgl`, URL `https://sdceenkakajslwpctbgl.supabase.co`, is named Workin Ants in organization **sayben codes**. Provider metadata records creation on 2 June 2026 and region us-west-2. Three read-only SQL transactions collected catalog, effective privileges and the existing Prisma ledger; all ended with rollback. No raw application rows were read or exported.
+
+This is the existing June application database: its 53 application table identities match the historical migration, and its Prisma ledger retains the same migration name and SHA-256 checksum as Git. It is not an empty application namespace or a separately created fresh target. Do not use it for clean replay, reset it, erase it, or mark it adopted. Data-preservation obligations remain unknown.
+
+The [observation manifest](database-observations/2026-10-26/manifest.json) records actual supplied-target facts separately from the 12 requirements for a fresh target. RLS is disabled on all 53 app tables, while effective schema and SELECT/INSERT/UPDATE/DELETE grants are absent for anon, authenticated and service_role. Live Data API configuration/behavior is unverified; do not repeat the generic table tool's claim that these tables are necessarily publicly accessible. The retained advisor findings and public event-trigger definition require review, not automatic remediation.
 
 ## First action for the WorkinAnts account/environment owner
 
-Identify the brand-new, development-only database/project to evaluate. Supply its nonsecret project identifier, provider, region, intended use, account owner, creation date and separation from the old target. State whether either target holds data that must survive and who can approve disposal. Never send passwords, tokens, connection strings or customer records in chat or commit them to Git. Use the approved secret channel for eventual limited technical access.
+Select the organization for a separate development-only project; the recommended organization is the existing **sayben codes**. Work must check the actual creation cost and obtain any required cost approval before provisioning. Alternatively, supply an already-created fresh development project. Preserve the supplied existing target. Do not ask for its ID again or request credentials in chat.
+
+For the fresh target, Work collects provider identity/region/creation metadata, verifies its separation and checks actual namespace/ledger/security state. The account/data owner confirms purpose and any preservation/disposal obligations that technical evidence cannot establish. Supabase-managed schemas are preserved even on a fresh project.
 
 The account owner does not need to decide database architecture. Work/the migration integrator handles catalog collection, ownership reconciliation, migration design and tests after the actual target and access are available. The earlier approval of clean isolation is already recorded; do not ask the client to redesign it.
 
@@ -27,4 +37,4 @@ Attach the resulting JSON to the controlled engineering handoff together with:
 
 **DBP-12:** Record an evidence-supported adoption decision and exact source/migration/RLS/build versions. The current query and handoff do not satisfy this item. Only actual reviewed evidence can change posture D. P0-D database-backed runtime tests, P0-E permissions/RLS and P0-F actual Privacy execution remain dependent on their relevant real prerequisites.
 
-All 12 ledger items remain `NOT_OBTAINED` until the responsible owner supplies and reviews actual evidence. The probe is prepared and **not executed**; this is no database or security qualification claim.
+All 12 ledger items remain `NOT_OBTAINED` for qualification of the separate fresh target. The catalog probe has been executed only against the owner-supplied existing project, and its output is retained separately; it has not qualified a fresh database, migration baseline or security behavior.

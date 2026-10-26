@@ -9,6 +9,53 @@ ROOT = Path(__file__).resolve().parents[1]
 ROLES = ['project-overview.md','architecture.md','build-plan.md','code-standards.md','library-docs.md','ui-tokens.md','ui-rules.md','ui-registry.md','progress-tracker.md']
 
 
+def inspect_database_observation(root, status, provenance):
+    """Validate retained read-only observations without qualifying a write target."""
+    reference = status.get('database_observation')
+    if reference is None:
+        return ['Unsupported Phase0 database contact without observation'] if status['database_contacted'] or provenance['database_contacted'] else []
+    expected = 'context/reconciliation/database-observations/2026-10-26/manifest.json'
+    if reference != expected or provenance.get('existing_target_observation') != expected:
+        return ['Database observation reference is unregistered']
+    errors = []
+    try:
+        base = (root / expected).parent
+        read = lambda name: json.loads((base / name).read_text())
+        manifest = read('manifest.json')
+        required = {'project.json', 'project-url.json', 'organization.json', 'catalog.json',
+                    'access-review.json', 'prisma-migration-ledger.json',
+                    'supabase-migration-ledger.json', 'security-advisors.json',
+                    'table-summary.json', 'table-identity-comparison.json', 'catalog-probe.sql', 'access-review.sql',
+                    'prisma-ledger-probe.sql'}
+        if set(manifest['files_sha256']) != required:
+            errors.append('Database observation evidence coverage changed')
+        for name in required:
+            if not (base / name).is_file() or hashlib.sha256((base / name).read_bytes()).hexdigest() != manifest['files_sha256'].get(name):
+                errors.append('Database observation evidence fingerprint changed ' + name)
+        mode = 'READ_ONLY_EXISTING_TARGET_NOT_ADOPTED'
+        if (manifest['kind'] != mode or status.get('database_access_mode') != mode
+                or not status['database_contacted'] or not provenance['database_contacted']
+                or manifest['database_contacted'] is not True
+                or any(manifest[key] is not False for key in ['database_writes_executed',
+                       'application_rows_exported', 'application_row_emptiness_proven',
+                       'fresh_target_qualified', 'baseline_adopted'])):
+            errors.append('Unsupported Phase0 database observation scope')
+        project, endpoint, catalog, access = [read(name) for name in ['project.json', 'project-url.json', 'catalog.json', 'access-review.json']]
+        target = provenance['reported_target']
+        if (manifest['project_ref'] != project['id'] or project['id'] != target['project_ref']
+                or manifest['project_url'] != endpoint['url']
+                or endpoint['url'] != 'https://' + project['id'] + '.supabase.co'
+                or target['fresh_target_qualified'] is not False or target['adopted_for_writes'] is not False):
+            errors.append('Database observation target mismatch or promotion')
+        if catalog['transaction_read_only'] != 'on' or access['transaction_read_only'] != 'on':
+            errors.append('Database observation is not recorded as read-only')
+        if not any(row['schema'] == 'app' and row['kind'] in ['r', 'p'] for row in catalog['relations']):
+            errors.append('Database observation existing-schema classification unsupported')
+    except (OSError, KeyError, TypeError, ValueError) as exc:
+        errors.append('Database observation evidence unavailable or malformed: ' + type(exc).__name__)
+    return errors
+
+
 def inspect(root=ROOT):
     base=root/'context/reconciliation'
     if not (base/'phase0-foundation-status.json').exists():
@@ -33,9 +80,10 @@ def inspect(root=ROOT):
     for p in (root/'app').rglob('*'):
         if p.suffix in ['.ts','.tsx'] and '@/legacy' in p.read_text():errors.append('Active app imports inactive legacy source')
     if 'legacy' not in read('tsconfig.json')['exclude'] or 'legacy/**' not in (root/'eslint.config.mjs').read_text():errors.append('Legacy source entered active compiler/lint scope')
-    if (status['database_posture']!='D' or status['database_contacted'] or status['migrations_seed_reset_or_provisioning_executed'] or status['runtime_shared_contracts_qualified'] or status['externally_gated_contracts']!=13 or status['authorized_parallel_lanes'] or status['production_development_authorized']):errors.append('Unsupported Phase0 database/runtime/production promotion')
+    if (status['database_posture']!='D' or status['migrations_seed_reset_or_provisioning_executed'] or status['runtime_shared_contracts_qualified'] or status['externally_gated_contracts']!=13 or status['authorized_parallel_lanes'] or status['production_development_authorized']):errors.append('Unsupported Phase0 database/runtime/production promotion')
     provenance=read('context/reconciliation/database-provenance-requirements.json')
-    if provenance['strategy_selected'] or provenance['database_posture']!='D' or any(x['actual_evidence'] is not None or x['status']!='NOT_OBTAINED' for x in provenance['requirements']):errors.append('Unproven database provenance or baseline adoption')
+    if provenance['strategy_selected'] or provenance['database_posture']!='D' or any(provenance[key] for key in ['database_provisioned','migrations_executed','old_supabase_reused_reset_or_erased']) or any(x['actual_evidence'] is not None or x['status']!='NOT_OBTAINED' for x in provenance['requirements']):errors.append('Unproven database provenance or baseline adoption')
+    errors.extend(inspect_database_observation(root, status, provenance))
     models=read('context/reconciliation/greenfield-model-security-inventory.json')['models']
     registry=read('context/reconciliation/platform-schema-compatibility-review.json')['model_owner_coverage']
     expected={x['model']:x['owners'][0] for x in registry}
@@ -64,7 +112,7 @@ def inspect(root=ROOT):
             previous=read('context/reconciliation/phase0-approved-file-changes.json')
             errors.extend(runpy.run_path(str(root/'scripts/phase0_security_evidence.py'))['inspect_change_review'](root,previous)['errors'])
         elif security['status']!='OPEN_CONTROLLED_REMEDIATION_REQUIRED' or status.get('dependency_security_gate')!='OPEN':errors.append('Known dependency security gate silently cleared')
-    return {'errors':errors,'nine_roles':len(review['roles']),'archived_files':len(inventory['files']),'source_models':len(models),'database_posture':'D','status':status['P0_B'],'scope':'Static source/evidence/context/denial gate checks. Real installed framework/HTTP execution is separately recorded; no actual DB/RLS/provider/SH qualification.'}
+    return {'errors':errors,'nine_roles':len(review['roles']),'archived_files':len(inventory['files']),'source_models':len(models),'database_posture':'D','status':status['P0_B'],'scope':'Static source/evidence/context/denial gate checks, including integrity of the separately recorded read-only existing-database observation. No fresh-target adoption, RLS behavior, owner-runtime or SH qualification.'}
 
 
 if __name__=='__main__':

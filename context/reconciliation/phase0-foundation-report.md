@@ -1,5 +1,7 @@
 # Phase0 foundation checkpoint — Directives006/006-A
 
+**Current P0-C update, 26 October 2026:** [Checkpoint 008](checkpoint-008.md) verifies connected Supabase access and records a read-only inspection of the supplied existing June database. A separate fresh target is still required; posture D and write/replay/feature gates remain. Earlier no-contact statements below describe their historical checkpoints.
+
 **Historical Checkpoint006 below. Current update,26 October2026:** [Directive007 remediation](dependency-security-remediation-2026-10-26.md) passes P0-B dependency-security and framework checks (47HTTP cases;zero known vulnerabilities in both audits). [Launch decisions](launch-scope-baseline.md) and [the original roadmap](../phase0-roadmap.md) are recorded. P0-C remains D with no actual target evidence or contact;[the handoff](database-provenance-handoff.md) is prepared. NOT_READY,zero active lanes and zero runtime-qualified/frozen SHs remain.
 
 **P0-B functional acceptance passes; dependency security remains OPEN.** TECH-LOCK-001 and TECH-ROUTER-001 are resolved for the pinned Linux foundation. Clean installation, actual lint/route typegen/strict typecheck/production build and 41 real development/production HTTP checks pass. The new dependency audit reports15 affected packages including critical Next advisories; no version upgrade or production security clearance is claimed. Overall readiness remains NOT_READY;0 active parallel lanes and0 SH runtime-qualified/frozen operations.

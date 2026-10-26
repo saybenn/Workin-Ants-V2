@@ -23,9 +23,17 @@ with tempfile.TemporaryDirectory(prefix='wa-phase0-negative-') as directory:
         results.append({'case':label,'result':'REJECTED','errors':errors})
     evidence_path='context/reconciliation/'+json.loads((root/'context/reconciliation/phase0-foundation-status.json').read_text()).get('qualification_evidence','phase0-foundation-validation.json')
     case('missing ninth context role','context/reconciliation/context-foundation-review.json',lambda j:j['roles'].pop(),'Nine context role mapping')
-    case('invented database contact qualification','context/reconciliation/phase0-foundation-status.json',lambda j:j.update(database_contacted=True),'Unsupported Phase0')
+    case('unrecorded database contact','context/reconciliation/phase0-foundation-status.json',lambda j:j.pop('database_observation',None),'Unsupported Phase0')
     case('baseline adopted without provenance','context/reconciliation/database-provenance-requirements.json',lambda j:j.update(strategy_selected=True),'Unproven database provenance')
     case('fabricated target evidence','context/reconciliation/database-provenance-requirements.json',lambda j:j['requirements'][0].update(actual_evidence='assumed-empty',status='VERIFIED'),'Unproven database provenance')
+    if json.loads((root/'context/reconciliation/phase0-foundation-status.json').read_text()).get('database_observation'):
+        observation='context/reconciliation/database-observations/2026-10-26/'
+        case('observation promoted to adopted baseline',observation+'manifest.json',lambda j:j.update(baseline_adopted=True),'Unsupported Phase0')
+        case('read-only observation reports writes',observation+'manifest.json',lambda j:j.update(database_writes_executed=True),'Unsupported Phase0')
+        case('catalog collection was not read-only',observation+'catalog.json',lambda j:j.update(transaction_read_only='off'),'Database observation')
+        case('observation pointed at another project',observation+'project.json',lambda j:j.update(id='wrong-project'),'Database observation')
+        case('observation evidence changed',observation+'prisma-migration-ledger.json',lambda j:j[0].update(checksum='invented'),'Database observation')
+        case('fresh target silently qualified','context/reconciliation/database-provenance-requirements.json',lambda j:j['reported_target'].update(fresh_target_qualified=True),'Database observation')
     case('missing model owner coverage','context/reconciliation/greenfield-model-security-inventory.json',lambda j:j['models'].pop(),'source-model owner coverage')
     case('logical compatibility case lost','context/reconciliation/greenfield-model-security-inventory.json',lambda j:j['compatibility_cases'].pop(),'compatibility cases lost')
     case('browser access silently allowed','context/reconciliation/greenfield-model-security-inventory.json',lambda j:j['models'][0].update(browser_default='ALLOW_ALL'),'Unapproved database baseline')
