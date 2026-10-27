@@ -1,3 +1,10 @@
+## Current continuation — P0-C-01, 27 October 2026
+
+- **Candidate ready for Brain review; posture D remains.** All 177 source models and 12 compatibility cases reconciled. Review-only target: 214 models/219 enums; proposed first cut: 40 models in complete parent-FK closure. Original adopted-source schema, June migration, owner contracts, P0-B source and UI remain unchanged.
+- **Concrete package:** per-model/field ledger extends the canonical inventory; 18 SQL-only enforcement specifications, 869 object/access entries, creator-default/advisor dispositions, one Prisma migration history plan and a synthetic disposable qualification plan. Database tests: 451 specified, all NOT_RUN. First P0-D recommendation: Customer provisioning → default-Free Track command, not implemented.
+- **Evidence remains scoped:** DBP-01/02/04/05 VERIFIED, DBP-03/06/07/08/09/11 PARTIAL, DBP-10/12 NOT_OBTAINED. No target was contacted under this directive. No DDL generation/application, seed, reset, provider change, runtime implementation, interface freeze, lane activation or Step 20 approval.
+- **Next:** Brain review of the exact packet hashes, then separately authorized source-only SQL generation and reviewed disposable execution. See reconciliation/checkpoint-010.md and reconciliation/database-candidate-manifest.json. Earlier dated checkpoint entries below are historical.
+
 ## Current continuation — Checkpoint 009, 27 October 2026
 
 - **Fresh development target verified:** `lyalfdmfheevpahywuhv`, Workin Ants MVP, same known organization, us-west-2, healthy; database reports PostgreSQL 17.11. Distinct from the preserved June project. No public/app application relations or Prisma/Supabase migration ledger entries were found; managed schemas and their records were not cleared or read.

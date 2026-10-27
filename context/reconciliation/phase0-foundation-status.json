@@ -2,7 +2,8 @@
   "directive": [
     "006",
     "006-A",
-    "007-resumption"
+    "007-resumption",
+    "P0-C-01"
   ],
   "baseline": "bbeb4c2a3a1ccd110273d7185f113db546549009",
   "branch": "codex/phase0-clean-foundation-2026-10-19",
@@ -10,7 +11,7 @@
   "P0_B": "FRAMEWORK_ACCEPTANCE_PASS_DEPENDENCY_SECURITY_REQUALIFIED",
   "TECH_LOCK_001": "RESOLVED_CLEAN_PINNED_INSTALL_ZERO_EXISTING_VERSION_CHANGES",
   "TECH_ROUTER_001": "RESOLVED_CLEAN_APP_REAL_FRAMEWORK_HTTP_PASS",
-  "P0_C": "D_FRESH_TARGET_IDENTITY_AND_EMPTY_NAMESPACE_VERIFIED_CANDIDATE_REPLAY_PENDING",
+  "P0_C": "D_PHYSICAL_CANDIDATE_READY_FOR_BRAIN_REVIEW_NO_DDL_OR_ADOPTION",
   "database_posture": "D",
   "database_contacted": true,
   "migrations_seed_reset_or_provisioning_executed": false,
@@ -19,14 +20,14 @@
   "candidate_lanes": 8,
   "authorized_parallel_lanes": 0,
   "production_development_authorized": false,
-  "next_safe_task": "No further project identity or credentials are needed for safe source review. Work next reconciles the 177-model physical candidate and 12 compatibility cases, then prepares the reviewed migration/security/replay plan. Backup/restore facts and actual disposable replay authorization must be resolved before affected execution.",
+  "next_safe_task": "Brain reviews the exact candidate/schema/security/SQL-only/test hashes. Only a subsequent approval authorizes source-only SQL generation; reviewed SQL and exact disposable identity/actions need execution authorization before replay. No live target contact or runtime implementation follows from static validity.",
   "dependency_security_gate": "PASS_KNOWN_ADVISORIES_REMEDIATED",
   "dependency_security_issue": "TECH-DEPENDENCY-SECURITY-001",
   "real_http_smoke_cases": 47,
   "nine_context_roles": 9,
   "archived_files": 21,
-  "checkpoint_report": "context/reconciliation/checkpoint-009.md",
-  "negative_regressions_passed": 53,
+  "checkpoint_report": "context/reconciliation/checkpoint-010.md",
+  "negative_regressions_passed": 64,
   "qualification_evidence": "phase0-security-requalification.json",
   "P0_D": "BLOCKED_ACTUAL_P0_C_DATABASE_PREREQUISITES",
   "P0_E": "NOT_QUALIFIED",
@@ -34,5 +35,12 @@
   "P0_G": "NOT_QUALIFIED",
   "database_access_mode": "READ_ONLY_EXISTING_AND_FRESH_TARGETS_NOT_ADOPTED",
   "database_observation": "context/reconciliation/database-observations/2026-10-26/manifest.json",
-  "fresh_database_observation": "context/reconciliation/database-observations/2026-10-27/manifest.json"
+  "fresh_database_observation": "context/reconciliation/database-observations/2026-10-27/manifest.json",
+  "candidate_review_manifest": "context/reconciliation/database-candidate-manifest.json",
+  "candidate_review_database_contacted": false,
+  "candidate_schema_models": 214,
+  "candidate_foundation_models": 40,
+  "candidate_review_tests_executed": false,
+  "candidate_negative_regressions_passed": 28,
+  "phase0_negative_regressions_passed": 36
 }

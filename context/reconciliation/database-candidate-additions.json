@@ -1,0 +1,2129 @@
+{
+  "status": "REVIEW_ONLY_NOT_ADOPTED",
+  "models": [
+    {
+      "model": "ConsentContentRevision",
+      "owner": "consent_disclosure",
+      "purpose": "Immutable exact legal/disclosure content revision and applicability; legal approval never inferred",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "type ConsentType",
+        "version String",
+        "locale String",
+        "jurisdictionScope String @map(\"jurisdiction_scope\")",
+        "contentText String @map(\"content_text\")",
+        "contentHash String @map(\"content_hash\") @db.Char(64)",
+        "reviewState ReviewPolicyState @default(draft) @map(\"review_state\")",
+        "legalApprovalRef String? @map(\"legal_approval_ref\")",
+        "effectiveFrom DateTime @map(\"effective_from\") @db.Timestamptz(6)",
+        "effectiveUntil DateTime? @map(\"effective_until\") @db.Timestamptz(6)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([type, version, locale, jurisdictionScope])"
+      ],
+      "foreign_keys": [],
+      "schema": "app",
+      "decision": "DB-C01",
+      "rulings": [
+        "WA-R019"
+      ],
+      "sql_requirements": [
+        "SQL-05"
+      ]
+    },
+    {
+      "model": "ConsentPresentation",
+      "owner": "consent_disclosure",
+      "purpose": "Immutable actually rendered presentation and exact content/context binding",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "contentRevisionId String @map(\"content_revision_id\") @db.Uuid",
+        "renderVersion String @map(\"render_version\")",
+        "renderedText String @map(\"rendered_text\")",
+        "renderedHash String @map(\"rendered_hash\") @db.Char(64)",
+        "contextOwner String @map(\"context_owner\")",
+        "contextKind String @map(\"context_kind\")",
+        "contextId String? @map(\"context_id\")",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [],
+      "foreign_keys": [
+        [
+          "content",
+          "ConsentContentRevision",
+          "contentRevisionId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C01",
+      "rulings": [
+        "WA-R019"
+      ],
+      "sql_requirements": [
+        "SQL-05"
+      ]
+    },
+    {
+      "model": "ConsentDisposition",
+      "owner": "consent_disclosure",
+      "purpose": "Append-only decline/withdrawal/reacceptance disposition without overwriting old acceptance",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "proofId String? @map(\"proof_id\") @db.Uuid",
+        "userId String @map(\"user_id\") @db.Uuid",
+        "presentationId String @map(\"presentation_id\") @db.Uuid",
+        "kind ConsentDispositionKind",
+        "semanticKey String @map(\"semantic_key\")",
+        "fingerprint String @db.Char(64)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([userId, semanticKey])"
+      ],
+      "foreign_keys": [
+        [
+          "proof",
+          "ConsentLog?",
+          "proofId",
+          "id"
+        ],
+        [
+          "subject",
+          "User",
+          "userId",
+          "id"
+        ],
+        [
+          "presentation",
+          "ConsentPresentation",
+          "presentationId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C01",
+      "rulings": [
+        "WA-R019"
+      ],
+      "sql_requirements": [
+        "SQL-05"
+      ]
+    },
+    {
+      "model": "DatabaseActionGrant",
+      "owner": "platform_integration_owner",
+      "purpose": "Ephemeral non-authorizing transport of already approved Role/Identity scope into one DB transaction; not a second policy catalog",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "tokenHash String @unique @map(\"token_hash\") @db.Char(64)",
+        "issuerService String @map(\"issuer_service\")",
+        "principalUserId String? @map(\"principal_user_id\") @db.Uuid",
+        "servicePrincipal String? @map(\"service_principal\")",
+        "databaseLoginRole String @map(\"database_login_role\")",
+        "ownerModuleId String @map(\"owner_module_id\")",
+        "action String",
+        "purpose String",
+        "targetKind String @map(\"target_kind\")",
+        "targetId String @map(\"target_id\")",
+        "allowedFields String[] @map(\"allowed_fields\")",
+        "policyVersion String @map(\"policy_version\")",
+        "securityGeneration BigInt @map(\"security_generation\")",
+        "sourceGeneration BigInt @map(\"source_generation\")",
+        "backendPid Int? @map(\"backend_pid\")",
+        "transactionId String? @map(\"transaction_id\")",
+        "expiresAt DateTime @map(\"expires_at\") @db.Timestamptz(6)",
+        "revokedAt DateTime? @map(\"revoked_at\") @db.Timestamptz(6)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@index([expiresAt])"
+      ],
+      "foreign_keys": [],
+      "schema": "platform",
+      "decision": "DB-C04",
+      "rulings": [
+        "WA-R064",
+        "WA-R068",
+        "WA-R086"
+      ],
+      "sql_requirements": [
+        "SQL-06"
+      ]
+    },
+    {
+      "model": "RuntimeCommandReceipt",
+      "owner": "platform_integration_owner",
+      "purpose": "One shared scoped command identity/fingerprint/result receipt; owner retains semantic decisions",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "ownerModuleId String @map(\"owner_module_id\")",
+        "operation String",
+        "subjectScope String @map(\"subject_scope\")",
+        "semanticKey String @map(\"semantic_key\")",
+        "fingerprint String @db.Char(64)",
+        "state RuntimeReceiptState @default(pending)",
+        "sourceRevision BigInt? @map(\"source_revision\")",
+        "resultSchemaId String @map(\"result_schema_id\")",
+        "resultSchemaVersion String @map(\"result_schema_version\")",
+        "resultDigest String? @map(\"result_digest\") @db.Char(64)",
+        "resultBody Json? @map(\"result_body\")",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([ownerModuleId, operation, subjectScope, semanticKey])"
+      ],
+      "foreign_keys": [],
+      "schema": "platform",
+      "decision": "DB-C11",
+      "rulings": [
+        "WA-R018",
+        "WA-R031",
+        "WA-R086"
+      ],
+      "sql_requirements": [
+        "SQL-07"
+      ]
+    },
+    {
+      "model": "RuntimeOutboxMessage",
+      "owner": "platform_integration_owner",
+      "purpose": "Source-transaction durable committed fact or registered command intent; no alternate owner lifecycle",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "commandReceiptId String @map(\"command_receipt_id\") @db.Uuid",
+        "kind RuntimeMessageKind",
+        "producerOwner String @map(\"producer_owner\")",
+        "aggregateKind String @map(\"aggregate_kind\")",
+        "aggregateId String @map(\"aggregate_id\")",
+        "sourceRevision BigInt @map(\"source_revision\")",
+        "sourceGeneration BigInt @map(\"source_generation\")",
+        "ordinal Int",
+        "name String",
+        "schemaVersion String @map(\"schema_version\")",
+        "payloadSchemaId String @map(\"payload_schema_id\")",
+        "payloadHash String @map(\"payload_hash\") @db.Char(64)",
+        "payload Json",
+        "correlationId String @map(\"correlation_id\")",
+        "causationId String @map(\"causation_id\")",
+        "correctionOfId String? @map(\"correction_of_id\") @db.Uuid",
+        "occurredAt DateTime @map(\"occurred_at\") @db.Timestamptz(6)",
+        "effectiveAt DateTime @map(\"effective_at\") @db.Timestamptz(6)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([producerOwner, aggregateKind, aggregateId, sourceRevision, ordinal])"
+      ],
+      "foreign_keys": [
+        [
+          "command",
+          "RuntimeCommandReceipt",
+          "commandReceiptId",
+          "id"
+        ]
+      ],
+      "schema": "platform",
+      "decision": "DB-C11",
+      "rulings": [
+        "WA-R018",
+        "WA-R031",
+        "WA-R086"
+      ],
+      "sql_requirements": [
+        "SQL-07",
+        "SQL-08"
+      ]
+    },
+    {
+      "model": "RuntimeEffectReceipt",
+      "owner": "platform_integration_owner",
+      "purpose": "Durable owner-scoped semantic effect receipt, separate from event deduplication",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "commandReceiptId String? @map(\"command_receipt_id\") @db.Uuid",
+        "ownerModuleId String @map(\"owner_module_id\")",
+        "operation String",
+        "subjectScope String @map(\"subject_scope\")",
+        "semanticEffectKey String @map(\"semantic_effect_key\")",
+        "fingerprint String @db.Char(64)",
+        "state RuntimeReceiptState @default(pending)",
+        "sourceRevision BigInt? @map(\"source_revision\")",
+        "fence BigInt @default(0)",
+        "resultSchemaId String @map(\"result_schema_id\")",
+        "resultHash String? @map(\"result_hash\") @db.Char(64)",
+        "committedAt DateTime? @map(\"committed_at\") @db.Timestamptz(6)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([ownerModuleId, operation, subjectScope, semanticEffectKey])"
+      ],
+      "foreign_keys": [
+        [
+          "command",
+          "RuntimeCommandReceipt?",
+          "commandReceiptId",
+          "id"
+        ]
+      ],
+      "schema": "platform",
+      "decision": "DB-C11",
+      "rulings": [
+        "WA-R018",
+        "WA-R031",
+        "WA-R086"
+      ],
+      "sql_requirements": [
+        "SQL-07",
+        "SQL-09"
+      ]
+    },
+    {
+      "model": "RuntimeWorkItem",
+      "owner": "platform_integration_owner",
+      "purpose": "Single durable work/lease/fence source; QueueJob remains an Ops projection",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "outboxMessageId String @map(\"outbox_message_id\") @db.Uuid",
+        "handlerName String @map(\"handler_name\")",
+        "semanticWorkKey String @unique @map(\"semantic_work_key\")",
+        "state RuntimeWorkState @default(pending)",
+        "fence BigInt @default(0)",
+        "leaseTokenHash String? @map(\"lease_token_hash\") @db.Char(64)",
+        "leaseExpiresAt DateTime? @map(\"lease_expires_at\") @db.Timestamptz(6)",
+        "attemptCount Int @default(0) @map(\"attempt_count\")",
+        "nextAttemptAt DateTime? @map(\"next_attempt_at\") @db.Timestamptz(6)",
+        "effectReceiptId String? @map(\"effect_receipt_id\") @db.Uuid",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([outboxMessageId, handlerName])",
+        "@@index([state, nextAttemptAt])"
+      ],
+      "foreign_keys": [
+        [
+          "message",
+          "RuntimeOutboxMessage",
+          "outboxMessageId",
+          "id"
+        ],
+        [
+          "effect",
+          "RuntimeEffectReceipt?",
+          "effectReceiptId",
+          "id"
+        ]
+      ],
+      "schema": "platform",
+      "decision": "DB-C11",
+      "rulings": [
+        "WA-R018",
+        "WA-R031",
+        "WA-R086"
+      ],
+      "sql_requirements": [
+        "SQL-09"
+      ]
+    },
+    {
+      "model": "RuntimeAttempt",
+      "owner": "platform_integration_owner",
+      "purpose": "Append-only actual runner attempt and fenced outcome observation",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "workItemId String @map(\"work_item_id\") @db.Uuid",
+        "attemptNumber Int @map(\"attempt_number\")",
+        "fence BigInt",
+        "workerId String @map(\"worker_id\")",
+        "result RuntimeReceiptState",
+        "reasonCode String @map(\"reason_code\")",
+        "startedAt DateTime @map(\"started_at\") @db.Timestamptz(6)",
+        "finishedAt DateTime @map(\"finished_at\") @db.Timestamptz(6)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([workItemId, attemptNumber])"
+      ],
+      "foreign_keys": [
+        [
+          "work",
+          "RuntimeWorkItem",
+          "workItemId",
+          "id"
+        ]
+      ],
+      "schema": "platform",
+      "decision": "DB-C11",
+      "rulings": [
+        "WA-R018",
+        "WA-R031",
+        "WA-R086"
+      ],
+      "sql_requirements": [
+        "SQL-09"
+      ]
+    },
+    {
+      "model": "RuntimeInboxReceipt",
+      "owner": "platform_integration_owner",
+      "purpose": "Consumer/event transport deduplication committed atomically with the consuming owner effect",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "outboxMessageId String @map(\"outbox_message_id\") @db.Uuid",
+        "consumerOwner String @map(\"consumer_owner\")",
+        "handlerName String @map(\"handler_name\")",
+        "payloadHash String @map(\"payload_hash\") @db.Char(64)",
+        "effectReceiptId String @map(\"effect_receipt_id\") @db.Uuid",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([consumerOwner, handlerName, outboxMessageId])"
+      ],
+      "foreign_keys": [
+        [
+          "message",
+          "RuntimeOutboxMessage",
+          "outboxMessageId",
+          "id"
+        ],
+        [
+          "effect",
+          "RuntimeEffectReceipt",
+          "effectReceiptId",
+          "id"
+        ]
+      ],
+      "schema": "platform",
+      "decision": "DB-C11",
+      "rulings": [
+        "WA-R018",
+        "WA-R031",
+        "WA-R086"
+      ],
+      "sql_requirements": [
+        "SQL-07",
+        "SQL-08"
+      ]
+    },
+    {
+      "model": "RuntimeReservation",
+      "owner": "platform_integration_owner",
+      "purpose": "Execution reservation/fenced noncommit coordination; domain counts remain with their source owner",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "commandReceiptId String @map(\"command_receipt_id\") @db.Uuid",
+        "ownerModuleId String @map(\"owner_module_id\")",
+        "resourceKind String @map(\"resource_kind\")",
+        "resourceKey String @map(\"resource_key\")",
+        "semanticKey String @map(\"semantic_key\")",
+        "quantity Int",
+        "state RuntimeReservationState @default(active)",
+        "fence BigInt @default(0)",
+        "effectReceiptId String? @map(\"effect_receipt_id\") @db.Uuid",
+        "expiresAt DateTime? @map(\"expires_at\") @db.Timestamptz(6)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([ownerModuleId, resourceKind, resourceKey, semanticKey])"
+      ],
+      "foreign_keys": [
+        [
+          "command",
+          "RuntimeCommandReceipt",
+          "commandReceiptId",
+          "id"
+        ],
+        [
+          "effect",
+          "RuntimeEffectReceipt?",
+          "effectReceiptId",
+          "id"
+        ]
+      ],
+      "schema": "platform",
+      "decision": "DB-C11",
+      "rulings": [
+        "WA-R018",
+        "WA-R031",
+        "WA-R086"
+      ],
+      "sql_requirements": [
+        "SQL-09"
+      ]
+    },
+    {
+      "model": "OwnerMutationEvidence",
+      "owner": "platform_integration_owner",
+      "purpose": "Minimized immutable owner-transaction proof; source-specific histories and policy remain with each owner",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "commandReceiptId String @map(\"command_receipt_id\") @db.Uuid",
+        "ownerModuleId String @map(\"owner_module_id\")",
+        "aggregateKind String @map(\"aggregate_kind\")",
+        "aggregateId String @map(\"aggregate_id\")",
+        "previousRevision BigInt @map(\"previous_revision\")",
+        "committedRevision BigInt @map(\"committed_revision\")",
+        "action String",
+        "decisionRef String @map(\"decision_ref\")",
+        "evidenceSchemaId String @map(\"evidence_schema_id\")",
+        "evidenceSchemaVersion String @map(\"evidence_schema_version\")",
+        "evidenceDigest String @map(\"evidence_digest\") @db.Char(64)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)",
+        "evidenceBody Json @map(\"evidence_body\")"
+      ],
+      "attributes": [
+        "@@unique([ownerModuleId, aggregateKind, aggregateId, committedRevision])"
+      ],
+      "foreign_keys": [
+        [
+          "command",
+          "RuntimeCommandReceipt",
+          "commandReceiptId",
+          "id"
+        ]
+      ],
+      "schema": "platform",
+      "decision": "DB-C11",
+      "rulings": [
+        "WA-R018",
+        "WA-R031",
+        "WA-R086"
+      ],
+      "sql_requirements": [
+        "SQL-04",
+        "SQL-08"
+      ]
+    },
+    {
+      "model": "CustomerProfileLifecycleEvent",
+      "owner": "customer_buyer_profile",
+      "purpose": "Exact Customer-owned retained lifecycle transition for the first P0-D slice",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "customerProfileId String @map(\"customer_profile_id\") @db.Uuid",
+        "commandReceiptId String @map(\"command_receipt_id\") @db.Uuid",
+        "sourceRevision BigInt @map(\"source_revision\")",
+        "fromStatus ProfileStatus? @map(\"from_status\")",
+        "toStatus ProfileStatus @map(\"to_status\")",
+        "name String",
+        "actorUserId String @map(\"actor_user_id\") @db.Uuid",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([customerProfileId, sourceRevision])"
+      ],
+      "foreign_keys": [
+        [
+          "profile",
+          "CustomerProfile",
+          "customerProfileId",
+          "id"
+        ],
+        [
+          "command",
+          "RuntimeCommandReceipt",
+          "commandReceiptId",
+          "id"
+        ],
+        [
+          "actor",
+          "User",
+          "actorUserId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C16",
+      "rulings": [
+        "WA-R019",
+        "WA-R069",
+        "WA-R078"
+      ],
+      "sql_requirements": [
+        "SQL-08"
+      ]
+    },
+    {
+      "model": "TrackBaseSelection",
+      "owner": "track_subscription_entitlement",
+      "purpose": "Exactly one current base enrollment selection per User/track, including provider-neutral Free",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "userId String @map(\"user_id\") @db.Uuid",
+        "track AccountTrack",
+        "customerProfileId String? @map(\"customer_profile_id\") @db.Uuid",
+        "candidateProfileId String? @map(\"candidate_profile_id\") @db.Uuid",
+        "professionalProfileId String? @map(\"professional_profile_id\") @db.Uuid",
+        "subscriptionId String @map(\"subscription_id\") @db.Uuid",
+        "revision BigInt @default(0)",
+        "sourceGeneration BigInt @default(0) @map(\"source_generation\")",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([userId, track])"
+      ],
+      "foreign_keys": [
+        [
+          "user",
+          "User",
+          "userId",
+          "id"
+        ],
+        [
+          "enrollment",
+          "TrackSubscription",
+          "subscriptionId",
+          "id"
+        ],
+        [
+          "customer",
+          "CustomerProfile?",
+          "customerProfileId",
+          "id"
+        ],
+        [
+          "candidate",
+          "CandidateProfile?",
+          "candidateProfileId",
+          "id"
+        ],
+        [
+          "professional",
+          "ProfessionalProfile?",
+          "professionalProfileId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C12",
+      "rulings": [
+        "WA-R030",
+        "WA-R078"
+      ],
+      "sql_requirements": [
+        "SQL-12"
+      ]
+    },
+    {
+      "model": "TrackEnrollmentReceipt",
+      "owner": "track_subscription_entitlement",
+      "purpose": "Immutable default-Free source/selection outcome; delayed Free cannot downgrade paid selection",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "userId String @map(\"user_id\") @db.Uuid",
+        "track AccountTrack",
+        "profileId String @map(\"profile_id\") @db.Uuid",
+        "sourceOwner String @map(\"source_owner\")",
+        "sourceCreationRevision BigInt @map(\"source_creation_revision\")",
+        "selectionId String @map(\"selection_id\") @db.Uuid",
+        "selectionRevision BigInt @map(\"selection_revision\")",
+        "semanticKey String @map(\"semantic_key\")",
+        "fingerprint String @db.Char(64)",
+        "resultCode String @map(\"result_code\")",
+        "effectReceiptId String @map(\"effect_receipt_id\") @db.Uuid",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([sourceOwner, profileId, semanticKey])"
+      ],
+      "foreign_keys": [
+        [
+          "user",
+          "User",
+          "userId",
+          "id"
+        ],
+        [
+          "selection",
+          "TrackBaseSelection",
+          "selectionId",
+          "id"
+        ],
+        [
+          "effect",
+          "RuntimeEffectReceipt",
+          "effectReceiptId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C12",
+      "rulings": [
+        "WA-R030",
+        "WA-R078"
+      ],
+      "sql_requirements": [
+        "SQL-12"
+      ]
+    },
+    {
+      "model": "TrackUsageReservation",
+      "owner": "track_subscription_entitlement",
+      "purpose": "Owner quota/period reservation bound to accepted usage and fenced shared reservation",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "userId String @map(\"user_id\") @db.Uuid",
+        "entitlementId String @map(\"entitlement_id\") @db.Uuid",
+        "periodStart DateTime @map(\"period_start\") @db.Timestamptz(6)",
+        "periodEnd DateTime @map(\"period_end\") @db.Timestamptz(6)",
+        "quantity Int",
+        "semanticKey String @map(\"semantic_key\")",
+        "reservationId String @unique @map(\"reservation_id\") @db.Uuid",
+        "acceptedSourceOwner String @map(\"accepted_source_owner\")",
+        "acceptedSourceId String? @map(\"accepted_source_id\")",
+        "acceptedAt DateTime? @map(\"accepted_at\") @db.Timestamptz(6)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([userId, entitlementId, periodStart, periodEnd, semanticKey])"
+      ],
+      "foreign_keys": [
+        [
+          "user",
+          "User",
+          "userId",
+          "id"
+        ],
+        [
+          "entitlement",
+          "TrackEntitlementDefinition",
+          "entitlementId",
+          "id"
+        ],
+        [
+          "reservation",
+          "RuntimeReservation",
+          "reservationId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C12",
+      "rulings": [
+        "WA-R030",
+        "WA-R031"
+      ],
+      "sql_requirements": [
+        "SQL-12"
+      ]
+    },
+    {
+      "model": "OrderScreeningSource",
+      "owner": "transaction_order",
+      "purpose": "Trust package/quote and self-paid subject for the approved screening Order family",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "orderId String @unique @map(\"order_id\") @db.Uuid",
+        "verificationPackageId String @map(\"verification_package_id\") @db.Uuid",
+        "subjectUserId String @map(\"subject_user_id\") @db.Uuid",
+        "subjectKind ScreeningSubjectKind @map(\"subject_kind\")",
+        "professionalProfileId String? @map(\"professional_profile_id\") @db.Uuid",
+        "candidateProfileId String? @map(\"candidate_profile_id\") @db.Uuid",
+        "quoteId String @map(\"quote_id\")",
+        "quoteRevision String @map(\"quote_revision\")",
+        "quoteHash String @map(\"quote_hash\") @db.Char(64)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [],
+      "foreign_keys": [
+        [
+          "order",
+          "Order",
+          "orderId",
+          "id"
+        ],
+        [
+          "package",
+          "VerificationPackage",
+          "verificationPackageId",
+          "id"
+        ],
+        [
+          "subject",
+          "User",
+          "subjectUserId",
+          "id"
+        ],
+        [
+          "professional",
+          "ProfessionalProfile?",
+          "professionalProfileId",
+          "id"
+        ],
+        [
+          "candidate",
+          "CandidateProfile?",
+          "candidateProfileId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C06",
+      "rulings": [
+        "WA-R003",
+        "WA-R076"
+      ],
+      "sql_requirements": [
+        "SQL-10"
+      ]
+    },
+    {
+      "model": "AgreementExecutionRevision",
+      "owner": "transaction_order",
+      "purpose": "Immutable normalized execution scope, parties, template and document revision",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "agreementId String @map(\"agreement_id\") @db.Uuid",
+        "executionNumber Int @map(\"execution_number\")",
+        "orderPurchaseRevisionId String @map(\"order_purchase_revision_id\") @db.Uuid",
+        "templateKey String @map(\"template_key\")",
+        "templateVersion String @map(\"template_version\")",
+        "contentHash String @map(\"content_hash\") @db.Char(64)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([agreementId, executionNumber])"
+      ],
+      "foreign_keys": [
+        [
+          "agreement",
+          "Agreement",
+          "agreementId",
+          "id"
+        ],
+        [
+          "purchase",
+          "OrderPurchaseRevision",
+          "orderPurchaseRevisionId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C07",
+      "rulings": [
+        "WA-R048",
+        "WA-R076"
+      ],
+      "sql_requirements": [
+        "SQL-11"
+      ]
+    },
+    {
+      "model": "OrderPurchaseRevision",
+      "owner": "transaction_order",
+      "purpose": "Frozen purchased scope and price/fee/rights snapshot; later Track changes never reprice it",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "orderId String @map(\"order_id\") @db.Uuid",
+        "revision BigInt",
+        "sourceOwner String @map(\"source_owner\")",
+        "sourceId String @map(\"source_id\")",
+        "sourceRevision String @map(\"source_revision\")",
+        "policyVersion String @map(\"policy_version\")",
+        "scopeHash String @map(\"scope_hash\") @db.Char(64)",
+        "priceCents Int @map(\"price_cents\")",
+        "currency String",
+        "buyerFeeCents Int @map(\"buyer_fee_cents\")",
+        "sellerCommissionCents Int @map(\"seller_commission_cents\")",
+        "sessionAllowance Int? @map(\"session_allowance\")",
+        "digitalAccessPolicyVersion String? @map(\"digital_access_policy_version\")",
+        "sellerAcceptanceReceipt String? @map(\"seller_acceptance_receipt\")",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)",
+        "title String",
+        "description String",
+        "scopeSchemaVersion String @map(\"scope_schema_version\")"
+      ],
+      "attributes": [
+        "@@unique([orderId, revision])"
+      ],
+      "foreign_keys": [
+        [
+          "order",
+          "Order",
+          "orderId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C06",
+      "rulings": [
+        "WA-R048",
+        "WA-R076",
+        "WA-R077"
+      ],
+      "sql_requirements": [
+        "SQL-10",
+        "SQL-11"
+      ]
+    },
+    {
+      "model": "PaymentEffect",
+      "owner": "payment_payout_tax",
+      "purpose": "Payment-owned normalized financial instruction/result, not an Order or runtime financial substitute",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "orderId String @map(\"order_id\") @db.Uuid",
+        "purchaseRevisionId String @map(\"purchase_revision_id\") @db.Uuid",
+        "operation String",
+        "semanticEffectKey String @unique @map(\"semantic_effect_key\")",
+        "amountCents Int @map(\"amount_cents\")",
+        "currency String",
+        "providerAccountScope String @map(\"provider_account_scope\")",
+        "providerEffectId String? @map(\"provider_effect_id\")",
+        "state RuntimeReceiptState @default(pending)",
+        "runtimeReceiptId String @map(\"runtime_receipt_id\") @db.Uuid",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [],
+      "foreign_keys": [
+        [
+          "order",
+          "Order",
+          "orderId",
+          "id"
+        ],
+        [
+          "purchase",
+          "OrderPurchaseRevision",
+          "purchaseRevisionId",
+          "id"
+        ],
+        [
+          "runtime",
+          "RuntimeEffectReceipt",
+          "runtimeReceiptId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C11",
+      "rulings": [
+        "WA-R018",
+        "WA-R037",
+        "WA-R048"
+      ],
+      "sql_requirements": [
+        "SQL-07",
+        "SQL-11"
+      ]
+    },
+    {
+      "model": "OrderSessionReservation",
+      "owner": "transaction_order",
+      "purpose": "Purchased session/unit reservation, distinct from Booking interval lock",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "purchaseRevisionId String @map(\"purchase_revision_id\") @db.Uuid",
+        "bookingId String? @map(\"booking_id\") @db.Uuid",
+        "reservationId String @unique @map(\"reservation_id\") @db.Uuid",
+        "semanticKey String @map(\"semantic_key\")",
+        "quantity Int",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)",
+        "purchasedUnitId String @map(\"purchased_unit_id\") @db.Uuid"
+      ],
+      "attributes": [
+        "@@unique([purchaseRevisionId, semanticKey])"
+      ],
+      "foreign_keys": [
+        [
+          "purchase",
+          "OrderPurchaseRevision",
+          "purchaseRevisionId",
+          "id"
+        ],
+        [
+          "booking",
+          "Booking?",
+          "bookingId",
+          "id"
+        ],
+        [
+          "reservation",
+          "RuntimeReservation",
+          "reservationId",
+          "id"
+        ],
+        [
+          "unit",
+          "OrderPurchasedUnit",
+          "purchasedUnitId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C11",
+      "rulings": [
+        "WA-R031",
+        "WA-R042"
+      ],
+      "sql_requirements": [
+        "SQL-13"
+      ]
+    },
+    {
+      "model": "PrivacyTargetInstruction",
+      "owner": "privacy_data_erasure",
+      "purpose": "Versioned immutable owner/action/field-map instruction; no universal source crawler",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "privacyRequestId String @map(\"privacy_request_id\") @db.Uuid",
+        "ownerModuleId String @map(\"owner_module_id\")",
+        "targetKind String @map(\"target_kind\")",
+        "sourceId String @map(\"source_id\")",
+        "sourceRevision String @map(\"source_revision\")",
+        "action PrivacyActionKind",
+        "generation BigInt",
+        "fieldMapVersion String @map(\"field_map_version\")",
+        "executorVersion String @map(\"executor_version\")",
+        "descriptorHash String @map(\"descriptor_hash\") @db.Char(64)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([privacyRequestId, ownerModuleId, targetKind, sourceId, action, generation])"
+      ],
+      "foreign_keys": [
+        [
+          "request",
+          "PrivacyRequest",
+          "privacyRequestId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C05",
+      "rulings": [
+        "WA-R020",
+        "WA-R070"
+      ],
+      "sql_requirements": [
+        "SQL-14"
+      ]
+    },
+    {
+      "model": "PrivacyOwnerReceipt",
+      "owner": "privacy_data_erasure",
+      "purpose": "Actual completed/retained/omitted/failed/unknown owner disposition for one generation, not accepted-as-completed",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "instructionId String @map(\"instruction_id\") @db.Uuid",
+        "generation BigInt",
+        "disposition PrivacyDispositionKind",
+        "executionReceiptRef String @map(\"execution_receipt_ref\")",
+        "legalBasisRef String? @map(\"legal_basis_ref\")",
+        "artifactDigest String? @map(\"artifact_digest\") @db.Char(64)",
+        "artifactVersion String? @map(\"artifact_version\")",
+        "resultSchemaVersion String @map(\"result_schema_version\")",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([instructionId, generation])"
+      ],
+      "foreign_keys": [
+        [
+          "instruction",
+          "PrivacyTargetInstruction",
+          "instructionId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C05",
+      "rulings": [
+        "WA-R020",
+        "WA-R070"
+      ],
+      "sql_requirements": [
+        "SQL-14"
+      ]
+    },
+    {
+      "model": "PrivacyRestoreMarker",
+      "owner": "privacy_data_erasure",
+      "purpose": "Owner erasure/restriction generation tombstone reapplied before restored data may be served",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "ownerModuleId String @map(\"owner_module_id\")",
+        "targetKind String @map(\"target_kind\")",
+        "sourceId String @map(\"source_id\")",
+        "generation BigInt",
+        "action PrivacyActionKind",
+        "sourceReceiptId String @map(\"source_receipt_id\") @db.Uuid",
+        "restorePointRef String? @map(\"restore_point_ref\")",
+        "appliedAt DateTime? @map(\"applied_at\") @db.Timestamptz(6)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([ownerModuleId, targetKind, sourceId, generation])"
+      ],
+      "foreign_keys": [
+        [
+          "receipt",
+          "PrivacyOwnerReceipt",
+          "sourceReceiptId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C05",
+      "rulings": [
+        "WA-R020",
+        "WA-R081",
+        "WA-R086"
+      ],
+      "sql_requirements": [
+        "SQL-14"
+      ]
+    },
+    {
+      "model": "PrivacyExportManifestItem",
+      "owner": "privacy_data_erasure",
+      "purpose": "Complete per-owner retained/omitted/exported accounting for a bound export artifact",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "bundleId String @map(\"bundle_id\") @db.Uuid",
+        "instructionId String @map(\"instruction_id\") @db.Uuid",
+        "ownerReceiptId String @map(\"owner_receipt_id\") @db.Uuid",
+        "generation BigInt",
+        "disposition PrivacyDispositionKind",
+        "artifactDigest String? @map(\"artifact_digest\") @db.Char(64)",
+        "artifactVersion String? @map(\"artifact_version\")",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([bundleId, instructionId])"
+      ],
+      "foreign_keys": [
+        [
+          "bundle",
+          "DataExportBundle",
+          "bundleId",
+          "id"
+        ],
+        [
+          "instruction",
+          "PrivacyTargetInstruction",
+          "instructionId",
+          "id"
+        ],
+        [
+          "receipt",
+          "PrivacyOwnerReceipt",
+          "ownerReceiptId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C05",
+      "rulings": [
+        "WA-R020",
+        "WA-R050",
+        "WA-R070"
+      ],
+      "sql_requirements": [
+        "SQL-14"
+      ]
+    },
+    {
+      "model": "MediaObjectVersion",
+      "owner": "media_file_access",
+      "purpose": "Immutable exact stored bytes/object version bound to asset, digest and scan generation",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "mediaAssetId String @map(\"media_asset_id\") @db.Uuid",
+        "generation BigInt",
+        "providerObjectVersion String @map(\"provider_object_version\")",
+        "storageKey String @map(\"storage_key\")",
+        "checksum String @db.Char(64)",
+        "sizeBytes BigInt @map(\"size_bytes\")",
+        "metadataScrubbed Boolean @default(false) @map(\"metadata_scrubbed\")",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([mediaAssetId, generation])"
+      ],
+      "foreign_keys": [
+        [
+          "asset",
+          "MediaAsset",
+          "mediaAssetId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C08",
+      "rulings": [
+        "WA-R028",
+        "WA-R050",
+        "WA-R082"
+      ],
+      "sql_requirements": [
+        "SQL-15"
+      ]
+    },
+    {
+      "model": "CalendarDesiredMapping",
+      "owner": "booking_calendar",
+      "purpose": "Booking-owned desired/applied provider mapping bound to exactly one Booking or Interview parent generation",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "bookingId String? @map(\"booking_id\") @db.Uuid",
+        "interviewId String? @map(\"interview_id\") @db.Uuid",
+        "connectionId String @map(\"connection_id\") @db.Uuid",
+        "parentRevision BigInt @map(\"parent_revision\")",
+        "audienceGeneration BigInt @map(\"audience_generation\")",
+        "desiredGeneration BigInt @map(\"desired_generation\")",
+        "appliedGeneration BigInt? @map(\"applied_generation\")",
+        "providerAccountScope String @map(\"provider_account_scope\")",
+        "providerObjectRef String? @map(\"provider_object_ref\")",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@index([bookingId, desiredGeneration])",
+        "@@index([interviewId, desiredGeneration])"
+      ],
+      "foreign_keys": [
+        [
+          "booking",
+          "Booking?",
+          "bookingId",
+          "id"
+        ],
+        [
+          "interview",
+          "JobInterview?",
+          "interviewId",
+          "id"
+        ],
+        [
+          "connection",
+          "CalendarConnection",
+          "connectionId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C08",
+      "rulings": [
+        "WA-R049",
+        "WA-R051",
+        "WA-R076"
+      ],
+      "sql_requirements": [
+        "SQL-13"
+      ]
+    },
+    {
+      "model": "RewardFulfillmentReceipt",
+      "owner": "gamification_rewards",
+      "purpose": "Actual supported reward benefit receipt and retained valuation; no reward from transport success",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "redemptionId String @map(\"redemption_id\") @db.Uuid",
+        "semanticEffectKey String @unique @map(\"semantic_effect_key\")",
+        "effectReceiptId String @map(\"effect_receipt_id\") @db.Uuid",
+        "benefitOwner String @map(\"benefit_owner\")",
+        "benefitReceiptRef String @map(\"benefit_receipt_ref\")",
+        "recognizedValueCents Int? @map(\"recognized_value_cents\")",
+        "currency String?",
+        "recognizedAt DateTime? @map(\"recognized_at\") @db.Timestamptz(6)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [],
+      "foreign_keys": [
+        [
+          "redemption",
+          "RewardRedemption",
+          "redemptionId",
+          "id"
+        ],
+        [
+          "effect",
+          "RuntimeEffectReceipt",
+          "effectReceiptId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C11",
+      "rulings": [
+        "WA-R062",
+        "WA-R069"
+      ],
+      "sql_requirements": [
+        "SQL-16"
+      ]
+    },
+    {
+      "model": "OpsSystemEvent",
+      "owner": "observability_ops",
+      "purpose": "Append-only safe operational observation, never domain proof or source completion",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "occurrenceKey String @unique @map(\"occurrence_key\")",
+        "name String",
+        "sourceOwner String @map(\"source_owner\")",
+        "correlationId String @map(\"correlation_id\")",
+        "reasonCode String @map(\"reason_code\")",
+        "correctionOfId String? @map(\"correction_of_id\") @db.Uuid",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [],
+      "foreign_keys": [],
+      "schema": "app",
+      "decision": "DB-C17",
+      "rulings": [
+        "WA-R018",
+        "WA-R060",
+        "WA-R086"
+      ],
+      "sql_requirements": [
+        "SQL-17"
+      ]
+    },
+    {
+      "model": "OpsIntegrationFailure",
+      "owner": "observability_ops",
+      "purpose": "One actual failed integration occurrence; later retries are separate observations",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "occurrenceKey String @unique @map(\"occurrence_key\")",
+        "sourceOwner String @map(\"source_owner\")",
+        "operation String",
+        "attemptReceiptRef String @map(\"attempt_receipt_ref\")",
+        "reasonCode String @map(\"reason_code\")",
+        "correlationId String @map(\"correlation_id\")",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [],
+      "foreign_keys": [],
+      "schema": "app",
+      "decision": "DB-C17",
+      "rulings": [
+        "WA-R018",
+        "WA-R060",
+        "WA-R086"
+      ],
+      "sql_requirements": [
+        "SQL-17"
+      ]
+    },
+    {
+      "model": "OpsIncident",
+      "owner": "observability_ops",
+      "purpose": "Authorized operational incident state and explicit reopen history; never business repair authority",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "state OpsIncidentState @default(open)",
+        "revision BigInt @default(0)",
+        "ruleVersion String @map(\"rule_version\")",
+        "summaryCode String @map(\"summary_code\")",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [],
+      "foreign_keys": [],
+      "schema": "app",
+      "decision": "DB-C17",
+      "rulings": [
+        "WA-R018",
+        "WA-R060",
+        "WA-R086"
+      ],
+      "sql_requirements": [
+        "SQL-17"
+      ]
+    },
+    {
+      "model": "OpsIncidentEvent",
+      "owner": "observability_ops",
+      "purpose": "Immutable incident triage/mitigation/resolution/reopen evidence",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "incidentId String @map(\"incident_id\") @db.Uuid",
+        "sourceRevision BigInt @map(\"source_revision\")",
+        "fromState OpsIncidentState? @map(\"from_state\")",
+        "toState OpsIncidentState @map(\"to_state\")",
+        "actorUserId String? @map(\"actor_user_id\") @db.Uuid",
+        "reasonCode String @map(\"reason_code\")",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([incidentId, sourceRevision])"
+      ],
+      "foreign_keys": [
+        [
+          "incident",
+          "OpsIncident",
+          "incidentId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C17",
+      "rulings": [
+        "WA-R018",
+        "WA-R060",
+        "WA-R086"
+      ],
+      "sql_requirements": [
+        "SQL-17"
+      ]
+    },
+    {
+      "model": "OrderPurchasedUnit",
+      "owner": "transaction_order",
+      "purpose": "Immutable named deliverable/session/access unit of one purchased revision; reservations consume this exact unit",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "purchaseRevisionId String @map(\"purchase_revision_id\") @db.Uuid",
+        "unitKey String @map(\"unit_key\")",
+        "kind PurchasedUnitKind",
+        "quantity Int",
+        "title String",
+        "description String",
+        "durationMinutes Int? @map(\"duration_minutes\")",
+        "deliveryMode String? @map(\"delivery_mode\")",
+        "sourceRevision String @map(\"source_revision\")",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([purchaseRevisionId, unitKey])"
+      ],
+      "foreign_keys": [
+        [
+          "purchase",
+          "OrderPurchaseRevision",
+          "purchaseRevisionId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C06",
+      "rulings": [
+        "WA-R031",
+        "WA-R048",
+        "WA-R076"
+      ],
+      "sql_requirements": [
+        "SQL-10",
+        "SQL-13"
+      ]
+    },
+    {
+      "model": "CheckoutTaxLocationEvidence",
+      "owner": "transaction_order",
+      "purpose": "Immutable private buyer/quote evidence descriptor and encrypted closed-schema fields; tax legality/provider validation remains external",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "orderId String @map(\"order_id\") @db.Uuid",
+        "purchaseRevisionId String @map(\"purchase_revision_id\") @db.Uuid",
+        "buyerUserId String @map(\"buyer_user_id\") @db.Uuid",
+        "customerProfileId String @map(\"customer_profile_id\") @db.Uuid",
+        "revision BigInt",
+        "evidenceSchemaId String @map(\"evidence_schema_id\")",
+        "evidenceSchemaVersion String @map(\"evidence_schema_version\")",
+        "fieldSetDigest String @map(\"field_set_digest\") @db.Char(64)",
+        "encryptedFields Bytes @map(\"encrypted_fields\")",
+        "encryptionKeyRef String @map(\"encryption_key_ref\")",
+        "sourceMethod String @map(\"source_method\")",
+        "validationState String @map(\"validation_state\")",
+        "validationProofRef String? @map(\"validation_proof_ref\")",
+        "capturedAt DateTime @map(\"captured_at\") @db.Timestamptz(6)",
+        "effectiveAt DateTime @map(\"effective_at\") @db.Timestamptz(6)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([purchaseRevisionId, revision])"
+      ],
+      "foreign_keys": [
+        [
+          "order",
+          "Order",
+          "orderId",
+          "id"
+        ],
+        [
+          "purchase",
+          "OrderPurchaseRevision",
+          "purchaseRevisionId",
+          "id"
+        ],
+        [
+          "buyer",
+          "User",
+          "buyerUserId",
+          "id"
+        ],
+        [
+          "customer",
+          "CustomerProfile",
+          "customerProfileId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C16",
+      "rulings": [
+        "WA-R037",
+        "WA-R077"
+      ],
+      "sql_requirements": [
+        "SQL-10",
+        "SQL-11"
+      ]
+    },
+    {
+      "model": "PrizeDrawingRun",
+      "owner": "sweepstakes_prize",
+      "purpose": "Later-phase immutable official-rule/population/algorithm drawing run; no launch execution",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "drawingId String @map(\"drawing_id\") @db.Uuid",
+        "runNumber Int @map(\"run_number\")",
+        "officialRulesVersion String @map(\"official_rules_version\")",
+        "legalApprovalRef String @map(\"legal_approval_ref\")",
+        "populationDigest String @map(\"population_digest\") @db.Char(64)",
+        "algorithmVersion String @map(\"algorithm_version\")",
+        "entropyCommitment String @map(\"entropy_commitment\") @db.Char(64)",
+        "selectedEntryId String? @map(\"selected_entry_id\") @db.Uuid",
+        "selectedAt DateTime? @map(\"selected_at\") @db.Timestamptz(6)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([drawingId, runNumber])"
+      ],
+      "foreign_keys": [
+        [
+          "drawing",
+          "PrizeDrawing",
+          "drawingId",
+          "id"
+        ],
+        [
+          "selectedEntry",
+          "PrizeEntry?",
+          "selectedEntryId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C16",
+      "rulings": [
+        "WA-R061"
+      ],
+      "sql_requirements": [
+        "SQL-04",
+        "SQL-16"
+      ]
+    },
+    {
+      "model": "PrizePopulationMember",
+      "owner": "sweepstakes_prize",
+      "purpose": "Later-phase immutable frozen eligible population; no silent redraw or paid odds change",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "runId String @map(\"run_id\") @db.Uuid",
+        "entryId String @map(\"entry_id\") @db.Uuid",
+        "sourceRevision String @map(\"source_revision\")",
+        "eligibilityProofRef String @map(\"eligibility_proof_ref\")",
+        "weight Int",
+        "ordinal Int",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [
+        "@@unique([runId, entryId])",
+        "@@unique([runId, ordinal])"
+      ],
+      "foreign_keys": [
+        [
+          "run",
+          "PrizeDrawingRun",
+          "runId",
+          "id"
+        ],
+        [
+          "entry",
+          "PrizeEntry",
+          "entryId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C16",
+      "rulings": [
+        "WA-R061"
+      ],
+      "sql_requirements": [
+        "SQL-04",
+        "SQL-16"
+      ]
+    },
+    {
+      "model": "PrizeFulfillmentReceipt",
+      "owner": "sweepstakes_prize",
+      "purpose": "Later-phase actual fulfillment/valuation receipt; winning does not establish taxable fulfillment",
+      "fields": [
+        "id String @id @default(uuid()) @db.Uuid",
+        "winningId String @map(\"winning_id\") @db.Uuid",
+        "effectReceiptId String @map(\"effect_receipt_id\") @db.Uuid",
+        "semanticEffectKey String @unique @map(\"semantic_effect_key\")",
+        "actualFulfillmentRef String @map(\"actual_fulfillment_ref\")",
+        "recognizedValueCents Int? @map(\"recognized_value_cents\")",
+        "currency String",
+        "recognizedAt DateTime? @map(\"recognized_at\") @db.Timestamptz(6)",
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+      ],
+      "attributes": [],
+      "foreign_keys": [
+        [
+          "winning",
+          "PrizeWinning",
+          "winningId",
+          "id"
+        ],
+        [
+          "effect",
+          "RuntimeEffectReceipt",
+          "effectReceiptId",
+          "id"
+        ]
+      ],
+      "schema": "app",
+      "decision": "DB-C16",
+      "rulings": [
+        "WA-R037",
+        "WA-R061"
+      ],
+      "sql_requirements": [
+        "SQL-07",
+        "SQL-16"
+      ]
+    }
+  ],
+  "enums": {
+    "ReviewPolicyState": [
+      "draft",
+      "test_only",
+      "legal_approved"
+    ],
+    "ConsentDispositionKind": [
+      "declined",
+      "withdrawn",
+      "superseded"
+    ],
+    "RuntimeReceiptState": [
+      "pending",
+      "committed",
+      "denied",
+      "unknown",
+      "fenced_noncommit"
+    ],
+    "RuntimeMessageKind": [
+      "event",
+      "command"
+    ],
+    "RuntimeWorkState": [
+      "pending",
+      "leased",
+      "completed",
+      "retry_wait",
+      "dead_letter",
+      "unknown"
+    ],
+    "RuntimeReservationState": [
+      "active",
+      "committed",
+      "released",
+      "unknown"
+    ],
+    "ScreeningSubjectKind": [
+      "user",
+      "professional",
+      "candidate"
+    ],
+    "PrivacyActionKind": [
+      "export",
+      "erase",
+      "restrict",
+      "restore_marker"
+    ],
+    "PrivacyDispositionKind": [
+      "completed",
+      "retained",
+      "omitted",
+      "failed",
+      "unknown"
+    ],
+    "OpsIncidentState": [
+      "open",
+      "triaged",
+      "mitigated",
+      "resolved"
+    ],
+    "PurchasedUnitKind": [
+      "live_session",
+      "digital_asset",
+      "course_access",
+      "deliverable"
+    ]
+  },
+  "existing_links": [
+    [
+      "ConsentLog",
+      "contentRevisionId",
+      "ConsentContentRevision",
+      true
+    ],
+    [
+      "ConsentLog",
+      "presentationId",
+      "ConsentPresentation",
+      true
+    ],
+    [
+      "AgreementSignature",
+      "executionRevisionId",
+      "AgreementExecutionRevision",
+      true
+    ],
+    [
+      "AgreementDocumentSnapshot",
+      "executionRevisionId",
+      "AgreementExecutionRevision",
+      true
+    ],
+    [
+      "AgreementElectronicConsent",
+      "executionRevisionId",
+      "AgreementExecutionRevision",
+      true
+    ],
+    [
+      "MediaAccessGrant",
+      "objectVersionId",
+      "MediaObjectVersion",
+      true
+    ],
+    [
+      "MediaAsset",
+      "currentObjectVersionId",
+      "MediaObjectVersion",
+      false
+    ],
+    [
+      "DataErasureTarget",
+      "instructionId",
+      "PrivacyTargetInstruction",
+      true
+    ],
+    [
+      "DataExportBundle",
+      "objectVersionId",
+      "MediaObjectVersion",
+      false
+    ],
+    [
+      "PointLedgerEntry",
+      "effectReceiptId",
+      "RuntimeEffectReceipt",
+      true
+    ],
+    [
+      "ProfessionalBalanceLedgerEntry",
+      "effectReceiptId",
+      "RuntimeEffectReceipt",
+      true
+    ],
+    [
+      "TrackUsageEvent",
+      "effectReceiptId",
+      "RuntimeEffectReceipt",
+      true
+    ],
+    [
+      "PointLedgerEntry",
+      "reversesEntryId",
+      "PointLedgerEntry",
+      false
+    ],
+    [
+      "LocationReveal",
+      "interviewId",
+      "JobInterview",
+      false
+    ],
+    [
+      "LocationReveal",
+      "bookingId",
+      "Booking",
+      false
+    ],
+    [
+      "LocationReveal",
+      "orderId",
+      "Order",
+      false
+    ],
+    [
+      "SalesTaxCalculation",
+      "checkoutEvidenceId",
+      "CheckoutTaxLocationEvidence",
+      false
+    ],
+    [
+      "SalesTaxCalculation",
+      "purchaseRevisionId",
+      "OrderPurchaseRevision",
+      false
+    ],
+    [
+      "PayoutTransfer",
+      "effectReceiptId",
+      "RuntimeEffectReceipt",
+      true
+    ]
+  ],
+  "foundation_roots": [
+    "User",
+    "UserRole",
+    "UserSecurityProfile",
+    "AuthProviderAccount",
+    "AgeGateAttempt",
+    "AgeGateBlock",
+    "CustomerProfile",
+    "ConsentLog",
+    "ConsentContentRevision",
+    "ConsentPresentation",
+    "ConsentDisposition",
+    "DatabaseActionGrant",
+    "RuntimeCommandReceipt",
+    "RuntimeOutboxMessage",
+    "RuntimeEffectReceipt",
+    "RuntimeWorkItem",
+    "RuntimeAttempt",
+    "RuntimeInboxReceipt",
+    "RuntimeReservation",
+    "OwnerMutationEvidence",
+    "CustomerProfileLifecycleEvent",
+    "TrackPlan",
+    "TrackEntitlementDefinition",
+    "TrackPlanEntitlement",
+    "TrackSubscription",
+    "TrackEntitlementGrant",
+    "TrackBaseSelection",
+    "TrackEnrollmentReceipt",
+    "TrackSubscriptionEvent",
+    "TrackUsageEvent",
+    "TrackUsageCounter",
+    "TrackUsageReservation",
+    "AuditEvent",
+    "AccessAuditLog",
+    "PrivacyRequest",
+    "PrivacyTargetInstruction",
+    "PrivacyOwnerReceipt",
+    "PrivacyRestoreMarker"
+  ],
+  "compatibility_cases": [
+    {
+      "model": "Order",
+      "owner": "transaction_order",
+      "compatibility_fields_or_concepts": "stripeTransferId,buyerSigUrl,professionalSigUrl,pdfMediaId,finalDocumentHash",
+      "authoritative_source": "Payment effect references and normalized Agreement execution/signature/document records",
+      "rulings": [
+        "WA-R048",
+        "WA-R076"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/customer demand, order, & resolution/transaction order module/transaction_order-module-architecture.md",
+      "physical_disposition": "REMOVE_REDUNDANT_FINANCIAL_MIRROR",
+      "decision": "Order.stripeTransferId removed; PaymentEffect/PayoutTransfer own money. Agreement execution/signature/snapshot own proof. Marketplace/screening XOR is SQL-10.",
+      "candidate_sql_or_models": [
+        "Order"
+      ],
+      "legacy_data_action": "NONE; old project remains untouched; no backfill or column removal executed",
+      "qualification": "NOT RUN; prospective SQL constraint/access/compatibility tests required",
+      "architecture_only": false,
+      "actual_physical_models": [
+        "Order",
+        "Agreement",
+        "AgreementSignature",
+        "AgreementDocumentSnapshot"
+      ]
+    },
+    {
+      "model": "GigAssignment",
+      "owner": "gig_demand",
+      "compatibility_fields_or_concepts": "status,orderId",
+      "authoritative_source": "Accepted proposal/winner slot is Gig source; commercial outcome only from matching Order source/version; no reaward from failure projection",
+      "rulings": [
+        "WA-R039",
+        "WA-R040",
+        "WA-R048"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/customer demand, order, & resolution/gig demand module/gig-demand-module-architecture.md",
+      "physical_disposition": "KEEP_DERIVED_OUTCOME_AND_NORMALIZED_SOURCE",
+      "decision": "status is Gig proposal lifecycle only; commercial outcome through matching Order source/version; SQL-10 prevents mismatched response/seller/buyer/source.",
+      "candidate_sql_or_models": [
+        "GigAssignment"
+      ],
+      "legacy_data_action": "NONE; old project remains untouched; no backfill or column removal executed",
+      "qualification": "NOT RUN; prospective SQL constraint/access/compatibility tests required",
+      "architecture_only": false,
+      "actual_physical_models": [
+        "GigAssignment"
+      ]
+    },
+    {
+      "model": "Job",
+      "owner": "organization_hiring",
+      "compatibility_fields_or_concepts": "complianceStatus",
+      "authoritative_source": "Current source/rule-bound JobComplianceCheck; originating compensation remains Hiring",
+      "rulings": [
+        "WA-R044",
+        "WA-R072"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/Organization Hiring & Candidate Pipeline/Organization Hiring Module/organization-hiring-module-architecture.md",
+      "physical_disposition": "KEEP_NONAUTHORIZING_CACHE",
+      "decision": "complianceStatus may be display only; publication requires matching JobComplianceCheck.jobSourceRevision/ruleSetHash under SQL-18.",
+      "candidate_sql_or_models": [
+        "Job"
+      ],
+      "legacy_data_action": "NONE; old project remains untouched; no backfill or column removal executed",
+      "qualification": "NOT RUN; prospective SQL constraint/access/compatibility tests required",
+      "architecture_only": false,
+      "actual_physical_models": [
+        "Job"
+      ]
+    },
+    {
+      "model": "JobComplianceFinding",
+      "owner": "job_compliance",
+      "compatibility_fields_or_concepts": "fieldName,sourceField,matchedText,matchedSnippetPreview,suggestedText,suggestedReplacement",
+      "authoritative_source": "Canonical finding sourceField, bounded preview/hash, suggestedReplacement; conflicting legacy aliases quarantined",
+      "rulings": [
+        "WA-R044",
+        "WA-R076"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/Organization Hiring & Candidate Pipeline/Job Compliance Module/job-compliance-module-architecture.md",
+      "physical_disposition": "REMOVE_CONFLICTING_ALIASES",
+      "decision": "Remove fieldName/matchedText/suggestedText; require canonical sourceField; bounded preview/hash/replacement remain protected and reviewed.",
+      "candidate_sql_or_models": [
+        "JobComplianceFinding"
+      ],
+      "legacy_data_action": "NONE; old project remains untouched; no backfill or column removal executed",
+      "qualification": "NOT RUN; prospective SQL constraint/access/compatibility tests required",
+      "architecture_only": false,
+      "actual_physical_models": [
+        "JobComplianceFinding"
+      ]
+    },
+    {
+      "model": "CandidateSearchProjection",
+      "owner": "candidate_application_resume_privacy",
+      "compatibility_fields_or_concepts": "status,source",
+      "authoritative_source": "Current Candidate participation/source lineage and allowed projection generation; Search cannot authorize source",
+      "rulings": [
+        "WA-R034",
+        "WA-R045"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/Organization Hiring & Candidate Pipeline/Candidate Application & Resume Privacy Module/candidate-application-resume-privacy-module-architecture.md",
+      "physical_disposition": "KEEP_GENERATION_BOUND_PROJECTION",
+      "decision": "Keep own projection status with exact participation/source/privacy generations; no ranking/authorization/raw resume indexing.",
+      "candidate_sql_or_models": [
+        "CandidateSearchProjection"
+      ],
+      "legacy_data_action": "NONE; old project remains untouched; no backfill or column removal executed",
+      "qualification": "NOT RUN; prospective SQL constraint/access/compatibility tests required",
+      "architecture_only": false,
+      "actual_physical_models": [
+        "CandidateSearchProjection"
+      ]
+    },
+    {
+      "model": "Booking",
+      "owner": "booking_calendar",
+      "compatibility_fields_or_concepts": "calendar/provider summary",
+      "authoritative_source": "Booking source lifecycle distinct from provider desired/applied mapping; no-show allegation not Order completion",
+      "rulings": [
+        "WA-R042",
+        "WA-R049",
+        "WA-R076"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/scheduling, media, & digital delivery/booking-calendar-module/booking-calendar-module-architecture.md",
+      "physical_disposition": "NORMALIZE_PROVIDER_MAPPING",
+      "decision": "Core Booking state remains source; CalendarDesiredMapping is the provider mapping journal. Booking/hold buyers required; priorityRank removed; single lock FK.",
+      "candidate_sql_or_models": [
+        "Booking"
+      ],
+      "legacy_data_action": "NONE; old project remains untouched; no backfill or column removal executed",
+      "qualification": "NOT RUN; prospective SQL constraint/access/compatibility tests required",
+      "architecture_only": false,
+      "actual_physical_models": [
+        "Booking"
+      ]
+    },
+    {
+      "model": "JobInterview",
+      "owner": "job_interview",
+      "compatibility_fields_or_concepts": "calendar/provider summary",
+      "authoritative_source": "Interview source revision/successor/participants, Calendar mapping journal and Video room generation each separate",
+      "rulings": [
+        "WA-R046",
+        "WA-R049",
+        "WA-R051"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/Organization Hiring & Candidate Pipeline/Job Interview Module/job-interview-module-architecture.md",
+      "physical_disposition": "NORMALIZE_PARENT_CURRENTNESS",
+      "decision": "Interview revision/audience and CalendarDesiredMapping are distinct from Video generation; no Application status writes from provider callbacks.",
+      "candidate_sql_or_models": [
+        "JobInterview"
+      ],
+      "legacy_data_action": "NONE; old project remains untouched; no backfill or column removal executed",
+      "qualification": "NOT RUN; prospective SQL constraint/access/compatibility tests required",
+      "architecture_only": false,
+      "actual_physical_models": [
+        "JobInterview"
+      ]
+    },
+    {
+      "model": "ProfessionalProfile",
+      "owner": "professional_eligibility",
+      "compatibility_fields_or_concepts": "rating/readiness display",
+      "authoritative_source": "Review reputation facts and current dimensioned source decisions; profile identity remains source",
+      "rulings": [
+        "WA-R024",
+        "WA-R035",
+        "WA-R052"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/professional supply & readiness/Professional Eligibility Module/professional-eligbility-module-architecture.md",
+      "physical_disposition": "KEEP_NONAUTHORIZING_DISPLAY_MIRRORS",
+      "decision": "Rating/readiness/provider fields remain display caches; Review/Trust/Payment/current owner facts authorize separately.",
+      "candidate_sql_or_models": [
+        "ProfessionalProfile"
+      ],
+      "legacy_data_action": "NONE; old project remains untouched; no backfill or column removal executed",
+      "qualification": "NOT RUN; prospective SQL constraint/access/compatibility tests required",
+      "architecture_only": false,
+      "actual_physical_models": [
+        "ProfessionalProfile"
+      ]
+    },
+    {
+      "model": "TrackUsageCounter",
+      "owner": "track_subscription_entitlement",
+      "compatibility_fields_or_concepts": "usedCount",
+      "authoritative_source": "Immutable accepted usage/reservations by UTC period; no destructive monthly reset",
+      "rulings": [
+        "WA-R030",
+        "WA-R032"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md",
+      "physical_disposition": "KEEP_REBUILDABLE_COUNTER",
+      "decision": "Accepted immutable TrackUsageEvent + TrackUsageReservation own usage; no monthly deletion/reset or paid-switch reset.",
+      "candidate_sql_or_models": [
+        "TrackUsageCounter"
+      ],
+      "legacy_data_action": "NONE; old project remains untouched; no backfill or column removal executed",
+      "qualification": "NOT RUN; prospective SQL constraint/access/compatibility tests required",
+      "architecture_only": false,
+      "actual_physical_models": [
+        "TrackUsageCounter"
+      ]
+    },
+    {
+      "model": "QueueJob",
+      "owner": "observability_ops",
+      "compatibility_fields_or_concepts": "status",
+      "authoritative_source": "Shared runner attempt/lease telemetry projection only, not executable queue/business completion",
+      "rulings": [
+        "WA-R018",
+        "WA-R086"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/Moderation holds Audits and Ops/Observability Ops Module/observability-ops-module-architecture.md",
+      "physical_disposition": "DERIVED_SQL_VIEW_ONLY_NO_TABLE",
+      "decision": "Expose only a protected operational view over RuntimeWorkItem/RuntimeAttempt. No extra runnable queue or Prisma model.",
+      "candidate_sql_or_models": [
+        "SQL-17"
+      ],
+      "legacy_data_action": "NONE; old project remains untouched; no backfill or column removal executed",
+      "qualification": "NOT RUN; prospective SQL constraint/access/compatibility tests required",
+      "architecture_only": true,
+      "actual_physical_models": []
+    },
+    {
+      "model": "SearchUpsertEvent",
+      "owner": "search_public_visibility",
+      "compatibility_fields_or_concepts": "processed,processedAt",
+      "authoritative_source": "Qualified generation/effect receipt required; existing boolean not sufficient for durable workflow proof",
+      "rulings": [
+        "WA-R034",
+        "WA-R076"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/discovery classification & taxonomy/Search Public Visbility Module/search-public-visibility-module-architecture.md",
+      "physical_disposition": "KEEP_RUNNER_PROJECTION_ONLY",
+      "decision": "processed Boolean is display only; source generation and RuntimeEffectReceipt required for actual indexing/tombstone proof.",
+      "candidate_sql_or_models": [
+        "SearchUpsertEvent"
+      ],
+      "legacy_data_action": "NONE; old project remains untouched; no backfill or column removal executed",
+      "qualification": "NOT RUN; prospective SQL constraint/access/compatibility tests required",
+      "architecture_only": false,
+      "actual_physical_models": [
+        "SearchUpsertEvent"
+      ]
+    },
+    {
+      "model": "PrizeTaxYearSummary",
+      "owner": "sweepstakes_prize",
+      "compatibility_fields_or_concepts": "totals",
+      "authoritative_source": "Payment legal tax subject/jurisdiction/year/currency/regime aggregate from actual fulfillment recognition",
+      "rulings": [
+        "WA-R037",
+        "WA-R061"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/incentives, rewards & prize economy/sweepstakes-module/sweepstakes-prize-module-architecture.md",
+      "physical_disposition": "KEEP_DEFERRED_PROJECTION",
+      "decision": "Later-phase projection only; Payment fiscal grouping includes jurisdiction/regime. Prize activation remains disabled.",
+      "candidate_sql_or_models": [
+        "PrizeTaxYearSummary"
+      ],
+      "legacy_data_action": "NONE; old project remains untouched; no backfill or column removal executed",
+      "qualification": "NOT RUN; prospective SQL constraint/access/compatibility tests required",
+      "architecture_only": false,
+      "actual_physical_models": [
+        "PrizeTaxYearSummary"
+      ]
+    }
+  ],
+  "architecture_only_cases": [
+    {
+      "model": "QueueJob",
+      "owner": "observability_ops",
+      "compatibility_fields_or_concepts": "status",
+      "authoritative_source": "Shared runner attempt/lease telemetry projection only, not executable queue/business completion",
+      "rulings": [
+        "WA-R018",
+        "WA-R086"
+      ],
+      "status": "ARCHITECTURE_RECONCILED_PHYSICAL_QUALIFICATION_PENDING",
+      "evidence": "context/clusters/Moderation holds Audits and Ops/Observability Ops Module/observability-ops-module-architecture.md",
+      "physical_disposition": "DERIVED_SQL_VIEW_ONLY_NO_TABLE",
+      "decision": "Expose only a protected operational view over RuntimeWorkItem/RuntimeAttempt. No extra runnable queue or Prisma model.",
+      "candidate_sql_or_models": [
+        "SQL-17"
+      ],
+      "legacy_data_action": "NONE; old project remains untouched; no backfill or column removal executed",
+      "qualification": "NOT RUN; prospective SQL constraint/access/compatibility tests required"
+    }
+  ]
+}

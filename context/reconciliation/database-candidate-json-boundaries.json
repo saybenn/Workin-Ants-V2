@@ -1,0 +1,456 @@
+{
+  "status": "REVIEW_ONLY_NOT_ENFORCED",
+  "boundaries": [
+    {
+      "model": "PayoutAccount",
+      "field": "requirementsDue",
+      "owner": "payment_payout_tax",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "ProviderRequirementSnapshot",
+      "field": "requirements",
+      "owner": "payment_payout_tax",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": false,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "ProfessionalBalanceLedgerEntry",
+      "field": "metadata",
+      "owner": "payment_payout_tax",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "PayoutRequest",
+      "field": "metadata",
+      "owner": "payment_payout_tax",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "Report",
+      "field": "evidenceJson",
+      "owner": "content_moderation_legal_notice",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "LegalNotice",
+      "field": "statementJson",
+      "owner": "content_moderation_legal_notice",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "PrizeDrawing",
+      "field": "eligibilityJson",
+      "owner": "sweepstakes_prize",
+      "stage": "LATER_LAUNCH_DISABLED",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "GamificationRule",
+      "field": "ruleJson",
+      "owner": "gamification_rewards",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "PointLedgerEntry",
+      "field": "metadata",
+      "owner": "gamification_rewards",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "Challenge",
+      "field": "rewardJson",
+      "owner": "gamification_rewards",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "VerificationRequirement",
+      "field": "ruleJson",
+      "owner": "trust_verification_screening",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "JobApplication",
+      "field": "answers",
+      "owner": "candidate_application_resume_privacy",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "JobInterviewEvent",
+      "field": "metadata",
+      "owner": "job_interview",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "JobComplianceRule",
+      "field": "patternJson",
+      "owner": "job_compliance",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "JobComplianceRule",
+      "field": "neutralSuggestionJson",
+      "owner": "job_compliance",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "ResumeParseResult",
+      "field": "extractedSkills",
+      "owner": "candidate_application_resume_privacy",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "ResumeParseResult",
+      "field": "extractedMetadata",
+      "owner": "candidate_application_resume_privacy",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "Order",
+      "field": "pricingSnapshotJson",
+      "owner": "transaction_order",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "OrderEvent",
+      "field": "metadata",
+      "owner": "transaction_order",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "AgreementEvent",
+      "field": "metadata",
+      "owner": "transaction_order",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "MediaAccessEvent",
+      "field": "metadata",
+      "owner": "media_file_access",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "BookingOrchestrationStep",
+      "field": "metadata",
+      "owner": "booking_calendar",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "BookingEvent",
+      "field": "metadata",
+      "owner": "booking_calendar",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "AuditEvent",
+      "field": "metadata",
+      "owner": "audit_event_ledger",
+      "stage": "F0_FOUNDATION",
+      "nullable": true,
+      "admission": "NULL_ONLY_IN_INITIAL_CUSTOMER_SLICE",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "Notification",
+      "field": "payload",
+      "owner": "notification",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "NotificationSubscriptionEvent",
+      "field": "metadata",
+      "owner": "notification",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "UserSecurityEvent",
+      "field": "metadata",
+      "owner": "identity_access",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "CourseVideoPlaybackEvent",
+      "field": "metadata",
+      "owner": "video_session",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "DigitalDownloadEvent",
+      "field": "metadata",
+      "owner": "digital_goods_access",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "SalesTaxCalculation",
+      "field": "metadata",
+      "owner": "payment_payout_tax",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "SalesTaxLineItem",
+      "field": "metadata",
+      "owner": "payment_payout_tax",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "SalesTaxTransaction",
+      "field": "metadata",
+      "owner": "payment_payout_tax",
+      "stage": "LATER_OWNER_ORDERED_SLICE",
+      "nullable": true,
+      "admission": "DENY_NON_NULL_UNTIL_EXACT_CLOSED_SCHEMA_AND_OWNER_STAGE_REVIEW",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "TrackPlan",
+      "field": "metadata",
+      "owner": "track_subscription_entitlement",
+      "stage": "F0_FOUNDATION",
+      "nullable": true,
+      "admission": "NULL_ONLY_IN_INITIAL_CUSTOMER_SLICE",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "TrackPlanEntitlement",
+      "field": "jsonValue",
+      "owner": "track_subscription_entitlement",
+      "stage": "F0_FOUNDATION",
+      "nullable": true,
+      "admission": "NULL_ONLY_IN_INITIAL_CUSTOMER_SLICE",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "TrackEntitlementGrant",
+      "field": "jsonValue",
+      "owner": "track_subscription_entitlement",
+      "stage": "F0_FOUNDATION",
+      "nullable": true,
+      "admission": "NULL_ONLY_IN_INITIAL_CUSTOMER_SLICE",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "TrackUsageEvent",
+      "field": "metadata",
+      "owner": "track_subscription_entitlement",
+      "stage": "F0_FOUNDATION",
+      "nullable": true,
+      "admission": "NULL_ONLY_IN_INITIAL_CUSTOMER_SLICE",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "TrackSubscriptionEvent",
+      "field": "metadata",
+      "owner": "track_subscription_entitlement",
+      "stage": "F0_FOUNDATION",
+      "nullable": true,
+      "admission": "NULL_ONLY_IN_INITIAL_CUSTOMER_SLICE",
+      "schemas": [],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "RuntimeCommandReceipt",
+      "field": "resultBody",
+      "owner": "platform_integration_owner",
+      "stage": "F0_FOUNDATION",
+      "nullable": true,
+      "admission": "EXACT_REGISTERED_OWNER_RESPONSE_VARIANT_ONLY",
+      "schemas": [
+        "contracts/shared/SH-004.v1.schema.json#/$defs/response",
+        "contracts/shared/SH-114.v1.schema.json#/$defs/response",
+        "contracts/database-review/foundation-payloads.v1.schema.json#/$defs/assignDefaultFreeTrackCustomerResult"
+      ],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "RuntimeOutboxMessage",
+      "field": "payload",
+      "owner": "platform_integration_owner",
+      "stage": "F0_FOUNDATION",
+      "nullable": false,
+      "admission": "MESSAGE_KIND_NAME_AND_SCHEMA_BINDING_REQUIRED",
+      "schemas": [
+        "contracts/shared/types.v1.schema.json#/$defs/EventPayload_customer_lifecycle_changed_v1",
+        "contracts/database-review/foundation-payloads.v1.schema.json#/$defs/assignDefaultFreeTrackCustomerCommand"
+      ],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    },
+    {
+      "model": "OwnerMutationEvidence",
+      "field": "evidenceBody",
+      "owner": "platform_integration_owner",
+      "stage": "F0_FOUNDATION",
+      "nullable": false,
+      "admission": "EXACT_MODEL_EVIDENCE_SCHEMA_AND_SOURCE_COLUMN_COMPARISON",
+      "schemas": [
+        "contracts/database-review/owner-mutation-evidence.v1.schema.json"
+      ],
+      "truth": "No ownership, lifecycle, idempotency, currentness, money or reservation invariant may exist only in this value",
+      "activation_gate": "Nonnullable deferred JSON blocks that table migration/activation until exact closed schema is recorded; nullable deferred fields remain null. Future schemas need owner review, never an arbitrary-json fallback."
+    }
+  ],
+  "f0_rule": "Only the three explicitly registered evidence/result/outbox paths accept JSON in the first Customer slice; other F0 JSON stays null, including JSON-valued Track entitlements. Native typed benefits are sufficient for default-Free fixtures.",
+  "runtime_validation": "NOT_RUN"
+}

@@ -1,0 +1,1747 @@
+// REVIEW ONLY — P0-C-01. NOT ADOPTED. NO SQL OR DATABASE EXECUTION AUTHORIZED.
+datasource db {
+  provider = "postgresql"
+  schemas = ["app", "platform"]
+}
+
+// No client generator: this representation must not replace the live application client.
+
+enum PlatformRole {
+  user
+  admin
+  support
+
+  @@map("platform_role")
+  @@schema("app")
+}
+
+enum AccountTrack {
+  customer
+  candidate
+  professional
+
+  @@map("account_track")
+  @@schema("app")
+}
+
+enum TrackPlanStatus {
+  draft
+  active
+  retired
+  archived
+
+  @@map("track_plan_status")
+  @@schema("app")
+}
+
+enum TrackBillingModel {
+  free
+  subscription
+  commission
+  subscription_plus_commission
+  transaction_perk
+  manual
+
+  @@map("track_billing_model")
+  @@schema("app")
+}
+
+enum TrackSubscriptionStatus {
+  active
+  trialing
+  past_due
+  cancelled
+  expired
+  paused
+  incomplete
+  incomplete_expired
+
+  @@map("track_subscription_status")
+  @@schema("app")
+}
+
+enum TrackBillingProvider {
+  none
+
+  stripe
+  manual
+  comped
+  other
+
+  @@map("track_billing_provider")
+  @@schema("app")
+}
+
+enum TrackEntitlementValueType {
+  boolean
+  integer
+  decimal
+  percent_bps
+  money_cents
+  string
+  json
+
+  @@map("track_entitlement_value_type")
+  @@schema("app")
+}
+
+enum TrackEntitlementGrantStatus {
+  active
+  expired
+  revoked
+  suspended
+  consumed
+
+  @@map("track_entitlement_grant_status")
+  @@schema("app")
+}
+
+enum TrackUsageEventType {
+  job_application_submitted
+  candidate_search_boost_applied
+  application_view_tracked
+  buyer_fee_waived
+  priority_scheduling_used
+  professional_order_completed
+  professional_commission_applied
+  custom_domain_connected
+  live_streaming_used
+  internal_ad_campaign_created
+  other
+
+  @@map("track_usage_event_type")
+  @@schema("app")
+}
+
+enum TrackUsagePeriod {
+  once
+  daily
+  monthly
+  yearly
+  lifetime
+  rolling_30_day
+
+  @@map("track_usage_period")
+  @@schema("app")
+}
+
+enum AuthProviderType {
+  email_password
+  google
+  apple
+  passkey
+  magic_link
+  sso
+  other
+
+  @@map("auth_provider_type")
+  @@schema("app")
+}
+
+enum AuthCredentialStatus {
+  active
+  disabled
+  revoked
+  expired
+  compromised
+
+  @@map("auth_credential_status")
+  @@schema("app")
+}
+
+enum UserSecurityTier {
+  standard
+  elevated
+  high_risk
+
+  @@map("user_security_tier")
+  @@schema("app")
+}
+
+enum ProfileStatus {
+  draft
+  active
+  paused
+  suspended
+  archived
+
+  @@map("profile_status")
+  @@schema("app")
+}
+
+enum ConsentType {
+  terms
+  privacy_policy
+  cookies
+  marketing
+  age_gate
+  calendar_sync
+  sweepstakes_rules
+  gamification_terms
+  reward_redemption_terms
+  healthcare_baa
+  fcra_background_check
+  license_verification
+  dmv_check
+  passkey_login
+  sms_mfa
+  sensitive_financial_access
+  account_recovery_identity_verification
+  phone_number_update
+   digital_goods_terms
+  digital_goods_refund_policy
+  digital_goods_license
+  child_directed_content_declaration
+  course_accessibility_disclosure
+    electronic_records_consent
+  electronic_signature_consent
+  agreement_execution_consent
+  manual_signature_opt_out
+    calendar_free_busy_access
+  calendar_writeback_access
+  calendar_disconnect_notice
+    web_push_notifications
+  pwa_install_guidance
+  subscription_terms
+recurring_billing_authorization
+plan_change_terms
+commission_terms
+buyer_fee_waiver_terms
+
+  @@map("consent_type")
+  @@schema("app")
+}
+
+enum PrivacyRequestType {
+  access
+  export
+  erasure
+  correction
+  restriction
+
+  @@map("privacy_request_type")
+  @@schema("app")
+}
+
+enum PrivacyRequestStatus {
+  submitted
+  verifying_identity
+  verified
+  processing
+  completed
+  partially_completed
+  rejected
+  cancelled
+
+  @@map("privacy_request_status")
+  @@schema("app")
+}
+
+enum AgeGateResult {
+  allowed
+  blocked_underage
+  blocked_region
+  manual_review
+
+  @@map("age_gate_result")
+  @@schema("app")
+}
+
+enum HealthcareAccessDecision {
+  allowed
+  redacted
+  blocked
+  denied
+
+  @@map("healthcare_access_decision")
+  @@schema("app")
+}
+
+enum DataSensitivity {
+  normal
+  sensitive
+  healthcare
+  financial
+    identity_document
+  resume
+  legal_contract
+  private_message
+
+  @@map("data_sensitivity")
+  @@schema("app")
+}
+
+enum AccessAuditAction {
+  file_read
+  file_download
+  message_read
+  thread_opened
+  video_joined
+  location_revealed
+  privacy_export_generated
+  privacy_erasure_started
+  privacy_erasure_completed
+  healthcare_policy_checked
+  healthcare_payload_redacted
+  healthcare_payload_blocked
+  admin_redacted_view
+  admin_blocked_view
+  processor_balance_read
+  payout_account_read
+  tax_profile_read
+  tax_dashboard_opened
+  payout_request_started
+  sensitive_financial_step_up_verified
+  phone_number_changed
+  account_recovery_completed
+  course_video_started
+  course_video_completed
+  live_video_token_issued
+  digital_download_url_issued
+  digital_download_denied
+  digital_download_started
+  digital_download_completed
+  course_video_playback_granted
+  course_video_playback_denied
+    agreement_viewed
+  agreement_downloaded
+  agreement_signed
+  agreement_hash_verified
+  agreement_tamper_detected
+  agreement_manual_opt_out
+    media_signed_url_issued
+  media_signed_url_denied
+  media_upload_rejected
+  media_malware_detected
+  media_metadata_scrubbed
+  media_quarantined
+  media_promoted_to_ready
+    calendar_connection_started
+  calendar_connection_authorized
+  calendar_connection_revoked
+  calendar_free_busy_synced
+  booking_hold_created
+  booking_confirmed
+  booking_slot_lock_failed
+  booking_orchestration_started
+  booking_orchestration_failed
+
+  @@map("access_audit_action")
+  @@schema("app")
+}
+
+enum ReviewPolicyState {
+  draft
+  test_only
+  legal_approved
+  @@map("review_policy_state")
+  @@schema("app")
+}
+
+enum ConsentDispositionKind {
+  declined
+  withdrawn
+  superseded
+  @@map("consent_disposition_kind")
+  @@schema("app")
+}
+
+enum RuntimeReceiptState {
+  pending
+  committed
+  denied
+  unknown
+  fenced_noncommit
+  @@map("runtime_receipt_state")
+  @@schema("platform")
+}
+
+enum RuntimeMessageKind {
+  event
+  command
+  @@map("runtime_message_kind")
+  @@schema("platform")
+}
+
+enum RuntimeWorkState {
+  pending
+  leased
+  completed
+  retry_wait
+  dead_letter
+  unknown
+  @@map("runtime_work_state")
+  @@schema("platform")
+}
+
+enum RuntimeReservationState {
+  active
+  committed
+  released
+  unknown
+  @@map("runtime_reservation_state")
+  @@schema("platform")
+}
+
+enum PrivacyActionKind {
+  export
+  erase
+  restrict
+  restore_marker
+  @@map("privacy_action_kind")
+  @@schema("app")
+}
+
+enum PrivacyDispositionKind {
+  completed
+  retained
+  omitted
+  failed
+  unknown
+  @@map("privacy_disposition_kind")
+  @@schema("app")
+}
+
+// Source owner: consent_disclosure. Immutable exact presented-content acceptance by subject, context and command identity
+model ConsentLog {
+  id        String      @id @default(uuid()) @db.Uuid
+  userId    String      @map("user_id") @db.Uuid
+
+  type      ConsentType
+  version   String
+
+  acceptedAt DateTime   @default(now()) @map("accepted_at") @db.Timestamptz(6)
+  ipHash     String?    @map("ip_hash")
+  userAgent  String?    @map("user_agent")
+
+  createdAt DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user                User                   @relation("UserConsentLogs", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([userId, type, acceptedAt])
+  @@index([type, version])
+  @@map("consent_logs")
+  @@schema("app")
+
+  acceptanceKey String @map("acceptance_key")
+  fingerprint String @db.Char(64)
+  actionOwner String @map("action_owner")
+  action String
+  contextKind String @map("context_kind")
+  contextId String? @map("context_id")
+  @@unique([userId, acceptanceKey])
+
+  candidateConsentDispositionProof ConsentDisposition[] @relation("C_ConsentDisposition_proof")
+
+  contentRevisionId String @map("content_revision_id") @db.Uuid
+
+  candidateContentRevisionId ConsentContentRevision @relation("C_ConsentLog_contentRevisionId", fields: [contentRevisionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  presentationId String @map("presentation_id") @db.Uuid
+
+  candidatePresentationId ConsentPresentation @relation("C_ConsentLog_presentationId", fields: [presentationId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: privacy_data_erasure. Verified data-rights request and orchestration state; no invented legal response timer
+model PrivacyRequest {
+  id              String               @id @default(uuid()) @db.Uuid
+  userId          String               @map("user_id") @db.Uuid
+
+  type            PrivacyRequestType
+  status          PrivacyRequestStatus @default(submitted)
+
+  requestedAt     DateTime             @default(now()) @map("requested_at") @db.Timestamptz(6)
+  verifiedAt      DateTime?            @map("verified_at") @db.Timestamptz(6)
+  dueAt           DateTime?            @map("due_at") @db.Timestamptz(6)
+  completedAt     DateTime?            @map("completed_at") @db.Timestamptz(6)
+
+  rejectionReason String?              @map("rejection_reason")
+  adminNote       String?              @map("admin_note")
+
+  createdAt       DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user            User                 @relation("UserPrivacyRequests", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([userId, status])
+  @@index([type, status])
+  @@index([dueAt])
+  @@map("privacy_requests")
+  @@schema("app")
+
+  revision BigInt @default(0) @map("revision")
+
+  privacyGeneration BigInt @default(0) @map("privacy_generation")
+
+  instructionGeneration BigInt @default(0) @map("instruction_generation")
+
+  candidatePrivacyTargetInstructionRequest PrivacyTargetInstruction[] @relation("C_PrivacyTargetInstruction_request")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: identity_access. Minimized Identity eligibility attempt, distinct from Consent acknowledgment
+model AgeGateAttempt {
+  id           String        @id @default(uuid()) @db.Uuid
+  userId       String?       @map("user_id") @db.Uuid
+
+  ipHash       String?       @map("ip_hash")
+  deviceHash   String?       @map("device_hash")
+  region       String?
+  result       AgeGateResult
+
+  birthYear    Int?          @map("birth_year")
+  ageBand      String?       @map("age_band")
+  blockedUntil DateTime?     @map("blocked_until") @db.Timestamptz(6)
+
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user         User?         @relation("UserAgeGateAttempts", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([userId, createdAt])
+  @@index([ipHash, createdAt])
+  @@index([deviceHash, createdAt])
+  @@index([result, createdAt])
+  @@index([blockedUntil])
+  @@map("age_gate_attempts")
+  @@schema("app")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: identity_access. Purpose-bound Identity abuse/rate restriction, not a minor account
+model AgeGateBlock {
+  id           String   @id @default(uuid()) @db.Uuid
+  ipHash       String?  @map("ip_hash")
+  deviceHash   String?  @map("device_hash")
+  reason       String
+  blockedUntil DateTime @map("blocked_until") @db.Timestamptz(6)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([ipHash, blockedUntil])
+  @@index([deviceHash, blockedUntil])
+  @@map("age_gate_blocks")
+  @@schema("app")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: audit_event_ledger. Durable protected-disclosure proof before secret delivery
+model AccessAuditLog {
+  id             String                    @id @default(uuid()) @db.Uuid
+  actorUserId    String?                   @map("actor_user_id") @db.Uuid
+  targetType     String                    @map("target_type")
+  targetId       String                    @map("target_id") @db.Uuid
+  action         AccessAuditAction
+  sensitivity    DataSensitivity           @default(normal)
+  accessDecision HealthcareAccessDecision? @map("access_decision")
+  requestId      String?                   @map("request_id")
+  ipHash         String?                   @map("ip_hash")
+  userAgent      String?                   @map("user_agent")
+  previousHash   String?                   @map("previous_hash")
+  entryHash      String?                   @map("entry_hash")
+  createdAt      DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  actorUser      User?                     @relation("UserAccessAuditLogs", fields: [actorUserId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([actorUserId, createdAt])
+  @@index([targetType, targetId])
+  @@index([sensitivity, createdAt])
+  @@index([action, createdAt])
+  @@index([requestId])
+  @@map("access_audit_logs")
+  @@schema("app")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: identity_access. Local account principal; not a seller or inferred commercial buyer
+model User {
+  id          String  @id @default(uuid()) @db.Uuid
+  email       String? @unique
+  handle      String? @unique
+  displayName String? @map("display_name")
+  avatarUrl   String? @map("avatar_url")
+  bio         String?
+  city        String?
+  state       String?
+  country     String?
+  isPublic    Boolean @default(true) @map("is_public")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  roles               UserRole[]
+  professionalProfile ProfessionalProfile?
+  candidateProfile    CandidateProfile?
+  customerProfile CustomerProfile? @relation("UserCustomerProfile")
+trackSubscriptions TrackSubscription[]
+trackEntitlementGrants TrackEntitlementGrant[]
+trackUsageEvents TrackUsageEvent[]
+trackUsageCounts TrackUsageCounter[]
+trackSubscriptionEvents TrackSubscriptionEvent[]
+
+
+  consentLogs                  ConsentLog[]          @relation("UserConsentLogs")
+
+  privacyErasedAt      DateTime? @map("privacy_erased_at") @db.Timestamptz(6)
+  privacyErasureStatus String?   @map("privacy_erasure_status")
+  privacyRequests             PrivacyRequest[]              @relation("UserPrivacyRequests")
+  ageGateAttempts             AgeGateAttempt[]              @relation("UserAgeGateAttempts")
+  accessAuditLogs             AccessAuditLog[]              @relation("UserAccessAuditLogs")
+  securityProfile          UserSecurityProfile?      @relation("UserSecurityProfile")
+  authProviderAccounts     AuthProviderAccount[]     @relation("UserAuthProviderAccounts")
+
+
+
+
+
+  @@index([isPublic])
+  @@index([city, state, country])
+  @@map("users")
+  @@schema("app")
+
+  revision BigInt @default(0) @map("revision")
+
+  privacyGeneration BigInt @default(0) @map("privacy_generation")
+
+  candidateConsentDispositionSubject ConsentDisposition[] @relation("C_ConsentDisposition_subject")
+
+  candidateCustomerProfileLifecycleEventActor CustomerProfileLifecycleEvent[] @relation("C_CustomerProfileLifecycleEvent_actor")
+
+  candidateTrackBaseSelectionUser TrackBaseSelection[] @relation("C_TrackBaseSelection_user")
+
+  candidateTrackEnrollmentReceiptUser TrackEnrollmentReceipt[] @relation("C_TrackEnrollmentReceipt_user")
+
+  candidateTrackUsageReservationUser TrackUsageReservation[] @relation("C_TrackUsageReservation_user")
+
+
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: identity_access. Identity-owned platform role assignment; Role policy remains code-first
+model UserRole {
+  userId    String       @map("user_id") @db.Uuid
+  role      PlatformRole
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@id([userId, role])
+  @@index([role])
+  @@map("user_roles")
+  @@schema("app")
+
+  revision BigInt @default(0) @map("revision")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: professional_eligibility. One-to-one seller identity and source lifecycle; readiness/reputation mirrors are non-authorizing
+model ProfessionalProfile {
+  id         String        @id @default(uuid()) @db.Uuid
+  userId     String        @unique @map("user_id") @db.Uuid
+  slug       String        @unique
+  headline   String?
+  bio        String?
+  websiteUrl String?       @map("website_url")
+  city       String?
+  state      String?
+  country    String?
+  status     ProfileStatus @default(draft)
+
+  ratingAverage Float? @map("rating_average")
+  ratingCount   Int    @default(0) @map("rating_count")
+
+  stripeAccountId      String?   @map("stripe_account_id")
+  stripeReady          Boolean   @default(false) @map("stripe_ready")
+  onboardingCompleteAt DateTime? @map("onboarding_complete_at") @db.Timestamptz(6)
+  defaultCurrency      String?   @map("default_currency")
+
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+
+
+
+  suspendedForModerationAt DateTime? @map("suspended_for_moderation_at") @db.Timestamptz(6)
+  trustScore          Int?      @map("trust_score")
+  verifiedAt         DateTime? @map("verified_at") @db.Timestamptz(6)
+  verificationExpiresAt DateTime? @map("verification_expires_at") @db.Timestamptz(6)
+
+
+  trackSubscriptions TrackSubscription[]
+entitlementGrants  TrackEntitlementGrant[]
+usageEvents        TrackUsageEvent[]
+usageCounters      TrackUsageCounter[]
+  @@index([status])
+  @@index([city, state, country])
+  @@index([stripeAccountId])
+  @@map("professional_profiles")
+  @@schema("app")
+
+  revision BigInt @default(0) @map("revision")
+
+  privacyGeneration BigInt @default(0) @map("privacy_generation")
+
+  candidateTrackBaseSelectionProfessional TrackBaseSelection[] @relation("C_TrackBaseSelection_professional")
+
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: customer_buyer_profile. One-to-one commercial buyer provisioned before buyer actions
+model CustomerProfile {
+  id             String        @id @default(uuid()) @db.Uuid
+  userId         String        @unique @map("user_id") @db.Uuid
+
+  status         ProfileStatus @default(active)
+
+  displayName    String?       @map("display_name")
+  avatarMediaId  String?       @map("avatar_media_id") @db.Uuid
+
+  city           String?
+  state          String?
+  country        String?
+
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  archivedAt     DateTime?     @map("archived_at") @db.Timestamptz(6)
+
+  user           User          @relation("UserCustomerProfile", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+
+  trackSubscriptions TrackSubscription[]
+  entitlementGrants  TrackEntitlementGrant[]
+  usageEvents        TrackUsageEvent[]
+  usageCounters      TrackUsageCounter[]
+
+  @@index([status])
+  @@index([city, state, country])
+  @@map("customer_profiles")
+  @@schema("app")
+
+  revision BigInt @default(0) @map("revision")
+
+  privacyGeneration BigInt @default(0) @map("privacy_generation")
+
+  candidateCustomerProfileLifecycleEventProfile CustomerProfileLifecycleEvent[] @relation("C_CustomerProfileLifecycleEvent_profile")
+
+  candidateTrackBaseSelectionCustomer TrackBaseSelection[] @relation("C_TrackBaseSelection_customer")
+
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: candidate_application_resume_privacy. One-to-one applicant identity with private resume and opt-in discovery
+model CandidateProfile {
+  id           String        @id @default(uuid()) @db.Uuid
+  userId       String        @unique @map("user_id") @db.Uuid
+  headline     String?
+
+  portfolioUrl String?       @map("portfolio_url")
+  availability String?
+  city         String?
+  state        String?
+  country      String?
+  status       ProfileStatus @default(draft)
+
+  isVisible Boolean @default(false) @map("is_visible")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user         User                    @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  trustScore          Int?      @map("trust_score")
+  verifiedAt         DateTime? @map("verified_at") @db.Timestamptz(6)
+  verificationExpiresAt DateTime? @map("verification_expires_at") @db.Timestamptz(6)
+
+trackSubscriptions TrackSubscription[]
+entitlementGrants  TrackEntitlementGrant[]
+usageEvents        TrackUsageEvent[]
+usageCounters      TrackUsageCounter[]
+  @@index([status, isVisible])
+  @@index([country, state, city])
+  @@map("candidate_profiles")
+  @@schema("app")
+
+  revision BigInt @default(0) @map("revision")
+
+  privacyGeneration BigInt @default(0) @map("privacy_generation")
+
+  discoveryPreferenceRevision BigInt @default(0) @map("discovery_preference_revision")
+  discoveryEnabledAt DateTime? @map("discovery_enabled_at") @db.Timestamptz(6)
+
+  candidateTrackBaseSelectionCandidate TrackBaseSelection[] @relation("C_TrackBaseSelection_candidate")
+
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: audit_event_ledger. Append-only bounded decision/effect audit intent and retained evidence
+model AuditEvent {
+  id          String   @id @default(uuid()) @db.Uuid
+  actorUserId String?  @map("actor_user_id") @db.Uuid
+  entityType  String   @map("entity_type")
+  entityId    String?  @map("entity_id") @db.Uuid
+  action      String
+  metadata    Json?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([actorUserId])
+  @@index([entityType, entityId])
+  @@index([action, createdAt])
+  @@map("audit_events")
+  @@schema("app")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: identity_access. Current Identity security generation, restrictions and assurance prerequisites
+model UserSecurityProfile {
+  id                         String           @id @default(uuid()) @db.Uuid
+  userId                     String           @unique @map("user_id") @db.Uuid
+
+  securityTier               UserSecurityTier @default(standard) @map("security_tier")
+
+  phoneNumberEncrypted        String?          @map("phone_number_encrypted")
+  phoneNumberHash             String?          @map("phone_number_hash")
+  phoneVerifiedAt             DateTime?        @map("phone_verified_at") @db.Timestamptz(6)
+  phoneLastChangedAt          DateTime?        @map("phone_last_changed_at") @db.Timestamptz(6)
+
+  passkeysEnabled             Boolean          @default(false) @map("passkeys_enabled")
+  smsMfaEnabled               Boolean          @default(false) @map("sms_mfa_enabled")
+  backupPasswordConfigured    Boolean          @default(false) @map("backup_password_configured")
+
+  sensitiveActionMfaRequired  Boolean          @default(true) @map("sensitive_action_mfa_required")
+  lastStepUpAt                DateTime?        @map("last_step_up_at") @db.Timestamptz(6)
+  lastSensitiveActionAt       DateTime?        @map("last_sensitive_action_at") @db.Timestamptz(6)
+
+  lockedUntil                 DateTime?        @map("locked_until") @db.Timestamptz(6)
+  lockReason                  String?          @map("lock_reason")
+
+  createdAt                   DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                   DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user                        User             @relation("UserSecurityProfile", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  authProviderAccounts        AuthProviderAccount[]
+
+  @@index([securityTier])
+  @@index([phoneNumberHash])
+  @@index([lockedUntil])
+  @@map("user_security_profiles")
+  @@schema("app")
+
+  revision BigInt @default(0) @map("revision")
+
+  securityGeneration BigInt @default(0) @map("security_generation")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: identity_access. Unique provider/account subject to local User binding
+model AuthProviderAccount {
+  id                    String               @id @default(uuid()) @db.Uuid
+  userId                String               @map("user_id") @db.Uuid
+  securityProfileId     String?              @map("security_profile_id") @db.Uuid
+
+  providerType          AuthProviderType     @map("provider_type")
+  providerUserId        String?              @map("provider_user_id")
+  providerAccountId     String?              @map("provider_account_id")
+
+  email                 String?
+  emailVerifiedAt       DateTime?            @map("email_verified_at") @db.Timestamptz(6)
+
+  status                AuthCredentialStatus @default(active)
+  linkedAt              DateTime             @default(now()) @map("linked_at") @db.Timestamptz(6)
+  lastUsedAt            DateTime?            @map("last_used_at") @db.Timestamptz(6)
+  revokedAt             DateTime?            @map("revoked_at") @db.Timestamptz(6)
+
+  createdAt             DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user                  User                 @relation("UserAuthProviderAccounts", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  securityProfile       UserSecurityProfile? @relation(fields: [securityProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([userId, providerType])
+  @@index([providerType, providerUserId])
+  @@index([providerType, providerAccountId])
+  @@index([status])
+  @@map("auth_provider_accounts")
+  @@schema("app")
+
+  revision BigInt @default(0) @map("revision")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: track_subscription_entitlement. Versioned Track-owned base benefit catalog; no seeded commercial promise here
+model TrackPlan {
+  id                  String            @id @default(uuid()) @db.Uuid
+
+  track               AccountTrack
+  key                 String
+  name                String
+  status              TrackPlanStatus   @default(draft)
+  billingModel        TrackBillingModel @map("billing_model")
+
+  monthlyPriceCents   Int?              @map("monthly_price_cents")
+  currency            String            @default("usd")
+
+  description         String?
+  displayOrder        Int               @default(0) @map("display_order")
+  metadata            Json?
+
+  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  planEntitlements    TrackPlanEntitlement[]
+  subscriptions       TrackSubscription[]
+  events              TrackSubscriptionEvent[]
+
+  @@unique([track, key, version])
+  @@index([track, status])
+  @@map("track_plans")
+  @@schema("app")
+
+  revision BigInt @default(0) @map("revision")
+
+  version String
+  contentHash String @map("content_hash") @db.Char(64)
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: track_subscription_entitlement. Typed named benefit definition; no premium Boolean authority
+model TrackEntitlementDefinition {
+  id              String                    @id @default(uuid()) @db.Uuid
+
+  key             String                    @unique
+  label           String
+  description     String?
+  valueType       TrackEntitlementValueType @map("value_type")
+
+  track           AccountTrack?
+  isActive        Boolean                   @default(true) @map("is_active")
+
+  createdAt       DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  planEntitlements TrackPlanEntitlement[]
+  grants           TrackEntitlementGrant[]
+  usageEvents      TrackUsageEvent[]
+  usageCounters    TrackUsageCounter[]
+
+  @@index([track, isActive])
+  @@map("track_entitlement_definitions")
+  @@schema("app")
+
+  revision BigInt @default(0) @map("revision")
+
+  candidateTrackUsageReservationEntitlement TrackUsageReservation[] @relation("C_TrackUsageReservation_entitlement")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: track_subscription_entitlement. Typed immutable plan benefit value selected under a catalog revision
+model TrackPlanEntitlement {
+  id                  String                    @id @default(uuid()) @db.Uuid
+
+  planId              String                    @map("plan_id") @db.Uuid
+  entitlementId       String                    @map("entitlement_id") @db.Uuid
+
+  valueType           TrackEntitlementValueType @map("value_type")
+  booleanValue        Boolean?                  @map("boolean_value")
+  intValue            Int?                      @map("int_value")
+  decimalValue        Float?                    @map("decimal_value")
+  stringValue         String?                   @map("string_value")
+  jsonValue           Json?                     @map("json_value")
+
+  usagePeriod         TrackUsagePeriod?         @map("usage_period")
+
+  createdAt           DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  plan                TrackPlan                 @relation(fields: [planId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  entitlement         TrackEntitlementDefinition @relation(fields: [entitlementId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@unique([planId, entitlementId])
+  @@index([entitlementId])
+  @@map("track_plan_entitlements")
+  @@schema("app")
+
+  revision BigInt @default(0) @map("revision")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: track_subscription_entitlement. Retained explicit provider-neutral enrollment/billing history
+model TrackSubscription {
+  id                    String                  @id @default(uuid()) @db.Uuid
+
+  userId                String                  @map("user_id") @db.Uuid
+  planId                String                  @map("plan_id") @db.Uuid
+  track                 AccountTrack
+
+  customerProfileId     String?                 @map("customer_profile_id") @db.Uuid
+  candidateProfileId    String?                 @map("candidate_profile_id") @db.Uuid
+  professionalProfileId String?                 @map("professional_profile_id") @db.Uuid
+
+  status                TrackSubscriptionStatus @default(active)
+
+  provider TrackBillingProvider @default(none)
+  providerCustomerId    String?                 @map("provider_customer_id")
+  providerSubscriptionId String?                @map("provider_subscription_id")
+  providerPriceId       String?                 @map("provider_price_id")
+
+  currentPeriodStart    DateTime?               @map("current_period_start") @db.Timestamptz(6)
+  currentPeriodEnd      DateTime?               @map("current_period_end") @db.Timestamptz(6)
+  trialEndsAt           DateTime?               @map("trial_ends_at") @db.Timestamptz(6)
+  cancelledAt           DateTime?               @map("cancelled_at") @db.Timestamptz(6)
+  endedAt               DateTime?               @map("ended_at") @db.Timestamptz(6)
+
+  createdAt             DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user                  User                    @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  plan                  TrackPlan               @relation(fields: [planId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  customerProfile       CustomerProfile?        @relation(fields: [customerProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  candidateProfile      CandidateProfile?       @relation(fields: [candidateProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  professionalProfile   ProfessionalProfile?    @relation(fields: [professionalProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  entitlementGrants     TrackEntitlementGrant[]
+  usageEvents           TrackUsageEvent[]
+  usageCounters         TrackUsageCounter[]
+  events                TrackSubscriptionEvent[]
+
+  @@index([userId, track, status])
+  @@index([planId])
+  @@index([customerProfileId])
+  @@index([candidateProfileId])
+  @@index([professionalProfileId])
+  @@index([provider, providerSubscriptionId])
+  @@index([currentPeriodEnd])
+  @@map("track_subscriptions")
+  @@schema("app")
+
+  revision BigInt @default(0) @map("revision")
+
+  candidateTrackBaseSelectionEnrollment TrackBaseSelection[] @relation("C_TrackBaseSelection_enrollment")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: track_subscription_entitlement. Current source-qualified typed grant and revocation interval
+model TrackEntitlementGrant {
+  id                    String                      @id @default(uuid()) @db.Uuid
+
+  userId                String                      @map("user_id") @db.Uuid
+  subscriptionId        String?                     @map("subscription_id") @db.Uuid
+  entitlementId         String                      @map("entitlement_id") @db.Uuid
+  track                 AccountTrack
+
+  customerProfileId     String?                     @map("customer_profile_id") @db.Uuid
+  candidateProfileId    String?                     @map("candidate_profile_id") @db.Uuid
+  professionalProfileId String?                     @map("professional_profile_id") @db.Uuid
+
+  status                TrackEntitlementGrantStatus @default(active)
+
+  valueType             TrackEntitlementValueType   @map("value_type")
+  booleanValue          Boolean?                    @map("boolean_value")
+  intValue              Int?                        @map("int_value")
+  decimalValue          Float?                      @map("decimal_value")
+  stringValue           String?                     @map("string_value")
+  jsonValue             Json?                       @map("json_value")
+
+  startsAt              DateTime?                   @map("starts_at") @db.Timestamptz(6)
+  expiresAt             DateTime?                   @map("expires_at") @db.Timestamptz(6)
+  revokedAt             DateTime?                   @map("revoked_at") @db.Timestamptz(6)
+  revokeReason          String?                     @map("revoke_reason")
+
+  sourcePlanId          String?                     @map("source_plan_id") @db.Uuid
+  sourceEventId         String?                     @map("source_event_id") @db.Uuid
+
+  createdAt             DateTime                    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime                    @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user                  User                        @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  subscription          TrackSubscription?          @relation(fields: [subscriptionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  entitlement           TrackEntitlementDefinition  @relation(fields: [entitlementId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  customerProfile       CustomerProfile?            @relation(fields: [customerProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  candidateProfile      CandidateProfile?           @relation(fields: [candidateProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  professionalProfile   ProfessionalProfile?        @relation(fields: [professionalProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  usageEvents           TrackUsageEvent[]
+  usageCounters         TrackUsageCounter[]
+
+  @@index([userId, track, status])
+  @@index([subscriptionId])
+  @@index([entitlementId, status])
+  @@index([customerProfileId, status])
+  @@index([candidateProfileId, status])
+  @@index([professionalProfileId, status])
+  @@index([expiresAt])
+  @@map("track_entitlement_grants")
+  @@schema("app")
+
+  revision BigInt @default(0) @map("revision")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: track_subscription_entitlement. Immutable accepted usage/correction under semantic effect and UTC period
+model TrackUsageEvent {
+  id                    String                 @id @default(uuid()) @db.Uuid
+
+  userId                String                 @map("user_id") @db.Uuid
+  subscriptionId        String?                @map("subscription_id") @db.Uuid
+  entitlementGrantId    String?                @map("entitlement_grant_id") @db.Uuid
+  entitlementId         String?                @map("entitlement_id") @db.Uuid
+
+  track                 AccountTrack
+  type                  TrackUsageEventType
+
+  customerProfileId     String?                @map("customer_profile_id") @db.Uuid
+  candidateProfileId    String?                @map("candidate_profile_id") @db.Uuid
+  professionalProfileId String?                @map("professional_profile_id") @db.Uuid
+
+  targetType            String?                @map("target_type")
+  targetId              String?                @map("target_id") @db.Uuid
+
+  quantity              Int                    @default(1)
+  occurredAt            DateTime               @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  metadata              Json?
+
+  user                  User                   @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  subscription          TrackSubscription?     @relation(fields: [subscriptionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  entitlementGrant      TrackEntitlementGrant? @relation(fields: [entitlementGrantId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  entitlement           TrackEntitlementDefinition? @relation(fields: [entitlementId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  customerProfile       CustomerProfile?       @relation(fields: [customerProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  candidateProfile      CandidateProfile?      @relation(fields: [candidateProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  professionalProfile   ProfessionalProfile?   @relation(fields: [professionalProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([userId, type, occurredAt])
+  @@index([candidateProfileId, type, occurredAt])
+  @@index([customerProfileId, type, occurredAt])
+  @@index([professionalProfileId, type, occurredAt])
+  @@index([targetType, targetId])
+  @@map("track_usage_events")
+  @@schema("app")
+
+  semanticEffectKey String @unique @map("semantic_effect_key")
+
+  sourceRevision BigInt @map("source_revision")
+
+  sourceOwner String @map("source_owner")
+  sourceId String @map("source_id")
+  acceptedAt DateTime @map("accepted_at") @db.Timestamptz(6)
+  periodStart DateTime @map("period_start") @db.Timestamptz(6)
+  periodEnd DateTime @map("period_end") @db.Timestamptz(6)
+
+  effectReceiptId String @map("effect_receipt_id") @db.Uuid
+
+  candidateEffectReceiptId RuntimeEffectReceipt @relation("C_TrackUsageEvent_effectReceiptId", fields: [effectReceiptId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: track_subscription_entitlement. Rebuildable same-period aggregate; never destructive monthly reset truth
+model TrackUsageCounter {
+  id                    String                    @id @default(uuid()) @db.Uuid
+
+  userId                String                    @map("user_id") @db.Uuid
+  subscriptionId        String?                   @map("subscription_id") @db.Uuid
+  entitlementGrantId    String?                   @map("entitlement_grant_id") @db.Uuid
+  entitlementId         String                    @map("entitlement_id") @db.Uuid
+
+  track                 AccountTrack
+  period                TrackUsagePeriod
+
+  customerProfileId     String?                   @map("customer_profile_id") @db.Uuid
+  candidateProfileId    String?                   @map("candidate_profile_id") @db.Uuid
+  professionalProfileId String?                   @map("professional_profile_id") @db.Uuid
+
+  periodStart           DateTime                  @map("period_start") @db.Timestamptz(6)
+  periodEnd             DateTime                  @map("period_end") @db.Timestamptz(6)
+
+  usedQuantity          Int                       @default(0) @map("used_quantity")
+  limitQuantity         Int?                      @map("limit_quantity")
+
+  updatedAt             DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt             DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user                  User                      @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  subscription          TrackSubscription?        @relation(fields: [subscriptionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  entitlementGrant      TrackEntitlementGrant?    @relation(fields: [entitlementGrantId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  entitlement           TrackEntitlementDefinition @relation(fields: [entitlementId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  customerProfile       CustomerProfile?          @relation(fields: [customerProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  candidateProfile      CandidateProfile?         @relation(fields: [candidateProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  professionalProfile   ProfessionalProfile?      @relation(fields: [professionalProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@unique([entitlementId, track, userId, periodStart, periodEnd])
+  @@index([candidateProfileId, periodStart, periodEnd])
+  @@index([customerProfileId, periodStart, periodEnd])
+  @@index([professionalProfileId, periodStart, periodEnd])
+  @@map("track_usage_counters")
+  @@schema("app")
+
+  revision BigInt @default(0) @map("revision")
+
+  sourceRevision BigInt @map("source_revision")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: track_subscription_entitlement. Immutable enrollment/billing/selection transition evidence
+model TrackSubscriptionEvent {
+  id              String             @id @default(uuid()) @db.Uuid
+  subscriptionId  String?            @map("subscription_id") @db.Uuid
+  planId          String?            @map("plan_id") @db.Uuid
+  userId          String             @map("user_id") @db.Uuid
+
+  name            String
+  fromStatus      TrackSubscriptionStatus? @map("from_status")
+  toStatus        TrackSubscriptionStatus? @map("to_status")
+
+  provider        TrackBillingProvider?
+  providerEventId String?            @map("provider_event_id")
+
+  metadata        Json?
+  createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  subscription    TrackSubscription? @relation(fields: [subscriptionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  plan            TrackPlan?         @relation(fields: [planId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  user            User               @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([subscriptionId, createdAt])
+  @@index([planId])
+  @@index([userId, createdAt])
+  @@index([provider, providerEventId])
+  @@map("track_subscription_events")
+  @@schema("app")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: consent_disclosure. Immutable exact legal/disclosure content revision and applicability; legal approval never inferred
+model ConsentContentRevision {
+  id String @id @default(uuid()) @db.Uuid
+  type ConsentType
+  version String
+  locale String
+  jurisdictionScope String @map("jurisdiction_scope")
+  contentText String @map("content_text")
+  contentHash String @map("content_hash") @db.Char(64)
+  reviewState ReviewPolicyState @default(draft) @map("review_state")
+  legalApprovalRef String? @map("legal_approval_ref")
+  effectiveFrom DateTime @map("effective_from") @db.Timestamptz(6)
+  effectiveUntil DateTime? @map("effective_until") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([type, version, locale, jurisdictionScope])
+  @@map("consent_content_revision")
+  @@schema("app")
+
+  candidateConsentPresentationContent ConsentPresentation[] @relation("C_ConsentPresentation_content")
+
+  candidateConsentLogContentrevisionid ConsentLog[] @relation("C_ConsentLog_contentRevisionId")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: consent_disclosure. Immutable actually rendered presentation and exact content/context binding
+model ConsentPresentation {
+  id String @id @default(uuid()) @db.Uuid
+  contentRevisionId String @map("content_revision_id") @db.Uuid
+  renderVersion String @map("render_version")
+  renderedText String @map("rendered_text")
+  renderedHash String @map("rendered_hash") @db.Char(64)
+  contextOwner String @map("context_owner")
+  contextKind String @map("context_kind")
+  contextId String? @map("context_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("consent_presentation")
+  @@schema("app")
+
+  content ConsentContentRevision @relation("C_ConsentPresentation_content", fields: [contentRevisionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  candidateConsentDispositionPresentation ConsentDisposition[] @relation("C_ConsentDisposition_presentation")
+
+  candidateConsentLogPresentationid ConsentLog[] @relation("C_ConsentLog_presentationId")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: consent_disclosure. Append-only decline/withdrawal/reacceptance disposition without overwriting old acceptance
+model ConsentDisposition {
+  id String @id @default(uuid()) @db.Uuid
+  proofId String? @map("proof_id") @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  presentationId String @map("presentation_id") @db.Uuid
+  kind ConsentDispositionKind
+  semanticKey String @map("semantic_key")
+  fingerprint String @db.Char(64)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([userId, semanticKey])
+  @@map("consent_disposition")
+  @@schema("app")
+
+  proof ConsentLog? @relation("C_ConsentDisposition_proof", fields: [proofId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  subject User @relation("C_ConsentDisposition_subject", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  presentation ConsentPresentation @relation("C_ConsentDisposition_presentation", fields: [presentationId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: platform_integration_owner. Ephemeral non-authorizing transport of already approved Role/Identity scope into one DB transaction; not a second policy catalog
+model DatabaseActionGrant {
+  id String @id @default(uuid()) @db.Uuid
+  tokenHash String @unique @map("token_hash") @db.Char(64)
+  issuerService String @map("issuer_service")
+  principalUserId String? @map("principal_user_id") @db.Uuid
+  servicePrincipal String? @map("service_principal")
+  databaseLoginRole String @map("database_login_role")
+  ownerModuleId String @map("owner_module_id")
+  action String
+  purpose String
+  targetKind String @map("target_kind")
+  targetId String @map("target_id")
+  allowedFields String[] @map("allowed_fields")
+  policyVersion String @map("policy_version")
+  securityGeneration BigInt @map("security_generation")
+  sourceGeneration BigInt @map("source_generation")
+  backendPid Int? @map("backend_pid")
+  transactionId String? @map("transaction_id")
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@index([expiresAt])
+  @@map("database_action_grant")
+  @@schema("platform")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: platform_integration_owner. One shared scoped command identity/fingerprint/result receipt; owner retains semantic decisions
+model RuntimeCommandReceipt {
+  id String @id @default(uuid()) @db.Uuid
+  ownerModuleId String @map("owner_module_id")
+  operation String
+  subjectScope String @map("subject_scope")
+  semanticKey String @map("semantic_key")
+  fingerprint String @db.Char(64)
+  state RuntimeReceiptState @default(pending)
+  sourceRevision BigInt? @map("source_revision")
+  resultSchemaId String @map("result_schema_id")
+  resultSchemaVersion String @map("result_schema_version")
+  resultDigest String? @map("result_digest") @db.Char(64)
+  resultBody Json? @map("result_body")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([ownerModuleId, operation, subjectScope, semanticKey])
+  @@map("runtime_command_receipt")
+  @@schema("platform")
+
+  candidateRuntimeOutboxMessageCommand RuntimeOutboxMessage[] @relation("C_RuntimeOutboxMessage_command")
+
+  candidateRuntimeEffectReceiptCommand RuntimeEffectReceipt[] @relation("C_RuntimeEffectReceipt_command")
+
+  candidateRuntimeReservationCommand RuntimeReservation[] @relation("C_RuntimeReservation_command")
+
+  candidateOwnerMutationEvidenceCommand OwnerMutationEvidence[] @relation("C_OwnerMutationEvidence_command")
+
+  candidateCustomerProfileLifecycleEventCommand CustomerProfileLifecycleEvent[] @relation("C_CustomerProfileLifecycleEvent_command")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: platform_integration_owner. Source-transaction durable committed fact or registered command intent; no alternate owner lifecycle
+model RuntimeOutboxMessage {
+  id String @id @default(uuid()) @db.Uuid
+  commandReceiptId String @map("command_receipt_id") @db.Uuid
+  kind RuntimeMessageKind
+  producerOwner String @map("producer_owner")
+  aggregateKind String @map("aggregate_kind")
+  aggregateId String @map("aggregate_id")
+  sourceRevision BigInt @map("source_revision")
+  sourceGeneration BigInt @map("source_generation")
+  ordinal Int
+  name String
+  schemaVersion String @map("schema_version")
+  payloadSchemaId String @map("payload_schema_id")
+  payloadHash String @map("payload_hash") @db.Char(64)
+  payload Json
+  correlationId String @map("correlation_id")
+  causationId String @map("causation_id")
+  correctionOfId String? @map("correction_of_id") @db.Uuid
+  occurredAt DateTime @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime @map("effective_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([producerOwner, aggregateKind, aggregateId, sourceRevision, ordinal])
+  @@map("runtime_outbox_message")
+  @@schema("platform")
+
+  command RuntimeCommandReceipt @relation("C_RuntimeOutboxMessage_command", fields: [commandReceiptId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  candidateRuntimeWorkItemMessage RuntimeWorkItem[] @relation("C_RuntimeWorkItem_message")
+
+  candidateRuntimeInboxReceiptMessage RuntimeInboxReceipt[] @relation("C_RuntimeInboxReceipt_message")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: platform_integration_owner. Durable owner-scoped semantic effect receipt, separate from event deduplication
+model RuntimeEffectReceipt {
+  id String @id @default(uuid()) @db.Uuid
+  commandReceiptId String? @map("command_receipt_id") @db.Uuid
+  ownerModuleId String @map("owner_module_id")
+  operation String
+  subjectScope String @map("subject_scope")
+  semanticEffectKey String @map("semantic_effect_key")
+  fingerprint String @db.Char(64)
+  state RuntimeReceiptState @default(pending)
+  sourceRevision BigInt? @map("source_revision")
+  fence BigInt @default(0)
+  resultSchemaId String @map("result_schema_id")
+  resultHash String? @map("result_hash") @db.Char(64)
+  committedAt DateTime? @map("committed_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([ownerModuleId, operation, subjectScope, semanticEffectKey])
+  @@map("runtime_effect_receipt")
+  @@schema("platform")
+
+  command RuntimeCommandReceipt? @relation("C_RuntimeEffectReceipt_command", fields: [commandReceiptId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  candidateRuntimeWorkItemEffect RuntimeWorkItem[] @relation("C_RuntimeWorkItem_effect")
+
+  candidateRuntimeInboxReceiptEffect RuntimeInboxReceipt[] @relation("C_RuntimeInboxReceipt_effect")
+
+  candidateRuntimeReservationEffect RuntimeReservation[] @relation("C_RuntimeReservation_effect")
+
+  candidateTrackEnrollmentReceiptEffect TrackEnrollmentReceipt[] @relation("C_TrackEnrollmentReceipt_effect")
+
+
+
+
+
+
+  candidateTrackUsageEventEffectreceiptid TrackUsageEvent[] @relation("C_TrackUsageEvent_effectReceiptId")
+
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: platform_integration_owner. Single durable work/lease/fence source; QueueJob remains an Ops projection
+model RuntimeWorkItem {
+  id String @id @default(uuid()) @db.Uuid
+  outboxMessageId String @map("outbox_message_id") @db.Uuid
+  handlerName String @map("handler_name")
+  semanticWorkKey String @unique @map("semantic_work_key")
+  state RuntimeWorkState @default(pending)
+  fence BigInt @default(0)
+  leaseTokenHash String? @map("lease_token_hash") @db.Char(64)
+  leaseExpiresAt DateTime? @map("lease_expires_at") @db.Timestamptz(6)
+  attemptCount Int @default(0) @map("attempt_count")
+  nextAttemptAt DateTime? @map("next_attempt_at") @db.Timestamptz(6)
+  effectReceiptId String? @map("effect_receipt_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([outboxMessageId, handlerName])
+  @@index([state, nextAttemptAt])
+  @@map("runtime_work_item")
+  @@schema("platform")
+
+  message RuntimeOutboxMessage @relation("C_RuntimeWorkItem_message", fields: [outboxMessageId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  effect RuntimeEffectReceipt? @relation("C_RuntimeWorkItem_effect", fields: [effectReceiptId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  candidateRuntimeAttemptWork RuntimeAttempt[] @relation("C_RuntimeAttempt_work")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: platform_integration_owner. Append-only actual runner attempt and fenced outcome observation
+model RuntimeAttempt {
+  id String @id @default(uuid()) @db.Uuid
+  workItemId String @map("work_item_id") @db.Uuid
+  attemptNumber Int @map("attempt_number")
+  fence BigInt
+  workerId String @map("worker_id")
+  result RuntimeReceiptState
+  reasonCode String @map("reason_code")
+  startedAt DateTime @map("started_at") @db.Timestamptz(6)
+  finishedAt DateTime @map("finished_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([workItemId, attemptNumber])
+  @@map("runtime_attempt")
+  @@schema("platform")
+
+  work RuntimeWorkItem @relation("C_RuntimeAttempt_work", fields: [workItemId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: platform_integration_owner. Consumer/event transport deduplication committed atomically with the consuming owner effect
+model RuntimeInboxReceipt {
+  id String @id @default(uuid()) @db.Uuid
+  outboxMessageId String @map("outbox_message_id") @db.Uuid
+  consumerOwner String @map("consumer_owner")
+  handlerName String @map("handler_name")
+  payloadHash String @map("payload_hash") @db.Char(64)
+  effectReceiptId String @map("effect_receipt_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([consumerOwner, handlerName, outboxMessageId])
+  @@map("runtime_inbox_receipt")
+  @@schema("platform")
+
+  message RuntimeOutboxMessage @relation("C_RuntimeInboxReceipt_message", fields: [outboxMessageId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  effect RuntimeEffectReceipt @relation("C_RuntimeInboxReceipt_effect", fields: [effectReceiptId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: platform_integration_owner. Execution reservation/fenced noncommit coordination; domain counts remain with their source owner
+model RuntimeReservation {
+  id String @id @default(uuid()) @db.Uuid
+  commandReceiptId String @map("command_receipt_id") @db.Uuid
+  ownerModuleId String @map("owner_module_id")
+  resourceKind String @map("resource_kind")
+  resourceKey String @map("resource_key")
+  semanticKey String @map("semantic_key")
+  quantity Int
+  state RuntimeReservationState @default(active)
+  fence BigInt @default(0)
+  effectReceiptId String? @map("effect_receipt_id") @db.Uuid
+  expiresAt DateTime? @map("expires_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([ownerModuleId, resourceKind, resourceKey, semanticKey])
+  @@map("runtime_reservation")
+  @@schema("platform")
+
+  command RuntimeCommandReceipt @relation("C_RuntimeReservation_command", fields: [commandReceiptId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  effect RuntimeEffectReceipt? @relation("C_RuntimeReservation_effect", fields: [effectReceiptId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  candidateTrackUsageReservationReservation TrackUsageReservation[] @relation("C_TrackUsageReservation_reservation")
+
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: platform_integration_owner. Minimized immutable owner-transaction proof; source-specific histories and policy remain with each owner
+model OwnerMutationEvidence {
+  id String @id @default(uuid()) @db.Uuid
+  commandReceiptId String @map("command_receipt_id") @db.Uuid
+  ownerModuleId String @map("owner_module_id")
+  aggregateKind String @map("aggregate_kind")
+  aggregateId String @map("aggregate_id")
+  previousRevision BigInt @map("previous_revision")
+  committedRevision BigInt @map("committed_revision")
+  action String
+  decisionRef String @map("decision_ref")
+  evidenceSchemaId String @map("evidence_schema_id")
+  evidenceSchemaVersion String @map("evidence_schema_version")
+  evidenceDigest String @map("evidence_digest") @db.Char(64)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  evidenceBody Json @map("evidence_body")
+  @@unique([ownerModuleId, aggregateKind, aggregateId, committedRevision])
+  @@map("owner_mutation_evidence")
+  @@schema("platform")
+
+  command RuntimeCommandReceipt @relation("C_OwnerMutationEvidence_command", fields: [commandReceiptId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: customer_buyer_profile. Exact Customer-owned retained lifecycle transition for the first P0-D slice
+model CustomerProfileLifecycleEvent {
+  id String @id @default(uuid()) @db.Uuid
+  customerProfileId String @map("customer_profile_id") @db.Uuid
+  commandReceiptId String @map("command_receipt_id") @db.Uuid
+  sourceRevision BigInt @map("source_revision")
+  fromStatus ProfileStatus? @map("from_status")
+  toStatus ProfileStatus @map("to_status")
+  name String
+  actorUserId String @map("actor_user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([customerProfileId, sourceRevision])
+  @@map("customer_profile_lifecycle_event")
+  @@schema("app")
+
+  profile CustomerProfile @relation("C_CustomerProfileLifecycleEvent_profile", fields: [customerProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  command RuntimeCommandReceipt @relation("C_CustomerProfileLifecycleEvent_command", fields: [commandReceiptId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  actor User @relation("C_CustomerProfileLifecycleEvent_actor", fields: [actorUserId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: track_subscription_entitlement. Exactly one current base enrollment selection per User/track, including provider-neutral Free
+model TrackBaseSelection {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  track AccountTrack
+  customerProfileId String? @map("customer_profile_id") @db.Uuid
+  candidateProfileId String? @map("candidate_profile_id") @db.Uuid
+  professionalProfileId String? @map("professional_profile_id") @db.Uuid
+  subscriptionId String @map("subscription_id") @db.Uuid
+  revision BigInt @default(0)
+  sourceGeneration BigInt @default(0) @map("source_generation")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([userId, track])
+  @@map("track_base_selection")
+  @@schema("app")
+
+  user User @relation("C_TrackBaseSelection_user", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  enrollment TrackSubscription @relation("C_TrackBaseSelection_enrollment", fields: [subscriptionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  customer CustomerProfile? @relation("C_TrackBaseSelection_customer", fields: [customerProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  candidate CandidateProfile? @relation("C_TrackBaseSelection_candidate", fields: [candidateProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  professional ProfessionalProfile? @relation("C_TrackBaseSelection_professional", fields: [professionalProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  candidateTrackEnrollmentReceiptSelection TrackEnrollmentReceipt[] @relation("C_TrackEnrollmentReceipt_selection")
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: track_subscription_entitlement. Immutable default-Free source/selection outcome; delayed Free cannot downgrade paid selection
+model TrackEnrollmentReceipt {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  track AccountTrack
+  profileId String @map("profile_id") @db.Uuid
+  sourceOwner String @map("source_owner")
+  sourceCreationRevision BigInt @map("source_creation_revision")
+  selectionId String @map("selection_id") @db.Uuid
+  selectionRevision BigInt @map("selection_revision")
+  semanticKey String @map("semantic_key")
+  fingerprint String @db.Char(64)
+  resultCode String @map("result_code")
+  effectReceiptId String @map("effect_receipt_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([sourceOwner, profileId, semanticKey])
+  @@map("track_enrollment_receipt")
+  @@schema("app")
+
+  user User @relation("C_TrackEnrollmentReceipt_user", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  selection TrackBaseSelection @relation("C_TrackEnrollmentReceipt_selection", fields: [selectionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  effect RuntimeEffectReceipt @relation("C_TrackEnrollmentReceipt_effect", fields: [effectReceiptId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: track_subscription_entitlement. Owner quota/period reservation bound to accepted usage and fenced shared reservation
+model TrackUsageReservation {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  entitlementId String @map("entitlement_id") @db.Uuid
+  periodStart DateTime @map("period_start") @db.Timestamptz(6)
+  periodEnd DateTime @map("period_end") @db.Timestamptz(6)
+  quantity Int
+  semanticKey String @map("semantic_key")
+  reservationId String @unique @map("reservation_id") @db.Uuid
+  acceptedSourceOwner String @map("accepted_source_owner")
+  acceptedSourceId String? @map("accepted_source_id")
+  acceptedAt DateTime? @map("accepted_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([userId, entitlementId, periodStart, periodEnd, semanticKey])
+  @@map("track_usage_reservation")
+  @@schema("app")
+
+  user User @relation("C_TrackUsageReservation_user", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  entitlement TrackEntitlementDefinition @relation("C_TrackUsageReservation_entitlement", fields: [entitlementId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  reservation RuntimeReservation @relation("C_TrackUsageReservation_reservation", fields: [reservationId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: privacy_data_erasure. Versioned immutable owner/action/field-map instruction; no universal source crawler
+model PrivacyTargetInstruction {
+  id String @id @default(uuid()) @db.Uuid
+  privacyRequestId String @map("privacy_request_id") @db.Uuid
+  ownerModuleId String @map("owner_module_id")
+  targetKind String @map("target_kind")
+  sourceId String @map("source_id")
+  sourceRevision String @map("source_revision")
+  action PrivacyActionKind
+  generation BigInt
+  fieldMapVersion String @map("field_map_version")
+  executorVersion String @map("executor_version")
+  descriptorHash String @map("descriptor_hash") @db.Char(64)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([privacyRequestId, ownerModuleId, targetKind, sourceId, action, generation])
+  @@map("privacy_target_instruction")
+  @@schema("app")
+
+  request PrivacyRequest @relation("C_PrivacyTargetInstruction_request", fields: [privacyRequestId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  candidatePrivacyOwnerReceiptInstruction PrivacyOwnerReceipt[] @relation("C_PrivacyOwnerReceipt_instruction")
+
+
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: privacy_data_erasure. Actual completed/retained/omitted/failed/unknown owner disposition for one generation, not accepted-as-completed
+model PrivacyOwnerReceipt {
+  id String @id @default(uuid()) @db.Uuid
+  instructionId String @map("instruction_id") @db.Uuid
+  generation BigInt
+  disposition PrivacyDispositionKind
+  executionReceiptRef String @map("execution_receipt_ref")
+  legalBasisRef String? @map("legal_basis_ref")
+  artifactDigest String? @map("artifact_digest") @db.Char(64)
+  artifactVersion String? @map("artifact_version")
+  resultSchemaVersion String @map("result_schema_version")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([instructionId, generation])
+  @@map("privacy_owner_receipt")
+  @@schema("app")
+
+  instruction PrivacyTargetInstruction @relation("C_PrivacyOwnerReceipt_instruction", fields: [instructionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  candidatePrivacyRestoreMarkerReceipt PrivacyRestoreMarker[] @relation("C_PrivacyRestoreMarker_receipt")
+
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}
+
+// Source owner: privacy_data_erasure. Owner erasure/restriction generation tombstone reapplied before restored data may be served
+model PrivacyRestoreMarker {
+  id String @id @default(uuid()) @db.Uuid
+  ownerModuleId String @map("owner_module_id")
+  targetKind String @map("target_kind")
+  sourceId String @map("source_id")
+  generation BigInt
+  action PrivacyActionKind
+  sourceReceiptId String @map("source_receipt_id") @db.Uuid
+  restorePointRef String? @map("restore_point_ref")
+  appliedAt DateTime? @map("applied_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([ownerModuleId, targetKind, sourceId, generation])
+  @@map("privacy_restore_marker")
+  @@schema("app")
+
+  receipt PrivacyOwnerReceipt @relation("C_PrivacyRestoreMarker_receipt", fields: [sourceReceiptId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
+}

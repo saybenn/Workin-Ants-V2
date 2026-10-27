@@ -84,7 +84,12 @@
         "basis": "Complete pre-migration catalog captured for comparison.",
         "limits": "No reviewed candidate schema, migration or full post-replay parity yet."
       },
-      "status": "PARTIAL"
+      "status": "PARTIAL",
+      "planning_evidence": [
+        "context/reconciliation/database-candidate-manifest.json",
+        "context/reconciliation/database-candidate-security.md",
+        "context/reconciliation/database-candidate-migration-plan.md"
+      ]
     },
     {
       "id": "DBP-07",
@@ -97,7 +102,12 @@
         "basis": "Views/functions/triggers/ownership/search-path fingerprints captured; public RLS event-trigger definition inspected as metadata.",
         "limits": "No adopted application object/function design or privilege behavior tests."
       },
-      "status": "PARTIAL"
+      "status": "PARTIAL",
+      "planning_evidence": [
+        "context/reconciliation/database-candidate-manifest.json",
+        "context/reconciliation/database-candidate-security.md",
+        "context/reconciliation/database-candidate-migration-plan.md"
+      ]
     },
     {
       "id": "DBP-08",
@@ -110,15 +120,25 @@
         "basis": "postgres-created public tables lack default browser/API CRUD grants; public auto-RLS trigger is enabled. Creator-specific default grants and function EXECUTE grants retained.",
         "limits": "supabase_admin-created objects retain broad defaults; PUBLIC function execution remains. Live Data API configuration and actual role/RLS behavior not verified."
       },
-      "status": "PARTIAL"
+      "status": "PARTIAL",
+      "planning_evidence": [
+        "context/reconciliation/database-candidate-manifest.json",
+        "context/reconciliation/database-candidate-security.md",
+        "context/reconciliation/database-candidate-migration-plan.md"
+      ]
     },
     {
       "id": "DBP-09",
       "required_evidence": "177 source-model routes,12 compatibility mirrors and architecture-required storage reconciliation",
       "owner": "Module owners + integrator",
       "handling": "Validate proposed physical constraints/source separation before candidate DDL; current schema validation is not this review.",
-      "actual_evidence": null,
-      "status": "NOT_OBTAINED"
+      "actual_evidence": {
+        "target_ref": "lyalfdmfheevpahywuhv",
+        "manifest": "context/reconciliation/database-candidate-manifest.json",
+        "basis": "Source-only review reconciles all 177 original models, 214 staged models, 40-model foundation closure, 12 compatibility cases, SQL-only enforcement and complete access/test plans. Native Prisma 7.10.1 validates both review schemas.",
+        "limits": "Ready for Brain review, not approved or adopted. No DDL generated, target contact, installation, RLS behavior, replay or runtime proof under P0-C-01."
+      },
+      "status": "PARTIAL"
     },
     {
       "id": "DBP-10",
@@ -126,7 +146,8 @@
       "owner": "Migration/security integrator",
       "handling": "No replay executed; require one ordered migration/RLS stream and actual allow/deny/constraint/concurrency tests.",
       "actual_evidence": null,
-      "status": "NOT_OBTAINED"
+      "status": "NOT_OBTAINED",
+      "planning_evidence": "context/reconciliation/database-candidate-tests.json; plan only; actual disposable identity/image/replay/recovery NOT_OBTAINED"
     },
     {
       "id": "DBP-11",
@@ -150,7 +171,7 @@
       "status": "NOT_OBTAINED"
     }
   ],
-  "smallest_external_action": "No further project identity or credentials are needed for safe source review. Work next reconciles the 177-model physical candidate and 12 compatibility cases, then prepares the reviewed migration/security/replay plan. Backup/restore facts and actual disposable replay authorization must be resolved before affected execution.",
+  "smallest_external_action": "Brain review of the fingerprinted candidate precedes source-only DDL generation. No new project/account/credential is needed for this review. Later exact disposable identity, reviewed SQL/execution authorization and affected preservation/backup evidence precede replay; provider/legal facts remain scoped.",
   "reported_target": {
     "provider": "Supabase",
     "project_ref": "sdceenkakajslwpctbgl",
@@ -179,5 +200,6 @@
     "fresh_target_qualified": false,
     "adopted_for_writes": false
   },
-  "fresh_target_observation": "context/reconciliation/database-observations/2026-10-27/manifest.json"
+  "fresh_target_observation": "context/reconciliation/database-observations/2026-10-27/manifest.json",
+  "candidate_review_manifest": "context/reconciliation/database-candidate-manifest.json"
 }

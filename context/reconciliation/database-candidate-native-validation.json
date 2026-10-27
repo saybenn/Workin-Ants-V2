@@ -1,0 +1,47 @@
+{
+  "status": "PASS_OFFLINE_SCHEMA_ONLY",
+  "node": "v24.22.1",
+  "prisma": "7.10.1",
+  "client": "7.10.1",
+  "schemas_sha256": {
+    "prisma/review/physical-candidate.prisma": "b3d0e48635f60293f09ef5697c300faec697f66cd7bd2eabf609dc107a22600d",
+    "prisma/review/foundation-candidate.prisma": "34c8b8c0a8a0c78576c70685bcbd39aadcb3e2778aed5764fd2d829ade52600e"
+  },
+  "commands": [
+    {
+      "id": "validate_prisma.review.config.ts",
+      "command": "node node_modules/prisma/build/index.js validate --config prisma.review.config.ts",
+      "exit_code": 0,
+      "stdout": "The schema at prisma/review/physical-candidate.prisma is valid \ud83d\ude80\n",
+      "stderr": "Loaded Prisma config from prisma.review.config.ts.\n\nPrisma schema loaded from prisma/review/physical-candidate.prisma.\n",
+      "database_target_configured": false
+    },
+    {
+      "id": "validate_prisma.foundation-review.config.ts",
+      "command": "node node_modules/prisma/build/index.js validate --config prisma.foundation-review.config.ts",
+      "exit_code": 0,
+      "stdout": "The schema at prisma/review/foundation-candidate.prisma is valid \ud83d\ude80\n",
+      "stderr": "Loaded Prisma config from prisma.foundation-review.config.ts.\n\nPrisma schema loaded from prisma/review/foundation-candidate.prisma.\n",
+      "database_target_configured": false
+    },
+    {
+      "id": "help_migrate_diff",
+      "command": "node node_modules/prisma/build/index.js migrate diff --help --config prisma.review.config.ts",
+      "exit_code": 0,
+      "stdout": "\n\ud83d\udd0d Compares the database schema from two arbitrary sources, and outputs the differences either as a human-readable summary (by default) or an executable script.\n\nprisma migrate diff is a read-only command that does not write to your datasource(s).\nprisma db execute can be used to execute its --script output.\n\nThe command takes a source --from-... and a destination --to-....\nThe source and destination must use the same provider,\ne.g. a diff using 2 different providers like PostgreSQL and SQLite is not supported.\n\nIt compares the source with the destination to generate a diff.\nThe diff can be interpreted as generating a migration that brings the source schema (from) to the shape of the destination schema (to).\nThe default output is a human readable diff, it can be rendered as SQL using `--script` on SQL databases.\n\nSee the documentation for more information https://pris.ly/d/migrate-diff\n\nUsage\n\n  $ prisma migrate diff [options]\n\nOptions\n\n  -h, --help               Display this help message\n  --config                 Custom path to your Prisma config file\n  -o, --output             Writes to a file instead of stdout\n\nFrom and To inputs (1 `--from-...` and 1 `--to-...` must be provided):\n  --from-empty             Flag to assume from or to is an empty datamodel\n  --to-empty\n\n  --from-schema            Path to a Prisma schema file, uses the datamodel for the diff\n  --to-schema\n\n  --from-migrations        Path to the Prisma Migrate migrations directory\n  --to-migrations\n\n  --from-config-datasource Flag to use the datasource from the Prisma config file\n  --to-config-datasource\n\nFlags\n\n  --script                 Render a SQL script to stdout instead of the default human readable summary (not supported on MongoDB)\n  --exit-code              Change the exit code behavior to signal if the diff is empty or not (Empty: 0, Error: 1, Not empty: 2). Default behavior is Success: 0, Error: 1.\n\nExamples\n\n  From the configured database to a Prisma datamodel\n    e.g. roll forward after a migration failed in the middle\n  $ prisma migrate diff \\\n    --from-config-datasource \\\n    --to-schema=next_datamodel.prisma \\\n    --script\n\n  From a Prisma datamodel to the configured database\n    e.g. roll forward after a migration failed in the middle\n  $ prisma migrate diff \\\n    --from-schema=next_datamodel.prisma \\\n    --to-config-datasource \\\n    --script\n\n  From a Prisma Migrate `migrations` directory to the configured database\n    e.g. generate a migration for a hotfix already applied on production\n  $ prisma migrate diff \\\n    --from-migrations ./migrations \\\n    --to-config-datasource \\\n    --script\n\n  Execute the --script output with `prisma db execute` using bash pipe `|`\n  $ prisma migrate diff \\\n    --from-[...] \\\n    --to-[...] \\\n    --script | prisma db execute --stdin --url=\"$DATABASE_URL\"\n\n  Detect if both sources are in sync, it will exit with exit code 2 if changes are detected\n  $ prisma migrate diff \\\n    --exit-code \\\n    --from-[...] \\\n    --to-[...]\n\n",
+      "stderr": "Loaded Prisma config from prisma.review.config.ts.\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  Update available 7.10.1 -> 8.0.0-rc.27                 \u2502\n\u2502                                                         \u2502\n\u2502  This is a major update - please follow the guide at    \u2502\n\u2502  https://pris.ly/d/major-version-upgrade                \u2502\n\u2502                                                         \u2502\n\u2502  Run the following to update                            \u2502\n\u2502    npm i --save-dev prisma@latest                       \u2502\n\u2502    npm i @prisma/client@latest                          \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "database_target_configured": false
+    },
+    {
+      "id": "help_migrate_deploy",
+      "command": "node node_modules/prisma/build/index.js migrate deploy --help --config prisma.review.config.ts",
+      "exit_code": 0,
+      "stdout": "\nApply pending migrations to update the database schema in production/staging\n\nUsage\n\n  $ prisma migrate deploy [options]\n\n  The datasource URL configuration is read from the Prisma config file (e.g., prisma7.config.ts).\n\nOptions\n\n  -h, --help   Display this help message\n    --config   Custom path to your Prisma config file\n    --schema   Custom path to your Prisma schema\n\nExamples\n\n  Deploy your pending migrations to your production/staging database\n  $ prisma migrate deploy\n\n  Specify a schema\n  $ prisma migrate deploy --schema=./schema.prisma\n\n",
+      "stderr": "Loaded Prisma config from prisma.review.config.ts.\n\n",
+      "database_target_configured": false
+    }
+  ],
+  "database_contacted": false,
+  "ddl_generated": false,
+  "scope": "Native schema validation and CLI help only; no datasource/environment loader/shadow; no actual database behavior."
+}

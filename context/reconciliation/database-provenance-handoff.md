@@ -1,48 +1,44 @@
-# P0-C — fresh database evidence handoff
+# P0-C — reviewed candidate and evidence handoff
 
-Updated 27 October 2026. **Posture D; fresh target identity/environment and empty application namespace verified; no writes or migration/replay performed.** Four provenance requirements have scoped verification, five have partial evidence and three remain pending. Current results and limits are in [Checkpoint 009](checkpoint-009.md).
+Updated 27 October 2026, Brain Directive P0-C-01. **Candidate ready for Brain review; posture D remains.** This assignment performed source review only. It contacted neither project and generated no DDL. Current checkpoint: [010](checkpoint-010.md); exact review artifacts: [candidate manifest](database-candidate-manifest.json).
 
-## Fresh target verified
+The intended fresh project remains **lyalfdmfheevpahywuhv — Workin Ants MVP** ([endpoint](https://lyalfdmfheevpahywuhv.supabase.co)). Checkpoint 009 accepted its scoped identity/environment/version and empty application namespace. The older **sdceenkakajslwpctbgl** remains preserved and forbidden as a replay/shadow target. No new project, account or pasted credential is required for candidate review.
 
-The owner supplied project `lyalfdmfheevpahywuhv`, URL `https://lyalfdmfheevpahywuhv.supabase.co`, for the existing fresh-development assignment. Supabase confirms **Workin Ants MVP**, organization **sayben codes**, us-west-2, creation 27 October 2026 UTC, and healthy status. SQL reports PostgreSQL 17.11. This ID and endpoint differ from the preserved June project.
+## Existing evidence and its limits
 
-Two read-only transactions confirm no tables/views/sequences in public/app, no app schema, no Prisma ledger anywhere in the captured namespaces and no Supabase migration history. Provider-managed Auth/Storage and other schemas remain intact; no claim about their record contents is made. The [fresh-target observation](database-observations/2026-10-27/manifest.json) preserves the exact queries, provider metadata and catalog/access evidence. No fresh baseline has been adopted.
+The [27 October observation](database-observations/2026-10-27/manifest.json) preserves provider identity, PostgreSQL 17.11, creator-specific defaults, public-only auto-RLS setup, two advisor warnings, empty app/public relations and absent migration histories. It does not prove managed Auth/Storage records empty, complete Data API exposure, effective least-privileged access, backup/restore coverage or safe adoption.
 
-Public RLS automation is enabled in metadata and its inspected definition covers public only. Default API CRUD grants for postgres-created public tables are removed; supabase_admin-created objects retain broad defaults, and function/PUBLIC execution still requires review. This verifies configuration facts, not working row policies, complete Data API exposure or safe application access.
+The [26 October observation](database-observations/2026-10-26/manifest.json) remains historical evidence only: the older target contains the June structure and matching historical Prisma ledger. Its objects/data are not disposable. Do not contact, reuse, reset or erase it under P0-C-01. Historical read-only probes are preserved; this directive requested no further live query.
 
-## Preserved legacy target — historical observation
+## Candidate review now supplied
 
-Supabase access is connected. The owner-supplied project `sdceenkakajslwpctbgl`, URL `https://sdceenkakajslwpctbgl.supabase.co`, is named Workin Ants in organization **sayben codes**. Provider metadata records creation on 2 June 2026 and region us-west-2. Three read-only SQL transactions collected catalog, effective privileges and the existing Prisma ledger; all ended with rollback. No raw application rows were read or exported.
+The canonical [model/security inventory](greenfield-model-security-inventory.json) is extended by physical_candidate_review, without rewriting its original 177 rows or 12 compatibility records. It now accounts for every original model/field and 37 justified additions: 214 models/219 enums in the staged candidate, 40 models in the proposed foundation FK closure. [Model ledger](database-candidate-model-ledger.md), [technical decisions](database-candidate-decisions.md), [SQL-only register](database-candidate-sql-objects.json), [object/access matrix](database-candidate-access-matrix.json), [JSON admission rules](database-candidate-json-boundaries.json) and [security analysis](database-candidate-security.md) form one package.
 
-This is the existing June application database: its 53 application table identities match the historical migration, and its Prisma ledger retains the same migration name and SHA-256 checksum as Git. It is not an empty application namespace or a separately created fresh target. Do not use it for clean replay, reset it, erase it, or mark it adopted. Data-preservation obligations remain unknown.
+Both review schemas validate under pinned Prisma 7.10.1 with environment-free configs. Syntax and traceability do not establish installed SQL objects, RLS behavior, current actor/field authority, runtime atomicity or Privacy execution. The actual source schema, June migration, canonical shared contracts, P0-B source/dependencies and UI are preserved.
 
-The [observation manifest](database-observations/2026-10-26/manifest.json) records actual supplied-target facts separately from the 12 requirements for a fresh target. RLS is disabled on all 53 app tables, while effective schema and SELECT/INSERT/UPDATE/DELETE grants are absent for anon, authenticated and service_role. Live Data API configuration/behavior is unverified; do not repeat the generic table tool's claim that these tables are necessarily publicly accessible. The retained advisor findings and public event-trigger definition require review, not automatic remediation.
+## Requirement states
 
-## Next action — Work-owned candidate review
+| Requirement | Current state | Still required |
+|---|---|---|
+| DBP-01 identity | VERIFIED, scoped | Reconfirm exact identity before any later execution |
+| DBP-02 environment | VERIFIED, scoped | Bind each later disposable/hosted action to its exact target |
+| DBP-03 preservation | PARTIAL | Actual retained-data, backup and authorized disposal obligations |
+| DBP-04 version/managed objects | VERIFIED, scoped | Later target versions/extensions and managed preservation comparison |
+| DBP-05 namespace/ledger | VERIFIED, scoped | Actual installed history/catalog after approved execution |
+| DBP-06 complete structure | PARTIAL | Full selected-cut catalog comparison including SQL-only objects |
+| DBP-07 privileged objects | PARTIAL | Actual helper/default/trigger boundaries; exact public-function disposition tests |
+| DBP-08 grants/API/RLS | PARTIAL | Positive/negative actual logins, pool isolation, field/source parity and provider exposure |
+| DBP-09 physical candidate | PARTIAL; source review ready | Brain approval; actual approved SQL and physical qualification |
+| DBP-10 replay | NOT_OBTAINED | Exact disposable identity/digest/tools, installation/redeployment/failure/recovery evidence |
+| DBP-11 backup/access | PARTIAL | Actual backup/restore/retention/secret handover and privacy restore-marker coverage |
+| DBP-12 adoption | NOT_OBTAINED | Evidence-supported exact schema/history/security adoption decision |
 
-No further target ID, project creation or pasted credential is needed for safe source review. The owner has already created and identified the fresh project. Work now reconciles the physical candidate against the existing 177-model inventory, 12 compatibility cases and architecture-required storage, following the existing greenfield strategy. Preserve all historical migrations and the legacy target; do not apply the June migration or current Prisma schema as an assumed fresh baseline.
+DBP-10's executable test specification is planning evidence, not an actual replay. DBP-12 cannot close because the candidate is syntactically valid. Four requirements retain scoped verification, six are partial and two remain pending.
 
-Actual backup/restore settings, retention/preservation obligations and any destructive disposable-replay action still require their own evidence and applicable authorization before affected execution. Continue independent candidate/security design work around those limits. Do not convert the project-name suffix MVP into public-release authorization.
+## Next action boundary
 
-The account owner does not need to decide database architecture. Work/the migration integrator handles catalog collection, ownership reconciliation, migration design and tests after the actual target and access are available. The earlier approval of clean isolation is already recorded; do not ask the client to redesign it.
+Brain reviews the exact packet hashes and proposed ordinary technical choices. Approval precedes the [specified source-only SQL generation](database-candidate-migration-plan.md). Reviewed structural/security SQL and environment-role prerequisites then require authorization for an exact synthetic disposable identity/actions before execution. No DDL generation, provisioning, migration, seed, reset, provider setting or test table is authorized by P0-C-01.
 
-## Read-only evidence collection after target identity is verified
+The selected future executor is one pinned Prisma application migration/security history. Historical June SQL stays preserved/inactive; no db push/reset, fake applied ledger, competing Supabase application history or hosted shadow database. Managed Auth/Storage/Realtime/extensions retain ownership. Full catalog and actual allowed/denied tests, recovery and affected backup/preservation facts precede an adoption decision.
 
-The database steward can inspect [the prepared catalog query](../../scripts/collect-database-provenance.sql) and run it manually in the confirmed isolated target's SQL console. It opens a read-only transaction, inspects system catalogs and rolls back. It reads no application rows, executes no migration and does not connect itself. Review output before sharing. Do not point it at the old target merely because an old connection is available.
-
-Attach the resulting JSON to the controlled engineering handoff together with:
-
-1. The target identity/isolation and preservation facts above (**DBP-01–03**).
-2. Actual provider/Postgres/extension/managed Auth details and the catalog output (**DBP-04, 06–08**). The probe covers structure, grants, policies, ownership, role membership and privileged-function signatures/configuration fingerprints. It deliberately excludes function bodies and view definitions; the integrator must review those separately in a safe channel before approving security or full structural parity. Object absence, access errors or insufficient visibility remain gaps.
-3. The actual migration ledger (**DBP-05**). If the catalog confirms an application-owned `_prisma_migrations` table, the steward may separately export only migration names, checksums, start/finish/rollback times and applied-step counts from that exact qualified table. Do not export logs or application rows. If absent, record actual absence. No object or ledger presence/absence proves that application tables contain no records.
-4. Account/provider backup and restore settings, retention, secret-access/handover and synthetic-fixture obligations (**DBP-11**). A retention proposal is not approved policy and the catalog cannot prove backup deletion.
-
-## Work-owned review and later exit criteria
-
-**DBP-09:** Reconcile the existing [177-model ownership/security inventory](greenfield-model-security-inventory.json), 12 compatibility cases and architecture-required representations. Current Prisma validation proves syntax/relations only. Preserve the screening Order source separation, explicit Media joins, canonical owner repositories and actual generation/economic-effect constraints.
-
-**DBP-10:** Pin the actual disposable replay target, reviewed candidate schema, exact Prisma CLI, one ordered migration/RLS history and safe fixtures. Candidate DDL review precedes execution. Preserve historical migration checksums. The complete replay must prove no pending migrations on a second deploy, full catalog parity, allowed/denied role behavior, constraints, concurrency and safe failure recovery. Do not use reset, db push or a fabricated applied ledger to hide gaps.
-
-**DBP-12:** Record an evidence-supported adoption decision and exact source/migration/RLS/build versions. The current query and handoff do not satisfy this item. Only actual reviewed evidence can change posture D. P0-D database-backed runtime tests, P0-E permissions/RLS and P0-F actual Privacy execution remain dependent on their relevant real prerequisites.
-
-DBP-01, DBP-02, DBP-04 and DBP-05 are VERIFIED for their stated identity/environment/catalog scope. DBP-03, DBP-06, DBP-07, DBP-08 and DBP-11 are PARTIAL with explicit limits. DBP-09, DBP-10 and DBP-12 remain NOT_OBTAINED. The catalog probe has now run read-only on each separately identified target; neither observation establishes migration baseline adoption, replay, RLS behavior or production readiness.
+The [451-test plan](database-candidate-tests.json) marks every database, worker, adapter and executor test NOT_RUN and separates P0-C/D/E/F. The [first P0-D proposal](database-candidate-continuation.md) is Customer provisioning → durable default-Free Track enrollment, with current authority and minimal Privacy prerequisites. It is not implemented. U.S./18+ launch boundaries, excluded therapy/prescribing/child-directed/prize paths, external vendor/legal gates and separate UI work remain unchanged. No contract freezes, parallel lanes or Step 20 development follow from this checkpoint.

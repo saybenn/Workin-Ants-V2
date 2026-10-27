@@ -11,9 +11,9 @@ CHECK=runpy.run_path(str(ROOT/'scripts/check-phase0.py'))['inspect']
 results=[]
 with tempfile.TemporaryDirectory(prefix='wa-phase0-negative-') as directory:
     root=Path(directory)
-    for name in ['context','app','legacy','scripts']:
+    for name in ['context','app','legacy','scripts','prisma','contracts','tests/database']:
         shutil.copytree(ROOT/name,root/name,ignore=shutil.ignore_patterns('*.docx','__pycache__'))
-    for name in ['package.json','tsconfig.json','eslint.config.mjs','next.config.ts','postcss.config.mjs','package-lock.json','AGENTS.md','.node-version','prisma.offline.config.ts']:
+    for name in ['package.json','tsconfig.json','eslint.config.mjs','next.config.ts','postcss.config.mjs','package-lock.json','AGENTS.md','.node-version','prisma.offline.config.ts','prisma.review.config.ts','prisma.foundation-review.config.ts']:
         shutil.copy2(ROOT/name,root/name)
     assert not CHECK(root)['errors'],CHECK(root)['errors']
     def case(label,path,mutate,expected):
@@ -45,6 +45,9 @@ with tempfile.TemporaryDirectory(prefix='wa-phase0-negative-') as directory:
     case('logical compatibility case lost','context/reconciliation/greenfield-model-security-inventory.json',lambda j:j['compatibility_cases'].pop(),'compatibility cases lost')
     case('browser access silently allowed','context/reconciliation/greenfield-model-security-inventory.json',lambda j:j['models'][0].update(browser_default='ALLOW_ALL'),'Unapproved database baseline')
     case('write alias bypasses posture D','package.json',lambda j:j['scripts'].update({'db:check':'node scripts/check-db-integrity.ts'}),'Database write alias bypass')
+    if json.loads((root/'context/reconciliation/phase0-foundation-status.json').read_text()).get('candidate_review_manifest'):
+        case('candidate review falsely adopted','context/reconciliation/database-candidate-manifest.json',lambda j:j.update(adopted=True),'Database candidate review')
+        case('physical candidate prematurely verified','context/reconciliation/database-provenance-requirements.json',lambda j:j['requirements'][8].update(status='VERIFIED'),'Unproven database provenance')
     case('failed build promoted to qualified',evidence_path,lambda j:next(x for x in j['commands'] if x['id']=='build').update(exit_code=1),'Missing real Phase0 qualification')
     case('known security gate cleared','context/reconciliation/phase0-foundation-status.json',lambda j:j.update(dependency_security_gate='CLOSED'),'security gate silently cleared')
     if evidence_path.endswith('phase0-security-requalification.json'):

@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:workinants:database-review:foundation-payloads:v1",
+  "description": "Review-only Customer branch of existing R078; service identity is trusted side-channel, never asserted by payload. No canonical SH changed. Outcome invariants and receipt coherence also require SQL-07/08/12.",
+  "$defs": {
+    "assignDefaultFreeTrackCustomerCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceOwner",
+        "userId",
+        "track",
+        "customerProfileId",
+        "sourceCreationRevision",
+        "sourceCreationReceipt",
+        "semanticKey"
+      ],
+      "properties": {
+        "sourceOwner": {
+          "const": "customer_buyer_profile"
+        },
+        "userId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "track": {
+          "const": "customer"
+        },
+        "customerProfileId": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "sourceCreationRevision": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Token"
+        },
+        "sourceCreationReceipt": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        },
+        "semanticKey": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "assignDefaultFreeTrackCustomerResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcome",
+        "selectionRevision",
+        "receipt"
+      ],
+      "properties": {
+        "outcome": {
+          "enum": [
+            "enrolled",
+            "already_enrolled",
+            "conflict",
+            "denied",
+            "unavailable"
+          ]
+        },
+        "selectionRevision": {
+          "anyOf": [
+            {
+              "$ref": "urn:workin-ants:types:v1#/$defs/Token"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "receipt": {
+          "$ref": "urn:workin-ants:types:v1#/$defs/Id"
+        }
+      }
+    }
+  },
+  "external_schema_registry": [
+    "contracts/shared/types.v1.schema.json",
+    "contracts/shared/SH-004.v1.schema.json",
+    "contracts/shared/SH-114.v1.schema.json"
+  ]
+}

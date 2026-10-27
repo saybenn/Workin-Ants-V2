@@ -96,6 +96,15 @@ def inspect_fresh_database_observation(root, status, provenance):
         verified = {'DBP-01', 'DBP-02', 'DBP-04', 'DBP-05'}
         partial = {'DBP-03', 'DBP-06', 'DBP-07', 'DBP-08', 'DBP-11'}
         pending = {'DBP-09', 'DBP-10', 'DBP-12'}
+        candidate_ref = status.get('candidate_review_manifest')
+        if candidate_ref is not None:
+            if candidate_ref != 'context/reconciliation/database-candidate-manifest.json' or provenance.get('candidate_review_manifest') != candidate_ref:
+                errors.append('Unregistered database candidate review')
+            else:
+                candidate_result = runpy.run_path(str(root / 'scripts/check-database-candidate.py'))['inspect'](root=root)
+                errors.extend('Database candidate review: ' + e for e in candidate_result['errors'])
+                partial.add('DBP-09')
+                pending.remove('DBP-09')
         if {x['id'] for x in provenance['requirements']} != verified | partial | pending:
             errors.append('Unproven database provenance or baseline adoption: requirement coverage')
         for row in provenance['requirements']:
@@ -103,7 +112,7 @@ def inspect_fresh_database_observation(root, status, provenance):
             evidence = row['actual_evidence']
             if row['status'] != expected_status or (row['id'] in pending and evidence is not None):
                 errors.append('Unproven database provenance or baseline adoption: ' + row['id'])
-            elif row['id'] not in pending and (not isinstance(evidence, dict) or evidence.get('target_ref') != project['id'] or evidence.get('manifest') != expected or not evidence.get('basis') or not evidence.get('limits')):
+            elif row['id'] not in pending and (not isinstance(evidence, dict) or evidence.get('target_ref') != project['id'] or evidence.get('manifest') != (candidate_ref if row['id'] == 'DBP-09' else expected) or not evidence.get('basis') or not evidence.get('limits')):
                 errors.append('Unproven database provenance or baseline adoption: evidence ' + row['id'])
     except (OSError, KeyError, TypeError, ValueError) as exc:
         errors.append('Fresh database observation unavailable or malformed: ' + type(exc).__name__)
