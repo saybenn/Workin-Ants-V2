@@ -1,8 +1,16 @@
 # P0-C — fresh database evidence handoff
 
-Updated 26 October 2026. **Posture D; supplied existing target inspected read-only; no provisioning, migration, seed, reset or replay performed.** The fresh-target verification requirements are still unsatisfied. Current results and limitations are in [Checkpoint 008](checkpoint-008.md).
+Updated 27 October 2026. **Posture D; fresh target identity/environment and empty application namespace verified; no writes or migration/replay performed.** Four provenance requirements have scoped verification, five have partial evidence and three remain pending. Current results and limits are in [Checkpoint 009](checkpoint-009.md).
 
-## Supplied target and verified access
+## Fresh target verified
+
+The owner supplied project `lyalfdmfheevpahywuhv`, URL `https://lyalfdmfheevpahywuhv.supabase.co`, for the existing fresh-development assignment. Supabase confirms **Workin Ants MVP**, organization **sayben codes**, us-west-2, creation 27 October 2026 UTC, and healthy status. SQL reports PostgreSQL 17.11. This ID and endpoint differ from the preserved June project.
+
+Two read-only transactions confirm no tables/views/sequences in public/app, no app schema, no Prisma ledger anywhere in the captured namespaces and no Supabase migration history. Provider-managed Auth/Storage and other schemas remain intact; no claim about their record contents is made. The [fresh-target observation](database-observations/2026-10-27/manifest.json) preserves the exact queries, provider metadata and catalog/access evidence. No fresh baseline has been adopted.
+
+Public RLS automation is enabled in metadata and its inspected definition covers public only. Default API CRUD grants for postgres-created public tables are removed; supabase_admin-created objects retain broad defaults, and function/PUBLIC execution still requires review. This verifies configuration facts, not working row policies, complete Data API exposure or safe application access.
+
+## Preserved legacy target — historical observation
 
 Supabase access is connected. The owner-supplied project `sdceenkakajslwpctbgl`, URL `https://sdceenkakajslwpctbgl.supabase.co`, is named Workin Ants in organization **sayben codes**. Provider metadata records creation on 2 June 2026 and region us-west-2. Three read-only SQL transactions collected catalog, effective privileges and the existing Prisma ledger; all ended with rollback. No raw application rows were read or exported.
 
@@ -10,11 +18,11 @@ This is the existing June application database: its 53 application table identit
 
 The [observation manifest](database-observations/2026-10-26/manifest.json) records actual supplied-target facts separately from the 12 requirements for a fresh target. RLS is disabled on all 53 app tables, while effective schema and SELECT/INSERT/UPDATE/DELETE grants are absent for anon, authenticated and service_role. Live Data API configuration/behavior is unverified; do not repeat the generic table tool's claim that these tables are necessarily publicly accessible. The retained advisor findings and public event-trigger definition require review, not automatic remediation.
 
-## First action for the WorkinAnts account/environment owner
+## Next action — Work-owned candidate review
 
-Select the organization for a separate development-only project; the recommended organization is the existing **sayben codes**. Work must check the actual creation cost and obtain any required cost approval before provisioning. Alternatively, supply an already-created fresh development project. Preserve the supplied existing target. Do not ask for its ID again or request credentials in chat.
+No further target ID, project creation or pasted credential is needed for safe source review. The owner has already created and identified the fresh project. Work now reconciles the physical candidate against the existing 177-model inventory, 12 compatibility cases and architecture-required storage, following the existing greenfield strategy. Preserve all historical migrations and the legacy target; do not apply the June migration or current Prisma schema as an assumed fresh baseline.
 
-For the fresh target, Work collects provider identity/region/creation metadata, verifies its separation and checks actual namespace/ledger/security state. The account/data owner confirms purpose and any preservation/disposal obligations that technical evidence cannot establish. Supabase-managed schemas are preserved even on a fresh project.
+Actual backup/restore settings, retention/preservation obligations and any destructive disposable-replay action still require their own evidence and applicable authorization before affected execution. Continue independent candidate/security design work around those limits. Do not convert the project-name suffix MVP into public-release authorization.
 
 The account owner does not need to decide database architecture. Work/the migration integrator handles catalog collection, ownership reconciliation, migration design and tests after the actual target and access are available. The earlier approval of clean isolation is already recorded; do not ask the client to redesign it.
 
@@ -37,4 +45,4 @@ Attach the resulting JSON to the controlled engineering handoff together with:
 
 **DBP-12:** Record an evidence-supported adoption decision and exact source/migration/RLS/build versions. The current query and handoff do not satisfy this item. Only actual reviewed evidence can change posture D. P0-D database-backed runtime tests, P0-E permissions/RLS and P0-F actual Privacy execution remain dependent on their relevant real prerequisites.
 
-All 12 ledger items remain `NOT_OBTAINED` for qualification of the separate fresh target. The catalog probe has been executed only against the owner-supplied existing project, and its output is retained separately; it has not qualified a fresh database, migration baseline or security behavior.
+DBP-01, DBP-02, DBP-04 and DBP-05 are VERIFIED for their stated identity/environment/catalog scope. DBP-03, DBP-06, DBP-07, DBP-08 and DBP-11 are PARTIAL with explicit limits. DBP-09, DBP-10 and DBP-12 remain NOT_OBTAINED. The catalog probe has now run read-only on each separately identified target; neither observation establishes migration baseline adoption, replay, RLS behavior or production readiness.

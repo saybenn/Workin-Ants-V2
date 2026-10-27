@@ -33,7 +33,7 @@ def inspect_database_observation(root, status, provenance):
             if not (base / name).is_file() or hashlib.sha256((base / name).read_bytes()).hexdigest() != manifest['files_sha256'].get(name):
                 errors.append('Database observation evidence fingerprint changed ' + name)
         mode = 'READ_ONLY_EXISTING_TARGET_NOT_ADOPTED'
-        if (manifest['kind'] != mode or status.get('database_access_mode') != mode
+        if (manifest['kind'] != mode or status.get('database_access_mode') not in [mode, 'READ_ONLY_EXISTING_AND_FRESH_TARGETS_NOT_ADOPTED']
                 or not status['database_contacted'] or not provenance['database_contacted']
                 or manifest['database_contacted'] is not True
                 or any(manifest[key] is not False for key in ['database_writes_executed',
@@ -53,6 +53,60 @@ def inspect_database_observation(root, status, provenance):
             errors.append('Database observation existing-schema classification unsupported')
     except (OSError, KeyError, TypeError, ValueError) as exc:
         errors.append('Database observation evidence unavailable or malformed: ' + type(exc).__name__)
+    return errors
+
+
+def inspect_fresh_database_observation(root, status, provenance):
+    reference = status.get('fresh_database_observation')
+    if reference is None:
+        if status.get('database_access_mode') == 'READ_ONLY_EXISTING_AND_FRESH_TARGETS_NOT_ADOPTED':
+            return ['Fresh database observation is missing']
+        return ['Unproven database provenance or baseline adoption'] if any(x['actual_evidence'] is not None or x['status'] != 'NOT_OBTAINED' for x in provenance['requirements']) else []
+    expected = 'context/reconciliation/database-observations/2026-10-27/manifest.json'
+    if reference != expected or provenance.get('fresh_target_observation') != expected:
+        return ['Fresh database observation reference is unregistered']
+    errors = []
+    try:
+        base = (root / expected).parent
+        read = lambda name: json.loads((base / name).read_text())
+        manifest = read('manifest.json')
+        required = {'project.json', 'project-url.json', 'catalog.json', 'access-review.json',
+                    'supabase-migration-ledger.json', 'security-advisors.json',
+                    'table-summary.json', 'catalog-probe.sql', 'access-review.sql'}
+        if set(manifest['files_sha256']) != required:
+            errors.append('Fresh database observation evidence coverage changed')
+        for name in required:
+            if not (base / name).is_file() or hashlib.sha256((base / name).read_bytes()).hexdigest() != manifest['files_sha256'].get(name):
+                errors.append('Fresh database observation fingerprint changed ' + name)
+        project, endpoint, catalog, access = [read(name) for name in ['project.json', 'project-url.json', 'catalog.json', 'access-review.json']]
+        candidate = provenance['candidate_target']
+        if (manifest['kind'] != 'READ_ONLY_FRESH_TARGET_NOT_ADOPTED'
+                or manifest['project_ref'] != project['id'] or project['id'] != candidate['project_ref']
+                or project['id'] == provenance['reported_target']['project_ref']
+                or endpoint['url'] != 'https://' + project['id'] + '.supabase.co'
+                or manifest['project_url'] != endpoint['url'] or candidate['project_url'] != endpoint['url']):
+            errors.append('Fresh database observation target mismatch')
+        if (catalog['transaction_read_only'] != 'on' or access['transaction_read_only'] != 'on'
+                or any(manifest[key] is not False for key in ['database_writes_executed', 'application_rows_exported', 'managed_schema_data_emptiness_proven', 'fresh_target_qualified', 'baseline_adopted'])
+                or candidate['fresh_target_qualified'] is not False or candidate['adopted_for_writes'] is not False):
+            errors.append('Fresh database observation scope or adoption changed')
+        relations = [r for r in catalog['relations'] if r['schema'] in ['app', 'public']]
+        if relations or access['application_relations'] or access['prisma_ledger'] is not None or catalog['migration_ledger_relations'] or read('supabase-migration-ledger.json')['migrations']:
+            errors.append('Fresh database observation empty-namespace claim unsupported')
+        verified = {'DBP-01', 'DBP-02', 'DBP-04', 'DBP-05'}
+        partial = {'DBP-03', 'DBP-06', 'DBP-07', 'DBP-08', 'DBP-11'}
+        pending = {'DBP-09', 'DBP-10', 'DBP-12'}
+        if {x['id'] for x in provenance['requirements']} != verified | partial | pending:
+            errors.append('Unproven database provenance or baseline adoption: requirement coverage')
+        for row in provenance['requirements']:
+            expected_status = 'VERIFIED' if row['id'] in verified else 'PARTIAL' if row['id'] in partial else 'NOT_OBTAINED'
+            evidence = row['actual_evidence']
+            if row['status'] != expected_status or (row['id'] in pending and evidence is not None):
+                errors.append('Unproven database provenance or baseline adoption: ' + row['id'])
+            elif row['id'] not in pending and (not isinstance(evidence, dict) or evidence.get('target_ref') != project['id'] or evidence.get('manifest') != expected or not evidence.get('basis') or not evidence.get('limits')):
+                errors.append('Unproven database provenance or baseline adoption: evidence ' + row['id'])
+    except (OSError, KeyError, TypeError, ValueError) as exc:
+        errors.append('Fresh database observation unavailable or malformed: ' + type(exc).__name__)
     return errors
 
 
@@ -82,8 +136,9 @@ def inspect(root=ROOT):
     if 'legacy' not in read('tsconfig.json')['exclude'] or 'legacy/**' not in (root/'eslint.config.mjs').read_text():errors.append('Legacy source entered active compiler/lint scope')
     if (status['database_posture']!='D' or status['migrations_seed_reset_or_provisioning_executed'] or status['runtime_shared_contracts_qualified'] or status['externally_gated_contracts']!=13 or status['authorized_parallel_lanes'] or status['production_development_authorized']):errors.append('Unsupported Phase0 database/runtime/production promotion')
     provenance=read('context/reconciliation/database-provenance-requirements.json')
-    if provenance['strategy_selected'] or provenance['database_posture']!='D' or any(provenance[key] for key in ['database_provisioned','migrations_executed','old_supabase_reused_reset_or_erased']) or any(x['actual_evidence'] is not None or x['status']!='NOT_OBTAINED' for x in provenance['requirements']):errors.append('Unproven database provenance or baseline adoption')
+    if provenance['strategy_selected'] or provenance['database_posture']!='D' or any(provenance[key] for key in ['database_provisioned','migrations_executed','old_supabase_reused_reset_or_erased']):errors.append('Unproven database provenance or baseline adoption')
     errors.extend(inspect_database_observation(root, status, provenance))
+    errors.extend(inspect_fresh_database_observation(root, status, provenance))
     models=read('context/reconciliation/greenfield-model-security-inventory.json')['models']
     registry=read('context/reconciliation/platform-schema-compatibility-review.json')['model_owner_coverage']
     expected={x['model']:x['owners'][0] for x in registry}

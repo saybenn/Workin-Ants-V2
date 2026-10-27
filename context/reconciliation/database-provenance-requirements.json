@@ -1,5 +1,5 @@
 {
-  "status": "SUPPLIED_TARGET_CONFIRMED_EXISTING_FRESH_TARGET_REQUIREMENTS_STILL_BLOCKED",
+  "status": "FRESH_TARGET_IDENTITY_AND_EMPTY_APPLICATION_NAMESPACE_VERIFIED_BASELINE_AND_REPLAY_PENDING",
   "database_posture": "D",
   "preferred_target": "BRAND_NEW_ISOLATED_DEVELOPMENT_DATABASE_FOR_EVALUATION",
   "strategy_selected": false,
@@ -13,64 +13,104 @@
       "required_evidence": "Intended isolated project/cluster/database identifier and endpoint fingerprint",
       "owner": "Environment owner",
       "handling": "No credentials; prove it differs from the previously referenced Supabase target.",
-      "actual_evidence": null,
-      "status": "NOT_OBTAINED"
+      "actual_evidence": {
+        "target_ref": "lyalfdmfheevpahywuhv",
+        "manifest": "context/reconciliation/database-observations/2026-10-27/manifest.json",
+        "basis": "Exact owner-supplied project ID/URL confirmed by provider; distinct from the preserved June project.",
+        "limits": "Identity verification only; no baseline adoption."
+      },
+      "status": "VERIFIED"
     },
     {
       "id": "DBP-02",
       "required_evidence": "Development-only purpose, region, provider/account and isolation boundary",
       "owner": "Environment owner",
       "handling": "No production resource provisioning or shared old data assumed.",
-      "actual_evidence": null,
-      "status": "NOT_OBTAINED"
+      "actual_evidence": {
+        "target_ref": "lyalfdmfheevpahywuhv",
+        "manifest": "context/reconciliation/database-observations/2026-10-27/manifest.json",
+        "basis": "Owner supplied this fresh project for the nonproduction Phase0 continuation; same known organization, region us-west-2, distinct project/endpoint, created 2026-10-27 UTC.",
+        "limits": "Logical project separation verified; not a claim about shared provider infrastructure or production account controls."
+      },
+      "status": "VERIFIED"
     },
     {
       "id": "DBP-03",
       "required_evidence": "Data-preservation and disposal obligations for both old and proposed targets",
       "owner": "Data owner",
       "handling": "Explicitly identify whether any data exists; never infer emptiness from a greenfield label.",
-      "actual_evidence": null,
-      "status": "NOT_OBTAINED"
+      "actual_evidence": {
+        "target_ref": "lyalfdmfheevpahywuhv",
+        "manifest": "context/reconciliation/database-observations/2026-10-27/manifest.json",
+        "basis": "Preserve the old project and all provider-managed schemas. No app/public relations exist in the new target, and no disposal action is authorized.",
+        "limits": "Managed Auth/Storage records, backup/retention obligations and any later disposable replay permission remain unverified."
+      },
+      "status": "PARTIAL"
     },
     {
       "id": "DBP-04",
       "required_evidence": "Postgres exact version, installed extensions and Supabase/Auth managed schemas",
       "owner": "Database steward",
       "handling": "Identify schemas/roles the application must not own or recreate.",
-      "actual_evidence": null,
-      "status": "NOT_OBTAINED"
+      "actual_evidence": {
+        "target_ref": "lyalfdmfheevpahywuhv",
+        "manifest": "context/reconciliation/database-observations/2026-10-27/manifest.json",
+        "basis": "Database reports PostgreSQL 17.11; provider release 17.11.0.003. Extensions, managed namespaces and role capabilities captured in catalog.",
+        "limits": "Managed objects stay outside application migration ownership."
+      },
+      "status": "VERIFIED"
     },
     {
       "id": "DBP-05",
       "required_evidence": "Actual migration ledger, checksums and application namespace emptiness",
       "owner": "Migration integrator",
       "handling": "New database ledger may be empty, but capture actual evidence; never mark old migrations applied to hide gaps.",
-      "actual_evidence": null,
-      "status": "NOT_OBTAINED"
+      "actual_evidence": {
+        "target_ref": "lyalfdmfheevpahywuhv",
+        "manifest": "context/reconciliation/database-observations/2026-10-27/manifest.json",
+        "basis": "Catalog confirms no app/public relations and no Prisma migration ledger anywhere; Supabase migration tool returns an empty history.",
+        "limits": "Empty application namespace only; managed schemas may contain provider/user records. No replay performed."
+      },
+      "status": "VERIFIED"
     },
     {
       "id": "DBP-06",
       "required_evidence": "Schema-only catalog comparison: tables/columns/types/enums/constraints/FKs/indexes",
       "owner": "Migration integrator",
       "handling": "Compare reviewed candidate and actual isolated target; Prisma model count alone is insufficient.",
-      "actual_evidence": null,
-      "status": "NOT_OBTAINED"
+      "actual_evidence": {
+        "target_ref": "lyalfdmfheevpahywuhv",
+        "manifest": "context/reconciliation/database-observations/2026-10-27/manifest.json",
+        "basis": "Complete pre-migration catalog captured for comparison.",
+        "limits": "No reviewed candidate schema, migration or full post-replay parity yet."
+      },
+      "status": "PARTIAL"
     },
     {
       "id": "DBP-07",
       "required_evidence": "Views/materialized views, functions, triggers, ownership/search_path/extensions",
       "owner": "Security/database steward",
       "handling": "Include objects not represented by Prisma; classify privileged function behavior.",
-      "actual_evidence": null,
-      "status": "NOT_OBTAINED"
+      "actual_evidence": {
+        "target_ref": "lyalfdmfheevpahywuhv",
+        "manifest": "context/reconciliation/database-observations/2026-10-27/manifest.json",
+        "basis": "Views/functions/triggers/ownership/search-path fingerprints captured; public RLS event-trigger definition inspected as metadata.",
+        "limits": "No adopted application object/function design or privilege behavior tests."
+      },
+      "status": "PARTIAL"
     },
     {
       "id": "DBP-08",
       "required_evidence": "Exposed Data API schemas, grants/default privileges, roles/BYPASSRLS and RLS/policies",
       "owner": "Security steward",
       "handling": "Never assume provider defaults; inspect actual role privileges and policy coverage.",
-      "actual_evidence": null,
-      "status": "NOT_OBTAINED"
+      "actual_evidence": {
+        "target_ref": "lyalfdmfheevpahywuhv",
+        "manifest": "context/reconciliation/database-observations/2026-10-27/manifest.json",
+        "basis": "postgres-created public tables lack default browser/API CRUD grants; public auto-RLS trigger is enabled. Creator-specific default grants and function EXECUTE grants retained.",
+        "limits": "supabase_admin-created objects retain broad defaults; PUBLIC function execution remains. Live Data API configuration and actual role/RLS behavior not verified."
+      },
+      "status": "PARTIAL"
     },
     {
       "id": "DBP-09",
@@ -93,8 +133,13 @@
       "required_evidence": "Backup/restore, retention, secrets handoff and nonproduction safe fixture obligations",
       "owner": "Data/security owners",
       "handling": "No real personal data or credentials in repository/evidence; lawful retention/provider facts remain external.",
-      "actual_evidence": null,
-      "status": "NOT_OBTAINED"
+      "actual_evidence": {
+        "target_ref": "lyalfdmfheevpahywuhv",
+        "manifest": "context/reconciliation/database-observations/2026-10-27/manifest.json",
+        "basis": "Connected technical access and sanitized metadata collection work without storing credentials in the repository. Synthetic fixtures remain required.",
+        "limits": "Actual backup/restore settings, retention and recovery guarantees remain external/unverified."
+      },
+      "status": "PARTIAL"
     },
     {
       "id": "DBP-12",
@@ -105,7 +150,7 @@
       "status": "NOT_OBTAINED"
     }
   ],
-  "smallest_external_action": "Select the organization for a separate isolated development project (recommend existing sayben codes), then obtain any required cost approval before provisioning; alternatively supply an already-created fresh target. Preserve supplied project sdceenkakajslwpctbgl and all existing data.",
+  "smallest_external_action": "No further project identity or credentials are needed for safe source review. Work next reconciles the 177-model physical candidate and 12 compatibility cases, then prepares the reviewed migration/security/replay plan. Backup/restore facts and actual disposable replay authorization must be resolved before affected execution.",
   "reported_target": {
     "provider": "Supabase",
     "project_ref": "sdceenkakajslwpctbgl",
@@ -120,5 +165,19 @@
     "adopted_for_writes": false
   },
   "existing_target_observation": "context/reconciliation/database-observations/2026-10-26/manifest.json",
-  "requirement_scope": "The 12 rows describe qualification of a separate fresh development target. They remain unsatisfied. The observed supplied project has its own retained metadata packet; this does not qualify it as fresh or close any fresh-target requirement."
+  "requirement_scope": "Fresh-target identity/environment and empty application namespace have actual evidence. VERIFIED denotes only the named requirement scope, never baseline adoption, replay, production security or feature readiness. Partial requirements retain explicit limits; the old-project observation remains immutable historical evidence.",
+  "candidate_target": {
+    "provider": "Supabase",
+    "project_ref": "lyalfdmfheevpahywuhv",
+    "project_url": "https://lyalfdmfheevpahywuhv.supabase.co",
+    "provider_identity_verified": true,
+    "creation_date": "2026-10-27T01:54:00.623595Z",
+    "organization_id": "enimfwefngvfrxadkfjv",
+    "region": "us-west-2",
+    "intended_use": "NONPRODUCTION_PHASE0_FOUNDATION_QUALIFICATION",
+    "classification": "FRESH_APPLICATION_NAMESPACE_PROVIDER_MANAGED_SCHEMAS_PRESERVED",
+    "fresh_target_qualified": false,
+    "adopted_for_writes": false
+  },
+  "fresh_target_observation": "context/reconciliation/database-observations/2026-10-27/manifest.json"
 }

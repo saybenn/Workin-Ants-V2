@@ -34,6 +34,13 @@ with tempfile.TemporaryDirectory(prefix='wa-phase0-negative-') as directory:
         case('observation pointed at another project',observation+'project.json',lambda j:j.update(id='wrong-project'),'Database observation')
         case('observation evidence changed',observation+'prisma-migration-ledger.json',lambda j:j[0].update(checksum='invented'),'Database observation')
         case('fresh target silently qualified','context/reconciliation/database-provenance-requirements.json',lambda j:j['reported_target'].update(fresh_target_qualified=True),'Database observation')
+    if json.loads((root/'context/reconciliation/phase0-foundation-status.json').read_text()).get('fresh_database_observation'):
+        fresh='context/reconciliation/database-observations/2026-10-27/'
+        case('fresh target points back to old project',fresh+'project.json',lambda j:j.update(id='sdceenkakajslwpctbgl'),'Fresh database observation')
+        case('fresh catalog was not read-only',fresh+'catalog.json',lambda j:j.update(transaction_read_only='off'),'Fresh database observation')
+        case('fresh application namespace not empty',fresh+'access-review.json',lambda j:j.update(application_relations=[{'schema':'app','name':'users','kind':'r'}]),'Fresh database observation')
+        case('fresh baseline adopted from identity alone',fresh+'manifest.json',lambda j:j.update(baseline_adopted=True),'Fresh database observation')
+        case('replay gate falsely completed','context/reconciliation/database-provenance-requirements.json',lambda j:j['requirements'][9].update(status='VERIFIED',actual_evidence='not-run'),'Unproven database provenance')
     case('missing model owner coverage','context/reconciliation/greenfield-model-security-inventory.json',lambda j:j['models'].pop(),'source-model owner coverage')
     case('logical compatibility case lost','context/reconciliation/greenfield-model-security-inventory.json',lambda j:j['compatibility_cases'].pop(),'compatibility cases lost')
     case('browser access silently allowed','context/reconciliation/greenfield-model-security-inventory.json',lambda j:j['models'][0].update(browser_default='ALLOW_ALL'),'Unapproved database baseline')

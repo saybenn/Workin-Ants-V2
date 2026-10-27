@@ -1,5 +1,7 @@
 # Phase0 foundation checkpoint — Directives006/006-A
 
+**Current P0-C update, 27 October 2026:** [Checkpoint 009](checkpoint-009.md) verifies the separate fresh project's identity, environment and empty application namespace. No migration/security baseline is adopted or applied. The next task is the existing work-owned physical candidate review; posture D and dependent runtime/feature gates remain. Earlier checkpoints below are preserved history.
+
 **Current P0-C update, 26 October 2026:** [Checkpoint 008](checkpoint-008.md) verifies connected Supabase access and records a read-only inspection of the supplied existing June database. A separate fresh target is still required; posture D and write/replay/feature gates remain. Earlier no-contact statements below describe their historical checkpoints.
 
 **Historical Checkpoint006 below. Current update,26 October2026:** [Directive007 remediation](dependency-security-remediation-2026-10-26.md) passes P0-B dependency-security and framework checks (47HTTP cases;zero known vulnerabilities in both audits). [Launch decisions](launch-scope-baseline.md) and [the original roadmap](../phase0-roadmap.md) are recorded. P0-C remains D with no actual target evidence or contact;[the handoff](database-provenance-handoff.md) is prepared. NOT_READY,zero active lanes and zero runtime-qualified/frozen SHs remain.

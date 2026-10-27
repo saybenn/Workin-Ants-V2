@@ -1,3 +1,12 @@
+## Current continuation — Checkpoint 009, 27 October 2026
+
+- **Fresh development target verified:** `lyalfdmfheevpahywuhv`, Workin Ants MVP, same known organization, us-west-2, healthy; database reports PostgreSQL 17.11. Distinct from the preserved June project. No public/app application relations or Prisma/Supabase migration ledger entries were found; managed schemas and their records were not cleared or read.
+- **Actual metadata qualification advanced:** DBP-01/02/04/05 verified within their identity/environment/empty-namespace scope; DBP-03/06/07/08/11 partial; DBP-09/10/12 pending. Two read-only SQL transactions ended with rollback. No DDL, migration, seed, reset, replay, provider configuration, provisioning or key retrieval occurred.
+- **Defaults inspected:** public auto-RLS event trigger enabled; postgres-created public tables lack default API CRUD grants. supabase_admin defaults and PUBLIC/function execution remain review inputs. Public-only automation does not cover future app tables; no RLS/role behavior or live API exposure test is claimed.
+- **Next is Work-owned review:** reconcile the 177-model physical candidate, 12 compatibility cases and required runtime/Privacy/effect storage before any migration baseline is generated/adopted. Target access no longer blocks that source review. Backup/restore and disposable replay evidence remain scoped prerequisites; no further broad client questionnaire or project creation is needed.
+- **Boundaries retained:** P0-C posture D; P0-D–G unqualified; Step 20 and parallel lanes unapproved. Framework, dependencies, source schema, historical migration, contracts and UI component/API/classes/token bytes unchanged. Evidence: reconciliation/checkpoint-009.md and its retained fresh-target manifest.
+- **Validation PASS:** context, foundation, 34 adversarial evidence/source mutations and diff hygiene. Validation records do not imply a migration replay, RLS behavior or application runtime test. Local commits and recovery bundles remain separate from remote publication.
+
 ## Current continuation — Checkpoint 008, 26 October 2026
 
 - **Supabase connected and provider identity verified:** supplied project `sdceenkakajslwpctbgl` belongs to **sayben codes**, is healthy in us-west-2, was created 2 June 2026 and reports Postgres 17.6. It is the existing June database, not the required fresh isolated target.
