@@ -296,6 +296,7 @@ def build():
     add_to('CandidateProfile', 'discoveryPreferenceRevision BigInt @default(0) @map("discovery_preference_revision")\ndiscoveryEnabledAt DateTime? @map("discovery_enabled_at") @db.Timestamptz(6)', 'R045: affirmative participation and its source revision, not inferred visibility')
     drop('CandidateProfile', 'resumeUrl', 'R045/R050: protected resume bytes use explicit Media attachments, never a reusable URL field')
     add_to('ConsentLog', 'acceptanceKey String @map("acceptance_key")\nfingerprint String @db.Char(64)\nactionOwner String @map("action_owner")\naction String\ncontextKind String @map("context_kind")\ncontextId String? @map("context_id")\n@@unique([userId, acceptanceKey])', 'DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key')
+    add_to('ConsentLog', 'contextOwner String @map("context_owner")\npresentationHash String @map("presentation_hash") @db.Char(64)', 'B010-02: exact accepting user/action/context and rendered presentation hash')
     set_field('VerificationPackage', 'platformFeeCents', 'platformFeeCents Int @map("platform_fee_cents")', 'DB-C09: legacy default amount is not adopted commercial approval')
     set_field('VerificationPackage', 'nonRefundable', 'nonRefundable Boolean @map("non_refundable")', 'DB-C09: exact approved policy must be supplied; no inferred legal finality')
 
@@ -421,6 +422,10 @@ def build():
         models[target] = add(models[target], 'candidate' + n + f.title() + ' ' + n + '[] @relation("' + relation + '")')
         changes[n].append('DB-C16: typed ' + f + ' binding to canonical ' + target)
 
+    # B010-02: native user/content/presentation coherence; SQL-05 additionally
+    # compares action/context and the acknowledged rendered hash, null-safely.
+    set_field('ConsentLog', 'candidatePresentationId', 'candidatePresentationId ConsentPresentation @relation("C_ConsentLog_presentationId", fields: [presentationId, contentRevisionId, userId], references: [id, contentRevisionId, userId], onDelete: Restrict, onUpdate: Restrict)', 'B010-02: composite FK prevents cross-user or cross-content presentation acceptance')
+
     # PostgreSQL supplies the transaction identity. SQL triggers reject spoofing and
     # require source/evidence/outbox records from the same transaction where needed.
     for n in models:
@@ -464,8 +469,8 @@ def build():
         return '\n'.join(line.rstrip() for line in text.splitlines()).rstrip() + '\n'
 
     full = render(set(models)); cut = render(foundation, True)
-    (OUT / 'physical-candidate.prisma').write_text(full)
-    (OUT / 'foundation-candidate.prisma').write_text(cut)
+    (OUT / 'physical-candidate.prisma').write_text(full, encoding='utf-8', newline='\n')
+    (OUT / 'foundation-candidate.prisma').write_text(cut, encoding='utf-8', newline='\n')
 
     contracts = json.loads((ROOT / 'context/shared/contracts/contract-catalog.json').read_text())['contracts']
     refs = {}
@@ -521,7 +526,7 @@ def build():
         'adopted': False, 'ddl_generated': False, 'database_contacted_by_review': False}
     # The pre-existing architectural inventory and its 12 compatibility rows stay unchanged.
     inventory['physical_candidate_review']['existing_models_reviewed'] = len([v for v in original.values() if v['kind'] == 'model'])
-    inventory_path.write_text(json.dumps(inventory, indent=2) + '\n')
+    inventory_path.write_text(json.dumps(inventory, indent=2) + '\n', encoding='utf-8', newline='\n')
     print(json.dumps({'existing_models': 177, 'candidate_models': len(models), 'foundation_models': len(foundation), 'enums': len(enums), 'scope': 'source generation only; no DDL, database or adoption'}, indent=2))
 
 

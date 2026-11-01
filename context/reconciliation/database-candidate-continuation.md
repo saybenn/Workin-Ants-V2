@@ -12,7 +12,7 @@ Consumer: **track_subscription_entitlement**, existing **assignDefaultFreeTrack.
 
 Proposed path:
 
-1. Resolve trusted current actor and applicable source/Consent/Hold scope. Issue the bounded DB context transport before opening source locks. Reject a client-selected foreign userId or supplied grant/role assertion.
+1. Resolve trusted current actor and applicable source/Consent/Hold scope. Open READ COMMITTED and capture the actual connection/xid tuple before business reads/source locks; the separately credentialed issuer commits immutable tuple-bound context, then the source transaction validates it before taking locks. Reject a client-selected foreign userId or supplied grant/role assertion.
 2. SH-004/114 creates one CustomerProfile under unique userId, or returns the existing source identity. SH-044 holds the scoped semantic key/fingerprint. Same key/body replays; changed meaning conflicts.
 3. On actual creation, one local transaction commits CustomerProfile, CustomerProfileLifecycleEvent, minimal OwnerMutationEvidence, durable command result, the required lifecycle fact and assignDefaultFreeTrack command intent. No synchronous Track or provider wait. A pure resolve/replay does not create a second source event or enrollment intent.
 4. Shared worker claims RuntimeWorkItem under a lease and increasing fence. It validates the message kind/name/schema and obtains current service/owner authority. Track rechecks the Customer leaf facts and exact source/User/profile correspondence, not merely the message's assertion.

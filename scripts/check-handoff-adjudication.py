@@ -38,7 +38,7 @@ def inspect():
     records = json.loads((ROOT / 'context/reconciliation/handoff-adjudication.json').read_text())['records']
     expected = {}
     for path in sorted(ROOT.glob('context/reconciliation/clusters/CL-*-handoff.md')):
-        source = str(path.relative_to(ROOT))
+        source = path.relative_to(ROOT).as_posix()
         cluster = path.name.removesuffix('-handoff.md')
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
         for identifier in source_ids(path.read_text()):

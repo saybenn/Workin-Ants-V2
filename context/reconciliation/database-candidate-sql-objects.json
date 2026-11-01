@@ -232,12 +232,12 @@
     },
     {
       "id": "SQL-02",
-      "title": "Transaction context and row/field scope",
+      "title": "Immutable transaction context and row/field scope",
       "owner": "platform_integration_owner",
-      "mechanism": "Private capability binding plus operation-specific RLS and field guard",
-      "exact_requirement": "A custom actor-ID GUC is never authority. A 256-bit secret handle hashes to an issuer-written DatabaseActionGrant. Bind once inside a transaction to session_user, pg_backend_pid() and pg_current_xact_id()::text; verify purpose/action/owner/target, subject-or-service XOR, expiry/revocation and current security/source generations. Context helper resolves principal from the protected grant, not caller input. Owner policy still enforces actual lifecycle/Consent/entitlement/Hold and protected proof. RLS USING and WITH CHECK cover current target and immutable ownership; column grants/trigger field masks prevent broad writes.",
-      "positive_test": "Issuer issues synthetic scoped proof; runtime inserts/selects its own permitted Customer and rechecks current generation",
-      "negative_test": "Missing/wrong/expired/revoked grant, plain actor GUC, another principal/Organization/target or field reassignment denied",
+      "mechanism": "Issuer-committed transaction tuple plus read-only helper and operation-specific RLS",
+      "exact_requirement": "A custom actor-ID GUC is never authority. A 256-bit secret handle hashes to an issuer-written DatabaseActionGrant. Open a READ COMMITTED interactive transaction on one physical runtime/worker connection; before any business read or source lock, capture session_user, pg_backend_pid() and pg_current_xact_id()::text through the trusted server bridge, never client input. The separately credentialed issuer rechecks SH-001/SH-002/source-owner action, target, field and currentness authorization and commits a grant with that NONNULL immutable login/PID/xid8 tuple in its own separate transaction. Only after that issuer COMMIT may the source transaction bind the handle. The helper is read-only on the grant table: compare the full tuple and purpose/action/owner/target, subject-or-service XOR, expiry/revocation and current security/source generations; reject NULL binding or non-READ-COMMITTED isolation. No bind-time grant UPDATE, consumption flag or autonomous transaction is assumed. Full ROLLBACK, rollback to a SAVEPOINT containing the bind, failed bind, and commit cannot undo the separately committed tuple. An old token therefore cannot authorize a later transaction, even on the same pooled backend; a new transaction requires fresh authorization and a new grant. Rebinding within the same live transaction is idempotent and does not widen scope. SET LOCAL carries only the opaque handle. Current source/Consent/entitlement/Hold/proof, RLS USING/WITH CHECK and column/field guards remain required. There is no issuer/provider/network call while source locks are held. Revocation is irreversible; currentness is rechecked at protected effects and commit under the source-specific locking protocol.",
+      "positive_test": "Issuer commits an authorized tuple grant before bind; named runtime and worker helper paths succeed only in that transaction",
+      "negative_test": "Full rollback, SAVEPOINT rollback, failed bind, old pooled token, wrong tuple/isolation, stale generation, forged actor and direct grant writes all fail closed",
       "stage": "F0_AND_LATER_AS_OWNED",
       "models": [
         "VerificationPackage",
@@ -456,7 +456,27 @@
         "PrizeFulfillmentReceipt"
       ],
       "implementation": "SPECIFICATION_ONLY_NO_SQL_GENERATED",
-      "test_status": "NOT_RUN"
+      "test_status": "NOT_RUN",
+      "binding_protocol": {
+        "strategy": "ISSUER_COMMITS_IMMUTABLE_TRANSACTION_TUPLE",
+        "isolation": "READ_COMMITTED_ONLY",
+        "capture": [
+          "session_user",
+          "pg_backend_pid()",
+          "pg_current_xact_id()::text"
+        ],
+        "capture_before": "ANY_BUSINESS_READ_OR_SOURCE_LOCK",
+        "issuer_commit": "SEPARATE_CREDENTIAL_AND_SEPARATE_TRANSACTION_BEFORE_BIND",
+        "immutable_fields": [
+          "databaseLoginRole",
+          "backendPid",
+          "transactionId"
+        ],
+        "helper_grant_writes": [],
+        "rollback_rule": "OLD_GRANT_REMAINS_BOUND_TO_OLD_XID_AFTER_FULL_OR_SAVEPOINT_ROLLBACK",
+        "retry": "NEW_AUTHORIZATION_AND_NEW_GRANT_SAME_SEMANTIC_COMMAND_KEY",
+        "not_implemented": true
+      }
     },
     {
       "id": "SQL-03",
@@ -916,12 +936,12 @@
     },
     {
       "id": "SQL-05",
-      "title": "Exact content/presentation/subject proof",
+      "title": "Exact content/presentation/subject/action/context proof",
       "owner": "consent_disclosure",
-      "mechanism": "Unique keys + composite coherence + immutable activated content",
-      "exact_requirement": "ConsentLog.contentRevisionId must equal ConsentPresentation.contentRevisionId. Log subject/action/context matches presentation and exact rendered hash. Unique (userId, acceptanceKey); repeated identical fingerprint replays, changed fingerprint conflicts; a new intentional acceptance gets a new key. Effective intervals are coherent; activated content/presentation immutable. Draft/test-only policies fail production activation. Withdrawal/decline append a ConsentDisposition and never erase an old proof.",
-      "positive_test": "Exact test-only content/presentation acceptance stored in a nonproduction transaction; new-key reacceptance retained",
-      "negative_test": "Version-label-only, cross-content presentation, changed-key meaning, or draft-to-production acceptance denied",
+      "mechanism": "Composite user/content/presentation FK plus immutable proof and null-safe action/context coherence",
+      "exact_requirement": "ConsentPresentation is an immutable per-user, per-action presentation: required userId references User; actionOwner/action and contextOwner/contextKind/contextId describe the exact authorized presentation, not a reusable public template. ConsentLog (presentationId, contentRevisionId, userId) has a restrictive composite FK to ConsentPresentation (id, contentRevisionId, userId), backed by the corresponding unique key. SQL checks also require equal actionOwner, action, contextOwner and contextKind, and contextId IS NOT DISTINCT FROM the presentation contextId; NULL is only allowed for a registered global context, not a wildcard. ConsentLog.presentationHash equals ConsentPresentation.renderedHash. The owner verifies the actually rendered bytes/hash and exact contentRevisionId, type/version, applicability and accepting authenticated User; an FK or submitted hash alone does not prove display or acceptance. Unique (userId, acceptanceKey); the fingerprint covers exact presentation ID/hash/content/user/action/context. Identical replay returns the original proof; changed meaning conflicts and intentional reacceptance uses a new key. Effective intervals are coherent; activated content, presentations and acceptance proofs are immutable. Draft/test-only policy never activates in production. Decline/withdrawal appends ConsentDisposition linked to the same user and presentation (and exact prior proof where supplied); it never erases old proof. No new IP, device, email or other personal metadata is required by this correction.",
+      "positive_test": "Exact per-user test presentation and acknowledged hash can be accepted and replayed with the same fingerprint",
+      "negative_test": "Cross-user/content/action/context/hash acceptance, NULL-as-wildcard, proof rewrite and draft production activation denied",
       "stage": "F0_AND_LATER_AS_OWNED",
       "models": [
         "ConsentContentRevision",
@@ -932,16 +952,42 @@
         "DigitalGoodsTermsAcceptance"
       ],
       "implementation": "SPECIFICATION_ONLY_NO_SQL_GENERATED",
-      "test_status": "NOT_RUN"
+      "test_status": "NOT_RUN",
+      "consent_binding": {
+        "native_fk": [
+          "presentationId",
+          "contentRevisionId",
+          "userId"
+        ],
+        "presentation_key": [
+          "id",
+          "contentRevisionId",
+          "userId"
+        ],
+        "equal_fields": [
+          "actionOwner",
+          "action",
+          "contextOwner",
+          "contextKind"
+        ],
+        "null_safe_fields": [
+          "contextId"
+        ],
+        "hash_pair": [
+          "presentationHash",
+          "renderedHash"
+        ],
+        "new_personal_metadata": false
+      }
     },
     {
       "id": "SQL-06",
-      "title": "Narrow private context helpers",
+      "title": "Read-only private context helpers",
       "owner": "platform_integration_owner under Identity/Role authority",
-      "mechanism": "Whitelisted SECURITY DEFINER helpers with private owner and pinned search_path",
-      "exact_requirement": "platform_private.bind_request_context(secret text) returns a grant ID; platform_private.context_allows(owner,kind,id,operation,purpose) returns Boolean. Both pin search_path=pg_catalog and qualify table/function names; helpers owned by wa_private_helper_owner NOLOGIN/NOBYPASSRLS, with only context-row read/bind and minimal Identity-generation reads. REVOKE PUBLIC execution; app/worker receive only named EXECUTE. Runtime cannot SELECT/INSERT arbitrary grant rows or SET ROLE issuer/helper/owner. Issuer only writes/revokes grants after canonical source authorization, before opening the source transaction. No provider call or second network operation inside source locks.",
-      "positive_test": "Legitimate bound grant authorizes one transaction, and commit/rollback clears local token settings",
-      "negative_test": "Direct public RPC/helper invocation, forged token, cross-backend/transaction reuse or malicious search-path object fails",
+      "mechanism": "Narrow SECURITY DEFINER SELECT-only helpers with private owner and pinned search_path",
+      "exact_requirement": "platform_private.bind_request_context(secret text) returns a grant ID only after validating the issuer-committed immutable login/backend/xid tuple against session_user, pg_backend_pid() and pg_current_xact_id()::text in READ COMMITTED. It SELECTs only the bounded grant columns and minimal Identity generations, then sets transaction-local transport; it never INSERTs, UPDATEs or DELETEs a grant. platform_private.context_allows(owner,kind,id,operation,purpose) returns only a Boolean after the same tuple/currentness checks. Both SECURITY DEFINER helpers pin search_path=pg_catalog and qualify every application name. Their NOLOGIN/NOBYPASSRLS owner wa_private_helper_owner has bounded SELECT only, no grant-table write. REVOKE PUBLIC execution; only named runtime/worker (later separately approved privacy) roles receive EXECUTE, never direct grant-table privileges. wa_context_issuer alone may INSERT an already authorized fully bound grant, SELECT its own issued rows and UPDATE revokedAt from NULL to a timestamp; it cannot change any issued scope/tuple or DELETE. Runtime/worker cannot SET ROLE issuer/helper/owner. Issuer credentials remain separate and outside source/logs. Issuance commits after tuple capture and before business reads/source locks; no second connection is used under those locks.",
+      "positive_test": "Issuer-only grant operations and runtime/worker EXECUTE succeed without direct grant access",
+      "negative_test": "Direct runtime/worker grant CRUD, helper writes/login, issuer scope rewrite and browser helper invocation denied",
       "stage": "F0_AND_LATER_AS_OWNED",
       "models": [
         "DatabaseActionGrant"

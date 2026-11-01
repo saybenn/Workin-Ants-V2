@@ -2913,6 +2913,9 @@ model ConsentLog {
   contextId String? @map("context_id")
   @@unique([userId, acceptanceKey])
 
+  contextOwner String @map("context_owner")
+  presentationHash String @map("presentation_hash") @db.Char(64)
+
   candidateConsentDispositionProof ConsentDisposition[] @relation("C_ConsentDisposition_proof")
 
   contentRevisionId String @map("content_revision_id") @db.Uuid
@@ -2921,7 +2924,7 @@ model ConsentLog {
 
   presentationId String @map("presentation_id") @db.Uuid
 
-  candidatePresentationId ConsentPresentation @relation("C_ConsentLog_presentationId", fields: [presentationId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  candidatePresentationId ConsentPresentation @relation("C_ConsentLog_presentationId", fields: [presentationId, contentRevisionId, userId], references: [id, contentRevisionId, userId], onDelete: Restrict, onUpdate: Restrict)
 
   mutationTransactionId String @default(dbgenerated("pg_current_xact_id()::text")) @map("mutation_transaction_id")
 }
@@ -4613,6 +4616,8 @@ trackSubscriptionEvents TrackSubscriptionEvent[]
   revision BigInt @default(0) @map("revision")
 
   privacyGeneration BigInt @default(0) @map("privacy_generation")
+
+  candidateConsentPresentationSubject ConsentPresentation[] @relation("C_ConsentPresentation_subject")
 
   candidateConsentDispositionSubject ConsentDisposition[] @relation("C_ConsentDisposition_subject")
 
@@ -9520,6 +9525,9 @@ model ConsentContentRevision {
 model ConsentPresentation {
   id String @id @default(uuid()) @db.Uuid
   contentRevisionId String @map("content_revision_id") @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  actionOwner String @map("action_owner")
+  action String
   renderVersion String @map("render_version")
   renderedText String @map("rendered_text")
   renderedHash String @map("rendered_hash") @db.Char(64)
@@ -9527,11 +9535,13 @@ model ConsentPresentation {
   contextKind String @map("context_kind")
   contextId String? @map("context_id")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-
+  @@unique([id, contentRevisionId, userId])
   @@map("consent_presentation")
   @@schema("app")
 
   content ConsentContentRevision @relation("C_ConsentPresentation_content", fields: [contentRevisionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  subject User @relation("C_ConsentPresentation_subject", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
 
   candidateConsentDispositionPresentation ConsentDisposition[] @relation("C_ConsentDisposition_presentation")
 
@@ -9580,8 +9590,8 @@ model DatabaseActionGrant {
   policyVersion String @map("policy_version")
   securityGeneration BigInt @map("security_generation")
   sourceGeneration BigInt @map("source_generation")
-  backendPid Int? @map("backend_pid")
-  transactionId String? @map("transaction_id")
+  backendPid Int @map("backend_pid")
+  transactionId String @map("transaction_id")
   expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
   revokedAt DateTime? @map("revoked_at") @db.Timestamptz(6)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)

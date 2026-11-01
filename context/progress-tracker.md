@@ -1,3 +1,10 @@
+## Current status / Next action — P0-C-02 corrections, 1 November 2026
+
+- **Current status:** B010-01/02/03 source corrections prepared for Brain review on `codex/p0c-candidate-corrections-2026-10-31`, based on preserved Checkpoint 010 `8793366`. Grants use issuer-committed immutable transaction tuples; Consent proof has exact user/content/presentation/action/context binding; access tests name issuer/helper/runtime/worker operations and direct denials.
+- **Evidence:** PASS — both schemas with pinned Node 24.22.1/Prisma 7.10.1; candidate source checks and 48 adversarial cases; foundation, Phase 0, their adversarial suites and the full context harness. A Windows path-check repair and its initial failed output are retained. Current offline results are in `reconciliation/database-candidate-corrections-validation.json` and `reconciliation/database-candidate-corrections-native-validation.json`. Earlier checkpoint results below remain historical. All 451 database/runtime tests remain NOT_RUN. No component/API/classes/token change.
+- **Publication:** owner-authorized normal correction-branch publication is pending the final secret/history/workflow review and authenticated Git verification; its outcome will be recorded in the same section.
+- **Next action:** Brain reviews the corrected commit. Posture D, candidate approval pending and the pre-DDL stop remain. No container, database connection, migration, hosted change, runtime/product implementation or parallel lane activation.
+
 ## Current continuation — P0-C-01, 27 October 2026
 
 - **Candidate ready for Brain review; posture D remains.** All 177 source models and 12 compatibility cases reconciled. Review-only target: 214 models/219 enums; proposed first cut: 40 models in complete parent-FK closure. Original adopted-source schema, June migration, owner contracts, P0-B source and UI remain unchanged.

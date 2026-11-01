@@ -3501,9 +3501,9 @@
     "status": "REVIEW_ONLY_NOT_ADOPTED",
     "source_schema_sha256": "4a75be42a8b26001c20aaf46a1bb0e5dd7d0984090c9712274c308668908eebf",
     "full_schema": "prisma/review/physical-candidate.prisma",
-    "full_schema_sha256": "b3d0e48635f60293f09ef5697c300faec697f66cd7bd2eabf609dc107a22600d",
+    "full_schema_sha256": "b9ac4a854e1af65a8682a668d5cf43113656247a276df68f272015f6e4937f57",
     "foundation_schema": "prisma/review/foundation-candidate.prisma",
-    "foundation_schema_sha256": "34c8b8c0a8a0c78576c70685bcbd39aadcb3e2778aed5764fd2d829ade52600e",
+    "foundation_schema_sha256": "1c05a21cd930a05e9101484dac9d74a1b003da3079e88fb6ebb0c3f9f340a24c",
     "existing_models_reviewed": 177,
     "existing_model_count": 177,
     "candidate_model_count": 214,
@@ -4421,6 +4421,16 @@
             "attributes": "@map(\"context_id\")"
           },
           {
+            "name": "contextOwner",
+            "type": "String",
+            "attributes": "@map(\"context_owner\")"
+          },
+          {
+            "name": "presentationHash",
+            "type": "String",
+            "attributes": "@map(\"presentation_hash\") @db.Char(64)"
+          },
+          {
             "name": "candidateConsentDispositionProof",
             "type": "ConsentDisposition[]",
             "attributes": "@relation(\"C_ConsentDisposition_proof\")"
@@ -4443,7 +4453,7 @@
           {
             "name": "candidatePresentationId",
             "type": "ConsentPresentation",
-            "attributes": "@relation(\"C_ConsentLog_presentationId\", fields: [presentationId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
+            "attributes": "@relation(\"C_ConsentLog_presentationId\", fields: [presentationId, contentRevisionId, userId], references: [id, contentRevisionId, userId], onDelete: Restrict, onUpdate: Restrict)"
           },
           {
             "name": "mutationTransactionId",
@@ -4471,7 +4481,7 @@
           {
             "name": "candidatePresentationId",
             "type": "ConsentPresentation",
-            "attributes": "@relation(\"C_ConsentLog_presentationId\", fields: [presentationId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
+            "attributes": "@relation(\"C_ConsentLog_presentationId\", fields: [presentationId, contentRevisionId, userId], references: [id, contentRevisionId, userId], onDelete: Restrict, onUpdate: Restrict)"
           }
         ],
         "deletion": "RESTRICT all FK key changes/deletes; owner Privacy executor must explicitly erase/anonymize dependents only under reviewed field/action/legal disposition; no legal period inferred",
@@ -4485,7 +4495,8 @@
           "ipHash",
           "userAgent",
           "contextKind",
-          "contextId"
+          "contextId",
+          "contextOwner"
         ],
         "access": "NO browser/Data API grants; only registered owner action under transaction-bound context, current source authorization and explicit row/field policies",
         "privacy_executor": "consent_disclosure",
@@ -4495,8 +4506,10 @@
           "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
           "DB-C03: UTC-capable timestamptz(6) physical instants",
           "DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key",
+          "B010-02: exact accepting user/action/context and rendered presentation hash",
           "DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision",
           "DB-C16: typed presentationId binding to canonical ConsentPresentation",
+          "B010-02: composite FK prevents cross-user or cross-content presentation acceptance",
           "SQL-08: server transaction identity for atomic source/evidence/message checks"
         ],
         "authority": [
@@ -4638,8 +4651,10 @@
               "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
               "DB-C03: UTC-capable timestamptz(6) physical instants",
               "DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key",
+              "B010-02: exact accepting user/action/context and rendered presentation hash",
               "DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision",
               "DB-C16: typed presentationId binding to canonical ConsentPresentation",
+              "B010-02: composite FK prevents cross-user or cross-content presentation acceptance",
               "SQL-08: server transaction identity for atomic source/evidence/message checks"
             ]
           },
@@ -4655,8 +4670,10 @@
               "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
               "DB-C03: UTC-capable timestamptz(6) physical instants",
               "DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key",
+              "B010-02: exact accepting user/action/context and rendered presentation hash",
               "DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision",
               "DB-C16: typed presentationId binding to canonical ConsentPresentation",
+              "B010-02: composite FK prevents cross-user or cross-content presentation acceptance",
               "SQL-08: server transaction identity for atomic source/evidence/message checks"
             ]
           },
@@ -4672,8 +4689,10 @@
               "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
               "DB-C03: UTC-capable timestamptz(6) physical instants",
               "DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key",
+              "B010-02: exact accepting user/action/context and rendered presentation hash",
               "DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision",
               "DB-C16: typed presentationId binding to canonical ConsentPresentation",
+              "B010-02: composite FK prevents cross-user or cross-content presentation acceptance",
               "SQL-08: server transaction identity for atomic source/evidence/message checks"
             ]
           },
@@ -4689,8 +4708,10 @@
               "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
               "DB-C03: UTC-capable timestamptz(6) physical instants",
               "DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key",
+              "B010-02: exact accepting user/action/context and rendered presentation hash",
               "DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision",
               "DB-C16: typed presentationId binding to canonical ConsentPresentation",
+              "B010-02: composite FK prevents cross-user or cross-content presentation acceptance",
               "SQL-08: server transaction identity for atomic source/evidence/message checks"
             ]
           },
@@ -4706,8 +4727,10 @@
               "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
               "DB-C03: UTC-capable timestamptz(6) physical instants",
               "DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key",
+              "B010-02: exact accepting user/action/context and rendered presentation hash",
               "DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision",
               "DB-C16: typed presentationId binding to canonical ConsentPresentation",
+              "B010-02: composite FK prevents cross-user or cross-content presentation acceptance",
               "SQL-08: server transaction identity for atomic source/evidence/message checks"
             ]
           },
@@ -4723,8 +4746,10 @@
               "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
               "DB-C03: UTC-capable timestamptz(6) physical instants",
               "DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key",
+              "B010-02: exact accepting user/action/context and rendered presentation hash",
               "DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision",
               "DB-C16: typed presentationId binding to canonical ConsentPresentation",
+              "B010-02: composite FK prevents cross-user or cross-content presentation acceptance",
               "SQL-08: server transaction identity for atomic source/evidence/message checks"
             ]
           },
@@ -4740,8 +4765,10 @@
               "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
               "DB-C03: UTC-capable timestamptz(6) physical instants",
               "DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key",
+              "B010-02: exact accepting user/action/context and rendered presentation hash",
               "DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision",
               "DB-C16: typed presentationId binding to canonical ConsentPresentation",
+              "B010-02: composite FK prevents cross-user or cross-content presentation acceptance",
               "SQL-08: server transaction identity for atomic source/evidence/message checks"
             ]
           },
@@ -4757,8 +4784,10 @@
               "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
               "DB-C03: UTC-capable timestamptz(6) physical instants",
               "DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key",
+              "B010-02: exact accepting user/action/context and rendered presentation hash",
               "DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision",
               "DB-C16: typed presentationId binding to canonical ConsentPresentation",
+              "B010-02: composite FK prevents cross-user or cross-content presentation acceptance",
               "SQL-08: server transaction identity for atomic source/evidence/message checks"
             ]
           },
@@ -4774,8 +4803,10 @@
               "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
               "DB-C03: UTC-capable timestamptz(6) physical instants",
               "DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key",
+              "B010-02: exact accepting user/action/context and rendered presentation hash",
               "DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision",
               "DB-C16: typed presentationId binding to canonical ConsentPresentation",
+              "B010-02: composite FK prevents cross-user or cross-content presentation acceptance",
               "SQL-08: server transaction identity for atomic source/evidence/message checks"
             ]
           },
@@ -4791,8 +4822,10 @@
               "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
               "DB-C03: UTC-capable timestamptz(6) physical instants",
               "DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key",
+              "B010-02: exact accepting user/action/context and rendered presentation hash",
               "DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision",
               "DB-C16: typed presentationId binding to canonical ConsentPresentation",
+              "B010-02: composite FK prevents cross-user or cross-content presentation acceptance",
               "SQL-08: server transaction identity for atomic source/evidence/message checks"
             ]
           },
@@ -4808,8 +4841,10 @@
               "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
               "DB-C03: UTC-capable timestamptz(6) physical instants",
               "DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key",
+              "B010-02: exact accepting user/action/context and rendered presentation hash",
               "DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision",
               "DB-C16: typed presentationId binding to canonical ConsentPresentation",
+              "B010-02: composite FK prevents cross-user or cross-content presentation acceptance",
               "SQL-08: server transaction identity for atomic source/evidence/message checks"
             ]
           },
@@ -4825,8 +4860,10 @@
               "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
               "DB-C03: UTC-capable timestamptz(6) physical instants",
               "DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key",
+              "B010-02: exact accepting user/action/context and rendered presentation hash",
               "DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision",
               "DB-C16: typed presentationId binding to canonical ConsentPresentation",
+              "B010-02: composite FK prevents cross-user or cross-content presentation acceptance",
               "SQL-08: server transaction identity for atomic source/evidence/message checks"
             ]
           },
@@ -4842,8 +4879,10 @@
               "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
               "DB-C03: UTC-capable timestamptz(6) physical instants",
               "DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key",
+              "B010-02: exact accepting user/action/context and rendered presentation hash",
               "DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision",
               "DB-C16: typed presentationId binding to canonical ConsentPresentation",
+              "B010-02: composite FK prevents cross-user or cross-content presentation acceptance",
               "SQL-08: server transaction identity for atomic source/evidence/message checks"
             ]
           },
@@ -4859,8 +4898,10 @@
               "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
               "DB-C03: UTC-capable timestamptz(6) physical instants",
               "DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key",
+              "B010-02: exact accepting user/action/context and rendered presentation hash",
               "DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision",
               "DB-C16: typed presentationId binding to canonical ConsentPresentation",
+              "B010-02: composite FK prevents cross-user or cross-content presentation acceptance",
               "SQL-08: server transaction identity for atomic source/evidence/message checks"
             ]
           }
@@ -29770,6 +29811,11 @@
             "name": "privacyGeneration",
             "type": "BigInt",
             "attributes": "@default(0) @map(\"privacy_generation\")"
+          },
+          {
+            "name": "candidateConsentPresentationSubject",
+            "type": "ConsentPresentation[]",
+            "attributes": "@relation(\"C_ConsentPresentation_subject\")"
           },
           {
             "name": "candidateConsentDispositionSubject",
@@ -106531,6 +106577,21 @@
             "attributes": "@map(\"content_revision_id\") @db.Uuid"
           },
           {
+            "name": "userId",
+            "type": "String",
+            "attributes": "@map(\"user_id\") @db.Uuid"
+          },
+          {
+            "name": "actionOwner",
+            "type": "String",
+            "attributes": "@map(\"action_owner\")"
+          },
+          {
+            "name": "action",
+            "type": "String",
+            "attributes": ""
+          },
+          {
             "name": "renderVersion",
             "type": "String",
             "attributes": "@map(\"render_version\")"
@@ -106571,6 +106632,11 @@
             "attributes": "@relation(\"C_ConsentPresentation_content\", fields: [contentRevisionId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
           },
           {
+            "name": "subject",
+            "type": "User",
+            "attributes": "@relation(\"C_ConsentPresentation_subject\", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
+          },
+          {
             "name": "candidateConsentDispositionPresentation",
             "type": "ConsentDisposition[]",
             "attributes": "@relation(\"C_ConsentDisposition_presentation\")"
@@ -106587,6 +106653,7 @@
           }
         ],
         "identifiers_and_indexes": [
+          "@@unique([id, contentRevisionId, userId])",
           "id"
         ],
         "foreign_relationships": [
@@ -106594,6 +106661,11 @@
             "name": "content",
             "type": "ConsentContentRevision",
             "attributes": "@relation(\"C_ConsentPresentation_content\", fields: [contentRevisionId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
+          },
+          {
+            "name": "subject",
+            "type": "User",
+            "attributes": "@relation(\"C_ConsentPresentation_subject\", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
           }
         ],
         "deletion": "RESTRICT all FK key changes/deletes; owner Privacy executor must explicitly erase/anonymize dependents only under reviewed field/action/legal disposition; no legal period inferred",
@@ -106602,6 +106674,7 @@
         ],
         "history_and_proof": "Immutable owner action evidence/receipt plus source revision and required outbox in one transaction; later owner writes remain gated until their registered action/evidence schema is qualified",
         "sensitive_fields": [
+          "userId",
           "renderedText",
           "contextOwner",
           "contextKind",
@@ -106612,7 +106685,7 @@
         "json_fields": [],
         "disposition": "ADD_FOR_APPROVED_ARCHITECTURE_REVIEW_ONLY",
         "changes": [
-          "DB-C01",
+          "DB-C01; B010-02: immutable per-user action/context presentation and composite acceptance binding",
           "SQL-08: server transaction identity for atomic source/evidence/message checks"
         ],
         "authority": [
@@ -106907,12 +106980,12 @@
           },
           {
             "name": "backendPid",
-            "type": "Int?",
+            "type": "Int",
             "attributes": "@map(\"backend_pid\")"
           },
           {
             "name": "transactionId",
-            "type": "String?",
+            "type": "String",
             "attributes": "@map(\"transaction_id\")"
           },
           {
@@ -106957,7 +107030,7 @@
         "json_fields": [],
         "disposition": "ADD_FOR_APPROVED_ARCHITECTURE_REVIEW_ONLY",
         "changes": [
-          "DB-C04",
+          "DB-C04; B010-01: issuer commits immutable nonnullable transaction tuple before bind; helper never writes grant",
           "SQL-08: server transaction identity for atomic source/evidence/message checks"
         ],
         "authority": [

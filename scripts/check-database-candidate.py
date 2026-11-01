@@ -32,7 +32,7 @@ def load(root=ROOT):
     names = ['greenfield-model-security-inventory', 'database-candidate-additions',
              'database-candidate-access-matrix', 'database-candidate-sql-objects',
              'database-candidate-tests', 'database-candidate-source-review',
-             'database-candidate-manifest', 'database-candidate-native-validation',
+             'database-candidate-manifest', 'database-candidate-corrections-native-validation',
              'database-candidate-json-boundaries']
     paths += [REC + n + '.json' for n in names]
     return {p: (root / p).read_text() for p in paths}
@@ -52,7 +52,7 @@ def inspect(packet=None, root=ROOT, check_hashes=True):
     sql = read('database-candidate-sql-objects')['objects_and_invariants']
     tests = read('database-candidate-tests')
     manifest = read('database-candidate-manifest')
-    native = read('database-candidate-native-validation')
+    native = read('database-candidate-corrections-native-validation')
     source = parse(packet['prisma/schema.prisma'])
     full = parse(packet[review['full_schema']])
     cut = parse(packet[review['foundation_schema']])
@@ -114,6 +114,15 @@ def inspect(packet=None, root=ROOT, check_hashes=True):
     need(all(field(n, 'customerProfileId').get('type') == 'String' for n in ['Order', 'Booking', 'BookingHold', 'BookingSlotLock']), 'Fresh buyer identity optional')
     need(all(field('ConsentLog', f).get('type') == 'String' for f in ['contentRevisionId', 'presentationId', 'acceptanceKey', 'fingerprint']), 'Consent exact content/presentation proof missing')
     need('@@unique([userId, acceptanceKey])' in body('ConsentLog'), 'Consent acceptance idempotency missing')
+    # P0-C-02: semantic checks stay active even when fingerprints are disabled.
+    for grant_field, grant_type in [('backendPid', 'Int'), ('transactionId', 'String')]:
+        need(field('DatabaseActionGrant', grant_field).get('type') == grant_type, 'Grant immutable tuple must be nonnullable: ' + grant_field)
+    need('@@unique([id, contentRevisionId, userId])' in body('ConsentPresentation'), 'Consent presentation composite key missing')
+    need('fields: [presentationId, contentRevisionId, userId], references: [id, contentRevisionId, userId]' in field('ConsentLog', 'candidatePresentationId').get('attributes', ''), 'Consent presentation composite FK missing')
+    for model in ['ConsentPresentation', 'ConsentLog']:
+        need(all(field(model, f).get('type') == 'String' for f in ['userId', 'actionOwner', 'action', 'contextOwner', 'contextKind']), 'Consent accepting user/action/context fields missing: ' + model)
+    need('@db.Uuid' in field('ConsentPresentation', 'userId').get('attributes', '') and 'fields: [userId], references: [id]' in field('ConsentPresentation', 'subject').get('attributes', ''), 'Consent presentation user FK missing')
+    need(field('ConsentLog', 'presentationHash').get('type') == 'String' and '@db.Char(64)' in field('ConsentLog', 'presentationHash').get('attributes', ''), 'Consent acknowledged presentation hash missing')
     for n in ['PointLedgerEntry', 'ProfessionalBalanceLedgerEntry', 'PayoutTransfer', 'TrackUsageEvent']:
         need('@unique' in field(n, 'semanticEffectKey').get('attributes', '') and field(n, 'effectReceiptId').get('type') == 'String', 'Durable semantic effect/receipt missing: ' + n)
     need(field('MediaUploadSession', 'status').get('type') == 'MediaUploadAttemptState' and field('MediaUploadSession', 'policyId').get('type') == 'String', 'Media attempt conflated with asset/policy')
@@ -155,6 +164,24 @@ def inspect(packet=None, root=ROOT, check_hashes=True):
     need(set(spec) == {'SQL-%02d' % n for n in range(1, 19)}, 'SQL-only enforcement register incomplete')
     for r in sql:
         need(r['implementation'] == 'SPECIFICATION_ONLY_NO_SQL_GENERATED' and r['test_status'] == 'NOT_RUN' and r['positive_test'] and r['negative_test'], 'SQL specification falsely executed or lacks coverage')
+    binding = spec['SQL-02'].get('binding_protocol', {})
+    need(binding.get('strategy') == 'ISSUER_COMMITS_IMMUTABLE_TRANSACTION_TUPLE' and binding.get('isolation') == 'READ_COMMITTED_ONLY', 'Rollback-safe issuance/isolation missing')
+    need(binding.get('immutable_fields') == ['databaseLoginRole', 'backendPid', 'transactionId'] and binding.get('helper_grant_writes') == [], 'Immutable tuple/helper write boundary weakened')
+    need(binding.get('issuer_commit') == 'SEPARATE_CREDENTIAL_AND_SEPARATE_TRANSACTION_BEFORE_BIND' and binding.get('capture_before') == 'ANY_BUSINESS_READ_OR_SOURCE_LOCK', 'Issuer commit/source-lock ordering missing')
+    need(binding.get('rollback_rule') == 'OLD_GRANT_REMAINS_BOUND_TO_OLD_XID_AFTER_FULL_OR_SAVEPOINT_ROLLBACK', 'Rollback/savepoint lifetime missing')
+    consent = spec['SQL-05'].get('consent_binding', {})
+    need(consent.get('native_fk') == ['presentationId','contentRevisionId','userId'] and consent.get('presentation_key') == ['id','contentRevisionId','userId'], 'Consent SQL/native key disagreement')
+    need(consent.get('equal_fields') == ['actionOwner','action','contextOwner','contextKind'] and consent.get('null_safe_fields') == ['contextId'] and consent.get('hash_pair') == ['presentationHash','renderedHash'], 'Consent exact context/hash comparison missing')
+    need('IS NOT DISTINCT FROM' in spec['SQL-05']['exact_requirement'] and consent.get('new_personal_metadata') is False, 'Consent NULL-context/minimization missing')
+    grant_access = next(r for r in table_rows if r['model'] == 'DatabaseActionGrant')
+    operations = grant_access.get('operations_by_role', {})
+    need(operations.get('wa_context_issuer') == ['INSERT_AUTHORIZED_IMMUTABLY_BOUND_GRANT','SELECT_OWN_ISSUED_GRANT','UPDATE_REVOKED_AT_NULL_TO_TIMESTAMP_ONLY'], 'Issuer grant operations ambiguous')
+    need(operations.get('wa_private_helper_owner') == ['SELECT_BOUNDED_GRANT_COLUMNS_VIA_DEFINER_ONLY'], 'Helper grant writes or login permitted')
+    for role in ['wa_app_runtime','wa_worker']:
+        need(operations.get(role) == ['EXECUTE_BIND_REQUEST_CONTEXT','CONTEXT_ALLOWS_BOOLEAN_VIA_POLICY'], 'Direct grant-table access permitted: ' + role)
+        need(grant_access.get('direct_denials_by_role', {}).get(role) == ['SELECT','INSERT','UPDATE','DELETE','SET_ROLE_ISSUER_HELPER_OWNER'], 'Direct grant-table denial missing: ' + role)
+    helper_functions = [r for r in access['objects'] if r['kind'] == 'function']
+    need(all('mutate only' not in r.get('purpose','') for r in helper_functions), 'Helper function still mutates grant binding')
     for token in ['256-bit', 'session_user', 'pg_backend_pid()', 'pg_current_xact_id()', 'security/source generations']:
         need(token in spec['SQL-02']['exact_requirement'], 'Trusted context binding weakened: ' + token)
     for token in ['same transaction', 'CustomerProfileLifecycleEvent', 'assignDefaultFreeTrack.v1', 'caller spoofing rejected']:
@@ -165,13 +192,23 @@ def inspect(packet=None, root=ROOT, check_hashes=True):
     for n in models:
         for suffix in ['ALLOW', 'DENY']:
             need(any(t['id'] == 'P0C-TABLE-' + n + '-' + suffix and t['phase'] == 'P0-C' for t in test_rows), 'Actual role positive/negative test missing: ' + n + ':' + suffix)
+    table_by_model = {r['model']: r for r in table_rows}
+    for test in test_rows:
+        if test['id'].startswith('P0C-TABLE-'):
+            model_name, direction = test['id'][10:].rsplit('-', 1)
+            setup = test['setup']
+            key = 'operations_by_role' if direction == 'ALLOW' else 'direct_denials_by_role'
+            need(setup.get(key) == table_by_model[model_name].get(key) and bool(setup.get(key)), 'Exact access-test role operations missing: ' + test['id'])
+            need('or the narrowly registered purpose role' not in str(setup), 'Ambiguous access-test principal: ' + test['id'])
+    context_case = next(t for t in test_rows if t['id'] == 'P0C-CTX-01')
+    need(all(token in context_case['action'] for token in ['full ROLLBACK','SAVEPOINT','failed bind','same-pool','new xid','wrong isolation']), 'Rollback/savepoint/pool negative test missing')
     need(all(t['status'] == 'NOT_RUN' and t.get('requirement') and t.get('action') and t.get('expected') for t in test_rows), 'Unexecuted tests promoted or lack expected outcome')
     need({'P0-C', 'P0-D', 'P0-E', 'P0-F'} <= {t['phase'] for t in test_rows}, 'Qualification phases conflated')
     for p in ['prisma.review.config.ts', 'prisma.foundation-review.config.ts']:
         config = '\n'.join(l for l in packet[p].splitlines() if not l.strip().startswith('//'))
         need(not any(word in config for word in ['datasource', 'dotenv', 'process.env', 'migrations', 'shadow']), 'Offline config can select database: ' + p)
     need('generator ' not in packet[review['full_schema']] and 'generator ' not in packet[review['foundation_schema']], 'Review unexpectedly generates application client')
-    need(native['status'] == 'PASS_OFFLINE_SCHEMA_ONLY' and len(native['commands']) >= 2 and all(c['exit_code'] == 0 for c in native['commands']), 'Missing actual pinned native validation')
+    need(native['status'] == 'PASS_OFFLINE_SCHEMA_ONLY' and native.get('node') == 'v24.22.1' and native.get('prisma') == '7.10.1' and len(native['commands']) >= 2 and all(c['exit_code'] == 0 for c in native['commands']), 'Missing actual pinned native validation')
     for p, expected in native['schemas_sha256'].items():
         need(digest(packet[p].encode()) == expected, 'Native validation schema drift: ' + p)
     if check_hashes:

@@ -1,6 +1,6 @@
-# P0-C-01 review packet
+# P0-C-02 corrected review packet
 
-Start with [Checkpoint 010](checkpoint-010.md). This packet is ready for Brain review, **not approved or adopted**. It performed source work only: no target contact, DDL generation, migrations, seeds, resets, provider changes or runtime implementation. Posture D remains.
+Start with the owner-authorized [B010-01/02/03 corrections](database-candidate-corrections.md), then the historical [Checkpoint 010](checkpoint-010.md). This packet is ready for Brain review, **not approved or adopted**. It performed source work only: no target contact, DDL generation, migrations, seeds, resets, provider changes or runtime implementation. Posture D remains.
 
 | Review need | Authoritative artifact |
 |---|---|
@@ -18,7 +18,7 @@ Start with [Checkpoint 010](checkpoint-010.md). This packet is ready for Brain r
 | Actual logins, fixtures, actions and expected outcomes | [451 planned tests, all NOT_RUN](database-candidate-tests.json), [synthetic fixture specification](../../tests/database/candidate-fixtures.json) |
 | First P0-D owner/contracts/files and prerequisites | [Continuation plan](database-candidate-continuation.md) |
 | Remaining DBP evidence | [Live provenance handoff](database-provenance-handoff.md), [requirements](database-provenance-requirements.json) |
-| Actual offline schema validation and CLI behavior | [Native proof](database-candidate-native-validation.json) |
+| Actual offline schema validation and CLI behavior | [Current correction native proof](database-candidate-corrections-native-validation.json); [historical native proof](database-candidate-native-validation.json) |
 | Exact checks, negative cases, preservation and limits | [Checkpoint validation](checkpoint-010-validation.json) |
 | Reviewed source versions | [Source-input hashes](database-candidate-source-review.json) |
 

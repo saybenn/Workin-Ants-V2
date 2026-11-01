@@ -13,7 +13,7 @@ with tempfile.TemporaryDirectory(prefix='wa-phase0-negative-') as directory:
     root=Path(directory)
     for name in ['context','app','legacy','scripts','prisma','contracts','tests/database']:
         shutil.copytree(ROOT/name,root/name,ignore=shutil.ignore_patterns('*.docx','__pycache__'))
-    for name in ['package.json','tsconfig.json','eslint.config.mjs','next.config.ts','postcss.config.mjs','package-lock.json','AGENTS.md','.node-version','prisma.offline.config.ts','prisma.review.config.ts','prisma.foundation-review.config.ts']:
+    for name in ['package.json','tsconfig.json','eslint.config.mjs','next.config.ts','postcss.config.mjs','package-lock.json','AGENTS.md','.node-version','prisma.offline.config.ts','prisma.review.config.ts','prisma.foundation-review.config.ts','vercel.json']:
         shutil.copy2(ROOT/name,root/name)
     assert not CHECK(root)['errors'],CHECK(root)['errors']
     def case(label,path,mutate,expected):

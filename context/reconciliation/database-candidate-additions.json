@@ -39,6 +39,9 @@
       "fields": [
         "id String @id @default(uuid()) @db.Uuid",
         "contentRevisionId String @map(\"content_revision_id\") @db.Uuid",
+        "userId String @map(\"user_id\") @db.Uuid",
+        "actionOwner String @map(\"action_owner\")",
+        "action String",
         "renderVersion String @map(\"render_version\")",
         "renderedText String @map(\"rendered_text\")",
         "renderedHash String @map(\"rendered_hash\") @db.Char(64)",
@@ -47,17 +50,25 @@
         "contextId String? @map(\"context_id\")",
         "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
       ],
-      "attributes": [],
+      "attributes": [
+        "@@unique([id, contentRevisionId, userId])"
+      ],
       "foreign_keys": [
         [
           "content",
           "ConsentContentRevision",
           "contentRevisionId",
           "id"
+        ],
+        [
+          "subject",
+          "User",
+          "userId",
+          "id"
         ]
       ],
       "schema": "app",
-      "decision": "DB-C01",
+      "decision": "DB-C01; B010-02: immutable per-user action/context presentation and composite acceptance binding",
       "rulings": [
         "WA-R019"
       ],
@@ -131,8 +142,8 @@
         "policyVersion String @map(\"policy_version\")",
         "securityGeneration BigInt @map(\"security_generation\")",
         "sourceGeneration BigInt @map(\"source_generation\")",
-        "backendPid Int? @map(\"backend_pid\")",
-        "transactionId String? @map(\"transaction_id\")",
+        "backendPid Int @map(\"backend_pid\")",
+        "transactionId String @map(\"transaction_id\")",
         "expiresAt DateTime @map(\"expires_at\") @db.Timestamptz(6)",
         "revokedAt DateTime? @map(\"revoked_at\") @db.Timestamptz(6)",
         "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
@@ -142,7 +153,7 @@
       ],
       "foreign_keys": [],
       "schema": "platform",
-      "decision": "DB-C04",
+      "decision": "DB-C04; B010-01: issuer commits immutable nonnullable transaction tuple before bind; helper never writes grant",
       "rulings": [
         "WA-R064",
         "WA-R068",

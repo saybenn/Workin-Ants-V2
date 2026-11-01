@@ -234,7 +234,7 @@ Immutable exact presented-content acceptance by subject, context and command ide
 
 - Object: `app.consent_logs`. Class: IMMUTABLE_EVIDENCE_OR_RECEIPT. Stage: F0_FOUNDATION.
 - Stable key: id. Foreign keys: user → User, candidateContentRevisionId → ConsentContentRevision, candidatePresentationId → ConsentPresentation.
-- Physical changes: DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order; DB-C03: UTC-capable timestamptz(6) physical instants; DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key; DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision; DB-C16: typed presentationId binding to canonical ConsentPresentation; SQL-08: server transaction identity for atomic source/evidence/message checks.
+- Physical changes: DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order; DB-C03: UTC-capable timestamptz(6) physical instants; DB-C01/R019: scoped repeatable acceptance; new intentional reacceptance has a new key; B010-02: exact accepting user/action/context and rendered presentation hash; DB-C16: typed contentRevisionId binding to canonical ConsentContentRevision; DB-C16: typed presentationId binding to canonical ConsentPresentation; B010-02: composite FK prevents cross-user or cross-content presentation acceptance; SQL-08: server transaction identity for atomic source/evidence/message checks.
 - Required SQL/access checks: SQL-01, SQL-02, SQL-03, SQL-04, SQL-05, SQL-08, SQL-16. Owner Privacy executor: consent_disclosure.
 
 ### ConsentContentRevision
@@ -251,8 +251,8 @@ Immutable exact legal/disclosure content revision and applicability; legal appro
 Immutable actually rendered presentation and exact content/context binding.
 
 - Object: `app.consent_presentation`. Class: IMMUTABLE_EVIDENCE_OR_RECEIPT. Stage: F0_FOUNDATION.
-- Stable key: id. Foreign keys: content → ConsentContentRevision.
-- Physical changes: DB-C01; SQL-08: server transaction identity for atomic source/evidence/message checks.
+- Stable key: id. Foreign keys: content → ConsentContentRevision, subject → User.
+- Physical changes: DB-C01; B010-02: immutable per-user action/context presentation and composite acceptance binding; SQL-08: server transaction identity for atomic source/evidence/message checks.
 - Required SQL/access checks: SQL-01, SQL-02, SQL-03, SQL-04, SQL-05, SQL-08, SQL-16. Owner Privacy executor: consent_disclosure.
 
 ### ConsentDisposition
@@ -1269,7 +1269,7 @@ Ephemeral non-authorizing transport of already approved Role/Identity scope into
 
 - Object: `platform.database_action_grant`. Class: SHARED_INFRASTRUCTURE. Stage: F0_FOUNDATION.
 - Stable key: id. Foreign keys: none; typed registered descriptor scope is explicit in the SQL companion.
-- Physical changes: DB-C04; SQL-08: server transaction identity for atomic source/evidence/message checks.
+- Physical changes: DB-C04; B010-01: issuer commits immutable nonnullable transaction tuple before bind; helper never writes grant; SQL-08: server transaction identity for atomic source/evidence/message checks.
 - Required SQL/access checks: SQL-01, SQL-02, SQL-03, SQL-04, SQL-06, SQL-07, SQL-08, SQL-09, SQL-16. Owner Privacy executor: platform executor for minimized infrastructure metadata; original owner retains domain payload disposition.
 
 ### RuntimeCommandReceipt
