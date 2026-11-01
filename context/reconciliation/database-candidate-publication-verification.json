@@ -58,5 +58,55 @@
   "candidate_approval": "PENDING_BRAIN_REVIEW",
   "pre_ddl_stop": true,
   "next_action": "Brain reviews the corrected source commit; SQL generation and database execution need separate authorization",
-  "record_note": "This record verifies the source correction commit. A documentation-only descendant carries this record; its final remote HEAD is verified separately after publication, avoiding a self-referential commit hash."
+  "record_note": "This record verifies the source correction commit. A documentation-only descendant carries this record; its final remote HEAD is verified separately after publication, avoiding a self-referential commit hash.",
+  "targeted_followups": [
+    {
+      "reviewed_base_commit": "72e7673ff0970907d7c75e3993553fcf67000a3d",
+      "source_commit": "af00d21466194a74e09cafc4ade305be0cfd30f0",
+      "source_tree": "985dd596e8bb4d3ec444cf216160d7540aabeb99",
+      "source_parent": "72e7673ff0970907d7c75e3993553fcf67000a3d",
+      "scope": "Per-model default-Free worker permissions and corrected P0C-CTX-02 connection sequence",
+      "B010-01_and_B010-02": "ACCEPTED_SOURCE_DESIGNS_PRESERVED",
+      "normal_git_push_exit_code": 0,
+      "git_ls_remote_verified_head": "af00d21466194a74e09cafc4ade305be0cfd30f0",
+      "independent_github_api_verified_head": "af00d21466194a74e09cafc4ade305be0cfd30f0",
+      "independent_github_api_verified_tree": "985dd596e8bb4d3ec444cf216160d7540aabeb99",
+      "history_review": {
+        "status": "NO_SECRET_PATTERNS_FOUND",
+        "scanned_head": "af00d21466194a74e09cafc4ade305be0cfd30f0",
+        "remote_heads_used_as_exclusions": {
+          "main": "526bb1ab30480d66ca8b7da08d16badc6e613c1d",
+          "codex/development-readiness-2026-09-29": "f4e089902dcbcb303dc52976c4118f8903c135e5"
+        },
+        "new_reachable_commits": 11,
+        "objects_scanned": 806,
+        "blobs_scanned": 664,
+        "docx_blobs_inspected": 0,
+        "environment_templates_not_read": [],
+        "reviewed_synthetic_canaries": [
+          {
+            "object": "4e85c967754fc69f3d540e14cb50492a73dab7fc",
+            "path": "scripts/smoke-foundation.mjs",
+            "classification": "DELIBERATE_NONCONNECTING_FOUNDATION_TEST_CANARY",
+            "host_is_loopback_or_invalid": true
+          },
+          {
+            "object": "de449fd937d7a59fc0d950ebec7a603a8b4bb02e",
+            "path": "scripts/smoke-foundation.mjs",
+            "classification": "DELIBERATE_NONCONNECTING_FOUNDATION_TEST_CANARY",
+            "host_is_loopback_or_invalid": true
+          }
+        ],
+        "findings": [],
+        "incoming_tip_workflow_files": [],
+        "limits": "Pattern scan plus targeted source review; not a universal confidentiality proof. Secret values and environment/key file contents are never printed/read."
+      },
+      "deployment_safeguards": "EXISTING_VERCEL_BRANCH_GUARD_UNCHANGED_NO_INCOMING_ACTIONS_WORKFLOWS_SKIP_CI_COMMIT",
+      "database_posture": "D",
+      "database_runtime_tests": "NOT_RUN",
+      "pre_ddl_stop": true,
+      "next_action": "Brain re-review; no human setup action needed"
+    }
+  ],
+  "latest_verified_source_commit": "af00d21466194a74e09cafc4ade305be0cfd30f0"
 }

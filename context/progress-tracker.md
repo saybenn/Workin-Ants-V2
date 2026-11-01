@@ -1,8 +1,8 @@
 ## Current status / Next action — targeted P0-C-02 completion
 
-- **Current status:** Brain accepted B010-01 and B010-02 at source-design level in review of `72e7673`; their schemas and design are preserved. The remaining fixes now specify per-model default-Free worker permissions and the correct connection order for P0C-CTX-02. Catalog preparation and usage observation are separate from enrollment-worker permissions.
+- **Current status:** Brain accepted B010-01 and B010-02 at source-design level in review of `72e7673`; their schemas and design are preserved. The completed targeted fixes specify per-model default-Free worker permissions and the correct connection order for P0C-CTX-02. Catalog preparation and usage observation are separate from enrollment-worker permissions.
 - **Evidence:** PASS — fresh pinned schema, candidate, source/context, foundation and Phase 0 checks with applicable adversarial suites are recorded in `reconciliation/database-candidate-corrections-validation.json` and the current native record; prior results are retained with the `-72e7673` suffix. Actual case counts are recorded, and every unexecuted database/runtime case stays NOT_RUN. No component/API/classes/token change.
-- **Publication:** `72e7673` remains the verified reviewed base; targeted follow-up publication will use this same correction branch with its existing deployment safeguards. Publication proof is recorded after the remote check.
+- **Publication:** [Targeted correction commit af00d21](https://github.com/saybenn/Workin-Ants-V2/commit/af00d21466194a74e09cafc4ade305be0cfd30f0) published normally on the existing correction branch. Git remote query and independent GitHub API verified HEAD/tree and parent `72e7673`. The existing publication record retains earlier proof and appends this verification. This documentation follow-up records the published source result.
 - **Next action:** Brain re-reviews the published targeted corrections. Posture D and the pre-DDL stop remain; no database, container, migration, hosted change or runtime implementation is authorized by these source corrections.
 
 ## Current continuation — P0-C-01, 27 October 2026
