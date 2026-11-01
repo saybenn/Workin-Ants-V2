@@ -95,6 +95,145 @@ DIRECT_GRANT_DENIALS = {
 }
 
 
+# The Customer-only first slice of WA-R078 / Track section 10.6, not a
+# permission factory for all Track owners, catalog administrators or metering.
+DEFAULT_FREE_HANDLER = 'assignDefaultFreeTrack.v1'
+
+
+def _track_operation(verb, columns, row_scope, **guards):
+    return {
+        'handler': DEFAULT_FREE_HANDLER,
+        'stage': 'F0_FOUNDATION',
+        'track': 'customer',
+        'operation': verb,
+        'columns': columns.split(),
+        'row_scope': row_scope,
+        'guards': {
+            'current_authorization_and_transaction_tuple': True,
+            'current_customer_owner_binding': True,
+            'original_semantic_enrollment_identity': True,
+            'current_worker_fence': True,
+            'server_stamps_mutation_transaction_id': True,
+            **guards,
+        },
+    }
+
+
+DEFAULT_FREE_TRACK_OPERATIONS = {
+    'TrackPlan': [
+        _track_operation('SELECT', 'id track key status billingModel version contentHash revision',
+                         'APPROVED_FREE_REVISION_OR_CURRENT_SELECTED_PLAN',
+                         new_free_plan_must_be_approved_active=True,
+                         catalog_retirement_does_not_invalidate_existing_selection=True),
+    ],
+    'TrackEntitlementDefinition': [
+        _track_operation('SELECT', 'id key valueType track isActive revision',
+                         'DEFINITIONS_REFERENCED_BY_APPROVED_FREE_PLAN',
+                         definitions_must_be_active_and_customer_applicable=True),
+    ],
+    'TrackPlanEntitlement': [
+        _track_operation('SELECT', 'id planId entitlementId valueType booleanValue intValue decimalValue stringValue usagePeriod revision',
+                         'MAPPINGS_OF_APPROVED_FREE_PLAN_REVISION',
+                         exact_typed_approved_benefits_only=True,
+                         json_value_remains_null_in_f0=True),
+    ],
+    'TrackSubscription': [
+        _track_operation('SELECT', 'id userId planId track customerProfileId candidateProfileId professionalProfileId status provider currentPeriodStart currentPeriodEnd endedAt revision',
+                         'EXACT_USER_CUSTOMER_TRACK_SELECTED_OR_NEW_ENROLLMENT'),
+        _track_operation('INSERT', 'id userId planId track customerProfileId candidateProfileId professionalProfileId status provider',
+                         'NEW_FREE_ENROLLMENT_FOR_EXACT_CUSTOMER',
+                         only_if_no_valid_current_free_or_paid_selection=True,
+                         approved_free_plan_revision=True,
+                         provider_none_and_no_billing_identifiers=True,
+                         customer_profile_only_other_profile_ids_null=True,
+                         atomic_receipt_history_and_effect=True,
+                         existing_subscriptions_unchanged=True),
+    ],
+    'TrackEntitlementGrant': [
+        _track_operation('SELECT', 'id userId subscriptionId entitlementId track customerProfileId candidateProfileId professionalProfileId status valueType booleanValue intValue decimalValue stringValue startsAt expiresAt revokedAt sourcePlanId sourceEventId revision',
+                         'EXACT_USER_CUSTOMER_ENROLLMENT_SUBSCRIPTION_GRANTS'),
+        _track_operation('INSERT', 'id userId subscriptionId entitlementId track customerProfileId candidateProfileId professionalProfileId status valueType booleanValue intValue decimalValue stringValue startsAt sourcePlanId sourceEventId',
+                         'NEW_GRANTS_OF_SAME_NEW_FREE_ENROLLMENT',
+                         exact_typed_approved_benefits_only=True,
+                         same_new_subscription_created_in_transaction=True,
+                         no_duplicate_or_rewritten_existing_grants=True,
+                         customer_profile_only_other_profile_ids_null=True,
+                         atomic_receipt_history_and_effect=True,
+                         json_value_remains_null_in_f0=True),
+    ],
+    'TrackBaseSelection': [
+        _track_operation('SELECT', 'id userId track customerProfileId candidateProfileId professionalProfileId subscriptionId revision sourceGeneration',
+                         'EXACT_USER_CUSTOMER_TRACK_SELECTION'),
+        _track_operation('INSERT', 'id userId track customerProfileId candidateProfileId professionalProfileId subscriptionId sourceGeneration',
+                         'MISSING_SELECTION_FOR_SAME_NEW_FREE_ENROLLMENT',
+                         serialized_user_track_and_missing_selection=True,
+                         same_new_subscription_created_in_transaction=True,
+                         customer_profile_only_other_profile_ids_null=True,
+                         atomic_receipt_history_and_effect=True),
+        _track_operation('UPDATE', 'subscriptionId revision sourceGeneration',
+                         'INVALID_SELECTION_CAS_TO_SAME_NEW_FREE_ENROLLMENT',
+                         only_if_no_valid_current_free_or_paid_selection=True,
+                         same_new_subscription_created_in_transaction=True,
+                         cas_expected_selection_revision=True,
+                         revision_increments_exactly_once=True,
+                         user_track_and_profile_binding_immutable=True,
+                         atomic_receipt_history_and_effect=True),
+    ],
+    'TrackEnrollmentReceipt': [
+        _track_operation('SELECT', 'id userId track profileId sourceOwner sourceCreationRevision selectionId selectionRevision semanticKey fingerprint resultCode effectReceiptId',
+                         'EXACT_ORIGINAL_SOURCE_PROFILE_SEMANTIC_KEY'),
+        _track_operation('INSERT', 'id userId track profileId sourceOwner sourceCreationRevision selectionId selectionRevision semanticKey fingerprint resultCode effectReceiptId',
+                         'MISSING_RECEIPT_FOR_ORIGINAL_ENROLLMENT_COMMAND',
+                         insert_only_if_original_semantic_receipt_absent=True,
+                         identical_replay_read_only_changed_fingerprint_conflicts=True,
+                         preserve_valid_existing_free_or_paid_selection=True,
+                         atomic_receipt_history_and_effect=True),
+    ],
+    'TrackSubscriptionEvent': [
+        _track_operation('INSERT', 'id subscriptionId planId userId name fromStatus toStatus provider',
+                         'NEW_HISTORY_OF_SAME_NEW_FREE_ENROLLMENT',
+                         actual_new_enrollment_only_no_replay_event=True,
+                         same_new_subscription_created_in_transaction=True,
+                         existing_immutable_history_unchanged=True,
+                         atomic_receipt_history_and_effect=True),
+    ],
+    # Enrollment does not meter, reset, repair or even query usage. An approved
+    # test observer separately verifies these rows remain unchanged.
+    'TrackUsageEvent': [],
+    'TrackUsageCounter': [],
+    'TrackUsageReservation': [],
+}
+
+
+def default_free_operations(row):
+    if row['stage'] != 'F0_FOUNDATION':
+        return []
+    return DEFAULT_FREE_TRACK_OPERATIONS.get(row['model'], [])
+
+
+def default_free_denials(row):
+    operations = default_free_operations(row)
+    allowed = {op['operation'] for op in operations}
+    return [verb for verb in ['SELECT', 'INSERT', 'UPDATE', 'DELETE'] if verb not in allowed]
+
+
+def default_free_scope(row):
+    return {
+        'handler': DEFAULT_FREE_HANDLER,
+        'stage': row['stage'],
+        'track': 'customer',
+        'catalog_preparation': 'SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER',
+        'worker_may_prepare_catalog': False,
+        'usage_observation': 'SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER',
+        'qualification': 'NOT_RUN',
+        'authority': [
+            'context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035',
+            'context/reconciliation/database-candidate-continuation.md',
+            'context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack',
+        ],
+    }
+
+
 def access_profile(row):
     """Explicit positive paths; these specify tests, not implemented privileges."""
     if row['model'] == 'DatabaseActionGrant':
@@ -118,9 +257,10 @@ def access_profile(row):
         if not immutable:
             worker += ['UPDATE_REGISTERED_HANDLER_FIELDS_WITH_CURRENT_LEASE_AND_FENCE']
     elif row['source_owner'] == 'track_subscription_entitlement':
-        worker = ['SELECT_EXACT_DEFAULT_FREE_TARGET', 'INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT']
+        worker = default_free_operations(row)
+    track_scope = row['source_owner'] == 'track_subscription_entitlement'
     helper = ['SELECT_SECURITY_GENERATION_COLUMNS_VIA_DEFINER_ONLY'] if row['model'] == 'UserSecurityProfile' else []
-    return {
+    profile = {
         'operations_by_role': {
             'wa_app_runtime': runtime,
             'wa_worker': worker,
@@ -136,6 +276,11 @@ def access_profile(row):
         'entry': 'NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF',
     }
 
+    if track_scope:
+        profile['worker_contract_scope'] = default_free_scope(row)
+        profile['direct_denials_by_role']['wa_worker'] = default_free_denials(row)
+    return profile
+
 
 def table_cases(row, primary_key):
     profile = access_profile(row)
@@ -145,6 +290,8 @@ def table_cases(row, primary_key):
         'foreign_prerequisites': [f['attributes'] for f in row['foreign_relationships']],
         'context': 'Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority',
     }
+    if 'worker_contract_scope' in profile:
+        setup['worker_contract_scope'] = profile['worker_contract_scope']
     if row['model'] == 'DatabaseActionGrant':
         positive = ('Issuer login INSERTs a fully authorized immutable tuple grant, SELECTs its own row and exercises only one-way revocation. '
                     'Separate runtime and worker logins EXECUTE bind_request_context with their own issued tuples; '

@@ -18071,7 +18071,7 @@
         "service_role": []
       },
       "runtime": "REGISTERED_OWNER_ACTION_UNDER_SQL02_CONTEXT_ONLY",
-      "worker": "REGISTERED_HANDLER_UNDER_SQL02_CONTEXT_AND_FENCE_ONLY",
+      "worker": "ONLY_EXPLICIT_ASSIGN_DEFAULT_FREE_TRACK_V1_MODEL_OPERATIONS_NO_CATALOG_OR_USAGE_WRITES",
       "support": "NAMED_ACTION_STEPUP_AND_DURABLE_PROOF_NO_BLANKET_ACCESS",
       "privacy": "OWNER_EXECUTOR_FIELD_MAP_AND_REQUEST_GENERATION_ONLY",
       "rls": "ENABLE_AND_FORCE",
@@ -18299,10 +18299,7 @@
           "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF",
           "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
         ],
-        "wa_worker": [
-          "SELECT_EXACT_DEFAULT_FREE_TARGET",
-          "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
-        ],
+        "wa_worker": [],
         "wa_context_issuer": [],
         "wa_private_helper_owner": []
       },
@@ -18327,9 +18324,29 @@
         ],
         "wa_context_issuer": [
           "SOURCE_BUSINESS_WRITE"
+        ],
+        "wa_worker": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
         ]
       },
-      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF"
+      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF",
+      "worker_contract_scope": {
+        "handler": "assignDefaultFreeTrack.v1",
+        "stage": "LATER_OWNER_ORDERED_SLICE",
+        "track": "customer",
+        "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+        "worker_may_prepare_catalog": false,
+        "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+        "qualification": "NOT_RUN",
+        "authority": [
+          "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+          "context/reconciliation/database-candidate-continuation.md",
+          "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+        ]
+      }
     },
     {
       "kind": "table",
@@ -59542,7 +59559,7 @@
         "service_role": []
       },
       "runtime": "REGISTERED_OWNER_ACTION_UNDER_SQL02_CONTEXT_ONLY",
-      "worker": "REGISTERED_HANDLER_UNDER_SQL02_CONTEXT_AND_FENCE_ONLY",
+      "worker": "ONLY_EXPLICIT_ASSIGN_DEFAULT_FREE_TRACK_V1_MODEL_OPERATIONS_NO_CATALOG_OR_USAGE_WRITES",
       "support": "NAMED_ACTION_STEPUP_AND_DURABLE_PROOF_NO_BLANKET_ACCESS",
       "privacy": "OWNER_EXECUTOR_FIELD_MAP_AND_REQUEST_GENERATION_ONLY",
       "rls": "ENABLE_AND_FORCE",
@@ -59831,8 +59848,32 @@
           "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
         ],
         "wa_worker": [
-          "SELECT_EXACT_DEFAULT_FREE_TARGET",
-          "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
+          {
+            "handler": "assignDefaultFreeTrack.v1",
+            "stage": "F0_FOUNDATION",
+            "track": "customer",
+            "operation": "SELECT",
+            "columns": [
+              "id",
+              "track",
+              "key",
+              "status",
+              "billingModel",
+              "version",
+              "contentHash",
+              "revision"
+            ],
+            "row_scope": "APPROVED_FREE_REVISION_OR_CURRENT_SELECTED_PLAN",
+            "guards": {
+              "current_authorization_and_transaction_tuple": true,
+              "current_customer_owner_binding": true,
+              "original_semantic_enrollment_identity": true,
+              "current_worker_fence": true,
+              "server_stamps_mutation_transaction_id": true,
+              "new_free_plan_must_be_approved_active": true,
+              "catalog_retirement_does_not_invalidate_existing_selection": true
+            }
+          }
         ],
         "wa_context_issuer": [],
         "wa_private_helper_owner": []
@@ -59858,9 +59899,28 @@
         ],
         "wa_context_issuer": [
           "SOURCE_BUSINESS_WRITE"
+        ],
+        "wa_worker": [
+          "INSERT",
+          "UPDATE",
+          "DELETE"
         ]
       },
-      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF"
+      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF",
+      "worker_contract_scope": {
+        "handler": "assignDefaultFreeTrack.v1",
+        "stage": "F0_FOUNDATION",
+        "track": "customer",
+        "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+        "worker_may_prepare_catalog": false,
+        "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+        "qualification": "NOT_RUN",
+        "authority": [
+          "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+          "context/reconciliation/database-candidate-continuation.md",
+          "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+        ]
+      }
     },
     {
       "kind": "table",
@@ -59875,7 +59935,7 @@
         "service_role": []
       },
       "runtime": "REGISTERED_OWNER_ACTION_UNDER_SQL02_CONTEXT_ONLY",
-      "worker": "REGISTERED_HANDLER_UNDER_SQL02_CONTEXT_AND_FENCE_ONLY",
+      "worker": "ONLY_EXPLICIT_ASSIGN_DEFAULT_FREE_TRACK_V1_MODEL_OPERATIONS_NO_CATALOG_OR_USAGE_WRITES",
       "support": "NAMED_ACTION_STEPUP_AND_DURABLE_PROOF_NO_BLANKET_ACCESS",
       "privacy": "OWNER_EXECUTOR_FIELD_MAP_AND_REQUEST_GENERATION_ONLY",
       "rls": "ENABLE_AND_FORCE",
@@ -60088,10 +60148,7 @@
           "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF",
           "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
         ],
-        "wa_worker": [
-          "SELECT_EXACT_DEFAULT_FREE_TARGET",
-          "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
-        ],
+        "wa_worker": [],
         "wa_context_issuer": [],
         "wa_private_helper_owner": []
       },
@@ -60116,9 +60173,29 @@
         ],
         "wa_context_issuer": [
           "SOURCE_BUSINESS_WRITE"
+        ],
+        "wa_worker": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
         ]
       },
-      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF"
+      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF",
+      "worker_contract_scope": {
+        "handler": "assignDefaultFreeTrack.v1",
+        "stage": "LATER_OWNER_ORDERED_SLICE",
+        "track": "customer",
+        "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+        "worker_may_prepare_catalog": false,
+        "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+        "qualification": "NOT_RUN",
+        "authority": [
+          "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+          "context/reconciliation/database-candidate-continuation.md",
+          "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+        ]
+      }
     },
     {
       "kind": "table",
@@ -60133,7 +60210,7 @@
         "service_role": []
       },
       "runtime": "REGISTERED_OWNER_ACTION_UNDER_SQL02_CONTEXT_ONLY",
-      "worker": "REGISTERED_HANDLER_UNDER_SQL02_CONTEXT_AND_FENCE_ONLY",
+      "worker": "ONLY_EXPLICIT_ASSIGN_DEFAULT_FREE_TRACK_V1_MODEL_OPERATIONS_NO_CATALOG_OR_USAGE_WRITES",
       "support": "NAMED_ACTION_STEPUP_AND_DURABLE_PROOF_NO_BLANKET_ACCESS",
       "privacy": "OWNER_EXECUTOR_FIELD_MAP_AND_REQUEST_GENERATION_ONLY",
       "rls": "ENABLE_AND_FORCE",
@@ -60349,8 +60426,29 @@
           "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
         ],
         "wa_worker": [
-          "SELECT_EXACT_DEFAULT_FREE_TARGET",
-          "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
+          {
+            "handler": "assignDefaultFreeTrack.v1",
+            "stage": "F0_FOUNDATION",
+            "track": "customer",
+            "operation": "SELECT",
+            "columns": [
+              "id",
+              "key",
+              "valueType",
+              "track",
+              "isActive",
+              "revision"
+            ],
+            "row_scope": "DEFINITIONS_REFERENCED_BY_APPROVED_FREE_PLAN",
+            "guards": {
+              "current_authorization_and_transaction_tuple": true,
+              "current_customer_owner_binding": true,
+              "original_semantic_enrollment_identity": true,
+              "current_worker_fence": true,
+              "server_stamps_mutation_transaction_id": true,
+              "definitions_must_be_active_and_customer_applicable": true
+            }
+          }
         ],
         "wa_context_issuer": [],
         "wa_private_helper_owner": []
@@ -60376,9 +60474,28 @@
         ],
         "wa_context_issuer": [
           "SOURCE_BUSINESS_WRITE"
+        ],
+        "wa_worker": [
+          "INSERT",
+          "UPDATE",
+          "DELETE"
         ]
       },
-      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF"
+      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF",
+      "worker_contract_scope": {
+        "handler": "assignDefaultFreeTrack.v1",
+        "stage": "F0_FOUNDATION",
+        "track": "customer",
+        "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+        "worker_may_prepare_catalog": false,
+        "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+        "qualification": "NOT_RUN",
+        "authority": [
+          "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+          "context/reconciliation/database-candidate-continuation.md",
+          "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+        ]
+      }
     },
     {
       "kind": "table",
@@ -60393,7 +60510,7 @@
         "service_role": []
       },
       "runtime": "REGISTERED_OWNER_ACTION_UNDER_SQL02_CONTEXT_ONLY",
-      "worker": "REGISTERED_HANDLER_UNDER_SQL02_CONTEXT_AND_FENCE_ONLY",
+      "worker": "ONLY_EXPLICIT_ASSIGN_DEFAULT_FREE_TRACK_V1_MODEL_OPERATIONS_NO_CATALOG_OR_USAGE_WRITES",
       "support": "NAMED_ACTION_STEPUP_AND_DURABLE_PROOF_NO_BLANKET_ACCESS",
       "privacy": "OWNER_EXECUTOR_FIELD_MAP_AND_REQUEST_GENERATION_ONLY",
       "rls": "ENABLE_AND_FORCE",
@@ -60637,8 +60754,34 @@
           "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
         ],
         "wa_worker": [
-          "SELECT_EXACT_DEFAULT_FREE_TARGET",
-          "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
+          {
+            "handler": "assignDefaultFreeTrack.v1",
+            "stage": "F0_FOUNDATION",
+            "track": "customer",
+            "operation": "SELECT",
+            "columns": [
+              "id",
+              "planId",
+              "entitlementId",
+              "valueType",
+              "booleanValue",
+              "intValue",
+              "decimalValue",
+              "stringValue",
+              "usagePeriod",
+              "revision"
+            ],
+            "row_scope": "MAPPINGS_OF_APPROVED_FREE_PLAN_REVISION",
+            "guards": {
+              "current_authorization_and_transaction_tuple": true,
+              "current_customer_owner_binding": true,
+              "original_semantic_enrollment_identity": true,
+              "current_worker_fence": true,
+              "server_stamps_mutation_transaction_id": true,
+              "exact_typed_approved_benefits_only": true,
+              "json_value_remains_null_in_f0": true
+            }
+          }
         ],
         "wa_context_issuer": [],
         "wa_private_helper_owner": []
@@ -60664,9 +60807,28 @@
         ],
         "wa_context_issuer": [
           "SOURCE_BUSINESS_WRITE"
+        ],
+        "wa_worker": [
+          "INSERT",
+          "UPDATE",
+          "DELETE"
         ]
       },
-      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF"
+      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF",
+      "worker_contract_scope": {
+        "handler": "assignDefaultFreeTrack.v1",
+        "stage": "F0_FOUNDATION",
+        "track": "customer",
+        "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+        "worker_may_prepare_catalog": false,
+        "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+        "qualification": "NOT_RUN",
+        "authority": [
+          "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+          "context/reconciliation/database-candidate-continuation.md",
+          "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+        ]
+      }
     },
     {
       "kind": "table",
@@ -60681,7 +60843,7 @@
         "service_role": []
       },
       "runtime": "REGISTERED_OWNER_ACTION_UNDER_SQL02_CONTEXT_ONLY",
-      "worker": "REGISTERED_HANDLER_UNDER_SQL02_CONTEXT_AND_FENCE_ONLY",
+      "worker": "ONLY_EXPLICIT_ASSIGN_DEFAULT_FREE_TRACK_V1_MODEL_OPERATIONS_NO_CATALOG_OR_USAGE_WRITES",
       "support": "NAMED_ACTION_STEPUP_AND_DURABLE_PROOF_NO_BLANKET_ACCESS",
       "privacy": "OWNER_EXECUTOR_FIELD_MAP_AND_REQUEST_GENERATION_ONLY",
       "rls": "ENABLE_AND_FORCE",
@@ -61168,8 +61330,66 @@
           "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
         ],
         "wa_worker": [
-          "SELECT_EXACT_DEFAULT_FREE_TARGET",
-          "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
+          {
+            "handler": "assignDefaultFreeTrack.v1",
+            "stage": "F0_FOUNDATION",
+            "track": "customer",
+            "operation": "SELECT",
+            "columns": [
+              "id",
+              "userId",
+              "planId",
+              "track",
+              "customerProfileId",
+              "candidateProfileId",
+              "professionalProfileId",
+              "status",
+              "provider",
+              "currentPeriodStart",
+              "currentPeriodEnd",
+              "endedAt",
+              "revision"
+            ],
+            "row_scope": "EXACT_USER_CUSTOMER_TRACK_SELECTED_OR_NEW_ENROLLMENT",
+            "guards": {
+              "current_authorization_and_transaction_tuple": true,
+              "current_customer_owner_binding": true,
+              "original_semantic_enrollment_identity": true,
+              "current_worker_fence": true,
+              "server_stamps_mutation_transaction_id": true
+            }
+          },
+          {
+            "handler": "assignDefaultFreeTrack.v1",
+            "stage": "F0_FOUNDATION",
+            "track": "customer",
+            "operation": "INSERT",
+            "columns": [
+              "id",
+              "userId",
+              "planId",
+              "track",
+              "customerProfileId",
+              "candidateProfileId",
+              "professionalProfileId",
+              "status",
+              "provider"
+            ],
+            "row_scope": "NEW_FREE_ENROLLMENT_FOR_EXACT_CUSTOMER",
+            "guards": {
+              "current_authorization_and_transaction_tuple": true,
+              "current_customer_owner_binding": true,
+              "original_semantic_enrollment_identity": true,
+              "current_worker_fence": true,
+              "server_stamps_mutation_transaction_id": true,
+              "only_if_no_valid_current_free_or_paid_selection": true,
+              "approved_free_plan_revision": true,
+              "provider_none_and_no_billing_identifiers": true,
+              "customer_profile_only_other_profile_ids_null": true,
+              "atomic_receipt_history_and_effect": true,
+              "existing_subscriptions_unchanged": true
+            }
+          }
         ],
         "wa_context_issuer": [],
         "wa_private_helper_owner": []
@@ -61195,9 +61415,27 @@
         ],
         "wa_context_issuer": [
           "SOURCE_BUSINESS_WRITE"
+        ],
+        "wa_worker": [
+          "UPDATE",
+          "DELETE"
         ]
       },
-      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF"
+      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF",
+      "worker_contract_scope": {
+        "handler": "assignDefaultFreeTrack.v1",
+        "stage": "F0_FOUNDATION",
+        "track": "customer",
+        "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+        "worker_may_prepare_catalog": false,
+        "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+        "qualification": "NOT_RUN",
+        "authority": [
+          "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+          "context/reconciliation/database-candidate-continuation.md",
+          "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+        ]
+      }
     },
     {
       "kind": "table",
@@ -61212,7 +61450,7 @@
         "service_role": []
       },
       "runtime": "REGISTERED_OWNER_ACTION_UNDER_SQL02_CONTEXT_ONLY",
-      "worker": "REGISTERED_HANDLER_UNDER_SQL02_CONTEXT_AND_FENCE_ONLY",
+      "worker": "ONLY_EXPLICIT_ASSIGN_DEFAULT_FREE_TRACK_V1_MODEL_OPERATIONS_NO_CATALOG_OR_USAGE_WRITES",
       "support": "NAMED_ACTION_STEPUP_AND_DURABLE_PROOF_NO_BLANKET_ACCESS",
       "privacy": "OWNER_EXECUTOR_FIELD_MAP_AND_REQUEST_GENERATION_ONLY",
       "rls": "ENABLE_AND_FORCE",
@@ -61716,8 +61954,81 @@
           "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
         ],
         "wa_worker": [
-          "SELECT_EXACT_DEFAULT_FREE_TARGET",
-          "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
+          {
+            "handler": "assignDefaultFreeTrack.v1",
+            "stage": "F0_FOUNDATION",
+            "track": "customer",
+            "operation": "SELECT",
+            "columns": [
+              "id",
+              "userId",
+              "subscriptionId",
+              "entitlementId",
+              "track",
+              "customerProfileId",
+              "candidateProfileId",
+              "professionalProfileId",
+              "status",
+              "valueType",
+              "booleanValue",
+              "intValue",
+              "decimalValue",
+              "stringValue",
+              "startsAt",
+              "expiresAt",
+              "revokedAt",
+              "sourcePlanId",
+              "sourceEventId",
+              "revision"
+            ],
+            "row_scope": "EXACT_USER_CUSTOMER_ENROLLMENT_SUBSCRIPTION_GRANTS",
+            "guards": {
+              "current_authorization_and_transaction_tuple": true,
+              "current_customer_owner_binding": true,
+              "original_semantic_enrollment_identity": true,
+              "current_worker_fence": true,
+              "server_stamps_mutation_transaction_id": true
+            }
+          },
+          {
+            "handler": "assignDefaultFreeTrack.v1",
+            "stage": "F0_FOUNDATION",
+            "track": "customer",
+            "operation": "INSERT",
+            "columns": [
+              "id",
+              "userId",
+              "subscriptionId",
+              "entitlementId",
+              "track",
+              "customerProfileId",
+              "candidateProfileId",
+              "professionalProfileId",
+              "status",
+              "valueType",
+              "booleanValue",
+              "intValue",
+              "decimalValue",
+              "stringValue",
+              "startsAt",
+              "sourcePlanId",
+              "sourceEventId"
+            ],
+            "row_scope": "NEW_GRANTS_OF_SAME_NEW_FREE_ENROLLMENT",
+            "guards": {
+              "current_authorization_and_transaction_tuple": true,
+              "current_customer_owner_binding": true,
+              "original_semantic_enrollment_identity": true,
+              "current_worker_fence": true,
+              "server_stamps_mutation_transaction_id": true,
+              "exact_typed_approved_benefits_only": true,
+              "same_new_subscription_created_in_transaction": true,
+              "no_duplicate_or_rewritten_existing_grants": true,
+              "customer_profile_only_other_profile_ids_null": true,
+              "atomic_receipt_history_and_effect": true,
+              "json_value_remains_null_in_f0": true
+            }
+          }
         ],
         "wa_context_issuer": [],
         "wa_private_helper_owner": []
@@ -61743,9 +62054,27 @@
         ],
         "wa_context_issuer": [
           "SOURCE_BUSINESS_WRITE"
+        ],
+        "wa_worker": [
+          "UPDATE",
+          "DELETE"
         ]
       },
-      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF"
+      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF",
+      "worker_contract_scope": {
+        "handler": "assignDefaultFreeTrack.v1",
+        "stage": "F0_FOUNDATION",
+        "track": "customer",
+        "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+        "worker_may_prepare_catalog": false,
+        "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+        "qualification": "NOT_RUN",
+        "authority": [
+          "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+          "context/reconciliation/database-candidate-continuation.md",
+          "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+        ]
+      }
     },
     {
       "kind": "table",
@@ -61760,7 +62089,7 @@
         "service_role": []
       },
       "runtime": "REGISTERED_OWNER_ACTION_UNDER_SQL02_CONTEXT_ONLY",
-      "worker": "REGISTERED_HANDLER_UNDER_SQL02_CONTEXT_AND_FENCE_ONLY",
+      "worker": "ONLY_EXPLICIT_ASSIGN_DEFAULT_FREE_TRACK_V1_MODEL_OPERATIONS_NO_CATALOG_OR_USAGE_WRITES",
       "support": "NAMED_ACTION_STEPUP_AND_DURABLE_PROOF_NO_BLANKET_ACCESS",
       "privacy": "OWNER_EXECUTOR_FIELD_MAP_AND_REQUEST_GENERATION_ONLY",
       "rls": "ENABLE_AND_FORCE",
@@ -62193,10 +62522,7 @@
           "SELECT_EXACT_AUTHORIZED_TARGET",
           "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF"
         ],
-        "wa_worker": [
-          "SELECT_EXACT_DEFAULT_FREE_TARGET",
-          "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
-        ],
+        "wa_worker": [],
         "wa_context_issuer": [],
         "wa_private_helper_owner": []
       },
@@ -62221,9 +62547,29 @@
         ],
         "wa_context_issuer": [
           "SOURCE_BUSINESS_WRITE"
+        ],
+        "wa_worker": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
         ]
       },
-      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF"
+      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF",
+      "worker_contract_scope": {
+        "handler": "assignDefaultFreeTrack.v1",
+        "stage": "F0_FOUNDATION",
+        "track": "customer",
+        "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+        "worker_may_prepare_catalog": false,
+        "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+        "qualification": "NOT_RUN",
+        "authority": [
+          "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+          "context/reconciliation/database-candidate-continuation.md",
+          "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+        ]
+      }
     },
     {
       "kind": "table",
@@ -62238,7 +62584,7 @@
         "service_role": []
       },
       "runtime": "REGISTERED_OWNER_ACTION_UNDER_SQL02_CONTEXT_ONLY",
-      "worker": "REGISTERED_HANDLER_UNDER_SQL02_CONTEXT_AND_FENCE_ONLY",
+      "worker": "ONLY_EXPLICIT_ASSIGN_DEFAULT_FREE_TRACK_V1_MODEL_OPERATIONS_NO_CATALOG_OR_USAGE_WRITES",
       "support": "NAMED_ACTION_STEPUP_AND_DURABLE_PROOF_NO_BLANKET_ACCESS",
       "privacy": "OWNER_EXECUTOR_FIELD_MAP_AND_REQUEST_GENERATION_ONLY",
       "rls": "ENABLE_AND_FORCE",
@@ -62644,10 +62990,7 @@
           "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF",
           "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
         ],
-        "wa_worker": [
-          "SELECT_EXACT_DEFAULT_FREE_TARGET",
-          "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
-        ],
+        "wa_worker": [],
         "wa_context_issuer": [],
         "wa_private_helper_owner": []
       },
@@ -62672,9 +63015,29 @@
         ],
         "wa_context_issuer": [
           "SOURCE_BUSINESS_WRITE"
+        ],
+        "wa_worker": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
         ]
       },
-      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF"
+      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF",
+      "worker_contract_scope": {
+        "handler": "assignDefaultFreeTrack.v1",
+        "stage": "F0_FOUNDATION",
+        "track": "customer",
+        "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+        "worker_may_prepare_catalog": false,
+        "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+        "qualification": "NOT_RUN",
+        "authority": [
+          "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+          "context/reconciliation/database-candidate-continuation.md",
+          "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+        ]
+      }
     },
     {
       "kind": "table",
@@ -62689,7 +63052,7 @@
         "service_role": []
       },
       "runtime": "REGISTERED_OWNER_ACTION_UNDER_SQL02_CONTEXT_ONLY",
-      "worker": "REGISTERED_HANDLER_UNDER_SQL02_CONTEXT_AND_FENCE_ONLY",
+      "worker": "ONLY_EXPLICIT_ASSIGN_DEFAULT_FREE_TRACK_V1_MODEL_OPERATIONS_NO_CATALOG_OR_USAGE_WRITES",
       "support": "NAMED_ACTION_STEPUP_AND_DURABLE_PROOF_NO_BLANKET_ACCESS",
       "privacy": "OWNER_EXECUTOR_FIELD_MAP_AND_REQUEST_GENERATION_ONLY",
       "rls": "ENABLE_AND_FORCE",
@@ -62920,8 +63283,34 @@
           "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF"
         ],
         "wa_worker": [
-          "SELECT_EXACT_DEFAULT_FREE_TARGET",
-          "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
+          {
+            "handler": "assignDefaultFreeTrack.v1",
+            "stage": "F0_FOUNDATION",
+            "track": "customer",
+            "operation": "INSERT",
+            "columns": [
+              "id",
+              "subscriptionId",
+              "planId",
+              "userId",
+              "name",
+              "fromStatus",
+              "toStatus",
+              "provider"
+            ],
+            "row_scope": "NEW_HISTORY_OF_SAME_NEW_FREE_ENROLLMENT",
+            "guards": {
+              "current_authorization_and_transaction_tuple": true,
+              "current_customer_owner_binding": true,
+              "original_semantic_enrollment_identity": true,
+              "current_worker_fence": true,
+              "server_stamps_mutation_transaction_id": true,
+              "actual_new_enrollment_only_no_replay_event": true,
+              "same_new_subscription_created_in_transaction": true,
+              "existing_immutable_history_unchanged": true,
+              "atomic_receipt_history_and_effect": true
+            }
+          }
         ],
         "wa_context_issuer": [],
         "wa_private_helper_owner": []
@@ -62947,9 +63336,28 @@
         ],
         "wa_context_issuer": [
           "SOURCE_BUSINESS_WRITE"
+        ],
+        "wa_worker": [
+          "SELECT",
+          "UPDATE",
+          "DELETE"
         ]
       },
-      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF"
+      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF",
+      "worker_contract_scope": {
+        "handler": "assignDefaultFreeTrack.v1",
+        "stage": "F0_FOUNDATION",
+        "track": "customer",
+        "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+        "worker_may_prepare_catalog": false,
+        "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+        "qualification": "NOT_RUN",
+        "authority": [
+          "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+          "context/reconciliation/database-candidate-continuation.md",
+          "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+        ]
+      }
     },
     {
       "kind": "table",
@@ -64014,7 +64422,7 @@
         "service_role": []
       },
       "runtime": "REGISTERED_OWNER_ACTION_UNDER_SQL02_CONTEXT_ONLY",
-      "worker": "REGISTERED_HANDLER_UNDER_SQL02_CONTEXT_AND_FENCE_ONLY",
+      "worker": "ONLY_EXPLICIT_ASSIGN_DEFAULT_FREE_TRACK_V1_MODEL_OPERATIONS_NO_CATALOG_OR_USAGE_WRITES",
       "support": "NAMED_ACTION_STEPUP_AND_DURABLE_PROOF_NO_BLANKET_ACCESS",
       "privacy": "OWNER_EXECUTOR_FIELD_MAP_AND_REQUEST_GENERATION_ONLY",
       "rls": "ENABLE_AND_FORCE",
@@ -64052,8 +64460,84 @@
           "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
         ],
         "wa_worker": [
-          "SELECT_EXACT_DEFAULT_FREE_TARGET",
-          "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
+          {
+            "handler": "assignDefaultFreeTrack.v1",
+            "stage": "F0_FOUNDATION",
+            "track": "customer",
+            "operation": "SELECT",
+            "columns": [
+              "id",
+              "userId",
+              "track",
+              "customerProfileId",
+              "candidateProfileId",
+              "professionalProfileId",
+              "subscriptionId",
+              "revision",
+              "sourceGeneration"
+            ],
+            "row_scope": "EXACT_USER_CUSTOMER_TRACK_SELECTION",
+            "guards": {
+              "current_authorization_and_transaction_tuple": true,
+              "current_customer_owner_binding": true,
+              "original_semantic_enrollment_identity": true,
+              "current_worker_fence": true,
+              "server_stamps_mutation_transaction_id": true
+            }
+          },
+          {
+            "handler": "assignDefaultFreeTrack.v1",
+            "stage": "F0_FOUNDATION",
+            "track": "customer",
+            "operation": "INSERT",
+            "columns": [
+              "id",
+              "userId",
+              "track",
+              "customerProfileId",
+              "candidateProfileId",
+              "professionalProfileId",
+              "subscriptionId",
+              "sourceGeneration"
+            ],
+            "row_scope": "MISSING_SELECTION_FOR_SAME_NEW_FREE_ENROLLMENT",
+            "guards": {
+              "current_authorization_and_transaction_tuple": true,
+              "current_customer_owner_binding": true,
+              "original_semantic_enrollment_identity": true,
+              "current_worker_fence": true,
+              "server_stamps_mutation_transaction_id": true,
+              "serialized_user_track_and_missing_selection": true,
+              "same_new_subscription_created_in_transaction": true,
+              "customer_profile_only_other_profile_ids_null": true,
+              "atomic_receipt_history_and_effect": true
+            }
+          },
+          {
+            "handler": "assignDefaultFreeTrack.v1",
+            "stage": "F0_FOUNDATION",
+            "track": "customer",
+            "operation": "UPDATE",
+            "columns": [
+              "subscriptionId",
+              "revision",
+              "sourceGeneration"
+            ],
+            "row_scope": "INVALID_SELECTION_CAS_TO_SAME_NEW_FREE_ENROLLMENT",
+            "guards": {
+              "current_authorization_and_transaction_tuple": true,
+              "current_customer_owner_binding": true,
+              "original_semantic_enrollment_identity": true,
+              "current_worker_fence": true,
+              "server_stamps_mutation_transaction_id": true,
+              "only_if_no_valid_current_free_or_paid_selection": true,
+              "same_new_subscription_created_in_transaction": true,
+              "cas_expected_selection_revision": true,
+              "revision_increments_exactly_once": true,
+              "user_track_and_profile_binding_immutable": true,
+              "atomic_receipt_history_and_effect": true
+            }
+          }
         ],
         "wa_context_issuer": [],
         "wa_private_helper_owner": []
@@ -64079,9 +64563,26 @@
         ],
         "wa_context_issuer": [
           "SOURCE_BUSINESS_WRITE"
+        ],
+        "wa_worker": [
+          "DELETE"
         ]
       },
-      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF"
+      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF",
+      "worker_contract_scope": {
+        "handler": "assignDefaultFreeTrack.v1",
+        "stage": "F0_FOUNDATION",
+        "track": "customer",
+        "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+        "worker_may_prepare_catalog": false,
+        "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+        "qualification": "NOT_RUN",
+        "authority": [
+          "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+          "context/reconciliation/database-candidate-continuation.md",
+          "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+        ]
+      }
     },
     {
       "kind": "table",
@@ -64096,7 +64597,7 @@
         "service_role": []
       },
       "runtime": "REGISTERED_OWNER_ACTION_UNDER_SQL02_CONTEXT_ONLY",
-      "worker": "REGISTERED_HANDLER_UNDER_SQL02_CONTEXT_AND_FENCE_ONLY",
+      "worker": "ONLY_EXPLICIT_ASSIGN_DEFAULT_FREE_TRACK_V1_MODEL_OPERATIONS_NO_CATALOG_OR_USAGE_WRITES",
       "support": "NAMED_ACTION_STEPUP_AND_DURABLE_PROOF_NO_BLANKET_ACCESS",
       "privacy": "OWNER_EXECUTOR_FIELD_MAP_AND_REQUEST_GENERATION_ONLY",
       "rls": "ENABLE_AND_FORCE",
@@ -64131,8 +64632,66 @@
           "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF"
         ],
         "wa_worker": [
-          "SELECT_EXACT_DEFAULT_FREE_TARGET",
-          "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
+          {
+            "handler": "assignDefaultFreeTrack.v1",
+            "stage": "F0_FOUNDATION",
+            "track": "customer",
+            "operation": "SELECT",
+            "columns": [
+              "id",
+              "userId",
+              "track",
+              "profileId",
+              "sourceOwner",
+              "sourceCreationRevision",
+              "selectionId",
+              "selectionRevision",
+              "semanticKey",
+              "fingerprint",
+              "resultCode",
+              "effectReceiptId"
+            ],
+            "row_scope": "EXACT_ORIGINAL_SOURCE_PROFILE_SEMANTIC_KEY",
+            "guards": {
+              "current_authorization_and_transaction_tuple": true,
+              "current_customer_owner_binding": true,
+              "original_semantic_enrollment_identity": true,
+              "current_worker_fence": true,
+              "server_stamps_mutation_transaction_id": true
+            }
+          },
+          {
+            "handler": "assignDefaultFreeTrack.v1",
+            "stage": "F0_FOUNDATION",
+            "track": "customer",
+            "operation": "INSERT",
+            "columns": [
+              "id",
+              "userId",
+              "track",
+              "profileId",
+              "sourceOwner",
+              "sourceCreationRevision",
+              "selectionId",
+              "selectionRevision",
+              "semanticKey",
+              "fingerprint",
+              "resultCode",
+              "effectReceiptId"
+            ],
+            "row_scope": "MISSING_RECEIPT_FOR_ORIGINAL_ENROLLMENT_COMMAND",
+            "guards": {
+              "current_authorization_and_transaction_tuple": true,
+              "current_customer_owner_binding": true,
+              "original_semantic_enrollment_identity": true,
+              "current_worker_fence": true,
+              "server_stamps_mutation_transaction_id": true,
+              "insert_only_if_original_semantic_receipt_absent": true,
+              "identical_replay_read_only_changed_fingerprint_conflicts": true,
+              "preserve_valid_existing_free_or_paid_selection": true,
+              "atomic_receipt_history_and_effect": true
+            }
+          }
         ],
         "wa_context_issuer": [],
         "wa_private_helper_owner": []
@@ -64158,9 +64717,27 @@
         ],
         "wa_context_issuer": [
           "SOURCE_BUSINESS_WRITE"
+        ],
+        "wa_worker": [
+          "UPDATE",
+          "DELETE"
         ]
       },
-      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF"
+      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF",
+      "worker_contract_scope": {
+        "handler": "assignDefaultFreeTrack.v1",
+        "stage": "F0_FOUNDATION",
+        "track": "customer",
+        "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+        "worker_may_prepare_catalog": false,
+        "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+        "qualification": "NOT_RUN",
+        "authority": [
+          "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+          "context/reconciliation/database-candidate-continuation.md",
+          "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+        ]
+      }
     },
     {
       "kind": "table",
@@ -64175,7 +64752,7 @@
         "service_role": []
       },
       "runtime": "REGISTERED_OWNER_ACTION_UNDER_SQL02_CONTEXT_ONLY",
-      "worker": "REGISTERED_HANDLER_UNDER_SQL02_CONTEXT_AND_FENCE_ONLY",
+      "worker": "ONLY_EXPLICIT_ASSIGN_DEFAULT_FREE_TRACK_V1_MODEL_OPERATIONS_NO_CATALOG_OR_USAGE_WRITES",
       "support": "NAMED_ACTION_STEPUP_AND_DURABLE_PROOF_NO_BLANKET_ACCESS",
       "privacy": "OWNER_EXECUTOR_FIELD_MAP_AND_REQUEST_GENERATION_ONLY",
       "rls": "ENABLE_AND_FORCE",
@@ -64209,10 +64786,7 @@
           "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF",
           "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
         ],
-        "wa_worker": [
-          "SELECT_EXACT_DEFAULT_FREE_TARGET",
-          "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
-        ],
+        "wa_worker": [],
         "wa_context_issuer": [],
         "wa_private_helper_owner": []
       },
@@ -64237,9 +64811,29 @@
         ],
         "wa_context_issuer": [
           "SOURCE_BUSINESS_WRITE"
+        ],
+        "wa_worker": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
         ]
       },
-      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF"
+      "entry": "NAMED_OWNER_ACTION_OR_REGISTERED_HANDLER_CURRENT_TARGET_FIELDS_AND_PROOF",
+      "worker_contract_scope": {
+        "handler": "assignDefaultFreeTrack.v1",
+        "stage": "F0_FOUNDATION",
+        "track": "customer",
+        "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+        "worker_may_prepare_catalog": false,
+        "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+        "qualification": "NOT_RUN",
+        "authority": [
+          "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+          "context/reconciliation/database-candidate-continuation.md",
+          "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+        ]
+      }
     },
     {
       "kind": "table",

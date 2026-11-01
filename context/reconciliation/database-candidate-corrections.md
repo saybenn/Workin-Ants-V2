@@ -66,3 +66,51 @@ Publication review: the repository is public. Incoming GitHub Actions workflow f
 ### Windows context-check portability repair
 
 The first current suite passed candidate, 48 candidate adversarial, foundation, foundation adversarial, Phase 0 and Phase 0 adversarial checks, but the context aggregator rejected historical handoff identities because `str(relative_path)` emits Windows backslashes. The stored source identities use portable forward slashes; original source byte hashes matched. `check-handoff-adjudication.py` now compares `relative_path.as_posix()`. No historical source, adjudication, architecture ruling or past result was rewritten. The [failed attempt](database-candidate-corrections-validation-attempt-1.json) is retained separately, followed by current rerun output. This repairs a check's portability, not a reopened architecture or P0-B acceptance decision.
+
+## Targeted completion after Brain review of 72e7673
+
+The [retained review](directives/brain-review-72e7673-targeted-completion.md) accepts B010-01's immutable issuer-committed transaction tuple and B010-02's exact consent representation at source-design level. Both review schemas, SQL-02/05/06 definitions, binding protocol and grant-role design remain unchanged. Whole-candidate approval, database posture D and the stop before DDL remain.
+
+### Track enrollment worker boundary
+
+The previous owner-wide default-Free operation was too broad: it included immutable usage records and catalog administration. It is replaced by explicit per-model SQL verbs, exact input columns, target scopes, currentness/semantic-identity/fence guards and Customer-only F0 handler binding. The existing WA-R078 / Track section 10.6 and continuation remain the authority; no new commercial or lifecycle decision is introduced.
+
+| Model | Stage | Default-Free worker operations |
+|---|---|---|
+| OrganizationFeatureAccess | LATER_OWNER_ORDERED_SLICE | NONE |
+| TrackPlan | F0_FOUNDATION | SELECT |
+| TrackPlanPrice | LATER_OWNER_ORDERED_SLICE | NONE |
+| TrackEntitlementDefinition | F0_FOUNDATION | SELECT |
+| TrackPlanEntitlement | F0_FOUNDATION | SELECT |
+| TrackSubscription | F0_FOUNDATION | SELECT, INSERT |
+| TrackEntitlementGrant | F0_FOUNDATION | SELECT, INSERT |
+| TrackUsageEvent | F0_FOUNDATION | NONE |
+| TrackUsageCounter | F0_FOUNDATION | NONE |
+| TrackSubscriptionEvent | F0_FOUNDATION | INSERT |
+| TrackBaseSelection | F0_FOUNDATION | SELECT, INSERT, UPDATE |
+| TrackEnrollmentReceipt | F0_FOUNDATION | SELECT, INSERT |
+| TrackUsageReservation | F0_FOUNDATION | NONE |
+
+TrackPlan, TrackEntitlementDefinition and TrackPlanEntitlement are SELECT-only for the particular approved Free revision/benefits and existing selected plan facts. Existing valid selection is not invalidated just because catalog publication changes. PlanPrice and OrganizationFeatureAccess are outside this F0 handler and receive no permission.
+
+TrackSubscription and TrackEntitlementGrant admit only the appropriate new provider-neutral Free enrollment and exact typed approved benefit rows. Existing subscriptions and grants are never updated/deleted by this handler. TrackBaseSelection permits missing-row INSERT, or a CAS UPDATE of subscriptionId/revision/sourceGeneration only when no valid current Free or paid selection exists and the new Free subscription belongs to this same command transaction. User/track/profile binding cannot change; revision advances exactly once. A competing valid paid selection is preserved.
+
+TrackEnrollmentReceipt is read by its original source/profile semantic key and appended only when that receipt is absent. Identical replay is read-only and changed fingerprint conflicts. TrackSubscriptionEvent admits only new history for actual new enrollment, not updates/deletes or manufactured replay events. Existing semantic receipts, grants and history are preserved. Server-stamped mutation identity is not an input column.
+
+This handler has no SELECT/INSERT/UPDATE/DELETE on TrackUsageEvent, TrackUsageCounter or TrackUsageReservation. It never meters, resets, repairs or rewrites usage. Separately authorized test observers establish unchanged-usage assertions. Approved nonproduction catalog fixture preparation is a separate authorized step, never enrollment-worker catalog authority. Exact operations/columns/guards and denials appear in the regenerated access matrix and test setup, not an ambiguous combined INSERT_OR_UPDATE label.
+
+The candidate checker contains a separately reviewed WA-R078 security oracle. It does not import the permission generator or derive its expected limits from matrix/test agreement. It checks allowed verbs, write columns, immutable/catalog/usage bans, handler/stage/row scope and preservation/CAS/identity guards. Adversarial cases inject the same forbidden operation into BOTH artifacts while keeping their operation lists equal, and require the independent policy rule to reject it. Counts are obtained from actual cases; no target count is invented.
+
+### P0C-CTX-02 connection and ordering correction
+
+Connection A runs once for each actual runtime/worker login: open READ COMMITTED, capture actual login/PID/xid before business reads/source locks, let separate issuer I authorize and COMMIT its immutable bound grant, then bind through A's permitted helper. Only after that do separate mutation connections commit one of three distinguishable scenarios before A's next protected statement:
+
+- R uses the issuer credential only for the existing one-way own-grant revokedAt update and COMMIT.
+- G uses a separately authorized Identity owner security-generation transition, with its own fresh tuple-bound grant and required CAS/evidence.
+- G instead uses an authorized Customer owner source mutation with its own grant/CAS/history/intents. The synthetic case binds the tested sourceGeneration to CustomerProfile.revision; it defines no universal generation mapping for other owners.
+
+Generation mutations are not issuer business-table writes. If an approved P0-C owner fixture operation is absent, that scenario stays NOT_RUN rather than inventing broader privileges. Each change commits before A attempts its original now-stale protected action. The action must deny without unauthorized source mutation, effect or disclosure. The legitimate separate change is not confused with a forbidden effect or rolled back by A. Current-spec regressions reject the superseded pre-source-transaction issuance setup, reversed order, wrong mutation credential, missing own grant and missing committed-change synchronization. Historical evidence is not scanned as if it were current instructions.
+
+### Current evidence
+
+The previous current native/source records are retained byte-for-byte as `database-candidate-corrections-native-validation-72e7673.json` and `database-candidate-corrections-validation-72e7673.json`. Fresh current records report the actual runs. The selection wrapper retains the existing proposed IDs and fingerprints the regenerated register. Runtime/database cases remain NOT_RUN. No new bundle/ZIP, schema, SQL body, runtime, container, database connection or hosted change is part of this continuation.

@@ -78,5 +78,64 @@ case('Issuer receives broad UPDATE', 'database-candidate-access-matrix', lambda 
 case('Worker direct grant denial removed', 'database-candidate-access-matrix', lambda j: next(r for r in j['objects'] if r.get('model')=='DatabaseActionGrant')['direct_denials_by_role']['wa_worker'].remove('SELECT'), 'Direct grant-table denial missing')
 case('Table allow test has vague principal', 'database-candidate-tests', lambda j: next(t for t in j['tests'] if t['id']=='P0C-TABLE-DatabaseActionGrant-ALLOW')['setup'].pop('operations_by_role'), 'Exact access-test role operations missing')
 case('Rollback test drops savepoint path', 'database-candidate-tests', lambda j: next(t for t in j['tests'] if t['id']=='P0C-CTX-01').update(action='Commit only'), 'Rollback/savepoint/pool negative test missing')
+# These mutations deliberately keep the two generated artifacts in agreement.
+# A mismatch/fingerprint failure is not sufficient: the independent owner-policy
+# oracle must reject the same forbidden operation in BOTH artifacts.
+def coherent_worker_case(label, model, mutate, expected):
+    import copy
+    matrix = json.loads(packet[REC + 'database-candidate-access-matrix.json'])
+    plan = json.loads(packet[REC + 'database-candidate-tests.json'])
+    row = next(r for r in matrix['objects'] if r.get('model') == model)
+    operations = row['operations_by_role']['wa_worker']
+    mutate(operations)
+    positive = next(t for t in plan['tests'] if t['id'] == 'P0C-TABLE-' + model + '-ALLOW')
+    positive['setup']['operations_by_role']['wa_worker'] = copy.deepcopy(operations)
+    assert positive['setup']['operations_by_role'] == row['operations_by_role']
+    altered = dict(packet)
+    altered[REC + 'database-candidate-access-matrix.json'] = json.dumps(matrix)
+    altered[REC + 'database-candidate-tests.json'] = json.dumps(plan)
+    errors = inspect(altered, check_hashes=False)['errors']
+    assert any(expected in error for error in errors), (label, errors)
+    assert not any('Exact access-test role operations missing' in error for error in errors), (label, errors)
+    results.append({'case':label,'result':'REJECTED','rule':expected,'matrix_and_test_still_agree':True})
+
+
+def forbidden_worker_operation(operations, verb):
+    import copy
+    reference = json.loads(packet[REC + 'database-candidate-access-matrix.json'])
+    sample = next(r for r in reference['objects'] if r.get('model') == 'TrackSubscription')['operations_by_role']['wa_worker'][0]
+    operation = copy.deepcopy(operations[0] if operations else sample)
+    operation['operation'] = verb
+    operations.append(operation)
+
+
+for model in ['TrackEnrollmentReceipt','TrackSubscriptionEvent']:
+    for verb in ['UPDATE','DELETE']:
+        coherent_worker_case('Coherent immutable evidence '+verb+' '+model,model,lambda ops,v=verb:forbidden_worker_operation(ops,v),'Default-Free immutable worker write forbidden')
+for model in ['TrackPlan','TrackEntitlementDefinition','TrackPlanEntitlement']:
+    for verb in ['INSERT','UPDATE','DELETE']:
+        coherent_worker_case('Coherent catalog '+verb+' '+model,model,lambda ops,v=verb:forbidden_worker_operation(ops,v),'Default-Free catalog write forbidden')
+for model in ['TrackUsageEvent','TrackUsageCounter','TrackUsageReservation']:
+    for verb in ['SELECT','INSERT','UPDATE','DELETE']:
+        coherent_worker_case('Coherent usage '+verb+' '+model,model,lambda ops,v=verb:forbidden_worker_operation(ops,v),'Default-Free usage access forbidden')
+for model in ['TrackPlanPrice','OrganizationFeatureAccess']:
+    coherent_worker_case('Coherent later-stage worker write '+model,model,lambda ops:forbidden_worker_operation(ops,'INSERT'),'Default-Free later-stage access forbidden')
+coherent_worker_case('Existing subscription UPDATE forbidden','TrackSubscription',lambda ops:forbidden_worker_operation(ops,'UPDATE'),'Default-Free model operation forbidden')
+coherent_worker_case('Existing entitlement grant UPDATE forbidden','TrackEntitlementGrant',lambda ops:forbidden_worker_operation(ops,'UPDATE'),'Default-Free model operation forbidden')
+coherent_worker_case('Paid selection preservation guard removed','TrackBaseSelection',lambda ops:next(o for o in ops if o['operation']=='UPDATE')['guards'].pop('only_if_no_valid_current_free_or_paid_selection'),'Default-Free semantic guard missing')
+coherent_worker_case('Selection CAS guard removed','TrackBaseSelection',lambda ops:next(o for o in ops if o['operation']=='UPDATE')['guards'].pop('cas_expected_selection_revision'),'Default-Free semantic guard missing')
+coherent_worker_case('Original semantic identity changed','TrackEnrollmentReceipt',lambda ops:next(o for o in ops if o['operation']=='INSERT')['guards'].update(original_semantic_enrollment_identity=False),'Default-Free semantic guard missing')
+coherent_worker_case('Grant creation detached from new enrollment','TrackEntitlementGrant',lambda ops:next(o for o in ops if o['operation']=='INSERT')['guards'].pop('same_new_subscription_created_in_transaction'),'Default-Free semantic guard missing')
+coherent_worker_case('Catalog SELECT becomes unrestricted','TrackPlan',lambda ops:ops[0].update(row_scope='ALL_CATALOG_ROWS'),'Default-Free row scope widened')
+coherent_worker_case('Enrollment handler changes without approval','TrackSubscription',lambda ops:ops[0].update(handler='catalogAdmin.v1'),'Default-Free handler/stage/track scope missing')
+coherent_worker_case('Selection update rewrites user binding','TrackBaseSelection',lambda ops:next(o for o in ops if o['operation']=='UPDATE')['columns'].append('userId'),'Default-Free write columns widened')
+
+case('Current context test restores old issuance order','database-candidate-tests',lambda j:next(t for t in j['tests'] if t['id']=='P0C-CTX-02').update(setup='Valid grant issued before source transaction'),'Superseded pre-transaction grant issuance')
+case('Context tuple captured before transaction opens','database-candidate-tests',lambda j:next(t for t in j['tests'] if t['id']=='P0C-CTX-02')['setup']['common_sequence'].reverse(),'Current stale-context issuance sequence wrong')
+case('Generation changes performed by issuer credential','database-candidate-tests',lambda j:next(t for t in j['tests'] if t['id']=='P0C-CTX-02')['setup']['connections']['G'].update(login='wa_context_issuer'),'Current stale-context mutation connection authority wrong')
+case('Revocation/generation cases conflated','database-candidate-tests',lambda j:next(t for t in j['tests'] if t['id']=='P0C-CTX-02')['setup']['scenarios'].pop(),'Current stale-context revocation/generation scenarios conflated')
+case('Protected action tested before separate change commits','database-candidate-tests',lambda j:next(t for t in j['tests'] if t['id']=='P0C-CTX-02')['setup']['scenarios'][0]['steps'].remove('COMMIT_CHANGE'),'Current stale-context change must commit before protected action')
+case('Generation writer reuses stale subject grant','database-candidate-tests',lambda j:next(t for t in j['tests'] if t['id']=='P0C-CTX-02')['setup']['scenarios'][1]['steps'].remove('I_AUTHORIZE_AND_COMMIT_G_OWN_BOUND_GRANT'),'Current stale-context generation writer lacks own authorization')
+
 print(json.dumps({'status':'PASS','total':len(results),'cases':results,
                   'scope':'Semantic source mutations with fingerprint checks disabled; no actual DB/RLS/runtime execution'}, indent=2))

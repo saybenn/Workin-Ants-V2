@@ -46,6 +46,8 @@ for row in rows:
 for table_object in objects:
  row=next(r for r in rows if r['model']==table_object['model'])
  table_object.update(corrections['access_profile'](row))
+ if row['source_owner']=='track_subscription_entitlement':
+  table_object['worker']='ONLY_EXPLICIT_ASSIGN_DEFAULT_FREE_TRACK_V1_MODEL_OPERATIONS_NO_CATALOG_OR_USAGE_WRITES'
  if row['model']=='DatabaseActionGrant':
   table_object.update(runtime='NO_DIRECT_TABLE_ACCESS_NAMED_HELPER_EXECUTE_ONLY',worker='NO_DIRECT_TABLE_ACCESS_NAMED_HELPER_EXECUTE_ONLY',issuer='AUTHORIZED_INSERT_OWN_SELECT_ONE_WAY_REVOKE_ONLY',helper='SELECT_BOUNDED_COLUMNS_VIA_DEFINER_ONLY_NO_LOGIN_NO_WRITE',privacy='NO_DIRECT_TABLE_ACCESS_NO_F0_PRIVACY_LOGIN')
 for schema in ['app','platform','platform_private']:

@@ -5044,17 +5044,28 @@
             "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF",
             "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
           ],
-          "wa_worker": [
-            "SELECT_EXACT_DEFAULT_FREE_TARGET",
-            "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
-          ],
+          "wa_worker": [],
           "wa_context_issuer": [],
           "wa_private_helper_owner": []
         },
         "foreign_prerequisites": [
           "@relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "worker_contract_scope": {
+          "handler": "assignDefaultFreeTrack.v1",
+          "stage": "LATER_OWNER_ORDERED_SLICE",
+          "track": "customer",
+          "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+          "worker_may_prepare_catalog": false,
+          "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+          "qualification": "NOT_RUN",
+          "authority": [
+            "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+            "context/reconciliation/database-candidate-continuation.md",
+            "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+          ]
+        }
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
@@ -5097,6 +5108,12 @@
           ],
           "wa_context_issuer": [
             "SOURCE_BUSINESS_WRITE"
+          ],
+          "wa_worker": [
+            "SELECT",
+            "INSERT",
+            "UPDATE",
+            "DELETE"
           ]
         },
         "additional_denials": [
@@ -14973,14 +14990,52 @@
             "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
           ],
           "wa_worker": [
-            "SELECT_EXACT_DEFAULT_FREE_TARGET",
-            "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
+            {
+              "handler": "assignDefaultFreeTrack.v1",
+              "stage": "F0_FOUNDATION",
+              "track": "customer",
+              "operation": "SELECT",
+              "columns": [
+                "id",
+                "track",
+                "key",
+                "status",
+                "billingModel",
+                "version",
+                "contentHash",
+                "revision"
+              ],
+              "row_scope": "APPROVED_FREE_REVISION_OR_CURRENT_SELECTED_PLAN",
+              "guards": {
+                "current_authorization_and_transaction_tuple": true,
+                "current_customer_owner_binding": true,
+                "original_semantic_enrollment_identity": true,
+                "current_worker_fence": true,
+                "server_stamps_mutation_transaction_id": true,
+                "new_free_plan_must_be_approved_active": true,
+                "catalog_retirement_does_not_invalidate_existing_selection": true
+              }
+            }
           ],
           "wa_context_issuer": [],
           "wa_private_helper_owner": []
         },
         "foreign_prerequisites": [],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "worker_contract_scope": {
+          "handler": "assignDefaultFreeTrack.v1",
+          "stage": "F0_FOUNDATION",
+          "track": "customer",
+          "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+          "worker_may_prepare_catalog": false,
+          "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+          "qualification": "NOT_RUN",
+          "authority": [
+            "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+            "context/reconciliation/database-candidate-continuation.md",
+            "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+          ]
+        }
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
@@ -15023,6 +15078,11 @@
           ],
           "wa_context_issuer": [
             "SOURCE_BUSINESS_WRITE"
+          ],
+          "wa_worker": [
+            "INSERT",
+            "UPDATE",
+            "DELETE"
           ]
         },
         "additional_denials": [
@@ -15063,17 +15123,28 @@
             "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF",
             "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
           ],
-          "wa_worker": [
-            "SELECT_EXACT_DEFAULT_FREE_TARGET",
-            "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
-          ],
+          "wa_worker": [],
           "wa_context_issuer": [],
           "wa_private_helper_owner": []
         },
         "foreign_prerequisites": [
           "@relation(fields: [planId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "worker_contract_scope": {
+          "handler": "assignDefaultFreeTrack.v1",
+          "stage": "LATER_OWNER_ORDERED_SLICE",
+          "track": "customer",
+          "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+          "worker_may_prepare_catalog": false,
+          "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+          "qualification": "NOT_RUN",
+          "authority": [
+            "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+            "context/reconciliation/database-candidate-continuation.md",
+            "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+          ]
+        }
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
@@ -15116,6 +15187,12 @@
           ],
           "wa_context_issuer": [
             "SOURCE_BUSINESS_WRITE"
+          ],
+          "wa_worker": [
+            "SELECT",
+            "INSERT",
+            "UPDATE",
+            "DELETE"
           ]
         },
         "additional_denials": [
@@ -15157,14 +15234,49 @@
             "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
           ],
           "wa_worker": [
-            "SELECT_EXACT_DEFAULT_FREE_TARGET",
-            "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
+            {
+              "handler": "assignDefaultFreeTrack.v1",
+              "stage": "F0_FOUNDATION",
+              "track": "customer",
+              "operation": "SELECT",
+              "columns": [
+                "id",
+                "key",
+                "valueType",
+                "track",
+                "isActive",
+                "revision"
+              ],
+              "row_scope": "DEFINITIONS_REFERENCED_BY_APPROVED_FREE_PLAN",
+              "guards": {
+                "current_authorization_and_transaction_tuple": true,
+                "current_customer_owner_binding": true,
+                "original_semantic_enrollment_identity": true,
+                "current_worker_fence": true,
+                "server_stamps_mutation_transaction_id": true,
+                "definitions_must_be_active_and_customer_applicable": true
+              }
+            }
           ],
           "wa_context_issuer": [],
           "wa_private_helper_owner": []
         },
         "foreign_prerequisites": [],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "worker_contract_scope": {
+          "handler": "assignDefaultFreeTrack.v1",
+          "stage": "F0_FOUNDATION",
+          "track": "customer",
+          "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+          "worker_may_prepare_catalog": false,
+          "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+          "qualification": "NOT_RUN",
+          "authority": [
+            "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+            "context/reconciliation/database-candidate-continuation.md",
+            "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+          ]
+        }
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
@@ -15207,6 +15319,11 @@
           ],
           "wa_context_issuer": [
             "SOURCE_BUSINESS_WRITE"
+          ],
+          "wa_worker": [
+            "INSERT",
+            "UPDATE",
+            "DELETE"
           ]
         },
         "additional_denials": [
@@ -15248,8 +15365,34 @@
             "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
           ],
           "wa_worker": [
-            "SELECT_EXACT_DEFAULT_FREE_TARGET",
-            "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
+            {
+              "handler": "assignDefaultFreeTrack.v1",
+              "stage": "F0_FOUNDATION",
+              "track": "customer",
+              "operation": "SELECT",
+              "columns": [
+                "id",
+                "planId",
+                "entitlementId",
+                "valueType",
+                "booleanValue",
+                "intValue",
+                "decimalValue",
+                "stringValue",
+                "usagePeriod",
+                "revision"
+              ],
+              "row_scope": "MAPPINGS_OF_APPROVED_FREE_PLAN_REVISION",
+              "guards": {
+                "current_authorization_and_transaction_tuple": true,
+                "current_customer_owner_binding": true,
+                "original_semantic_enrollment_identity": true,
+                "current_worker_fence": true,
+                "server_stamps_mutation_transaction_id": true,
+                "exact_typed_approved_benefits_only": true,
+                "json_value_remains_null_in_f0": true
+              }
+            }
           ],
           "wa_context_issuer": [],
           "wa_private_helper_owner": []
@@ -15258,7 +15401,21 @@
           "@relation(fields: [planId], references: [id], onDelete: Restrict, onUpdate: Restrict)",
           "@relation(fields: [entitlementId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "worker_contract_scope": {
+          "handler": "assignDefaultFreeTrack.v1",
+          "stage": "F0_FOUNDATION",
+          "track": "customer",
+          "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+          "worker_may_prepare_catalog": false,
+          "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+          "qualification": "NOT_RUN",
+          "authority": [
+            "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+            "context/reconciliation/database-candidate-continuation.md",
+            "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+          ]
+        }
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
@@ -15301,6 +15458,11 @@
           ],
           "wa_context_issuer": [
             "SOURCE_BUSINESS_WRITE"
+          ],
+          "wa_worker": [
+            "INSERT",
+            "UPDATE",
+            "DELETE"
           ]
         },
         "additional_denials": [
@@ -15342,8 +15504,66 @@
             "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
           ],
           "wa_worker": [
-            "SELECT_EXACT_DEFAULT_FREE_TARGET",
-            "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
+            {
+              "handler": "assignDefaultFreeTrack.v1",
+              "stage": "F0_FOUNDATION",
+              "track": "customer",
+              "operation": "SELECT",
+              "columns": [
+                "id",
+                "userId",
+                "planId",
+                "track",
+                "customerProfileId",
+                "candidateProfileId",
+                "professionalProfileId",
+                "status",
+                "provider",
+                "currentPeriodStart",
+                "currentPeriodEnd",
+                "endedAt",
+                "revision"
+              ],
+              "row_scope": "EXACT_USER_CUSTOMER_TRACK_SELECTED_OR_NEW_ENROLLMENT",
+              "guards": {
+                "current_authorization_and_transaction_tuple": true,
+                "current_customer_owner_binding": true,
+                "original_semantic_enrollment_identity": true,
+                "current_worker_fence": true,
+                "server_stamps_mutation_transaction_id": true
+              }
+            },
+            {
+              "handler": "assignDefaultFreeTrack.v1",
+              "stage": "F0_FOUNDATION",
+              "track": "customer",
+              "operation": "INSERT",
+              "columns": [
+                "id",
+                "userId",
+                "planId",
+                "track",
+                "customerProfileId",
+                "candidateProfileId",
+                "professionalProfileId",
+                "status",
+                "provider"
+              ],
+              "row_scope": "NEW_FREE_ENROLLMENT_FOR_EXACT_CUSTOMER",
+              "guards": {
+                "current_authorization_and_transaction_tuple": true,
+                "current_customer_owner_binding": true,
+                "original_semantic_enrollment_identity": true,
+                "current_worker_fence": true,
+                "server_stamps_mutation_transaction_id": true,
+                "only_if_no_valid_current_free_or_paid_selection": true,
+                "approved_free_plan_revision": true,
+                "provider_none_and_no_billing_identifiers": true,
+                "customer_profile_only_other_profile_ids_null": true,
+                "atomic_receipt_history_and_effect": true,
+                "existing_subscriptions_unchanged": true
+              }
+            }
           ],
           "wa_context_issuer": [],
           "wa_private_helper_owner": []
@@ -15355,7 +15575,21 @@
           "@relation(fields: [candidateProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)",
           "@relation(fields: [professionalProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "worker_contract_scope": {
+          "handler": "assignDefaultFreeTrack.v1",
+          "stage": "F0_FOUNDATION",
+          "track": "customer",
+          "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+          "worker_may_prepare_catalog": false,
+          "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+          "qualification": "NOT_RUN",
+          "authority": [
+            "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+            "context/reconciliation/database-candidate-continuation.md",
+            "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+          ]
+        }
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
@@ -15398,6 +15632,10 @@
           ],
           "wa_context_issuer": [
             "SOURCE_BUSINESS_WRITE"
+          ],
+          "wa_worker": [
+            "UPDATE",
+            "DELETE"
           ]
         },
         "additional_denials": [
@@ -15439,8 +15677,81 @@
             "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
           ],
           "wa_worker": [
-            "SELECT_EXACT_DEFAULT_FREE_TARGET",
-            "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
+            {
+              "handler": "assignDefaultFreeTrack.v1",
+              "stage": "F0_FOUNDATION",
+              "track": "customer",
+              "operation": "SELECT",
+              "columns": [
+                "id",
+                "userId",
+                "subscriptionId",
+                "entitlementId",
+                "track",
+                "customerProfileId",
+                "candidateProfileId",
+                "professionalProfileId",
+                "status",
+                "valueType",
+                "booleanValue",
+                "intValue",
+                "decimalValue",
+                "stringValue",
+                "startsAt",
+                "expiresAt",
+                "revokedAt",
+                "sourcePlanId",
+                "sourceEventId",
+                "revision"
+              ],
+              "row_scope": "EXACT_USER_CUSTOMER_ENROLLMENT_SUBSCRIPTION_GRANTS",
+              "guards": {
+                "current_authorization_and_transaction_tuple": true,
+                "current_customer_owner_binding": true,
+                "original_semantic_enrollment_identity": true,
+                "current_worker_fence": true,
+                "server_stamps_mutation_transaction_id": true
+              }
+            },
+            {
+              "handler": "assignDefaultFreeTrack.v1",
+              "stage": "F0_FOUNDATION",
+              "track": "customer",
+              "operation": "INSERT",
+              "columns": [
+                "id",
+                "userId",
+                "subscriptionId",
+                "entitlementId",
+                "track",
+                "customerProfileId",
+                "candidateProfileId",
+                "professionalProfileId",
+                "status",
+                "valueType",
+                "booleanValue",
+                "intValue",
+                "decimalValue",
+                "stringValue",
+                "startsAt",
+                "sourcePlanId",
+                "sourceEventId"
+              ],
+              "row_scope": "NEW_GRANTS_OF_SAME_NEW_FREE_ENROLLMENT",
+              "guards": {
+                "current_authorization_and_transaction_tuple": true,
+                "current_customer_owner_binding": true,
+                "original_semantic_enrollment_identity": true,
+                "current_worker_fence": true,
+                "server_stamps_mutation_transaction_id": true,
+                "exact_typed_approved_benefits_only": true,
+                "same_new_subscription_created_in_transaction": true,
+                "no_duplicate_or_rewritten_existing_grants": true,
+                "customer_profile_only_other_profile_ids_null": true,
+                "atomic_receipt_history_and_effect": true,
+                "json_value_remains_null_in_f0": true
+              }
+            }
           ],
           "wa_context_issuer": [],
           "wa_private_helper_owner": []
@@ -15453,7 +15764,21 @@
           "@relation(fields: [candidateProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)",
           "@relation(fields: [professionalProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "worker_contract_scope": {
+          "handler": "assignDefaultFreeTrack.v1",
+          "stage": "F0_FOUNDATION",
+          "track": "customer",
+          "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+          "worker_may_prepare_catalog": false,
+          "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+          "qualification": "NOT_RUN",
+          "authority": [
+            "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+            "context/reconciliation/database-candidate-continuation.md",
+            "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+          ]
+        }
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
@@ -15496,6 +15821,10 @@
           ],
           "wa_context_issuer": [
             "SOURCE_BUSINESS_WRITE"
+          ],
+          "wa_worker": [
+            "UPDATE",
+            "DELETE"
           ]
         },
         "additional_denials": [
@@ -15535,10 +15864,7 @@
             "SELECT_EXACT_AUTHORIZED_TARGET",
             "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF"
           ],
-          "wa_worker": [
-            "SELECT_EXACT_DEFAULT_FREE_TARGET",
-            "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
-          ],
+          "wa_worker": [],
           "wa_context_issuer": [],
           "wa_private_helper_owner": []
         },
@@ -15552,7 +15878,21 @@
           "@relation(fields: [professionalProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)",
           "@relation(\"C_TrackUsageEvent_effectReceiptId\", fields: [effectReceiptId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "worker_contract_scope": {
+          "handler": "assignDefaultFreeTrack.v1",
+          "stage": "F0_FOUNDATION",
+          "track": "customer",
+          "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+          "worker_may_prepare_catalog": false,
+          "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+          "qualification": "NOT_RUN",
+          "authority": [
+            "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+            "context/reconciliation/database-candidate-continuation.md",
+            "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+          ]
+        }
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
@@ -15595,6 +15935,12 @@
           ],
           "wa_context_issuer": [
             "SOURCE_BUSINESS_WRITE"
+          ],
+          "wa_worker": [
+            "SELECT",
+            "INSERT",
+            "UPDATE",
+            "DELETE"
           ]
         },
         "additional_denials": [
@@ -15635,10 +15981,7 @@
             "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF",
             "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
           ],
-          "wa_worker": [
-            "SELECT_EXACT_DEFAULT_FREE_TARGET",
-            "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
-          ],
+          "wa_worker": [],
           "wa_context_issuer": [],
           "wa_private_helper_owner": []
         },
@@ -15651,7 +15994,21 @@
           "@relation(fields: [candidateProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)",
           "@relation(fields: [professionalProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "worker_contract_scope": {
+          "handler": "assignDefaultFreeTrack.v1",
+          "stage": "F0_FOUNDATION",
+          "track": "customer",
+          "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+          "worker_may_prepare_catalog": false,
+          "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+          "qualification": "NOT_RUN",
+          "authority": [
+            "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+            "context/reconciliation/database-candidate-continuation.md",
+            "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+          ]
+        }
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
@@ -15694,6 +16051,12 @@
           ],
           "wa_context_issuer": [
             "SOURCE_BUSINESS_WRITE"
+          ],
+          "wa_worker": [
+            "SELECT",
+            "INSERT",
+            "UPDATE",
+            "DELETE"
           ]
         },
         "additional_denials": [
@@ -15734,8 +16097,34 @@
             "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF"
           ],
           "wa_worker": [
-            "SELECT_EXACT_DEFAULT_FREE_TARGET",
-            "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
+            {
+              "handler": "assignDefaultFreeTrack.v1",
+              "stage": "F0_FOUNDATION",
+              "track": "customer",
+              "operation": "INSERT",
+              "columns": [
+                "id",
+                "subscriptionId",
+                "planId",
+                "userId",
+                "name",
+                "fromStatus",
+                "toStatus",
+                "provider"
+              ],
+              "row_scope": "NEW_HISTORY_OF_SAME_NEW_FREE_ENROLLMENT",
+              "guards": {
+                "current_authorization_and_transaction_tuple": true,
+                "current_customer_owner_binding": true,
+                "original_semantic_enrollment_identity": true,
+                "current_worker_fence": true,
+                "server_stamps_mutation_transaction_id": true,
+                "actual_new_enrollment_only_no_replay_event": true,
+                "same_new_subscription_created_in_transaction": true,
+                "existing_immutable_history_unchanged": true,
+                "atomic_receipt_history_and_effect": true
+              }
+            }
           ],
           "wa_context_issuer": [],
           "wa_private_helper_owner": []
@@ -15745,7 +16134,21 @@
           "@relation(fields: [planId], references: [id], onDelete: Restrict, onUpdate: Restrict)",
           "@relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "worker_contract_scope": {
+          "handler": "assignDefaultFreeTrack.v1",
+          "stage": "F0_FOUNDATION",
+          "track": "customer",
+          "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+          "worker_may_prepare_catalog": false,
+          "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+          "qualification": "NOT_RUN",
+          "authority": [
+            "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+            "context/reconciliation/database-candidate-continuation.md",
+            "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+          ]
+        }
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
@@ -15788,6 +16191,11 @@
           ],
           "wa_context_issuer": [
             "SOURCE_BUSINESS_WRITE"
+          ],
+          "wa_worker": [
+            "SELECT",
+            "UPDATE",
+            "DELETE"
           ]
         },
         "additional_denials": [
@@ -17062,8 +17470,84 @@
             "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
           ],
           "wa_worker": [
-            "SELECT_EXACT_DEFAULT_FREE_TARGET",
-            "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
+            {
+              "handler": "assignDefaultFreeTrack.v1",
+              "stage": "F0_FOUNDATION",
+              "track": "customer",
+              "operation": "SELECT",
+              "columns": [
+                "id",
+                "userId",
+                "track",
+                "customerProfileId",
+                "candidateProfileId",
+                "professionalProfileId",
+                "subscriptionId",
+                "revision",
+                "sourceGeneration"
+              ],
+              "row_scope": "EXACT_USER_CUSTOMER_TRACK_SELECTION",
+              "guards": {
+                "current_authorization_and_transaction_tuple": true,
+                "current_customer_owner_binding": true,
+                "original_semantic_enrollment_identity": true,
+                "current_worker_fence": true,
+                "server_stamps_mutation_transaction_id": true
+              }
+            },
+            {
+              "handler": "assignDefaultFreeTrack.v1",
+              "stage": "F0_FOUNDATION",
+              "track": "customer",
+              "operation": "INSERT",
+              "columns": [
+                "id",
+                "userId",
+                "track",
+                "customerProfileId",
+                "candidateProfileId",
+                "professionalProfileId",
+                "subscriptionId",
+                "sourceGeneration"
+              ],
+              "row_scope": "MISSING_SELECTION_FOR_SAME_NEW_FREE_ENROLLMENT",
+              "guards": {
+                "current_authorization_and_transaction_tuple": true,
+                "current_customer_owner_binding": true,
+                "original_semantic_enrollment_identity": true,
+                "current_worker_fence": true,
+                "server_stamps_mutation_transaction_id": true,
+                "serialized_user_track_and_missing_selection": true,
+                "same_new_subscription_created_in_transaction": true,
+                "customer_profile_only_other_profile_ids_null": true,
+                "atomic_receipt_history_and_effect": true
+              }
+            },
+            {
+              "handler": "assignDefaultFreeTrack.v1",
+              "stage": "F0_FOUNDATION",
+              "track": "customer",
+              "operation": "UPDATE",
+              "columns": [
+                "subscriptionId",
+                "revision",
+                "sourceGeneration"
+              ],
+              "row_scope": "INVALID_SELECTION_CAS_TO_SAME_NEW_FREE_ENROLLMENT",
+              "guards": {
+                "current_authorization_and_transaction_tuple": true,
+                "current_customer_owner_binding": true,
+                "original_semantic_enrollment_identity": true,
+                "current_worker_fence": true,
+                "server_stamps_mutation_transaction_id": true,
+                "only_if_no_valid_current_free_or_paid_selection": true,
+                "same_new_subscription_created_in_transaction": true,
+                "cas_expected_selection_revision": true,
+                "revision_increments_exactly_once": true,
+                "user_track_and_profile_binding_immutable": true,
+                "atomic_receipt_history_and_effect": true
+              }
+            }
           ],
           "wa_context_issuer": [],
           "wa_private_helper_owner": []
@@ -17075,7 +17559,21 @@
           "@relation(\"C_TrackBaseSelection_candidate\", fields: [candidateProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)",
           "@relation(\"C_TrackBaseSelection_professional\", fields: [professionalProfileId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "worker_contract_scope": {
+          "handler": "assignDefaultFreeTrack.v1",
+          "stage": "F0_FOUNDATION",
+          "track": "customer",
+          "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+          "worker_may_prepare_catalog": false,
+          "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+          "qualification": "NOT_RUN",
+          "authority": [
+            "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+            "context/reconciliation/database-candidate-continuation.md",
+            "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+          ]
+        }
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
@@ -17118,6 +17616,9 @@
           ],
           "wa_context_issuer": [
             "SOURCE_BUSINESS_WRITE"
+          ],
+          "wa_worker": [
+            "DELETE"
           ]
         },
         "additional_denials": [
@@ -17158,8 +17659,66 @@
             "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF"
           ],
           "wa_worker": [
-            "SELECT_EXACT_DEFAULT_FREE_TARGET",
-            "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
+            {
+              "handler": "assignDefaultFreeTrack.v1",
+              "stage": "F0_FOUNDATION",
+              "track": "customer",
+              "operation": "SELECT",
+              "columns": [
+                "id",
+                "userId",
+                "track",
+                "profileId",
+                "sourceOwner",
+                "sourceCreationRevision",
+                "selectionId",
+                "selectionRevision",
+                "semanticKey",
+                "fingerprint",
+                "resultCode",
+                "effectReceiptId"
+              ],
+              "row_scope": "EXACT_ORIGINAL_SOURCE_PROFILE_SEMANTIC_KEY",
+              "guards": {
+                "current_authorization_and_transaction_tuple": true,
+                "current_customer_owner_binding": true,
+                "original_semantic_enrollment_identity": true,
+                "current_worker_fence": true,
+                "server_stamps_mutation_transaction_id": true
+              }
+            },
+            {
+              "handler": "assignDefaultFreeTrack.v1",
+              "stage": "F0_FOUNDATION",
+              "track": "customer",
+              "operation": "INSERT",
+              "columns": [
+                "id",
+                "userId",
+                "track",
+                "profileId",
+                "sourceOwner",
+                "sourceCreationRevision",
+                "selectionId",
+                "selectionRevision",
+                "semanticKey",
+                "fingerprint",
+                "resultCode",
+                "effectReceiptId"
+              ],
+              "row_scope": "MISSING_RECEIPT_FOR_ORIGINAL_ENROLLMENT_COMMAND",
+              "guards": {
+                "current_authorization_and_transaction_tuple": true,
+                "current_customer_owner_binding": true,
+                "original_semantic_enrollment_identity": true,
+                "current_worker_fence": true,
+                "server_stamps_mutation_transaction_id": true,
+                "insert_only_if_original_semantic_receipt_absent": true,
+                "identical_replay_read_only_changed_fingerprint_conflicts": true,
+                "preserve_valid_existing_free_or_paid_selection": true,
+                "atomic_receipt_history_and_effect": true
+              }
+            }
           ],
           "wa_context_issuer": [],
           "wa_private_helper_owner": []
@@ -17169,7 +17728,21 @@
           "@relation(\"C_TrackEnrollmentReceipt_selection\", fields: [selectionId], references: [id], onDelete: Restrict, onUpdate: Restrict)",
           "@relation(\"C_TrackEnrollmentReceipt_effect\", fields: [effectReceiptId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "worker_contract_scope": {
+          "handler": "assignDefaultFreeTrack.v1",
+          "stage": "F0_FOUNDATION",
+          "track": "customer",
+          "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+          "worker_may_prepare_catalog": false,
+          "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+          "qualification": "NOT_RUN",
+          "authority": [
+            "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+            "context/reconciliation/database-candidate-continuation.md",
+            "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+          ]
+        }
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
@@ -17212,6 +17785,10 @@
           ],
           "wa_context_issuer": [
             "SOURCE_BUSINESS_WRITE"
+          ],
+          "wa_worker": [
+            "UPDATE",
+            "DELETE"
           ]
         },
         "additional_denials": [
@@ -17252,10 +17829,7 @@
             "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF",
             "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
           ],
-          "wa_worker": [
-            "SELECT_EXACT_DEFAULT_FREE_TARGET",
-            "INSERT_OR_UPDATE_DEFAULT_FREE_ONLY_WITH_CURRENT_CUSTOMER_FACT_AND_COMMAND_RECEIPT"
-          ],
+          "wa_worker": [],
           "wa_context_issuer": [],
           "wa_private_helper_owner": []
         },
@@ -17264,7 +17838,21 @@
           "@relation(\"C_TrackUsageReservation_entitlement\", fields: [entitlementId], references: [id], onDelete: Restrict, onUpdate: Restrict)",
           "@relation(\"C_TrackUsageReservation_reservation\", fields: [reservationId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "worker_contract_scope": {
+          "handler": "assignDefaultFreeTrack.v1",
+          "stage": "F0_FOUNDATION",
+          "track": "customer",
+          "catalog_preparation": "SEPARATELY_AUTHORIZED_CATALOG_FIXTURE_STEP_NOT_ENROLLMENT_WORKER",
+          "worker_may_prepare_catalog": false,
+          "usage_observation": "SEPARATE_AUTHORIZED_TEST_OBSERVER_NOT_ENROLLMENT_WORKER",
+          "qualification": "NOT_RUN",
+          "authority": [
+            "context/reconciliation/platform-architecture-rulings.md#wa-r078--default-free-enrollment-handoff-bf-035",
+            "context/reconciliation/database-candidate-continuation.md",
+            "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
+          ]
+        }
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
@@ -17307,6 +17895,12 @@
           ],
           "wa_context_issuer": [
             "SOURCE_BUSINESS_WRITE"
+          ],
+          "wa_worker": [
+            "SELECT",
+            "INSERT",
+            "UPDATE",
+            "DELETE"
           ]
         },
         "additional_denials": [
@@ -19252,9 +19846,103 @@
         "SQL-02",
         "SQL-06"
       ],
-      "setup": "Valid grant issued before source transaction",
-      "action": "Change security/source generation or revoke grant before the sensitive effect",
-      "expected": "Current recheck denies stale grant; no source mutation or protected disclosure",
+      "setup": {
+        "run_for_each_subject_login": [
+          "wa_app_runtime",
+          "wa_worker"
+        ],
+        "connections": {
+          "A": {
+            "login": "EACH_SUBJECT_LOGIN",
+            "purpose": "Original protected Customer action transaction"
+          },
+          "I": {
+            "login": "wa_context_issuer",
+            "purpose": "Separate tuple-bound grant issuance transaction"
+          },
+          "R": {
+            "login": "wa_context_issuer",
+            "purpose": "Separate one-way revocation transaction for its own issued grant"
+          },
+          "G": {
+            "login": "wa_app_runtime",
+            "purpose": "Separate authorized Identity or Customer owner generation mutation; its own fresh bound grant, CAS and required proof"
+          }
+        },
+        "common_sequence": [
+          {
+            "connection": "A",
+            "step": "OPEN_READ_COMMITTED_TRANSACTION"
+          },
+          {
+            "connection": "A",
+            "step": "CAPTURE_ACTUAL_LOGIN_BACKEND_XID",
+            "before_business_reads_or_source_locks": true
+          },
+          {
+            "connection": "I",
+            "step": "AUTHORIZE_AND_COMMIT_BOUND_GRANT",
+            "tuple_from": "A",
+            "authorization": "Current canonical Identity/Role/Customer owner facts, exact action/target/fields; immutable nonnullable tuple"
+          },
+          {
+            "connection": "A",
+            "step": "BIND_THROUGH_PERMITTED_HELPER",
+            "grant_from": "I",
+            "no_direct_grant_table_access": true
+          }
+        ],
+        "synthetic_fixture": "Exact Customer target and current security/source generation binding; no new production policy or owner API is inferred",
+        "scenarios": [
+          {
+            "name": "revocation",
+            "connection": "R",
+            "steps": [
+              "REVOKE_OWN_ISSUED_GRANT_NULL_TO_TIMESTAMP",
+              "COMMIT_CHANGE",
+              "A_ATTEMPT_PROTECTED_ACTION",
+              "A_VERIFY_DENIAL_WITHOUT_MUTATION_OR_DISCLOSURE"
+            ],
+            "authorized_path": "wa_context_issuer restricted own-grant UPDATE revokedAt only; no source-generation or business write",
+            "synchronization": "CHANGE_COMMIT_COMPLETES_BEFORE_A_NEXT_PROTECTED_STATEMENT"
+          },
+          {
+            "name": "security_generation",
+            "connection": "G",
+            "steps": [
+              "OPEN_OWN_READ_COMMITTED_TRANSACTION",
+              "CAPTURE_OWN_ACTUAL_TUPLE_BEFORE_SOURCE_LOCKS",
+              "I_AUTHORIZE_AND_COMMIT_G_OWN_BOUND_GRANT",
+              "BIND_G_OWN_HELPER_CONTEXT",
+              "IDENTITY_OWNER_AUTHORIZED_SECURITY_GENERATION_TRANSITION",
+              "COMMIT_CHANGE",
+              "A_ATTEMPT_PROTECTED_ACTION",
+              "A_VERIFY_DENIAL_WITHOUT_MUTATION_OR_DISCLOSURE"
+            ],
+            "authorized_path": "Registered Identity owner security-generation transition on UserSecurityProfile.securityGeneration with its own grant, CAS and required evidence; issuer does not edit Identity rows",
+            "synchronization": "CHANGE_COMMIT_COMPLETES_BEFORE_A_NEXT_PROTECTED_STATEMENT"
+          },
+          {
+            "name": "source_generation",
+            "connection": "G",
+            "steps": [
+              "OPEN_OWN_READ_COMMITTED_TRANSACTION",
+              "CAPTURE_OWN_ACTUAL_TUPLE_BEFORE_SOURCE_LOCKS",
+              "I_AUTHORIZE_AND_COMMIT_G_OWN_BOUND_GRANT",
+              "BIND_G_OWN_HELPER_CONTEXT",
+              "CUSTOMER_OWNER_AUTHORIZED_SOURCE_REVISION_TRANSITION",
+              "COMMIT_CHANGE",
+              "A_ATTEMPT_PROTECTED_ACTION",
+              "A_VERIFY_DENIAL_WITHOUT_MUTATION_OR_DISCLOSURE"
+            ],
+            "authorized_path": "Registered Customer owner mutation with its own grant, CAS and atomic source/history/evidence/intents. This fixture binds sourceGeneration to CustomerProfile.revision; it is not a universal mapping for other owners",
+            "synchronization": "CHANGE_COMMIT_COMPLETES_BEFORE_A_NEXT_PROTECTED_STATEMENT"
+          }
+        ],
+        "fixture_gate": "Generation-change paths need the approved owner-specific P0-C fixture operation. If absent, keep NOT_RUN; never grant broad issuer/runtime updates merely to prepare this test"
+      },
+      "action": "For each actual subject login on A, execute the common sequence, then exactly one separate named scenario. R or G must commit its authorized change before A issues its next protected statement. A uses its original now-stale grant and must be denied, without a forbidden source mutation or protected disclosure. Rollback A after observation; do not roll back or mislabel the legitimate separate owner change. Revocation, Identity security-generation change and Customer source-generation change are distinct runs.",
+      "expected": "Every named committed revocation/generation change is seen by A currentness checks; the stale protected action has no unauthorized mutation/effect/disclosure. All cases remain NOT_RUN until separately authorized execution.",
       "status": "NOT_RUN"
     },
     {
@@ -19339,9 +20027,9 @@
       "requirement": [
         "SQL-12"
       ],
-      "setup": "Explicit Free selection and another active paid-through fixture",
-      "action": "Try wrong profile/user/track, second current selection and delayed Free replacing paid",
-      "expected": "Mismatch/duplicate/downgrade denied; same original enrollment receipt remains valid",
+      "setup": "Separately authorized catalog fixture preparation and independent authorized usage observer; missing/current Free/current paid selections and exact original enrollment keys",
+      "action": "wa_worker follows only its named per-model assignDefaultFreeTrack.v1 SELECT/INSERT/CAS-selection paths. Try catalog INSERT/UPDATE/DELETE, usage SELECT/INSERT/UPDATE/DELETE, immutable evidence UPDATE/DELETE, wrong profile, duplicate selection, changed semantic fingerprint and delayed Free after paid wins; the separate observer compares unchanged usage and catalog",
+      "expected": "Only missing appropriate Free enrollment and its new receipt/history commit; valid Free/paid selection and original semantic receipt are preserved. Worker catalog/usage/immutable writes fail; fixture preparation never grants enrollment-worker authority",
       "status": "NOT_RUN"
     },
     {

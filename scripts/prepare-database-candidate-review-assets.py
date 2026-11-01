@@ -64,6 +64,57 @@ for row in rows:
 fixtures={'status':'SYNTHETIC_FIXTURE_SPEC_NOT_LOADED','users':{'A':{'id':'11111111-1111-4111-8111-111111111111','email':'actor-a@workinants.invalid'},'B':{'id':'22222222-2222-4222-8222-222222222222','email':'actor-b@workinants.invalid'}},'customers':{'A':'33333333-3333-4333-8333-333333333333','B':'44444444-4444-4444-8444-444444444444'},'organizations':{'A':'55555555-5555-4555-8555-555555555555','B':'66666666-6666-4666-8666-666666666666'},'clock':'2026-10-27T12:00:00Z','security_generation':'7','profile_creation_revision':'0','scope':'NONPRODUCTION_DRAFT_POLICY_ONLY','free_plan':{'track':'customer','key':'free-fixture','version':'test-v1','billingModel':'free','status':'active','provider':'none'},'active_paid_plan':'Fixture only: subscription_plus_commission plan with future paid-through instant and provider identity; no vendor call or actual paid subscription','authority_grants':'Created by wa_context_issuer test attestor for named source/user/action/target/field set; synthetic secret generated at execution, never committed','retention':'No production period or legal approval inferred; no automatic deletion of managed/old data'}
 (root/'tests/database').mkdir(parents=True,exist_ok=True);(root/'tests/database/candidate-fixtures.json').write_text(json.dumps(fixtures,indent=2)+'\n', encoding='utf-8', newline='\n')
 corrections=runpy.run_path(str(root/'scripts/database-candidate-correction-rules.py'))
+def stale_context_case():
+    # This describes future database tests. No connection or runtime is created.
+    setup = {
+        'run_for_each_subject_login': ['wa_app_runtime', 'wa_worker'],
+        'connections': {
+            'A': {'login': 'EACH_SUBJECT_LOGIN', 'purpose': 'Original protected Customer action transaction'},
+            'I': {'login': 'wa_context_issuer', 'purpose': 'Separate tuple-bound grant issuance transaction'},
+            'R': {'login': 'wa_context_issuer', 'purpose': 'Separate one-way revocation transaction for its own issued grant'},
+            'G': {'login': 'wa_app_runtime', 'purpose': 'Separate authorized Identity or Customer owner generation mutation; its own fresh bound grant, CAS and required proof'},
+        },
+        'common_sequence': [
+            {'connection': 'A', 'step': 'OPEN_READ_COMMITTED_TRANSACTION'},
+            {'connection': 'A', 'step': 'CAPTURE_ACTUAL_LOGIN_BACKEND_XID', 'before_business_reads_or_source_locks': True},
+            {'connection': 'I', 'step': 'AUTHORIZE_AND_COMMIT_BOUND_GRANT', 'tuple_from': 'A', 'authorization': 'Current canonical Identity/Role/Customer owner facts, exact action/target/fields; immutable nonnullable tuple'},
+            {'connection': 'A', 'step': 'BIND_THROUGH_PERMITTED_HELPER', 'grant_from': 'I', 'no_direct_grant_table_access': True},
+        ],
+        'synthetic_fixture': 'Exact Customer target and current security/source generation binding; no new production policy or owner API is inferred',
+        'scenarios': [
+            {
+                'name': 'revocation',
+                'connection': 'R',
+                'steps': ['REVOKE_OWN_ISSUED_GRANT_NULL_TO_TIMESTAMP', 'COMMIT_CHANGE', 'A_ATTEMPT_PROTECTED_ACTION', 'A_VERIFY_DENIAL_WITHOUT_MUTATION_OR_DISCLOSURE'],
+                'authorized_path': 'wa_context_issuer restricted own-grant UPDATE revokedAt only; no source-generation or business write',
+                'synchronization': 'CHANGE_COMMIT_COMPLETES_BEFORE_A_NEXT_PROTECTED_STATEMENT',
+            },
+            {
+                'name': 'security_generation',
+                'connection': 'G',
+                'steps': ['OPEN_OWN_READ_COMMITTED_TRANSACTION', 'CAPTURE_OWN_ACTUAL_TUPLE_BEFORE_SOURCE_LOCKS', 'I_AUTHORIZE_AND_COMMIT_G_OWN_BOUND_GRANT', 'BIND_G_OWN_HELPER_CONTEXT', 'IDENTITY_OWNER_AUTHORIZED_SECURITY_GENERATION_TRANSITION', 'COMMIT_CHANGE', 'A_ATTEMPT_PROTECTED_ACTION', 'A_VERIFY_DENIAL_WITHOUT_MUTATION_OR_DISCLOSURE'],
+                'authorized_path': 'Registered Identity owner security-generation transition on UserSecurityProfile.securityGeneration with its own grant, CAS and required evidence; issuer does not edit Identity rows',
+                'synchronization': 'CHANGE_COMMIT_COMPLETES_BEFORE_A_NEXT_PROTECTED_STATEMENT',
+            },
+            {
+                'name': 'source_generation',
+                'connection': 'G',
+                'steps': ['OPEN_OWN_READ_COMMITTED_TRANSACTION', 'CAPTURE_OWN_ACTUAL_TUPLE_BEFORE_SOURCE_LOCKS', 'I_AUTHORIZE_AND_COMMIT_G_OWN_BOUND_GRANT', 'BIND_G_OWN_HELPER_CONTEXT', 'CUSTOMER_OWNER_AUTHORIZED_SOURCE_REVISION_TRANSITION', 'COMMIT_CHANGE', 'A_ATTEMPT_PROTECTED_ACTION', 'A_VERIFY_DENIAL_WITHOUT_MUTATION_OR_DISCLOSURE'],
+                'authorized_path': 'Registered Customer owner mutation with its own grant, CAS and atomic source/history/evidence/intents. This fixture binds sourceGeneration to CustomerProfile.revision; it is not a universal mapping for other owners',
+                'synchronization': 'CHANGE_COMMIT_COMPLETES_BEFORE_A_NEXT_PROTECTED_STATEMENT',
+            },
+        ],
+        'fixture_gate': 'Generation-change paths need the approved owner-specific P0-C fixture operation. If absent, keep NOT_RUN; never grant broad issuer/runtime updates merely to prepare this test',
+    }
+    action = ('For each actual subject login on A, execute the common sequence, then exactly one separate named scenario. '
+              'R or G must commit its authorized change before A issues its next protected statement. '
+              'A uses its original now-stale grant and must be denied, without a forbidden source mutation or protected disclosure. '
+              'Rollback A after observation; do not roll back or mislabel the legitimate separate owner change. '
+              'Revocation, Identity security-generation change and Customer source-generation change are distinct runs.')
+    expected = 'Every named committed revocation/generation change is seen by A currentness checks; the stale protected action has no unauthorized mutation/effect/disclosure. All cases remain NOT_RUN until separately authorized execution.'
+    return setup, action, expected
+
+
 tests=[]
 def test(id,phase,requirement,setup,action,expect,stage='F0_FOUNDATION'):
  tests.append({'id':id,'phase':phase,'stage':stage,'requirement':requirement,'setup':setup,'action':action,'expected':expect,'status':'NOT_RUN'})
@@ -77,14 +128,14 @@ for id,req,setup,action,expect in [
 ('P0C-INSTALL-02',['DBP-10'],'Disposable clone only; injected failure before initial transactional migration COMMIT','Run approved failed migration, inspect app catalog/ledger and perform reviewed rollback/forward-repair procedure','Failure is nonzero and not accepted; app transaction rolled back; ledger failure preserved until actual verified repair'),
 ('P0C-CATALOG-01',['DBP-06','DBP-07','DBP-08'],'Post-install schema-only catalog under read-only collector','Compare every selected table/column/type/enum/default/nullability/PK/FK/check/index/view/function/trigger/owner/grant/policy/extension/default ACL against approved physical+SQL manifest','No unexpected application object or privilege, missing invariant or fingerprint drift; managed differences explicitly excluded and independently reviewed'),
 ('P0C-CTX-01',['SQL-02','SQL-06'],'Separate issuer login plus two runtime/worker READ COMMITTED connections; issue nonnullable immutable tuple before each bind','Exercise full ROLLBACK after bind; SAVEPOINT then bind then ROLLBACK TO SAVEPOINT then full rollback; a failed bind; commit then same-pool reuse; different backend, same backend/new xid, and wrong isolation. Try every old token in a later transaction, then obtain a freshly authorized tuple grant for the same semantic command key','Old tuple survives bind rollback in issuer-owned committed row and never authorizes a later xid; no runtime/helper grant writes; fresh grant succeeds. Same-live-transaction rebind is idempotent'),
-('P0C-CTX-02',['SQL-02','SQL-06'],'Valid grant issued before source transaction','Change security/source generation or revoke grant before the sensitive effect','Current recheck denies stale grant; no source mutation or protected disclosure'),
+('P0C-CTX-02',['SQL-02','SQL-06'],*stale_context_case()),
 ('P0C-PRIV-01',['SQL-01','SQL-06'],'Actual issuer/runtime/worker logins and NOLOGIN helper owner; browser role simulation separately labeled','Issuer exercises authorized INSERT/own SELECT/one-way revoke only; deny issuer scope/tuple rewrite and source writes. Runtime/worker try direct grant SELECT/INSERT/UPDATE/DELETE, TRUNCATE, CREATE and SET ROLE issuer/helper/owner. Deny helper grant writes and browser helper EXECUTE; then run both named helper paths','All forbidden operations denied; exact issuer and SELECT-only helper operations succeed; runtime/worker receive only helper results, never raw grants'),
 ('P0C-BOOT-01',['SQL-06','SQL-08'],'Empty approved infrastructure plus synthetic Identity actor','Issuer issues context; runtime appends own proof and pending work; optional Ops sink unavailable','No recursive proof/outbox/bootstrap dependency; denied protected read remains possible without Ops startup'),
 ('P0C-ATOMIC-01',['SQL-08'],'Synthetic existing actor and new Customer','Try source write without receipt/history/intents, then coherent single-transaction write','Missing piece rejects COMMIT; positive transaction commits one source, one history and each required intent'),
 ('P0C-UNIQUE-01',['SQL-07'],'One scoped command/effect receipt and a different owner/scope','Insert same scoped key twice, changed fingerprint, then identical text key under other permitted scope','Duplicate source/economic effect blocked; conflicting meaning rejected; distinct legitimate scope permitted'),
 ('P0C-CAS-01',['SQL-03'],'Two connections with same expected Customer revision','Compete on owner mutation with current-context evidence','Exactly one wins; loser conflicts; one retained next revision'),
 ('P0C-IMMUTABLE-01',['SQL-04','SQL-05'],'Stored exact per-user/action/context test Consent and retained F0 source/runtime-effect proof','Accept coherent presentation; reject cross-user/content/action/context/rendered-hash and NULL-context wildcard substitutions; verify same-key identical replay and changed-fingerprint conflict. Reject rewrite/delete; append valid same-user withdrawal. Agreement-signature and financial-ledger branches wait for later commerce schema','Composite FK and SQL-05 reject mismatches and tampering; minimized exact proof and append-only withdrawal retained; absent later feature is not an F0 failure'),
-('P0C-TRACK-01',['SQL-12'],'Explicit Free selection and another active paid-through fixture','Try wrong profile/user/track, second current selection and delayed Free replacing paid','Mismatch/duplicate/downgrade denied; same original enrollment receipt remains valid'),
+('P0C-TRACK-01',['SQL-12'],'Separately authorized catalog fixture preparation and independent authorized usage observer; missing/current Free/current paid selections and exact original enrollment keys','wa_worker follows only its named per-model assignDefaultFreeTrack.v1 SELECT/INSERT/CAS-selection paths. Try catalog INSERT/UPDATE/DELETE, usage SELECT/INSERT/UPDATE/DELETE, immutable evidence UPDATE/DELETE, wrong profile, duplicate selection, changed semantic fingerprint and delayed Free after paid wins; the separate observer compares unchanged usage and catalog','Only missing appropriate Free enrollment and its new receipt/history commit; valid Free/paid selection and original semantic receipt are preserved. Worker catalog/usage/immutable writes fail; fixture preparation never grants enrollment-worker authority'),
 ('P0C-EVIDENCE-01',['SQL-08','SQL-16'],'Closed per-model evidence shapes and known source values','Insert extra JSON keys/private body, wrong enum/PK/revision or a false transaction ID','Rejected; approved minimal evidence accepted without copying personal content'),
 ('P0C-RESTORE-01',['DBP-03','DBP-11','SQL-14'],'Separate authorized synthetic disposable restore target and tested artifact checksum','Restore approved backup, reapply privacy/restriction generations before any service read','Exact restoration accounted for; tombstoned generation never served; missing backup/restore fact remains blocked'),
 ('P0C-AUTORLS-01',['DBP-07','DBP-08'],'Disposable copy of captured public event-trigger setup only; provider objects labeled emulated','After separate environment-control approval, test current DDL-role CREATE TABLE/AS under public, then exact-function EXECUTE revocation proposal and repeat; do not expose Data API','Legitimate auto-RLS still works; ordinary direct unauthorized invocation denied; differences from hosted behavior remain unqualified')]:test(id,'P0-C',req,setup,action,expect)

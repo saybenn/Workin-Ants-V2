@@ -38,6 +38,159 @@ def load(root=ROOT):
     return {p: (root / p).read_text() for p in paths}
 
 
+def check_default_free_worker_scope(access, tests):
+    """Independent WA-R078/Track 10.6 oracle, not imported from the generator.
+
+    Artifact agreement is checked elsewhere. These separately reviewed limits
+    must still reject a coherent, but unauthorized, matrix/test pair.
+    """
+    errors = []
+    tables = {r['model']: r for r in access['objects'] if r['kind'] == 'table'}
+    catalog = {'TrackPlan', 'TrackEntitlementDefinition', 'TrackPlanEntitlement'}
+    usage = {'TrackUsageEvent', 'TrackUsageCounter', 'TrackUsageReservation'}
+    later = {'TrackPlanPrice', 'OrganizationFeatureAccess'}
+    immutable = {'TrackEnrollmentReceipt', 'TrackSubscriptionEvent', 'TrackUsageEvent'}
+    verbs = {
+        'TrackPlan': {'SELECT'}, 'TrackEntitlementDefinition': {'SELECT'},
+        'TrackPlanEntitlement': {'SELECT'}, 'TrackSubscription': {'SELECT', 'INSERT'},
+        'TrackEntitlementGrant': {'SELECT', 'INSERT'},
+        'TrackBaseSelection': {'SELECT', 'INSERT', 'UPDATE'},
+        'TrackEnrollmentReceipt': {'SELECT', 'INSERT'},
+        'TrackSubscriptionEvent': {'INSERT'},
+        'TrackUsageEvent': set(), 'TrackUsageCounter': set(),
+        'TrackUsageReservation': set(), 'TrackPlanPrice': set(),
+        'OrganizationFeatureAccess': set(),
+    }
+    # Input columns independently constrained from the existing physical models
+    # and owner command. Server-stamped fields and usage/billing writes are not
+    # authorized just because a generator emits them.
+    write_columns = {
+        ('TrackSubscription', 'INSERT'): set('id userId planId track customerProfileId candidateProfileId professionalProfileId status provider'.split()),
+        ('TrackEntitlementGrant', 'INSERT'): set('id userId subscriptionId entitlementId track customerProfileId candidateProfileId professionalProfileId status valueType booleanValue intValue decimalValue stringValue startsAt sourcePlanId sourceEventId'.split()),
+        ('TrackBaseSelection', 'INSERT'): set('id userId track customerProfileId candidateProfileId professionalProfileId subscriptionId sourceGeneration'.split()),
+        ('TrackBaseSelection', 'UPDATE'): {'subscriptionId', 'revision', 'sourceGeneration'},
+        ('TrackEnrollmentReceipt', 'INSERT'): set('id userId track profileId sourceOwner sourceCreationRevision selectionId selectionRevision semanticKey fingerprint resultCode effectReceiptId'.split()),
+        ('TrackSubscriptionEvent', 'INSERT'): set('id subscriptionId planId userId name fromStatus toStatus provider'.split()),
+    }
+    scopes = {
+        ('TrackPlan', 'SELECT'): 'APPROVED_FREE_REVISION_OR_CURRENT_SELECTED_PLAN',
+        ('TrackEntitlementDefinition', 'SELECT'): 'DEFINITIONS_REFERENCED_BY_APPROVED_FREE_PLAN',
+        ('TrackPlanEntitlement', 'SELECT'): 'MAPPINGS_OF_APPROVED_FREE_PLAN_REVISION',
+        ('TrackSubscription', 'SELECT'): 'EXACT_USER_CUSTOMER_TRACK_SELECTED_OR_NEW_ENROLLMENT',
+        ('TrackSubscription', 'INSERT'): 'NEW_FREE_ENROLLMENT_FOR_EXACT_CUSTOMER',
+        ('TrackEntitlementGrant', 'SELECT'): 'EXACT_USER_CUSTOMER_ENROLLMENT_SUBSCRIPTION_GRANTS',
+        ('TrackEntitlementGrant', 'INSERT'): 'NEW_GRANTS_OF_SAME_NEW_FREE_ENROLLMENT',
+        ('TrackBaseSelection', 'SELECT'): 'EXACT_USER_CUSTOMER_TRACK_SELECTION',
+        ('TrackBaseSelection', 'INSERT'): 'MISSING_SELECTION_FOR_SAME_NEW_FREE_ENROLLMENT',
+        ('TrackBaseSelection', 'UPDATE'): 'INVALID_SELECTION_CAS_TO_SAME_NEW_FREE_ENROLLMENT',
+        ('TrackEnrollmentReceipt', 'SELECT'): 'EXACT_ORIGINAL_SOURCE_PROFILE_SEMANTIC_KEY',
+        ('TrackEnrollmentReceipt', 'INSERT'): 'MISSING_RECEIPT_FOR_ORIGINAL_ENROLLMENT_COMMAND',
+        ('TrackSubscriptionEvent', 'INSERT'): 'NEW_HISTORY_OF_SAME_NEW_FREE_ENROLLMENT',
+    }
+    specific_guards = {
+        ('TrackPlan', 'SELECT'): ['new_free_plan_must_be_approved_active', 'catalog_retirement_does_not_invalidate_existing_selection'],
+        ('TrackEntitlementDefinition', 'SELECT'): ['definitions_must_be_active_and_customer_applicable'],
+        ('TrackPlanEntitlement', 'SELECT'): ['exact_typed_approved_benefits_only', 'json_value_remains_null_in_f0'],
+        ('TrackSubscription', 'INSERT'): ['only_if_no_valid_current_free_or_paid_selection', 'approved_free_plan_revision', 'provider_none_and_no_billing_identifiers', 'customer_profile_only_other_profile_ids_null', 'existing_subscriptions_unchanged', 'atomic_receipt_history_and_effect'],
+        ('TrackEntitlementGrant', 'INSERT'): ['exact_typed_approved_benefits_only', 'same_new_subscription_created_in_transaction', 'no_duplicate_or_rewritten_existing_grants', 'customer_profile_only_other_profile_ids_null', 'atomic_receipt_history_and_effect', 'json_value_remains_null_in_f0'],
+        ('TrackBaseSelection', 'INSERT'): ['serialized_user_track_and_missing_selection', 'same_new_subscription_created_in_transaction', 'customer_profile_only_other_profile_ids_null', 'atomic_receipt_history_and_effect'],
+        ('TrackBaseSelection', 'UPDATE'): ['only_if_no_valid_current_free_or_paid_selection', 'same_new_subscription_created_in_transaction', 'cas_expected_selection_revision', 'revision_increments_exactly_once', 'user_track_and_profile_binding_immutable', 'atomic_receipt_history_and_effect'],
+        ('TrackEnrollmentReceipt', 'INSERT'): ['insert_only_if_original_semantic_receipt_absent', 'identical_replay_read_only_changed_fingerprint_conflicts', 'preserve_valid_existing_free_or_paid_selection', 'atomic_receipt_history_and_effect'],
+        ('TrackSubscriptionEvent', 'INSERT'): ['actual_new_enrollment_only_no_replay_event', 'same_new_subscription_created_in_transaction', 'existing_immutable_history_unchanged', 'atomic_receipt_history_and_effect'],
+    }
+    common = {'current_authorization_and_transaction_tuple', 'current_customer_owner_binding', 'original_semantic_enrollment_identity', 'current_worker_fence', 'server_stamps_mutation_transaction_id'}
+    track_models = {n for n, r in tables.items() if r['business_owner'] == 'track_subscription_entitlement'}
+    if not set(verbs) <= track_models:
+        errors.append('Default-Free reviewed Track model coverage missing')
+    for name in track_models:
+        row = tables[name]
+        operations = row.get('operations_by_role', {}).get('wa_worker', [])
+        actual = set()
+        if name in usage and operations:
+            errors.append('Default-Free usage access forbidden: ' + name)
+        if (name in later or row['stage'] != 'F0_FOUNDATION') and operations:
+            errors.append('Default-Free later-stage access forbidden: ' + name)
+        for op in operations:
+            if not isinstance(op, dict):
+                errors.append('Default-Free worker operation must be concrete: ' + name)
+                continue
+            verb = op.get('operation')
+            actual.add(verb)
+            if name in immutable and verb in {'UPDATE', 'DELETE'}:
+                errors.append('Default-Free immutable worker write forbidden: ' + name)
+            if name in catalog and verb != 'SELECT':
+                errors.append('Default-Free catalog write forbidden: ' + name)
+            if verb not in verbs.get(name, set()):
+                errors.append('Default-Free model operation forbidden: ' + name + ':' + str(verb))
+            if op.get('handler') != 'assignDefaultFreeTrack.v1' or op.get('stage') != 'F0_FOUNDATION' or op.get('track') != 'customer':
+                errors.append('Default-Free handler/stage/track scope missing: ' + name)
+            if op.get('row_scope') != scopes.get((name, verb)):
+                errors.append('Default-Free row scope widened: ' + name + ':' + str(verb))
+            columns = op.get('columns', [])
+            if not columns or '*' in columns or any(c in columns for c in ['metadata', 'jsonValue', 'mutationTransactionId']):
+                errors.append('Default-Free field scope widened: ' + name)
+            if verb in {'INSERT', 'UPDATE'} and set(columns) != write_columns.get((name, verb), set()):
+                errors.append('Default-Free write columns widened or incomplete: ' + name)
+            guards = op.get('guards', {})
+            required = common | set(specific_guards.get((name, verb), []))
+            if any(guards.get(key) is not True for key in required):
+                errors.append('Default-Free semantic guard missing: ' + name + ':' + str(verb))
+        expected = verbs.get(name, set()) if row['stage'] == 'F0_FOUNDATION' else set()
+        if actual != expected or len(operations) != len(expected):
+            errors.append('Default-Free exact operation coverage differs: ' + name)
+        denied = set(row.get('direct_denials_by_role', {}).get('wa_worker', []))
+        if not ({'SELECT', 'INSERT', 'UPDATE', 'DELETE'} - expected) <= denied:
+            errors.append('Default-Free worker denial missing: ' + name)
+        scope = row.get('worker_contract_scope', {})
+        if scope.get('worker_may_prepare_catalog') is not False:
+            errors.append('Default-Free worker fixture preparation forbidden: ' + name)
+        test = next((t for t in tests['tests'] if t['id'] == 'P0C-TABLE-' + name + '-ALLOW'), {})
+        if test.get('setup', {}).get('worker_contract_scope') != scope:
+            errors.append('Default-Free fixture/handler scope drift: ' + name)
+    return errors
+
+
+def check_stale_context_sequence(tests):
+    """Check current specifications only; historical reports remain immutable."""
+    errors = []
+    for row in tests['tests']:
+        text = json.dumps({'setup': row['setup'], 'action': row['action']}).lower()
+        if 'valid grant issued before source transaction' in text:
+            errors.append('Superseded pre-transaction grant issuance in current specification: ' + row['id'])
+    case = next((t for t in tests['tests'] if t['id'] == 'P0C-CTX-02'), {})
+    setup = case.get('setup', {})
+    if not isinstance(setup, dict):
+        return errors + ['Current stale-context setup must identify ordered connections']
+    sequence = setup.get('common_sequence', [])
+    expected = [('A', 'OPEN_READ_COMMITTED_TRANSACTION'), ('A', 'CAPTURE_ACTUAL_LOGIN_BACKEND_XID'), ('I', 'AUTHORIZE_AND_COMMIT_BOUND_GRANT'), ('A', 'BIND_THROUGH_PERMITTED_HELPER')]
+    if [(step.get('connection'), step.get('step')) for step in sequence] != expected:
+        errors.append('Current stale-context issuance sequence wrong')
+    if len(sequence) > 1 and sequence[1].get('before_business_reads_or_source_locks') is not True:
+        errors.append('Current stale-context capture occurs under source locks')
+    connections = setup.get('connections', {})
+    if connections.get('I', {}).get('login') != 'wa_context_issuer' or connections.get('R', {}).get('login') != 'wa_context_issuer' or connections.get('G', {}).get('login') != 'wa_app_runtime':
+        errors.append('Current stale-context mutation connection authority wrong')
+    if setup.get('run_for_each_subject_login') != ['wa_app_runtime', 'wa_worker']:
+        errors.append('Current stale-context actual runtime/worker coverage missing')
+    scenarios = setup.get('scenarios', [])
+    if {s.get('name') for s in scenarios} != {'revocation', 'security_generation', 'source_generation'} or len(scenarios) != 3:
+        errors.append('Current stale-context revocation/generation scenarios conflated')
+    for scenario in scenarios:
+        name = scenario.get('name')
+        steps = scenario.get('steps', [])
+        expected_change = 'R' if name == 'revocation' else 'G'
+        if scenario.get('connection') != expected_change or not scenario.get('authorized_path'):
+            errors.append('Current stale-context owner mutation path missing: ' + str(name))
+        required = ['COMMIT_CHANGE', 'A_ATTEMPT_PROTECTED_ACTION', 'A_VERIFY_DENIAL_WITHOUT_MUTATION_OR_DISCLOSURE']
+        if any(s not in steps for s in required) or [s for s in steps if s in required] != required:
+            errors.append('Current stale-context change must commit before protected action: ' + str(name))
+        if scenario.get('synchronization') != 'CHANGE_COMMIT_COMPLETES_BEFORE_A_NEXT_PROTECTED_STATEMENT':
+            errors.append('Current stale-context synchronization missing: ' + str(name))
+        if name != 'revocation' and not all(s in steps for s in ['CAPTURE_OWN_ACTUAL_TUPLE_BEFORE_SOURCE_LOCKS', 'I_AUTHORIZE_AND_COMMIT_G_OWN_BOUND_GRANT', 'BIND_G_OWN_HELPER_CONTEXT']):
+            errors.append('Current stale-context generation writer lacks own authorization: ' + str(name))
+    return errors
+
+
 def inspect(packet=None, root=ROOT, check_hashes=True):
     packet = load(root) if packet is None else packet
     read = lambda name: json.loads(packet[REC + name + '.json'])
@@ -192,6 +345,8 @@ def inspect(packet=None, root=ROOT, check_hashes=True):
     for n in models:
         for suffix in ['ALLOW', 'DENY']:
             need(any(t['id'] == 'P0C-TABLE-' + n + '-' + suffix and t['phase'] == 'P0-C' for t in test_rows), 'Actual role positive/negative test missing: ' + n + ':' + suffix)
+    errors.extend(check_default_free_worker_scope(access, tests))
+    errors.extend(check_stale_context_sequence(tests))
     table_by_model = {r['model']: r for r in table_rows}
     for test in test_rows:
         if test['id'].startswith('P0C-TABLE-'):
