@@ -1,0 +1,1027 @@
+[
+  {
+    "model": "ConsentLog",
+    "object": "app.consent_logs",
+    "owner": "consent_disclosure",
+    "fields": {
+      "id": "id",
+      "userId": "user_id",
+      "type": "type",
+      "version": "version",
+      "acceptedAt": "accepted_at",
+      "ipHash": "ip_hash",
+      "userAgent": "user_agent",
+      "createdAt": "created_at",
+      "acceptanceKey": "acceptance_key",
+      "fingerprint": "fingerprint",
+      "actionOwner": "action_owner",
+      "action": "action",
+      "contextKind": "context_kind",
+      "contextId": "context_id",
+      "contextOwner": "context_owner",
+      "presentationHash": "presentation_hash",
+      "contentRevisionId": "content_revision_id",
+      "presentationId": "presentation_id",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "PrivacyRequest",
+    "object": "app.privacy_requests",
+    "owner": "privacy_data_erasure",
+    "fields": {
+      "id": "id",
+      "userId": "user_id",
+      "type": "type",
+      "status": "status",
+      "requestedAt": "requested_at",
+      "verifiedAt": "verified_at",
+      "dueAt": "due_at",
+      "completedAt": "completed_at",
+      "rejectionReason": "rejection_reason",
+      "adminNote": "admin_note",
+      "createdAt": "created_at",
+      "updatedAt": "updated_at",
+      "revision": "revision",
+      "privacyGeneration": "privacy_generation",
+      "instructionGeneration": "instruction_generation",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "AgeGateAttempt",
+    "object": "app.age_gate_attempts",
+    "owner": "identity_access",
+    "fields": {
+      "id": "id",
+      "userId": "user_id",
+      "ipHash": "ip_hash",
+      "deviceHash": "device_hash",
+      "region": "region",
+      "result": "result",
+      "birthYear": "birth_year",
+      "ageBand": "age_band",
+      "blockedUntil": "blocked_until",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "AgeGateBlock",
+    "object": "app.age_gate_blocks",
+    "owner": "identity_access",
+    "fields": {
+      "id": "id",
+      "ipHash": "ip_hash",
+      "deviceHash": "device_hash",
+      "reason": "reason",
+      "blockedUntil": "blocked_until",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "AccessAuditLog",
+    "object": "app.access_audit_logs",
+    "owner": "audit_event_ledger",
+    "fields": {
+      "id": "id",
+      "actorUserId": "actor_user_id",
+      "targetType": "target_type",
+      "targetId": "target_id",
+      "action": "action",
+      "sensitivity": "sensitivity",
+      "accessDecision": "access_decision",
+      "requestId": "request_id",
+      "ipHash": "ip_hash",
+      "userAgent": "user_agent",
+      "previousHash": "previous_hash",
+      "entryHash": "entry_hash",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "User",
+    "object": "app.users",
+    "owner": "identity_access",
+    "fields": {
+      "id": "id",
+      "email": "email",
+      "handle": "handle",
+      "displayName": "display_name",
+      "avatarUrl": "avatar_url",
+      "bio": "bio",
+      "city": "city",
+      "state": "state",
+      "country": "country",
+      "isPublic": "is_public",
+      "createdAt": "created_at",
+      "updatedAt": "updated_at",
+      "privacyErasedAt": "privacy_erased_at",
+      "privacyErasureStatus": "privacy_erasure_status",
+      "revision": "revision",
+      "privacyGeneration": "privacy_generation",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "UserRole",
+    "object": "app.user_roles",
+    "owner": "identity_access",
+    "fields": {
+      "userId": "user_id",
+      "role": "role",
+      "createdAt": "created_at",
+      "revision": "revision",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "userId",
+      "role"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "ProfessionalProfile",
+    "object": "app.professional_profiles",
+    "owner": "professional_eligibility",
+    "fields": {
+      "id": "id",
+      "userId": "user_id",
+      "slug": "slug",
+      "headline": "headline",
+      "bio": "bio",
+      "websiteUrl": "website_url",
+      "city": "city",
+      "state": "state",
+      "country": "country",
+      "status": "status",
+      "ratingAverage": "rating_average",
+      "ratingCount": "rating_count",
+      "stripeAccountId": "stripe_account_id",
+      "stripeReady": "stripe_ready",
+      "onboardingCompleteAt": "onboarding_complete_at",
+      "defaultCurrency": "default_currency",
+      "createdAt": "created_at",
+      "updatedAt": "updated_at",
+      "suspendedForModerationAt": "suspended_for_moderation_at",
+      "trustScore": "trust_score",
+      "verifiedAt": "verified_at",
+      "verificationExpiresAt": "verification_expires_at",
+      "revision": "revision",
+      "privacyGeneration": "privacy_generation",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": false
+  },
+  {
+    "model": "CustomerProfile",
+    "object": "app.customer_profiles",
+    "owner": "customer_buyer_profile",
+    "fields": {
+      "id": "id",
+      "userId": "user_id",
+      "status": "status",
+      "displayName": "display_name",
+      "avatarMediaId": "avatar_media_id",
+      "city": "city",
+      "state": "state",
+      "country": "country",
+      "createdAt": "created_at",
+      "updatedAt": "updated_at",
+      "archivedAt": "archived_at",
+      "revision": "revision",
+      "privacyGeneration": "privacy_generation",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "CandidateProfile",
+    "object": "app.candidate_profiles",
+    "owner": "candidate_application_resume_privacy",
+    "fields": {
+      "id": "id",
+      "userId": "user_id",
+      "headline": "headline",
+      "portfolioUrl": "portfolio_url",
+      "availability": "availability",
+      "city": "city",
+      "state": "state",
+      "country": "country",
+      "status": "status",
+      "isVisible": "is_visible",
+      "createdAt": "created_at",
+      "updatedAt": "updated_at",
+      "trustScore": "trust_score",
+      "verifiedAt": "verified_at",
+      "verificationExpiresAt": "verification_expires_at",
+      "revision": "revision",
+      "privacyGeneration": "privacy_generation",
+      "discoveryPreferenceRevision": "discovery_preference_revision",
+      "discoveryEnabledAt": "discovery_enabled_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": false
+  },
+  {
+    "model": "AuditEvent",
+    "object": "app.audit_events",
+    "owner": "audit_event_ledger",
+    "fields": {
+      "id": "id",
+      "actorUserId": "actor_user_id",
+      "entityType": "entity_type",
+      "entityId": "entity_id",
+      "action": "action",
+      "metadata": "metadata",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "UserSecurityProfile",
+    "object": "app.user_security_profiles",
+    "owner": "identity_access",
+    "fields": {
+      "id": "id",
+      "userId": "user_id",
+      "securityTier": "security_tier",
+      "phoneNumberEncrypted": "phone_number_encrypted",
+      "phoneNumberHash": "phone_number_hash",
+      "phoneVerifiedAt": "phone_verified_at",
+      "phoneLastChangedAt": "phone_last_changed_at",
+      "passkeysEnabled": "passkeys_enabled",
+      "smsMfaEnabled": "sms_mfa_enabled",
+      "backupPasswordConfigured": "backup_password_configured",
+      "sensitiveActionMfaRequired": "sensitive_action_mfa_required",
+      "lastStepUpAt": "last_step_up_at",
+      "lastSensitiveActionAt": "last_sensitive_action_at",
+      "lockedUntil": "locked_until",
+      "lockReason": "lock_reason",
+      "createdAt": "created_at",
+      "updatedAt": "updated_at",
+      "revision": "revision",
+      "securityGeneration": "security_generation",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "AuthProviderAccount",
+    "object": "app.auth_provider_accounts",
+    "owner": "identity_access",
+    "fields": {
+      "id": "id",
+      "userId": "user_id",
+      "securityProfileId": "security_profile_id",
+      "providerType": "provider_type",
+      "providerUserId": "provider_user_id",
+      "providerAccountId": "provider_account_id",
+      "email": "email",
+      "emailVerifiedAt": "email_verified_at",
+      "status": "status",
+      "linkedAt": "linked_at",
+      "lastUsedAt": "last_used_at",
+      "revokedAt": "revoked_at",
+      "createdAt": "created_at",
+      "updatedAt": "updated_at",
+      "revision": "revision",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "TrackPlan",
+    "object": "app.track_plans",
+    "owner": "track_subscription_entitlement",
+    "fields": {
+      "id": "id",
+      "track": "track",
+      "key": "key",
+      "name": "name",
+      "status": "status",
+      "billingModel": "billing_model",
+      "monthlyPriceCents": "monthly_price_cents",
+      "currency": "currency",
+      "description": "description",
+      "displayOrder": "display_order",
+      "metadata": "metadata",
+      "createdAt": "created_at",
+      "updatedAt": "updated_at",
+      "revision": "revision",
+      "version": "version",
+      "contentHash": "content_hash",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "TrackEntitlementDefinition",
+    "object": "app.track_entitlement_definitions",
+    "owner": "track_subscription_entitlement",
+    "fields": {
+      "id": "id",
+      "key": "key",
+      "label": "label",
+      "description": "description",
+      "valueType": "value_type",
+      "track": "track",
+      "isActive": "is_active",
+      "createdAt": "created_at",
+      "updatedAt": "updated_at",
+      "revision": "revision",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "TrackPlanEntitlement",
+    "object": "app.track_plan_entitlements",
+    "owner": "track_subscription_entitlement",
+    "fields": {
+      "id": "id",
+      "planId": "plan_id",
+      "entitlementId": "entitlement_id",
+      "valueType": "value_type",
+      "booleanValue": "boolean_value",
+      "intValue": "int_value",
+      "decimalValue": "decimal_value",
+      "stringValue": "string_value",
+      "jsonValue": "json_value",
+      "usagePeriod": "usage_period",
+      "createdAt": "created_at",
+      "updatedAt": "updated_at",
+      "revision": "revision",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "TrackSubscription",
+    "object": "app.track_subscriptions",
+    "owner": "track_subscription_entitlement",
+    "fields": {
+      "id": "id",
+      "userId": "user_id",
+      "planId": "plan_id",
+      "track": "track",
+      "customerProfileId": "customer_profile_id",
+      "candidateProfileId": "candidate_profile_id",
+      "professionalProfileId": "professional_profile_id",
+      "status": "status",
+      "provider": "provider",
+      "providerCustomerId": "provider_customer_id",
+      "providerSubscriptionId": "provider_subscription_id",
+      "providerPriceId": "provider_price_id",
+      "currentPeriodStart": "current_period_start",
+      "currentPeriodEnd": "current_period_end",
+      "trialEndsAt": "trial_ends_at",
+      "cancelledAt": "cancelled_at",
+      "endedAt": "ended_at",
+      "createdAt": "created_at",
+      "updatedAt": "updated_at",
+      "revision": "revision",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "TrackEntitlementGrant",
+    "object": "app.track_entitlement_grants",
+    "owner": "track_subscription_entitlement",
+    "fields": {
+      "id": "id",
+      "userId": "user_id",
+      "subscriptionId": "subscription_id",
+      "entitlementId": "entitlement_id",
+      "track": "track",
+      "customerProfileId": "customer_profile_id",
+      "candidateProfileId": "candidate_profile_id",
+      "professionalProfileId": "professional_profile_id",
+      "status": "status",
+      "valueType": "value_type",
+      "booleanValue": "boolean_value",
+      "intValue": "int_value",
+      "decimalValue": "decimal_value",
+      "stringValue": "string_value",
+      "jsonValue": "json_value",
+      "startsAt": "starts_at",
+      "expiresAt": "expires_at",
+      "revokedAt": "revoked_at",
+      "revokeReason": "revoke_reason",
+      "sourcePlanId": "source_plan_id",
+      "sourceEventId": "source_event_id",
+      "createdAt": "created_at",
+      "updatedAt": "updated_at",
+      "revision": "revision",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "TrackUsageEvent",
+    "object": "app.track_usage_events",
+    "owner": "track_subscription_entitlement",
+    "fields": {
+      "id": "id",
+      "userId": "user_id",
+      "subscriptionId": "subscription_id",
+      "entitlementGrantId": "entitlement_grant_id",
+      "entitlementId": "entitlement_id",
+      "track": "track",
+      "type": "type",
+      "customerProfileId": "customer_profile_id",
+      "candidateProfileId": "candidate_profile_id",
+      "professionalProfileId": "professional_profile_id",
+      "targetType": "target_type",
+      "targetId": "target_id",
+      "quantity": "quantity",
+      "occurredAt": "occurred_at",
+      "metadata": "metadata",
+      "semanticEffectKey": "semantic_effect_key",
+      "sourceRevision": "source_revision",
+      "sourceOwner": "source_owner",
+      "sourceId": "source_id",
+      "acceptedAt": "accepted_at",
+      "periodStart": "period_start",
+      "periodEnd": "period_end",
+      "effectReceiptId": "effect_receipt_id",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "TrackUsageCounter",
+    "object": "app.track_usage_counters",
+    "owner": "track_subscription_entitlement",
+    "fields": {
+      "id": "id",
+      "userId": "user_id",
+      "subscriptionId": "subscription_id",
+      "entitlementGrantId": "entitlement_grant_id",
+      "entitlementId": "entitlement_id",
+      "track": "track",
+      "period": "period",
+      "customerProfileId": "customer_profile_id",
+      "candidateProfileId": "candidate_profile_id",
+      "professionalProfileId": "professional_profile_id",
+      "periodStart": "period_start",
+      "periodEnd": "period_end",
+      "usedQuantity": "used_quantity",
+      "limitQuantity": "limit_quantity",
+      "updatedAt": "updated_at",
+      "createdAt": "created_at",
+      "revision": "revision",
+      "sourceRevision": "source_revision",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "TrackSubscriptionEvent",
+    "object": "app.track_subscription_events",
+    "owner": "track_subscription_entitlement",
+    "fields": {
+      "id": "id",
+      "subscriptionId": "subscription_id",
+      "planId": "plan_id",
+      "userId": "user_id",
+      "name": "name",
+      "fromStatus": "from_status",
+      "toStatus": "to_status",
+      "provider": "provider",
+      "providerEventId": "provider_event_id",
+      "metadata": "metadata",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "ConsentContentRevision",
+    "object": "app.consent_content_revision",
+    "owner": "consent_disclosure",
+    "fields": {
+      "id": "id",
+      "type": "type",
+      "version": "version",
+      "locale": "locale",
+      "jurisdictionScope": "jurisdiction_scope",
+      "contentText": "content_text",
+      "contentHash": "content_hash",
+      "reviewState": "review_state",
+      "legalApprovalRef": "legal_approval_ref",
+      "effectiveFrom": "effective_from",
+      "effectiveUntil": "effective_until",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "ConsentPresentation",
+    "object": "app.consent_presentation",
+    "owner": "consent_disclosure",
+    "fields": {
+      "id": "id",
+      "contentRevisionId": "content_revision_id",
+      "userId": "user_id",
+      "actionOwner": "action_owner",
+      "action": "action",
+      "renderVersion": "render_version",
+      "renderedText": "rendered_text",
+      "renderedHash": "rendered_hash",
+      "contextOwner": "context_owner",
+      "contextKind": "context_kind",
+      "contextId": "context_id",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "ConsentDisposition",
+    "object": "app.consent_disposition",
+    "owner": "consent_disclosure",
+    "fields": {
+      "id": "id",
+      "proofId": "proof_id",
+      "userId": "user_id",
+      "presentationId": "presentation_id",
+      "kind": "kind",
+      "semanticKey": "semantic_key",
+      "fingerprint": "fingerprint",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "DatabaseActionGrant",
+    "object": "platform.database_action_grant",
+    "owner": "platform_integration_owner",
+    "fields": {
+      "id": "id",
+      "tokenHash": "token_hash",
+      "issuerService": "issuer_service",
+      "principalUserId": "principal_user_id",
+      "servicePrincipal": "service_principal",
+      "databaseLoginRole": "database_login_role",
+      "ownerModuleId": "owner_module_id",
+      "action": "action",
+      "purpose": "purpose",
+      "targetKind": "target_kind",
+      "targetId": "target_id",
+      "allowedFields": "allowed_fields",
+      "policyVersion": "policy_version",
+      "securityGeneration": "security_generation",
+      "sourceGeneration": "source_generation",
+      "backendPid": "backend_pid",
+      "transactionId": "transaction_id",
+      "expiresAt": "expires_at",
+      "revokedAt": "revoked_at",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": false
+  },
+  {
+    "model": "RuntimeCommandReceipt",
+    "object": "platform.runtime_command_receipt",
+    "owner": "platform_integration_owner",
+    "fields": {
+      "id": "id",
+      "ownerModuleId": "owner_module_id",
+      "operation": "operation",
+      "subjectScope": "subject_scope",
+      "semanticKey": "semantic_key",
+      "fingerprint": "fingerprint",
+      "state": "state",
+      "sourceRevision": "source_revision",
+      "resultSchemaId": "result_schema_id",
+      "resultSchemaVersion": "result_schema_version",
+      "resultDigest": "result_digest",
+      "resultBody": "result_body",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": false
+  },
+  {
+    "model": "RuntimeOutboxMessage",
+    "object": "platform.runtime_outbox_message",
+    "owner": "platform_integration_owner",
+    "fields": {
+      "id": "id",
+      "commandReceiptId": "command_receipt_id",
+      "kind": "kind",
+      "producerOwner": "producer_owner",
+      "aggregateKind": "aggregate_kind",
+      "aggregateId": "aggregate_id",
+      "sourceRevision": "source_revision",
+      "sourceGeneration": "source_generation",
+      "ordinal": "ordinal",
+      "name": "name",
+      "schemaVersion": "schema_version",
+      "payloadSchemaId": "payload_schema_id",
+      "payloadHash": "payload_hash",
+      "payload": "payload",
+      "correlationId": "correlation_id",
+      "causationId": "causation_id",
+      "correctionOfId": "correction_of_id",
+      "occurredAt": "occurred_at",
+      "effectiveAt": "effective_at",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": false
+  },
+  {
+    "model": "RuntimeEffectReceipt",
+    "object": "platform.runtime_effect_receipt",
+    "owner": "platform_integration_owner",
+    "fields": {
+      "id": "id",
+      "commandReceiptId": "command_receipt_id",
+      "ownerModuleId": "owner_module_id",
+      "operation": "operation",
+      "subjectScope": "subject_scope",
+      "semanticEffectKey": "semantic_effect_key",
+      "fingerprint": "fingerprint",
+      "state": "state",
+      "sourceRevision": "source_revision",
+      "fence": "fence",
+      "resultSchemaId": "result_schema_id",
+      "resultHash": "result_hash",
+      "committedAt": "committed_at",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": false
+  },
+  {
+    "model": "RuntimeWorkItem",
+    "object": "platform.runtime_work_item",
+    "owner": "platform_integration_owner",
+    "fields": {
+      "id": "id",
+      "outboxMessageId": "outbox_message_id",
+      "handlerName": "handler_name",
+      "semanticWorkKey": "semantic_work_key",
+      "state": "state",
+      "fence": "fence",
+      "leaseTokenHash": "lease_token_hash",
+      "leaseExpiresAt": "lease_expires_at",
+      "attemptCount": "attempt_count",
+      "nextAttemptAt": "next_attempt_at",
+      "effectReceiptId": "effect_receipt_id",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": false
+  },
+  {
+    "model": "RuntimeAttempt",
+    "object": "platform.runtime_attempt",
+    "owner": "platform_integration_owner",
+    "fields": {
+      "id": "id",
+      "workItemId": "work_item_id",
+      "attemptNumber": "attempt_number",
+      "fence": "fence",
+      "workerId": "worker_id",
+      "result": "result",
+      "reasonCode": "reason_code",
+      "startedAt": "started_at",
+      "finishedAt": "finished_at",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": false
+  },
+  {
+    "model": "RuntimeInboxReceipt",
+    "object": "platform.runtime_inbox_receipt",
+    "owner": "platform_integration_owner",
+    "fields": {
+      "id": "id",
+      "outboxMessageId": "outbox_message_id",
+      "consumerOwner": "consumer_owner",
+      "handlerName": "handler_name",
+      "payloadHash": "payload_hash",
+      "effectReceiptId": "effect_receipt_id",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": false
+  },
+  {
+    "model": "RuntimeReservation",
+    "object": "platform.runtime_reservation",
+    "owner": "platform_integration_owner",
+    "fields": {
+      "id": "id",
+      "commandReceiptId": "command_receipt_id",
+      "ownerModuleId": "owner_module_id",
+      "resourceKind": "resource_kind",
+      "resourceKey": "resource_key",
+      "semanticKey": "semantic_key",
+      "quantity": "quantity",
+      "state": "state",
+      "fence": "fence",
+      "effectReceiptId": "effect_receipt_id",
+      "expiresAt": "expires_at",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": false
+  },
+  {
+    "model": "OwnerMutationEvidence",
+    "object": "platform.owner_mutation_evidence",
+    "owner": "platform_integration_owner",
+    "fields": {
+      "id": "id",
+      "commandReceiptId": "command_receipt_id",
+      "ownerModuleId": "owner_module_id",
+      "aggregateKind": "aggregate_kind",
+      "aggregateId": "aggregate_id",
+      "previousRevision": "previous_revision",
+      "committedRevision": "committed_revision",
+      "action": "action",
+      "decisionRef": "decision_ref",
+      "evidenceSchemaId": "evidence_schema_id",
+      "evidenceSchemaVersion": "evidence_schema_version",
+      "evidenceDigest": "evidence_digest",
+      "createdAt": "created_at",
+      "evidenceBody": "evidence_body",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": false
+  },
+  {
+    "model": "CustomerProfileLifecycleEvent",
+    "object": "app.customer_profile_lifecycle_event",
+    "owner": "customer_buyer_profile",
+    "fields": {
+      "id": "id",
+      "customerProfileId": "customer_profile_id",
+      "commandReceiptId": "command_receipt_id",
+      "sourceRevision": "source_revision",
+      "fromStatus": "from_status",
+      "toStatus": "to_status",
+      "name": "name",
+      "actorUserId": "actor_user_id",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "TrackBaseSelection",
+    "object": "app.track_base_selection",
+    "owner": "track_subscription_entitlement",
+    "fields": {
+      "id": "id",
+      "userId": "user_id",
+      "track": "track",
+      "customerProfileId": "customer_profile_id",
+      "candidateProfileId": "candidate_profile_id",
+      "professionalProfileId": "professional_profile_id",
+      "subscriptionId": "subscription_id",
+      "revision": "revision",
+      "sourceGeneration": "source_generation",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "TrackEnrollmentReceipt",
+    "object": "app.track_enrollment_receipt",
+    "owner": "track_subscription_entitlement",
+    "fields": {
+      "id": "id",
+      "userId": "user_id",
+      "track": "track",
+      "profileId": "profile_id",
+      "sourceOwner": "source_owner",
+      "sourceCreationRevision": "source_creation_revision",
+      "selectionId": "selection_id",
+      "selectionRevision": "selection_revision",
+      "semanticKey": "semantic_key",
+      "fingerprint": "fingerprint",
+      "resultCode": "result_code",
+      "effectReceiptId": "effect_receipt_id",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "TrackUsageReservation",
+    "object": "app.track_usage_reservation",
+    "owner": "track_subscription_entitlement",
+    "fields": {
+      "id": "id",
+      "userId": "user_id",
+      "entitlementId": "entitlement_id",
+      "periodStart": "period_start",
+      "periodEnd": "period_end",
+      "quantity": "quantity",
+      "semanticKey": "semantic_key",
+      "reservationId": "reservation_id",
+      "acceptedSourceOwner": "accepted_source_owner",
+      "acceptedSourceId": "accepted_source_id",
+      "acceptedAt": "accepted_at",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "PrivacyTargetInstruction",
+    "object": "app.privacy_target_instruction",
+    "owner": "privacy_data_erasure",
+    "fields": {
+      "id": "id",
+      "privacyRequestId": "privacy_request_id",
+      "ownerModuleId": "owner_module_id",
+      "targetKind": "target_kind",
+      "sourceId": "source_id",
+      "sourceRevision": "source_revision",
+      "action": "action",
+      "generation": "generation",
+      "fieldMapVersion": "field_map_version",
+      "executorVersion": "executor_version",
+      "descriptorHash": "descriptor_hash",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "PrivacyOwnerReceipt",
+    "object": "app.privacy_owner_receipt",
+    "owner": "privacy_data_erasure",
+    "fields": {
+      "id": "id",
+      "instructionId": "instruction_id",
+      "generation": "generation",
+      "disposition": "disposition",
+      "executionReceiptRef": "execution_receipt_ref",
+      "legalBasisRef": "legal_basis_ref",
+      "artifactDigest": "artifact_digest",
+      "artifactVersion": "artifact_version",
+      "resultSchemaVersion": "result_schema_version",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  },
+  {
+    "model": "PrivacyRestoreMarker",
+    "object": "app.privacy_restore_marker",
+    "owner": "privacy_data_erasure",
+    "fields": {
+      "id": "id",
+      "ownerModuleId": "owner_module_id",
+      "targetKind": "target_kind",
+      "sourceId": "source_id",
+      "generation": "generation",
+      "action": "action",
+      "sourceReceiptId": "source_receipt_id",
+      "restorePointRef": "restore_point_ref",
+      "appliedAt": "applied_at",
+      "createdAt": "created_at",
+      "mutationTransactionId": "mutation_transaction_id"
+    },
+    "pk": [
+      "id"
+    ],
+    "atomic_guard": true
+  }
+]

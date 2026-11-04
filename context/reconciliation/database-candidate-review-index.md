@@ -1,4 +1,22 @@
-# P0-C-02 corrected review packet
+# P0-C-03 foundation SQL draft — current review entry
+
+Brain approved `671ef58383580687ecf728036bf32c302aeb026c` for **source-only F0 SQL drafting** under [P0-C-03](directives/brain-directive-p0-c-03.md). This draft is generated, **not execution-approved or adopted**. Posture D and all database/container/provider/runtime execution stops remain. The historical source packet below retains its recorded pre-generation flags; those are not the current drafting stage.
+
+| Review need | Artifact |
+|---|---|
+| Current stage, exact reviewed inputs and draft hashes | [SQL drafting manifest](foundation-sql-draft-manifest.json) |
+| Actual environment bootstrap SQL | [Role/namespace draft](../../review-output/foundation-bootstrap.review.sql) |
+| Untouched Prisma source-only output | [Raw 40-model structure](../../review-output/foundation-structure.sql), [generation evidence/workaround](foundation-sql-generation.json) |
+| Complete assembled application SQL review artifact | [Integrated structure/security draft](../../review-output/foundation-application.review.sql) |
+| Installation/order/security decisions and exact open conflicts | [Technical review](foundation-sql-draft-review.md) |
+| All 18 requirements and explicit F0/deferred/owner dependencies | [Control map](foundation-sql-draft-controls.json) |
+| Exact SQL role/column maximums and physical model map | [ACL evidence](foundation-sql-draft-access.json), [40-model metadata](foundation-sql-draft-models.json) |
+| Original proposed 94 tests mapped to controls, all NOT_RUN | [Replay map](foundation-sql-draft-replay-map.json) |
+| Fresh offline checks and limits | [Draft validation](foundation-sql-draft-validation.json) |
+
+Review bootstrap separately from application ownership. The raw structural artifact is retained evidence; the integrated application draft includes its tables and is not an additional file to apply after the raw draft. The future single Prisma history remains inactive. The three named source conflicts are denied explicitly until reviewed; broad worker/helper access is not a remedy. Next action belongs to Brain, not another client setup questionnaire. Current project status stays in [the existing progress tracker](../progress-tracker.md).
+
+## Historical P0-C-02 source packet
 
 Start with the owner-authorized [B010-01/02/03 corrections](database-candidate-corrections.md), then the historical [Checkpoint 010](checkpoint-010.md). This packet is ready for Brain review, **not approved or adopted**. It performed source work only: no target contact, DDL generation, migrations, seeds, resets, provider changes or runtime implementation. Posture D remains.
 

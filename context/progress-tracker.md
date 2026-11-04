@@ -1,4 +1,13 @@
-## Current status / Next action — targeted P0-C-02 completion
+## Current status / Next action — P0-C-03 SQL draft
+
+- **Current status:** Brain approved reviewed commit `671ef58383580687ecf728036bf32c302aeb026c` as source-only F0 SQL-drafting input. The 40-model raw structure, separate role bootstrap and integrated security/enforcement review SQL are prepared. The approved schemas/contracts/access packet and historical validations remain unchanged.
+- **Boundary:** SQL draft generated; execution approval, database adoption and runtime qualification are pending. Posture D remains. No database/container/provider contact or execution, migrations, seeds, reset or product runtime work. The old pre-generation stop is superseded only for this drafting assignment; database-write aliases remain blocked.
+- **Evidence:** See [drafting manifest](reconciliation/foundation-sql-draft-manifest.json), [technical review and three issues](reconciliation/foundation-sql-draft-review.md), [18 SQL control dispositions](reconciliation/foundation-sql-draft-controls.json) and [94-case map](reconciliation/foundation-sql-draft-replay-map.json). All 451 database/runtime tests remain NOT_RUN. PASS: three pinned schema validations, existing source/adversarial suites, SQL/PLpgSQL parsing, 21 final SQL source mutations and byte-identical assembly. These are offline checks, not database proof. No UI component/API/classes/token change.
+- **Brain review:** DRAFT-01 current service-generation source; DRAFT-02 fixed Customer/atomic worker validation ports within narrow privileges; DRAFT-03 mutable sources lacking CAS revisions. Affected paths fail closed; no wider permissions or silent schema changes were used to bypass these gaps.
+- **Publication:** Pending normal publication of this bounded SQL review draft on the existing correction branch; deployment suppression remains intact.
+- **Next action:** Brain reviews the SQL, documented implementation choices and exact proposed corrections. No human setup action is needed. Review and a separate execution decision are required before any database run.
+
+## Historical status — targeted P0-C-02 completion
 
 - **Current status:** Brain accepted B010-01 and B010-02 at source-design level in review of `72e7673`; their schemas and design are preserved. The completed targeted fixes specify per-model default-Free worker permissions and the correct connection order for P0C-CTX-02. Catalog preparation and usage observation are separate from enrollment-worker permissions.
 - **Evidence:** PASS — fresh pinned schema, candidate, source/context, foundation and Phase 0 checks with applicable adversarial suites are recorded in `reconciliation/database-candidate-corrections-validation.json` and the current native record; prior results are retained with the `-72e7673` suffix. Actual case counts are recorded, and every unexecuted database/runtime case stays NOT_RUN. No component/API/classes/token change.

@@ -1,0 +1,39 @@
+{
+  "input_schema": "prisma/review/foundation-candidate.prisma",
+  "input_sha256": "1c05a21cd930a05e9101484dac9d74a1b003da3079e88fb6ebb0c3f9f340a24c",
+  "config": "prisma.foundation-review.config.ts",
+  "config_sha256": "ad7578e0d4c3a6fa5d350c7193a3ebc7909ba31677321e6f6095b192fa533117",
+  "node": "24.22.1",
+  "prisma": "7.10.1",
+  "engine": "d1b3f377ca835d73fd50954a5e22128b9ebdd6b8",
+  "engine_sha256": "e6c4bb89d31f39f7ac601e264c998c0382c069df8485fb8810d0ba8fa806ea4a",
+  "raw_output_sha256": "44a4fada693986749230ffd7fde742cc2943c5da0a4526aad2891e11b59326e3",
+  "exact_command": "node node_modules/prisma/build/index.js migrate diff --from-empty --to-schema prisma/review/foundation-candidate.prisma --config prisma.foundation-review.config.ts --script --output review-output/foundation-structure.sql",
+  "cli_help_verified_flags": [
+    "--from-empty",
+    "--to-schema",
+    "--config",
+    "--script",
+    "--output"
+  ],
+  "unmodified_attempt": {
+    "exit_code": 0,
+    "file_created": false,
+    "diagnosis": "Engine required startup --datasource <JSON>; CLI omitted it."
+  },
+  "successful_attempt": {
+    "exit_code": 0,
+    "file_created": true,
+    "preload": "scripts/sql-review/prisma-source-only-compat.cjs",
+    "engine_startup_datasource": {},
+    "database_url_supplied": false,
+    "inputs": [
+      "empty",
+      "schemaDatamodel"
+    ],
+    "script": true
+  },
+  "telemetry": "CHECKPOINT_DISABLE=1 and PRISMA_HIDE_UPDATE_MESSAGE=1 on successful generation",
+  "database_contacted": false,
+  "sql_executed": false
+}
