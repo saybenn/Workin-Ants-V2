@@ -13,6 +13,7 @@ Brain approved `671ef58383580687ecf728036bf32c302aeb026c` for **source-only F0 S
 | Exact SQL role/column maximums and physical model map | [ACL evidence](foundation-sql-draft-access.json), [40-model metadata](foundation-sql-draft-models.json) |
 | Original proposed 94 tests mapped to controls, all NOT_RUN | [Replay map](foundation-sql-draft-replay-map.json) |
 | Fresh offline checks and limits | [Draft validation](foundation-sql-draft-validation.json) |
+| Normal Git publication and independent remote file/history verification | [Source publication proof](foundation-sql-draft-publication-verification.json) |
 
 Review bootstrap separately from application ownership. The raw structural artifact is retained evidence; the integrated application draft includes its tables and is not an additional file to apply after the raw draft. The future single Prisma history remains inactive. The three named source conflicts are denied explicitly until reviewed; broad worker/helper access is not a remedy. Next action belongs to Brain, not another client setup questionnaire. Current project status stays in [the existing progress tracker](../progress-tracker.md).
 
