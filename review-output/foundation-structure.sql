@@ -776,7 +776,7 @@ CREATE TABLE "platform"."owner_mutation_evidence" (
     "owner_module_id" TEXT NOT NULL,
     "aggregate_kind" TEXT NOT NULL,
     "aggregate_id" TEXT NOT NULL,
-    "previous_revision" BIGINT NOT NULL,
+    "previous_revision" BIGINT,
     "committed_revision" BIGINT NOT NULL,
     "action" TEXT NOT NULL,
     "decision_ref" TEXT NOT NULL,
@@ -857,6 +857,7 @@ CREATE TABLE "app"."track_usage_reservation" (
     "accepted_source_id" TEXT,
     "accepted_at" TIMESTAMPTZ(6),
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "revision" BIGINT NOT NULL DEFAULT 0,
     "mutation_transaction_id" TEXT NOT NULL DEFAULT pg_current_xact_id()::text,
 
     CONSTRAINT "track_usage_reservation_pkey" PRIMARY KEY ("id")
@@ -910,6 +911,7 @@ CREATE TABLE "app"."privacy_restore_marker" (
     "restore_point_ref" TEXT,
     "applied_at" TIMESTAMPTZ(6),
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "revision" BIGINT NOT NULL DEFAULT 0,
     "mutation_transaction_id" TEXT NOT NULL DEFAULT pg_current_xact_id()::text,
 
     CONSTRAINT "privacy_restore_marker_pkey" PRIMARY KEY ("id")

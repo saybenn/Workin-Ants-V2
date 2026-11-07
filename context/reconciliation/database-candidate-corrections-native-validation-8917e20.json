@@ -1,0 +1,31 @@
+{
+  "status": "PASS_OFFLINE_SCHEMA_ONLY",
+  "reviewed_base_commit": "72e7673ff0970907d7c75e3993553fcf67000a3d",
+  "node": "v24.22.1",
+  "npm": "11.9.0",
+  "prisma": "7.10.1",
+  "client": "7.10.1",
+  "schemas_sha256": {
+    "prisma/review/physical-candidate.prisma": "b9ac4a854e1af65a8682a668d5cf43113656247a276df68f272015f6e4937f57",
+    "prisma/review/foundation-candidate.prisma": "1c05a21cd930a05e9101484dac9d74a1b003da3079e88fb6ebb0c3f9f340a24c"
+  },
+  "commands": [
+    {
+      "command": "pinned-node node_modules/prisma/build/index.js validate --config prisma.review.config.ts",
+      "exit_code": 0,
+      "stdout": "The schema at prisma\\review\\physical-candidate.prisma is valid \ud83d\ude80\n",
+      "stderr": "Loaded Prisma config from prisma.review.config.ts.\n\nPrisma schema loaded from prisma\\review\\physical-candidate.prisma.\n",
+      "database_target_configured": false
+    },
+    {
+      "command": "pinned-node node_modules/prisma/build/index.js validate --config prisma.foundation-review.config.ts",
+      "exit_code": 0,
+      "stdout": "The schema at prisma\\review\\foundation-candidate.prisma is valid \ud83d\ude80\n",
+      "stderr": "Loaded Prisma config from prisma.foundation-review.config.ts.\n\nPrisma schema loaded from prisma\\review\\foundation-candidate.prisma.\n",
+      "database_target_configured": false
+    }
+  ],
+  "database_contacted": false,
+  "ddl_generated": false,
+  "scope": "Fresh pinned offline validation; accepted schemas unchanged; no database/runtime proof"
+}

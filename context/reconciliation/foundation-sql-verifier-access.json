@@ -1,0 +1,175 @@
+{
+  "directive": "P0-C-03A",
+  "roles": {
+    "wa_customer_verifier": {
+      "login": false,
+      "bypassrls": false,
+      "inherit": false,
+      "writes": [],
+      "columns": {
+        "app.customer_profiles": [
+          "id",
+          "user_id",
+          "status",
+          "archived_at",
+          "revision",
+          "privacy_generation"
+        ],
+        "app.customer_profile_lifecycle_event": [
+          "customer_profile_id",
+          "source_revision",
+          "command_receipt_id",
+          "actor_user_id",
+          "from_status",
+          "to_status"
+        ]
+      }
+    },
+    "wa_track_verifier": {
+      "login": false,
+      "bypassrls": false,
+      "inherit": false,
+      "writes": [],
+      "columns": {
+        "platform.runtime_work_item": [
+          "id",
+          "outbox_message_id",
+          "handler_name",
+          "semantic_work_key",
+          "state",
+          "fence",
+          "lease_token_hash",
+          "lease_expires_at",
+          "effect_receipt_id",
+          "mutation_transaction_id"
+        ],
+        "platform.runtime_outbox_message": [
+          "id",
+          "command_receipt_id",
+          "kind",
+          "name",
+          "producer_owner",
+          "aggregate_kind",
+          "aggregate_id",
+          "source_revision",
+          "source_generation",
+          "payload",
+          "payload_hash"
+        ],
+        "platform.runtime_command_receipt": [
+          "id",
+          "owner_module_id",
+          "operation",
+          "subject_scope",
+          "semantic_key",
+          "fingerprint",
+          "state",
+          "mutation_transaction_id"
+        ],
+        "platform.runtime_effect_receipt": [
+          "id",
+          "owner_module_id",
+          "operation",
+          "command_receipt_id",
+          "subject_scope",
+          "semantic_effect_key",
+          "fingerprint",
+          "fence",
+          "state",
+          "mutation_transaction_id"
+        ],
+        "platform.runtime_inbox_receipt": [
+          "effect_receipt_id",
+          "outbox_message_id",
+          "handler_name",
+          "consumer_owner",
+          "payload_hash",
+          "mutation_transaction_id"
+        ],
+        "app.track_plans": [
+          "id",
+          "track",
+          "status",
+          "billing_model",
+          "revision",
+          "version",
+          "content_hash"
+        ],
+        "app.track_subscriptions": [
+          "id",
+          "user_id",
+          "plan_id",
+          "track",
+          "customer_profile_id",
+          "status",
+          "provider",
+          "ended_at",
+          "current_period_end",
+          "mutation_transaction_id",
+          "revision",
+          "candidate_profile_id",
+          "professional_profile_id"
+        ],
+        "app.track_base_selection": [
+          "id",
+          "user_id",
+          "track",
+          "customer_profile_id",
+          "subscription_id",
+          "revision",
+          "mutation_transaction_id",
+          "source_generation",
+          "candidate_profile_id",
+          "professional_profile_id"
+        ],
+        "app.track_enrollment_receipt": [
+          "selection_id",
+          "selection_revision",
+          "effect_receipt_id",
+          "mutation_transaction_id"
+        ],
+        "app.track_subscription_events": [
+          "subscription_id",
+          "user_id",
+          "plan_id",
+          "to_status",
+          "from_status",
+          "mutation_transaction_id"
+        ],
+        "app.track_entitlement_definitions": [
+          "id",
+          "is_active",
+          "track",
+          "value_type"
+        ],
+        "app.track_plan_entitlements": [
+          "plan_id",
+          "entitlement_id",
+          "value_type",
+          "boolean_value",
+          "int_value",
+          "decimal_value",
+          "string_value"
+        ],
+        "app.track_entitlement_grants": [
+          "id",
+          "user_id",
+          "track",
+          "customer_profile_id",
+          "candidate_profile_id",
+          "professional_profile_id",
+          "status",
+          "value_type",
+          "revision",
+          "mutation_transaction_id"
+        ]
+      }
+    }
+  },
+  "customer_port_callers": [
+    "wa_track_verifier"
+  ],
+  "worker_ports_return": "BOOLEAN_ONLY",
+  "leaf_policies": "NOLOGIN_COLUMN_LIMITED_NONRECURSIVE_SELECT_ONLY",
+  "worker_direct_grants_changed": false
+}

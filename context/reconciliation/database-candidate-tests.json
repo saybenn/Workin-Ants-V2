@@ -222,7 +222,16 @@
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "CONSENT-SCOPE-CHAIN",
+          "positive": "SH-007 proof root reads its exact presentation/content using relationship and per-row/field capabilities, then appends coherent proof/evidence",
+          "adversarial": "Substitute an otherwise row-authorized foreign presentation/content, wrong root/purpose, or omit root-to-child capability",
+          "expected": "Only the exact subject/action/context/rendering chain is admitted; missing or foreign prerequisite scope denies",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-TABLE-ConsentLog-DENY",
@@ -272,7 +281,16 @@
       },
       "action": "Run each explicit direct_denials_by_role attempt with that actual login; also deny foreign/missing/stale context, unregistered worker actions, field reassignment and immutable tuple changes. No helper-owner LOGIN/SET ROLE is used.",
       "expected": "42501 or specified nonenumerating filtered SELECT; no denied row/effect or private grant disclosure",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "CONSENT-SCOPE-DENY",
+          "positive": "Same exact prerequisite graph as authorized acceptance",
+          "adversarial": "Use SH-007 to INSERT a prerequisite or change purpose/root while preserving ordinary row/field caps",
+          "expected": "Prerequisite reads are SELECT-only and tied to the exact proof root; no acceptance grant creates its own presentation",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-TABLE-PrivacyRequest-ALLOW",
@@ -383,8 +401,7 @@
         "operations_by_role": {
           "wa_app_runtime": [
             "SELECT_EXACT_AUTHORIZED_TARGET",
-            "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF",
-            "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
+            "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF"
           ],
           "wa_worker": [],
           "wa_context_issuer": [],
@@ -469,8 +486,7 @@
         "operations_by_role": {
           "wa_app_runtime": [
             "SELECT_EXACT_AUTHORIZED_TARGET",
-            "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF",
-            "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
+            "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF"
           ],
           "wa_worker": [],
           "wa_context_issuer": [],
@@ -16243,7 +16259,16 @@
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "CONSENT-CONTENT-SCOPE",
+          "positive": "Separately authorized publishConsentVersion.v1 / consent.publish_version appends one exact immutable root with required proof; SH-009 reads an exact revision",
+          "adversarial": "Use a query purpose to INSERT or supply a foreign content root",
+          "expected": "Named publisher admission succeeds; query write and foreign root deny; actual publisher/legal policy remains owner-adapter work",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-TABLE-ConsentContentRevision-DENY",
@@ -16331,7 +16356,16 @@
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "CONSENT-PRESENTATION-SCOPE",
+          "positive": "recordConsentPresentation.v1 / consent.record_presentation appends current principal presentation and reads exact related content",
+          "adversarial": "Foreign principal/content or SH-010 presentation purpose attempts INSERT",
+          "expected": "Only the named append operation with exact subject/content admits the row; SH-010 remains SELECT-only",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-TABLE-ConsentPresentation-DENY",
@@ -16420,7 +16454,16 @@
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "CONSENT-DISPOSITION-SCOPE",
+          "positive": "recordConsentDisposition.v1 / consent.record_disposition appends exact same-subject presentation/proof disposition",
+          "adversarial": "Foreign proof/presentation, wrong purpose/root, missing relationship capability or UPDATE existing disposition",
+          "expected": "Exact immutable disposition appends; every foreign binding/rewrite denies",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-TABLE-ConsentDisposition-DENY",
@@ -17208,7 +17251,16 @@
       },
       "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
       "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "RESERVATION-RELEASE",
+          "positive": "Exact reservation/owner/command/operation/fingerprint/semantic key/fence has durable fenced_noncommit proof; attach that receipt once and release",
+          "adversarial": "Use receipt from another reservation/operation, NULL or foreign command, unresolved command, or elapsed lease alone",
+          "expected": "Exact proof releases; all foreign/unknown/time-only claims deny",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-TABLE-RuntimeReservation-DENY",
@@ -17260,7 +17312,16 @@
       },
       "action": "Run each explicit direct_denials_by_role attempt with that actual login; also deny foreign/missing/stale context, unregistered worker actions, field reassignment and immutable tuple changes. No helper-owner LOGIN/SET ROLE is used.",
       "expected": "42501 or specified nonenumerating filtered SELECT; no denied row/effect or private grant disclosure",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "RESERVATION-BYPASS",
+          "positive": "active to unknown retains uncertain reservation; exact proof may release unknown",
+          "adversarial": "Try unknown to active to released, initial terminal state, unknown quantity reduction, terminal reversal, or later committed effect after noncommit",
+          "expected": "Unknown never returns to active; terminal command/effect/links cannot be reinterpreted",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-TABLE-OwnerMutationEvidence-ALLOW",
@@ -19797,7 +19858,16 @@
       "setup": "Approved immutable SQL history and captured disposable identity; empty application state, provider-managed stand-ins explicitly listed",
       "action": "Apply only selected F0 history with dedicated migrator, then apply again",
       "expected": "First deploy completes; second deploy has zero pending work and unchanged applied checksums",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "INSTALL-CLEANUP",
+          "positive": "Bootstrap/application succeeds, then ORIGINAL grantor runs finalize in a separate connection",
+          "adversarial": "Inject application rollback, then the same grantor finalizes; wrong grantor cannot clean up",
+          "expected": "Both outcomes leave zero helper/verifier memberships on schema owner and zero CREATE on platform_private for leaf roles; runtime credentials stay inactive until verified",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-INSTALL-02",
@@ -19823,7 +19893,16 @@
       "setup": "Post-install schema-only catalog under read-only collector",
       "action": "Compare every selected table/column/type/enum/default/nullability/PK/FK/check/index/view/function/trigger/owner/grant/policy/extension/default ACL against approved physical+SQL manifest",
       "expected": "No unexpected application object or privilege, missing invariant or fingerprint drift; managed differences explicitly excluded and independently reviewed",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "CATALOG-LEAVES",
+          "positive": "Compare all 40 model tables plus two private Identity relations and exact column ACLs",
+          "adversarial": "Attempt issuer/current-source DML and verifier business DML or role assumption",
+          "expected": "Exact catalog/ACL/owner parity; no issuer self-attestation or verifier writes",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-CTX-01",
@@ -19836,7 +19915,37 @@
       "setup": "Separate issuer login plus two runtime/worker READ COMMITTED connections; issue nonnullable immutable tuple before each bind",
       "action": "Exercise full ROLLBACK after bind; SAVEPOINT then bind then ROLLBACK TO SAVEPOINT then full rollback; a failed bind; commit then same-pool reuse; different backend, same backend/new xid, and wrong isolation. Try every old token in a later transaction, then obtain a freshly authorized tuple grant for the same semantic command key",
       "expected": "Old tuple survives bind rollback in issuer-owned committed row and never authorizes a later xid; no runtime/helper grant writes; fresh grant succeeds. Same-live-transaction rebind is idempotent",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "READ-PURPOSE-NO-WRITE",
+          "positive": "Canonical query/pure/result/presentation and projection/history/access-evidence source scopes admit only SELECT",
+          "adversarial": "Give SH-003 or another nonmutating purpose otherwise matching root UPDATE capabilities",
+          "expected": "Source writes deny; any independent append-only read proof needs an explicitly registered owner operation",
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "SERVICE-BOOTSTRAP",
+          "positive": "Identity writer commits bootstrap receipt and generation zero, then issuer binds a current service grant",
+          "adversarial": "Issuer/app/worker tries to manufacture service currentness, wrong tuple, or stale generation",
+          "expected": "Only independent Identity currentness authorizes service; issuer cannot write its own current source",
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "SCOPE-PURPOSE",
+          "positive": "Exact Customer action/purpose/root and otherwise valid row/field caps",
+          "adversarial": "Keep the same row/fields while substituting purpose, action or root",
+          "expected": "Protected operation succeeds only for its registered scope",
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "POOL-LIFETIME",
+          "positive": "New READ COMMITTED transaction on the same backend obtains a fresh separately committed grant",
+          "adversarial": "Reuse old handle after full/savepoint rollback or commit; use another backend or xid",
+          "expected": "Current tuple succeeds; all stale or foreign tuples deny",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-CTX-02",
@@ -19943,7 +20052,16 @@
       },
       "action": "For each actual subject login on A, execute the common sequence, then exactly one separate named scenario. R or G must commit its authorized change before A issues its next protected statement. A uses its original now-stale grant and must be denied, without a forbidden source mutation or protected disclosure. Rollback A after observation; do not roll back or mislabel the legitimate separate owner change. Revocation, Identity security-generation change and Customer source-generation change are distinct runs.",
       "expected": "Every named committed revocation/generation change is seen by A currentness checks; the stale protected action has no unauthorized mutation/effect/disclosure. All cases remain NOT_RUN until separately authorized execution.",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "SERVICE-REVOKE",
+          "positive": "Rotate/revoke/recover under separate Identity credentials and exact predecessor receipt",
+          "adversarial": "A binds; independent Identity writer commits revoke/rotate before A attempts action",
+          "expected": "Fresh current generation succeeds; old generation is denied; recovery needs new Identity receipt, never issuer assertion",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-PRIV-01",
@@ -19956,7 +20074,16 @@
       "setup": "Actual issuer/runtime/worker logins and NOLOGIN helper owner; browser role simulation separately labeled",
       "action": "Issuer exercises authorized INSERT/own SELECT/one-way revoke only; deny issuer scope/tuple rewrite and source writes. Runtime/worker try direct grant SELECT/INSERT/UPDATE/DELETE, TRUNCATE, CREATE and SET ROLE issuer/helper/owner. Deny helper grant writes and browser helper EXECUTE; then run both named helper paths",
       "expected": "All forbidden operations denied; exact issuer and SELECT-only helper operations succeed; runtime/worker receive only helper results, never raw grants",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "BOOLEAN-PORTS",
+          "positive": "Worker calls fixed Boolean ports for its current source/job/approved plan/lease",
+          "adversarial": "Wrong customer, job, source receipt, plan revision or lease; attempt source-body SELECT via port",
+          "expected": "Only matching fixed facts return true; no source bodies, DML or broadened worker direct grant",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-BOOT-01",
@@ -19969,7 +20096,16 @@
       "setup": "Empty approved infrastructure plus synthetic Identity actor",
       "action": "Issuer issues context; runtime appends own proof and pending work; optional Ops sink unavailable",
       "expected": "No recursive proof/outbox/bootstrap dependency; denied protected read remains possible without Ops startup",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "FIRST-CUSTOMER",
+          "positive": "Trusted synthetic Identity/Consent/catalog setup; create Customer rev0/no predecessor, commit, then fresh scoped grant updates rev1 with exact predecessor0",
+          "adversarial": "Require predecessor on creation, supply predecessor on create, omit required history/proof, or use a stale predecessor on update",
+          "expected": "Valid create then update commits; invalid predecessor or absent grouped proof rolls back without recursive evidence-about-evidence",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-ATOMIC-01",
@@ -19981,7 +20117,23 @@
       "setup": "Synthetic existing actor and new Customer",
       "action": "Try source write without receipt/history/intents, then coherent single-transaction write",
       "expected": "Missing piece rejects COMMIT; positive transaction commits one source, one history and each required intent",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "MESSAGE-REVERSE",
+          "positive": "Creation emits exactly event ordinal0 and Free command ordinal1, each linked to exact source/history/evidence/command",
+          "adversarial": "Beside a valid update event, emit an extra Free-enrollment command; substitute another source history or user",
+          "expected": "Exact creation/update message set commits; every extra or mismatched message rejects COMMIT",
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "RESULT-VERSION",
+          "positive": "Registered result schema version1 and closed payload",
+          "adversarial": "Same otherwise-valid result with another version",
+          "expected": "Only registered version is accepted",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-UNIQUE-01",
@@ -20005,7 +20157,16 @@
       "setup": "Two connections with same expected Customer revision",
       "action": "Compete on owner mutation with current-context evidence",
       "expected": "Exactly one wins; loser conflicts; one retained next revision",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "OWNER-REVISIONS",
+          "positive": "TrackUsageReservation and PrivacyRestoreMarker update with exact OLD revision, +1 and closed prior/committed evidence",
+          "adversarial": "Stale predecessor, skipped revision, absent prior object or same-transaction second source update",
+          "expected": "One source revision/proof advances; stale/skipped/missing proof fails; later unqualified usage mutation remains blocked",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-IMMUTABLE-01",
@@ -20018,7 +20179,23 @@
       "setup": "Stored exact per-user/action/context test Consent and retained F0 source/runtime-effect proof",
       "action": "Accept coherent presentation; reject cross-user/content/action/context/rendered-hash and NULL-context wildcard substitutions; verify same-key identical replay and changed-fingerprint conflict. Reject rewrite/delete; append valid same-user withdrawal. Agreement-signature and financial-ledger branches wait for later commerce schema",
       "expected": "Composite FK and SQL-05 reject mismatches and tampering; minimized exact proof and append-only withdrawal retained; absent later feature is not an F0 failure",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "AGE-APPEND",
+          "positive": "Append independently authorized AgeGateAttempt/Block with new semantic ID",
+          "adversarial": "UPDATE/DELETE old age evidence, including an attempted block extension in place",
+          "expected": "Append succeeds; retained age evidence cannot be rewritten",
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "CONSENT-EMPTY",
+          "positive": "Matching nonempty context; separately reviewed registry fixture may authorize one exact global tuple",
+          "adversarial": "NULL/empty context without exact registered global tuple, wrong action or context kind",
+          "expected": "Current production registry is empty and denies every empty context; equality alone conveys no global authority",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-TRACK-01",
@@ -20030,7 +20207,30 @@
       "setup": "Separately authorized catalog fixture preparation and independent authorized usage observer; missing/current Free/current paid selections and exact original enrollment keys",
       "action": "wa_worker follows only its named per-model assignDefaultFreeTrack.v1 SELECT/INSERT/CAS-selection paths. Try catalog INSERT/UPDATE/DELETE, usage SELECT/INSERT/UPDATE/DELETE, immutable evidence UPDATE/DELETE, wrong profile, duplicate selection, changed semantic fingerprint and delayed Free after paid wins; the separate observer compares unchanged usage and catalog",
       "expected": "Only missing appropriate Free enrollment and its new receipt/history commit; valid Free/paid selection and original semantic receipt are preserved. Worker catalog/usage/immutable writes fail; fixture preparation never grants enrollment-worker authority",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "LEASE-ATTACH",
+          "positive": "Current holder supplies 256-bit lease preimage; committed matching command/effect/inbox links null to exact effect once and completes in same transaction",
+          "adversarial": "Copy readable stored hash as secret, attach unrelated effect with identical fence, relink nonnull pointer, or use another job/customer/plan revision",
+          "expected": "Exact holder/link succeeds; copied hash or foreign/relinked evidence denies",
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "LEASE-RENEW",
+          "positive": "Fresh renew grant extends an unexpired same-fence lease with unchanged secret hash and attempt count",
+          "adversarial": "Renew after expiry, shorten expiry, change hash without reclaim, or let old holder act after concurrent higher-fence reclaim",
+          "expected": "Only current holder renews; reclaim increments fence/attempt once with future expiry; attempt-only changes deny; stale holder cannot commit",
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "LEASE-RECOVERY",
+          "positive": "Reclaimed current holder recognizes original exact already-committed effect/inbox and completes without another business mutation",
+          "adversarial": "Recognize same-fence receipt from a different semantic key/operation/customer or missing exact inbox",
+          "expected": "SELECT admits only the exact linked original committed outcome after reclaim; new effect INSERT requires current fence; foreign receipt cannot acknowledge work",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-EVIDENCE-01",
@@ -20043,7 +20243,23 @@
       "setup": "Closed per-model evidence shapes and known source values",
       "action": "Insert extra JSON keys/private body, wrong enum/PK/revision or a false transaction ID",
       "expected": "Rejected; approved minimal evidence accepted without copying personal content",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "WORKER-REVERSE-PROOF",
+          "positive": "Worker commits exact source snapshot/revision/transaction through fixed read-only Boolean port; base selection UPDATE has full verifier identity without wider direct grants",
+          "adversarial": "Wrong source/transaction/revision/snapshot or omitted UPDATE identity; keep direct worker source columns unchanged",
+          "expected": "Exact proof and legitimate base-selection update pass; all invented proof denies",
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "EVIDENCE-CODEC",
+          "positive": "Creation has JSON null prior and revision0; update exact prior object; Int JSON numbers and BigInt strings",
+          "adversarial": "Wrong predecessor/source/transaction, missing prior object, extra body keys or wrong numeric encoding",
+          "expected": "Closed minimized source/evidence agrees in both schemas and actual SQL snapshot expression",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-RESTORE-01",
@@ -20057,7 +20273,16 @@
       "setup": "Separate authorized synthetic disposable restore target and tested artifact checksum",
       "action": "Restore approved backup, reapply privacy/restriction generations before any service read",
       "expected": "Exact restoration accounted for; tombstoned generation never served; missing backup/restore fact remains blocked",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "SERVICE-RESTORE",
+          "positive": "Before any restored service connection, Identity independently revokes/advances every restored service epoch, rotates credentials and issues recovery receipt",
+          "adversarial": "Reuse a restored pre-crash service grant/generation or omit privacy restriction markers",
+          "expected": "Restored state remains unavailable until independent currentness/marker recovery; old grants fail",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-AUTORLS-01",

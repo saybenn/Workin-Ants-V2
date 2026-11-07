@@ -777,7 +777,7 @@ CREATE TABLE "platform"."owner_mutation_evidence" (
     "owner_module_id" TEXT NOT NULL,
     "aggregate_kind" TEXT NOT NULL,
     "aggregate_id" TEXT NOT NULL,
-    "previous_revision" BIGINT NOT NULL,
+    "previous_revision" BIGINT,
     "committed_revision" BIGINT NOT NULL,
     "action" TEXT NOT NULL,
     "decision_ref" TEXT NOT NULL,
@@ -858,6 +858,7 @@ CREATE TABLE "app"."track_usage_reservation" (
     "accepted_source_id" TEXT,
     "accepted_at" TIMESTAMPTZ(6),
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "revision" BIGINT NOT NULL DEFAULT 0,
     "mutation_transaction_id" TEXT NOT NULL DEFAULT pg_current_xact_id()::text,
 
     CONSTRAINT "track_usage_reservation_pkey" PRIMARY KEY ("id")
@@ -911,6 +912,7 @@ CREATE TABLE "app"."privacy_restore_marker" (
     "restore_point_ref" TEXT,
     "applied_at" TIMESTAMPTZ(6),
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "revision" BIGINT NOT NULL DEFAULT 0,
     "mutation_transaction_id" TEXT NOT NULL DEFAULT pg_current_xact_id()::text,
 
     CONSTRAINT "privacy_restore_marker_pkey" PRIMARY KEY ("id")
@@ -1509,6 +1511,90 @@ GRANT USAGE ON TYPE "app"."privacy_action_kind" TO wa_app_runtime,wa_worker,wa_c
 REVOKE ALL ON TYPE "app"."privacy_disposition_kind" FROM PUBLIC;
 GRANT USAGE ON TYPE "app"."privacy_disposition_kind" TO wa_app_runtime,wa_worker,wa_context_issuer,wa_private_helper_owner;
 
+-- P0-C-03A/DRAFT-01. Private Identity source, not a permission-policy catalog.
+-- Identity's separately credentialed transition port verifies its canonical
+-- authorization receipt before this transaction. Issuer/app/worker cannot write it.
+CREATE TABLE platform_private.identity_service_receipt (
+ id uuid PRIMARY KEY,
+ service_principal text NOT NULL,
+ previous_generation bigint,
+ previous_receipt_id uuid REFERENCES platform_private.identity_service_receipt(id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+ security_generation bigint NOT NULL CHECK (security_generation>=0),
+ transition text NOT NULL CHECK (transition IN ('bootstrap','rotate','revoke','recover')),
+ revoked_at timestamptz,
+ identity_authorization_ref text NOT NULL CHECK (length(identity_authorization_ref)>0),
+ mutation_transaction_id text NOT NULL DEFAULT pg_current_xact_id()::text,
+ UNIQUE(service_principal,security_generation,id),
+ CHECK ((previous_generation IS NULL AND previous_receipt_id IS NULL AND security_generation=0 AND transition='bootstrap')
+     OR (previous_generation IS NOT NULL AND previous_receipt_id IS NOT NULL AND security_generation=previous_generation+1 AND transition<>'bootstrap')),
+ CHECK ((transition='revoke')=(revoked_at IS NOT NULL))
+);
+CREATE TABLE platform_private.identity_service_authorization (
+ service_principal text PRIMARY KEY CHECK (length(service_principal)>0),
+ security_generation bigint NOT NULL CHECK (security_generation>=0),
+ revoked_at timestamptz,
+ identity_receipt_id uuid NOT NULL UNIQUE,
+ mutation_transaction_id text NOT NULL DEFAULT pg_current_xact_id()::text,
+ FOREIGN KEY(service_principal,security_generation,identity_receipt_id)
+  REFERENCES platform_private.identity_service_receipt(service_principal,security_generation,id) ON DELETE RESTRICT ON UPDATE RESTRICT
+);
+ALTER TABLE platform_private.identity_service_receipt ENABLE ROW LEVEL SECURITY;
+ALTER TABLE platform_private.identity_service_receipt FORCE ROW LEVEL SECURITY;
+ALTER TABLE platform_private.identity_service_authorization ENABLE ROW LEVEL SECURITY;
+ALTER TABLE platform_private.identity_service_authorization FORCE ROW LEVEL SECURITY;
+GRANT SELECT,INSERT ON platform_private.identity_service_receipt TO wa_identity_service_authority;
+GRANT SELECT,INSERT,UPDATE ON platform_private.identity_service_authorization TO wa_identity_service_authority;
+GRANT SELECT(service_principal,security_generation,revoked_at) ON platform_private.identity_service_authorization TO wa_private_helper_owner;
+CREATE POLICY identity_receipt_owner ON platform_private.identity_service_receipt TO wa_identity_service_authority USING (true) WITH CHECK (true);
+CREATE POLICY identity_service_owner ON platform_private.identity_service_authorization TO wa_identity_service_authority USING (true) WITH CHECK (true);
+CREATE POLICY identity_service_leaf ON platform_private.identity_service_authorization FOR SELECT TO wa_private_helper_owner USING (true);
+
+CREATE FUNCTION platform_private.identity_service_guard() RETURNS trigger
+LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $wa$
+DECLARE r platform_private.identity_service_receipt; old_authority platform_private.identity_service_authorization;
+BEGIN
+ IF session_user::text<>'wa_identity_service_authority' OR TG_OP='DELETE' THEN
+  RAISE EXCEPTION 'Identity service authority required' USING ERRCODE='42501'; END IF;
+ PERFORM pg_advisory_xact_lock(hashtextextended('service:'||NEW.service_principal,0));
+ IF TG_TABLE_NAME='identity_service_receipt' THEN
+  IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'immutable Identity receipt'; END IF;
+  SELECT * INTO old_authority FROM platform_private.identity_service_authorization WHERE service_principal=NEW.service_principal;
+  IF FOUND THEN
+   IF NEW.previous_generation IS DISTINCT FROM old_authority.security_generation
+    OR NEW.previous_receipt_id IS DISTINCT FROM old_authority.identity_receipt_id
+    OR NEW.security_generation<>old_authority.security_generation+1
+    OR (old_authority.revoked_at IS NOT NULL AND NEW.transition<>'recover')
+    OR (old_authority.revoked_at IS NULL AND NEW.transition NOT IN ('rotate','revoke'))
+   THEN RAISE EXCEPTION 'stale or unsupported Identity transition'; END IF;
+  ELSIF NEW.transition<>'bootstrap' OR NEW.previous_generation IS NOT NULL OR NEW.security_generation<>0 THEN
+   RAISE EXCEPTION 'service bootstrap must have no predecessor';
+  END IF;
+  IF NEW.transition='revoke' THEN NEW.revoked_at:=clock_timestamp(); ELSE NEW.revoked_at:=NULL; END IF;
+ ELSE
+  IF TG_OP='UPDATE' AND (NEW.service_principal<>OLD.service_principal OR NEW.security_generation<>OLD.security_generation+1) THEN
+   RAISE EXCEPTION 'service generation must advance once'; END IF;
+  SELECT * INTO STRICT r FROM platform_private.identity_service_receipt WHERE id=NEW.identity_receipt_id;
+  IF r.service_principal<>NEW.service_principal OR r.security_generation<>NEW.security_generation
+   OR r.revoked_at IS DISTINCT FROM NEW.revoked_at OR r.mutation_transaction_id<>pg_current_xact_id()::text
+   OR r.previous_generation IS DISTINCT FROM (CASE WHEN TG_OP='UPDATE' THEN OLD.security_generation ELSE NULL::bigint END)
+   OR r.previous_receipt_id IS DISTINCT FROM (CASE WHEN TG_OP='UPDATE' THEN OLD.identity_receipt_id ELSE NULL::uuid END)
+  THEN RAISE EXCEPTION 'exact current Identity receipt required'; END IF;
+ END IF;
+ NEW.mutation_transaction_id:=pg_current_xact_id()::text;
+ RETURN NEW;
+END $wa$;
+CREATE TRIGGER identity_service_write BEFORE INSERT OR UPDATE OR DELETE ON platform_private.identity_service_authorization FOR EACH ROW EXECUTE FUNCTION platform_private.identity_service_guard();
+CREATE TRIGGER identity_receipt_write BEFORE INSERT OR UPDATE OR DELETE ON platform_private.identity_service_receipt FOR EACH ROW EXECUTE FUNCTION platform_private.identity_service_guard();
+CREATE FUNCTION platform_private.identity_receipt_commit() RETURNS trigger
+LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $wa$
+BEGIN
+ IF NOT EXISTS(SELECT 1 FROM platform_private.identity_service_authorization a WHERE a.service_principal=NEW.service_principal
+  AND a.security_generation=NEW.security_generation AND a.identity_receipt_id=NEW.id
+  AND a.mutation_transaction_id=NEW.mutation_transaction_id) THEN RAISE EXCEPTION 'orphan Identity authorization receipt'; END IF;
+ RETURN NULL;
+END $wa$;
+CREATE CONSTRAINT TRIGGER identity_receipt_atomic AFTER INSERT ON platform_private.identity_service_receipt DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.identity_receipt_commit();
+
 CREATE FUNCTION platform_private.json_datetime(v text) RETURNS boolean
 LANGUAGE plpgsql IMMUTABLE SECURITY INVOKER
 SET search_path = pg_catalog
@@ -1748,7 +1834,7 @@ CREATE FUNCTION platform_private.json_evidence_ownermutationevidence(v jsonb) RE
 LANGUAGE sql IMMUTABLE SECURITY INVOKER
 SET search_path = pg_catalog
 AS $wa$
-SELECT COALESCE((jsonb_typeof(v) = 'object' AND v ?& ARRAY['schema','owner','model','primaryKey','committed','decisionRef']::text[] AND (v - ARRAY['schema','owner','model','primaryKey','prior','committed','decisionRef']::text[]) = '{}'::jsonb AND (NOT (v ? 'schema') OR ((v->'schema') = '"database-owner-evidence.v1"'::jsonb)) AND (NOT (v ? 'owner') OR ((v->'owner') = '"platform_integration_owner"'::jsonb)) AND (NOT (v ? 'model') OR ((v->'model') = '"OwnerMutationEvidence"'::jsonb)) AND (NOT (v ? 'primaryKey') OR (jsonb_typeof((v->'primaryKey')) = 'object' AND (v->'primaryKey') ?& ARRAY['id']::text[] AND ((v->'primaryKey') - ARRAY['id']::text[]) = '{}'::jsonb AND (NOT ((v->'primaryKey') ? 'id') OR (jsonb_typeof(((v->'primaryKey')->'id')) = 'string' AND (((v->'primaryKey')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')))) AND (NOT (v ? 'prior') OR ((v->'prior') = 'null'::jsonb OR (jsonb_typeof((v->'prior')) = 'object' AND (v->'prior') ?& ARRAY['id','previousRevision','committedRevision','evidenceDigest']::text[] AND ((v->'prior') - ARRAY['id','previousRevision','committedRevision','evidenceDigest']::text[]) = '{}'::jsonb AND (NOT ((v->'prior') ? 'id') OR (jsonb_typeof(((v->'prior')->'id')) = 'string' AND (((v->'prior')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'prior') ? 'previousRevision') OR (jsonb_typeof(((v->'prior')->'previousRevision')) = 'string' AND (((v->'prior')->'previousRevision') #>> '{}') ~ '^-?[0-9]+$')) AND (NOT ((v->'prior') ? 'committedRevision') OR (jsonb_typeof(((v->'prior')->'committedRevision')) = 'string' AND (((v->'prior')->'committedRevision') #>> '{}') ~ '^-?[0-9]+$')) AND (NOT ((v->'prior') ? 'evidenceDigest') OR (jsonb_typeof(((v->'prior')->'evidenceDigest')) = 'string'))))) AND (NOT (v ? 'committed') OR (jsonb_typeof((v->'committed')) = 'object' AND (v->'committed') ?& ARRAY['id','previousRevision','committedRevision','evidenceDigest']::text[] AND ((v->'committed') - ARRAY['id','previousRevision','committedRevision','evidenceDigest']::text[]) = '{}'::jsonb AND (NOT ((v->'committed') ? 'id') OR (jsonb_typeof(((v->'committed')->'id')) = 'string' AND (((v->'committed')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'committed') ? 'previousRevision') OR (jsonb_typeof(((v->'committed')->'previousRevision')) = 'string' AND (((v->'committed')->'previousRevision') #>> '{}') ~ '^-?[0-9]+$')) AND (NOT ((v->'committed') ? 'committedRevision') OR (jsonb_typeof(((v->'committed')->'committedRevision')) = 'string' AND (((v->'committed')->'committedRevision') #>> '{}') ~ '^-?[0-9]+$')) AND (NOT ((v->'committed') ? 'evidenceDigest') OR (jsonb_typeof(((v->'committed')->'evidenceDigest')) = 'string')))) AND (NOT (v ? 'decisionRef') OR (jsonb_typeof((v->'decisionRef')) = 'string' AND length(((v->'decisionRef') #>> '{}')) >= 1))),false);
+SELECT COALESCE((jsonb_typeof(v) = 'object' AND v ?& ARRAY['schema','owner','model','primaryKey','committed','decisionRef']::text[] AND (v - ARRAY['schema','owner','model','primaryKey','prior','committed','decisionRef']::text[]) = '{}'::jsonb AND (NOT (v ? 'schema') OR ((v->'schema') = '"database-owner-evidence.v1"'::jsonb)) AND (NOT (v ? 'owner') OR ((v->'owner') = '"platform_integration_owner"'::jsonb)) AND (NOT (v ? 'model') OR ((v->'model') = '"OwnerMutationEvidence"'::jsonb)) AND (NOT (v ? 'primaryKey') OR (jsonb_typeof((v->'primaryKey')) = 'object' AND (v->'primaryKey') ?& ARRAY['id']::text[] AND ((v->'primaryKey') - ARRAY['id']::text[]) = '{}'::jsonb AND (NOT ((v->'primaryKey') ? 'id') OR (jsonb_typeof(((v->'primaryKey')->'id')) = 'string' AND (((v->'primaryKey')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')))) AND (NOT (v ? 'prior') OR ((v->'prior') = 'null'::jsonb OR (jsonb_typeof((v->'prior')) = 'object' AND (v->'prior') ?& ARRAY['id','previousRevision','committedRevision','evidenceDigest']::text[] AND ((v->'prior') - ARRAY['id','previousRevision','committedRevision','evidenceDigest']::text[]) = '{}'::jsonb AND (NOT ((v->'prior') ? 'id') OR (jsonb_typeof(((v->'prior')->'id')) = 'string' AND (((v->'prior')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'prior') ? 'previousRevision') OR ((jsonb_typeof(((v->'prior')->'previousRevision')) = 'string' AND (((v->'prior')->'previousRevision') #>> '{}') ~ '^-?[0-9]+$') OR (jsonb_typeof(((v->'prior')->'previousRevision')) = 'null'))) AND (NOT ((v->'prior') ? 'committedRevision') OR (jsonb_typeof(((v->'prior')->'committedRevision')) = 'string' AND (((v->'prior')->'committedRevision') #>> '{}') ~ '^-?[0-9]+$')) AND (NOT ((v->'prior') ? 'evidenceDigest') OR (jsonb_typeof(((v->'prior')->'evidenceDigest')) = 'string'))))) AND (NOT (v ? 'committed') OR (jsonb_typeof((v->'committed')) = 'object' AND (v->'committed') ?& ARRAY['id','previousRevision','committedRevision','evidenceDigest']::text[] AND ((v->'committed') - ARRAY['id','previousRevision','committedRevision','evidenceDigest']::text[]) = '{}'::jsonb AND (NOT ((v->'committed') ? 'id') OR (jsonb_typeof(((v->'committed')->'id')) = 'string' AND (((v->'committed')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'committed') ? 'previousRevision') OR ((jsonb_typeof(((v->'committed')->'previousRevision')) = 'string' AND (((v->'committed')->'previousRevision') #>> '{}') ~ '^-?[0-9]+$') OR (jsonb_typeof(((v->'committed')->'previousRevision')) = 'null'))) AND (NOT ((v->'committed') ? 'committedRevision') OR (jsonb_typeof(((v->'committed')->'committedRevision')) = 'string' AND (((v->'committed')->'committedRevision') #>> '{}') ~ '^-?[0-9]+$')) AND (NOT ((v->'committed') ? 'evidenceDigest') OR (jsonb_typeof(((v->'committed')->'evidenceDigest')) = 'string')))) AND (NOT (v ? 'decisionRef') OR (jsonb_typeof((v->'decisionRef')) = 'string' AND length(((v->'decisionRef') #>> '{}')) >= 1))),false);
 $wa$;
 
 CREATE FUNCTION platform_private.json_evidence_customerprofilelifecycleevent(v jsonb) RETURNS boolean
@@ -1776,7 +1862,7 @@ CREATE FUNCTION platform_private.json_evidence_trackusagereservation(v jsonb) RE
 LANGUAGE sql IMMUTABLE SECURITY INVOKER
 SET search_path = pg_catalog
 AS $wa$
-SELECT COALESCE((jsonb_typeof(v) = 'object' AND v ?& ARRAY['schema','owner','model','primaryKey','committed','decisionRef']::text[] AND (v - ARRAY['schema','owner','model','primaryKey','prior','committed','decisionRef']::text[]) = '{}'::jsonb AND (NOT (v ? 'schema') OR ((v->'schema') = '"database-owner-evidence.v1"'::jsonb)) AND (NOT (v ? 'owner') OR ((v->'owner') = '"track_subscription_entitlement"'::jsonb)) AND (NOT (v ? 'model') OR ((v->'model') = '"TrackUsageReservation"'::jsonb)) AND (NOT (v ? 'primaryKey') OR (jsonb_typeof((v->'primaryKey')) = 'object' AND (v->'primaryKey') ?& ARRAY['id']::text[] AND ((v->'primaryKey') - ARRAY['id']::text[]) = '{}'::jsonb AND (NOT ((v->'primaryKey') ? 'id') OR (jsonb_typeof(((v->'primaryKey')->'id')) = 'string' AND (((v->'primaryKey')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')))) AND (NOT (v ? 'prior') OR ((v->'prior') = 'null'::jsonb OR (jsonb_typeof((v->'prior')) = 'object' AND (v->'prior') ?& ARRAY['id','userId','periodStart','periodEnd','acceptedAt']::text[] AND ((v->'prior') - ARRAY['id','userId','periodStart','periodEnd','acceptedAt']::text[]) = '{}'::jsonb AND (NOT ((v->'prior') ? 'id') OR (jsonb_typeof(((v->'prior')->'id')) = 'string' AND (((v->'prior')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'prior') ? 'userId') OR (jsonb_typeof(((v->'prior')->'userId')) = 'string' AND (((v->'prior')->'userId') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'prior') ? 'periodStart') OR (jsonb_typeof(((v->'prior')->'periodStart')) = 'string' AND platform_private.json_datetime((((v->'prior')->'periodStart') #>> '{}')))) AND (NOT ((v->'prior') ? 'periodEnd') OR (jsonb_typeof(((v->'prior')->'periodEnd')) = 'string' AND platform_private.json_datetime((((v->'prior')->'periodEnd') #>> '{}')))) AND (NOT ((v->'prior') ? 'acceptedAt') OR ((jsonb_typeof(((v->'prior')->'acceptedAt')) = 'string' AND platform_private.json_datetime((((v->'prior')->'acceptedAt') #>> '{}'))) OR (jsonb_typeof(((v->'prior')->'acceptedAt')) = 'null')))))) AND (NOT (v ? 'committed') OR (jsonb_typeof((v->'committed')) = 'object' AND (v->'committed') ?& ARRAY['id','userId','periodStart','periodEnd','acceptedAt']::text[] AND ((v->'committed') - ARRAY['id','userId','periodStart','periodEnd','acceptedAt']::text[]) = '{}'::jsonb AND (NOT ((v->'committed') ? 'id') OR (jsonb_typeof(((v->'committed')->'id')) = 'string' AND (((v->'committed')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'committed') ? 'userId') OR (jsonb_typeof(((v->'committed')->'userId')) = 'string' AND (((v->'committed')->'userId') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'committed') ? 'periodStart') OR (jsonb_typeof(((v->'committed')->'periodStart')) = 'string' AND platform_private.json_datetime((((v->'committed')->'periodStart') #>> '{}')))) AND (NOT ((v->'committed') ? 'periodEnd') OR (jsonb_typeof(((v->'committed')->'periodEnd')) = 'string' AND platform_private.json_datetime((((v->'committed')->'periodEnd') #>> '{}')))) AND (NOT ((v->'committed') ? 'acceptedAt') OR ((jsonb_typeof(((v->'committed')->'acceptedAt')) = 'string' AND platform_private.json_datetime((((v->'committed')->'acceptedAt') #>> '{}'))) OR (jsonb_typeof(((v->'committed')->'acceptedAt')) = 'null'))))) AND (NOT (v ? 'decisionRef') OR (jsonb_typeof((v->'decisionRef')) = 'string' AND length(((v->'decisionRef') #>> '{}')) >= 1))),false);
+SELECT COALESCE((jsonb_typeof(v) = 'object' AND v ?& ARRAY['schema','owner','model','primaryKey','committed','decisionRef']::text[] AND (v - ARRAY['schema','owner','model','primaryKey','prior','committed','decisionRef']::text[]) = '{}'::jsonb AND (NOT (v ? 'schema') OR ((v->'schema') = '"database-owner-evidence.v1"'::jsonb)) AND (NOT (v ? 'owner') OR ((v->'owner') = '"track_subscription_entitlement"'::jsonb)) AND (NOT (v ? 'model') OR ((v->'model') = '"TrackUsageReservation"'::jsonb)) AND (NOT (v ? 'primaryKey') OR (jsonb_typeof((v->'primaryKey')) = 'object' AND (v->'primaryKey') ?& ARRAY['id']::text[] AND ((v->'primaryKey') - ARRAY['id']::text[]) = '{}'::jsonb AND (NOT ((v->'primaryKey') ? 'id') OR (jsonb_typeof(((v->'primaryKey')->'id')) = 'string' AND (((v->'primaryKey')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')))) AND (NOT (v ? 'prior') OR ((v->'prior') = 'null'::jsonb OR (jsonb_typeof((v->'prior')) = 'object' AND (v->'prior') ?& ARRAY['id','userId','periodStart','periodEnd','acceptedAt','revision']::text[] AND ((v->'prior') - ARRAY['id','userId','periodStart','periodEnd','acceptedAt','revision']::text[]) = '{}'::jsonb AND (NOT ((v->'prior') ? 'id') OR (jsonb_typeof(((v->'prior')->'id')) = 'string' AND (((v->'prior')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'prior') ? 'userId') OR (jsonb_typeof(((v->'prior')->'userId')) = 'string' AND (((v->'prior')->'userId') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'prior') ? 'periodStart') OR (jsonb_typeof(((v->'prior')->'periodStart')) = 'string' AND platform_private.json_datetime((((v->'prior')->'periodStart') #>> '{}')))) AND (NOT ((v->'prior') ? 'periodEnd') OR (jsonb_typeof(((v->'prior')->'periodEnd')) = 'string' AND platform_private.json_datetime((((v->'prior')->'periodEnd') #>> '{}')))) AND (NOT ((v->'prior') ? 'acceptedAt') OR ((jsonb_typeof(((v->'prior')->'acceptedAt')) = 'string' AND platform_private.json_datetime((((v->'prior')->'acceptedAt') #>> '{}'))) OR (jsonb_typeof(((v->'prior')->'acceptedAt')) = 'null'))) AND (NOT ((v->'prior') ? 'revision') OR (jsonb_typeof(((v->'prior')->'revision')) = 'string' AND (((v->'prior')->'revision') #>> '{}') ~ '^-?[0-9]+$'))))) AND (NOT (v ? 'committed') OR (jsonb_typeof((v->'committed')) = 'object' AND (v->'committed') ?& ARRAY['id','userId','periodStart','periodEnd','acceptedAt','revision']::text[] AND ((v->'committed') - ARRAY['id','userId','periodStart','periodEnd','acceptedAt','revision']::text[]) = '{}'::jsonb AND (NOT ((v->'committed') ? 'id') OR (jsonb_typeof(((v->'committed')->'id')) = 'string' AND (((v->'committed')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'committed') ? 'userId') OR (jsonb_typeof(((v->'committed')->'userId')) = 'string' AND (((v->'committed')->'userId') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'committed') ? 'periodStart') OR (jsonb_typeof(((v->'committed')->'periodStart')) = 'string' AND platform_private.json_datetime((((v->'committed')->'periodStart') #>> '{}')))) AND (NOT ((v->'committed') ? 'periodEnd') OR (jsonb_typeof(((v->'committed')->'periodEnd')) = 'string' AND platform_private.json_datetime((((v->'committed')->'periodEnd') #>> '{}')))) AND (NOT ((v->'committed') ? 'acceptedAt') OR ((jsonb_typeof(((v->'committed')->'acceptedAt')) = 'string' AND platform_private.json_datetime((((v->'committed')->'acceptedAt') #>> '{}'))) OR (jsonb_typeof(((v->'committed')->'acceptedAt')) = 'null'))) AND (NOT ((v->'committed') ? 'revision') OR (jsonb_typeof(((v->'committed')->'revision')) = 'string' AND (((v->'committed')->'revision') #>> '{}') ~ '^-?[0-9]+$')))) AND (NOT (v ? 'decisionRef') OR (jsonb_typeof((v->'decisionRef')) = 'string' AND length(((v->'decisionRef') #>> '{}')) >= 1))),false);
 $wa$;
 
 CREATE FUNCTION platform_private.json_evidence_privacytargetinstruction(v jsonb) RETURNS boolean
@@ -1797,7 +1883,7 @@ CREATE FUNCTION platform_private.json_evidence_privacyrestoremarker(v jsonb) RET
 LANGUAGE sql IMMUTABLE SECURITY INVOKER
 SET search_path = pg_catalog
 AS $wa$
-SELECT COALESCE((jsonb_typeof(v) = 'object' AND v ?& ARRAY['schema','owner','model','primaryKey','committed','decisionRef']::text[] AND (v - ARRAY['schema','owner','model','primaryKey','prior','committed','decisionRef']::text[]) = '{}'::jsonb AND (NOT (v ? 'schema') OR ((v->'schema') = '"database-owner-evidence.v1"'::jsonb)) AND (NOT (v ? 'owner') OR ((v->'owner') = '"privacy_data_erasure"'::jsonb)) AND (NOT (v ? 'model') OR ((v->'model') = '"PrivacyRestoreMarker"'::jsonb)) AND (NOT (v ? 'primaryKey') OR (jsonb_typeof((v->'primaryKey')) = 'object' AND (v->'primaryKey') ?& ARRAY['id']::text[] AND ((v->'primaryKey') - ARRAY['id']::text[]) = '{}'::jsonb AND (NOT ((v->'primaryKey') ? 'id') OR (jsonb_typeof(((v->'primaryKey')->'id')) = 'string' AND (((v->'primaryKey')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')))) AND (NOT (v ? 'prior') OR ((v->'prior') = 'null'::jsonb OR (jsonb_typeof((v->'prior')) = 'object' AND (v->'prior') ?& ARRAY['id','sourceId','generation','action']::text[] AND ((v->'prior') - ARRAY['id','sourceId','generation','action']::text[]) = '{}'::jsonb AND (NOT ((v->'prior') ? 'id') OR (jsonb_typeof(((v->'prior')->'id')) = 'string' AND (((v->'prior')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'prior') ? 'sourceId') OR (jsonb_typeof(((v->'prior')->'sourceId')) = 'string')) AND (NOT ((v->'prior') ? 'generation') OR (jsonb_typeof(((v->'prior')->'generation')) = 'string' AND (((v->'prior')->'generation') #>> '{}') ~ '^-?[0-9]+$')) AND (NOT ((v->'prior') ? 'action') OR (((v->'prior')->'action') = '"export"'::jsonb OR ((v->'prior')->'action') = '"erase"'::jsonb OR ((v->'prior')->'action') = '"restrict"'::jsonb OR ((v->'prior')->'action') = '"restore_marker"'::jsonb))))) AND (NOT (v ? 'committed') OR (jsonb_typeof((v->'committed')) = 'object' AND (v->'committed') ?& ARRAY['id','sourceId','generation','action']::text[] AND ((v->'committed') - ARRAY['id','sourceId','generation','action']::text[]) = '{}'::jsonb AND (NOT ((v->'committed') ? 'id') OR (jsonb_typeof(((v->'committed')->'id')) = 'string' AND (((v->'committed')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'committed') ? 'sourceId') OR (jsonb_typeof(((v->'committed')->'sourceId')) = 'string')) AND (NOT ((v->'committed') ? 'generation') OR (jsonb_typeof(((v->'committed')->'generation')) = 'string' AND (((v->'committed')->'generation') #>> '{}') ~ '^-?[0-9]+$')) AND (NOT ((v->'committed') ? 'action') OR (((v->'committed')->'action') = '"export"'::jsonb OR ((v->'committed')->'action') = '"erase"'::jsonb OR ((v->'committed')->'action') = '"restrict"'::jsonb OR ((v->'committed')->'action') = '"restore_marker"'::jsonb)))) AND (NOT (v ? 'decisionRef') OR (jsonb_typeof((v->'decisionRef')) = 'string' AND length(((v->'decisionRef') #>> '{}')) >= 1))),false);
+SELECT COALESCE((jsonb_typeof(v) = 'object' AND v ?& ARRAY['schema','owner','model','primaryKey','committed','decisionRef']::text[] AND (v - ARRAY['schema','owner','model','primaryKey','prior','committed','decisionRef']::text[]) = '{}'::jsonb AND (NOT (v ? 'schema') OR ((v->'schema') = '"database-owner-evidence.v1"'::jsonb)) AND (NOT (v ? 'owner') OR ((v->'owner') = '"privacy_data_erasure"'::jsonb)) AND (NOT (v ? 'model') OR ((v->'model') = '"PrivacyRestoreMarker"'::jsonb)) AND (NOT (v ? 'primaryKey') OR (jsonb_typeof((v->'primaryKey')) = 'object' AND (v->'primaryKey') ?& ARRAY['id']::text[] AND ((v->'primaryKey') - ARRAY['id']::text[]) = '{}'::jsonb AND (NOT ((v->'primaryKey') ? 'id') OR (jsonb_typeof(((v->'primaryKey')->'id')) = 'string' AND (((v->'primaryKey')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')))) AND (NOT (v ? 'prior') OR ((v->'prior') = 'null'::jsonb OR (jsonb_typeof((v->'prior')) = 'object' AND (v->'prior') ?& ARRAY['id','sourceId','generation','action','revision']::text[] AND ((v->'prior') - ARRAY['id','sourceId','generation','action','revision']::text[]) = '{}'::jsonb AND (NOT ((v->'prior') ? 'id') OR (jsonb_typeof(((v->'prior')->'id')) = 'string' AND (((v->'prior')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'prior') ? 'sourceId') OR (jsonb_typeof(((v->'prior')->'sourceId')) = 'string')) AND (NOT ((v->'prior') ? 'generation') OR (jsonb_typeof(((v->'prior')->'generation')) = 'string' AND (((v->'prior')->'generation') #>> '{}') ~ '^-?[0-9]+$')) AND (NOT ((v->'prior') ? 'action') OR (((v->'prior')->'action') = '"export"'::jsonb OR ((v->'prior')->'action') = '"erase"'::jsonb OR ((v->'prior')->'action') = '"restrict"'::jsonb OR ((v->'prior')->'action') = '"restore_marker"'::jsonb)) AND (NOT ((v->'prior') ? 'revision') OR (jsonb_typeof(((v->'prior')->'revision')) = 'string' AND (((v->'prior')->'revision') #>> '{}') ~ '^-?[0-9]+$'))))) AND (NOT (v ? 'committed') OR (jsonb_typeof((v->'committed')) = 'object' AND (v->'committed') ?& ARRAY['id','sourceId','generation','action','revision']::text[] AND ((v->'committed') - ARRAY['id','sourceId','generation','action','revision']::text[]) = '{}'::jsonb AND (NOT ((v->'committed') ? 'id') OR (jsonb_typeof(((v->'committed')->'id')) = 'string' AND (((v->'committed')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'committed') ? 'sourceId') OR (jsonb_typeof(((v->'committed')->'sourceId')) = 'string')) AND (NOT ((v->'committed') ? 'generation') OR (jsonb_typeof(((v->'committed')->'generation')) = 'string' AND (((v->'committed')->'generation') #>> '{}') ~ '^-?[0-9]+$')) AND (NOT ((v->'committed') ? 'action') OR (((v->'committed')->'action') = '"export"'::jsonb OR ((v->'committed')->'action') = '"erase"'::jsonb OR ((v->'committed')->'action') = '"restrict"'::jsonb OR ((v->'committed')->'action') = '"restore_marker"'::jsonb)) AND (NOT ((v->'committed') ? 'revision') OR (jsonb_typeof(((v->'committed')->'revision')) = 'string' AND (((v->'committed')->'revision') #>> '{}') ~ '^-?[0-9]+$')))) AND (NOT (v ? 'decisionRef') OR (jsonb_typeof((v->'decisionRef')) = 'string' AND length(((v->'decisionRef') #>> '{}')) >= 1))),false);
 $wa$;
 
 CREATE FUNCTION platform_private.json_customer_event(v jsonb) RETURNS boolean
@@ -1868,9 +1954,13 @@ BEGIN
   AND expires_at > clock_timestamp();
  IF NOT FOUND THEN RETURN NULL; END IF;
  IF g.principal_user_id IS NULL THEN
-  -- ISSUE DRAFT-01: no authoritative service-generation source in approved 40 models.
-  -- Deliberate fail-closed boundary, not caller/issuer claimed generation equality.
-  RETURN NULL;
+  IF take_action_lock THEN
+   PERFORM pg_advisory_xact_lock_shared(hashtextextended('service:'||g.service_principal,0));
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM platform_private.identity_service_authorization a
+   WHERE a.service_principal=g.service_principal AND a.security_generation=g.security_generation AND a.revoked_at IS NULL)
+  THEN RETURN NULL; END IF;
+  RETURN g;
  END IF;
  IF take_action_lock THEN
   PERFORM pg_advisory_xact_lock_shared(hashtextextended('identity:'||g.principal_user_id::text,0));
@@ -1906,27 +1996,475 @@ BEGIN
 END;
 $wa$;
 
-CREATE FUNCTION platform_private.row_allowed(owner_id text, model_name text, row_key text, verb text, field_names text[], row_revision text DEFAULT NULL) RETURNS boolean
+CREATE FUNCTION platform_private.protected_scope(model_name text, row_key text, verb text) RETURNS boolean
 LANGUAGE plpgsql VOLATILE SECURITY DEFINER
 SET search_path = pg_catalog
 AS $wa$
-DECLARE g platform.database_action_grant; f text;
+DECLARE g platform.database_action_grant; BEGIN
+g:=platform_private.bound_grant(true); IF g.id IS NULL THEN RETURN false; END IF;
+IF model_name=g.target_kind AND row_key<>g.target_id THEN RETURN false; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ConsentLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-003.v1','ConsentLog',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='ConsentLog' OR (verb='SELECT' AND model_name='ConsentPresentation' AND 'ConsentLog/'||g.target_id||'/presentation/'||row_key=ANY(g.allowed_fields)) OR (verb='SELECT' AND model_name='ConsentContentRevision' AND 'ConsentLog/'||g.target_id||'/contentRevision/'||row_key=ANY(g.allowed_fields)) OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-007.v1','ConsentLog',g.target_id,'owner:recordConsentProof') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ConsentLog' OR (verb='SELECT' AND model_name='ConsentPresentation' AND 'ConsentLog/'||g.target_id||'/presentation/'||row_key=ANY(g.allowed_fields)) OR (verb='SELECT' AND model_name='ConsentContentRevision' AND 'ConsentLog/'||g.target_id||'/contentRevision/'||row_key=ANY(g.allowed_fields)) OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-008.v1','ConsentLog',g.target_id,'owner:queryConsentProof') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ConsentLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-009.v1','ConsentLog',g.target_id,'owner:resolveActiveConsentVersion') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ConsentLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-010.v1','ConsentLog',g.target_id,'owner:presentStandaloneConsent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ConsentLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-015.v1','ConsentLog',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ConsentLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-031.v1','ConsentLog',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ConsentLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-043.v1','ConsentLog',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='ConsentLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-053.v1','ConsentLog',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='ConsentLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-080.v1','ConsentLog',g.target_id,'owner:manageVersionedRules') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='ConsentLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-095.v1','ConsentLog',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ConsentLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-096.v1','ConsentLog',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ConsentLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-097.v1','ConsentLog',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='ConsentLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-098.v1','ConsentLog',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ConsentLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-123.v1','ConsentLog',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-003.v1','PrivacyRequest',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-015.v1','PrivacyRequest',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-026.v1','PrivacyRequest',g.target_id,'owner:authorizeContextualResourceAccess') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-031.v1','PrivacyRequest',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-043.v1','PrivacyRequest',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-049.v1','PrivacyRequest',g.target_id,'owner:orchestrateWorkflowSteps') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-050.v1','PrivacyRequest',g.target_id,'owner:reconcileWorkflowStatus') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-053.v1','PrivacyRequest',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-088.v1','PrivacyRequest',g.target_id,'owner:manageTemporaryAccessGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-089.v1','PrivacyRequest',g.target_id,'owner:revokeTemporaryAccessGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-095.v1','PrivacyRequest',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-096.v1','PrivacyRequest',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-097.v1','PrivacyRequest',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-098.v1','PrivacyRequest',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-099.v1','PrivacyRequest',g.target_id,'owner:orchestratePrivacyFulfillment') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-100.v1','PrivacyRequest',g.target_id,'owner:createPrivacyExportArtifact') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-104.v1','PrivacyRequest',g.target_id,'owner:preserveEvidenceSnapshot') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-110.v1','PrivacyRequest',g.target_id,'owner:createDomainSnapshot') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-123.v1','PrivacyRequest',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='PrivacyRequest' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('privacy_data_erasure','SH-125.v1','PrivacyRequest',g.target_id,'owner:recordDomainAccessEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-001.v1','AgeGateAttempt',g.target_id,'owner:resolveAuthenticatedActor') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-003.v1','AgeGateAttempt',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-014.v1','AgeGateAttempt',g.target_id,'owner:requireStepUpForSensitiveAction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-015.v1','AgeGateAttempt',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-031.v1','AgeGateAttempt',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-043.v1','AgeGateAttempt',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-053.v1','AgeGateAttempt',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-060.v1','AgeGateAttempt',g.target_id,'owner:deduplicateProviderEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-061.v1','AgeGateAttempt',g.target_id,'owner:translateProviderStatus') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-062.v1','AgeGateAttempt',g.target_id,'owner:reconcileProviderState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-063.v1','AgeGateAttempt',g.target_id,'owner:captureProviderSnapshot') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-064.v1','AgeGateAttempt',g.target_id,'owner:authorizeExternalProviderConnection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-070.v1','AgeGateAttempt',g.target_id,'owner:deleteProviderResource') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-088.v1','AgeGateAttempt',g.target_id,'owner:manageTemporaryAccessGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-089.v1','AgeGateAttempt',g.target_id,'owner:revokeTemporaryAccessGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-095.v1','AgeGateAttempt',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-096.v1','AgeGateAttempt',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-097.v1','AgeGateAttempt',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-098.v1','AgeGateAttempt',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateAttempt' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-123.v1','AgeGateAttempt',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-001.v1','AgeGateBlock',g.target_id,'owner:resolveAuthenticatedActor') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-003.v1','AgeGateBlock',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-014.v1','AgeGateBlock',g.target_id,'owner:requireStepUpForSensitiveAction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-015.v1','AgeGateBlock',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-031.v1','AgeGateBlock',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-043.v1','AgeGateBlock',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-053.v1','AgeGateBlock',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-060.v1','AgeGateBlock',g.target_id,'owner:deduplicateProviderEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-061.v1','AgeGateBlock',g.target_id,'owner:translateProviderStatus') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-062.v1','AgeGateBlock',g.target_id,'owner:reconcileProviderState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-063.v1','AgeGateBlock',g.target_id,'owner:captureProviderSnapshot') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-064.v1','AgeGateBlock',g.target_id,'owner:authorizeExternalProviderConnection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-070.v1','AgeGateBlock',g.target_id,'owner:deleteProviderResource') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-088.v1','AgeGateBlock',g.target_id,'owner:manageTemporaryAccessGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-089.v1','AgeGateBlock',g.target_id,'owner:revokeTemporaryAccessGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-095.v1','AgeGateBlock',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-096.v1','AgeGateBlock',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-097.v1','AgeGateBlock',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-098.v1','AgeGateBlock',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AgeGateBlock' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-123.v1','AgeGateBlock',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AccessAuditLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-003.v1','AccessAuditLog',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AccessAuditLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-015.v1','AccessAuditLog',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AccessAuditLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-029.v1','AccessAuditLog',g.target_id,'owner:appendAuditEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AccessAuditLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-030.v1','AccessAuditLog',g.target_id,'owner:recordSensitiveAccess') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AccessAuditLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-031.v1','AccessAuditLog',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AccessAuditLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-043.v1','AccessAuditLog',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AccessAuditLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-053.v1','AccessAuditLog',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AccessAuditLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-095.v1','AccessAuditLog',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AccessAuditLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-096.v1','AccessAuditLog',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AccessAuditLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-097.v1','AccessAuditLog',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AccessAuditLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-098.v1','AccessAuditLog',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AccessAuditLog' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-123.v1','AccessAuditLog',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-001.v1','User',g.target_id,'owner:resolveAuthenticatedActor') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-003.v1','User',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-014.v1','User',g.target_id,'owner:requireStepUpForSensitiveAction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-015.v1','User',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-031.v1','User',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-043.v1','User',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-053.v1','User',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-060.v1','User',g.target_id,'owner:deduplicateProviderEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-061.v1','User',g.target_id,'owner:translateProviderStatus') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-062.v1','User',g.target_id,'owner:reconcileProviderState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-063.v1','User',g.target_id,'owner:captureProviderSnapshot') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-064.v1','User',g.target_id,'owner:authorizeExternalProviderConnection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-070.v1','User',g.target_id,'owner:deleteProviderResource') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-088.v1','User',g.target_id,'owner:manageTemporaryAccessGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-089.v1','User',g.target_id,'owner:revokeTemporaryAccessGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-095.v1','User',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-096.v1','User',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-097.v1','User',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-098.v1','User',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-123.v1','User',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-001.v1','UserRole',g.target_id,'owner:resolveAuthenticatedActor') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-003.v1','UserRole',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-014.v1','UserRole',g.target_id,'owner:requireStepUpForSensitiveAction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-015.v1','UserRole',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-031.v1','UserRole',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-043.v1','UserRole',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-053.v1','UserRole',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-060.v1','UserRole',g.target_id,'owner:deduplicateProviderEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-061.v1','UserRole',g.target_id,'owner:translateProviderStatus') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-062.v1','UserRole',g.target_id,'owner:reconcileProviderState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-063.v1','UserRole',g.target_id,'owner:captureProviderSnapshot') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-064.v1','UserRole',g.target_id,'owner:authorizeExternalProviderConnection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-070.v1','UserRole',g.target_id,'owner:deleteProviderResource') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-088.v1','UserRole',g.target_id,'owner:manageTemporaryAccessGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-089.v1','UserRole',g.target_id,'owner:revokeTemporaryAccessGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-095.v1','UserRole',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-096.v1','UserRole',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-097.v1','UserRole',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-098.v1','UserRole',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserRole' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-123.v1','UserRole',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-003.v1','ProfessionalProfile',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-015.v1','ProfessionalProfile',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-016.v1','ProfessionalProfile',g.target_id,'owner:evaluateProfessionalReadiness') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-024.v1','ProfessionalProfile',g.target_id,'owner:evaluatePublicReadiness') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-031.v1','ProfessionalProfile',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-043.v1','ProfessionalProfile',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-053.v1','ProfessionalProfile',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-090.v1','ProfessionalProfile',g.target_id,'owner:attachValidatedMedia') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-094.v1','ProfessionalProfile',g.target_id,'owner:buildSourceProjection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-095.v1','ProfessionalProfile',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-096.v1','ProfessionalProfile',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-097.v1','ProfessionalProfile',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-098.v1','ProfessionalProfile',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-102.v1','ProfessionalProfile',g.target_id,'owner:resolveModerationTarget') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-103.v1','ProfessionalProfile',g.target_id,'owner:executeModerationDecision') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-114.v1','ProfessionalProfile',g.target_id,'owner:provisionOneToOneProfile') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-115.v1','ProfessionalProfile',g.target_id,'owner:buildAggregateProjection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-121.v1','ProfessionalProfile',g.target_id,'owner:applyAiSuggestion') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-123.v1','ProfessionalProfile',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='ProfessionalProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('professional_eligibility','SH-124.v1','ProfessionalProfile',g.target_id,'owner:generateUniqueSlug') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-003.v1','CandidateProfile',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-015.v1','CandidateProfile',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-024.v1','CandidateProfile',g.target_id,'owner:evaluatePublicReadiness') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-026.v1','CandidateProfile',g.target_id,'owner:authorizeContextualResourceAccess') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-031.v1','CandidateProfile',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-043.v1','CandidateProfile',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-053.v1','CandidateProfile',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-090.v1','CandidateProfile',g.target_id,'owner:attachValidatedMedia') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-094.v1','CandidateProfile',g.target_id,'owner:buildSourceProjection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-095.v1','CandidateProfile',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-096.v1','CandidateProfile',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-097.v1','CandidateProfile',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-098.v1','CandidateProfile',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-102.v1','CandidateProfile',g.target_id,'owner:resolveModerationTarget') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-103.v1','CandidateProfile',g.target_id,'owner:executeModerationDecision') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-114.v1','CandidateProfile',g.target_id,'owner:provisionOneToOneProfile') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-115.v1','CandidateProfile',g.target_id,'owner:buildAggregateProjection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-121.v1','CandidateProfile',g.target_id,'owner:applyAiSuggestion') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-123.v1','CandidateProfile',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='CandidateProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('candidate_application_resume_privacy','SH-125.v1','CandidateProfile',g.target_id,'owner:recordDomainAccessEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AuditEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-003.v1','AuditEvent',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AuditEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-015.v1','AuditEvent',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AuditEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-029.v1','AuditEvent',g.target_id,'owner:appendAuditEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AuditEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-030.v1','AuditEvent',g.target_id,'owner:recordSensitiveAccess') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AuditEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-031.v1','AuditEvent',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AuditEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-043.v1','AuditEvent',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AuditEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-053.v1','AuditEvent',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AuditEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-095.v1','AuditEvent',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AuditEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-096.v1','AuditEvent',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AuditEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-097.v1','AuditEvent',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AuditEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-098.v1','AuditEvent',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AuditEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('audit_event_ledger','SH-123.v1','AuditEvent',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-001.v1','UserSecurityProfile',g.target_id,'owner:resolveAuthenticatedActor') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-003.v1','UserSecurityProfile',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-014.v1','UserSecurityProfile',g.target_id,'owner:requireStepUpForSensitiveAction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-015.v1','UserSecurityProfile',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-031.v1','UserSecurityProfile',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-043.v1','UserSecurityProfile',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-053.v1','UserSecurityProfile',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-060.v1','UserSecurityProfile',g.target_id,'owner:deduplicateProviderEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-061.v1','UserSecurityProfile',g.target_id,'owner:translateProviderStatus') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-062.v1','UserSecurityProfile',g.target_id,'owner:reconcileProviderState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-063.v1','UserSecurityProfile',g.target_id,'owner:captureProviderSnapshot') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-064.v1','UserSecurityProfile',g.target_id,'owner:authorizeExternalProviderConnection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-070.v1','UserSecurityProfile',g.target_id,'owner:deleteProviderResource') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-088.v1','UserSecurityProfile',g.target_id,'owner:manageTemporaryAccessGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-089.v1','UserSecurityProfile',g.target_id,'owner:revokeTemporaryAccessGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-095.v1','UserSecurityProfile',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-096.v1','UserSecurityProfile',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-097.v1','UserSecurityProfile',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-098.v1','UserSecurityProfile',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='UserSecurityProfile' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-123.v1','UserSecurityProfile',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-001.v1','AuthProviderAccount',g.target_id,'owner:resolveAuthenticatedActor') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-003.v1','AuthProviderAccount',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-014.v1','AuthProviderAccount',g.target_id,'owner:requireStepUpForSensitiveAction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-015.v1','AuthProviderAccount',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-031.v1','AuthProviderAccount',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-043.v1','AuthProviderAccount',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-053.v1','AuthProviderAccount',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-060.v1','AuthProviderAccount',g.target_id,'owner:deduplicateProviderEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-061.v1','AuthProviderAccount',g.target_id,'owner:translateProviderStatus') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-062.v1','AuthProviderAccount',g.target_id,'owner:reconcileProviderState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-063.v1','AuthProviderAccount',g.target_id,'owner:captureProviderSnapshot') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-064.v1','AuthProviderAccount',g.target_id,'owner:authorizeExternalProviderConnection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-070.v1','AuthProviderAccount',g.target_id,'owner:deleteProviderResource') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-088.v1','AuthProviderAccount',g.target_id,'owner:manageTemporaryAccessGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-089.v1','AuthProviderAccount',g.target_id,'owner:revokeTemporaryAccessGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-095.v1','AuthProviderAccount',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-096.v1','AuthProviderAccount',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-097.v1','AuthProviderAccount',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-098.v1','AuthProviderAccount',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='AuthProviderAccount' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-123.v1','AuthProviderAccount',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-003.v1','TrackPlan',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-005.v1','TrackPlan',g.target_id,'owner:resolveEntitlement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-006.v1','TrackPlan',g.target_id,'owner:consumeMeteredEntitlement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-015.v1','TrackPlan',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-031.v1','TrackPlan',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-043.v1','TrackPlan',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-053.v1','TrackPlan',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-060.v1','TrackPlan',g.target_id,'owner:deduplicateProviderEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-061.v1','TrackPlan',g.target_id,'owner:translateProviderStatus') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-062.v1','TrackPlan',g.target_id,'owner:reconcileProviderState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-063.v1','TrackPlan',g.target_id,'owner:captureProviderSnapshot') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-064.v1','TrackPlan',g.target_id,'owner:authorizeExternalProviderConnection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-070.v1','TrackPlan',g.target_id,'owner:deleteProviderResource') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-080.v1','TrackPlan',g.target_id,'owner:manageVersionedRules') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-095.v1','TrackPlan',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-096.v1','TrackPlan',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-097.v1','TrackPlan',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-098.v1','TrackPlan',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-109.v1','TrackPlan',g.target_id,'owner:snapshotExternalDecision') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-119.v1','TrackPlan',g.target_id,'owner:applyTemporaryFeatureGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlan' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-123.v1','TrackPlan',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-003.v1','TrackEntitlementDefinition',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-005.v1','TrackEntitlementDefinition',g.target_id,'owner:resolveEntitlement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-006.v1','TrackEntitlementDefinition',g.target_id,'owner:consumeMeteredEntitlement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-015.v1','TrackEntitlementDefinition',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-031.v1','TrackEntitlementDefinition',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-043.v1','TrackEntitlementDefinition',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-053.v1','TrackEntitlementDefinition',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-060.v1','TrackEntitlementDefinition',g.target_id,'owner:deduplicateProviderEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-061.v1','TrackEntitlementDefinition',g.target_id,'owner:translateProviderStatus') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-062.v1','TrackEntitlementDefinition',g.target_id,'owner:reconcileProviderState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-063.v1','TrackEntitlementDefinition',g.target_id,'owner:captureProviderSnapshot') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-064.v1','TrackEntitlementDefinition',g.target_id,'owner:authorizeExternalProviderConnection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-070.v1','TrackEntitlementDefinition',g.target_id,'owner:deleteProviderResource') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-080.v1','TrackEntitlementDefinition',g.target_id,'owner:manageVersionedRules') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-095.v1','TrackEntitlementDefinition',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-096.v1','TrackEntitlementDefinition',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-097.v1','TrackEntitlementDefinition',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-098.v1','TrackEntitlementDefinition',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-109.v1','TrackEntitlementDefinition',g.target_id,'owner:snapshotExternalDecision') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-119.v1','TrackEntitlementDefinition',g.target_id,'owner:applyTemporaryFeatureGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementDefinition' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-123.v1','TrackEntitlementDefinition',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-003.v1','TrackPlanEntitlement',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-005.v1','TrackPlanEntitlement',g.target_id,'owner:resolveEntitlement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-006.v1','TrackPlanEntitlement',g.target_id,'owner:consumeMeteredEntitlement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-015.v1','TrackPlanEntitlement',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-031.v1','TrackPlanEntitlement',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-043.v1','TrackPlanEntitlement',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-053.v1','TrackPlanEntitlement',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-060.v1','TrackPlanEntitlement',g.target_id,'owner:deduplicateProviderEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-061.v1','TrackPlanEntitlement',g.target_id,'owner:translateProviderStatus') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-062.v1','TrackPlanEntitlement',g.target_id,'owner:reconcileProviderState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-063.v1','TrackPlanEntitlement',g.target_id,'owner:captureProviderSnapshot') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-064.v1','TrackPlanEntitlement',g.target_id,'owner:authorizeExternalProviderConnection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-070.v1','TrackPlanEntitlement',g.target_id,'owner:deleteProviderResource') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-080.v1','TrackPlanEntitlement',g.target_id,'owner:manageVersionedRules') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-095.v1','TrackPlanEntitlement',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-096.v1','TrackPlanEntitlement',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-097.v1','TrackPlanEntitlement',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-098.v1','TrackPlanEntitlement',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-109.v1','TrackPlanEntitlement',g.target_id,'owner:snapshotExternalDecision') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-119.v1','TrackPlanEntitlement',g.target_id,'owner:applyTemporaryFeatureGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackPlanEntitlement' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-123.v1','TrackPlanEntitlement',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-003.v1','TrackSubscription',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-005.v1','TrackSubscription',g.target_id,'owner:resolveEntitlement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-006.v1','TrackSubscription',g.target_id,'owner:consumeMeteredEntitlement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-015.v1','TrackSubscription',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-031.v1','TrackSubscription',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-043.v1','TrackSubscription',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-053.v1','TrackSubscription',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-060.v1','TrackSubscription',g.target_id,'owner:deduplicateProviderEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-061.v1','TrackSubscription',g.target_id,'owner:translateProviderStatus') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-062.v1','TrackSubscription',g.target_id,'owner:reconcileProviderState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-063.v1','TrackSubscription',g.target_id,'owner:captureProviderSnapshot') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-064.v1','TrackSubscription',g.target_id,'owner:authorizeExternalProviderConnection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-070.v1','TrackSubscription',g.target_id,'owner:deleteProviderResource') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-080.v1','TrackSubscription',g.target_id,'owner:manageVersionedRules') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-095.v1','TrackSubscription',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-096.v1','TrackSubscription',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-097.v1','TrackSubscription',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-098.v1','TrackSubscription',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-109.v1','TrackSubscription',g.target_id,'owner:snapshotExternalDecision') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-119.v1','TrackSubscription',g.target_id,'owner:applyTemporaryFeatureGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscription' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-123.v1','TrackSubscription',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-003.v1','TrackEntitlementGrant',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-005.v1','TrackEntitlementGrant',g.target_id,'owner:resolveEntitlement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-006.v1','TrackEntitlementGrant',g.target_id,'owner:consumeMeteredEntitlement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-015.v1','TrackEntitlementGrant',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-031.v1','TrackEntitlementGrant',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-043.v1','TrackEntitlementGrant',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-053.v1','TrackEntitlementGrant',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-060.v1','TrackEntitlementGrant',g.target_id,'owner:deduplicateProviderEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-061.v1','TrackEntitlementGrant',g.target_id,'owner:translateProviderStatus') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-062.v1','TrackEntitlementGrant',g.target_id,'owner:reconcileProviderState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-063.v1','TrackEntitlementGrant',g.target_id,'owner:captureProviderSnapshot') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-064.v1','TrackEntitlementGrant',g.target_id,'owner:authorizeExternalProviderConnection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-070.v1','TrackEntitlementGrant',g.target_id,'owner:deleteProviderResource') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-080.v1','TrackEntitlementGrant',g.target_id,'owner:manageVersionedRules') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-095.v1','TrackEntitlementGrant',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-096.v1','TrackEntitlementGrant',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-097.v1','TrackEntitlementGrant',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-098.v1','TrackEntitlementGrant',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-109.v1','TrackEntitlementGrant',g.target_id,'owner:snapshotExternalDecision') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-119.v1','TrackEntitlementGrant',g.target_id,'owner:applyTemporaryFeatureGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackEntitlementGrant' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-123.v1','TrackEntitlementGrant',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-003.v1','TrackUsageEvent',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-005.v1','TrackUsageEvent',g.target_id,'owner:resolveEntitlement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-006.v1','TrackUsageEvent',g.target_id,'owner:consumeMeteredEntitlement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-015.v1','TrackUsageEvent',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-031.v1','TrackUsageEvent',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-043.v1','TrackUsageEvent',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-053.v1','TrackUsageEvent',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-060.v1','TrackUsageEvent',g.target_id,'owner:deduplicateProviderEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-061.v1','TrackUsageEvent',g.target_id,'owner:translateProviderStatus') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-062.v1','TrackUsageEvent',g.target_id,'owner:reconcileProviderState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-063.v1','TrackUsageEvent',g.target_id,'owner:captureProviderSnapshot') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-064.v1','TrackUsageEvent',g.target_id,'owner:authorizeExternalProviderConnection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-070.v1','TrackUsageEvent',g.target_id,'owner:deleteProviderResource') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-080.v1','TrackUsageEvent',g.target_id,'owner:manageVersionedRules') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-095.v1','TrackUsageEvent',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-096.v1','TrackUsageEvent',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-097.v1','TrackUsageEvent',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-098.v1','TrackUsageEvent',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-109.v1','TrackUsageEvent',g.target_id,'owner:snapshotExternalDecision') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-119.v1','TrackUsageEvent',g.target_id,'owner:applyTemporaryFeatureGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-123.v1','TrackUsageEvent',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-003.v1','TrackUsageCounter',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-005.v1','TrackUsageCounter',g.target_id,'owner:resolveEntitlement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-006.v1','TrackUsageCounter',g.target_id,'owner:consumeMeteredEntitlement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-015.v1','TrackUsageCounter',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-031.v1','TrackUsageCounter',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-043.v1','TrackUsageCounter',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-053.v1','TrackUsageCounter',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-060.v1','TrackUsageCounter',g.target_id,'owner:deduplicateProviderEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-061.v1','TrackUsageCounter',g.target_id,'owner:translateProviderStatus') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-062.v1','TrackUsageCounter',g.target_id,'owner:reconcileProviderState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-063.v1','TrackUsageCounter',g.target_id,'owner:captureProviderSnapshot') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-064.v1','TrackUsageCounter',g.target_id,'owner:authorizeExternalProviderConnection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-070.v1','TrackUsageCounter',g.target_id,'owner:deleteProviderResource') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-080.v1','TrackUsageCounter',g.target_id,'owner:manageVersionedRules') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-095.v1','TrackUsageCounter',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-096.v1','TrackUsageCounter',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-097.v1','TrackUsageCounter',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-098.v1','TrackUsageCounter',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-109.v1','TrackUsageCounter',g.target_id,'owner:snapshotExternalDecision') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-119.v1','TrackUsageCounter',g.target_id,'owner:applyTemporaryFeatureGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackUsageCounter' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-123.v1','TrackUsageCounter',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-003.v1','TrackSubscriptionEvent',g.target_id,'owner:queryOwnerFacts') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-005.v1','TrackSubscriptionEvent',g.target_id,'owner:resolveEntitlement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-006.v1','TrackSubscriptionEvent',g.target_id,'owner:consumeMeteredEntitlement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-015.v1','TrackSubscriptionEvent',g.target_id,'owner:returnDecisionResult') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-031.v1','TrackSubscriptionEvent',g.target_id,'owner:appendDomainLifecycleEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-043.v1','TrackSubscriptionEvent',g.target_id,'owner:resolveNotificationRecipients') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-053.v1','TrackSubscriptionEvent',g.target_id,'owner:transitionLifecycleState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-060.v1','TrackSubscriptionEvent',g.target_id,'owner:deduplicateProviderEvent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-061.v1','TrackSubscriptionEvent',g.target_id,'owner:translateProviderStatus') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-062.v1','TrackSubscriptionEvent',g.target_id,'owner:reconcileProviderState') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-063.v1','TrackSubscriptionEvent',g.target_id,'owner:captureProviderSnapshot') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-064.v1','TrackSubscriptionEvent',g.target_id,'owner:authorizeExternalProviderConnection') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-070.v1','TrackSubscriptionEvent',g.target_id,'owner:deleteProviderResource') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-080.v1','TrackSubscriptionEvent',g.target_id,'owner:manageVersionedRules') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-095.v1','TrackSubscriptionEvent',g.target_id,'owner:executePrivacyInstruction') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-096.v1','TrackSubscriptionEvent',g.target_id,'owner:enumerateSubjectData') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-097.v1','TrackSubscriptionEvent',g.target_id,'owner:evaluateRetentionRequirement') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-098.v1','TrackSubscriptionEvent',g.target_id,'owner:anonymizePersonalFields') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-109.v1','TrackSubscriptionEvent',g.target_id,'owner:snapshotExternalDecision') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT','UPDATE']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-119.v1','TrackSubscriptionEvent',g.target_id,'owner:applyTemporaryFeatureGrant') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='TrackSubscriptionEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('track_subscription_entitlement','SH-123.v1','TrackSubscriptionEvent',g.target_id,'owner:validateOwnedTargetReference') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='CustomerProfile' OR model_name='CustomerProfileLifecycleEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('customer_buyer_profile','SH-004.v1','CustomerProfile',g.target_id,'resolve') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT']::text[]) AND (model_name='CustomerProfile' OR model_name='CustomerProfileLifecycleEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('customer_buyer_profile','SH-004.v1','CustomerProfile',g.target_id,'provision') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT']::text[]) AND (model_name='CustomerProfile' OR model_name='CustomerProfileLifecycleEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('customer_buyer_profile','SH-114.v1','CustomerProfile',g.target_id,'provision') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','UPDATE']::text[]) AND (model_name='CustomerProfile' OR model_name='CustomerProfileLifecycleEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('customer_buyer_profile','updateCustomerProfileIdentity.v1','CustomerProfile',g.target_id,'profile_update') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ConsentContentRevision' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-009.v1','ConsentContentRevision',g.target_id,'owner:resolveActiveConsentVersion') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ConsentPresentation' OR (verb='SELECT' AND model_name='ConsentContentRevision' AND 'ConsentPresentation/'||g.target_id||'/contentRevision/'||row_key=ANY(g.allowed_fields)) OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-010.v1','ConsentPresentation',g.target_id,'owner:presentStandaloneConsent') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT']::text[]) AND (model_name='ConsentContentRevision' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','publishConsentVersion.v1','ConsentContentRevision',g.target_id,'consent.publish_version') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT']::text[]) AND (model_name='ConsentPresentation' OR (verb='SELECT' AND model_name='ConsentContentRevision' AND 'ConsentPresentation/'||g.target_id||'/contentRevision/'||row_key=ANY(g.allowed_fields)) OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','recordConsentPresentation.v1','ConsentPresentation',g.target_id,'consent.record_presentation') THEN RETURN true; END IF;
+IF verb=ANY(ARRAY['SELECT','INSERT']::text[]) AND (model_name='ConsentDisposition' OR (verb='SELECT' AND model_name='ConsentPresentation' AND 'ConsentDisposition/'||g.target_id||'/presentation/'||row_key=ANY(g.allowed_fields)) OR (verb='SELECT' AND model_name='ConsentLog' AND 'ConsentDisposition/'||g.target_id||'/proof/'||row_key=ANY(g.allowed_fields)) OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','recordConsentDisposition.v1','ConsentDisposition',g.target_id,'consent.record_disposition') THEN RETURN true; END IF;
+IF model_name IN ('RuntimeWorkItem','RuntimeAttempt','RuntimeOutboxMessage','RuntimeCommandReceipt','RuntimeEffectReceipt','RuntimeInboxReceipt','OwnerMutationEvidence','TrackPlan','TrackEntitlementDefinition','TrackPlanEntitlement','TrackSubscription','TrackEntitlementGrant','TrackBaseSelection','TrackSubscriptionEvent','TrackEnrollmentReceipt') AND platform_private.context_allows('track_subscription_entitlement','assignDefaultFreeTrack.v1','RuntimeWorkItem',g.target_id,'default_free_enrollment') THEN RETURN true; END IF;
+IF model_name='RuntimeWorkItem' AND platform_private.context_allows('platform_integration_owner','runtime.claim_work.v1','RuntimeWorkItem',row_key,'work.claim') THEN RETURN true; END IF;
+IF model_name='RuntimeWorkItem' AND platform_private.context_allows('platform_integration_owner','runtime.renew_work.v1','RuntimeWorkItem',row_key,'work.renew') THEN RETURN true; END IF;
+IF model_name='RuntimeWorkItem' AND platform_private.context_allows('platform_integration_owner','runtime.schedule_work.v1','RuntimeWorkItem',row_key,'work.schedule') THEN RETURN true; END IF;
+IF model_name IN ('RuntimeReservation','RuntimeEffectReceipt','RuntimeCommandReceipt') AND platform_private.context_allows(g.owner_module_id,'runtime.reservation.v1','RuntimeReservation',g.target_id,'reservation') THEN RETURN true; END IF;
+RETURN false; END;
+$wa$;
+
+CREATE FUNCTION platform_private.row_allowed(owner_id text, model_name text, row_key text, verb text, field_names text[], row_revision text DEFAULT NULL, row_transaction text DEFAULT NULL) RETURNS boolean
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+SET search_path = pg_catalog
+AS $wa$
+DECLARE g platform.database_action_grant; f text; authorized_revision text:=row_revision;
 BEGIN
  g:=platform_private.bound_grant(true);
  IF g.id IS NULL OR verb NOT IN ('SELECT','INSERT','UPDATE') THEN RETURN false; END IF;
+ IF NOT platform_private.protected_scope(model_name,row_key,verb) THEN RETURN false; END IF;
  IF g.owner_module_id<>owner_id AND NOT (owner_id='platform_integration_owner'
-  AND model_name IN ('RuntimeWorkItem','RuntimeAttempt')) THEN RETURN false; END IF;
+  AND model_name IN ('RuntimeWorkItem','RuntimeAttempt'))
+  AND NOT (session_user::text='wa_worker' AND g.owner_module_id='track_subscription_entitlement' AND model_name='RuntimeOutboxMessage') THEN RETURN false; END IF;
  -- SQL transport convention: issuer-authorized finite model/key/verb/field tokens.
  -- No wildcard. Every role-visible SELECT column must be authorized together.
  FOREACH f IN ARRAY field_names LOOP
   IF NOT COALESCE(model_name||'/'||row_key||'/'||verb||'/'||f = ANY(g.allowed_fields),false) THEN RETURN false; END IF;
  END LOOP;
+ IF row_revision IS NOT NULL AND row_transaction=pg_current_xact_id()::text AND row_revision::bigint>0
+  AND NOT COALESCE(model_name||'/'||row_key||'/revision/'||row_revision=ANY(g.allowed_fields),false)
+  AND COALESCE(model_name||'/'||row_key||'/revision/'||(row_revision::bigint-1)::text=ANY(g.allowed_fields),false)
+ THEN authorized_revision:=(row_revision::bigint-1)::text; END IF;
  IF row_revision IS NOT NULL AND NOT COALESCE
-  (model_name||'/'||row_key||'/revision/'||row_revision = ANY(g.allowed_fields),false) THEN RETURN false; END IF;
+  (model_name||'/'||row_key||'/revision/'||authorized_revision = ANY(g.allowed_fields),false) THEN RETURN false; END IF;
  IF row_revision IS NOT NULL AND g.target_kind=model_name AND g.target_id=row_key
-  AND g.source_generation::text<>row_revision THEN RETURN false; END IF;
+  AND g.source_generation::text<>authorized_revision THEN RETURN false; END IF;
  RETURN true;
 END;
+$wa$;
+
+CREATE FUNCTION platform_private.context_subject_owner(subject_user_id uuid, source_owner text) RETURNS boolean
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+SET search_path = pg_catalog
+AS $wa$
+DECLARE g platform.database_action_grant;
+BEGIN
+ g:=platform_private.bound_grant(true);
+ RETURN COALESCE(g.principal_user_id=subject_user_id AND g.owner_module_id=source_owner,false);
+END;
+$wa$;
+
+CREATE FUNCTION platform_private.command_context_allows(source_owner text, operation_name text, subject_scope text) RETURNS boolean
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+SET search_path = pg_catalog
+AS $wa$
+DECLARE g platform.database_action_grant;
+BEGIN
+ g:=platform_private.bound_grant(true);
+ IF g.id IS NULL OR g.owner_module_id<>source_owner THEN RETURN false; END IF;
+ IF session_user::text='wa_worker' AND g.action='assignDefaultFreeTrack.v1' THEN RETURN operation_name=g.action; END IF;
+ RETURN operation_name=g.action AND subject_scope=g.target_kind||':'||g.target_id;
+END;
+$wa$;
+
+CREATE FUNCTION platform_private.global_context_registered(action_owner text, action_name text, context_owner text, context_kind text) RETURNS boolean
+LANGUAGE sql IMMUTABLE SECURITY INVOKER
+SET search_path = pg_catalog
+AS $wa$
+SELECT false;
 $wa$;
 
 CREATE FUNCTION platform_private.context_subject(subject_user_id uuid) RETURNS boolean
@@ -1996,8 +2534,6 @@ GRANT INSERT ("id","user_id","ip_hash","device_hash","region","result","birth_ye
 
 GRANT SELECT ("id","user_id","ip_hash","device_hash","region","result","birth_year","age_band","blocked_until","created_at","mutation_transaction_id") ON "app"."age_gate_attempts" TO wa_app_runtime;
 
-GRANT UPDATE ("ip_hash","device_hash","region","result","birth_year","age_band","blocked_until") ON "app"."age_gate_attempts" TO wa_app_runtime;
-
 -- SQL-01/02: AgeGateBlock
 ALTER TABLE "app"."age_gate_blocks" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "app"."age_gate_blocks" FORCE ROW LEVEL SECURITY;
@@ -2005,8 +2541,6 @@ ALTER TABLE "app"."age_gate_blocks" FORCE ROW LEVEL SECURITY;
 GRANT INSERT ("id","ip_hash","device_hash","reason","blocked_until") ON "app"."age_gate_blocks" TO wa_app_runtime;
 
 GRANT SELECT ("id","ip_hash","device_hash","reason","blocked_until","created_at","mutation_transaction_id") ON "app"."age_gate_blocks" TO wa_app_runtime;
-
-GRANT UPDATE ("ip_hash","device_hash","reason","blocked_until") ON "app"."age_gate_blocks" TO wa_app_runtime;
 
 -- SQL-01/02: AccessAuditLog
 ALTER TABLE "app"."access_audit_logs" ENABLE ROW LEVEL SECURITY;
@@ -2350,11 +2884,11 @@ GRANT SELECT ("id","user_id","track","profile_id","source_owner","source_creatio
 ALTER TABLE "app"."track_usage_reservation" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "app"."track_usage_reservation" FORCE ROW LEVEL SECURITY;
 
-GRANT INSERT ("id","user_id","entitlement_id","period_start","period_end","quantity","semantic_key","reservation_id","accepted_source_owner","accepted_source_id","accepted_at") ON "app"."track_usage_reservation" TO wa_app_runtime;
+GRANT INSERT ("id","user_id","entitlement_id","period_start","period_end","quantity","semantic_key","reservation_id","accepted_source_owner","accepted_source_id","accepted_at","revision") ON "app"."track_usage_reservation" TO wa_app_runtime;
 
-GRANT SELECT ("id","user_id","entitlement_id","period_start","period_end","quantity","semantic_key","reservation_id","accepted_source_owner","accepted_source_id","accepted_at","created_at","mutation_transaction_id") ON "app"."track_usage_reservation" TO wa_app_runtime;
+GRANT SELECT ("id","user_id","entitlement_id","period_start","period_end","quantity","semantic_key","reservation_id","accepted_source_owner","accepted_source_id","accepted_at","created_at","revision","mutation_transaction_id") ON "app"."track_usage_reservation" TO wa_app_runtime;
 
-GRANT UPDATE ("period_start","period_end","quantity","semantic_key","accepted_source_owner","accepted_at") ON "app"."track_usage_reservation" TO wa_app_runtime;
+GRANT UPDATE ("period_start","period_end","quantity","semantic_key","accepted_source_owner","accepted_at","revision") ON "app"."track_usage_reservation" TO wa_app_runtime;
 
 -- SQL-01/02: PrivacyTargetInstruction
 ALTER TABLE "app"."privacy_target_instruction" ENABLE ROW LEVEL SECURITY;
@@ -2376,282 +2910,582 @@ GRANT SELECT ("id","instruction_id","generation","disposition","execution_receip
 ALTER TABLE "app"."privacy_restore_marker" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "app"."privacy_restore_marker" FORCE ROW LEVEL SECURITY;
 
-GRANT INSERT ("id","owner_module_id","target_kind","source_id","generation","action","source_receipt_id","restore_point_ref","applied_at") ON "app"."privacy_restore_marker" TO wa_app_runtime;
+GRANT INSERT ("id","owner_module_id","target_kind","source_id","generation","action","source_receipt_id","restore_point_ref","applied_at","revision") ON "app"."privacy_restore_marker" TO wa_app_runtime;
 
-GRANT SELECT ("id","owner_module_id","target_kind","source_id","generation","action","source_receipt_id","restore_point_ref","applied_at","created_at","mutation_transaction_id") ON "app"."privacy_restore_marker" TO wa_app_runtime;
+GRANT SELECT ("id","owner_module_id","target_kind","source_id","generation","action","source_receipt_id","restore_point_ref","applied_at","created_at","revision","mutation_transaction_id") ON "app"."privacy_restore_marker" TO wa_app_runtime;
 
-GRANT UPDATE ("target_kind","generation","action","restore_point_ref","applied_at") ON "app"."privacy_restore_marker" TO wa_app_runtime;
+GRANT UPDATE ("target_kind","generation","action","restore_point_ref","applied_at","revision") ON "app"."privacy_restore_marker" TO wa_app_runtime;
 
-CREATE FUNCTION platform_private.worker_track_allowed(model_name text, row_value jsonb, verb text) RETURNS boolean
-LANGUAGE plpgsql VOLATILE SECURITY DEFINER
-SET search_path = pg_catalog
-AS $wa$
-DECLARE g platform.database_action_grant;
-BEGIN
- g:=platform_private.bound_grant(true);
- IF g.id IS NULL OR session_user::text<>'wa_worker' OR g.action<>'assignDefaultFreeTrack.v1'
-  OR g.owner_module_id<>'track_subscription_entitlement' THEN RETURN false; END IF;
- -- DRAFT-01/02 are explicit gates: no service epoch or fixed Customer leaf port is
- -- approved within helper privileges. No worker action may bypass these gaps.
- RAISE EXCEPTION 'DRAFT-01/02 require reviewed service-currentness and Customer leaf adapter' USING ERRCODE='0A000';
-END;
+GRANT SELECT ("id","user_id","status","archived_at","revision","privacy_generation") ON app.customer_profiles TO wa_customer_verifier;
+
+CREATE POLICY "leaf_wa_customer_verifier" ON app.customer_profiles FOR SELECT TO wa_customer_verifier USING (true);
+
+GRANT SELECT ("customer_profile_id","source_revision","command_receipt_id","actor_user_id","from_status","to_status") ON app.customer_profile_lifecycle_event TO wa_customer_verifier;
+
+CREATE POLICY "leaf_wa_customer_verifier" ON app.customer_profile_lifecycle_event FOR SELECT TO wa_customer_verifier USING (true);
+
+GRANT USAGE ON TYPE "app"."profile_status" TO wa_customer_verifier;
+
+GRANT SELECT ("id","outbox_message_id","handler_name","semantic_work_key","state","fence","lease_token_hash","lease_expires_at","effect_receipt_id","mutation_transaction_id") ON platform.runtime_work_item TO wa_track_verifier;
+
+CREATE POLICY "leaf_wa_track_verifier" ON platform.runtime_work_item FOR SELECT TO wa_track_verifier USING (true);
+
+GRANT SELECT ("id","command_receipt_id","kind","name","producer_owner","aggregate_kind","aggregate_id","source_revision","source_generation","payload","payload_hash") ON platform.runtime_outbox_message TO wa_track_verifier;
+
+CREATE POLICY "leaf_wa_track_verifier" ON platform.runtime_outbox_message FOR SELECT TO wa_track_verifier USING (true);
+
+GRANT SELECT ("id","owner_module_id","operation","subject_scope","semantic_key","fingerprint","state","mutation_transaction_id") ON platform.runtime_command_receipt TO wa_track_verifier;
+
+CREATE POLICY "leaf_wa_track_verifier" ON platform.runtime_command_receipt FOR SELECT TO wa_track_verifier USING (true);
+
+GRANT SELECT ("id","owner_module_id","operation","command_receipt_id","subject_scope","semantic_effect_key","fingerprint","fence","state","mutation_transaction_id") ON platform.runtime_effect_receipt TO wa_track_verifier;
+
+CREATE POLICY "leaf_wa_track_verifier" ON platform.runtime_effect_receipt FOR SELECT TO wa_track_verifier USING (true);
+
+GRANT SELECT ("effect_receipt_id","outbox_message_id","handler_name","consumer_owner","payload_hash","mutation_transaction_id") ON platform.runtime_inbox_receipt TO wa_track_verifier;
+
+CREATE POLICY "leaf_wa_track_verifier" ON platform.runtime_inbox_receipt FOR SELECT TO wa_track_verifier USING (true);
+
+GRANT SELECT ("id","track","status","billing_model","revision","version","content_hash") ON app.track_plans TO wa_track_verifier;
+
+CREATE POLICY "leaf_wa_track_verifier" ON app.track_plans FOR SELECT TO wa_track_verifier USING (true);
+
+GRANT SELECT ("id","user_id","plan_id","track","customer_profile_id","status","provider","ended_at","current_period_end","mutation_transaction_id","revision","candidate_profile_id","professional_profile_id") ON app.track_subscriptions TO wa_track_verifier;
+
+CREATE POLICY "leaf_wa_track_verifier" ON app.track_subscriptions FOR SELECT TO wa_track_verifier USING (true);
+
+GRANT SELECT ("id","user_id","track","customer_profile_id","subscription_id","revision","mutation_transaction_id","source_generation","candidate_profile_id","professional_profile_id") ON app.track_base_selection TO wa_track_verifier;
+
+CREATE POLICY "leaf_wa_track_verifier" ON app.track_base_selection FOR SELECT TO wa_track_verifier USING (true);
+
+GRANT SELECT ("selection_id","selection_revision","effect_receipt_id","mutation_transaction_id") ON app.track_enrollment_receipt TO wa_track_verifier;
+
+CREATE POLICY "leaf_wa_track_verifier" ON app.track_enrollment_receipt FOR SELECT TO wa_track_verifier USING (true);
+
+GRANT SELECT ("subscription_id","user_id","plan_id","to_status","from_status","mutation_transaction_id") ON app.track_subscription_events TO wa_track_verifier;
+
+CREATE POLICY "leaf_wa_track_verifier" ON app.track_subscription_events FOR SELECT TO wa_track_verifier USING (true);
+
+GRANT SELECT ("id","is_active","track","value_type") ON app.track_entitlement_definitions TO wa_track_verifier;
+
+CREATE POLICY "leaf_wa_track_verifier" ON app.track_entitlement_definitions FOR SELECT TO wa_track_verifier USING (true);
+
+GRANT SELECT ("plan_id","entitlement_id","value_type","boolean_value","int_value","decimal_value","string_value") ON app.track_plan_entitlements TO wa_track_verifier;
+
+CREATE POLICY "leaf_wa_track_verifier" ON app.track_plan_entitlements FOR SELECT TO wa_track_verifier USING (true);
+
+GRANT SELECT ("id","user_id","track","customer_profile_id","candidate_profile_id","professional_profile_id","status","value_type","revision","mutation_transaction_id") ON app.track_entitlement_grants TO wa_track_verifier;
+
+CREATE POLICY "leaf_wa_track_verifier" ON app.track_entitlement_grants FOR SELECT TO wa_track_verifier USING (true);
+
+GRANT USAGE ON TYPE "app"."account_track" TO wa_track_verifier;
+
+GRANT USAGE ON TYPE "platform"."runtime_message_kind" TO wa_track_verifier;
+
+GRANT USAGE ON TYPE "platform"."runtime_receipt_state" TO wa_track_verifier;
+
+GRANT USAGE ON TYPE "platform"."runtime_work_state" TO wa_track_verifier;
+
+GRANT USAGE ON TYPE "app"."track_billing_model" TO wa_track_verifier;
+
+GRANT USAGE ON TYPE "app"."track_billing_provider" TO wa_track_verifier;
+
+GRANT USAGE ON TYPE "app"."track_entitlement_grant_status" TO wa_track_verifier;
+
+GRANT USAGE ON TYPE "app"."track_entitlement_value_type" TO wa_track_verifier;
+
+GRANT USAGE ON TYPE "app"."track_plan_status" TO wa_track_verifier;
+
+GRANT USAGE ON TYPE "app"."track_subscription_status" TO wa_track_verifier;
+
+-- DRAFT-02: fixed Boolean ports. Read maxima are emitted from the separate
+-- foundation-sql-verifier-access.json register, never granted to the worker.
+CREATE FUNCTION platform_private.lease_secret_matches(expected_hash text) RETURNS boolean
+LANGUAGE sql VOLATILE SECURITY INVOKER SET search_path=pg_catalog AS $wa$
+ SELECT CASE WHEN current_setting('wa.lease_secret',true) ~ '^[0-9a-f]{64}$'
+  THEN encode(sha256(decode(current_setting('wa.lease_secret',true),'hex')),'hex')=expected_hash
+  ELSE false END;
 $wa$;
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."consent_logs" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('consent_disclosure','ConsentLog',"id"::text,'INSERT',ARRAY['id','userId','type','version','acceptedAt','ipHash','userAgent','acceptanceKey','fingerprint','actionOwner','action','contextKind','contextId','contextOwner','presentationHash','contentRevisionId','presentationId']::text[],NULL::text));
+CREATE FUNCTION platform_private.customer_current_for_track(customer_id uuid, user_id uuid, creation_revision bigint, privacy_generation bigint, creation_receipt uuid) RETURNS boolean
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path=pg_catalog AS $wa$
+DECLARE g platform.database_action_grant; c record;
+BEGIN
+ g:=platform_private.bound_grant(true);
+ IF g.id IS NULL OR session_user::text<>'wa_worker' OR g.service_principal IS NULL
+  OR NOT platform_private.context_allows('track_subscription_entitlement','assignDefaultFreeTrack.v1','RuntimeWorkItem',g.target_id,'default_free_enrollment')
+ THEN RETURN false; END IF;
+ PERFORM pg_advisory_xact_lock_shared(hashtextextended('source:CustomerProfile:'||customer_id::text,0));
+ SELECT p.id,p.user_id,p.status,p.archived_at,p.revision,p.privacy_generation INTO c FROM app.customer_profiles p WHERE p.id=customer_id;
+ RETURN COALESCE(c.id IS NOT NULL AND c.user_id=user_id AND c.status='active' AND c.archived_at IS NULL
+  AND c.privacy_generation=privacy_generation AND creation_revision=0
+  AND 'CustomerProfile/'||customer_id::text||'/revision/'||c.revision::text=ANY(g.allowed_fields)
+  AND EXISTS(SELECT 1 FROM app.customer_profile_lifecycle_event h WHERE h.customer_profile_id=customer_id
+   AND h.source_revision=creation_revision AND h.command_receipt_id=creation_receipt
+   AND h.actor_user_id=user_id AND h.from_status IS NULL AND h.to_status='active'),false);
+END $wa$;
+
+CREATE FUNCTION platform_private.worker_lease_valid(work_id uuid, effect_id uuid DEFAULT NULL, allow_completed boolean DEFAULT false) RETURNS boolean
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path=pg_catalog AS $wa$
+DECLARE g platform.database_action_grant; w record;
+BEGIN
+ g:=platform_private.bound_grant(true);
+ IF g.id IS NULL OR session_user::text<>'wa_worker' OR g.service_principal IS NULL
+  OR NOT platform_private.context_allows('track_subscription_entitlement','assignDefaultFreeTrack.v1','RuntimeWorkItem',work_id::text,'default_free_enrollment')
+ THEN RETURN false; END IF;
+ SELECT j.id,j.handler_name,j.state,j.fence,j.lease_token_hash,j.lease_expires_at,j.effect_receipt_id,j.mutation_transaction_id INTO w
+  FROM platform.runtime_work_item j WHERE j.id=work_id;
+ RETURN COALESCE(w.id IS NOT NULL AND w.handler_name='assignDefaultFreeTrack.v1'
+  AND (w.state='leased' OR (allow_completed AND w.state='completed' AND w.mutation_transaction_id=pg_current_xact_id()::text))
+  AND w.fence=g.source_generation AND w.fence::text=current_setting('wa.fence',true)
+  AND w.lease_expires_at>clock_timestamp() AND platform_private.lease_secret_matches(w.lease_token_hash::text)
+  AND (effect_id IS NULL OR w.effect_receipt_id=effect_id),false);
+END $wa$;
+
+CREATE FUNCTION platform_private.worker_effect_matches(work_id uuid, effect_id uuid, require_link boolean DEFAULT true) RETURNS boolean
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path=pg_catalog AS $wa$
+DECLARE g platform.database_action_grant; w record; e record; c record; o record;
+BEGIN
+ g:=platform_private.bound_grant(true);
+ IF g.id IS NULL OR NOT platform_private.worker_lease_valid(work_id,NULL,true) THEN RETURN false; END IF;
+ SELECT j.id,j.outbox_message_id,j.effect_receipt_id,j.handler_name,j.semantic_work_key,j.fence INTO w FROM platform.runtime_work_item j WHERE j.id=work_id;
+ SELECT m.id,m.aggregate_id,m.payload_hash FROM platform.runtime_outbox_message m WHERE m.id=w.outbox_message_id INTO o;
+ SELECT r.id,r.command_receipt_id,r.owner_module_id,r.operation,r.subject_scope,r.semantic_effect_key,r.fingerprint,r.fence,r.state,r.mutation_transaction_id INTO e
+  FROM platform.runtime_effect_receipt r WHERE r.id=effect_id;
+ SELECT r.id,r.owner_module_id,r.operation,r.subject_scope,r.semantic_key,r.fingerprint,r.state,r.mutation_transaction_id INTO c
+  FROM platform.runtime_command_receipt r WHERE r.id=e.command_receipt_id;
+ RETURN COALESCE((NOT require_link OR w.effect_receipt_id=e.id) AND e.id IS NOT NULL
+  AND 'RuntimeWorkItem/'||w.id::text||'/effect/'||e.id::text=ANY(g.allowed_fields)
+  AND 'RuntimeWorkItem/'||w.id::text||'/command/'||c.id::text=ANY(g.allowed_fields)
+  AND e.owner_module_id='track_subscription_entitlement' AND c.owner_module_id=e.owner_module_id
+  AND e.operation=w.handler_name AND c.operation=e.operation AND e.state='committed' AND c.state='committed'
+  AND e.subject_scope='CustomerProfile:'||o.aggregate_id AND c.subject_scope=e.subject_scope
+  AND e.semantic_effect_key=w.semantic_work_key AND c.semantic_key=e.semantic_effect_key
+  AND e.fingerprint=o.payload_hash AND c.fingerprint=e.fingerprint AND e.fence<=w.fence
+  AND e.mutation_transaction_id=c.mutation_transaction_id
+  AND EXISTS(SELECT 1 FROM platform.runtime_inbox_receipt i WHERE i.outbox_message_id=o.id
+   AND i.effect_receipt_id=e.id AND i.consumer_owner=e.owner_module_id AND i.handler_name=e.operation
+   AND i.payload_hash=o.payload_hash AND i.mutation_transaction_id=e.mutation_transaction_id),false);
+END $wa$;
+
+CREATE FUNCTION platform_private.worker_track_allowed(model_name text, row_value jsonb, verb text) RETURNS boolean
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path=pg_catalog AS $wa$
+DECLARE g platform.database_action_grant; w record; o record; p record; s record;
+ u uuid; customer uuid; expected_effect text; scope text; row_id uuid; expected_command text;
+BEGIN
+ g:=platform_private.bound_grant(true);
+ IF g.id IS NULL OR session_user::text<>'wa_worker' OR g.service_principal IS NULL OR verb NOT IN ('SELECT','INSERT','UPDATE') THEN RETURN false; END IF;
+ -- Claims inspect/update only their exact queued job. They cannot create effects.
+ IF model_name='RuntimeWorkItem' AND g.action IN ('runtime.claim_work.v1','runtime.renew_work.v1') THEN
+  RETURN platform_private.context_allows('platform_integration_owner',g.action,'RuntimeWorkItem',row_value->>'id',
+   CASE WHEN g.action='runtime.claim_work.v1' THEN 'work.claim' ELSE 'work.renew' END);
+ END IF;
+ IF NOT platform_private.worker_lease_valid(g.target_id::uuid,NULL,true) THEN RETURN false; END IF;
+ SELECT j.id,j.outbox_message_id,j.semantic_work_key,j.effect_receipt_id,j.fence INTO w FROM platform.runtime_work_item j WHERE j.id=g.target_id::uuid;
+ SELECT m.id,m.command_receipt_id,m.kind,m.name,m.producer_owner,m.aggregate_kind,m.aggregate_id,m.source_revision,m.source_generation,m.payload,m.payload_hash INTO o
+  FROM platform.runtime_outbox_message m WHERE m.id=w.outbox_message_id;
+ IF o.id IS NULL OR o.kind<>'command' OR o.name<>'assignDefaultFreeTrack.v1'
+  OR o.producer_owner<>'customer_buyer_profile' OR o.aggregate_kind<>'CustomerProfile'
+  OR o.source_revision<>0 OR o.payload->>'sourceCreationReceipt'<>o.command_receipt_id::text
+ THEN RETURN false; END IF;
+ u:=(o.payload->>'userId')::uuid;customer:=o.aggregate_id::uuid;
+ IF NOT platform_private.customer_current_for_track(customer,u,o.source_revision,o.source_generation,o.command_receipt_id) THEN RETURN false; END IF;
+ scope:='CustomerProfile:'||customer::text;
+ expected_effect:='customer_buyer_profile/'||customer::text||'/default-free-enrollment/v1';
+ IF w.semantic_work_key<>expected_effect THEN RETURN false; END IF;
+ IF model_name='RuntimeWorkItem' THEN
+  RETURN COALESCE(row_value->>'id'=w.id::text AND verb IN ('SELECT','UPDATE'),false);
+ ELSIF model_name='RuntimeOutboxMessage' THEN RETURN verb='SELECT' AND row_value->>'id'=o.id::text;
+ ELSIF model_name='RuntimeAttempt' THEN
+  RETURN COALESCE(row_value->>'work_item_id'=w.id::text AND (row_value->>'fence')::bigint=w.fence
+   AND row_value->>'worker_id'=g.service_principal AND verb IN ('SELECT','INSERT'),false);
+ ELSIF model_name='RuntimeCommandReceipt' THEN
+  RETURN COALESCE(('RuntimeWorkItem/'||w.id::text||'/command/'||(row_value->>'id'))=ANY(g.allowed_fields)
+   AND row_value->>'owner_module_id'='track_subscription_entitlement' AND row_value->>'operation'='assignDefaultFreeTrack.v1'
+   AND row_value->>'subject_scope'=scope AND row_value->>'semantic_key'=expected_effect AND row_value->>'fingerprint'=o.payload_hash::text,false);
+ ELSIF model_name='RuntimeEffectReceipt' THEN
+  RETURN COALESCE(('RuntimeWorkItem/'||w.id::text||'/effect/'||(row_value->>'id'))=ANY(g.allowed_fields)
+   AND ('RuntimeWorkItem/'||w.id::text||'/command/'||(row_value->>'command_receipt_id'))=ANY(g.allowed_fields)
+   AND row_value->>'owner_module_id'='track_subscription_entitlement' AND row_value->>'operation'='assignDefaultFreeTrack.v1'
+   AND row_value->>'subject_scope'=scope AND row_value->>'semantic_effect_key'=expected_effect
+   AND row_value->>'fingerprint'=o.payload_hash::text
+   AND ((row_value->>'fence')::bigint=w.fence OR
+    (verb='SELECT' AND platform_private.worker_effect_matches(w.id,(row_value->>'id')::uuid,true))),false);
+ ELSIF model_name='RuntimeInboxReceipt' THEN
+  RETURN COALESCE(row_value->>'outbox_message_id'=o.id::text AND row_value->>'consumer_owner'='track_subscription_entitlement'
+   AND row_value->>'handler_name'='assignDefaultFreeTrack.v1' AND row_value->>'payload_hash'=o.payload_hash::text
+   AND ('RuntimeWorkItem/'||w.id::text||'/effect/'||(row_value->>'effect_receipt_id'))=ANY(g.allowed_fields),false);
+ ELSIF model_name='OwnerMutationEvidence' THEN
+  RETURN COALESCE(row_value->>'owner_module_id'='track_subscription_entitlement'
+   AND row_value->>'aggregate_kind' IN ('TrackSubscription','TrackEntitlementGrant','TrackBaseSelection','TrackSubscriptionEvent','TrackEnrollmentReceipt')
+   AND row_value->'evidence_body'->'committed'->>'userId'=u::text,false);
+ END IF;
+ IF NOT model_name LIKE 'Track%' THEN RETURN false; END IF;
+ -- Only a current, explicitly approved catalog revision may create Free access.
+ IF model_name='TrackPlan' THEN row_id:=(row_value->>'id')::uuid;
+ ELSE
+  SELECT b.plan_id INTO row_id FROM app.track_base_selection a JOIN app.track_subscriptions b ON b.id=a.subscription_id
+   WHERE a.user_id=u AND a.track='customer' AND a.customer_profile_id=customer;
+  IF verb='INSERT' AND model_name='TrackSubscription' THEN row_id:=(row_value->>'plan_id')::uuid;
+  ELSIF model_name='TrackPlanEntitlement' THEN row_id:=(row_value->>'plan_id')::uuid;
+  ELSIF model_name='TrackEntitlementGrant' AND verb='INSERT' THEN row_id:=(row_value->>'source_plan_id')::uuid;
+  END IF;
+ END IF;
+ IF row_id IS NOT NULL THEN
+  PERFORM pg_advisory_xact_lock_shared(hashtextextended('source:TrackPlan:'||row_id::text,0));
+  SELECT x.id,x.track,x.status,x.billing_model,x.version,x.content_hash,x.revision INTO p FROM app.track_plans x WHERE x.id=row_id;
+ END IF;
+ IF model_name IN ('TrackPlan','TrackPlanEntitlement','TrackEntitlementDefinition') THEN
+  IF verb<>'SELECT' THEN RETURN false; END IF;
+  IF model_name='TrackEntitlementDefinition' THEN
+   RETURN EXISTS(SELECT 1 FROM app.track_plan_entitlements b JOIN app.track_plans q ON q.id=b.plan_id
+    WHERE b.entitlement_id=(row_value->>'id')::uuid AND q.track='customer'
+     AND 'TrackPlan/'||q.id::text||'/revision/'||q.revision::text=ANY(g.allowed_fields)
+     AND 'TrackPlan/'||q.id::text||'/version/'||q.version=ANY(g.allowed_fields)
+     AND 'TrackPlan/'||q.id::text||'/contentHash/'||q.content_hash::text=ANY(g.allowed_fields)
+     AND q.status='active' AND q.billing_model='free');
+  END IF;
+  RETURN COALESCE(p.id IS NOT NULL AND p.track='customer'
+   AND 'TrackPlan/'||p.id::text||'/revision/'||p.revision::text=ANY(g.allowed_fields)
+   AND 'TrackPlan/'||p.id::text||'/version/'||p.version=ANY(g.allowed_fields)
+   AND 'TrackPlan/'||p.id::text||'/contentHash/'||p.content_hash::text=ANY(g.allowed_fields),false);
+ END IF;
+ IF model_name='TrackEnrollmentReceipt' THEN
+  RETURN COALESCE(row_value->>'user_id'=u::text AND row_value->>'profile_id'=customer::text
+   AND row_value->>'source_owner'='customer_buyer_profile' AND row_value->>'track'='customer'
+   AND row_value->>'source_creation_revision'=o.source_revision::text AND row_value->>'semantic_key'=expected_effect
+   AND ('RuntimeWorkItem/'||w.id::text||'/effect/'||(row_value->>'effect_receipt_id'))=ANY(g.allowed_fields),false);
+ END IF;
+ IF row_value->>'user_id' IS DISTINCT FROM u::text THEN RETURN false; END IF;
+ IF model_name='TrackSubscriptionEvent' THEN
+  RETURN verb='INSERT' AND row_value->>'from_status' IS NULL AND row_value->>'provider'='none';
+ END IF;
+ IF row_value->>'track' IS DISTINCT FROM 'customer' OR row_value->>'customer_profile_id' IS DISTINCT FROM customer::text
+  OR row_value->>'candidate_profile_id' IS NOT NULL OR row_value->>'professional_profile_id' IS NOT NULL THEN RETURN false; END IF;
+ IF model_name='TrackSubscription' THEN
+  IF verb='SELECT' THEN RETURN EXISTS(SELECT 1 FROM app.track_base_selection b WHERE b.user_id=u AND b.track='customer' AND b.subscription_id=(row_value->>'id')::uuid)
+    OR EXISTS(SELECT 1 FROM app.track_subscriptions a WHERE a.id=(row_value->>'id')::uuid AND a.mutation_transaction_id=pg_current_xact_id()::text); END IF;
+  IF verb<>'INSERT' OR p.id IS NULL OR p.status<>'active' OR p.billing_model<>'free' OR p.track<>'customer'
+   OR row_value->>'provider'<>'none' OR row_value->>'status'<>'active'
+   OR NOT ('TrackPlan/'||p.id::text||'/revision/'||p.revision::text=ANY(g.allowed_fields))
+   OR NOT ('TrackPlan/'||p.id::text||'/version/'||p.version=ANY(g.allowed_fields))
+   OR NOT ('TrackPlan/'||p.id::text||'/contentHash/'||p.content_hash::text=ANY(g.allowed_fields)) THEN RETURN false; END IF;
+  PERFORM pg_advisory_xact_lock(hashtextextended('track:'||u::text||':customer',0));
+  RETURN NOT EXISTS(SELECT 1 FROM app.track_base_selection b JOIN app.track_subscriptions a ON a.id=b.subscription_id
+   WHERE b.user_id=u AND b.track='customer' AND a.status IN ('active','trialing') AND a.ended_at IS NULL
+    AND (a.current_period_end IS NULL OR a.current_period_end>clock_timestamp()));
+ END IF;
+ RETURN model_name IN ('TrackBaseSelection','TrackEntitlementGrant') AND verb IN ('SELECT','INSERT','UPDATE');
+END $wa$;
+
+CREATE FUNCTION platform_private.track_atomic_valid(table_name text, n jsonb, prior_value jsonb) RETURNS boolean
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path=pg_catalog AS $wa$
+DECLARE g platform.database_action_grant; s record; old_s record; p record; sel record; e record; o record; w record;
+BEGIN
+ g:=platform_private.bound_grant(true);
+ IF g.id IS NULL OR NOT platform_private.worker_lease_valid(g.target_id::uuid,NULL,true) THEN RETURN false; END IF;
+ SELECT j.id,j.outbox_message_id,j.effect_receipt_id,j.fence INTO w FROM platform.runtime_work_item j WHERE j.id=g.target_id::uuid;
+ SELECT m.id,m.command_receipt_id,m.aggregate_id,m.source_revision,m.source_generation,m.payload_hash,m.payload INTO o FROM platform.runtime_outbox_message m WHERE m.id=w.outbox_message_id;
+ IF NOT platform_private.customer_current_for_track(o.aggregate_id::uuid,(o.payload->>'userId')::uuid,o.source_revision,o.source_generation,o.command_receipt_id) THEN RETURN false; END IF;
+ IF table_name='track_base_selection' THEN
+  SELECT a.id,a.user_id,a.plan_id,a.track,a.customer_profile_id,a.status,a.provider,a.mutation_transaction_id INTO s FROM app.track_subscriptions a WHERE a.id=(n->>'subscription_id')::uuid;
+  SELECT q.id,q.status,q.billing_model,q.revision,q.version,q.content_hash INTO p FROM app.track_plans q WHERE q.id=s.plan_id;
+  IF s.mutation_transaction_id IS DISTINCT FROM n->>'mutation_transaction_id' OR p.status<>'active' OR p.billing_model<>'free'
+   OR s.provider<>'none' OR s.status<>'active' OR s.customer_profile_id::text IS DISTINCT FROM n->>'customer_profile_id'
+   OR NOT ('TrackPlan/'||p.id::text||'/revision/'||p.revision::text=ANY(g.allowed_fields))
+   OR NOT ('TrackPlan/'||p.id::text||'/version/'||p.version=ANY(g.allowed_fields))
+   OR NOT ('TrackPlan/'||p.id::text||'/contentHash/'||p.content_hash::text=ANY(g.allowed_fields)) THEN RETURN false; END IF;
+  IF prior_value IS NOT NULL THEN
+   SELECT a.status,a.ended_at,a.current_period_end INTO old_s FROM app.track_subscriptions a WHERE a.id=(prior_value->>'subscription_id')::uuid;
+   IF old_s.status IN ('active','trialing') AND old_s.ended_at IS NULL AND (old_s.current_period_end IS NULL OR old_s.current_period_end>clock_timestamp()) THEN RETURN false; END IF;
+  END IF;
+  RETURN EXISTS(SELECT 1 FROM app.track_enrollment_receipt r WHERE r.selection_id=(n->>'id')::uuid AND r.selection_revision=(n->>'revision')::bigint
+   AND r.effect_receipt_id=w.effect_receipt_id AND r.mutation_transaction_id=n->>'mutation_transaction_id');
+ ELSIF table_name='track_subscriptions' THEN
+  RETURN EXISTS(SELECT 1 FROM app.track_base_selection b WHERE b.subscription_id=(n->>'id')::uuid AND b.mutation_transaction_id=n->>'mutation_transaction_id')
+   AND EXISTS(SELECT 1 FROM app.track_subscription_events h WHERE h.subscription_id=(n->>'id')::uuid AND h.user_id::text=n->>'user_id'
+    AND h.plan_id::text=n->>'plan_id' AND h.to_status::text=n->>'status' AND h.from_status IS NULL AND h.mutation_transaction_id=n->>'mutation_transaction_id');
+ ELSIF table_name='track_entitlement_grants' THEN
+  SELECT a.id,a.plan_id,a.mutation_transaction_id INTO s FROM app.track_subscriptions a WHERE a.id=(n->>'subscription_id')::uuid;
+  RETURN COALESCE(s.mutation_transaction_id=n->>'mutation_transaction_id' AND s.plan_id::text=n->>'source_plan_id'
+   AND EXISTS(SELECT 1 FROM app.track_plan_entitlements b JOIN app.track_entitlement_definitions d ON d.id=b.entitlement_id
+    WHERE b.plan_id=s.plan_id AND b.entitlement_id=(n->>'entitlement_id')::uuid AND d.is_active AND (d.track IS NULL OR d.track='customer')
+     AND d.value_type::text=n->>'value_type' AND b.value_type::text=n->>'value_type'
+     AND COALESCE(to_jsonb(b.boolean_value),'null'::jsonb) IS NOT DISTINCT FROM n->'boolean_value' AND COALESCE(to_jsonb(b.int_value),'null'::jsonb) IS NOT DISTINCT FROM n->'int_value'
+     AND COALESCE(to_jsonb(b.decimal_value),'null'::jsonb) IS NOT DISTINCT FROM n->'decimal_value' AND COALESCE(to_jsonb(b.string_value),'null'::jsonb) IS NOT DISTINCT FROM n->'string_value'),false);
+ ELSIF table_name='track_subscription_events' THEN
+  SELECT a.id,a.user_id,a.plan_id,a.status,a.mutation_transaction_id INTO s FROM app.track_subscriptions a WHERE a.id=(n->>'subscription_id')::uuid;
+  RETURN COALESCE(s.mutation_transaction_id=n->>'mutation_transaction_id' AND s.user_id::text=n->>'user_id' AND s.plan_id::text=n->>'plan_id'
+   AND n->>'from_status' IS NULL AND n->>'to_status'=s.status::text AND n->>'provider'='none',false);
+ ELSIF table_name='track_enrollment_receipt' THEN
+  SELECT b.id,b.user_id,b.track,b.customer_profile_id,b.revision INTO sel FROM app.track_base_selection b WHERE b.id=(n->>'selection_id')::uuid;
+  SELECT r.id,r.owner_module_id,r.operation,r.command_receipt_id,r.subject_scope,r.semantic_effect_key,r.fingerprint,r.fence,r.state,r.mutation_transaction_id INTO e
+   FROM platform.runtime_effect_receipt r WHERE r.id=(n->>'effect_receipt_id')::uuid;
+  RETURN COALESCE(n->>'track'='customer' AND n->>'source_owner'='customer_buyer_profile'
+   AND sel.user_id::text=n->>'user_id' AND sel.customer_profile_id::text=n->>'profile_id'
+   AND n->>'profile_id'=o.aggregate_id AND n->>'source_creation_revision'=o.source_revision::text
+   AND sel.revision::text=n->>'selection_revision' AND e.state='committed' AND e.fence=w.fence AND e.id=w.effect_receipt_id
+   AND e.owner_module_id='track_subscription_entitlement' AND e.operation='assignDefaultFreeTrack.v1'
+   AND e.subject_scope='CustomerProfile:'||o.aggregate_id AND e.semantic_effect_key=n->>'semantic_key'
+   AND e.fingerprint=o.payload_hash AND e.mutation_transaction_id=n->>'mutation_transaction_id'
+   AND EXISTS(SELECT 1 FROM platform.runtime_inbox_receipt i WHERE i.effect_receipt_id=e.id AND i.outbox_message_id=o.id
+    AND i.handler_name='assignDefaultFreeTrack.v1' AND i.consumer_owner='track_subscription_entitlement'
+    AND i.payload_hash=o.payload_hash AND i.mutation_transaction_id=e.mutation_transaction_id),false);
+ END IF;
+ RETURN false;
+END $wa$;
+
+CREATE POLICY "p_app_runtime_insert" ON "app"."consent_logs" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('consent_disclosure','ConsentLog',"id"::text,'INSERT',ARRAY['id','userId','type','version','acceptedAt','ipHash','userAgent','acceptanceKey','fingerprint','actionOwner','action','contextKind','contextId','contextOwner','presentationHash','contentRevisionId','presentationId']::text[],NULL::text,"mutation_transaction_id"::text));
+
+CREATE POLICY "p_app_runtime_select" ON "app"."consent_logs" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('consent_disclosure','ConsentLog',"id"::text,'SELECT',ARRAY['id','userId','type','version','acceptedAt','ipHash','userAgent','createdAt','acceptanceKey','fingerprint','actionOwner','action','contextKind','contextId','contextOwner','presentationHash','contentRevisionId','presentationId','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text));
+
+CREATE POLICY "p_app_runtime_insert" ON "app"."privacy_requests" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('privacy_data_erasure','PrivacyRequest',"id"::text,'INSERT',ARRAY['id','userId','type','status','requestedAt','verifiedAt','dueAt','completedAt','rejectionReason','adminNote','updatedAt','revision','privacyGeneration','instructionGeneration']::text[],NULL::text,"mutation_transaction_id"::text));
+
+CREATE POLICY "p_app_runtime_select" ON "app"."privacy_requests" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('privacy_data_erasure','PrivacyRequest',"id"::text,'SELECT',ARRAY['id','userId','type','status','requestedAt','verifiedAt','dueAt','completedAt','rejectionReason','adminNote','createdAt','updatedAt','revision','privacyGeneration','instructionGeneration','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
+
+CREATE POLICY "p_app_runtime_update" ON "app"."privacy_requests" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('privacy_data_erasure','PrivacyRequest',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed('privacy_data_erasure','PrivacyRequest',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
+
+CREATE POLICY "p_app_runtime_insert" ON "app"."age_gate_attempts" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('identity_access','AgeGateAttempt',"id"::text,'INSERT',ARRAY['id','userId','ipHash','deviceHash','region','result','birthYear','ageBand','blockedUntil']::text[],NULL::text,"mutation_transaction_id"::text));
+
+CREATE POLICY "p_app_runtime_select" ON "app"."age_gate_attempts" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('identity_access','AgeGateAttempt',"id"::text,'SELECT',ARRAY['id','userId','ipHash','deviceHash','region','result','birthYear','ageBand','blockedUntil','createdAt','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text));
+
+CREATE POLICY "p_app_runtime_insert" ON "app"."age_gate_blocks" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('identity_access','AgeGateBlock',"id"::text,'INSERT',ARRAY['id','ipHash','deviceHash','reason','blockedUntil']::text[],NULL::text,"mutation_transaction_id"::text));
+
+CREATE POLICY "p_app_runtime_select" ON "app"."age_gate_blocks" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('identity_access','AgeGateBlock',"id"::text,'SELECT',ARRAY['id','ipHash','deviceHash','reason','blockedUntil','createdAt','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text));
+
+CREATE POLICY "p_app_runtime_insert" ON "app"."access_audit_logs" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('audit_event_ledger','AccessAuditLog',"id"::text,'INSERT',ARRAY['id','actorUserId','targetType','targetId','action','sensitivity','accessDecision','requestId','ipHash','userAgent','previousHash','entryHash']::text[],NULL::text,"mutation_transaction_id"::text));
+
+CREATE POLICY "p_app_runtime_select" ON "app"."access_audit_logs" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('audit_event_ledger','AccessAuditLog',"id"::text,'SELECT',ARRAY['id','actorUserId','targetType','targetId','action','sensitivity','accessDecision','requestId','ipHash','userAgent','previousHash','entryHash','createdAt','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text));
+
+CREATE POLICY "p_app_runtime_insert" ON "app"."users" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('identity_access','User',"id"::text,'INSERT',ARRAY['id','email','handle','displayName','avatarUrl','bio','city','state','country','isPublic','updatedAt','privacyErasedAt','privacyErasureStatus','revision','privacyGeneration']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."consent_logs" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('consent_disclosure','ConsentLog',"id"::text,'SELECT',ARRAY['id','userId','type','version','acceptedAt','ipHash','userAgent','createdAt','acceptanceKey','fingerprint','actionOwner','action','contextKind','contextId','contextOwner','presentationHash','contentRevisionId','presentationId','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."users" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('identity_access','User',"id"::text,'SELECT',ARRAY['id','email','handle','displayName','avatarUrl','bio','city','state','country','isPublic','createdAt','updatedAt','privacyErasedAt','privacyErasureStatus','revision','privacyGeneration','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."privacy_requests" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('privacy_data_erasure','PrivacyRequest',"id"::text,'INSERT',ARRAY['id','userId','type','status','requestedAt','verifiedAt','dueAt','completedAt','rejectionReason','adminNote','updatedAt','revision','privacyGeneration','instructionGeneration']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_update" ON "app"."users" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('identity_access','User',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed('identity_access','User',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."privacy_requests" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('privacy_data_erasure','PrivacyRequest',"id"::text,'SELECT',ARRAY['id','userId','type','status','requestedAt','verifiedAt','dueAt','completedAt','rejectionReason','adminNote','createdAt','updatedAt','revision','privacyGeneration','instructionGeneration','mutationTransactionId']::text[],"revision"::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."user_roles" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('identity_access','UserRole',"user_id"::text || ':' || "role"::text,'INSERT',ARRAY['userId','role','revision']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "app"."privacy_requests" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('privacy_data_erasure','PrivacyRequest',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('privacy_data_erasure','PrivacyRequest',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."user_roles" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('identity_access','UserRole',"user_id"::text || ':' || "role"::text,'SELECT',ARRAY['userId','role','createdAt','revision','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."age_gate_attempts" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('identity_access','AgeGateAttempt',"id"::text,'INSERT',ARRAY['id','userId','ipHash','deviceHash','region','result','birthYear','ageBand','blockedUntil']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_update" ON "app"."user_roles" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('identity_access','UserRole',"user_id"::text || ':' || "role"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed('identity_access','UserRole',"user_id"::text || ':' || "role"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."age_gate_attempts" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('identity_access','AgeGateAttempt',"id"::text,'SELECT',ARRAY['id','userId','ipHash','deviceHash','region','result','birthYear','ageBand','blockedUntil','createdAt','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."professional_profiles" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('professional_eligibility','ProfessionalProfile',"id"::text,'SELECT',ARRAY['id','userId','slug','headline','bio','websiteUrl','city','state','country','status','ratingAverage','ratingCount','stripeAccountId','stripeReady','onboardingCompleteAt','defaultCurrency','createdAt','updatedAt','suspendedForModerationAt','trustScore','verifiedAt','verificationExpiresAt','revision','privacyGeneration','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "app"."age_gate_attempts" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('identity_access','AgeGateAttempt',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('identity_access','AgeGateAttempt',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."customer_profiles" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('customer_buyer_profile','CustomerProfile',"id"::text,'INSERT',ARRAY['id','userId','status','displayName','avatarMediaId','city','state','country','updatedAt','archivedAt','revision','privacyGeneration']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."age_gate_blocks" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('identity_access','AgeGateBlock',"id"::text,'INSERT',ARRAY['id','ipHash','deviceHash','reason','blockedUntil']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."customer_profiles" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('customer_buyer_profile','CustomerProfile',"id"::text,'SELECT',ARRAY['id','userId','status','displayName','avatarMediaId','city','state','country','createdAt','updatedAt','archivedAt','revision','privacyGeneration','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."age_gate_blocks" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('identity_access','AgeGateBlock',"id"::text,'SELECT',ARRAY['id','ipHash','deviceHash','reason','blockedUntil','createdAt','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_update" ON "app"."customer_profiles" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('customer_buyer_profile','CustomerProfile',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed('customer_buyer_profile','CustomerProfile',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "app"."age_gate_blocks" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('identity_access','AgeGateBlock',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('identity_access','AgeGateBlock',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."candidate_profiles" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('candidate_application_resume_privacy','CandidateProfile',"id"::text,'SELECT',ARRAY['id','userId','headline','portfolioUrl','availability','city','state','country','status','isVisible','createdAt','updatedAt','trustScore','verifiedAt','verificationExpiresAt','revision','privacyGeneration','discoveryPreferenceRevision','discoveryEnabledAt','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."access_audit_logs" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('audit_event_ledger','AccessAuditLog',"id"::text,'INSERT',ARRAY['id','actorUserId','targetType','targetId','action','sensitivity','accessDecision','requestId','ipHash','userAgent','previousHash','entryHash']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."audit_events" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('audit_event_ledger','AuditEvent',"id"::text,'INSERT',ARRAY['id','actorUserId','entityType','entityId','action','metadata']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."access_audit_logs" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('audit_event_ledger','AccessAuditLog',"id"::text,'SELECT',ARRAY['id','actorUserId','targetType','targetId','action','sensitivity','accessDecision','requestId','ipHash','userAgent','previousHash','entryHash','createdAt','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."audit_events" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('audit_event_ledger','AuditEvent',"id"::text,'SELECT',ARRAY['id','actorUserId','entityType','entityId','action','metadata','createdAt','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."users" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('identity_access','User',"id"::text,'INSERT',ARRAY['id','email','handle','displayName','avatarUrl','bio','city','state','country','isPublic','updatedAt','privacyErasedAt','privacyErasureStatus','revision','privacyGeneration']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."user_security_profiles" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('identity_access','UserSecurityProfile',"id"::text,'INSERT',ARRAY['id','userId','securityTier','phoneNumberEncrypted','phoneNumberHash','phoneVerifiedAt','phoneLastChangedAt','passkeysEnabled','smsMfaEnabled','backupPasswordConfigured','sensitiveActionMfaRequired','lastStepUpAt','lastSensitiveActionAt','lockedUntil','lockReason','updatedAt','revision','securityGeneration']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."users" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('identity_access','User',"id"::text,'SELECT',ARRAY['id','email','handle','displayName','avatarUrl','bio','city','state','country','isPublic','createdAt','updatedAt','privacyErasedAt','privacyErasureStatus','revision','privacyGeneration','mutationTransactionId']::text[],"revision"::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."user_security_profiles" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('identity_access','UserSecurityProfile',"id"::text,'SELECT',ARRAY['id','userId','securityTier','phoneNumberEncrypted','phoneNumberHash','phoneVerifiedAt','phoneLastChangedAt','passkeysEnabled','smsMfaEnabled','backupPasswordConfigured','sensitiveActionMfaRequired','lastStepUpAt','lastSensitiveActionAt','lockedUntil','lockReason','createdAt','updatedAt','revision','securityGeneration','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "app"."users" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('identity_access','User',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('identity_access','User',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_update" ON "app"."user_security_profiles" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('identity_access','UserSecurityProfile',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed('identity_access','UserSecurityProfile',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."user_roles" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('identity_access','UserRole',"user_id"::text || ':' || "role"::text,'INSERT',ARRAY['userId','role','revision']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."auth_provider_accounts" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('identity_access','AuthProviderAccount',"id"::text,'INSERT',ARRAY['id','userId','securityProfileId','providerType','providerUserId','providerAccountId','email','emailVerifiedAt','status','linkedAt','lastUsedAt','revokedAt','updatedAt','revision']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."user_roles" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('identity_access','UserRole',"user_id"::text || ':' || "role"::text,'SELECT',ARRAY['userId','role','createdAt','revision','mutationTransactionId']::text[],"revision"::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."auth_provider_accounts" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('identity_access','AuthProviderAccount',"id"::text,'SELECT',ARRAY['id','userId','securityProfileId','providerType','providerUserId','providerAccountId','email','emailVerifiedAt','status','linkedAt','lastUsedAt','revokedAt','createdAt','updatedAt','revision','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "app"."user_roles" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('identity_access','UserRole',"user_id"::text || ':' || "role"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('identity_access','UserRole',"user_id"::text || ':' || "role"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_update" ON "app"."auth_provider_accounts" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('identity_access','AuthProviderAccount',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed('identity_access','AuthProviderAccount',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."professional_profiles" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('professional_eligibility','ProfessionalProfile',"id"::text,'SELECT',ARRAY['id','userId','slug','headline','bio','websiteUrl','city','state','country','status','ratingAverage','ratingCount','stripeAccountId','stripeReady','onboardingCompleteAt','defaultCurrency','createdAt','updatedAt','suspendedForModerationAt','trustScore','verifiedAt','verificationExpiresAt','revision','privacyGeneration','mutationTransactionId']::text[],"revision"::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."track_plans" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackPlan',"id"::text,'INSERT',ARRAY['id','track','key','name','status','billingModel','monthlyPriceCents','currency','description','displayOrder','metadata','updatedAt','revision','version','contentHash']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."customer_profiles" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('customer_buyer_profile','CustomerProfile',"id"::text,'INSERT',ARRAY['id','userId','status','displayName','avatarMediaId','city','state','country','updatedAt','archivedAt','revision','privacyGeneration']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."track_plans" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackPlan',"id"::text,'SELECT',ARRAY['id','track','key','name','status','billingModel','monthlyPriceCents','currency','description','displayOrder','metadata','createdAt','updatedAt','revision','version','contentHash','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."customer_profiles" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('customer_buyer_profile','CustomerProfile',"id"::text,'SELECT',ARRAY['id','userId','status','displayName','avatarMediaId','city','state','country','createdAt','updatedAt','archivedAt','revision','privacyGeneration','mutationTransactionId']::text[],"revision"::text));
+CREATE POLICY "p_app_runtime_update" ON "app"."track_plans" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackPlan',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackPlan',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "app"."customer_profiles" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('customer_buyer_profile','CustomerProfile',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('customer_buyer_profile','CustomerProfile',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_worker_select" ON "app"."track_plans" FOR SELECT TO wa_worker USING (platform_private.row_allowed('track_subscription_entitlement','TrackPlan',"id"::text,'SELECT',ARRAY['id','track','key','status','billingModel','version','contentHash','revision']::text[],"revision"::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('TrackPlan',jsonb_build_object('id',"id",'track',"track",'key',"key",'status',"status",'billing_model',"billing_model",'revision',"revision",'version',"version",'content_hash',"content_hash"),'SELECT'));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."candidate_profiles" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('candidate_application_resume_privacy','CandidateProfile',"id"::text,'SELECT',ARRAY['id','userId','headline','portfolioUrl','availability','city','state','country','status','isVisible','createdAt','updatedAt','trustScore','verifiedAt','verificationExpiresAt','revision','privacyGeneration','discoveryPreferenceRevision','discoveryEnabledAt','mutationTransactionId']::text[],"revision"::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."track_entitlement_definitions" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementDefinition',"id"::text,'INSERT',ARRAY['id','key','label','description','valueType','track','isActive','updatedAt','revision']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."audit_events" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('audit_event_ledger','AuditEvent',"id"::text,'INSERT',ARRAY['id','actorUserId','entityType','entityId','action','metadata']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."track_entitlement_definitions" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementDefinition',"id"::text,'SELECT',ARRAY['id','key','label','description','valueType','track','isActive','createdAt','updatedAt','revision','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."audit_events" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('audit_event_ledger','AuditEvent',"id"::text,'SELECT',ARRAY['id','actorUserId','entityType','entityId','action','metadata','createdAt','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_update" ON "app"."track_entitlement_definitions" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementDefinition',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementDefinition',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."user_security_profiles" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('identity_access','UserSecurityProfile',"id"::text,'INSERT',ARRAY['id','userId','securityTier','phoneNumberEncrypted','phoneNumberHash','phoneVerifiedAt','phoneLastChangedAt','passkeysEnabled','smsMfaEnabled','backupPasswordConfigured','sensitiveActionMfaRequired','lastStepUpAt','lastSensitiveActionAt','lockedUntil','lockReason','updatedAt','revision','securityGeneration']::text[],NULL::text));
+CREATE POLICY "p_worker_select" ON "app"."track_entitlement_definitions" FOR SELECT TO wa_worker USING (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementDefinition',"id"::text,'SELECT',ARRAY['id','key','valueType','track','isActive','revision']::text[],"revision"::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('TrackEntitlementDefinition',jsonb_build_object('id',"id",'key',"key",'value_type',"value_type",'track',"track",'is_active',"is_active",'revision',"revision"),'SELECT'));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."user_security_profiles" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('identity_access','UserSecurityProfile',"id"::text,'SELECT',ARRAY['id','userId','securityTier','phoneNumberEncrypted','phoneNumberHash','phoneVerifiedAt','phoneLastChangedAt','passkeysEnabled','smsMfaEnabled','backupPasswordConfigured','sensitiveActionMfaRequired','lastStepUpAt','lastSensitiveActionAt','lockedUntil','lockReason','createdAt','updatedAt','revision','securityGeneration','mutationTransactionId']::text[],"revision"::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."track_plan_entitlements" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackPlanEntitlement',"id"::text,'INSERT',ARRAY['id','planId','entitlementId','valueType','booleanValue','intValue','decimalValue','stringValue','jsonValue','usagePeriod','updatedAt','revision']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "app"."user_security_profiles" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('identity_access','UserSecurityProfile',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('identity_access','UserSecurityProfile',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."track_plan_entitlements" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackPlanEntitlement',"id"::text,'SELECT',ARRAY['id','planId','entitlementId','valueType','booleanValue','intValue','decimalValue','stringValue','jsonValue','usagePeriod','createdAt','updatedAt','revision','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."auth_provider_accounts" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('identity_access','AuthProviderAccount',"id"::text,'INSERT',ARRAY['id','userId','securityProfileId','providerType','providerUserId','providerAccountId','email','emailVerifiedAt','status','linkedAt','lastUsedAt','revokedAt','updatedAt','revision']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_update" ON "app"."track_plan_entitlements" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackPlanEntitlement',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackPlanEntitlement',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."auth_provider_accounts" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('identity_access','AuthProviderAccount',"id"::text,'SELECT',ARRAY['id','userId','securityProfileId','providerType','providerUserId','providerAccountId','email','emailVerifiedAt','status','linkedAt','lastUsedAt','revokedAt','createdAt','updatedAt','revision','mutationTransactionId']::text[],"revision"::text));
+CREATE POLICY "p_worker_select" ON "app"."track_plan_entitlements" FOR SELECT TO wa_worker USING (platform_private.row_allowed('track_subscription_entitlement','TrackPlanEntitlement',"id"::text,'SELECT',ARRAY['id','planId','entitlementId','valueType','booleanValue','intValue','decimalValue','stringValue','usagePeriod','revision']::text[],"revision"::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('TrackPlanEntitlement',jsonb_build_object('id',"id",'plan_id',"plan_id",'entitlement_id',"entitlement_id",'value_type',"value_type",'boolean_value',"boolean_value",'int_value',"int_value",'decimal_value',"decimal_value",'string_value',"string_value",'usage_period',"usage_period",'revision',"revision"),'SELECT'));
 
-CREATE POLICY "p_app_runtime_update" ON "app"."auth_provider_accounts" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('identity_access','AuthProviderAccount',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('identity_access','AuthProviderAccount',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."track_subscriptions" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackSubscription',"id"::text,'INSERT',ARRAY['id','userId','planId','track','customerProfileId','candidateProfileId','professionalProfileId','status','provider','providerCustomerId','providerSubscriptionId','providerPriceId','currentPeriodStart','currentPeriodEnd','trialEndsAt','cancelledAt','endedAt','updatedAt','revision']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."track_plans" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackPlan',"id"::text,'INSERT',ARRAY['id','track','key','name','status','billingModel','monthlyPriceCents','currency','description','displayOrder','metadata','updatedAt','revision','version','contentHash']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."track_subscriptions" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackSubscription',"id"::text,'SELECT',ARRAY['id','userId','planId','track','customerProfileId','candidateProfileId','professionalProfileId','status','provider','providerCustomerId','providerSubscriptionId','providerPriceId','currentPeriodStart','currentPeriodEnd','trialEndsAt','cancelledAt','endedAt','createdAt','updatedAt','revision','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."track_plans" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackPlan',"id"::text,'SELECT',ARRAY['id','track','key','name','status','billingModel','monthlyPriceCents','currency','description','displayOrder','metadata','createdAt','updatedAt','revision','version','contentHash','mutationTransactionId']::text[],"revision"::text));
+CREATE POLICY "p_app_runtime_update" ON "app"."track_subscriptions" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackSubscription',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackSubscription',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "app"."track_plans" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackPlan',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackPlan',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_worker_insert" ON "app"."track_subscriptions" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackSubscription',"id"::text,'INSERT',ARRAY['id','userId','planId','track','customerProfileId','candidateProfileId','professionalProfileId','status','provider']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('TrackSubscription',jsonb_build_object('id',"id",'user_id',"user_id",'plan_id',"plan_id",'track',"track",'customer_profile_id',"customer_profile_id",'candidate_profile_id',"candidate_profile_id",'professional_profile_id',"professional_profile_id",'status',"status",'provider',"provider",'current_period_start',"current_period_start",'current_period_end',"current_period_end",'ended_at',"ended_at",'revision',"revision"),'INSERT'));
 
-CREATE POLICY "p_worker_select" ON "app"."track_plans" FOR SELECT TO wa_worker USING (platform_private.row_allowed('track_subscription_entitlement','TrackPlan',"id"::text,'SELECT',ARRAY['id','track','key','status','billingModel','version','contentHash','revision']::text[],"revision"::text) AND platform_private.worker_track_allowed('TrackPlan',jsonb_build_object('id',"id",'track',"track",'key',"key",'status',"status",'billing_model',"billing_model",'version',"version",'content_hash',"content_hash",'revision',"revision"),'SELECT'));
+CREATE POLICY "p_worker_select" ON "app"."track_subscriptions" FOR SELECT TO wa_worker USING (platform_private.row_allowed('track_subscription_entitlement','TrackSubscription',"id"::text,'SELECT',ARRAY['id','userId','planId','track','customerProfileId','candidateProfileId','professionalProfileId','status','provider','currentPeriodStart','currentPeriodEnd','endedAt','revision']::text[],"revision"::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('TrackSubscription',jsonb_build_object('id',"id",'user_id',"user_id",'plan_id',"plan_id",'track',"track",'customer_profile_id',"customer_profile_id",'candidate_profile_id',"candidate_profile_id",'professional_profile_id',"professional_profile_id",'status',"status",'provider',"provider",'current_period_start',"current_period_start",'current_period_end',"current_period_end",'ended_at',"ended_at",'revision',"revision"),'SELECT'));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."track_entitlement_definitions" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementDefinition',"id"::text,'INSERT',ARRAY['id','key','label','description','valueType','track','isActive','updatedAt','revision']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."track_entitlement_grants" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementGrant',"id"::text,'INSERT',ARRAY['id','userId','subscriptionId','entitlementId','track','customerProfileId','candidateProfileId','professionalProfileId','status','valueType','booleanValue','intValue','decimalValue','stringValue','jsonValue','startsAt','expiresAt','revokedAt','revokeReason','sourcePlanId','sourceEventId','updatedAt','revision']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."track_entitlement_definitions" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementDefinition',"id"::text,'SELECT',ARRAY['id','key','label','description','valueType','track','isActive','createdAt','updatedAt','revision','mutationTransactionId']::text[],"revision"::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."track_entitlement_grants" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementGrant',"id"::text,'SELECT',ARRAY['id','userId','subscriptionId','entitlementId','track','customerProfileId','candidateProfileId','professionalProfileId','status','valueType','booleanValue','intValue','decimalValue','stringValue','jsonValue','startsAt','expiresAt','revokedAt','revokeReason','sourcePlanId','sourceEventId','createdAt','updatedAt','revision','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "app"."track_entitlement_definitions" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementDefinition',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementDefinition',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_update" ON "app"."track_entitlement_grants" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementGrant',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementGrant',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_select" ON "app"."track_entitlement_definitions" FOR SELECT TO wa_worker USING (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementDefinition',"id"::text,'SELECT',ARRAY['id','key','valueType','track','isActive','revision']::text[],"revision"::text) AND platform_private.worker_track_allowed('TrackEntitlementDefinition',jsonb_build_object('id',"id",'key',"key",'value_type',"value_type",'track',"track",'is_active',"is_active",'revision',"revision"),'SELECT'));
+CREATE POLICY "p_worker_insert" ON "app"."track_entitlement_grants" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementGrant',"id"::text,'INSERT',ARRAY['id','userId','subscriptionId','entitlementId','track','customerProfileId','candidateProfileId','professionalProfileId','status','valueType','booleanValue','intValue','decimalValue','stringValue','startsAt','sourcePlanId','sourceEventId']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('TrackEntitlementGrant',jsonb_build_object('id',"id",'user_id',"user_id",'subscription_id',"subscription_id",'entitlement_id',"entitlement_id",'track',"track",'customer_profile_id',"customer_profile_id",'candidate_profile_id',"candidate_profile_id",'professional_profile_id',"professional_profile_id",'status',"status",'value_type',"value_type",'boolean_value',"boolean_value",'int_value',"int_value",'decimal_value',"decimal_value",'string_value',"string_value",'starts_at',"starts_at",'expires_at',"expires_at",'revoked_at',"revoked_at",'source_plan_id',"source_plan_id",'source_event_id',"source_event_id",'revision',"revision"),'INSERT'));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."track_plan_entitlements" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackPlanEntitlement',"id"::text,'INSERT',ARRAY['id','planId','entitlementId','valueType','booleanValue','intValue','decimalValue','stringValue','jsonValue','usagePeriod','updatedAt','revision']::text[],NULL::text));
+CREATE POLICY "p_worker_select" ON "app"."track_entitlement_grants" FOR SELECT TO wa_worker USING (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementGrant',"id"::text,'SELECT',ARRAY['id','userId','subscriptionId','entitlementId','track','customerProfileId','candidateProfileId','professionalProfileId','status','valueType','booleanValue','intValue','decimalValue','stringValue','startsAt','expiresAt','revokedAt','sourcePlanId','sourceEventId','revision']::text[],"revision"::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('TrackEntitlementGrant',jsonb_build_object('id',"id",'user_id',"user_id",'subscription_id',"subscription_id",'entitlement_id',"entitlement_id",'track',"track",'customer_profile_id',"customer_profile_id",'candidate_profile_id',"candidate_profile_id",'professional_profile_id',"professional_profile_id",'status',"status",'value_type',"value_type",'boolean_value',"boolean_value",'int_value',"int_value",'decimal_value',"decimal_value",'string_value',"string_value",'starts_at',"starts_at",'expires_at',"expires_at",'revoked_at',"revoked_at",'source_plan_id',"source_plan_id",'source_event_id',"source_event_id",'revision',"revision"),'SELECT'));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."track_plan_entitlements" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackPlanEntitlement',"id"::text,'SELECT',ARRAY['id','planId','entitlementId','valueType','booleanValue','intValue','decimalValue','stringValue','jsonValue','usagePeriod','createdAt','updatedAt','revision','mutationTransactionId']::text[],"revision"::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."track_usage_events" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackUsageEvent',"id"::text,'INSERT',ARRAY['id','userId','subscriptionId','entitlementGrantId','entitlementId','track','type','customerProfileId','candidateProfileId','professionalProfileId','targetType','targetId','quantity','occurredAt','metadata','semanticEffectKey','sourceRevision','sourceOwner','sourceId','acceptedAt','periodStart','periodEnd','effectReceiptId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "app"."track_plan_entitlements" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackPlanEntitlement',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackPlanEntitlement',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."track_usage_events" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackUsageEvent',"id"::text,'SELECT',ARRAY['id','userId','subscriptionId','entitlementGrantId','entitlementId','track','type','customerProfileId','candidateProfileId','professionalProfileId','targetType','targetId','quantity','occurredAt','metadata','semanticEffectKey','sourceRevision','sourceOwner','sourceId','acceptedAt','periodStart','periodEnd','effectReceiptId','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_select" ON "app"."track_plan_entitlements" FOR SELECT TO wa_worker USING (platform_private.row_allowed('track_subscription_entitlement','TrackPlanEntitlement',"id"::text,'SELECT',ARRAY['id','planId','entitlementId','valueType','booleanValue','intValue','decimalValue','stringValue','usagePeriod','revision']::text[],"revision"::text) AND platform_private.worker_track_allowed('TrackPlanEntitlement',jsonb_build_object('id',"id",'plan_id',"plan_id",'entitlement_id',"entitlement_id",'value_type',"value_type",'boolean_value',"boolean_value",'int_value',"int_value",'decimal_value',"decimal_value",'string_value',"string_value",'usage_period',"usage_period",'revision',"revision"),'SELECT'));
+CREATE POLICY "p_app_runtime_insert" ON "app"."track_usage_counters" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackUsageCounter',"id"::text,'INSERT',ARRAY['id','userId','subscriptionId','entitlementGrantId','entitlementId','track','period','customerProfileId','candidateProfileId','professionalProfileId','periodStart','periodEnd','usedQuantity','limitQuantity','updatedAt','revision','sourceRevision']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."track_subscriptions" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackSubscription',"id"::text,'INSERT',ARRAY['id','userId','planId','track','customerProfileId','candidateProfileId','professionalProfileId','status','provider','providerCustomerId','providerSubscriptionId','providerPriceId','currentPeriodStart','currentPeriodEnd','trialEndsAt','cancelledAt','endedAt','updatedAt','revision']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."track_usage_counters" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackUsageCounter',"id"::text,'SELECT',ARRAY['id','userId','subscriptionId','entitlementGrantId','entitlementId','track','period','customerProfileId','candidateProfileId','professionalProfileId','periodStart','periodEnd','usedQuantity','limitQuantity','updatedAt','createdAt','revision','sourceRevision','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."track_subscriptions" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackSubscription',"id"::text,'SELECT',ARRAY['id','userId','planId','track','customerProfileId','candidateProfileId','professionalProfileId','status','provider','providerCustomerId','providerSubscriptionId','providerPriceId','currentPeriodStart','currentPeriodEnd','trialEndsAt','cancelledAt','endedAt','createdAt','updatedAt','revision','mutationTransactionId']::text[],"revision"::text));
+CREATE POLICY "p_app_runtime_update" ON "app"."track_usage_counters" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackUsageCounter',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackUsageCounter',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "app"."track_subscriptions" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackSubscription',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackSubscription',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."track_subscription_events" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackSubscriptionEvent',"id"::text,'INSERT',ARRAY['id','subscriptionId','planId','userId','name','fromStatus','toStatus','provider','providerEventId','metadata']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_insert" ON "app"."track_subscriptions" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackSubscription',"id"::text,'INSERT',ARRAY['id','userId','planId','track','customerProfileId','candidateProfileId','professionalProfileId','status','provider']::text[],NULL::text) AND platform_private.worker_track_allowed('TrackSubscription',jsonb_build_object('id',"id",'user_id',"user_id",'plan_id',"plan_id",'track',"track",'customer_profile_id',"customer_profile_id",'candidate_profile_id',"candidate_profile_id",'professional_profile_id',"professional_profile_id",'status',"status",'provider',"provider"),'INSERT'));
+CREATE POLICY "p_app_runtime_select" ON "app"."track_subscription_events" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackSubscriptionEvent',"id"::text,'SELECT',ARRAY['id','subscriptionId','planId','userId','name','fromStatus','toStatus','provider','providerEventId','metadata','createdAt','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_select" ON "app"."track_subscriptions" FOR SELECT TO wa_worker USING (platform_private.row_allowed('track_subscription_entitlement','TrackSubscription',"id"::text,'SELECT',ARRAY['id','userId','planId','track','customerProfileId','candidateProfileId','professionalProfileId','status','provider','currentPeriodStart','currentPeriodEnd','endedAt','revision']::text[],"revision"::text) AND platform_private.worker_track_allowed('TrackSubscription',jsonb_build_object('id',"id",'user_id',"user_id",'plan_id',"plan_id",'track',"track",'customer_profile_id',"customer_profile_id",'candidate_profile_id',"candidate_profile_id",'professional_profile_id',"professional_profile_id",'status',"status",'provider',"provider",'current_period_start',"current_period_start",'current_period_end',"current_period_end",'ended_at',"ended_at",'revision',"revision"),'SELECT'));
+CREATE POLICY "p_worker_insert" ON "app"."track_subscription_events" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackSubscriptionEvent',"id"::text,'INSERT',ARRAY['id','subscriptionId','planId','userId','name','fromStatus','toStatus','provider']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('TrackSubscriptionEvent',jsonb_build_object('id',"id",'subscription_id',"subscription_id",'plan_id',"plan_id",'user_id',"user_id",'name',"name",'from_status',"from_status",'to_status',"to_status",'provider',"provider"),'INSERT'));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."track_entitlement_grants" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementGrant',"id"::text,'INSERT',ARRAY['id','userId','subscriptionId','entitlementId','track','customerProfileId','candidateProfileId','professionalProfileId','status','valueType','booleanValue','intValue','decimalValue','stringValue','jsonValue','startsAt','expiresAt','revokedAt','revokeReason','sourcePlanId','sourceEventId','updatedAt','revision']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."consent_content_revision" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('consent_disclosure','ConsentContentRevision',"id"::text,'INSERT',ARRAY['id','type','version','locale','jurisdictionScope','contentText','contentHash','reviewState','legalApprovalRef','effectiveFrom','effectiveUntil']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."track_entitlement_grants" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementGrant',"id"::text,'SELECT',ARRAY['id','userId','subscriptionId','entitlementId','track','customerProfileId','candidateProfileId','professionalProfileId','status','valueType','booleanValue','intValue','decimalValue','stringValue','jsonValue','startsAt','expiresAt','revokedAt','revokeReason','sourcePlanId','sourceEventId','createdAt','updatedAt','revision','mutationTransactionId']::text[],"revision"::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."consent_content_revision" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('consent_disclosure','ConsentContentRevision',"id"::text,'SELECT',ARRAY['id','type','version','locale','jurisdictionScope','contentText','contentHash','reviewState','legalApprovalRef','effectiveFrom','effectiveUntil','createdAt','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "app"."track_entitlement_grants" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementGrant',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementGrant',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."consent_presentation" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('consent_disclosure','ConsentPresentation',"id"::text,'INSERT',ARRAY['id','contentRevisionId','userId','actionOwner','action','renderVersion','renderedText','renderedHash','contextOwner','contextKind','contextId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_insert" ON "app"."track_entitlement_grants" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementGrant',"id"::text,'INSERT',ARRAY['id','userId','subscriptionId','entitlementId','track','customerProfileId','candidateProfileId','professionalProfileId','status','valueType','booleanValue','intValue','decimalValue','stringValue','startsAt','sourcePlanId','sourceEventId']::text[],NULL::text) AND platform_private.worker_track_allowed('TrackEntitlementGrant',jsonb_build_object('id',"id",'user_id',"user_id",'subscription_id',"subscription_id",'entitlement_id',"entitlement_id",'track',"track",'customer_profile_id',"customer_profile_id",'candidate_profile_id',"candidate_profile_id",'professional_profile_id',"professional_profile_id",'status',"status",'value_type',"value_type",'boolean_value',"boolean_value",'int_value',"int_value",'decimal_value',"decimal_value",'string_value',"string_value",'starts_at',"starts_at",'source_plan_id',"source_plan_id",'source_event_id',"source_event_id"),'INSERT'));
+CREATE POLICY "p_app_runtime_select" ON "app"."consent_presentation" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('consent_disclosure','ConsentPresentation',"id"::text,'SELECT',ARRAY['id','contentRevisionId','userId','actionOwner','action','renderVersion','renderedText','renderedHash','contextOwner','contextKind','contextId','createdAt','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_select" ON "app"."track_entitlement_grants" FOR SELECT TO wa_worker USING (platform_private.row_allowed('track_subscription_entitlement','TrackEntitlementGrant',"id"::text,'SELECT',ARRAY['id','userId','subscriptionId','entitlementId','track','customerProfileId','candidateProfileId','professionalProfileId','status','valueType','booleanValue','intValue','decimalValue','stringValue','startsAt','expiresAt','revokedAt','sourcePlanId','sourceEventId','revision']::text[],"revision"::text) AND platform_private.worker_track_allowed('TrackEntitlementGrant',jsonb_build_object('id',"id",'user_id',"user_id",'subscription_id',"subscription_id",'entitlement_id',"entitlement_id",'track',"track",'customer_profile_id',"customer_profile_id",'candidate_profile_id',"candidate_profile_id",'professional_profile_id',"professional_profile_id",'status',"status",'value_type',"value_type",'boolean_value',"boolean_value",'int_value',"int_value",'decimal_value',"decimal_value",'string_value',"string_value",'starts_at',"starts_at",'expires_at',"expires_at",'revoked_at',"revoked_at",'source_plan_id',"source_plan_id",'source_event_id',"source_event_id",'revision',"revision"),'SELECT'));
+CREATE POLICY "p_app_runtime_insert" ON "app"."consent_disposition" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('consent_disclosure','ConsentDisposition',"id"::text,'INSERT',ARRAY['id','proofId','userId','presentationId','kind','semanticKey','fingerprint']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."track_usage_events" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackUsageEvent',"id"::text,'INSERT',ARRAY['id','userId','subscriptionId','entitlementGrantId','entitlementId','track','type','customerProfileId','candidateProfileId','professionalProfileId','targetType','targetId','quantity','occurredAt','metadata','semanticEffectKey','sourceRevision','sourceOwner','sourceId','acceptedAt','periodStart','periodEnd','effectReceiptId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."consent_disposition" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('consent_disclosure','ConsentDisposition',"id"::text,'SELECT',ARRAY['id','proofId','userId','presentationId','kind','semanticKey','fingerprint','createdAt','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."track_usage_events" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackUsageEvent',"id"::text,'SELECT',ARRAY['id','userId','subscriptionId','entitlementGrantId','entitlementId','track','type','customerProfileId','candidateProfileId','professionalProfileId','targetType','targetId','quantity','occurredAt','metadata','semanticEffectKey','sourceRevision','sourceOwner','sourceId','acceptedAt','periodStart','periodEnd','effectReceiptId','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "platform"."runtime_command_receipt" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeCommandReceipt',"id"::text,'INSERT',ARRAY['id','ownerModuleId','operation','subjectScope','semanticKey','fingerprint','state','sourceRevision','resultSchemaId','resultSchemaVersion','resultDigest','resultBody']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."track_usage_counters" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackUsageCounter',"id"::text,'INSERT',ARRAY['id','userId','subscriptionId','entitlementGrantId','entitlementId','track','period','customerProfileId','candidateProfileId','professionalProfileId','periodStart','periodEnd','usedQuantity','limitQuantity','updatedAt','revision','sourceRevision']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "platform"."runtime_command_receipt" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed("owner_module_id",'RuntimeCommandReceipt',"id"::text,'SELECT',ARRAY['id','ownerModuleId','operation','subjectScope','semanticKey','fingerprint','state','sourceRevision','resultSchemaId','resultSchemaVersion','resultDigest','resultBody','createdAt','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."track_usage_counters" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackUsageCounter',"id"::text,'SELECT',ARRAY['id','userId','subscriptionId','entitlementGrantId','entitlementId','track','period','customerProfileId','candidateProfileId','professionalProfileId','periodStart','periodEnd','usedQuantity','limitQuantity','updatedAt','createdAt','revision','sourceRevision','mutationTransactionId']::text[],"revision"::text));
+CREATE POLICY "p_app_runtime_update" ON "platform"."runtime_command_receipt" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed("owner_module_id",'RuntimeCommandReceipt',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeCommandReceipt',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "app"."track_usage_counters" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackUsageCounter',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackUsageCounter',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_worker_insert" ON "platform"."runtime_command_receipt" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeCommandReceipt',"id"::text,'INSERT',ARRAY['id','ownerModuleId','operation','subjectScope','semanticKey','fingerprint','state','sourceRevision','resultSchemaId','resultSchemaVersion','resultDigest','resultBody']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeCommandReceipt',jsonb_build_object('id',"id",'owner_module_id',"owner_module_id",'operation',"operation",'subject_scope',"subject_scope",'semantic_key',"semantic_key",'fingerprint',"fingerprint",'state',"state",'source_revision',"source_revision",'result_schema_id',"result_schema_id",'result_schema_version',"result_schema_version",'result_digest',"result_digest",'result_body',"result_body",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'INSERT'));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."track_subscription_events" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackSubscriptionEvent',"id"::text,'INSERT',ARRAY['id','subscriptionId','planId','userId','name','fromStatus','toStatus','provider','providerEventId','metadata']::text[],NULL::text));
+CREATE POLICY "p_worker_select" ON "platform"."runtime_command_receipt" FOR SELECT TO wa_worker USING (platform_private.row_allowed("owner_module_id",'RuntimeCommandReceipt',"id"::text,'SELECT',ARRAY['id','ownerModuleId','operation','subjectScope','semanticKey','fingerprint','state','sourceRevision','resultSchemaId','resultSchemaVersion','resultDigest','resultBody','createdAt','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeCommandReceipt',jsonb_build_object('id',"id",'owner_module_id',"owner_module_id",'operation',"operation",'subject_scope',"subject_scope",'semantic_key',"semantic_key",'fingerprint',"fingerprint",'state',"state",'source_revision',"source_revision",'result_schema_id',"result_schema_id",'result_schema_version',"result_schema_version",'result_digest',"result_digest",'result_body',"result_body",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'SELECT'));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."track_subscription_events" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackSubscriptionEvent',"id"::text,'SELECT',ARRAY['id','subscriptionId','planId','userId','name','fromStatus','toStatus','provider','providerEventId','metadata','createdAt','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_worker_update" ON "platform"."runtime_command_receipt" FOR UPDATE TO wa_worker USING (platform_private.row_allowed("owner_module_id",'RuntimeCommandReceipt',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeCommandReceipt',jsonb_build_object('id',"id",'owner_module_id',"owner_module_id",'operation',"operation",'subject_scope',"subject_scope",'semantic_key',"semantic_key",'fingerprint',"fingerprint",'state',"state",'source_revision',"source_revision",'result_schema_id',"result_schema_id",'result_schema_version',"result_schema_version",'result_digest',"result_digest",'result_body',"result_body",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'UPDATE')) WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeCommandReceipt',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeCommandReceipt',jsonb_build_object('id',"id",'owner_module_id',"owner_module_id",'operation',"operation",'subject_scope',"subject_scope",'semantic_key',"semantic_key",'fingerprint',"fingerprint",'state',"state",'source_revision',"source_revision",'result_schema_id',"result_schema_id",'result_schema_version',"result_schema_version",'result_digest',"result_digest",'result_body',"result_body",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'UPDATE'));
 
-CREATE POLICY "p_worker_insert" ON "app"."track_subscription_events" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackSubscriptionEvent',"id"::text,'INSERT',ARRAY['id','subscriptionId','planId','userId','name','fromStatus','toStatus','provider']::text[],NULL::text) AND platform_private.worker_track_allowed('TrackSubscriptionEvent',jsonb_build_object('id',"id",'subscription_id',"subscription_id",'plan_id',"plan_id",'user_id',"user_id",'name',"name",'from_status',"from_status",'to_status',"to_status",'provider',"provider"),'INSERT'));
+CREATE POLICY "p_app_runtime_insert" ON "platform"."runtime_outbox_message" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed("producer_owner",'RuntimeOutboxMessage',"id"::text,'INSERT',ARRAY['id','commandReceiptId','kind','producerOwner','aggregateKind','aggregateId','sourceRevision','sourceGeneration','ordinal','name','schemaVersion','payloadSchemaId','payloadHash','payload','correlationId','causationId','correctionOfId','occurredAt','effectiveAt']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."consent_content_revision" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('consent_disclosure','ConsentContentRevision',"id"::text,'INSERT',ARRAY['id','type','version','locale','jurisdictionScope','contentText','contentHash','reviewState','legalApprovalRef','effectiveFrom','effectiveUntil']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "platform"."runtime_outbox_message" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed("producer_owner",'RuntimeOutboxMessage',"id"::text,'SELECT',ARRAY['id','commandReceiptId','kind','producerOwner','aggregateKind','aggregateId','sourceRevision','sourceGeneration','ordinal','name','schemaVersion','payloadSchemaId','payloadHash','payload','correlationId','causationId','correctionOfId','occurredAt','effectiveAt','createdAt','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."consent_content_revision" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('consent_disclosure','ConsentContentRevision',"id"::text,'SELECT',ARRAY['id','type','version','locale','jurisdictionScope','contentText','contentHash','reviewState','legalApprovalRef','effectiveFrom','effectiveUntil','createdAt','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_worker_insert" ON "platform"."runtime_outbox_message" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed("producer_owner",'RuntimeOutboxMessage',"id"::text,'INSERT',ARRAY['id','commandReceiptId','kind','producerOwner','aggregateKind','aggregateId','sourceRevision','sourceGeneration','ordinal','name','schemaVersion','payloadSchemaId','payloadHash','payload','correlationId','causationId','correctionOfId','occurredAt','effectiveAt']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeOutboxMessage',jsonb_build_object('id',"id",'command_receipt_id',"command_receipt_id",'kind',"kind",'producer_owner',"producer_owner",'aggregate_kind',"aggregate_kind",'aggregate_id',"aggregate_id",'source_revision',"source_revision",'source_generation',"source_generation",'ordinal',"ordinal",'name',"name",'schema_version',"schema_version",'payload_schema_id',"payload_schema_id",'payload_hash',"payload_hash",'payload',"payload",'correlation_id',"correlation_id",'causation_id',"causation_id",'correction_of_id',"correction_of_id",'occurred_at',"occurred_at",'effective_at',"effective_at",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'INSERT'));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."consent_presentation" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('consent_disclosure','ConsentPresentation',"id"::text,'INSERT',ARRAY['id','contentRevisionId','userId','actionOwner','action','renderVersion','renderedText','renderedHash','contextOwner','contextKind','contextId']::text[],NULL::text));
+CREATE POLICY "p_worker_select" ON "platform"."runtime_outbox_message" FOR SELECT TO wa_worker USING (platform_private.row_allowed("producer_owner",'RuntimeOutboxMessage',"id"::text,'SELECT',ARRAY['id','commandReceiptId','kind','producerOwner','aggregateKind','aggregateId','sourceRevision','sourceGeneration','ordinal','name','schemaVersion','payloadSchemaId','payloadHash','payload','correlationId','causationId','correctionOfId','occurredAt','effectiveAt','createdAt','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeOutboxMessage',jsonb_build_object('id',"id",'command_receipt_id',"command_receipt_id",'kind',"kind",'producer_owner',"producer_owner",'aggregate_kind',"aggregate_kind",'aggregate_id',"aggregate_id",'source_revision',"source_revision",'source_generation',"source_generation",'ordinal',"ordinal",'name',"name",'schema_version',"schema_version",'payload_schema_id',"payload_schema_id",'payload_hash',"payload_hash",'payload',"payload",'correlation_id',"correlation_id",'causation_id',"causation_id",'correction_of_id',"correction_of_id",'occurred_at',"occurred_at",'effective_at',"effective_at",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'SELECT'));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."consent_presentation" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('consent_disclosure','ConsentPresentation',"id"::text,'SELECT',ARRAY['id','contentRevisionId','userId','actionOwner','action','renderVersion','renderedText','renderedHash','contextOwner','contextKind','contextId','createdAt','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "platform"."runtime_effect_receipt" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeEffectReceipt',"id"::text,'INSERT',ARRAY['id','commandReceiptId','ownerModuleId','operation','subjectScope','semanticEffectKey','fingerprint','state','sourceRevision','fence','resultSchemaId','resultHash','committedAt']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."consent_disposition" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('consent_disclosure','ConsentDisposition',"id"::text,'INSERT',ARRAY['id','proofId','userId','presentationId','kind','semanticKey','fingerprint']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "platform"."runtime_effect_receipt" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed("owner_module_id",'RuntimeEffectReceipt',"id"::text,'SELECT',ARRAY['id','commandReceiptId','ownerModuleId','operation','subjectScope','semanticEffectKey','fingerprint','state','sourceRevision','fence','resultSchemaId','resultHash','committedAt','createdAt','mutationTransactionId']::text[],"fence"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."consent_disposition" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('consent_disclosure','ConsentDisposition',"id"::text,'SELECT',ARRAY['id','proofId','userId','presentationId','kind','semanticKey','fingerprint','createdAt','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_worker_insert" ON "platform"."runtime_effect_receipt" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeEffectReceipt',"id"::text,'INSERT',ARRAY['id','commandReceiptId','ownerModuleId','operation','subjectScope','semanticEffectKey','fingerprint','state','sourceRevision','fence','resultSchemaId','resultHash','committedAt']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeEffectReceipt',jsonb_build_object('id',"id",'command_receipt_id',"command_receipt_id",'owner_module_id',"owner_module_id",'operation',"operation",'subject_scope',"subject_scope",'semantic_effect_key',"semantic_effect_key",'fingerprint',"fingerprint",'state',"state",'source_revision',"source_revision",'fence',"fence",'result_schema_id',"result_schema_id",'result_hash',"result_hash",'committed_at',"committed_at",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'INSERT'));
 
-CREATE POLICY "p_app_runtime_insert" ON "platform"."runtime_command_receipt" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeCommandReceipt',"id"::text,'INSERT',ARRAY['id','ownerModuleId','operation','subjectScope','semanticKey','fingerprint','state','sourceRevision','resultSchemaId','resultSchemaVersion','resultDigest','resultBody']::text[],NULL::text));
+CREATE POLICY "p_worker_select" ON "platform"."runtime_effect_receipt" FOR SELECT TO wa_worker USING (platform_private.row_allowed("owner_module_id",'RuntimeEffectReceipt',"id"::text,'SELECT',ARRAY['id','commandReceiptId','ownerModuleId','operation','subjectScope','semanticEffectKey','fingerprint','state','sourceRevision','fence','resultSchemaId','resultHash','committedAt','createdAt','mutationTransactionId']::text[],"fence"::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeEffectReceipt',jsonb_build_object('id',"id",'command_receipt_id',"command_receipt_id",'owner_module_id',"owner_module_id",'operation',"operation",'subject_scope',"subject_scope",'semantic_effect_key',"semantic_effect_key",'fingerprint',"fingerprint",'state',"state",'source_revision',"source_revision",'fence',"fence",'result_schema_id',"result_schema_id",'result_hash',"result_hash",'committed_at',"committed_at",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'SELECT'));
 
-CREATE POLICY "p_app_runtime_select" ON "platform"."runtime_command_receipt" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed("owner_module_id",'RuntimeCommandReceipt',"id"::text,'SELECT',ARRAY['id','ownerModuleId','operation','subjectScope','semanticKey','fingerprint','state','sourceRevision','resultSchemaId','resultSchemaVersion','resultDigest','resultBody','createdAt','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "platform"."runtime_work_item" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('platform_integration_owner','RuntimeWorkItem',"id"::text,'INSERT',ARRAY['id','outboxMessageId','handlerName','semanticWorkKey','state','fence','leaseTokenHash','leaseExpiresAt','attemptCount','nextAttemptAt','effectReceiptId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "platform"."runtime_command_receipt" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed("owner_module_id",'RuntimeCommandReceipt',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeCommandReceipt',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "platform"."runtime_work_item" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('platform_integration_owner','RuntimeWorkItem',"id"::text,'SELECT',ARRAY['id','outboxMessageId','handlerName','semanticWorkKey','state','fence','leaseTokenHash','leaseExpiresAt','attemptCount','nextAttemptAt','effectReceiptId','createdAt','mutationTransactionId']::text[],"fence"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_insert" ON "platform"."runtime_command_receipt" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeCommandReceipt',"id"::text,'INSERT',ARRAY['id','ownerModuleId','operation','subjectScope','semanticKey','fingerprint','state','sourceRevision','resultSchemaId','resultSchemaVersion','resultDigest','resultBody']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_update" ON "platform"."runtime_work_item" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('platform_integration_owner','RuntimeWorkItem',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed('platform_integration_owner','RuntimeWorkItem',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_select" ON "platform"."runtime_command_receipt" FOR SELECT TO wa_worker USING (platform_private.row_allowed("owner_module_id",'RuntimeCommandReceipt',"id"::text,'SELECT',ARRAY['id','ownerModuleId','operation','subjectScope','semanticKey','fingerprint','state','sourceRevision','resultSchemaId','resultSchemaVersion','resultDigest','resultBody','createdAt','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_worker_insert" ON "platform"."runtime_work_item" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed('platform_integration_owner','RuntimeWorkItem',"id"::text,'INSERT',ARRAY['id','outboxMessageId','handlerName','semanticWorkKey','state','fence','leaseTokenHash','leaseExpiresAt','attemptCount','nextAttemptAt','effectReceiptId']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeWorkItem',jsonb_build_object('id',"id",'outbox_message_id',"outbox_message_id",'handler_name',"handler_name",'semantic_work_key',"semantic_work_key",'state',"state",'fence',"fence",'lease_token_hash',"lease_token_hash",'lease_expires_at',"lease_expires_at",'attempt_count',"attempt_count",'next_attempt_at',"next_attempt_at",'effect_receipt_id',"effect_receipt_id",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'INSERT'));
 
-CREATE POLICY "p_worker_update" ON "platform"."runtime_command_receipt" FOR UPDATE TO wa_worker USING (platform_private.row_allowed("owner_module_id",'RuntimeCommandReceipt',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeCommandReceipt',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_worker_select" ON "platform"."runtime_work_item" FOR SELECT TO wa_worker USING (platform_private.row_allowed('platform_integration_owner','RuntimeWorkItem',"id"::text,'SELECT',ARRAY['id','outboxMessageId','handlerName','semanticWorkKey','state','fence','leaseTokenHash','leaseExpiresAt','attemptCount','nextAttemptAt','effectReceiptId','createdAt','mutationTransactionId']::text[],"fence"::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeWorkItem',jsonb_build_object('id',"id",'outbox_message_id',"outbox_message_id",'handler_name',"handler_name",'semantic_work_key',"semantic_work_key",'state',"state",'fence',"fence",'lease_token_hash',"lease_token_hash",'lease_expires_at',"lease_expires_at",'attempt_count',"attempt_count",'next_attempt_at',"next_attempt_at",'effect_receipt_id',"effect_receipt_id",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'SELECT'));
 
-CREATE POLICY "p_app_runtime_insert" ON "platform"."runtime_outbox_message" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed("producer_owner",'RuntimeOutboxMessage',"id"::text,'INSERT',ARRAY['id','commandReceiptId','kind','producerOwner','aggregateKind','aggregateId','sourceRevision','sourceGeneration','ordinal','name','schemaVersion','payloadSchemaId','payloadHash','payload','correlationId','causationId','correctionOfId','occurredAt','effectiveAt']::text[],NULL::text));
+CREATE POLICY "p_worker_update" ON "platform"."runtime_work_item" FOR UPDATE TO wa_worker USING (platform_private.row_allowed('platform_integration_owner','RuntimeWorkItem',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeWorkItem',jsonb_build_object('id',"id",'outbox_message_id',"outbox_message_id",'handler_name',"handler_name",'semantic_work_key',"semantic_work_key",'state',"state",'fence',"fence",'lease_token_hash',"lease_token_hash",'lease_expires_at',"lease_expires_at",'attempt_count',"attempt_count",'next_attempt_at',"next_attempt_at",'effect_receipt_id',"effect_receipt_id",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'UPDATE')) WITH CHECK (platform_private.row_allowed('platform_integration_owner','RuntimeWorkItem',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeWorkItem',jsonb_build_object('id',"id",'outbox_message_id',"outbox_message_id",'handler_name',"handler_name",'semantic_work_key',"semantic_work_key",'state',"state",'fence',"fence",'lease_token_hash',"lease_token_hash",'lease_expires_at',"lease_expires_at",'attempt_count',"attempt_count",'next_attempt_at',"next_attempt_at",'effect_receipt_id',"effect_receipt_id",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'UPDATE'));
 
-CREATE POLICY "p_app_runtime_select" ON "platform"."runtime_outbox_message" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed("producer_owner",'RuntimeOutboxMessage',"id"::text,'SELECT',ARRAY['id','commandReceiptId','kind','producerOwner','aggregateKind','aggregateId','sourceRevision','sourceGeneration','ordinal','name','schemaVersion','payloadSchemaId','payloadHash','payload','correlationId','causationId','correctionOfId','occurredAt','effectiveAt','createdAt','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "platform"."runtime_attempt" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('platform_integration_owner','RuntimeAttempt',"id"::text,'INSERT',ARRAY['id','workItemId','attemptNumber','fence','workerId','result','reasonCode','startedAt','finishedAt']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_insert" ON "platform"."runtime_outbox_message" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed("producer_owner",'RuntimeOutboxMessage',"id"::text,'INSERT',ARRAY['id','commandReceiptId','kind','producerOwner','aggregateKind','aggregateId','sourceRevision','sourceGeneration','ordinal','name','schemaVersion','payloadSchemaId','payloadHash','payload','correlationId','causationId','correctionOfId','occurredAt','effectiveAt']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "platform"."runtime_attempt" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('platform_integration_owner','RuntimeAttempt',"id"::text,'SELECT',ARRAY['id','workItemId','attemptNumber','fence','workerId','result','reasonCode','startedAt','finishedAt','createdAt','mutationTransactionId']::text[],"fence"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_select" ON "platform"."runtime_outbox_message" FOR SELECT TO wa_worker USING (platform_private.row_allowed("producer_owner",'RuntimeOutboxMessage',"id"::text,'SELECT',ARRAY['id','commandReceiptId','kind','producerOwner','aggregateKind','aggregateId','sourceRevision','sourceGeneration','ordinal','name','schemaVersion','payloadSchemaId','payloadHash','payload','correlationId','causationId','correctionOfId','occurredAt','effectiveAt','createdAt','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_worker_insert" ON "platform"."runtime_attempt" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed('platform_integration_owner','RuntimeAttempt',"id"::text,'INSERT',ARRAY['id','workItemId','attemptNumber','fence','workerId','result','reasonCode','startedAt','finishedAt']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeAttempt',jsonb_build_object('id',"id",'work_item_id',"work_item_id",'attempt_number',"attempt_number",'fence',"fence",'worker_id',"worker_id",'result',"result",'reason_code',"reason_code",'started_at',"started_at",'finished_at',"finished_at",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'INSERT'));
 
-CREATE POLICY "p_app_runtime_insert" ON "platform"."runtime_effect_receipt" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeEffectReceipt',"id"::text,'INSERT',ARRAY['id','commandReceiptId','ownerModuleId','operation','subjectScope','semanticEffectKey','fingerprint','state','sourceRevision','fence','resultSchemaId','resultHash','committedAt']::text[],NULL::text));
+CREATE POLICY "p_worker_select" ON "platform"."runtime_attempt" FOR SELECT TO wa_worker USING (platform_private.row_allowed('platform_integration_owner','RuntimeAttempt',"id"::text,'SELECT',ARRAY['id','workItemId','attemptNumber','fence','workerId','result','reasonCode','startedAt','finishedAt','createdAt','mutationTransactionId']::text[],"fence"::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeAttempt',jsonb_build_object('id',"id",'work_item_id',"work_item_id",'attempt_number',"attempt_number",'fence',"fence",'worker_id',"worker_id",'result',"result",'reason_code',"reason_code",'started_at',"started_at",'finished_at',"finished_at",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'SELECT'));
 
-CREATE POLICY "p_app_runtime_select" ON "platform"."runtime_effect_receipt" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed("owner_module_id",'RuntimeEffectReceipt',"id"::text,'SELECT',ARRAY['id','commandReceiptId','ownerModuleId','operation','subjectScope','semanticEffectKey','fingerprint','state','sourceRevision','fence','resultSchemaId','resultHash','committedAt','createdAt','mutationTransactionId']::text[],"fence"::text));
+CREATE POLICY "p_app_runtime_insert" ON "platform"."runtime_inbox_receipt" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed("consumer_owner",'RuntimeInboxReceipt',"id"::text,'INSERT',ARRAY['id','outboxMessageId','consumerOwner','handlerName','payloadHash','effectReceiptId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_insert" ON "platform"."runtime_effect_receipt" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeEffectReceipt',"id"::text,'INSERT',ARRAY['id','commandReceiptId','ownerModuleId','operation','subjectScope','semanticEffectKey','fingerprint','state','sourceRevision','fence','resultSchemaId','resultHash','committedAt']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "platform"."runtime_inbox_receipt" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed("consumer_owner",'RuntimeInboxReceipt',"id"::text,'SELECT',ARRAY['id','outboxMessageId','consumerOwner','handlerName','payloadHash','effectReceiptId','createdAt','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_select" ON "platform"."runtime_effect_receipt" FOR SELECT TO wa_worker USING (platform_private.row_allowed("owner_module_id",'RuntimeEffectReceipt',"id"::text,'SELECT',ARRAY['id','commandReceiptId','ownerModuleId','operation','subjectScope','semanticEffectKey','fingerprint','state','sourceRevision','fence','resultSchemaId','resultHash','committedAt','createdAt','mutationTransactionId']::text[],"fence"::text));
+CREATE POLICY "p_worker_insert" ON "platform"."runtime_inbox_receipt" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed("consumer_owner",'RuntimeInboxReceipt',"id"::text,'INSERT',ARRAY['id','outboxMessageId','consumerOwner','handlerName','payloadHash','effectReceiptId']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeInboxReceipt',jsonb_build_object('id',"id",'outbox_message_id',"outbox_message_id",'consumer_owner',"consumer_owner",'handler_name',"handler_name",'payload_hash',"payload_hash",'effect_receipt_id',"effect_receipt_id",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'INSERT'));
 
-CREATE POLICY "p_app_runtime_insert" ON "platform"."runtime_work_item" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('platform_integration_owner','RuntimeWorkItem',"id"::text,'INSERT',ARRAY['id','outboxMessageId','handlerName','semanticWorkKey','state','fence','leaseTokenHash','leaseExpiresAt','attemptCount','nextAttemptAt','effectReceiptId']::text[],NULL::text));
+CREATE POLICY "p_worker_select" ON "platform"."runtime_inbox_receipt" FOR SELECT TO wa_worker USING (platform_private.row_allowed("consumer_owner",'RuntimeInboxReceipt',"id"::text,'SELECT',ARRAY['id','outboxMessageId','consumerOwner','handlerName','payloadHash','effectReceiptId','createdAt','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeInboxReceipt',jsonb_build_object('id',"id",'outbox_message_id',"outbox_message_id",'consumer_owner',"consumer_owner",'handler_name',"handler_name",'payload_hash',"payload_hash",'effect_receipt_id',"effect_receipt_id",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'SELECT'));
 
-CREATE POLICY "p_app_runtime_select" ON "platform"."runtime_work_item" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('platform_integration_owner','RuntimeWorkItem',"id"::text,'SELECT',ARRAY['id','outboxMessageId','handlerName','semanticWorkKey','state','fence','leaseTokenHash','leaseExpiresAt','attemptCount','nextAttemptAt','effectReceiptId','createdAt','mutationTransactionId']::text[],"fence"::text));
+CREATE POLICY "p_app_runtime_insert" ON "platform"."runtime_reservation" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeReservation',"id"::text,'INSERT',ARRAY['id','commandReceiptId','ownerModuleId','resourceKind','resourceKey','semanticKey','quantity','state','fence','effectReceiptId','expiresAt']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "platform"."runtime_work_item" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('platform_integration_owner','RuntimeWorkItem',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('platform_integration_owner','RuntimeWorkItem',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "platform"."runtime_reservation" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed("owner_module_id",'RuntimeReservation',"id"::text,'SELECT',ARRAY['id','commandReceiptId','ownerModuleId','resourceKind','resourceKey','semanticKey','quantity','state','fence','effectReceiptId','expiresAt','createdAt','mutationTransactionId']::text[],"fence"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_insert" ON "platform"."runtime_work_item" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed('platform_integration_owner','RuntimeWorkItem',"id"::text,'INSERT',ARRAY['id','outboxMessageId','handlerName','semanticWorkKey','state','fence','leaseTokenHash','leaseExpiresAt','attemptCount','nextAttemptAt','effectReceiptId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_update" ON "platform"."runtime_reservation" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed("owner_module_id",'RuntimeReservation',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeReservation',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_select" ON "platform"."runtime_work_item" FOR SELECT TO wa_worker USING (platform_private.row_allowed('platform_integration_owner','RuntimeWorkItem',"id"::text,'SELECT',ARRAY['id','outboxMessageId','handlerName','semanticWorkKey','state','fence','leaseTokenHash','leaseExpiresAt','attemptCount','nextAttemptAt','effectReceiptId','createdAt','mutationTransactionId']::text[],"fence"::text));
+CREATE POLICY "p_worker_insert" ON "platform"."runtime_reservation" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeReservation',"id"::text,'INSERT',ARRAY['id','commandReceiptId','ownerModuleId','resourceKind','resourceKey','semanticKey','quantity','state','fence','effectReceiptId','expiresAt']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeReservation',jsonb_build_object('id',"id",'command_receipt_id',"command_receipt_id",'owner_module_id',"owner_module_id",'resource_kind',"resource_kind",'resource_key',"resource_key",'semantic_key',"semantic_key",'quantity',"quantity",'state',"state",'fence',"fence",'effect_receipt_id',"effect_receipt_id",'expires_at',"expires_at",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'INSERT'));
 
-CREATE POLICY "p_worker_update" ON "platform"."runtime_work_item" FOR UPDATE TO wa_worker USING (platform_private.row_allowed('platform_integration_owner','RuntimeWorkItem',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('platform_integration_owner','RuntimeWorkItem',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_worker_select" ON "platform"."runtime_reservation" FOR SELECT TO wa_worker USING (platform_private.row_allowed("owner_module_id",'RuntimeReservation',"id"::text,'SELECT',ARRAY['id','commandReceiptId','ownerModuleId','resourceKind','resourceKey','semanticKey','quantity','state','fence','effectReceiptId','expiresAt','createdAt','mutationTransactionId']::text[],"fence"::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeReservation',jsonb_build_object('id',"id",'command_receipt_id',"command_receipt_id",'owner_module_id',"owner_module_id",'resource_kind',"resource_kind",'resource_key',"resource_key",'semantic_key',"semantic_key",'quantity',"quantity",'state',"state",'fence',"fence",'effect_receipt_id',"effect_receipt_id",'expires_at',"expires_at",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'SELECT'));
 
-CREATE POLICY "p_app_runtime_insert" ON "platform"."runtime_attempt" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('platform_integration_owner','RuntimeAttempt',"id"::text,'INSERT',ARRAY['id','workItemId','attemptNumber','fence','workerId','result','reasonCode','startedAt','finishedAt']::text[],NULL::text));
+CREATE POLICY "p_worker_update" ON "platform"."runtime_reservation" FOR UPDATE TO wa_worker USING (platform_private.row_allowed("owner_module_id",'RuntimeReservation',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeReservation',jsonb_build_object('id',"id",'command_receipt_id',"command_receipt_id",'owner_module_id',"owner_module_id",'resource_kind',"resource_kind",'resource_key',"resource_key",'semantic_key',"semantic_key",'quantity',"quantity",'state',"state",'fence',"fence",'effect_receipt_id',"effect_receipt_id",'expires_at',"expires_at",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'UPDATE')) WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeReservation',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('RuntimeReservation',jsonb_build_object('id',"id",'command_receipt_id',"command_receipt_id",'owner_module_id',"owner_module_id",'resource_kind',"resource_kind",'resource_key',"resource_key",'semantic_key',"semantic_key",'quantity',"quantity",'state',"state",'fence',"fence",'effect_receipt_id',"effect_receipt_id",'expires_at',"expires_at",'created_at',"created_at",'mutation_transaction_id',"mutation_transaction_id"),'UPDATE'));
 
-CREATE POLICY "p_app_runtime_select" ON "platform"."runtime_attempt" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('platform_integration_owner','RuntimeAttempt',"id"::text,'SELECT',ARRAY['id','workItemId','attemptNumber','fence','workerId','result','reasonCode','startedAt','finishedAt','createdAt','mutationTransactionId']::text[],"fence"::text));
+CREATE POLICY "p_app_runtime_insert" ON "platform"."owner_mutation_evidence" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed("owner_module_id",'OwnerMutationEvidence',"id"::text,'INSERT',ARRAY['id','commandReceiptId','ownerModuleId','aggregateKind','aggregateId','previousRevision','committedRevision','action','decisionRef','evidenceSchemaId','evidenceSchemaVersion','evidenceDigest','evidenceBody']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_insert" ON "platform"."runtime_attempt" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed('platform_integration_owner','RuntimeAttempt',"id"::text,'INSERT',ARRAY['id','workItemId','attemptNumber','fence','workerId','result','reasonCode','startedAt','finishedAt']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "platform"."owner_mutation_evidence" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed("owner_module_id",'OwnerMutationEvidence',"id"::text,'SELECT',ARRAY['id','commandReceiptId','ownerModuleId','aggregateKind','aggregateId','previousRevision','committedRevision','action','decisionRef','evidenceSchemaId','evidenceSchemaVersion','evidenceDigest','createdAt','evidenceBody','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_select" ON "platform"."runtime_attempt" FOR SELECT TO wa_worker USING (platform_private.row_allowed('platform_integration_owner','RuntimeAttempt',"id"::text,'SELECT',ARRAY['id','workItemId','attemptNumber','fence','workerId','result','reasonCode','startedAt','finishedAt','createdAt','mutationTransactionId']::text[],"fence"::text));
+CREATE POLICY "p_worker_insert" ON "platform"."owner_mutation_evidence" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed("owner_module_id",'OwnerMutationEvidence',"id"::text,'INSERT',ARRAY['id','commandReceiptId','ownerModuleId','aggregateKind','aggregateId','previousRevision','committedRevision','action','decisionRef','evidenceSchemaId','evidenceSchemaVersion','evidenceDigest','evidenceBody']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('OwnerMutationEvidence',jsonb_build_object('id',"id",'command_receipt_id',"command_receipt_id",'owner_module_id',"owner_module_id",'aggregate_kind',"aggregate_kind",'aggregate_id',"aggregate_id",'previous_revision',"previous_revision",'committed_revision',"committed_revision",'action',"action",'decision_ref',"decision_ref",'evidence_schema_id',"evidence_schema_id",'evidence_schema_version',"evidence_schema_version",'evidence_digest',"evidence_digest",'created_at',"created_at",'evidence_body',"evidence_body",'mutation_transaction_id',"mutation_transaction_id"),'INSERT'));
 
-CREATE POLICY "p_app_runtime_insert" ON "platform"."runtime_inbox_receipt" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed("consumer_owner",'RuntimeInboxReceipt',"id"::text,'INSERT',ARRAY['id','outboxMessageId','consumerOwner','handlerName','payloadHash','effectReceiptId']::text[],NULL::text));
+CREATE POLICY "p_worker_select" ON "platform"."owner_mutation_evidence" FOR SELECT TO wa_worker USING (platform_private.row_allowed("owner_module_id",'OwnerMutationEvidence',"id"::text,'SELECT',ARRAY['id','commandReceiptId','ownerModuleId','aggregateKind','aggregateId','previousRevision','committedRevision','action','decisionRef','evidenceSchemaId','evidenceSchemaVersion','evidenceDigest','createdAt','evidenceBody','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('OwnerMutationEvidence',jsonb_build_object('id',"id",'command_receipt_id',"command_receipt_id",'owner_module_id',"owner_module_id",'aggregate_kind',"aggregate_kind",'aggregate_id',"aggregate_id",'previous_revision',"previous_revision",'committed_revision',"committed_revision",'action',"action",'decision_ref',"decision_ref",'evidence_schema_id',"evidence_schema_id",'evidence_schema_version',"evidence_schema_version",'evidence_digest',"evidence_digest",'created_at',"created_at",'evidence_body',"evidence_body",'mutation_transaction_id',"mutation_transaction_id"),'SELECT'));
 
-CREATE POLICY "p_app_runtime_select" ON "platform"."runtime_inbox_receipt" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed("consumer_owner",'RuntimeInboxReceipt',"id"::text,'SELECT',ARRAY['id','outboxMessageId','consumerOwner','handlerName','payloadHash','effectReceiptId','createdAt','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."customer_profile_lifecycle_event" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('customer_buyer_profile','CustomerProfileLifecycleEvent',"id"::text,'INSERT',ARRAY['id','customerProfileId','commandReceiptId','sourceRevision','fromStatus','toStatus','name','actorUserId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_insert" ON "platform"."runtime_inbox_receipt" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed("consumer_owner",'RuntimeInboxReceipt',"id"::text,'INSERT',ARRAY['id','outboxMessageId','consumerOwner','handlerName','payloadHash','effectReceiptId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."customer_profile_lifecycle_event" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('customer_buyer_profile','CustomerProfileLifecycleEvent',"id"::text,'SELECT',ARRAY['id','customerProfileId','commandReceiptId','sourceRevision','fromStatus','toStatus','name','actorUserId','createdAt','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_select" ON "platform"."runtime_inbox_receipt" FOR SELECT TO wa_worker USING (platform_private.row_allowed("consumer_owner",'RuntimeInboxReceipt',"id"::text,'SELECT',ARRAY['id','outboxMessageId','consumerOwner','handlerName','payloadHash','effectReceiptId','createdAt','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."track_base_selection" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackBaseSelection',"id"::text,'INSERT',ARRAY['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId','subscriptionId','revision','sourceGeneration']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "platform"."runtime_reservation" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeReservation',"id"::text,'INSERT',ARRAY['id','commandReceiptId','ownerModuleId','resourceKind','resourceKey','semanticKey','quantity','state','fence','effectReceiptId','expiresAt']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."track_base_selection" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackBaseSelection',"id"::text,'SELECT',ARRAY['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId','subscriptionId','revision','sourceGeneration','createdAt','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "platform"."runtime_reservation" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed("owner_module_id",'RuntimeReservation',"id"::text,'SELECT',ARRAY['id','commandReceiptId','ownerModuleId','resourceKind','resourceKey','semanticKey','quantity','state','fence','effectReceiptId','expiresAt','createdAt','mutationTransactionId']::text[],"fence"::text));
+CREATE POLICY "p_app_runtime_update" ON "app"."track_base_selection" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackBaseSelection',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackBaseSelection',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "platform"."runtime_reservation" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed("owner_module_id",'RuntimeReservation',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeReservation',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_worker_insert" ON "app"."track_base_selection" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackBaseSelection',"id"::text,'INSERT',ARRAY['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId','subscriptionId','sourceGeneration']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('TrackBaseSelection',jsonb_build_object('id',"id",'user_id',"user_id",'track',"track",'customer_profile_id',"customer_profile_id",'candidate_profile_id',"candidate_profile_id",'professional_profile_id',"professional_profile_id",'subscription_id',"subscription_id",'revision',"revision",'source_generation',"source_generation"),'INSERT'));
 
-CREATE POLICY "p_worker_insert" ON "platform"."runtime_reservation" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeReservation',"id"::text,'INSERT',ARRAY['id','commandReceiptId','ownerModuleId','resourceKind','resourceKey','semanticKey','quantity','state','fence','effectReceiptId','expiresAt']::text[],NULL::text));
+CREATE POLICY "p_worker_select" ON "app"."track_base_selection" FOR SELECT TO wa_worker USING (platform_private.row_allowed('track_subscription_entitlement','TrackBaseSelection',"id"::text,'SELECT',ARRAY['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId','subscriptionId','revision','sourceGeneration']::text[],"revision"::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('TrackBaseSelection',jsonb_build_object('id',"id",'user_id',"user_id",'track',"track",'customer_profile_id',"customer_profile_id",'candidate_profile_id',"candidate_profile_id",'professional_profile_id',"professional_profile_id",'subscription_id',"subscription_id",'revision',"revision",'source_generation',"source_generation"),'SELECT'));
 
-CREATE POLICY "p_worker_select" ON "platform"."runtime_reservation" FOR SELECT TO wa_worker USING (platform_private.row_allowed("owner_module_id",'RuntimeReservation',"id"::text,'SELECT',ARRAY['id','commandReceiptId','ownerModuleId','resourceKind','resourceKey','semanticKey','quantity','state','fence','effectReceiptId','expiresAt','createdAt','mutationTransactionId']::text[],"fence"::text));
+CREATE POLICY "p_worker_update" ON "app"."track_base_selection" FOR UPDATE TO wa_worker USING (platform_private.row_allowed('track_subscription_entitlement','TrackBaseSelection',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('TrackBaseSelection',jsonb_build_object('id',"id",'user_id',"user_id",'track',"track",'customer_profile_id',"customer_profile_id",'candidate_profile_id',"candidate_profile_id",'professional_profile_id',"professional_profile_id",'subscription_id',"subscription_id",'revision',"revision",'source_generation',"source_generation"),'UPDATE')) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackBaseSelection',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('TrackBaseSelection',jsonb_build_object('id',"id",'user_id',"user_id",'track',"track",'customer_profile_id',"customer_profile_id",'candidate_profile_id',"candidate_profile_id",'professional_profile_id',"professional_profile_id",'subscription_id',"subscription_id",'revision',"revision",'source_generation',"source_generation"),'UPDATE'));
 
-CREATE POLICY "p_worker_update" ON "platform"."runtime_reservation" FOR UPDATE TO wa_worker USING (platform_private.row_allowed("owner_module_id",'RuntimeReservation',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed("owner_module_id",'RuntimeReservation',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."track_enrollment_receipt" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackEnrollmentReceipt',"id"::text,'INSERT',ARRAY['id','userId','track','profileId','sourceOwner','sourceCreationRevision','selectionId','selectionRevision','semanticKey','fingerprint','resultCode','effectReceiptId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "platform"."owner_mutation_evidence" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed("owner_module_id",'OwnerMutationEvidence',"id"::text,'INSERT',ARRAY['id','commandReceiptId','ownerModuleId','aggregateKind','aggregateId','previousRevision','committedRevision','action','decisionRef','evidenceSchemaId','evidenceSchemaVersion','evidenceDigest','evidenceBody']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."track_enrollment_receipt" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackEnrollmentReceipt',"id"::text,'SELECT',ARRAY['id','userId','track','profileId','sourceOwner','sourceCreationRevision','selectionId','selectionRevision','semanticKey','fingerprint','resultCode','effectReceiptId','createdAt','mutationTransactionId']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "platform"."owner_mutation_evidence" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed("owner_module_id",'OwnerMutationEvidence',"id"::text,'SELECT',ARRAY['id','commandReceiptId','ownerModuleId','aggregateKind','aggregateId','previousRevision','committedRevision','action','decisionRef','evidenceSchemaId','evidenceSchemaVersion','evidenceDigest','createdAt','evidenceBody','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_worker_insert" ON "app"."track_enrollment_receipt" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackEnrollmentReceipt',"id"::text,'INSERT',ARRAY['id','userId','track','profileId','sourceOwner','sourceCreationRevision','selectionId','selectionRevision','semanticKey','fingerprint','resultCode','effectReceiptId']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('TrackEnrollmentReceipt',jsonb_build_object('id',"id",'user_id',"user_id",'track',"track",'profile_id',"profile_id",'source_owner',"source_owner",'source_creation_revision',"source_creation_revision",'selection_id',"selection_id",'selection_revision',"selection_revision",'semantic_key',"semantic_key",'fingerprint',"fingerprint",'result_code',"result_code",'effect_receipt_id',"effect_receipt_id"),'INSERT'));
 
-CREATE POLICY "p_worker_insert" ON "platform"."owner_mutation_evidence" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed("owner_module_id",'OwnerMutationEvidence',"id"::text,'INSERT',ARRAY['id','commandReceiptId','ownerModuleId','aggregateKind','aggregateId','previousRevision','committedRevision','action','decisionRef','evidenceSchemaId','evidenceSchemaVersion','evidenceDigest','evidenceBody']::text[],NULL::text));
+CREATE POLICY "p_worker_select" ON "app"."track_enrollment_receipt" FOR SELECT TO wa_worker USING (platform_private.row_allowed('track_subscription_entitlement','TrackEnrollmentReceipt',"id"::text,'SELECT',ARRAY['id','userId','track','profileId','sourceOwner','sourceCreationRevision','selectionId','selectionRevision','semanticKey','fingerprint','resultCode','effectReceiptId']::text[],NULL::text,"mutation_transaction_id"::text) AND platform_private.worker_track_allowed('TrackEnrollmentReceipt',jsonb_build_object('id',"id",'user_id',"user_id",'track',"track",'profile_id',"profile_id",'source_owner',"source_owner",'source_creation_revision',"source_creation_revision",'selection_id',"selection_id",'selection_revision',"selection_revision",'semantic_key',"semantic_key",'fingerprint',"fingerprint",'result_code',"result_code",'effect_receipt_id',"effect_receipt_id"),'SELECT'));
 
-CREATE POLICY "p_worker_select" ON "platform"."owner_mutation_evidence" FOR SELECT TO wa_worker USING (platform_private.row_allowed("owner_module_id",'OwnerMutationEvidence',"id"::text,'SELECT',ARRAY['id','commandReceiptId','ownerModuleId','aggregateKind','aggregateId','previousRevision','committedRevision','action','decisionRef','evidenceSchemaId','evidenceSchemaVersion','evidenceDigest','createdAt','evidenceBody','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."track_usage_reservation" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackUsageReservation',"id"::text,'INSERT',ARRAY['id','userId','entitlementId','periodStart','periodEnd','quantity','semanticKey','reservationId','acceptedSourceOwner','acceptedSourceId','acceptedAt','revision']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."customer_profile_lifecycle_event" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('customer_buyer_profile','CustomerProfileLifecycleEvent',"id"::text,'INSERT',ARRAY['id','customerProfileId','commandReceiptId','sourceRevision','fromStatus','toStatus','name','actorUserId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."track_usage_reservation" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackUsageReservation',"id"::text,'SELECT',ARRAY['id','userId','entitlementId','periodStart','periodEnd','quantity','semanticKey','reservationId','acceptedSourceOwner','acceptedSourceId','acceptedAt','createdAt','revision','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."customer_profile_lifecycle_event" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('customer_buyer_profile','CustomerProfileLifecycleEvent',"id"::text,'SELECT',ARRAY['id','customerProfileId','commandReceiptId','sourceRevision','fromStatus','toStatus','name','actorUserId','createdAt','mutationTransactionId']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_update" ON "app"."track_usage_reservation" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackUsageReservation',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackUsageReservation',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."track_base_selection" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackBaseSelection',"id"::text,'INSERT',ARRAY['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId','subscriptionId','revision','sourceGeneration']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."privacy_target_instruction" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('privacy_data_erasure','PrivacyTargetInstruction',"id"::text,'INSERT',ARRAY['id','privacyRequestId','ownerModuleId','targetKind','sourceId','sourceRevision','action','generation','fieldMapVersion','executorVersion','descriptorHash']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_select" ON "app"."track_base_selection" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackBaseSelection',"id"::text,'SELECT',ARRAY['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId','subscriptionId','revision','sourceGeneration','createdAt','mutationTransactionId']::text[],"revision"::text));
+CREATE POLICY "p_app_runtime_select" ON "app"."privacy_target_instruction" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('privacy_data_erasure','PrivacyTargetInstruction',"id"::text,'SELECT',ARRAY['id','privacyRequestId','ownerModuleId','targetKind','sourceId','sourceRevision','action','generation','fieldMapVersion','executorVersion','descriptorHash','createdAt','mutationTransactionId']::text[],"generation"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_update" ON "app"."track_base_selection" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackBaseSelection',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackBaseSelection',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_insert" ON "app"."privacy_owner_receipt" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('privacy_data_erasure','PrivacyOwnerReceipt',"id"::text,'INSERT',ARRAY['id','instructionId','generation','disposition','executionReceiptRef','legalBasisRef','artifactDigest','artifactVersion','resultSchemaVersion']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_insert" ON "app"."track_base_selection" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackBaseSelection',"id"::text,'INSERT',ARRAY['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId','subscriptionId','sourceGeneration']::text[],NULL::text) AND platform_private.worker_track_allowed('TrackBaseSelection',jsonb_build_object('id',"id",'user_id',"user_id",'track',"track",'customer_profile_id',"customer_profile_id",'candidate_profile_id',"candidate_profile_id",'professional_profile_id',"professional_profile_id",'subscription_id',"subscription_id",'source_generation',"source_generation"),'INSERT'));
+CREATE POLICY "p_app_runtime_select" ON "app"."privacy_owner_receipt" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('privacy_data_erasure','PrivacyOwnerReceipt',"id"::text,'SELECT',ARRAY['id','instructionId','generation','disposition','executionReceiptRef','legalBasisRef','artifactDigest','artifactVersion','resultSchemaVersion','createdAt','mutationTransactionId']::text[],"generation"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_select" ON "app"."track_base_selection" FOR SELECT TO wa_worker USING (platform_private.row_allowed('track_subscription_entitlement','TrackBaseSelection',"id"::text,'SELECT',ARRAY['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId','subscriptionId','revision','sourceGeneration']::text[],"revision"::text) AND platform_private.worker_track_allowed('TrackBaseSelection',jsonb_build_object('id',"id",'user_id',"user_id",'track',"track",'customer_profile_id',"customer_profile_id",'candidate_profile_id',"candidate_profile_id",'professional_profile_id',"professional_profile_id",'subscription_id',"subscription_id",'revision',"revision",'source_generation',"source_generation"),'SELECT'));
+CREATE POLICY "p_app_runtime_insert" ON "app"."privacy_restore_marker" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('privacy_data_erasure','PrivacyRestoreMarker',"id"::text,'INSERT',ARRAY['id','ownerModuleId','targetKind','sourceId','generation','action','sourceReceiptId','restorePointRef','appliedAt','revision']::text[],NULL::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_worker_update" ON "app"."track_base_selection" FOR UPDATE TO wa_worker USING (platform_private.row_allowed('track_subscription_entitlement','TrackBaseSelection',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text) AND platform_private.worker_track_allowed('TrackBaseSelection',jsonb_build_object('subscription_id',"subscription_id",'revision',"revision",'source_generation',"source_generation"),'UPDATE')) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackBaseSelection',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text) AND platform_private.worker_track_allowed('TrackBaseSelection',jsonb_build_object('subscription_id',"subscription_id",'revision',"revision",'source_generation',"source_generation"),'UPDATE'));
+CREATE POLICY "p_app_runtime_select" ON "app"."privacy_restore_marker" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('privacy_data_erasure','PrivacyRestoreMarker',"id"::text,'SELECT',ARRAY['id','ownerModuleId','targetKind','sourceId','generation','action','sourceReceiptId','restorePointRef','appliedAt','createdAt','revision','mutationTransactionId']::text[],"revision"::text,"mutation_transaction_id"::text));
 
-CREATE POLICY "p_app_runtime_insert" ON "app"."track_enrollment_receipt" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackEnrollmentReceipt',"id"::text,'INSERT',ARRAY['id','userId','track','profileId','sourceOwner','sourceCreationRevision','selectionId','selectionRevision','semanticKey','fingerprint','resultCode','effectReceiptId']::text[],NULL::text));
-
-CREATE POLICY "p_app_runtime_select" ON "app"."track_enrollment_receipt" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackEnrollmentReceipt',"id"::text,'SELECT',ARRAY['id','userId','track','profileId','sourceOwner','sourceCreationRevision','selectionId','selectionRevision','semanticKey','fingerprint','resultCode','effectReceiptId','createdAt','mutationTransactionId']::text[],NULL::text));
-
-CREATE POLICY "p_worker_insert" ON "app"."track_enrollment_receipt" FOR INSERT TO wa_worker WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackEnrollmentReceipt',"id"::text,'INSERT',ARRAY['id','userId','track','profileId','sourceOwner','sourceCreationRevision','selectionId','selectionRevision','semanticKey','fingerprint','resultCode','effectReceiptId']::text[],NULL::text) AND platform_private.worker_track_allowed('TrackEnrollmentReceipt',jsonb_build_object('id',"id",'user_id',"user_id",'track',"track",'profile_id',"profile_id",'source_owner',"source_owner",'source_creation_revision',"source_creation_revision",'selection_id',"selection_id",'selection_revision',"selection_revision",'semantic_key',"semantic_key",'fingerprint',"fingerprint",'result_code',"result_code",'effect_receipt_id',"effect_receipt_id"),'INSERT'));
-
-CREATE POLICY "p_worker_select" ON "app"."track_enrollment_receipt" FOR SELECT TO wa_worker USING (platform_private.row_allowed('track_subscription_entitlement','TrackEnrollmentReceipt',"id"::text,'SELECT',ARRAY['id','userId','track','profileId','sourceOwner','sourceCreationRevision','selectionId','selectionRevision','semanticKey','fingerprint','resultCode','effectReceiptId']::text[],NULL::text) AND platform_private.worker_track_allowed('TrackEnrollmentReceipt',jsonb_build_object('id',"id",'user_id',"user_id",'track',"track",'profile_id',"profile_id",'source_owner',"source_owner",'source_creation_revision',"source_creation_revision",'selection_id',"selection_id",'selection_revision',"selection_revision",'semantic_key',"semantic_key",'fingerprint',"fingerprint",'result_code',"result_code",'effect_receipt_id',"effect_receipt_id"),'SELECT'));
-
-CREATE POLICY "p_app_runtime_insert" ON "app"."track_usage_reservation" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackUsageReservation',"id"::text,'INSERT',ARRAY['id','userId','entitlementId','periodStart','periodEnd','quantity','semanticKey','reservationId','acceptedSourceOwner','acceptedSourceId','acceptedAt']::text[],NULL::text));
-
-CREATE POLICY "p_app_runtime_select" ON "app"."track_usage_reservation" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackUsageReservation',"id"::text,'SELECT',ARRAY['id','userId','entitlementId','periodStart','periodEnd','quantity','semanticKey','reservationId','acceptedSourceOwner','acceptedSourceId','acceptedAt','createdAt','mutationTransactionId']::text[],NULL::text));
-
-CREATE POLICY "p_app_runtime_update" ON "app"."track_usage_reservation" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('track_subscription_entitlement','TrackUsageReservation',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('track_subscription_entitlement','TrackUsageReservation',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
-
-CREATE POLICY "p_app_runtime_insert" ON "app"."privacy_target_instruction" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('privacy_data_erasure','PrivacyTargetInstruction',"id"::text,'INSERT',ARRAY['id','privacyRequestId','ownerModuleId','targetKind','sourceId','sourceRevision','action','generation','fieldMapVersion','executorVersion','descriptorHash']::text[],NULL::text));
-
-CREATE POLICY "p_app_runtime_select" ON "app"."privacy_target_instruction" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('privacy_data_erasure','PrivacyTargetInstruction',"id"::text,'SELECT',ARRAY['id','privacyRequestId','ownerModuleId','targetKind','sourceId','sourceRevision','action','generation','fieldMapVersion','executorVersion','descriptorHash','createdAt','mutationTransactionId']::text[],"generation"::text));
-
-CREATE POLICY "p_app_runtime_insert" ON "app"."privacy_owner_receipt" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('privacy_data_erasure','PrivacyOwnerReceipt',"id"::text,'INSERT',ARRAY['id','instructionId','generation','disposition','executionReceiptRef','legalBasisRef','artifactDigest','artifactVersion','resultSchemaVersion']::text[],NULL::text));
-
-CREATE POLICY "p_app_runtime_select" ON "app"."privacy_owner_receipt" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('privacy_data_erasure','PrivacyOwnerReceipt',"id"::text,'SELECT',ARRAY['id','instructionId','generation','disposition','executionReceiptRef','legalBasisRef','artifactDigest','artifactVersion','resultSchemaVersion','createdAt','mutationTransactionId']::text[],"generation"::text));
-
-CREATE POLICY "p_app_runtime_insert" ON "app"."privacy_restore_marker" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('privacy_data_erasure','PrivacyRestoreMarker',"id"::text,'INSERT',ARRAY['id','ownerModuleId','targetKind','sourceId','generation','action','sourceReceiptId','restorePointRef','appliedAt']::text[],NULL::text));
-
-CREATE POLICY "p_app_runtime_select" ON "app"."privacy_restore_marker" FOR SELECT TO wa_app_runtime USING (platform_private.row_allowed('privacy_data_erasure','PrivacyRestoreMarker',"id"::text,'SELECT',ARRAY['id','ownerModuleId','targetKind','sourceId','generation','action','sourceReceiptId','restorePointRef','appliedAt','createdAt','mutationTransactionId']::text[],"generation"::text));
-
-CREATE POLICY "p_app_runtime_update" ON "app"."privacy_restore_marker" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('privacy_data_erasure','PrivacyRestoreMarker',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text)) WITH CHECK (platform_private.row_allowed('privacy_data_erasure','PrivacyRestoreMarker',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text));
+CREATE POLICY "p_app_runtime_update" ON "app"."privacy_restore_marker" FOR UPDATE TO wa_app_runtime USING (platform_private.row_allowed('privacy_data_erasure','PrivacyRestoreMarker',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text)) WITH CHECK (platform_private.row_allowed('privacy_data_erasure','PrivacyRestoreMarker',"id"::text,'UPDATE',ARRAY['@row']::text[],NULL::text,"mutation_transaction_id"::text));
 
 CREATE FUNCTION platform_private.guard_consentlog() RETURNS trigger
 LANGUAGE plpgsql VOLATILE SECURITY INVOKER
@@ -2720,11 +3554,7 @@ BEGIN
  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'direct deletion denied' USING ERRCODE='42501'; END IF;
  IF TG_OP='UPDATE' THEN
   o:=to_jsonb(OLD);
-  RAISE EXCEPTION 'DRAFT-03: mutable source requires reviewed CAS version';
-  IF NEW."created_at" IS DISTINCT FROM OLD."created_at" OR NEW."id" IS DISTINCT FROM OLD."id" OR NEW."mutation_transaction_id" IS DISTINCT FROM OLD."mutation_transaction_id" OR NEW."user_id" IS DISTINCT FROM OLD."user_id" THEN RAISE EXCEPTION 'immutable identity or ownership'; END IF;
-  SELECT COALESCE(array_agg(key),ARRAY[]::text[]) INTO changed FROM jsonb_each(n) WHERE value IS DISTINCT FROM o->key AND key<>'mutation_transaction_id';
-
-  IF NOT platform_private.row_allowed('identity_access','AgeGateAttempt',(n->>'id'),'UPDATE',array_remove(ARRAY[CASE WHEN 'id'=ANY(changed) THEN 'id' END,CASE WHEN 'user_id'=ANY(changed) THEN 'userId' END,CASE WHEN 'ip_hash'=ANY(changed) THEN 'ipHash' END,CASE WHEN 'device_hash'=ANY(changed) THEN 'deviceHash' END,CASE WHEN 'region'=ANY(changed) THEN 'region' END,CASE WHEN 'result'=ANY(changed) THEN 'result' END,CASE WHEN 'birth_year'=ANY(changed) THEN 'birthYear' END,CASE WHEN 'age_band'=ANY(changed) THEN 'ageBand' END,CASE WHEN 'blocked_until'=ANY(changed) THEN 'blockedUntil' END,CASE WHEN 'created_at'=ANY(changed) THEN 'createdAt' END,CASE WHEN 'mutation_transaction_id'=ANY(changed) THEN 'mutationTransactionId' END]::text[],NULL),NULL::text) THEN RAISE EXCEPTION 'field or CAS scope denied' USING ERRCODE='42501'; END IF;
+  RAISE EXCEPTION 'immutable evidence or receipt';
  ELSE
   NEW."created_at":=clock_timestamp();
  END IF;
@@ -2744,11 +3574,7 @@ BEGIN
  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'direct deletion denied' USING ERRCODE='42501'; END IF;
  IF TG_OP='UPDATE' THEN
   o:=to_jsonb(OLD);
-  RAISE EXCEPTION 'DRAFT-03: mutable source requires reviewed CAS version';
-  IF NEW."created_at" IS DISTINCT FROM OLD."created_at" OR NEW."id" IS DISTINCT FROM OLD."id" OR NEW."mutation_transaction_id" IS DISTINCT FROM OLD."mutation_transaction_id" THEN RAISE EXCEPTION 'immutable identity or ownership'; END IF;
-  SELECT COALESCE(array_agg(key),ARRAY[]::text[]) INTO changed FROM jsonb_each(n) WHERE value IS DISTINCT FROM o->key AND key<>'mutation_transaction_id';
-
-  IF NOT platform_private.row_allowed('identity_access','AgeGateBlock',(n->>'id'),'UPDATE',array_remove(ARRAY[CASE WHEN 'id'=ANY(changed) THEN 'id' END,CASE WHEN 'ip_hash'=ANY(changed) THEN 'ipHash' END,CASE WHEN 'device_hash'=ANY(changed) THEN 'deviceHash' END,CASE WHEN 'reason'=ANY(changed) THEN 'reason' END,CASE WHEN 'blocked_until'=ANY(changed) THEN 'blockedUntil' END,CASE WHEN 'created_at'=ANY(changed) THEN 'createdAt' END,CASE WHEN 'mutation_transaction_id'=ANY(changed) THEN 'mutationTransactionId' END]::text[],NULL),NULL::text) THEN RAISE EXCEPTION 'field or CAS scope denied' USING ERRCODE='42501'; END IF;
+  RAISE EXCEPTION 'immutable evidence or receipt';
  ELSE
   NEW."created_at":=clock_timestamp();
  END IF;
@@ -2874,6 +3700,7 @@ SET search_path = pg_catalog
 AS $wa$
 DECLARE n jsonb:=to_jsonb(NEW); o jsonb; changed text[];
 BEGIN
+ PERFORM pg_advisory_xact_lock(hashtextextended('source:CustomerProfile:'||NEW.id::text,0));
  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'direct deletion denied' USING ERRCODE='42501'; END IF;
  IF TG_OP='UPDATE' THEN
   o:=to_jsonb(OLD);
@@ -2887,6 +3714,7 @@ BEGIN
   IF NEW.revision<>0 THEN RAISE EXCEPTION 'initial revision must be zero'; END IF;
   NEW."created_at":=clock_timestamp();
  END IF;
+ IF NOT platform_private.context_subject_owner(NEW.user_id,'customer_buyer_profile') THEN RAISE EXCEPTION 'foreign Customer principal'; END IF;
  NEW."updated_at":=clock_timestamp();
  NEW.mutation_transaction_id:=pg_current_xact_id()::text;
  RETURN NEW;
@@ -3018,6 +3846,7 @@ SET search_path = pg_catalog
 AS $wa$
 DECLARE n jsonb:=to_jsonb(NEW); o jsonb; changed text[];
 BEGIN
+ PERFORM pg_advisory_xact_lock(hashtextextended('source:TrackPlan:'||NEW.id::text,0));
  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'direct deletion denied' USING ERRCODE='42501'; END IF;
  IF TG_OP='UPDATE' THEN
   o:=to_jsonb(OLD);
@@ -3276,6 +4105,7 @@ BEGIN
  ELSE
   NEW."created_at":=clock_timestamp();
  END IF;
+ IF NOT platform_private.context_subject_owner(NEW.user_id,'consent_disclosure') THEN RAISE EXCEPTION 'foreign Consent presentation principal'; END IF;
  NEW.mutation_transaction_id:=pg_current_xact_id()::text;
  RETURN NEW;
 END;
@@ -3393,7 +4223,7 @@ BEGIN
  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'direct deletion denied' USING ERRCODE='42501'; END IF;
  IF TG_OP='UPDATE' THEN
   o:=to_jsonb(OLD);
-  IF NEW."created_at" IS DISTINCT FROM OLD."created_at" OR NEW."effect_receipt_id" IS DISTINCT FROM OLD."effect_receipt_id" OR NEW."handler_name" IS DISTINCT FROM OLD."handler_name" OR NEW."id" IS DISTINCT FROM OLD."id" OR NEW."mutation_transaction_id" IS DISTINCT FROM OLD."mutation_transaction_id" OR NEW."outbox_message_id" IS DISTINCT FROM OLD."outbox_message_id" OR NEW."semantic_work_key" IS DISTINCT FROM OLD."semantic_work_key" THEN RAISE EXCEPTION 'immutable identity or ownership'; END IF;
+  IF NEW."created_at" IS DISTINCT FROM OLD."created_at" OR NEW."handler_name" IS DISTINCT FROM OLD."handler_name" OR NEW."id" IS DISTINCT FROM OLD."id" OR NEW."mutation_transaction_id" IS DISTINCT FROM OLD."mutation_transaction_id" OR NEW."outbox_message_id" IS DISTINCT FROM OLD."outbox_message_id" OR NEW."semantic_work_key" IS DISTINCT FROM OLD."semantic_work_key" THEN RAISE EXCEPTION 'immutable identity or ownership'; END IF;
   IF NEW."fence"<OLD."fence" THEN RAISE EXCEPTION 'generation/fence regression'; END IF;
   SELECT COALESCE(array_agg(key),ARRAY[]::text[]) INTO changed FROM jsonb_each(n) WHERE value IS DISTINCT FROM o->key AND key<>'mutation_transaction_id';
 
@@ -3469,7 +4299,7 @@ BEGIN
  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'direct deletion denied' USING ERRCODE='42501'; END IF;
  IF TG_OP='UPDATE' THEN
   o:=to_jsonb(OLD);
-  IF NEW."command_receipt_id" IS DISTINCT FROM OLD."command_receipt_id" OR NEW."created_at" IS DISTINCT FROM OLD."created_at" OR NEW."effect_receipt_id" IS DISTINCT FROM OLD."effect_receipt_id" OR NEW."id" IS DISTINCT FROM OLD."id" OR NEW."mutation_transaction_id" IS DISTINCT FROM OLD."mutation_transaction_id" OR NEW."owner_module_id" IS DISTINCT FROM OLD."owner_module_id" OR NEW."resource_key" IS DISTINCT FROM OLD."resource_key" OR NEW."resource_kind" IS DISTINCT FROM OLD."resource_kind" OR NEW."semantic_key" IS DISTINCT FROM OLD."semantic_key" THEN RAISE EXCEPTION 'immutable identity or ownership'; END IF;
+  IF NEW."command_receipt_id" IS DISTINCT FROM OLD."command_receipt_id" OR NEW."created_at" IS DISTINCT FROM OLD."created_at" OR NEW."id" IS DISTINCT FROM OLD."id" OR NEW."mutation_transaction_id" IS DISTINCT FROM OLD."mutation_transaction_id" OR NEW."owner_module_id" IS DISTINCT FROM OLD."owner_module_id" OR NEW."quantity" IS DISTINCT FROM OLD."quantity" OR NEW."resource_key" IS DISTINCT FROM OLD."resource_key" OR NEW."resource_kind" IS DISTINCT FROM OLD."resource_kind" OR NEW."semantic_key" IS DISTINCT FROM OLD."semantic_key" THEN RAISE EXCEPTION 'immutable identity or ownership'; END IF;
   IF NEW."fence"<OLD."fence" THEN RAISE EXCEPTION 'generation/fence regression'; END IF;
   SELECT COALESCE(array_agg(key),ARRAY[]::text[]) INTO changed FROM jsonb_each(n) WHERE value IS DISTINCT FROM o->key AND key<>'mutation_transaction_id';
 
@@ -3589,12 +4419,13 @@ BEGIN
  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'direct deletion denied' USING ERRCODE='42501'; END IF;
  IF TG_OP='UPDATE' THEN
   o:=to_jsonb(OLD);
-  RAISE EXCEPTION 'DRAFT-03: mutable source requires reviewed CAS version';
   IF NEW."accepted_source_id" IS DISTINCT FROM OLD."accepted_source_id" OR NEW."created_at" IS DISTINCT FROM OLD."created_at" OR NEW."entitlement_id" IS DISTINCT FROM OLD."entitlement_id" OR NEW."id" IS DISTINCT FROM OLD."id" OR NEW."mutation_transaction_id" IS DISTINCT FROM OLD."mutation_transaction_id" OR NEW."reservation_id" IS DISTINCT FROM OLD."reservation_id" OR NEW."semantic_key" IS DISTINCT FROM OLD."semantic_key" OR NEW."user_id" IS DISTINCT FROM OLD."user_id" THEN RAISE EXCEPTION 'immutable identity or ownership'; END IF;
+  IF NEW.revision<>OLD.revision+1 THEN RAISE EXCEPTION 'CAS revision must increment once'; END IF;
   SELECT COALESCE(array_agg(key),ARRAY[]::text[]) INTO changed FROM jsonb_each(n) WHERE value IS DISTINCT FROM o->key AND key<>'mutation_transaction_id';
 
-  IF NOT platform_private.row_allowed('track_subscription_entitlement','TrackUsageReservation',(n->>'id'),'UPDATE',array_remove(ARRAY[CASE WHEN 'id'=ANY(changed) THEN 'id' END,CASE WHEN 'user_id'=ANY(changed) THEN 'userId' END,CASE WHEN 'entitlement_id'=ANY(changed) THEN 'entitlementId' END,CASE WHEN 'period_start'=ANY(changed) THEN 'periodStart' END,CASE WHEN 'period_end'=ANY(changed) THEN 'periodEnd' END,CASE WHEN 'quantity'=ANY(changed) THEN 'quantity' END,CASE WHEN 'semantic_key'=ANY(changed) THEN 'semanticKey' END,CASE WHEN 'reservation_id'=ANY(changed) THEN 'reservationId' END,CASE WHEN 'accepted_source_owner'=ANY(changed) THEN 'acceptedSourceOwner' END,CASE WHEN 'accepted_source_id'=ANY(changed) THEN 'acceptedSourceId' END,CASE WHEN 'accepted_at'=ANY(changed) THEN 'acceptedAt' END,CASE WHEN 'created_at'=ANY(changed) THEN 'createdAt' END,CASE WHEN 'mutation_transaction_id'=ANY(changed) THEN 'mutationTransactionId' END]::text[],NULL),NULL::text) THEN RAISE EXCEPTION 'field or CAS scope denied' USING ERRCODE='42501'; END IF;
+  IF NOT platform_private.row_allowed('track_subscription_entitlement','TrackUsageReservation',(n->>'id'),'UPDATE',array_remove(ARRAY[CASE WHEN 'id'=ANY(changed) THEN 'id' END,CASE WHEN 'user_id'=ANY(changed) THEN 'userId' END,CASE WHEN 'entitlement_id'=ANY(changed) THEN 'entitlementId' END,CASE WHEN 'period_start'=ANY(changed) THEN 'periodStart' END,CASE WHEN 'period_end'=ANY(changed) THEN 'periodEnd' END,CASE WHEN 'quantity'=ANY(changed) THEN 'quantity' END,CASE WHEN 'semantic_key'=ANY(changed) THEN 'semanticKey' END,CASE WHEN 'reservation_id'=ANY(changed) THEN 'reservationId' END,CASE WHEN 'accepted_source_owner'=ANY(changed) THEN 'acceptedSourceOwner' END,CASE WHEN 'accepted_source_id'=ANY(changed) THEN 'acceptedSourceId' END,CASE WHEN 'accepted_at'=ANY(changed) THEN 'acceptedAt' END,CASE WHEN 'created_at'=ANY(changed) THEN 'createdAt' END,CASE WHEN 'revision'=ANY(changed) THEN 'revision' END,CASE WHEN 'mutation_transaction_id'=ANY(changed) THEN 'mutationTransactionId' END]::text[],NULL),OLD."revision"::text) THEN RAISE EXCEPTION 'field or CAS scope denied' USING ERRCODE='42501'; END IF;
  ELSE
+  IF NEW.revision<>0 THEN RAISE EXCEPTION 'initial revision must be zero'; END IF;
   NEW."created_at":=clock_timestamp();
  END IF;
  NEW.mutation_transaction_id:=pg_current_xact_id()::text;
@@ -3603,6 +4434,8 @@ END;
 $wa$;
 
 CREATE TRIGGER physical_guard BEFORE INSERT OR UPDATE OR DELETE ON "app"."track_usage_reservation" FOR EACH ROW EXECUTE FUNCTION platform_private.guard_trackusagereservation();
+
+ALTER TABLE "app"."track_usage_reservation" ADD CONSTRAINT "nonnegative_revision" CHECK ("revision" >= 0);
 
 ALTER TABLE "app"."track_usage_reservation" ADD CONSTRAINT "ordered_period_end" CHECK ("period_end" IS NULL OR ("period_start" IS NOT NULL AND "period_end" > "period_start"));
 
@@ -3663,13 +4496,14 @@ BEGIN
  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'direct deletion denied' USING ERRCODE='42501'; END IF;
  IF TG_OP='UPDATE' THEN
   o:=to_jsonb(OLD);
-  RAISE EXCEPTION 'DRAFT-03: mutable source requires reviewed CAS version';
   IF NEW."created_at" IS DISTINCT FROM OLD."created_at" OR NEW."id" IS DISTINCT FROM OLD."id" OR NEW."mutation_transaction_id" IS DISTINCT FROM OLD."mutation_transaction_id" OR NEW."owner_module_id" IS DISTINCT FROM OLD."owner_module_id" OR NEW."source_id" IS DISTINCT FROM OLD."source_id" OR NEW."source_receipt_id" IS DISTINCT FROM OLD."source_receipt_id" THEN RAISE EXCEPTION 'immutable identity or ownership'; END IF;
+  IF NEW.revision<>OLD.revision+1 THEN RAISE EXCEPTION 'CAS revision must increment once'; END IF;
   IF NEW."generation"<OLD."generation" THEN RAISE EXCEPTION 'generation/fence regression'; END IF;
   SELECT COALESCE(array_agg(key),ARRAY[]::text[]) INTO changed FROM jsonb_each(n) WHERE value IS DISTINCT FROM o->key AND key<>'mutation_transaction_id';
 
-  IF NOT platform_private.row_allowed('privacy_data_erasure','PrivacyRestoreMarker',(n->>'id'),'UPDATE',array_remove(ARRAY[CASE WHEN 'id'=ANY(changed) THEN 'id' END,CASE WHEN 'owner_module_id'=ANY(changed) THEN 'ownerModuleId' END,CASE WHEN 'target_kind'=ANY(changed) THEN 'targetKind' END,CASE WHEN 'source_id'=ANY(changed) THEN 'sourceId' END,CASE WHEN 'generation'=ANY(changed) THEN 'generation' END,CASE WHEN 'action'=ANY(changed) THEN 'action' END,CASE WHEN 'source_receipt_id'=ANY(changed) THEN 'sourceReceiptId' END,CASE WHEN 'restore_point_ref'=ANY(changed) THEN 'restorePointRef' END,CASE WHEN 'applied_at'=ANY(changed) THEN 'appliedAt' END,CASE WHEN 'created_at'=ANY(changed) THEN 'createdAt' END,CASE WHEN 'mutation_transaction_id'=ANY(changed) THEN 'mutationTransactionId' END]::text[],NULL),OLD."generation"::text) THEN RAISE EXCEPTION 'field or CAS scope denied' USING ERRCODE='42501'; END IF;
+  IF NOT platform_private.row_allowed('privacy_data_erasure','PrivacyRestoreMarker',(n->>'id'),'UPDATE',array_remove(ARRAY[CASE WHEN 'id'=ANY(changed) THEN 'id' END,CASE WHEN 'owner_module_id'=ANY(changed) THEN 'ownerModuleId' END,CASE WHEN 'target_kind'=ANY(changed) THEN 'targetKind' END,CASE WHEN 'source_id'=ANY(changed) THEN 'sourceId' END,CASE WHEN 'generation'=ANY(changed) THEN 'generation' END,CASE WHEN 'action'=ANY(changed) THEN 'action' END,CASE WHEN 'source_receipt_id'=ANY(changed) THEN 'sourceReceiptId' END,CASE WHEN 'restore_point_ref'=ANY(changed) THEN 'restorePointRef' END,CASE WHEN 'applied_at'=ANY(changed) THEN 'appliedAt' END,CASE WHEN 'created_at'=ANY(changed) THEN 'createdAt' END,CASE WHEN 'revision'=ANY(changed) THEN 'revision' END,CASE WHEN 'mutation_transaction_id'=ANY(changed) THEN 'mutationTransactionId' END]::text[],NULL),OLD."revision"::text) THEN RAISE EXCEPTION 'field or CAS scope denied' USING ERRCODE='42501'; END IF;
  ELSE
+  IF NEW.revision<>0 THEN RAISE EXCEPTION 'initial revision must be zero'; END IF;
   NEW."created_at":=clock_timestamp();
  END IF;
  NEW.mutation_transaction_id:=pg_current_xact_id()::text;
@@ -3678,6 +4512,8 @@ END;
 $wa$;
 
 CREATE TRIGGER physical_guard BEFORE INSERT OR UPDATE OR DELETE ON "app"."privacy_restore_marker" FOR EACH ROW EXECUTE FUNCTION platform_private.guard_privacyrestoremarker();
+
+ALTER TABLE "app"."privacy_restore_marker" ADD CONSTRAINT "nonnegative_revision" CHECK ("revision" >= 0);
 
 ALTER TABLE "app"."privacy_restore_marker" ADD CONSTRAINT "nonnegative_generation" CHECK ("generation" >= 0);
 
@@ -3689,7 +4525,8 @@ ALTER TABLE platform.owner_mutation_evidence ADD CONSTRAINT evidence_identity
  AND evidence_body->>'schema'='database-owner-evidence.v1' AND evidence_body->>'model'=aggregate_kind
  AND evidence_body->>'owner'=owner_module_id AND evidence_body->>'decisionRef'=decision_ref
  AND length(decision_ref)>0 AND committed_revision>=0
- AND (previous_revision IS NULL OR committed_revision=previous_revision+1));
+ AND ((previous_revision IS NULL AND committed_revision=0 AND COALESCE(evidence_body->'prior','null'::jsonb)='null'::jsonb)
+  OR (previous_revision IS NOT NULL AND previous_revision>=0 AND committed_revision=previous_revision+1 AND COALESCE(jsonb_typeof(evidence_body->'prior')='object',false))));
 -- Review SQL storage digest codec: SHA-256 over PostgreSQL 17 jsonb::text UTF-8.
 -- Wire serializers must implement this exact storage codec or use a reviewed
 -- separate wire digest; equality with an unspecified JSON encoding is not assumed.
@@ -3715,7 +4552,8 @@ BEGIN
   AND platform_private.json_track_command(NEW.payload)
   AND NEW.payload->>'customerProfileId'=NEW.aggregate_id
   AND NEW.payload->>'sourceCreationRevision'=NEW.source_revision::text
-  AND NEW.payload->>'sourceCreationReceipt'=NEW.command_receipt_id::text THEN RETURN NEW; END IF;
+  AND NEW.payload->>'sourceCreationReceipt'=NEW.command_receipt_id::text
+  AND NEW.payload->>'semanticKey'='customer_buyer_profile/'||NEW.aggregate_id||'/default-free-enrollment/v1' THEN RETURN NEW; END IF;
  RAISE EXCEPTION 'unregistered or incoherent F0 message';
 END $wa$;
 CREATE TRIGGER message_json BEFORE INSERT ON platform.runtime_outbox_message
@@ -3731,6 +4569,7 @@ ALTER TABLE platform.runtime_command_receipt ADD CONSTRAINT result_json_boundary
    AND result_schema_id='urn:workinants:database-review:foundation-payloads:v1#/$defs/assignDefaultFreeTrackCustomerResult'
    AND platform_private.json_track_result(result_body))
  ));
+ALTER TABLE platform.runtime_command_receipt ADD CONSTRAINT result_version_registered CHECK (result_schema_version='1');
 ALTER TABLE platform.runtime_command_receipt ADD CONSTRAINT committed_result CHECK
  (state<>'committed' OR (result_digest IS NOT NULL AND
   (operation NOT IN ('SH-004.v1','SH-114.v1','assignDefaultFreeTrack.v1') OR result_body IS NOT NULL)));
@@ -3740,13 +4579,18 @@ ALTER TABLE platform.runtime_outbox_message ADD CONSTRAINT source_message_revisi
 CREATE FUNCTION platform_private.command_state_guard() RETURNS trigger
 LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $wa$
 BEGIN
+ IF NOT platform_private.command_context_allows(NEW.owner_module_id,NEW.operation,NEW.subject_scope)
+  AND NOT EXISTS(SELECT 1 FROM platform.runtime_reservation r WHERE r.command_receipt_id=NEW.id
+   AND r.owner_module_id=NEW.owner_module_id
+   AND platform_private.context_allows(NEW.owner_module_id,'runtime.reservation.v1','RuntimeReservation',r.id::text,'reservation'))
+ THEN RAISE EXCEPTION 'command action/root does not match protected scope'; END IF;
  IF TG_OP='UPDATE' AND (OLD.state IN ('committed','denied','fenced_noncommit')
   OR (to_jsonb(NEW)-ARRAY['state','source_revision','result_digest','result_body','mutation_transaction_id'])
    IS DISTINCT FROM (to_jsonb(OLD)-ARRAY['state','source_revision','result_digest','result_body','mutation_transaction_id']))
  THEN RAISE EXCEPTION 'terminal receipt or semantic identity immutable'; END IF;
  RETURN NEW;
 END $wa$;
-CREATE TRIGGER command_state BEFORE UPDATE ON platform.runtime_command_receipt
+CREATE TRIGGER command_state BEFORE INSERT OR UPDATE ON platform.runtime_command_receipt
  FOR EACH ROW EXECUTE FUNCTION platform_private.command_state_guard();
 
 ALTER TABLE app.consent_content_revision ADD CONSTRAINT exact_content_hash CHECK
@@ -3767,6 +4611,7 @@ BEGIN
    OR p.action_owner<>NEW.action_owner OR p.action<>NEW.action
    OR p.context_owner<>NEW.context_owner OR p.context_kind<>NEW.context_kind
    OR p.context_id IS DISTINCT FROM NEW.context_id
+   OR (NULLIF(NEW.context_id,'') IS NULL AND NOT platform_private.global_context_registered(p.action_owner,p.action,p.context_owner,p.context_kind))
    OR NEW.accepted_at<p.created_at OR NEW.accepted_at<c.effective_from
    OR (c.effective_until IS NOT NULL AND NEW.accepted_at>=c.effective_until)
    OR c.review_state='draft' OR NULLIF(NEW.acceptance_key,'') IS NULL
@@ -3801,7 +4646,7 @@ BEGIN
  SELECT * INTO STRICT h FROM app.customer_profile_lifecycle_event WHERE customer_profile_id=NEW.id
   AND source_revision=NEW.revision AND command_receipt_id=e.command_receipt_id
   AND mutation_transaction_id=e.mutation_transaction_id;
- IF h.to_status<>NEW.status OR h.actor_user_id<>NEW.user_id
+ IF h.to_status<>NEW.status OR h.actor_user_id<>NEW.user_id OR h.name<>'customer.lifecycle_changed.v1'
   OR h.from_status IS DISTINCT FROM (CASE WHEN TG_OP='INSERT' THEN NULL::app.profile_status ELSE OLD.status END)
   OR NOT EXISTS(SELECT 1 FROM platform.runtime_outbox_message o WHERE o.command_receipt_id=e.command_receipt_id
     AND o.aggregate_kind='CustomerProfile' AND o.aggregate_id=NEW.id::text
@@ -3816,53 +4661,138 @@ BEGIN
     AND o.source_generation=NEW.privacy_generation AND o.payload->>'userId'=NEW.user_id::text
     AND o.mutation_transaction_id=e.mutation_transaction_id)
  THEN RAISE EXCEPTION 'missing durable default-Free intent'; END IF;
+ IF (SELECT count(*) FROM platform.runtime_outbox_message o WHERE o.aggregate_kind='CustomerProfile'
+   AND o.aggregate_id=NEW.id::text AND o.source_revision=NEW.revision AND o.command_receipt_id=e.command_receipt_id
+   AND o.mutation_transaction_id=e.mutation_transaction_id) <> (CASE WHEN TG_OP='INSERT' THEN 2 ELSE 1 END)
+ THEN RAISE EXCEPTION 'extra or missing Customer messages'; END IF;
  RETURN NULL;
 END $wa$;
 CREATE CONSTRAINT TRIGGER customer_atomic AFTER INSERT OR UPDATE ON app.customer_profiles
  DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.customer_atomic();
 
+CREATE FUNCTION platform_private.customer_message_commit() RETURNS trigger
+LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $wa$
+DECLARE e platform.owner_mutation_evidence; h app.customer_profile_lifecycle_event; c app.customer_profiles;
+BEGIN
+ SELECT * INTO STRICT c FROM app.customer_profiles WHERE id=NEW.aggregate_id::uuid;
+ SELECT * INTO STRICT e FROM platform.owner_mutation_evidence WHERE owner_module_id='customer_buyer_profile'
+  AND aggregate_kind='CustomerProfile' AND aggregate_id=NEW.aggregate_id AND committed_revision=NEW.source_revision
+  AND command_receipt_id=NEW.command_receipt_id AND mutation_transaction_id=NEW.mutation_transaction_id;
+ SELECT * INTO STRICT h FROM app.customer_profile_lifecycle_event WHERE customer_profile_id=c.id AND source_revision=NEW.source_revision
+  AND command_receipt_id=e.command_receipt_id AND mutation_transaction_id=e.mutation_transaction_id;
+ IF c.revision<>NEW.source_revision OR c.privacy_generation<>NEW.source_generation
+  OR c.mutation_transaction_id<>NEW.mutation_transaction_id OR NEW.mutation_transaction_id<>pg_current_xact_id()::text
+  OR h.name<>'customer.lifecycle_changed.v1' OR h.to_status<>c.status OR h.actor_user_id<>c.user_id
+  OR NEW.payload->>'userId'<>c.user_id::text
+  OR (NEW.kind='event' AND (NEW.name<>'customer.lifecycle_changed.v1' OR NEW.ordinal<>0 OR NEW.payload->>'safeState'<>c.status::text))
+  OR (NEW.kind='command' AND (NEW.name<>'assignDefaultFreeTrack.v1' OR NEW.ordinal<>1 OR e.previous_revision IS NOT NULL OR c.revision<>0 OR h.from_status IS NOT NULL))
+  OR (SELECT count(*) FROM platform.runtime_outbox_message m WHERE m.command_receipt_id=e.command_receipt_id
+    AND m.aggregate_kind='CustomerProfile' AND m.aggregate_id=c.id::text AND m.source_revision=c.revision
+    AND m.mutation_transaction_id=e.mutation_transaction_id) <> (CASE WHEN e.previous_revision IS NULL THEN 2 ELSE 1 END)
+ THEN RAISE EXCEPTION 'message does not match exact source/history/count'; END IF;
+ RETURN NULL;
+END $wa$;
+CREATE CONSTRAINT TRIGGER exact_customer_message AFTER INSERT ON platform.runtime_outbox_message
+ DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.customer_message_commit();
+CREATE FUNCTION platform_private.customer_history_commit() RETURNS trigger
+LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $wa$
+DECLARE c app.customer_profiles; e platform.owner_mutation_evidence;
+BEGIN
+ SELECT * INTO STRICT c FROM app.customer_profiles WHERE id=NEW.customer_profile_id;
+ SELECT * INTO STRICT e FROM platform.owner_mutation_evidence WHERE aggregate_kind='CustomerProfile' AND aggregate_id=c.id::text
+  AND owner_module_id='customer_buyer_profile' AND committed_revision=NEW.source_revision
+  AND command_receipt_id=NEW.command_receipt_id AND mutation_transaction_id=NEW.mutation_transaction_id;
+ IF c.mutation_transaction_id<>NEW.mutation_transaction_id OR c.revision<>NEW.source_revision OR c.status<>NEW.to_status
+  OR NEW.actor_user_id<>c.user_id OR NEW.name<>'customer.lifecycle_changed.v1'
+  OR NEW.from_status::text IS DISTINCT FROM e.evidence_body->'prior'->>'status'
+ THEN RAISE EXCEPTION 'orphan Customer history'; END IF;
+ RETURN NULL;
+END $wa$;
+CREATE CONSTRAINT TRIGGER exact_customer_history AFTER INSERT ON app.customer_profile_lifecycle_event
+ DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.customer_history_commit();
+
 -- SQL-09: unknown never releases by clock expiry; durable noncommit is necessary.
 ALTER TABLE platform.runtime_reservation ADD CONSTRAINT positive_reservation CHECK (quantity>0);
 ALTER TABLE platform.runtime_attempt ADD CONSTRAINT attempt_order CHECK (attempt_number>0 AND fence>0);
 ALTER TABLE platform.runtime_work_item ADD CONSTRAINT lease_shape CHECK
- ((state='leased' AND lease_token_hash IS NOT NULL AND lease_expires_at IS NOT NULL AND fence>0)
-  OR (state<>'leased' AND lease_token_hash IS NULL AND lease_expires_at IS NULL));
+ ((state IN ('leased','completed') AND lease_token_hash IS NOT NULL AND lease_expires_at IS NOT NULL AND fence>0)
+  OR (state NOT IN ('leased','completed') AND lease_token_hash IS NULL AND lease_expires_at IS NULL));
 CREATE FUNCTION platform_private.runtime_transition() RETURNS trigger
 LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $wa$
-DECLARE w platform.runtime_work_item; e platform.runtime_effect_receipt;
+DECLARE w platform.runtime_work_item; e platform.runtime_effect_receipt; c platform.runtime_command_receipt;
 BEGIN
  IF TG_TABLE_NAME='runtime_work_item' THEN
+  IF TG_OP='INSERT' THEN
+   IF session_user::text<>'wa_app_runtime' OR NEW.state<>'pending' OR NEW.fence<>0 OR NEW.attempt_count<>0
+    OR NEW.effect_receipt_id IS NOT NULL OR NOT platform_private.context_allows('platform_integration_owner','runtime.schedule_work.v1','RuntimeWorkItem',NEW.id::text,'work.schedule')
+   THEN RAISE EXCEPTION 'job must enter through registered scheduler'; END IF;
+  END IF;
   IF TG_OP='UPDATE' THEN
    IF OLD.state='completed' OR NEW.attempt_count<OLD.attempt_count THEN RAISE EXCEPTION 'terminal work/regressive attempt'; END IF;
+   IF NEW.effect_receipt_id IS DISTINCT FROM OLD.effect_receipt_id THEN
+    IF OLD.effect_receipt_id IS NOT NULL OR NEW.effect_receipt_id IS NULL OR OLD.state<>'leased'
+     OR NOT platform_private.worker_effect_matches(OLD.id,NEW.effect_receipt_id,false)
+    THEN RAISE EXCEPTION 'effect link must be one exact protected attachment'; END IF;
+   END IF;
    IF NEW.state='leased' AND (OLD.state<>'leased' OR NEW.lease_token_hash IS DISTINCT FROM OLD.lease_token_hash) THEN
-    IF NEW.fence<>OLD.fence+1 OR NEW.attempt_count<>OLD.attempt_count+1
+    IF session_user::text<>'wa_worker' OR NOT platform_private.context_allows('platform_integration_owner','runtime.claim_work.v1','RuntimeWorkItem',OLD.id::text,'work.claim')
+     OR NEW.fence<>OLD.fence+1 OR NEW.attempt_count<>OLD.attempt_count+1
+     OR NEW.lease_expires_at<=clock_timestamp()
      OR (OLD.state='leased' AND OLD.lease_expires_at>clock_timestamp())
+     OR NOT platform_private.lease_secret_matches(NEW.lease_token_hash::text)
     THEN RAISE EXCEPTION 'invalid claim/reclaim'; END IF;
-   ELSIF NEW.fence<>OLD.fence THEN RAISE EXCEPTION 'fence may change only on claim'; END IF;
+   ELSIF NEW.fence<>OLD.fence OR NEW.attempt_count<>OLD.attempt_count
+   THEN RAISE EXCEPTION 'fence and attempt may change only on claim'; END IF;
+   IF OLD.state='leased' AND NEW.lease_token_hash IS NOT DISTINCT FROM OLD.lease_token_hash AND NEW.state='leased'
+    AND NEW.lease_expires_at IS DISTINCT FROM OLD.lease_expires_at THEN
+    IF NOT platform_private.context_allows('platform_integration_owner','runtime.renew_work.v1','RuntimeWorkItem',OLD.id::text,'work.renew')
+     OR OLD.lease_expires_at<=clock_timestamp() OR NOT platform_private.lease_secret_matches(OLD.lease_token_hash::text)
+     OR NEW.lease_expires_at<=OLD.lease_expires_at OR NEW.attempt_count<>OLD.attempt_count
+    THEN RAISE EXCEPTION 'renewal requires current secret and extends live lease'; END IF;
+   END IF;
    IF OLD.state='leased' AND NEW.state<>'leased' AND (OLD.lease_expires_at<=clock_timestamp()
-    OR current_setting('wa.lease_hash',true) IS DISTINCT FROM OLD.lease_token_hash::text
+    OR NOT platform_private.lease_secret_matches(OLD.lease_token_hash::text)
     OR current_setting('wa.fence',true) IS DISTINCT FROM OLD.fence::text)
    THEN RAISE EXCEPTION 'expired or foreign worker'; END IF;
   END IF;
   IF NEW.state='completed' THEN
    SELECT * INTO STRICT e FROM platform.runtime_effect_receipt WHERE id=NEW.effect_receipt_id;
-   IF e.state<>'committed' OR e.fence<>NEW.fence THEN RAISE EXCEPTION 'completion without current committed effect'; END IF;
+   IF e.state<>'committed' OR e.fence>NEW.fence OR NOT platform_private.worker_effect_matches(NEW.id,e.id,false)
+   THEN RAISE EXCEPTION 'completion without exact committed effect and current holder'; END IF;
   END IF;
  ELSIF TG_TABLE_NAME='runtime_attempt' THEN
   SELECT * INTO STRICT w FROM platform.runtime_work_item WHERE id=NEW.work_item_id;
-  IF w.fence<>NEW.fence OR NEW.attempt_number<>w.attempt_count THEN RAISE EXCEPTION 'stale attempt'; END IF;
+  IF w.fence<>NEW.fence OR NEW.attempt_number<>w.attempt_count OR NOT platform_private.worker_lease_valid(w.id,NULL,true)
+  THEN RAISE EXCEPTION 'stale attempt'; END IF;
+ ELSIF TG_TABLE_NAME='runtime_reservation' AND TG_OP='INSERT' THEN
+  IF NEW.state<>'active' OR NEW.effect_receipt_id IS NOT NULL
+  THEN RAISE EXCEPTION 'reservation must start active without outcome'; END IF;
  ELSIF TG_TABLE_NAME='runtime_reservation' AND TG_OP='UPDATE' THEN
   IF OLD.state IN ('committed','released') THEN RAISE EXCEPTION 'terminal reservation'; END IF;
-  IF NEW.state='released' AND OLD.state='unknown' AND NOT EXISTS
-   (SELECT 1 FROM platform.runtime_effect_receipt r WHERE r.id=NEW.effect_receipt_id
-    AND r.state='fenced_noncommit' AND r.fence>=OLD.fence)
-  THEN RAISE EXCEPTION 'unknown needs durable fenced noncommit'; END IF;
+  IF NEW.effect_receipt_id IS DISTINCT FROM OLD.effect_receipt_id AND
+   (OLD.effect_receipt_id IS NOT NULL OR NEW.effect_receipt_id IS NULL OR NEW.state NOT IN ('committed','released'))
+  THEN RAISE EXCEPTION 'reservation outcome link attaches once at exact terminal proof'; END IF;
+  IF NOT ((OLD.state='active' AND NEW.state IN ('active','unknown','committed','released'))
+   OR (OLD.state='unknown' AND NEW.state IN ('unknown','committed','released')))
+  THEN RAISE EXCEPTION 'unsupported reservation transition'; END IF;
+  IF NEW.state IN ('committed','released') THEN
+   SELECT * INTO STRICT c FROM platform.runtime_command_receipt WHERE id=NEW.command_receipt_id;
+   SELECT * INTO STRICT e FROM platform.runtime_effect_receipt WHERE id=NEW.effect_receipt_id;
+   IF e.command_receipt_id IS DISTINCT FROM NEW.command_receipt_id OR e.owner_module_id<>NEW.owner_module_id
+    OR c.owner_module_id<>NEW.owner_module_id OR e.operation<>c.operation OR e.fingerprint<>c.fingerprint OR e.fence<>NEW.fence
+    OR e.subject_scope<>'RuntimeReservation:'||NEW.id::text OR c.subject_scope<>e.subject_scope
+    OR e.semantic_effect_key<>NEW.semantic_key OR c.semantic_key<>NEW.semantic_key
+    OR (NEW.state='released' AND (e.state<>'fenced_noncommit' OR c.state<>'fenced_noncommit'
+      OR e.mutation_transaction_id<>pg_current_xact_id()::text OR c.mutation_transaction_id<>e.mutation_transaction_id))
+    OR (NEW.state='committed' AND (e.state<>'committed' OR c.state<>'committed'))
+   THEN RAISE EXCEPTION 'reservation outcome needs exact command/operation/effect proof'; END IF;
+  END IF;
  END IF;
  RETURN NEW;
 END $wa$;
 CREATE TRIGGER work_transition BEFORE INSERT OR UPDATE ON platform.runtime_work_item FOR EACH ROW EXECUTE FUNCTION platform_private.runtime_transition();
 CREATE TRIGGER attempt_transition BEFORE INSERT ON platform.runtime_attempt FOR EACH ROW EXECUTE FUNCTION platform_private.runtime_transition();
-CREATE TRIGGER reservation_transition BEFORE UPDATE ON platform.runtime_reservation FOR EACH ROW EXECUTE FUNCTION platform_private.runtime_transition();
+CREATE TRIGGER reservation_transition BEFORE INSERT OR UPDATE ON platform.runtime_reservation FOR EACH ROW EXECUTE FUNCTION platform_private.runtime_transition();
 
 -- Effect insertion must match the still-current protected work lease, not an
 -- arbitrary fence copied from an old message or an untrusted GUC alone.
@@ -3872,9 +4802,8 @@ DECLARE w platform.runtime_work_item;
 BEGIN
  IF session_user::text='wa_worker' THEN
   SELECT * INTO STRICT w FROM platform.runtime_work_item WHERE effect_receipt_id=NEW.id;
-  IF w.state<>'leased' OR w.fence<>NEW.fence OR w.lease_expires_at<=clock_timestamp()
-   OR current_setting('wa.lease_hash',true) IS DISTINCT FROM w.lease_token_hash::text
-   OR current_setting('wa.fence',true) IS DISTINCT FROM w.fence::text
+  IF NOT platform_private.worker_lease_valid(w.id,NEW.id,true) OR w.fence<>NEW.fence
+   OR NOT platform_private.worker_effect_matches(w.id,NEW.id,true)
   THEN RAISE EXCEPTION 'stale worker effect'; END IF;
  END IF;
  RETURN NULL;
@@ -3886,57 +4815,14 @@ CREATE CONSTRAINT TRIGGER effect_fence AFTER INSERT ON platform.runtime_effect_r
 -- invalidate an already valid selected subscription.
 CREATE FUNCTION platform_private.track_enrollment_commit() RETURNS trigger
 LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $wa$
-DECLARE s app.track_subscriptions; old_s app.track_subscriptions; p app.track_plans;
- sel app.track_base_selection; e platform.runtime_effect_receipt;
 BEGIN
- IF session_user::text<>'wa_worker' THEN RETURN NULL; END IF;
- IF TG_TABLE_NAME='track_base_selection' THEN
-  SELECT * INTO STRICT s FROM app.track_subscriptions WHERE id=NEW.subscription_id;
-  SELECT * INTO STRICT p FROM app.track_plans WHERE id=s.plan_id;
-  IF s.mutation_transaction_id<>NEW.mutation_transaction_id OR p.status<>'active' OR p.billing_model<>'free'
-   OR s.provider<>'none' OR s.status<>'active' OR s.customer_profile_id<>NEW.customer_profile_id
-  THEN RAISE EXCEPTION 'not same new approved Free enrollment'; END IF;
-  IF TG_OP='UPDATE' THEN
-   SELECT * INTO STRICT old_s FROM app.track_subscriptions WHERE id=OLD.subscription_id;
-   IF old_s.status IN ('active','trialing') AND old_s.ended_at IS NULL
-    AND (old_s.current_period_end IS NULL OR old_s.current_period_end>clock_timestamp())
-   THEN RAISE EXCEPTION 'preserve valid existing Free or paid selection'; END IF;
-  END IF;
-  IF NOT EXISTS(SELECT 1 FROM app.track_enrollment_receipt r WHERE r.selection_id=NEW.id
-   AND r.selection_revision=NEW.revision AND r.mutation_transaction_id=NEW.mutation_transaction_id)
-  THEN RAISE EXCEPTION 'missing atomic enrollment receipt'; END IF;
- ELSIF TG_TABLE_NAME='track_subscriptions' THEN
-  IF NOT EXISTS(SELECT 1 FROM app.track_base_selection b WHERE b.subscription_id=NEW.id
-    AND b.mutation_transaction_id=NEW.mutation_transaction_id)
-   OR NOT EXISTS(SELECT 1 FROM app.track_subscription_events h WHERE h.subscription_id=NEW.id
-    AND h.mutation_transaction_id=NEW.mutation_transaction_id AND h.user_id=NEW.user_id
-    AND h.plan_id=NEW.plan_id AND h.to_status=NEW.status AND h.from_status IS NULL)
-  THEN RAISE EXCEPTION 'orphan Free enrollment/history'; END IF;
- ELSIF TG_TABLE_NAME='track_entitlement_grants' THEN
-  SELECT * INTO STRICT s FROM app.track_subscriptions WHERE id=NEW.subscription_id;
-  IF s.mutation_transaction_id<>NEW.mutation_transaction_id OR NEW.source_plan_id IS DISTINCT FROM s.plan_id
-   OR NOT EXISTS(SELECT 1 FROM app.track_plan_entitlements b JOIN app.track_entitlement_definitions d ON d.id=b.entitlement_id
-    WHERE b.plan_id=s.plan_id AND b.entitlement_id=NEW.entitlement_id AND d.is_active
-     AND (d.track IS NULL OR d.track='customer') AND d.value_type=NEW.value_type AND b.value_type=NEW.value_type
-     AND b.boolean_value IS NOT DISTINCT FROM NEW.boolean_value AND b.int_value IS NOT DISTINCT FROM NEW.int_value
-     AND b.decimal_value IS NOT DISTINCT FROM NEW.decimal_value AND b.string_value IS NOT DISTINCT FROM NEW.string_value)
-  THEN RAISE EXCEPTION 'not exact approved Free benefits'; END IF;
- ELSIF TG_TABLE_NAME='track_subscription_events' THEN
-  SELECT * INTO STRICT s FROM app.track_subscriptions WHERE id=NEW.subscription_id;
-  IF s.mutation_transaction_id<>NEW.mutation_transaction_id OR s.user_id<>NEW.user_id OR s.plan_id IS DISTINCT FROM NEW.plan_id
-   OR NEW.from_status IS NOT NULL OR NEW.to_status IS DISTINCT FROM s.status OR NEW.provider IS DISTINCT FROM 'none'::app.track_billing_provider
-  THEN RAISE EXCEPTION 'replay must not append new enrollment history'; END IF;
- ELSIF TG_TABLE_NAME='track_enrollment_receipt' THEN
-  SELECT * INTO STRICT sel FROM app.track_base_selection WHERE id=NEW.selection_id;
-  SELECT * INTO STRICT e FROM platform.runtime_effect_receipt WHERE id=NEW.effect_receipt_id;
-  IF NEW.track<>'customer' OR NEW.source_owner<>'customer_buyer_profile'
-   OR sel.user_id<>NEW.user_id OR sel.track<>NEW.track OR sel.customer_profile_id<>NEW.profile_id
-   OR sel.revision<>NEW.selection_revision OR e.state<>'committed'
-   OR e.mutation_transaction_id<>NEW.mutation_transaction_id
-   OR NOT EXISTS(SELECT 1 FROM platform.runtime_inbox_receipt i WHERE i.effect_receipt_id=e.id
-    AND i.handler_name='assignDefaultFreeTrack.v1' AND i.mutation_transaction_id=e.mutation_transaction_id)
-  THEN RAISE EXCEPTION 'incoherent atomic enrollment/inbox/effect'; END IF;
+ IF session_user::text<>'wa_worker' THEN
+  IF TG_TABLE_NAME IN ('track_subscription_events','track_enrollment_receipt') THEN
+   RAISE EXCEPTION 'F0 history/receipt uses qualified worker only'; END IF;
+  RETURN NULL;
  END IF;
+ IF NOT platform_private.track_atomic_valid(TG_TABLE_NAME,to_jsonb(NEW),CASE WHEN TG_OP='UPDATE' THEN to_jsonb(OLD) ELSE NULL::jsonb END)
+ THEN RAISE EXCEPTION 'fixed Track atomic verifier denied'; END IF;
  RETURN NULL;
 END $wa$;
 CREATE CONSTRAINT TRIGGER enrollment_commit AFTER INSERT OR UPDATE ON app.track_base_selection DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.track_enrollment_commit();
@@ -3950,6 +4836,12 @@ CREATE FUNCTION platform_private.track_binding() RETURNS trigger
 LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $wa$
 DECLARE v jsonb:=to_jsonb(NEW); u uuid; plan app.track_plans; sub app.track_subscriptions;
 BEGIN
+ IF session_user::text='wa_worker' THEN
+  IF NOT platform_private.worker_track_allowed(CASE TG_TABLE_NAME WHEN 'track_subscriptions' THEN 'TrackSubscription'
+   WHEN 'track_entitlement_grants' THEN 'TrackEntitlementGrant' WHEN 'track_base_selection' THEN 'TrackBaseSelection' END,to_jsonb(NEW),TG_OP)
+  THEN RAISE EXCEPTION 'fixed Track binding denied'; END IF;
+  RETURN NEW;
+ END IF;
  IF v ? 'customer_profile_id' THEN
   IF num_nonnulls(v->>'customer_profile_id',v->>'candidate_profile_id',v->>'professional_profile_id')<>1
    OR ((v->>'track'='customer') IS DISTINCT FROM (v->>'customer_profile_id' IS NOT NULL))
@@ -4074,9 +4966,8 @@ BEGIN
   SELECT * INTO STRICT w FROM platform.runtime_work_item WHERE outbox_message_id=o.id AND handler_name=NEW.handler_name;
   IF o.payload_hash<>NEW.payload_hash OR e.owner_module_id<>NEW.consumer_owner OR e.state<>'committed'
    OR e.mutation_transaction_id<>NEW.mutation_transaction_id OR e.fence<>w.fence
-   OR w.state<>'leased' OR w.lease_expires_at<=clock_timestamp()
-   OR current_setting('wa.lease_hash',true) IS DISTINCT FROM w.lease_token_hash::text
-   OR current_setting('wa.fence',true) IS DISTINCT FROM w.fence::text
+   OR NOT platform_private.worker_lease_valid(w.id,e.id,true)
+   OR NOT platform_private.worker_effect_matches(w.id,e.id,true)
   THEN RAISE EXCEPTION 'stale or incoherent inbox effect'; END IF;
  END IF;
  RETURN NULL;
@@ -4377,12 +5268,12 @@ SET search_path = pg_catalog
 AS $wa$
 DECLARE e platform.owner_mutation_evidence; prior_value jsonb;
 BEGIN
- prior_value:=CASE WHEN TG_OP='UPDATE' THEN jsonb_build_object('id',to_jsonb(OLD."id"),'track',to_jsonb(OLD."track"),'status',to_jsonb(OLD."status"),'billingModel',to_jsonb(OLD."billing_model"),'monthlyPriceCents',to_jsonb(OLD."monthly_price_cents"::text),'currency',to_jsonb(OLD."currency"),'revision',to_jsonb(OLD."revision"::text),'contentHash',to_jsonb(OLD."content_hash")) ELSE 'null'::jsonb END;
+ prior_value:=CASE WHEN TG_OP='UPDATE' THEN jsonb_build_object('id',to_jsonb(OLD."id"),'track',to_jsonb(OLD."track"),'status',to_jsonb(OLD."status"),'billingModel',to_jsonb(OLD."billing_model"),'monthlyPriceCents',to_jsonb(OLD."monthly_price_cents"),'currency',to_jsonb(OLD."currency"),'revision',to_jsonb(OLD."revision"::text),'contentHash',to_jsonb(OLD."content_hash")) ELSE 'null'::jsonb END;
  SELECT * INTO e FROM platform.owner_mutation_evidence WHERE aggregate_kind='TrackPlan'
   AND aggregate_id=(to_jsonb(NEW)->>'id') AND committed_revision=NEW.revision
   AND owner_module_id='track_subscription_entitlement' AND mutation_transaction_id=pg_current_xact_id()::text;
  IF NOT FOUND OR e.evidence_body->'primaryKey' IS DISTINCT FROM jsonb_build_object('id',NEW."id")
-  OR e.evidence_body->'committed' IS DISTINCT FROM jsonb_build_object('id',to_jsonb(NEW."id"),'track',to_jsonb(NEW."track"),'status',to_jsonb(NEW."status"),'billingModel',to_jsonb(NEW."billing_model"),'monthlyPriceCents',to_jsonb(NEW."monthly_price_cents"::text),'currency',to_jsonb(NEW."currency"),'revision',to_jsonb(NEW."revision"::text),'contentHash',to_jsonb(NEW."content_hash"))
+  OR e.evidence_body->'committed' IS DISTINCT FROM jsonb_build_object('id',to_jsonb(NEW."id"),'track',to_jsonb(NEW."track"),'status',to_jsonb(NEW."status"),'billingModel',to_jsonb(NEW."billing_model"),'monthlyPriceCents',to_jsonb(NEW."monthly_price_cents"),'currency',to_jsonb(NEW."currency"),'revision',to_jsonb(NEW."revision"::text),'contentHash',to_jsonb(NEW."content_hash"))
   OR COALESCE(e.evidence_body->'prior','null'::jsonb) IS DISTINCT FROM prior_value
   OR e.previous_revision IS DISTINCT FROM (CASE WHEN TG_OP='UPDATE' THEN OLD.revision ELSE NULL::bigint END)
   OR e.decision_ref IS DISTINCT FROM e.evidence_body->>'decisionRef'
@@ -4533,12 +5424,12 @@ SET search_path = pg_catalog
 AS $wa$
 DECLARE e platform.owner_mutation_evidence; prior_value jsonb;
 BEGIN
- prior_value:=CASE WHEN TG_OP='UPDATE' THEN jsonb_build_object('id',to_jsonb(OLD."id"),'userId',to_jsonb(OLD."user_id"),'track',to_jsonb(OLD."track"),'period',to_jsonb(OLD."period"),'periodStart',to_jsonb(OLD."period_start"),'periodEnd',to_jsonb(OLD."period_end"),'usedQuantity',to_jsonb(OLD."used_quantity"::text),'limitQuantity',to_jsonb(OLD."limit_quantity"::text),'revision',to_jsonb(OLD."revision"::text),'sourceRevision',to_jsonb(OLD."source_revision"::text)) ELSE 'null'::jsonb END;
+ prior_value:=CASE WHEN TG_OP='UPDATE' THEN jsonb_build_object('id',to_jsonb(OLD."id"),'userId',to_jsonb(OLD."user_id"),'track',to_jsonb(OLD."track"),'period',to_jsonb(OLD."period"),'periodStart',to_jsonb(OLD."period_start"),'periodEnd',to_jsonb(OLD."period_end"),'usedQuantity',to_jsonb(OLD."used_quantity"),'limitQuantity',to_jsonb(OLD."limit_quantity"),'revision',to_jsonb(OLD."revision"::text),'sourceRevision',to_jsonb(OLD."source_revision"::text)) ELSE 'null'::jsonb END;
  SELECT * INTO e FROM platform.owner_mutation_evidence WHERE aggregate_kind='TrackUsageCounter'
   AND aggregate_id=(to_jsonb(NEW)->>'id') AND committed_revision=NEW.revision
   AND owner_module_id='track_subscription_entitlement' AND mutation_transaction_id=pg_current_xact_id()::text;
  IF NOT FOUND OR e.evidence_body->'primaryKey' IS DISTINCT FROM jsonb_build_object('id',NEW."id")
-  OR e.evidence_body->'committed' IS DISTINCT FROM jsonb_build_object('id',to_jsonb(NEW."id"),'userId',to_jsonb(NEW."user_id"),'track',to_jsonb(NEW."track"),'period',to_jsonb(NEW."period"),'periodStart',to_jsonb(NEW."period_start"),'periodEnd',to_jsonb(NEW."period_end"),'usedQuantity',to_jsonb(NEW."used_quantity"::text),'limitQuantity',to_jsonb(NEW."limit_quantity"::text),'revision',to_jsonb(NEW."revision"::text),'sourceRevision',to_jsonb(NEW."source_revision"::text))
+  OR e.evidence_body->'committed' IS DISTINCT FROM jsonb_build_object('id',to_jsonb(NEW."id"),'userId',to_jsonb(NEW."user_id"),'track',to_jsonb(NEW."track"),'period',to_jsonb(NEW."period"),'periodStart',to_jsonb(NEW."period_start"),'periodEnd',to_jsonb(NEW."period_end"),'usedQuantity',to_jsonb(NEW."used_quantity"),'limitQuantity',to_jsonb(NEW."limit_quantity"),'revision',to_jsonb(NEW."revision"::text),'sourceRevision',to_jsonb(NEW."source_revision"::text))
   OR COALESCE(e.evidence_body->'prior','null'::jsonb) IS DISTINCT FROM prior_value
   OR e.previous_revision IS DISTINCT FROM (CASE WHEN TG_OP='UPDATE' THEN OLD.revision ELSE NULL::bigint END)
   OR e.decision_ref IS DISTINCT FROM e.evidence_body->>'decisionRef'
@@ -4552,32 +5443,6 @@ END;
 $wa$;
 
 CREATE CONSTRAINT TRIGGER owner_commit AFTER INSERT OR UPDATE ON "app"."track_usage_counters" DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.commit_trackusagecounter();
-
-CREATE FUNCTION platform_private.commit_tracksubscriptionevent() RETURNS trigger
-LANGUAGE plpgsql VOLATILE SECURITY INVOKER
-SET search_path = pg_catalog
-AS $wa$
-DECLARE e platform.owner_mutation_evidence; prior_value jsonb;
-BEGIN
- prior_value:=CASE WHEN TG_OP='UPDATE' THEN jsonb_build_object('id',to_jsonb(OLD."id"),'userId',to_jsonb(OLD."user_id"),'fromStatus',to_jsonb(OLD."from_status"),'toStatus',to_jsonb(OLD."to_status"),'provider',to_jsonb(OLD."provider")) ELSE 'null'::jsonb END;
- SELECT * INTO e FROM platform.owner_mutation_evidence WHERE aggregate_kind='TrackSubscriptionEvent'
-  AND aggregate_id=(to_jsonb(NEW)->>'id') AND committed_revision=0::bigint
-  AND owner_module_id='track_subscription_entitlement' AND mutation_transaction_id=pg_current_xact_id()::text;
- IF NOT FOUND OR e.evidence_body->'primaryKey' IS DISTINCT FROM jsonb_build_object('id',NEW."id")
-  OR e.evidence_body->'committed' IS DISTINCT FROM jsonb_build_object('id',to_jsonb(NEW."id"),'userId',to_jsonb(NEW."user_id"),'fromStatus',to_jsonb(NEW."from_status"),'toStatus',to_jsonb(NEW."to_status"),'provider',to_jsonb(NEW."provider"))
-  OR COALESCE(e.evidence_body->'prior','null'::jsonb) IS DISTINCT FROM prior_value
-  OR e.previous_revision IS DISTINCT FROM (CASE WHEN TG_OP='UPDATE' THEN 0::bigint ELSE NULL::bigint END)
-  OR e.decision_ref IS DISTINCT FROM e.evidence_body->>'decisionRef'
-  OR NOT platform_private.json_evidence_tracksubscriptionevent(e.evidence_body)
-  OR NOT EXISTS(SELECT 1 FROM platform.runtime_command_receipt c WHERE c.id=e.command_receipt_id
-   AND c.mutation_transaction_id=e.mutation_transaction_id AND c.owner_module_id=e.owner_module_id
-   AND c.state='committed' AND c.operation=e.action )
- THEN RAISE EXCEPTION 'missing exact atomic owner proof for TrackSubscriptionEvent'; END IF;
- RETURN NULL;
-END;
-$wa$;
-
-CREATE CONSTRAINT TRIGGER owner_commit AFTER INSERT OR UPDATE ON "app"."track_subscription_events" DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.commit_tracksubscriptionevent();
 
 CREATE FUNCTION platform_private.commit_consentcontentrevision() RETURNS trigger
 LANGUAGE plpgsql VOLATILE SECURITY INVOKER
@@ -4657,32 +5522,6 @@ $wa$;
 
 CREATE CONSTRAINT TRIGGER owner_commit AFTER INSERT OR UPDATE ON "app"."consent_disposition" DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.commit_consentdisposition();
 
-CREATE FUNCTION platform_private.commit_customerprofilelifecycleevent() RETURNS trigger
-LANGUAGE plpgsql VOLATILE SECURITY INVOKER
-SET search_path = pg_catalog
-AS $wa$
-DECLARE e platform.owner_mutation_evidence; prior_value jsonb;
-BEGIN
- prior_value:=CASE WHEN TG_OP='UPDATE' THEN jsonb_build_object('id',to_jsonb(OLD."id"),'sourceRevision',to_jsonb(OLD."source_revision"::text),'fromStatus',to_jsonb(OLD."from_status"),'toStatus',to_jsonb(OLD."to_status")) ELSE 'null'::jsonb END;
- SELECT * INTO e FROM platform.owner_mutation_evidence WHERE aggregate_kind='CustomerProfileLifecycleEvent'
-  AND aggregate_id=(to_jsonb(NEW)->>'id') AND committed_revision=0::bigint
-  AND owner_module_id='customer_buyer_profile' AND mutation_transaction_id=pg_current_xact_id()::text;
- IF NOT FOUND OR e.evidence_body->'primaryKey' IS DISTINCT FROM jsonb_build_object('id',NEW."id")
-  OR e.evidence_body->'committed' IS DISTINCT FROM jsonb_build_object('id',to_jsonb(NEW."id"),'sourceRevision',to_jsonb(NEW."source_revision"::text),'fromStatus',to_jsonb(NEW."from_status"),'toStatus',to_jsonb(NEW."to_status"))
-  OR COALESCE(e.evidence_body->'prior','null'::jsonb) IS DISTINCT FROM prior_value
-  OR e.previous_revision IS DISTINCT FROM (CASE WHEN TG_OP='UPDATE' THEN 0::bigint ELSE NULL::bigint END)
-  OR e.decision_ref IS DISTINCT FROM e.evidence_body->>'decisionRef'
-  OR NOT platform_private.json_evidence_customerprofilelifecycleevent(e.evidence_body)
-  OR NOT EXISTS(SELECT 1 FROM platform.runtime_command_receipt c WHERE c.id=e.command_receipt_id
-   AND c.mutation_transaction_id=e.mutation_transaction_id AND c.owner_module_id=e.owner_module_id
-   AND c.state='committed' AND c.operation=e.action )
- THEN RAISE EXCEPTION 'missing exact atomic owner proof for CustomerProfileLifecycleEvent'; END IF;
- RETURN NULL;
-END;
-$wa$;
-
-CREATE CONSTRAINT TRIGGER owner_commit AFTER INSERT OR UPDATE ON "app"."customer_profile_lifecycle_event" DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.commit_customerprofilelifecycleevent();
-
 CREATE FUNCTION platform_private.commit_trackbaseselection() RETURNS trigger
 LANGUAGE plpgsql VOLATILE SECURITY INVOKER
 SET search_path = pg_catalog
@@ -4709,46 +5548,20 @@ $wa$;
 
 CREATE CONSTRAINT TRIGGER owner_commit AFTER INSERT OR UPDATE ON "app"."track_base_selection" DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.commit_trackbaseselection();
 
-CREATE FUNCTION platform_private.commit_trackenrollmentreceipt() RETURNS trigger
-LANGUAGE plpgsql VOLATILE SECURITY INVOKER
-SET search_path = pg_catalog
-AS $wa$
-DECLARE e platform.owner_mutation_evidence; prior_value jsonb;
-BEGIN
- prior_value:=CASE WHEN TG_OP='UPDATE' THEN jsonb_build_object('id',to_jsonb(OLD."id"),'userId',to_jsonb(OLD."user_id"),'track',to_jsonb(OLD."track"),'sourceOwner',to_jsonb(OLD."source_owner"),'sourceCreationRevision',to_jsonb(OLD."source_creation_revision"::text),'selectionRevision',to_jsonb(OLD."selection_revision"::text)) ELSE 'null'::jsonb END;
- SELECT * INTO e FROM platform.owner_mutation_evidence WHERE aggregate_kind='TrackEnrollmentReceipt'
-  AND aggregate_id=(to_jsonb(NEW)->>'id') AND committed_revision=0::bigint
-  AND owner_module_id='track_subscription_entitlement' AND mutation_transaction_id=pg_current_xact_id()::text;
- IF NOT FOUND OR e.evidence_body->'primaryKey' IS DISTINCT FROM jsonb_build_object('id',NEW."id")
-  OR e.evidence_body->'committed' IS DISTINCT FROM jsonb_build_object('id',to_jsonb(NEW."id"),'userId',to_jsonb(NEW."user_id"),'track',to_jsonb(NEW."track"),'sourceOwner',to_jsonb(NEW."source_owner"),'sourceCreationRevision',to_jsonb(NEW."source_creation_revision"::text),'selectionRevision',to_jsonb(NEW."selection_revision"::text))
-  OR COALESCE(e.evidence_body->'prior','null'::jsonb) IS DISTINCT FROM prior_value
-  OR e.previous_revision IS DISTINCT FROM (CASE WHEN TG_OP='UPDATE' THEN 0::bigint ELSE NULL::bigint END)
-  OR e.decision_ref IS DISTINCT FROM e.evidence_body->>'decisionRef'
-  OR NOT platform_private.json_evidence_trackenrollmentreceipt(e.evidence_body)
-  OR NOT EXISTS(SELECT 1 FROM platform.runtime_command_receipt c WHERE c.id=e.command_receipt_id
-   AND c.mutation_transaction_id=e.mutation_transaction_id AND c.owner_module_id=e.owner_module_id
-   AND c.state='committed' AND c.operation=e.action )
- THEN RAISE EXCEPTION 'missing exact atomic owner proof for TrackEnrollmentReceipt'; END IF;
- RETURN NULL;
-END;
-$wa$;
-
-CREATE CONSTRAINT TRIGGER owner_commit AFTER INSERT OR UPDATE ON "app"."track_enrollment_receipt" DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.commit_trackenrollmentreceipt();
-
 CREATE FUNCTION platform_private.commit_trackusagereservation() RETURNS trigger
 LANGUAGE plpgsql VOLATILE SECURITY INVOKER
 SET search_path = pg_catalog
 AS $wa$
 DECLARE e platform.owner_mutation_evidence; prior_value jsonb;
 BEGIN
- prior_value:=CASE WHEN TG_OP='UPDATE' THEN jsonb_build_object('id',to_jsonb(OLD."id"),'userId',to_jsonb(OLD."user_id"),'periodStart',to_jsonb(OLD."period_start"),'periodEnd',to_jsonb(OLD."period_end"),'acceptedAt',to_jsonb(OLD."accepted_at")) ELSE 'null'::jsonb END;
+ prior_value:=CASE WHEN TG_OP='UPDATE' THEN jsonb_build_object('id',to_jsonb(OLD."id"),'userId',to_jsonb(OLD."user_id"),'periodStart',to_jsonb(OLD."period_start"),'periodEnd',to_jsonb(OLD."period_end"),'acceptedAt',to_jsonb(OLD."accepted_at"),'revision',to_jsonb(OLD."revision"::text)) ELSE 'null'::jsonb END;
  SELECT * INTO e FROM platform.owner_mutation_evidence WHERE aggregate_kind='TrackUsageReservation'
-  AND aggregate_id=(to_jsonb(NEW)->>'id') AND committed_revision=0::bigint
+  AND aggregate_id=(to_jsonb(NEW)->>'id') AND committed_revision=NEW.revision
   AND owner_module_id='track_subscription_entitlement' AND mutation_transaction_id=pg_current_xact_id()::text;
  IF NOT FOUND OR e.evidence_body->'primaryKey' IS DISTINCT FROM jsonb_build_object('id',NEW."id")
-  OR e.evidence_body->'committed' IS DISTINCT FROM jsonb_build_object('id',to_jsonb(NEW."id"),'userId',to_jsonb(NEW."user_id"),'periodStart',to_jsonb(NEW."period_start"),'periodEnd',to_jsonb(NEW."period_end"),'acceptedAt',to_jsonb(NEW."accepted_at"))
+  OR e.evidence_body->'committed' IS DISTINCT FROM jsonb_build_object('id',to_jsonb(NEW."id"),'userId',to_jsonb(NEW."user_id"),'periodStart',to_jsonb(NEW."period_start"),'periodEnd',to_jsonb(NEW."period_end"),'acceptedAt',to_jsonb(NEW."accepted_at"),'revision',to_jsonb(NEW."revision"::text))
   OR COALESCE(e.evidence_body->'prior','null'::jsonb) IS DISTINCT FROM prior_value
-  OR e.previous_revision IS DISTINCT FROM (CASE WHEN TG_OP='UPDATE' THEN 0::bigint ELSE NULL::bigint END)
+  OR e.previous_revision IS DISTINCT FROM (CASE WHEN TG_OP='UPDATE' THEN OLD.revision ELSE NULL::bigint END)
   OR e.decision_ref IS DISTINCT FROM e.evidence_body->>'decisionRef'
   OR NOT platform_private.json_evidence_trackusagereservation(e.evidence_body)
   OR NOT EXISTS(SELECT 1 FROM platform.runtime_command_receipt c WHERE c.id=e.command_receipt_id
@@ -4819,14 +5632,14 @@ SET search_path = pg_catalog
 AS $wa$
 DECLARE e platform.owner_mutation_evidence; prior_value jsonb;
 BEGIN
- prior_value:=CASE WHEN TG_OP='UPDATE' THEN jsonb_build_object('id',to_jsonb(OLD."id"),'sourceId',to_jsonb(OLD."source_id"),'generation',to_jsonb(OLD."generation"::text),'action',to_jsonb(OLD."action")) ELSE 'null'::jsonb END;
+ prior_value:=CASE WHEN TG_OP='UPDATE' THEN jsonb_build_object('id',to_jsonb(OLD."id"),'sourceId',to_jsonb(OLD."source_id"),'generation',to_jsonb(OLD."generation"::text),'action',to_jsonb(OLD."action"),'revision',to_jsonb(OLD."revision"::text)) ELSE 'null'::jsonb END;
  SELECT * INTO e FROM platform.owner_mutation_evidence WHERE aggregate_kind='PrivacyRestoreMarker'
-  AND aggregate_id=(to_jsonb(NEW)->>'id') AND committed_revision=0::bigint
+  AND aggregate_id=(to_jsonb(NEW)->>'id') AND committed_revision=NEW.revision
   AND owner_module_id='privacy_data_erasure' AND mutation_transaction_id=pg_current_xact_id()::text;
  IF NOT FOUND OR e.evidence_body->'primaryKey' IS DISTINCT FROM jsonb_build_object('id',NEW."id")
-  OR e.evidence_body->'committed' IS DISTINCT FROM jsonb_build_object('id',to_jsonb(NEW."id"),'sourceId',to_jsonb(NEW."source_id"),'generation',to_jsonb(NEW."generation"::text),'action',to_jsonb(NEW."action"))
+  OR e.evidence_body->'committed' IS DISTINCT FROM jsonb_build_object('id',to_jsonb(NEW."id"),'sourceId',to_jsonb(NEW."source_id"),'generation',to_jsonb(NEW."generation"::text),'action',to_jsonb(NEW."action"),'revision',to_jsonb(NEW."revision"::text))
   OR COALESCE(e.evidence_body->'prior','null'::jsonb) IS DISTINCT FROM prior_value
-  OR e.previous_revision IS DISTINCT FROM (CASE WHEN TG_OP='UPDATE' THEN 0::bigint ELSE NULL::bigint END)
+  OR e.previous_revision IS DISTINCT FROM (CASE WHEN TG_OP='UPDATE' THEN OLD.revision ELSE NULL::bigint END)
   OR e.decision_ref IS DISTINCT FROM e.evidence_body->>'decisionRef'
   OR NOT platform_private.json_evidence_privacyrestoremarker(e.evidence_body)
   OR NOT EXISTS(SELECT 1 FROM platform.runtime_command_receipt c WHERE c.id=e.command_receipt_id
@@ -4838,6 +5651,38 @@ END;
 $wa$;
 
 CREATE CONSTRAINT TRIGGER owner_commit AFTER INSERT OR UPDATE ON "app"."privacy_restore_marker" DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.commit_privacyrestoremarker();
+
+CREATE FUNCTION platform_private.worker_evidence_source_matches(model_name text, aggregate_id text, committed_revision bigint, source_transaction text, committed_value jsonb) RETURNS boolean
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+SET search_path = pg_catalog
+AS $wa$
+DECLARE g platform.database_action_grant;
+BEGIN
+ g:=platform_private.bound_grant(true);
+ IF g.id IS NULL OR session_user::text<>'wa_worker' OR g.service_principal IS NULL
+  OR source_transaction IS DISTINCT FROM pg_current_xact_id()::text
+  OR NOT platform_private.worker_lease_valid(g.target_id::uuid,NULL,true)
+ THEN RETURN false; END IF;
+ CASE model_name
+WHEN 'TrackSubscription' THEN
+  RETURN EXISTS(SELECT 1 FROM "app"."track_subscriptions" s WHERE s."id"::text=aggregate_id
+   AND s.mutation_transaction_id=source_transaction AND s.revision=committed_revision
+   AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'track',to_jsonb(s."track"),'status',to_jsonb(s."status"),'provider',to_jsonb(s."provider"),'revision',to_jsonb(s."revision"::text))=committed_value
+   AND platform_private.worker_track_allowed('TrackSubscription',jsonb_build_object('id',s."id",'user_id',s."user_id",'track',s."track",'customer_profile_id',s."customer_profile_id",'candidate_profile_id',s."candidate_profile_id",'professional_profile_id',s."professional_profile_id"),'SELECT'));
+WHEN 'TrackEntitlementGrant' THEN
+  RETURN EXISTS(SELECT 1 FROM "app"."track_entitlement_grants" s WHERE s."id"::text=aggregate_id
+   AND s.mutation_transaction_id=source_transaction AND s.revision=committed_revision
+   AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'track',to_jsonb(s."track"),'status',to_jsonb(s."status"),'valueType',to_jsonb(s."value_type"),'revision',to_jsonb(s."revision"::text))=committed_value
+   AND platform_private.worker_track_allowed('TrackEntitlementGrant',jsonb_build_object('id',s."id",'user_id',s."user_id",'track',s."track",'customer_profile_id',s."customer_profile_id",'candidate_profile_id',s."candidate_profile_id",'professional_profile_id',s."professional_profile_id"),'SELECT'));
+WHEN 'TrackBaseSelection' THEN
+  RETURN EXISTS(SELECT 1 FROM "app"."track_base_selection" s WHERE s."id"::text=aggregate_id
+   AND s.mutation_transaction_id=source_transaction AND s.revision=committed_revision
+   AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'track',to_jsonb(s."track"),'revision',to_jsonb(s."revision"::text),'sourceGeneration',to_jsonb(s."source_generation"::text))=committed_value
+   AND platform_private.worker_track_allowed('TrackBaseSelection',jsonb_build_object('id',s."id",'user_id',s."user_id",'track',s."track",'customer_profile_id',s."customer_profile_id",'candidate_profile_id',s."candidate_profile_id",'professional_profile_id',s."professional_profile_id"),'SELECT'));
+ ELSE RETURN false;
+ END CASE;
+END;
+$wa$;
 
 CREATE FUNCTION platform_private.evidence_source_commit() RETURNS trigger
 LANGUAGE plpgsql VOLATILE SECURITY INVOKER
@@ -4904,7 +5749,7 @@ WHEN 'AuthProviderAccount' THEN
 WHEN 'TrackPlan' THEN
   SELECT EXISTS(SELECT 1 FROM "app"."track_plans" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
    AND s.mutation_transaction_id=NEW.mutation_transaction_id
-   AND jsonb_build_object('id',to_jsonb(s."id"),'track',to_jsonb(s."track"),'status',to_jsonb(s."status"),'billingModel',to_jsonb(s."billing_model"),'monthlyPriceCents',to_jsonb(s."monthly_price_cents"::text),'currency',to_jsonb(s."currency"),'revision',to_jsonb(s."revision"::text),'contentHash',to_jsonb(s."content_hash"))=NEW.evidence_body->'committed'
+   AND jsonb_build_object('id',to_jsonb(s."id"),'track',to_jsonb(s."track"),'status',to_jsonb(s."status"),'billingModel',to_jsonb(s."billing_model"),'monthlyPriceCents',to_jsonb(s."monthly_price_cents"),'currency',to_jsonb(s."currency"),'revision',to_jsonb(s."revision"::text),'contentHash',to_jsonb(s."content_hash"))=NEW.evidence_body->'committed'
    AND s.revision=NEW.committed_revision) INTO matches;
 WHEN 'TrackEntitlementDefinition' THEN
   SELECT EXISTS(SELECT 1 FROM "app"."track_entitlement_definitions" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
@@ -4917,15 +5762,23 @@ WHEN 'TrackPlanEntitlement' THEN
    AND jsonb_build_object('id',to_jsonb(s."id"),'valueType',to_jsonb(s."value_type"),'usagePeriod',to_jsonb(s."usage_period"),'revision',to_jsonb(s."revision"::text))=NEW.evidence_body->'committed'
    AND s.revision=NEW.committed_revision) INTO matches;
 WHEN 'TrackSubscription' THEN
-  SELECT EXISTS(SELECT 1 FROM "app"."track_subscriptions" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
+  IF session_user::text='wa_worker' THEN
+   matches:=platform_private.worker_evidence_source_matches(NEW.aggregate_kind,NEW.aggregate_id,NEW.committed_revision,NEW.mutation_transaction_id,NEW.evidence_body->'committed');
+  ELSE
+   SELECT EXISTS(SELECT 1 FROM "app"."track_subscriptions" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
    AND s.mutation_transaction_id=NEW.mutation_transaction_id
    AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'track',to_jsonb(s."track"),'status',to_jsonb(s."status"),'provider',to_jsonb(s."provider"),'revision',to_jsonb(s."revision"::text))=NEW.evidence_body->'committed'
    AND s.revision=NEW.committed_revision) INTO matches;
+  END IF;
 WHEN 'TrackEntitlementGrant' THEN
-  SELECT EXISTS(SELECT 1 FROM "app"."track_entitlement_grants" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
+  IF session_user::text='wa_worker' THEN
+   matches:=platform_private.worker_evidence_source_matches(NEW.aggregate_kind,NEW.aggregate_id,NEW.committed_revision,NEW.mutation_transaction_id,NEW.evidence_body->'committed');
+  ELSE
+   SELECT EXISTS(SELECT 1 FROM "app"."track_entitlement_grants" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
    AND s.mutation_transaction_id=NEW.mutation_transaction_id
    AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'track',to_jsonb(s."track"),'status',to_jsonb(s."status"),'valueType',to_jsonb(s."value_type"),'revision',to_jsonb(s."revision"::text))=NEW.evidence_body->'committed'
    AND s.revision=NEW.committed_revision) INTO matches;
+  END IF;
 WHEN 'TrackUsageEvent' THEN
   SELECT EXISTS(SELECT 1 FROM "app"."track_usage_events" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
    AND s.mutation_transaction_id=NEW.mutation_transaction_id
@@ -4934,13 +5787,8 @@ WHEN 'TrackUsageEvent' THEN
 WHEN 'TrackUsageCounter' THEN
   SELECT EXISTS(SELECT 1 FROM "app"."track_usage_counters" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
    AND s.mutation_transaction_id=NEW.mutation_transaction_id
-   AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'track',to_jsonb(s."track"),'period',to_jsonb(s."period"),'periodStart',to_jsonb(s."period_start"),'periodEnd',to_jsonb(s."period_end"),'usedQuantity',to_jsonb(s."used_quantity"::text),'limitQuantity',to_jsonb(s."limit_quantity"::text),'revision',to_jsonb(s."revision"::text),'sourceRevision',to_jsonb(s."source_revision"::text))=NEW.evidence_body->'committed'
+   AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'track',to_jsonb(s."track"),'period',to_jsonb(s."period"),'periodStart',to_jsonb(s."period_start"),'periodEnd',to_jsonb(s."period_end"),'usedQuantity',to_jsonb(s."used_quantity"),'limitQuantity',to_jsonb(s."limit_quantity"),'revision',to_jsonb(s."revision"::text),'sourceRevision',to_jsonb(s."source_revision"::text))=NEW.evidence_body->'committed'
    AND s.revision=NEW.committed_revision) INTO matches;
-WHEN 'TrackSubscriptionEvent' THEN
-  SELECT EXISTS(SELECT 1 FROM "app"."track_subscription_events" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
-   AND s.mutation_transaction_id=NEW.mutation_transaction_id
-   AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'fromStatus',to_jsonb(s."from_status"),'toStatus',to_jsonb(s."to_status"),'provider',to_jsonb(s."provider"))=NEW.evidence_body->'committed'
-   AND 0::bigint=NEW.committed_revision) INTO matches;
 WHEN 'ConsentContentRevision' THEN
   SELECT EXISTS(SELECT 1 FROM "app"."consent_content_revision" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
    AND s.mutation_transaction_id=NEW.mutation_transaction_id
@@ -4956,26 +5804,20 @@ WHEN 'ConsentDisposition' THEN
    AND s.mutation_transaction_id=NEW.mutation_transaction_id
    AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'kind',to_jsonb(s."kind"))=NEW.evidence_body->'committed'
    AND 0::bigint=NEW.committed_revision) INTO matches;
-WHEN 'CustomerProfileLifecycleEvent' THEN
-  SELECT EXISTS(SELECT 1 FROM "app"."customer_profile_lifecycle_event" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
-   AND s.mutation_transaction_id=NEW.mutation_transaction_id
-   AND jsonb_build_object('id',to_jsonb(s."id"),'sourceRevision',to_jsonb(s."source_revision"::text),'fromStatus',to_jsonb(s."from_status"),'toStatus',to_jsonb(s."to_status"))=NEW.evidence_body->'committed'
-   AND 0::bigint=NEW.committed_revision) INTO matches;
 WHEN 'TrackBaseSelection' THEN
-  SELECT EXISTS(SELECT 1 FROM "app"."track_base_selection" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
+  IF session_user::text='wa_worker' THEN
+   matches:=platform_private.worker_evidence_source_matches(NEW.aggregate_kind,NEW.aggregate_id,NEW.committed_revision,NEW.mutation_transaction_id,NEW.evidence_body->'committed');
+  ELSE
+   SELECT EXISTS(SELECT 1 FROM "app"."track_base_selection" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
    AND s.mutation_transaction_id=NEW.mutation_transaction_id
    AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'track',to_jsonb(s."track"),'revision',to_jsonb(s."revision"::text),'sourceGeneration',to_jsonb(s."source_generation"::text))=NEW.evidence_body->'committed'
    AND s.revision=NEW.committed_revision) INTO matches;
-WHEN 'TrackEnrollmentReceipt' THEN
-  SELECT EXISTS(SELECT 1 FROM "app"."track_enrollment_receipt" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
-   AND s.mutation_transaction_id=NEW.mutation_transaction_id
-   AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'track',to_jsonb(s."track"),'sourceOwner',to_jsonb(s."source_owner"),'sourceCreationRevision',to_jsonb(s."source_creation_revision"::text),'selectionRevision',to_jsonb(s."selection_revision"::text))=NEW.evidence_body->'committed'
-   AND 0::bigint=NEW.committed_revision) INTO matches;
+  END IF;
 WHEN 'TrackUsageReservation' THEN
   SELECT EXISTS(SELECT 1 FROM "app"."track_usage_reservation" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
    AND s.mutation_transaction_id=NEW.mutation_transaction_id
-   AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'periodStart',to_jsonb(s."period_start"),'periodEnd',to_jsonb(s."period_end"),'acceptedAt',to_jsonb(s."accepted_at"))=NEW.evidence_body->'committed'
-   AND 0::bigint=NEW.committed_revision) INTO matches;
+   AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'periodStart',to_jsonb(s."period_start"),'periodEnd',to_jsonb(s."period_end"),'acceptedAt',to_jsonb(s."accepted_at"),'revision',to_jsonb(s."revision"::text))=NEW.evidence_body->'committed'
+   AND s.revision=NEW.committed_revision) INTO matches;
 WHEN 'PrivacyTargetInstruction' THEN
   SELECT EXISTS(SELECT 1 FROM "app"."privacy_target_instruction" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
    AND s.mutation_transaction_id=NEW.mutation_transaction_id
@@ -4989,8 +5831,8 @@ WHEN 'PrivacyOwnerReceipt' THEN
 WHEN 'PrivacyRestoreMarker' THEN
   SELECT EXISTS(SELECT 1 FROM "app"."privacy_restore_marker" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
    AND s.mutation_transaction_id=NEW.mutation_transaction_id
-   AND jsonb_build_object('id',to_jsonb(s."id"),'sourceId',to_jsonb(s."source_id"),'generation',to_jsonb(s."generation"::text),'action',to_jsonb(s."action"))=NEW.evidence_body->'committed'
-   AND 0::bigint=NEW.committed_revision) INTO matches;
+   AND jsonb_build_object('id',to_jsonb(s."id"),'sourceId',to_jsonb(s."source_id"),'generation',to_jsonb(s."generation"::text),'action',to_jsonb(s."action"),'revision',to_jsonb(s."revision"::text))=NEW.evidence_body->'committed'
+   AND s.revision=NEW.committed_revision) INTO matches;
  ELSE RAISE EXCEPTION 'unsupported source or recursive evidence bootstrap';
  END CASE;
  IF NOT matches THEN RAISE EXCEPTION 'orphan or invented source evidence'; END IF;
@@ -5000,7 +5842,7 @@ $wa$;
 
 CREATE CONSTRAINT TRIGGER exact_evidence_source AFTER INSERT ON platform.owner_mutation_evidence DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.evidence_source_commit();
 
-ALTER TABLE platform.owner_mutation_evidence ADD CONSTRAINT closed_evidence_json CHECK (CASE aggregate_kind WHEN 'ConsentLog' THEN platform_private.json_evidence_consentlog(evidence_body) WHEN 'PrivacyRequest' THEN platform_private.json_evidence_privacyrequest(evidence_body) WHEN 'AgeGateAttempt' THEN platform_private.json_evidence_agegateattempt(evidence_body) WHEN 'AgeGateBlock' THEN platform_private.json_evidence_agegateblock(evidence_body) WHEN 'AccessAuditLog' THEN platform_private.json_evidence_accessauditlog(evidence_body) WHEN 'User' THEN platform_private.json_evidence_user(evidence_body) WHEN 'UserRole' THEN platform_private.json_evidence_userrole(evidence_body) WHEN 'CustomerProfile' THEN platform_private.json_evidence_customerprofile(evidence_body) WHEN 'AuditEvent' THEN platform_private.json_evidence_auditevent(evidence_body) WHEN 'UserSecurityProfile' THEN platform_private.json_evidence_usersecurityprofile(evidence_body) WHEN 'AuthProviderAccount' THEN platform_private.json_evidence_authprovideraccount(evidence_body) WHEN 'TrackPlan' THEN platform_private.json_evidence_trackplan(evidence_body) WHEN 'TrackEntitlementDefinition' THEN platform_private.json_evidence_trackentitlementdefinition(evidence_body) WHEN 'TrackPlanEntitlement' THEN platform_private.json_evidence_trackplanentitlement(evidence_body) WHEN 'TrackSubscription' THEN platform_private.json_evidence_tracksubscription(evidence_body) WHEN 'TrackEntitlementGrant' THEN platform_private.json_evidence_trackentitlementgrant(evidence_body) WHEN 'TrackUsageEvent' THEN platform_private.json_evidence_trackusageevent(evidence_body) WHEN 'TrackUsageCounter' THEN platform_private.json_evidence_trackusagecounter(evidence_body) WHEN 'TrackSubscriptionEvent' THEN platform_private.json_evidence_tracksubscriptionevent(evidence_body) WHEN 'ConsentContentRevision' THEN platform_private.json_evidence_consentcontentrevision(evidence_body) WHEN 'ConsentPresentation' THEN platform_private.json_evidence_consentpresentation(evidence_body) WHEN 'ConsentDisposition' THEN platform_private.json_evidence_consentdisposition(evidence_body) WHEN 'CustomerProfileLifecycleEvent' THEN platform_private.json_evidence_customerprofilelifecycleevent(evidence_body) WHEN 'TrackBaseSelection' THEN platform_private.json_evidence_trackbaseselection(evidence_body) WHEN 'TrackEnrollmentReceipt' THEN platform_private.json_evidence_trackenrollmentreceipt(evidence_body) WHEN 'TrackUsageReservation' THEN platform_private.json_evidence_trackusagereservation(evidence_body) WHEN 'PrivacyTargetInstruction' THEN platform_private.json_evidence_privacytargetinstruction(evidence_body) WHEN 'PrivacyOwnerReceipt' THEN platform_private.json_evidence_privacyownerreceipt(evidence_body) WHEN 'PrivacyRestoreMarker' THEN platform_private.json_evidence_privacyrestoremarker(evidence_body) ELSE false END);
+ALTER TABLE platform.owner_mutation_evidence ADD CONSTRAINT closed_evidence_json CHECK (CASE aggregate_kind WHEN 'ConsentLog' THEN platform_private.json_evidence_consentlog(evidence_body) WHEN 'PrivacyRequest' THEN platform_private.json_evidence_privacyrequest(evidence_body) WHEN 'AgeGateAttempt' THEN platform_private.json_evidence_agegateattempt(evidence_body) WHEN 'AgeGateBlock' THEN platform_private.json_evidence_agegateblock(evidence_body) WHEN 'AccessAuditLog' THEN platform_private.json_evidence_accessauditlog(evidence_body) WHEN 'User' THEN platform_private.json_evidence_user(evidence_body) WHEN 'UserRole' THEN platform_private.json_evidence_userrole(evidence_body) WHEN 'CustomerProfile' THEN platform_private.json_evidence_customerprofile(evidence_body) WHEN 'AuditEvent' THEN platform_private.json_evidence_auditevent(evidence_body) WHEN 'UserSecurityProfile' THEN platform_private.json_evidence_usersecurityprofile(evidence_body) WHEN 'AuthProviderAccount' THEN platform_private.json_evidence_authprovideraccount(evidence_body) WHEN 'TrackPlan' THEN platform_private.json_evidence_trackplan(evidence_body) WHEN 'TrackEntitlementDefinition' THEN platform_private.json_evidence_trackentitlementdefinition(evidence_body) WHEN 'TrackPlanEntitlement' THEN platform_private.json_evidence_trackplanentitlement(evidence_body) WHEN 'TrackSubscription' THEN platform_private.json_evidence_tracksubscription(evidence_body) WHEN 'TrackEntitlementGrant' THEN platform_private.json_evidence_trackentitlementgrant(evidence_body) WHEN 'TrackUsageEvent' THEN platform_private.json_evidence_trackusageevent(evidence_body) WHEN 'TrackUsageCounter' THEN platform_private.json_evidence_trackusagecounter(evidence_body) WHEN 'ConsentContentRevision' THEN platform_private.json_evidence_consentcontentrevision(evidence_body) WHEN 'ConsentPresentation' THEN platform_private.json_evidence_consentpresentation(evidence_body) WHEN 'ConsentDisposition' THEN platform_private.json_evidence_consentdisposition(evidence_body) WHEN 'TrackBaseSelection' THEN platform_private.json_evidence_trackbaseselection(evidence_body) WHEN 'TrackUsageReservation' THEN platform_private.json_evidence_trackusagereservation(evidence_body) WHEN 'PrivacyTargetInstruction' THEN platform_private.json_evidence_privacytargetinstruction(evidence_body) WHEN 'PrivacyOwnerReceipt' THEN platform_private.json_evidence_privacyownerreceipt(evidence_body) WHEN 'PrivacyRestoreMarker' THEN platform_private.json_evidence_privacyrestoremarker(evidence_body) ELSE false END);
 
 REVOKE ALL ON ALL FUNCTIONS IN SCHEMA platform_private FROM PUBLIC;
 
@@ -5100,11 +5942,15 @@ GRANT EXECUTE ON FUNCTION platform_private.bind_request_context(text) TO wa_app_
 
 GRANT EXECUTE ON FUNCTION platform_private.context_allows(text,text,text,text,text) TO wa_app_runtime,wa_worker;
 
-GRANT EXECUTE ON FUNCTION platform_private.row_allowed(text,text,text,text,text[],text) TO wa_app_runtime,wa_worker;
-
-GRANT EXECUTE ON FUNCTION platform_private.worker_track_allowed(text,jsonb,text) TO wa_app_runtime,wa_worker;
+GRANT EXECUTE ON FUNCTION platform_private.row_allowed(text,text,text,text,text[],text,text) TO wa_app_runtime,wa_worker;
 
 GRANT EXECUTE ON FUNCTION platform_private.context_subject(uuid) TO wa_app_runtime,wa_worker;
+
+GRANT EXECUTE ON FUNCTION platform_private.context_subject_owner(uuid,text) TO wa_app_runtime,wa_worker;
+
+GRANT EXECUTE ON FUNCTION platform_private.command_context_allows(text,text,text) TO wa_app_runtime,wa_worker;
+
+GRANT EXECUTE ON FUNCTION platform_private.global_context_registered(text,text,text,text) TO wa_app_runtime,wa_worker;
 
 REVOKE EXECUTE ON FUNCTION platform_private.bound_grant(boolean) FROM wa_app_runtime,wa_worker;
 
@@ -5118,18 +5964,51 @@ GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;
 ALTER FUNCTION platform_private.context_allows(text,text,text,text,text) OWNER TO wa_private_helper_owner;
 
 GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;
-ALTER FUNCTION platform_private.row_allowed(text,text,text,text,text[],text) OWNER TO wa_private_helper_owner;
+ALTER FUNCTION platform_private.protected_scope(text,text,text) OWNER TO wa_private_helper_owner;
 
 GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;
-ALTER FUNCTION platform_private.worker_track_allowed(text,jsonb,text) OWNER TO wa_private_helper_owner;
+ALTER FUNCTION platform_private.row_allowed(text,text,text,text,text[],text,text) OWNER TO wa_private_helper_owner;
 
 GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;
 ALTER FUNCTION platform_private.context_subject(uuid) OWNER TO wa_private_helper_owner;
 
+GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;
+ALTER FUNCTION platform_private.context_subject_owner(uuid,text) OWNER TO wa_private_helper_owner;
+
+GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;
+ALTER FUNCTION platform_private.command_context_allows(text,text,text) OWNER TO wa_private_helper_owner;
+
+GRANT CREATE ON SCHEMA platform_private TO wa_customer_verifier;
+ALTER FUNCTION platform_private.customer_current_for_track(uuid,uuid,bigint,bigint,uuid) OWNER TO wa_customer_verifier;
+
+REVOKE CREATE ON SCHEMA platform_private FROM wa_customer_verifier;
+
+GRANT CREATE ON SCHEMA platform_private TO wa_track_verifier;
+ALTER FUNCTION platform_private.worker_track_allowed(text,jsonb,text) OWNER TO wa_track_verifier;
+
+GRANT CREATE ON SCHEMA platform_private TO wa_track_verifier;
+ALTER FUNCTION platform_private.worker_lease_valid(uuid,uuid,boolean) OWNER TO wa_track_verifier;
+
+GRANT CREATE ON SCHEMA platform_private TO wa_track_verifier;
+ALTER FUNCTION platform_private.worker_effect_matches(uuid,uuid,boolean) OWNER TO wa_track_verifier;
+
+GRANT CREATE ON SCHEMA platform_private TO wa_track_verifier;
+ALTER FUNCTION platform_private.track_atomic_valid(text,jsonb,jsonb) OWNER TO wa_track_verifier;
+
+GRANT CREATE ON SCHEMA platform_private TO wa_track_verifier;
+ALTER FUNCTION platform_private.worker_evidence_source_matches(text,text,bigint,text,jsonb) OWNER TO wa_track_verifier;
+
+REVOKE CREATE ON SCHEMA platform_private FROM wa_track_verifier;
+
+GRANT EXECUTE ON FUNCTION platform_private.bound_grant(boolean),platform_private.context_allows(text,text,text,text,text) TO wa_customer_verifier,wa_track_verifier;
+GRANT EXECUTE ON FUNCTION platform_private.customer_current_for_track(uuid,uuid,bigint,bigint,uuid) TO wa_track_verifier;
+GRANT EXECUTE ON FUNCTION platform_private.worker_track_allowed(text,jsonb,text),platform_private.worker_lease_valid(uuid,uuid,boolean),platform_private.worker_effect_matches(uuid,uuid,boolean),platform_private.track_atomic_valid(text,jsonb,jsonb),platform_private.worker_evidence_source_matches(text,text,bigint,text,jsonb) TO wa_worker;
+GRANT EXECUTE ON FUNCTION platform_private.lease_secret_matches(text) TO wa_track_verifier,wa_worker;
 REVOKE CREATE ON SCHEMA platform_private FROM wa_private_helper_owner;
-REVOKE wa_private_helper_owner FROM wa_schema_owner;
+-- Separate original bootstrap grantor must run foundation-bootstrap-finalize.review.sql
+-- after success OR failure. wa_schema_owner has ADMIN FALSE and cannot do that cleanup.
 -- Helper may call its own functions and pure JSON predicates only; no business DML.
--- Its six owned functions need no grant of other application functions.
+-- Owned context functions need no grant of arbitrary application functions.
 -- Issuer invokes only grant trigger automatically; no context discovery endpoints.
 REVOKE ALL ON ALL TABLES IN SCHEMA app,platform FROM PUBLIC;
 REVOKE ALL ON ALL SEQUENCES IN SCHEMA app,platform FROM PUBLIC;

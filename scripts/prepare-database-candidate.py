@@ -289,6 +289,10 @@ def build():
         if '@updatedAt' in body or n in {'Review', 'Dispute', 'ComplianceHold', 'OrganizationMember', 'UserRole', 'ThreadParticipant'}:
             add_to(n, 'revision BigInt @default(0) @map("revision")', 'DB-C03: owner-local CAS revision; no global ordering')
 
+    # Brain P0-C-03A: immutable age attempts/blocks; no mutable zero-revision reuse.
+    for n in ['AgeGateAttempt', 'AgeGateBlock']:
+        changes[n].append('P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row')
+
     add_to('UserSecurityProfile', 'securityGeneration BigInt @default(0) @map("security_generation")', 'DB-C04: current security-generation binding')
     for n in ['User', 'CustomerProfile', 'ProfessionalProfile', 'CandidateProfile', 'JobApplication', 'MediaAsset', 'CandidateSearchProjection', 'PrivacyRequest', 'NotificationSubscription']:
         add_to(n, 'privacyGeneration BigInt @default(0) @map("privacy_generation")', 'DB-C05: owner erasure/restriction generation prevents resurrection')
@@ -486,7 +490,7 @@ def build():
         exact_refs = sorted(refs.get(owners[n], set())) or ['context/architecture.md']
         scalar = [f for f in fs if f['type'].rstrip('?[]') not in models]
         fks = [f for f in fs if '@relation' in f['attributes'] and 'fields:' in f['attributes']]
-        evidence = n.endswith(('Event', 'Log', 'LedgerEntry', 'Snapshot', 'Receipt')) or n in {'ConsentLog', 'ConsentContentRevision', 'ConsentPresentation', 'ConsentDisposition', 'OwnerMutationEvidence', 'AgreementExecutionRevision', 'PrivacyTargetInstruction', 'MediaObjectVersion', 'OrderPurchaseRevision', 'OrderPurchasedUnit', 'PrizePopulationMember', 'CheckoutTaxLocationEvidence'}
+        evidence = n.endswith(('Event', 'Log', 'LedgerEntry', 'Snapshot', 'Receipt')) or n in {'AgeGateAttempt', 'AgeGateBlock', 'ConsentLog', 'ConsentContentRevision', 'ConsentPresentation', 'ConsentDisposition', 'OwnerMutationEvidence', 'AgreementExecutionRevision', 'PrivacyTargetInstruction', 'MediaObjectVersion', 'OrderPurchaseRevision', 'OrderPurchasedUnit', 'PrizePopulationMember', 'CheckoutTaxLocationEvidence'}
         classification = 'PROJECTION_NOT_AUTHORITY' if n in projections else 'SHARED_INFRASTRUCTURE' if owners[n] == 'platform_integration_owner' else 'IMMUTABLE_EVIDENCE_OR_RECEIPT' if evidence else 'AUTHORITATIVE_OWNER_STATE'
         stage = 'F0_FOUNDATION' if n in foundation else 'LATER_LAUNCH_DISABLED' if n in deferred else 'LATER_OWNER_ORDERED_SLICE'
         sensitive = [f['name'] for f in scalar if re.search(r'user|profile|email|phone|address|location|lat|lng|resume|text|body|token|secret|credential|signature|document|tax|ipHash|device|endpoint|payload', f['name'], re.I)]

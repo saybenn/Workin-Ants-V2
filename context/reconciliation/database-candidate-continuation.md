@@ -1,5 +1,7 @@
 # Continuation — first P0-D slice and remaining evidence
 
+> Current amendment P0-C-03A: [corrected SQL source review](foundation-sql-draft-review.md) and [retained directive](directives/brain-directive-p0-c-03a.md) supersede earlier drafting-stage gaps/next actions in this historical source plan. Source and SQL drafts only; posture D; all 451 database/runtime cases NOT_RUN. Independent Identity currentness, narrowly enumerated read-only Boolean ports, append-only age evidence and both added owner revisions are present for re-review, not execution-approved. No human setup task.
+
 This is a recommendation and test specification, not runtime implementation or activation permission.
 
 ## Smallest coherent owner slice

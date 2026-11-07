@@ -1,6 +1,6 @@
 # Physical model disposition ledger — review only
 
-All 177 original models accounted for; 214 staged candidate models, 40 in the F0 parent-FK closure. Exact field/FK/index/change/evidence/access rows are in greenfield-model-security-inventory.json → physical_candidate_review. No SQL is generated or executed.
+All 177 original models accounted for; 214 staged candidate models, 40 in the F0 parent-FK closure. Exact field/FK/index/change/evidence/access rows are in greenfield-model-security-inventory.json → physical_candidate_review. This generator writes source only and executes no SQL. The separate P0-C-03A draft stage is recorded in foundation-sql-draft-manifest.json.
 
 ## admin_review_compliance_hold
 
@@ -579,18 +579,18 @@ Explicit regulated administrative purpose and access disposition.
 
 Minimized Identity eligibility attempt, distinct from Consent acknowledgment.
 
-- Object: `app.age_gate_attempts`. Class: AUTHORITATIVE_OWNER_STATE. Stage: F0_FOUNDATION.
+- Object: `app.age_gate_attempts`. Class: IMMUTABLE_EVIDENCE_OR_RECEIPT. Stage: F0_FOUNDATION.
 - Stable key: id. Foreign keys: user → User?.
-- Physical changes: DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order; DB-C03: UTC-capable timestamptz(6) physical instants; SQL-08: server transaction identity for atomic source/evidence/message checks.
+- Physical changes: DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order; DB-C03: UTC-capable timestamptz(6) physical instants; P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row; SQL-08: server transaction identity for atomic source/evidence/message checks.
 - Required SQL/access checks: SQL-01, SQL-02, SQL-03, SQL-04, SQL-08, SQL-16. Owner Privacy executor: identity_access.
 
 ### AgeGateBlock
 
 Purpose-bound Identity abuse/rate restriction, not a minor account.
 
-- Object: `app.age_gate_blocks`. Class: AUTHORITATIVE_OWNER_STATE. Stage: F0_FOUNDATION.
+- Object: `app.age_gate_blocks`. Class: IMMUTABLE_EVIDENCE_OR_RECEIPT. Stage: F0_FOUNDATION.
 - Stable key: id. Foreign keys: none; typed registered descriptor scope is explicit in the SQL companion.
-- Physical changes: DB-C03: UTC-capable timestamptz(6) physical instants; SQL-08: server transaction identity for atomic source/evidence/message checks.
+- Physical changes: DB-C03: UTC-capable timestamptz(6) physical instants; P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row; SQL-08: server transaction identity for atomic source/evidence/message checks.
 - Required SQL/access checks: SQL-01, SQL-02, SQL-03, SQL-04, SQL-08, SQL-16. Owner Privacy executor: identity_access.
 
 ### User

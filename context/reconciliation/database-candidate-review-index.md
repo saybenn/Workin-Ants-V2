@@ -1,4 +1,10 @@
-# P0-C-03 foundation SQL draft — current review entry
+# P0-C-03A corrected-source review entry
+
+Continue from [the retained correction directive](directives/brain-directive-p0-c-03a.md) and [current technical review](foundation-sql-draft-review.md). [The current manifest](foundation-sql-draft-manifest.json) distinguishes preserved/revised inputs and four SQL artifacts, including [original-grantor cleanup](../../review-output/foundation-bootstrap-finalize.review.sql). [Verifier columns](foundation-sql-verifier-access.json), [registered scopes](foundation-sql-scope-policy.json), [18 controls](foundation-sql-draft-controls.json), [94-case replay map](foundation-sql-draft-replay-map.json) and [offline validation](foundation-sql-draft-validation.json) are the current re-review evidence. Source-addressed is not execution-qualified. Posture D; 451 NOT_RUN. No client setup task.
+
+The original SQL manifest/generation/validation records have -8917e20 suffixes; their original bytes remain in Git history. Prior publication verification below describes its own historical commit, not this unverified child. Current publication is verified and reported separately after the one-commit branch update.
+
+# Historical P0-C-03 SQL-drafting entry
 
 Brain approved `671ef58383580687ecf728036bf32c302aeb026c` for **source-only F0 SQL drafting** under [P0-C-03](directives/brain-directive-p0-c-03.md). This draft is generated, **not execution-approved or adopted**. Posture D and all database/container/provider/runtime execution stops remain. The historical source packet below retains its recorded pre-generation flags; those are not the current drafting stage.
 

@@ -25,8 +25,9 @@ def obj(n):return '.'.join(map(q,models[n]['object'].split('.')))
 def col(n,f):return q(models[n]['columns'][f])
 def key(n,row):return " || ':' || ".join(f"({row}->>{lit(models[n]['columns'][f])})" for f in models[n]['pk'])
 raw=read('review-output/foundation-structure.sql')
-assert sha('review-output/foundation-structure.sql')=='44a4fada693986749230ffd7fde742cc2943c5da0a4526aad2891e11b59326e3'
-assert sha('prisma/review/foundation-candidate.prisma')=='1c05a21cd930a05e9101484dac9d74a1b003da3079e88fb6ebb0c3f9f340a24c'
+# P0-C-03A explicitly authorizes nullable first-write predecessor and two CAS
+# columns. Fresh raw SQL must match that revised source; fingerprints are checked
+# independently in the drafting validator, not frozen to superseded source bytes.
 assert sha('prisma.foundation-review.config.ts')=='ad7578e0d4c3a6fa5d350c7193a3ebc7909ba31677321e6f6095b192fa533117'
 assert len(re.findall(r'CREATE TABLE ',raw))==40
 
@@ -40,28 +41,36 @@ CREATE ROLE wa_context_issuer LOGIN NOINHERIT NOBYPASSRLS NOSUPERUSER NOCREATEDB
 CREATE ROLE wa_app_runtime LOGIN NOINHERIT NOBYPASSRLS NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;
 CREATE ROLE wa_worker LOGIN NOINHERIT NOBYPASSRLS NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;
 CREATE ROLE wa_private_helper_owner NOLOGIN NOINHERIT NOBYPASSRLS NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;
+CREATE ROLE wa_customer_verifier NOLOGIN NOINHERIT NOBYPASSRLS NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;
+CREATE ROLE wa_track_verifier NOLOGIN NOINHERIT NOBYPASSRLS NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;
+CREATE ROLE wa_identity_service_authority LOGIN NOINHERIT NOBYPASSRLS NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;
 -- Privacy executor remains unprovisioned; support_operation is an action, not a role.
 GRANT wa_schema_owner TO wa_migrator WITH ADMIN FALSE, INHERIT FALSE, SET TRUE;
 -- Ownership transfers require temporary membership; app/worker receive none.
-GRANT wa_private_helper_owner TO wa_schema_owner WITH ADMIN FALSE, INHERIT FALSE, SET TRUE;
+GRANT wa_private_helper_owner,wa_customer_verifier,wa_track_verifier TO wa_schema_owner WITH ADMIN FALSE, INHERIT FALSE, SET TRUE;
 CREATE SCHEMA app AUTHORIZATION wa_schema_owner;
 CREATE SCHEMA platform AUTHORIZATION wa_schema_owner;
 CREATE SCHEMA platform_private AUTHORIZATION wa_schema_owner;
 REVOKE ALL ON SCHEMA app,platform,platform_private FROM PUBLIC;
 GRANT USAGE ON SCHEMA app,platform,platform_private TO wa_app_runtime,wa_worker;
 GRANT USAGE ON SCHEMA app,platform,platform_private TO wa_context_issuer,wa_private_helper_owner;
+GRANT USAGE ON SCHEMA app,platform,platform_private TO wa_customer_verifier,wa_track_verifier;
+GRANT USAGE ON SCHEMA platform_private TO wa_identity_service_authority;
 -- Prisma ledger exception: only migrator may create its private metadata in public.
 -- No ledger is created and no migrate execution configuration is activated here.
 GRANT USAGE,CREATE ON SCHEMA public TO wa_migrator;
 ALTER DEFAULT PRIVILEGES FOR ROLE wa_migrator REVOKE ALL ON TABLES FROM PUBLIC;
 ALTER DEFAULT PRIVILEGES FOR ROLE wa_schema_owner REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
 ALTER DEFAULT PRIVILEGES FOR ROLE wa_private_helper_owner REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE wa_customer_verifier REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE wa_track_verifier REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
 ALTER DEFAULT PRIVILEGES FOR ROLE wa_schema_owner REVOKE USAGE ON TYPES FROM PUBLIC;
 ALTER DEFAULT PRIVILEGES FOR ROLE wa_schema_owner IN SCHEMA app,platform,platform_private REVOKE ALL ON TABLES FROM PUBLIC;
 ALTER DEFAULT PRIVILEGES FOR ROLE wa_schema_owner IN SCHEMA app,platform,platform_private REVOKE ALL ON SEQUENCES FROM PUBLIC;
 COMMIT;
 '''
 write('review-output/foundation-bootstrap.review.sql',bootstrap)
+write('review-output/foundation-bootstrap-finalize.review.sql',read('scripts/sql-review/foundation-bootstrap-finalize.sql'))
 sql=['''-- P0-C-03 REVIEW DRAFT ONLY. NOT EXECUTION-APPROVED. Posture D.
 -- Future order: separate bootstrap, then one application migration transaction.
 -- No migration directory/config/ledger is activated by these review artifacts.
@@ -74,6 +83,7 @@ def fn(name,args,returns,body,lang='plpgsql',definer=False,vol='VOLATILE'):
  emit(f'CREATE FUNCTION platform_private.{name}({args}) RETURNS {returns}\nLANGUAGE {lang} {vol} SECURITY '+('DEFINER' if definer else 'INVOKER')+'\nSET search_path = pg_catalog\nAS $wa$\n'+body.strip()+'\n$wa$;')
 
 # Literal schema compilation, no runtime schema registry or arbitrary JSON escape.
+emit(read('scripts/sql-review/foundation-service-authority.sql'))
 registry={}
 for p in ['contracts/shared/types.v1.schema.json','contracts/shared/SH-004.v1.schema.json','contracts/shared/SH-114.v1.schema.json','contracts/database-review/foundation-payloads.v1.schema.json','contracts/database-review/owner-mutation-evidence.v1.schema.json']:
  j=json.loads(read(p));registry[p]=j;registry[j['$id']]=j
@@ -153,9 +163,13 @@ BEGIN
   AND expires_at > clock_timestamp();
  IF NOT FOUND THEN RETURN NULL; END IF;
  IF g.principal_user_id IS NULL THEN
-  -- ISSUE DRAFT-01: no authoritative service-generation source in approved 40 models.
-  -- Deliberate fail-closed boundary, not caller/issuer claimed generation equality.
-  RETURN NULL;
+  IF take_action_lock THEN
+   PERFORM pg_advisory_xact_lock_shared(hashtextextended('service:'||g.service_principal,0));
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM platform_private.identity_service_authorization a
+   WHERE a.service_principal=g.service_principal AND a.security_generation=g.security_generation AND a.revoked_at IS NULL)
+  THEN RETURN NULL; END IF;
+  RETURN g;
  END IF;
  IF take_action_lock THEN
   PERFORM pg_advisory_xact_lock_shared(hashtextextended('identity:'||g.principal_user_id::text,0));
@@ -179,24 +193,66 @@ BEGIN
  RETURN COALESCE(g.id IS NOT NULL AND g.owner_module_id=owner_id AND g.action=action_name
   AND g.target_kind=target_kind AND g.target_id=target_id AND g.purpose=purpose_name,false);
 END;''',definer=True)
-fn('row_allowed','owner_id text, model_name text, row_key text, verb text, field_names text[], row_revision text DEFAULT NULL','boolean','''
-DECLARE g platform.database_action_grant; f text;
+scope_policy=json.loads(read('context/reconciliation/foundation-sql-scope-policy.json'))
+scope_body=["DECLARE g platform.database_action_grant; BEGIN", "g:=platform_private.bound_grant(true); IF g.id IS NULL THEN RETURN false; END IF;",
+ "IF model_name=g.target_kind AND row_key<>g.target_id THEN RETURN false; END IF;"]
+for registration in scope_policy['domain_scopes']:
+ owner,action,purpose,root_kind=[registration[k] for k in ['owner','action','purpose','root_kind']]
+ children=" OR model_name='CustomerProfileLifecycleEvent'" if root_kind=='CustomerProfile' else ''
+ # A Consent proof needs exact immutable presentation/content reads. Admission
+ # stays SELECT-only and requires a root-to-child token in addition to the
+ # ordinary per-row/column capabilities enforced by row_allowed.
+ for model,relationship in registration.get('related_reads',{}).items():
+  binding=f"{lit(root_kind+'/')}||g.target_id||{lit('/'+relationship+'/')}||row_key=ANY(g.allowed_fields)"
+  children+=f" OR (verb='SELECT' AND model_name={lit(model)} AND {binding})"
+ scope_body.append(f"IF verb=ANY({arr(registration['verbs'])}) AND (model_name={lit(root_kind)}{children} OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows({lit(owner)},{lit(action)},{lit(root_kind)},g.target_id,{lit(purpose)}) THEN RETURN true; END IF;")
+scope_body.append("IF model_name IN ('RuntimeWorkItem','RuntimeAttempt','RuntimeOutboxMessage','RuntimeCommandReceipt','RuntimeEffectReceipt','RuntimeInboxReceipt','OwnerMutationEvidence','TrackPlan','TrackEntitlementDefinition','TrackPlanEntitlement','TrackSubscription','TrackEntitlementGrant','TrackBaseSelection','TrackSubscriptionEvent','TrackEnrollmentReceipt') AND platform_private.context_allows('track_subscription_entitlement','assignDefaultFreeTrack.v1','RuntimeWorkItem',g.target_id,'default_free_enrollment') THEN RETURN true; END IF;")
+for registration in scope_policy['runtime_work_scopes']:
+ scope_body.append(f"IF model_name='RuntimeWorkItem' AND platform_private.context_allows({lit(registration['owner'])},{lit(registration['action'])},'RuntimeWorkItem',row_key,{lit(registration['purpose'])}) THEN RETURN true; END IF;")
+scope_body.append("IF model_name IN ('RuntimeReservation','RuntimeEffectReceipt','RuntimeCommandReceipt') AND platform_private.context_allows(g.owner_module_id,'runtime.reservation.v1','RuntimeReservation',g.target_id,'reservation') THEN RETURN true; END IF;")
+scope_body+=['RETURN false; END;']
+fn('protected_scope','model_name text, row_key text, verb text','boolean','\n'.join(scope_body),definer=True)
+fn('row_allowed','owner_id text, model_name text, row_key text, verb text, field_names text[], row_revision text DEFAULT NULL, row_transaction text DEFAULT NULL','boolean','''
+DECLARE g platform.database_action_grant; f text; authorized_revision text:=row_revision;
 BEGIN
  g:=platform_private.bound_grant(true);
  IF g.id IS NULL OR verb NOT IN ('SELECT','INSERT','UPDATE') THEN RETURN false; END IF;
+ IF NOT platform_private.protected_scope(model_name,row_key,verb) THEN RETURN false; END IF;
  IF g.owner_module_id<>owner_id AND NOT (owner_id='platform_integration_owner'
-  AND model_name IN ('RuntimeWorkItem','RuntimeAttempt')) THEN RETURN false; END IF;
+  AND model_name IN ('RuntimeWorkItem','RuntimeAttempt'))
+  AND NOT (session_user::text='wa_worker' AND g.owner_module_id='track_subscription_entitlement' AND model_name='RuntimeOutboxMessage') THEN RETURN false; END IF;
  -- SQL transport convention: issuer-authorized finite model/key/verb/field tokens.
  -- No wildcard. Every role-visible SELECT column must be authorized together.
  FOREACH f IN ARRAY field_names LOOP
   IF NOT COALESCE(model_name||'/'||row_key||'/'||verb||'/'||f = ANY(g.allowed_fields),false) THEN RETURN false; END IF;
  END LOOP;
+ IF row_revision IS NOT NULL AND row_transaction=pg_current_xact_id()::text AND row_revision::bigint>0
+  AND NOT COALESCE(model_name||'/'||row_key||'/revision/'||row_revision=ANY(g.allowed_fields),false)
+  AND COALESCE(model_name||'/'||row_key||'/revision/'||(row_revision::bigint-1)::text=ANY(g.allowed_fields),false)
+ THEN authorized_revision:=(row_revision::bigint-1)::text; END IF;
  IF row_revision IS NOT NULL AND NOT COALESCE
-  (model_name||'/'||row_key||'/revision/'||row_revision = ANY(g.allowed_fields),false) THEN RETURN false; END IF;
+  (model_name||'/'||row_key||'/revision/'||authorized_revision = ANY(g.allowed_fields),false) THEN RETURN false; END IF;
  IF row_revision IS NOT NULL AND g.target_kind=model_name AND g.target_id=row_key
-  AND g.source_generation::text<>row_revision THEN RETURN false; END IF;
+  AND g.source_generation::text<>authorized_revision THEN RETURN false; END IF;
  RETURN true;
 END;''',definer=True)
+fn('context_subject_owner','subject_user_id uuid, source_owner text','boolean','''
+DECLARE g platform.database_action_grant;
+BEGIN
+ g:=platform_private.bound_grant(true);
+ RETURN COALESCE(g.principal_user_id=subject_user_id AND g.owner_module_id=source_owner,false);
+END;''',definer=True)
+fn('command_context_allows','source_owner text, operation_name text, subject_scope text','boolean','''
+DECLARE g platform.database_action_grant;
+BEGIN
+ g:=platform_private.bound_grant(true);
+ IF g.id IS NULL OR g.owner_module_id<>source_owner THEN RETURN false; END IF;
+ IF session_user::text='wa_worker' AND g.action='assignDefaultFreeTrack.v1' THEN RETURN operation_name=g.action; END IF;
+ RETURN operation_name=g.action AND subject_scope=g.target_kind||':'||g.target_id;
+END;''',definer=True)
+global_contexts=scope_policy['registered_global_consent_contexts']
+global_expr=' OR '.join('('+ ' AND '.join(f'{k}={lit(v)}' for k,v in context.items()) +')' for context in global_contexts) or 'false'
+fn('global_context_registered','action_owner text, action_name text, context_owner text, context_kind text','boolean','SELECT '+global_expr+';','sql',vol='IMMUTABLE')
 fn('context_subject','subject_user_id uuid','boolean','''
 DECLARE g platform.database_action_grant;
 BEGIN
@@ -262,9 +318,12 @@ for n,m in models.items():
    # INSERT new revision must be zero; mutable existing version in USING checked on old row.
    ownerfield={'RuntimeCommandReceipt':'ownerModuleId','OwnerMutationEvidence':'ownerModuleId','RuntimeEffectReceipt':'ownerModuleId','RuntimeReservation':'ownerModuleId','RuntimeOutboxMessage':'producerOwner','RuntimeInboxReceipt':'consumerOwner'}.get(n)
    ownerexpr=q(fields[ownerfield]) if ownerfield else lit(m['owner'])
-   guard=f'platform_private.row_allowed({ownerexpr},{lit(n)},{rk},{lit(verb)},{arr(["@row"] if verb=="UPDATE" else fs)},{rv if verb=="SELECT" else "NULL::text"})'
-   if role=='wa_worker' and n.startswith('Track'):
-    guard+=f' AND platform_private.worker_track_allowed({lit(n)},jsonb_build_object('+','.join(v for f in fs for v in [lit(fields[f]),q(fields[f])])+f'),{lit(verb)})'
+   guard=f'platform_private.row_allowed({ownerexpr},{lit(n)},{rk},{lit(verb)},{arr(["@row"] if verb=="UPDATE" else fs)},{rv if verb=="SELECT" else "NULL::text"},{q(fields["mutationTransactionId"])}::text)'
+   if role=='wa_worker':
+    # A narrow UPDATE column grant is not a complete source identity. Pass the
+    # fixed SELECT/verb union to the Boolean verifier without changing the ACL.
+    verifier_fields=[f for f in fields if f in set(opcols.get('SELECT',[]))|set(fs)]
+    guard+=f' AND platform_private.worker_track_allowed({lit(n)},jsonb_build_object('+','.join(v for f in verifier_fields for v in [lit(fields[f]),q(fields[f])])+f'),{lit(verb)})'
    pname=q('p_'+role.removeprefix('wa_')+'_'+verb.lower())
    if verb=='SELECT':clause='USING ('+guard+')'
    elif verb=='INSERT':clause='WITH CHECK ('+guard+')'
@@ -274,16 +333,20 @@ for n,m in models.items():
    m.setdefault('policies',[]).append(statement)
 dump('context/reconciliation/foundation-sql-draft-access.json',acl)
 
-fn('worker_track_allowed','model_name text, row_value jsonb, verb text','boolean','''
-DECLARE g platform.database_action_grant;
-BEGIN
- g:=platform_private.bound_grant(true);
- IF g.id IS NULL OR session_user::text<>'wa_worker' OR g.action<>'assignDefaultFreeTrack.v1'
-  OR g.owner_module_id<>'track_subscription_entitlement' THEN RETURN false; END IF;
- -- DRAFT-01/02 are explicit gates: no service epoch or fixed Customer leaf port is
- -- approved within helper privileges. No worker action may bypass these gaps.
- RAISE EXCEPTION 'DRAFT-01/02 require reviewed service-currentness and Customer leaf adapter' USING ERRCODE='0A000';
-END;''',definer=True)
+verifier_access=json.loads(read('context/reconciliation/foundation-sql-verifier-access.json'))
+for role,profile in verifier_access['roles'].items():
+ enum_types=set()
+ for table,columns in profile['columns'].items():
+  emit(f'GRANT SELECT ('+','.join(q(c) for c in columns)+f') ON {table} TO {role};')
+  emit(f'CREATE POLICY {q("leaf_"+role)} ON {table} FOR SELECT TO {role} USING (true);')
+  model=next(m for m in models.values() if m['object']==table)
+  for field in model['fields']:
+   typename=field['type'].rstrip('?[]')
+   if model['columns'][field['name']] in columns and typename in blocks and blocks[typename]['kind']=='enum':enum_types.add(typename)
+ for typename in sorted(enum_types):
+  definition=blocks[typename]['body']; native=re.search(r'@@map\("([^"]+)"\)',definition).group(1); schema=re.search(r'@@schema\("([^"]+)"\)',definition).group(1)
+  emit(f'GRANT USAGE ON TYPE {q(schema)}.{q(native)} TO {role};')
+emit(read('scripts/sql-review/foundation-verification.sql'))
 for m in models.values():
  for statement in m.get('policies',[]):emit(statement)
 
@@ -295,6 +358,8 @@ for n,m in models.items():
  # Reassignment of subscription is restricted to TrackBaseSelection only.
  if n!='TrackBaseSelection' and 'subscriptionId' in fs:owning.add('subscriptionId')
  owning|={f for f in ['createdAt','track','sourceOwner','sourceId','semanticKey','semanticEffectKey','fingerprint','ownerModuleId','operation','subjectScope','handlerName','semanticWorkKey','resourceKind','resourceKey'] if f in fs}
+ if n=='RuntimeReservation':owning.add('quantity')
+ if n in ['RuntimeWorkItem','RuntimeReservation']:owning.discard('effectReceiptId') # one protected outcome link, checked by transition guard
  body=['DECLARE n jsonb:=to_jsonb(NEW); o jsonb; changed text[];','BEGIN'," IF TG_OP='DELETE' THEN RAISE EXCEPTION 'direct deletion denied' USING ERRCODE='42501'; END IF;",' IF TG_OP=\'UPDATE\' THEN','  o:=to_jsonb(OLD);']
  if immutable_row:body.append("  RAISE EXCEPTION 'immutable evidence or receipt';")
  else:
@@ -316,6 +381,10 @@ for n,m in models.items():
  if 'revision' in fs:body.append("  IF NEW.revision<>0 THEN RAISE EXCEPTION 'initial revision must be zero'; END IF;")
  if 'createdAt' in fs:body.append(f'  NEW.{q(fs["createdAt"])}:=clock_timestamp();')
  body.append(' END IF;')
+ if n in ['CustomerProfile','TrackPlan']:
+  body.insert(2,f" PERFORM pg_advisory_xact_lock(hashtextextended('source:{n}:'||NEW.id::text,0));")
+ if n=='CustomerProfile':body.append(" IF NOT platform_private.context_subject_owner(NEW.user_id,'customer_buyer_profile') THEN RAISE EXCEPTION 'foreign Customer principal'; END IF;")
+ if n=='ConsentPresentation':body.append(" IF NOT platform_private.context_subject_owner(NEW.user_id,'consent_disclosure') THEN RAISE EXCEPTION 'foreign Consent presentation principal'; END IF;")
  if 'updatedAt' in fs:body.append(f' NEW.{q(fs["updatedAt"])}:=clock_timestamp();')
  if n=='UserSecurityProfile':body.append(" PERFORM pg_advisory_xact_lock(hashtextextended('identity:'||NEW.user_id::text,0));")
  body+=[' NEW.mutation_transaction_id:=pg_current_xact_id()::text;',' RETURN NEW;','END;']
@@ -337,23 +406,40 @@ emit(read('scripts/sql-review/foundation-invariants.sql'))
 
 # Each business mutation has exact source snapshots and current-transaction receipt/evidence.
 # Infrastructure uses its specialized FK/semantic guards; it does not recurse into evidence.
-domain=[];reverse_cases=[]
+domain=[];reverse_cases=[];worker_reverse_cases=[]
 for n,m in models.items():
  if n=='DatabaseActionGrant' or m['object'].startswith('platform.'):continue
- if n in ['ProfessionalProfile','CandidateProfile']:continue
+ if n in ['ProfessionalProfile','CandidateProfile','CustomerProfileLifecycleEvent','TrackSubscriptionEvent','TrackEnrollmentReceipt']:continue
  domain.append(n);fs=m['columns'];ed=registry['contracts/database-review/owner-mutation-evidence.v1.schema.json']['$defs'][n]
  snap=ed['properties']['committed']['properties']
  def snapshot(row):
   values=[]
   for f in snap:
-   values += [lit(f),f'to_jsonb({row}.{q(fs[f])}'+('::text' if models[n]['fields'][list(fs).index(f)]['type'].rstrip('?') in ['Int','BigInt'] else '')+')']
+   values += [lit(f),f'to_jsonb({row}.{q(fs[f])}'+('::text' if models[n]['fields'][list(fs).index(f)]['type'].rstrip('?') == 'BigInt' else '')+')']
   return 'jsonb_build_object('+','.join(values)+')'
  pkjson='jsonb_build_object('+','.join(v for f in m['pk'] for v in [lit(f),f'NEW.{q(fs[f])}'])+')'
- reverse_cases.append(f'''WHEN {lit(n)} THEN
+ reverse_case=f'''WHEN {lit(n)} THEN
   SELECT EXISTS(SELECT 1 FROM {obj(n)} s WHERE {key(n,'to_jsonb(s)')}=NEW.aggregate_id
    AND s.mutation_transaction_id=NEW.mutation_transaction_id
    AND {snapshot('s')}=NEW.evidence_body->'committed'
-   AND {('s.revision' if 'revision' in fs else '0::bigint')}=NEW.committed_revision) INTO matches;''')
+   AND {('s.revision' if 'revision' in fs else '0::bigint')}=NEW.committed_revision) INTO matches;'''
+ if n in ['TrackSubscription','TrackEntitlementGrant','TrackBaseSelection']:
+  # Worker keeps its original direct columns. The fixed read-only port gets
+  # only the exact snapshot/identity fields needed for these three branches.
+  identity_fields=['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId']
+  identity_json='jsonb_build_object('+','.join(v for f in identity_fields for v in [lit(fs[f]),f's.{q(fs[f])}'])+')'
+  worker_reverse_cases.append(f'''WHEN {lit(n)} THEN
+  RETURN EXISTS(SELECT 1 FROM {obj(n)} s WHERE s.{q(fs['id'])}::text=aggregate_id
+   AND s.mutation_transaction_id=source_transaction AND s.revision=committed_revision
+   AND {snapshot('s')}=committed_value
+   AND platform_private.worker_track_allowed({lit(n)},{identity_json},'SELECT'));''')
+  reverse_case=f'''WHEN {lit(n)} THEN
+  IF session_user::text='wa_worker' THEN
+   matches:=platform_private.worker_evidence_source_matches(NEW.aggregate_kind,NEW.aggregate_id,NEW.committed_revision,NEW.mutation_transaction_id,NEW.evidence_body->'committed');
+  ELSE
+   {reverse_case.split('THEN',1)[1].strip()}
+  END IF;'''
+ reverse_cases.append(reverse_case)
  newrev='NEW.revision' if 'revision' in fs else '0::bigint'
  oldrev='OLD.revision' if 'revision' in fs else '0::bigint'
  fn('commit_'+n.lower(),'','trigger',f'''
@@ -376,6 +462,19 @@ BEGIN
  RETURN NULL;
 END;''')
  emit(f'CREATE CONSTRAINT TRIGGER owner_commit AFTER INSERT OR UPDATE ON {obj(n)} DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.commit_{n.lower()}();')
+fn('worker_evidence_source_matches','model_name text, aggregate_id text, committed_revision bigint, source_transaction text, committed_value jsonb','boolean','''
+DECLARE g platform.database_action_grant;
+BEGIN
+ g:=platform_private.bound_grant(true);
+ IF g.id IS NULL OR session_user::text<>'wa_worker' OR g.service_principal IS NULL
+  OR source_transaction IS DISTINCT FROM pg_current_xact_id()::text
+  OR NOT platform_private.worker_lease_valid(g.target_id::uuid,NULL,true)
+ THEN RETURN false; END IF;
+ CASE model_name
+'''+ '\n'.join(worker_reverse_cases)+'''
+ ELSE RETURN false;
+ END CASE;
+END;''',definer=True)
 fn('evidence_source_commit','','trigger', '''DECLARE matches boolean:=false;
 BEGIN
  CASE NEW.aggregate_kind
@@ -392,16 +491,27 @@ emit('ALTER TABLE platform.owner_mutation_evidence ADD CONSTRAINT closed_evidenc
 emit('REVOKE ALL ON ALL FUNCTIONS IN SCHEMA platform_private FROM PUBLIC;')
 for n in models:emit(f'GRANT EXECUTE ON FUNCTION platform_private.json_evidence_{n.lower()}(jsonb) TO wa_app_runtime,wa_worker;')
 for n in ['customer_event','track_command','track_result','sh004_result','sh114_result']:emit(f'GRANT EXECUTE ON FUNCTION platform_private.json_{n}(jsonb) TO wa_app_runtime,wa_worker;')
-for sig in ['json_datetime(text)','bind_request_context(text)','context_allows(text,text,text,text,text)','row_allowed(text,text,text,text,text[],text)','worker_track_allowed(text,jsonb,text)','context_subject(uuid)']:
+for sig in ['json_datetime(text)','bind_request_context(text)','context_allows(text,text,text,text,text)','row_allowed(text,text,text,text,text[],text,text)','context_subject(uuid)','context_subject_owner(uuid,text)','command_context_allows(text,text,text)','global_context_registered(text,text,text,text)']:
  emit(f'GRANT EXECUTE ON FUNCTION platform_private.{sig} TO wa_app_runtime,wa_worker;')
 emit('REVOKE EXECUTE ON FUNCTION platform_private.bound_grant(boolean) FROM wa_app_runtime,wa_worker;')
 # Trigger functions cannot be called as ordinary SQL; private helper surface is bounded below.
-for sig in ['bound_grant(boolean)','bind_request_context(text)','context_allows(text,text,text,text,text)','row_allowed(text,text,text,text,text[],text)','worker_track_allowed(text,jsonb,text)','context_subject(uuid)']:
+for sig in ['bound_grant(boolean)','bind_request_context(text)','context_allows(text,text,text,text,text)','protected_scope(text,text,text)','row_allowed(text,text,text,text,text[],text,text)','context_subject(uuid)','context_subject_owner(uuid,text)','command_context_allows(text,text,text)']:
  emit(f'GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;\nALTER FUNCTION platform_private.{sig} OWNER TO wa_private_helper_owner;')
-emit('''REVOKE CREATE ON SCHEMA platform_private FROM wa_private_helper_owner;
-REVOKE wa_private_helper_owner FROM wa_schema_owner;
+for role,signatures in {
+ 'wa_customer_verifier':['customer_current_for_track(uuid,uuid,bigint,bigint,uuid)'],
+ 'wa_track_verifier':['worker_track_allowed(text,jsonb,text)','worker_lease_valid(uuid,uuid,boolean)','worker_effect_matches(uuid,uuid,boolean)','track_atomic_valid(text,jsonb,jsonb)','worker_evidence_source_matches(text,text,bigint,text,jsonb)']}.items():
+ for sig in signatures:
+  emit(f'GRANT CREATE ON SCHEMA platform_private TO {role};\nALTER FUNCTION platform_private.{sig} OWNER TO {role};')
+ emit(f'REVOKE CREATE ON SCHEMA platform_private FROM {role};')
+emit('''GRANT EXECUTE ON FUNCTION platform_private.bound_grant(boolean),platform_private.context_allows(text,text,text,text,text) TO wa_customer_verifier,wa_track_verifier;
+GRANT EXECUTE ON FUNCTION platform_private.customer_current_for_track(uuid,uuid,bigint,bigint,uuid) TO wa_track_verifier;
+GRANT EXECUTE ON FUNCTION platform_private.worker_track_allowed(text,jsonb,text),platform_private.worker_lease_valid(uuid,uuid,boolean),platform_private.worker_effect_matches(uuid,uuid,boolean),platform_private.track_atomic_valid(text,jsonb,jsonb),platform_private.worker_evidence_source_matches(text,text,bigint,text,jsonb) TO wa_worker;
+GRANT EXECUTE ON FUNCTION platform_private.lease_secret_matches(text) TO wa_track_verifier,wa_worker;
+REVOKE CREATE ON SCHEMA platform_private FROM wa_private_helper_owner;
+-- Separate original bootstrap grantor must run foundation-bootstrap-finalize.review.sql
+-- after success OR failure. wa_schema_owner has ADMIN FALSE and cannot do that cleanup.
 -- Helper may call its own functions and pure JSON predicates only; no business DML.
--- Its six owned functions need no grant of other application functions.
+-- Owned context functions need no grant of arbitrary application functions.
 -- Issuer invokes only grant trigger automatically; no context discovery endpoints.
 REVOKE ALL ON ALL TABLES IN SCHEMA app,platform FROM PUBLIC;
 REVOKE ALL ON ALL SEQUENCES IN SCHEMA app,platform FROM PUBLIC;

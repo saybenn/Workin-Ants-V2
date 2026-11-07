@@ -72,6 +72,33 @@
       "bypassrls": false,
       "may_create_ddl": false,
       "purpose": "Use approved step-up/action/target context through wa_app_runtime; no separate superuser or one-role-per-Module"
+    },
+    {
+      "role": "wa_identity_service_authority",
+      "kind": "restricted_identity_leaf_writer",
+      "login": true,
+      "inherit": false,
+      "bypassrls": false,
+      "may_create_ddl": false,
+      "purpose": "Canonical Identity transition port only; immutable service receipt/current generation, credential independent of issuer"
+    },
+    {
+      "role": "wa_customer_verifier",
+      "kind": "fixed_boolean_read_port_owner",
+      "login": false,
+      "inherit": false,
+      "bypassrls": false,
+      "may_create_ddl": false,
+      "purpose": "Fixed Customer/currentness proof for exact Track work; no source body or DML"
+    },
+    {
+      "role": "wa_track_verifier",
+      "kind": "fixed_boolean_read_port_owner",
+      "login": false,
+      "inherit": false,
+      "bypassrls": false,
+      "may_create_ddl": false,
+      "purpose": "Exact default-Free work/source/catalog/history/effect verification; no DML or owner membership"
     }
   ],
   "objects": [
@@ -1280,7 +1307,7 @@
       "write_guard": "platform_private.guard_age_gate_attempts",
       "commit_guard": "platform_private.check_age_gate_attempts_commit",
       "proof_bootstrap": "REGISTERED_SOURCE_EVIDENCE_AND_REQUIRED_MESSAGES",
-      "retained_evidence": "AUTHORITATIVE_OWNER_STATE",
+      "retained_evidence": "IMMUTABLE_EVIDENCE_OR_RECEIPT",
       "sensitive_fields": [
         "userId",
         "ipHash",
@@ -1298,6 +1325,7 @@
           "basis": [
             "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         },
@@ -1312,6 +1340,7 @@
           "basis": [
             "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         },
@@ -1326,6 +1355,7 @@
           "basis": [
             "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         },
@@ -1340,6 +1370,7 @@
           "basis": [
             "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         },
@@ -1354,6 +1385,7 @@
           "basis": [
             "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         },
@@ -1368,6 +1400,7 @@
           "basis": [
             "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         },
@@ -1382,6 +1415,7 @@
           "basis": [
             "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         },
@@ -1396,6 +1430,7 @@
           "basis": [
             "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         },
@@ -1410,6 +1445,7 @@
           "basis": [
             "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         },
@@ -1424,6 +1460,7 @@
           "basis": [
             "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         },
@@ -1438,6 +1475,7 @@
           "basis": [
             "DB-C02: restrictive immutable-key FKs; Privacy deletes/anonymizes explicitly in reviewed order",
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         }
@@ -1459,8 +1497,7 @@
       "operations_by_role": {
         "wa_app_runtime": [
           "SELECT_EXACT_AUTHORIZED_TARGET",
-          "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF",
-          "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
+          "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF"
         ],
         "wa_worker": [],
         "wa_context_issuer": [],
@@ -1511,7 +1548,7 @@
       "write_guard": "platform_private.guard_age_gate_blocks",
       "commit_guard": "platform_private.check_age_gate_blocks_commit",
       "proof_bootstrap": "REGISTERED_SOURCE_EVIDENCE_AND_REQUIRED_MESSAGES",
-      "retained_evidence": "AUTHORITATIVE_OWNER_STATE",
+      "retained_evidence": "IMMUTABLE_EVIDENCE_OR_RECEIPT",
       "sensitive_fields": [
         "ipHash",
         "deviceHash"
@@ -1527,6 +1564,7 @@
           },
           "basis": [
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         },
@@ -1540,6 +1578,7 @@
           },
           "basis": [
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         },
@@ -1553,6 +1592,7 @@
           },
           "basis": [
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         },
@@ -1566,6 +1606,7 @@
           },
           "basis": [
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         },
@@ -1579,6 +1620,7 @@
           },
           "basis": [
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         },
@@ -1592,6 +1634,7 @@
           },
           "basis": [
             "DB-C03: UTC-capable timestamptz(6) physical instants",
+            "P0-C-03A/DRAFT-03: append-only Identity evidence; extension/retry is a new semantic row",
             "SQL-08: server transaction identity for atomic source/evidence/message checks"
           ]
         }
@@ -1613,8 +1656,7 @@
       "operations_by_role": {
         "wa_app_runtime": [
           "SELECT_EXACT_AUTHORIZED_TARGET",
-          "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF",
-          "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF"
+          "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF"
         ],
         "wa_worker": [],
         "wa_context_issuer": [],
@@ -78331,6 +78373,184 @@
         "SQL-16"
       ],
       "note": "Exact generated body is a later review item; no DDL/body generation under P0-C-01"
+    },
+    {
+      "kind": "sql_only_table",
+      "object": "platform_private.identity_service_authorization",
+      "business_owner": "identity_access",
+      "postgres_owner": "wa_schema_owner",
+      "stage": "F0_FOUNDATION",
+      "rls": "ENABLE_AND_FORCE",
+      "browser_api_roles": {
+        "anon": [],
+        "authenticated": [],
+        "service_role": []
+      },
+      "runtime": [],
+      "worker": [],
+      "issuer": [],
+      "identity_writer": "wa_identity_service_authority",
+      "sql_requirements": [
+        "SQL-01",
+        "SQL-02",
+        "SQL-06"
+      ],
+      "purpose": "Independent current service generation/revocation and immutable Identity authorization receipt; no permission-policy catalog"
+    },
+    {
+      "kind": "sql_only_table",
+      "object": "platform_private.identity_service_receipt",
+      "business_owner": "identity_access",
+      "postgres_owner": "wa_schema_owner",
+      "stage": "F0_FOUNDATION",
+      "rls": "ENABLE_AND_FORCE",
+      "browser_api_roles": {
+        "anon": [],
+        "authenticated": [],
+        "service_role": []
+      },
+      "runtime": [],
+      "worker": [],
+      "issuer": [],
+      "identity_writer": "wa_identity_service_authority",
+      "sql_requirements": [
+        "SQL-01",
+        "SQL-02",
+        "SQL-06"
+      ],
+      "purpose": "Independent current service generation/revocation and immutable Identity authorization receipt; no permission-policy catalog"
+    },
+    {
+      "kind": "function",
+      "object": "platform_private.customer_current_for_track(uuid,uuid,bigint,bigint,uuid)",
+      "owner": "wa_customer_verifier",
+      "security": "DEFINER",
+      "returns": "BOOLEAN_ONLY",
+      "read_columns_register": "context/reconciliation/foundation-sql-verifier-access.json",
+      "search_path": "pg_catalog",
+      "public_execute": false,
+      "browser_api_roles": {
+        "anon": [],
+        "authenticated": [],
+        "service_role": []
+      },
+      "sql_requirements": [
+        "SQL-02",
+        "SQL-06",
+        "SQL-08",
+        "SQL-09",
+        "SQL-12"
+      ]
+    },
+    {
+      "kind": "function",
+      "object": "platform_private.worker_track_allowed(text,jsonb,text)",
+      "owner": "wa_track_verifier",
+      "security": "DEFINER",
+      "returns": "BOOLEAN_ONLY",
+      "read_columns_register": "context/reconciliation/foundation-sql-verifier-access.json",
+      "search_path": "pg_catalog",
+      "public_execute": false,
+      "browser_api_roles": {
+        "anon": [],
+        "authenticated": [],
+        "service_role": []
+      },
+      "sql_requirements": [
+        "SQL-02",
+        "SQL-06",
+        "SQL-08",
+        "SQL-09",
+        "SQL-12"
+      ]
+    },
+    {
+      "kind": "function",
+      "object": "platform_private.worker_lease_valid(uuid,uuid,boolean)",
+      "owner": "wa_track_verifier",
+      "security": "DEFINER",
+      "returns": "BOOLEAN_ONLY",
+      "read_columns_register": "context/reconciliation/foundation-sql-verifier-access.json",
+      "search_path": "pg_catalog",
+      "public_execute": false,
+      "browser_api_roles": {
+        "anon": [],
+        "authenticated": [],
+        "service_role": []
+      },
+      "sql_requirements": [
+        "SQL-02",
+        "SQL-06",
+        "SQL-08",
+        "SQL-09",
+        "SQL-12"
+      ]
+    },
+    {
+      "kind": "function",
+      "object": "platform_private.worker_effect_matches(uuid,uuid,boolean)",
+      "owner": "wa_track_verifier",
+      "security": "DEFINER",
+      "returns": "BOOLEAN_ONLY",
+      "read_columns_register": "context/reconciliation/foundation-sql-verifier-access.json",
+      "search_path": "pg_catalog",
+      "public_execute": false,
+      "browser_api_roles": {
+        "anon": [],
+        "authenticated": [],
+        "service_role": []
+      },
+      "sql_requirements": [
+        "SQL-02",
+        "SQL-06",
+        "SQL-08",
+        "SQL-09",
+        "SQL-12"
+      ]
+    },
+    {
+      "kind": "function",
+      "object": "platform_private.track_atomic_valid(text,jsonb,jsonb)",
+      "owner": "wa_track_verifier",
+      "security": "DEFINER",
+      "returns": "BOOLEAN_ONLY",
+      "read_columns_register": "context/reconciliation/foundation-sql-verifier-access.json",
+      "search_path": "pg_catalog",
+      "public_execute": false,
+      "browser_api_roles": {
+        "anon": [],
+        "authenticated": [],
+        "service_role": []
+      },
+      "sql_requirements": [
+        "SQL-02",
+        "SQL-06",
+        "SQL-08",
+        "SQL-09",
+        "SQL-12"
+      ]
+    },
+    {
+      "kind": "function",
+      "object": "platform_private.worker_evidence_source_matches(text,text,bigint,text,jsonb)",
+      "owner": "wa_track_verifier",
+      "security": "DEFINER",
+      "returns": "BOOLEAN_ONLY",
+      "read_columns_register": "context/reconciliation/foundation-sql-verifier-access.json",
+      "search_path": "pg_catalog",
+      "public_execute": false,
+      "browser_api_roles": {
+        "anon": [],
+        "authenticated": [],
+        "service_role": []
+      },
+      "sql_requirements": [
+        "SQL-02",
+        "SQL-06",
+        "SQL-08",
+        "SQL-09",
+        "SQL-12"
+      ]
     }
   ],
   "observed_creator_defaults": [

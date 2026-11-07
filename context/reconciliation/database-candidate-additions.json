@@ -472,7 +472,7 @@
         "ownerModuleId String @map(\"owner_module_id\")",
         "aggregateKind String @map(\"aggregate_kind\")",
         "aggregateId String @map(\"aggregate_id\")",
-        "previousRevision BigInt @map(\"previous_revision\")",
+        "previousRevision BigInt? @map(\"previous_revision\")",
         "committedRevision BigInt @map(\"committed_revision\")",
         "action String",
         "decisionRef String @map(\"decision_ref\")",
@@ -683,7 +683,8 @@
         "acceptedSourceOwner String @map(\"accepted_source_owner\")",
         "acceptedSourceId String? @map(\"accepted_source_id\")",
         "acceptedAt DateTime? @map(\"accepted_at\") @db.Timestamptz(6)",
-        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)",
+        "revision BigInt @default(0)"
       ],
       "attributes": [
         "@@unique([userId, entitlementId, periodStart, periodEnd, semanticKey])"
@@ -1061,7 +1062,8 @@
         "sourceReceiptId String @map(\"source_receipt_id\") @db.Uuid",
         "restorePointRef String? @map(\"restore_point_ref\")",
         "appliedAt DateTime? @map(\"applied_at\") @db.Timestamptz(6)",
-        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)"
+        "createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(6)",
+        "revision BigInt @default(0)"
       ],
       "attributes": [
         "@@unique([ownerModuleId, targetKind, sourceId, generation])"

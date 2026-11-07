@@ -1,39 +1,200 @@
 {
+  "directive": "P0-C-03A",
+  "reviewed_baseline": "8917e2035622017eccd14c99ad7fd2b55740163f",
+  "historical_record": "context/reconciliation/foundation-sql-generation-8917e20.json",
   "input_schema": "prisma/review/foundation-candidate.prisma",
-  "input_sha256": "1c05a21cd930a05e9101484dac9d74a1b003da3079e88fb6ebb0c3f9f340a24c",
+  "input_sha256": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
   "config": "prisma.foundation-review.config.ts",
   "config_sha256": "ad7578e0d4c3a6fa5d350c7193a3ebc7909ba31677321e6f6095b192fa533117",
   "node": "24.22.1",
   "prisma": "7.10.1",
   "engine": "d1b3f377ca835d73fd50954a5e22128b9ebdd6b8",
-  "engine_sha256": "e6c4bb89d31f39f7ac601e264c998c0382c069df8485fb8810d0ba8fa806ea4a",
-  "raw_output_sha256": "44a4fada693986749230ffd7fde742cc2943c5da0a4526aad2891e11b59326e3",
-  "exact_command": "node node_modules/prisma/build/index.js migrate diff --from-empty --to-schema prisma/review/foundation-candidate.prisma --config prisma.foundation-review.config.ts --script --output review-output/foundation-structure.sql",
-  "cli_help_verified_flags": [
+  "engine_sha256": "7116e00278a793ee13db6f0a732c1aaec10f795a37bc02e3a7df3b06b2f1311f",
+  "engine_platform": "debian-openssl-3.0.x",
+  "raw_output_sha256": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+  "command": [
+    "/workspace/scratch/3bcde8266087/toolchain/node-v24.22.1-linux-x64/bin/node",
+    "--require",
+    "./scripts/sql-review/prisma-source-only-compat.cjs",
+    "node_modules/prisma/build/index.js",
+    "migrate",
+    "diff",
     "--from-empty",
     "--to-schema",
+    "prisma/review/foundation-candidate.prisma",
     "--config",
+    "prisma.foundation-review.config.ts",
     "--script",
-    "--output"
+    "--output",
+    "review-output/foundation-structure.sql"
   ],
-  "unmodified_attempt": {
-    "exit_code": 0,
-    "file_created": false,
-    "diagnosis": "Engine required startup --datasource <JSON>; CLI omitted it."
-  },
-  "successful_attempt": {
-    "exit_code": 0,
-    "file_created": true,
-    "preload": "scripts/sql-review/prisma-source-only-compat.cjs",
-    "engine_startup_datasource": {},
-    "database_url_supplied": false,
-    "inputs": [
-      "empty",
-      "schemaDatamodel"
-    ],
-    "script": true
-  },
-  "telemetry": "CHECKPOINT_DISABLE=1 and PRISMA_HIDE_UPDATE_MESSAGE=1 on successful generation",
+  "exit_code": 0,
+  "stdout": "\n",
+  "stderr": "Loaded Prisma config from prisma.foundation-review.config.ts.\n\n",
+  "source_only_diff_reproduced_byte_identically": true,
+  "database_url_supplied": false,
+  "engine_startup_datasource": {},
+  "inputs": [
+    "empty",
+    "schemaDatamodel"
+  ],
   "database_contacted": false,
-  "sql_executed": false
+  "sql_executed": false,
+  "schema_generators": [
+    {
+      "command": [
+        "python",
+        "-B",
+        "scripts/prepare-database-candidate.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"existing_models\": 177,\n  \"candidate_models\": 214,\n  \"foundation_models\": 40,\n  \"enums\": 219,\n  \"scope\": \"source generation only; no DDL, database or adoption\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "-B",
+        "scripts/prepare-database-candidate-security.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"sql_specs\": 18, \"access_objects\": 877, \"table_rows\": 214, \"roles\": 11}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "-B",
+        "scripts/prepare-database-candidate-review-assets.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"tests_specified\": 451, \"tests_executed\": 0, \"closed_model_evidence_shapes\": 214, \"source_files\": 40}\n",
+      "stderr": ""
+    }
+  ],
+  "schema_generators_reproduced_byte_identically": true,
+  "reproduced_files_sha256": {
+    "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+    "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+    "context/reconciliation/greenfield-model-security-inventory.json": "599645a8b6f766df11441d74c108d133c6ad08621a9e9ba43cd925e7ffb1396b",
+    "context/reconciliation/database-candidate-access-matrix.json": "0457ef0c373b3f1fa0f79ed623c3e2d4af5b204fb66da5e78697a78f18f665ef",
+    "context/reconciliation/database-candidate-sql-objects.json": "869676c1ed2acc24b24258e2d6711834dfd12f55917d37a55dd8010a362af470",
+    "context/reconciliation/database-candidate-tests.json": "37e2160b8c4899b62638dc6d4159ee92bc2b9aca211296c81e6744d2bcdcfa27",
+    "contracts/database-review/owner-mutation-evidence.v1.schema.json": "536f25e6aa9e91cc59179f21babdf7591440ff40edb5661806d25c9815f16e98",
+    "context/reconciliation/database-candidate-model-ledger.md": "a2b0c74803d9ab160e899aaa24c50fcdb4bec6f3126575e4b41eb869938e1175",
+    "context/reconciliation/database-candidate-source-review.json": "64ef7799832893949f910bdbfd65acd3e448ce5a468901707f8623ed13675065",
+    "context/reconciliation/database-candidate-json-boundaries.json": "e21634ad4c6db0ce7a81cecab89cdebdbc7ff6a6864c9704c5de524913bc24e6",
+    "tests/database/candidate-fixtures.json": "7166b972ff9745f5b59053eec96ba859d1f77246d94cca5de6c1cc74b6b0e33a"
+  },
+  "initial_reproduction_attempt": {
+    "status": "INPUTS_NOT_YET_SYNCHRONIZED",
+    "reason": "SQL-06 signature documentation changed before the initial comparison; security generation synchronized its output. Subsequent full generator replay is byte-identical.",
+    "old_sql_spec_sha256": "66db23a5f940718b8c4caad66939047b042d3e0d4203b7350bcab8f2c9718dab",
+    "synchronized_sql_spec_sha256": "869676c1ed2acc24b24258e2d6711834dfd12f55917d37a55dd8010a362af470"
+  },
+  "recovery_fresh_generation_date": "2026-11-07",
+  "recovery_metadata_synchronization": {
+    "command": [
+      "python",
+      "-B",
+      "scripts/prepare-database-candidate-security.py"
+    ],
+    "exit_code": 0,
+    "stdout": "{\"sql_specs\": 18, \"access_objects\": 877, \"table_rows\": 214, \"roles\": 11}\n",
+    "stderr": "",
+    "byte_identical": true,
+    "reason": "Sixth fixed Boolean verifier included in existing access inventory."
+  },
+  "recovery_preload_lint_correction": {
+    "command": [
+      "/workspace/scratch/3bcde8266087/toolchain/node-v24.22.1-linux-x64/bin/node",
+      "--require",
+      "./scripts/sql-review/prisma-source-only-compat.cjs",
+      "node_modules/prisma/build/index.js",
+      "migrate",
+      "diff",
+      "--from-empty",
+      "--to-schema",
+      "prisma/review/foundation-candidate.prisma",
+      "--config",
+      "prisma.foundation-review.config.ts",
+      "--script",
+      "--output",
+      "review-output/foundation-structure.sql"
+    ],
+    "exit_code": 0,
+    "stdout": "\n",
+    "stderr": "Loaded Prisma config from prisma.foundation-review.config.ts.\n\n",
+    "raw_output_unchanged": true,
+    "node_builtin_api": "process.getBuiltinModule from the pinned Node 24.22.1 runtime; no new dependency/lint exception"
+  },
+  "saved_packet_recovery": {
+    "raw_output_reproduced_byte_identically": true,
+    "schema_and_sql_generators_byte_identical": true,
+    "commands": [
+      {
+        "command": [
+          "node",
+          "--require",
+          "./scripts/sql-review/prisma-source-only-compat.cjs",
+          "node_modules/prisma/build/index.js",
+          "migrate",
+          "diff",
+          "--from-empty",
+          "--to-schema",
+          "prisma/review/foundation-candidate.prisma",
+          "--config",
+          "prisma.foundation-review.config.ts",
+          "--script",
+          "--output",
+          "review-output/foundation-structure.sql"
+        ],
+        "exit_code": 0,
+        "stdout": "\n",
+        "stderr": "Loaded Prisma config from prisma.foundation-review.config.ts.\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  Update available 7.10.1 -> 8.0.0-rc.33                 \u2502\n\u2502                                                         \u2502\n\u2502  This is a major update - please follow the guide at    \u2502\n\u2502  https://pris.ly/d/major-version-upgrade                \u2502\n\u2502                                                         \u2502\n\u2502  Run the following to update                            \u2502\n\u2502    npm i --save-dev prisma@latest                       \u2502\n\u2502    npm i @prisma/client@latest                          \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n"
+      },
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/prepare-database-candidate.py"
+        ],
+        "exit_code": 0,
+        "stdout": "{\n  \"existing_models\": 177,\n  \"candidate_models\": 214,\n  \"foundation_models\": 40,\n  \"enums\": 219,\n  \"scope\": \"source generation only; no DDL, database or adoption\"\n}\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/prepare-database-candidate-review-assets.py"
+        ],
+        "exit_code": 0,
+        "stdout": "{\"tests_specified\": 451, \"tests_executed\": 0, \"closed_model_evidence_shapes\": 214, \"source_files\": 40}\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/assemble-foundation-sql-review.py"
+        ],
+        "exit_code": 0,
+        "stdout": "Wrote application review SQL, bootstrap, 40-model metadata and exact ACL map\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "npm",
+          "run",
+          "lint"
+        ],
+        "exit_code": 0,
+        "stdout": "\n> workin-ants-v2@0.1.0 lint\n> eslint .\n\n",
+        "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n"
+      }
+    ],
+    "database_contacted": false,
+    "sql_executed": false
+  }
 }

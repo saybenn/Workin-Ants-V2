@@ -3,47 +3,49 @@
   "requirements": [
     {
       "id": "SQL-01",
-      "disposition": "F0_IMPLEMENTED_WITH_ENVIRONMENT_DEPENDENCIES",
+      "disposition": "F0_SOURCE_IMPLEMENTED_WITH_OWNER_OR_ENVIRONMENT_DEPENDENCIES",
       "controls": [
         "bootstrap roles/schemas/default privileges",
-        "all40 ENABLE/FORCE RLS",
-        "per-operation column ACL and policies",
-        "private function ownership/search_path/PUBLIC revocation"
+        "40 model and two private SQL-only tables ENABLE/FORCE RLS",
+        "per-operation exact column ACL/policies",
+        "fixed function owners/search_path/PUBLIC revocation",
+        "original-grantor finalize after success or failure"
       ],
       "dependencies_or_deferred_scope": [
-        "Future environment authority must inspect existing role membership, database CONNECT, namespace ownership, provider defaults and API exposure; no existing target was inspected.",
-        "Credential provisioning and private Prisma ledger inspection remain separately authorized environment actions."
+        "Future environment authority inspects existing namespaces/defaults/CONNECT/provider exposure; no target inspected.",
+        "Original grantor independently verifies zero temporary memberships/leaf CREATE after COMMIT or ROLLBACK; runtime credentials inactive until verified.",
+        "Credentials, disposable identity/image and private Prisma ledger remain separately authorized environment work."
       ]
     },
     {
       "id": "SQL-02",
-      "disposition": "F0_IMPLEMENTED_WITH_EXPLICIT_BLOCKERS",
+      "disposition": "F0_SOURCE_IMPLEMENTED_WITH_OWNER_OR_ENVIRONMENT_DEPENDENCIES",
       "controls": [
         "grant_guard",
-        "bound_grant",
+        "bound_grant independent user/service currentness",
         "bind_request_context",
-        "row_allowed"
+        "row_allowed -> protected_scope -> context_allows",
+        "identity_service_guard/identity_receipt_commit"
       ],
       "dependencies_or_deferred_scope": [
-        "SH-001/002 issuer authenticates actor/service, authorizes registered action/purpose/target/field set, generates 256-bit random secret, captures true tuple before reads/locks and commits separately. SQL cannot authenticate a web actor.",
-        "DRAFT-01: service principal has no reviewed durable current-generation lookup; service contexts fail closed.",
-        "Finite protected field capabilities include exact model, row, SQL verb and version. No caller assertion, wildcard or grant mutation.",
-        "Current source version checked against protected exact row revision token. Primary grant target also compares sourceGeneration. Other owner leaf adapters remain owner dependencies, never a universal generation map."
+        "Real SH-001/002/source-owner adapter authenticates actor/service, authorizes exact scope/fields and separately commits tuple-bound grant before business locks. SQL cannot authenticate a web actor.",
+        "Independent Identity writer authenticates transitions and binds canonical authorization receipt; issuer cannot write its currentness source. Bootstrap/rotation/revocation/restore-recovery are specified in technical review but unimplemented owner adapters.",
+        "Finite root/action/purpose/field/version transport is not production authorization policy; all mismatches fail closed."
       ]
     },
     {
       "id": "SQL-03",
-      "disposition": "F0_IMPLEMENTED_WITH_EXPLICIT_BLOCKER",
+      "disposition": "F0_SOURCE_IMPLEMENTED_WITH_OWNER_OR_ENVIRONMENT_DEPENDENCIES",
       "controls": [
-        "guard_<model>",
-        "nonnegative_*",
-        "ordered_*",
-        "native restrictive FKs/PK/unique indexes",
-        "DRAFT-03 no-CAS UPDATE gate"
+        "guard_<model> OLD revision/+1 and initial revision0",
+        "nullable exact predecessor evidence_identity",
+        "TrackUsageReservation/PrivacyRestoreMarker owner revision",
+        "AgeGateAttempt/AgeGateBlock append-only",
+        "native restrictive FK/PK/unique/nonnegative/ordered constraints"
       ],
       "dependencies_or_deferred_scope": [
-        "Owner serializers supply expected version; trigger compares actual OLD and increments exactly once. No global ordering claimed.",
-        "DRAFT-03: mutable no-revision source rows cannot produce a second unique revisioned proof; UPDATE is blocked pending a reviewed source correction."
+        "Owner supplies closed expected prior/committed snapshots; no global ordering.",
+        "Usage mutation qualification remains a separate denial gate; adding CAS does not open usage features."
       ]
     },
     {
@@ -52,7 +54,8 @@
       "controls": [
         "immutable row guards",
         "terminal command_state_guard",
-        "no DELETE privileges or privacy exception"
+        "no DELETE privileges or privacy exception",
+        "AgeGateAttempt/AgeGateBlock append-only; private Identity receipt immutable"
       ],
       "dependencies_or_deferred_scope": [
         "Lawful minimization/erasure requires separately reviewed owner field maps, basis and receipt strategy; blanket evidence deletion remains denied."
@@ -60,30 +63,32 @@
     },
     {
       "id": "SQL-05",
-      "disposition": "F0_IMPLEMENTED_WITH_OWNER_DEPENDENCIES",
+      "disposition": "F0_SOURCE_IMPLEMENTED_WITH_OWNER_OR_ENVIRONMENT_DEPENDENCIES",
       "controls": [
         "native composite consent FK",
-        "consent_guard",
-        "exact content/render hashes",
+        "consent_guard exact content/render/action/user/context",
+        "global_context_registered compiled exact tuple (current registry empty)",
         "immutable acceptance/disposition semantic identity"
       ],
       "dependencies_or_deferred_scope": [
-        "Consent owner proves actual rendering, affirmative user action and applicable current content; submitted hash alone proves neither.",
-        "Legal/test applicability is owner-code authority: production issuer must never authorize draft/test-only legal material. legalApprovalRef is a reference, not a legal approval.",
-        "Intentional reacceptance uses new semantic key; identical receipt replay is read-only and changed meaning conflicts."
+        "Consent owner proves actual rendering, affirmative user action and legal/current applicability. A hash or legalApprovalRef is not that proof.",
+        "NULL/empty context denies unless exact global tuple is explicitly registered; equality alone is insufficient. No production global policy is invented.",
+        "Identical replay is read-only; changed meaning conflicts; new acceptance uses new semantic identity."
       ]
     },
     {
       "id": "SQL-06",
-      "disposition": "F0_IMPLEMENTED_WITH_EXPLICIT_BLOCKERS",
+      "disposition": "F0_SOURCE_IMPLEMENTED_WITH_OWNER_OR_ENVIRONMENT_DEPENDENCIES",
       "controls": [
-        "six named DEFINER helpers",
-        "bound_grant private raw result revoked from app/worker",
-        "SELECT-only helper ACL",
-        "grant issuer own-row policies"
+        "private raw bound_grant execution revoked from app/worker",
+        "minimal helper SELECT on grant/two user-generation/three service-currentness columns",
+        "six Boolean definer ports owned by separate NOLOGIN read-only roles",
+        "exact column register and nonrecursive leaf policies",
+        "original-grantor membership finalization"
       ],
       "dependencies_or_deferred_scope": [
-        "DRAFT-01/02 are not solved by expanding helper reads. Separate credentials/pooling, no raw token logging, parameterized bind and READ COMMITTED transaction bridge are P0-D/E owner code."
+        "Separate credentials/pools and protected parameterized bind/lease-secret transport remain P0-D/E owner code.",
+        "No definer business writes, arbitrary source-body return, role inheritance, BYPASSRLS or broader worker direct grants."
       ]
     },
     {
@@ -101,36 +106,38 @@
     },
     {
       "id": "SQL-08",
-      "disposition": "F0_IMPLEMENTED_WITH_EXPLICIT_BLOCKER",
+      "disposition": "F0_SOURCE_IMPLEMENTED_WITH_OWNER_OR_ENVIRONMENT_DEPENDENCIES",
       "controls": [
         "server mutation stamps",
-        "commit_<model>",
-        "evidence_source_commit",
-        "closed_evidence_json",
-        "customer_atomic",
-        "infrastructure_atomic",
-        "track_enrollment_commit"
+        "commit_<model>/evidence_source_commit closed exact source proof",
+        "evidence_identity create-null/update-CAS rule",
+        "customer_atomic + customer_message_commit + customer_history_commit",
+        "infrastructure_atomic + track_atomic_valid",
+        "one-step own-transaction successor SELECT; writes require actual OLD cap",
+        "worker_evidence_source_matches exact snapshot/revision/transaction via three fixed branches; no new worker direct columns"
       ],
       "dependencies_or_deferred_scope": [
-        "Owner transaction preallocates fixed semantic IDs, writes command/source/exact snapshots/history/outbox atomically, then exposes result.",
-        "DRAFT-02: worker atomic guards need fixed Boolean source checks without direct foreign/table-wide privilege. Worker path remains blocked; no security-definer table-write bypass.",
-        "No evidence-of-evidence recursion. Infrastructure has specialized FK/semantic/transaction checks."
+        "Owner preallocates IDs and commits command/source/history/evidence/outbox as one unit.",
+        "Grouped history/enrollment reverse/deferred checks avoid proof-about-proof recursion and reject orphans.",
+        "Every Customer message matches exact source/history/command/count; schema version1 registered on results."
       ]
     },
     {
       "id": "SQL-09",
-      "disposition": "F0_IMPLEMENTED_WITH_OWNER_DEPENDENCIES",
+      "disposition": "F0_SOURCE_IMPLEMENTED_WITH_OWNER_OR_ENVIRONMENT_DEPENDENCIES",
       "controls": [
-        "runtime_transition",
-        "lease_shape",
-        "effect_fence_guard",
-        "infrastructure_atomic inbox fence",
-        "positive_reservation"
+        "runtime_transition explicit work/reservation transitions",
+        "lease_secret_matches hashes raw preimage, never stored hash as bearer",
+        "one exact effect attachment + worker_effect_matches",
+        "live renewal/expiry/fence/attempt checks",
+        "effect_fence_guard/infrastructure_atomic exact command/effect/inbox",
+        "unknown cannot return active; terminal release requires exact durable noncommit",
+        "active-only reservation creation; immutable quantity while unknown; future claim expiry and attempt changes only on claim"
       ],
       "dependencies_or_deferred_scope": [
-        "P0-D worker uses row locking/CAS, nonrevealed lease secret transport, increasing fences and original semantic effect IDs; actual claim/renew/reclaim/recovery loop is not implemented.",
-        "Current work fence must be in protected grant version token, so a stale worker cannot copy a newer lease hash into GUC and obtain fresh authority.",
-        "Worker deferred guard read surface is part of DRAFT-02. Unknown outcome reconciliation and cancellation require durable owner noncommit evidence."
+        "Actual P0-D claim/renew/reclaim/recovery loop, source lock order and concurrent races are NOT_RUN.",
+        "Recovery can recognize only original exact committed effect/inbox; new effect needs current fence.",
+        "No clock-only or foreign reservation/operation receipt can release uncertain outcome."
       ]
     },
     {
@@ -151,20 +158,18 @@
     },
     {
       "id": "SQL-12",
-      "disposition": "F0_IMPLEMENTED_WITH_EXPLICIT_BLOCKERS",
+      "disposition": "F0_SOURCE_IMPLEMENTED_WITH_OWNER_OR_ENVIRONMENT_DEPENDENCIES",
       "controls": [
-        "track_binding",
-        "typed_*_value",
-        "*_value_bounds",
-        "track_enrollment_commit",
-        "exact per-model worker column ACL",
+        "track_binding/typed benefits",
+        "worker_track_allowed + customer_current_for_track",
+        "track_atomic_valid/source-outbox-command-effect-inbox chain",
+        "exact unchanged direct worker column ACL",
         "block_usage_mutation"
       ],
       "dependencies_or_deferred_scope": [
-        "DRAFT-01/02 keep default-Free worker entry closed. Proposed fixed Customer Boolean check and narrow atomic validation port need Brain review.",
-        "Catalog owner separately approves/prepares active Free revision and exact typed benefits; worker has no catalog write.",
-        "Existing valid Free/paid selection, original receipt and usage remain unchanged. Worker receives no usage access.",
-        "Actual UTC period derivation and counter reconciliation owner adapters are unqualified; direct usage mutation is blocked, not presumed safe."
+        "Separately authorized catalog setup supplies active Free exact revision/version/hash and typed benefits.",
+        "No catalog writes or usage access; preserve valid current Free/paid selection, original receipt/history and usage.",
+        "Fixed verifier ports are source-corrected but unexecuted. Usage period/reconciliation owner adapters remain unqualified and direct usage mutation denied."
       ]
     },
     {
@@ -183,7 +188,8 @@
         "retained_basis",
         "immutable instruction/receipt",
         "restore coherence",
-        "request-origin immutability"
+        "request-origin immutability",
+        "PrivacyRestoreMarker OLD revision/+1 closed evidence"
       ],
       "dependencies_or_deferred_scope": [
         "Verified subject/request, reviewed field-map/retention/legal basis, exact exported bytes/version/digest, provider execution and complete owner accounting are P0-F dependencies.",
@@ -208,7 +214,9 @@
         "message_json_guard",
         "result_json_boundary",
         "closed_evidence_json",
-        "storage digest constraints"
+        "storage digest constraints",
+        "Int JSON numeric / BigInt token snapshot encoding",
+        "registered command result_schema_version=1"
       ],
       "dependencies_or_deferred_scope": [
         "Owner serializer uses registered versions; storage digest codec is SHA256(PostgreSQL17 jsonb::text UTF8), not an assumed equivalent wire canonicalization.",
@@ -233,5 +241,9 @@
         "Hiring Organizations/membership/job/application mutation policies deferred. CandidateProfile presence grants no hiring feature activation."
       ]
     }
-  ]
+  ],
+  "directive": "P0-C-03A",
+  "source_status": "CORRECTED_SOURCE_PENDING_BRAIN_REVIEW",
+  "database_runtime_tests": "451_NOT_RUN",
+  "execution_authorized": false
 }

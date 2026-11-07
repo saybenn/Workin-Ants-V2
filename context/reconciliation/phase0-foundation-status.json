@@ -4,7 +4,8 @@
     "006-A",
     "007-resumption",
     "P0-C-01",
-    "P0-C-02-owner-execution-amendment"
+    "P0-C-02-owner-execution-amendment",
+    "P0-C-03A-source-corrections"
   ],
   "baseline": "bbeb4c2a3a1ccd110273d7185f113db546549009",
   "branch": "codex/phase0-clean-foundation-2026-10-19",
@@ -12,7 +13,7 @@
   "P0_B": "FRAMEWORK_ACCEPTANCE_PASS_DEPENDENCY_SECURITY_REQUALIFIED",
   "TECH_LOCK_001": "RESOLVED_CLEAN_PINNED_INSTALL_ZERO_EXISTING_VERSION_CHANGES",
   "TECH_ROUTER_001": "RESOLVED_CLEAN_APP_REAL_FRAMEWORK_HTTP_PASS",
-  "P0_C": "D_CORRECTED_CANDIDATE_PENDING_BRAIN_REVIEW_NO_DDL_OR_ADOPTION",
+  "P0_C": "D_CORRECTED_SQL_SOURCE_PENDING_BRAIN_RE_REVIEW_NO_EXECUTION_OR_ADOPTION",
   "database_posture": "D",
   "database_contacted": true,
   "migrations_seed_reset_or_provisioning_executed": false,
@@ -21,7 +22,7 @@
   "candidate_lanes": 8,
   "authorized_parallel_lanes": 0,
   "production_development_authorized": false,
-  "next_safe_task": "Brain reviews the exact candidate/schema/security/SQL-only/test hashes. Only a subsequent approval authorizes source-only SQL generation; reviewed SQL and exact disposable identity/actions need execution authorization before replay. No live target contact or runtime implementation follows from static validity.",
+  "next_safe_task": "Brain reviews corrected P0-C-03A source/SQL hashes against 8917e20. Disposable execution remains held; no client setup task.",
   "dependency_security_gate": "PASS_KNOWN_ADVISORIES_REMEDIATED",
   "dependency_security_issue": "TECH-DEPENDENCY-SECURITY-001",
   "real_http_smoke_cases": 47,
@@ -56,5 +57,16 @@
     "B010-02": "ACCEPTED_SOURCE_DESIGN",
     "remaining_scope": "Track default-Free worker permissions and P0C-CTX-02 source/test corrections pending Brain re-review",
     "ddl_approved": false
+  },
+  "latest_sql_source_review": {
+    "directive": "P0-C-03A",
+    "reviewed_commit": "8917e2035622017eccd14c99ad7fd2b55740163f",
+    "manifest": "context/reconciliation/foundation-sql-draft-manifest.json",
+    "validation": "context/reconciliation/foundation-sql-draft-validation.json",
+    "sql_draft_generated": true,
+    "execution_authorized": false,
+    "database_contacted": false,
+    "sql_executed": false,
+    "database_runtime_cases": "451_NOT_RUN"
   }
 }

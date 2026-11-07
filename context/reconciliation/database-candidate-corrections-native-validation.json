@@ -1,31 +1,94 @@
 {
   "status": "PASS_OFFLINE_SCHEMA_ONLY",
-  "reviewed_base_commit": "72e7673ff0970907d7c75e3993553fcf67000a3d",
+  "reviewed_base_commit": "8917e2035622017eccd14c99ad7fd2b55740163f",
   "node": "v24.22.1",
   "npm": "11.9.0",
   "prisma": "7.10.1",
   "client": "7.10.1",
   "schemas_sha256": {
-    "prisma/review/physical-candidate.prisma": "b9ac4a854e1af65a8682a668d5cf43113656247a276df68f272015f6e4937f57",
-    "prisma/review/foundation-candidate.prisma": "1c05a21cd930a05e9101484dac9d74a1b003da3079e88fb6ebb0c3f9f340a24c"
+    "prisma/schema.prisma": "4a75be42a8b26001c20aaf46a1bb0e5dd7d0984090c9712274c308668908eebf",
+    "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+    "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723"
   },
   "commands": [
     {
-      "command": "pinned-node node_modules/prisma/build/index.js validate --config prisma.review.config.ts",
+      "command": [
+        "node",
+        "node_modules/prisma/build/index.js",
+        "validate",
+        "--config",
+        "prisma.offline.config.ts"
+      ],
       "exit_code": 0,
-      "stdout": "The schema at prisma\\review\\physical-candidate.prisma is valid \ud83d\ude80\n",
-      "stderr": "Loaded Prisma config from prisma.review.config.ts.\n\nPrisma schema loaded from prisma\\review\\physical-candidate.prisma.\n",
-      "database_target_configured": false
+      "stdout": "The schema at prisma/schema.prisma is valid \ud83d\ude80\n",
+      "stderr": "Loaded Prisma config from prisma.offline.config.ts.\n\nPrisma schema loaded from prisma/schema.prisma.\n"
     },
     {
-      "command": "pinned-node node_modules/prisma/build/index.js validate --config prisma.foundation-review.config.ts",
+      "command": [
+        "node",
+        "node_modules/prisma/build/index.js",
+        "validate",
+        "--config",
+        "prisma.review.config.ts"
+      ],
       "exit_code": 0,
-      "stdout": "The schema at prisma\\review\\foundation-candidate.prisma is valid \ud83d\ude80\n",
-      "stderr": "Loaded Prisma config from prisma.foundation-review.config.ts.\n\nPrisma schema loaded from prisma\\review\\foundation-candidate.prisma.\n",
-      "database_target_configured": false
+      "stdout": "The schema at prisma/review/physical-candidate.prisma is valid \ud83d\ude80\n",
+      "stderr": "Loaded Prisma config from prisma.review.config.ts.\n\nPrisma schema loaded from prisma/review/physical-candidate.prisma.\n"
+    },
+    {
+      "command": [
+        "node",
+        "node_modules/prisma/build/index.js",
+        "validate",
+        "--config",
+        "prisma.foundation-review.config.ts"
+      ],
+      "exit_code": 0,
+      "stdout": "The schema at prisma/review/foundation-candidate.prisma is valid \ud83d\ude80\n",
+      "stderr": "Loaded Prisma config from prisma.foundation-review.config.ts.\n\nPrisma schema loaded from prisma/review/foundation-candidate.prisma.\n"
     }
   ],
   "database_contacted": false,
   "ddl_generated": false,
-  "scope": "Fresh pinned offline validation; accepted schemas unchanged; no database/runtime proof"
+  "scope": "P0-C-03A source-only schema validation; separate SQL draft generation is recorded in its own manifest. No connection, container or execution.",
+  "recovered_fresh_validation_date": "2026-11-07",
+  "previous_recovery_commands": [
+    {
+      "command": [
+        "/workspace/scratch/3bcde8266087/toolchain/node-v24.22.1-linux-x64/bin/node",
+        "node_modules/prisma/build/index.js",
+        "validate",
+        "--config",
+        "prisma.offline.config.ts"
+      ],
+      "exit_code": 0,
+      "stdout": "The schema at prisma/schema.prisma is valid \ud83d\ude80\n",
+      "stderr": "Loaded Prisma config from prisma.offline.config.ts.\n\nPrisma schema loaded from prisma/schema.prisma.\n"
+    },
+    {
+      "command": [
+        "/workspace/scratch/3bcde8266087/toolchain/node-v24.22.1-linux-x64/bin/node",
+        "node_modules/prisma/build/index.js",
+        "validate",
+        "--config",
+        "prisma.review.config.ts"
+      ],
+      "exit_code": 0,
+      "stdout": "The schema at prisma/review/physical-candidate.prisma is valid \ud83d\ude80\n",
+      "stderr": "Loaded Prisma config from prisma.review.config.ts.\n\nPrisma schema loaded from prisma/review/physical-candidate.prisma.\n"
+    },
+    {
+      "command": [
+        "/workspace/scratch/3bcde8266087/toolchain/node-v24.22.1-linux-x64/bin/node",
+        "node_modules/prisma/build/index.js",
+        "validate",
+        "--config",
+        "prisma.foundation-review.config.ts"
+      ],
+      "exit_code": 0,
+      "stdout": "The schema at prisma/review/foundation-candidate.prisma is valid \ud83d\ude80\n",
+      "stderr": "Loaded Prisma config from prisma.foundation-review.config.ts.\n\nPrisma schema loaded from prisma/review/foundation-candidate.prisma.\n"
+    }
+  ],
+  "saved_packet_recovery_revalidated": true
 }

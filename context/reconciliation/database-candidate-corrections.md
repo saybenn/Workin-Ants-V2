@@ -1,5 +1,7 @@
 # P0-C-02 — B010-01/02/03 source corrections
 
+> Current amendment P0-C-03A: [corrected SQL source review](foundation-sql-draft-review.md) and [retained directive](directives/brain-directive-p0-c-03a.md) supersede earlier drafting-stage gaps/next actions in this historical source plan. Source and SQL drafts only; posture D; all 451 database/runtime cases NOT_RUN. Independent Identity currentness, narrowly enumerated read-only Boolean ports, append-only age evidence and both added owner revisions are present for re-review, not execution-approved. No human setup task.
+
 Authority: the owner's “Execute corrections and publish” amendment, received 1 November 2026. It authorizes isolated restoration, these source corrections, applicable offline checks, commits and normal publication of `codex/p0c-candidate-corrections-2026-10-31` to `saybenn/Workin-Ants-V2`. The earlier P0-C-02 text was not in the Checkpoint 010 package; this document does not invent its absent sections or grant broader authority. Candidate approval remains pending, posture D remains and the pre-DDL stop remains.
 
 The preserved starting commit is `879336673f4c0408276ea8d31ddbc508fa8f0d9c`, tree `8af073cb833bedb92524a1ffef4b9f10b07b08f0`. The complete bundle and evidence ZIP remain unchanged. The old OneDrive checkout and its changes are outside this working copy. These corrections alter review-only schemas/specifications, not an installed database, production adapter, canonical Shared Operation or accepted business decision.

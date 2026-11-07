@@ -4,7 +4,7 @@
 Requires isolated pinned pglast==7.21 (PostgreSQL 17 parser) on PYTHONPATH.
 Parsing is not SQL execution, installation, name resolution or runtime proof.
 """
-import json,re,hashlib,sys
+import json,re,hashlib,sys,runpy
 from pathlib import Path
 from pglast import parse_sql,parse_plpgsql,__version__
 from pglast import ast
@@ -20,11 +20,11 @@ def checks(root=ROOT,verify_fingerprints=True):
   need(manifest.get(k) is False,'unsafe stage claim: '+k)
  need(manifest.get('database_posture')=='D','posture changed')
  if verify_fingerprints:
-  for path,expected in (manifest['preserved_reviewed_inputs_sha256']|manifest['outputs_sha256']|manifest.get('draft_source_sha256',{})).items():
+  for path,expected in (manifest['preserved_reviewed_inputs_sha256']|manifest.get('revised_inputs_sha256',{})|manifest['outputs_sha256']|manifest.get('draft_source_sha256',{})).items():
    need(hashlib.sha256((root/path).read_bytes()).hexdigest()==expected,'reviewed input/output changed: '+path)
  for path in ['prisma/foundation/migrations','prisma.foundation.config.ts']:
   need(not (root/path).exists(),'migration path activated: '+path)
- for path in ['review-output/foundation-bootstrap.review.sql','review-output/foundation-structure.sql','review-output/foundation-application.review.sql']:
+ for path in ['review-output/foundation-bootstrap.review.sql','review-output/foundation-structure.sql','review-output/foundation-application.review.sql','review-output/foundation-bootstrap-finalize.review.sql']:
   s=(root/path).read_text(encoding='utf8');ss=parse_sql(s);pc=0;sc=0
   for item in ss:
    st=item.stmt
@@ -81,7 +81,7 @@ def checks(root=ROOT,verify_fingerprints=True):
  modelrows=data('context/reconciliation/foundation-sql-draft-models.json')
  access=data('context/reconciliation/foundation-sql-draft-access.json')
  need(len(modelrows)==40,'wrong foundation cut')
- need(len(tables)==40,'nonfoundation application table')
+ need(set(tables)=={tuple(r['object'].split('.')) for r in modelrows}|{('platform_private','identity_service_authorization'),('platform_private','identity_service_receipt')},'unregistered physical table')
  for r in modelrows:
   sch,tab=r['object'].split('.');cols=tables[(sch,tab)]
   need(set(r['fields'].values())==cols,'actual column mismatch '+r['model'])
@@ -111,7 +111,7 @@ def checks(root=ROOT,verify_fingerprints=True):
    need(len(allowed)==1 and set(r['fields'])==set(allowed[0]['columns']),'Track worker privilege broadening '+r['model'])
   need(r['operation']!='DELETE','direct deletion grant')
  need(sorted(expected_acl)==sorted(actual_acl),'actual SQL ACL exceeds or differs from declared exact role/column map')
- need(sorted(helper_acl)==sorted([('platform.database_action_grant','SELECT',()),('app.user_security_profiles','SELECT',('security_generation','user_id'))]),'helper read/write surface broadened')
+ need(sorted(helper_acl)==sorted([('platform.database_action_grant','SELECT',()),('app.user_security_profiles','SELECT',('security_generation','user_id')),('platform_private.identity_service_authorization','SELECT',('revoked_at','security_generation','service_principal'))]),'helper read/write surface broadened')
  for p in policies:
   if any(r.rolename in ['wa_app_runtime','wa_worker'] for r in p.roles):
    text=json.dumps(p())
@@ -124,13 +124,13 @@ def checks(root=ROOT,verify_fingerprints=True):
  need(not re.search(r'GRANT\s+(?:SELECT|INSERT|UPDATE|DELETE|ALL).*database_action_grant.*TO wa_(?:app_runtime|worker)',application),'direct grant table exposed')
  need('GRANT wa_schema_owner TO wa_migrator' in bootstrap,'migrator SET ROLE path missing')
  need(not re.search(r'GRANT wa_(?:schema_owner|context_issuer|private_helper_owner) TO wa_(?:app_runtime|worker)',bootstrap),'runtime privileged membership')
- need('REVOKE wa_private_helper_owner FROM wa_schema_owner;' in application,'temporary owner membership retained')
+ finalize=(root/'review-output/foundation-bootstrap-finalize.review.sql').read_text();need('GRANTED BY CURRENT_USER' in finalize and 'original bootstrap grantor' in finalize and 'temporary installation membership remains' in finalize,'authorized success/failure membership cleanup missing');need('REVOKE wa_private_helper_owner FROM wa_schema_owner;' not in application,'ADMIN FALSE owner attempts membership cleanup')
  need('ALTER DEFAULT PRIVILEGES FOR ROLE wa_schema_owner REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;' in bootstrap,'default PUBLIC function execute')
  for name,(node,body,chunk) in functions.items():
   if any(o.defname=='security' and o.arg.boolval for o in node.options):
-   need(name.split('.')[-1] in ['bound_grant','bind_request_context','context_allows','row_allowed','worker_track_allowed','context_subject'],'unexpected DEFINER '+name)
+   need(name.split('.')[-1] in ['bound_grant','bind_request_context','context_allows','protected_scope','row_allowed','worker_track_allowed','context_subject','context_subject_owner','command_context_allows','customer_current_for_track','worker_lease_valid','worker_effect_matches','track_atomic_valid','worker_evidence_source_matches'],'unexpected DEFINER '+name)
    need(not re.search(r'(?:^|[;\n])\s*(?:INSERT|UPDATE|DELETE|EXECUTE)\b',re.sub(r'--[^\n]*','',body),re.I),'DEFINER writes/dynamic SQL '+name)
-   need(owners.get(name)=='wa_private_helper_owner','DEFINER owner not narrow helper: '+name)
+   expected_owner='wa_customer_verifier' if name.endswith('.customer_current_for_track') else 'wa_track_verifier' if name.split('.')[-1] in ['worker_track_allowed','worker_lease_valid','worker_effect_matches','track_atomic_valid','worker_evidence_source_matches'] else 'wa_private_helper_owner';need(owners.get(name)==expected_owner,'DEFINER owner not narrow helper: '+name)
   # Offline composite variable column checks; this is not full catalog resolution.
   for var,sch,tab in re.findall(r'\b(\w+)\s+(app|platform)\.(\w+)\b',chunk):
    need((sch,tab) in tables,'unknown composite type '+sch+'.'+tab)
@@ -143,7 +143,7 @@ def checks(root=ROOT,verify_fingerprints=True):
  binding=functions['platform_private.bound_grant'][1]
  for fragment in ['database_login_role=session_user::text','backend_pid=pg_backend_pid()','transaction_id=pg_current_xact_id()::text','revoked_at IS NULL','expires_at > clock_timestamp()','s.security_generation=g.security_generation']:
   need(fragment in binding,'missing bind/currentness predicate '+fragment)
- need(bool(re.search(r'IF g.principal_user_id IS NULL THEN\s*RETURN NULL;\s*END IF;',re.sub(r'--[^\n]*','',binding))),'service-currentness must fail closed')
+ need('platform_private.identity_service_authorization a' in binding and 'a.security_generation=g.security_generation AND a.revoked_at IS NULL' in binding,'service currentness has no independent Identity source')
  need('bound_grant(false)' in functions['platform_private.bind_request_context'][1],'bind locks before CTX02 revocation')
  need("COALESCE(model_name||'/'||row_key||'/'||verb||'/'||f = ANY(g.allowed_fields),false)" in functions['platform_private.row_allowed'][1],'nullable capability membership can authorize absent field')
  need('array_position(NEW.allowed_fields,NULL) IS NOT NULL' in functions['platform_private.grant_guard'][1],'NULL capability element admitted')
@@ -151,13 +151,15 @@ def checks(root=ROOT,verify_fingerprints=True):
  need('committed_revision=previous_revision+1' in application,'evidence revision gap')
  need('mutation_transaction_id=pg_current_xact_id()::text' in application,'transaction-stamp proof missing')
  need('DEFERRABLE INITIALLY DEFERRED' in application,'deferred atomic guards missing')
- need("r.state='fenced_noncommit' AND r.fence>=OLD.fence" in application,'unsafe unknown reservation release')
+ need("e.state<>'fenced_noncommit'" in application and "e.command_receipt_id IS DISTINCT FROM NEW.command_receipt_id" in application and "e.operation<>c.operation" in application,'unsafe unknown reservation release');need("OLD.state='unknown' AND NEW.state IN ('unknown','committed','released')" in application,'uncertain reservation can return to active')
  control=data('context/reconciliation/foundation-sql-draft-controls.json')
  need({r['id'] for r in control['requirements']}=={'SQL-'+str(n).zfill(2) for n in range(1,19)},'18 SQL map incomplete')
  replay=data('context/reconciliation/foundation-sql-draft-replay-map.json')
  ids=data('context/reconciliation/database-candidate-corrections-first-replay-selection.json')['first_p0c_replay']['ids']
  need(len(replay['tests'])==94 and {r['id'] for r in replay['tests']}==set(ids),'94 replay mapping incomplete')
  need(all(r['status']=='NOT_RUN' and r['controls'] for r in replay['tests']),'false replay claim or unmapped test')
+ correction=runpy.run_path(str(ROOT/'scripts/check-foundation-sql-corrections.py'))['inspect'](root)
+ errors.extend(correction['errors'])
  return {'status':'PASS' if not errors else 'FAIL','scope':'OFFLINE_SOURCE_AND_PARSER_ONLY','database_contacted':False,'sql_executed':False,'catalog_parity_verified':False,'runtime_tests':'NOT_RUN','parser':__version__,'stats':stats,'errors':errors}
 if __name__=='__main__':
  result=checks();print(json.dumps(result,indent=2));sys.exit(bool(result['errors']))

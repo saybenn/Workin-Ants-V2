@@ -17,6 +17,11 @@ manifest.update(
     historical_validation_record='context/reconciliation/checkpoint-010-validation.json',
     historical_native_record='context/reconciliation/database-candidate-native-validation.json',
     current_native_record='context/reconciliation/database-candidate-corrections-native-validation.json',
+    source_amendment_directive='P0-C-03A',
+    targeted_review_base_commit='8917e2035622017eccd14c99ad7fd2b55740163f',
+    current_review_directive='context/reconciliation/directives/brain-directive-p0-c-03a.md',
+    current_sql_draft_manifest='context/reconciliation/foundation-sql-draft-manifest.json',
+    scope='Candidate source packet; pre-generation flags belong to historical P0-C-02, not the separate current SQL draft stage.',
 )
 paths = set(manifest['files_sha256']) | {
     'context/reconciliation/database-candidate-corrections-first-replay-selection.json',
@@ -33,6 +38,10 @@ paths = set(manifest['files_sha256']) | {
     'scripts/refresh-database-candidate-fingerprints.py',
     'context/reconciliation/database-candidate-corrections.md',
     'context/reconciliation/database-candidate-corrections-native-validation.json',
+    'context/reconciliation/database-candidate-corrections-native-validation-8917e20.json',
+    'context/reconciliation/directives/brain-directive-p0-c-03a.md',
+    'context/reconciliation/foundation-sql-verifier-access.json',
+    'context/reconciliation/foundation-sql-scope-policy.json',
 }
 validation = 'context/reconciliation/database-candidate-corrections-validation.json'
 if (ROOT / validation).exists():

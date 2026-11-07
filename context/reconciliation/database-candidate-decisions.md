@@ -1,5 +1,7 @@
 # P0-C-01 physical decisions — review only
 
+> Current amendment P0-C-03A: [corrected SQL source review](foundation-sql-draft-review.md) and [retained directive](directives/brain-directive-p0-c-03a.md) supersede earlier drafting-stage gaps/next actions in this historical source plan. Source and SQL drafts only; posture D; all 451 database/runtime cases NOT_RUN. Independent Identity currentness, narrowly enumerated read-only Boolean ports, append-only age evidence and both added owner revisions are present for re-review, not execution-approved. No human setup task.
+
 Authority: owner-supplied Brain Directive P0-C-01, 27 October 2026. These are proposed architecture-compatible implementation choices for Brain review. They change neither approved product rules nor the adopted schema, target state, contract status or posture D. Decisions were recorded before reproducing their dependent candidate representation. The original schema, migration and observed targets remain unchanged.
 
 | Decision | Selected representation and reason | Authority / alternative rejected |

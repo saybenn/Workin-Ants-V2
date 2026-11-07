@@ -43,7 +43,7 @@ SQL06 = (
     'pg_backend_pid() and pg_current_xact_id()::text in READ COMMITTED. It SELECTs only the '
     'bounded grant columns and minimal Identity generations, then sets transaction-local '
     'transport; it never INSERTs, UPDATEs or DELETEs a grant. '
-    'platform_private.context_allows(owner,kind,id,operation,purpose) returns only a Boolean '
+    'platform_private.context_allows(owner,action,kind,id,purpose) returns only a Boolean '
     'after the same tuple/currentness checks. Both SECURITY DEFINER helpers pin '
     'search_path=pg_catalog and qualify every application name. Their NOLOGIN/NOBYPASSRLS '
     'owner wa_private_helper_owner has bounded SELECT only, no grant-table write. '
@@ -312,3 +312,58 @@ def table_cases(row, primary_key):
         'fixture': 'Same synthetic concrete rows as the positive case',
     }
     return setup, positive, expected, negative
+
+# Brain P0-C-03A source-only amendments; no SQL is executed by these rules.
+SQL02 += ' Current service authority is a private Identity-owned generation/revocation record bound to an immutable Identity receipt. Issuer cannot write or manufacture that source; absent/revoked/stale source denies. Actual action/purpose/root is enforced through protected_scope and context_allows, not just field tokens.'
+SQL06 += ' Fixed Customer/Track Boolean ports use distinct NOLOGIN read-only roles and the exact columns in foundation-sql-verifier-access.json; direct worker grants remain unchanged. The private helper reads only current service generation/revocation in addition to its original Identity/grant leaves.'
+
+# New vectors extend existing test IDs. They are specifications, never executions.
+# Each pair requires a successful operation as well as a meaningful denial.
+P0C03A_REPLAY_VECTORS = {
+ 'P0C-TABLE-ConsentLog-ALLOW': [
+  ('CONSENT-SCOPE-CHAIN', 'SH-007 proof root reads its exact presentation/content using relationship and per-row/field capabilities, then appends coherent proof/evidence', 'Substitute an otherwise row-authorized foreign presentation/content, wrong root/purpose, or omit root-to-child capability', 'Only the exact subject/action/context/rendering chain is admitted; missing or foreign prerequisite scope denies')],
+ 'P0C-TABLE-ConsentLog-DENY': [
+  ('CONSENT-SCOPE-DENY', 'Same exact prerequisite graph as authorized acceptance', 'Use SH-007 to INSERT a prerequisite or change purpose/root while preserving ordinary row/field caps', 'Prerequisite reads are SELECT-only and tied to the exact proof root; no acceptance grant creates its own presentation')],
+ 'P0C-TABLE-ConsentContentRevision-ALLOW': [
+  ('CONSENT-CONTENT-SCOPE', 'Separately authorized publishConsentVersion.v1 / consent.publish_version appends one exact immutable root with required proof; SH-009 reads an exact revision', 'Use a query purpose to INSERT or supply a foreign content root', 'Named publisher admission succeeds; query write and foreign root deny; actual publisher/legal policy remains owner-adapter work')],
+ 'P0C-TABLE-ConsentPresentation-ALLOW': [
+  ('CONSENT-PRESENTATION-SCOPE', 'recordConsentPresentation.v1 / consent.record_presentation appends current principal presentation and reads exact related content', 'Foreign principal/content or SH-010 presentation purpose attempts INSERT', 'Only the named append operation with exact subject/content admits the row; SH-010 remains SELECT-only')],
+ 'P0C-TABLE-ConsentDisposition-ALLOW': [
+  ('CONSENT-DISPOSITION-SCOPE', 'recordConsentDisposition.v1 / consent.record_disposition appends exact same-subject presentation/proof disposition', 'Foreign proof/presentation, wrong purpose/root, missing relationship capability or UPDATE existing disposition', 'Exact immutable disposition appends; every foreign binding/rewrite denies')],
+ 'P0C-INSTALL-01': [
+  ('INSTALL-CLEANUP', 'Bootstrap/application succeeds, then ORIGINAL grantor runs finalize in a separate connection', 'Inject application rollback, then the same grantor finalizes; wrong grantor cannot clean up', 'Both outcomes leave zero helper/verifier memberships on schema owner and zero CREATE on platform_private for leaf roles; runtime credentials stay inactive until verified')],
+ 'P0C-CATALOG-01': [
+  ('CATALOG-LEAVES', 'Compare all 40 model tables plus two private Identity relations and exact column ACLs', 'Attempt issuer/current-source DML and verifier business DML or role assumption', 'Exact catalog/ACL/owner parity; no issuer self-attestation or verifier writes')],
+ 'P0C-CTX-01': [
+  ('READ-PURPOSE-NO-WRITE', 'Canonical query/pure/result/presentation and projection/history/access-evidence source scopes admit only SELECT', 'Give SH-003 or another nonmutating purpose otherwise matching root UPDATE capabilities', 'Source writes deny; any independent append-only read proof needs an explicitly registered owner operation'),
+  ('SERVICE-BOOTSTRAP', 'Identity writer commits bootstrap receipt and generation zero, then issuer binds a current service grant', 'Issuer/app/worker tries to manufacture service currentness, wrong tuple, or stale generation', 'Only independent Identity currentness authorizes service; issuer cannot write its own current source'),
+  ('SCOPE-PURPOSE', 'Exact Customer action/purpose/root and otherwise valid row/field caps', 'Keep the same row/fields while substituting purpose, action or root', 'Protected operation succeeds only for its registered scope'),
+  ('POOL-LIFETIME', 'New READ COMMITTED transaction on the same backend obtains a fresh separately committed grant', 'Reuse old handle after full/savepoint rollback or commit; use another backend or xid', 'Current tuple succeeds; all stale or foreign tuples deny')],
+ 'P0C-CTX-02': [
+  ('SERVICE-REVOKE', 'Rotate/revoke/recover under separate Identity credentials and exact predecessor receipt', 'A binds; independent Identity writer commits revoke/rotate before A attempts action', 'Fresh current generation succeeds; old generation is denied; recovery needs new Identity receipt, never issuer assertion')],
+ 'P0C-PRIV-01': [
+  ('BOOLEAN-PORTS', 'Worker calls fixed Boolean ports for its current source/job/approved plan/lease', 'Wrong customer, job, source receipt, plan revision or lease; attempt source-body SELECT via port', 'Only matching fixed facts return true; no source bodies, DML or broadened worker direct grant')],
+ 'P0C-BOOT-01': [
+  ('FIRST-CUSTOMER', 'Trusted synthetic Identity/Consent/catalog setup; create Customer rev0/no predecessor, commit, then fresh scoped grant updates rev1 with exact predecessor0', 'Require predecessor on creation, supply predecessor on create, omit required history/proof, or use a stale predecessor on update', 'Valid create then update commits; invalid predecessor or absent grouped proof rolls back without recursive evidence-about-evidence')],
+ 'P0C-ATOMIC-01': [
+  ('MESSAGE-REVERSE', 'Creation emits exactly event ordinal0 and Free command ordinal1, each linked to exact source/history/evidence/command', 'Beside a valid update event, emit an extra Free-enrollment command; substitute another source history or user', 'Exact creation/update message set commits; every extra or mismatched message rejects COMMIT'),
+  ('RESULT-VERSION', 'Registered result schema version1 and closed payload', 'Same otherwise-valid result with another version', 'Only registered version is accepted')],
+ 'P0C-CAS-01': [
+  ('OWNER-REVISIONS', 'TrackUsageReservation and PrivacyRestoreMarker update with exact OLD revision, +1 and closed prior/committed evidence', 'Stale predecessor, skipped revision, absent prior object or same-transaction second source update', 'One source revision/proof advances; stale/skipped/missing proof fails; later unqualified usage mutation remains blocked')],
+ 'P0C-IMMUTABLE-01': [
+  ('AGE-APPEND', 'Append independently authorized AgeGateAttempt/Block with new semantic ID', 'UPDATE/DELETE old age evidence, including an attempted block extension in place', 'Append succeeds; retained age evidence cannot be rewritten'),
+  ('CONSENT-EMPTY', 'Matching nonempty context; separately reviewed registry fixture may authorize one exact global tuple', 'NULL/empty context without exact registered global tuple, wrong action or context kind', 'Current production registry is empty and denies every empty context; equality alone conveys no global authority')],
+ 'P0C-TRACK-01': [
+  ('LEASE-ATTACH', 'Current holder supplies 256-bit lease preimage; committed matching command/effect/inbox links null to exact effect once and completes in same transaction', 'Copy readable stored hash as secret, attach unrelated effect with identical fence, relink nonnull pointer, or use another job/customer/plan revision', 'Exact holder/link succeeds; copied hash or foreign/relinked evidence denies'),
+  ('LEASE-RENEW', 'Fresh renew grant extends an unexpired same-fence lease with unchanged secret hash and attempt count', 'Renew after expiry, shorten expiry, change hash without reclaim, or let old holder act after concurrent higher-fence reclaim', 'Only current holder renews; reclaim increments fence/attempt once with future expiry; attempt-only changes deny; stale holder cannot commit'),
+  ('LEASE-RECOVERY', 'Reclaimed current holder recognizes original exact already-committed effect/inbox and completes without another business mutation', 'Recognize same-fence receipt from a different semantic key/operation/customer or missing exact inbox', 'SELECT admits only the exact linked original committed outcome after reclaim; new effect INSERT requires current fence; foreign receipt cannot acknowledge work')],
+ 'P0C-TABLE-RuntimeReservation-ALLOW': [
+  ('RESERVATION-RELEASE', 'Exact reservation/owner/command/operation/fingerprint/semantic key/fence has durable fenced_noncommit proof; attach that receipt once and release', 'Use receipt from another reservation/operation, NULL or foreign command, unresolved command, or elapsed lease alone', 'Exact proof releases; all foreign/unknown/time-only claims deny')],
+ 'P0C-TABLE-RuntimeReservation-DENY': [
+  ('RESERVATION-BYPASS', 'active to unknown retains uncertain reservation; exact proof may release unknown', 'Try unknown to active to released, initial terminal state, unknown quantity reduction, terminal reversal, or later committed effect after noncommit', 'Unknown never returns to active; terminal command/effect/links cannot be reinterpreted')],
+ 'P0C-EVIDENCE-01': [
+  ('WORKER-REVERSE-PROOF', 'Worker commits exact source snapshot/revision/transaction through fixed read-only Boolean port; base selection UPDATE has full verifier identity without wider direct grants', 'Wrong source/transaction/revision/snapshot or omitted UPDATE identity; keep direct worker source columns unchanged', 'Exact proof and legitimate base-selection update pass; all invented proof denies'),
+  ('EVIDENCE-CODEC', 'Creation has JSON null prior and revision0; update exact prior object; Int JSON numbers and BigInt strings', 'Wrong predecessor/source/transaction, missing prior object, extra body keys or wrong numeric encoding', 'Closed minimized source/evidence agrees in both schemas and actual SQL snapshot expression')],
+ 'P0C-RESTORE-01': [
+  ('SERVICE-RESTORE', 'Before any restored service connection, Identity independently revokes/advances every restored service epoch, rotates credentials and issues recovery receipt', 'Reuse a restored pre-crash service grant/generation or omit privacy restriction markers', 'Restored state remains unavailable until independent currentness/marker recovery; old grants fail')],
+}

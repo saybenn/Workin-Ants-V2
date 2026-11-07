@@ -1,5 +1,7 @@
 # Database candidate security — review only
 
+> Current amendment P0-C-03A: [corrected SQL source review](foundation-sql-draft-review.md) and [retained directive](directives/brain-directive-p0-c-03a.md) supersede earlier drafting-stage gaps/next actions in this historical source plan. Source and SQL drafts only; posture D; all 451 database/runtime cases NOT_RUN. Independent Identity currentness, narrowly enumerated read-only Boolean ports, append-only age evidence and both added owner revisions are present for re-review, not execution-approved. No human setup task.
+
 This package specifies controls; it has executed none of them. [The object/role/access matrix](database-candidate-access-matrix.json) covers every candidate table, enum/schema, required view, function/trigger family and the absence of application sequences. [The SQL companion](database-candidate-sql-objects.json) names exact enforcement obligations and positive/negative outcomes. These extend the existing model/security inventory; they do not replace Role, Identity, Privacy or source-owner authority.
 
 ## Physical ownership and connections

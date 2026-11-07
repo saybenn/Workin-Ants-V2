@@ -1,5 +1,7 @@
 # Coordinated migration, replay and adoption plan — not executed
 
+> Current amendment P0-C-03A: [corrected SQL source review](foundation-sql-draft-review.md) and [retained directive](directives/brain-directive-p0-c-03a.md) supersede earlier drafting-stage gaps/next actions in this historical source plan. Source and SQL drafts only; posture D; all 451 database/runtime cases NOT_RUN. Independent Identity currentness, narrowly enumerated read-only Boolean ports, append-only age evidence and both added owner revisions are present for re-review, not execution-approved. No human setup task.
+
 ## Selected execution path
 
 Use the installed, pinned **Prisma 7.10.1 Migrate SQL history** as the sole application schema/security executor. Each adopted migration.sql contains both structural SQL and reviewed grants/RLS/functions/triggers/checks/indexes. Supabase CLI/MCP must not independently apply application DDL or maintain a competing application history. They may later inspect provider state or help run explicitly approved local parity tests; they are not another migration owner.

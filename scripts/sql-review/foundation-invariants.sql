@@ -6,7 +6,8 @@ ALTER TABLE platform.owner_mutation_evidence ADD CONSTRAINT evidence_identity
  AND evidence_body->>'schema'='database-owner-evidence.v1' AND evidence_body->>'model'=aggregate_kind
  AND evidence_body->>'owner'=owner_module_id AND evidence_body->>'decisionRef'=decision_ref
  AND length(decision_ref)>0 AND committed_revision>=0
- AND (previous_revision IS NULL OR committed_revision=previous_revision+1));
+ AND ((previous_revision IS NULL AND committed_revision=0 AND COALESCE(evidence_body->'prior','null'::jsonb)='null'::jsonb)
+  OR (previous_revision IS NOT NULL AND previous_revision>=0 AND committed_revision=previous_revision+1 AND COALESCE(jsonb_typeof(evidence_body->'prior')='object',false))));
 -- Review SQL storage digest codec: SHA-256 over PostgreSQL 17 jsonb::text UTF-8.
 -- Wire serializers must implement this exact storage codec or use a reviewed
 -- separate wire digest; equality with an unspecified JSON encoding is not assumed.
@@ -32,7 +33,8 @@ BEGIN
   AND platform_private.json_track_command(NEW.payload)
   AND NEW.payload->>'customerProfileId'=NEW.aggregate_id
   AND NEW.payload->>'sourceCreationRevision'=NEW.source_revision::text
-  AND NEW.payload->>'sourceCreationReceipt'=NEW.command_receipt_id::text THEN RETURN NEW; END IF;
+  AND NEW.payload->>'sourceCreationReceipt'=NEW.command_receipt_id::text
+  AND NEW.payload->>'semanticKey'='customer_buyer_profile/'||NEW.aggregate_id||'/default-free-enrollment/v1' THEN RETURN NEW; END IF;
  RAISE EXCEPTION 'unregistered or incoherent F0 message';
 END $wa$;
 CREATE TRIGGER message_json BEFORE INSERT ON platform.runtime_outbox_message
@@ -48,6 +50,7 @@ ALTER TABLE platform.runtime_command_receipt ADD CONSTRAINT result_json_boundary
    AND result_schema_id='urn:workinants:database-review:foundation-payloads:v1#/$defs/assignDefaultFreeTrackCustomerResult'
    AND platform_private.json_track_result(result_body))
  ));
+ALTER TABLE platform.runtime_command_receipt ADD CONSTRAINT result_version_registered CHECK (result_schema_version='1');
 ALTER TABLE platform.runtime_command_receipt ADD CONSTRAINT committed_result CHECK
  (state<>'committed' OR (result_digest IS NOT NULL AND
   (operation NOT IN ('SH-004.v1','SH-114.v1','assignDefaultFreeTrack.v1') OR result_body IS NOT NULL)));
@@ -57,13 +60,18 @@ ALTER TABLE platform.runtime_outbox_message ADD CONSTRAINT source_message_revisi
 CREATE FUNCTION platform_private.command_state_guard() RETURNS trigger
 LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $wa$
 BEGIN
+ IF NOT platform_private.command_context_allows(NEW.owner_module_id,NEW.operation,NEW.subject_scope)
+  AND NOT EXISTS(SELECT 1 FROM platform.runtime_reservation r WHERE r.command_receipt_id=NEW.id
+   AND r.owner_module_id=NEW.owner_module_id
+   AND platform_private.context_allows(NEW.owner_module_id,'runtime.reservation.v1','RuntimeReservation',r.id::text,'reservation'))
+ THEN RAISE EXCEPTION 'command action/root does not match protected scope'; END IF;
  IF TG_OP='UPDATE' AND (OLD.state IN ('committed','denied','fenced_noncommit')
   OR (to_jsonb(NEW)-ARRAY['state','source_revision','result_digest','result_body','mutation_transaction_id'])
    IS DISTINCT FROM (to_jsonb(OLD)-ARRAY['state','source_revision','result_digest','result_body','mutation_transaction_id']))
  THEN RAISE EXCEPTION 'terminal receipt or semantic identity immutable'; END IF;
  RETURN NEW;
 END $wa$;
-CREATE TRIGGER command_state BEFORE UPDATE ON platform.runtime_command_receipt
+CREATE TRIGGER command_state BEFORE INSERT OR UPDATE ON platform.runtime_command_receipt
  FOR EACH ROW EXECUTE FUNCTION platform_private.command_state_guard();
 
 ALTER TABLE app.consent_content_revision ADD CONSTRAINT exact_content_hash CHECK
@@ -84,6 +92,7 @@ BEGIN
    OR p.action_owner<>NEW.action_owner OR p.action<>NEW.action
    OR p.context_owner<>NEW.context_owner OR p.context_kind<>NEW.context_kind
    OR p.context_id IS DISTINCT FROM NEW.context_id
+   OR (NULLIF(NEW.context_id,'') IS NULL AND NOT platform_private.global_context_registered(p.action_owner,p.action,p.context_owner,p.context_kind))
    OR NEW.accepted_at<p.created_at OR NEW.accepted_at<c.effective_from
    OR (c.effective_until IS NOT NULL AND NEW.accepted_at>=c.effective_until)
    OR c.review_state='draft' OR NULLIF(NEW.acceptance_key,'') IS NULL
@@ -118,7 +127,7 @@ BEGIN
  SELECT * INTO STRICT h FROM app.customer_profile_lifecycle_event WHERE customer_profile_id=NEW.id
   AND source_revision=NEW.revision AND command_receipt_id=e.command_receipt_id
   AND mutation_transaction_id=e.mutation_transaction_id;
- IF h.to_status<>NEW.status OR h.actor_user_id<>NEW.user_id
+ IF h.to_status<>NEW.status OR h.actor_user_id<>NEW.user_id OR h.name<>'customer.lifecycle_changed.v1'
   OR h.from_status IS DISTINCT FROM (CASE WHEN TG_OP='INSERT' THEN NULL::app.profile_status ELSE OLD.status END)
   OR NOT EXISTS(SELECT 1 FROM platform.runtime_outbox_message o WHERE o.command_receipt_id=e.command_receipt_id
     AND o.aggregate_kind='CustomerProfile' AND o.aggregate_id=NEW.id::text
@@ -133,53 +142,138 @@ BEGIN
     AND o.source_generation=NEW.privacy_generation AND o.payload->>'userId'=NEW.user_id::text
     AND o.mutation_transaction_id=e.mutation_transaction_id)
  THEN RAISE EXCEPTION 'missing durable default-Free intent'; END IF;
+ IF (SELECT count(*) FROM platform.runtime_outbox_message o WHERE o.aggregate_kind='CustomerProfile'
+   AND o.aggregate_id=NEW.id::text AND o.source_revision=NEW.revision AND o.command_receipt_id=e.command_receipt_id
+   AND o.mutation_transaction_id=e.mutation_transaction_id) <> (CASE WHEN TG_OP='INSERT' THEN 2 ELSE 1 END)
+ THEN RAISE EXCEPTION 'extra or missing Customer messages'; END IF;
  RETURN NULL;
 END $wa$;
 CREATE CONSTRAINT TRIGGER customer_atomic AFTER INSERT OR UPDATE ON app.customer_profiles
  DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.customer_atomic();
 
+CREATE FUNCTION platform_private.customer_message_commit() RETURNS trigger
+LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $wa$
+DECLARE e platform.owner_mutation_evidence; h app.customer_profile_lifecycle_event; c app.customer_profiles;
+BEGIN
+ SELECT * INTO STRICT c FROM app.customer_profiles WHERE id=NEW.aggregate_id::uuid;
+ SELECT * INTO STRICT e FROM platform.owner_mutation_evidence WHERE owner_module_id='customer_buyer_profile'
+  AND aggregate_kind='CustomerProfile' AND aggregate_id=NEW.aggregate_id AND committed_revision=NEW.source_revision
+  AND command_receipt_id=NEW.command_receipt_id AND mutation_transaction_id=NEW.mutation_transaction_id;
+ SELECT * INTO STRICT h FROM app.customer_profile_lifecycle_event WHERE customer_profile_id=c.id AND source_revision=NEW.source_revision
+  AND command_receipt_id=e.command_receipt_id AND mutation_transaction_id=e.mutation_transaction_id;
+ IF c.revision<>NEW.source_revision OR c.privacy_generation<>NEW.source_generation
+  OR c.mutation_transaction_id<>NEW.mutation_transaction_id OR NEW.mutation_transaction_id<>pg_current_xact_id()::text
+  OR h.name<>'customer.lifecycle_changed.v1' OR h.to_status<>c.status OR h.actor_user_id<>c.user_id
+  OR NEW.payload->>'userId'<>c.user_id::text
+  OR (NEW.kind='event' AND (NEW.name<>'customer.lifecycle_changed.v1' OR NEW.ordinal<>0 OR NEW.payload->>'safeState'<>c.status::text))
+  OR (NEW.kind='command' AND (NEW.name<>'assignDefaultFreeTrack.v1' OR NEW.ordinal<>1 OR e.previous_revision IS NOT NULL OR c.revision<>0 OR h.from_status IS NOT NULL))
+  OR (SELECT count(*) FROM platform.runtime_outbox_message m WHERE m.command_receipt_id=e.command_receipt_id
+    AND m.aggregate_kind='CustomerProfile' AND m.aggregate_id=c.id::text AND m.source_revision=c.revision
+    AND m.mutation_transaction_id=e.mutation_transaction_id) <> (CASE WHEN e.previous_revision IS NULL THEN 2 ELSE 1 END)
+ THEN RAISE EXCEPTION 'message does not match exact source/history/count'; END IF;
+ RETURN NULL;
+END $wa$;
+CREATE CONSTRAINT TRIGGER exact_customer_message AFTER INSERT ON platform.runtime_outbox_message
+ DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.customer_message_commit();
+CREATE FUNCTION platform_private.customer_history_commit() RETURNS trigger
+LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $wa$
+DECLARE c app.customer_profiles; e platform.owner_mutation_evidence;
+BEGIN
+ SELECT * INTO STRICT c FROM app.customer_profiles WHERE id=NEW.customer_profile_id;
+ SELECT * INTO STRICT e FROM platform.owner_mutation_evidence WHERE aggregate_kind='CustomerProfile' AND aggregate_id=c.id::text
+  AND owner_module_id='customer_buyer_profile' AND committed_revision=NEW.source_revision
+  AND command_receipt_id=NEW.command_receipt_id AND mutation_transaction_id=NEW.mutation_transaction_id;
+ IF c.mutation_transaction_id<>NEW.mutation_transaction_id OR c.revision<>NEW.source_revision OR c.status<>NEW.to_status
+  OR NEW.actor_user_id<>c.user_id OR NEW.name<>'customer.lifecycle_changed.v1'
+  OR NEW.from_status::text IS DISTINCT FROM e.evidence_body->'prior'->>'status'
+ THEN RAISE EXCEPTION 'orphan Customer history'; END IF;
+ RETURN NULL;
+END $wa$;
+CREATE CONSTRAINT TRIGGER exact_customer_history AFTER INSERT ON app.customer_profile_lifecycle_event
+ DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.customer_history_commit();
+
 -- SQL-09: unknown never releases by clock expiry; durable noncommit is necessary.
 ALTER TABLE platform.runtime_reservation ADD CONSTRAINT positive_reservation CHECK (quantity>0);
 ALTER TABLE platform.runtime_attempt ADD CONSTRAINT attempt_order CHECK (attempt_number>0 AND fence>0);
 ALTER TABLE platform.runtime_work_item ADD CONSTRAINT lease_shape CHECK
- ((state='leased' AND lease_token_hash IS NOT NULL AND lease_expires_at IS NOT NULL AND fence>0)
-  OR (state<>'leased' AND lease_token_hash IS NULL AND lease_expires_at IS NULL));
+ ((state IN ('leased','completed') AND lease_token_hash IS NOT NULL AND lease_expires_at IS NOT NULL AND fence>0)
+  OR (state NOT IN ('leased','completed') AND lease_token_hash IS NULL AND lease_expires_at IS NULL));
 CREATE FUNCTION platform_private.runtime_transition() RETURNS trigger
 LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $wa$
-DECLARE w platform.runtime_work_item; e platform.runtime_effect_receipt;
+DECLARE w platform.runtime_work_item; e platform.runtime_effect_receipt; c platform.runtime_command_receipt;
 BEGIN
  IF TG_TABLE_NAME='runtime_work_item' THEN
+  IF TG_OP='INSERT' THEN
+   IF session_user::text<>'wa_app_runtime' OR NEW.state<>'pending' OR NEW.fence<>0 OR NEW.attempt_count<>0
+    OR NEW.effect_receipt_id IS NOT NULL OR NOT platform_private.context_allows('platform_integration_owner','runtime.schedule_work.v1','RuntimeWorkItem',NEW.id::text,'work.schedule')
+   THEN RAISE EXCEPTION 'job must enter through registered scheduler'; END IF;
+  END IF;
   IF TG_OP='UPDATE' THEN
    IF OLD.state='completed' OR NEW.attempt_count<OLD.attempt_count THEN RAISE EXCEPTION 'terminal work/regressive attempt'; END IF;
+   IF NEW.effect_receipt_id IS DISTINCT FROM OLD.effect_receipt_id THEN
+    IF OLD.effect_receipt_id IS NOT NULL OR NEW.effect_receipt_id IS NULL OR OLD.state<>'leased'
+     OR NOT platform_private.worker_effect_matches(OLD.id,NEW.effect_receipt_id,false)
+    THEN RAISE EXCEPTION 'effect link must be one exact protected attachment'; END IF;
+   END IF;
    IF NEW.state='leased' AND (OLD.state<>'leased' OR NEW.lease_token_hash IS DISTINCT FROM OLD.lease_token_hash) THEN
-    IF NEW.fence<>OLD.fence+1 OR NEW.attempt_count<>OLD.attempt_count+1
+    IF session_user::text<>'wa_worker' OR NOT platform_private.context_allows('platform_integration_owner','runtime.claim_work.v1','RuntimeWorkItem',OLD.id::text,'work.claim')
+     OR NEW.fence<>OLD.fence+1 OR NEW.attempt_count<>OLD.attempt_count+1
+     OR NEW.lease_expires_at<=clock_timestamp()
      OR (OLD.state='leased' AND OLD.lease_expires_at>clock_timestamp())
+     OR NOT platform_private.lease_secret_matches(NEW.lease_token_hash::text)
     THEN RAISE EXCEPTION 'invalid claim/reclaim'; END IF;
-   ELSIF NEW.fence<>OLD.fence THEN RAISE EXCEPTION 'fence may change only on claim'; END IF;
+   ELSIF NEW.fence<>OLD.fence OR NEW.attempt_count<>OLD.attempt_count
+   THEN RAISE EXCEPTION 'fence and attempt may change only on claim'; END IF;
+   IF OLD.state='leased' AND NEW.lease_token_hash IS NOT DISTINCT FROM OLD.lease_token_hash AND NEW.state='leased'
+    AND NEW.lease_expires_at IS DISTINCT FROM OLD.lease_expires_at THEN
+    IF NOT platform_private.context_allows('platform_integration_owner','runtime.renew_work.v1','RuntimeWorkItem',OLD.id::text,'work.renew')
+     OR OLD.lease_expires_at<=clock_timestamp() OR NOT platform_private.lease_secret_matches(OLD.lease_token_hash::text)
+     OR NEW.lease_expires_at<=OLD.lease_expires_at OR NEW.attempt_count<>OLD.attempt_count
+    THEN RAISE EXCEPTION 'renewal requires current secret and extends live lease'; END IF;
+   END IF;
    IF OLD.state='leased' AND NEW.state<>'leased' AND (OLD.lease_expires_at<=clock_timestamp()
-    OR current_setting('wa.lease_hash',true) IS DISTINCT FROM OLD.lease_token_hash::text
+    OR NOT platform_private.lease_secret_matches(OLD.lease_token_hash::text)
     OR current_setting('wa.fence',true) IS DISTINCT FROM OLD.fence::text)
    THEN RAISE EXCEPTION 'expired or foreign worker'; END IF;
   END IF;
   IF NEW.state='completed' THEN
    SELECT * INTO STRICT e FROM platform.runtime_effect_receipt WHERE id=NEW.effect_receipt_id;
-   IF e.state<>'committed' OR e.fence<>NEW.fence THEN RAISE EXCEPTION 'completion without current committed effect'; END IF;
+   IF e.state<>'committed' OR e.fence>NEW.fence OR NOT platform_private.worker_effect_matches(NEW.id,e.id,false)
+   THEN RAISE EXCEPTION 'completion without exact committed effect and current holder'; END IF;
   END IF;
  ELSIF TG_TABLE_NAME='runtime_attempt' THEN
   SELECT * INTO STRICT w FROM platform.runtime_work_item WHERE id=NEW.work_item_id;
-  IF w.fence<>NEW.fence OR NEW.attempt_number<>w.attempt_count THEN RAISE EXCEPTION 'stale attempt'; END IF;
+  IF w.fence<>NEW.fence OR NEW.attempt_number<>w.attempt_count OR NOT platform_private.worker_lease_valid(w.id,NULL,true)
+  THEN RAISE EXCEPTION 'stale attempt'; END IF;
+ ELSIF TG_TABLE_NAME='runtime_reservation' AND TG_OP='INSERT' THEN
+  IF NEW.state<>'active' OR NEW.effect_receipt_id IS NOT NULL
+  THEN RAISE EXCEPTION 'reservation must start active without outcome'; END IF;
  ELSIF TG_TABLE_NAME='runtime_reservation' AND TG_OP='UPDATE' THEN
   IF OLD.state IN ('committed','released') THEN RAISE EXCEPTION 'terminal reservation'; END IF;
-  IF NEW.state='released' AND OLD.state='unknown' AND NOT EXISTS
-   (SELECT 1 FROM platform.runtime_effect_receipt r WHERE r.id=NEW.effect_receipt_id
-    AND r.state='fenced_noncommit' AND r.fence>=OLD.fence)
-  THEN RAISE EXCEPTION 'unknown needs durable fenced noncommit'; END IF;
+  IF NEW.effect_receipt_id IS DISTINCT FROM OLD.effect_receipt_id AND
+   (OLD.effect_receipt_id IS NOT NULL OR NEW.effect_receipt_id IS NULL OR NEW.state NOT IN ('committed','released'))
+  THEN RAISE EXCEPTION 'reservation outcome link attaches once at exact terminal proof'; END IF;
+  IF NOT ((OLD.state='active' AND NEW.state IN ('active','unknown','committed','released'))
+   OR (OLD.state='unknown' AND NEW.state IN ('unknown','committed','released')))
+  THEN RAISE EXCEPTION 'unsupported reservation transition'; END IF;
+  IF NEW.state IN ('committed','released') THEN
+   SELECT * INTO STRICT c FROM platform.runtime_command_receipt WHERE id=NEW.command_receipt_id;
+   SELECT * INTO STRICT e FROM platform.runtime_effect_receipt WHERE id=NEW.effect_receipt_id;
+   IF e.command_receipt_id IS DISTINCT FROM NEW.command_receipt_id OR e.owner_module_id<>NEW.owner_module_id
+    OR c.owner_module_id<>NEW.owner_module_id OR e.operation<>c.operation OR e.fingerprint<>c.fingerprint OR e.fence<>NEW.fence
+    OR e.subject_scope<>'RuntimeReservation:'||NEW.id::text OR c.subject_scope<>e.subject_scope
+    OR e.semantic_effect_key<>NEW.semantic_key OR c.semantic_key<>NEW.semantic_key
+    OR (NEW.state='released' AND (e.state<>'fenced_noncommit' OR c.state<>'fenced_noncommit'
+      OR e.mutation_transaction_id<>pg_current_xact_id()::text OR c.mutation_transaction_id<>e.mutation_transaction_id))
+    OR (NEW.state='committed' AND (e.state<>'committed' OR c.state<>'committed'))
+   THEN RAISE EXCEPTION 'reservation outcome needs exact command/operation/effect proof'; END IF;
+  END IF;
  END IF;
  RETURN NEW;
 END $wa$;
 CREATE TRIGGER work_transition BEFORE INSERT OR UPDATE ON platform.runtime_work_item FOR EACH ROW EXECUTE FUNCTION platform_private.runtime_transition();
 CREATE TRIGGER attempt_transition BEFORE INSERT ON platform.runtime_attempt FOR EACH ROW EXECUTE FUNCTION platform_private.runtime_transition();
-CREATE TRIGGER reservation_transition BEFORE UPDATE ON platform.runtime_reservation FOR EACH ROW EXECUTE FUNCTION platform_private.runtime_transition();
+CREATE TRIGGER reservation_transition BEFORE INSERT OR UPDATE ON platform.runtime_reservation FOR EACH ROW EXECUTE FUNCTION platform_private.runtime_transition();
 
 -- Effect insertion must match the still-current protected work lease, not an
 -- arbitrary fence copied from an old message or an untrusted GUC alone.
@@ -189,9 +283,8 @@ DECLARE w platform.runtime_work_item;
 BEGIN
  IF session_user::text='wa_worker' THEN
   SELECT * INTO STRICT w FROM platform.runtime_work_item WHERE effect_receipt_id=NEW.id;
-  IF w.state<>'leased' OR w.fence<>NEW.fence OR w.lease_expires_at<=clock_timestamp()
-   OR current_setting('wa.lease_hash',true) IS DISTINCT FROM w.lease_token_hash::text
-   OR current_setting('wa.fence',true) IS DISTINCT FROM w.fence::text
+  IF NOT platform_private.worker_lease_valid(w.id,NEW.id,true) OR w.fence<>NEW.fence
+   OR NOT platform_private.worker_effect_matches(w.id,NEW.id,true)
   THEN RAISE EXCEPTION 'stale worker effect'; END IF;
  END IF;
  RETURN NULL;
@@ -203,57 +296,14 @@ CREATE CONSTRAINT TRIGGER effect_fence AFTER INSERT ON platform.runtime_effect_r
 -- invalidate an already valid selected subscription.
 CREATE FUNCTION platform_private.track_enrollment_commit() RETURNS trigger
 LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $wa$
-DECLARE s app.track_subscriptions; old_s app.track_subscriptions; p app.track_plans;
- sel app.track_base_selection; e platform.runtime_effect_receipt;
 BEGIN
- IF session_user::text<>'wa_worker' THEN RETURN NULL; END IF;
- IF TG_TABLE_NAME='track_base_selection' THEN
-  SELECT * INTO STRICT s FROM app.track_subscriptions WHERE id=NEW.subscription_id;
-  SELECT * INTO STRICT p FROM app.track_plans WHERE id=s.plan_id;
-  IF s.mutation_transaction_id<>NEW.mutation_transaction_id OR p.status<>'active' OR p.billing_model<>'free'
-   OR s.provider<>'none' OR s.status<>'active' OR s.customer_profile_id<>NEW.customer_profile_id
-  THEN RAISE EXCEPTION 'not same new approved Free enrollment'; END IF;
-  IF TG_OP='UPDATE' THEN
-   SELECT * INTO STRICT old_s FROM app.track_subscriptions WHERE id=OLD.subscription_id;
-   IF old_s.status IN ('active','trialing') AND old_s.ended_at IS NULL
-    AND (old_s.current_period_end IS NULL OR old_s.current_period_end>clock_timestamp())
-   THEN RAISE EXCEPTION 'preserve valid existing Free or paid selection'; END IF;
-  END IF;
-  IF NOT EXISTS(SELECT 1 FROM app.track_enrollment_receipt r WHERE r.selection_id=NEW.id
-   AND r.selection_revision=NEW.revision AND r.mutation_transaction_id=NEW.mutation_transaction_id)
-  THEN RAISE EXCEPTION 'missing atomic enrollment receipt'; END IF;
- ELSIF TG_TABLE_NAME='track_subscriptions' THEN
-  IF NOT EXISTS(SELECT 1 FROM app.track_base_selection b WHERE b.subscription_id=NEW.id
-    AND b.mutation_transaction_id=NEW.mutation_transaction_id)
-   OR NOT EXISTS(SELECT 1 FROM app.track_subscription_events h WHERE h.subscription_id=NEW.id
-    AND h.mutation_transaction_id=NEW.mutation_transaction_id AND h.user_id=NEW.user_id
-    AND h.plan_id=NEW.plan_id AND h.to_status=NEW.status AND h.from_status IS NULL)
-  THEN RAISE EXCEPTION 'orphan Free enrollment/history'; END IF;
- ELSIF TG_TABLE_NAME='track_entitlement_grants' THEN
-  SELECT * INTO STRICT s FROM app.track_subscriptions WHERE id=NEW.subscription_id;
-  IF s.mutation_transaction_id<>NEW.mutation_transaction_id OR NEW.source_plan_id IS DISTINCT FROM s.plan_id
-   OR NOT EXISTS(SELECT 1 FROM app.track_plan_entitlements b JOIN app.track_entitlement_definitions d ON d.id=b.entitlement_id
-    WHERE b.plan_id=s.plan_id AND b.entitlement_id=NEW.entitlement_id AND d.is_active
-     AND (d.track IS NULL OR d.track='customer') AND d.value_type=NEW.value_type AND b.value_type=NEW.value_type
-     AND b.boolean_value IS NOT DISTINCT FROM NEW.boolean_value AND b.int_value IS NOT DISTINCT FROM NEW.int_value
-     AND b.decimal_value IS NOT DISTINCT FROM NEW.decimal_value AND b.string_value IS NOT DISTINCT FROM NEW.string_value)
-  THEN RAISE EXCEPTION 'not exact approved Free benefits'; END IF;
- ELSIF TG_TABLE_NAME='track_subscription_events' THEN
-  SELECT * INTO STRICT s FROM app.track_subscriptions WHERE id=NEW.subscription_id;
-  IF s.mutation_transaction_id<>NEW.mutation_transaction_id OR s.user_id<>NEW.user_id OR s.plan_id IS DISTINCT FROM NEW.plan_id
-   OR NEW.from_status IS NOT NULL OR NEW.to_status IS DISTINCT FROM s.status OR NEW.provider IS DISTINCT FROM 'none'::app.track_billing_provider
-  THEN RAISE EXCEPTION 'replay must not append new enrollment history'; END IF;
- ELSIF TG_TABLE_NAME='track_enrollment_receipt' THEN
-  SELECT * INTO STRICT sel FROM app.track_base_selection WHERE id=NEW.selection_id;
-  SELECT * INTO STRICT e FROM platform.runtime_effect_receipt WHERE id=NEW.effect_receipt_id;
-  IF NEW.track<>'customer' OR NEW.source_owner<>'customer_buyer_profile'
-   OR sel.user_id<>NEW.user_id OR sel.track<>NEW.track OR sel.customer_profile_id<>NEW.profile_id
-   OR sel.revision<>NEW.selection_revision OR e.state<>'committed'
-   OR e.mutation_transaction_id<>NEW.mutation_transaction_id
-   OR NOT EXISTS(SELECT 1 FROM platform.runtime_inbox_receipt i WHERE i.effect_receipt_id=e.id
-    AND i.handler_name='assignDefaultFreeTrack.v1' AND i.mutation_transaction_id=e.mutation_transaction_id)
-  THEN RAISE EXCEPTION 'incoherent atomic enrollment/inbox/effect'; END IF;
+ IF session_user::text<>'wa_worker' THEN
+  IF TG_TABLE_NAME IN ('track_subscription_events','track_enrollment_receipt') THEN
+   RAISE EXCEPTION 'F0 history/receipt uses qualified worker only'; END IF;
+  RETURN NULL;
  END IF;
+ IF NOT platform_private.track_atomic_valid(TG_TABLE_NAME,to_jsonb(NEW),CASE WHEN TG_OP='UPDATE' THEN to_jsonb(OLD) ELSE NULL::jsonb END)
+ THEN RAISE EXCEPTION 'fixed Track atomic verifier denied'; END IF;
  RETURN NULL;
 END $wa$;
 CREATE CONSTRAINT TRIGGER enrollment_commit AFTER INSERT OR UPDATE ON app.track_base_selection DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION platform_private.track_enrollment_commit();
@@ -267,6 +317,12 @@ CREATE FUNCTION platform_private.track_binding() RETURNS trigger
 LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $wa$
 DECLARE v jsonb:=to_jsonb(NEW); u uuid; plan app.track_plans; sub app.track_subscriptions;
 BEGIN
+ IF session_user::text='wa_worker' THEN
+  IF NOT platform_private.worker_track_allowed(CASE TG_TABLE_NAME WHEN 'track_subscriptions' THEN 'TrackSubscription'
+   WHEN 'track_entitlement_grants' THEN 'TrackEntitlementGrant' WHEN 'track_base_selection' THEN 'TrackBaseSelection' END,to_jsonb(NEW),TG_OP)
+  THEN RAISE EXCEPTION 'fixed Track binding denied'; END IF;
+  RETURN NEW;
+ END IF;
  IF v ? 'customer_profile_id' THEN
   IF num_nonnulls(v->>'customer_profile_id',v->>'candidate_profile_id',v->>'professional_profile_id')<>1
    OR ((v->>'track'='customer') IS DISTINCT FROM (v->>'customer_profile_id' IS NOT NULL))
@@ -391,9 +447,8 @@ BEGIN
   SELECT * INTO STRICT w FROM platform.runtime_work_item WHERE outbox_message_id=o.id AND handler_name=NEW.handler_name;
   IF o.payload_hash<>NEW.payload_hash OR e.owner_module_id<>NEW.consumer_owner OR e.state<>'committed'
    OR e.mutation_transaction_id<>NEW.mutation_transaction_id OR e.fence<>w.fence
-   OR w.state<>'leased' OR w.lease_expires_at<=clock_timestamp()
-   OR current_setting('wa.lease_hash',true) IS DISTINCT FROM w.lease_token_hash::text
-   OR current_setting('wa.fence',true) IS DISTINCT FROM w.fence::text
+   OR NOT platform_private.worker_lease_valid(w.id,e.id,true)
+   OR NOT platform_private.worker_effect_matches(w.id,e.id,true)
   THEN RAISE EXCEPTION 'stale or incoherent inbox effect'; END IF;
  END IF;
  RETURN NULL;

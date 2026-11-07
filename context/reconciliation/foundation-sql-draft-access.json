@@ -259,29 +259,6 @@
     ]
   },
   {
-    "model": "AgeGateAttempt",
-    "role": "wa_app_runtime",
-    "operation": "UPDATE",
-    "fields": [
-      "ipHash",
-      "deviceHash",
-      "region",
-      "result",
-      "birthYear",
-      "ageBand",
-      "blockedUntil"
-    ],
-    "columns": [
-      "ip_hash",
-      "device_hash",
-      "region",
-      "result",
-      "birth_year",
-      "age_band",
-      "blocked_until"
-    ]
-  },
-  {
     "model": "AgeGateBlock",
     "role": "wa_app_runtime",
     "operation": "INSERT",
@@ -321,23 +298,6 @@
       "blocked_until",
       "created_at",
       "mutation_transaction_id"
-    ]
-  },
-  {
-    "model": "AgeGateBlock",
-    "role": "wa_app_runtime",
-    "operation": "UPDATE",
-    "fields": [
-      "ipHash",
-      "deviceHash",
-      "reason",
-      "blockedUntil"
-    ],
-    "columns": [
-      "ip_hash",
-      "device_hash",
-      "reason",
-      "blocked_until"
     ]
   },
   {
@@ -4002,7 +3962,8 @@
       "reservationId",
       "acceptedSourceOwner",
       "acceptedSourceId",
-      "acceptedAt"
+      "acceptedAt",
+      "revision"
     ],
     "columns": [
       "id",
@@ -4015,7 +3976,8 @@
       "reservation_id",
       "accepted_source_owner",
       "accepted_source_id",
-      "accepted_at"
+      "accepted_at",
+      "revision"
     ]
   },
   {
@@ -4035,6 +3997,7 @@
       "acceptedSourceId",
       "acceptedAt",
       "createdAt",
+      "revision",
       "mutationTransactionId"
     ],
     "columns": [
@@ -4050,6 +4013,7 @@
       "accepted_source_id",
       "accepted_at",
       "created_at",
+      "revision",
       "mutation_transaction_id"
     ]
   },
@@ -4063,7 +4027,8 @@
       "quantity",
       "semanticKey",
       "acceptedSourceOwner",
-      "acceptedAt"
+      "acceptedAt",
+      "revision"
     ],
     "columns": [
       "period_start",
@@ -4071,7 +4036,8 @@
       "quantity",
       "semantic_key",
       "accepted_source_owner",
-      "accepted_at"
+      "accepted_at",
+      "revision"
     ]
   },
   {
@@ -4211,7 +4177,8 @@
       "action",
       "sourceReceiptId",
       "restorePointRef",
-      "appliedAt"
+      "appliedAt",
+      "revision"
     ],
     "columns": [
       "id",
@@ -4222,7 +4189,8 @@
       "action",
       "source_receipt_id",
       "restore_point_ref",
-      "applied_at"
+      "applied_at",
+      "revision"
     ]
   },
   {
@@ -4240,6 +4208,7 @@
       "restorePointRef",
       "appliedAt",
       "createdAt",
+      "revision",
       "mutationTransactionId"
     ],
     "columns": [
@@ -4253,6 +4222,7 @@
       "restore_point_ref",
       "applied_at",
       "created_at",
+      "revision",
       "mutation_transaction_id"
     ]
   },
@@ -4265,14 +4235,16 @@
       "generation",
       "action",
       "restorePointRef",
-      "appliedAt"
+      "appliedAt",
+      "revision"
     ],
     "columns": [
       "target_kind",
       "generation",
       "action",
       "restore_point_ref",
-      "applied_at"
+      "applied_at",
+      "revision"
     ]
   }
 ]
