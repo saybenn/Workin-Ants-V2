@@ -468,3 +468,16 @@ FIRST_REHEARSAL['resource_commands_after_separate_approval']={
  'sql_transport_template':'Get-Content -Raw <reviewed SQL file> | docker --context desktop-linux exec -i -e PGPASSFILE=/run/wa-secrets/pgpass <exact target> psql -X -v ON_ERROR_STOP=1 -v VERBOSITY=sqlstate -h 127.0.0.1 -U <actual role> -d wa_p0c_rehearsal',
  'order':'bootstrap on each; provision independent passwords/private pgpass with statement logging disabled; application once as wa_migrator on success; explicit SELECT1/0 test copy before COMMIT on failure; original-grantor finalization in finally on BOTH; independent membership/CREATE/catalog observation; coordinator success-only; export evidence; exact-name/label cleanup from FIRST10'
 }
+# A final read-only snapshot arrived after the source correction was published.
+# Preserve the initial observation; daemon availability is not execution consent.
+FIRST_REHEARSAL['initial_docker_discovery']={'environment':FIRST_REHEARSAL['environment'],'unresolved_prerequisites':FIRST_REHEARSAL['unresolved_prerequisites']}
+FIRST_REHEARSAL['latest_docker_readiness']={
+ 'observed_at':'2026-11-10T22:40:07-05:00','context':'desktop-linux',
+ 'endpoint':'npipe:////./pipe/dockerDesktopLinuxEngine','local':True,
+ 'client_version':'29.6.2','server_version':'29.6.2','desktop_version':'4.85.0 (235549)',
+ 'server_os':'linux','server_architecture':'amd64','daemon_reachable':True,
+ 'local_postgres_repository_images':0,'pinned_reference_present_locally':False,
+ 'image_inspect_exit_code':1,'image_pull_performed':False,
+ 'meaning':'Engine readiness gap resolved by the later observation. Registry image/version/digest remain established; exact pinned image must be pulled only after the separate execution decision. No database or container action was performed.'}
+FIRST_REHEARSAL['environment']='Windows-connected local desktop-linux daemon is reachable at the final 22:40 read-only snapshot (Docker29.6.2, Desktop4.85.0, Linux/amd64). Initial pipe-absent observation is retained separately. No local postgres repository image or exact proposed pinned reference was present; no image was pulled.'
+FIRST_REHEARSAL['unresolved_prerequisites']=['Brain approval of the corrected source, exact generated fixture packet/coordinator and specific rehearsal including the pinned image pull. Recheck local endpoint/resource absence/credentials at execution entry.']
