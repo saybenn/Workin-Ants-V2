@@ -49,11 +49,17 @@ BEGIN
  g:=platform_private.bound_grant(true);
  IF g.id IS NULL OR NOT platform_private.worker_lease_valid(work_id,NULL,true) THEN RETURN false; END IF;
  SELECT j.id,j.outbox_message_id,j.effect_receipt_id,j.handler_name,j.semantic_work_key,j.fence INTO w FROM platform.runtime_work_item j WHERE j.id=work_id;
- SELECT m.id,m.aggregate_id,m.payload_hash FROM platform.runtime_outbox_message m WHERE m.id=w.outbox_message_id INTO o;
+ SELECT m.id,m.aggregate_id,m.payload_hash,m.payload,m.source_revision,m.source_generation,m.command_receipt_id,m.producer_owner FROM platform.runtime_outbox_message m WHERE m.id=w.outbox_message_id INTO o;
+ -- Fixed Outbox branch validates the canonical creation command and returns
+ -- before the Effect branch; this does not recurse through effect matching.
+ IF NOT platform_private.worker_track_allowed('RuntimeOutboxMessage',jsonb_build_object('id',o.id,'producer_owner',o.producer_owner),'SELECT') THEN RETURN false; END IF;
+ IF NOT platform_private.customer_current_for_track(o.aggregate_id::uuid,(o.payload->>'userId')::uuid,o.source_revision,o.source_generation,o.command_receipt_id) THEN RETURN false; END IF;
  SELECT r.id,r.command_receipt_id,r.owner_module_id,r.operation,r.subject_scope,r.semantic_effect_key,r.fingerprint,r.fence,r.state,r.mutation_transaction_id INTO e
   FROM platform.runtime_effect_receipt r WHERE r.id=effect_id;
  SELECT r.id,r.owner_module_id,r.operation,r.subject_scope,r.semantic_key,r.fingerprint,r.state,r.mutation_transaction_id INTO c
   FROM platform.runtime_command_receipt r WHERE r.id=e.command_receipt_id;
+ IF NOT platform_private.worker_row_capabilities('RuntimeEffectReceipt',to_jsonb(e),'SELECT')
+  OR NOT platform_private.worker_row_capabilities('RuntimeCommandReceipt',to_jsonb(c),'SELECT') THEN RETURN false; END IF;
  RETURN COALESCE((NOT require_link OR w.effect_receipt_id=e.id) AND e.id IS NOT NULL
   AND 'RuntimeWorkItem/'||w.id::text||'/effect/'||e.id::text=ANY(g.allowed_fields)
   AND 'RuntimeWorkItem/'||w.id::text||'/command/'||c.id::text=ANY(g.allowed_fields)
@@ -75,6 +81,7 @@ DECLARE g platform.database_action_grant; w record; o record; p record; s record
 BEGIN
  g:=platform_private.bound_grant(true);
  IF g.id IS NULL OR session_user::text<>'wa_worker' OR g.service_principal IS NULL OR verb NOT IN ('SELECT','INSERT','UPDATE') THEN RETURN false; END IF;
+ IF NOT platform_private.worker_row_capabilities(model_name,row_value,verb) THEN RETURN false; END IF;
  -- Claims inspect/update only their exact queued job. They cannot create effects.
  IF model_name='RuntimeWorkItem' AND g.action IN ('runtime.claim_work.v1','runtime.renew_work.v1') THEN
   RETURN platform_private.context_allows('platform_integration_owner',g.action,'RuntimeWorkItem',row_value->>'id',
@@ -180,34 +187,54 @@ END $wa$;
 
 CREATE FUNCTION platform_private.track_atomic_valid(table_name text, n jsonb, prior_value jsonb) RETURNS boolean
 LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path=pg_catalog AS $wa$
-DECLARE g platform.database_action_grant; s record; old_s record; p record; sel record; e record; o record; w record;
+DECLARE g platform.database_action_grant; s record; old_s record; p record; sel record; e record; o record; w record; model_name text;
 BEGIN
  g:=platform_private.bound_grant(true);
  IF g.id IS NULL OR NOT platform_private.worker_lease_valid(g.target_id::uuid,NULL,true) THEN RETURN false; END IF;
+ model_name:=CASE table_name WHEN 'track_base_selection' THEN 'TrackBaseSelection' WHEN 'track_subscriptions' THEN 'TrackSubscription'
+  WHEN 'track_entitlement_grants' THEN 'TrackEntitlementGrant' WHEN 'track_subscription_events' THEN 'TrackSubscriptionEvent'
+  WHEN 'track_enrollment_receipt' THEN 'TrackEnrollmentReceipt' ELSE NULL END;
+ IF model_name IS NULL OR NOT platform_private.worker_source_claim_valid(model_name,n) THEN RETURN false; END IF;
  SELECT j.id,j.outbox_message_id,j.effect_receipt_id,j.fence INTO w FROM platform.runtime_work_item j WHERE j.id=g.target_id::uuid;
  SELECT m.id,m.command_receipt_id,m.aggregate_id,m.source_revision,m.source_generation,m.payload_hash,m.payload INTO o FROM platform.runtime_outbox_message m WHERE m.id=w.outbox_message_id;
  IF NOT platform_private.customer_current_for_track(o.aggregate_id::uuid,(o.payload->>'userId')::uuid,o.source_revision,o.source_generation,o.command_receipt_id) THEN RETURN false; END IF;
  IF table_name='track_base_selection' THEN
+  IF (n->>'revision')::bigint=0 AND prior_value IS NOT NULL THEN RETURN false; END IF;
+  IF (n->>'revision')::bigint>0 AND (prior_value IS NULL OR NOT EXISTS(
+   SELECT 1 FROM platform.owner_mutation_evidence v WHERE v.owner_module_id='track_subscription_entitlement' AND v.aggregate_kind='TrackBaseSelection' AND v.aggregate_id=n->>'id'
+    AND v.committed_revision=(n->>'revision')::bigint AND v.previous_revision=v.committed_revision-1
+    AND v.mutation_transaction_id=pg_current_xact_id()::text
+    AND v.evidence_body->'prior'->>'id'=prior_value->>'id'
+    AND v.evidence_body->'prior'->>'revision'=prior_value->>'revision'
+    AND v.evidence_body->'prior'->>'subscriptionId'=prior_value->>'subscription_id'
+    AND v.evidence_body->'prior'->>'userId'=prior_value->>'user_id'
+    AND v.evidence_body->'prior'->>'customerProfileId'=prior_value->>'customer_profile_id')) THEN RETURN false; END IF;
   SELECT a.id,a.user_id,a.plan_id,a.track,a.customer_profile_id,a.status,a.provider,a.mutation_transaction_id INTO s FROM app.track_subscriptions a WHERE a.id=(n->>'subscription_id')::uuid;
-  SELECT q.id,q.status,q.billing_model,q.revision,q.version,q.content_hash INTO p FROM app.track_plans q WHERE q.id=s.plan_id;
-  IF s.mutation_transaction_id IS DISTINCT FROM n->>'mutation_transaction_id' OR p.status<>'active' OR p.billing_model<>'free'
+  SELECT q.id,q.track,q.status,q.billing_model,q.revision,q.version,q.content_hash INTO p FROM app.track_plans q WHERE q.id=s.plan_id;
+  IF NOT platform_private.worker_source_row_valid('TrackSubscription',s.id::text)
+   OR s.mutation_transaction_id IS DISTINCT FROM pg_current_xact_id()::text OR p.track<>'customer' OR p.status<>'active' OR p.billing_model<>'free'
    OR s.provider<>'none' OR s.status<>'active' OR s.customer_profile_id::text IS DISTINCT FROM n->>'customer_profile_id'
    OR NOT ('TrackPlan/'||p.id::text||'/revision/'||p.revision::text=ANY(g.allowed_fields))
    OR NOT ('TrackPlan/'||p.id::text||'/version/'||p.version=ANY(g.allowed_fields))
    OR NOT ('TrackPlan/'||p.id::text||'/contentHash/'||p.content_hash::text=ANY(g.allowed_fields)) THEN RETURN false; END IF;
   IF prior_value IS NOT NULL THEN
-   SELECT a.status,a.ended_at,a.current_period_end INTO old_s FROM app.track_subscriptions a WHERE a.id=(prior_value->>'subscription_id')::uuid;
+   SELECT a.id,a.user_id,a.customer_profile_id,a.track,a.status,a.ended_at,a.current_period_end,a.revision,a.mutation_transaction_id INTO old_s FROM app.track_subscriptions a WHERE a.id=(prior_value->>'subscription_id')::uuid;
+   IF old_s.id IS NULL OR old_s.user_id::text<>o.payload->>'userId' OR old_s.customer_profile_id::text<>o.aggregate_id OR old_s.track<>'customer'
+    OR NOT platform_private.worker_row_capabilities('TrackSubscription',to_jsonb(old_s),'SELECT') THEN RETURN false; END IF;
    IF old_s.status IN ('active','trialing') AND old_s.ended_at IS NULL AND (old_s.current_period_end IS NULL OR old_s.current_period_end>clock_timestamp()) THEN RETURN false; END IF;
   END IF;
   RETURN EXISTS(SELECT 1 FROM app.track_enrollment_receipt r WHERE r.selection_id=(n->>'id')::uuid AND r.selection_revision=(n->>'revision')::bigint
+   AND platform_private.worker_source_row_valid('TrackEnrollmentReceipt',r.id::text)
    AND r.effect_receipt_id=w.effect_receipt_id AND r.mutation_transaction_id=n->>'mutation_transaction_id');
  ELSIF table_name='track_subscriptions' THEN
   RETURN EXISTS(SELECT 1 FROM app.track_base_selection b WHERE b.subscription_id=(n->>'id')::uuid AND b.mutation_transaction_id=n->>'mutation_transaction_id')
    AND EXISTS(SELECT 1 FROM app.track_subscription_events h WHERE h.subscription_id=(n->>'id')::uuid AND h.user_id::text=n->>'user_id'
-    AND h.plan_id::text=n->>'plan_id' AND h.to_status::text=n->>'status' AND h.from_status IS NULL AND h.mutation_transaction_id=n->>'mutation_transaction_id');
+    AND h.plan_id::text=n->>'plan_id' AND h.to_status::text=n->>'status' AND h.from_status IS NULL AND h.mutation_transaction_id=n->>'mutation_transaction_id'
+    AND platform_private.worker_source_row_valid('TrackSubscriptionEvent',h.id::text))
+   AND EXISTS(SELECT 1 FROM app.track_base_selection b WHERE b.subscription_id=(n->>'id')::uuid AND platform_private.worker_source_row_valid('TrackBaseSelection',b.id::text));
  ELSIF table_name='track_entitlement_grants' THEN
   SELECT a.id,a.plan_id,a.mutation_transaction_id INTO s FROM app.track_subscriptions a WHERE a.id=(n->>'subscription_id')::uuid;
-  RETURN COALESCE(s.mutation_transaction_id=n->>'mutation_transaction_id' AND s.plan_id::text=n->>'source_plan_id'
+  RETURN COALESCE(platform_private.worker_source_row_valid('TrackSubscription',s.id::text) AND s.mutation_transaction_id=pg_current_xact_id()::text AND s.plan_id::text=n->>'source_plan_id'
    AND EXISTS(SELECT 1 FROM app.track_plan_entitlements b JOIN app.track_entitlement_definitions d ON d.id=b.entitlement_id
     WHERE b.plan_id=s.plan_id AND b.entitlement_id=(n->>'entitlement_id')::uuid AND d.is_active AND (d.track IS NULL OR d.track='customer')
      AND d.value_type::text=n->>'value_type' AND b.value_type::text=n->>'value_type'
@@ -215,13 +242,14 @@ BEGIN
      AND COALESCE(to_jsonb(b.decimal_value),'null'::jsonb) IS NOT DISTINCT FROM n->'decimal_value' AND COALESCE(to_jsonb(b.string_value),'null'::jsonb) IS NOT DISTINCT FROM n->'string_value'),false);
  ELSIF table_name='track_subscription_events' THEN
   SELECT a.id,a.user_id,a.plan_id,a.status,a.mutation_transaction_id INTO s FROM app.track_subscriptions a WHERE a.id=(n->>'subscription_id')::uuid;
-  RETURN COALESCE(s.mutation_transaction_id=n->>'mutation_transaction_id' AND s.user_id::text=n->>'user_id' AND s.plan_id::text=n->>'plan_id'
+  RETURN COALESCE(platform_private.worker_source_row_valid('TrackSubscription',s.id::text) AND s.mutation_transaction_id=pg_current_xact_id()::text AND s.user_id::text=n->>'user_id' AND s.plan_id::text=n->>'plan_id'
    AND n->>'from_status' IS NULL AND n->>'to_status'=s.status::text AND n->>'provider'='none',false);
  ELSIF table_name='track_enrollment_receipt' THEN
   SELECT b.id,b.user_id,b.track,b.customer_profile_id,b.revision INTO sel FROM app.track_base_selection b WHERE b.id=(n->>'selection_id')::uuid;
   SELECT r.id,r.owner_module_id,r.operation,r.command_receipt_id,r.subject_scope,r.semantic_effect_key,r.fingerprint,r.fence,r.state,r.mutation_transaction_id INTO e
    FROM platform.runtime_effect_receipt r WHERE r.id=(n->>'effect_receipt_id')::uuid;
   RETURN COALESCE(n->>'track'='customer' AND n->>'source_owner'='customer_buyer_profile'
+   AND platform_private.worker_source_row_valid('TrackBaseSelection',sel.id::text) AND platform_private.worker_effect_matches(w.id,e.id,true)
    AND sel.user_id::text=n->>'user_id' AND sel.customer_profile_id::text=n->>'profile_id'
    AND n->>'profile_id'=o.aggregate_id AND n->>'source_creation_revision'=o.source_revision::text
    AND sel.revision::text=n->>'selection_revision' AND e.state='committed' AND e.fence=w.fence AND e.id=w.effect_receipt_id

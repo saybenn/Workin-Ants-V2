@@ -20,7 +20,7 @@
         "prisma.offline.config.ts"
       ],
       "exit_code": 0,
-      "stdout": "The schema at prisma/schema.prisma is valid \ud83d\ude80\n",
+      "stdout": "The schema at prisma/schema.prisma is valid 🚀\n",
       "stderr": "Loaded Prisma config from prisma.offline.config.ts.\n\nPrisma schema loaded from prisma/schema.prisma.\n"
     },
     {
@@ -32,7 +32,7 @@
         "prisma.review.config.ts"
       ],
       "exit_code": 0,
-      "stdout": "The schema at prisma/review/physical-candidate.prisma is valid \ud83d\ude80\n",
+      "stdout": "The schema at prisma/review/physical-candidate.prisma is valid 🚀\n",
       "stderr": "Loaded Prisma config from prisma.review.config.ts.\n\nPrisma schema loaded from prisma/review/physical-candidate.prisma.\n"
     },
     {
@@ -44,7 +44,7 @@
         "prisma.foundation-review.config.ts"
       ],
       "exit_code": 0,
-      "stdout": "The schema at prisma/review/foundation-candidate.prisma is valid \ud83d\ude80\n",
+      "stdout": "The schema at prisma/review/foundation-candidate.prisma is valid 🚀\n",
       "stderr": "Loaded Prisma config from prisma.foundation-review.config.ts.\n\nPrisma schema loaded from prisma/review/foundation-candidate.prisma.\n"
     }
   ],
@@ -62,7 +62,7 @@
         "prisma.offline.config.ts"
       ],
       "exit_code": 0,
-      "stdout": "The schema at prisma/schema.prisma is valid \ud83d\ude80\n",
+      "stdout": "The schema at prisma/schema.prisma is valid 🚀\n",
       "stderr": "Loaded Prisma config from prisma.offline.config.ts.\n\nPrisma schema loaded from prisma/schema.prisma.\n"
     },
     {
@@ -74,7 +74,7 @@
         "prisma.review.config.ts"
       ],
       "exit_code": 0,
-      "stdout": "The schema at prisma/review/physical-candidate.prisma is valid \ud83d\ude80\n",
+      "stdout": "The schema at prisma/review/physical-candidate.prisma is valid 🚀\n",
       "stderr": "Loaded Prisma config from prisma.review.config.ts.\n\nPrisma schema loaded from prisma/review/physical-candidate.prisma.\n"
     },
     {
@@ -86,9 +86,66 @@
         "prisma.foundation-review.config.ts"
       ],
       "exit_code": 0,
-      "stdout": "The schema at prisma/review/foundation-candidate.prisma is valid \ud83d\ude80\n",
+      "stdout": "The schema at prisma/review/foundation-candidate.prisma is valid 🚀\n",
       "stderr": "Loaded Prisma config from prisma.foundation-review.config.ts.\n\nPrisma schema loaded from prisma/review/foundation-candidate.prisma.\n"
     }
   ],
-  "saved_packet_recovery_revalidated": true
+  "saved_packet_recovery_revalidated": true,
+  "followup_e363ad4": {
+    "status": "PASS_OFFLINE_SCHEMA_ONLY",
+    "date": "2026-11-10",
+    "node": "v24.22.1",
+    "prisma": "7.10.1",
+    "commands": [
+      {
+        "command": [
+          "node24.22.1",
+          "node_modules/prisma/build/index.js",
+          "validate",
+          "--config",
+          "prisma.offline.config.ts"
+        ],
+        "environment": {
+          "JITI_FS_CACHE": "0"
+        },
+        "exit_code": 0,
+        "result": "Schema is valid (observed from actual Windows process)",
+        "schema": "prisma/schema.prisma",
+        "sha256": "4a75be42a8b26001c20aaf46a1bb0e5dd7d0984090c9712274c308668908eebf"
+      },
+      {
+        "command": [
+          "node24.22.1",
+          "node_modules/prisma/build/index.js",
+          "validate",
+          "--config",
+          "prisma.review.config.ts"
+        ],
+        "environment": {
+          "JITI_FS_CACHE": "0"
+        },
+        "exit_code": 0,
+        "result": "Schema is valid (observed from actual Windows process)",
+        "schema": "prisma/review/physical-candidate.prisma",
+        "sha256": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb"
+      },
+      {
+        "command": [
+          "node24.22.1",
+          "node_modules/prisma/build/index.js",
+          "validate",
+          "--config",
+          "prisma.foundation-review.config.ts"
+        ],
+        "environment": {
+          "JITI_FS_CACHE": "0"
+        },
+        "exit_code": 0,
+        "result": "Schema is valid (observed from actual Windows process)",
+        "schema": "prisma/review/foundation-candidate.prisma",
+        "sha256": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723"
+      }
+    ],
+    "database_contacted": false
+  }
 }

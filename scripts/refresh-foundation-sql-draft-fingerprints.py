@@ -23,6 +23,9 @@ for p,old in baseline['preserved_reviewed_inputs_sha256'].items():
 sources=set(baseline['draft_source_sha256'])|{
     'scripts/refresh-foundation-sql-draft-fingerprints.py',
     'scripts/check-foundation-sql-corrections.py',
+    'scripts/check-foundation-sql-followup.py',
+    'scripts/prepare-first-rehearsal.py',
+    'scripts/sql-review/run-first-rehearsal.py',
     'scripts/sql-review/foundation-service-authority.sql',
     'scripts/sql-review/foundation-verification.sql',
     'scripts/sql-review/foundation-bootstrap-finalize.sql',
@@ -34,9 +37,11 @@ sources=set(baseline['draft_source_sha256'])|{
     'context/reconciliation/foundation-sql-generation-8917e20.json',
 }
 outputs=list(baseline['outputs_sha256'])+['review-output/foundation-bootstrap-finalize.review.sql']
+outputs+=sorted(str(p.relative_to(ROOT)).replace('\\','/') for p in (ROOT/'review-output/first-rehearsal').glob('*') if p.is_file())
 manifest={
     'directive':'P0-C-03A',
-    'reviewed_baseline':'8917e2035622017eccd14c99ad7fd2b55740163f',
+    'reviewed_baseline':'e363ad45dfad76d2a4ffbd0cd84ef0c01d24e966',
+    'previous_correction_baseline':'8917e2035622017eccd14c99ad7fd2b55740163f',
     'original_drafting_input_baseline':baseline['reviewed_baseline'],
     'branch':baseline['branch'],
     'stage':'CORRECTED_SOURCE_AND_SQL_DRAFTS_PENDING_BRAIN_RE_REVIEW__EXECUTION_HELD',
@@ -54,11 +59,12 @@ manifest={
     'migration_history':'ONE_FUTURE_PRISMA_APPLICATION_STREAM_NOT_ACTIVATED',
     'bootstrap':'SEPARATE_ENVIRONMENT_SCOPE; ORIGINAL_GRANTOR_FINALIZES_AFTER_SUCCESS_OR_FAILURE',
     'review_findings':{'DRAFT-01':'SOURCE_ADDRESSED_NOT_RUNTIME_QUALIFIED','DRAFT-02':'SOURCE_ADDRESSED_NOT_RUNTIME_QUALIFIED','DRAFT-03':'SOURCE_ADDRESSED_NOT_RUNTIME_QUALIFIED','first_write':'SOURCE_ADDRESSED','installation_authority':'SOURCE_ADDRESSED','authorization_and_consent_scope':'SOURCE_ADDRESSED','customer_messages_and_result_versions':'SOURCE_ADDRESSED','worker_completion_and_lease':'SOURCE_ADDRESSED','reservation_release':'SOURCE_ADDRESSED'},
+    'e363ad4_followup':{'A':'FUNCTION_ACL_AUTHORITY_ORDER_SOURCE_ADDRESSED','B':'EXPOSED_PORT_ACTUAL_SOURCE_JOB_CAPABILITY_BINDING_SOURCE_ADDRESSED','C':'APPLICATION_RESERVATION_TERMINAL_COLUMN_REACHABILITY_SOURCE_ADDRESSED','D':'PER_OPERATION_ATTAINABLE_VS_NAMED_DEPENDENCY_GATES_RECONCILED','runtime_qualified':False,'rehearsal':'database-candidate-tests.json#first_rehearsal'},
     'remaining_gates':['Brain exact corrected-source approval','Separately authorized disposable identity/image/actions and actual installation/replay','Real Identity/issuer/owner/worker adapters and later P0-D/E/F qualification','Usage period/reconciliation and Privacy completion adapters remain denied'],
     'parser':baseline['parser'],
     'validation_record':'context/reconciliation/foundation-sql-draft-validation.json',
     'validation_scope':'Exact offline outputs separately retained; no circular manifest/report fingerprint or database claim.',
     'publication':'One corrected child on existing branch; Git/GitHub verification is reported separately after update. No main merge or force-push.'
 }
-(REC/'foundation-sql-draft-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+(REC/'foundation-sql-draft-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf8',newline='\n')
 print(json.dumps({'status':'REFRESHED_SOURCE_FINGERPRINTS','preserved':len(preserved),'revised':len(revised),'outputs':len(outputs),'database_contacted':False}))

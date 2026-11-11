@@ -29,7 +29,7 @@ for row in rows:
  for f in row['candidate_fields']:
   t=f['type'].rstrip('?[]');n=f['name']
   if t not in blocks or blocks[t]['kind']=='enum':
-   if n in pks or t in enums or re.search(r'(Revision|Generation|Cents|Quantity|Count|Hash|Digest)$',n) or n in ['revision','generation','fence','userId','currency','sourceOwner','sourceId','sourceFactId','sourceFactRevision','periodStart','periodEnd','acceptedAt','semanticEffectKey']:
+   if n in pks or t in enums or re.search(r'(Revision|Generation|Cents|Quantity|Count|Hash|Digest)$',n) or n in ['revision','generation','fence','userId','currency','sourceOwner','sourceId','sourceFactId','sourceFactRevision','periodStart','periodEnd','acceptedAt','semanticEffectKey'] or (row['model']=='TrackBaseSelection' and n in ['subscriptionId','customerProfileId','candidateProfileId','professionalProfileId']):
     selected[n]=field_schema(f)
  # Explicitly no raw body/notes/resume/email/phone/endpoint/credentials or arbitrary JSON.
  key_fields={f['name']:field_schema(f) for f in row['candidate_fields'] if f['name'] in pks}
@@ -153,7 +153,33 @@ plan={'status':'SPECIFIED_NOT_RUN','scope':'Executable environment/actions/fixtu
 for row in tests:
  if row['id'] in corrections['P0C03A_REPLAY_VECTORS']:
   row['p0c03a_vectors']=[{'id':v[0],'positive':v[1],'adversarial':v[2],'expected':v[3],'status':'NOT_RUN'} for v in corrections['P0C03A_REPLAY_VECTORS'][row['id']]]
+  if row['id']=='P0C-CAS-01':
+   for vector in row['p0c03a_vectors']:
+    if vector['id']=='OWNER-REVISIONS':vector['execution_dependencies']=['P0D_TRACK_USAGE_PERIOD_RECONCILIATION','P0F_PRIVACY_RESTORE_GENERATION_PORT']
+  if row['id']=='P0C-RESTORE-01':
+   for vector in row['p0c03a_vectors']:
+    if vector['id']=='SERVICE-RESTORE':vector['execution_dependencies']=['P0F_PRIVACY_RESTORE_GENERATION_PORT']
+plan['first_rehearsal']=corrections['FIRST_REHEARSAL']
+plan['disposable_environment']['immutable_image_digest']=corrections['FIRST_REHEARSAL']['image']['reference'].split('@')[1]
+plan['disposable_environment']['image_platform']='linux/amd64'
+plan['disposable_environment']['limitations'][-1]='Image platform digest established read-only; local daemon startup, exact fixture script review, resource creation and execution require the separate Brain rehearsal decision.'
 (rec/'database-candidate-tests.json').write_text(json.dumps(plan,indent=2)+'\n', encoding='utf-8', newline='\n')
+replay_path=rec/'foundation-sql-draft-replay-map.json'
+replay=json.loads(replay_path.read_text(encoding='utf8'));byid={r['id']:r for r in tests}
+for case in replay['tests']:
+ source=byid[case['id']];setup=source['setup']
+ paths=setup.get('operation_dispositions',[]) if isinstance(setup,dict) else []
+ if paths:
+  dependencies=sorted({d for p in paths for d in p['dependency_ids']})
+  case['blocking_review_issues']=sorted(set(case.get('blocking_review_issues',[]))|set(dependencies))
+  case['operation_dispositions_source']='database-candidate-tests.json#'+case['id']+'/setup/operation_dispositions'
+  case['first_stage_positive_scope']='Only ATTAINABLE_WITH_SYNTHETIC_FIXTURE operations; named gated paths remain expected-denial vectors'
+ if source.get('p0c03a_vectors'):case['p0c03a_vector_ids']=[v['id'] for v in source['p0c03a_vectors']]
+ vector_dependencies=sorted({d for v in source.get('p0c03a_vectors',[]) for d in v.get('execution_dependencies',[])})
+ if vector_dependencies:
+  case['blocking_review_issues']=sorted(set(case.get('blocking_review_issues',[]))|set(vector_dependencies))
+  case['gated_vector_dependencies']=vector_dependencies
+replay_path.write_text(json.dumps(replay,indent=2)+'\n',encoding='utf8',newline='\n')
 # A human route into every model, preserving exact detailed fields in the canonical JSON.
 lines=['# Physical model disposition ledger — review only','',f'All 177 original models accounted for; {len(rows)} staged candidate models, {rv["foundation_model_count"]} in the F0 parent-FK closure. Exact field/FK/index/change/evidence/access rows are in greenfield-model-security-inventory.json → physical_candidate_review. This generator writes source only and executes no SQL. The separate P0-C-03A draft stage is recorded in foundation-sql-draft-manifest.json.','']
 for owner in sorted({r['source_owner'] for r in rows}):

@@ -206,6 +206,10 @@ for registration in scope_policy['domain_scopes']:
   binding=f"{lit(root_kind+'/')}||g.target_id||{lit('/'+relationship+'/')}||row_key=ANY(g.allowed_fields)"
   children+=f" OR (verb='SELECT' AND model_name={lit(model)} AND {binding})"
  scope_body.append(f"IF verb=ANY({arr(registration['verbs'])}) AND (model_name={lit(root_kind)}{children} OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows({lit(owner)},{lit(action)},{lit(root_kind)},g.target_id,{lit(purpose)}) THEN RETURN true; END IF;")
+ if root_kind=='CustomerProfile' and 'UPDATE' in registration['verbs']:
+  # Updating a source still APPENDS its proof/history/messages. Never admit a
+  # second source INSERT under this UPDATE-only root action.
+  scope_body.append(f"IF verb='INSERT' AND model_name IN ('CustomerProfileLifecycleEvent','OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt') AND platform_private.context_allows({lit(owner)},{lit(action)},{lit(root_kind)},g.target_id,{lit(purpose)}) THEN RETURN true; END IF;")
 scope_body.append("IF model_name IN ('RuntimeWorkItem','RuntimeAttempt','RuntimeOutboxMessage','RuntimeCommandReceipt','RuntimeEffectReceipt','RuntimeInboxReceipt','OwnerMutationEvidence','TrackPlan','TrackEntitlementDefinition','TrackPlanEntitlement','TrackSubscription','TrackEntitlementGrant','TrackBaseSelection','TrackSubscriptionEvent','TrackEnrollmentReceipt') AND platform_private.context_allows('track_subscription_entitlement','assignDefaultFreeTrack.v1','RuntimeWorkItem',g.target_id,'default_free_enrollment') THEN RETURN true; END IF;")
 for registration in scope_policy['runtime_work_scopes']:
  scope_body.append(f"IF model_name='RuntimeWorkItem' AND platform_private.context_allows({lit(registration['owner'])},{lit(registration['action'])},'RuntimeWorkItem',row_key,{lit(registration['purpose'])}) THEN RETURN true; END IF;")
@@ -301,6 +305,9 @@ for n,m in models.items():
    if 'UPDATE' in opcols:
     foreign={f['name'] for f in m['fields'] if f['name'].endswith('Id') and f['name']!='avatarMediaId'}
     opcols['UPDATE']=[f for f in fields if f not in set(m['pk'])|foreign|{'createdAt','mutationTransactionId'}]
+    # A reservation starts without an outcome. Its transition guard permits
+    # exactly one terminal attachment; the runtime needs that one FK column.
+    if n=='RuntimeReservation':opcols['UPDATE'].append('effectReceiptId')
   else:
    opcols={}
    for x in ops:
@@ -346,7 +353,66 @@ for role,profile in verifier_access['roles'].items():
  for typename in sorted(enum_types):
   definition=blocks[typename]['body']; native=re.search(r'@@map\("([^"]+)"\)',definition).group(1); schema=re.search(r'@@schema\("([^"]+)"\)',definition).group(1)
   emit(f'GRANT USAGE ON TYPE {q(schema)}.{q(native)} TO {role};')
+# The exposed atomic/reverse ports receive claims, not authority. Resolve only
+# these fixed source rows through the verifier's reviewed columns, then enforce
+# the original worker write capabilities and post-write relationship checks.
+cap_cases=[]
+for n,m in models.items():
+ entries=[r for r in acl if r['model']==n and r['role']=='wa_worker']
+ if not entries:continue
+ ownerfield={'RuntimeCommandReceipt':'ownerModuleId','OwnerMutationEvidence':'ownerModuleId','RuntimeEffectReceipt':'ownerModuleId','RuntimeOutboxMessage':'producerOwner','RuntimeInboxReceipt':'consumerOwner'}.get(n)
+ owner=f"n->>{lit(m['columns'][ownerfield])}" if ownerfield else lit(m['owner'])
+ version=next((f for f in ['revision','fence','generation'] if f in m['columns']),None)
+ revision=f"n->>{lit(m['columns'][version])}" if version else 'NULL::text'
+ for entry in entries:
+  fields=['@row'] if entry['operation']=='UPDATE' else entry['fields']
+  versioned=version is not None and entry['operation'] in ['SELECT','UPDATE']
+  require_version=f'IF {revision} IS NULL THEN RETURN false; END IF; ' if versioned else ''
+  cap_cases.append(f"IF model_name={lit(n)} AND verb={lit(entry['operation'])} THEN {require_version}RETURN platform_private.row_allowed({owner},model_name,n->>'id',verb,{arr(fields)},{revision if versioned else 'NULL::text'},n->>'mutation_transaction_id'); END IF;")
+fn('worker_row_capabilities','model_name text, n jsonb, verb text','boolean','BEGIN\n'+ '\n'.join(cap_cases)+'\nRETURN false; END;')
+claim_cases=[]
+for n in ['TrackSubscription','TrackEntitlementGrant','TrackBaseSelection','TrackSubscriptionEvent','TrackEnrollmentReceipt']:
+ m=models[n];cols=verifier_access['roles']['wa_track_verifier']['columns'][m['object']]
+ actual='jsonb_build_object('+','.join(v for c in cols for v in [lit(c),'s.'+q(c)])+')'
+ worker_acl={r['operation']:r['fields'] for r in acl if r['model']==n and r['role']=='wa_worker'}
+ update=(f"IF (n->>'revision')::bigint>0 THEN verb:='UPDATE'; required_fields:={arr(['@row']+worker_acl['UPDATE'])}; prior_revision:=((n->>'revision')::bigint-1)::text; END IF;" if n=='TrackBaseSelection' else '')
+ claim_cases.append(f'''WHEN {lit(n)} THEN
+ SELECT {actual} INTO actual_value FROM {obj(n)} s
+  WHERE s.id::text=n->>'id' AND s.mutation_transaction_id=pg_current_xact_id()::text;
+ required_fields:={arr(worker_acl['INSERT'])};
+ {update}'''.rstrip())
+fn('worker_source_claim_valid','model_name text, n jsonb','boolean','''
+DECLARE actual_value jsonb; verb text:='INSERT'; required_fields text[]; prior_revision text; p record;
+BEGIN
+ IF session_user::text<>'wa_worker' OR n->>'mutation_transaction_id' IS DISTINCT FROM pg_current_xact_id()::text THEN RETURN false; END IF;
+ CASE model_name
+'''+ '\n'.join(claim_cases)+'''
+ ELSE RETURN false;
+ END CASE;
+ IF actual_value IS NULL OR NOT (n @> actual_value) THEN RETURN false; END IF;
+ IF model_name='TrackSubscription' THEN
+  SELECT q.id,q.track,q.status,q.billing_model,q.revision,q.version,q.content_hash INTO p FROM app.track_plans q WHERE q.id=(n->>'plan_id')::uuid;
+  IF p.id IS NULL OR p.track<>'customer' OR p.status<>'active' OR p.billing_model<>'free'
+   OR NOT ('TrackPlan/'||p.id::text||'/revision/'||p.revision::text=ANY((platform_private.bound_grant(true)).allowed_fields))
+   OR NOT ('TrackPlan/'||p.id::text||'/version/'||p.version=ANY((platform_private.bound_grant(true)).allowed_fields))
+   OR NOT ('TrackPlan/'||p.id::text||'/contentHash/'||p.content_hash::text=ANY((platform_private.bound_grant(true)).allowed_fields))
+  THEN RETURN false; END IF;
+ END IF;
+ -- INSERT's absence check already ran before mutation. Rechecking it after
+ -- selection creation would reject the legitimate enrollment itself.
+ RETURN platform_private.worker_track_allowed(model_name,actual_value,
+  CASE WHEN model_name='TrackSubscriptionEvent' THEN 'INSERT' ELSE 'SELECT' END)
+  AND platform_private.row_allowed('track_subscription_entitlement',model_name,n->>'id',verb,required_fields,prior_revision,NULL::text);
+END;''',definer=True)
 emit(read('scripts/sql-review/foundation-verification.sql'))
+row_cases=[]
+for n in ['TrackSubscription','TrackEntitlementGrant','TrackBaseSelection','TrackSubscriptionEvent','TrackEnrollmentReceipt']:
+ m=models[n];cols=verifier_access['roles']['wa_track_verifier']['columns'][m['object']]
+ value='jsonb_build_object('+','.join(v for c in cols for v in [lit(c),'s.'+q(c)])+')'
+ row_cases.append(f"WHEN {lit(n)} THEN SELECT {value} INTO actual_value FROM {obj(n)} s WHERE s.id::text=source_id AND s.mutation_transaction_id=pg_current_xact_id()::text;")
+fn('worker_source_row_valid','model_name text, source_id text','boolean','DECLARE actual_value jsonb; BEGIN\nCASE model_name\n'+ '\n'.join(row_cases)+'''\nELSE RETURN false; END CASE;
+RETURN actual_value IS NOT NULL AND platform_private.worker_source_claim_valid(model_name,actual_value);
+END;''',definer=True)
 for m in models.values():
  for statement in m.get('policies',[]):emit(statement)
 
@@ -383,7 +449,7 @@ for n,m in models.items():
  body.append(' END IF;')
  if n in ['CustomerProfile','TrackPlan']:
   body.insert(2,f" PERFORM pg_advisory_xact_lock(hashtextextended('source:{n}:'||NEW.id::text,0));")
- if n=='CustomerProfile':body.append(" IF NOT platform_private.context_subject_owner(NEW.user_id,'customer_buyer_profile') THEN RAISE EXCEPTION 'foreign Customer principal'; END IF;")
+ if n=='CustomerProfile':body.append(" IF NOT platform_private.context_subject_owner(NEW.user_id,'customer_buyer_profile') THEN RAISE EXCEPTION 'foreign Customer principal' USING ERRCODE='42501'; END IF;")
  if n=='ConsentPresentation':body.append(" IF NOT platform_private.context_subject_owner(NEW.user_id,'consent_disclosure') THEN RAISE EXCEPTION 'foreign Consent presentation principal'; END IF;")
  if 'updatedAt' in fs:body.append(f' NEW.{q(fs["updatedAt"])}:=clock_timestamp();')
  if n=='UserSecurityProfile':body.append(" PERFORM pg_advisory_xact_lock(hashtextextended('identity:'||NEW.user_id::text,0));")
@@ -426,13 +492,13 @@ for n,m in models.items():
  if n in ['TrackSubscription','TrackEntitlementGrant','TrackBaseSelection']:
   # Worker keeps its original direct columns. The fixed read-only port gets
   # only the exact snapshot/identity fields needed for these three branches.
-  identity_fields=['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId']
-  identity_json='jsonb_build_object('+','.join(v for f in identity_fields for v in [lit(fs[f]),f's.{q(fs[f])}'])+')'
+  claim_columns=verifier_access['roles']['wa_track_verifier']['columns'][m['object']]
+  identity_json='jsonb_build_object('+','.join(v for c in claim_columns for v in [lit(c),f's.{q(c)}'])+')'
   worker_reverse_cases.append(f'''WHEN {lit(n)} THEN
   RETURN EXISTS(SELECT 1 FROM {obj(n)} s WHERE s.{q(fs['id'])}::text=aggregate_id
    AND s.mutation_transaction_id=source_transaction AND s.revision=committed_revision
    AND {snapshot('s')}=committed_value
-   AND platform_private.worker_track_allowed({lit(n)},{identity_json},'SELECT'));''')
+   AND platform_private.worker_source_claim_valid({lit(n)},{identity_json}));''')
   reverse_case=f'''WHEN {lit(n)} THEN
   IF session_user::text='wa_worker' THEN
    matches:=platform_private.worker_evidence_source_matches(NEW.aggregate_kind,NEW.aggregate_id,NEW.committed_revision,NEW.mutation_transaction_id,NEW.evidence_body->'committed');
@@ -494,20 +560,12 @@ for n in ['customer_event','track_command','track_result','sh004_result','sh114_
 for sig in ['json_datetime(text)','bind_request_context(text)','context_allows(text,text,text,text,text)','row_allowed(text,text,text,text,text[],text,text)','context_subject(uuid)','context_subject_owner(uuid,text)','command_context_allows(text,text,text)','global_context_registered(text,text,text,text)']:
  emit(f'GRANT EXECUTE ON FUNCTION platform_private.{sig} TO wa_app_runtime,wa_worker;')
 emit('REVOKE EXECUTE ON FUNCTION platform_private.bound_grant(boolean) FROM wa_app_runtime,wa_worker;')
-# Trigger functions cannot be called as ordinary SQL; private helper surface is bounded below.
-for sig in ['bound_grant(boolean)','bind_request_context(text)','context_allows(text,text,text,text,text)','protected_scope(text,text,text)','row_allowed(text,text,text,text,text[],text,text)','context_subject(uuid)','context_subject_owner(uuid,text)','command_context_allows(text,text,text)']:
- emit(f'GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;\nALTER FUNCTION platform_private.{sig} OWNER TO wa_private_helper_owner;')
-for role,signatures in {
- 'wa_customer_verifier':['customer_current_for_track(uuid,uuid,bigint,bigint,uuid)'],
- 'wa_track_verifier':['worker_track_allowed(text,jsonb,text)','worker_lease_valid(uuid,uuid,boolean)','worker_effect_matches(uuid,uuid,boolean)','track_atomic_valid(text,jsonb,jsonb)','worker_evidence_source_matches(text,text,bigint,text,jsonb)']}.items():
- for sig in signatures:
-  emit(f'GRANT CREATE ON SCHEMA platform_private TO {role};\nALTER FUNCTION platform_private.{sig} OWNER TO {role};')
- emit(f'REVOKE CREATE ON SCHEMA platform_private FROM {role};')
 emit('''GRANT EXECUTE ON FUNCTION platform_private.bound_grant(boolean),platform_private.context_allows(text,text,text,text,text) TO wa_customer_verifier,wa_track_verifier;
+GRANT EXECUTE ON FUNCTION platform_private.row_allowed(text,text,text,text,text[],text,text) TO wa_track_verifier;
+GRANT EXECUTE ON FUNCTION platform_private.worker_row_capabilities(text,jsonb,text) TO wa_track_verifier;
 GRANT EXECUTE ON FUNCTION platform_private.customer_current_for_track(uuid,uuid,bigint,bigint,uuid) TO wa_track_verifier;
 GRANT EXECUTE ON FUNCTION platform_private.worker_track_allowed(text,jsonb,text),platform_private.worker_lease_valid(uuid,uuid,boolean),platform_private.worker_effect_matches(uuid,uuid,boolean),platform_private.track_atomic_valid(text,jsonb,jsonb),platform_private.worker_evidence_source_matches(text,text,bigint,text,jsonb) TO wa_worker;
 GRANT EXECUTE ON FUNCTION platform_private.lease_secret_matches(text) TO wa_track_verifier,wa_worker;
-REVOKE CREATE ON SCHEMA platform_private FROM wa_private_helper_owner;
 -- Separate original bootstrap grantor must run foundation-bootstrap-finalize.review.sql
 -- after success OR failure. wa_schema_owner has ADMIN FALSE and cannot do that cleanup.
 -- Helper may call its own functions and pure JSON predicates only; no business DML.
@@ -525,9 +583,18 @@ DO $roles$ DECLARE r text; BEGIN
   END IF;
  END LOOP;
 END $roles$;
-RESET ROLE;
-COMMIT;
 ''')
+# All function ACL changes above execute as their creating owner. INHERIT FALSE
+# temporary membership permits ownership transfer, not implicit grant authority.
+# Transfer only after the exact grants AND managed-role revocations are complete.
+for role,signatures in {
+ 'wa_private_helper_owner':['bound_grant(boolean)','bind_request_context(text)','context_allows(text,text,text,text,text)','protected_scope(text,text,text)','row_allowed(text,text,text,text,text[],text,text)','context_subject(uuid)','context_subject_owner(uuid,text)','command_context_allows(text,text,text)'],
+ 'wa_customer_verifier':['customer_current_for_track(uuid,uuid,bigint,bigint,uuid)'],
+ 'wa_track_verifier':['worker_source_row_valid(text,text)','worker_source_claim_valid(text,jsonb)','worker_track_allowed(text,jsonb,text)','worker_lease_valid(uuid,uuid,boolean)','worker_effect_matches(uuid,uuid,boolean)','track_atomic_valid(text,jsonb,jsonb)','worker_evidence_source_matches(text,text,bigint,text,jsonb)']}.items():
+ emit(f'GRANT CREATE ON SCHEMA platform_private TO {role};')
+ for sig in signatures:emit(f'ALTER FUNCTION platform_private.{sig} OWNER TO {role};')
+ emit(f'REVOKE CREATE ON SCHEMA platform_private FROM {role};')
+emit('RESET ROLE;\nCOMMIT;')
 # Enum USAGE is explicit, before function/table runtime access.
 enumgrant=[]
 for name,b in blocks.items():

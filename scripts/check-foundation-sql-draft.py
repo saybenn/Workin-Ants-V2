@@ -128,9 +128,9 @@ def checks(root=ROOT,verify_fingerprints=True):
  need('ALTER DEFAULT PRIVILEGES FOR ROLE wa_schema_owner REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;' in bootstrap,'default PUBLIC function execute')
  for name,(node,body,chunk) in functions.items():
   if any(o.defname=='security' and o.arg.boolval for o in node.options):
-   need(name.split('.')[-1] in ['bound_grant','bind_request_context','context_allows','protected_scope','row_allowed','worker_track_allowed','context_subject','context_subject_owner','command_context_allows','customer_current_for_track','worker_lease_valid','worker_effect_matches','track_atomic_valid','worker_evidence_source_matches'],'unexpected DEFINER '+name)
+   need(name.split('.')[-1] in ['bound_grant','bind_request_context','context_allows','protected_scope','row_allowed','worker_track_allowed','context_subject','context_subject_owner','command_context_allows','customer_current_for_track','worker_lease_valid','worker_effect_matches','track_atomic_valid','worker_evidence_source_matches','worker_source_claim_valid','worker_source_row_valid'],'unexpected DEFINER '+name)
    need(not re.search(r'(?:^|[;\n])\s*(?:INSERT|UPDATE|DELETE|EXECUTE)\b',re.sub(r'--[^\n]*','',body),re.I),'DEFINER writes/dynamic SQL '+name)
-   expected_owner='wa_customer_verifier' if name.endswith('.customer_current_for_track') else 'wa_track_verifier' if name.split('.')[-1] in ['worker_track_allowed','worker_lease_valid','worker_effect_matches','track_atomic_valid','worker_evidence_source_matches'] else 'wa_private_helper_owner';need(owners.get(name)==expected_owner,'DEFINER owner not narrow helper: '+name)
+   expected_owner='wa_customer_verifier' if name.endswith('.customer_current_for_track') else 'wa_track_verifier' if name.split('.')[-1] in ['worker_track_allowed','worker_lease_valid','worker_effect_matches','track_atomic_valid','worker_evidence_source_matches','worker_source_claim_valid','worker_source_row_valid'] else 'wa_private_helper_owner';need(owners.get(name)==expected_owner,'DEFINER owner not narrow helper: '+name)
   # Offline composite variable column checks; this is not full catalog resolution.
   for var,sch,tab in re.findall(r'\b(\w+)\s+(app|platform)\.(\w+)\b',chunk):
    need((sch,tab) in tables,'unknown composite type '+sch+'.'+tab)

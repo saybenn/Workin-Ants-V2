@@ -4,15 +4,16 @@
   "disposable_environment": {
     "provider": "LOCAL_DISPOSABLE_POSTGRES_PROPOSED",
     "postgres_version": "17.11",
-    "immutable_image_digest": "NOT_RESOLVED_NOT_PROVISIONED",
+    "immutable_image_digest": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
     "synthetic_only": true,
     "old_project_forbidden": "sdceenkakajslwpctbgl",
     "hosted_fresh_project_read_only_until_separate_execution_approval": "lyalfdmfheevpahywuhv",
     "limitations": [
       "Historical Work tool absence is not current Windows inventory; Docker was observed locally on 2026-10-30, but no disposable identity/image/DDL/execution is authorized",
       "Local provider-managed Auth/Storage/Realtime/default-role/extension/event-trigger emulation is not hosted Supabase parity",
-      "Image digest, backup/restore method and exact disposable identity must be approved/resolved before execution"
-    ]
+      "Image platform digest established read-only; local daemon startup, exact fixture script review, resource creation and execution require the separate Brain rehearsal decision."
+    ],
+    "image_platform": "linux/amd64"
   },
   "tests": [
     {
@@ -324,10 +325,80 @@
         "foreign_prerequisites": [
           "@relation(\"UserPrivacyRequests\", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "operation_dispositions": [
+          {
+            "role": "wa_app_runtime",
+            "verb": "SELECT",
+            "source_owner": "privacy_data_erasure",
+            "action": "SH-003.v1",
+            "purpose": "owner:queryOwnerFacts",
+            "root_kind": "PrivacyRequest",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "INSERT",
+            "source_owner": "privacy_data_erasure",
+            "action": "SH-049.v1",
+            "purpose": "owner:orchestrateWorkflowSteps",
+            "root_kind": "PrivacyRequest",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Only open/noncompletion states; completed/partially_completed remains P0F_PRIVACY_OWNER_DISPOSITION_ACCOUNTING-gated"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "UPDATE",
+            "source_owner": "privacy_data_erasure",
+            "action": "SH-049.v1",
+            "purpose": "owner:orchestrateWorkflowSteps",
+            "root_kind": "PrivacyRequest",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Only open/noncompletion states; completed/partially_completed remains P0F_PRIVACY_OWNER_DISPOSITION_ACCOUNTING-gated"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "UPDATE_COMPLETION_STATES",
+            "source_owner": "privacy_data_erasure",
+            "action": "SH-049.v1",
+            "purpose": "owner:orchestrateWorkflowSteps",
+            "root_kind": "PrivacyRequest",
+            "row_and_field_capabilities": "Exact request/generation/status caps",
+            "prerequisite_reads": [
+              "All qualified owner dispositions and complete accounting; source privacy_guard explicitly raises 0A000 until available"
+            ],
+            "atomic_proof": "Actual completed/partially_completed accounting and exact source evidence",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0F_PRIVACY_OWNER_DISPOSITION_ACCOUNTING"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          }
+        ]
       },
-      "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
-      "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
+      "action": "Execute only ATTAINABLE_WITH_SYNTHETIC_FIXTURE operations with the complete listed login/scope/capability/prerequisite/proof path. ACL ceilings in operations_by_role are preserved. Separately exercise DEPENDENCY_GATED operations as expected denials; their future positive is not claimed attainable.",
+      "expected": "Complete attainable paths commit; named gated paths deny. Privacy completion and usage mutation remain denied. All database/runtime statuses remain NOT_RUN.",
       "status": "NOT_RUN"
     },
     {
@@ -5259,10 +5330,63 @@
         "foreign_prerequisites": [
           "@relation(\"UserCustomerProfile\", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "operation_dispositions": [
+          {
+            "role": "wa_app_runtime",
+            "verb": "SELECT",
+            "source_owner": "customer_buyer_profile",
+            "action": "SH-004.v1",
+            "purpose": "provision",
+            "root_kind": "CustomerProfile",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Required command/evidence/history/outbox SELECT and INSERT capabilities; root source verb remains separately bounded"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "INSERT",
+            "source_owner": "customer_buyer_profile",
+            "action": "SH-004.v1",
+            "purpose": "provision",
+            "root_kind": "CustomerProfile",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Required command/evidence/history/outbox SELECT and INSERT capabilities; root source verb remains separately bounded"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "UPDATE",
+            "source_owner": "customer_buyer_profile",
+            "action": "updateCustomerProfileIdentity.v1",
+            "purpose": "profile_update",
+            "root_kind": "CustomerProfile",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Required command/evidence/history/outbox SELECT and INSERT capabilities; root source verb remains separately bounded"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          }
+        ]
       },
-      "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
-      "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
+      "action": "Execute only ATTAINABLE_WITH_SYNTHETIC_FIXTURE operations with the complete listed login/scope/capability/prerequisite/proof path. ACL ceilings in operations_by_role are preserved. Separately exercise DEPENDENCY_GATED operations as expected denials; their future positive is not claimed attainable.",
+      "expected": "Complete attainable paths commit; named gated paths deny. Privacy completion and usage mutation remain denied. All database/runtime statuses remain NOT_RUN.",
       "status": "NOT_RUN"
     },
     {
@@ -15605,10 +15729,103 @@
             "context/reconciliation/database-candidate-continuation.md",
             "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
           ]
-        }
+        },
+        "operation_dispositions": [
+          {
+            "role": "wa_app_runtime",
+            "verb": "SELECT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "SH-003.v1",
+            "purpose": "owner:queryOwnerFacts",
+            "root_kind": "TrackSubscription",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "INSERT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "SH-053.v1",
+            "purpose": "owner:transitionLifecycleState",
+            "root_kind": "TrackSubscription",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Typed Customer/Candidate/Professional user binding and exact Track plan/subscription: current root/owner scope does not authorize these prerequisite reads"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0E_TRACK_APP_PROFILE_AND_PLAN_FACT_PORT"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "UPDATE",
+            "source_owner": "track_subscription_entitlement",
+            "action": "SH-053.v1",
+            "purpose": "owner:transitionLifecycleState",
+            "root_kind": "TrackSubscription",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Typed Customer/Candidate/Professional user binding and exact Track plan/subscription: current root/owner scope does not authorize these prerequisite reads"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0E_TRACK_APP_PROFILE_AND_PLAN_FACT_PORT"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_worker",
+            "verb": "SELECT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "assignDefaultFreeTrack.v1",
+            "purpose": "default_free_enrollment",
+            "root_kind": "RuntimeWorkItem",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Exact original Customer command/current source via bounded Boolean ports",
+              "Approved Free plan revision/version/content hash",
+              "Exact job/source row and verb/field/revision capabilities; current lease secret/fence"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_worker",
+            "verb": "INSERT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "assignDefaultFreeTrack.v1",
+            "purpose": "default_free_enrollment",
+            "root_kind": "RuntimeWorkItem",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Exact original Customer command/current source via bounded Boolean ports",
+              "Approved Free plan revision/version/content hash",
+              "Exact job/source row and verb/field/revision capabilities; current lease secret/fence"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          }
+        ]
       },
-      "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
-      "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
+      "action": "Execute only ATTAINABLE_WITH_SYNTHETIC_FIXTURE operations with the complete listed login/scope/capability/prerequisite/proof path. ACL ceilings in operations_by_role are preserved. Separately exercise DEPENDENCY_GATED operations as expected denials; their future positive is not claimed attainable.",
+      "expected": "Complete attainable paths commit; named gated paths deny. Privacy completion and usage mutation remain denied. All database/runtime statuses remain NOT_RUN.",
       "status": "NOT_RUN"
     },
     {
@@ -15794,10 +16011,103 @@
             "context/reconciliation/database-candidate-continuation.md",
             "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
           ]
-        }
+        },
+        "operation_dispositions": [
+          {
+            "role": "wa_app_runtime",
+            "verb": "SELECT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "SH-003.v1",
+            "purpose": "owner:queryOwnerFacts",
+            "root_kind": "TrackEntitlementGrant",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "INSERT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "SH-053.v1",
+            "purpose": "owner:transitionLifecycleState",
+            "root_kind": "TrackEntitlementGrant",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Typed Customer/Candidate/Professional user binding and exact Track plan/subscription: current root/owner scope does not authorize these prerequisite reads"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0E_TRACK_APP_PROFILE_AND_PLAN_FACT_PORT"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "UPDATE",
+            "source_owner": "track_subscription_entitlement",
+            "action": "SH-053.v1",
+            "purpose": "owner:transitionLifecycleState",
+            "root_kind": "TrackEntitlementGrant",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Typed Customer/Candidate/Professional user binding and exact Track plan/subscription: current root/owner scope does not authorize these prerequisite reads"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0E_TRACK_APP_PROFILE_AND_PLAN_FACT_PORT"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_worker",
+            "verb": "SELECT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "assignDefaultFreeTrack.v1",
+            "purpose": "default_free_enrollment",
+            "root_kind": "RuntimeWorkItem",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Exact original Customer command/current source via bounded Boolean ports",
+              "Approved Free plan revision/version/content hash",
+              "Exact job/source row and verb/field/revision capabilities; current lease secret/fence"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_worker",
+            "verb": "INSERT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "assignDefaultFreeTrack.v1",
+            "purpose": "default_free_enrollment",
+            "root_kind": "RuntimeWorkItem",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Exact original Customer command/current source via bounded Boolean ports",
+              "Approved Free plan revision/version/content hash",
+              "Exact job/source row and verb/field/revision capabilities; current lease secret/fence"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          }
+        ]
       },
-      "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
-      "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
+      "action": "Execute only ATTAINABLE_WITH_SYNTHETIC_FIXTURE operations with the complete listed login/scope/capability/prerequisite/proof path. ACL ceilings in operations_by_role are preserved. Separately exercise DEPENDENCY_GATED operations as expected denials; their future positive is not claimed attainable.",
+      "expected": "Complete attainable paths commit; named gated paths deny. Privacy completion and usage mutation remain denied. All database/runtime statuses remain NOT_RUN.",
       "status": "NOT_RUN"
     },
     {
@@ -15908,10 +16218,46 @@
             "context/reconciliation/database-candidate-continuation.md",
             "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
           ]
-        }
+        },
+        "operation_dispositions": [
+          {
+            "role": "wa_app_runtime",
+            "verb": "SELECT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "SH-003.v1",
+            "purpose": "owner:queryOwnerFacts",
+            "root_kind": "TrackUsageEvent",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "INSERT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "SH-006.v1",
+            "purpose": "owner:consumeMeteredEntitlement",
+            "root_kind": "TrackUsageEvent",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Qualified UTC-period/reservation/reconciliation owner adapter; usage mutation currently raises 0A000"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0D_TRACK_USAGE_PERIOD_RECONCILIATION"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          }
+        ]
       },
-      "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
-      "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
+      "action": "Execute only ATTAINABLE_WITH_SYNTHETIC_FIXTURE operations with the complete listed login/scope/capability/prerequisite/proof path. ACL ceilings in operations_by_role are preserved. Separately exercise DEPENDENCY_GATED operations as expected denials; their future positive is not claimed attainable.",
+      "expected": "Complete attainable paths commit; named gated paths deny. Privacy completion and usage mutation remain denied. All database/runtime statuses remain NOT_RUN.",
       "status": "NOT_RUN"
     },
     {
@@ -16024,10 +16370,65 @@
             "context/reconciliation/database-candidate-continuation.md",
             "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
           ]
-        }
+        },
+        "operation_dispositions": [
+          {
+            "role": "wa_app_runtime",
+            "verb": "SELECT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "SH-003.v1",
+            "purpose": "owner:queryOwnerFacts",
+            "root_kind": "TrackUsageCounter",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "INSERT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "SH-006.v1",
+            "purpose": "owner:consumeMeteredEntitlement",
+            "root_kind": "TrackUsageCounter",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Qualified UTC-period/reservation/reconciliation owner adapter; usage mutation currently raises 0A000"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0D_TRACK_USAGE_PERIOD_RECONCILIATION"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "UPDATE",
+            "source_owner": "track_subscription_entitlement",
+            "action": "SH-006.v1",
+            "purpose": "owner:consumeMeteredEntitlement",
+            "root_kind": "TrackUsageCounter",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Qualified UTC-period/reservation/reconciliation owner adapter; usage mutation currently raises 0A000"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0D_TRACK_USAGE_PERIOD_RECONCILIATION"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          }
+        ]
       },
-      "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
-      "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
+      "action": "Execute only ATTAINABLE_WITH_SYNTHETIC_FIXTURE operations with the complete listed login/scope/capability/prerequisite/proof path. ACL ceilings in operations_by_role are preserved. Separately exercise DEPENDENCY_GATED operations as expected denials; their future positive is not claimed attainable.",
+      "expected": "Complete attainable paths commit; named gated paths deny. Privacy completion and usage mutation remain denied. All database/runtime statuses remain NOT_RUN.",
       "status": "NOT_RUN"
     },
     {
@@ -16164,10 +16565,65 @@
             "context/reconciliation/database-candidate-continuation.md",
             "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
           ]
-        }
+        },
+        "operation_dispositions": [
+          {
+            "role": "wa_app_runtime",
+            "verb": "SELECT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "SH-003.v1",
+            "purpose": "owner:queryOwnerFacts",
+            "root_kind": "TrackSubscriptionEvent",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "INSERT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "SH-053.v1",
+            "purpose": "owner:transitionLifecycleState",
+            "root_kind": "TrackSubscriptionEvent",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "No application root path; history/receipt mutation explicitly requires wa_worker"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "F0_DEFAULT_FREE_WORKER_ONLY"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_worker",
+            "verb": "INSERT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "assignDefaultFreeTrack.v1",
+            "purpose": "default_free_enrollment",
+            "root_kind": "RuntimeWorkItem",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Exact original Customer command/current source via bounded Boolean ports",
+              "Approved Free plan revision/version/content hash",
+              "Exact job/source row and verb/field/revision capabilities; current lease secret/fence"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          }
+        ]
       },
-      "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
-      "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
+      "action": "Execute only ATTAINABLE_WITH_SYNTHETIC_FIXTURE operations with the complete listed login/scope/capability/prerequisite/proof path. ACL ceilings in operations_by_role are preserved. Separately exercise DEPENDENCY_GATED operations as expected denials; their future positive is not claimed attainable.",
+      "expected": "Complete attainable paths commit; named gated paths deny. Privacy completion and usage mutation remain denied. All database/runtime statuses remain NOT_RUN.",
       "status": "NOT_RUN"
     },
     {
@@ -17247,10 +17703,126 @@
           "@relation(\"C_RuntimeReservation_command\", fields: [commandReceiptId], references: [id], onDelete: Restrict, onUpdate: Restrict)",
           "@relation(\"C_RuntimeReservation_effect\", fields: [effectReceiptId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "operation_dispositions": [
+          {
+            "role": "wa_app_runtime",
+            "verb": "SELECT",
+            "source_owner": "platform_integration_owner",
+            "action": "runtime.reservation.v1",
+            "purpose": "reservation",
+            "root_kind": "RuntimeReservation",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Exact authorized command and terminal effect receipt; field effectReceiptId, immutable identity, fence and semantic key"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "INSERT",
+            "source_owner": "platform_integration_owner",
+            "action": "runtime.reservation.v1",
+            "purpose": "reservation",
+            "root_kind": "RuntimeReservation",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Exact authorized command and terminal effect receipt; field effectReceiptId, immutable identity, fence and semantic key"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "UPDATE",
+            "source_owner": "platform_integration_owner",
+            "action": "runtime.reservation.v1",
+            "purpose": "reservation",
+            "root_kind": "RuntimeReservation",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Exact authorized command and terminal effect receipt; field effectReceiptId, immutable identity, fence and semantic key"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_worker",
+            "verb": "SELECT",
+            "source_owner": "platform_integration_owner",
+            "action": "assignDefaultFreeTrack.v1",
+            "purpose": "default_free_enrollment",
+            "root_kind": "RuntimeWorkItem",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Exact original Customer command/current source via bounded Boolean ports",
+              "Approved Free plan revision/version/content hash",
+              "Exact job/source row and verb/field/revision capabilities; current lease secret/fence"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "NO_REGISTERED_WORKER_RESERVATION_ROUTE"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_worker",
+            "verb": "INSERT",
+            "source_owner": "platform_integration_owner",
+            "action": "assignDefaultFreeTrack.v1",
+            "purpose": "default_free_enrollment",
+            "root_kind": "RuntimeWorkItem",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Exact original Customer command/current source via bounded Boolean ports",
+              "Approved Free plan revision/version/content hash",
+              "Exact job/source row and verb/field/revision capabilities; current lease secret/fence"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "NO_REGISTERED_WORKER_RESERVATION_ROUTE"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_worker",
+            "verb": "UPDATE",
+            "source_owner": "platform_integration_owner",
+            "action": "assignDefaultFreeTrack.v1",
+            "purpose": "default_free_enrollment",
+            "root_kind": "RuntimeWorkItem",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Exact original Customer command/current source via bounded Boolean ports",
+              "Approved Free plan revision/version/content hash",
+              "Exact job/source row and verb/field/revision capabilities; current lease secret/fence"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "NO_REGISTERED_WORKER_RESERVATION_ROUTE"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          }
+        ]
       },
-      "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
-      "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
+      "action": "Execute only ATTAINABLE_WITH_SYNTHETIC_FIXTURE operations with the complete listed login/scope/capability/prerequisite/proof path. ACL ceilings in operations_by_role are preserved. Separately exercise DEPENDENCY_GATED operations as expected denials; their future positive is not claimed attainable.",
+      "expected": "Complete attainable paths commit; named gated paths deny. Privacy completion and usage mutation remain denied. All database/runtime statuses remain NOT_RUN.",
       "status": "NOT_RUN",
       "p0c03a_vectors": [
         {
@@ -17258,6 +17830,13 @@
           "positive": "Exact reservation/owner/command/operation/fingerprint/semantic key/fence has durable fenced_noncommit proof; attach that receipt once and release",
           "adversarial": "Use receipt from another reservation/operation, NULL or foreign command, unresolved command, or elapsed lease alone",
           "expected": "Exact proof releases; all foreign/unknown/time-only claims deny",
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "RESERVATION-ROLE-REACHABILITY",
+          "positive": "Actual wa_app_runtime creates active reservation with null effect; with fresh exact reservation scope attaches committed receipt and commits; separately active -> unknown -> released with current durable fenced_noncommit proof",
+          "adversarial": "Use foreign receipt/reservation, different command/operation/semantic identity, replace existing link or try unknown -> active -> released",
+          "expected": "Actual UPDATE(effect_receipt_id) grant plus SELECT/RLS/field/revision/fence/exact-proof guards admit legitimate terminals; worker direct ACL stays unchanged and its reservation route remains denied",
           "status": "NOT_RUN"
         }
       ]
@@ -17634,10 +18213,126 @@
             "context/reconciliation/database-candidate-continuation.md",
             "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
           ]
-        }
+        },
+        "operation_dispositions": [
+          {
+            "role": "wa_app_runtime",
+            "verb": "SELECT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "NO_REGISTERED_SCOPE",
+            "purpose": "NO_REGISTERED_SCOPE",
+            "root_kind": "TrackBaseSelection",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "No application root path; history/receipt mutation explicitly requires wa_worker"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "F0_DEFAULT_FREE_WORKER_ONLY"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "INSERT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "NO_REGISTERED_SCOPE",
+            "purpose": "NO_REGISTERED_SCOPE",
+            "root_kind": "TrackBaseSelection",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "No application root path; history/receipt mutation explicitly requires wa_worker"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "F0_DEFAULT_FREE_WORKER_ONLY"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "UPDATE",
+            "source_owner": "track_subscription_entitlement",
+            "action": "NO_REGISTERED_SCOPE",
+            "purpose": "NO_REGISTERED_SCOPE",
+            "root_kind": "TrackBaseSelection",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "No application root path; history/receipt mutation explicitly requires wa_worker"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "F0_DEFAULT_FREE_WORKER_ONLY"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_worker",
+            "verb": "SELECT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "assignDefaultFreeTrack.v1",
+            "purpose": "default_free_enrollment",
+            "root_kind": "RuntimeWorkItem",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Exact original Customer command/current source via bounded Boolean ports",
+              "Approved Free plan revision/version/content hash",
+              "Exact job/source row and verb/field/revision capabilities; current lease secret/fence"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_worker",
+            "verb": "INSERT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "assignDefaultFreeTrack.v1",
+            "purpose": "default_free_enrollment",
+            "root_kind": "RuntimeWorkItem",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Exact original Customer command/current source via bounded Boolean ports",
+              "Approved Free plan revision/version/content hash",
+              "Exact job/source row and verb/field/revision capabilities; current lease secret/fence"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_worker",
+            "verb": "UPDATE",
+            "source_owner": "track_subscription_entitlement",
+            "action": "assignDefaultFreeTrack.v1",
+            "purpose": "default_free_enrollment",
+            "root_kind": "RuntimeWorkItem",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Exact original Customer command/current source via bounded Boolean ports",
+              "Approved Free plan revision/version/content hash",
+              "Exact job/source row and verb/field/revision capabilities; current lease secret/fence"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          }
+        ]
       },
-      "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
-      "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
+      "action": "Execute only ATTAINABLE_WITH_SYNTHETIC_FIXTURE operations with the complete listed login/scope/capability/prerequisite/proof path. ACL ceilings in operations_by_role are preserved. Separately exercise DEPENDENCY_GATED operations as expected denials; their future positive is not claimed attainable.",
+      "expected": "Complete attainable paths commit; named gated paths deny. Privacy completion and usage mutation remain denied. All database/runtime statuses remain NOT_RUN.",
       "status": "NOT_RUN"
     },
     {
@@ -17803,10 +18498,88 @@
             "context/reconciliation/database-candidate-continuation.md",
             "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
           ]
-        }
+        },
+        "operation_dispositions": [
+          {
+            "role": "wa_app_runtime",
+            "verb": "SELECT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "NO_REGISTERED_SCOPE",
+            "purpose": "NO_REGISTERED_SCOPE",
+            "root_kind": "TrackEnrollmentReceipt",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "No application root path; history/receipt mutation explicitly requires wa_worker"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "F0_DEFAULT_FREE_WORKER_ONLY"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "INSERT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "NO_REGISTERED_SCOPE",
+            "purpose": "NO_REGISTERED_SCOPE",
+            "root_kind": "TrackEnrollmentReceipt",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "No application root path; history/receipt mutation explicitly requires wa_worker"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "F0_DEFAULT_FREE_WORKER_ONLY"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_worker",
+            "verb": "SELECT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "assignDefaultFreeTrack.v1",
+            "purpose": "default_free_enrollment",
+            "root_kind": "RuntimeWorkItem",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Exact original Customer command/current source via bounded Boolean ports",
+              "Approved Free plan revision/version/content hash",
+              "Exact job/source row and verb/field/revision capabilities; current lease secret/fence"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_worker",
+            "verb": "INSERT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "assignDefaultFreeTrack.v1",
+            "purpose": "default_free_enrollment",
+            "root_kind": "RuntimeWorkItem",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Exact original Customer command/current source via bounded Boolean ports",
+              "Approved Free plan revision/version/content hash",
+              "Exact job/source row and verb/field/revision capabilities; current lease secret/fence"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "ATTAINABLE_WITH_SYNTHETIC_FIXTURE",
+            "dependency_ids": [],
+            "current_expected": "ALLOW_ONLY_COMPLETE_PATH",
+            "status": "NOT_RUN"
+          }
+        ]
       },
-      "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
-      "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
+      "action": "Execute only ATTAINABLE_WITH_SYNTHETIC_FIXTURE operations with the complete listed login/scope/capability/prerequisite/proof path. ACL ceilings in operations_by_role are preserved. Separately exercise DEPENDENCY_GATED operations as expected denials; their future positive is not claimed attainable.",
+      "expected": "Complete attainable paths commit; named gated paths deny. Privacy completion and usage mutation remain denied. All database/runtime statuses remain NOT_RUN.",
       "status": "NOT_RUN"
     },
     {
@@ -17913,10 +18686,69 @@
             "context/reconciliation/database-candidate-continuation.md",
             "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md#106-assigndefaultfreetrack"
           ]
-        }
+        },
+        "operation_dispositions": [
+          {
+            "role": "wa_app_runtime",
+            "verb": "SELECT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "NO_REGISTERED_SCOPE",
+            "purpose": "NO_REGISTERED_SCOPE",
+            "root_kind": "TrackUsageReservation",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Qualified UTC-period/reservation/reconciliation owner adapter; usage mutation currently raises 0A000"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0D_TRACK_USAGE_PERIOD_RECONCILIATION"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "INSERT",
+            "source_owner": "track_subscription_entitlement",
+            "action": "NO_REGISTERED_SCOPE",
+            "purpose": "NO_REGISTERED_SCOPE",
+            "root_kind": "TrackUsageReservation",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Qualified UTC-period/reservation/reconciliation owner adapter; usage mutation currently raises 0A000"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0D_TRACK_USAGE_PERIOD_RECONCILIATION"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "UPDATE",
+            "source_owner": "track_subscription_entitlement",
+            "action": "NO_REGISTERED_SCOPE",
+            "purpose": "NO_REGISTERED_SCOPE",
+            "root_kind": "TrackUsageReservation",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Qualified UTC-period/reservation/reconciliation owner adapter; usage mutation currently raises 0A000"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0D_TRACK_USAGE_PERIOD_RECONCILIATION"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          }
+        ]
       },
-      "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
-      "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
+      "action": "Execute only ATTAINABLE_WITH_SYNTHETIC_FIXTURE operations with the complete listed login/scope/capability/prerequisite/proof path. ACL ceilings in operations_by_role are preserved. Separately exercise DEPENDENCY_GATED operations as expected denials; their future positive is not claimed attainable.",
+      "expected": "Complete attainable paths commit; named gated paths deny. Privacy completion and usage mutation remain denied. All database/runtime statuses remain NOT_RUN.",
       "status": "NOT_RUN"
     },
     {
@@ -18473,10 +19305,50 @@
         "foreign_prerequisites": [
           "@relation(\"C_PrivacyTargetInstruction_request\", fields: [privacyRequestId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "operation_dispositions": [
+          {
+            "role": "wa_app_runtime",
+            "verb": "SELECT",
+            "source_owner": "privacy_data_erasure",
+            "action": "NO_REGISTERED_SCOPE",
+            "purpose": "NO_REGISTERED_SCOPE",
+            "root_kind": "PrivacyTargetInstruction",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Unregistered exact Privacy parent/generation/field-map/owner-disposition prerequisites"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0F_PRIVACY_INSTRUCTION_SCOPE_AND_FIELD_MAP"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "INSERT",
+            "source_owner": "privacy_data_erasure",
+            "action": "NO_REGISTERED_SCOPE",
+            "purpose": "NO_REGISTERED_SCOPE",
+            "root_kind": "PrivacyTargetInstruction",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Unregistered exact Privacy parent/generation/field-map/owner-disposition prerequisites"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0F_PRIVACY_INSTRUCTION_SCOPE_AND_FIELD_MAP"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          }
+        ]
       },
-      "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
-      "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
+      "action": "Execute only ATTAINABLE_WITH_SYNTHETIC_FIXTURE operations with the complete listed login/scope/capability/prerequisite/proof path. ACL ceilings in operations_by_role are preserved. Separately exercise DEPENDENCY_GATED operations as expected denials; their future positive is not claimed attainable.",
+      "expected": "Complete attainable paths commit; named gated paths deny. Privacy completion and usage mutation remain denied. All database/runtime statuses remain NOT_RUN.",
       "status": "NOT_RUN"
     },
     {
@@ -18560,10 +19432,50 @@
         "foreign_prerequisites": [
           "@relation(\"C_PrivacyOwnerReceipt_instruction\", fields: [instructionId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "operation_dispositions": [
+          {
+            "role": "wa_app_runtime",
+            "verb": "SELECT",
+            "source_owner": "privacy_data_erasure",
+            "action": "NO_REGISTERED_SCOPE",
+            "purpose": "NO_REGISTERED_SCOPE",
+            "root_kind": "PrivacyOwnerReceipt",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Unregistered exact Privacy parent/generation/field-map/owner-disposition prerequisites"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0F_PRIVACY_OWNER_DISPOSITION_ACCOUNTING"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "INSERT",
+            "source_owner": "privacy_data_erasure",
+            "action": "NO_REGISTERED_SCOPE",
+            "purpose": "NO_REGISTERED_SCOPE",
+            "root_kind": "PrivacyOwnerReceipt",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Unregistered exact Privacy parent/generation/field-map/owner-disposition prerequisites"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0F_PRIVACY_OWNER_DISPOSITION_ACCOUNTING"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          }
+        ]
       },
-      "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
-      "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
+      "action": "Execute only ATTAINABLE_WITH_SYNTHETIC_FIXTURE operations with the complete listed login/scope/capability/prerequisite/proof path. ACL ceilings in operations_by_role are preserved. Separately exercise DEPENDENCY_GATED operations as expected denials; their future positive is not claimed attainable.",
+      "expected": "Complete attainable paths commit; named gated paths deny. Privacy completion and usage mutation remain denied. All database/runtime statuses remain NOT_RUN.",
       "status": "NOT_RUN"
     },
     {
@@ -18648,10 +19560,69 @@
         "foreign_prerequisites": [
           "@relation(\"C_PrivacyRestoreMarker_receipt\", fields: [sourceReceiptId], references: [id], onDelete: Restrict, onUpdate: Restrict)"
         ],
-        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority"
+        "context": "Exact immutable issuer-bound transaction tuple, target/action/fields and current generations; no caller-supplied authority",
+        "operation_dispositions": [
+          {
+            "role": "wa_app_runtime",
+            "verb": "SELECT",
+            "source_owner": "privacy_data_erasure",
+            "action": "NO_REGISTERED_SCOPE",
+            "purpose": "NO_REGISTERED_SCOPE",
+            "root_kind": "PrivacyRestoreMarker",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Unregistered exact Privacy parent/generation/field-map/owner-disposition prerequisites"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0F_PRIVACY_RESTORE_GENERATION_PORT"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "INSERT",
+            "source_owner": "privacy_data_erasure",
+            "action": "NO_REGISTERED_SCOPE",
+            "purpose": "NO_REGISTERED_SCOPE",
+            "root_kind": "PrivacyRestoreMarker",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Unregistered exact Privacy parent/generation/field-map/owner-disposition prerequisites"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0F_PRIVACY_RESTORE_GENERATION_PORT"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          },
+          {
+            "role": "wa_app_runtime",
+            "verb": "UPDATE",
+            "source_owner": "privacy_data_erasure",
+            "action": "NO_REGISTERED_SCOPE",
+            "purpose": "NO_REGISTERED_SCOPE",
+            "root_kind": "PrivacyRestoreMarker",
+            "row_and_field_capabilities": "Exact model/id/verb/field tokens; no wildcard; prior revision and same-transaction successor convention where applicable",
+            "prerequisite_reads": [
+              "Unregistered exact Privacy parent/generation/field-map/owner-disposition prerequisites"
+            ],
+            "atomic_proof": "Actual source/history/command/evidence/messages/terminal checks applicable to this operation; no standalone source write",
+            "source_admission": "DEPENDENCY_GATED",
+            "dependency_ids": [
+              "P0F_PRIVACY_RESTORE_GENERATION_PORT"
+            ],
+            "current_expected": "DENY_WHILE_DEPENDENCY_MISSING",
+            "status": "NOT_RUN"
+          }
+        ]
       },
-      "action": "Run each exact nonempty operations_by_role path with its listed actual login and scoped synthetic context. The helper owner is tested only through a named DEFINER call, never LOGIN/SET ROLE. No operation is inferred for an empty role list. Immutable evidence admits append/select only; FK-only Candidate/Professional prerequisites in F0 prove permitted SELECT without future feature mutations. Registered source changes commit their required history/receipt/outbox; worker changes require the current fence.",
-      "expected": "Each listed permitted row/effect succeeds only for its target/fields and stage, with all required atomic evidence",
+      "action": "Execute only ATTAINABLE_WITH_SYNTHETIC_FIXTURE operations with the complete listed login/scope/capability/prerequisite/proof path. ACL ceilings in operations_by_role are preserved. Separately exercise DEPENDENCY_GATED operations as expected denials; their future positive is not claimed attainable.",
+      "expected": "Complete attainable paths commit; named gated paths deny. Privacy completion and usage mutation remain denied. All database/runtime statuses remain NOT_RUN.",
       "status": "NOT_RUN"
     },
     {
@@ -19866,6 +20837,13 @@
           "adversarial": "Inject application rollback, then the same grantor finalizes; wrong grantor cannot clean up",
           "expected": "Both outcomes leave zero helper/verifier memberships on schema owner and zero CREATE on platform_private for leaf roles; runtime credentials stay inactive until verified",
           "status": "NOT_RUN"
+        },
+        {
+          "id": "FUNCTION-ACL-AUTHORITY",
+          "positive": "Install as actual wa_migrator, SET LOCAL ROLE wa_schema_owner; exact function grants and managed-role revocations precede every transfer to NOINHERIT leaf owners",
+          "adversarial": "Move a grant/revocation after transfer without SET ROLE actual owner",
+          "expected": "Install commits with expected ACL; original grantor then removes every temporary membership and CREATE privilege",
+          "status": "NOT_RUN"
         }
       ]
     },
@@ -19879,7 +20857,16 @@
       "setup": "Disposable clone only; injected failure before initial transactional migration COMMIT",
       "action": "Run approved failed migration, inspect app catalog/ledger and perform reviewed rollback/forward-repair procedure",
       "expected": "Failure is nonzero and not accepted; app transaction rolled back; ledger failure preserved until actual verified repair",
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "FUNCTION-ACL-FAILURE-CLEANUP",
+          "positive": "Original grantor finalizes after application ROLLBACK as well as COMMIT",
+          "adversarial": "Inject a failure after function setup but before application COMMIT; attempt runtime activation before independent cleanup verification",
+          "expected": "No application objects survive failed application transaction; zero temporary memberships/leaf CREATE after separate finalization",
+          "status": "NOT_RUN"
+        }
+      ]
     },
     {
       "id": "P0C-CATALOG-01",
@@ -20082,6 +21069,13 @@
           "adversarial": "Wrong customer, job, source receipt, plan revision or lease; attempt source-body SELECT via port",
           "expected": "Only matching fixed facts return true; no source bodies, DML or broadened worker direct grant",
           "status": "NOT_RUN"
+        },
+        {
+          "id": "DIRECT-PORT-CAPS",
+          "positive": "Invoke relationship, effect, atomic and reverse ports under the exact authorized job/source/field capabilities",
+          "adversarial": "Remove one required capability or change current Customer generation while keeping a valid job and complete foreign snapshots",
+          "expected": "No direct verifier oracle bypasses the intended policy path; internal actual-row ports cannot be directly executed by worker",
+          "status": "NOT_RUN"
         }
       ]
     },
@@ -20103,6 +21097,13 @@
           "positive": "Trusted synthetic Identity/Consent/catalog setup; create Customer rev0/no predecessor, commit, then fresh scoped grant updates rev1 with exact predecessor0",
           "adversarial": "Require predecessor on creation, supply predecessor on create, omit required history/proof, or use a stale predecessor on update",
           "expected": "Valid create then update commits; invalid predecessor or absent grouped proof rolls back without recursive evidence-about-evidence",
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "FIRST-SMALL-REHEARSAL",
+          "positive": "Run only the separately approved small rehearsal below before expanding the 94 selected cases",
+          "adversarial": "Wrong-person Customer creation and missing-outbox COMMIT failure",
+          "expected": "Install/cleanup and one complete Customer transaction succeed; denial and rollback leave no partial business group",
           "status": "NOT_RUN"
         }
       ]
@@ -20164,7 +21165,11 @@
           "positive": "TrackUsageReservation and PrivacyRestoreMarker update with exact OLD revision, +1 and closed prior/committed evidence",
           "adversarial": "Stale predecessor, skipped revision, absent prior object or same-transaction second source update",
           "expected": "One source revision/proof advances; stale/skipped/missing proof fails; later unqualified usage mutation remains blocked",
-          "status": "NOT_RUN"
+          "status": "NOT_RUN",
+          "execution_dependencies": [
+            "P0D_TRACK_USAGE_PERIOD_RECONCILIATION",
+            "P0F_PRIVACY_RESTORE_GENERATION_PORT"
+          ]
         }
       ]
     },
@@ -20229,6 +21234,13 @@
           "adversarial": "Recognize same-fence receipt from a different semantic key/operation/customer or missing exact inbox",
           "expected": "SELECT admits only the exact linked original committed outcome after reclaim; new effect INSERT requires current fence; foreign receipt cannot acknowledge work",
           "status": "NOT_RUN"
+        },
+        {
+          "id": "DIRECT-TRACK-SNAPSHOT",
+          "positive": "Actual wa_worker directly calls every exposed Boolean branch with complete actual same-job/current-xid source snapshot, approved plan/version/hash and exact capabilities; repeat through intended source transaction",
+          "adversarial": "Complete foreign Customer; another ungranted source under same job; wrong job, plan/version/hash, xid, predecessor or required field/revision capability",
+          "expected": "Only complete same-job source returns true and legitimate transaction commits; direct and intended operations deny all substitutions",
+          "status": "NOT_RUN"
         }
       ]
     },
@@ -20280,7 +21292,10 @@
           "positive": "Before any restored service connection, Identity independently revokes/advances every restored service epoch, rotates credentials and issues recovery receipt",
           "adversarial": "Reuse a restored pre-crash service grant/generation or omit privacy restriction markers",
           "expected": "Restored state remains unavailable until independent currentness/marker recovery; old grants fail",
-          "status": "NOT_RUN"
+          "status": "NOT_RUN",
+          "execution_dependencies": [
+            "P0F_PRIVACY_RESTORE_GENERATION_PORT"
+          ]
         }
       ]
     },
@@ -20432,5 +21447,113 @@
   "first_p0d_consumer": "track_subscription_entitlement",
   "normal_network_delivery": "AT_LEAST_ONCE",
   "business_effect_goal": "NO_REPEATED_COMMITTED_EFFECT",
-  "provider_sandbox_or_real_account_actions_authorized": false
+  "provider_sandbox_or_real_account_actions_authorized": false,
+  "first_rehearsal": {
+    "status": "PROPOSED_NOT_RUN_EXECUTION_HELD",
+    "reviewed_source": "e363ad45dfad76d2a4ffbd0cd84ef0c01d24e966",
+    "environment": "Windows-connected session; Docker desktop-linux local named-pipe context. Read-only discovery 2026-11-10: CLI 29.6.2 present; daemon pipe absent, server/version/local image inventory unavailable. Do not start it during this source pass.",
+    "image": {
+      "reference": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "platform": "linux/amd64",
+      "version": "17.11",
+      "digest_kind": "PLATFORM_MANIFEST",
+      "config_digest": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+      "read_only_verification": "docker manifest inspect --verbose docker.io/library/postgres:17.11; selected descriptor linux/amd64; OCI version17.11",
+      "official_source": "https://github.com/docker-library/postgres/tree/2603e26e245e558218728ee14e0a42dcb020dc7f/17/trixie",
+      "layers_pulled": false
+    },
+    "resources": {
+      "success_container": "wa-p0c-first-20261110-ok",
+      "failure_container": "wa-p0c-first-20261110-fail",
+      "success_volume": "wa-p0c-first-20261110-ok-data",
+      "failure_volume": "wa-p0c-first-20261110-fail-data",
+      "database": "wa_p0c_rehearsal",
+      "label": "workinants.rehearsal=p0c-first-20261110",
+      "network": "--network none; no published host ports; docker exec psql uses container loopback TCP for actual restricted authentication",
+      "storage": "Only separately named disposable volumes at /var/lib/postgresql/data; no user/repository/hosted data mounts"
+    },
+    "credentials": "After execution approval generate independent cryptographically random bootstrap/migrator/issuer/Identity/app/worker passwords and context/lease secrets in memory. Owner-only temporary files outside Git; bootstrap POSTGRES_PASSWORD_FILE read-only mount; psql PGPASSFILE inside tmpfs /run/wa-secrets chmod0600. Never put plaintext in argv, SQL/source/reports, Docker environment values or transcripts. Set role passwords via controlled stdin with statement logging disabled. Remove exact test secret paths after cleanup.",
+    "connections": [
+      "bootstrap postgres via separate privileged setup session",
+      "wa_migrator actual TCP login; application SQL performs SET LOCAL ROLE wa_schema_owner",
+      "wa_context_issuer actual separate TCP login/transaction before business locks",
+      "wa_identity_service_authority actual separate TCP login, prepared but not needed for the human Customer test",
+      "wa_app_runtime actual TCP login with human principal A/B",
+      "wa_worker actual separate TCP login, negative membership/privilege probes only in this first rehearsal; no worker loop"
+    ],
+    "steps": [
+      {
+        "id": "FIRST-01",
+        "status": "NOT_RUN",
+        "action": "After separate Brain approval, verify Docker context endpoint remains local and server Linux/amd64 reachable; assert both exact container/volume names absent and image digest still resolves. Pull only the pinned reference if absent; record RepoDigests/image ID/config/version. Create the two labeled test-owned volumes and containers with --network none, no -p, POSTGRES_DB=wa_p0c_rehearsal, POSTGRES_PASSWORD_FILE and tmpfs /run/wa-secrets. Wait via pg_isready inside each exact container; no hosted connection."
+      },
+      {
+        "id": "FIRST-02",
+        "status": "NOT_RUN",
+        "action": "On each fresh target privileged bootstrap connection executes review-output/foundation-bootstrap.review.sql with psql -X -v ON_ERROR_STOP=1 -f. Create managed browser role simulation only if testing those names, label simulation. Bootstrap sets independent restricted-login SCRAM passwords and CONNECT only for needed roles; public CONNECT/TEMP are revoked for this isolated target."
+      },
+      {
+        "id": "FIRST-03",
+        "status": "NOT_RUN",
+        "action": "Actual wa_migrator TCP connection applies review-output/foundation-application.review.sql ONCE with ON_ERROR_STOP=1. It already contains the structure; do NOT apply foundation-structure.sql. Success target must COMMIT. Failure target uses a clearly retained test-only copy with SELECT 1/0 inserted immediately before final RESET ROLE/COMMIT; it must fail and ROLLBACK. Retain copy hash and error, never change canonical SQL."
+      },
+      {
+        "id": "FIRST-04",
+        "status": "NOT_RUN",
+        "action": "In a finally step on BOTH targets, original bootstrap grantor executes review-output/foundation-bootstrap-finalize.review.sql in a distinct connection after application connection exits. Independently SELECT pg_auth_members for roleid IN (wa_private_helper_owner,wa_customer_verifier,wa_track_verifier) and member wa_schema_owner: expect zero. Check has_schema_privilege(each leaf,platform_private,CREATE)=false. On failure target require absent app/platform application tables/functions and no dangling migration adoption. Runtime credentials inactive unless cleanup verification passes."
+      },
+      {
+        "id": "FIRST-05",
+        "status": "NOT_RUN",
+        "action": "Success target only: privileged actual postgres TCP connection executes generated review-output/first-rehearsal/fixtures.sql. It disables USER triggers only on app.users/app.user_security_profiles in one fixture transaction, inserts synthetic A/B and security rows with explicit created_at/updated_at/mutation_transaction_id, reenables the same triggers before COMMIT, and preserves FK/CHECK enforcement. Retain the enabled-trigger catalog and privileged fixture provenance; not owner-runtime qualification."
+      },
+      {
+        "id": "FIRST-06",
+        "status": "NOT_RUN",
+        "action": "Run the dormant coordinator only after approved install/finalization and private credential provisioning. It captures actual app login/PID/xid before business reads/locks, then commits the exact scenario grant through the separately authenticated issuer. Exact generated camelCase field arrays and UUIDs are in fixtures.json; no wildcard or deferred capability design. Only after issuer COMMIT does the same app connection bind its fresh handle. Native restricted logins use loopback TCP, not SET ROLE simulation."
+      },
+      {
+        "id": "FIRST-07",
+        "status": "NOT_RUN",
+        "action": "Coordinator sends generated positive.sql into that same bound app transaction: command -> Customer -> exact history -> exact source evidence -> event ordinal0 + Free command ordinal1 -> COMMIT. It checks actual success plus generated privileged observer counts (1 command,1 source,1 history,1 evidence,2 outbox). Fixture digest provenance is explicit; JSON storage digests use Postgres jsonb::text. No worker enrollment is processed."
+      },
+      {
+        "id": "FIRST-08",
+        "status": "NOT_RUN",
+        "action": "Coordinator uses fresh grant/tuple/IDs for wrong-person.sql: principalB tries userA and must fail42501 with zero generated group counts. It then uses still-unprovisioned valid userB/principalB for missing-outbox.sql, omits ordinal1 and requires P0001 at COMMIT plus zero group counts. This avoids Customer.user_id uniqueness masking the deferred rollback test. Separately committed grants remain bound to the old xid."
+      },
+      {
+        "id": "FIRST-09",
+        "status": "NOT_RUN",
+        "action": "Retain source commit/tree and four SQL SHA256s, local context/server/image/digest, redacted command exit codes, schema-owner/leaf function ACL and membership catalogs, authenticated session_user for each connection, fixture IDs/counts, positive/negative/rollback receipts and cleanup evidence. No passwords/raw handles or personal bodies. Stop on any unexpected result; do not promote 94/451 cases from this small rehearsal."
+      },
+      {
+        "id": "FIRST-10",
+        "status": "NOT_RUN",
+        "action": "After evidence export and exact label/name verification, docker rm -f only wa-p0c-first-20261110-ok and wa-p0c-first-20261110-fail; docker volume rm only wa-p0c-first-20261110-ok-data and wa-p0c-first-20261110-fail-data. Delete only test-owned owner-only secret files. No prune, shared image removal, hosted cleanup or path-derived recursive delete. Independently confirm these exact test resources absent."
+      }
+    ],
+    "unresolved_prerequisites": [
+      "Brain approval of the corrected source, exact generated fixture packet/coordinator and this rehearsal",
+      "Windows-connected authorized execution session starts Docker Desktop local Linux daemon; read-only discovery found pipe absent"
+    ],
+    "expansion": "Only after FIRST-01..10 expected results and cleanup evidence pass, separately progress the staged94 with operation dependencies respected; remaining451 span later P0-C/D/E/F. Real auth/issuer adapters, pooling/worker loops/providers/hosted parity remain unqualified.",
+    "database_posture": "D",
+    "database_connections_made": false,
+    "sql_executed": false,
+    "containers_started": false,
+    "image_pulled": false,
+    "fixture_source_generator": "python -B scripts/prepare-first-rehearsal.py (environment-free; never calls Docker/SQL)",
+    "exact_fixture_packet": "review-output/first-rehearsal/fixtures.json; generated source/observer SQL alongside it, exact per-row SELECT/INSERT capabilities and three distinct synthetic ID groups",
+    "dormant_coordinator": "scripts/sql-review/run-first-rehearsal.py; refuses without --execute-approved-rehearsal before any Docker/DB call; same live app transaction, separate issuer COMMIT, raw secret only over controlled stdin, exact SQLSTATE/count checks",
+    "execution_command_after_separate_approval": "python -B scripts/sql-review/run-first-rehearsal.py --execute-approved-rehearsal --evidence-directory \"$env:TEMP/wa-p0c-first-20261110-evidence\"",
+    "secret_setup": "Bootstrap first sets ALTER DATABASE wa_p0c_rehearsal SET log_statement=none; ALTER DATABASE wa_p0c_rehearsal SET log_min_error_statement=panic, then in new controlled sessions provisions independent test role passwords and root-owned0600 /run/wa-secrets/pgpass over stdin. Coordinator verifies logging defaults before injecting a handle; no raw secret is retained or passed in argv.",
+    "resource_commands_after_separate_approval": {
+      "pull": "docker --context desktop-linux pull --platform linux/amd64 docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "volume_template": "docker --context desktop-linux volume create --label workinants.rehearsal=p0c-first-20261110 <exact success_volume or failure_volume above>",
+      "container_template": "docker --context desktop-linux run -d --name <matching exact container> --label workinants.rehearsal=p0c-first-20261110 --network none --platform linux/amd64 --mount type=volume,src=<matching exact test volume>,dst=/var/lib/postgresql/data --mount type=bind,src=<owner-only test bootstrap password file outside Git>,dst=/run/bootstrap-password,readonly --tmpfs /run/wa-secrets:rw,nosuid,noexec,mode=0700 -e POSTGRES_DB=wa_p0c_rehearsal -e POSTGRES_PASSWORD_FILE=/run/bootstrap-password -e POSTGRES_HOST_AUTH_METHOD=scram-sha-256 docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1 postgres -c log_statement=none -c log_min_error_statement=panic",
+      "sql_transport_template": "Get-Content -Raw <reviewed SQL file> | docker --context desktop-linux exec -i -e PGPASSFILE=/run/wa-secrets/pgpass <exact target> psql -X -v ON_ERROR_STOP=1 -v VERBOSITY=sqlstate -h 127.0.0.1 -U <actual role> -d wa_p0c_rehearsal",
+      "order": "bootstrap on each; provision independent passwords/private pgpass with statement logging disabled; application once as wa_migrator on success; explicit SELECT1/0 test copy before COMMIT on failure; original-grantor finalization in finally on BOTH; independent membership/CREATE/catalog observation; coordinator success-only; export evidence; exact-name/label cleanup from FIRST10"
+    }
+  }
 }

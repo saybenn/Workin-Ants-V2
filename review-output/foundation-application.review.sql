@@ -1848,7 +1848,7 @@ CREATE FUNCTION platform_private.json_evidence_trackbaseselection(v jsonb) RETUR
 LANGUAGE sql IMMUTABLE SECURITY INVOKER
 SET search_path = pg_catalog
 AS $wa$
-SELECT COALESCE((jsonb_typeof(v) = 'object' AND v ?& ARRAY['schema','owner','model','primaryKey','committed','decisionRef']::text[] AND (v - ARRAY['schema','owner','model','primaryKey','prior','committed','decisionRef']::text[]) = '{}'::jsonb AND (NOT (v ? 'schema') OR ((v->'schema') = '"database-owner-evidence.v1"'::jsonb)) AND (NOT (v ? 'owner') OR ((v->'owner') = '"track_subscription_entitlement"'::jsonb)) AND (NOT (v ? 'model') OR ((v->'model') = '"TrackBaseSelection"'::jsonb)) AND (NOT (v ? 'primaryKey') OR (jsonb_typeof((v->'primaryKey')) = 'object' AND (v->'primaryKey') ?& ARRAY['id']::text[] AND ((v->'primaryKey') - ARRAY['id']::text[]) = '{}'::jsonb AND (NOT ((v->'primaryKey') ? 'id') OR (jsonb_typeof(((v->'primaryKey')->'id')) = 'string' AND (((v->'primaryKey')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')))) AND (NOT (v ? 'prior') OR ((v->'prior') = 'null'::jsonb OR (jsonb_typeof((v->'prior')) = 'object' AND (v->'prior') ?& ARRAY['id','userId','track','revision','sourceGeneration']::text[] AND ((v->'prior') - ARRAY['id','userId','track','revision','sourceGeneration']::text[]) = '{}'::jsonb AND (NOT ((v->'prior') ? 'id') OR (jsonb_typeof(((v->'prior')->'id')) = 'string' AND (((v->'prior')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'prior') ? 'userId') OR (jsonb_typeof(((v->'prior')->'userId')) = 'string' AND (((v->'prior')->'userId') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'prior') ? 'track') OR (((v->'prior')->'track') = '"customer"'::jsonb OR ((v->'prior')->'track') = '"candidate"'::jsonb OR ((v->'prior')->'track') = '"professional"'::jsonb)) AND (NOT ((v->'prior') ? 'revision') OR (jsonb_typeof(((v->'prior')->'revision')) = 'string' AND (((v->'prior')->'revision') #>> '{}') ~ '^-?[0-9]+$')) AND (NOT ((v->'prior') ? 'sourceGeneration') OR (jsonb_typeof(((v->'prior')->'sourceGeneration')) = 'string' AND (((v->'prior')->'sourceGeneration') #>> '{}') ~ '^-?[0-9]+$'))))) AND (NOT (v ? 'committed') OR (jsonb_typeof((v->'committed')) = 'object' AND (v->'committed') ?& ARRAY['id','userId','track','revision','sourceGeneration']::text[] AND ((v->'committed') - ARRAY['id','userId','track','revision','sourceGeneration']::text[]) = '{}'::jsonb AND (NOT ((v->'committed') ? 'id') OR (jsonb_typeof(((v->'committed')->'id')) = 'string' AND (((v->'committed')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'committed') ? 'userId') OR (jsonb_typeof(((v->'committed')->'userId')) = 'string' AND (((v->'committed')->'userId') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'committed') ? 'track') OR (((v->'committed')->'track') = '"customer"'::jsonb OR ((v->'committed')->'track') = '"candidate"'::jsonb OR ((v->'committed')->'track') = '"professional"'::jsonb)) AND (NOT ((v->'committed') ? 'revision') OR (jsonb_typeof(((v->'committed')->'revision')) = 'string' AND (((v->'committed')->'revision') #>> '{}') ~ '^-?[0-9]+$')) AND (NOT ((v->'committed') ? 'sourceGeneration') OR (jsonb_typeof(((v->'committed')->'sourceGeneration')) = 'string' AND (((v->'committed')->'sourceGeneration') #>> '{}') ~ '^-?[0-9]+$')))) AND (NOT (v ? 'decisionRef') OR (jsonb_typeof((v->'decisionRef')) = 'string' AND length(((v->'decisionRef') #>> '{}')) >= 1))),false);
+SELECT COALESCE((jsonb_typeof(v) = 'object' AND v ?& ARRAY['schema','owner','model','primaryKey','committed','decisionRef']::text[] AND (v - ARRAY['schema','owner','model','primaryKey','prior','committed','decisionRef']::text[]) = '{}'::jsonb AND (NOT (v ? 'schema') OR ((v->'schema') = '"database-owner-evidence.v1"'::jsonb)) AND (NOT (v ? 'owner') OR ((v->'owner') = '"track_subscription_entitlement"'::jsonb)) AND (NOT (v ? 'model') OR ((v->'model') = '"TrackBaseSelection"'::jsonb)) AND (NOT (v ? 'primaryKey') OR (jsonb_typeof((v->'primaryKey')) = 'object' AND (v->'primaryKey') ?& ARRAY['id']::text[] AND ((v->'primaryKey') - ARRAY['id']::text[]) = '{}'::jsonb AND (NOT ((v->'primaryKey') ? 'id') OR (jsonb_typeof(((v->'primaryKey')->'id')) = 'string' AND (((v->'primaryKey')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')))) AND (NOT (v ? 'prior') OR ((v->'prior') = 'null'::jsonb OR (jsonb_typeof((v->'prior')) = 'object' AND (v->'prior') ?& ARRAY['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId','subscriptionId','revision','sourceGeneration']::text[] AND ((v->'prior') - ARRAY['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId','subscriptionId','revision','sourceGeneration']::text[]) = '{}'::jsonb AND (NOT ((v->'prior') ? 'id') OR (jsonb_typeof(((v->'prior')->'id')) = 'string' AND (((v->'prior')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'prior') ? 'userId') OR (jsonb_typeof(((v->'prior')->'userId')) = 'string' AND (((v->'prior')->'userId') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'prior') ? 'track') OR (((v->'prior')->'track') = '"customer"'::jsonb OR ((v->'prior')->'track') = '"candidate"'::jsonb OR ((v->'prior')->'track') = '"professional"'::jsonb)) AND (NOT ((v->'prior') ? 'customerProfileId') OR ((jsonb_typeof(((v->'prior')->'customerProfileId')) = 'string' AND (((v->'prior')->'customerProfileId') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$') OR (jsonb_typeof(((v->'prior')->'customerProfileId')) = 'null'))) AND (NOT ((v->'prior') ? 'candidateProfileId') OR ((jsonb_typeof(((v->'prior')->'candidateProfileId')) = 'string' AND (((v->'prior')->'candidateProfileId') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$') OR (jsonb_typeof(((v->'prior')->'candidateProfileId')) = 'null'))) AND (NOT ((v->'prior') ? 'professionalProfileId') OR ((jsonb_typeof(((v->'prior')->'professionalProfileId')) = 'string' AND (((v->'prior')->'professionalProfileId') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$') OR (jsonb_typeof(((v->'prior')->'professionalProfileId')) = 'null'))) AND (NOT ((v->'prior') ? 'subscriptionId') OR (jsonb_typeof(((v->'prior')->'subscriptionId')) = 'string' AND (((v->'prior')->'subscriptionId') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'prior') ? 'revision') OR (jsonb_typeof(((v->'prior')->'revision')) = 'string' AND (((v->'prior')->'revision') #>> '{}') ~ '^-?[0-9]+$')) AND (NOT ((v->'prior') ? 'sourceGeneration') OR (jsonb_typeof(((v->'prior')->'sourceGeneration')) = 'string' AND (((v->'prior')->'sourceGeneration') #>> '{}') ~ '^-?[0-9]+$'))))) AND (NOT (v ? 'committed') OR (jsonb_typeof((v->'committed')) = 'object' AND (v->'committed') ?& ARRAY['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId','subscriptionId','revision','sourceGeneration']::text[] AND ((v->'committed') - ARRAY['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId','subscriptionId','revision','sourceGeneration']::text[]) = '{}'::jsonb AND (NOT ((v->'committed') ? 'id') OR (jsonb_typeof(((v->'committed')->'id')) = 'string' AND (((v->'committed')->'id') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'committed') ? 'userId') OR (jsonb_typeof(((v->'committed')->'userId')) = 'string' AND (((v->'committed')->'userId') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'committed') ? 'track') OR (((v->'committed')->'track') = '"customer"'::jsonb OR ((v->'committed')->'track') = '"candidate"'::jsonb OR ((v->'committed')->'track') = '"professional"'::jsonb)) AND (NOT ((v->'committed') ? 'customerProfileId') OR ((jsonb_typeof(((v->'committed')->'customerProfileId')) = 'string' AND (((v->'committed')->'customerProfileId') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$') OR (jsonb_typeof(((v->'committed')->'customerProfileId')) = 'null'))) AND (NOT ((v->'committed') ? 'candidateProfileId') OR ((jsonb_typeof(((v->'committed')->'candidateProfileId')) = 'string' AND (((v->'committed')->'candidateProfileId') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$') OR (jsonb_typeof(((v->'committed')->'candidateProfileId')) = 'null'))) AND (NOT ((v->'committed') ? 'professionalProfileId') OR ((jsonb_typeof(((v->'committed')->'professionalProfileId')) = 'string' AND (((v->'committed')->'professionalProfileId') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$') OR (jsonb_typeof(((v->'committed')->'professionalProfileId')) = 'null'))) AND (NOT ((v->'committed') ? 'subscriptionId') OR (jsonb_typeof(((v->'committed')->'subscriptionId')) = 'string' AND (((v->'committed')->'subscriptionId') #>> '{}') ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) AND (NOT ((v->'committed') ? 'revision') OR (jsonb_typeof(((v->'committed')->'revision')) = 'string' AND (((v->'committed')->'revision') #>> '{}') ~ '^-?[0-9]+$')) AND (NOT ((v->'committed') ? 'sourceGeneration') OR (jsonb_typeof(((v->'committed')->'sourceGeneration')) = 'string' AND (((v->'committed')->'sourceGeneration') #>> '{}') ~ '^-?[0-9]+$')))) AND (NOT (v ? 'decisionRef') OR (jsonb_typeof((v->'decisionRef')) = 'string' AND length(((v->'decisionRef') #>> '{}')) >= 1))),false);
 $wa$;
 
 CREATE FUNCTION platform_private.json_evidence_trackenrollmentreceipt(v jsonb) RETURNS boolean
@@ -2394,6 +2394,7 @@ IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='CustomerProfile' OR model_
 IF verb=ANY(ARRAY['SELECT','INSERT']::text[]) AND (model_name='CustomerProfile' OR model_name='CustomerProfileLifecycleEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('customer_buyer_profile','SH-004.v1','CustomerProfile',g.target_id,'provision') THEN RETURN true; END IF;
 IF verb=ANY(ARRAY['SELECT','INSERT']::text[]) AND (model_name='CustomerProfile' OR model_name='CustomerProfileLifecycleEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('customer_buyer_profile','SH-114.v1','CustomerProfile',g.target_id,'provision') THEN RETURN true; END IF;
 IF verb=ANY(ARRAY['SELECT','UPDATE']::text[]) AND (model_name='CustomerProfile' OR model_name='CustomerProfileLifecycleEvent' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('customer_buyer_profile','updateCustomerProfileIdentity.v1','CustomerProfile',g.target_id,'profile_update') THEN RETURN true; END IF;
+IF verb='INSERT' AND model_name IN ('CustomerProfileLifecycleEvent','OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt') AND platform_private.context_allows('customer_buyer_profile','updateCustomerProfileIdentity.v1','CustomerProfile',g.target_id,'profile_update') THEN RETURN true; END IF;
 IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ConsentContentRevision' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-009.v1','ConsentContentRevision',g.target_id,'owner:resolveActiveConsentVersion') THEN RETURN true; END IF;
 IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='ConsentPresentation' OR (verb='SELECT' AND model_name='ConsentContentRevision' AND 'ConsentPresentation/'||g.target_id||'/contentRevision/'||row_key=ANY(g.allowed_fields)) OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','SH-010.v1','ConsentPresentation',g.target_id,'owner:presentStandaloneConsent') THEN RETURN true; END IF;
 IF verb=ANY(ARRAY['SELECT','INSERT']::text[]) AND (model_name='ConsentContentRevision' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('consent_disclosure','publishConsentVersion.v1','ConsentContentRevision',g.target_id,'consent.publish_version') THEN RETURN true; END IF;
@@ -2824,7 +2825,7 @@ GRANT INSERT ("id","command_receipt_id","owner_module_id","resource_kind","resou
 
 GRANT SELECT ("id","command_receipt_id","owner_module_id","resource_kind","resource_key","semantic_key","quantity","state","fence","effect_receipt_id","expires_at","created_at","mutation_transaction_id") ON "platform"."runtime_reservation" TO wa_app_runtime;
 
-GRANT UPDATE ("resource_kind","resource_key","semantic_key","quantity","state","fence","expires_at") ON "platform"."runtime_reservation" TO wa_app_runtime;
+GRANT UPDATE ("resource_kind","resource_key","semantic_key","quantity","state","fence","expires_at","effect_receipt_id") ON "platform"."runtime_reservation" TO wa_app_runtime;
 
 GRANT INSERT ("id","command_receipt_id","owner_module_id","resource_kind","resource_key","semantic_key","quantity","state","fence","effect_receipt_id","expires_at") ON "platform"."runtime_reservation" TO wa_worker;
 
@@ -2958,11 +2959,11 @@ GRANT SELECT ("id","user_id","track","customer_profile_id","subscription_id","re
 
 CREATE POLICY "leaf_wa_track_verifier" ON app.track_base_selection FOR SELECT TO wa_track_verifier USING (true);
 
-GRANT SELECT ("selection_id","selection_revision","effect_receipt_id","mutation_transaction_id") ON app.track_enrollment_receipt TO wa_track_verifier;
+GRANT SELECT ("selection_id","selection_revision","effect_receipt_id","mutation_transaction_id","id","user_id","track","profile_id","source_owner","source_creation_revision","semantic_key","fingerprint","result_code") ON app.track_enrollment_receipt TO wa_track_verifier;
 
 CREATE POLICY "leaf_wa_track_verifier" ON app.track_enrollment_receipt FOR SELECT TO wa_track_verifier USING (true);
 
-GRANT SELECT ("subscription_id","user_id","plan_id","to_status","from_status","mutation_transaction_id") ON app.track_subscription_events TO wa_track_verifier;
+GRANT SELECT ("subscription_id","user_id","plan_id","to_status","from_status","mutation_transaction_id","id","provider") ON app.track_subscription_events TO wa_track_verifier;
 
 CREATE POLICY "leaf_wa_track_verifier" ON app.track_subscription_events FOR SELECT TO wa_track_verifier USING (true);
 
@@ -2974,9 +2975,13 @@ GRANT SELECT ("plan_id","entitlement_id","value_type","boolean_value","int_value
 
 CREATE POLICY "leaf_wa_track_verifier" ON app.track_plan_entitlements FOR SELECT TO wa_track_verifier USING (true);
 
-GRANT SELECT ("id","user_id","track","customer_profile_id","candidate_profile_id","professional_profile_id","status","value_type","revision","mutation_transaction_id") ON app.track_entitlement_grants TO wa_track_verifier;
+GRANT SELECT ("id","user_id","track","customer_profile_id","candidate_profile_id","professional_profile_id","status","value_type","revision","mutation_transaction_id","subscription_id","source_plan_id","entitlement_id","boolean_value","int_value","decimal_value","string_value") ON app.track_entitlement_grants TO wa_track_verifier;
 
 CREATE POLICY "leaf_wa_track_verifier" ON app.track_entitlement_grants FOR SELECT TO wa_track_verifier USING (true);
+
+GRANT SELECT ("aggregate_kind","aggregate_id","committed_revision","previous_revision","mutation_transaction_id","evidence_body","owner_module_id") ON platform.owner_mutation_evidence TO wa_track_verifier;
+
+CREATE POLICY "leaf_wa_track_verifier" ON platform.owner_mutation_evidence FOR SELECT TO wa_track_verifier USING (true);
 
 GRANT USAGE ON TYPE "app"."account_track" TO wa_track_verifier;
 
@@ -2997,6 +3002,94 @@ GRANT USAGE ON TYPE "app"."track_entitlement_value_type" TO wa_track_verifier;
 GRANT USAGE ON TYPE "app"."track_plan_status" TO wa_track_verifier;
 
 GRANT USAGE ON TYPE "app"."track_subscription_status" TO wa_track_verifier;
+
+CREATE FUNCTION platform_private.worker_row_capabilities(model_name text, n jsonb, verb text) RETURNS boolean
+LANGUAGE plpgsql VOLATILE SECURITY INVOKER
+SET search_path = pg_catalog
+AS $wa$
+BEGIN
+IF model_name='TrackPlan' AND verb='SELECT' THEN IF n->>'revision' IS NULL THEN RETURN false; END IF; RETURN platform_private.row_allowed('track_subscription_entitlement',model_name,n->>'id',verb,ARRAY['id','track','key','status','billingModel','version','contentHash','revision']::text[],n->>'revision',n->>'mutation_transaction_id'); END IF;
+IF model_name='TrackEntitlementDefinition' AND verb='SELECT' THEN IF n->>'revision' IS NULL THEN RETURN false; END IF; RETURN platform_private.row_allowed('track_subscription_entitlement',model_name,n->>'id',verb,ARRAY['id','key','valueType','track','isActive','revision']::text[],n->>'revision',n->>'mutation_transaction_id'); END IF;
+IF model_name='TrackPlanEntitlement' AND verb='SELECT' THEN IF n->>'revision' IS NULL THEN RETURN false; END IF; RETURN platform_private.row_allowed('track_subscription_entitlement',model_name,n->>'id',verb,ARRAY['id','planId','entitlementId','valueType','booleanValue','intValue','decimalValue','stringValue','usagePeriod','revision']::text[],n->>'revision',n->>'mutation_transaction_id'); END IF;
+IF model_name='TrackSubscription' AND verb='INSERT' THEN RETURN platform_private.row_allowed('track_subscription_entitlement',model_name,n->>'id',verb,ARRAY['id','userId','planId','track','customerProfileId','candidateProfileId','professionalProfileId','status','provider']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='TrackSubscription' AND verb='SELECT' THEN IF n->>'revision' IS NULL THEN RETURN false; END IF; RETURN platform_private.row_allowed('track_subscription_entitlement',model_name,n->>'id',verb,ARRAY['id','userId','planId','track','customerProfileId','candidateProfileId','professionalProfileId','status','provider','currentPeriodStart','currentPeriodEnd','endedAt','revision']::text[],n->>'revision',n->>'mutation_transaction_id'); END IF;
+IF model_name='TrackEntitlementGrant' AND verb='INSERT' THEN RETURN platform_private.row_allowed('track_subscription_entitlement',model_name,n->>'id',verb,ARRAY['id','userId','subscriptionId','entitlementId','track','customerProfileId','candidateProfileId','professionalProfileId','status','valueType','booleanValue','intValue','decimalValue','stringValue','startsAt','sourcePlanId','sourceEventId']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='TrackEntitlementGrant' AND verb='SELECT' THEN IF n->>'revision' IS NULL THEN RETURN false; END IF; RETURN platform_private.row_allowed('track_subscription_entitlement',model_name,n->>'id',verb,ARRAY['id','userId','subscriptionId','entitlementId','track','customerProfileId','candidateProfileId','professionalProfileId','status','valueType','booleanValue','intValue','decimalValue','stringValue','startsAt','expiresAt','revokedAt','sourcePlanId','sourceEventId','revision']::text[],n->>'revision',n->>'mutation_transaction_id'); END IF;
+IF model_name='TrackSubscriptionEvent' AND verb='INSERT' THEN RETURN platform_private.row_allowed('track_subscription_entitlement',model_name,n->>'id',verb,ARRAY['id','subscriptionId','planId','userId','name','fromStatus','toStatus','provider']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeCommandReceipt' AND verb='INSERT' THEN RETURN platform_private.row_allowed(n->>'owner_module_id',model_name,n->>'id',verb,ARRAY['id','ownerModuleId','operation','subjectScope','semanticKey','fingerprint','state','sourceRevision','resultSchemaId','resultSchemaVersion','resultDigest','resultBody']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeCommandReceipt' AND verb='SELECT' THEN RETURN platform_private.row_allowed(n->>'owner_module_id',model_name,n->>'id',verb,ARRAY['id','ownerModuleId','operation','subjectScope','semanticKey','fingerprint','state','sourceRevision','resultSchemaId','resultSchemaVersion','resultDigest','resultBody','createdAt','mutationTransactionId']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeCommandReceipt' AND verb='UPDATE' THEN RETURN platform_private.row_allowed(n->>'owner_module_id',model_name,n->>'id',verb,ARRAY['@row']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeOutboxMessage' AND verb='INSERT' THEN RETURN platform_private.row_allowed(n->>'producer_owner',model_name,n->>'id',verb,ARRAY['id','commandReceiptId','kind','producerOwner','aggregateKind','aggregateId','sourceRevision','sourceGeneration','ordinal','name','schemaVersion','payloadSchemaId','payloadHash','payload','correlationId','causationId','correctionOfId','occurredAt','effectiveAt']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeOutboxMessage' AND verb='SELECT' THEN RETURN platform_private.row_allowed(n->>'producer_owner',model_name,n->>'id',verb,ARRAY['id','commandReceiptId','kind','producerOwner','aggregateKind','aggregateId','sourceRevision','sourceGeneration','ordinal','name','schemaVersion','payloadSchemaId','payloadHash','payload','correlationId','causationId','correctionOfId','occurredAt','effectiveAt','createdAt','mutationTransactionId']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeEffectReceipt' AND verb='INSERT' THEN RETURN platform_private.row_allowed(n->>'owner_module_id',model_name,n->>'id',verb,ARRAY['id','commandReceiptId','ownerModuleId','operation','subjectScope','semanticEffectKey','fingerprint','state','sourceRevision','fence','resultSchemaId','resultHash','committedAt']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeEffectReceipt' AND verb='SELECT' THEN IF n->>'fence' IS NULL THEN RETURN false; END IF; RETURN platform_private.row_allowed(n->>'owner_module_id',model_name,n->>'id',verb,ARRAY['id','commandReceiptId','ownerModuleId','operation','subjectScope','semanticEffectKey','fingerprint','state','sourceRevision','fence','resultSchemaId','resultHash','committedAt','createdAt','mutationTransactionId']::text[],n->>'fence',n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeWorkItem' AND verb='INSERT' THEN RETURN platform_private.row_allowed('platform_integration_owner',model_name,n->>'id',verb,ARRAY['id','outboxMessageId','handlerName','semanticWorkKey','state','fence','leaseTokenHash','leaseExpiresAt','attemptCount','nextAttemptAt','effectReceiptId']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeWorkItem' AND verb='SELECT' THEN IF n->>'fence' IS NULL THEN RETURN false; END IF; RETURN platform_private.row_allowed('platform_integration_owner',model_name,n->>'id',verb,ARRAY['id','outboxMessageId','handlerName','semanticWorkKey','state','fence','leaseTokenHash','leaseExpiresAt','attemptCount','nextAttemptAt','effectReceiptId','createdAt','mutationTransactionId']::text[],n->>'fence',n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeWorkItem' AND verb='UPDATE' THEN IF n->>'fence' IS NULL THEN RETURN false; END IF; RETURN platform_private.row_allowed('platform_integration_owner',model_name,n->>'id',verb,ARRAY['@row']::text[],n->>'fence',n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeAttempt' AND verb='INSERT' THEN RETURN platform_private.row_allowed('platform_integration_owner',model_name,n->>'id',verb,ARRAY['id','workItemId','attemptNumber','fence','workerId','result','reasonCode','startedAt','finishedAt']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeAttempt' AND verb='SELECT' THEN IF n->>'fence' IS NULL THEN RETURN false; END IF; RETURN platform_private.row_allowed('platform_integration_owner',model_name,n->>'id',verb,ARRAY['id','workItemId','attemptNumber','fence','workerId','result','reasonCode','startedAt','finishedAt','createdAt','mutationTransactionId']::text[],n->>'fence',n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeInboxReceipt' AND verb='INSERT' THEN RETURN platform_private.row_allowed(n->>'consumer_owner',model_name,n->>'id',verb,ARRAY['id','outboxMessageId','consumerOwner','handlerName','payloadHash','effectReceiptId']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeInboxReceipt' AND verb='SELECT' THEN RETURN platform_private.row_allowed(n->>'consumer_owner',model_name,n->>'id',verb,ARRAY['id','outboxMessageId','consumerOwner','handlerName','payloadHash','effectReceiptId','createdAt','mutationTransactionId']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeReservation' AND verb='INSERT' THEN RETURN platform_private.row_allowed('platform_integration_owner',model_name,n->>'id',verb,ARRAY['id','commandReceiptId','ownerModuleId','resourceKind','resourceKey','semanticKey','quantity','state','fence','effectReceiptId','expiresAt']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeReservation' AND verb='SELECT' THEN IF n->>'fence' IS NULL THEN RETURN false; END IF; RETURN platform_private.row_allowed('platform_integration_owner',model_name,n->>'id',verb,ARRAY['id','commandReceiptId','ownerModuleId','resourceKind','resourceKey','semanticKey','quantity','state','fence','effectReceiptId','expiresAt','createdAt','mutationTransactionId']::text[],n->>'fence',n->>'mutation_transaction_id'); END IF;
+IF model_name='RuntimeReservation' AND verb='UPDATE' THEN IF n->>'fence' IS NULL THEN RETURN false; END IF; RETURN platform_private.row_allowed('platform_integration_owner',model_name,n->>'id',verb,ARRAY['@row']::text[],n->>'fence',n->>'mutation_transaction_id'); END IF;
+IF model_name='OwnerMutationEvidence' AND verb='INSERT' THEN RETURN platform_private.row_allowed(n->>'owner_module_id',model_name,n->>'id',verb,ARRAY['id','commandReceiptId','ownerModuleId','aggregateKind','aggregateId','previousRevision','committedRevision','action','decisionRef','evidenceSchemaId','evidenceSchemaVersion','evidenceDigest','evidenceBody']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='OwnerMutationEvidence' AND verb='SELECT' THEN RETURN platform_private.row_allowed(n->>'owner_module_id',model_name,n->>'id',verb,ARRAY['id','commandReceiptId','ownerModuleId','aggregateKind','aggregateId','previousRevision','committedRevision','action','decisionRef','evidenceSchemaId','evidenceSchemaVersion','evidenceDigest','createdAt','evidenceBody','mutationTransactionId']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='TrackBaseSelection' AND verb='INSERT' THEN RETURN platform_private.row_allowed('track_subscription_entitlement',model_name,n->>'id',verb,ARRAY['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId','subscriptionId','sourceGeneration']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='TrackBaseSelection' AND verb='SELECT' THEN IF n->>'revision' IS NULL THEN RETURN false; END IF; RETURN platform_private.row_allowed('track_subscription_entitlement',model_name,n->>'id',verb,ARRAY['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId','subscriptionId','revision','sourceGeneration']::text[],n->>'revision',n->>'mutation_transaction_id'); END IF;
+IF model_name='TrackBaseSelection' AND verb='UPDATE' THEN IF n->>'revision' IS NULL THEN RETURN false; END IF; RETURN platform_private.row_allowed('track_subscription_entitlement',model_name,n->>'id',verb,ARRAY['@row']::text[],n->>'revision',n->>'mutation_transaction_id'); END IF;
+IF model_name='TrackEnrollmentReceipt' AND verb='INSERT' THEN RETURN platform_private.row_allowed('track_subscription_entitlement',model_name,n->>'id',verb,ARRAY['id','userId','track','profileId','sourceOwner','sourceCreationRevision','selectionId','selectionRevision','semanticKey','fingerprint','resultCode','effectReceiptId']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+IF model_name='TrackEnrollmentReceipt' AND verb='SELECT' THEN RETURN platform_private.row_allowed('track_subscription_entitlement',model_name,n->>'id',verb,ARRAY['id','userId','track','profileId','sourceOwner','sourceCreationRevision','selectionId','selectionRevision','semanticKey','fingerprint','resultCode','effectReceiptId']::text[],NULL::text,n->>'mutation_transaction_id'); END IF;
+RETURN false; END;
+$wa$;
+
+CREATE FUNCTION platform_private.worker_source_claim_valid(model_name text, n jsonb) RETURNS boolean
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+SET search_path = pg_catalog
+AS $wa$
+DECLARE actual_value jsonb; verb text:='INSERT'; required_fields text[]; prior_revision text; p record;
+BEGIN
+ IF session_user::text<>'wa_worker' OR n->>'mutation_transaction_id' IS DISTINCT FROM pg_current_xact_id()::text THEN RETURN false; END IF;
+ CASE model_name
+WHEN 'TrackSubscription' THEN
+ SELECT jsonb_build_object('id',s."id",'user_id',s."user_id",'plan_id',s."plan_id",'track',s."track",'customer_profile_id',s."customer_profile_id",'status',s."status",'provider',s."provider",'ended_at',s."ended_at",'current_period_end',s."current_period_end",'mutation_transaction_id',s."mutation_transaction_id",'revision',s."revision",'candidate_profile_id',s."candidate_profile_id",'professional_profile_id',s."professional_profile_id") INTO actual_value FROM "app"."track_subscriptions" s
+  WHERE s.id::text=n->>'id' AND s.mutation_transaction_id=pg_current_xact_id()::text;
+ required_fields:=ARRAY['id','userId','planId','track','customerProfileId','candidateProfileId','professionalProfileId','status','provider']::text[];
+WHEN 'TrackEntitlementGrant' THEN
+ SELECT jsonb_build_object('id',s."id",'user_id',s."user_id",'track',s."track",'customer_profile_id',s."customer_profile_id",'candidate_profile_id',s."candidate_profile_id",'professional_profile_id',s."professional_profile_id",'status',s."status",'value_type',s."value_type",'revision',s."revision",'mutation_transaction_id',s."mutation_transaction_id",'subscription_id',s."subscription_id",'source_plan_id',s."source_plan_id",'entitlement_id',s."entitlement_id",'boolean_value',s."boolean_value",'int_value',s."int_value",'decimal_value',s."decimal_value",'string_value',s."string_value") INTO actual_value FROM "app"."track_entitlement_grants" s
+  WHERE s.id::text=n->>'id' AND s.mutation_transaction_id=pg_current_xact_id()::text;
+ required_fields:=ARRAY['id','userId','subscriptionId','entitlementId','track','customerProfileId','candidateProfileId','professionalProfileId','status','valueType','booleanValue','intValue','decimalValue','stringValue','startsAt','sourcePlanId','sourceEventId']::text[];
+WHEN 'TrackBaseSelection' THEN
+ SELECT jsonb_build_object('id',s."id",'user_id',s."user_id",'track',s."track",'customer_profile_id',s."customer_profile_id",'subscription_id',s."subscription_id",'revision',s."revision",'mutation_transaction_id',s."mutation_transaction_id",'source_generation',s."source_generation",'candidate_profile_id',s."candidate_profile_id",'professional_profile_id',s."professional_profile_id") INTO actual_value FROM "app"."track_base_selection" s
+  WHERE s.id::text=n->>'id' AND s.mutation_transaction_id=pg_current_xact_id()::text;
+ required_fields:=ARRAY['id','userId','track','customerProfileId','candidateProfileId','professionalProfileId','subscriptionId','sourceGeneration']::text[];
+ IF (n->>'revision')::bigint>0 THEN verb:='UPDATE'; required_fields:=ARRAY['@row','subscriptionId','revision','sourceGeneration']::text[]; prior_revision:=((n->>'revision')::bigint-1)::text; END IF;
+WHEN 'TrackSubscriptionEvent' THEN
+ SELECT jsonb_build_object('subscription_id',s."subscription_id",'user_id',s."user_id",'plan_id',s."plan_id",'to_status',s."to_status",'from_status',s."from_status",'mutation_transaction_id',s."mutation_transaction_id",'id',s."id",'provider',s."provider") INTO actual_value FROM "app"."track_subscription_events" s
+  WHERE s.id::text=n->>'id' AND s.mutation_transaction_id=pg_current_xact_id()::text;
+ required_fields:=ARRAY['id','subscriptionId','planId','userId','name','fromStatus','toStatus','provider']::text[];
+WHEN 'TrackEnrollmentReceipt' THEN
+ SELECT jsonb_build_object('selection_id',s."selection_id",'selection_revision',s."selection_revision",'effect_receipt_id',s."effect_receipt_id",'mutation_transaction_id',s."mutation_transaction_id",'id',s."id",'user_id',s."user_id",'track',s."track",'profile_id',s."profile_id",'source_owner',s."source_owner",'source_creation_revision',s."source_creation_revision",'semantic_key',s."semantic_key",'fingerprint',s."fingerprint",'result_code',s."result_code") INTO actual_value FROM "app"."track_enrollment_receipt" s
+  WHERE s.id::text=n->>'id' AND s.mutation_transaction_id=pg_current_xact_id()::text;
+ required_fields:=ARRAY['id','userId','track','profileId','sourceOwner','sourceCreationRevision','selectionId','selectionRevision','semanticKey','fingerprint','resultCode','effectReceiptId']::text[];
+ ELSE RETURN false;
+ END CASE;
+ IF actual_value IS NULL OR NOT (n @> actual_value) THEN RETURN false; END IF;
+ IF model_name='TrackSubscription' THEN
+  SELECT q.id,q.track,q.status,q.billing_model,q.revision,q.version,q.content_hash INTO p FROM app.track_plans q WHERE q.id=(n->>'plan_id')::uuid;
+  IF p.id IS NULL OR p.track<>'customer' OR p.status<>'active' OR p.billing_model<>'free'
+   OR NOT ('TrackPlan/'||p.id::text||'/revision/'||p.revision::text=ANY((platform_private.bound_grant(true)).allowed_fields))
+   OR NOT ('TrackPlan/'||p.id::text||'/version/'||p.version=ANY((platform_private.bound_grant(true)).allowed_fields))
+   OR NOT ('TrackPlan/'||p.id::text||'/contentHash/'||p.content_hash::text=ANY((platform_private.bound_grant(true)).allowed_fields))
+  THEN RETURN false; END IF;
+ END IF;
+ -- INSERT's absence check already ran before mutation. Rechecking it after
+ -- selection creation would reject the legitimate enrollment itself.
+ RETURN platform_private.worker_track_allowed(model_name,actual_value,
+  CASE WHEN model_name='TrackSubscriptionEvent' THEN 'INSERT' ELSE 'SELECT' END)
+  AND platform_private.row_allowed('track_subscription_entitlement',model_name,n->>'id',verb,required_fields,prior_revision,NULL::text);
+END;
+$wa$;
 
 -- DRAFT-02: fixed Boolean ports. Read maxima are emitted from the separate
 -- foundation-sql-verifier-access.json register, never granted to the worker.
@@ -3049,11 +3142,17 @@ BEGIN
  g:=platform_private.bound_grant(true);
  IF g.id IS NULL OR NOT platform_private.worker_lease_valid(work_id,NULL,true) THEN RETURN false; END IF;
  SELECT j.id,j.outbox_message_id,j.effect_receipt_id,j.handler_name,j.semantic_work_key,j.fence INTO w FROM platform.runtime_work_item j WHERE j.id=work_id;
- SELECT m.id,m.aggregate_id,m.payload_hash FROM platform.runtime_outbox_message m WHERE m.id=w.outbox_message_id INTO o;
+ SELECT m.id,m.aggregate_id,m.payload_hash,m.payload,m.source_revision,m.source_generation,m.command_receipt_id,m.producer_owner FROM platform.runtime_outbox_message m WHERE m.id=w.outbox_message_id INTO o;
+ -- Fixed Outbox branch validates the canonical creation command and returns
+ -- before the Effect branch; this does not recurse through effect matching.
+ IF NOT platform_private.worker_track_allowed('RuntimeOutboxMessage',jsonb_build_object('id',o.id,'producer_owner',o.producer_owner),'SELECT') THEN RETURN false; END IF;
+ IF NOT platform_private.customer_current_for_track(o.aggregate_id::uuid,(o.payload->>'userId')::uuid,o.source_revision,o.source_generation,o.command_receipt_id) THEN RETURN false; END IF;
  SELECT r.id,r.command_receipt_id,r.owner_module_id,r.operation,r.subject_scope,r.semantic_effect_key,r.fingerprint,r.fence,r.state,r.mutation_transaction_id INTO e
   FROM platform.runtime_effect_receipt r WHERE r.id=effect_id;
  SELECT r.id,r.owner_module_id,r.operation,r.subject_scope,r.semantic_key,r.fingerprint,r.state,r.mutation_transaction_id INTO c
   FROM platform.runtime_command_receipt r WHERE r.id=e.command_receipt_id;
+ IF NOT platform_private.worker_row_capabilities('RuntimeEffectReceipt',to_jsonb(e),'SELECT')
+  OR NOT platform_private.worker_row_capabilities('RuntimeCommandReceipt',to_jsonb(c),'SELECT') THEN RETURN false; END IF;
  RETURN COALESCE((NOT require_link OR w.effect_receipt_id=e.id) AND e.id IS NOT NULL
   AND 'RuntimeWorkItem/'||w.id::text||'/effect/'||e.id::text=ANY(g.allowed_fields)
   AND 'RuntimeWorkItem/'||w.id::text||'/command/'||c.id::text=ANY(g.allowed_fields)
@@ -3075,6 +3174,7 @@ DECLARE g platform.database_action_grant; w record; o record; p record; s record
 BEGIN
  g:=platform_private.bound_grant(true);
  IF g.id IS NULL OR session_user::text<>'wa_worker' OR g.service_principal IS NULL OR verb NOT IN ('SELECT','INSERT','UPDATE') THEN RETURN false; END IF;
+ IF NOT platform_private.worker_row_capabilities(model_name,row_value,verb) THEN RETURN false; END IF;
  -- Claims inspect/update only their exact queued job. They cannot create effects.
  IF model_name='RuntimeWorkItem' AND g.action IN ('runtime.claim_work.v1','runtime.renew_work.v1') THEN
   RETURN platform_private.context_allows('platform_integration_owner',g.action,'RuntimeWorkItem',row_value->>'id',
@@ -3180,34 +3280,54 @@ END $wa$;
 
 CREATE FUNCTION platform_private.track_atomic_valid(table_name text, n jsonb, prior_value jsonb) RETURNS boolean
 LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path=pg_catalog AS $wa$
-DECLARE g platform.database_action_grant; s record; old_s record; p record; sel record; e record; o record; w record;
+DECLARE g platform.database_action_grant; s record; old_s record; p record; sel record; e record; o record; w record; model_name text;
 BEGIN
  g:=platform_private.bound_grant(true);
  IF g.id IS NULL OR NOT platform_private.worker_lease_valid(g.target_id::uuid,NULL,true) THEN RETURN false; END IF;
+ model_name:=CASE table_name WHEN 'track_base_selection' THEN 'TrackBaseSelection' WHEN 'track_subscriptions' THEN 'TrackSubscription'
+  WHEN 'track_entitlement_grants' THEN 'TrackEntitlementGrant' WHEN 'track_subscription_events' THEN 'TrackSubscriptionEvent'
+  WHEN 'track_enrollment_receipt' THEN 'TrackEnrollmentReceipt' ELSE NULL END;
+ IF model_name IS NULL OR NOT platform_private.worker_source_claim_valid(model_name,n) THEN RETURN false; END IF;
  SELECT j.id,j.outbox_message_id,j.effect_receipt_id,j.fence INTO w FROM platform.runtime_work_item j WHERE j.id=g.target_id::uuid;
  SELECT m.id,m.command_receipt_id,m.aggregate_id,m.source_revision,m.source_generation,m.payload_hash,m.payload INTO o FROM platform.runtime_outbox_message m WHERE m.id=w.outbox_message_id;
  IF NOT platform_private.customer_current_for_track(o.aggregate_id::uuid,(o.payload->>'userId')::uuid,o.source_revision,o.source_generation,o.command_receipt_id) THEN RETURN false; END IF;
  IF table_name='track_base_selection' THEN
+  IF (n->>'revision')::bigint=0 AND prior_value IS NOT NULL THEN RETURN false; END IF;
+  IF (n->>'revision')::bigint>0 AND (prior_value IS NULL OR NOT EXISTS(
+   SELECT 1 FROM platform.owner_mutation_evidence v WHERE v.owner_module_id='track_subscription_entitlement' AND v.aggregate_kind='TrackBaseSelection' AND v.aggregate_id=n->>'id'
+    AND v.committed_revision=(n->>'revision')::bigint AND v.previous_revision=v.committed_revision-1
+    AND v.mutation_transaction_id=pg_current_xact_id()::text
+    AND v.evidence_body->'prior'->>'id'=prior_value->>'id'
+    AND v.evidence_body->'prior'->>'revision'=prior_value->>'revision'
+    AND v.evidence_body->'prior'->>'subscriptionId'=prior_value->>'subscription_id'
+    AND v.evidence_body->'prior'->>'userId'=prior_value->>'user_id'
+    AND v.evidence_body->'prior'->>'customerProfileId'=prior_value->>'customer_profile_id')) THEN RETURN false; END IF;
   SELECT a.id,a.user_id,a.plan_id,a.track,a.customer_profile_id,a.status,a.provider,a.mutation_transaction_id INTO s FROM app.track_subscriptions a WHERE a.id=(n->>'subscription_id')::uuid;
-  SELECT q.id,q.status,q.billing_model,q.revision,q.version,q.content_hash INTO p FROM app.track_plans q WHERE q.id=s.plan_id;
-  IF s.mutation_transaction_id IS DISTINCT FROM n->>'mutation_transaction_id' OR p.status<>'active' OR p.billing_model<>'free'
+  SELECT q.id,q.track,q.status,q.billing_model,q.revision,q.version,q.content_hash INTO p FROM app.track_plans q WHERE q.id=s.plan_id;
+  IF NOT platform_private.worker_source_row_valid('TrackSubscription',s.id::text)
+   OR s.mutation_transaction_id IS DISTINCT FROM pg_current_xact_id()::text OR p.track<>'customer' OR p.status<>'active' OR p.billing_model<>'free'
    OR s.provider<>'none' OR s.status<>'active' OR s.customer_profile_id::text IS DISTINCT FROM n->>'customer_profile_id'
    OR NOT ('TrackPlan/'||p.id::text||'/revision/'||p.revision::text=ANY(g.allowed_fields))
    OR NOT ('TrackPlan/'||p.id::text||'/version/'||p.version=ANY(g.allowed_fields))
    OR NOT ('TrackPlan/'||p.id::text||'/contentHash/'||p.content_hash::text=ANY(g.allowed_fields)) THEN RETURN false; END IF;
   IF prior_value IS NOT NULL THEN
-   SELECT a.status,a.ended_at,a.current_period_end INTO old_s FROM app.track_subscriptions a WHERE a.id=(prior_value->>'subscription_id')::uuid;
+   SELECT a.id,a.user_id,a.customer_profile_id,a.track,a.status,a.ended_at,a.current_period_end,a.revision,a.mutation_transaction_id INTO old_s FROM app.track_subscriptions a WHERE a.id=(prior_value->>'subscription_id')::uuid;
+   IF old_s.id IS NULL OR old_s.user_id::text<>o.payload->>'userId' OR old_s.customer_profile_id::text<>o.aggregate_id OR old_s.track<>'customer'
+    OR NOT platform_private.worker_row_capabilities('TrackSubscription',to_jsonb(old_s),'SELECT') THEN RETURN false; END IF;
    IF old_s.status IN ('active','trialing') AND old_s.ended_at IS NULL AND (old_s.current_period_end IS NULL OR old_s.current_period_end>clock_timestamp()) THEN RETURN false; END IF;
   END IF;
   RETURN EXISTS(SELECT 1 FROM app.track_enrollment_receipt r WHERE r.selection_id=(n->>'id')::uuid AND r.selection_revision=(n->>'revision')::bigint
+   AND platform_private.worker_source_row_valid('TrackEnrollmentReceipt',r.id::text)
    AND r.effect_receipt_id=w.effect_receipt_id AND r.mutation_transaction_id=n->>'mutation_transaction_id');
  ELSIF table_name='track_subscriptions' THEN
   RETURN EXISTS(SELECT 1 FROM app.track_base_selection b WHERE b.subscription_id=(n->>'id')::uuid AND b.mutation_transaction_id=n->>'mutation_transaction_id')
    AND EXISTS(SELECT 1 FROM app.track_subscription_events h WHERE h.subscription_id=(n->>'id')::uuid AND h.user_id::text=n->>'user_id'
-    AND h.plan_id::text=n->>'plan_id' AND h.to_status::text=n->>'status' AND h.from_status IS NULL AND h.mutation_transaction_id=n->>'mutation_transaction_id');
+    AND h.plan_id::text=n->>'plan_id' AND h.to_status::text=n->>'status' AND h.from_status IS NULL AND h.mutation_transaction_id=n->>'mutation_transaction_id'
+    AND platform_private.worker_source_row_valid('TrackSubscriptionEvent',h.id::text))
+   AND EXISTS(SELECT 1 FROM app.track_base_selection b WHERE b.subscription_id=(n->>'id')::uuid AND platform_private.worker_source_row_valid('TrackBaseSelection',b.id::text));
  ELSIF table_name='track_entitlement_grants' THEN
   SELECT a.id,a.plan_id,a.mutation_transaction_id INTO s FROM app.track_subscriptions a WHERE a.id=(n->>'subscription_id')::uuid;
-  RETURN COALESCE(s.mutation_transaction_id=n->>'mutation_transaction_id' AND s.plan_id::text=n->>'source_plan_id'
+  RETURN COALESCE(platform_private.worker_source_row_valid('TrackSubscription',s.id::text) AND s.mutation_transaction_id=pg_current_xact_id()::text AND s.plan_id::text=n->>'source_plan_id'
    AND EXISTS(SELECT 1 FROM app.track_plan_entitlements b JOIN app.track_entitlement_definitions d ON d.id=b.entitlement_id
     WHERE b.plan_id=s.plan_id AND b.entitlement_id=(n->>'entitlement_id')::uuid AND d.is_active AND (d.track IS NULL OR d.track='customer')
      AND d.value_type::text=n->>'value_type' AND b.value_type::text=n->>'value_type'
@@ -3215,13 +3335,14 @@ BEGIN
      AND COALESCE(to_jsonb(b.decimal_value),'null'::jsonb) IS NOT DISTINCT FROM n->'decimal_value' AND COALESCE(to_jsonb(b.string_value),'null'::jsonb) IS NOT DISTINCT FROM n->'string_value'),false);
  ELSIF table_name='track_subscription_events' THEN
   SELECT a.id,a.user_id,a.plan_id,a.status,a.mutation_transaction_id INTO s FROM app.track_subscriptions a WHERE a.id=(n->>'subscription_id')::uuid;
-  RETURN COALESCE(s.mutation_transaction_id=n->>'mutation_transaction_id' AND s.user_id::text=n->>'user_id' AND s.plan_id::text=n->>'plan_id'
+  RETURN COALESCE(platform_private.worker_source_row_valid('TrackSubscription',s.id::text) AND s.mutation_transaction_id=pg_current_xact_id()::text AND s.user_id::text=n->>'user_id' AND s.plan_id::text=n->>'plan_id'
    AND n->>'from_status' IS NULL AND n->>'to_status'=s.status::text AND n->>'provider'='none',false);
  ELSIF table_name='track_enrollment_receipt' THEN
   SELECT b.id,b.user_id,b.track,b.customer_profile_id,b.revision INTO sel FROM app.track_base_selection b WHERE b.id=(n->>'selection_id')::uuid;
   SELECT r.id,r.owner_module_id,r.operation,r.command_receipt_id,r.subject_scope,r.semantic_effect_key,r.fingerprint,r.fence,r.state,r.mutation_transaction_id INTO e
    FROM platform.runtime_effect_receipt r WHERE r.id=(n->>'effect_receipt_id')::uuid;
   RETURN COALESCE(n->>'track'='customer' AND n->>'source_owner'='customer_buyer_profile'
+   AND platform_private.worker_source_row_valid('TrackBaseSelection',sel.id::text) AND platform_private.worker_effect_matches(w.id,e.id,true)
    AND sel.user_id::text=n->>'user_id' AND sel.customer_profile_id::text=n->>'profile_id'
    AND n->>'profile_id'=o.aggregate_id AND n->>'source_creation_revision'=o.source_revision::text
    AND sel.revision::text=n->>'selection_revision' AND e.state='committed' AND e.fence=w.fence AND e.id=w.effect_receipt_id
@@ -3234,6 +3355,22 @@ BEGIN
  END IF;
  RETURN false;
 END $wa$;
+
+CREATE FUNCTION platform_private.worker_source_row_valid(model_name text, source_id text) RETURNS boolean
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+SET search_path = pg_catalog
+AS $wa$
+DECLARE actual_value jsonb; BEGIN
+CASE model_name
+WHEN 'TrackSubscription' THEN SELECT jsonb_build_object('id',s."id",'user_id',s."user_id",'plan_id',s."plan_id",'track',s."track",'customer_profile_id',s."customer_profile_id",'status',s."status",'provider',s."provider",'ended_at',s."ended_at",'current_period_end',s."current_period_end",'mutation_transaction_id',s."mutation_transaction_id",'revision',s."revision",'candidate_profile_id',s."candidate_profile_id",'professional_profile_id',s."professional_profile_id") INTO actual_value FROM "app"."track_subscriptions" s WHERE s.id::text=source_id AND s.mutation_transaction_id=pg_current_xact_id()::text;
+WHEN 'TrackEntitlementGrant' THEN SELECT jsonb_build_object('id',s."id",'user_id',s."user_id",'track',s."track",'customer_profile_id',s."customer_profile_id",'candidate_profile_id',s."candidate_profile_id",'professional_profile_id',s."professional_profile_id",'status',s."status",'value_type',s."value_type",'revision',s."revision",'mutation_transaction_id',s."mutation_transaction_id",'subscription_id',s."subscription_id",'source_plan_id',s."source_plan_id",'entitlement_id',s."entitlement_id",'boolean_value',s."boolean_value",'int_value',s."int_value",'decimal_value',s."decimal_value",'string_value',s."string_value") INTO actual_value FROM "app"."track_entitlement_grants" s WHERE s.id::text=source_id AND s.mutation_transaction_id=pg_current_xact_id()::text;
+WHEN 'TrackBaseSelection' THEN SELECT jsonb_build_object('id',s."id",'user_id',s."user_id",'track',s."track",'customer_profile_id',s."customer_profile_id",'subscription_id',s."subscription_id",'revision',s."revision",'mutation_transaction_id',s."mutation_transaction_id",'source_generation',s."source_generation",'candidate_profile_id',s."candidate_profile_id",'professional_profile_id',s."professional_profile_id") INTO actual_value FROM "app"."track_base_selection" s WHERE s.id::text=source_id AND s.mutation_transaction_id=pg_current_xact_id()::text;
+WHEN 'TrackSubscriptionEvent' THEN SELECT jsonb_build_object('subscription_id',s."subscription_id",'user_id',s."user_id",'plan_id',s."plan_id",'to_status',s."to_status",'from_status',s."from_status",'mutation_transaction_id',s."mutation_transaction_id",'id',s."id",'provider',s."provider") INTO actual_value FROM "app"."track_subscription_events" s WHERE s.id::text=source_id AND s.mutation_transaction_id=pg_current_xact_id()::text;
+WHEN 'TrackEnrollmentReceipt' THEN SELECT jsonb_build_object('selection_id',s."selection_id",'selection_revision',s."selection_revision",'effect_receipt_id',s."effect_receipt_id",'mutation_transaction_id',s."mutation_transaction_id",'id',s."id",'user_id',s."user_id",'track',s."track",'profile_id',s."profile_id",'source_owner',s."source_owner",'source_creation_revision',s."source_creation_revision",'semantic_key',s."semantic_key",'fingerprint',s."fingerprint",'result_code',s."result_code") INTO actual_value FROM "app"."track_enrollment_receipt" s WHERE s.id::text=source_id AND s.mutation_transaction_id=pg_current_xact_id()::text;
+ELSE RETURN false; END CASE;
+RETURN actual_value IS NOT NULL AND platform_private.worker_source_claim_valid(model_name,actual_value);
+END;
+$wa$;
 
 CREATE POLICY "p_app_runtime_insert" ON "app"."consent_logs" FOR INSERT TO wa_app_runtime WITH CHECK (platform_private.row_allowed('consent_disclosure','ConsentLog',"id"::text,'INSERT',ARRAY['id','userId','type','version','acceptedAt','ipHash','userAgent','acceptanceKey','fingerprint','actionOwner','action','contextKind','contextId','contextOwner','presentationHash','contentRevisionId','presentationId']::text[],NULL::text,"mutation_transaction_id"::text));
 
@@ -3714,7 +3851,7 @@ BEGIN
   IF NEW.revision<>0 THEN RAISE EXCEPTION 'initial revision must be zero'; END IF;
   NEW."created_at":=clock_timestamp();
  END IF;
- IF NOT platform_private.context_subject_owner(NEW.user_id,'customer_buyer_profile') THEN RAISE EXCEPTION 'foreign Customer principal'; END IF;
+ IF NOT platform_private.context_subject_owner(NEW.user_id,'customer_buyer_profile') THEN RAISE EXCEPTION 'foreign Customer principal' USING ERRCODE='42501'; END IF;
  NEW."updated_at":=clock_timestamp();
  NEW.mutation_transaction_id:=pg_current_xact_id()::text;
  RETURN NEW;
@@ -5528,12 +5665,12 @@ SET search_path = pg_catalog
 AS $wa$
 DECLARE e platform.owner_mutation_evidence; prior_value jsonb;
 BEGIN
- prior_value:=CASE WHEN TG_OP='UPDATE' THEN jsonb_build_object('id',to_jsonb(OLD."id"),'userId',to_jsonb(OLD."user_id"),'track',to_jsonb(OLD."track"),'revision',to_jsonb(OLD."revision"::text),'sourceGeneration',to_jsonb(OLD."source_generation"::text)) ELSE 'null'::jsonb END;
+ prior_value:=CASE WHEN TG_OP='UPDATE' THEN jsonb_build_object('id',to_jsonb(OLD."id"),'userId',to_jsonb(OLD."user_id"),'track',to_jsonb(OLD."track"),'customerProfileId',to_jsonb(OLD."customer_profile_id"),'candidateProfileId',to_jsonb(OLD."candidate_profile_id"),'professionalProfileId',to_jsonb(OLD."professional_profile_id"),'subscriptionId',to_jsonb(OLD."subscription_id"),'revision',to_jsonb(OLD."revision"::text),'sourceGeneration',to_jsonb(OLD."source_generation"::text)) ELSE 'null'::jsonb END;
  SELECT * INTO e FROM platform.owner_mutation_evidence WHERE aggregate_kind='TrackBaseSelection'
   AND aggregate_id=(to_jsonb(NEW)->>'id') AND committed_revision=NEW.revision
   AND owner_module_id='track_subscription_entitlement' AND mutation_transaction_id=pg_current_xact_id()::text;
  IF NOT FOUND OR e.evidence_body->'primaryKey' IS DISTINCT FROM jsonb_build_object('id',NEW."id")
-  OR e.evidence_body->'committed' IS DISTINCT FROM jsonb_build_object('id',to_jsonb(NEW."id"),'userId',to_jsonb(NEW."user_id"),'track',to_jsonb(NEW."track"),'revision',to_jsonb(NEW."revision"::text),'sourceGeneration',to_jsonb(NEW."source_generation"::text))
+  OR e.evidence_body->'committed' IS DISTINCT FROM jsonb_build_object('id',to_jsonb(NEW."id"),'userId',to_jsonb(NEW."user_id"),'track',to_jsonb(NEW."track"),'customerProfileId',to_jsonb(NEW."customer_profile_id"),'candidateProfileId',to_jsonb(NEW."candidate_profile_id"),'professionalProfileId',to_jsonb(NEW."professional_profile_id"),'subscriptionId',to_jsonb(NEW."subscription_id"),'revision',to_jsonb(NEW."revision"::text),'sourceGeneration',to_jsonb(NEW."source_generation"::text))
   OR COALESCE(e.evidence_body->'prior','null'::jsonb) IS DISTINCT FROM prior_value
   OR e.previous_revision IS DISTINCT FROM (CASE WHEN TG_OP='UPDATE' THEN OLD.revision ELSE NULL::bigint END)
   OR e.decision_ref IS DISTINCT FROM e.evidence_body->>'decisionRef'
@@ -5668,17 +5805,17 @@ WHEN 'TrackSubscription' THEN
   RETURN EXISTS(SELECT 1 FROM "app"."track_subscriptions" s WHERE s."id"::text=aggregate_id
    AND s.mutation_transaction_id=source_transaction AND s.revision=committed_revision
    AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'track',to_jsonb(s."track"),'status',to_jsonb(s."status"),'provider',to_jsonb(s."provider"),'revision',to_jsonb(s."revision"::text))=committed_value
-   AND platform_private.worker_track_allowed('TrackSubscription',jsonb_build_object('id',s."id",'user_id',s."user_id",'track',s."track",'customer_profile_id',s."customer_profile_id",'candidate_profile_id',s."candidate_profile_id",'professional_profile_id',s."professional_profile_id"),'SELECT'));
+   AND platform_private.worker_source_claim_valid('TrackSubscription',jsonb_build_object('id',s."id",'user_id',s."user_id",'plan_id',s."plan_id",'track',s."track",'customer_profile_id',s."customer_profile_id",'status',s."status",'provider',s."provider",'ended_at',s."ended_at",'current_period_end',s."current_period_end",'mutation_transaction_id',s."mutation_transaction_id",'revision',s."revision",'candidate_profile_id',s."candidate_profile_id",'professional_profile_id',s."professional_profile_id")));
 WHEN 'TrackEntitlementGrant' THEN
   RETURN EXISTS(SELECT 1 FROM "app"."track_entitlement_grants" s WHERE s."id"::text=aggregate_id
    AND s.mutation_transaction_id=source_transaction AND s.revision=committed_revision
    AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'track',to_jsonb(s."track"),'status',to_jsonb(s."status"),'valueType',to_jsonb(s."value_type"),'revision',to_jsonb(s."revision"::text))=committed_value
-   AND platform_private.worker_track_allowed('TrackEntitlementGrant',jsonb_build_object('id',s."id",'user_id',s."user_id",'track',s."track",'customer_profile_id',s."customer_profile_id",'candidate_profile_id',s."candidate_profile_id",'professional_profile_id',s."professional_profile_id"),'SELECT'));
+   AND platform_private.worker_source_claim_valid('TrackEntitlementGrant',jsonb_build_object('id',s."id",'user_id',s."user_id",'track',s."track",'customer_profile_id',s."customer_profile_id",'candidate_profile_id',s."candidate_profile_id",'professional_profile_id',s."professional_profile_id",'status',s."status",'value_type',s."value_type",'revision',s."revision",'mutation_transaction_id',s."mutation_transaction_id",'subscription_id',s."subscription_id",'source_plan_id',s."source_plan_id",'entitlement_id',s."entitlement_id",'boolean_value',s."boolean_value",'int_value',s."int_value",'decimal_value',s."decimal_value",'string_value',s."string_value")));
 WHEN 'TrackBaseSelection' THEN
   RETURN EXISTS(SELECT 1 FROM "app"."track_base_selection" s WHERE s."id"::text=aggregate_id
    AND s.mutation_transaction_id=source_transaction AND s.revision=committed_revision
-   AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'track',to_jsonb(s."track"),'revision',to_jsonb(s."revision"::text),'sourceGeneration',to_jsonb(s."source_generation"::text))=committed_value
-   AND platform_private.worker_track_allowed('TrackBaseSelection',jsonb_build_object('id',s."id",'user_id',s."user_id",'track',s."track",'customer_profile_id',s."customer_profile_id",'candidate_profile_id',s."candidate_profile_id",'professional_profile_id',s."professional_profile_id"),'SELECT'));
+   AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'track',to_jsonb(s."track"),'customerProfileId',to_jsonb(s."customer_profile_id"),'candidateProfileId',to_jsonb(s."candidate_profile_id"),'professionalProfileId',to_jsonb(s."professional_profile_id"),'subscriptionId',to_jsonb(s."subscription_id"),'revision',to_jsonb(s."revision"::text),'sourceGeneration',to_jsonb(s."source_generation"::text))=committed_value
+   AND platform_private.worker_source_claim_valid('TrackBaseSelection',jsonb_build_object('id',s."id",'user_id',s."user_id",'track',s."track",'customer_profile_id',s."customer_profile_id",'subscription_id',s."subscription_id",'revision',s."revision",'mutation_transaction_id',s."mutation_transaction_id",'source_generation',s."source_generation",'candidate_profile_id',s."candidate_profile_id",'professional_profile_id',s."professional_profile_id")));
  ELSE RETURN false;
  END CASE;
 END;
@@ -5810,7 +5947,7 @@ WHEN 'TrackBaseSelection' THEN
   ELSE
    SELECT EXISTS(SELECT 1 FROM "app"."track_base_selection" s WHERE (to_jsonb(s)->>'id')=NEW.aggregate_id
    AND s.mutation_transaction_id=NEW.mutation_transaction_id
-   AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'track',to_jsonb(s."track"),'revision',to_jsonb(s."revision"::text),'sourceGeneration',to_jsonb(s."source_generation"::text))=NEW.evidence_body->'committed'
+   AND jsonb_build_object('id',to_jsonb(s."id"),'userId',to_jsonb(s."user_id"),'track',to_jsonb(s."track"),'customerProfileId',to_jsonb(s."customer_profile_id"),'candidateProfileId',to_jsonb(s."candidate_profile_id"),'professionalProfileId',to_jsonb(s."professional_profile_id"),'subscriptionId',to_jsonb(s."subscription_id"),'revision',to_jsonb(s."revision"::text),'sourceGeneration',to_jsonb(s."source_generation"::text))=NEW.evidence_body->'committed'
    AND s.revision=NEW.committed_revision) INTO matches;
   END IF;
 WHEN 'TrackUsageReservation' THEN
@@ -5954,57 +6091,12 @@ GRANT EXECUTE ON FUNCTION platform_private.global_context_registered(text,text,t
 
 REVOKE EXECUTE ON FUNCTION platform_private.bound_grant(boolean) FROM wa_app_runtime,wa_worker;
 
-GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;
-ALTER FUNCTION platform_private.bound_grant(boolean) OWNER TO wa_private_helper_owner;
-
-GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;
-ALTER FUNCTION platform_private.bind_request_context(text) OWNER TO wa_private_helper_owner;
-
-GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;
-ALTER FUNCTION platform_private.context_allows(text,text,text,text,text) OWNER TO wa_private_helper_owner;
-
-GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;
-ALTER FUNCTION platform_private.protected_scope(text,text,text) OWNER TO wa_private_helper_owner;
-
-GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;
-ALTER FUNCTION platform_private.row_allowed(text,text,text,text,text[],text,text) OWNER TO wa_private_helper_owner;
-
-GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;
-ALTER FUNCTION platform_private.context_subject(uuid) OWNER TO wa_private_helper_owner;
-
-GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;
-ALTER FUNCTION platform_private.context_subject_owner(uuid,text) OWNER TO wa_private_helper_owner;
-
-GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;
-ALTER FUNCTION platform_private.command_context_allows(text,text,text) OWNER TO wa_private_helper_owner;
-
-GRANT CREATE ON SCHEMA platform_private TO wa_customer_verifier;
-ALTER FUNCTION platform_private.customer_current_for_track(uuid,uuid,bigint,bigint,uuid) OWNER TO wa_customer_verifier;
-
-REVOKE CREATE ON SCHEMA platform_private FROM wa_customer_verifier;
-
-GRANT CREATE ON SCHEMA platform_private TO wa_track_verifier;
-ALTER FUNCTION platform_private.worker_track_allowed(text,jsonb,text) OWNER TO wa_track_verifier;
-
-GRANT CREATE ON SCHEMA platform_private TO wa_track_verifier;
-ALTER FUNCTION platform_private.worker_lease_valid(uuid,uuid,boolean) OWNER TO wa_track_verifier;
-
-GRANT CREATE ON SCHEMA platform_private TO wa_track_verifier;
-ALTER FUNCTION platform_private.worker_effect_matches(uuid,uuid,boolean) OWNER TO wa_track_verifier;
-
-GRANT CREATE ON SCHEMA platform_private TO wa_track_verifier;
-ALTER FUNCTION platform_private.track_atomic_valid(text,jsonb,jsonb) OWNER TO wa_track_verifier;
-
-GRANT CREATE ON SCHEMA platform_private TO wa_track_verifier;
-ALTER FUNCTION platform_private.worker_evidence_source_matches(text,text,bigint,text,jsonb) OWNER TO wa_track_verifier;
-
-REVOKE CREATE ON SCHEMA platform_private FROM wa_track_verifier;
-
 GRANT EXECUTE ON FUNCTION platform_private.bound_grant(boolean),platform_private.context_allows(text,text,text,text,text) TO wa_customer_verifier,wa_track_verifier;
+GRANT EXECUTE ON FUNCTION platform_private.row_allowed(text,text,text,text,text[],text,text) TO wa_track_verifier;
+GRANT EXECUTE ON FUNCTION platform_private.worker_row_capabilities(text,jsonb,text) TO wa_track_verifier;
 GRANT EXECUTE ON FUNCTION platform_private.customer_current_for_track(uuid,uuid,bigint,bigint,uuid) TO wa_track_verifier;
 GRANT EXECUTE ON FUNCTION platform_private.worker_track_allowed(text,jsonb,text),platform_private.worker_lease_valid(uuid,uuid,boolean),platform_private.worker_effect_matches(uuid,uuid,boolean),platform_private.track_atomic_valid(text,jsonb,jsonb),platform_private.worker_evidence_source_matches(text,text,bigint,text,jsonb) TO wa_worker;
 GRANT EXECUTE ON FUNCTION platform_private.lease_secret_matches(text) TO wa_track_verifier,wa_worker;
-REVOKE CREATE ON SCHEMA platform_private FROM wa_private_helper_owner;
 -- Separate original bootstrap grantor must run foundation-bootstrap-finalize.review.sql
 -- after success OR failure. wa_schema_owner has ADMIN FALSE and cannot do that cleanup.
 -- Helper may call its own functions and pure JSON predicates only; no business DML.
@@ -6022,5 +6114,50 @@ DO $roles$ DECLARE r text; BEGIN
   END IF;
  END LOOP;
 END $roles$;
+
+GRANT CREATE ON SCHEMA platform_private TO wa_private_helper_owner;
+
+ALTER FUNCTION platform_private.bound_grant(boolean) OWNER TO wa_private_helper_owner;
+
+ALTER FUNCTION platform_private.bind_request_context(text) OWNER TO wa_private_helper_owner;
+
+ALTER FUNCTION platform_private.context_allows(text,text,text,text,text) OWNER TO wa_private_helper_owner;
+
+ALTER FUNCTION platform_private.protected_scope(text,text,text) OWNER TO wa_private_helper_owner;
+
+ALTER FUNCTION platform_private.row_allowed(text,text,text,text,text[],text,text) OWNER TO wa_private_helper_owner;
+
+ALTER FUNCTION platform_private.context_subject(uuid) OWNER TO wa_private_helper_owner;
+
+ALTER FUNCTION platform_private.context_subject_owner(uuid,text) OWNER TO wa_private_helper_owner;
+
+ALTER FUNCTION platform_private.command_context_allows(text,text,text) OWNER TO wa_private_helper_owner;
+
+REVOKE CREATE ON SCHEMA platform_private FROM wa_private_helper_owner;
+
+GRANT CREATE ON SCHEMA platform_private TO wa_customer_verifier;
+
+ALTER FUNCTION platform_private.customer_current_for_track(uuid,uuid,bigint,bigint,uuid) OWNER TO wa_customer_verifier;
+
+REVOKE CREATE ON SCHEMA platform_private FROM wa_customer_verifier;
+
+GRANT CREATE ON SCHEMA platform_private TO wa_track_verifier;
+
+ALTER FUNCTION platform_private.worker_source_row_valid(text,text) OWNER TO wa_track_verifier;
+
+ALTER FUNCTION platform_private.worker_source_claim_valid(text,jsonb) OWNER TO wa_track_verifier;
+
+ALTER FUNCTION platform_private.worker_track_allowed(text,jsonb,text) OWNER TO wa_track_verifier;
+
+ALTER FUNCTION platform_private.worker_lease_valid(uuid,uuid,boolean) OWNER TO wa_track_verifier;
+
+ALTER FUNCTION platform_private.worker_effect_matches(uuid,uuid,boolean) OWNER TO wa_track_verifier;
+
+ALTER FUNCTION platform_private.track_atomic_valid(text,jsonb,jsonb) OWNER TO wa_track_verifier;
+
+ALTER FUNCTION platform_private.worker_evidence_source_matches(text,text,bigint,text,jsonb) OWNER TO wa_track_verifier;
+
+REVOKE CREATE ON SCHEMA platform_private FROM wa_track_verifier;
+
 RESET ROLE;
 COMMIT;

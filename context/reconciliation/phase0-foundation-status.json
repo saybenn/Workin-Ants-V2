@@ -22,7 +22,7 @@
   "candidate_lanes": 8,
   "authorized_parallel_lanes": 0,
   "production_development_authorized": false,
-  "next_safe_task": "Brain reviews corrected P0-C-03A source/SQL hashes against 8917e20. Disposable execution remains held; no client setup task.",
+  "next_safe_task": "Brain reviews e363ad4 follow-up A–D corrected source and database-candidate-tests.json first_rehearsal; separately decides the exact disposable execution. P0-B passed; Posture D, all451/94 NOT_RUN and P0-D–G holds remain.",
   "dependency_security_gate": "PASS_KNOWN_ADVISORIES_REMEDIATED",
   "dependency_security_issue": "TECH-DEPENDENCY-SECURITY-001",
   "real_http_smoke_cases": 47,
@@ -60,13 +60,28 @@
   },
   "latest_sql_source_review": {
     "directive": "P0-C-03A",
-    "reviewed_commit": "8917e2035622017eccd14c99ad7fd2b55740163f",
+    "reviewed_commit": "e363ad45dfad76d2a4ffbd0cd84ef0c01d24e966",
     "manifest": "context/reconciliation/foundation-sql-draft-manifest.json",
     "validation": "context/reconciliation/foundation-sql-draft-validation.json",
     "sql_draft_generated": true,
     "execution_authorized": false,
     "database_contacted": false,
     "sql_executed": false,
-    "database_runtime_cases": "451_NOT_RUN"
+    "database_runtime_cases": "451_NOT_RUN",
+    "followup_findings": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "rehearsal_proposal": "database-candidate-tests.json#first_rehearsal",
+    "fresh_offline_evidence": {
+      "predicate_cases": 750,
+      "source_graph_checks": 501,
+      "sql_mutations_rejected": 75,
+      "database_runtime_cases": "451_NOT_RUN",
+      "selected_replay_cases": "94_NOT_RUN",
+      "record": "foundation-sql-draft-validation.json#followup_e363ad4"
+    }
   }
 }

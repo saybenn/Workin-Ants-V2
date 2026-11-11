@@ -126,7 +126,16 @@
           "selection_id",
           "selection_revision",
           "effect_receipt_id",
-          "mutation_transaction_id"
+          "mutation_transaction_id",
+          "id",
+          "user_id",
+          "track",
+          "profile_id",
+          "source_owner",
+          "source_creation_revision",
+          "semantic_key",
+          "fingerprint",
+          "result_code"
         ],
         "app.track_subscription_events": [
           "subscription_id",
@@ -134,7 +143,9 @@
           "plan_id",
           "to_status",
           "from_status",
-          "mutation_transaction_id"
+          "mutation_transaction_id",
+          "id",
+          "provider"
         ],
         "app.track_entitlement_definitions": [
           "id",
@@ -161,7 +172,23 @@
           "status",
           "value_type",
           "revision",
-          "mutation_transaction_id"
+          "mutation_transaction_id",
+          "subscription_id",
+          "source_plan_id",
+          "entitlement_id",
+          "boolean_value",
+          "int_value",
+          "decimal_value",
+          "string_value"
+        ],
+        "platform.owner_mutation_evidence": [
+          "aggregate_kind",
+          "aggregate_id",
+          "committed_revision",
+          "previous_revision",
+          "mutation_transaction_id",
+          "evidence_body",
+          "owner_module_id"
         ]
       }
     }
@@ -171,5 +198,10 @@
   ],
   "worker_ports_return": "BOOLEAN_ONLY",
   "leaf_policies": "NOLOGIN_COLUMN_LIMITED_NONRECURSIVE_SELECT_ONLY",
-  "worker_direct_grants_changed": false
+  "worker_direct_grants_changed": false,
+  "followup_read_justification": {
+    "reviewed_commit": "e363ad45dfad76d2a4ffbd0cd84ef0c01d24e966",
+    "scope": "Fixed actual-row identity/value claims and exact current-transaction TrackBaseSelection predecessor. The internal Boolean helper reads no unregistered columns, emits no bodies, and receives no worker EXECUTE grant.",
+    "worker_direct_grants_changed": false
+  }
 }

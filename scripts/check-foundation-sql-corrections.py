@@ -9,6 +9,7 @@ all 451 database/runtime cases remain NOT_RUN.
 import hashlib
 import json
 import re
+import runpy
 from pathlib import Path
 from pglast import parse_sql, ast
 
@@ -54,7 +55,11 @@ def evaluate(n, facts):
         return evaluate(n.defresult,facts)
     if isinstance(n,ast.SubLink):return facts['scalar_subquery'] if 'scalar_subquery' in facts else facts['existing_exact_inbox_or_history']
     if isinstance(n,ast.FuncCall):
-        name='.'.join(s.sval for s in n.funcname);args=[evaluate(a,facts) for a in n.args or ()]
+        name='.'.join(s.sval for s in n.funcname)
+        # A relational port is a separate assertion boundary, not emulated here.
+        # Its actual-row/capability call graph is checked in the follow-up suite.
+        if name=='platform_private.worker_source_claim_valid':return facts['worker_source_allowed']
+        args=[evaluate(a,facts) for a in n.args or ()]
         if name=='jsonb_typeof':return 'null' if args[0] is JSON_NULL else 'object' if isinstance(args[0],dict) else None
         if name=='length':return len(args[0]) if args[0] is not None else None
         if name=='to_jsonb':return args[0]
@@ -92,6 +97,7 @@ def evaluate(n, facts):
             value=left[right]
             return (None if value is None else str(value)) if op=='->>' else JSON_NULL if value is None else value
         if left is None or right is None:return None
+        if op=='@>':return isinstance(left,dict) and isinstance(right,dict) and all(k in left and left[k]==v for k,v in right.items())
         if op=='=':return left==right
         if op in ['<>','!=']:return left!=right
         if op=='+':return left+right
@@ -292,7 +298,8 @@ def inspect(root=ROOT):
                     's.user_id':'user-A','s.track':'customer','s.customer_profile_id':'customer-A','s.candidate_profile_id':None,'s.professional_profile_id':None,
                     's.status':'active','s.provider':'none','s.value_type':'boolean','s.source_generation':2,'worker_source_allowed':True}
             snapshot=evidence[model]['properties']['committed']['properties']
-            mapping={'id':'s.id','userId':'s.user_id','track':'s.track','status':'s.status','provider':'s.provider','revision':'s.revision','valueType':'s.value_type','sourceGeneration':'s.source_generation'}
+            scalar['s.subscription_id']='subscription-A'
+            mapping={'id':'s.id','userId':'s.user_id','track':'s.track','status':'s.status','provider':'s.provider','revision':'s.revision','valueType':'s.value_type','sourceGeneration':'s.source_generation','subscriptionId':'s.subscription_id','customerProfileId':'s.customer_profile_id','candidateProfileId':'s.candidate_profile_id','professionalProfileId':'s.professional_profile_id'}
             scalar['committed_value']={k:str(scalar[mapping[k]]) if k in ['revision','sourceGeneration'] else scalar[mapping[k]] for k in snapshot}
             node=expression(predicate[1]);case(model+' exact worker reverse proof',node,scalar,True)
             for label,delta in [('foreign aggregate',{'aggregate_id':'other'}),('foreign transaction',{'source_transaction':'other'}),('wrong revision',{'committed_revision':2}),('wrong snapshot',{'committed_value':{}}),('wrong worker source',{'worker_source_allowed':False})]:
@@ -402,7 +409,9 @@ def inspect(root=ROOT):
         if table.startswith('identity_service_'):
             need('ALTER TABLE platform_private.'+table+' FORCE ROW LEVEL SECURITY;' in app,'private Identity RLS missing '+table)
     need(not re.search(r'OLD\.lease_token_hash::text\s*\)',body('runtime_transition')) or 'lease_secret_matches' in transition,'lease hash used as bearer proof')
-    return {'status':'FAIL' if errors else 'PASS','scope':'OFFLINE_AST_SCALAR_PREDICATES_AND_SOURCE_GRAPH_ONLY','predicate_cases':len(cases),'cases':cases,'errors':errors,'database_contacted':False,'sql_executed':False,'database_runtime_cases':'451_NOT_RUN'}
+    followup=runpy.run_path(str(ROOT/'scripts/check-foundation-sql-followup.py'))['inspect'](root,evaluate)
+    errors.extend(followup['errors']);cases.extend(followup['cases'])
+    return {'status':'FAIL' if errors else 'PASS','scope':'OFFLINE_AST_SCALAR_PREDICATES_AND_SOURCE_GRAPH_ONLY','predicate_cases':len(cases),'followup_source_graph_checks':followup['source_graph_checks'],'cases':cases,'errors':errors,'database_contacted':False,'sql_executed':False,'database_runtime_cases':'451_NOT_RUN'}
 
 
 if __name__=='__main__':

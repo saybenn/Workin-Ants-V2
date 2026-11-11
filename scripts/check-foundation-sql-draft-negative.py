@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Independent mutations of SQL/ACL evidence; no SQL execution or database."""
 from pathlib import Path
-import tempfile,shutil,json,runpy
+import tempfile,shutil,json,runpy,argparse
 ROOT=Path(__file__).resolve().parents[1]
 CHECK=runpy.run_path(str(ROOT/'scripts/check-foundation-sql-draft.py'))['checks']
 manifest=json.loads((ROOT/'context/reconciliation/foundation-sql-draft-manifest.json').read_text())
@@ -76,6 +76,27 @@ cases += [
 ]
 query_scope="IF verb=ANY(ARRAY['SELECT']::text[]) AND (model_name='User' OR model_name IN ('OwnerMutationEvidence','RuntimeCommandReceipt','RuntimeOutboxMessage','RuntimeEffectReceipt')) AND platform_private.context_allows('identity_access','SH-003.v1','User',g.target_id,'owner:queryOwnerFacts')"
 cases.append(('query purpose admits source update',APP,query_scope,query_scope.replace("ARRAY['SELECT']", "ARRAY['SELECT','UPDATE']")))
+cases += [
+ ('function grant after NOINHERIT transfer',APP,'RESET ROLE;','GRANT EXECUTE ON FUNCTION platform_private.track_atomic_valid(text,jsonb,jsonb) TO wa_worker;\nRESET ROLE;'),
+ ('managed function revoke after transfer',APP,'RESET ROLE;',"DO $late$ BEGIN EXECUTE 'REVOKE ALL ON ALL FUNCTIONS IN SCHEMA platform_private FROM anon'; END $late$;\nRESET ROLE;"),
+ ('foreign complete verifier claim accepted',APP,'actual_value IS NULL OR NOT (n @> actual_value)','false'),
+ ('direct atomic port skips actual source',APP,'OR NOT platform_private.worker_source_claim_valid(model_name,n)','OR false'),
+ ('direct relationship port skips caps',APP,'IF NOT platform_private.worker_row_capabilities(model_name,row_value,verb) THEN RETURN false; END IF;',''),
+ ('actual source from another transaction',APP,'s.mutation_transaction_id=pg_current_xact_id()::text','true'),
+ ('caller-only selection predecessor',APP,"v.evidence_body->'prior'->>'subscriptionId'=prior_value->>'subscription_id'",'true'),
+ ('direct effect skips canonical source',APP,"IF NOT platform_private.worker_track_allowed('RuntimeOutboxMessage',jsonb_build_object('id',o.id,'producer_owner',o.producer_owner),'SELECT') THEN RETURN false; END IF;",''),
+]
+application=(ROOT/APP).read_text(encoding='utf8')
+reservation_acl=next(line for line in application.splitlines() if line.startswith('GRANT UPDATE') and '"platform"."runtime_reservation" TO wa_app_runtime' in line)
+cases.append(('runtime terminal effect column removed',APP,reservation_acl,reservation_acl.replace(',"effect_receipt_id"','')))
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--shard',help='Optional independent temporary-copy shard INDEX/TOTAL (zero based); default runs every case')
+args=parser.parse_args();default_total=len(cases)+2
+if args.shard:
+ try:index,total=map(int,args.shard.split('/'))
+ except ValueError:parser.error('shard must be INDEX/TOTAL')
+ if not 0<=index<total<=8:parser.error('invalid shard range')
+ cases=cases[index::total]
 results=[]
 with tempfile.TemporaryDirectory(prefix='wa-p0c03-offline-') as folder:
  target=Path(folder).resolve();assert target.parent==Path(tempfile.gettempdir()).resolve()
@@ -100,5 +121,10 @@ with tempfile.TemporaryDirectory(prefix='wa-p0c03-offline-') as folder:
  r=CHECK(target,verify_fingerprints=False)
  results.append({'case':'coherent forbidden usage SQL and ACL map','rejected_semantically':any('Track worker privilege broadening' in x or 'worker usage permission' in x for x in r['errors']),'evidence':r['errors'][:3]})
  (target/path).write_text(original);(target/APP).write_text(app)
-result={'status':'PASS' if all(r['rejected_semantically'] for r in results) else 'FAIL','cases':len(results),'scope':'OFFLINE_SQL_SOURCE_MUTATIONS_FINGERPRINT_CHECK_DISABLED','database_contacted':False,'sql_executed':False,'results':results}
+ path='context/reconciliation/foundation-sql-draft-replay-map.json';original=(target/path).read_text(encoding='utf8');replay=json.loads(original)
+ next(t for t in replay['tests'] if t['id']=='P0C-TABLE-PrivacyOwnerReceipt-ALLOW')['blocking_review_issues']=[]
+ (target/path).write_text(json.dumps(replay),encoding='utf8');r=CHECK(target,verify_fingerprints=False)
+ results.append({'case':'gated Privacy positive loses replay blockers','rejected_semantically':any('replay blocker' in e for e in r['errors']),'evidence':r['errors'][:3]})
+ (target/path).write_text(original,encoding='utf8')
+result={'status':'PASS' if all(r['rejected_semantically'] for r in results) else 'FAIL','cases':len(results),'default_total_cases':default_total,'shard':args.shard,'scope':'OFFLINE_SQL_SOURCE_MUTATIONS_FINGERPRINT_CHECK_DISABLED','database_contacted':False,'sql_executed':False,'results':results}
 print(json.dumps(result,indent=2));raise SystemExit(result['status']!='PASS')

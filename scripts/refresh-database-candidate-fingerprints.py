@@ -18,7 +18,7 @@ manifest.update(
     historical_native_record='context/reconciliation/database-candidate-native-validation.json',
     current_native_record='context/reconciliation/database-candidate-corrections-native-validation.json',
     source_amendment_directive='P0-C-03A',
-    targeted_review_base_commit='8917e2035622017eccd14c99ad7fd2b55740163f',
+    targeted_review_base_commit='e363ad45dfad76d2a4ffbd0cd84ef0c01d24e966',
     current_review_directive='context/reconciliation/directives/brain-directive-p0-c-03a.md',
     current_sql_draft_manifest='context/reconciliation/foundation-sql-draft-manifest.json',
     scope='Candidate source packet; pre-generation flags belong to historical P0-C-02, not the separate current SQL draft stage.',
