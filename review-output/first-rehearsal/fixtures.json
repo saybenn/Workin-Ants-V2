@@ -254,6 +254,8 @@
         }
       },
       "expected_commit": true,
+      "expected_sqlstate": null,
+      "expected_diagnostic": "NONE",
       "expected_counts": {
         "command": 1,
         "customer": 1,
@@ -516,6 +518,8 @@
         }
       },
       "expected_commit": false,
+      "expected_sqlstate": "42501",
+      "expected_diagnostic": "CUSTOMER_PRINCIPAL_GUARD",
       "expected_counts": {
         "command": 0,
         "customer": 0,
@@ -778,6 +782,8 @@
         }
       },
       "expected_commit": false,
+      "expected_sqlstate": "P0001",
+      "expected_diagnostic": "CUSTOMER_DEFAULT_FREE_GUARD",
       "expected_counts": {
         "command": 0,
         "customer": 0,

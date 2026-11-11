@@ -25,6 +25,7 @@ sources=set(baseline['draft_source_sha256'])|{
     'scripts/check-foundation-sql-corrections.py',
     'scripts/check-foundation-sql-followup.py',
     'scripts/prepare-first-rehearsal.py',
+    'scripts/check-first-rehearsal-mocks.py',
     'scripts/sql-review/run-first-rehearsal.py',
     'scripts/sql-review/foundation-service-authority.sql',
     'scripts/sql-review/foundation-verification.sql',
@@ -40,7 +41,9 @@ outputs=list(baseline['outputs_sha256'])+['review-output/foundation-bootstrap-fi
 outputs+=sorted(str(p.relative_to(ROOT)).replace('\\','/') for p in (ROOT/'review-output/first-rehearsal').glob('*') if p.is_file())
 manifest={
     'directive':'P0-C-03A',
-    'reviewed_baseline':'e363ad45dfad76d2a4ffbd0cd84ef0c01d24e966',
+    'reviewed_baseline':'f3d4a161a4c8f7a00904f2c0757b1958601348dd',
+    'reviewed_tree':'4edf394a98f1ad357e6f15245fd309d689f35f07',
+    'historical_comparison_commit':'e363ad45dfad76d2a4ffbd0cd84ef0c01d24e966',
     'previous_correction_baseline':'8917e2035622017eccd14c99ad7fd2b55740163f',
     'original_drafting_input_baseline':baseline['reviewed_baseline'],
     'branch':baseline['branch'],
@@ -60,6 +63,7 @@ manifest={
     'bootstrap':'SEPARATE_ENVIRONMENT_SCOPE; ORIGINAL_GRANTOR_FINALIZES_AFTER_SUCCESS_OR_FAILURE',
     'review_findings':{'DRAFT-01':'SOURCE_ADDRESSED_NOT_RUNTIME_QUALIFIED','DRAFT-02':'SOURCE_ADDRESSED_NOT_RUNTIME_QUALIFIED','DRAFT-03':'SOURCE_ADDRESSED_NOT_RUNTIME_QUALIFIED','first_write':'SOURCE_ADDRESSED','installation_authority':'SOURCE_ADDRESSED','authorization_and_consent_scope':'SOURCE_ADDRESSED','customer_messages_and_result_versions':'SOURCE_ADDRESSED','worker_completion_and_lease':'SOURCE_ADDRESSED','reservation_release':'SOURCE_ADDRESSED'},
     'e363ad4_followup':{'A':'FUNCTION_ACL_AUTHORITY_ORDER_SOURCE_ADDRESSED','B':'EXPOSED_PORT_ACTUAL_SOURCE_JOB_CAPABILITY_BINDING_SOURCE_ADDRESSED','C':'APPLICATION_RESERVATION_TERMINAL_COLUMN_REACHABILITY_SOURCE_ADDRESSED','D':'PER_OPERATION_ATTAINABLE_VS_NAMED_DEPENDENCY_GATES_RECONCILED','runtime_qualified':False,'rehearsal':'database-candidate-tests.json#first_rehearsal'},
+    'rehearsal_hold_corrections':{'authentication':'EXPLICIT_INITDB_SCRAM_AND_MANDATORY_HBA_CORRECT_WRONG_PASSWORD_CONTROLS_PREPARED_NOT_RUN','verdict_and_evidence':'SQLSTATE_PLUS_ALLOWLISTED_DIAGNOSTIC_INCREMENTAL_SAFE_EVIDENCE_CLOSE_BEFORE_OBSERVER','mocks':'scripts/check-first-rehearsal-mocks.py; all subprocess boundaries mocked; no runtime qualification','Brain_re_review_required':True},
     'remaining_gates':['Brain exact corrected-source approval','Separately authorized disposable identity/image/actions and actual installation/replay','Real Identity/issuer/owner/worker adapters and later P0-D/E/F qualification','Usage period/reconciliation and Privacy completion adapters remain denied'],
     'parser':baseline['parser'],
     'validation_record':'context/reconciliation/foundation-sql-draft-validation.json',

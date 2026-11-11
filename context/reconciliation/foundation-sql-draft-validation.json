@@ -469,7 +469,7 @@
       }
     ]
   },
-  "historical_top_level_scope": "Retained earlier P0-C-03A source packet; current published-e363ad4 follow-up results are separately scoped below.",
+  "historical_top_level_scope": "Retained earlier P0-C-03A and e363ad4 follow-up evidence; latest two rehearsal HOLD corrections are separately scoped under rehearsal_hold_f3d4a16.",
   "followup_e363ad4": {
     "date": "2026-11-10",
     "reviewed_commit": "e363ad45dfad76d2a4ffbd0cd84ef0c01d24e966",
@@ -1367,6 +1367,1113 @@
       "image_inspect_exit_code": 1,
       "image_pull_performed": false,
       "meaning": "Engine readiness gap resolved by the later observation. Registry image/version/digest remain established; exact pinned image must be pulled only after the separate execution decision. No database or container action was performed."
+    }
+  },
+  "rehearsal_hold_f3d4a16": {
+    "date": "2026-11-11",
+    "status": "PASS_OFFLINE_ONLY_PENDING_BRAIN_RE_REVIEW",
+    "reviewed_commit": "f3d4a161a4c8f7a00904f2c0757b1958601348dd",
+    "reviewed_tree": "4edf394a98f1ad357e6f15245fd309d689f35f07",
+    "historical_comparison_commit": "e363ad45dfad76d2a4ffbd0cd84ef0c01d24e966",
+    "replacement_checkpoint": "Normal child containing this record; full commit/tree independently verified and returned after publication (no self-referential commit hash).",
+    "A_D": "SOURCE_REVIEW_ACCEPTED_RUNTIME_QUALIFICATION_OUTSTANDING",
+    "integration": "Original Windows checkout clean at8917e20 preserved; existing isolated checkout began clean/detached at reviewedf3d4a16; single source writer, no competing agent lane.",
+    "findings": {
+      "authentication": {
+        "source_closure": "Fresh initdb loopback SCRAM plus pinned encryption; mandatory ordered HBA and actual correct/wrong-password controls for postgres and all five restricted logins before both installations; repeat before behavioral seed. All controls prepared NOT_RUN.",
+        "mock_closure": [
+          "test_generator_and_register_authentication_boundary",
+          "test_hba_trust_stops_before_behavior",
+          "test_loaded_trust_stops_before_behavior",
+          "test_wrong_password_acceptance_stops_before_behavior",
+          "test_wrong_password_unrelated_failure_rejects",
+          "test_auth_only_has_no_behavior_or_fixture_seed"
+        ]
+      },
+      "verdict_and_failure_evidence": {
+        "source_closure": "SQLSTATE AND exact allowlisted guard diagnostic, immutable intended verdict pairs, existing stage/complete-state checks; abort/exit affected connection and independently confirm exact backend absence before observers; atomic stage/scenario/failure evidence, stop subsequent cases, retain controlled-cleanup requirement.",
+        "mock_closure": [
+          "test_intended_diagnostics_and_closed_before_observation",
+          "test_unrelated_42501_rejects",
+          "test_unrelated_p0001_rejects",
+          "test_unexpected_issuer_failure_retains_partial_incremental_evidence",
+          "test_unexpected_timeout_retains_markers_and_stops",
+          "test_unexpected_observer_failure_stops",
+          "test_resource_failure_retains_safe_entry_evidence",
+          "test_live_backend_prevents_observation",
+          "test_complete_state_checks_remain",
+          "test_stage_checks_remain",
+          "test_prior_evidence_is_never_overwritten"
+        ],
+        "secret_evidence": "Each mocked execution/failure asserts retained evidence excludes the password/handle canaries, statements, unrestricted error bodies and captured backend tuples; subprocess exception text is discarded.",
+        "runtime_closure": "NOT_RUN; no actual connection, authentication, rollback or resource cleanup occurred in this pass."
+      }
+    },
+    "executable_packet_sha256": "3195c933eb56c6b8c830f5c440c3a6a9aab3404496d765e9ac22addb391f018a",
+    "packet_hash_recipe": "SHA256(UTF8(concat sorted path + NUL + lowercase fileSHA256 + LF)); all paths relative to repository root, no self-reference",
+    "executable_packet_files_sha256": {
+      "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+      "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+      "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+      "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+      "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+      "review-output/first-rehearsal/fixtures.json": "df00d519f11cd0a443dba906d724216d0e9d4f16f3ccbd9a703f9d02d0f3b3be",
+      "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+      "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+      "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+      "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+      "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+      "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+      "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+      "review-output/foundation-application.review.sql": "7ebe82f8fd43697e68082a1f82a5e0cc7c909e2319466b75097939aa644768b3",
+      "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+      "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+      "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+      "scripts/check-first-rehearsal-mocks.py": "865774994ec8d9d28d59c477e81cd124cef6d84f430a3194cfe0593d66c8fee5",
+      "scripts/database-candidate-correction-rules.py": "6b79a14ffa77c450c3864ba5e2d930d61d5a427a6b0c11545e1afdd37ccaabb3",
+      "scripts/prepare-database-candidate-review-assets.py": "dcb1544afc39cffbd9a8b052749f544c7531ff3dee2ff9cc738fd38d8d3bc9ed",
+      "scripts/prepare-first-rehearsal.py": "b03f4b7fda4e60ff7bafc2b6a7463d7bb9a3ee7bffc9f4e6c8f840f99b4116ce",
+      "scripts/sql-review/run-first-rehearsal.py": "506bf8233c13d80c36cb338f15c4575db76db59bcdcaec2102f41d4b11d1305e"
+    },
+    "environment": {
+      "os": "Windows",
+      "python": "3.12.10",
+      "node": "24.22.1",
+      "prisma": "7.10.1",
+      "pglast": "7.21",
+      "PYTHONUTF8": "1",
+      "JITI_FS_CACHE": "0",
+      "test_temp": "Resolved task-owned writable test-tmp outside source checkout"
+    },
+    "offline_results": {
+      "predicate_cases": 750,
+      "existing_followup_source_graph_checks": 501,
+      "focused_subprocess_mock_tests": 19,
+      "sql_source_mutations_rejected": 75,
+      "sql_mutation_shards": 3,
+      "sql_mutation_evaluations": 79,
+      "related_mutations": {
+        "candidate": 90,
+        "foundation": 30,
+        "phase0": 36
+      },
+      "native_schema_validations": 3,
+      "lint": "PASS",
+      "reproduced_files": 17,
+      "byte_reproduction": "IDENTICAL",
+      "new_transport_sql_parse": {
+        "status": "PASS",
+        "scope": "PARSE_ONLY_ALL_SUBPROCESS_BOUNDARIES_MOCKED",
+        "parser": "v7.21",
+        "transport_sql_inputs_parsed": 34,
+        "statements_parsed": 81,
+        "database_contacted": false,
+        "sql_executed": false
+      }
+    },
+    "commands": [
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/check-first-rehearsal-mocks.py"
+        ],
+        "exit_code": 0,
+        "recorded_at": "2026-11-11T05:54:25.234903+00:00",
+        "result": {
+          "status": "PASS",
+          "tests": 19,
+          "test_names": [
+            "test_auth_only_has_no_behavior_or_fixture_seed",
+            "test_complete_state_checks_remain",
+            "test_diagnostic_requires_one_exact_pair",
+            "test_execution_guard_precedes_all_boundaries",
+            "test_generator_and_register_authentication_boundary",
+            "test_hba_trust_stops_before_behavior",
+            "test_intended_diagnostics_and_closed_before_observation",
+            "test_live_backend_prevents_observation",
+            "test_loaded_trust_stops_before_behavior",
+            "test_prior_evidence_is_never_overwritten",
+            "test_resource_failure_retains_safe_entry_evidence",
+            "test_stage_checks_remain",
+            "test_unexpected_issuer_failure_retains_partial_incremental_evidence",
+            "test_unexpected_observer_failure_stops",
+            "test_unexpected_timeout_retains_markers_and_stops",
+            "test_unrelated_42501_rejects",
+            "test_unrelated_p0001_rejects",
+            "test_wrong_password_acceptance_stops_before_behavior",
+            "test_wrong_password_unrelated_failure_rejects"
+          ],
+          "all_docker_database_process_boundaries_mocked": true,
+          "real_docker_database_calls": 0
+        }
+      },
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/check-foundation-sql-corrections.py"
+        ],
+        "exit_code": 0,
+        "recorded_at": "2026-11-11T05:54:37.406063+00:00",
+        "result": {
+          "status": "PASS",
+          "scope": "OFFLINE_AST_SCALAR_PREDICATES_AND_SOURCE_GRAPH_ONLY",
+          "predicate_cases": 750,
+          "followup_source_graph_checks": 501,
+          "errors": [],
+          "database_contacted": false,
+          "sql_executed": false,
+          "database_runtime_cases": "451_NOT_RUN"
+        }
+      },
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/check-foundation-sql-draft.py"
+        ],
+        "exit_code": 0,
+        "recorded_at": "2026-11-11T05:58:08.945779+00:00",
+        "result": {
+          "status": "PASS",
+          "scope": "OFFLINE_SOURCE_AND_PARSER_ONLY",
+          "database_contacted": false,
+          "sql_executed": false,
+          "catalog_parity_verified": false,
+          "runtime_tests": "NOT_RUN",
+          "parser": "v7.21",
+          "stats": {
+            "review-output/foundation-bootstrap.review.sql": {
+              "sql_statements": 30,
+              "plpgsql_bodies_parsed": 0,
+              "sql_bodies_parsed": 0
+            },
+            "review-output/foundation-structure.sql": {
+              "sql_statements": 249,
+              "plpgsql_bodies_parsed": 0,
+              "sql_bodies_parsed": 0
+            },
+            "review-output/foundation-application.review.sql": {
+              "sql_statements": 1125,
+              "plpgsql_bodies_parsed": 101,
+              "sql_bodies_parsed": 47
+            },
+            "review-output/foundation-bootstrap-finalize.review.sql": {
+              "sql_statements": 5,
+              "plpgsql_bodies_parsed": 2,
+              "sql_bodies_parsed": 0
+            }
+          },
+          "errors": []
+        }
+      },
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/check-context.py"
+        ],
+        "exit_code": 0,
+        "recorded_at": "2026-11-11T05:52:05.043022+00:00",
+        "result": {
+          "raw_output": "{\n  \"clusters\": 10,\n  \"modules\": 34,\n  \"cluster_documents\": 20,\n  \"module_documents\": 68,\n  \"handoffs\": 10,\n  \"shared_operations\": 132,\n  \"shared_statuses\": {\n    \"Confirmed\": 109,\n    \"Proposed ruling\": 23\n  },\n  \"prisma_models\": 177,\n  \"prisma_enums\": 207,\n  \"sql_migrations\": 1,\n  \"created_tables\": 53,\n  \"created_enums\": 31\n}\nWARNINGS: 124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay\nStructural checks PASSED; semantic readiness is a separate gate.\n"
+        }
+      },
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/check-foundation.py"
+        ],
+        "exit_code": 0,
+        "recorded_at": "2026-11-11T05:52:21.133297+00:00",
+        "result": {
+          "errors": [],
+          "metrics": {
+            "contracts": 132,
+            "workflows": 13,
+            "cold_start_routes": 6,
+            "candidate_lanes": 8,
+            "authorized_parallel_lanes": 0,
+            "synchronous_contract_cycles": [],
+            "current_context_links_checked": 2874,
+            "feature_source_files_scanned": 0,
+            "specified_token_contrast_pairs": 12,
+            "dispositions": {
+              "EVOLVABLE_COMPATIBLY": 119,
+              "EXTERNALLY_GATED": 13
+            }
+          },
+          "scope": "Static ownership/workflow/context/schema and executable wire/reference assertions. No real producer/consumer, framework, database, RLS, provider, Privacy executor or full rendered UI proof. Empty feature-source inventory is reported explicitly, not runtime boundary certification."
+        }
+      },
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/check-phase0.py"
+        ],
+        "exit_code": 0,
+        "recorded_at": "2026-11-11T05:52:24.139008+00:00",
+        "result": {
+          "errors": [],
+          "nine_roles": 9,
+          "archived_files": 21,
+          "source_models": 177,
+          "database_posture": "D",
+          "status": "FRAMEWORK_ACCEPTANCE_PASS_DEPENDENCY_SECURITY_REQUALIFIED",
+          "scope": "Static source/evidence/context/denial gate checks, including integrity of the separately recorded read-only existing-database observation. No fresh-target adoption, RLS behavior, owner-runtime or SH qualification."
+        }
+      },
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/check-database-candidate.py"
+        ],
+        "exit_code": 0,
+        "recorded_at": "2026-11-11T05:52:26.143073+00:00",
+        "result": {
+          "status": "PASS",
+          "errors": [],
+          "existing_models": 177,
+          "candidate_models": 214,
+          "foundation_models": 40,
+          "compatibility_cases": 12,
+          "sql_requirements": 18,
+          "planned_tests_not_run": 451,
+          "scope": "Offline source/evidence/semantic checks; not database/RLS/worker/provider execution"
+        }
+      },
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/check-database-candidate-negative.py"
+        ],
+        "exit_code": 0,
+        "recorded_at": "2026-11-11T05:51:50.802288+00:00",
+        "result": {
+          "status": "PASS",
+          "total": 90,
+          "scope": "Semantic source mutations with fingerprint checks disabled; no actual DB/RLS/runtime execution"
+        }
+      },
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/check-foundation-negative.py"
+        ],
+        "exit_code": 0,
+        "recorded_at": "2026-11-11T05:59:21.031079+00:00",
+        "result": {
+          "status": "PASS",
+          "total": 30,
+          "scope": "Negative static/wire/model checks only; injected fake feature files test detection. No real producer/provider/DB/RLS/runtime was exercised."
+        }
+      },
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/check-phase0-negative.py"
+        ],
+        "exit_code": 0,
+        "recorded_at": "2026-11-11T06:00:04.626401+00:00",
+        "result": {
+          "status": "PASS",
+          "total": 36,
+          "scope": "Source/evidence mutations only. Separately executed real HTTP tests prove the current diagnostic behavior; no actual DB/RLS/provider/owner-runtime test is implied."
+        }
+      }
+    ],
+    "sql_mutation_commands": [
+      [
+        "python",
+        "-B",
+        "scripts/check-foundation-sql-draft-negative.py",
+        "--shard",
+        "0/3"
+      ],
+      [
+        "python",
+        "-B",
+        "scripts/check-foundation-sql-draft-negative.py",
+        "--shard",
+        "1/3"
+      ],
+      [
+        "python",
+        "-B",
+        "scripts/check-foundation-sql-draft-negative.py",
+        "--shard",
+        "2/3"
+      ]
+    ],
+    "sql_mutations": [
+      {
+        "case": "remove tuple login",
+        "rejected_semantically": true,
+        "evidence": [
+          "missing bind/currentness predicate database_login_role=session_user::text"
+        ]
+      },
+      {
+        "case": "remove current generation",
+        "rejected_semantically": true,
+        "evidence": [
+          "missing bind/currentness predicate s.security_generation=g.security_generation"
+        ]
+      },
+      {
+        "case": "lock at bind before revoker",
+        "rejected_semantically": true,
+        "evidence": [
+          "bind locks before CTX02 revocation"
+        ]
+      },
+      {
+        "case": "remove default execute revocation",
+        "rejected_semantically": true,
+        "evidence": [
+          "default PUBLIC function execute"
+        ]
+      },
+      {
+        "case": "raw grant function exposure",
+        "rejected_semantically": true,
+        "evidence": [
+          "effective raw grant helper execute granted",
+          "function ACL statement lacks owner authority: bound_grant"
+        ]
+      },
+      {
+        "case": "helper writes",
+        "rejected_semantically": true,
+        "evidence": [
+          "DEFINER writes/dynamic SQL platform_private.context_allows",
+          "DEFINER writes/dynamic SQL platform_private.protected_scope"
+        ]
+      },
+      {
+        "case": "remove server mutation stamp",
+        "rejected_semantically": true,
+        "evidence": [
+          "missing server mutation stamp platform_private.grant_guard",
+          "missing server mutation stamp platform_private.guard_consentlog"
+        ]
+      },
+      {
+        "case": "Consent prerequisite root binding bypassed",
+        "rejected_semantically": true,
+        "evidence": [
+          "Consent scope graph mismatch: Consent proof foreign ConsentPresentation despite row caps",
+          "Consent scope graph mismatch: Consent proof missing ConsentPresentation relationship"
+        ]
+      },
+      {
+        "case": "create may invent predecessor",
+        "rejected_semantically": true,
+        "evidence": [
+          "exact source predecessor check missing",
+          "restore marker predecessor not exact"
+        ]
+      },
+      {
+        "case": "service issuer self attests epoch",
+        "rejected_semantically": true,
+        "evidence": [
+          "service currentness has no independent Identity source",
+          "service authority check missing: a.security_generation=g.security_generation"
+        ]
+      },
+      {
+        "case": "verifier gets source writes",
+        "rejected_semantically": true,
+        "evidence": [
+          "verifier read surface differs: wa_customer_verifier"
+        ]
+      },
+      {
+        "case": "wrong provision purpose registered",
+        "rejected_semantically": true,
+        "evidence": [
+          "Customer provision purpose not registered exactly"
+        ]
+      },
+      {
+        "case": "extra Free command accepted on update",
+        "rejected_semantically": true,
+        "evidence": [
+          "extra message escapes source check e.previous_revision IS NOT NULL"
+        ]
+      },
+      {
+        "case": "renewal permits expiry shortening",
+        "rejected_semantically": true,
+        "evidence": [
+          "renewal not constrained"
+        ]
+      },
+      {
+        "case": "effect from different operation",
+        "rejected_semantically": true,
+        "evidence": [
+          "unrelated effect can complete: c.operation=e.operation",
+          "predicate mismatch: foreign operation receipt"
+        ]
+      },
+      {
+        "case": "reservation two-step unknown bypass",
+        "rejected_semantically": true,
+        "evidence": [
+          "uncertain reservation can return to active",
+          "unknown -> active release bypass"
+        ]
+      },
+      {
+        "case": "foreign reservation proof accepted",
+        "rejected_semantically": true,
+        "evidence": [
+          "reservation proof binding missing e.subject_scope<>'RuntimeReservation:'||NEW.id::text",
+          "predicate mismatch: foreign reservation receipt denied"
+        ]
+      },
+      {
+        "case": "private epoch RLS disabled",
+        "rejected_semantically": true,
+        "evidence": [
+          "private Identity RLS missing identity_service_authorization"
+        ]
+      },
+      {
+        "case": "worker reverse proof wrong transaction allowed",
+        "rejected_semantically": true,
+        "evidence": [
+          "worker reverse proof lacks current transaction"
+        ]
+      },
+      {
+        "case": "linked old effect recovery removed",
+        "rejected_semantically": true,
+        "evidence": [
+          "old exact committed effect cannot be read after reclaim",
+          "predicate mismatch: old linked committed effect read after reclaim"
+        ]
+      },
+      {
+        "case": "reservation can enter released",
+        "rejected_semantically": true,
+        "evidence": [
+          "reservation can start terminal"
+        ]
+      },
+      {
+        "case": "query purpose admits source update",
+        "rejected_semantically": true,
+        "evidence": [
+          "predicate mismatch: SH-003.v1 User UPDATE"
+        ]
+      },
+      {
+        "case": "foreign complete verifier claim accepted",
+        "rejected_semantically": true,
+        "evidence": [
+          "claim not compared to actual row"
+        ]
+      },
+      {
+        "case": "actual source from another transaction",
+        "rejected_semantically": true,
+        "evidence": [
+          "actual source lookup missing TrackSubscription",
+          "actual source lookup missing TrackEntitlementGrant"
+        ]
+      },
+      {
+        "case": "runtime terminal effect column removed",
+        "rejected_semantically": true,
+        "evidence": [
+          "ACL evidence differs from SQL {'model': 'RuntimeReservation', 'role': 'wa_app_runtime', 'operation': 'UPDATE', 'fields': ['resourceKind', 'resourceKey', 'semanticKey', 'quantity', 'state', 'fence', 'expiresAt', 'effectReceiptId'], 'columns': ['resource_kind', 'resource_key', 'semantic_key', 'quantity', 'state', 'fence', 'expires_at', 'effect_receipt_id']}",
+          "actual SQL ACL exceeds or differs from declared exact role/column map"
+        ]
+      },
+      {
+        "case": "coherent forbidden usage SQL and ACL map",
+        "rejected_semantically": true,
+        "evidence": [
+          "Track worker privilege broadening TrackUsageEvent",
+          "worker usage permission TrackUsageEvent"
+        ]
+      },
+      {
+        "case": "gated Privacy positive loses replay blockers",
+        "rejected_semantically": true,
+        "evidence": [
+          "empty/missing replay blocker P0C-TABLE-PrivacyOwnerReceipt-ALLOW"
+        ]
+      },
+      {
+        "case": "remove tuple backend",
+        "rejected_semantically": true,
+        "evidence": [
+          "missing bind/currentness predicate backend_pid=pg_backend_pid()"
+        ]
+      },
+      {
+        "case": "remove revoke check",
+        "rejected_semantically": true,
+        "evidence": [
+          "missing bind/currentness predicate revoked_at IS NULL",
+          "service currentness has no independent Identity source"
+        ]
+      },
+      {
+        "case": "remove forced RLS",
+        "rejected_semantically": true,
+        "evidence": [
+          "FORCE RLS missing \"app\".\"customer_profiles\""
+        ]
+      },
+      {
+        "case": "remove null-safe consent",
+        "rejected_semantically": true,
+        "evidence": [
+          "nullable Consent context not exact"
+        ]
+      },
+      {
+        "case": "forbidden worker usage",
+        "rejected_semantically": true,
+        "evidence": [
+          "actual SQL ACL exceeds or differs from declared exact role/column map"
+        ]
+      },
+      {
+        "case": "helper foreign source read",
+        "rejected_semantically": true,
+        "evidence": [
+          "helper read/write surface broadened"
+        ]
+      },
+      {
+        "case": "nullable capability membership",
+        "rejected_semantically": true,
+        "evidence": [
+          "nullable capability membership can authorize absent field"
+        ]
+      },
+      {
+        "case": "Consent presentation subject check removed",
+        "rejected_semantically": true,
+        "evidence": [
+          "foreign presentation principal not checked"
+        ]
+      },
+      {
+        "case": "missing new reservation CAS",
+        "rejected_semantically": true,
+        "evidence": [
+          "CAS guard missing TrackUsageReservation",
+          "CAS guard missing PrivacyRestoreMarker"
+        ]
+      },
+      {
+        "case": "issuer can write service source",
+        "rejected_semantically": true,
+        "evidence": [
+          "issuer/runtime can write or read Identity authority"
+        ]
+      },
+      {
+        "case": "verifier exposes JSON",
+        "rejected_semantically": true,
+        "evidence": [
+          "verifier exposes body worker_lease_valid"
+        ]
+      },
+      {
+        "case": "empty Consent context unconditionally accepted",
+        "rejected_semantically": true,
+        "evidence": [
+          "empty Consent context not registered"
+        ]
+      },
+      {
+        "case": "message has no reverse commit trigger",
+        "rejected_semantically": true,
+        "evidence": [
+          "message reverse guard not wired"
+        ]
+      },
+      {
+        "case": "new effect attaches without exact verification",
+        "rejected_semantically": true,
+        "evidence": [
+          "one protected effect link missing"
+        ]
+      },
+      {
+        "case": "wrong Customer creation receipt ignored",
+        "rejected_semantically": true,
+        "evidence": [
+          "worker fixed binding missing sourceCreationReceipt"
+        ]
+      },
+      {
+        "case": "foreign operation noncommit accepted",
+        "rejected_semantically": true,
+        "evidence": [
+          "unsafe unknown reservation release",
+          "reservation proof binding missing e.operation<>c.operation"
+        ]
+      },
+      {
+        "case": "cleanup run by wrong role",
+        "rejected_semantically": true,
+        "evidence": [
+          "authorized success/failure membership cleanup missing",
+          "cleanup lacks authorized grantor"
+        ]
+      },
+      {
+        "case": "same transaction successor read broken",
+        "rejected_semantically": true,
+        "evidence": [
+          "same-transaction successor read cannot prove update"
+        ]
+      },
+      {
+        "case": "worker reverse proof missing exact revision",
+        "rejected_semantically": true,
+        "evidence": [
+          "predicate mismatch: TrackSubscription reverse proof wrong revision",
+          "predicate mismatch: TrackEntitlementGrant reverse proof wrong revision"
+        ]
+      },
+      {
+        "case": "attempt count can change outside claim",
+        "rejected_semantically": true,
+        "evidence": [
+          "attempt changes outside claim"
+        ]
+      },
+      {
+        "case": "reservation initial guard disconnected",
+        "rejected_semantically": true,
+        "evidence": [
+          "reservation insert entry guard not wired"
+        ]
+      },
+      {
+        "case": "function grant after NOINHERIT transfer",
+        "rejected_semantically": true,
+        "evidence": [
+          "function ACL statement lacks owner authority: track_atomic_valid"
+        ]
+      },
+      {
+        "case": "direct atomic port skips actual source",
+        "rejected_semantically": true,
+        "evidence": [
+          "direct atomic entry bypasses claim gate"
+        ]
+      },
+      {
+        "case": "caller-only selection predecessor",
+        "rejected_semantically": true,
+        "evidence": [
+          "selection predecessor is caller-only"
+        ]
+      },
+      {
+        "case": "remove tuple xid",
+        "rejected_semantically": true,
+        "evidence": [
+          "missing bind/currentness predicate transaction_id=pg_current_xact_id()::text",
+          "transaction-stamp proof missing"
+        ]
+      },
+      {
+        "case": "remove expiry check",
+        "rejected_semantically": true,
+        "evidence": [
+          "missing bind/currentness predicate expires_at > clock_timestamp()"
+        ]
+      },
+      {
+        "case": "wrong helper owner",
+        "rejected_semantically": true,
+        "evidence": [
+          "DEFINER owner not narrow helper: platform_private.bind_request_context"
+        ]
+      },
+      {
+        "case": "remove durable unknown noncommit",
+        "rejected_semantically": true,
+        "evidence": [
+          "unsafe unknown reservation release",
+          "predicate mismatch: exact durable noncommit release valid"
+        ]
+      },
+      {
+        "case": "runtime privileged membership",
+        "rejected_semantically": true,
+        "evidence": [
+          "runtime privileged membership"
+        ]
+      },
+      {
+        "case": "PUBLIC helper execution",
+        "rejected_semantically": true,
+        "evidence": [
+          "PUBLIC function execute grant",
+          "function ACL statement lacks owner authority: bind_request_context"
+        ]
+      },
+      {
+        "case": "Consent prerequisite scope removed",
+        "rejected_semantically": true,
+        "evidence": [
+          "Consent scope graph mismatch: Consent proof exact ConsentPresentation prerequisite read"
+        ]
+      },
+      {
+        "case": "nonnull create predecessor contradiction",
+        "rejected_semantically": true,
+        "evidence": [
+          "first-write predecessor is still NOT NULL"
+        ]
+      },
+      {
+        "case": "age evidence update exposed",
+        "rejected_semantically": true,
+        "evidence": [
+          "actual SQL ACL exceeds or differs from declared exact role/column map",
+          "age update privilege AgeGateBlock"
+        ]
+      },
+      {
+        "case": "service revocation ignored",
+        "rejected_semantically": true,
+        "evidence": [
+          "service currentness has no independent Identity source",
+          "service authority check missing: a.revoked_at IS NULL"
+        ]
+      },
+      {
+        "case": "unused action purpose helper",
+        "rejected_semantically": true,
+        "evidence": [
+          "registered scope has no protected caller"
+        ]
+      },
+      {
+        "case": "command result version unrestricted",
+        "rejected_semantically": true,
+        "evidence": [
+          "command result version not enforced",
+          "predicate mismatch: wrong command result version denied"
+        ]
+      },
+      {
+        "case": "stored lease hash used as secret",
+        "rejected_semantically": true,
+        "evidence": [
+          "predicate mismatch: lease holder has preimage",
+          "predicate mismatch: copied stored hash is not secret"
+        ]
+      },
+      {
+        "case": "same fence unrelated semantic effect",
+        "rejected_semantically": true,
+        "evidence": [
+          "unrelated effect can complete: e.semantic_effect_key=w.semantic_work_key",
+          "predicate mismatch: same fence foreign effect key"
+        ]
+      },
+      {
+        "case": "wrong current plan revision ignored",
+        "rejected_semantically": true,
+        "evidence": [
+          "plan revision not enforced"
+        ]
+      },
+      {
+        "case": "NULL command noncommit accepted",
+        "rejected_semantically": true,
+        "evidence": [
+          "unsafe unknown reservation release",
+          "reservation proof binding missing e.command_receipt_id IS DISTINCT FROM NEW.command_receipt_id"
+        ]
+      },
+      {
+        "case": "cleanup leaves verifier memberships",
+        "rejected_semantically": true,
+        "evidence": [
+          "not all temporary memberships cleaned"
+        ]
+      },
+      {
+        "case": "worker source verifier wrong owner",
+        "rejected_semantically": true,
+        "evidence": [
+          "DEFINER owner not narrow helper: platform_private.worker_evidence_source_matches",
+          "verifier owner wrong worker_evidence_source_matches"
+        ]
+      },
+      {
+        "case": "worker update input omits user identity",
+        "rejected_semantically": true,
+        "evidence": [
+          "worker UPDATE verifier input missing user_id"
+        ]
+      },
+      {
+        "case": "claim accepts expired lease",
+        "rejected_semantically": true,
+        "evidence": [
+          "claim accepts expired lease"
+        ]
+      },
+      {
+        "case": "uncertain reservation quantity can shrink",
+        "rejected_semantically": true,
+        "evidence": [
+          "unknown reservation quantity can shrink"
+        ]
+      },
+      {
+        "case": "managed function revoke after transfer",
+        "rejected_semantically": true,
+        "evidence": [
+          "managed-role function revocation after transfer"
+        ]
+      },
+      {
+        "case": "direct relationship port skips caps",
+        "rejected_semantically": true,
+        "evidence": [
+          "direct relationship port bypasses capabilities",
+          "capability gate follows privileged relationship lookup"
+        ]
+      },
+      {
+        "case": "direct effect skips canonical source",
+        "rejected_semantically": true,
+        "evidence": [
+          "direct effect port bypasses canonical job source"
+        ]
+      }
+    ],
+    "native_reproduction": {
+      "scope": "OFFLINE_NO_DB_NO_DOCKER",
+      "status": "PASS",
+      "commands": [
+        {
+          "command": [
+            "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\offline-node\\node.exe",
+            "node_modules/prisma/build/index.js",
+            "validate",
+            "--config",
+            "prisma.offline.config.ts"
+          ],
+          "exit_code": 0,
+          "seconds": 54.89,
+          "stdout": "The schema at prisma\\schema.prisma is valid 🚀\n",
+          "stderr": "Loaded Prisma config from prisma.offline.config.ts.\n\nPrisma schema loaded from prisma\\schema.prisma.\n"
+        },
+        {
+          "command": [
+            "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\offline-node\\node.exe",
+            "node_modules/prisma/build/index.js",
+            "validate",
+            "--config",
+            "prisma.review.config.ts"
+          ],
+          "exit_code": 0,
+          "seconds": 10.19,
+          "stdout": "The schema at prisma\\review\\physical-candidate.prisma is valid 🚀\n",
+          "stderr": "Loaded Prisma config from prisma.review.config.ts.\n\nPrisma schema loaded from prisma\\review\\physical-candidate.prisma.\n"
+        },
+        {
+          "command": [
+            "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\offline-node\\node.exe",
+            "node_modules/prisma/build/index.js",
+            "validate",
+            "--config",
+            "prisma.foundation-review.config.ts"
+          ],
+          "exit_code": 0,
+          "seconds": 7.73,
+          "stdout": "The schema at prisma\\review\\foundation-candidate.prisma is valid 🚀\n",
+          "stderr": "Loaded Prisma config from prisma.foundation-review.config.ts.\n\nPrisma schema loaded from prisma\\review\\foundation-candidate.prisma.\n"
+        },
+        {
+          "command": [
+            "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\offline-node\\node.exe",
+            "node_modules/eslint/bin/eslint.js",
+            "."
+          ],
+          "exit_code": 0,
+          "seconds": 201.12,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+            "-B",
+            "scripts/prepare-database-candidate.py"
+          ],
+          "exit_code": 0,
+          "seconds": 1.58,
+          "stdout": "{\n  \"existing_models\": 177,\n  \"candidate_models\": 214,\n  \"foundation_models\": 40,\n  \"enums\": 219,\n  \"scope\": \"source generation only; no DDL, database or adoption\"\n}\n",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\offline-node\\node.exe",
+            "--require",
+            "./scripts/sql-review/prisma-source-only-compat.cjs",
+            "node_modules/prisma/build/index.js",
+            "migrate",
+            "diff",
+            "--from-empty",
+            "--to-schema",
+            "prisma/review/foundation-candidate.prisma",
+            "--config",
+            "prisma.foundation-review.config.ts",
+            "--script",
+            "--output",
+            "review-output/foundation-structure.sql"
+          ],
+          "exit_code": 0,
+          "seconds": 11.14,
+          "stdout": "\n",
+          "stderr": "Loaded Prisma config from prisma.foundation-review.config.ts.\n\n"
+        },
+        {
+          "command": [
+            "C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+            "-B",
+            "scripts/prepare-database-candidate-review-assets.py"
+          ],
+          "exit_code": 0,
+          "seconds": 65.88,
+          "stdout": "{\"tests_specified\": 451, \"tests_executed\": 0, \"closed_model_evidence_shapes\": 214, \"source_files\": 40}\n",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+            "-B",
+            "scripts/assemble-foundation-sql-review.py"
+          ],
+          "exit_code": 0,
+          "seconds": 0.81,
+          "stdout": "Wrote application review SQL, bootstrap, 40-model metadata and exact ACL map\n",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+            "-B",
+            "scripts/prepare-first-rehearsal.py"
+          ],
+          "exit_code": 0,
+          "seconds": 1.12,
+          "stdout": "{\"prepared_scenarios\": 3, \"runtime_executed\": false}\n",
+          "stderr": ""
+        }
+      ],
+      "reproduced_sha256": {
+        "review-output/foundation-application.review.sql": "7ebe82f8fd43697e68082a1f82a5e0cc7c909e2319466b75097939aa644768b3",
+        "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+        "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+        "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+        "review-output/first-rehearsal/fixtures.json": "df00d519f11cd0a443dba906d724216d0e9d4f16f3ccbd9a703f9d02d0f3b3be",
+        "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+        "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+        "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+        "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+        "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+        "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+        "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+        "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+        "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+        "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+        "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+        "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d"
+      },
+      "differences": [],
+      "schemas_validated": 3,
+      "byte_identical_files": 17
+    },
+    "preservation": {
+      "image": true,
+      "resources": true,
+      "original_grantor_finalization": true,
+      "exact_cleanup": true,
+      "451_not_run": true,
+      "94_not_run": true,
+      "protected_bytes": {
+        "review-output/foundation-application.review.sql": "7ebe82f8fd43697e68082a1f82a5e0cc7c909e2319466b75097939aa644768b3",
+        "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+        "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+        "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+        "prisma/schema.prisma": "4a75be42a8b26001c20aaf46a1bb0e5dd7d0984090c9712274c308668908eebf",
+        "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+        "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+        "package.json": "6a3a1c7ef64f84eab2e4ec74843eb1c45d907e19ab7f04b222ad8d0eb42a6d85",
+        "package-lock.json": "6b4e322549d6a6c14cd8542a21c1a6621a2625f88dbab5606174fd655dcdda1f",
+        "vercel.json": "81a4eed381a1ebdb732441b2aa90c1933824338a9822859ead828bfdbabdc02f",
+        "scripts/assemble-foundation-sql-review.py": "136489b5fb966085020128bfbd7140dad5e0b340a2312319d346305311fc212f",
+        "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+        "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+        "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+        "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+        "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+        "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+        "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+        "scripts/sql-review/foundation-bootstrap-finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+        "scripts/sql-review/foundation-invariants.sql": "79a3603185c78e0afa80dd65e6a813319a24a5f83ecfbe2f00510946db2ffc62",
+        "scripts/sql-review/foundation-service-authority.sql": "7e61a56e66bf17a168b5b07db0f6c7a5522e4a71b9976119e5800cc969bbac82",
+        "scripts/sql-review/foundation-verification.sql": "053a0e26bffab95324e2ed70b74ec3f13e49b4a5f08ec6ff50367d2e219dda6c"
+      },
+      "worker_direct_acl_identical": true,
+      "worker_acl_rows": 32
+    },
+    "initial_failures_and_limits": [
+      "First focused mock invocation used the sandbox default temp directory and13 cases failed to create evidence files; redirected TMP/TEMP/TMPDIR to verified task-owned writable test-tmp, then all19 final focused tests passed. No Docker/database process was used.",
+      "Read-only original-checkout and authenticated remote checks required the normal sandbox network/filesystem escalation; authorized checks then passed. No authentication involvement was needed.",
+      "Context check retains its existing warning:124 mapped Prisma models lack CREATE TABLE in checked-in historical migration; static coverage is not migration replay.",
+      "No framework/type/build/HTTP rerun: no framework/TypeScript/config/dependency change; lint and three native schema validations rerun. Existing framework evidence remains historical.",
+      "Parser, mocks and source predicates cannot prove PostgreSQL catalogs, actual logins, RLS, installation, concurrency, rollback behavior or runtime qualification."
+    ],
+    "deployment_safeguards": {
+      "vercel_correction_branch_disabled": true,
+      "branch_workflows_present": false,
+      "vercel_config_unchanged": true,
+      "hooks": "No active hooks or configured core.hooksPath observed",
+      "publication": "Normal authenticated Git fast-forward on exact correction branch; no main merge, force push or deployment command."
+    },
+    "boundaries": {
+      "database_posture": "D",
+      "database_runtime_cases": "451_NOT_RUN",
+      "selected_replay_cases": "94_NOT_RUN",
+      "authentication_and_rehearsal_steps": "NOT_RUN",
+      "execution_hold": "BRAIN_RE_REVIEW_AND_SEPARATE_EXECUTION_DECISION_REQUIRED",
+      "docker_process_invoked": false,
+      "database_contacted": false,
+      "sql_executed": false,
+      "images_pulled": false,
+      "containers_created_started": false,
+      "hosted_changes": false,
+      "migration_adoption": false,
+      "production_readiness_established": false
     }
   }
 }

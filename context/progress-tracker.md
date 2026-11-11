@@ -1,4 +1,12 @@
-## Current status / Next action — e363ad4 follow-up, 10 November 2026
+## Current status — Brain HOLD rehearsal corrections, 11 November 2026
+
+- **Scope:** Only two rehearsal findings against reviewed f3d4a161a4c8f7a00904f2c0757b1958601348dd/tree4edf394a98f1ad357e6f15245fd309d689f35f07. A–D remain source-accepted with runtime qualification outstanding; e363ad4 is historical comparison. Original Windows checkout and existing work are preserved; correction uses the clean isolated reviewed checkout.
+- **Corrections:** Explicit initdb loopback SCRAM; mandatory effective HBA plus actual correct/wrong-password controls prepared for both targets and before behavior. Negative outcomes require intended SQLSTATE and allowlisted diagnostic, exact stage markers and complete state. Operation connection closes and backend absence is confirmed before observations. Incremental sanitized evidence survives unexpected failure and stops later cases; exact controlled cleanup remains required.
+- **Evidence:** Existing technical review, generated register/fixture packet and validation record `rehearsal_hold_f3d4a16` hold exact hashes and actual offline/mock/parser/reproduction outcomes. All Docker/database process boundaries are mocked in the new focused suite. PASS: unchanged750 predicates/501 checks,75 distinct SQL mutations rejected,19 focused subprocess mocks,3 native schemas, lint,17 byte-identical reproduced files, SQL/function/34 transport-input parsing, context/foundation/Phase0/candidate and90/30/36 related mutations. Source mocks add evidence separately.
+- **Next:** Brain re-reviews the replacement source checkpoint and executable packet. Execution remains HELD; Posture D; all451/94 and every unexecuted rehearsal/authentication step NOT_RUN. No Docker process, database/SQL, hosted service, migration adoption, product UI or permission expansion. A later small rehearsal would qualify only its exercised subset.
+
+
+## Historical status — e363ad4 follow-up, 10 November 2026
 
 - **Scope:** Four source findings A–D against published `e363ad45dfad76d2a4ffbd0cd84ef0c01d24e966`. Original Windows checkout preserved; one isolated integration worktree and independent read-only review.
 - **Corrections:** Function ACL changes precede ownership transfer; every exposed Track verifier is bound to job/source/currentness/capabilities and actual source claims; application reservation UPDATE permits its protected one-time effect link; per-operation replay dependencies distinguish attainable paths from expected gated denials. Customer UPDATE proof-child INSERT admission is separate from its root UPDATE scope. Worker direct grants remain unchanged.

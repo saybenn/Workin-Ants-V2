@@ -22,7 +22,7 @@
   "candidate_lanes": 8,
   "authorized_parallel_lanes": 0,
   "production_development_authorized": false,
-  "next_safe_task": "Brain reviews e363ad4 follow-up A–D corrected source and database-candidate-tests.json first_rehearsal; separately decides the exact disposable execution. P0-B passed; Posture D, all451/94 NOT_RUN and P0-D–G holds remain.",
+  "next_safe_task": "Brain re-review of the two rehearsal HOLD corrections against f3d4a16, exact replacement checkpoint and executable packet hashes; no execution until a separate decision. A–D source acceptance retained; all451/94/authentication/rehearsal cases NOT_RUN, Posture D and P0-D–G holds unchanged.",
   "dependency_security_gate": "PASS_KNOWN_ADVISORIES_REMEDIATED",
   "dependency_security_issue": "TECH-DEPENDENCY-SECURITY-001",
   "real_http_smoke_cases": 47,
@@ -100,5 +100,44 @@
       "image_pull_performed": false,
       "meaning": "Engine readiness gap resolved by the later observation. Registry image/version/digest remain established; exact pinned image must be pulled only after the separate execution decision. No database or container action was performed."
     }
+  },
+  "rehearsal_hold_correction": {
+    "reviewed_commit": "f3d4a161a4c8f7a00904f2c0757b1958601348dd",
+    "reviewed_tree": "4edf394a98f1ad357e6f15245fd309d689f35f07",
+    "historical_comparison": "e363ad45dfad76d2a4ffbd0cd84ef0c01d24e966",
+    "A_D": "SOURCE_ACCEPTED_RUNTIME_OUTSTANDING",
+    "status": "SOURCE_CORRECTED_PENDING_BRAIN_RE_REVIEW",
+    "validation": "foundation-sql-draft-validation.json#rehearsal_hold_f3d4a16",
+    "database_contacted_this_pass": false,
+    "docker_process_invoked_this_pass": false,
+    "runtime_status": "451_AND_94_AND_REHEARSAL_NOT_RUN",
+    "posture": "D",
+    "actual_offline_results": {
+      "predicate_cases": 750,
+      "existing_followup_source_graph_checks": 501,
+      "focused_subprocess_mock_tests": 19,
+      "sql_source_mutations_rejected": 75,
+      "sql_mutation_shards": 3,
+      "sql_mutation_evaluations": 79,
+      "related_mutations": {
+        "candidate": 90,
+        "foundation": 30,
+        "phase0": 36
+      },
+      "native_schema_validations": 3,
+      "lint": "PASS",
+      "reproduced_files": 17,
+      "byte_reproduction": "IDENTICAL",
+      "new_transport_sql_parse": {
+        "status": "PASS",
+        "scope": "PARSE_ONLY_ALL_SUBPROCESS_BOUNDARIES_MOCKED",
+        "parser": "v7.21",
+        "transport_sql_inputs_parsed": 34,
+        "statements_parsed": 81,
+        "database_contacted": false,
+        "sql_executed": false
+      }
+    },
+    "executable_packet_sha256": "3195c933eb56c6b8c830f5c440c3a6a9aab3404496d765e9ac22addb391f018a"
   }
 }

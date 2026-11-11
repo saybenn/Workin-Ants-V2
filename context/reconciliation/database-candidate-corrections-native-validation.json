@@ -147,5 +147,54 @@
       }
     ],
     "database_contacted": false
+  },
+  "rehearsal_hold_f3d4a16": {
+    "date": "2026-11-11",
+    "scope": "OFFLINE_SCHEMA_VALIDATION_ONLY",
+    "status": "PASS",
+    "node": "24.22.1",
+    "prisma": "7.10.1",
+    "commands": [
+      {
+        "command": [
+          "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\offline-node\\node.exe",
+          "node_modules/prisma/build/index.js",
+          "validate",
+          "--config",
+          "prisma.offline.config.ts"
+        ],
+        "exit_code": 0,
+        "seconds": 54.89,
+        "stdout": "The schema at prisma\\schema.prisma is valid 🚀\n",
+        "stderr": "Loaded Prisma config from prisma.offline.config.ts.\n\nPrisma schema loaded from prisma\\schema.prisma.\n"
+      },
+      {
+        "command": [
+          "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\offline-node\\node.exe",
+          "node_modules/prisma/build/index.js",
+          "validate",
+          "--config",
+          "prisma.review.config.ts"
+        ],
+        "exit_code": 0,
+        "seconds": 10.19,
+        "stdout": "The schema at prisma\\review\\physical-candidate.prisma is valid 🚀\n",
+        "stderr": "Loaded Prisma config from prisma.review.config.ts.\n\nPrisma schema loaded from prisma\\review\\physical-candidate.prisma.\n"
+      },
+      {
+        "command": [
+          "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\offline-node\\node.exe",
+          "node_modules/prisma/build/index.js",
+          "validate",
+          "--config",
+          "prisma.foundation-review.config.ts"
+        ],
+        "exit_code": 0,
+        "seconds": 7.73,
+        "stdout": "The schema at prisma\\review\\foundation-candidate.prisma is valid 🚀\n",
+        "stderr": "Loaded Prisma config from prisma.foundation-review.config.ts.\n\nPrisma schema loaded from prisma\\review\\foundation-candidate.prisma.\n"
+      }
+    ],
+    "database_contacted": false
   }
 }
