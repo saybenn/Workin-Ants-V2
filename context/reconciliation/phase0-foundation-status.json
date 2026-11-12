@@ -13,7 +13,7 @@
   "P0_B": "FRAMEWORK_ACCEPTANCE_PASS_DEPENDENCY_SECURITY_REQUALIFIED",
   "TECH_LOCK_001": "RESOLVED_CLEAN_PINNED_INSTALL_ZERO_EXISTING_VERSION_CHANGES",
   "TECH_ROUTER_001": "RESOLVED_CLEAN_APP_REAL_FRAMEWORK_HTTP_PASS",
-  "P0_C": "D_CORRECTED_SQL_SOURCE_PENDING_BRAIN_RE_REVIEW_NO_EXECUTION_OR_ADOPTION",
+  "P0_C": "D_FIRST_DISPOSABLE_REHEARSAL_STOPPED_AT_AUTH_PREFLIGHT_PENDING_BRAIN_REVIEW_NO_ADOPTION",
   "database_posture": "D",
   "database_contacted": true,
   "migrations_seed_reset_or_provisioning_executed": false,
@@ -22,7 +22,7 @@
   "candidate_lanes": 8,
   "authorized_parallel_lanes": 0,
   "production_development_authorized": false,
-  "next_safe_task": "Brain re-review of the two rehearsal HOLD corrections against f3d4a16, exact replacement checkpoint and executable packet hashes; no execution until a separate decision. A–D source acceptance retained; all451/94/authentication/rehearsal cases NOT_RUN, Posture D and P0-D–G holds unchanged.",
+  "next_safe_task": "Brain reviews first-rehearsal-1a69e41-execution.json: actual mandatory preflight stopped before application installation/behavior. Decide bounded inet serialization/evidence/mock correction and any new exact-packet rehearsal. Posture D;451/94 unpromoted; no execution expansion.",
   "dependency_security_gate": "PASS_KNOWN_ADVISORIES_REMEDIATED",
   "dependency_security_issue": "TECH-DEPENDENCY-SECURITY-001",
   "real_http_smoke_cases": 47,
@@ -139,5 +139,32 @@
       }
     },
     "executable_packet_sha256": "3195c933eb56c6b8c830f5c440c3a6a9aab3404496d765e9ac22addb391f018a"
+  },
+  "retained_top_level_checkpoint_scope": "Existing top-level provisioning/adoption and framework fields retain their earlier checkpoint scope. They do not assert that no authorized disposable resources/bootstrap DDL were executed; actual local provisioning/SQL facts are explicitly recorded under first_disposable_rehearsal below.",
+  "first_disposable_rehearsal": {
+    "approved_commit": "1a69e41700d577cabc35a19271a3b7cc2aaa2c40",
+    "approved_tree": "9c31a0322029a76fc0ca2e9e04165494d3af3e48",
+    "packet_sha256": "3195c933eb56c6b8c830f5c440c3a6a9aab3404496d765e9ac22addb391f018a",
+    "record": "first-rehearsal-1a69e41-execution.json",
+    "status": "STOPPED_AUTHENTICATION_PREFLIGHT_BEFORE_APPLICATION",
+    "local_disposable_provisioning_executed": true,
+    "bootstrap_sql_executed": true,
+    "application_sql_executed": false,
+    "behavioral_cases_executed": 0,
+    "authentication_stop": {
+      "target": "wa-p0c-first-20261110-ok",
+      "current_role": "postgres",
+      "stage": "AUTH_CORRECT_PASSWORD",
+      "safe_failure_code": "AUTHENTICATED_SCRAM_LOGIN_REQUIRED",
+      "coordinator_exit_code": 1,
+      "completed_authentication_control_sets": 0,
+      "completed_behavioral_scenarios": 0
+    },
+    "original_grantor_finalization_both_targets": "PASS_BOOTSTRAP_ONLY",
+    "four_resources_and_test_secrets_absent": true,
+    "451_register": "NOT_RUN_NO_PROMOTION",
+    "94_selection": "NOT_RUN_NO_PROMOTION",
+    "database_posture": "D",
+    "hosted_changes_or_migration_adoption": false
   }
 }
