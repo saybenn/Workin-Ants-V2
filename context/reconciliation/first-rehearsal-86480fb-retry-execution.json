@@ -1,0 +1,3781 @@
+{
+  "date": "2026-11-16",
+  "status": "STOPPED_POSITIVE_CUSTOMER_COMMIT_PATH_PENDING_BRAIN_REVIEW",
+  "approved_source": {
+    "commit": "86480fba330074d001b1e03bb30e5db3b66123b9",
+    "tree": "5c5ba6620e16a459dc5cebc5af2f6d0df53309db",
+    "packet_sha256": "8ed8f60cc30d95083aeb314a1b84212371e4fd575a024d6206e9a971fc2247a9",
+    "files_sha256": {
+      "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+      "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+      "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+      "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+      "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+      "review-output/first-rehearsal/fixtures.json": "df00d519f11cd0a443dba906d724216d0e9d4f16f3ccbd9a703f9d02d0f3b3be",
+      "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+      "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+      "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+      "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+      "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+      "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+      "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+      "review-output/foundation-application.review.sql": "7ebe82f8fd43697e68082a1f82a5e0cc7c909e2319466b75097939aa644768b3",
+      "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+      "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+      "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+      "scripts/check-first-rehearsal-mocks.py": "9cdb248b8b5cc852e186d0a57b8253167715e3c214377126e511bf393281f342",
+      "scripts/database-candidate-correction-rules.py": "6b79a14ffa77c450c3864ba5e2d930d61d5a427a6b0c11545e1afdd37ccaabb3",
+      "scripts/prepare-database-candidate-review-assets.py": "dcb1544afc39cffbd9a8b052749f544c7531ff3dee2ff9cc738fd38d8d3bc9ed",
+      "scripts/prepare-first-rehearsal.py": "b03f4b7fda4e60ff7bafc2b6a7463d7bb9a3ee7bffc9f4e6c8f840f99b4116ce",
+      "scripts/sql-review/run-first-rehearsal.py": "282600254ea486ea9d61f55e06fbd6fdb5c50c7ebb29678bb1e664ce8566399b"
+    },
+    "bytes_unchanged_before_and_after": true,
+    "historical_labels_not_packet_selector": true
+  },
+  "authorization": "ONE fresh retry of FIRST-01..10 only; consumed by this single run; no second behavioral attempt",
+  "run_id": "44051dbc-0531-4cdb-a7fe-3bb5107415d8",
+  "started_at_utc": "2026-11-16T11:57:05.839925+00:00",
+  "finished_at_utc": "2026-11-16T11:57:45.217698+00:00",
+  "actual_summary": {
+    "attempted_behavioral_cases": 1,
+    "passed_behavioral_cases": 0,
+    "failed_behavioral_cases": 1,
+    "not_run_behavioral_cases": [
+      "wrong-person",
+      "missing-outbox"
+    ],
+    "authentication_control_sets": 18,
+    "correct_password_trials_passed": 18,
+    "wrong_password_trials_rejected": 18,
+    "application_install_success": "PASS",
+    "intentional_install_failure": "PASS_EXPECTED_22012",
+    "both_original_grantor_finalizations": "PASS",
+    "intentional_failure_application_object_rollback": "PASS",
+    "synthetic_fixture_setup": "EXECUTED",
+    "fixture_triggers_reenabled": true,
+    "positive_customer_outcome": "FAILED_AT_COMMIT_PATH_42703",
+    "operation_backend_closed_before_counts": true,
+    "business_group_residue": "ZERO",
+    "track_enrollments": 0,
+    "controlled_cleanup": "PASS",
+    "packet_unchanged": true
+  },
+  "reconciled_step_outcomes": {
+    "FIRST-01": {
+      "status": "PASS",
+      "actual": "All22 source/Git blob hashes, aggregate and exact source/tree verified. Both exact run-labeled containers/volumes created under network none/no ports with reviewed data/read-only bootstrap/tmpfs mounts. Retained pinned image and config verified; no pull in this retry."
+    },
+    "FIRST-02": {
+      "status": "PASS",
+      "actual": "Both targets passed HBA/verifier and all six actual login/SCRAM/database/loopback comparisons and six independent wrong-password rejections. Fixed Boolean comparison evidence retained. Same six controls repeated successfully before behavior:18 correct-password and18 wrong-password trials total."
+    },
+    "FIRST-03": {
+      "status": "PASS",
+      "actual": "Integrated canonical SQL applied once on success as actual SCRAM wa_migrator and committed. Failure copy differs only by SELECT1/0 before final RESET/COMMIT; exact22012/DIVISION_BY_ZERO observed at injected line6162. Raw structure was never applied separately."
+    },
+    "FIRST-04": {
+      "status": "PASS_EXERCISED_SUCCESS_AND_INTENTIONAL_FAILURE_INSTALL_PATHS",
+      "actual": "Both installation clients and tagged operation connections absent before original-grantor finalization. Both finalizers passed; temporary memberships0, each leaf CREATEfalse, active migrator0. Failure target had0 application relations/functions and0 migration ledgers after rollback."
+    },
+    "FIRST-05": {
+      "status": "PASS_PRIVILEGED_SYNTHETIC_FIXTURE_SETUP_ONLY",
+      "actual": "Reviewed fixture transaction completed before operation opened. All four user triggers on users/user_security_profiles independently observed enabled O. Exact fixture source disables USER triggers only; FK/CHECK preservation follows unchanged source, not a separately exported constraint catalog."
+    },
+    "FIRST-06": {
+      "status": "EXECUTED_REACHED_BOUND_APP_TRANSACTION",
+      "actual": "Actual wa_app_runtime login/tuple capture, separate issuer grant COMMIT and same-connection bind path reached all business markers. The reviewed code path and observed markers support ordering; raw handle and backend tuple values are deliberately not exported. No worker loop."
+    },
+    "FIRST-07": {
+      "status": "FAIL_UNEXPECTED_POSITIVE_COMMIT_PATH",
+      "actual": "Attempted complete Customer source group reached COMMAND_INSERTED,CUSTOMER_INSERTED,READY_TO_COMMIT; psql exit3, SQLSTATE42703, diagnosticUNLISTED. Confirmed operation-backend closure preceded complete-state observer: command/customer/history/evidence/outbox all0, coherentfalse, Track enrollment0. This is an unexpected failed positive transaction, not successful Customer creation."
+    },
+    "FIRST-08": {
+      "status": "NOT_RUN_STOPPED_AFTER_FIRST_UNEXPECTED_BEHAVIOR",
+      "actual": "Wrong-person/principal guard and missing-outbox/default-Free guard cases were not attempted. Positive rollback residue is not evidence for either intended negative guard."
+    },
+    "FIRST-09": {
+      "status": "PASS_SANITIZED_PARTIAL_EXPORT",
+      "actual": "Source/image/resource/authentication/install/finalization/catalog/trigger/positive-failure/cleanup evidence exported. No raw stderr/stdout, role verifiers, passwords, statement bodies or raw context handles exported. Exact unallowlisted message/column/function is unavailable."
+    },
+    "FIRST-10": {
+      "status": "PASS",
+      "actual": "Only exact run-created container IDs and matching label/run-ID/volume identities removed. Both test bootstrap files/private directory removed; pgpass tmpfs removed with containers. Root independent inventory confirms all four absent. Pinned image and unrelated resources retained."
+    }
+  },
+  "raw_summary_reconciliation": {
+    "raw_wrapper_steps": "FIRST05/06/07 retain NOT_RUN because the wrapper only marks that block after all3 cases pass. They did execute as reconciled above. Raw report preserved unchanged.",
+    "raw_wrapper_failure_stage": "FIXTURE_TRIGGER_OBSERVER is the last outer observation, not the originating failure. Actual coordinator reports positive/CHECK_VERDICT after the ready-to-COMMIT marker.",
+    "truth_rule": "Only observed/code-path-supported outcomes above are claimed; no incomplete scenario or broader register is promoted."
+  },
+  "unexpected_outcome": {
+    "case": "positive",
+    "psql_exit_code": 3,
+    "coordinator_exit_code": 1,
+    "retained_sqlstate": "42703",
+    "standard_condition": "undefined_column",
+    "retained_diagnostic": "UNLISTED",
+    "stage_markers": [
+      "WA_COMMAND_INSERTED",
+      "WA_CUSTOMER_INSERTED",
+      "WA_READY_TO_COMMIT"
+    ],
+    "actual_failure_stage": "CHECK_VERDICT_AFTER_POSITIVE_COMMIT_PATH",
+    "evidence_boundary": "COMMIT is the sole SQL statement after the last marker in the exact fixture. All inserts/markers were reached and the group rolled back.",
+    "cause_limit": "The exact unallowlisted diagnostic, offending column, function and complete cause were not retained. No specific column/trigger is inferred as established and no database was recreated/requeried to recover them after stop.",
+    "primary_sqlstate_reference": "https://www.postgresql.org/docs/17/errcodes-appendix.html",
+    "next_progression": "Brain reviews this new42703 stop and decides any bounded source/diagnostic correction, replacement packet or further execution. No code/guard/permission change or behavioral retry performed."
+  },
+  "raw_run_report": {
+    "run_id": "44051dbc-0531-4cdb-a7fe-3bb5107415d8",
+    "approved_commit": "86480fba330074d001b1e03bb30e5db3b66123b9",
+    "approved_tree": "5c5ba6620e16a459dc5cebc5af2f6d0df53309db",
+    "approved_packet_sha256": "8ed8f60cc30d95083aeb314a1b84212371e4fd575a024d6206e9a971fc2247a9",
+    "started_at": "2026-11-16T11:57:05.839925+00:00",
+    "status": "STOPPED_RETAINED_FOR_BRAIN_REVIEW",
+    "stage": "CONTROLLED_CLEANUP",
+    "steps": {
+      "FIRST-01": "PASS",
+      "FIRST-02": "PASS",
+      "FIRST-03": "PASS",
+      "FIRST-04": "PASS",
+      "FIRST-05": "NOT_RUN",
+      "FIRST-06": "NOT_RUN",
+      "FIRST-07": "NOT_RUN",
+      "FIRST-08": "NOT_RUN",
+      "FIRST-09": "PASS_SANITIZED_EXPORT",
+      "FIRST-10": "PASS"
+    },
+    "events": [
+      {
+        "stage": "SOURCE_VERIFICATION",
+        "status": "PASS",
+        "files": 22,
+        "packet_sha256": "8ed8f60cc30d95083aeb314a1b84212371e4fd575a024d6206e9a971fc2247a9"
+      },
+      {
+        "stage": "LOCAL_PREFLIGHT",
+        "status": "PASS",
+        "all_four_names_absent": true
+      },
+      {
+        "stage": "PINNED_IMAGE",
+        "status": "PASS",
+        "pulled": false,
+        "image_id": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1"
+      },
+      {
+        "stage": "RESOURCE_READY",
+        "status": "PASS",
+        "target": "wa-p0c-first-20261110-ok",
+        "pgpass_owner_mode": "600:0:0"
+      },
+      {
+        "stage": "RESOURCE_READY",
+        "status": "PASS",
+        "target": "wa-p0c-first-20261110-fail",
+        "pgpass_owner_mode": "600:0:0"
+      },
+      {
+        "target": "wa-p0c-first-20261110-ok",
+        "role": "postgres",
+        "operation": "BOOTSTRAP_SETTINGS",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "b116cce552bb497071b296434f1933ebd26391b42d58834f09eb611e15a479ee"
+      },
+      {
+        "target": "wa-p0c-first-20261110-ok",
+        "role": "postgres",
+        "operation": "BOOTSTRAP",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893"
+      },
+      {
+        "target": "wa-p0c-first-20261110-ok",
+        "role": "postgres",
+        "operation": "CREDENTIAL_PROVISION",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true
+      },
+      {
+        "stage": "BOOTSTRAP",
+        "status": "PASS",
+        "target": "wa-p0c-first-20261110-ok"
+      },
+      {
+        "target": "wa-p0c-first-20261110-fail",
+        "role": "postgres",
+        "operation": "BOOTSTRAP_SETTINGS",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "b116cce552bb497071b296434f1933ebd26391b42d58834f09eb611e15a479ee"
+      },
+      {
+        "target": "wa-p0c-first-20261110-fail",
+        "role": "postgres",
+        "operation": "BOOTSTRAP",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893"
+      },
+      {
+        "target": "wa-p0c-first-20261110-fail",
+        "role": "postgres",
+        "operation": "CREDENTIAL_PROVISION",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true
+      },
+      {
+        "stage": "BOOTSTRAP",
+        "status": "PASS",
+        "target": "wa-p0c-first-20261110-fail"
+      },
+      {
+        "stage": "AUTHENTICATION_PREFLIGHT",
+        "status": "PASS",
+        "target": "wa-p0c-first-20261110-ok",
+        "logins": 6,
+        "correct_password": 6,
+        "wrong_password_rejected": 6
+      },
+      {
+        "stage": "AUTHENTICATION_PREFLIGHT",
+        "status": "PASS",
+        "target": "wa-p0c-first-20261110-fail",
+        "logins": 6,
+        "correct_password": 6,
+        "wrong_password_rejected": 6
+      },
+      {
+        "target": "wa-p0c-first-20261110-ok",
+        "role": "wa_migrator",
+        "operation": "APPLICATION_INSTALL",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "7ebe82f8fd43697e68082a1f82a5e0cc7c909e2319466b75097939aa644768b3",
+        "actual_install_connection": {
+          "database": "wa_p0c_rehearsal",
+          "system_user": "scram-sha-256:wa_migrator",
+          "current_user": "wa_migrator",
+          "session_user": "wa_migrator"
+        }
+      },
+      {
+        "target": "wa-p0c-first-20261110-ok",
+        "role": "postgres",
+        "operation": "PRE_FINALIZATION_CONNECTION_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "611999ed3ce33d7502094ad7b75585825af31d60fac645fdbe9faddfcbd17b2d"
+      },
+      {
+        "target": "wa-p0c-first-20261110-ok",
+        "role": "postgres",
+        "operation": "ORIGINAL_GRANTOR_FINALIZATION",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98"
+      },
+      {
+        "target": "wa-p0c-first-20261110-ok",
+        "role": "postgres",
+        "operation": "FINALIZATION_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "a833d27aedd52cef2eaa2afce4f4206db6a2f19e2aa15a007a16a1ae87d2c53e"
+      },
+      {
+        "stage": "FINALIZATION",
+        "status": "PASS",
+        "target": "wa-p0c-first-20261110-ok"
+      },
+      {
+        "target": "wa-p0c-first-20261110-fail",
+        "role": "wa_migrator",
+        "operation": "INTENTIONAL_FAILURE_INSTALL",
+        "exit_code": 3,
+        "errors": [
+          {
+            "sqlstate": "22012",
+            "diagnostic": "DIVISION_BY_ZERO",
+            "source_line": 6162
+          }
+        ],
+        "client_exited": true,
+        "input_sha256": "00b32187cf3b6a696777d69c90b529618ce9eceecf22fc24e6430a82289cd9be",
+        "actual_install_connection": {
+          "database": "wa_p0c_rehearsal",
+          "system_user": "scram-sha-256:wa_migrator",
+          "current_user": "wa_migrator",
+          "session_user": "wa_migrator"
+        }
+      },
+      {
+        "target": "wa-p0c-first-20261110-fail",
+        "role": "postgres",
+        "operation": "PRE_FINALIZATION_CONNECTION_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "611999ed3ce33d7502094ad7b75585825af31d60fac645fdbe9faddfcbd17b2d"
+      },
+      {
+        "target": "wa-p0c-first-20261110-fail",
+        "role": "postgres",
+        "operation": "ORIGINAL_GRANTOR_FINALIZATION",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98"
+      },
+      {
+        "target": "wa-p0c-first-20261110-fail",
+        "role": "postgres",
+        "operation": "FINALIZATION_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "a833d27aedd52cef2eaa2afce4f4206db6a2f19e2aa15a007a16a1ae87d2c53e"
+      },
+      {
+        "stage": "FINALIZATION",
+        "status": "PASS",
+        "target": "wa-p0c-first-20261110-fail"
+      },
+      {
+        "target": "wa-p0c-first-20261110-fail",
+        "role": "postgres",
+        "operation": "FAILURE_ROLLBACK_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "a03a7eafd194e494b4fed25750a76738586056d297146d0ed1da4e1e4f3d77d8"
+      },
+      {
+        "target": "wa-p0c-first-20261110-ok",
+        "role": "postgres",
+        "operation": "SANITIZED_CATALOG",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "6cc43409f166fd9dbf262b4629e37b2c58484a3518fb8b30dd730d6d5b2348a3"
+      },
+      {
+        "target": "wa-p0c-first-20261110-ok",
+        "role": "postgres",
+        "operation": "FIXTURE_TRIGGER_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "f9cc022ad12d488299c81d3f1e43bc75097b7f11b16cdac2973ac679d18ab081"
+      },
+      {
+        "stage": "STOP",
+        "status": "NO_LATER_BEHAVIOR",
+        "failure": {
+          "stage": "FIXTURE_TRIGGER_OBSERVER",
+          "code": "COORDINATOR_STOPPED",
+          "details": {
+            "exit_code": 1,
+            "evidence": "behavior\\first-customer-results.json",
+            "status": "STOPPED_RETAINED_FOR_CONTROLLED_CLEANUP",
+            "completed_scenarios": 0,
+            "safe_failure": {
+              "code": "UNEXPECTED_SCENARIO_EXIT",
+              "stage": "CHECK_VERDICT"
+            }
+          }
+        }
+      },
+      {
+        "stage": "CONTROLLED_CLEANUP",
+        "status": "PASS",
+        "all_four_names_absent": true,
+        "test_secret_files_absent": true
+      }
+    ],
+    "targets": {
+      "wa-p0c-first-20261110-ok": {
+        "container_id": "20b5b40d92d98e8bfe259fd0f030a7ad2e35548de97d19e2af3780909f1d0d09",
+        "volume": "wa-p0c-first-20261110-ok-data",
+        "volume_created_at": "2026-11-16T11:57:10Z",
+        "labels": {
+          "workinants.rehearsal": "p0c-first-20261110",
+          "workinants.rehearsal.run": "44051dbc-0531-4cdb-a7fe-3bb5107415d8"
+        },
+        "network_mode": "none",
+        "published_ports": false,
+        "mounts": [
+          {
+            "type": "bind",
+            "destination": "/run/bootstrap-password",
+            "rw": false
+          },
+          {
+            "type": "volume",
+            "destination": "/var/lib/postgresql/data",
+            "rw": true,
+            "volume": "wa-p0c-first-20261110-ok-data"
+          }
+        ],
+        "tmpfs": {
+          "/run/wa-secrets": "rw,nosuid,noexec,mode=0700"
+        },
+        "bootstrap": "PASS",
+        "application": "PASS_COMMITTED",
+        "finalization": "PASS",
+        "server_settings": {
+          "auth": "scram-sha-256:postgres",
+          "login": "postgres",
+          "log_statement": "none",
+          "server_version": "17.11 (Debian 17.11-1.pgdg13+2)",
+          "password_encryption": "scram-sha-256",
+          "log_min_error_statement": "panic"
+        },
+        "authentication_preflight": {
+          "exit_code": 0,
+          "evidence": "auth-before-install-ok\\authentication-results-ok.json",
+          "status": "PASS_PREFLIGHT_ONLY"
+        },
+        "connections_before_finalization": {
+          "migrator": 0,
+          "tagged_other_clients": 0
+        },
+        "finalization_observation": {
+          "auth": "scram-sha-256:postgres",
+          "grantor": "postgres",
+          "leaf_create": {
+            "wa_track_verifier": false,
+            "wa_customer_verifier": false,
+            "wa_private_helper_owner": false
+          },
+          "remaining_memberships": 0,
+          "active_install_connections": 0
+        },
+        "catalog_evidence": "success-catalog.json"
+      },
+      "wa-p0c-first-20261110-fail": {
+        "container_id": "7d7d6c4bbc2f3c50f6aa4d6eba3d7ed7ba49d33e0d877a6420ab892a1eab783f",
+        "volume": "wa-p0c-first-20261110-fail-data",
+        "volume_created_at": "2026-11-16T11:57:16Z",
+        "labels": {
+          "workinants.rehearsal": "p0c-first-20261110",
+          "workinants.rehearsal.run": "44051dbc-0531-4cdb-a7fe-3bb5107415d8"
+        },
+        "network_mode": "none",
+        "published_ports": false,
+        "mounts": [
+          {
+            "type": "bind",
+            "destination": "/run/bootstrap-password",
+            "rw": false
+          },
+          {
+            "type": "volume",
+            "destination": "/var/lib/postgresql/data",
+            "rw": true,
+            "volume": "wa-p0c-first-20261110-fail-data"
+          }
+        ],
+        "tmpfs": {
+          "/run/wa-secrets": "rw,nosuid,noexec,mode=0700"
+        },
+        "bootstrap": "PASS",
+        "application": "PASS_EXPECTED_FAILURE",
+        "finalization": "PASS",
+        "server_settings": {
+          "auth": "scram-sha-256:postgres",
+          "login": "postgres",
+          "log_statement": "none",
+          "server_version": "17.11 (Debian 17.11-1.pgdg13+2)",
+          "password_encryption": "scram-sha-256",
+          "log_min_error_statement": "panic"
+        },
+        "authentication_preflight": {
+          "exit_code": 0,
+          "evidence": "auth-before-install-fail\\authentication-results-fail.json",
+          "status": "PASS_PREFLIGHT_ONLY"
+        },
+        "connections_before_finalization": {
+          "migrator": 0,
+          "tagged_other_clients": 0
+        },
+        "finalization_observation": {
+          "auth": "scram-sha-256:postgres",
+          "grantor": "postgres",
+          "leaf_create": {
+            "wa_track_verifier": false,
+            "wa_customer_verifier": false,
+            "wa_private_helper_owner": false
+          },
+          "remaining_memberships": 0,
+          "active_install_connections": 0
+        },
+        "rollback_observation": {
+          "migration_ledgers": 0,
+          "application_functions": 0,
+          "application_relations": 0
+        }
+      }
+    },
+    "unexpected": [
+      {
+        "stage": "FIXTURE_TRIGGER_OBSERVER",
+        "code": "COORDINATOR_STOPPED",
+        "details": {
+          "exit_code": 1,
+          "evidence": "behavior\\first-customer-results.json",
+          "status": "STOPPED_RETAINED_FOR_CONTROLLED_CLEANUP",
+          "completed_scenarios": 0,
+          "safe_failure": {
+            "code": "UNEXPECTED_SCENARIO_EXIT",
+            "stage": "CHECK_VERDICT"
+          }
+        }
+      }
+    ],
+    "cleanup": {
+      "wa-p0c-first-20261110-fail": {
+        "removed": true,
+        "verified_id": "7d7d6c4bbc2f3c50f6aa4d6eba3d7ed7ba49d33e0d877a6420ab892a1eab783f",
+        "name_and_both_labels_verified": true
+      },
+      "wa-p0c-first-20261110-ok": {
+        "removed": true,
+        "verified_id": "20b5b40d92d98e8bfe259fd0f030a7ad2e35548de97d19e2af3780909f1d0d09",
+        "name_and_both_labels_verified": true
+      },
+      "wa-p0c-first-20261110-fail-data": {
+        "removed": true,
+        "name_labels_creation_identity_verified": true
+      },
+      "wa-p0c-first-20261110-ok-data": {
+        "removed": true,
+        "name_labels_creation_identity_verified": true
+      }
+    },
+    "limits": {
+      "posture": "D",
+      "451_register": "NOT_PROMOTED",
+      "94_selection": "NOT_PROMOTED",
+      "hosted_changes": false,
+      "migration_adoption": false,
+      "worker_loop": false,
+      "production_readiness": false
+    },
+    "authorization": {
+      "scope": "ONE_FRESH_RETRY_FIRST_01_THROUGH_10_ONLY",
+      "approved_packet_section": "auth_address_correction_8502f93",
+      "no_retry_on_unexpected": true
+    },
+    "operational_wrapper_sha256": "93fff67f52ece58d4545e2d15a46ec5712c2ee099ed79774cc97fdfdbd9489af",
+    "source_verification": {
+      "commit": "86480fba330074d001b1e03bb30e5db3b66123b9",
+      "tree": "5c5ba6620e16a459dc5cebc5af2f6d0df53309db",
+      "packet_sha256": "8ed8f60cc30d95083aeb314a1b84212371e4fd575a024d6206e9a971fc2247a9",
+      "file_count": 22,
+      "files_sha256": {
+        "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+        "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+        "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+        "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+        "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+        "review-output/first-rehearsal/fixtures.json": "df00d519f11cd0a443dba906d724216d0e9d4f16f3ccbd9a703f9d02d0f3b3be",
+        "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+        "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+        "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+        "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+        "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+        "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+        "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+        "review-output/foundation-application.review.sql": "7ebe82f8fd43697e68082a1f82a5e0cc7c909e2319466b75097939aa644768b3",
+        "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+        "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+        "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+        "scripts/check-first-rehearsal-mocks.py": "9cdb248b8b5cc852e186d0a57b8253167715e3c214377126e511bf393281f342",
+        "scripts/database-candidate-correction-rules.py": "6b79a14ffa77c450c3864ba5e2d930d61d5a427a6b0c11545e1afdd37ccaabb3",
+        "scripts/prepare-database-candidate-review-assets.py": "dcb1544afc39cffbd9a8b052749f544c7531ff3dee2ff9cc738fd38d8d3bc9ed",
+        "scripts/prepare-first-rehearsal.py": "b03f4b7fda4e60ff7bafc2b6a7463d7bb9a3ee7bffc9f4e6c8f840f99b4116ce",
+        "scripts/sql-review/run-first-rehearsal.py": "282600254ea486ea9d61f55e06fbd6fdb5c50c7ebb29678bb1e664ce8566399b"
+      },
+      "historical_labels_not_executable_selection": true
+    },
+    "local_preflight": {
+      "endpoint": "npipe:////./pipe/dockerDesktopLinuxEngine",
+      "server_version": "29.6.2",
+      "server_os": "linux",
+      "server_arch": "amd64",
+      "initial_resource_presence": {
+        "wa-p0c-first-20261110-ok": false,
+        "wa-p0c-first-20261110-fail": false,
+        "wa-p0c-first-20261110-ok-data": false,
+        "wa-p0c-first-20261110-fail-data": false
+      },
+      "unrelated_containers_untouched": 12,
+      "unrelated_volumes_untouched": 3
+    },
+    "image": {
+      "reference": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "image_id": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "manifest_descriptor": {
+        "mediaType": "application/vnd.oci.image.manifest.v1+json",
+        "digest": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+        "size": 3628
+      },
+      "config_digest": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+      "manifest_content_hash_verified": true,
+      "repo_digests": [
+        "postgres@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1"
+      ],
+      "os": "linux",
+      "architecture": "amd64",
+      "pg_version": "17.11-1.pgdg13+2",
+      "pulled_this_run": false,
+      "retained_image_reused": true,
+      "removed": false
+    },
+    "credential_handling": {
+      "host_private_directory_owner_only_acl_verified": true,
+      "real_credentials_in_argv_env_or_evidence": false,
+      "container_pgpass": "root_owned_0600_tmpfs",
+      "independent_per_role_per_target": true
+    },
+    "failure_test_copy": {
+      "path": "foundation-application.intentional-failure.sql",
+      "sha256": "00b32187cf3b6a696777d69c90b529618ce9eceecf22fc24e6430a82289cd9be",
+      "injection_line": 6162,
+      "actual_execution": "PASS_EXPECTED_22012_AT_INJECTED_LINE",
+      "change": "Only SELECT 1/0 immediately before final RESET ROLE/COMMIT",
+      "expected_sqlstate": "22012",
+      "expected_diagnostic": "DIVISION_BY_ZERO"
+    },
+    "behavior": {
+      "exit_code": 1,
+      "evidence": "behavior\\first-customer-results.json",
+      "status": "STOPPED_RETAINED_FOR_CONTROLLED_CLEANUP",
+      "completed_scenarios": 0,
+      "safe_failure": {
+        "code": "UNEXPECTED_SCENARIO_EXIT",
+        "stage": "CHECK_VERDICT"
+      }
+    },
+    "fixture_triggers": [
+      {
+        "table": "user_security_profiles",
+        "enabled": "O",
+        "trigger": "owner_commit"
+      },
+      {
+        "table": "user_security_profiles",
+        "enabled": "O",
+        "trigger": "physical_guard"
+      },
+      {
+        "table": "users",
+        "enabled": "O",
+        "trigger": "owner_commit"
+      },
+      {
+        "table": "users",
+        "enabled": "O",
+        "trigger": "physical_guard"
+      }
+    ],
+    "sanitization": {
+      "files_scanned": 7,
+      "actual_password_values_found": false,
+      "unrestricted_subprocess_output_persisted": false,
+      "raw_context_handles_persisted": false,
+      "coordinator_evidence_uses_reviewed_allowlist": true
+    },
+    "host_secret_cleanup": {
+      "deleted": [
+        "ok-bootstrap-password",
+        "fail-bootstrap-password"
+      ],
+      "private_directory_absent": true
+    },
+    "cleanup_summary": {
+      "resource_presence_after": {
+        "wa-p0c-first-20261110-ok": false,
+        "wa-p0c-first-20261110-fail": false,
+        "wa-p0c-first-20261110-ok-data": false,
+        "wa-p0c-first-20261110-fail-data": false
+      },
+      "test_owned_secret_files_deleted": [
+        "ok-bootstrap-password",
+        "fail-bootstrap-password"
+      ],
+      "private_directory_absent": true,
+      "image_removed": false,
+      "unrelated_resources_changed": false
+    },
+    "finished_at": "2026-11-16T11:57:45.217698+00:00",
+    "packet_unchanged_after_run": true
+  },
+  "authentication_before_install": {
+    "ok": {
+      "scope": "AUTH_PREFLIGHT_ONLY",
+      "status": "PASS_PREFLIGHT_ONLY",
+      "current_stage": "COMPLETE",
+      "current_case": null,
+      "authentication": [
+        {
+          "role": "postgres",
+          "transport": "TCP_127.0.0.1_5432",
+          "correct_password": "PASS_SCRAM",
+          "wrong_password": "PASS_REJECTED",
+          "wrong_password_exit_code": 2
+        },
+        {
+          "role": "wa_migrator",
+          "transport": "TCP_127.0.0.1_5432",
+          "correct_password": "PASS_SCRAM",
+          "wrong_password": "PASS_REJECTED",
+          "wrong_password_exit_code": 2
+        },
+        {
+          "role": "wa_context_issuer",
+          "transport": "TCP_127.0.0.1_5432",
+          "correct_password": "PASS_SCRAM",
+          "wrong_password": "PASS_REJECTED",
+          "wrong_password_exit_code": 2
+        },
+        {
+          "role": "wa_identity_service_authority",
+          "transport": "TCP_127.0.0.1_5432",
+          "correct_password": "PASS_SCRAM",
+          "wrong_password": "PASS_REJECTED",
+          "wrong_password_exit_code": 2
+        },
+        {
+          "role": "wa_app_runtime",
+          "transport": "TCP_127.0.0.1_5432",
+          "correct_password": "PASS_SCRAM",
+          "wrong_password": "PASS_REJECTED",
+          "wrong_password_exit_code": 2
+        },
+        {
+          "role": "wa_worker",
+          "transport": "TCP_127.0.0.1_5432",
+          "correct_password": "PASS_SCRAM",
+          "wrong_password": "PASS_REJECTED",
+          "wrong_password_exit_code": 2
+        }
+      ],
+      "results": [],
+      "current": {},
+      "failure": null,
+      "cleanup_required": true,
+      "subsequent_cases_stopped": false,
+      "effective_hba_selections": [
+        {
+          "role": "postgres",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_migrator",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_context_issuer",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_identity_service_authority",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_app_runtime",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_worker",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "postgres",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_migrator",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_context_issuer",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_identity_service_authority",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_app_runtime",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_worker",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        }
+      ],
+      "current_auth_role": "wa_worker",
+      "authentication_comparison": {
+        "json_parsed": true,
+        "object": true,
+        "fields": true,
+        "string_fields": true,
+        "login": true,
+        "scram_identity": true,
+        "database": true,
+        "client_loopback": true,
+        "server_loopback": true
+      }
+    },
+    "fail": {
+      "scope": "AUTH_PREFLIGHT_ONLY",
+      "status": "PASS_PREFLIGHT_ONLY",
+      "current_stage": "COMPLETE",
+      "current_case": null,
+      "authentication": [
+        {
+          "role": "postgres",
+          "transport": "TCP_127.0.0.1_5432",
+          "correct_password": "PASS_SCRAM",
+          "wrong_password": "PASS_REJECTED",
+          "wrong_password_exit_code": 2
+        },
+        {
+          "role": "wa_migrator",
+          "transport": "TCP_127.0.0.1_5432",
+          "correct_password": "PASS_SCRAM",
+          "wrong_password": "PASS_REJECTED",
+          "wrong_password_exit_code": 2
+        },
+        {
+          "role": "wa_context_issuer",
+          "transport": "TCP_127.0.0.1_5432",
+          "correct_password": "PASS_SCRAM",
+          "wrong_password": "PASS_REJECTED",
+          "wrong_password_exit_code": 2
+        },
+        {
+          "role": "wa_identity_service_authority",
+          "transport": "TCP_127.0.0.1_5432",
+          "correct_password": "PASS_SCRAM",
+          "wrong_password": "PASS_REJECTED",
+          "wrong_password_exit_code": 2
+        },
+        {
+          "role": "wa_app_runtime",
+          "transport": "TCP_127.0.0.1_5432",
+          "correct_password": "PASS_SCRAM",
+          "wrong_password": "PASS_REJECTED",
+          "wrong_password_exit_code": 2
+        },
+        {
+          "role": "wa_worker",
+          "transport": "TCP_127.0.0.1_5432",
+          "correct_password": "PASS_SCRAM",
+          "wrong_password": "PASS_REJECTED",
+          "wrong_password_exit_code": 2
+        }
+      ],
+      "results": [],
+      "current": {},
+      "failure": null,
+      "cleanup_required": true,
+      "subsequent_cases_stopped": false,
+      "effective_hba_selections": [
+        {
+          "role": "postgres",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_migrator",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_context_issuer",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_identity_service_authority",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_app_runtime",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_worker",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "postgres",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_migrator",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_context_issuer",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_identity_service_authority",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_app_runtime",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_worker",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        }
+      ],
+      "current_auth_role": "wa_worker",
+      "authentication_comparison": {
+        "json_parsed": true,
+        "object": true,
+        "fields": true,
+        "string_fields": true,
+        "login": true,
+        "scram_identity": true,
+        "database": true,
+        "client_loopback": true,
+        "server_loopback": true
+      }
+    }
+  },
+  "behavioral_coordinator": {
+    "scope": "THREE_SQL_FIXTURES_ONLY_NOT_94_OR_451_QUALIFICATION",
+    "status": "STOPPED_RETAINED_FOR_CONTROLLED_CLEANUP",
+    "current_stage": "CHECK_VERDICT",
+    "current_case": "positive",
+    "authentication": [
+      {
+        "role": "postgres",
+        "transport": "TCP_127.0.0.1_5432",
+        "correct_password": "PASS_SCRAM",
+        "wrong_password": "PASS_REJECTED",
+        "wrong_password_exit_code": 2
+      },
+      {
+        "role": "wa_migrator",
+        "transport": "TCP_127.0.0.1_5432",
+        "correct_password": "PASS_SCRAM",
+        "wrong_password": "PASS_REJECTED",
+        "wrong_password_exit_code": 2
+      },
+      {
+        "role": "wa_context_issuer",
+        "transport": "TCP_127.0.0.1_5432",
+        "correct_password": "PASS_SCRAM",
+        "wrong_password": "PASS_REJECTED",
+        "wrong_password_exit_code": 2
+      },
+      {
+        "role": "wa_identity_service_authority",
+        "transport": "TCP_127.0.0.1_5432",
+        "correct_password": "PASS_SCRAM",
+        "wrong_password": "PASS_REJECTED",
+        "wrong_password_exit_code": 2
+      },
+      {
+        "role": "wa_app_runtime",
+        "transport": "TCP_127.0.0.1_5432",
+        "correct_password": "PASS_SCRAM",
+        "wrong_password": "PASS_REJECTED",
+        "wrong_password_exit_code": 2
+      },
+      {
+        "role": "wa_worker",
+        "transport": "TCP_127.0.0.1_5432",
+        "correct_password": "PASS_SCRAM",
+        "wrong_password": "PASS_REJECTED",
+        "wrong_password_exit_code": 2
+      }
+    ],
+    "results": [],
+    "current": {
+      "operation_closed": true,
+      "stage_markers": [
+        "WA_COMMAND_INSERTED",
+        "WA_CUSTOMER_INSERTED",
+        "WA_READY_TO_COMMIT"
+      ],
+      "authenticated_login": "wa_app_runtime",
+      "exit_code": 3,
+      "sqlstate": "42703",
+      "diagnostic": "UNLISTED",
+      "counts": {
+        "outbox": 0,
+        "command": 0,
+        "history": 0,
+        "coherent": false,
+        "customer": 0,
+        "evidence": 0,
+        "track_enrollments": 0
+      }
+    },
+    "failure": {
+      "code": "UNEXPECTED_SCENARIO_EXIT",
+      "stage": "CHECK_VERDICT"
+    },
+    "cleanup_required": true,
+    "subsequent_cases_stopped": true,
+    "effective_hba_selections": [
+      {
+        "role": "postgres",
+        "address": "127.0.0.1",
+        "rule_number": 2,
+        "method": "scram-sha-256"
+      },
+      {
+        "role": "wa_migrator",
+        "address": "127.0.0.1",
+        "rule_number": 2,
+        "method": "scram-sha-256"
+      },
+      {
+        "role": "wa_context_issuer",
+        "address": "127.0.0.1",
+        "rule_number": 2,
+        "method": "scram-sha-256"
+      },
+      {
+        "role": "wa_identity_service_authority",
+        "address": "127.0.0.1",
+        "rule_number": 2,
+        "method": "scram-sha-256"
+      },
+      {
+        "role": "wa_app_runtime",
+        "address": "127.0.0.1",
+        "rule_number": 2,
+        "method": "scram-sha-256"
+      },
+      {
+        "role": "wa_worker",
+        "address": "127.0.0.1",
+        "rule_number": 2,
+        "method": "scram-sha-256"
+      },
+      {
+        "role": "postgres",
+        "address": "::1",
+        "rule_number": 3,
+        "method": "scram-sha-256"
+      },
+      {
+        "role": "wa_migrator",
+        "address": "::1",
+        "rule_number": 3,
+        "method": "scram-sha-256"
+      },
+      {
+        "role": "wa_context_issuer",
+        "address": "::1",
+        "rule_number": 3,
+        "method": "scram-sha-256"
+      },
+      {
+        "role": "wa_identity_service_authority",
+        "address": "::1",
+        "rule_number": 3,
+        "method": "scram-sha-256"
+      },
+      {
+        "role": "wa_app_runtime",
+        "address": "::1",
+        "rule_number": 3,
+        "method": "scram-sha-256"
+      },
+      {
+        "role": "wa_worker",
+        "address": "::1",
+        "rule_number": 3,
+        "method": "scram-sha-256"
+      }
+    ],
+    "current_auth_role": "wa_worker",
+    "authentication_comparison": {
+      "json_parsed": true,
+      "object": true,
+      "fields": true,
+      "string_fields": true,
+      "login": true,
+      "scram_identity": true,
+      "database": true,
+      "client_loopback": true,
+      "server_loopback": true
+    }
+  },
+  "catalog_summary": {
+    "tables": 42,
+    "all_table_owners_schema_owner": true,
+    "all_tables_enable_force_rls": true,
+    "functions": 147,
+    "function_owners": {
+      "wa_private_helper_owner": 8,
+      "wa_schema_owner": 131,
+      "wa_customer_verifier": 1,
+      "wa_track_verifier": 7
+    },
+    "all_function_search_paths_pg_catalog": true,
+    "roles": 9,
+    "scope_limit": "Relation/function ACL and role/RLS metadata snapshots only; per-column grants, policies, constraints/indexes and actual security behavior are not fully parity-qualified."
+  },
+  "success_catalog_snapshot": {
+    "roles": [
+      {
+        "name": "wa_app_runtime",
+        "login": true,
+        "inherit": false,
+        "createdb": false,
+        "bypassrls": false,
+        "superuser": false,
+        "createrole": false
+      },
+      {
+        "name": "wa_context_issuer",
+        "login": true,
+        "inherit": false,
+        "createdb": false,
+        "bypassrls": false,
+        "superuser": false,
+        "createrole": false
+      },
+      {
+        "name": "wa_customer_verifier",
+        "login": false,
+        "inherit": false,
+        "createdb": false,
+        "bypassrls": false,
+        "superuser": false,
+        "createrole": false
+      },
+      {
+        "name": "wa_identity_service_authority",
+        "login": true,
+        "inherit": false,
+        "createdb": false,
+        "bypassrls": false,
+        "superuser": false,
+        "createrole": false
+      },
+      {
+        "name": "wa_migrator",
+        "login": true,
+        "inherit": false,
+        "createdb": false,
+        "bypassrls": false,
+        "superuser": false,
+        "createrole": false
+      },
+      {
+        "name": "wa_private_helper_owner",
+        "login": false,
+        "inherit": false,
+        "createdb": false,
+        "bypassrls": false,
+        "superuser": false,
+        "createrole": false
+      },
+      {
+        "name": "wa_schema_owner",
+        "login": false,
+        "inherit": false,
+        "createdb": false,
+        "bypassrls": false,
+        "superuser": false,
+        "createrole": false
+      },
+      {
+        "name": "wa_track_verifier",
+        "login": false,
+        "inherit": false,
+        "createdb": false,
+        "bypassrls": false,
+        "superuser": false,
+        "createrole": false
+      },
+      {
+        "name": "wa_worker",
+        "login": true,
+        "inherit": false,
+        "createdb": false,
+        "bypassrls": false,
+        "superuser": false,
+        "createrole": false
+      }
+    ],
+    "tables": [
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "access_audit_logs",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "age_gate_attempts",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "age_gate_blocks",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "audit_events",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "auth_provider_accounts",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "candidate_profiles",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "consent_content_revision",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "consent_disposition",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "consent_logs",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "consent_presentation",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "customer_profile_lifecycle_event",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "customer_profiles",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "privacy_owner_receipt",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "privacy_requests",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "privacy_restore_marker",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "privacy_target_instruction",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "professional_profiles",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "track_base_selection",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "track_enrollment_receipt",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "track_entitlement_definitions",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "track_entitlement_grants",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "track_plan_entitlements",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "track_plans",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "track_subscription_events",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "track_subscriptions",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "track_usage_counters",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "track_usage_events",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "track_usage_reservation",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "user_roles",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "user_security_profiles",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "users",
+        "schema": "app",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner",
+          "wa_context_issuer=ar/wa_schema_owner",
+          "wa_private_helper_owner=r/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "database_action_grant",
+        "schema": "platform",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "owner_mutation_evidence",
+        "schema": "platform",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "runtime_attempt",
+        "schema": "platform",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "runtime_command_receipt",
+        "schema": "platform",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "runtime_effect_receipt",
+        "schema": "platform",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "runtime_inbox_receipt",
+        "schema": "platform",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "runtime_outbox_message",
+        "schema": "platform",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "runtime_reservation",
+        "schema": "platform",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "runtime_work_item",
+        "schema": "platform",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner",
+          "wa_identity_service_authority=arw/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "identity_service_authorization",
+        "schema": "platform_private",
+        "force_rls": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=arwdDxtm/wa_schema_owner",
+          "wa_identity_service_authority=ar/wa_schema_owner"
+        ],
+        "rls": true,
+        "owner": "wa_schema_owner",
+        "table": "identity_service_receipt",
+        "schema": "platform_private",
+        "force_rls": true
+      }
+    ],
+    "functions": [
+      {
+        "acl": [
+          "wa_private_helper_owner=X/wa_private_helper_owner",
+          "wa_app_runtime=X/wa_private_helper_owner",
+          "wa_worker=X/wa_private_helper_owner"
+        ],
+        "owner": "wa_private_helper_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "bind_request_context",
+        "security_definer": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "block_usage_mutation",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_private_helper_owner=X/wa_private_helper_owner",
+          "wa_customer_verifier=X/wa_private_helper_owner",
+          "wa_track_verifier=X/wa_private_helper_owner"
+        ],
+        "owner": "wa_private_helper_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "bound_grant",
+        "security_definer": true
+      },
+      {
+        "acl": [
+          "wa_private_helper_owner=X/wa_private_helper_owner",
+          "wa_app_runtime=X/wa_private_helper_owner",
+          "wa_worker=X/wa_private_helper_owner"
+        ],
+        "owner": "wa_private_helper_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "command_context_allows",
+        "security_definer": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "command_state_guard",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_accessauditlog",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_agegateattempt",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_agegateblock",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_auditevent",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_authprovideraccount",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_consentcontentrevision",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_consentdisposition",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_consentlog",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_consentpresentation",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_customerprofile",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_privacyownerreceipt",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_privacyrequest",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_privacyrestoremarker",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_privacytargetinstruction",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_trackbaseselection",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_trackentitlementdefinition",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_trackentitlementgrant",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_trackplan",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_trackplanentitlement",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_tracksubscription",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_trackusagecounter",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_trackusageevent",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_trackusagereservation",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_user",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_userrole",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "commit_usersecurityprofile",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "consent_guard",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_private_helper_owner=X/wa_private_helper_owner",
+          "wa_app_runtime=X/wa_private_helper_owner",
+          "wa_worker=X/wa_private_helper_owner",
+          "wa_customer_verifier=X/wa_private_helper_owner",
+          "wa_track_verifier=X/wa_private_helper_owner"
+        ],
+        "owner": "wa_private_helper_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "context_allows",
+        "security_definer": true
+      },
+      {
+        "acl": [
+          "wa_private_helper_owner=X/wa_private_helper_owner",
+          "wa_app_runtime=X/wa_private_helper_owner",
+          "wa_worker=X/wa_private_helper_owner"
+        ],
+        "owner": "wa_private_helper_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "context_subject",
+        "security_definer": true
+      },
+      {
+        "acl": [
+          "wa_private_helper_owner=X/wa_private_helper_owner",
+          "wa_app_runtime=X/wa_private_helper_owner",
+          "wa_worker=X/wa_private_helper_owner"
+        ],
+        "owner": "wa_private_helper_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "context_subject_owner",
+        "security_definer": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "customer_atomic",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_customer_verifier=X/wa_customer_verifier",
+          "wa_track_verifier=X/wa_customer_verifier"
+        ],
+        "owner": "wa_customer_verifier",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "customer_current_for_track",
+        "security_definer": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "customer_history_commit",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "customer_message_commit",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "effect_fence_guard",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "evidence_source_commit",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "global_context_registered",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "grant_guard",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_accessauditlog",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_agegateattempt",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_agegateblock",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_auditevent",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_authprovideraccount",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_candidateprofile",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_consentcontentrevision",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_consentdisposition",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_consentlog",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_consentpresentation",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_customerprofile",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_customerprofilelifecycleevent",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_ownermutationevidence",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_privacyownerreceipt",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_privacyrequest",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_privacyrestoremarker",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_privacytargetinstruction",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_professionalprofile",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_runtimeattempt",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_runtimecommandreceipt",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_runtimeeffectreceipt",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_runtimeinboxreceipt",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_runtimeoutboxmessage",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_runtimereservation",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_runtimeworkitem",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_trackbaseselection",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_trackenrollmentreceipt",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_trackentitlementdefinition",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_trackentitlementgrant",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_trackplan",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_trackplanentitlement",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_tracksubscription",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_tracksubscriptionevent",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_trackusagecounter",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_trackusageevent",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_trackusagereservation",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_user",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_userrole",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "guard_usersecurityprofile",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "identity_receipt_commit",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "identity_service_guard",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "infrastructure_atomic",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_customer_event",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_datetime",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_accessauditlog",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_agegateattempt",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_agegateblock",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_auditevent",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_authprovideraccount",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_candidateprofile",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_consentcontentrevision",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_consentdisposition",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_consentlog",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_consentpresentation",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_customerprofile",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_customerprofilelifecycleevent",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_databaseactiongrant",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_ownermutationevidence",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_privacyownerreceipt",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_privacyrequest",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_privacyrestoremarker",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_privacytargetinstruction",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_professionalprofile",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_runtimeattempt",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_runtimecommandreceipt",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_runtimeeffectreceipt",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_runtimeinboxreceipt",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_runtimeoutboxmessage",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_runtimereservation",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_runtimeworkitem",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_trackbaseselection",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_trackenrollmentreceipt",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_trackentitlementdefinition",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_trackentitlementgrant",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_trackplan",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_trackplanentitlement",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_tracksubscription",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_tracksubscriptionevent",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_trackusagecounter",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_trackusageevent",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_trackusagereservation",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_user",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_userrole",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_evidence_usersecurityprofile",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_sh004_result",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_sh114_result",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_track_command",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_app_runtime=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "json_track_result",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_track_verifier=X/wa_schema_owner",
+          "wa_worker=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "lease_secret_matches",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "message_json_guard",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "privacy_guard",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_private_helper_owner=X/wa_private_helper_owner"
+        ],
+        "owner": "wa_private_helper_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "protected_scope",
+        "security_definer": true
+      },
+      {
+        "acl": [
+          "wa_private_helper_owner=X/wa_private_helper_owner",
+          "wa_app_runtime=X/wa_private_helper_owner",
+          "wa_worker=X/wa_private_helper_owner",
+          "wa_track_verifier=X/wa_private_helper_owner"
+        ],
+        "owner": "wa_private_helper_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "row_allowed",
+        "security_definer": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "runtime_transition",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_track_verifier=X/wa_track_verifier",
+          "wa_worker=X/wa_track_verifier"
+        ],
+        "owner": "wa_track_verifier",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "track_atomic_valid",
+        "security_definer": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "track_binding",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "track_enrollment_commit",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_track_verifier=X/wa_track_verifier",
+          "wa_worker=X/wa_track_verifier"
+        ],
+        "owner": "wa_track_verifier",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "worker_effect_matches",
+        "security_definer": true
+      },
+      {
+        "acl": [
+          "wa_track_verifier=X/wa_track_verifier",
+          "wa_worker=X/wa_track_verifier"
+        ],
+        "owner": "wa_track_verifier",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "worker_evidence_source_matches",
+        "security_definer": true
+      },
+      {
+        "acl": [
+          "wa_track_verifier=X/wa_track_verifier",
+          "wa_worker=X/wa_track_verifier"
+        ],
+        "owner": "wa_track_verifier",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "worker_lease_valid",
+        "security_definer": true
+      },
+      {
+        "acl": [
+          "wa_schema_owner=X/wa_schema_owner",
+          "wa_track_verifier=X/wa_schema_owner"
+        ],
+        "owner": "wa_schema_owner",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "worker_row_capabilities",
+        "security_definer": false
+      },
+      {
+        "acl": [
+          "wa_track_verifier=X/wa_track_verifier"
+        ],
+        "owner": "wa_track_verifier",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "worker_source_claim_valid",
+        "security_definer": true
+      },
+      {
+        "acl": [
+          "wa_track_verifier=X/wa_track_verifier"
+        ],
+        "owner": "wa_track_verifier",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "worker_source_row_valid",
+        "security_definer": true
+      },
+      {
+        "acl": [
+          "wa_track_verifier=X/wa_track_verifier",
+          "wa_worker=X/wa_track_verifier"
+        ],
+        "owner": "wa_track_verifier",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "schema": "platform_private",
+        "function": "worker_track_allowed",
+        "security_definer": true
+      }
+    ]
+  },
+  "independent_cleanup_verification": {
+    "observed_at_utc": "2026-11-16T12:01:16.988137+00:00",
+    "resource_presence": {
+      "wa-p0c-first-20261110-ok": false,
+      "wa-p0c-first-20261110-fail": false,
+      "wa-p0c-first-20261110-ok-data": false,
+      "wa-p0c-first-20261110-fail-data": false
+    },
+    "private_directory_exists": false,
+    "bootstrap_secret_files_exist": [
+      false,
+      false
+    ],
+    "pinned_image_removed": false,
+    "unrelated_resources_modified_by_this_run": false
+  },
+  "artifact_sha256": {
+    "foundation-application.intentional-failure.sql": "00b32187cf3b6a696777d69c90b529618ce9eceecf22fc24e6430a82289cd9be",
+    "independent-cleanup-verification.json": "76d83ffc2eff97590d9c3d78c5d2929930c9337fc3bf8bd2a388e86214ac2dd8",
+    "run-evidence.json": "67873ef0796b57cce728e3591c652ecba8498c82cd49d8d43350a84beb455741",
+    "set-private-acl.ps1": "d5ef58e51c12b4371601557f027a44e9ca206b81444724f8aab65365bf9c057f",
+    "success-catalog.json": "1ff425bff9f9af53feb4cba15cae113fe0fa1d5e9c9abd9f7e168d931d1ca7a0",
+    "auth-before-install-fail/authentication-results-fail.json": "e40784c086ce1bb8525e6c00fad36aa79b606bdfab534da9710b0c0e6efdcb23",
+    "auth-before-install-ok/authentication-results-ok.json": "e40784c086ce1bb8525e6c00fad36aa79b606bdfab534da9710b0c0e6efdcb23",
+    "behavior/first-customer-results.json": "fbd5c28e93de9d76af3f9a34c402b0018a5c420f1406bf695bc1995bee08515b"
+  },
+  "operational_wrapper_sha256": "93fff67f52ece58d4545e2d15a46ec5712c2ee099ed79774cc97fdfdbd9489af",
+  "operational_wrapper_offline_preparation_checks": {
+    "status": "PASS_OFFLINE_PREPARATION_ONLY",
+    "wrapper_ast": "PASS",
+    "cleanup_continues_after_docker_failure": true,
+    "host_secret_cleanup_independent": true,
+    "active_install_blocks_finalization": true,
+    "docker_database_boundaries": "MOCKED_NO_REAL_CALLS",
+    "approved_packet_changed": false
+  },
+  "prior_reports_preserved": {
+    "files": 11,
+    "sha256": {
+      "first-rehearsal-20261111T143338Z/image-inspection-after-stop.json": "9f8844f56eff4fe95b758599c7e39f9aa5d728ecb3c3ddd1b8be3a5551d2cda1",
+      "first-rehearsal-20261111T143338Z/pinned-manifest-after-stop.json": "6a86679ad5a42a8b13195a77930a602c176c887e9a6ecb47614291e123a113e3",
+      "first-rehearsal-20261111T143338Z/readonly-manifest-inspection.json": "4c0a9726b44c17ae7007ecac21a033d0680b494a5fb5a33a1289419581dc64c8",
+      "first-rehearsal-20261111T143338Z/run-evidence.json": "720644ebbe0d86ec20b6c48660d3de5edb9b7eca8f42305d88e86728fafdcf9f",
+      "first-rehearsal-20261111T144500Z/acl-dotnet-probe.ps1": "7d37be0972bad3c12ab547a7fddbbca3a0c8786cd7db35d748974f78dd93d839",
+      "first-rehearsal-20261111T144500Z/run-evidence.json": "7b81bd6301d0be3b0794187e3be3f8de7244600cf215920079b6d6b9b2615ed2",
+      "first-rehearsal-20261111T144500Z/set-private-acl.ps1": "af84d6b97e1b2eec951b450256f84675a1cf0a0467a26d4227760f10141ff049",
+      "first-rehearsal-approved-1a69e41-attempt3/independent-cleanup-verification.json": "76abea24c5555b52c4f8fb46d5bd942e07a2fffabbeb63d113cda97ec90401ed",
+      "first-rehearsal-approved-1a69e41-attempt3/run-evidence.json": "be0d3a1ee8e94ba2e7b8acbae5ddc1a0018da1f08f8e94789d26a46d365bdcfb",
+      "first-rehearsal-approved-1a69e41-attempt3/set-private-acl.ps1": "d5ef58e51c12b4371601557f027a44e9ca206b81444724f8aab65365bf9c057f",
+      "first-rehearsal-approved-1a69e41-attempt3/auth-before-install-ok/authentication-results-ok.json": "96a8ec1734de00a5af58afbbd12dbf32f6ead2e4df1b715420047a8c2cdda905"
+    },
+    "historical_git_execution_report_sha256": "41a966b6a304a000b6415daee42f72c099f478cb397b62602357f176eb1464cd"
+  },
+  "independent_review": "Two read-only agents independently verified packet integrity and reviewed observations/cleanup/coverage. They made no Docker/DB/SQL/harness invocation or mutation; root performed the independent cleanup inventory.",
+  "sanitization_limits": "The execution wrapper scanned all12 actual setup passwords against exported files before deletion and found none. Deleted values cannot be independently rescanned afterward. Reviewed coordinator exports only fixed Boolean/authentication/diagnostic/state evidence; no raw context handle field.",
+  "boundaries": {
+    "database_posture": "D",
+    "local_disposable_resources_created": true,
+    "application_sql_executed": true,
+    "migration_adoption": false,
+    "hosted_changes": false,
+    "production_activation": false,
+    "worker_loop": "NOT_RUN",
+    "451_register": "NOT_PROMOTED_UNEXERCISED_CASES_NOT_RUN",
+    "94_selection": "NOT_PROMOTED_NO_EXPANSION",
+    "further_retry": "NOT_AUTHORIZED"
+  },
+  "record_validation": {
+    "status": "PASS",
+    "scope": "OFFLINE_SOURCE_AND_RECORD_CONSISTENCY_ONLY; these checkers do not qualify the failed runtime case and do not perform a behavioral retry.",
+    "commands": [
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/check-context.py"
+        ],
+        "recorded_at": "2026-11-16T12:07:56.082112+00:00",
+        "exit_code": 0,
+        "result": {
+          "raw_output": "{\n  \"clusters\": 10,\n  \"modules\": 34,\n  \"cluster_documents\": 20,\n  \"module_documents\": 68,\n  \"handoffs\": 10,\n  \"shared_operations\": 132,\n  \"shared_statuses\": {\n    \"Confirmed\": 109,\n    \"Proposed ruling\": 23\n  },\n  \"prisma_models\": 177,\n  \"prisma_enums\": 207,\n  \"sql_migrations\": 1,\n  \"created_tables\": 53,\n  \"created_enums\": 31\n}\nWARNINGS: 124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay\nStructural checks PASSED; semantic readiness is a separate gate.\n"
+        }
+      },
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/check-foundation.py"
+        ],
+        "recorded_at": "2026-11-16T12:08:01.304070+00:00",
+        "exit_code": 0,
+        "result": {
+          "errors": [],
+          "metrics": {
+            "contracts": 132,
+            "workflows": 13,
+            "cold_start_routes": 6,
+            "candidate_lanes": 8,
+            "authorized_parallel_lanes": 0,
+            "synchronous_contract_cycles": [],
+            "current_context_links_checked": 2876,
+            "feature_source_files_scanned": 0,
+            "specified_token_contrast_pairs": 12,
+            "dispositions": {
+              "EVOLVABLE_COMPATIBLY": 119,
+              "EXTERNALLY_GATED": 13
+            }
+          },
+          "scope": "Static ownership/workflow/context/schema and executable wire/reference assertions. No real producer/consumer, framework, database, RLS, provider, Privacy executor or full rendered UI proof. Empty feature-source inventory is reported explicitly, not runtime boundary certification."
+        }
+      },
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/check-phase0.py"
+        ],
+        "recorded_at": "2026-11-16T12:08:02.228254+00:00",
+        "exit_code": 0,
+        "result": {
+          "errors": [],
+          "nine_roles": 9,
+          "archived_files": 21,
+          "source_models": 177,
+          "database_posture": "D",
+          "status": "FRAMEWORK_ACCEPTANCE_PASS_DEPENDENCY_SECURITY_REQUALIFIED",
+          "scope": "Static source/evidence/context/denial gate checks, including integrity of the separately recorded read-only existing-database observation. No fresh-target adoption, RLS behavior, owner-runtime or SH qualification."
+        }
+      },
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/check-database-candidate.py"
+        ],
+        "recorded_at": "2026-11-16T12:07:36.367112+00:00",
+        "exit_code": 0,
+        "result": {
+          "status": "PASS",
+          "errors": [],
+          "existing_models": 177,
+          "candidate_models": 214,
+          "foundation_models": 40,
+          "compatibility_cases": 12,
+          "sql_requirements": 18,
+          "planned_tests_not_run": 451,
+          "scope": "Offline source/evidence/semantic checks; not database/RLS/worker/provider execution"
+        }
+      },
+      {
+        "command": [
+          "python",
+          "-B",
+          "scripts/check-foundation-sql-draft.py"
+        ],
+        "recorded_at": "2026-11-16T12:07:42.661853+00:00",
+        "exit_code": 0,
+        "result": {
+          "status": "PASS",
+          "scope": "OFFLINE_SOURCE_AND_PARSER_ONLY",
+          "database_contacted": false,
+          "sql_executed": false,
+          "catalog_parity_verified": false,
+          "runtime_tests": "NOT_RUN",
+          "parser": "v7.21",
+          "stats": {
+            "review-output/foundation-bootstrap.review.sql": {
+              "sql_statements": 30,
+              "plpgsql_bodies_parsed": 0,
+              "sql_bodies_parsed": 0
+            },
+            "review-output/foundation-structure.sql": {
+              "sql_statements": 249,
+              "plpgsql_bodies_parsed": 0,
+              "sql_bodies_parsed": 0
+            },
+            "review-output/foundation-application.review.sql": {
+              "sql_statements": 1125,
+              "plpgsql_bodies_parsed": 101,
+              "sql_bodies_parsed": 47
+            },
+            "review-output/foundation-bootstrap-finalize.review.sql": {
+              "sql_statements": 5,
+              "plpgsql_bodies_parsed": 2,
+              "sql_bodies_parsed": 0
+            }
+          },
+          "errors": []
+        }
+      }
+    ],
+    "scope_limit": "No broad SQL mutations, native schema, framework build/HTTP or new database testing after the runtime stop; approved executable code unchanged.",
+    "known_warning": "124 mapped canonical models lack CREATE TABLE in historical checked-in migration; existing static-coverage warning, not migration replay."
+  }
+}

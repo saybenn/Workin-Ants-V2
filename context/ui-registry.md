@@ -34,3 +34,5 @@ No component,API,class or token changed. The same bounded shell passes lint/type
 12 November2026 UTC disposable rehearsal evidence: no component/API/classes/tokens changed. Both local targets bootstrapped; mandatory auth preflight stopped before application/fixtures. Exact run-owned resources/secrets cleaned; UI/product/runtime qualification unchanged. See first-rehearsal-1a69e41-execution.json.
 
 15 November2026 bounded coordinator address correction: no component/API/classes/token changes. Paths: scripts/sql-review/run-first-rehearsal.py and scripts/check-first-rehearsal-mocks.py;25 focused offline mock methods and source/parser/context checks, with exact results in auth_address_correction_8502f93. No UI/runtime qualification or execution retry.
+
+16 November2026 one-retry evidence only: no component/API/classes/token change. Local authentication/install/finalization succeeded; first Customer COMMIT failed42703 and later scenarios stopped; exact resources/secrets cleaned. See first-rehearsal-86480fb-retry-execution.json. No product UI or broad runtime qualification.
