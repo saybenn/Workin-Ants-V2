@@ -2475,5 +2475,391 @@
       "migration_adoption": false,
       "production_readiness_established": false
     }
+  },
+  "auth_address_correction_8502f93": {
+    "date": "2026-11-15",
+    "status": "PASS_OFFLINE_SOURCE_ONLY_PENDING_BRAIN_RE_REVIEW_RETRY_HELD",
+    "reviewed_evidence_commit": "8502f93c45d3c0c501633c2908e6fc651c35ee24",
+    "reviewed_tree": "c7dd5dedab7c9f5c84b52776faf528da515d867b",
+    "previous_executed_source": "1a69e41700d577cabc35a19271a3b7cc2aaa2c40",
+    "previous_packet_sha256": "3195c933eb56c6b8c830f5c440c3a6a9aab3404496d765e9ac22addb391f018a",
+    "replacement_checkpoint": "Normal child containing this correction and record; exact commit/tree independently verified after publication, outside this self-referential commit.",
+    "executable_packet_sha256": "8ed8f60cc30d95083aeb314a1b84212371e4fd575a024d6206e9a971fc2247a9",
+    "packet_hash_recipe": "SHA256(UTF8(concat sorted path + NUL + lowercase fileSHA256 + LF)); same22 paths as the prior executable packet; no self-hash.",
+    "executable_packet_files_sha256": {
+      "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+      "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+      "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+      "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+      "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+      "review-output/first-rehearsal/fixtures.json": "df00d519f11cd0a443dba906d724216d0e9d4f16f3ccbd9a703f9d02d0f3b3be",
+      "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+      "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+      "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+      "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+      "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+      "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+      "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+      "review-output/foundation-application.review.sql": "7ebe82f8fd43697e68082a1f82a5e0cc7c909e2319466b75097939aa644768b3",
+      "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+      "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+      "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+      "scripts/check-first-rehearsal-mocks.py": "9cdb248b8b5cc852e186d0a57b8253167715e3c214377126e511bf393281f342",
+      "scripts/database-candidate-correction-rules.py": "6b79a14ffa77c450c3864ba5e2d930d61d5a427a6b0c11545e1afdd37ccaabb3",
+      "scripts/prepare-database-candidate-review-assets.py": "dcb1544afc39cffbd9a8b052749f544c7531ff3dee2ff9cc738fd38d8d3bc9ed",
+      "scripts/prepare-first-rehearsal.py": "b03f4b7fda4e60ff7bafc2b6a7463d7bb9a3ee7bffc9f4e6c8f840f99b4116ce",
+      "scripts/sql-review/run-first-rehearsal.py": "282600254ea486ea9d61f55e06fbd6fdb5c50c7ebb29678bb1e664ce8566399b"
+    },
+    "changed_packet_files": [
+      "scripts/sql-review/run-first-rehearsal.py",
+      "scripts/check-first-rehearsal-mocks.py"
+    ],
+    "selection_authority": "The replacement full commit/tree and this exact file map select the executable packet. Historical reviewed_source/baseline labels are provenance only. Brain must re-review before any retry.",
+    "source_closure": {
+      "address_projection": [
+        "host(inet_client_addr())",
+        "host(inet_server_addr())"
+      ],
+      "expectations": "Exact127.0.0.1 unchanged, together with exact session login/SCRAM method+identity/database, HBA/verifier and wrong-password controls.",
+      "failure_evidence": "Persist the current role (existing fixed role register) and fixed Boolean comparison outcomes atomically BEFORE the authentication assertion. No actual probe values/dictionary, arbitrary keys, raw stdout/stderr, exception text, credential or handle is retained.",
+      "comparison_keys": [
+        "json_parsed",
+        "object",
+        "fields",
+        "string_fields",
+        "login",
+        "scram_identity",
+        "database",
+        "client_loopback",
+        "server_loopback"
+      ],
+      "malformed_responses": "Invalid JSON, duplicate fields, non-object results, missing/extra fields and non-string values fail closed.",
+      "other_behavior": "Stage markers, SQLSTATE+allowlisted diagnostic verdicts, complete-state checks, connection closure, stop/incremental evidence and secret-exclusion behavior preserved."
+    },
+    "focused_mock_results": {
+      "status": "PASS",
+      "test_methods": 25,
+      "all_docker_database_boundaries_mocked": true,
+      "subcases": "3 restored-query variants;4 NULL/nonloopback address cases;4 identity/method/database cases;8 malformed/unexpected response cases, plus successful corrected projections and all previous stopping/state/secret tests.",
+      "boolean_outcomes_proven_persisted_before_assertion": true,
+      "source_restoration_regression": {
+        "status": "PASS_OFFLINE_ONLY",
+        "in_memory_source_mutations_rejected": 3,
+        "method": "Restore each or both exact host projections to inet::text in an in-memory coordinator copy; run the normal projection-sensitive subprocess mocks. No checkout mutation or Docker/database invocation.",
+        "cases": [
+          {
+            "restored_casts": [
+              "client"
+            ],
+            "default_success_regression_detects_mutation": true,
+            "failed_comparisons": [
+              "client_loopback"
+            ],
+            "no_behavior_started": true,
+            "all_process_boundaries_mocked": true
+          },
+          {
+            "restored_casts": [
+              "server"
+            ],
+            "default_success_regression_detects_mutation": true,
+            "failed_comparisons": [
+              "server_loopback"
+            ],
+            "no_behavior_started": true,
+            "all_process_boundaries_mocked": true
+          },
+          {
+            "restored_casts": [
+              "client",
+              "server"
+            ],
+            "default_success_regression_detects_mutation": true,
+            "failed_comparisons": [
+              "client_loopback",
+              "server_loopback"
+            ],
+            "no_behavior_started": true,
+            "all_process_boundaries_mocked": true
+          }
+        ]
+      },
+      "test_names": [
+        "test_address_results_depend_on_sql_projection",
+        "test_auth_only_has_no_behavior_or_fixture_seed",
+        "test_complete_state_checks_remain",
+        "test_corrected_projection_and_comparisons_succeed",
+        "test_diagnostic_requires_one_exact_pair",
+        "test_execution_guard_precedes_all_boundaries",
+        "test_generator_and_register_authentication_boundary",
+        "test_hba_trust_stops_before_behavior",
+        "test_intended_diagnostics_and_closed_before_observation",
+        "test_live_backend_prevents_observation",
+        "test_loaded_trust_stops_before_behavior",
+        "test_malformed_or_unexpected_responses_stop_without_probe_values",
+        "test_null_and_nonloopback_addresses_reject_with_named_checks",
+        "test_prior_evidence_is_never_overwritten",
+        "test_resource_failure_retains_safe_entry_evidence",
+        "test_restoring_either_or_both_casts_reproduces_mask_mismatch",
+        "test_stage_checks_remain",
+        "test_unexpected_issuer_failure_retains_partial_incremental_evidence",
+        "test_unexpected_observer_failure_stops",
+        "test_unexpected_timeout_retains_markers_and_stops",
+        "test_unrelated_42501_rejects",
+        "test_unrelated_p0001_rejects",
+        "test_wrong_identities_methods_and_database_reject_without_values",
+        "test_wrong_password_acceptance_stops_before_behavior",
+        "test_wrong_password_unrelated_failure_rejects"
+      ]
+    },
+    "sql_transport_parser": {
+      "status": "PASS",
+      "scope": "PARSE_ONLY_ALL_DOCKER_DATABASE_BOUNDARIES_MOCKED",
+      "parser": "v7.21",
+      "transport_inputs": 49,
+      "parsed_statements": 96,
+      "restored_cast_queries_parsed": 3,
+      "python_ast_files": 2,
+      "database_contacted": false,
+      "sql_executed": false
+    },
+    "preservation": {
+      "status": "PASS",
+      "reviewed_commit": "8502f93c45d3c0c501633c2908e6fc651c35ee24",
+      "protected_files_sha256": {
+        "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+        "context/reconciliation/first-rehearsal-1a69e41-execution.json": "41a966b6a304a000b6415daee42f72c099f478cb397b62602357f176eb1464cd",
+        "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+        "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+        "context/reconciliation/foundation-sql-scope-policy.json": "a1c56896b12e15e03eb04bef6d5c9254692cdc3918167e024e54006b6fa38b1b",
+        "context/reconciliation/foundation-sql-verifier-access.json": "f84421c4957fcb4cf7fa5b04d3b5f804f8810ee58da2c1529e98daba8ab36bde",
+        "package-lock.json": "6b4e322549d6a6c14cd8542a21c1a6621a2625f88dbab5606174fd655dcdda1f",
+        "package.json": "6a3a1c7ef64f84eab2e4ec74843eb1c45d907e19ab7f04b222ad8d0eb42a6d85",
+        "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+        "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+        "review-output/first-rehearsal/fixtures.json": "df00d519f11cd0a443dba906d724216d0e9d4f16f3ccbd9a703f9d02d0f3b3be",
+        "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+        "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+        "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+        "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+        "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+        "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+        "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+        "review-output/foundation-application.review.sql": "7ebe82f8fd43697e68082a1f82a5e0cc7c909e2319466b75097939aa644768b3",
+        "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+        "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+        "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+        "scripts/assemble-foundation-sql-review.py": "136489b5fb966085020128bfbd7140dad5e0b340a2312319d346305311fc212f",
+        "scripts/database-candidate-correction-rules.py": "6b79a14ffa77c450c3864ba5e2d930d61d5a427a6b0c11545e1afdd37ccaabb3",
+        "scripts/prepare-database-candidate-review-assets.py": "dcb1544afc39cffbd9a8b052749f544c7531ff3dee2ff9cc738fd38d8d3bc9ed",
+        "scripts/prepare-first-rehearsal.py": "b03f4b7fda4e60ff7bafc2b6a7463d7bb9a3ee7bffc9f4e6c8f840f99b4116ce",
+        "scripts/sql-review/foundation-bootstrap-finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+        "scripts/sql-review/foundation-invariants.sql": "79a3603185c78e0afa80dd65e6a813319a24a5f83ecfbe2f00510946db2ffc62",
+        "scripts/sql-review/foundation-service-authority.sql": "7e61a56e66bf17a168b5b07db0f6c7a5522e4a71b9976119e5800cc969bbac82",
+        "scripts/sql-review/foundation-verification.sql": "053a0e26bffab95324e2ed70b74ec3f13e49b4a5f08ec6ff50367d2e219dda6c",
+        "vercel.json": "81a4eed381a1ebdb732441b2aa90c1933824338a9822859ead828bfdbabdc02f"
+      },
+      "changed_packet_files": [
+        "scripts/check-first-rehearsal-mocks.py",
+        "scripts/sql-review/run-first-rehearsal.py"
+      ],
+      "other_packet_files_unchanged": 20,
+      "worker_acl_rows": 32,
+      "worker_acl_bytes_unchanged": true,
+      "historical_execution_evidence_sha256": "41a966b6a304a000b6415daee42f72c099f478cb397b62602357f176eb1464cd",
+      "canonical_sql_fixtures_A_D_unchanged": true
+    },
+    "historical_evidence": {
+      "path": "context/reconciliation/first-rehearsal-1a69e41-execution.json",
+      "sha256": "41a966b6a304a000b6415daee42f72c099f478cb397b62602357f176eb1464cd",
+      "bytes_unchanged": true,
+      "accepted_scope": "Brain accepts actual stopped-run and cleanup evidence. Bootstrap-only finalization/cleanup is not successful/failed application installation qualification.",
+      "cause_status": "Address defect is PROVEN_SOURCE_ANALYSIS_CONSISTENT_WITH_STOP. Actual failed probe dictionary is absent; complete cause of the original failure remains UNOBSERVED. No missing value is invented and no incomplete step is promoted."
+    },
+    "applicable_existing_checks": {
+      "status": "PASS",
+      "scope": "OFFLINE_ONLY_NO_DOCKER_DATABASE_PROCESS",
+      "commands": [
+        {
+          "name": "mocks",
+          "command": [
+            "python",
+            "-B",
+            "scripts/check-first-rehearsal-mocks.py"
+          ],
+          "recorded_at": "2026-11-16T02:17:53.948296+00:00",
+          "exit_code": 0,
+          "result": {
+            "raw_output": ""
+          }
+        },
+        {
+          "name": "corrections",
+          "command": [
+            "python",
+            "-B",
+            "scripts/check-foundation-sql-corrections.py"
+          ],
+          "recorded_at": "2026-11-16T02:17:56.567869+00:00",
+          "exit_code": 0,
+          "result": {
+            "status": "PASS",
+            "scope": "OFFLINE_AST_SCALAR_PREDICATES_AND_SOURCE_GRAPH_ONLY",
+            "predicate_cases": 750,
+            "followup_source_graph_checks": 501,
+            "errors": [],
+            "database_contacted": false,
+            "sql_executed": false,
+            "database_runtime_cases": "451_NOT_RUN"
+          }
+        },
+        {
+          "name": "draft",
+          "command": [
+            "python",
+            "-B",
+            "scripts/check-foundation-sql-draft.py"
+          ],
+          "recorded_at": "2026-11-16T02:17:59.671478+00:00",
+          "exit_code": 0,
+          "result": {
+            "status": "PASS",
+            "scope": "OFFLINE_SOURCE_AND_PARSER_ONLY",
+            "database_contacted": false,
+            "sql_executed": false,
+            "catalog_parity_verified": false,
+            "runtime_tests": "NOT_RUN",
+            "parser": "v7.21",
+            "stats": {
+              "review-output/foundation-bootstrap.review.sql": {
+                "sql_statements": 30,
+                "plpgsql_bodies_parsed": 0,
+                "sql_bodies_parsed": 0
+              },
+              "review-output/foundation-structure.sql": {
+                "sql_statements": 249,
+                "plpgsql_bodies_parsed": 0,
+                "sql_bodies_parsed": 0
+              },
+              "review-output/foundation-application.review.sql": {
+                "sql_statements": 1125,
+                "plpgsql_bodies_parsed": 101,
+                "sql_bodies_parsed": 47
+              },
+              "review-output/foundation-bootstrap-finalize.review.sql": {
+                "sql_statements": 5,
+                "plpgsql_bodies_parsed": 2,
+                "sql_bodies_parsed": 0
+              }
+            },
+            "errors": []
+          }
+        },
+        {
+          "name": "context",
+          "command": [
+            "python",
+            "-B",
+            "scripts/check-context.py"
+          ],
+          "recorded_at": "2026-11-16T02:18:04.839512+00:00",
+          "exit_code": 0,
+          "result": {
+            "raw_output": "{\n  \"clusters\": 10,\n  \"modules\": 34,\n  \"cluster_documents\": 20,\n  \"module_documents\": 68,\n  \"handoffs\": 10,\n  \"shared_operations\": 132,\n  \"shared_statuses\": {\n    \"Confirmed\": 109,\n    \"Proposed ruling\": 23\n  },\n  \"prisma_models\": 177,\n  \"prisma_enums\": 207,\n  \"sql_migrations\": 1,\n  \"created_tables\": 53,\n  \"created_enums\": 31\n}\nWARNINGS: 124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay\nStructural checks PASSED; semantic readiness is a separate gate.\n"
+          }
+        },
+        {
+          "name": "foundation",
+          "command": [
+            "python",
+            "-B",
+            "scripts/check-foundation.py"
+          ],
+          "recorded_at": "2026-11-16T02:18:08.511633+00:00",
+          "exit_code": 0,
+          "result": {
+            "errors": [],
+            "metrics": {
+              "contracts": 132,
+              "workflows": 13,
+              "cold_start_routes": 6,
+              "candidate_lanes": 8,
+              "authorized_parallel_lanes": 0,
+              "synchronous_contract_cycles": [],
+              "current_context_links_checked": 2875,
+              "feature_source_files_scanned": 0,
+              "specified_token_contrast_pairs": 12,
+              "dispositions": {
+                "EVOLVABLE_COMPATIBLY": 119,
+                "EXTERNALLY_GATED": 13
+              }
+            },
+            "scope": "Static ownership/workflow/context/schema and executable wire/reference assertions. No real producer/consumer, framework, database, RLS, provider, Privacy executor or full rendered UI proof. Empty feature-source inventory is reported explicitly, not runtime boundary certification."
+          }
+        },
+        {
+          "name": "phase0",
+          "command": [
+            "python",
+            "-B",
+            "scripts/check-phase0.py"
+          ],
+          "recorded_at": "2026-11-16T02:18:09.025480+00:00",
+          "exit_code": 0,
+          "result": {
+            "errors": [],
+            "nine_roles": 9,
+            "archived_files": 21,
+            "source_models": 177,
+            "database_posture": "D",
+            "status": "FRAMEWORK_ACCEPTANCE_PASS_DEPENDENCY_SECURITY_REQUALIFIED",
+            "scope": "Static source/evidence/context/denial gate checks, including integrity of the separately recorded read-only existing-database observation. No fresh-target adoption, RLS behavior, owner-runtime or SH qualification."
+          }
+        },
+        {
+          "name": "candidate",
+          "command": [
+            "python",
+            "-B",
+            "scripts/check-database-candidate.py"
+          ],
+          "recorded_at": "2026-11-16T02:18:09.422875+00:00",
+          "exit_code": 0,
+          "result": {
+            "status": "PASS",
+            "errors": [],
+            "existing_models": 177,
+            "candidate_models": 214,
+            "foundation_models": 40,
+            "compatibility_cases": 12,
+            "sql_requirements": 18,
+            "planned_tests_not_run": 451,
+            "scope": "Offline source/evidence/semantic checks; not database/RLS/worker/provider execution"
+          }
+        }
+      ],
+      "focused_test_methods": 25,
+      "source_predicate_cases": 750,
+      "source_graph_checks": 501,
+      "context_warning": "Existing124 mapped Prisma models lack CREATE TABLE in historical checked-in migration; static coverage, not runtime proof.",
+      "failures_or_scope_broadening": "None; no broad SQL mutation/native-schema/framework rerun justified by this bounded Python/record change."
+    },
+    "check_scope_decision": "Run focused mocks,3 targeted in-memory cast restorations, transport and canonical SQL/function parsing,750 predicates/501 existing source checks, context/foundation/Phase0/candidate and preservation checks. No broad75 SQL-guard mutations, native Prisma, lint/build/HTTP rerun: no canonical SQL/Prisma/TypeScript/framework/dependency change; broaden only for an actual failure.",
+    "primary_semantics": "https://www.postgresql.org/docs/17/functions-net.html",
+    "boundaries": {
+      "database_posture": "D",
+      "docker_process_invoked": false,
+      "database_contacted": false,
+      "sql_executed": false,
+      "rehearsal_retried": false,
+      "installation_and_rollback": "NOT_RUN",
+      "customer_scenarios": "NOT_RUN",
+      "unexercised_authentication_controls": "NOT_RUN",
+      "451_register": "NOT_RUN_NO_PROMOTION",
+      "94_selection": "NOT_RUN_NO_EXPANSION",
+      "hosted_changes": false,
+      "migration_adoption": false,
+      "execution_retry": "HELD_PENDING_BRAIN_RE_REVIEW"
+    }
   }
 }

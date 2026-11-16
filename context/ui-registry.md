@@ -32,3 +32,5 @@ No component,API,class or token changed. The same bounded shell passes lint/type
 11 November2026 rehearsal HOLD correction: only dormant Python coordinator/generators, generated review packet and evidence records; no component, API, class or token changes. Focused subprocess mocks and existing offline suites are separate from runtime/UI qualification. Product UI remains unqualified.
 
 12 November2026 UTC disposable rehearsal evidence: no component/API/classes/tokens changed. Both local targets bootstrapped; mandatory auth preflight stopped before application/fixtures. Exact run-owned resources/secrets cleaned; UI/product/runtime qualification unchanged. See first-rehearsal-1a69e41-execution.json.
+
+15 November2026 bounded coordinator address correction: no component/API/classes/token changes. Paths: scripts/sql-review/run-first-rehearsal.py and scripts/check-first-rehearsal-mocks.py;25 focused offline mock methods and source/parser/context checks, with exact results in auth_address_correction_8502f93. No UI/runtime qualification or execution retry.

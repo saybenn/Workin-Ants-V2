@@ -18,7 +18,7 @@ manifest.update(
     historical_native_record='context/reconciliation/database-candidate-native-validation.json',
     current_native_record='context/reconciliation/database-candidate-corrections-native-validation.json',
     source_amendment_directive='P0-C-03A',
-    targeted_review_base_commit='f3d4a161a4c8f7a00904f2c0757b1958601348dd',
+    targeted_review_base_commit='8502f93c45d3c0c501633c2908e6fc651c35ee24',
     historical_comparison_commit='e363ad45dfad76d2a4ffbd0cd84ef0c01d24e966',
     current_review_directive='context/reconciliation/directives/brain-directive-p0-c-03a.md',
     current_sql_draft_manifest='context/reconciliation/foundation-sql-draft-manifest.json',

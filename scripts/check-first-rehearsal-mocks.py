@@ -1,9 +1,11 @@
 """Environment-free subprocess mocks. NEVER invokes Docker or a database."""
 import contextlib
 import io
+import ipaddress
 import json
 from pathlib import Path
 import queue
+import re
 import runpy
 import subprocess
 import tempfile
@@ -15,6 +17,20 @@ runner=runpy.run_path(str(ROOT/'scripts/sql-review/run-first-rehearsal.py'))
 CASES=json.loads((ROOT/'review-output/first-rehearsal/fixtures.json').read_text(encoding='utf8'))['scenarios']
 SECRET='a'*64
 CANARY='DO_NOT_RETAIN_PASSWORD_HANDLE_STATEMENT'
+
+def projected_address(sql,label,addresses):
+    """Model the selected SQL expression, including inet::text's host mask.
+
+    Deliberately limited to the two projections under review. An unknown
+    expression is an unmocked boundary, never a fabricated successful result.
+    """
+    expression=re.search("'"+label+r"'\s*,\s*(host\s*\(\s*inet_(?:client|server)_addr\s*\(\s*\)\s*\)|inet_(?:client|server)_addr\s*\(\s*\)\s*::\s*text)",sql,re.I)
+    assert expression is not None,'Unmodeled address projection'
+    expression=expression[1].lower()
+    address=addresses['client' if 'inet_client_addr' in expression else 'server']
+    if address is None:return None
+    value=ipaddress.ip_interface(address)
+    return str(value.ip) if expression.startswith('host') else str(value)
 
 class Output:
     def __init__(self):self.lines=queue.Queue()
@@ -65,6 +81,8 @@ class Process:
 class World:
     def __init__(self,mode='normal'):
         self.mode=mode;self.processes=[];self.events=[];self.evidence=None;self.incremental_seen=False
+        self.auth_queries=[];self.wrong_password_roles=[];self.comparison_saved_before_wrong_control=True
+        self.comparison_saved_before_assertion=False
     def check_output(self,args,**kwargs):
         assert args[:3]==['docker','--context','desktop-linux']
         if self.mode=='resource-error':raise subprocess.CalledProcessError(1,CANARY,output=SECRET,stderr=CANARY)
@@ -81,6 +99,9 @@ class World:
         role=args[args.index('-U')+1];sql=input;output='';code=0;stderr=''
         assert args[args.index('-h')+1]=='127.0.0.1' and '-w' in args
         if 'PGPASSWORD' in args:
+            self.wrong_password_roles.append(role)
+            saved=json.loads(self.evidence.read_text())
+            self.comparison_saved_before_wrong_control &= all(saved['authentication_comparison'].values())
             assert kwargs['env']['PGPASSWORD']==SECRET and SECRET not in ' '.join(args)
             code=0 if self.mode=='wrong-accepted' else 2
             stderr='psql: error: connection to server at "127.0.0.1", port 5432 failed: FATAL:  password authentication failed for user "'+role+'"\n'
@@ -92,7 +113,30 @@ class World:
             output=json.dumps(rows)
         elif 'pg_authid' in sql:output=json.dumps(dict.fromkeys(('postgres',*runner['ROLES']),True))
         elif 'system_user' in sql:
-            output=json.dumps({'login':role,'auth':None if self.mode=='loaded-trust' else 'scram-sha-256:'+role,'database':runner['DATABASE'],'client':'127.0.0.1','server':'127.0.0.1'})
+            # These modes replay restored SQL casts at the process boundary;
+            # normal mode always evaluates the coordinator's actual query.
+            for label in ('client','server'):
+                if self.mode in ('legacy-both-casts','legacy-'+label+'-cast'):
+                    sql=sql.replace('host(inet_'+label+'_addr())','inet_'+label+'_addr()::text')
+            self.auth_queries.append(sql)
+            addresses={'client':'127.0.0.1','server':'127.0.0.1'}
+            for label in addresses:
+                if self.mode=='null-'+label:addresses[label]=None
+                if self.mode=='nonloopback-'+label:addresses[label]='192.0.2.7'
+            probe={'login':role,'auth':None if self.mode=='loaded-trust' else 'scram-sha-256:'+role,'database':runner['DATABASE'],**{label:projected_address(sql,label,addresses) for label in addresses}}
+            if self.mode=='wrong-login':probe['login']=CANARY+SECRET
+            if self.mode=='wrong-auth-identity':probe['auth']='scram-sha-256:unintended_role'
+            if self.mode=='wrong-method':probe['auth']='md5:'+role
+            if self.mode=='wrong-database':probe['database']=CANARY+SECRET
+            if self.mode=='missing-field':del probe['client']
+            if self.mode=='extra-field':probe[CANARY]=SECRET
+            if self.mode=='wrong-type':probe['client']={CANARY:SECRET}
+            output=json.dumps(probe)
+            if self.mode=='malformed-json':output=CANARY+SECRET
+            if self.mode=='array-response':output=json.dumps([probe])
+            if self.mode=='string-response':output=json.dumps(CANARY+SECRET)
+            if self.mode=='null-response':output='null'
+            if self.mode=='duplicate-field':output=output[:-1]+',"login":'+json.dumps(role)+'}'
         elif 'current_setting' in sql:output='t'
         elif 'pg_auth_members' in sql:output='0'
         elif 'has_schema_privilege' in sql:output='f'
@@ -120,25 +164,37 @@ class Tests(unittest.TestCase):
         world=World(mode)
         with tempfile.TemporaryDirectory(prefix='wa-offline-mock-') as temp:
             directory=Path(temp);world.evidence=directory/('authentication-results-ok.json' if auth_only else 'first-customer-results.json')
+            original_require=runner['main'].__globals__['require']
+            def observe_assertion(ok,code):
+                if code=='AUTHENTICATED_SCRAM_LOGIN_REQUIRED' and not ok:
+                    saved=json.loads(world.evidence.read_text())
+                    world.comparison_saved_before_assertion='authentication_comparison' in saved and not all(saved['authentication_comparison'].values())
+                return original_require(ok,code)
             # Patching every process API used by the coordinator is mandatory.
-            with patch.object(subprocess,'run',side_effect=world.run),patch.object(subprocess,'check_output',side_effect=world.check_output),patch.object(subprocess,'Popen',side_effect=world.popen),patch.object(runner['secrets'],'token_hex',return_value=SECRET):
+            with patch.object(subprocess,'run',side_effect=world.run),patch.object(subprocess,'check_output',side_effect=world.check_output),patch.object(subprocess,'Popen',side_effect=world.popen),patch.object(runner['secrets'],'token_hex',return_value=SECRET),patch.dict(runner['main'].__globals__,require=observe_assertion):
                 args=['--execute-approved-rehearsal','--evidence-directory',temp]
                 if auth_only:args.append('--authentication-preflight-only')
                 code=runner['main'](args)
             content=world.evidence.read_text();data=json.loads(content)
             for prohibited in (SECRET,CANARY,'STATEMENT:','INSERT INTO','PGPASSWORD','raw_handle','backend_start'):self.assertNotIn(prohibited,content)
+            if 'authentication_comparison' in data:
+                checks=data['authentication_comparison']
+                self.assertEqual(set(checks),{'json_parsed','object','fields','string_fields','login','scram_identity','database','client_loopback','server_loopback'})
+                self.assertTrue(all(type(value) is bool for value in checks.values()))
             self.assertTrue(data['cleanup_required'])
             return code,data,world
     def test_intended_diagnostics_and_closed_before_observation(self):
         code,data,w=self.exercise();self.assertEqual(code,0);self.assertEqual(len(data['results']),3)
         self.assertEqual([r['diagnostic'] for r in data['results']],['NONE','CUSTOMER_PRINCIPAL_GUARD','CUSTOMER_DEFAULT_FREE_GUARD'])
         self.assertEqual(len(data['authentication']),6)
+        self.assertEqual(len(w.wrong_password_roles),6);self.assertTrue(w.comparison_saved_before_wrong_control)
         for case in CASES:self.assertLess(w.events.index('closed:'+case['name']),w.events.index('observe:'+case['name']))
     def test_unrelated_42501_rejects(self):self.assert_stopped('unrelated-42501',1,2,'INTENDED_GUARD_NOT_PROVEN')
     def test_unrelated_p0001_rejects(self):self.assert_stopped('unrelated-P0001',2,3,'INTENDED_GUARD_NOT_PROVEN')
     def assert_stopped(self,mode,completed,opened,failure):
         code,data,w=self.exercise(mode);self.assertEqual(code,1);self.assertEqual(len(data['results']),completed)
         self.assertEqual(len(w.processes),opened);self.assertTrue(data['subsequent_cases_stopped']);self.assertEqual(data['failure']['code'],failure)
+        if failure=='AUTHENTICATED_SCRAM_LOGIN_REQUIRED':self.assertTrue(w.comparison_saved_before_assertion)
         return data,w
     def test_unexpected_issuer_failure_retains_partial_incremental_evidence(self):
         data,w=self.assert_stopped('issuer-error',1,2,'SUBPROCESS');self.assertTrue(w.incremental_seen)
@@ -157,6 +213,45 @@ class Tests(unittest.TestCase):
     def test_loaded_trust_stops_before_behavior(self):self.assert_stopped('loaded-trust',0,0,'AUTHENTICATED_SCRAM_LOGIN_REQUIRED')
     def test_wrong_password_acceptance_stops_before_behavior(self):self.assert_stopped('wrong-accepted',0,0,'WRONG_PASSWORD_CONTROL_FAILED')
     def test_wrong_password_unrelated_failure_rejects(self):self.assert_stopped('wrong-unrelated',0,0,'WRONG_PASSWORD_CONTROL_FAILED')
+    def test_address_results_depend_on_sql_projection(self):
+        addresses={'client':'127.0.0.1','server':'127.0.0.1'}
+        for label in addresses:
+            host="SELECT jsonb_build_object('"+label+"',host(inet_"+label+"_addr()));"
+            cast="SELECT jsonb_build_object('"+label+"',inet_"+label+"_addr()::text);"
+            self.assertEqual(projected_address(host,label,addresses),'127.0.0.1')
+            self.assertEqual(projected_address(cast,label,addresses),'127.0.0.1/32')
+    def test_corrected_projection_and_comparisons_succeed(self):
+        code,data,w=self.exercise(auth_only=True);self.assertEqual(code,0)
+        self.assertTrue(all(data['authentication_comparison'].values()))
+        self.assertTrue(w.comparison_saved_before_wrong_control);self.assertEqual(w.wrong_password_roles,['postgres',*runner['ROLES']])
+        for sql in w.auth_queries:
+            self.assertIn('host(inet_client_addr())',sql);self.assertIn('host(inet_server_addr())',sql)
+    def test_restoring_either_or_both_casts_reproduces_mask_mismatch(self):
+        for mode,failed in [('legacy-client-cast',{'client_loopback'}),('legacy-server-cast',{'server_loopback'}),('legacy-both-casts',{'client_loopback','server_loopback'})]:
+            with self.subTest(mode=mode):
+                data,w=self.assert_stopped(mode,0,0,'AUTHENTICATED_SCRAM_LOGIN_REQUIRED')
+                self.assertEqual({k for k,v in data['authentication_comparison'].items() if not v},failed)
+                self.assertEqual(data['failure']['stage'],'AUTH_CORRECT_PASSWORD');self.assertEqual(w.wrong_password_roles,[])
+                self.assertTrue(any('::text' in sql for sql in w.auth_queries))
+    def test_null_and_nonloopback_addresses_reject_with_named_checks(self):
+        for label in ('client','server'):
+            for kind in ('null','nonloopback'):
+                with self.subTest(label=label,kind=kind):
+                    data,w=self.assert_stopped(kind+'-'+label,0,0,'AUTHENTICATED_SCRAM_LOGIN_REQUIRED')
+                    checks=data['authentication_comparison'];self.assertFalse(checks[label+'_loopback'])
+                    self.assertTrue(checks['server_loopback' if label=='client' else 'client_loopback'])
+                    self.assertEqual(checks['string_fields'],kind!='null');self.assertEqual(w.wrong_password_roles,[])
+    def test_wrong_identities_methods_and_database_reject_without_values(self):
+        for mode,failed in [('wrong-login','login'),('wrong-auth-identity','scram_identity'),('wrong-method','scram_identity'),('wrong-database','database')]:
+            with self.subTest(mode=mode):
+                data,w=self.assert_stopped(mode,0,0,'AUTHENTICATED_SCRAM_LOGIN_REQUIRED')
+                self.assertEqual({k for k,v in data['authentication_comparison'].items() if not v},{failed})
+                self.assertEqual(w.wrong_password_roles,[])
+    def test_malformed_or_unexpected_responses_stop_without_probe_values(self):
+        for mode,failed in [('malformed-json','json_parsed'),('duplicate-field','json_parsed'),('array-response','object'),('string-response','object'),('null-response','object'),('missing-field','fields'),('extra-field','fields'),('wrong-type','string_fields')]:
+            with self.subTest(mode=mode):
+                data,w=self.assert_stopped(mode,0,0,'AUTHENTICATED_SCRAM_LOGIN_REQUIRED')
+                self.assertFalse(data['authentication_comparison'][failed]);self.assertEqual(w.wrong_password_roles,[])
     def test_resource_failure_retains_safe_entry_evidence(self):
         data,w=self.assert_stopped('resource-error',0,0,'SUBPROCESS');self.assertEqual(data['failure']['stage'],'RESOURCE_PREFLIGHT')
     def test_generator_and_register_authentication_boundary(self):

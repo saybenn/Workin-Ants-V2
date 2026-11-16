@@ -41,8 +41,8 @@ outputs=list(baseline['outputs_sha256'])+['review-output/foundation-bootstrap-fi
 outputs+=sorted(str(p.relative_to(ROOT)).replace('\\','/') for p in (ROOT/'review-output/first-rehearsal').glob('*') if p.is_file())
 manifest={
     'directive':'P0-C-03A',
-    'reviewed_baseline':'f3d4a161a4c8f7a00904f2c0757b1958601348dd',
-    'reviewed_tree':'4edf394a98f1ad357e6f15245fd309d689f35f07',
+    'reviewed_baseline':'8502f93c45d3c0c501633c2908e6fc651c35ee24',
+    'reviewed_tree':'c7dd5dedab7c9f5c84b52776faf528da515d867b',
     'historical_comparison_commit':'e363ad45dfad76d2a4ffbd0cd84ef0c01d24e966',
     'previous_correction_baseline':'8917e2035622017eccd14c99ad7fd2b55740163f',
     'original_drafting_input_baseline':baseline['reviewed_baseline'],
@@ -67,6 +67,8 @@ manifest={
     'remaining_gates':['Brain exact corrected-source approval','Separately authorized disposable identity/image/actions and actual installation/replay','Real Identity/issuer/owner/worker adapters and later P0-D/E/F qualification','Usage period/reconciliation and Privacy completion adapters remain denied'],
     'parser':baseline['parser'],
     'validation_record':'context/reconciliation/foundation-sql-draft-validation.json',
+    'latest_executable_packet_record':'context/reconciliation/foundation-sql-draft-validation.json#auth_address_correction_8502f93',
+    'packet_selection':'Use the replacement commit/tree and exact22-file map in that record; historical baseline labels never select an executable packet. Retry remains HELD pending Brain review.',
     'validation_scope':'Exact offline outputs separately retained; no circular manifest/report fingerprint or database claim.',
     'publication':'One corrected child on existing branch; Git/GitHub verification is reported separately after update. No main merge or force-push.'
 }

@@ -109,6 +109,27 @@ def hba_matches(rows):
             selected.append({'role':role,'address':address,'rule_number':match['rule_number'],'method':'scram-sha-256'})
     return selected
 
+def authentication_comparison(output,role):
+    """Return fixed Boolean outcomes only; discard all actual probe values."""
+    checks=dict.fromkeys(('json_parsed','object','fields','string_fields','login','scram_identity','database','client_loopback','server_loopback'),False)
+    def unique_keys(pairs):
+        value={}
+        for key,item in pairs:
+            if key in value:raise ValueError('duplicate probe field')
+            value[key]=item
+        return value
+    try:probe=json.loads(output,object_pairs_hook=unique_keys)
+    except (ValueError,RecursionError):return checks
+    checks['json_parsed']=True
+    if type(probe) is not dict:return checks
+    checks['object']=True
+    expected={'login':role,'auth':'scram-sha-256:'+role,'database':DATABASE,'client':'127.0.0.1','server':'127.0.0.1'}
+    checks['fields']=set(probe)==set(expected)
+    checks['string_fields']=checks['fields'] and all(type(probe[key]) is str for key in expected)
+    for field,label in [('login','login'),('auth','scram_identity'),('database','database'),('client','client_loopback'),('server','server_loopback')]:
+        checks[label]=type(probe.get(field)) is str and probe[field]==expected[field]
+    return checks
+
 def authentication_preflight(evidence,container):
     evidence.stage('AUTH_HBA')
     rows=json.loads(run('postgres',"SELECT coalesce(jsonb_agg(jsonb_build_object('rule_number',rule_number,'type',type,'database',database,'user_name',user_name,'address',address,'netmask',netmask,'auth_method',auth_method,'error',error) ORDER BY rule_number),'[]'::jsonb) FROM pg_hba_file_rules;",container))
@@ -118,8 +139,10 @@ def authentication_preflight(evidence,container):
     for role in ('postgres',*ROLES):
         evidence.value['current_auth_role']=role
         evidence.stage('AUTH_CORRECT_PASSWORD')
-        probe=json.loads(run(role,"SELECT jsonb_build_object('login',session_user,'auth',system_user,'database',current_database(),'client',inet_client_addr()::text,'server',inet_server_addr()::text);",container))
-        require(probe=={'login':role,'auth':'scram-sha-256:'+role,'database':DATABASE,'client':'127.0.0.1','server':'127.0.0.1'},'AUTHENTICATED_SCRAM_LOGIN_REQUIRED')
+        probe=run(role,"SELECT jsonb_build_object('login',session_user,'auth',system_user,'database',current_database(),'client',host(inet_client_addr()),'server',host(inet_server_addr()));",container)
+        checks=authentication_comparison(probe,role)
+        evidence.value['authentication_comparison']=checks;evidence.save()
+        require(all(checks.values()),'AUTHENTICATED_SCRAM_LOGIN_REQUIRED')
         evidence.stage('AUTH_WRONG_PASSWORD')
         # The value is ephemeral environment transport, never argv or evidence.
         env=os.environ.copy();env['PGPASSWORD']=secrets.token_hex(32)
