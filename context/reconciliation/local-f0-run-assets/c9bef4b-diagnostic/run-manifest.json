@@ -1,0 +1,63 @@
+{
+  "purpose": "UNCHANGED_CUSTOMER_COMMIT_BOUNDED_DIAGNOSTIC_REPRODUCTION",
+  "authority": "context/reconciliation/directives/local-f0-standing-authority-2026-11-17.md",
+  "run_id": "acc7bd84-5b4d-41b7-84bf-b558ca96c9b7",
+  "source_commit": "c9bef4bae235e4fe6eb45b54744c258d14becc83",
+  "source_tree": "ac777179a434dc2e21b65dcc06b83728aa628f19",
+  "packet_sha256": "dbb13c54dc8c6b78e400a09b01c9dd3adb02af4e749cbf2f267486ff10305e75",
+  "packet_files_sha256": {
+    "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+    "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+    "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+    "review-output/first-rehearsal/diagnostic-identifiers.json": "e65c562cb4a74ee08554ce598c67da5a79c2a9bf49fbb806d38ce3fa36c28a6d",
+    "review-output/first-rehearsal/fixtures.json": "df00d519f11cd0a443dba906d724216d0e9d4f16f3ccbd9a703f9d02d0f3b3be",
+    "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+    "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+    "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+    "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+    "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+    "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+    "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+    "review-output/foundation-application.review.sql": "7ebe82f8fd43697e68082a1f82a5e0cc7c909e2319466b75097939aa644768b3",
+    "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+    "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+    "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+    "scripts/check-first-rehearsal-mocks.py": "777d9d74788c37c9b20891196180708400e4f58991026075e60bb6bc74a96adf",
+    "scripts/database-candidate-correction-rules.py": "6b79a14ffa77c450c3864ba5e2d930d61d5a427a6b0c11545e1afdd37ccaabb3",
+    "scripts/prepare-database-candidate-review-assets.py": "dcb1544afc39cffbd9a8b052749f544c7531ff3dee2ff9cc738fd38d8d3bc9ed",
+    "scripts/prepare-first-rehearsal.py": "b03f4b7fda4e60ff7bafc2b6a7463d7bb9a3ee7bffc9f4e6c8f840f99b4116ce",
+    "scripts/prepare-rehearsal-diagnostics.py": "598bc556999a16f303171003324be8763cb00a0fff2bb54de8a1195e1e7c852b",
+    "scripts/sql-review/rehearsal-diagnostics.py": "c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e",
+    "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e"
+  },
+  "wrapper_sha256": "2ba5e783ed746d79b36e11389e5a56799d871a696c8527be3257571c4bc72c51",
+  "evidence_directory": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-diagnostic-20261117-attempt01",
+  "image": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+  "database": "wa_p0c_rehearsal",
+  "run_label": "p0c-first-20261110",
+  "targets": [
+    {
+      "name": "wa-p0c-first-20261110-ok",
+      "volume": "wa-p0c-first-20261110-ok-data",
+      "kind": "ok"
+    },
+    {
+      "name": "wa-p0c-first-20261110-fail",
+      "volume": "wa-p0c-first-20261110-fail-data",
+      "kind": "fail"
+    }
+  ],
+  "storage": {
+    "PGDATA": "EXACT_NAMED_RUN_CREATED_VOLUME:/var/lib/postgresql/data",
+    "bootstrap_secret": "READ_ONLY_TEST_OWNED_BIND:/run/bootstrap-password",
+    "pgpass": "PRIVATE_TMPFS_ROOT_0600:/run/wa-secrets/pgpass",
+    "network": "none",
+    "ports": []
+  },
+  "cleanup": "Remove only recorded created container IDs with exact name/run label, exact volume name/labels/CreatedAt; delete only run-created secret files; verify absence; retain image.",
+  "stop_policy": "First unexpected result stops attempt and later cases; close connection before observation; preserve sanitized evidence; finally grantor finalization and exact cleanup.",
+  "review_status": "APPROVED_DIAGNOSTIC_ATTEMPT",
+  "reviewer": "review_track_ports"
+}

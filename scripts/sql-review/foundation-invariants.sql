@@ -439,8 +439,12 @@ BEGIN
  IF TG_TABLE_NAME IN ('owner_mutation_evidence','runtime_outbox_message') THEN
   SELECT * INTO STRICT c FROM platform.runtime_command_receipt WHERE id=NEW.command_receipt_id;
   IF c.state<>'committed' OR c.mutation_transaction_id<>NEW.mutation_transaction_id THEN RAISE EXCEPTION 'foreign transaction command'; END IF;
-  IF TG_TABLE_NAME='owner_mutation_evidence' AND (c.owner_module_id<>NEW.owner_module_id OR c.operation<>NEW.action)
-   THEN RAISE EXCEPTION 'foreign owner command'; END IF;
+  -- These fields exist only on evidence rows. PostgreSQL prepares the complete
+  -- IF expression; a Boolean AND cannot protect another trigger row shape.
+  IF TG_TABLE_NAME='owner_mutation_evidence' THEN
+   IF c.owner_module_id<>NEW.owner_module_id OR c.operation<>NEW.action
+    THEN RAISE EXCEPTION 'foreign owner command'; END IF;
+  END IF;
  ELSIF TG_TABLE_NAME='runtime_inbox_receipt' THEN
   SELECT * INTO STRICT o FROM platform.runtime_outbox_message WHERE id=NEW.outbox_message_id;
   SELECT * INTO STRICT e FROM platform.runtime_effect_receipt WHERE id=NEW.effect_receipt_id;

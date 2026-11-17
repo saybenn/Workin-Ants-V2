@@ -1,3 +1,7 @@
+## Customer shared-trigger correction — 17 November2026
+
+Actual fresh diagnostic reproduction identifies NEW.owner_module_id in infrastructure_atomic line7. The source now nests its evidence-only owner/action predicate below a standalone table-name IF. No access ceiling changes. Independent review confirms exactlyone changedSQLstatement and intact grants/policies/triggers/owners;4 row-shape regressions include restoration of the defective combinedAND. Exact28-file packet, offline outcomes, unchanged fixtures/32 worker ACLs and historical preservation hashes: validation → local_f0_row_shape_c9bef4b. Corrected runtime remains pending a fresh source-pinned three-case rehearsal; standing local authority continues through attainable work after it.
+
 ## Current local F0 diagnostic checkpoint — 17 November2026
 
 The [standing user instruction](directives/local-f0-standing-authority-2026-11-17.md) authorizes the local correction/review/validation/execution loop. Earlier source-only/per-packet/single-retry labels below remain historical scope. Posture D and final Brain acceptance remain; hosted contact and P0-D are unauthorized. Current work is Step3.4; the [numbered board](local-f0-qualification-board.json) preserves version-qualified passes and unrun/dependency-gated assertions.

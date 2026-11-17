@@ -1,3 +1,11 @@
+## Current local F0 action — Customer row-shape correction, 17 November2026
+
+Completed: fresh exactc9bef4b diagnostic run observed42703/NEW.owner_module_id in infrastructure_atomic bodyline7; operation closed before zero-residue observation;18 correct/18 wrong-password controls, both install/finalization paths and exact cleanup passed. [Retained evidence](reconciliation/local-f0-diagnostic-c9bef4b-execution.json) preserves raw-safe reports and reconciles inaccurate aggregate flags. The old run's unretained exact cause remains unobserved.
+
+Current Step3.4: authoritative nested-IF correction and generated SQL now preserve the evidence-only owner/action guard without evaluating it for outbox rows. Independent review confirms1/1125 statement changed and no grants/policies/triggers/owner changes. Four parser-based row-shape regressions detect restoration of the defect; existing source/mock/parser/mutation checks bind the replacement packet in validation → local_f0_row_shape_c9bef4b. Next: pin full source/tree and fresh reviewed manifest, execute complete Customer plus exact wrong-person/missing-outbox scenarios. The corrected positive remains NOT_RUN until it actually commits.
+
+Repeated authentication/install/finalization is required for fresh targets and changed SQL; unique coverage remains separate. Step3.6–3.9 work continues after small rehearsal; selected94 identities retained, source conflicts/dependency gates conservative. Posture D; Brain final acceptance, hosted and P0-D boundaries unchanged. No component/API/classes/token change.
+
 ## Current status — standing local F0 qualification, 17 November 2026
 
 User authority: [standing instruction](reconciliation/directives/local-f0-standing-authority-2026-11-17.md). [Numbered Step3 board](reconciliation/local-f0-qualification-board.json) records version-qualified passes3.1–3.3, current3.4 blocked42703, partial3.7 and remaining unrun work. Earlier per-patch/single-retry handoffs below are history within this bounded local authority.
