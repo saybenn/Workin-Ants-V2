@@ -73,6 +73,8 @@ manifest={
     'latest_executable_packet_record':'context/reconciliation/foundation-sql-draft-validation.json#local_f0_row_shape_c9bef4b',
     'packet_selection':'Use the exact28-file map in the latest local F0 record, plus independently reviewed external run manifest pinned to full source commit/tree before execution. Historical baseline labels never select an executable packet.',
     'current_authority':'context/reconciliation/directives/local-f0-standing-authority-2026-11-17.md',
+    'latest_local_execution':'context/reconciliation/local-f0-small-rehearsal-0623028-execution.json',
+    'current_local_checkpoint':'3.6 Genuine migration history; small rehearsal3.1–3.5 passed only its exercised subset on0623028. Posture D remains.',
     'current_authority_scope':'Autonomous reviewed local F0 loop supersedes historical source-only/per-packet/single-retry holds. Historical manifest fields and packets above retain their checkpoint scope; use the latest local-f0-qualification record for new executions. Posture D; no hosted adoption/P0-D.',
     'validation_scope':'Exact offline outputs separately retained; no circular manifest/report fingerprint or database claim.',
     'publication':'One corrected child on existing branch; Git/GitHub verification is reported separately after update. No main merge or force-push.'

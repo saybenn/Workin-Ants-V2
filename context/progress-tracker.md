@@ -1,3 +1,9 @@
+## Current local F0 action — small rehearsal PASS, Step3.6 next, 17 November2026
+
+Completed3.1–3.5 on source0623028/tree389fe778, packet94cefd73: FIRST01–10 passed. Actual restricted Customer COMMIT persisted1command/1Customer/1history/1evidence/2exactmessages, coherenttrue, Track enrollment0. Wrong-person42501/CUSTOMER_PRINCIPAL_GUARD and missing-outboxP0001/CUSTOMER_DEFAULT_FREE_GUARD rejected at exact markers with complete zero residue. Backend closure preceded observations; fixture triggers restored; both install/finalization paths passed; all exact resources/secrets absent independently. [Full sanitized evidence](reconciliation/local-f0-small-rehearsal-0623028-execution.json).
+
+Current3.6: prepare/review genuine local-only Prisma7.10.1 history/tooling with explicit target/hash guards, private credentials and actual deployment ledger. Next3.7–3.9 catalog/access/native concurrency/recovery remain pending. Existing94 identities and1034assertion obligations retain partial/dependency/not-run distinctions; no broad register promotion. Repeated auth/install/finalization bound the changedSQL to fresh targets; unique coverage differs from repeated runs. Standing authority continues; Posture D and Brain final acceptance remain. No UI component/API/class/token change.
+
 ## Current local F0 action — Customer row-shape correction, 17 November2026
 
 Completed: fresh exactc9bef4b diagnostic run observed42703/NEW.owner_module_id in infrastructure_atomic bodyline7; operation closed before zero-residue observation;18 correct/18 wrong-password controls, both install/finalization paths and exact cleanup passed. [Retained evidence](reconciliation/local-f0-diagnostic-c9bef4b-execution.json) preserves raw-safe reports and reconciles inaccurate aggregate flags. The old run's unretained exact cause remains unobserved.

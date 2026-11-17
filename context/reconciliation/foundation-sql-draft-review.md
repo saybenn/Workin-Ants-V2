@@ -1,4 +1,10 @@
-## Customer shared-trigger correction — 17 November2026
+## Customer correction runtime closure — 17 November2026
+
+Fresh source0623028/tree389fe778,28-file packet94cefd73 actually passed FIRST01–10: complete restricted Customer transaction (one source/command/history/evidence and two exact messages, coherenttrue), intended42501 principal denial and P0001 default-Free rollback. All operation backends closed before observation; no Track enrollment. Both installation/finalization outcomes and18correct/18wrong-password controls passed. Exact owned resources/secrets absent independently. See [actual sanitized evidence](local-f0-small-rehearsal-0623028-execution.json).
+
+This closes the demonstrated row-shape defect and the three-case small rehearsal. It does not qualify genuine Prisma ledgers, complete catalog/access/native/recovery or real owner adapters. [Assertion evidence](local-f0-assertion-evidence.json) and the [derived status](local-f0-qualification-status.json) link15 exact passed obligations:0completecases/10partial/84notrun, with32dependency-blocked and7source-unresolved obligations separate. Independent reviewer approved these15 links and fail-closed provenance checks; source/identity/hash/pointer mutations reject. Step3.6 continues under standing authority; Posture D and Brain final acceptance remain.
+
+## Historical source checkpoint — Customer shared-trigger correction, 17 November2026
 
 Actual fresh diagnostic reproduction identifies NEW.owner_module_id in infrastructure_atomic line7. The source now nests its evidence-only owner/action predicate below a standalone table-name IF. No access ceiling changes. Independent review confirms exactlyone changedSQLstatement and intact grants/policies/triggers/owners;4 row-shape regressions include restoration of the defective combinedAND. Exact28-file packet, offline outcomes, unchanged fixtures/32 worker ACLs and historical preservation hashes: validation → local_f0_row_shape_c9bef4b. Corrected runtime remains pending a fresh source-pinned three-case rehearsal; standing local authority continues through attainable work after it.
 

@@ -1,0 +1,415 @@
+"""Reviewed local F0 diagnostic attempt under recorded standing authority.
+
+Never exports unrestricted command output, SQL bodies, passwords or handles.
+Only exact run-owned resources can be removed. No recovery/permission repairs.
+"""
+from pathlib import Path
+import datetime
+import hashlib
+import json
+import os
+import re
+import secrets
+import subprocess
+import sys
+import time
+import uuid
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+MANIFEST_PATH=Path(sys.argv[1]).resolve()
+MANIFEST=json.loads(MANIFEST_PATH.read_text(encoding='utf8'))
+OUT=Path(MANIFEST['evidence_directory']).resolve()
+assert OUT.is_relative_to(TASK) and OUT!=TASK and not OUT.is_relative_to(ROOT)
+assert MANIFEST['purpose']=='CORRECTED_CUSTOMER_THREE_CASE_SMALL_REHEARSAL'
+PRIVATE=OUT/'private'
+COMMIT=MANIFEST['source_commit']
+TREE=MANIFEST['source_tree']
+PACKET=MANIFEST['packet_sha256']
+IMAGE='docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1'
+CONFIG='sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d'
+DB='wa_p0c_rehearsal'
+LABEL='p0c-first-20261110'
+RUN_ID=MANIFEST['run_id']
+assert str(uuid.UUID(RUN_ID))==RUN_ID
+CONNECTION_TAG='wa-first-'+RUN_ID
+ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker')
+LEAVES=('wa_private_helper_owner','wa_customer_verifier','wa_track_verifier')
+TARGETS=[{'name':'wa-p0c-first-20261110-'+suffix,'volume':'wa-p0c-first-20261110-'+suffix+'-data','kind':suffix} for suffix in ('ok','fail')]
+report={'run_id':RUN_ID,'approved_commit':COMMIT,'approved_tree':TREE,'approved_packet_sha256':PACKET,
+        'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'IN_PROGRESS','stage':'ENTRY',
+        'steps':{f'FIRST-{n:02}':'NOT_RUN' for n in range(1,11)},'events':[],'targets':{},'unexpected':[],
+        'cleanup':{},'limits':{'posture':'D','451_register':'NOT_PROMOTED','94_selection':'NOT_PROMOTED','hosted_changes':False,'migration_adoption':False,'worker_loop':False,'production_readiness':False}}
+report['authorization']={'scope':'STANDING_LOCAL_F0_REVIEWED_ROW_SHAPE_CORRECTION_ATTEMPT','approved_packet_section':'local_f0_row_shape_c9bef4b','no_retry_on_unexpected':True}
+passwords={};secret_paths=[];all_secrets=[];created_containers={};created_volumes={};attempted_containers=set();attempted_volumes=set();bootstrap_attempted=set();bootstrapped=set();finalization_attempted=set();finalized=set()
+
+class Stop(Exception):
+    def __init__(self,code,details=None):self.code=code;self.details=details or {};super().__init__(code)
+
+def need(ok,code,details=None):
+    if not ok:raise Stop(code,details)
+
+def save():
+    temp=OUT/'run-evidence.json.tmp'
+    with temp.open('w',encoding='utf8',newline='\n') as f:
+        text=json.dumps(report,indent=2)+'\n'
+        for secret in all_secrets:text=text.replace(secret,'[REDACTED]')
+        f.write(text);f.flush();os.fsync(f.fileno())
+    temp.replace(OUT/'run-evidence.json')
+
+def event(stage,status,**safe):
+    report['stage']=stage;report['events'].append({'stage':stage,'status':status,**safe});save()
+    print(json.dumps({'stage':stage,'status':status,**safe}),flush=True)
+
+def command(args,input=None,timeout=60):
+    return subprocess.run(args,input=input,capture_output=True,text=True,encoding='utf8',errors='strict',timeout=timeout,cwd=ROOT)
+
+def docker(args,input=None,timeout=60):return command(['docker','--context','desktop-linux',*args],input,timeout)
+
+def json_ok(result,code):
+    need(result.returncode==0,code,{'exit_code':result.returncode})
+    return json.loads(result.stdout)
+
+def inventory():
+    containers=docker(['container','ls','-a','--format','{{.Names}}'])
+    volumes=docker(['volume','ls','--format','{{.Name}}'])
+    need(containers.returncode==0 and volumes.returncode==0,'RESOURCE_INVENTORY_FAILED')
+    return set(containers.stdout.splitlines()),set(volumes.stdout.splitlines())
+
+def owned(value):return value.get('workinants.rehearsal')==LABEL and value.get('workinants.rehearsal.run')==RUN_ID
+
+def inspect_container(name):
+    r=docker(['container','inspect',name]);return json.loads(r.stdout)[0] if r.returncode==0 else None
+
+def inspect_volume(name):
+    r=docker(['volume','inspect',name]);return json.loads(r.stdout)[0] if r.returncode==0 else None
+
+def safe_error(stderr):
+    found=[]
+    for line in stderr.splitlines():
+        m=re.fullmatch(r'(?:psql:(?:<stdin>|-):([0-9]+): )?(?:ERROR|FATAL):\s+([0-9A-Z]{5}):\s+(.*)',line)
+        if not m:continue
+        state=m[2];message=m[3];diagnostic='UNLISTED';obj=None
+        known={'division by zero':'DIVISION_BY_ZERO','foreign Customer principal':'CUSTOMER_PRINCIPAL_GUARD','missing durable default-Free intent':'CUSTOMER_DEFAULT_FREE_GUARD','cleanup requires original bootstrap grantor':'WRONG_FINALIZATION_GRANTOR','temporary installation membership remains':'TEMPORARY_MEMBERSHIP_REMAINS','temporary function creation authority remains':'TEMPORARY_CREATE_REMAINS'}
+        if message in known:diagnostic=known[message]
+        found.append({'sqlstate':state,'diagnostic':diagnostic,'source_line':int(m[1]) if m[1] else None,**({'object':obj} if obj else {})})
+    return found
+
+def psql_args(target,role):
+    return ['docker','--context','desktop-linux','exec','-i','-e','PGPASSFILE=/run/wa-secrets/pgpass','-e','PGAPPNAME='+CONNECTION_TAG,target,'psql','-X','-w','-qAt','-v','ON_ERROR_STOP=1','-v','VERBOSITY=verbose','-v','SHOW_CONTEXT=never','-h','127.0.0.1','-p','5432','-U',role,'-d',DB]
+
+def sql(target,role,text,kind,timeout=120,expected_error=None,installation=False):
+    report['stage']=kind;save()
+    args=psql_args(target,role)
+    if installation:
+        args+=['-c',"SELECT jsonb_build_object('session_user',session_user,'current_user',current_user,'system_user',system_user,'database',current_database());",'-f','-']
+    result=command(args,text,timeout)
+    details={'target':target,'role':role,'operation':kind,'exit_code':result.returncode,'errors':safe_error(result.stderr),'client_exited':True}
+    if kind!='CREDENTIAL_PROVISION':details['input_sha256']=hashlib.sha256(text.encode()).hexdigest()
+    if installation and result.stdout.splitlines():
+        try:
+            identity=json.loads(result.stdout.splitlines()[0])
+            if set(identity)=={'session_user','current_user','system_user','database'}:details['actual_install_connection']=identity
+        except json.JSONDecodeError:pass
+    report['events'].append(details);save()
+    if expected_error:
+        need(result.returncode==3 and len(details['errors'])==1 and details['errors'][0]['sqlstate']==expected_error and details['errors'][0]['diagnostic']=='DIVISION_BY_ZERO','EXPECTED_INSTALL_FAILURE_NOT_PROVEN',details)
+    else:need(result.returncode==0,'SQL_OPERATION_FAILED',details)
+    return result.stdout.strip(),details
+
+def observe(target,text,kind):
+    stdout,details=sql(target,'postgres',text,kind)
+    return json.loads(stdout)
+
+def secure_private_directory():
+    PRIVATE.mkdir()
+    ps="""$ErrorActionPreference='Stop'
+$privateTarget=[System.IO.Path]::GetFullPath($args[0])
+$sid=[System.Security.Principal.WindowsIdentity]::GetCurrent().User
+$acl=[System.Security.AccessControl.DirectorySecurity]::new()
+$acl.SetOwner($sid)
+$acl.SetAccessRuleProtection($true,$false)
+$rule=[System.Security.AccessControl.FileSystemAccessRule]::new($sid,'FullControl','ContainerInherit,ObjectInherit','None','Allow')
+$acl.AddAccessRule($rule)
+[System.IO.Directory]::SetAccessControl($privateTarget,$acl)
+$actual=[System.IO.Directory]::GetAccessControl($privateTarget)
+$rules=$actual.GetAccessRules($true,$true,[System.Security.Principal.SecurityIdentifier])
+if ($rules.Count -ne 1 -or $rules[0].IdentityReference.Value -ne $sid.Value -or -not $actual.AreAccessRulesProtected -or $actual.GetOwner([System.Security.Principal.SecurityIdentifier]).Value -ne $sid.Value) { throw 'Owner-only ACL verification failed' }
+Write-Output 'OWNER_ONLY_VERIFIED'
+"""
+    # No secret is passed through this command. The only argument is a fixed
+    # test-owned directory; the inherited DACL protects later-created files.
+    helper=OUT/'set-private-acl.ps1';helper.write_text(ps,encoding='utf8',newline='\n')
+    result=command(['powershell.exe','-NoProfile','-NonInteractive','-File',str(helper),str(PRIVATE)])
+    need(result.returncode==0 and result.stdout.strip()=='OWNER_ONLY_VERIFIED','OWNER_ONLY_ACL_FAILED')
+    report['credential_handling']={'host_private_directory_owner_only_acl_verified':True,'real_credentials_in_argv_env_or_evidence':False,'container_pgpass':'root_owned_0600_tmpfs','independent_per_role_per_target':True};save()
+
+def verify_packet():
+    head=command(['git','-c','core.longpaths=true','rev-parse','HEAD']);tree=command(['git','-c','core.longpaths=true','rev-parse','HEAD^{tree}'])
+    need(head.returncode==0 and head.stdout.strip()==COMMIT and tree.stdout.strip()==TREE,'APPROVED_SOURCE_MISMATCH')
+    status=command(['git','-c','core.longpaths=true','status','--porcelain'])
+    need(status.returncode==0,'CHECKOUT_STATE_UNREADABLE')
+    report['unrelated_work_preserved']=bool(status.stdout.strip())
+    need(MANIFEST['review_status']=='APPROVED_THREE_CASE_ATTEMPT','RUN_MANIFEST_NOT_REVIEWED')
+    validation=json.loads((ROOT/'context/reconciliation/foundation-sql-draft-validation.json').read_text(encoding='utf8'))['local_f0_row_shape_c9bef4b']
+    need(MANIFEST['packet_files_sha256']==validation['executable_packet_files_sha256'],'MANIFEST_PACKET_MISMATCH')
+    need(MANIFEST['wrapper_sha256']==hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'WRAPPER_SOURCE_MISMATCH')
+    need(MANIFEST['targets']==TARGETS and MANIFEST['image']==IMAGE and MANIFEST['database']==DB and MANIFEST['run_label']==LABEL,'MANIFEST_RESOURCE_MISMATCH')
+    report['run_manifest_sha256']=hashlib.sha256(MANIFEST_PATH.read_bytes()).hexdigest()
+    report['run_manifest']=MANIFEST
+    hashes=validation['executable_packet_files_sha256']
+    for path,expected in hashes.items():
+        need(hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==expected,'PACKET_FILE_MISMATCH',{'path':path})
+        blob=subprocess.run(['git','-c','core.longpaths=true','show',COMMIT+':'+path],cwd=ROOT,capture_output=True,timeout=30)
+        need(blob.returncode==0 and hashlib.sha256(blob.stdout).hexdigest()==expected,'APPROVED_BLOB_MISMATCH',{'path':path})
+    actual=hashlib.sha256(''.join(p+'\0'+hashes[p]+'\n' for p in sorted(hashes)).encode()).hexdigest()
+    need(actual==PACKET==validation['executable_packet_sha256'],'PACKET_AGGREGATE_MISMATCH')
+    report['source_verification']={'commit':COMMIT,'tree':TREE,'packet_sha256':actual,'file_count':len(hashes),'files_sha256':hashes,'historical_labels_not_executable_selection':True}
+    event('SOURCE_VERIFICATION','PASS',files=len(hashes),packet_sha256=actual)
+
+def preflight():
+    context=json_ok(docker(['context','inspect','desktop-linux']),'CONTEXT_FAILED')[0]
+    need(context['Endpoints']['docker']['Host']=='npipe:////./pipe/dockerDesktopLinuxEngine','NONLOCAL_DOCKER_ENDPOINT')
+    server=json_ok(docker(['version','--format','{{json .Server}}']),'DOCKER_SERVER_FAILED')
+    need(server['Os']=='linux' and server['Arch']=='amd64','DOCKER_SERVER_PLATFORM_MISMATCH')
+    containers,volumes=inventory()
+    presence={t['name']:t['name'] in containers for t in TARGETS}|{t['volume']:t['volume'] in volumes for t in TARGETS}
+    report['local_preflight']={'endpoint':context['Endpoints']['docker']['Host'],'server_version':server['Version'],'server_os':server['Os'],'server_arch':server['Arch'],'initial_resource_presence':presence,'unrelated_containers_untouched':len(containers),'unrelated_volumes_untouched':len(volumes)}
+    need(not any(presence.values()),'RESOURCE_NAME_CONFLICT',{'presence':presence})
+    event('LOCAL_PREFLIGHT','PASS',all_four_names_absent=True)
+
+def ensure_image():
+    image=docker(['image','inspect',IMAGE])
+    pulled=False;cached_at_entry=image.returncode==0
+    if image.returncode:
+        event('PINNED_IMAGE_PULL','STARTED',reference=IMAGE)
+        pull=docker(['pull','--platform','linux/amd64',IMAGE],timeout=900)
+        need(pull.returncode==0,'PINNED_IMAGE_PULL_FAILED',{'exit_code':pull.returncode})
+        pulled=True;image=docker(['image','inspect',IMAGE])
+    value=json_ok(image,'PINNED_IMAGE_INSPECTION_FAILED')[0]
+    need(value['Os']=='linux' and value['Architecture']=='amd64','PINNED_IMAGE_PLATFORM_MISMATCH')
+    need(any(d.endswith('@'+IMAGE.split('@')[1]) for d in value['RepoDigests']),'PINNED_IMAGE_DIGEST_MISSING')
+    raw=docker(['buildx','imagetools','inspect','--raw',IMAGE],timeout=90)
+    need(raw.returncode==0,'PINNED_MANIFEST_READ_FAILED')
+    # buildx may append one CLI newline. Require the actual content hash to
+    # equal the approved immutable manifest, then inspect its config descriptor.
+    candidates=[raw.stdout.encode(),raw.stdout.removesuffix('\n').encode()]
+    need(any(hashlib.sha256(b).hexdigest()==IMAGE.split('@sha256:')[1] for b in candidates),'PINNED_MANIFEST_CONTENT_HASH_MISMATCH')
+    manifest=json.loads(raw.stdout)
+    need(manifest['config']['digest']==CONFIG,'PINNED_IMAGE_CONFIG_MISMATCH')
+    pgversion=next((e.split('=',1)[1] for e in value['Config']['Env'] if e.startswith('PG_VERSION=')),None)
+    need(pgversion and pgversion.startswith('17.11'),'PINNED_IMAGE_VERSION_MISMATCH')
+    report['image']={'reference':IMAGE,'image_id':value['Id'],'manifest_descriptor':value.get('Descriptor'),'config_digest':manifest['config']['digest'],'manifest_content_hash_verified':True,'repo_digests':value['RepoDigests'],'os':value['Os'],'architecture':value['Architecture'],'pg_version':pgversion,'pulled_this_run':pulled,'retained_image_reused':cached_at_entry,'removed':False}
+    event('PINNED_IMAGE','PASS',pulled=pulled,image_id=value['Id'])
+
+def create_resources():
+    secure_private_directory()
+    for target in TARGETS:
+        name=target['name'];volume=target['volume'];passwords[name]={role:secrets.token_hex(32) for role in ROLES};all_secrets.extend(passwords[name].values())
+        secret=PRIVATE/(target['kind']+'-bootstrap-password');secret_paths.append(secret)
+        with secret.open('x',encoding='utf8',newline='\n') as f:f.write(passwords[name]['postgres']+'\n')
+        # Assert absence immediately before each creation as well as globally.
+        containers,volumes=inventory();need(name not in containers and volume not in volumes,'LATE_RESOURCE_NAME_CONFLICT')
+        attempted_volumes.add(volume)
+        r=docker(['volume','create','--label','workinants.rehearsal='+LABEL,'--label','workinants.rehearsal.run='+RUN_ID,volume])
+        need(r.returncode==0,'VOLUME_CREATE_FAILED')
+        v=inspect_volume(volume);need(v is not None and owned(v.get('Labels') or {}),'VOLUME_OWNERSHIP_UNCONFIRMED');created_volumes[volume]=v['CreatedAt'];save()
+        args=['container','create','--name',name,'--label','workinants.rehearsal='+LABEL,'--label','workinants.rehearsal.run='+RUN_ID,'--network','none','--platform','linux/amd64','--mount','type=volume,src='+volume+',dst=/var/lib/postgresql/data','--mount','type=bind,src='+str(secret)+',dst=/run/bootstrap-password,readonly','--tmpfs','/run/wa-secrets:rw,nosuid,noexec,mode=0700','-e','POSTGRES_DB='+DB,'-e','POSTGRES_PASSWORD_FILE=/run/bootstrap-password','-e','POSTGRES_HOST_AUTH_METHOD=scram-sha-256','-e','POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256',IMAGE,'postgres','-c','password_encryption=scram-sha-256','-c','log_statement=none','-c','log_min_error_statement=panic']
+        attempted_containers.add(name);r=docker(args);need(r.returncode==0,'CONTAINER_CREATE_FAILED')
+        value=inspect_container(name);need(value is not None and owned(value['Config']['Labels']),'CONTAINER_OWNERSHIP_UNCONFIRMED');created_containers[name]=value['Id']
+        need(value['Config']['Image']==IMAGE and value['Image']==report['image']['image_id'] and value['HostConfig']['NetworkMode']=='none' and not value['HostConfig'].get('PortBindings'),'CONTAINER_ISOLATION_MISMATCH')
+        mounts=[{'type':m['Type'],'destination':m['Destination'],'rw':m['RW'],**({'volume':m['Name']} if m['Type']=='volume' else {})} for m in value['Mounts']]
+        need(any(m['type']=='volume' and m['volume']==volume and m['destination']=='/var/lib/postgresql/data' for m in mounts),'WRONG_DATA_VOLUME')
+        need(any(m['type']=='bind' and m['destination']=='/run/bootstrap-password' and not m['rw'] for m in mounts),'WRONG_SECRET_MOUNT')
+        need('/run/wa-secrets' in value['HostConfig']['Tmpfs'],'PRIVATE_TMPFS_MISSING')
+        report['targets'][name]={'container_id':value['Id'],'volume':volume,'volume_created_at':v['CreatedAt'],'labels':value['Config']['Labels'],'network_mode':'none','published_ports':False,'mounts':mounts,'tmpfs':value['HostConfig']['Tmpfs'],'bootstrap':'NOT_RUN','application':'NOT_RUN','finalization':'NOT_RUN'};save()
+        need(docker(['container','start',name]).returncode==0,'CONTAINER_START_FAILED')
+        ready=False
+        for _ in range(60):
+            if docker(['exec',name,'pg_isready','-h','127.0.0.1','-p','5432','-U','postgres','-d',DB]).returncode==0:ready=True;break
+            time.sleep(1)
+        need(ready,'DATABASE_READINESS_TIMEOUT')
+        pgpass=''.join('127.0.0.1:5432:'+DB+':'+role+':'+password+'\n' for role,password in passwords[name].items())
+        r=docker(['exec','-i',name,'sh','-ceu','umask 077; cat > /run/wa-secrets/pgpass; chmod 600 /run/wa-secrets/pgpass; stat -c "%a:%u:%g" /run/wa-secrets/pgpass'],input=pgpass)
+        need(r.returncode==0 and r.stdout.strip()=='600:0:0','PRIVATE_PGPASS_PERMISSION_FAILED')
+        event('RESOURCE_READY','PASS',target=name,pgpass_owner_mode='600:0:0')
+    report['steps']['FIRST-01']='PASS';save()
+
+def bootstrap_all():
+    for target in TARGETS:
+        name=target['name']
+        setting=observe(name,"SELECT jsonb_build_object('login',session_user,'auth',system_user,'log_statement',current_setting('log_statement'),'log_min_error_statement',current_setting('log_min_error_statement'),'password_encryption',current_setting('password_encryption'),'server_version',current_setting('server_version'));",'BOOTSTRAP_SETTINGS')
+        need(setting['login']=='postgres' and setting['auth']=='scram-sha-256:postgres' and setting['log_statement']=='none' and setting['log_min_error_statement']=='panic' and setting['password_encryption']=='scram-sha-256','UNSAFE_BOOTSTRAP_SETTINGS')
+        report['targets'][name]['server_settings']=setting
+        bootstrap_attempted.add(name)
+        report['targets'][name]['bootstrap']='ATTEMPTED';save()
+        sql(name,'postgres',(ROOT/'review-output/foundation-bootstrap.review.sql').read_text(encoding='utf8'),'BOOTSTRAP')
+        bootstrapped.add(name);report['targets'][name]['bootstrap']='PASS';save()
+        statements=[f'ALTER DATABASE {DB} SET log_statement=none;',f'ALTER DATABASE {DB} SET log_min_error_statement=panic;',f'REVOKE CONNECT,TEMP ON DATABASE {DB} FROM PUBLIC;',f'GRANT CONNECT ON DATABASE {DB} TO '+','.join(ROLES)+';']
+        statements += ['ALTER ROLE '+role+" PASSWORD '"+passwords[name][role]+"';" for role in ROLES if role!='postgres']
+        sql(name,'postgres','\n'.join(statements),'CREDENTIAL_PROVISION')
+        event('BOOTSTRAP','PASS',target=name)
+    for target in TARGETS:
+        name=target['name'];folder=OUT/('auth-before-install-'+target['kind'])
+        r=command([sys.executable,'-B',str(ROOT/'scripts/sql-review/run-first-rehearsal.py'),'--execute-approved-rehearsal','--authentication-preflight-only','--container',name,'--evidence-directory',str(folder)],timeout=240)
+        file=folder/('authentication-results-'+target['kind']+'.json')
+        result=json.loads(file.read_text(encoding='utf8')) if file.exists() else None
+        report['targets'][name]['authentication_preflight']={'exit_code':r.returncode,'evidence':str(file.relative_to(OUT)),'status':result.get('status') if result else 'NO_EVIDENCE'};save()
+        need(r.returncode==0 and result and result['status']=='PASS_PREFLIGHT_ONLY' and len(result['authentication'])==6,'AUTHENTICATION_PREFLIGHT_FAILED',{'target':name,'safe_failure':result.get('failure') if result else None})
+        event('AUTHENTICATION_PREFLIGHT','PASS',target=name,logins=6,correct_password=6,wrong_password_rejected=6)
+    report['steps']['FIRST-02']='PASS';save()
+
+def finalize(name):
+    if name in finalization_attempted:return
+    finalization_attempted.add(name)
+    active=observe(name,"SELECT jsonb_build_object('migrator',(SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND usename='wa_migrator'),'tagged_other_clients',(SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND application_name='"+CONNECTION_TAG+"' AND pid<>pg_backend_pid()));",'PRE_FINALIZATION_CONNECTION_OBSERVER')
+    report['targets'][name]['connections_before_finalization']=active;save()
+    need(active=={'migrator':0,'tagged_other_clients':0},'FINALIZATION_BLOCKED_ACTIVE_OPERATION',{'target':name})
+    sql(name,'postgres',(ROOT/'review-output/foundation-bootstrap-finalize.review.sql').read_text(encoding='utf8'),'ORIGINAL_GRANTOR_FINALIZATION')
+    observation=observe(name,"SELECT jsonb_build_object('grantor',session_user,'auth',system_user,'remaining_memberships',(SELECT count(*) FROM pg_auth_members WHERE member='wa_schema_owner'::regrole AND roleid IN ('wa_private_helper_owner'::regrole,'wa_customer_verifier'::regrole,'wa_track_verifier'::regrole)),'leaf_create',jsonb_build_object('wa_private_helper_owner',has_schema_privilege('wa_private_helper_owner','platform_private','CREATE'),'wa_customer_verifier',has_schema_privilege('wa_customer_verifier','platform_private','CREATE'),'wa_track_verifier',has_schema_privilege('wa_track_verifier','platform_private','CREATE')),'active_install_connections',(SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND usename='wa_migrator'));",'FINALIZATION_OBSERVER')
+    report['targets'][name]['finalization_observation']=observation
+    need(observation['grantor']=='postgres' and observation['auth']=='scram-sha-256:postgres' and observation['remaining_memberships']==0 and observation['active_install_connections']==0 and not any(observation['leaf_create'].values()),'FINALIZATION_VERIFICATION_FAILED',{'target':name})
+    finalized.add(name);report['targets'][name]['finalization']='PASS';event('FINALIZATION','PASS',target=name)
+
+def installs():
+    source=(ROOT/'review-output/foundation-application.review.sql').read_text(encoding='utf8')
+    need(source.count('RESET ROLE;\nCOMMIT;')==1,'FAILURE_INJECTION_ANCHOR_AMBIGUOUS')
+    failure=source.replace('RESET ROLE;\nCOMMIT;','SELECT 1/0;\nRESET ROLE;\nCOMMIT;')
+    copy=OUT/'foundation-application.intentional-failure.sql';copy.write_text(failure,encoding='utf8',newline='\n')
+    need(failure.count('SELECT 1/0;')==1,'FAILURE_INJECTION_NOT_UNIQUE')
+    injection_line=failure.splitlines().index('SELECT 1/0;')+1
+    report['failure_test_copy']={'path':copy.name,'sha256':hashlib.sha256(copy.read_bytes()).hexdigest(),'injection_line':injection_line,'actual_execution':'NOT_RUN','change':'Only SELECT 1/0 immediately before final RESET ROLE/COMMIT','expected_sqlstate':'22012','expected_diagnostic':'DIVISION_BY_ZERO'};save()
+    for target in TARGETS:
+        name=target['name']
+        try:
+            report['targets'][name]['application']='ATTEMPTED';save()
+            body=source if target['kind']=='ok' else failure
+            _,details=sql(name,'wa_migrator',body,'APPLICATION_INSTALL' if target['kind']=='ok' else 'INTENTIONAL_FAILURE_INSTALL',timeout=240,expected_error=None if target['kind']=='ok' else '22012',installation=True)
+            need(details.get('actual_install_connection')=={'session_user':'wa_migrator','current_user':'wa_migrator','system_user':'scram-sha-256:wa_migrator','database':DB},'INSTALL_CONNECTION_NOT_RESTRICTED')
+            if target['kind']=='fail':
+                need(details['errors'][0]['source_line']==injection_line,'FAILURE_DID_NOT_REACH_INJECTION_LINE')
+                report['failure_test_copy']['actual_execution']='PASS_EXPECTED_22012_AT_INJECTED_LINE'
+            report['targets'][name]['application']='PASS_COMMITTED' if target['kind']=='ok' else 'PASS_EXPECTED_FAILURE';save()
+        finally:finalize(name)
+        if target['kind']=='fail':
+            state=observe(name,"SELECT jsonb_build_object('application_relations',(SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname IN ('app','platform','platform_private')),'application_functions',(SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname IN ('app','platform','platform_private')),'migration_ledgers',(SELECT count(*) FROM pg_class WHERE relname='_prisma_migrations'));",'FAILURE_ROLLBACK_OBSERVER')
+            report['targets'][name]['rollback_observation']=state;need(state=={'application_relations':0,'application_functions':0,'migration_ledgers':0},'FAILURE_INSTALL_NOT_ROLLED_BACK')
+    report['steps']['FIRST-03']='PASS';report['steps']['FIRST-04']='PASS';save()
+
+def catalogs(name):
+    catalog=observe(name,"SELECT jsonb_build_object('tables',(SELECT jsonb_agg(jsonb_build_object('schema',n.nspname,'table',c.relname,'owner',pg_get_userbyid(c.relowner),'rls',c.relrowsecurity,'force_rls',c.relforcerowsecurity,'acl',c.relacl) ORDER BY n.nspname,c.relname) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname IN ('app','platform','platform_private') AND c.relkind='r'),'functions',(SELECT jsonb_agg(jsonb_build_object('schema',n.nspname,'function',p.proname,'owner',pg_get_userbyid(p.proowner),'security_definer',p.prosecdef,'config',p.proconfig,'acl',p.proacl) ORDER BY n.nspname,p.proname) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname IN ('app','platform','platform_private')),'roles',(SELECT jsonb_agg(jsonb_build_object('name',rolname,'login',rolcanlogin,'inherit',rolinherit,'superuser',rolsuper,'bypassrls',rolbypassrls,'createdb',rolcreatedb,'createrole',rolcreaterole) ORDER BY rolname) FROM pg_roles WHERE rolname LIKE 'wa_%'));",'SANITIZED_CATALOG')
+    (OUT/'success-catalog.json').write_text(json.dumps(catalog,indent=2)+'\n',encoding='utf8',newline='\n')
+    report['targets'][name]['catalog_evidence']='success-catalog.json';save()
+
+def behavior():
+    name=TARGETS[0]['name'];catalogs(name)
+    folder=OUT/'behavior'
+    r=command([sys.executable,'-B',str(ROOT/'scripts/sql-review/run-first-rehearsal.py'),'--execute-approved-rehearsal','--evidence-directory',str(folder)],timeout=360)
+    path=folder/'first-customer-results.json';result=json.loads(path.read_text(encoding='utf8')) if path.exists() else None
+    report['behavior']={'exit_code':r.returncode,'evidence':str(path.relative_to(OUT)),'status':result.get('status') if result else 'NO_EVIDENCE','completed_scenarios':len(result.get('results',[])) if result else 0,'safe_failure':result.get('failure') if result else None};save()
+    triggers=observe(name,"SELECT coalesce(jsonb_agg(jsonb_build_object('table',c.relname,'trigger',t.tgname,'enabled',t.tgenabled) ORDER BY c.relname,t.tgname),'[]'::jsonb) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='app' AND c.relname IN ('users','user_security_profiles') AND NOT t.tgisinternal;",'FIXTURE_TRIGGER_OBSERVER')
+    report['fixture_triggers']=triggers;save()
+    need(bool(triggers) and all(t['enabled']=='O' for t in triggers),'FIXTURE_TRIGGERS_NOT_REENABLED')
+    need(r.returncode==0 and result and result['status']=='PASS_REHEARSAL_ONLY' and len(result['results'])==3,'COORDINATOR_STOPPED',report['behavior'])
+    report['steps'].update({'FIRST-05':'PASS','FIRST-06':'PASS','FIRST-07':'PASS','FIRST-08':'PASS'});event('THREE_BEHAVIORAL_CASES','PASS',completed=3)
+
+def secret_scan():
+    scanned=0
+    for path in OUT.rglob('*'):
+        if not path.is_file() or PRIVATE in path.parents:continue
+        text=path.read_text(encoding='utf8');scanned+=1
+        for value in all_secrets:
+            need(value not in text,'SECRET_EVIDENCE_SCAN_FAILED',{'file':str(path.relative_to(OUT))})
+    report['sanitization']={'files_scanned':scanned,'actual_password_values_found':False,'unrestricted_subprocess_output_persisted':False,'raw_context_handles_persisted':False,'coordinator_evidence_uses_reviewed_allowlist':True};save()
+
+def cleanup():
+    errors=[]
+    def attempt(label,target,action):
+        try:action()
+        except BaseException as exc:
+            item={'stage':'CLEANUP','target':target,'code':exc.code if isinstance(exc,Stop) else label}
+            errors.append(item);report['cleanup'][target]={'status':'BLOCKED','failure':item['code']};save()
+    def container_cleanup(name):
+        value=inspect_container(name)
+        if name not in created_containers:
+            if value is None or not owned(value['Config']['Labels']):return
+            created_containers[name]=value['Id']
+        if value is None:
+            report['cleanup'][name]={'status':'ABSENT_AT_CLEANUP'};save();return
+        identity=created_containers[name]
+        need(value['Id']==identity and owned(value['Config']['Labels']),'CLEANUP_CONTAINER_OWNERSHIP_MISMATCH',{'target':name})
+        need(docker(['container','rm','-f',name]).returncode==0,'EXACT_CONTAINER_REMOVAL_FAILED',{'target':name})
+        report['cleanup'][name]={'removed':True,'verified_id':identity,'name_and_both_labels_verified':True};save()
+    def volume_cleanup(name):
+        value=inspect_volume(name)
+        if name not in created_volumes:
+            if value is None or not owned(value.get('Labels') or {}):return
+            created_volumes[name]=value['CreatedAt']
+        if value is None:
+            report['cleanup'][name]={'status':'ABSENT_AT_CLEANUP'};save();return
+        need(value['CreatedAt']==created_volumes[name] and owned(value.get('Labels') or {}),'CLEANUP_VOLUME_OWNERSHIP_MISMATCH',{'target':name})
+        need(docker(['volume','rm',name]).returncode==0,'EXACT_VOLUME_REMOVAL_FAILED',{'target':name})
+        report['cleanup'][name]={'removed':True,'name_labels_creation_identity_verified':True};save()
+    try:
+        for name in sorted(attempted_containers):attempt('CONTAINER_CLEANUP_FAILED',name,lambda name=name:container_cleanup(name))
+        for name in sorted(attempted_volumes):attempt('VOLUME_CLEANUP_FAILED',name,lambda name=name:volume_cleanup(name))
+    finally:
+        deleted=[]
+        for path in secret_paths:
+            def delete_secret(path=path):
+                need(path.resolve().parent==PRIVATE.resolve() and path.name in ('ok-bootstrap-password','fail-bootstrap-password'),'SECRET_CLEANUP_PATH_MISMATCH')
+                if path.exists():path.unlink()
+                deleted.append(path.name)
+            attempt('SECRET_FILE_REMOVAL_FAILED',path.name,delete_secret)
+        if PRIVATE.exists():attempt('PRIVATE_DIRECTORY_REMOVAL_FAILED','private_directory',PRIVATE.rmdir)
+        report['host_secret_cleanup']={'deleted':deleted,'private_directory_absent':not PRIVATE.exists()};save()
+    try:
+        containers,volumes=inventory()
+        presence={t['name']:t['name'] in containers for t in TARGETS}|{t['volume']:t['volume'] in volumes for t in TARGETS}
+        report['cleanup_summary']={'resource_presence_after':presence,'test_owned_secret_files_deleted':report['host_secret_cleanup']['deleted'],'private_directory_absent':not PRIVATE.exists(),'image_removed':False,'unrelated_resources_changed':False}
+        need(not any(presence.values()),'RESOURCE_ABSENCE_NOT_CONFIRMED')
+    except BaseException as exc:
+        errors.append({'stage':'CLEANUP','code':exc.code if isinstance(exc,Stop) else 'CLEANUP_ABSENCE_OBSERVATION_FAILED'})
+    if errors:
+        report['unexpected'].extend(errors);save();raise Stop('CONTROLLED_CLEANUP_INCOMPLETE')
+    report['steps']['FIRST-10']='PASS';event('CONTROLLED_CLEANUP','PASS',all_four_names_absent=True,test_secret_files_absent=True)
+
+def main():
+    OUT.mkdir(exist_ok=False)
+    report['operational_wrapper_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    save()
+    try:
+        verify_packet();preflight();ensure_image();create_resources();bootstrap_all();installs();behavior()
+        report['status']='PASS_FIRST_REHEARSAL_SUBSET_ONLY'
+    except BaseException as exc:
+        record={'stage':report['stage'],'code':exc.code if isinstance(exc,Stop) else 'TIMEOUT' if isinstance(exc,subprocess.TimeoutExpired) else 'INTERRUPTED' if isinstance(exc,KeyboardInterrupt) else 'UNEXPECTED_WRAPPER_FAILURE',**({'details':exc.details} if isinstance(exc,Stop) else {})}
+        report['unexpected'].append(record);report['status']='STOPPED_RETAINED_FOR_BRAIN_REVIEW';event('STOP','NO_LATER_BEHAVIOR',failure=record)
+    finally:
+        for name in sorted(bootstrap_attempted-finalization_attempted):
+            try:
+                if name not in bootstrapped:
+                    state=observe(name,"SELECT jsonb_build_object('bootstrap_roles',(SELECT count(*) FROM pg_roles WHERE rolname IN ('wa_schema_owner','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker','wa_private_helper_owner','wa_customer_verifier','wa_track_verifier')),'other_tagged_clients',(SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND application_name='"+CONNECTION_TAG+"' AND pid<>pg_backend_pid()));",'UNCERTAIN_BOOTSTRAP_OBSERVER')
+                    report['targets'][name]['bootstrap_outcome_observation']=state;save()
+                    need(state['other_tagged_clients']==0,'BOOTSTRAP_OUTCOME_STILL_ACTIVE')
+                    if state['bootstrap_roles']==0:
+                        report['targets'][name]['finalization']='NO_COMMITTED_BOOTSTRAP_VERIFIED';save();continue
+                    need(state['bootstrap_roles']==9,'BOOTSTRAP_COMMITTED_ROLE_SET_UNEXPECTED')
+                finalize(name)
+            except BaseException as exc:
+                report['unexpected'].append({'stage':'FINALLY_FINALIZATION','target':name,'code':exc.code if isinstance(exc,Stop) else 'FINALIZATION_WRAPPER_FAILURE'});save()
+        try:
+            secret_scan();report['steps']['FIRST-09']='PASS_SANITIZED_EXPORT';save()
+        except BaseException:
+            report['unexpected'].append({'stage':'EXPORT','code':'SANITIZATION_FAILED'});save()
+        try:cleanup()
+        except BaseException as exc:
+            report['unexpected'].append({'stage':'CLEANUP','code':exc.code if isinstance(exc,Stop) else 'CLEANUP_WRAPPER_FAILURE'});save()
+        report['finished_at']=datetime.datetime.now(datetime.timezone.utc).isoformat()
+        if report['unexpected']:report['status']='STOPPED_RETAINED_FOR_BRAIN_REVIEW'
+        # Prove the approved executable files stayed immutable through runtime.
+        verified=report.get('source_verification',{}).get('files_sha256')
+        report['packet_unchanged_after_run']=all(hashlib.sha256((ROOT/p).read_bytes()).hexdigest()==h for p,h in verified.items()) if verified else None
+        save();print(json.dumps({'status':report['status'],'evidence':str(OUT/'run-evidence.json'),'steps':report['steps'],'unexpected':report['unexpected'],'cleanup_summary':report.get('cleanup_summary')}),flush=True)
+    return 0 if report['status']=='PASS_FIRST_REHEARSAL_SUBSET_ONLY' else 1
+
+if __name__=='__main__':raise SystemExit(main())
