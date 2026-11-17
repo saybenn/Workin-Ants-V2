@@ -1,3 +1,7 @@
+## Current local F0 authority — 17 November 2026
+
+Read `context/reconciliation/directives/local-f0-standing-authority-2026-11-17.md` and `context/reconciliation/local-f0-qualification-board.json`. The user authorizes the autonomous local investigation → correction → independent review → validation → controlled execution loop through attainable selected94 assertions. Historical source-only/single-retry/per-packet handoffs below remain history and do not stop that loop. Preserve all prior evidence and version-qualified passes. Stop a failed attempt, preserve evidence, clean verified run-owned resources, investigate and review before retry. No hosted contact, root database aliases, policy/owner expansion, P0-D, main merge or release. Brain retains final stage acceptance; Posture D remains.
+
 # Phase0 foundation checkpoint — Directives006/006-A
 
 **Current P0-C update, 27 October 2026:** [Checkpoint 009](checkpoint-009.md) verifies the separate fresh project's identity, environment and empty application namespace. No migration/security baseline is adopted or applied. The next task is the existing work-owned physical candidate review; posture D and dependent runtime/feature gates remain. Earlier checkpoints below are preserved history.

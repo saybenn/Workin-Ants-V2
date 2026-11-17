@@ -1,4 +1,10 @@
-## Current status — one fresh rehearsal retry stopped on Customer COMMIT, 16 November 2026
+## Current status — standing local F0 qualification, 17 November 2026
+
+User authority: [standing instruction](reconciliation/directives/local-f0-standing-authority-2026-11-17.md). [Numbered Step3 board](reconciliation/local-f0-qualification-board.json) records version-qualified passes3.1–3.3, current3.4 blocked42703, partial3.7 and remaining unrun work. Earlier per-patch/single-retry handoffs below are history within this bounded local authority.
+
+Next: independently reviewed bounded diagnostics and canary tests, then fresh exact-packet reproduction. No new runtime result is claimed by this documentation update. All historical evidence is preserved. Selected94 case identities remain; positive dependency gates remain distinct from attained denials. Posture D; no P0-D/hosted/product/release authority.
+
+## Historical status — one fresh rehearsal retry stopped on Customer COMMIT, 16 November 2026
 
 - **Executed source:**86480fba330074d001b1e03bb30e5db3b66123b9/tree5c5ba6620e16a459dc5cebc5af2f6d0df53309db; all22 file hashes and packet8ed8f60cc30d95083aeb314a1b84212371e4fd575a024d6206e9a971fc2247a9 verified before/after. Fresh run identity/external directory; original checkout and all11 prior external report artifacts preserved. Historical labels did not select an older packet.
 - **Actual progress:** Both targets passed all authentication controls; the six-role correct/wrong-password sets also repeated before behavior (18 correct and18 wrong-password trials total). Restricted migrator success installation committed. The prescribed failure copy failed exactly22012/division-by-zero at injected line6162; failed target application relations/functions/ledgers were0. Original-grantor finalization passed on BOTH install outcomes: memberships0, all leaf CREATEfalse, no active installation connections.

@@ -27,6 +27,8 @@ sources=set(baseline['draft_source_sha256'])|{
     'scripts/prepare-first-rehearsal.py',
     'scripts/check-first-rehearsal-mocks.py',
     'scripts/sql-review/run-first-rehearsal.py',
+    'scripts/sql-review/rehearsal-diagnostics.py',
+    'scripts/prepare-rehearsal-diagnostics.py',
     'scripts/sql-review/foundation-service-authority.sql',
     'scripts/sql-review/foundation-verification.sql',
     'scripts/sql-review/foundation-bootstrap-finalize.sql',
@@ -67,8 +69,10 @@ manifest={
     'remaining_gates':['Brain exact corrected-source approval','Separately authorized disposable identity/image/actions and actual installation/replay','Real Identity/issuer/owner/worker adapters and later P0-D/E/F qualification','Usage period/reconciliation and Privacy completion adapters remain denied'],
     'parser':baseline['parser'],
     'validation_record':'context/reconciliation/foundation-sql-draft-validation.json',
-    'latest_executable_packet_record':'context/reconciliation/foundation-sql-draft-validation.json#auth_address_correction_8502f93',
-    'packet_selection':'Use the replacement commit/tree and exact22-file map in that record; historical baseline labels never select an executable packet. Retry remains HELD pending Brain review.',
+    'latest_executable_packet_record':'context/reconciliation/foundation-sql-draft-validation.json#local_f0_diagnostic_20fd199',
+    'packet_selection':'Use the exact25-file map in the latest local F0 record, plus independently reviewed external run manifest pinned to full source commit/tree before execution. Historical baseline labels never select an executable packet.',
+    'current_authority':'context/reconciliation/directives/local-f0-standing-authority-2026-11-17.md',
+    'current_authority_scope':'Autonomous reviewed local F0 loop supersedes historical source-only/per-packet/single-retry holds. Historical manifest fields and packets above retain their checkpoint scope; use the latest local-f0-qualification record for new executions. Posture D; no hosted adoption/P0-D.',
     'validation_scope':'Exact offline outputs separately retained; no circular manifest/report fingerprint or database claim.',
     'publication':'One corrected child on existing branch; Git/GitHub verification is reported separately after update. No main merge or force-push.'
 }

@@ -67,7 +67,10 @@ class Process:
         state=case['expected_sqlstate'];message='foreign Customer principal' if state=='42501' else 'missing durable default-Free intent'
         if world.mode=='unrelated-'+str(state):message='unrelated failure '+CANARY+' '+SECRET
         self.stderr=io.StringIO('' if not state else 'psql:<stdin>:7: ERROR:  '+state+': '+message+'\nDETAIL: '+CANARY+'\nSTATEMENT: '+SECRET+'\n')
+        if world.mode=='missing-record-field':
+            self.stderr=io.StringIO('psql:<stdin>:7: ERROR:  42703: record "new" has no field "owner_module_id"\nCONTEXT:  PL/pgSQL function platform_private.infrastructure_atomic() line 7 at IF\nDETAIL: '+CANARY+'\nHINT: '+SECRET+'\n')
     def finish(self,code):
+        if self.world.mode=='missing-record-field':code=3
         if self.code is None:self.code=code;self.stdout.lines.put(None)
     def poll(self):return self.code
     def wait(self,timeout):
@@ -154,6 +157,8 @@ class World:
             self.events.append('observe:'+case['name'])
             if self.mode=='observer-error' and len(self.processes)==2:raise OSError(CANARY+SECRET)
             counts=case['expected_counts'].copy()
+            if self.mode=='missing-record-field':
+                counts={key:False if type(value) is bool else 0 for key,value in counts.items()}
             if self.mode=='partial-state' and len(self.processes)==2:counts['outbox']=1
             output=json.dumps(counts)
         else:raise AssertionError('Unmocked database boundary')
@@ -275,5 +280,70 @@ class Tests(unittest.TestCase):
         parse=runner['diagnostic']
         for text in ('ERROR:  P0001: unrelated','ERROR:  42501: unrelated','ERROR:  P0001: foreign Customer principal','ERROR:  42501: foreign Customer principal\nERROR:  P0001: missing durable default-Free intent'):
             self.assertNotIn(parse(text)['diagnostic'],('CUSTOMER_PRINCIPAL_GUARD','CUSTOMER_DEFAULT_FREE_GUARD'))
+    def test_record_field_failure_is_bounded_incremental_and_stops(self):
+        data,w=self.assert_stopped('missing-record-field',0,1,'UNEXPECTED_SCENARIO_EXIT')
+        self.assertEqual(data['current']['sqlstate'],'42703')
+        self.assertEqual(data['current']['diagnostic'],'UNLISTED')
+        safe=data['current']['source_diagnostic']
+        self.assertEqual(safe['column'],'owner_module_id')
+        self.assertEqual(safe['classification'],'RECORD_FIELD_MISSING')
+        self.assertEqual(safe['frame']['function'],'infrastructure_atomic')
+        self.assertTrue(data['current']['operation_closed'])
+        self.assertEqual(data['current']['counts'],{key:False if type(value) is bool else 0 for key,value in CASES[0]['expected_counts'].items()})
+    def test_actual_psql_requests_error_context_without_statement_logging(self):
+        args=runner['psql']('wa_app_runtime')
+        self.assertIn('SHOW_CONTEXT=errors',args)
+        self.assertIn('VERBOSITY=verbose',args)
+        self.assertNotIn('SHOW_CONTEXT=always',args)
+
+class DiagnosticTests(unittest.TestCase):
+    def parse(self,message,context='CONTEXT:  PL/pgSQL function platform_private.infrastructure_atomic() line 7 at IF',extra=''):
+        output='ERROR:  42703: '+message+'\n'+context+'\n'+extra
+        value=runner['source_metadata'](output)
+        encoded=json.dumps(value)
+        for secret in (SECRET,CANARY,'DETAIL:','HINT:','SQL statement','record "','INSERT INTO'):
+            self.assertNotIn(secret,encoded)
+        return value
+    def test_declared_identifier_and_source_frame_are_exactly_bounded(self):
+        value=self.parse('record "new" has no field "owner_module_id"',extra='DETAIL: '+CANARY+'\nHINT: '+SECRET+'\nSQL statement "INSERT INTO '+CANARY+'"')
+        self.assertEqual(value['classification'],'RECORD_FIELD_MISSING')
+        self.assertEqual(value['record_alias'],'new')
+        self.assertEqual(value['column'],'owner_module_id')
+        self.assertEqual(value['frame_classification'],'SOURCE_BOUND_FRAME')
+        self.assertEqual(set(value['frame']),{'schema','function','body_line','body_sha256','source_sha256'})
+        self.assertEqual(value['frame']['body_line'],7)
+    def test_unknown_identifiers_and_primary_suffixes_redact(self):
+        for message in ('record "new" has no field "'+CANARY+'"','record "new" has no field "'+SECRET+'"','record "new" has no field "owner_module_id" '+CANARY,'record "'+CANARY+'" has no field "owner_module_id"'):
+            with self.subTest(message=message):
+                value=self.parse(message)
+                self.assertNotIn('column',value)
+    def test_sql_expression_context_is_discarded_but_valid_frame_survives(self):
+        value=self.parse('record "new" has no field "owner_module_id"',
+            'CONTEXT: SQL expression "'+CANARY+' '+SECRET+'"\nPL/pgSQL function platform_private.infrastructure_atomic() line 7 at IF')
+        self.assertEqual(value['frame_classification'],'SOURCE_BOUND_FRAME')
+        self.assertEqual(value['frame']['function'],'infrastructure_atomic')
+    def test_context_injection_unknown_function_line_and_arguments_redact(self):
+        for frame in ('CONTEXT:  PL/pgSQL function platform_private.'+CANARY+'() line 7 at IF','CONTEXT:  PL/pgSQL function platform_private.infrastructure_atomic('+SECRET+') line 7 at IF','CONTEXT:  PL/pgSQL function platform_private.infrastructure_atomic() line 9999 at IF','CONTEXT:  PL/pgSQL function platform_private.infrastructure_atomic() line 7 at IF '+CANARY,'CONTEXT: '+CANARY,'CONTEXT:  PL/pgSQL function platform_private.infrastructure_atomic() line 7 at IF\nPL/pgSQL function platform_private.infrastructure_atomic() line 8 at IF'):
+            with self.subTest(frame=frame):
+                value=self.parse('record "new" has no field "owner_module_id"',frame)
+                self.assertEqual(value['frame_classification'],'REDACTED_CONTEXT')
+                self.assertNotIn('frame',value)
+    def test_multiple_or_fake_headers_do_not_emit_source_metadata(self):
+        value=self.parse('record "new" has no field "owner_module_id"',extra='ERROR:  P0001: '+CANARY)
+        self.assertEqual(value,{'classification':'NO_SINGLE_ERROR','frame_classification':'NOT_RETAINED'})
+        value=runner['source_metadata']('ERROR:  42703: '+CANARY+'\nDETAIL: record "new" has no field "owner_module_id"')
+        self.assertEqual(value['classification'],'UNRECOGNIZED')
+        self.assertNotIn('column',value)
+    def test_stale_source_map_fails_closed(self):
+        from unittest.mock import mock_open
+        function=runner['source_metadata']
+        original=Path.read_text
+        def stale(path,*args,**kwargs):
+            value=original(path,*args,**kwargs)
+            if path.name=='diagnostic-identifiers.json':
+                data=json.loads(value);data['source_sha256']='0'*64;return json.dumps(data)
+            return value
+        with patch.object(Path,'read_text',stale):
+            self.assertEqual(self.parse('record "new" has no field "owner_module_id"')['classification'],'SOURCE_MAP_MISMATCH')
 
 if __name__=='__main__':unittest.main(verbosity=2)

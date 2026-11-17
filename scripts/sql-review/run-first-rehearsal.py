@@ -11,12 +11,14 @@ import os
 from pathlib import Path
 import queue
 import re
+import runpy
 import secrets
 import subprocess
 import threading
 
 ROOT=Path(__file__).resolve().parents[2]
 FIXTURES=ROOT/'review-output/first-rehearsal'
+source_metadata=runpy.run_path(str(ROOT/'scripts/sql-review/rehearsal-diagnostics.py'))['source_metadata']
 CONTAINER='wa-p0c-first-20261110-ok'
 DATABASE='wa_p0c_rehearsal'
 ROLES=('wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker')
@@ -44,7 +46,7 @@ def grant_sql(case,login,pid,xid,token_hash):
 
 def psql(role,container=CONTAINER,wrong_password=False):
     env=['-e','PGPASSFILE=/dev/null','-e','PGPASSWORD'] if wrong_password else ['-e','PGPASSFILE=/run/wa-secrets/pgpass']
-    return ['docker','--context','desktop-linux','exec','-i',*env,container,'psql','-X','-w','-qAt','-v','ON_ERROR_STOP=1','-v','VERBOSITY=verbose','-v','SHOW_CONTEXT=never','-h','127.0.0.1','-p','5432','-U',role,'-d',DATABASE]
+    return ['docker','--context','desktop-linux','exec','-i',*env,container,'psql','-X','-w','-qAt','-v','ON_ERROR_STOP=1','-v','VERBOSITY=verbose','-v','SHOW_CONTEXT=errors','-h','127.0.0.1','-p','5432','-U',role,'-d',DATABASE]
 
 def run(role,sql,container=CONTAINER):
     r=subprocess.run(psql(role,container),input=sql,text=True,capture_output=True,timeout=60)
@@ -206,6 +208,8 @@ def scenario(case,evidence,container):
         require(not reader.is_alive() and not error_reader.is_alive() and not stream_failed.is_set(),'OPERATION_OUTPUT_INCOMPLETE')
         verdict=diagnostic(errors[0])
         evidence.value['current'].update(exit_code=code,**verdict);evidence.save()
+        if code!=0:
+            evidence.value['current']['source_diagnostic']=source_metadata(errors[0]);evidence.save()
     except (Exception,KeyboardInterrupt) as exc:
         failure=exc;failed_stage=evidence.value['current_stage']
     finally:

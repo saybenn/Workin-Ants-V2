@@ -1,3 +1,11 @@
+## Current local F0 diagnostic checkpoint — 17 November2026
+
+The [standing user instruction](directives/local-f0-standing-authority-2026-11-17.md) authorizes the local correction/review/validation/execution loop. Earlier source-only/per-packet/single-retry labels below remain historical scope. Posture D and final Brain acceptance remain; hosted contact and P0-D are unauthorized. Current work is Step3.4; the [numbered board](local-f0-qualification-board.json) preserves version-qualified passes and unrun/dependency-gated assertions.
+
+The historical positive COMMIT42703 remains failed; its exact offending column/function and complete cause were not retained. Source analysis identifies a concrete evidence/outbox row-shape mismatch in infrastructure_atomic's combined table-name/NEW-field condition. This is a testable new hypothesis, not recovered historical error data.
+
+Diagnostic-only preparation leaves canonical application SQL, fixtures, A–D and all32 worker ACL rows byte-identical. A parsed-DDL declaration map allows bounded identifiers and one source-bound no-argument PL/pgSQL frame. SQL/context/arguments/DETAIL/HINT/exception text stay in memory and are discarded. Verdict pairs, complete-state checks, markers, closure-before-observation, incremental evidence and stopping remain unchanged. Independent review requested; one realism objection (SQL-expression CONTEXT before a frame) was corrected with a secret-canary regression. Exact25-file packet and actual33-mock/750-predicate/501-check/parser/reproduction/source-context results are in foundation-sql-draft-validation.json → local_f0_diagnostic_20fd199. No new runtime claim belongs to this source checkpoint.
+
 # P0-C-03A corrected SQL source review
 
 Brain returned 8917e2035622017eccd14c99ad7fd2b55740163f for source corrections on the existing correction branch. [The directive](directives/brain-directive-p0-c-03a.md) authorizes revised source and SQL drafts only. **Posture D; no execution, container, hosted change, migration adoption or P0-D implementation.** All 451 database/runtime tests, including the unchanged 94-case first replay selection, remain **NOT_RUN**. Current status stays in [the existing tracker](../progress-tracker.md).
