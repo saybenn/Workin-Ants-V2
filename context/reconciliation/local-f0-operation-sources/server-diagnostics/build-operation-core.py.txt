@@ -1,0 +1,28 @@
+from pathlib import Path
+import hashlib,json
+TASK=Path(__file__).resolve().parent;PLAN=Path((TASK/'current-local-f0-migration-plan.txt').read_text())
+source=(TASK/'execute_local_f0_row_shape_20261117.py').read_text(encoding='utf8')
+source=source.replace('Reviewed local F0 diagnostic attempt under recorded standing authority.','Reviewed genuine local F0 migration/ledger attempt under standing authority.').replace('No recovery/permission repairs.','Only the reviewed standard resolve and exact temporary membership rearm are prepared.')
+source=source.replace('CORRECTED_CUSTOMER_THREE_CASE_SMALL_REHEARSAL','GENUINE_LOCAL_PRISMA_MIGRATION_LEDGER_REHEARSAL').replace("LABEL='p0c-first-20261110'","LABEL='p0c-local-f0'")
+start=source.index('TARGETS=[');end=source.index('\nreport=',start);source=source[:start]+"TARGETS=MANIFEST['targets']"+source[end:]
+source=source.replace("'steps':{f'FIRST-{n:02}':'NOT_RUN' for n in range(1,11)}","'steps':{name:'NOT_RUN' for name in ('MIGRATE-SETUP','MIGRATE-AUTH','MIGRATE-TOOLS','MIGRATE-EMPTY','MIGRATE-NOOP','MIGRATE-FAILURE','MIGRATE-RESOLVE','MIGRATE-RETRY','MIGRATE-SANITIZED_EXPORT','MIGRATE-CLEANUP')}")
+source=source.replace('STANDING_LOCAL_F0_REVIEWED_ROW_SHAPE_CORRECTION_ATTEMPT','STANDING_LOCAL_F0_GENUINE_MIGRATION_LEDGER_REHEARSAL').replace('local_f0_row_shape_c9bef4b','local_f0_migration_31ada25')
+source=source.replace('/run/wa-secrets:rw,nosuid,noexec,mode=0700','/run/wa-secrets:rw,nosuid,noexec,nodev,mode=0700').replace("['FIRST-01']","['MIGRATE-SETUP']").replace("['FIRST-09']","['MIGRATE-SANITIZED_EXPORT']").replace("['FIRST-10']","['MIGRATE-CLEANUP']")
+old_logging="'-c','log_min_error_statement=panic']"
+assert source.count(old_logging)==1
+source=source.replace(old_logging,"'-c','log_min_error_statement=panic','-c','log_error_verbosity=terse','-c','log_line_prefix=WA_F0_DIAG|%e|%u|%d|','-c','lc_messages=C','-c','log_min_messages=warning']")
+source=source.replace("'-e','PGAPPNAME='+CONNECTION_TAG,target,'psql'","'-e','PGAPPNAME='+CONNECTION_TAG,created_containers[target],'psql'")
+source=source.replace("self.code=code;self.details=details or {};super().__init__(code)","self.code=code;self.details=details or {};self.stage=report.get('stage','ENTRY');super().__init__(code)")
+source=source.replace("['container','start',name]","['container','start',created_containers[name]]").replace("['exec',name,'pg_isready'","['exec',created_containers[name],'pg_isready'").replace("['exec','-i',name,'sh'","['exec','-i',created_containers[name],'sh'")
+for begin,finish in [('def verify_packet():','def preflight():'),('def bootstrap_all():','def finalize(name):'),('def installs():','def secret_scan():')]:
+    start=source.index(begin);end=source.index(finish,start);source=source[:start]+source[end:]
+source=source[:source.index('def main():')]
+source+='''# Load only the exact independently reviewed operational steps snapshot.
+STEPS=TASK/'local_f0_migration_operation_steps.py'
+need(hashlib.sha256(STEPS.read_bytes()).hexdigest()==MANIFEST['steps_sha256'],'OPERATION_STEPS_SOURCE_MISMATCH')
+exec(compile(STEPS.read_text(encoding='utf8'),str(STEPS),'exec'),globals())
+if __name__=='__main__':raise SystemExit(main())
+'''
+p=TASK/'execute_local_f0_migration_20261117.py';p.write_text(source,encoding='utf8',newline='\n')
+manifest_path=PLAN/'operation-manifest.json';d=json.loads(manifest_path.read_text());d['wrapper_sha256']=hashlib.sha256(p.read_bytes()).hexdigest();manifest_path.write_text(json.dumps(d,indent=2)+'\n',encoding='utf8',newline='\n')
+print(json.dumps({'wrapper':str(p),'sha256':d['wrapper_sha256']}))

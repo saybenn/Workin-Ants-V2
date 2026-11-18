@@ -1,3 +1,7 @@
+## Current local F0 action — bounded server error channel, 17 November2026
+
+[The0c run](reconciliation/local-f0-migration-48ecadc-execution.json) preserves first/no-op passes and newly observed rollback/private failed-row boundary; exact original cause and logclass remain UNKNOWN. [Reviewed server diagnostic preparation](reconciliation/local-f0-server-diagnostics-validation.json) adds only fixed SQLSTATE/known-message counts from exact owned server, with terse output and statement/errorstatement logging still disabled.15parser/14operator mocks and7observer queries parse. Normal P3018 path stays strict; separately labeled masking path needs fresh actual42501/intendeddiag plus25P02/NULLlogs and zero objects. Independent actual rollback review still precedes standard resolve; canonicalSQL/appliedchecksum and32workerACL unchanged. Next fresh source-pinned packet/operational review, then controlled execution.
+
 ## Current local F0 action — genuine migration execution, 17 November2026
 
 Fresh48ecadc/run0c223ddc stopped; preserve exact partial outcomes and actual failure rather than promoting subsequent steps. See retained evidence and the numbered board for diagnosis and next action. [Actual safe evidence](reconciliation/local-f0-migration-48ecadc-execution.json). No hosted contact/adoption, worker permission expansion, P0-D or whole94/451 promotion; Posture D remains.
