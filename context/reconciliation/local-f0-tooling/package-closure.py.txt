@@ -1,0 +1,53 @@
+"""Package existing locked JS dependencies plus verified Linux tools. No install/DB."""
+from pathlib import Path
+import gzip,hashlib,json,os,tarfile
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass';OUT=TASK/'local-f0-linux-tooling-20261117';MODULES=(ROOT/'node_modules').resolve()
+lock=json.loads((ROOT/'package-lock.json').read_text(encoding='utf8'))['packages']
+tooling=json.loads((OUT/'tooling-manifest.json').read_text(encoding='utf8'))
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+for name in ('node','schema-engine'):assert sha(OUT/name)==tooling['files_sha256'][name]
+def resolve(name,start):
+    for parent in (start,*start.parents):
+        candidate=parent/'node_modules'/name
+        if (candidate/'package.json').is_file():
+            result=candidate.resolve();assert result.is_relative_to(MODULES);return result
+    return None
+queue=[MODULES/'prisma'];packages={};missing_optional=[]
+while queue:
+    package=queue.pop()
+    if package in packages:continue
+    relative='node_modules/'+package.relative_to(MODULES).as_posix()
+    data=json.loads((package/'package.json').read_text(encoding='utf8'))
+    assert relative in lock and lock[relative].get('version')==data['version'],relative
+    packages[package]={'path':relative,'name':data['name'],'version':data['version'],'lock_integrity':lock[relative].get('integrity')}
+    optional=set(data.get('optionalDependencies',{}))
+    peers=set(data.get('peerDependencies',{}))
+    optional_peers={name for name,meta in data.get('peerDependenciesMeta',{}).items() if meta.get('optional')}
+    for name in sorted(set(data.get('dependencies',{}))|optional|peers):
+        dependency=resolve(name,package)
+        if dependency is not None:queue.append(dependency)
+        elif name in optional or name in optional_peers:
+            missing_optional.append({'package':data['name'],'dependency':name})
+        else:raise AssertionError('Missing locked dependency '+data['name']+' -> '+name)
+files={'node/bin/node':OUT/'node','schema-engine':OUT/'schema-engine'};excluded=[]
+for directory,metadata in sorted(packages.items(),key=lambda pair:pair[1]['path']):
+    for current,dirs,names in os.walk(directory,followlinks=False):
+        dirs[:]=sorted(d for d in dirs if d!='node_modules')
+        for name in sorted(names):
+            p=Path(current)/name
+            assert p.is_file() and not p.is_symlink()
+            relative=metadata['path']+'/'+p.relative_to(directory).as_posix()
+            if p.suffix.lower() in ('.exe','.dll'):
+                excluded.append(relative);continue
+            files[relative]=p
+file_hashes={name:sha(p) for name,p in sorted(files.items())}
+target=OUT/'pinned-prisma-tools.tar.gz'
+with target.open('xb') as raw:
+    with gzip.GzipFile(filename='',fileobj=raw,mode='wb',mtime=0) as gz:
+        with tarfile.open(fileobj=gz,mode='w|') as archive:
+            for name,p in sorted(files.items()):
+                info=tarfile.TarInfo(name);info.size=p.stat().st_size;info.mode=0o755 if name in ('node/bin/node','schema-engine') else 0o644;info.uid=info.gid=0;info.mtime=0
+                with p.open('rb') as contents:archive.addfile(info,contents)
+result={'scope':'EXISTING_LOCKED_DEPENDENCY_CLOSURE_NO_INSTALL_OR_EXECUTION','root_package_lock_sha256':sha(ROOT/'package-lock.json'),'packages':sorted(packages.values(),key=lambda row:row['path']),'missing_optional_or_platform_dependencies':missing_optional,'excluded_windows_binaries':excluded,'tools_files_sha256':file_hashes,'file_count':len(files),'archive_sha256':sha(target),'archive_bytes':target.stat().st_size,'node_version':'v24.22.1','prisma_version':'7.10.1','engine_commit':'d1b3f377ca835d73fd50954a5e22128b9ebdd6b8','runtime_compatibility':'NOT_RUN'}
+(OUT/'prisma-tools-closure.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf8',newline='\n')
+print(json.dumps({k:v for k,v in result.items() if k not in ('packages','tools_files_sha256')}))
