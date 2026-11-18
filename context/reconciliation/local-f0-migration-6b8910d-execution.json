@@ -1,0 +1,1486 @@
+{
+  "local_date": "2026-11-17",
+  "timezone": "America/New_York",
+  "scope": "GENUINE_LOCAL_PRISMA_MIGRATION_HISTORY_SUBSET_ONLY",
+  "actual_result": "PASS_GENUINE_FIRST_NOOP_FAILURE_REVIEWED_RESOLVE_SAME_CHECKSUM_RETRY",
+  "source_commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
+  "source_tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
+  "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+  "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+  "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+  "actual_steps": {
+    "MIGRATE-SETUP": "PASS",
+    "MIGRATE-AUTH": "PASS",
+    "MIGRATE-TOOLS": "PASS",
+    "MIGRATE-EMPTY": "PASS",
+    "MIGRATE-NOOP": "PASS",
+    "MIGRATE-FAILURE": "PASS_SERVER_42501_INTENDED_SET_ROLE_GUARD_AND_ROLLBACK",
+    "MIGRATE-RESOLVE": "PASS",
+    "MIGRATE-RETRY": "PASS_SAME_SQL_CHECKSUM_RETAINED_FAILED_ROW",
+    "MIGRATE-SANITIZED_EXPORT": "PASS",
+    "MIGRATE-CLEANUP": "PASS"
+  },
+  "unexpected": [],
+  "operator_raw_safe_report": {
+    "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+    "approved_commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
+    "approved_tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
+    "approved_packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+    "started_at": "2026-11-18T02:39:21.438008+00:00",
+    "status": "PASS_GENUINE_MIGRATION_SUBSET_ONLY",
+    "stage": "CONTROLLED_CLEANUP",
+    "steps": {
+      "MIGRATE-SETUP": "PASS",
+      "MIGRATE-AUTH": "PASS",
+      "MIGRATE-TOOLS": "PASS",
+      "MIGRATE-EMPTY": "PASS",
+      "MIGRATE-NOOP": "PASS",
+      "MIGRATE-FAILURE": "PASS_SERVER_42501_INTENDED_SET_ROLE_GUARD_AND_ROLLBACK",
+      "MIGRATE-RESOLVE": "PASS",
+      "MIGRATE-RETRY": "PASS_SAME_SQL_CHECKSUM_RETAINED_FAILED_ROW",
+      "MIGRATE-SANITIZED_EXPORT": "PASS",
+      "MIGRATE-CLEANUP": "PASS"
+    },
+    "events": [
+      {
+        "stage": "SOURCE_VERIFICATION",
+        "status": "PASS",
+        "files": 45,
+        "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8"
+      },
+      {
+        "stage": "LOCAL_PREFLIGHT",
+        "status": "PASS",
+        "all_four_names_absent": true
+      },
+      {
+        "stage": "PINNED_IMAGE",
+        "status": "PASS",
+        "pulled": false,
+        "image_id": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1"
+      },
+      {
+        "stage": "RESOURCE_READY",
+        "status": "PASS",
+        "target": "wa-p0c-196c3d8a-migrate-ok",
+        "pgpass_owner_mode": "600:0:0"
+      },
+      {
+        "stage": "RESOURCE_READY",
+        "status": "PASS",
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "pgpass_owner_mode": "600:0:0"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-ok",
+        "role": "postgres",
+        "operation": "BOOTSTRAP_SETTINGS",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "e34a456e83b77f9da89457031948d474f3ce2e42395375ba65f90e141ca91945"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-ok",
+        "role": "postgres",
+        "operation": "FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "034c8c93758257d9a9519909fca04ad4502780a4e576468bcfb15987fb4d414c"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-ok",
+        "role": "postgres",
+        "operation": "BOOTSTRAP",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-ok",
+        "role": "postgres",
+        "operation": "CREDENTIAL_PROVISION",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-ok",
+        "role": "postgres",
+        "operation": "EMPTY_APPLICATION_BASELINE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "0ad532c233732dd68c98710fcc791e6ebfecb4a1a8c4866a01caaf2290ba04fc"
+      },
+      {
+        "stage": "AUTHENTICATION_PREFLIGHT",
+        "status": "PASS",
+        "target": "wa-p0c-196c3d8a-migrate-ok",
+        "roles": 6
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "BOOTSTRAP_SETTINGS",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "e34a456e83b77f9da89457031948d474f3ce2e42395375ba65f90e141ca91945"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "034c8c93758257d9a9519909fca04ad4502780a4e576468bcfb15987fb4d414c"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "BOOTSTRAP",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "CREDENTIAL_PROVISION",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "EMPTY_APPLICATION_BASELINE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "0ad532c233732dd68c98710fcc791e6ebfecb4a1a8c4866a01caaf2290ba04fc"
+      },
+      {
+        "stage": "AUTHENTICATION_PREFLIGHT",
+        "status": "PASS",
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "roles": 6
+      },
+      {
+        "stage": "LINUX_TOOL_COMPATIBILITY",
+        "status": "PASS",
+        "target": "wa-p0c-196c3d8a-migrate-ok"
+      },
+      {
+        "stage": "LINUX_TOOL_COMPATIBILITY",
+        "status": "PASS",
+        "target": "wa-p0c-196c3d8a-migrate-fail"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-ok",
+        "role": "postgres",
+        "operation": "PRE_FINALIZATION_CONNECTION_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "99ebb6179fc11f247ac21bad89882fd7938fbf666aca84666fa2f1b257fdf75f"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-ok",
+        "role": "postgres",
+        "operation": "ORIGINAL_GRANTOR_FINALIZATION",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-ok",
+        "role": "postgres",
+        "operation": "FINALIZATION_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "a833d27aedd52cef2eaa2afce4f4206db6a2f19e2aa15a007a16a1ae87d2c53e"
+      },
+      {
+        "stage": "FINALIZATION",
+        "status": "PASS",
+        "target": "wa-p0c-196c3d8a-migrate-ok"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-ok",
+        "role": "postgres",
+        "operation": "FIRST_DEPLOY_LEDGER_CATALOG_PRESENCE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "1bc2fa385a1c6255531db30bb3f929e5ec68d092cb61efed525d1912bd1b373d"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-ok",
+        "role": "postgres",
+        "operation": "FIRST_DEPLOY_LEDGER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "44d1859ce68421e7f296356075c25b7c9d3ecd6b3699e5f0bca1046958377da6"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-ok",
+        "role": "postgres",
+        "operation": "SECOND_DEPLOY_LEDGER_CATALOG_PRESENCE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "1bc2fa385a1c6255531db30bb3f929e5ec68d092cb61efed525d1912bd1b373d"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-ok",
+        "role": "postgres",
+        "operation": "SECOND_DEPLOY_LEDGER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "44d1859ce68421e7f296356075c25b7c9d3ecd6b3699e5f0bca1046958377da6"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "INTENTIONAL_TEMPORARY_MEMBERSHIP_WITHHOLD",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "fdc631619ad5ee95e890a79041af448d795ca2e1a9ba15a55a961851d5606d26"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "INTENTIONAL_FAULT_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "3c344dd28413552f2281e5e144d7eadbb832e328e936142c2c07ddb226136e19"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "PRE_FINALIZATION_CONNECTION_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "99ebb6179fc11f247ac21bad89882fd7938fbf666aca84666fa2f1b257fdf75f"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "ORIGINAL_GRANTOR_FINALIZATION",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "FINALIZATION_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "a833d27aedd52cef2eaa2afce4f4206db6a2f19e2aa15a007a16a1ae87d2c53e"
+      },
+      {
+        "stage": "FINALIZATION",
+        "status": "PASS",
+        "target": "wa-p0c-196c3d8a-migrate-fail"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "FAILED_DEPLOY_LEDGER_AND_ROLLBACK_CATALOG_PRESENCE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "1bc2fa385a1c6255531db30bb3f929e5ec68d092cb61efed525d1912bd1b373d"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "FAILED_DEPLOY_LEDGER_AND_ROLLBACK",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "44d1859ce68421e7f296356075c25b7c9d3ecd6b3699e5f0bca1046958377da6"
+      },
+      {
+        "stage": "RECOVERY_REVIEW_REQUIRED",
+        "status": "HELD",
+        "proof_sha256": "62e00b55902a0c021b39656130ccc431e5228d969ae89f9723a2ad3ad56fc941",
+        "proof_file": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-migration-20261117-196c3d8a\\rollback-proof-for-review.json"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "RESOLVED_LEDGER_OBSERVER_CATALOG_PRESENCE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "1bc2fa385a1c6255531db30bb3f929e5ec68d092cb61efed525d1912bd1b373d"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "RESOLVED_LEDGER_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "44d1859ce68421e7f296356075c25b7c9d3ecd6b3699e5f0bca1046958377da6"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "ORIGINAL_GRANTOR_EXACT_TEMPORARY_REARM",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "9161c59128a34524cb696148feae0d079311169d17447c7e5be3488f6bc70d41"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "REARM_AUTHORITY_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "092ddceffe0c54f24d2be8004eca4c96a5737f45494f38f3e101118cf5b147a7"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "PRE_FINALIZATION_CONNECTION_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "99ebb6179fc11f247ac21bad89882fd7938fbf666aca84666fa2f1b257fdf75f"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "ORIGINAL_GRANTOR_FINALIZATION",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "FINALIZATION_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "a833d27aedd52cef2eaa2afce4f4206db6a2f19e2aa15a007a16a1ae87d2c53e"
+      },
+      {
+        "stage": "FINALIZATION",
+        "status": "PASS",
+        "target": "wa-p0c-196c3d8a-migrate-fail"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "RECOVERED_LEDGER_OBSERVER_CATALOG_PRESENCE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "1bc2fa385a1c6255531db30bb3f929e5ec68d092cb61efed525d1912bd1b373d"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "RECOVERED_LEDGER_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "44d1859ce68421e7f296356075c25b7c9d3ecd6b3699e5f0bca1046958377da6"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "RECOVERED_SECOND_LEDGER_CATALOG_PRESENCE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "1bc2fa385a1c6255531db30bb3f929e5ec68d092cb61efed525d1912bd1b373d"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "role": "postgres",
+        "operation": "RECOVERED_SECOND_LEDGER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "44d1859ce68421e7f296356075c25b7c9d3ecd6b3699e5f0bca1046958377da6"
+      },
+      {
+        "stage": "GENUINE_MIGRATION_REHEARSAL",
+        "status": "PASS"
+      },
+      {
+        "stage": "CONTROLLED_CLEANUP",
+        "status": "PASS",
+        "all_four_names_absent": true,
+        "test_secret_files_absent": true
+      }
+    ],
+    "targets": {
+      "wa-p0c-196c3d8a-migrate-ok": {
+        "container_id": "b59f46b24a9d01ef2e97aa0bb2ea93cf0194ee607b125ceaaa7e5c0550755bd4",
+        "volume": "wa-p0c-196c3d8a-migrate-ok-data",
+        "volume_created_at": "2026-11-18T02:39:35Z",
+        "labels": {
+          "workinants.rehearsal": "p0c-local-f0",
+          "workinants.rehearsal.run": "196c3d8a-5772-4327-a72f-b760be420203"
+        },
+        "network_mode": "none",
+        "published_ports": false,
+        "mounts": [
+          {
+            "type": "volume",
+            "destination": "/var/lib/postgresql/data",
+            "rw": true,
+            "volume": "wa-p0c-196c3d8a-migrate-ok-data"
+          },
+          {
+            "type": "bind",
+            "destination": "/run/bootstrap-password",
+            "rw": false
+          }
+        ],
+        "tmpfs": {
+          "/run/wa-secrets": "rw,nosuid,noexec,nodev,mode=0700"
+        },
+        "bootstrap": "PASS",
+        "application": "NOT_RUN",
+        "finalization": "PASS",
+        "server_settings": {
+          "auth": "scram-sha-256:postgres",
+          "safe": true,
+          "login": "postgres",
+          "superuser": true,
+          "diagnostics_safe": true
+        },
+        "pre_bootstrap_public_baseline": {
+          "public_acl": [
+            {
+              "role": "PUBLIC",
+              "grantor": "pg_database_owner",
+              "privilege": "USAGE",
+              "grant_option": false
+            },
+            {
+              "role": "pg_database_owner",
+              "grantor": "pg_database_owner",
+              "privilege": "CREATE",
+              "grant_option": false
+            },
+            {
+              "role": "pg_database_owner",
+              "grantor": "pg_database_owner",
+              "privilege": "USAGE",
+              "grant_option": false
+            }
+          ],
+          "public_owner": "pg_database_owner",
+          "event_triggers": 0,
+          "application_roles": 0
+        },
+        "authentication_preflight": {
+          "status": "PASS",
+          "roles": 6,
+          "correct_password": 6,
+          "wrong_password_rejected": 6,
+          "evidence": "authentication-ok\\authentication-results-ok.json"
+        },
+        "baseline": {
+          "public_acl": "{pg_database_owner=UC/pg_database_owner,=U/pg_database_owner,wa_migrator=UC/pg_database_owner}",
+          "public_owner": "pg_database_owner",
+          "event_triggers": 0,
+          "public_relations": 0,
+          "application_relations": 0
+        },
+        "linux_tool_compatibility": {
+          "node": "v24.22.1",
+          "engine_commit": "d1b3f377ca835d73fd50954a5e22128b9ebdd6b8",
+          "preexec_hashes_verified": true
+        },
+        "connections_before_finalization": {
+          "migrator": 0,
+          "tagged_other_clients": 0
+        },
+        "finalization_observation": {
+          "auth": "scram-sha-256:postgres",
+          "grantor": "postgres",
+          "leaf_create": {
+            "wa_track_verifier": false,
+            "wa_customer_verifier": false,
+            "wa_private_helper_owner": false
+          },
+          "remaining_memberships": 0,
+          "active_install_connections": 0
+        },
+        "ledger_observations": [
+          {
+            "stage": "FIRST_DEPLOY_LEDGER",
+            "ledger_present": true,
+            "ledger_regular": true,
+            "active_migrators": 0,
+            "application_enums": 29,
+            "application_types": 142,
+            "application_tables": 42,
+            "application_functions": 147,
+            "application_relations": 188,
+            "ledger_owner_expected": true,
+            "public_relation_count": 1,
+            "rows": [
+              {
+                "name": "20261117000100_f0_local_initial",
+                "steps": 1,
+                "checksum": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+                "finished": true,
+                "logs_state": "NULL",
+                "rolled_back": false,
+                "expected_error_code": false,
+                "expected_set_role_error": false
+              }
+            ],
+            "ledger_rows_observed": true,
+            "owner": "wa_migrator",
+            "runtime_ledger_access": false
+          },
+          {
+            "stage": "SECOND_DEPLOY_LEDGER",
+            "ledger_present": true,
+            "ledger_regular": true,
+            "active_migrators": 0,
+            "application_enums": 29,
+            "application_types": 142,
+            "application_tables": 42,
+            "application_functions": 147,
+            "application_relations": 188,
+            "ledger_owner_expected": true,
+            "public_relation_count": 1,
+            "rows": [
+              {
+                "name": "20261117000100_f0_local_initial",
+                "steps": 1,
+                "checksum": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+                "finished": true,
+                "logs_state": "NULL",
+                "rolled_back": false,
+                "expected_error_code": false,
+                "expected_set_role_error": false
+              }
+            ],
+            "ledger_rows_observed": true,
+            "owner": "wa_migrator",
+            "runtime_ledger_access": false
+          }
+        ],
+        "second_deploy_schema_comparison": {
+          "first": {
+            "sha256": "718c3f037343b7e766e3e540924d018cb6ab7e5010fa5ca1a01c1b5d2d6e7ffe",
+            "random_dump_meta_lines_removed": 2,
+            "raw_schema_dump_retained": false
+          },
+          "second": {
+            "sha256": "718c3f037343b7e766e3e540924d018cb6ab7e5010fa5ca1a01c1b5d2d6e7ffe",
+            "random_dump_meta_lines_removed": 2,
+            "raw_schema_dump_retained": false
+          },
+          "identical": true
+        }
+      },
+      "wa-p0c-196c3d8a-migrate-fail": {
+        "container_id": "1b42dd3bb88e28d59f1f64464e34e3c8c59a3352e81c1e0561acfdd2f2a227c5",
+        "volume": "wa-p0c-196c3d8a-migrate-fail-data",
+        "volume_created_at": "2026-11-18T02:39:46Z",
+        "labels": {
+          "workinants.rehearsal": "p0c-local-f0",
+          "workinants.rehearsal.run": "196c3d8a-5772-4327-a72f-b760be420203"
+        },
+        "network_mode": "none",
+        "published_ports": false,
+        "mounts": [
+          {
+            "type": "bind",
+            "destination": "/run/bootstrap-password",
+            "rw": false
+          },
+          {
+            "type": "volume",
+            "destination": "/var/lib/postgresql/data",
+            "rw": true,
+            "volume": "wa-p0c-196c3d8a-migrate-fail-data"
+          }
+        ],
+        "tmpfs": {
+          "/run/wa-secrets": "rw,nosuid,noexec,nodev,mode=0700"
+        },
+        "bootstrap": "PASS",
+        "application": "NOT_RUN",
+        "finalization": "PASS",
+        "server_settings": {
+          "auth": "scram-sha-256:postgres",
+          "safe": true,
+          "login": "postgres",
+          "superuser": true,
+          "diagnostics_safe": true
+        },
+        "pre_bootstrap_public_baseline": {
+          "public_acl": [
+            {
+              "role": "PUBLIC",
+              "grantor": "pg_database_owner",
+              "privilege": "USAGE",
+              "grant_option": false
+            },
+            {
+              "role": "pg_database_owner",
+              "grantor": "pg_database_owner",
+              "privilege": "CREATE",
+              "grant_option": false
+            },
+            {
+              "role": "pg_database_owner",
+              "grantor": "pg_database_owner",
+              "privilege": "USAGE",
+              "grant_option": false
+            }
+          ],
+          "public_owner": "pg_database_owner",
+          "event_triggers": 0,
+          "application_roles": 0
+        },
+        "authentication_preflight": {
+          "status": "PASS",
+          "roles": 6,
+          "correct_password": 6,
+          "wrong_password_rejected": 6,
+          "evidence": "authentication-fail\\authentication-results-ok.json"
+        },
+        "baseline": {
+          "public_acl": "{pg_database_owner=UC/pg_database_owner,=U/pg_database_owner,wa_migrator=UC/pg_database_owner}",
+          "public_owner": "pg_database_owner",
+          "event_triggers": 0,
+          "public_relations": 0,
+          "application_relations": 0
+        },
+        "linux_tool_compatibility": {
+          "node": "v24.22.1",
+          "engine_commit": "d1b3f377ca835d73fd50954a5e22128b9ebdd6b8",
+          "preexec_hashes_verified": true
+        },
+        "intentional_setup_fault": {
+          "remaining_two": 2,
+          "missing_customer_verifier": true
+        },
+        "server_error_observations": [
+          {
+            "stage": "BEFORE_EXPECTED_FAILED_PRISMA_DEPLOY",
+            "schema": "workinants.local-f0-server-error-counts.v1",
+            "counts": {
+              "registered_lines": 21,
+              "expected_set_role_42501": 0,
+              "aborted_transaction_25p02": 0,
+              "other_migrator_error": 1,
+              "malformed_registered_line": 0,
+              "forbidden_diagnostic_body": 0
+            },
+            "raw_output_discarded": true
+          },
+          {
+            "stage": "AFTER_CONFIRMED_CLOSURE_AND_FINALIZATION",
+            "schema": "workinants.local-f0-server-error-counts.v1",
+            "counts": {
+              "registered_lines": 24,
+              "expected_set_role_42501": 1,
+              "aborted_transaction_25p02": 1,
+              "other_migrator_error": 1,
+              "malformed_registered_line": 0,
+              "forbidden_diagnostic_body": 0
+            },
+            "raw_output_discarded": true
+          }
+        ],
+        "connections_before_finalization": {
+          "migrator": 0,
+          "tagged_other_clients": 0
+        },
+        "finalization_observation": {
+          "auth": "scram-sha-256:postgres",
+          "grantor": "postgres",
+          "leaf_create": {
+            "wa_track_verifier": false,
+            "wa_customer_verifier": false,
+            "wa_private_helper_owner": false
+          },
+          "remaining_memberships": 0,
+          "active_install_connections": 0
+        },
+        "ledger_observations": [
+          {
+            "stage": "FAILED_DEPLOY_LEDGER_AND_ROLLBACK",
+            "ledger_present": true,
+            "ledger_regular": true,
+            "active_migrators": 0,
+            "application_enums": 0,
+            "application_types": 0,
+            "application_tables": 0,
+            "application_functions": 0,
+            "application_relations": 0,
+            "ledger_owner_expected": true,
+            "public_relation_count": 1,
+            "rows": [
+              {
+                "name": "20261117000100_f0_local_initial",
+                "steps": 0,
+                "checksum": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+                "finished": false,
+                "logs_state": "NULL",
+                "rolled_back": false,
+                "expected_error_code": false,
+                "expected_set_role_error": false
+              }
+            ],
+            "ledger_rows_observed": true,
+            "owner": "wa_migrator",
+            "runtime_ledger_access": false
+          },
+          {
+            "stage": "RESOLVED_LEDGER_OBSERVER",
+            "ledger_present": true,
+            "ledger_regular": true,
+            "active_migrators": 0,
+            "application_enums": 0,
+            "application_types": 0,
+            "application_tables": 0,
+            "application_functions": 0,
+            "application_relations": 0,
+            "ledger_owner_expected": true,
+            "public_relation_count": 1,
+            "rows": [
+              {
+                "name": "20261117000100_f0_local_initial",
+                "steps": 0,
+                "checksum": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+                "finished": false,
+                "logs_state": "NULL",
+                "rolled_back": true,
+                "expected_error_code": false,
+                "expected_set_role_error": false
+              }
+            ],
+            "ledger_rows_observed": true,
+            "owner": "wa_migrator",
+            "runtime_ledger_access": false
+          },
+          {
+            "stage": "RECOVERED_LEDGER_OBSERVER",
+            "ledger_present": true,
+            "ledger_regular": true,
+            "active_migrators": 0,
+            "application_enums": 29,
+            "application_types": 142,
+            "application_tables": 42,
+            "application_functions": 147,
+            "application_relations": 188,
+            "ledger_owner_expected": true,
+            "public_relation_count": 1,
+            "rows": [
+              {
+                "name": "20261117000100_f0_local_initial",
+                "steps": 0,
+                "checksum": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+                "finished": false,
+                "logs_state": "NULL",
+                "rolled_back": true,
+                "expected_error_code": false,
+                "expected_set_role_error": false
+              },
+              {
+                "name": "20261117000100_f0_local_initial",
+                "steps": 1,
+                "checksum": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+                "finished": true,
+                "logs_state": "NULL",
+                "rolled_back": false,
+                "expected_error_code": false,
+                "expected_set_role_error": false
+              }
+            ],
+            "ledger_rows_observed": true,
+            "owner": "wa_migrator",
+            "runtime_ledger_access": false
+          },
+          {
+            "stage": "RECOVERED_SECOND_LEDGER",
+            "ledger_present": true,
+            "ledger_regular": true,
+            "active_migrators": 0,
+            "application_enums": 29,
+            "application_types": 142,
+            "application_tables": 42,
+            "application_functions": 147,
+            "application_relations": 188,
+            "ledger_owner_expected": true,
+            "public_relation_count": 1,
+            "rows": [
+              {
+                "name": "20261117000100_f0_local_initial",
+                "steps": 0,
+                "checksum": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+                "finished": false,
+                "logs_state": "NULL",
+                "rolled_back": true,
+                "expected_error_code": false,
+                "expected_set_role_error": false
+              },
+              {
+                "name": "20261117000100_f0_local_initial",
+                "steps": 1,
+                "checksum": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+                "finished": true,
+                "logs_state": "NULL",
+                "rolled_back": false,
+                "expected_error_code": false,
+                "expected_set_role_error": false
+              }
+            ],
+            "ledger_rows_observed": true,
+            "owner": "wa_migrator",
+            "runtime_ledger_access": false
+          }
+        ],
+        "server_error_delta": {
+          "registered_lines": 3,
+          "expected_set_role_42501": 1,
+          "aborted_transaction_25p02": 1,
+          "other_migrator_error": 0,
+          "malformed_registered_line": 0,
+          "forbidden_diagnostic_body": 0
+        },
+        "failure_diagnostic_proof": {
+          "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+          "container_id": "1b42dd3bb88e28d59f1f64464e34e3c8c59a3352e81c1e0561acfdd2f2a227c5",
+          "source_commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
+          "source_tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
+          "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+          "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+          "module_sha256": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+          "migration_id": "20261117000100_f0_local_initial",
+          "logging_settings_verified": true,
+          "original_grantor_finalized": true,
+          "operation_backends_absent": true,
+          "schema": "workinants.local-f0-server-error-proof.v1",
+          "phase": "EXPECTED_FAILED_PRISMA_DEPLOY",
+          "provenance": "OWNED_POSTGRES_TERSE_ERROR_LOG_DELTA",
+          "classification": "SERVER_42501_WITH_SECONDARY_25P02_UNWRITTEN_FAILURE_LOGS",
+          "cli_closed_nonzero": true,
+          "application_object_count": 0,
+          "failed_row_logs_state": "NULL",
+          "before": {
+            "schema": "workinants.local-f0-server-error-counts.v1",
+            "counts": {
+              "registered_lines": 21,
+              "expected_set_role_42501": 0,
+              "aborted_transaction_25p02": 0,
+              "other_migrator_error": 1,
+              "malformed_registered_line": 0,
+              "forbidden_diagnostic_body": 0
+            },
+            "raw_output_discarded": true
+          },
+          "after": {
+            "schema": "workinants.local-f0-server-error-counts.v1",
+            "counts": {
+              "registered_lines": 24,
+              "expected_set_role_42501": 1,
+              "aborted_transaction_25p02": 1,
+              "other_migrator_error": 1,
+              "malformed_registered_line": 0,
+              "forbidden_diagnostic_body": 0
+            },
+            "raw_output_discarded": true
+          },
+          "delta": {
+            "registered_lines": 3,
+            "expected_set_role_42501": 1,
+            "aborted_transaction_25p02": 1,
+            "other_migrator_error": 0,
+            "malformed_registered_line": 0,
+            "forbidden_diagnostic_body": 0
+          },
+          "cli_status": "CLI_OUTPUT_REJECTED_STOP_AND_INSPECT",
+          "cli_exit_code": 1
+        },
+        "second_deploy_schema_comparison": {
+          "first": {
+            "sha256": "718c3f037343b7e766e3e540924d018cb6ab7e5010fa5ca1a01c1b5d2d6e7ffe",
+            "random_dump_meta_lines_removed": 2,
+            "raw_schema_dump_retained": false
+          },
+          "second": {
+            "sha256": "718c3f037343b7e766e3e540924d018cb6ab7e5010fa5ca1a01c1b5d2d6e7ffe",
+            "random_dump_meta_lines_removed": 2,
+            "raw_schema_dump_retained": false
+          },
+          "identical": true
+        }
+      }
+    },
+    "unexpected": [],
+    "cleanup": {
+      "wa-p0c-196c3d8a-migrate-fail": {
+        "removed": true,
+        "verified_id": "1b42dd3bb88e28d59f1f64464e34e3c8c59a3352e81c1e0561acfdd2f2a227c5",
+        "name_and_both_labels_verified": true
+      },
+      "wa-p0c-196c3d8a-migrate-ok": {
+        "removed": true,
+        "verified_id": "b59f46b24a9d01ef2e97aa0bb2ea93cf0194ee607b125ceaaa7e5c0550755bd4",
+        "name_and_both_labels_verified": true
+      },
+      "wa-p0c-196c3d8a-migrate-fail-data": {
+        "removed": true,
+        "name_labels_creation_identity_verified": true
+      },
+      "wa-p0c-196c3d8a-migrate-ok-data": {
+        "removed": true,
+        "name_labels_creation_identity_verified": true
+      }
+    },
+    "limits": {
+      "posture": "D",
+      "451_register": "NOT_PROMOTED",
+      "94_selection": "NOT_PROMOTED",
+      "hosted_changes": false,
+      "migration_adoption": false,
+      "worker_loop": false,
+      "production_readiness": false
+    },
+    "authorization": {
+      "scope": "STANDING_LOCAL_F0_GENUINE_MIGRATION_LEDGER_REHEARSAL",
+      "approved_packet_section": "local_f0_migration_31ada25",
+      "no_retry_on_unexpected": true
+    },
+    "source_verification": {
+      "commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
+      "tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
+      "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+      "files_sha256": {
+        "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+        "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+        "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+        "context/reconciliation/local-f0-cli-diagnostics-validation.json": "8bf070ea0473fa41cd815737de96920f70ecf6896bf9188c52d90dbd42ed6e7b",
+        "context/reconciliation/local-f0-migration-tooling-validation.json": "83d079ae068a04aee70c2d307ba7352a58a20409aef47df4f6a8866c25c2ce33",
+        "context/reconciliation/local-f0-server-diagnostics-validation.json": "560504eea761a06864edea01fba42e2e2a9a086ecfaab583309868f8f2f9c027",
+        "context/reconciliation/local-f0-tooling/linux-tooling-manifest.json": "e8fcce8f3ed4eaad0f7834e908166a0947b997e75513d589078f0d79c9a940d0",
+        "context/reconciliation/local-f0-tooling/prisma-tools-closure.json": "610e36e4006e9680d0e6a036486f302a18ecce9593699125b4173f5914acb88b",
+        "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+        "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+        "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+        "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+        "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+        "review-output/first-rehearsal/diagnostic-identifiers.json": "204b7c9f5888fd253c338286cc5446e1a346fb02073930124ccaf097f6bd9bb2",
+        "review-output/first-rehearsal/fixtures.json": "df00d519f11cd0a443dba906d724216d0e9d4f16f3ccbd9a703f9d02d0f3b3be",
+        "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+        "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+        "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+        "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+        "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+        "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+        "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+        "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+        "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+        "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+        "scripts/assemble-foundation-sql-review.py": "136489b5fb966085020128bfbd7140dad5e0b340a2312319d346305311fc212f",
+        "scripts/check-first-rehearsal-mocks.py": "777d9d74788c37c9b20891196180708400e4f58991026075e60bb6bc74a96adf",
+        "scripts/check-local-f0-migrate.py": "59d890c145e1f14a62e296fba0139eaa22ab728b70fa76a7dbd7dc3883222a14",
+        "scripts/check-migration-server-diagnostics.py": "cb3ded2eaf6c1532691a41af241897b11072907c37aaeb2d3f2f1478da157163",
+        "scripts/check-trigger-row-shapes.py": "7e6c851630a65c9e07685138e03eca5d4fd5404e8a4bb2b36895e34069d52ce9",
+        "scripts/database-candidate-correction-rules.py": "6b79a14ffa77c450c3864ba5e2d930d61d5a427a6b0c11545e1afdd37ccaabb3",
+        "scripts/prepare-database-candidate-review-assets.py": "dcb1544afc39cffbd9a8b052749f544c7531ff3dee2ff9cc738fd38d8d3bc9ed",
+        "scripts/prepare-first-rehearsal.py": "b03f4b7fda4e60ff7bafc2b6a7463d7bb9a3ee7bffc9f4e6c8f840f99b4116ce",
+        "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+        "scripts/prepare-rehearsal-diagnostics.py": "598bc556999a16f303171003324be8763cb00a0fff2bb54de8a1195e1e7c852b",
+        "scripts/sql-review/check-local-f0-migrate-guard.mjs": "bf7c166a23eaf29ed2ac084def03115e30d308439566d2f29af10d5fd22496cc",
+        "scripts/sql-review/foundation-invariants.sql": "8fc28f505bf100db89c8d441a507f3a8d58532dfb5ef960c8790d729a73f9904",
+        "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+        "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+        "scripts/sql-review/migration_server_diagnostics.py": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+        "scripts/sql-review/rehearsal-diagnostics.py": "c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e",
+        "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e",
+        "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f"
+      },
+      "file_count": 45
+    },
+    "run_manifest": {
+      "purpose": "GENUINE_LOCAL_PRISMA_MIGRATION_LEDGER_REHEARSAL",
+      "authority": "context/reconciliation/directives/local-f0-standing-authority-2026-11-17.md",
+      "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+      "source_commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
+      "source_tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
+      "packet_files_sha256": {
+        "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+        "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+        "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+        "context/reconciliation/local-f0-cli-diagnostics-validation.json": "8bf070ea0473fa41cd815737de96920f70ecf6896bf9188c52d90dbd42ed6e7b",
+        "context/reconciliation/local-f0-migration-tooling-validation.json": "83d079ae068a04aee70c2d307ba7352a58a20409aef47df4f6a8866c25c2ce33",
+        "context/reconciliation/local-f0-server-diagnostics-validation.json": "560504eea761a06864edea01fba42e2e2a9a086ecfaab583309868f8f2f9c027",
+        "context/reconciliation/local-f0-tooling/linux-tooling-manifest.json": "e8fcce8f3ed4eaad0f7834e908166a0947b997e75513d589078f0d79c9a940d0",
+        "context/reconciliation/local-f0-tooling/prisma-tools-closure.json": "610e36e4006e9680d0e6a036486f302a18ecce9593699125b4173f5914acb88b",
+        "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+        "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+        "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+        "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+        "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+        "review-output/first-rehearsal/diagnostic-identifiers.json": "204b7c9f5888fd253c338286cc5446e1a346fb02073930124ccaf097f6bd9bb2",
+        "review-output/first-rehearsal/fixtures.json": "df00d519f11cd0a443dba906d724216d0e9d4f16f3ccbd9a703f9d02d0f3b3be",
+        "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+        "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+        "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+        "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+        "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+        "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+        "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+        "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+        "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+        "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+        "scripts/assemble-foundation-sql-review.py": "136489b5fb966085020128bfbd7140dad5e0b340a2312319d346305311fc212f",
+        "scripts/check-first-rehearsal-mocks.py": "777d9d74788c37c9b20891196180708400e4f58991026075e60bb6bc74a96adf",
+        "scripts/check-local-f0-migrate.py": "59d890c145e1f14a62e296fba0139eaa22ab728b70fa76a7dbd7dc3883222a14",
+        "scripts/check-migration-server-diagnostics.py": "cb3ded2eaf6c1532691a41af241897b11072907c37aaeb2d3f2f1478da157163",
+        "scripts/check-trigger-row-shapes.py": "7e6c851630a65c9e07685138e03eca5d4fd5404e8a4bb2b36895e34069d52ce9",
+        "scripts/database-candidate-correction-rules.py": "6b79a14ffa77c450c3864ba5e2d930d61d5a427a6b0c11545e1afdd37ccaabb3",
+        "scripts/prepare-database-candidate-review-assets.py": "dcb1544afc39cffbd9a8b052749f544c7531ff3dee2ff9cc738fd38d8d3bc9ed",
+        "scripts/prepare-first-rehearsal.py": "b03f4b7fda4e60ff7bafc2b6a7463d7bb9a3ee7bffc9f4e6c8f840f99b4116ce",
+        "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+        "scripts/prepare-rehearsal-diagnostics.py": "598bc556999a16f303171003324be8763cb00a0fff2bb54de8a1195e1e7c852b",
+        "scripts/sql-review/check-local-f0-migrate-guard.mjs": "bf7c166a23eaf29ed2ac084def03115e30d308439566d2f29af10d5fd22496cc",
+        "scripts/sql-review/foundation-invariants.sql": "8fc28f505bf100db89c8d441a507f3a8d58532dfb5ef960c8790d729a73f9904",
+        "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+        "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+        "scripts/sql-review/migration_server_diagnostics.py": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+        "scripts/sql-review/rehearsal-diagnostics.py": "c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e",
+        "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e",
+        "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f"
+      },
+      "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+      "evidence_directory": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-migration-20261117-196c3d8a",
+      "targets": [
+        {
+          "name": "wa-p0c-196c3d8a-migrate-ok",
+          "volume": "wa-p0c-196c3d8a-migrate-ok-data",
+          "kind": "ok"
+        },
+        {
+          "name": "wa-p0c-196c3d8a-migrate-fail",
+          "volume": "wa-p0c-196c3d8a-migrate-fail-data",
+          "kind": "fail"
+        }
+      ],
+      "migration_targets": {
+        "ok": {
+          "manifest_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-migration-plan-196c3d8a\\ok-migration-manifest.json",
+          "manifest_sha256": "331157228f92dce6570bd9b9be9e166d9055892f7af6c13f243b6fad861d53ac",
+          "source_snapshot": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-migration-plan-196c3d8a\\source-ok",
+          "source_files_sha256": {
+            "prisma/foundation/history-manifest.json": "9cf9d8b4d3404b6873a46cd7338a6369174bf2de45c47e32432cb2db24dbf4ef",
+            "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+            "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+            "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+            "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+            "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+            "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd"
+          },
+          "source_archive": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-migration-plan-196c3d8a\\source-ok.tar.gz",
+          "source_archive_sha256": "bdf0d7cffcce91699720b74766c540a8dba7933b9718c5bb63cff6d22bf00099"
+        },
+        "fail": {
+          "manifest_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-migration-plan-196c3d8a\\fail-migration-manifest.json",
+          "manifest_sha256": "4794f0dbea8efca8e3417cc72ec9ecbdd50f5ccd35ad5e5aaf3f368f46b6219a",
+          "source_snapshot": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-migration-plan-196c3d8a\\source-fail",
+          "source_files_sha256": {
+            "prisma/foundation/history-manifest.json": "f66647e57c6ffb925f11fed1e070fd2ee09b79a7790536c3f933435d002a2aa2",
+            "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+            "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+            "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+            "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+            "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+            "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd"
+          },
+          "source_archive": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-migration-plan-196c3d8a\\source-fail.tar.gz",
+          "source_archive_sha256": "f2a584276e4a97b53b2f08c7228e0398f8b4960cabedc4b413561e0492c17c16"
+        }
+      },
+      "image": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "database": "wa_p0c_rehearsal",
+      "run_label": "p0c-local-f0",
+      "tool_archive": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-linux-tooling-20261117\\pinned-prisma-tools.tar.gz",
+      "tool_archive_sha256": "481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb",
+      "wrapper_sha256": "d7159320e2ce040119e2377736dfc409c582a2c81d70d01c7a25adbbac0aecf2",
+      "review_status": "APPROVED_GENUINE_MIGRATION_ATTEMPT",
+      "fault": {
+        "target": "fail",
+        "canonical_sql_unchanged": true,
+        "action": "Original grantor withholds only temporary wa_schema_owner->wa_customer_verifier SET membership before actual Prisma deploy.",
+        "expected_sqlstate": "42501",
+        "expected_fixed_diagnostic": "CUSTOMER_VERIFIER_SET_ROLE_REQUIRED",
+        "expected_primary_message": "must be able to SET ROLE \"wa_customer_verifier\"",
+        "failure_boundary": "ALTER FUNCTION ownership transfer inside canonical integrated transaction",
+        "required_after_failure": "Engine/client/backend closure, original-grantor finalization,0appobjects,1failed ledger row/canonicalchecksum,0finished/rolledback rows.",
+        "recovery": "Independently reviewed exact rollback evidence then standard migrate resolve--rolled-back; verify ledger rolledback flag; original grantor restores exact3temporary SETTRUE/INHERITFALSE/ADMINFALSE memberships; retry sameSQL/checksum; finalize; second deploy no-op.",
+        "diagnostic_provenance": "Fixed owned PostgreSQL SQLSTATE/terse exact-message before/after delta after CLI closure and original-grantor finalization. Normal P3018 path or separately evidenced server42501 plus secondary25P02/unwrittenNULL failure-log path; no inference from generic CLI/old reports."
+      },
+      "storage": {
+        "PGDATA": "Exact run-created named volume:/var/lib/postgresql/data",
+        "bootstrap_password": "Exact readonly manifested owner-only host bind:/run/bootstrap-password",
+        "private_credentials": "root0700 tmpfs noexec,nosuid,nodev:/run/wa-secrets; pgpass+URL root0600",
+        "source_and_tools": "Exact hashed run-owned copied source/tool closure,root-owned, no symlinks/group-other writes",
+        "network": "none",
+        "ports": []
+      },
+      "cleanup": "Verify exact created containerIDs/names/labels and volume names/labels/CreatedAt. Remove only those resources; delete only2test-owned hostsecretfiles/private directory. Independently confirm absence. Retain image, priorreports, source/tool snapshots.",
+      "source_history_rule": "One canonical integrated migrationID/checksum; no rawstructure duplicate, June edits, ledger writes, dbpush/reset or hosted/shadow targets. Per-target immutable snapshot metadata differs only targetmanifest identity; migrationSQL bytes identical.",
+      "status": "SOURCE_PREPARED_NOT_EXECUTED",
+      "server_diagnostics": {
+        "prefix": "WA_F0_DIAG|%e|%u|%d|",
+        "verbosity": "terse",
+        "lc_messages": "C",
+        "log_min_messages": "warning",
+        "log_statement": "none",
+        "log_min_error_statement": "panic",
+        "module_sha256": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+        "raw_log_retention": false
+      },
+      "steps_sha256": "47514ed5e9d116db5ce112e5cbb677a703107dc2cd6c9bbc75fc571afac35cf6"
+    },
+    "run_manifest_sha256": "b103fa7f5c9ec8a4d6c488165c66eede06e20a869acf1ebfb71e752de802d727",
+    "local_preflight": {
+      "endpoint": "npipe:////./pipe/dockerDesktopLinuxEngine",
+      "server_version": "29.6.2",
+      "server_os": "linux",
+      "server_arch": "amd64",
+      "initial_resource_presence": {
+        "wa-p0c-196c3d8a-migrate-ok": false,
+        "wa-p0c-196c3d8a-migrate-fail": false,
+        "wa-p0c-196c3d8a-migrate-ok-data": false,
+        "wa-p0c-196c3d8a-migrate-fail-data": false
+      },
+      "unrelated_containers_untouched": 12,
+      "unrelated_volumes_untouched": 3
+    },
+    "image": {
+      "reference": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "image_id": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "manifest_descriptor": {
+        "mediaType": "application/vnd.oci.image.manifest.v1+json",
+        "digest": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+        "size": 3628
+      },
+      "config_digest": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+      "manifest_content_hash_verified": true,
+      "repo_digests": [
+        "postgres@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1"
+      ],
+      "os": "linux",
+      "architecture": "amd64",
+      "pg_version": "17.11-1.pgdg13+2",
+      "pulled_this_run": false,
+      "retained_image_reused": true,
+      "removed": false
+    },
+    "credential_handling": {
+      "host_private_directory_owner_only_acl_verified": true,
+      "real_credentials_in_argv_env_or_evidence": false,
+      "container_pgpass": "root_owned_0600_tmpfs",
+      "independent_per_role_per_target": true
+    },
+    "migration_operations": [
+      {
+        "target": "wa-p0c-196c3d8a-migrate-ok",
+        "stage": "EMPTY_PRISMA_DEPLOY",
+        "schema": "workinants.local-f0-migrate-result.v2",
+        "operation": "deploy",
+        "status": "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS",
+        "exit_code": 0,
+        "prisma_codes": [],
+        "sqlstates": [],
+        "diagnostic_format": {
+          "text_valid": true,
+          "sgr_stripped": false,
+          "headers_valid": true,
+          "prisma_header_present": false,
+          "prisma_header_unique": false,
+          "database_header_present": false,
+          "database_header_unique": false
+        },
+        "no_pending_message_observed": false,
+        "raw_output_discarded": true,
+        "database_qualification_claimed": false,
+        "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+        "container_id": "b59f46b24a9d01ef2e97aa0bb2ea93cf0194ee607b125ceaaa7e5c0550755bd4",
+        "source_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "attestation_sha256": "1352c5e2d839b16af3e0bc8ef0890299563b52c3a98b14cd7e8b931bb470eacf"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-ok",
+        "stage": "SECOND_PRISMA_DEPLOY",
+        "schema": "workinants.local-f0-migrate-result.v2",
+        "operation": "deploy",
+        "status": "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS",
+        "exit_code": 0,
+        "prisma_codes": [],
+        "sqlstates": [],
+        "diagnostic_format": {
+          "text_valid": true,
+          "sgr_stripped": false,
+          "headers_valid": true,
+          "prisma_header_present": false,
+          "prisma_header_unique": false,
+          "database_header_present": false,
+          "database_header_unique": false
+        },
+        "no_pending_message_observed": true,
+        "raw_output_discarded": true,
+        "database_qualification_claimed": false,
+        "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+        "container_id": "b59f46b24a9d01ef2e97aa0bb2ea93cf0194ee607b125ceaaa7e5c0550755bd4",
+        "source_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "attestation_sha256": "1352c5e2d839b16af3e0bc8ef0890299563b52c3a98b14cd7e8b931bb470eacf"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "stage": "EXPECTED_FAILED_PRISMA_DEPLOY",
+        "schema": "workinants.local-f0-migrate-result.v2",
+        "operation": "deploy",
+        "status": "CLI_OUTPUT_REJECTED_STOP_AND_INSPECT",
+        "exit_code": 1,
+        "prisma_codes": [],
+        "sqlstates": [],
+        "diagnostic_format": {
+          "text_valid": true,
+          "sgr_stripped": false,
+          "headers_valid": false,
+          "prisma_header_present": true,
+          "prisma_header_unique": true,
+          "database_header_present": false,
+          "database_header_unique": false
+        },
+        "no_pending_message_observed": false,
+        "raw_output_discarded": true,
+        "database_qualification_claimed": false,
+        "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+        "container_id": "1b42dd3bb88e28d59f1f64464e34e3c8c59a3352e81c1e0561acfdd2f2a227c5",
+        "source_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "attestation_sha256": "ccaf9184861e19fe0bf6ece795662868ff62d850ce7326fa5857c3b5f2b2e03c"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "stage": "STANDARD_PRISMA_RESOLVE",
+        "schema": "workinants.local-f0-migrate-result.v2",
+        "operation": "resolve-rolled-back",
+        "status": "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS",
+        "exit_code": 0,
+        "prisma_codes": [],
+        "sqlstates": [],
+        "diagnostic_format": {
+          "text_valid": true,
+          "sgr_stripped": false,
+          "headers_valid": true,
+          "prisma_header_present": false,
+          "prisma_header_unique": false,
+          "database_header_present": false,
+          "database_header_unique": false
+        },
+        "no_pending_message_observed": false,
+        "raw_output_discarded": true,
+        "database_qualification_claimed": false,
+        "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+        "container_id": "1b42dd3bb88e28d59f1f64464e34e3c8c59a3352e81c1e0561acfdd2f2a227c5",
+        "source_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "attestation_sha256": "dd5ab08ab66b46603c9179846ce855da96b5e4c89bf2bf25ca3d84ee7a250abf"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "stage": "SAME_CHECKSUM_RECOVERY_DEPLOY",
+        "schema": "workinants.local-f0-migrate-result.v2",
+        "operation": "deploy",
+        "status": "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS",
+        "exit_code": 0,
+        "prisma_codes": [],
+        "sqlstates": [],
+        "diagnostic_format": {
+          "text_valid": true,
+          "sgr_stripped": false,
+          "headers_valid": true,
+          "prisma_header_present": false,
+          "prisma_header_unique": false,
+          "database_header_present": false,
+          "database_header_unique": false
+        },
+        "no_pending_message_observed": false,
+        "raw_output_discarded": true,
+        "database_qualification_claimed": false,
+        "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+        "container_id": "1b42dd3bb88e28d59f1f64464e34e3c8c59a3352e81c1e0561acfdd2f2a227c5",
+        "source_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "attestation_sha256": "ccaf9184861e19fe0bf6ece795662868ff62d850ce7326fa5857c3b5f2b2e03c"
+      },
+      {
+        "target": "wa-p0c-196c3d8a-migrate-fail",
+        "stage": "RECOVERED_SECOND_DEPLOY",
+        "schema": "workinants.local-f0-migrate-result.v2",
+        "operation": "deploy",
+        "status": "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS",
+        "exit_code": 0,
+        "prisma_codes": [],
+        "sqlstates": [],
+        "diagnostic_format": {
+          "text_valid": true,
+          "sgr_stripped": false,
+          "headers_valid": true,
+          "prisma_header_present": false,
+          "prisma_header_unique": false,
+          "database_header_present": false,
+          "database_header_unique": false
+        },
+        "no_pending_message_observed": true,
+        "raw_output_discarded": true,
+        "database_qualification_claimed": false,
+        "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+        "container_id": "1b42dd3bb88e28d59f1f64464e34e3c8c59a3352e81c1e0561acfdd2f2a227c5",
+        "source_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "attestation_sha256": "ccaf9184861e19fe0bf6ece795662868ff62d850ce7326fa5857c3b5f2b2e03c"
+      }
+    ],
+    "server_error_proof_sha256": "214388a1071550097d0c7f8fb37e2a4c350186506be5ce13fbc09406d43b8275",
+    "recovery_review": {
+      "decision": "APPROVE_STANDARD_RESOLVE_AND_RETRY",
+      "reviewer": "review_track_ports",
+      "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+      "proof_sha256": "62e00b55902a0c021b39656130ccc431e5228d969ae89f9723a2ad3ad56fc941"
+    },
+    "reviewed_rollback_proof_sha256": "a70238ca6659c5a8234269bdf2ad317f0a2a3572d69098f4fbbfdb16b84cba2e",
+    "sanitization": {
+      "files_scanned": 8,
+      "actual_password_values_found": false,
+      "unrestricted_subprocess_output_persisted": false,
+      "raw_context_handles_persisted": false,
+      "coordinator_evidence_uses_reviewed_allowlist": true
+    },
+    "host_secret_cleanup": {
+      "deleted": [
+        "ok-bootstrap-password",
+        "fail-bootstrap-password"
+      ],
+      "private_directory_absent": true
+    },
+    "cleanup_summary": {
+      "resource_presence_after": {
+        "wa-p0c-196c3d8a-migrate-ok": false,
+        "wa-p0c-196c3d8a-migrate-fail": false,
+        "wa-p0c-196c3d8a-migrate-ok-data": false,
+        "wa-p0c-196c3d8a-migrate-fail-data": false
+      },
+      "test_owned_secret_files_deleted": [
+        "ok-bootstrap-password",
+        "fail-bootstrap-password"
+      ],
+      "private_directory_absent": true,
+      "image_removed": false,
+      "unrelated_resources_changed": false
+    },
+    "finished_at": "2026-11-18T02:48:54.923483+00:00",
+    "packet_unchanged_after_run": true
+  },
+  "external_json_artifacts_sha256": {
+    "authentication-fail/authentication-results-ok.json": "21c3b8c7433671bcccd54501f382202ae98480e87a858327aaac0a7ba0a3f7d9",
+    "authentication-ok/authentication-results-ok.json": "757b2ef37c035e745e44bbb730bab20e116d6a3f14b6531cbbdaa19186fb2548",
+    "recovery-review-approval.json": "575b21cc044db4bec6dbadfead2bc024edf8c01ef6bbb4264921645275cea7ed",
+    "reviewed-rollback-proof.json": "a70238ca6659c5a8234269bdf2ad317f0a2a3572d69098f4fbbfdb16b84cba2e",
+    "rollback-proof-for-review.json": "62e00b55902a0c021b39656130ccc431e5228d969ae89f9723a2ad3ad56fc941",
+    "run-evidence.json": "9a8f4bff653dc1292c24f48cda90cb14b2cd5787653896a083389333d51ef090",
+    "server-error-proof.json": "214388a1071550097d0c7f8fb37e2a4c350186506be5ce13fbc09406d43b8275"
+  },
+  "snapshot_files_sha256": {
+    "authentication-fail-authentication-results-ok.json": "21c3b8c7433671bcccd54501f382202ae98480e87a858327aaac0a7ba0a3f7d9",
+    "authentication-ok-authentication-results-ok.json": "757b2ef37c035e745e44bbb730bab20e116d6a3f14b6531cbbdaa19186fb2548",
+    "fail-history-manifest.json": "f66647e57c6ffb925f11fed1e070fd2ee09b79a7790536c3f933435d002a2aa2",
+    "fail-migration-manifest.json": "4794f0dbea8efca8e3417cc72ec9ecbdd50f5ccd35ad5e5aaf3f368f46b6219a",
+    "ok-history-manifest.json": "9cf9d8b4d3404b6873a46cd7338a6369174bf2de45c47e32432cb2db24dbf4ef",
+    "ok-migration-manifest.json": "331157228f92dce6570bd9b9be9e166d9055892f7af6c13f243b6fad861d53ac",
+    "operation-manifest.json": "b103fa7f5c9ec8a4d6c488165c66eede06e20a869acf1ebfb71e752de802d727",
+    "operation-steps.py.txt": "47514ed5e9d116db5ce112e5cbb677a703107dc2cd6c9bbc75fc571afac35cf6",
+    "operational-review.json": "3d04306366030264377048631c937fcf04b8938f93fd7bb52460c08e17afc2d1",
+    "operator-snapshot.py.txt": "d7159320e2ce040119e2377736dfc409c582a2c81d70d01c7a25adbbac0aecf2",
+    "recovery-review-approval.json": "575b21cc044db4bec6dbadfead2bc024edf8c01ef6bbb4264921645275cea7ed",
+    "reviewed-rollback-proof.json": "a70238ca6659c5a8234269bdf2ad317f0a2a3572d69098f4fbbfdb16b84cba2e",
+    "rollback-proof-for-review.json": "62e00b55902a0c021b39656130ccc431e5228d969ae89f9723a2ad3ad56fc941",
+    "server-error-proof.json": "214388a1071550097d0c7f8fb37e2a4c350186506be5ce13fbc09406d43b8275"
+  },
+  "independent_absence": {
+    "recorded_at": "2026-11-18T02:51:26.684539+00:00",
+    "resource_presence": {
+      "wa-p0c-196c3d8a-migrate-ok": false,
+      "wa-p0c-196c3d8a-migrate-fail": false,
+      "wa-p0c-196c3d8a-migrate-ok-data": false,
+      "wa-p0c-196c3d8a-migrate-fail-data": false
+    },
+    "host_private_absent": true,
+    "image_retained": true,
+    "shared_resources_changed": false
+  },
+  "limits": [
+    "No hosted database contact or adoption",
+    "No manual ledger manipulation, dbpush/reset or oldJune migration edit",
+    "Catalog counts/fingerprint are not full native parity",
+    "No behavioral/94case/451register promotion",
+    "Physical backup/restore and later owner adapters remain unqualified"
+  ],
+  "posture": "D",
+  "next_action": "Complete independent native catalog/expression/ledger proof on a fresh reviewed target, then selected restricted-role/native/concurrency/recovery assertions.",
+  "actual_failure_diagnostic": {
+    "classification": "SERVER_42501_WITH_SECONDARY_25P02_UNWRITTEN_FAILURE_LOGS",
+    "provenance": "OWNED_POSTGRES_TERSE_ERROR_LOG_DELTA",
+    "server_error_delta": {
+      "registered_lines": 3,
+      "expected_set_role_42501": 1,
+      "aborted_transaction_25p02": 1,
+      "other_migrator_error": 0,
+      "malformed_registered_line": 0,
+      "forbidden_diagnostic_body": 0
+    },
+    "failed_row_logs_state": "NULL",
+    "CLI_status": "CLI_OUTPUT_REJECTED_STOP_AND_INSPECT",
+    "retained_P3018_claimed": false,
+    "server_proof_sha256": "214388a1071550097d0c7f8fb37e2a4c350186506be5ce13fbc09406d43b8275"
+  },
+  "recovery_review": {
+    "decision": "APPROVE_STANDARD_RESOLVE_AND_RETRY",
+    "reviewer": "review_track_ports",
+    "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+    "proof_sha256": "62e00b55902a0c021b39656130ccc431e5228d969ae89f9723a2ad3ad56fc941"
+  },
+  "historical_distinction": "Fresh196c actually observed original42501/intendedSETROLE plus secondary25P02 and NULLfailurelogs. Earlier2af/0c cause remains UNOBSERVED; 0c logclass remains UNOBSERVED. No retroactive inference."
+}

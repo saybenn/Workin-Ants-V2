@@ -5,8 +5,25 @@ dependency denials for missing positives or silently promotes compound cases.
 """
 import hashlib,json
 from pathlib import Path
+from local_f0_migration_evidence import validate_claim, EvidenceFailure
 ROOT=Path(__file__).resolve().parents[1]
 REC=ROOT/'context/reconciliation'
+SMALL_PASSES={(f'P0C-TABLE-{model}-ALLOW','positive.wa_app_runtime.insert') for model in ('CustomerProfile','CustomerProfileLifecycleEvent','RuntimeCommandReceipt','OwnerMutationEvidence','RuntimeOutboxMessage')}|{
+    ('P0C-TABLE-CustomerProfile-DENY','denial.context.foreign_runtime_context'),
+    ('P0C-BOOT-01','control.nonrecursive_create'),
+    ('P0C-BOOT-01','vector.FIRST-SMALL-REHEARSAL.positive'),
+    ('P0C-BOOT-01','vector.FIRST-SMALL-REHEARSAL.adversarial'),
+    ('P0C-ATOMIC-01','control.complete_group'),
+    ('P0C-ATOMIC-01','vector.MESSAGE-REVERSE.positive'),
+    ('P0C-ATOMIC-01','vector.RESULT-VERSION.positive'),
+    ('P0C-INSTALL-01','control.success_cleanup'),
+    ('P0C-INSTALL-02','control.failed_cleanup'),
+    ('P0C-INSTALL-02','vector.FUNCTION-ACL-FAILURE-CLEANUP.positive'),
+}
+EVIDENCE_RECORDS={
+    'context/reconciliation/local-f0-small-rehearsal-0623028-execution.json':('269812ab154775e0cea58c3305ffbef141c2c0978590f8000c18c79cb2f0d28b','PASS_FIRST01_THROUGH_FIRST10_SUBSET_ONLY'),
+    'context/reconciliation/local-f0-migration-6b8910d-execution.json':('e657bd4de3c288acbd86faa7ae9514f59e76566e1bba170a6ef19f7770c91158','PASS_GENUINE_FIRST_NOOP_FAILURE_REVIEWED_RESOLVE_SAME_CHECKSUM_RETRY'),
+}
 
 def build():
     inventory=json.loads((REC/'local-f0-assertions.json').read_text(encoding='utf8'))
@@ -26,9 +43,13 @@ def build():
             if row:
                 assert row['status'] in ('PASS','PARTIAL','FAILED')
                 assert row['expected_assertion_sha256']==hashlib.sha256(item['expected_assertion'].encode()).hexdigest(),'Assertion requirement changed; review evidence mapping'
+                assert row['evidence_path'] in EVIDENCE_RECORDS,'Unsupported execution evidence path requires reviewed parser'
                 path=ROOT/row['evidence_path']
-                assert hashlib.sha256(path.read_bytes()).hexdigest()==row['evidence_sha256'],'Execution evidence changed'
-                execution=json.loads(path.read_text(encoding='utf8'))
+                expected_sha,expected_kind=EVIDENCE_RECORDS[row['evidence_path']]
+                raw=path.read_bytes()
+                assert hashlib.sha256(raw).hexdigest()==row['evidence_sha256']==expected_sha,'Execution evidence changed from independently reviewed record'
+                execution=json.loads(raw)
+                assert execution.get('actual_result')==expected_kind,'Execution evidence kind changed'
                 for identity in ('run_id','source_commit','source_tree','packet_sha256'):
                     assert row[identity]==execution[identity],'Execution identity mismatch'
                 pointer=row['json_pointer']
@@ -43,8 +64,11 @@ def build():
                         assert isinstance(value,dict) and part in value,'Evidence pointer missing'
                         value=value[part]
                 assert type(value) is dict,'Evidence pointer must resolve to structured observation'
-                if row['status']=='PASS':
-                    assert execution.get('actual_result')=='PASS_FIRST01_THROUGH_FIRST10_SUBSET_ONLY','Unsupported successful evidence kind requires reviewed parser'
+                if execution.get('actual_result')=='PASS_FIRST01_THROUGH_FIRST10_SUBSET_ONLY':
+                    assert row['status']=='PASS' and (case['id'],item['id']) in SMALL_PASSES,'Unsupported small-rehearsal assertion promotion'
+                else:
+                    try:validate_claim(case['id'],item['id'],row['status'],execution,ROOT)
+                    except EvidenceFailure as error:raise AssertionError(str(error)) from None
                 assert row['application_sql_sha256']==inventory['source_provenance']['files_sha256']['review-output/foundation-application.review.sql'],'SQL changed; retain old evidence but review qualification before reuse'
                 assert not (status in ('DEPENDENCY_BLOCKED','UNRESOLVED_SOURCE') and row['status']=='PASS'),'Unavailable positive cannot be passed by denial'
                 status=row['status']

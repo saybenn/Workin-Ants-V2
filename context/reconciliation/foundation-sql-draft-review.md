@@ -1,3 +1,7 @@
+## Genuine migration subset closure — 17 November2026
+
+Source6b8910d/run196c passed actual pinned Prisma first/no-op deploy, server42501 SETROLE with secondary25P02/NULLfailurelog, zero-object rollback, independently reviewed standard resolve, same5aechecksum retry retaining failed row, and recovered no-op. Original-grantor finalization and exact cleanup passed. [Execution](local-f0-migration-6b8910d-execution.json) and [audit](local-f0-migration-6b8910d-audit.json) bind five new passed assertions and three partial limitations; no P3018 or old0c cause inference. Selected94 remains0complete cases/10partial/84NOT_RUN. Full native catalog/access/native-integrity/physical-restore and dependency-gated owners remain pending; Posture D.
+
 ## Current local F0 diagnostics continuation — 17 November2026
 
 The [0c stopped run](local-f0-migration-48ecadc-execution.json) actually retained application rollback/private failed-row state, but no original cause or logclass. The [new reviewed diagnostic channel](local-f0-server-diagnostics-validation.json) can retain actual server SQLSTATE plus exact allowlisted primary without SQL, DETAIL/HINT/CONTEXT or raw output. It is source/offline preparation only until fresh execution. Normal Prisma diagnostics and separately evidenced secondary-persistence failure remain distinct; no historical failure is relabeled. CanonicalSQL/checksum/permissions unchanged. Posture D and final Brain acceptance remain.

@@ -1,0 +1,293 @@
+"""Literal local migration experiment steps. Loaded only after snapshot hash check.
+
+No statement bodies, credentials, raw handles or unrestricted process messages
+enter retained evidence. One expected setup fault; every unexpected result stops.
+"""
+import runpy
+import tarfile
+
+def validate_archive(path,expected):
+    seen=set()
+    with tarfile.open(path,'r:gz') as archive:
+        for member in archive:
+            need(member.isfile() and not member.name.startswith('/') and all(p not in ('','.','..') for p in member.name.split('/')) and member.name not in seen,'UNSAFE_ARCHIVE_MEMBER')
+            need(member.name in expected,'UNLISTED_ARCHIVE_MEMBER')
+            need(hashlib.sha256(archive.extractfile(member).read()).hexdigest()==expected[member.name],'ARCHIVE_MEMBER_HASH_DRIFT')
+            seen.add(member.name)
+    need(seen==set(expected),'ARCHIVE_FILE_SET_MISMATCH')
+
+def verify_packet():
+    need(MANIFEST['review_status']=='APPROVED_GENUINE_MIGRATION_ATTEMPT','OPERATION_NOT_REVIEWED')
+    need(MANIFEST['wrapper_sha256']==hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'WRAPPER_SOURCE_MISMATCH')
+    need(command(['git','-c','core.longpaths=true','rev-parse','HEAD']).stdout.strip()==COMMIT and command(['git','-c','core.longpaths=true','rev-parse','HEAD^{tree}']).stdout.strip()==TREE,'SOURCE_CHECKPOINT_MISMATCH')
+    hashes=MANIFEST['packet_files_sha256']
+    required={'review-output/foundation-bootstrap.review.sql','review-output/foundation-bootstrap-finalize.review.sql','review-output/foundation-application.review.sql','scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/prepare-local-f0-history.py','scripts/sql-review/run-local-f0-migrate.py','prisma.local-f0.config.mjs','scripts/sql-review/local-f0-migrate-guard.mjs','scripts/sql-review/local-f0-migrate-runner.mjs','scripts/sql-review/migration_server_diagnostics.py'}
+    need(required<=set(hashes),'REQUIRED_PACKET_FILES_MISSING')
+    for path,expected in hashes.items():
+        need(not Path(path).is_absolute() and '..' not in Path(path).parts,'UNSAFE_PACKET_PATH')
+        need(hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==expected,'PACKET_FILE_DRIFT',{'path':path})
+        blob=subprocess.run(['git','-c','core.longpaths=true','show',COMMIT+':'+path],cwd=ROOT,capture_output=True,timeout=30)
+        need(blob.returncode==0 and hashlib.sha256(blob.stdout).hexdigest()==expected,'COMMITTED_PACKET_MISMATCH',{'path':path})
+    aggregate=hashlib.sha256(''.join(p+'\0'+hashes[p]+'\n' for p in sorted(hashes)).encode()).hexdigest()
+    need(aggregate==PACKET,'PACKET_AGGREGATE_MISMATCH')
+    need(MANIFEST['image']==IMAGE and MANIFEST['database']==DB and MANIFEST['run_label']==LABEL,'TARGET_MANIFEST_MISMATCH')
+    need(MANIFEST['server_diagnostics']=={'prefix':'WA_F0_DIAG|%e|%u|%d|','verbosity':'terse','lc_messages':'C','log_min_messages':'warning','log_statement':'none','log_min_error_statement':'panic','module_sha256':hashes['scripts/sql-review/migration_server_diagnostics.py'],'raw_log_retention':False},'SERVER_DIAGNOSTIC_PLAN_MISMATCH')
+    need(hashlib.sha256(Path(MANIFEST['tool_archive']).read_bytes()).hexdigest()==MANIFEST['tool_archive_sha256'],'TOOL_ARCHIVE_DRIFT')
+    verified_tools=None
+    for kind,plan in MANIFEST['migration_targets'].items():
+        raw=Path(plan['manifest_path']).read_bytes();need(hashlib.sha256(raw).hexdigest()==plan['manifest_sha256'],'TARGET_PLAN_DRIFT')
+        migration=json.loads(raw);target=next(t for t in TARGETS if t['kind']==kind)
+        if verified_tools is None:
+            validate_archive(MANIFEST['tool_archive'],migration['tools']['files_sha256']);verified_tools=migration['tools']['files_sha256']
+        else:need(verified_tools==migration['tools']['files_sha256'],'TARGET_TOOL_CLOSURES_DIFFER')
+        need(migration['run_id']==RUN_ID and migration['target']['container_name']==target['name'] and migration['target']['volume_name']==target['volume'],'TARGET_PLAN_IDENTITY')
+        need(migration['target']['bootstrap_secret_host_path']==str(PRIVATE/(kind+'-bootstrap-password')),'SECRET_MOUNT_PLAN_MISMATCH')
+        snapshot=Path(plan['source_snapshot'])
+        current={p.relative_to(snapshot).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in snapshot.rglob('*') if p.is_file()}
+        need(current==plan['source_files_sha256'],'SOURCE_SNAPSHOT_DRIFT')
+        need(hashlib.sha256(Path(plan['source_archive']).read_bytes()).hexdigest()==plan['source_archive_sha256'],'SOURCE_ARCHIVE_DRIFT')
+        validate_archive(plan['source_archive'],current)
+        for path in ('prisma.local-f0.config.mjs','scripts/sql-review/local-f0-migrate-guard.mjs','scripts/sql-review/local-f0-migrate-runner.mjs','prisma/review/foundation-candidate.prisma','prisma/foundation/migrations/migration_lock.toml','prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql'):
+            need(current[path]==hashes[path],'SOURCE_SNAPSHOT_NOT_COMMITTED_PACKET',{'path':path})
+    report['source_verification']={'commit':COMMIT,'tree':TREE,'packet_sha256':aggregate,'files_sha256':hashes,'file_count':len(hashes)}
+    report['run_manifest']=MANIFEST;report['run_manifest_sha256']=hashlib.sha256(MANIFEST_PATH.read_bytes()).hexdigest()
+    event('SOURCE_VERIFICATION','PASS',files=len(hashes),packet_sha256=aggregate)
+
+def bootstrap_all():
+    coordinator=runpy.run_path(str(ROOT/'scripts/sql-review/run-first-rehearsal.py'))
+    for target in TARGETS:
+        name=target['name']
+        settings=observe(name,"SELECT jsonb_build_object('login',session_user,'auth',system_user,'safe',current_setting('log_statement')='none' AND current_setting('log_min_error_statement')='panic' AND current_setting('password_encryption')='scram-sha-256' AND current_setting('server_version') LIKE '17.11%','diagnostics_safe',current_setting('log_error_verbosity')='terse' AND current_setting('log_line_prefix')='WA_F0_DIAG|%e|%u|%d|' AND current_setting('lc_messages')='C' AND current_setting('log_min_messages')='warning' AND current_setting('log_destination')='stderr' AND current_setting('logging_collector')='off' AND current_setting('debug_print_parse')='off' AND current_setting('debug_print_rewritten')='off' AND current_setting('debug_print_plan')='off','superuser',(SELECT rolsuper FROM pg_roles WHERE rolname=session_user));",'BOOTSTRAP_SETTINGS')
+        need(settings=={'login':'postgres','auth':'scram-sha-256:postgres','safe':True,'diagnostics_safe':True,'superuser':True},'UNSAFE_BOOTSTRAP_SETTINGS')
+        report['targets'][name]['server_settings']=settings
+        before=observe(name,"SELECT jsonb_build_object('public_owner',(SELECT pg_get_userbyid(nspowner) FROM pg_namespace WHERE nspname='public'),'public_acl',(SELECT jsonb_agg(jsonb_build_object('role',CASE WHEN x.grantee=0 THEN 'PUBLIC' ELSE pg_get_userbyid(x.grantee) END,'privilege',x.privilege_type,'grantor',pg_get_userbyid(x.grantor),'grant_option',x.is_grantable) ORDER BY x.grantee,x.privilege_type) FROM pg_namespace n CROSS JOIN LATERAL aclexplode(coalesce(n.nspacl,acldefault('n',n.nspowner))) x WHERE n.nspname='public'),'application_roles',(SELECT count(*) FROM pg_roles WHERE rolname LIKE 'wa_%'),'event_triggers',(SELECT count(*) FROM pg_event_trigger));",'FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE')
+        expected=[{'role':'pg_database_owner','privilege':p,'grantor':'pg_database_owner','grant_option':False} for p in ('CREATE','USAGE')]+[{'role':'PUBLIC','privilege':'USAGE','grantor':'pg_database_owner','grant_option':False}]
+        need(before['public_owner']=='pg_database_owner' and before['application_roles']==before['event_triggers']==0 and sorted(before['public_acl'],key=lambda r:(r['role'],r['privilege']))==sorted(expected,key=lambda r:(r['role'],r['privilege'])),'FRESH_PUBLIC_BASELINE_NOT_EXPECTED')
+        report['targets'][name]['pre_bootstrap_public_baseline']=before
+        bootstrap_attempted.add(name);report['targets'][name]['bootstrap']='ATTEMPTED';save()
+        sql(name,'postgres',(ROOT/'review-output/foundation-bootstrap.review.sql').read_text(encoding='utf8'),'BOOTSTRAP')
+        bootstrapped.add(name);report['targets'][name]['bootstrap']='PASS'
+        statements=[f'ALTER DATABASE {DB} SET log_statement=none;',f'ALTER DATABASE {DB} SET log_min_error_statement=panic;',f'REVOKE CONNECT,TEMP ON DATABASE {DB} FROM PUBLIC;',f'GRANT CONNECT ON DATABASE {DB} TO '+','.join(ROLES)+';']
+        statements+=['ALTER ROLE '+role+" PASSWORD '"+passwords[name][role]+"';" for role in ROLES if role!='postgres']
+        sql(name,'postgres','\n'.join(statements),'CREDENTIAL_PROVISION')
+        directory=OUT/('authentication-'+target['kind']);evidence=coordinator['Evidence'](directory,True,coordinator['CONTAINER'])
+        coordinator['authentication_preflight'](evidence,created_containers[name])
+        evidence.value.update(status='PASS_PREFLIGHT_ONLY',target=name,current_stage='COMPLETE');evidence.save()
+        need(len(evidence.value['authentication'])==6,'AUTHENTICATION_INCOMPLETE')
+        report['targets'][name]['authentication_preflight']={'status':'PASS','roles':6,'correct_password':6,'wrong_password_rejected':6,'evidence':str(evidence.path.relative_to(OUT))};save()
+        baseline=observe(name,"SELECT jsonb_build_object('public_owner',(SELECT pg_get_userbyid(nspowner) FROM pg_namespace WHERE nspname='public'),'public_acl',(SELECT nspacl::text FROM pg_namespace WHERE nspname='public'),'event_triggers',(SELECT count(*) FROM pg_event_trigger),'public_relations',(SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public'),'application_relations',(SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname IN ('app','platform','platform_private')));",'EMPTY_APPLICATION_BASELINE')
+        need(baseline['event_triggers']==baseline['public_relations']==baseline['application_relations']==0,'NONEMPTY_MIGRATION_BASELINE')
+        report['targets'][name]['baseline']=baseline;event('AUTHENTICATION_PREFLIGHT','PASS',target=name,roles=6)
+    report['steps']['MIGRATE-AUTH']='PASS';save()
+
+def provision_migration_tools():
+    for target in TARGETS:
+        name=target['name'];identity=created_containers[name];plan=MANIFEST['migration_targets'][target['kind']]
+        need(docker(['exec',identity,'mkdir','-p','/run/wa-f0-tools','/run/wa-f0-source']).returncode==0,'TOOL_DIRECTORIES_FAILED')
+        need(docker(['cp',MANIFEST['tool_archive'],identity+':/run/wa-f0-tools.tar.gz'],timeout=120).returncode==0,'TOOL_COPY_FAILED')
+        need(docker(['exec',identity,'tar','-xzf','/run/wa-f0-tools.tar.gz','-C','/run/wa-f0-tools'],timeout=120).returncode==0,'TOOL_EXTRACT_FAILED')
+        need(docker(['exec',identity,'rm','--','/run/wa-f0-tools.tar.gz']).returncode==0,'TOOL_ARCHIVE_REMOVAL_FAILED')
+        # This archive is prepared/reviewed from the exact immutable file map.
+        need(hashlib.sha256(Path(plan['source_archive']).read_bytes()).hexdigest()==plan['source_archive_sha256'],'SOURCE_ARCHIVE_DRIFT')
+        need(docker(['cp',plan['source_archive'],identity+':/run/wa-f0-source.tar.gz'],timeout=120).returncode==0,'SOURCE_COPY_FAILED')
+        need(docker(['exec',identity,'tar','-xzf','/run/wa-f0-source.tar.gz','-C','/run/wa-f0-source'],timeout=60).returncode==0,'SOURCE_EXTRACT_FAILED')
+        need(docker(['exec',identity,'rm','--','/run/wa-f0-source.tar.gz']).returncode==0,'SOURCE_ARCHIVE_REMOVAL_FAILED')
+        migrator_url='postgresql://wa_migrator:'+passwords[name]['wa_migrator']+'@127.0.0.1:5432/'+DB+'?schema=public&sslmode=disable'
+        r=docker(['exec','-i',identity,'sh','-ceu','umask 077; cat > /run/wa-secrets/wa-local-f0-migrator-url; chmod 600 /run/wa-secrets/wa-local-f0-migrator-url; stat -c "%a:%u:%g" /run/wa-secrets/wa-local-f0-migrator-url'],input=migrator_url)
+        need(r.returncode==0 and r.stdout.strip()=='600:0:0','MIGRATOR_URL_OWNER_MODE')
+        # Trusted image utility verifies copied binaries before first execution.
+        expected=json.loads(Path(plan['manifest_path']).read_text())['tools']['files_sha256']
+        names=['node/bin/node','schema-engine','node_modules/prisma/build/index.js','node_modules/prisma/build/cli.js','node_modules/prisma/config.js']
+        actual=docker(['exec',identity,'/usr/bin/sha256sum','--',*['/run/wa-f0-tools/'+p for p in names]])
+        need(actual.returncode==0,'TOOL_PREEXEC_HASH_FAILED')
+        parsed={line.split('  ',1)[1].removeprefix('/run/wa-f0-tools/'):line.split('  ',1)[0] for line in actual.stdout.splitlines()}
+        need(parsed=={p:expected[p] for p in names},'TOOL_PREEXEC_HASH_MISMATCH')
+        node=docker(['exec',identity,'/run/wa-f0-tools/node/bin/node','--version'])
+        engine=docker(['exec',identity,'/run/wa-f0-tools/schema-engine','--version'])
+        need(node.returncode==0 and node.stdout.strip()=='v24.22.1' and engine.returncode==0 and re.search(r'\bd1b3f377ca835d73fd50954a5e22128b9ebdd6b8\b',engine.stdout),'LINUX_TOOL_COMPATIBILITY_FAILED')
+        report['targets'][name]['linux_tool_compatibility']={'node':'v24.22.1','engine_commit':'d1b3f377ca835d73fd50954a5e22128b9ebdd6b8','preexec_hashes_verified':True};event('LINUX_TOOL_COMPATIBILITY','PASS',target=name)
+    report['steps']['MIGRATE-TOOLS']='PASS';save()
+
+def migrate(target,operation,label,proof=None):
+    name=target['name'];plan=MANIFEST['migration_targets'][target['kind']]
+    module=runpy.run_path(str(ROOT/'scripts/sql-review/run-local-f0-migrate.py'))
+    report['stage']=label;save()
+    def created_identity_process(arguments,**options):
+        result=subprocess.run(arguments,**options)
+        if arguments==['docker','--context','desktop-linux','inspect',name] and result.returncode==0:
+            objects=json.loads(result.stdout)
+            need(len(objects)==1 and objects[0]['Id']==created_containers[name],'CREATED_CONTAINER_IDENTITY_CHANGED')
+        return result
+    try:value=module['coordinate'](Path(plan['manifest_path']).read_bytes(),operation,None if proof is None else proof.read_bytes(),process=created_identity_process)
+    except module['HeldFailure'] as error:
+        comparison=module['mount_failure_comparison'](error)
+        if comparison is not None:report['resource_guard_comparison']=comparison;save()
+        raise Stop('MIGRATION_GUARD_REFUSED',{'code':error.code,**({'mount_comparison':comparison} if comparison is not None else {})}) from None
+    except subprocess.TimeoutExpired:raise Stop('MIGRATION_PROCESS_TIMEOUT_CLOSURE_UNCONFIRMED') from None
+    except Exception:raise Stop('MIGRATION_RESPONSE_OR_PROCESS_UNCONFIRMED') from None
+    report.setdefault('migration_operations',[]).append({'target':name,'stage':label,**value});save()
+    return value
+
+def ledger(name,stage):
+    # Logs never leave PostgreSQL: only allowlisted exact-header comparisons.
+    presence=observe(name,"""SELECT jsonb_build_object(
+ 'ledger_present',EXISTS(SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='_prisma_migrations'),
+ 'ledger_regular',EXISTS(SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='_prisma_migrations' AND c.relkind='r'),
+ 'ledger_owner_expected',EXISTS(SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='_prisma_migrations' AND c.relowner='wa_migrator'::regrole),
+ 'public_relation_count',(SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r'),
+ 'application_relations',(SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname IN ('app','platform','platform_private')),
+ 'application_tables',(SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname IN ('app','platform','platform_private') AND c.relkind='r'),
+ 'application_functions',(SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname IN ('app','platform','platform_private')),
+ 'application_types',(SELECT count(*) FROM pg_type t JOIN pg_namespace n ON n.oid=t.typnamespace WHERE n.nspname IN ('app','platform','platform_private')),
+ 'application_enums',(SELECT count(*) FROM pg_type t JOIN pg_namespace n ON n.oid=t.typnamespace WHERE n.nspname IN ('app','platform','platform_private') AND t.typtype='e'),
+ 'active_migrators',(SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND usename='wa_migrator'));""",stage+'_CATALOG_PRESENCE')
+    retained={'stage':stage,**presence,'rows':None,'ledger_rows_observed':False}
+    report['targets'][name].setdefault('ledger_observations',[]).append(retained);save()
+    need(presence['ledger_present'] and presence['ledger_regular'] and presence['ledger_owner_expected'] and presence['active_migrators']==0,'PRIVATE_LEDGER_PRESENCE_OR_BACKEND_BOUNDARY_FAILED')
+    value=observe(name,"""SELECT jsonb_build_object(
+ 'owner',(SELECT pg_get_userbyid(relowner) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='_prisma_migrations'),
+ 'public_relation_count',(SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r'),
+ 'runtime_ledger_access',has_table_privilege('wa_app_runtime','public._prisma_migrations','SELECT,INSERT,UPDATE,DELETE') OR has_table_privilege('wa_worker','public._prisma_migrations','SELECT,INSERT,UPDATE,DELETE') OR has_table_privilege('wa_context_issuer','public._prisma_migrations','SELECT,INSERT,UPDATE,DELETE'),
+ 'application_relations',(SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname IN ('app','platform','platform_private')),
+ 'application_tables',(SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname IN ('app','platform','platform_private') AND c.relkind='r'),
+ 'application_functions',(SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname IN ('app','platform','platform_private')),
+ 'application_types',(SELECT count(*) FROM pg_type t JOIN pg_namespace n ON n.oid=t.typnamespace WHERE n.nspname IN ('app','platform','platform_private')),
+ 'application_enums',(SELECT count(*) FROM pg_type t JOIN pg_namespace n ON n.oid=t.typnamespace WHERE n.nspname IN ('app','platform','platform_private') AND t.typtype='e'),
+ 'active_migrators',(SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND usename='wa_migrator'),
+ 'rows',(SELECT coalesce(jsonb_agg(jsonb_build_object('name',migration_name,'checksum',checksum,'finished',finished_at IS NOT NULL,'rolled_back',rolled_back_at IS NOT NULL,'steps',applied_steps_count,
+ 'logs_state',CASE WHEN logs IS NULL THEN 'NULL' WHEN logs='' THEN 'EMPTY' ELSE 'NONEMPTY' END,
+ 'expected_error_code',coalesce(logs,'') ~ E'(^|\\n)Database error code: 42501(\\r?\\n|$)',
+ 'expected_set_role_error',coalesce(logs,'') ~ E'(^|\\n)ERROR: must be able to SET ROLE "wa_customer_verifier"(\\r?\\n|$)') ORDER BY started_at),'[]'::jsonb) FROM public._prisma_migrations));""",stage)
+    retained.update(value,ledger_rows_observed=True);save()
+    need(value['owner']=='wa_migrator' and value['public_relation_count']==1 and not value['runtime_ledger_access'] and value['active_migrators']==0,'PRIVATE_LEDGER_OR_BACKEND_BOUNDARY_FAILED')
+    expected=MANIFEST['migration_targets'][next(t['kind'] for t in TARGETS if t['name']==name)]
+    intended=json.loads(Path(expected['manifest_path']).read_text())
+    need(all(row['name']==intended['migration']['id'] and row['checksum']==intended['source']['integrated_sql_sha256'] for row in value['rows']),'LEDGER_IDENTITY_OR_CHECKSUM_MISMATCH')
+    return value
+
+def diagnostics_module():
+    path=ROOT/'scripts/sql-review/migration_server_diagnostics.py'
+    need(hashlib.sha256(path.read_bytes()).hexdigest()==MANIFEST['server_diagnostics']['module_sha256'],'SERVER_DIAGNOSTIC_SOURCE_DRIFT')
+    return runpy.run_path(str(path))
+
+def server_errors(name,stage):
+    module=diagnostics_module()
+    try:value=module['read_owned'](created_containers[name])
+    except module['DiagnosticFailure'] as error:raise Stop(error.code) from None
+    report['targets'][name].setdefault('server_error_observations',[]).append({'stage':stage,**value});save()
+    return value
+
+def qualify_migration_failure(name,result,failed,before,after):
+    module=diagnostics_module()
+    try:
+        delta=module['difference'](before,after)
+        report['targets'][name]['server_error_delta']=delta;save()
+        identity={'run_id':RUN_ID,'container_id':created_containers[name],'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'application_sql_sha256':MANIFEST['packet_files_sha256']['review-output/foundation-application.review.sql'],'module_sha256':MANIFEST['server_diagnostics']['module_sha256'],'migration_id':'20261117000100_f0_local_initial'}
+        verified={'logging_settings_verified':report['targets'][name]['server_settings']['diagnostics_safe'] is True,'original_grantor_finalized':report['targets'][name]['finalization']=='PASS','operation_backends_absent':failed['active_migrators']==0 and report['targets'][name]['finalization_observation']['active_install_connections']==0}
+        proof=module['build_proof'](identity,result,failed,before,after,verified)
+    except module['DiagnosticFailure'] as error:raise Stop(error.code) from None
+    path=OUT/'server-error-proof.json'
+    with path.open('x',encoding='utf8',newline='\n') as file:file.write(json.dumps(proof,indent=2)+'\n')
+    report['targets'][name]['failure_diagnostic_proof']=proof;report['server_error_proof_sha256']=hashlib.sha256(path.read_bytes()).hexdigest();save()
+    return proof
+
+def attempt_expected_failure(target):
+    name=target['name']
+    report['steps']['MIGRATE-FAILURE']='ATTEMPTED_UNQUALIFIED';save()
+    before=server_errors(name,'BEFORE_EXPECTED_FAILED_PRISMA_DEPLOY')
+    try:
+        result=migrate(target,'deploy','EXPECTED_FAILED_PRISMA_DEPLOY')
+    finally:finalize(name)
+    # A returned strict host result proves the process exited. Observe its
+    # database state before testing codes; an unknown failure must keep clues.
+    need(result['status'] in ('CLI_FAILED_STOP_AND_INSPECT','CLI_OUTPUT_REJECTED_STOP_AND_INSPECT') and type(result['exit_code']) is int and result['exit_code']!=0,'EXPECTED_CLOSED_CLI_FAILURE_NOT_PROVEN')
+    failed=ledger(name,'FAILED_DEPLOY_LEDGER_AND_ROLLBACK')
+    after=server_errors(name,'AFTER_CONFIRMED_CLOSURE_AND_FINALIZATION')
+    qualify_migration_failure(name,result,failed,before,after)
+    return failed
+
+def migrate_success(target,operation,label,proof=None):
+    value=migrate(target,operation,label,proof)
+    need(value['status']=='CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS' and type(value['exit_code']) is int and value['exit_code']==0,'PRISMA_COMPLETED_STATUS_REQUIRED')
+    return value
+
+def schema_fingerprint(name):
+    args=['exec','-e','PGPASSFILE=/run/wa-secrets/pgpass',created_containers[name],'pg_dump','--schema-only','--schema=app','--schema=platform','--schema=platform_private','--schema=public','-h','127.0.0.1','-U','postgres','-d',DB]
+    result=docker(args,timeout=120);need(result.returncode==0,'NATIVE_SCHEMA_FINGERPRINT_FAILED')
+    lines=result.stdout.splitlines();meta=[line for line in lines if line.startswith(('\\restrict ','\\unrestrict '))]
+    need(len(meta) in (0,2),'UNEXPECTED_DUMP_META_SHAPE')
+    normalized='\n'.join(line for line in lines if not line.startswith(('\\restrict ','\\unrestrict ')))+'\n'
+    return {'sha256':hashlib.sha256(normalized.encode()).hexdigest(),'random_dump_meta_lines_removed':len(meta),'raw_schema_dump_retained':False}
+
+def migration_experiment():
+    success,failure=TARGETS;name=success['name']
+    try:
+        result=migrate_success(success,'deploy','EMPTY_PRISMA_DEPLOY')
+    finally:finalize(name)
+    state=ledger(name,'FIRST_DEPLOY_LEDGER')
+    need(state['application_tables']==42 and state['application_functions']==147 and state['application_enums']==29 and len(state['rows'])==1 and state['rows'][0]['finished'] and not state['rows'][0]['rolled_back'] and state['rows'][0]['steps']==1,'FIRST_DEPLOY_NOT_PROVEN')
+    first=schema_fingerprint(name);result=migrate_success(success,'deploy','SECOND_PRISMA_DEPLOY');second=schema_fingerprint(name);again=ledger(name,'SECOND_DEPLOY_LEDGER')
+    need(result['exit_code']==0 and result['no_pending_message_observed'] and again==state and first==second,'SECOND_DEPLOY_NOOP_NOT_PROVEN')
+    report['targets'][name]['second_deploy_schema_comparison']={'first':first,'second':second,'identical':True};report['steps'].update({'MIGRATE-EMPTY':'PASS','MIGRATE-NOOP':'PASS'});save()
+    name=failure['name']
+    sql(name,'postgres','REVOKE wa_customer_verifier FROM wa_schema_owner GRANTED BY CURRENT_USER;','INTENTIONAL_TEMPORARY_MEMBERSHIP_WITHHOLD')
+    fault=observe(name,"SELECT jsonb_build_object('missing_customer_verifier',(SELECT count(*)=0 FROM pg_auth_members WHERE member='wa_schema_owner'::regrole AND roleid='wa_customer_verifier'::regrole),'remaining_two',(SELECT count(*) FROM pg_auth_members WHERE member='wa_schema_owner'::regrole AND roleid IN ('wa_private_helper_owner'::regrole,'wa_track_verifier'::regrole)));",'INTENTIONAL_FAULT_OBSERVER')
+    need(fault=={'missing_customer_verifier':True,'remaining_two':2},'INTENTIONAL_FAULT_NOT_EXACT')
+    report['targets'][name]['intentional_setup_fault']=fault;save()
+    failed=attempt_expected_failure(failure);rows=failed['rows']
+    need(failed['application_relations']==failed['application_functions']==failed['application_types']==failed['application_enums']==0 and len(rows)==1 and not rows[0]['finished'] and not rows[0]['rolled_back'] and rows[0]['steps']==0 and report['targets'][name]['failure_diagnostic_proof']['classification'] in ('NORMAL_P3018_PERSISTENCE','SERVER_42501_WITH_SECONDARY_25P02_UNWRITTEN_FAILURE_LOGS'),'INTENDED_FAILED_LEDGER_OR_ROLLBACK_NOT_PROVEN')
+    report['steps']['MIGRATE-FAILURE']='PASS_SERVER_42501_INTENDED_SET_ROLE_GUARD_AND_ROLLBACK';save()
+    proof={'schema':'workinants.local-f0-reviewed-rollback.v1','run_id':RUN_ID,'container_id':created_containers[name],'migration_id':rows[0]['name'],'source_sql_sha256':rows[0]['checksum'],'disposition':'REVIEWED_FOR_STANDARD_RESOLVE_ROLLED_BACK','backend_closed':True,'application_transaction_rolled_back':True,'application_object_count':0,'failed_migration_rows':1,'finished_migration_rows':0,'rolled_back_migration_rows':0,'failed_row_checksum':rows[0]['checksum'],'catalog_evidence_sha256':hashlib.sha256(json.dumps({'relations':failed['application_relations'],'functions':failed['application_functions'],'finalization':report['targets'][name]['finalization_observation']},sort_keys=True).encode()).hexdigest(),'ledger_evidence_sha256':hashlib.sha256(json.dumps(failed,sort_keys=True).encode()).hexdigest()}
+    proof.update(disposition='PENDING_INDEPENDENT_REVIEW',application_relation_count=failed['application_relations'],application_function_count=failed['application_functions'],application_type_count=failed['application_types'],application_enum_count=failed['application_enums'])
+    proof.update(server_error_proof_sha256=report['server_error_proof_sha256'],failure_diagnostic_classification=report['targets'][name]['failure_diagnostic_proof']['classification'])
+    proof['application_object_count']=failed['application_relations']+failed['application_functions']+failed['application_types']
+    proof['catalog_evidence_sha256']=hashlib.sha256(json.dumps({'relations':failed['application_relations'],'functions':failed['application_functions'],'types':failed['application_types'],'enums':failed['application_enums'],'finalization':report['targets'][name]['finalization_observation']},sort_keys=True).encode()).hexdigest()
+    proof_path=OUT/'rollback-proof-for-review.json';proof_path.write_text(json.dumps(proof,indent=2)+'\n',encoding='utf8')
+    proof_sha=hashlib.sha256(proof_path.read_bytes()).hexdigest();approval=OUT/'recovery-review-approval.json'
+    event('RECOVERY_REVIEW_REQUIRED','HELD',proof_sha256=proof_sha,proof_file=str(proof_path))
+    deadline=time.monotonic()+240
+    while not approval.exists() and time.monotonic()<deadline:time.sleep(1)
+    need(approval.exists(),'RECOVERY_REVIEW_PENDING_OR_TIMEOUT')
+    decision=json.loads(approval.read_text());need(decision=={'decision':'APPROVE_STANDARD_RESOLVE_AND_RETRY','reviewer':'review_track_ports','run_id':RUN_ID,'proof_sha256':proof_sha},'RECOVERY_REVIEW_NOT_APPROVED')
+    report['recovery_review']=decision
+    proof['disposition']='REVIEWED_FOR_STANDARD_RESOLVE_ROLLED_BACK'
+    reviewed_proof=OUT/'reviewed-rollback-proof.json';reviewed_proof.write_text(json.dumps(proof,indent=2)+'\n',encoding='utf8')
+    report['reviewed_rollback_proof_sha256']=hashlib.sha256(reviewed_proof.read_bytes()).hexdigest();save()
+    result=migrate_success(failure,'resolve-rolled-back','STANDARD_PRISMA_RESOLVE',reviewed_proof)
+    resolved=ledger(name,'RESOLVED_LEDGER_OBSERVER');need(len(resolved['rows'])==1 and resolved['rows'][0]['rolled_back'] and not resolved['rows'][0]['finished'] and resolved['application_relations']==resolved['application_functions']==resolved['application_types']==resolved['application_enums']==0,'RESOLVE_TRANSITION_NOT_PROVEN')
+    report['steps']['MIGRATE-RESOLVE']='PASS';save()
+    finalization_attempted.discard(name);finalized.discard(name)
+    sql(name,'postgres','BEGIN; GRANT wa_private_helper_owner,wa_customer_verifier,wa_track_verifier TO wa_schema_owner WITH ADMIN FALSE, INHERIT FALSE, SET TRUE; COMMIT;','ORIGINAL_GRANTOR_EXACT_TEMPORARY_REARM')
+    authority=observe(name,"SELECT jsonb_build_object('exact_three',(SELECT count(*)=3 AND bool_and(NOT admin_option AND NOT inherit_option AND set_option AND grantor=(SELECT oid FROM pg_roles WHERE rolname=session_user)) FROM pg_auth_members WHERE member='wa_schema_owner'::regrole AND roleid IN ('wa_private_helper_owner'::regrole,'wa_customer_verifier'::regrole,'wa_track_verifier'::regrole)),'leaf_create',has_schema_privilege('wa_private_helper_owner','platform_private','CREATE') OR has_schema_privilege('wa_customer_verifier','platform_private','CREATE') OR has_schema_privilege('wa_track_verifier','platform_private','CREATE'));",'REARM_AUTHORITY_OBSERVER')
+    need(authority=={'exact_three':True,'leaf_create':False},'REARM_NOT_EXACT_OR_CREATES_BROADENED')
+    try:result=migrate_success(failure,'deploy','SAME_CHECKSUM_RECOVERY_DEPLOY')
+    finally:finalize(name)
+    recovered=ledger(name,'RECOVERED_LEDGER_OBSERVER');need(len(recovered['rows'])==2 and sum(r['finished'] and not r['rolled_back'] and r['steps']==1 for r in recovered['rows'])==1 and sum(r['rolled_back'] and not r['finished'] and r['steps']==0 for r in recovered['rows'])==1 and recovered['application_tables']==42 and recovered['application_functions']==147,'RECOVERY_LEDGER_NOT_PROVEN')
+    first=schema_fingerprint(name);result=migrate_success(failure,'deploy','RECOVERED_SECOND_DEPLOY');second=schema_fingerprint(name);repeat=ledger(name,'RECOVERED_SECOND_LEDGER')
+    need(result['exit_code']==0 and result['no_pending_message_observed'] and repeat==recovered and first==second,'RECOVERED_NOOP_NOT_PROVEN')
+    report['targets'][name]['second_deploy_schema_comparison']={'first':first,'second':second,'identical':True};report['steps']['MIGRATE-RETRY']='PASS_SAME_SQL_CHECKSUM_RETAINED_FAILED_ROW';event('GENUINE_MIGRATION_REHEARSAL','PASS')
+
+def main():
+    OUT.mkdir(exist_ok=False);save()
+    try:
+        verify_packet();preflight();ensure_image();create_resources();bootstrap_all();provision_migration_tools();migration_experiment()
+        report['status']='PASS_GENUINE_MIGRATION_SUBSET_ONLY'
+    except BaseException as error:
+        safe={'stage':error.stage if isinstance(error,Stop) else report['stage'],'code':error.code if isinstance(error,Stop) else 'TIMEOUT' if isinstance(error,subprocess.TimeoutExpired) else 'INTERRUPTED' if isinstance(error,KeyboardInterrupt) else 'UNEXPECTED_WRAPPER_FAILURE'}
+        if isinstance(error,Stop):safe['details']=error.details
+        report['unexpected'].append(safe);report['status']='STOPPED_ATTEMPT_PRESERVED';event('STOP','NO_LATER_STEPS',failure=safe)
+    finally:
+        for name in sorted(bootstrap_attempted-finalization_attempted):
+            try:finalize(name)
+            except BaseException:report['unexpected'].append({'stage':'FINALLY_FINALIZATION','target':name,'code':'FINALIZATION_UNCONFIRMED'});save()
+        try:secret_scan();report['steps']['MIGRATE-SANITIZED_EXPORT']='PASS';save()
+        except BaseException:report['unexpected'].append({'stage':'SANITIZATION','code':'SECRET_SCAN_UNCONFIRMED'});save()
+        try:cleanup()
+        except BaseException:report['unexpected'].append({'stage':'CLEANUP','code':'CLEANUP_UNCONFIRMED'});save()
+        report['finished_at']=datetime.datetime.now(datetime.timezone.utc).isoformat()
+        files=report.get('source_verification',{}).get('files_sha256',{})
+        report['packet_unchanged_after_run']=bool(files) and all(hashlib.sha256((ROOT/p).read_bytes()).hexdigest()==h for p,h in files.items())
+        if not report['packet_unchanged_after_run']:report['unexpected'].append({'stage':'POST_RUN_PACKET_VERIFICATION','code':'SOURCE_DRIFT_OR_UNVERIFIED_PACKET'})
+        if report['unexpected']:report['status']='STOPPED_ATTEMPT_PRESERVED'
+        save();print(json.dumps({'status':report['status'],'evidence':str(OUT/'run-evidence.json'),'steps':report['steps'],'unexpected':report['unexpected'],'cleanup':report.get('cleanup_summary')}),flush=True)
+    return 0 if not report['unexpected'] else 1

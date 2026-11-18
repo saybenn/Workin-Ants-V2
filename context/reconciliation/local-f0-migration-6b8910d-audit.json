@@ -1,0 +1,127 @@
+{
+  "local_date": "2026-11-17",
+  "timezone": "America/New_York",
+  "scope": "GENUINE_MIGRATION_SUBSET_AND_EXACT_ASSERTION_MAPPING",
+  "execution_record": "context/reconciliation/local-f0-migration-6b8910d-execution.json",
+  "execution_record_sha256": "e657bd4de3c288acbd86faa7ae9514f59e76566e1bba170a6ef19f7770c91158",
+  "safe_raw_report_sha256": "9a8f4bff653dc1292c24f48cda90cb14b2cd5787653896a083389333d51ef090",
+  "independent_actual_execution_reviewer": "review_track_ports",
+  "actual_execution_audit": "PASS: reviewed proof before standard resolve, sameSQL/checksum retry, failed NULLlog row retained rolledback plus finished row, both no-op safe-ledger projections/schema fingerprints unchanged, originalgrantor finalized, exact cleanup/independent absence and source45 preserved. Server42501+secondary25P02 path, no retainedP3018 claim; old0c cause/logclass UNKNOWN.",
+  "independent_source_reviewer": "catalog_qualification_review",
+  "source_review": "APPROVED after exactrecord-byte binding and single-read/parse findings closed",
+  "new_pass_assertions": [
+    "P0C-INSTALL-01.control.empty_deploy",
+    "P0C-INSTALL-01.control.second_deploy",
+    "P0C-INSTALL-02.control.failed_ledger",
+    "P0C-INSTALL-02.control.recovery",
+    "P0C-INSTALL-02.control.immutable_applied_history"
+  ],
+  "partial_assertions": {
+    "P0C-INSTALL-01.control.private_ledger": "Full native8privilege/type/index/ACL proof unrun",
+    "P0C-INSTALL-01.vector.INSTALL-CLEANUP.positive": "Registered activation hold not exercised; credentials provisioned for mandatory authentication preflight before cleanup verification",
+    "P0C-INSTALL-02.control.intended_failure": "Injected SET-membership permission fault is source/rollback-proven; separate failing SQL-history criterion excludes permission failures and remains unexercised"
+  },
+  "old_cleanup_pass_links": "UNCHANGED_VERSION0623028",
+  "expected_requirement_texts_and_hashes": "UNCHANGED",
+  "focused_tests": {
+    "new_evidence_validator": 23,
+    "status_integration": 8
+  },
+  "source_binding": "Exact reviewed269812/e657 byte hashes and expected kinds, parsed from the very same bytes; exact small15 identity allowlist and genuine5PASS/3PARTIAL validator. Empty pass-record, other-case, unsupported-path, private-partial promotion, second-read, source/helper/proof/cleanup/type mutations reject.",
+  "assertion_counts": {
+    "PASS": 20,
+    "PARTIAL": 3,
+    "FAILED": 0,
+    "DEPENDENCY_BLOCKED": 32,
+    "NOT_RUN": 972,
+    "UNRESOLVED_SOURCE": 7
+  },
+  "case_counts": {
+    "PASS": 0,
+    "PARTIAL": 10,
+    "NOT_RUN": 84
+  },
+  "counts_are_obligations_not_experiments": true,
+  "files_sha256": {
+    "scripts/local_f0_migration_evidence.py": "747579cfb50595b8392cf039c1aee2b95903bdad2159a445d1d5f4ced58a0ef9",
+    "scripts/check-local-f0-migration-evidence.py": "b6a875e448a3313010cb0559751e8b924037ad58ca72d8c03a582afe23ad3756",
+    "scripts/prepare-local-f0-status.py": "5de6058fd447418c02d64ac18a0ef1278f5ef2a33a09e830d80da22dc3ff022a",
+    "scripts/check-local-f0-status.py": "450a1c0dfe9bee1b22ac648d1e3c29a90c2598ce9cf12001a7288530c5918a03",
+    "context/reconciliation/local-f0-assertion-evidence.json": "02b3b5330f428b46a9525ef3d84e4bce68133d23bc83cbc830a7ab1a1a8338ed",
+    "context/reconciliation/local-f0-qualification-status.json": "a078d61033125ac14a3febc076a88d5176d737304cca4a7e2e76ee2bebce64c6"
+  },
+  "posture": "D",
+  "next_checkpoint": "3.7 full native catalog/expression/ledger proof, then attainable restricted-role/native/concurrency/recovery assertions. No full94/451 or P0-D promotion.",
+  "offline_checks": {
+    "evidence": {
+      "recorded_at": "2026-11-18T03:25:26.761134+00:00",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-local-f0-migration-evidence.py"
+      ],
+      "exit_code": 0,
+      "seconds": 15.28,
+      "stdout": "",
+      "stderr": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 14.163s\n\nOK\n",
+      "scope": "OFFLINE_NO_DOCKER_OR_DATABASE",
+      "report_sha256": "9a999736804568a36e45bfdfae70e2dd0c86c9753bbfaa06a6e075bfd69778cc"
+    },
+    "status": {
+      "recorded_at": "2026-11-18T03:25:17.127908+00:00",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-local-f0-status.py"
+      ],
+      "exit_code": 0,
+      "seconds": 5.66,
+      "stdout": "",
+      "stderr": "test_approved_small_pair_cannot_use_forged_empty_pass_record (__main__.StatusTests.test_approved_small_pair_cannot_use_forged_empty_pass_record) ... ok\ntest_changed_current_sql_does_not_reuse_stale_inventory (__main__.StatusTests.test_changed_current_sql_does_not_reuse_stale_inventory) ... ok\ntest_parses_exact_hashed_bytes_without_second_file_read (__main__.StatusTests.test_parses_exact_hashed_bytes_without_second_file_read) ... ok\ntest_partial_migration_claim_cannot_be_promoted (__main__.StatusTests.test_partial_migration_claim_cannot_be_promoted) ... ok\ntest_pointer_and_execution_identities_fail_closed (__main__.StatusTests.test_pointer_and_execution_identities_fail_closed) ... ok\ntest_recorded_subset_does_not_promote_compound_cases (__main__.StatusTests.test_recorded_subset_does_not_promote_compound_cases) ... ok\ntest_small_pass_record_cannot_promote_unexercised_cas (__main__.StatusTests.test_small_pass_record_cannot_promote_unexercised_cas) ... ok\ntest_unreviewed_evidence_path_is_not_read (__main__.StatusTests.test_unreviewed_evidence_path_is_not_read) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 4.526s\n\nOK\n",
+      "scope": "OFFLINE_NO_DOCKER_OR_DATABASE",
+      "report_sha256": "94a082c6f709624762346cf032f96aeebf32c891f100276d88494e05ff4a2cab"
+    },
+    "context": {
+      "recorded_at": "2026-11-18T03:25:32.581875+00:00",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-context.py"
+      ],
+      "exit_code": 0,
+      "seconds": 21.11,
+      "stdout": "{\n  \"clusters\": 10,\n  \"modules\": 34,\n  \"cluster_documents\": 20,\n  \"module_documents\": 68,\n  \"handoffs\": 10,\n  \"shared_operations\": 132,\n  \"shared_statuses\": {\n    \"Confirmed\": 109,\n    \"Proposed ruling\": 23\n  },\n  \"prisma_models\": 177,\n  \"prisma_enums\": 207,\n  \"sql_migrations\": 1,\n  \"created_tables\": 53,\n  \"created_enums\": 31\n}\nWARNINGS: 124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay\nStructural checks PASSED; semantic readiness is a separate gate.\n",
+      "stderr": "",
+      "scope": "OFFLINE_NO_DOCKER_OR_DATABASE",
+      "report_sha256": "62c66f536bbb7be2101ce272c4e38f2a32056445fbd854f8d0a289bcf428703d"
+    },
+    "foundation": {
+      "recorded_at": "2026-11-18T03:25:21.539793+00:00",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-foundation.py"
+      ],
+      "exit_code": 0,
+      "seconds": 10.06,
+      "stdout": "{\n  \"errors\": [],\n  \"metrics\": {\n    \"contracts\": 132,\n    \"workflows\": 13,\n    \"cold_start_routes\": 6,\n    \"candidate_lanes\": 8,\n    \"authorized_parallel_lanes\": 0,\n    \"synchronous_contract_cycles\": [],\n    \"current_context_links_checked\": 2890,\n    \"feature_source_files_scanned\": 0,\n    \"specified_token_contrast_pairs\": 12,\n    \"dispositions\": {\n      \"EVOLVABLE_COMPATIBLY\": 119,\n      \"EXTERNALLY_GATED\": 13\n    }\n  },\n  \"token_contrast\": [\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"text\",\n        \"canvas\"\n      ],\n      \"ratio\": 17.93\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"mutedText\",\n        \"canvas\"\n      ],\n      \"ratio\": 7.81\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"onAction\",\n        \"action\"\n      ],\n      \"ratio\": 6.7\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"success\",\n        \"successSurface\"\n      ],\n      \"ratio\": 6.81\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"warning\",\n        \"warningSurface\"\n      ],\n      \"ratio\": 6.84\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"danger\",\n        \"dangerSurface\"\n      ],\n      \"ratio\": 5.91\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"text\",\n        \"canvas\"\n      ],\n      \"ratio\": 16.91\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"mutedText\",\n        \"canvas\"\n      ],\n      \"ratio\": 7.85\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"onAction\",\n        \"action\"\n      ],\n      \"ratio\": 10.98\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"success\",\n        \"successSurface\"\n      ],\n      \"ratio\": 10.62\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"warning\",\n        \"warningSurface\"\n      ],\n      \"ratio\": 10.39\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"danger\",\n        \"dangerSurface\"\n      ],\n      \"ratio\": 8.51\n    }\n  ],\n  \"scope\": \"Static ownership/workflow/context/schema and executable wire/reference assertions. No real producer/consumer, framework, database, RLS, provider, Privacy executor or full rendered UI proof. Empty feature-source inventory is reported explicitly, not runtime boundary certification.\"\n}\n",
+      "stderr": "",
+      "scope": "OFFLINE_NO_DOCKER_OR_DATABASE",
+      "report_sha256": "5c3d99c75435134b0706d5ae5d14d9128f40e0dbfceb6460921f34e1e901cdbf"
+    },
+    "phase0": {
+      "recorded_at": "2026-11-18T03:25:13.084037+00:00",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-phase0.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.61,
+      "stdout": "{\n  \"errors\": [],\n  \"nine_roles\": 9,\n  \"archived_files\": 21,\n  \"source_models\": 177,\n  \"database_posture\": \"D\",\n  \"status\": \"FRAMEWORK_ACCEPTANCE_PASS_DEPENDENCY_SECURITY_REQUALIFIED\",\n  \"scope\": \"Static source/evidence/context/denial gate checks, including integrity of the separately recorded read-only existing-database observation. No fresh-target adoption, RLS behavior, owner-runtime or SH qualification.\"\n}\n",
+      "stderr": "",
+      "scope": "OFFLINE_NO_DOCKER_OR_DATABASE",
+      "report_sha256": "4924b1a385c0faeb27448cc430c21a6745a18dc947d976a45ba7781cd812cb32"
+    }
+  }
+}

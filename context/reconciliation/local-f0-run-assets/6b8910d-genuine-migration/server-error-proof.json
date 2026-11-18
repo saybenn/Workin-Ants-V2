@@ -1,0 +1,54 @@
+{
+  "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+  "container_id": "1b42dd3bb88e28d59f1f64464e34e3c8c59a3352e81c1e0561acfdd2f2a227c5",
+  "source_commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
+  "source_tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
+  "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+  "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+  "module_sha256": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+  "migration_id": "20261117000100_f0_local_initial",
+  "logging_settings_verified": true,
+  "original_grantor_finalized": true,
+  "operation_backends_absent": true,
+  "schema": "workinants.local-f0-server-error-proof.v1",
+  "phase": "EXPECTED_FAILED_PRISMA_DEPLOY",
+  "provenance": "OWNED_POSTGRES_TERSE_ERROR_LOG_DELTA",
+  "classification": "SERVER_42501_WITH_SECONDARY_25P02_UNWRITTEN_FAILURE_LOGS",
+  "cli_closed_nonzero": true,
+  "application_object_count": 0,
+  "failed_row_logs_state": "NULL",
+  "before": {
+    "schema": "workinants.local-f0-server-error-counts.v1",
+    "counts": {
+      "registered_lines": 21,
+      "expected_set_role_42501": 0,
+      "aborted_transaction_25p02": 0,
+      "other_migrator_error": 1,
+      "malformed_registered_line": 0,
+      "forbidden_diagnostic_body": 0
+    },
+    "raw_output_discarded": true
+  },
+  "after": {
+    "schema": "workinants.local-f0-server-error-counts.v1",
+    "counts": {
+      "registered_lines": 24,
+      "expected_set_role_42501": 1,
+      "aborted_transaction_25p02": 1,
+      "other_migrator_error": 1,
+      "malformed_registered_line": 0,
+      "forbidden_diagnostic_body": 0
+    },
+    "raw_output_discarded": true
+  },
+  "delta": {
+    "registered_lines": 3,
+    "expected_set_role_42501": 1,
+    "aborted_transaction_25p02": 1,
+    "other_migrator_error": 0,
+    "malformed_registered_line": 0,
+    "forbidden_diagnostic_body": 0
+  },
+  "cli_status": "CLI_OUTPUT_REJECTED_STOP_AND_INSPECT",
+  "cli_exit_code": 1
+}
