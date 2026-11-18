@@ -1,3 +1,7 @@
+## Native catalog source preparation — 17 November2026
+
+The [native catalog packet](local-f0-native-catalog-validation.json) passes114 focused offline tests with no application SQL change. Current3.7 now proceeds to independently reviewed one-target native catalog/expression/private-ledger execution. Runtime parity remains NOT_RUN; existing migration/small-rehearsal subset passes and assertion limits remain. Posture D, hosted adoption and P0-D remain pending Brain acceptance.
+
 ## Current local F0 migration closure — 17 November2026
 
 The [genuine migration record](local-f0-migration-6b8910d-execution.json) and [independent assertion audit](local-f0-migration-6b8910d-audit.json) now qualify its exercised local subset. Current Step3.7 is full native catalog/expression/private-ledger comparison, followed by attainable access/invariant/concurrency/recovery checks. Exact assertions20PASS/3PARTIAL; all94 compound cases remain incomplete, with0PASS/10PARTIAL/84NOT_RUN. Hosted adoption, production activation, root write aliases, P0-D and final Brain acceptance remain gated; Posture D. Earlier first/no-op-only or NOT_RUN labels below retain historical checkpoint scope.

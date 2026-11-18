@@ -1,0 +1,11 @@
+master.pop('fault')
+asset_root='review-output/native-catalog'
+asset_names=('source-pins.json','expected.json','expression-oracle-plan.json','expression-oracle.sql','public-schema-registration.json','README.md')
+expected=json.loads((ROOT/asset_root/'expected.json').read_text(encoding='utf8'))
+assert expected['expected_sha256']=='3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433'
+tool_source_names=('node_modules/@prisma/engines-version/package.json','node_modules/prisma/package.json')
+tool_source_hashes={path:closure['tools_files_sha256'][path] for path in tool_source_names}
+assert all(sha(ROOT/path)==value for path,value in tool_source_hashes.items())
+master['catalog']={'generator':'scripts/prepare-native-catalog-review.py','artifact_root':asset_root,'assets':{name:{'path':asset_root+'/'+name,'sha256':sha(ROOT/asset_root/name)} for name in asset_names},'source_expected_sha256':expected['expected_sha256'],'public_schema_owner':'pg_database_owner','bootstrap_grantor':'postgres','tool_source_files_sha256':tool_source_hashes,'ledger_expectation':[{'path':'prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql','migration_name':'20261117000100_f0_local_initial','sha256':sha(ROOT/helper['SOURCE']),'state':'applied','count':1}]}
+master['cleanup']='Remove only the single exact created containerID/name/labels and named volume/name/labels/CreatedAt. Delete only its test-owned ok-bootstrap-password file and empty owner-only private directory. Independently confirm both resource names and secrets absent. Retain cached image, shared resources, all prior reports and source/tool snapshots.'
+master['allowed_catalog_operations']=['One actual guarded Prisma deploy as wa_migrator; original-grantor finalization after connection exit','Fixed read-only native catalog collector before/after Oracle and ledger','Exact source-derived empty TEMP expression compilation in one explicit BEGIN/ROLLBACK with no application data reads/writes','Catalog-only guarded private-ledger observation, predeclared one applied canonical migration; no baseline adoption or ledger writes','No business scenarios, worker loop, hosted contact or recovery commands']

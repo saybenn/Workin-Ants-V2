@@ -1,0 +1,27 @@
+"""Prepare a new literal operator from exact reviewed common security code."""
+from pathlib import Path
+import ast,hashlib
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+base=ROOT/'context/reconciliation/local-f0-operation-sources/server-diagnostics/operator-snapshot.py.txt'
+raw=base.read_bytes();assert hashlib.sha256(raw).hexdigest()=='d7159320e2ce040119e2377736dfc409c582a2c81d70d01c7a25adbbac0aecf2'
+text=raw.decode()
+old="'steps':{name:'NOT_RUN' for name in ('MIGRATE-SETUP','MIGRATE-AUTH','MIGRATE-TOOLS','MIGRATE-EMPTY','MIGRATE-NOOP','MIGRATE-FAILURE','MIGRATE-RESOLVE','MIGRATE-RETRY','MIGRATE-SANITIZED_EXPORT','MIGRATE-CLEANUP')}"
+new="'steps':{name:'NOT_RUN' for name in ('CATALOG-SETUP','CATALOG-AUTH','CATALOG-TOOLS','CATALOG-INSTALL','CATALOG-NATIVE','CATALOG-ORACLE','CATALOG-LEDGER','CATALOG-COMPARE','CATALOG-SANITIZED_EXPORT','CATALOG-CLEANUP')}"
+assert text.count(old)==1;text=text.replace(old,new)
+text=text.replace('GENUINE_LOCAL_PRISMA_MIGRATION_LEDGER_REHEARSAL','LOCAL_F0_NATIVE_CATALOG_REHEARSAL').replace('STANDING_LOCAL_F0_GENUINE_MIGRATION_LEDGER_REHEARSAL','STANDING_LOCAL_F0_NATIVE_CATALOG_REHEARSAL')
+text=text.replace("TASK/'local_f0_migration_operation_steps.py'","TASK/'local_f0_catalog_operation_steps.py'")
+text=text.replace('MIGRATE-SETUP','CATALOG-SETUP').replace('MIGRATE-SANITIZED_EXPORT','CATALOG-SANITIZED_EXPORT').replace('MIGRATE-CLEANUP','CATALOG-CLEANUP')
+text=text.replace('all_four_names_absent=True','all_created_names_absent=True,expected_resource_names=2*len(TARGETS)')
+text=text.replace('Only the reviewed standard resolve and exact temporary membership rearm are prepared.','Only one reviewed initial migration and source-bound catalog/temp-oracle observations are prepared.')
+destination=TASK/'execute_local_f0_catalog_20261117.py'
+assert not destination.exists() or destination.read_text(encoding='utf8')==text
+destination.write_text(text,encoding='utf8',newline='\n')
+steps=ROOT/'context/reconciliation/local-f0-operation-sources/server-diagnostics/operation-steps.py.txt';source=steps.read_text(encoding='utf8')
+assert hashlib.sha256(steps.read_bytes()).hexdigest()=='47514ed5e9d116db5ce112e5cbb677a703107dc2cd6c9bbc75fc571afac35cf6'
+names={'validate_archive','verify_packet','bootstrap_all','provision_migration_tools','migrate','migrate_success'}
+functions=[ast.get_source_segment(source,n) for n in ast.parse(source).body if isinstance(n,ast.FunctionDef) and n.name in names]
+assert len(functions)==len(names)
+common='import runpy\nimport tarfile\n\n'+'\n\n'.join(functions)+'\n'
+common=common.replace('APPROVED_GENUINE_MIGRATION_ATTEMPT','APPROVED_LOCAL_F0_NATIVE_CATALOG_ATTEMPT').replace('MIGRATE-AUTH','CATALOG-AUTH').replace('MIGRATE-TOOLS','CATALOG-TOOLS')
+dest=TASK/'local_f0_catalog_common.py.txt';assert not dest.exists() or dest.read_text(encoding='utf8')==common;dest.write_text(common,encoding='utf8',newline='\n')
+print({'operator_sha256':hashlib.sha256(destination.read_bytes()).hexdigest(),'common_definitions_sha256':hashlib.sha256(dest.read_bytes()).hexdigest(),'database_contacted':False})

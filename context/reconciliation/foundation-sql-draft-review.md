@@ -1,3 +1,7 @@
+## Native catalog preparation — 17 November2026
+
+[Source validation](local-f0-native-catalog-validation.json) records114 focused offline passes, six byte-reproduced source artifacts, strict prehash/isolated helper loading, PostgreSQL17.11 expression oracle and full private-ledger collector. Expected public baseline is predeclared. Runtime remains NOT_RUN pending exact committed packet and independent manifest review. Canonical5ae SQL/applied checksum/A–D/32workerACL unchanged; whole94/451 unpromoted, Posture D.
+
 ## Genuine migration subset closure — 17 November2026
 
 Source6b8910d/run196c passed actual pinned Prisma first/no-op deploy, server42501 SETROLE with secondary25P02/NULLfailurelog, zero-object rollback, independently reviewed standard resolve, same5aechecksum retry retaining failed row, and recovered no-op. Original-grantor finalization and exact cleanup passed. [Execution](local-f0-migration-6b8910d-execution.json) and [audit](local-f0-migration-6b8910d-audit.json) bind five new passed assertions and three partial limitations; no P3018 or old0c cause inference. Selected94 remains0complete cases/10partial/84NOT_RUN. Full native catalog/access/native-integrity/physical-restore and dependency-gated owners remain pending; Posture D.

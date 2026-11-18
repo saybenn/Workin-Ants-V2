@@ -1,0 +1,27 @@
+from pathlib import Path
+import gzip,hashlib,json,tarfile
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass';PLAN=Path((TASK/'current-local-f0-catalog-plan.txt').read_text());sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+p=PLAN/'operation-manifest.json';master=json.loads(p.read_text())
+assert master['purpose']=='LOCAL_F0_NATIVE_CATALOG_REHEARSAL' and len(master['targets'])==1 and set(master['migration_targets'])=={'ok'}
+for kind,item in master['migration_targets'].items():
+    snapshot=Path(item['source_snapshot']);archive=PLAN/('source-'+kind+'.tar.gz')
+    if not archive.exists():
+        with archive.open('xb') as out:
+            with gzip.GzipFile(filename='',fileobj=out,mode='wb',mtime=0) as zipped:
+                with tarfile.open(fileobj=zipped,mode='w|') as tar:
+                    for relative,expected in sorted(item['source_files_sha256'].items()):
+                        source=snapshot/relative;assert sha(source)==expected
+                        info=tarfile.TarInfo(relative);info.size=source.stat().st_size;info.uid=info.gid=0;info.mode=0o644;info.mtime=0
+                        with source.open('rb') as data:tar.addfile(info,data)
+    item.update(source_archive=str(archive),source_archive_sha256=sha(archive))
+base=json.loads((TASK/'local-f0-migration-plan-196c3d8a/operation-manifest.json').read_text())['packet_files_sha256']
+pins=json.loads((ROOT/'review-output/native-catalog/source-pins.json').read_text())
+paths=set(base)|set(pins)|{'scripts/prepare-native-catalog-review.py','scripts/check-native-catalog-review.py','scripts/sql-review/prisma-ledger-proof.md','scripts/sql-review/test_catalog_manifest.py','scripts/sql-review/test_pg17_catalog_rules.py','scripts/sql-review/test_compare_native_catalog.py','scripts/sql-review/test_catalog_expression_oracle.py','scripts/sql-review/test_prisma_ledger_proof.py','context/reconciliation/local-f0-native-catalog-validation.json'}
+paths|={item['path'] for item in master['catalog']['assets'].values()}
+files={path:sha(ROOT/path) for path in sorted(paths)}
+for path,expected in pins.items():assert files[path]==expected
+for name,item in master['catalog']['assets'].items():assert files[item['path']]==item['sha256']
+for path,expected in master['catalog']['tool_source_files_sha256'].items():assert sha(ROOT/path)==expected
+master.update(packet_files_sha256=files,packet_sha256=hashlib.sha256(''.join(path+'\0'+value+'\n' for path,value in files.items()).encode()).hexdigest(),wrapper_sha256=sha(TASK/'execute_local_f0_catalog_20261117.py'),steps_sha256=sha(TASK/'local_f0_catalog_operation_steps.py'),review_status='PENDING_OPERATIONAL_REVIEW')
+p.write_text(json.dumps(master,indent=2)+'\n',encoding='utf8',newline='\n')
+print(json.dumps({'manifest':str(p),'manifest_sha256':sha(p),'packet_sha256':master['packet_sha256'],'packet_files':len(files),'wrapper_sha256':master['wrapper_sha256'],'steps_sha256':master['steps_sha256'],'source_archive_sha256':master['migration_targets']['ok']['source_archive_sha256'],'database_execution':False}))

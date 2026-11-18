@@ -1,0 +1,243 @@
+"""Environment-free mocks for the NEW one-target native catalog operation.
+
+All process, Docker and database operations are mocked. Positive catalog values
+are synthetic transport fixtures, never native qualification evidence. Source
+asset reproduction and oracle identity checks use the real reviewed pure tools.
+"""
+import ast
+from contextlib import ExitStack, redirect_stdout, redirect_stderr
+from copy import deepcopy
+import datetime
+import hashlib
+import io
+import json
+from pathlib import Path
+import re
+import runpy
+import socket
+import subprocess
+import tempfile
+from types import SimpleNamespace
+import unittest
+from unittest.mock import patch
+
+TASK=Path(__file__).resolve().parent
+SOURCE=TASK/'workinants-correction-pass'
+STEPS=TASK/'local_f0_catalog_operation_steps.py'
+RUN='719dffcb-a5f9-4a93-bffe-7faf83f7a914'
+NAME='wa-p0c-719dffcb-catalog'
+CID='1'*64
+CANARY='postgresql://DO_NOT_EXPORT_SECRET@unlisted.invalid/raw_statement'
+
+
+class CatalogOperationTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.temp=tempfile.TemporaryDirectory(prefix='offline-native-operation-',dir=TASK)
+        cls.root=Path(cls.temp.name)/'source';cls.root.mkdir()
+        generator=runpy.run_path(str(SOURCE/'scripts/prepare-native-catalog-review.py'))
+        paths=list(generator['REQUIRED_FILES'])+['scripts/prepare-native-catalog-review.py','context/reconciliation/local-f0-tooling/prisma-tools-closure.json','prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql','node_modules/@prisma/engines-version/package.json','node_modules/prisma/package.json']
+        for relative in paths:
+            target=cls.root/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((SOURCE/relative).read_bytes())
+        pins={n:hashlib.sha256((cls.root/n).read_bytes()).hexdigest() for n in generator['REQUIRED_FILES']}
+        cls.files,unused=generator['prepare'](cls.root,pins)
+        for name,raw in cls.files.items():
+            target=cls.root/'review-output/native-catalog'/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
+        cls.tools=generator['load_catalog_tools'](cls.root,pins)
+        cls.manifest=cls.tools['catalog_manifest'].build_manifest(cls.root,pins)
+        cls.plan=cls.tools['catalog_expression_oracle'].build_plan(cls.manifest,cls.root)
+        cls.pins=pins;cls.generator=generator
+        cls.packet={relative:hashlib.sha256((cls.root/relative).read_bytes()).hexdigest() for relative in paths if not relative.startswith('node_modules/')}
+        cls.packet.update({'review-output/native-catalog/'+n:hashlib.sha256(raw).hexdigest() for n,raw in cls.files.items()})
+        closure=json.loads((cls.root/'context/reconciliation/local-f0-tooling/prisma-tools-closure.json').read_text())
+        cls.targetplan=Path(cls.temp.name)/'target-plan.json'
+        cls.targetplan.write_text(json.dumps({'tools':{'files_sha256':closure['tools_files_sha256']}}),encoding='utf8')
+        cls.targetplan_sha=hashlib.sha256(cls.targetplan.read_bytes()).hexdigest()
+        cls.tool_data={p:closure['tools_files_sha256'][p] for p in ('node_modules/@prisma/engines-version/package.json','node_modules/prisma/package.json')}
+
+    @classmethod
+    def tearDownClass(cls):cls.temp.cleanup()
+
+    def setUp(self):
+        self.stack=ExitStack();self.addCleanup(self.stack.close)
+        for method in ('run','Popen','check_call','check_output'):
+            self.stack.enter_context(patch.object(subprocess,method,side_effect=AssertionError('PROCESS_FORBIDDEN')))
+        self.stack.enter_context(patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN')))
+        self.case=tempfile.TemporaryDirectory(prefix='case-',dir=self.temp.name);self.addCleanup(self.case.cleanup)
+        out=Path(self.case.name)/'out';out.mkdir()
+        ns={'__name__':'catalog_steps_test','__file__':str(TASK/'execute_local_f0_catalog_20261117.py'),'Path':Path,'hashlib':hashlib,'json':json,'re':re,'subprocess':subprocess,'datetime':datetime,'ROOT':self.root,'OUT':out,'DB':'wa_p0c_rehearsal','RUN_ID':RUN,'COMMIT':'a'*40,'TREE':'b'*40,'PACKET':'c'*64,'CONNECTION_TAG':'wa-first-'+RUN,'created_containers':{NAME:CID},'bootstrap_attempted':set(),'finalization_attempted':set(),'finalized':set()}
+        exec("class Stop(Exception):\n def __init__(self,code,details=None):\n  self.code=code; self.details=details or {}; self.stage=report.get('stage','ENTRY'); super().__init__(code)\ndef need(value,code,details=None):\n if not value: raise Stop(code,details)\n",ns)
+        exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),ns)
+        self.ns=ns;self.actions=[];self.saved=[]
+        self.target={'name':NAME,'volume':NAME+'-data','kind':'ok'}
+        manifest={'targets':[self.target],'migration_targets':{'ok':{'manifest_path':str(self.targetplan),'manifest_sha256':self.targetplan_sha}},'packet_files_sha256':deepcopy(self.packet),'catalog':{'generator':ns['GENERATOR'],'artifact_root':'review-output/native-catalog','assets':{n:{'path':'review-output/native-catalog/'+n,'sha256':hashlib.sha256(raw).hexdigest()} for n,raw in self.files.items()},'source_expected_sha256':ns['EXPECTED_SHA'],'public_schema_owner':'pg_database_owner','bootstrap_grantor':'postgres','tool_source_files_sha256':deepcopy(self.tool_data),'ledger_expectation':[{'path':'prisma/foundation/migrations/'+ns['MIGRATION']+'/migration.sql','migration_name':ns['MIGRATION'],'sha256':ns['APPLICATION_SHA'],'state':'applied','count':1}]}}
+        recipe=json.loads(self.files['public-schema-registration.json'])
+        before={'public_owner':'pg_database_owner','public_acl':[{'role':r['grantee'],**{k:v for k,v in r.items() if k!='grantee'}} for r in recipe['baseline_acl']],'application_roles':0,'event_triggers':0}
+        report={'stage':'ENTRY','status':'IN_PROGRESS','steps':{},'events':[],'unexpected':[],'targets':{NAME:{'pre_bootstrap_public_baseline':before}},'source_verification':{'files_sha256':deepcopy(self.packet)}}
+        ns.update(TARGETS=[self.target],MANIFEST=manifest,report=report,save=lambda:self.saved.append(json.dumps(report)),event=self.event,verify_common_packet=lambda:self.actions.append('common_packet'),observe=lambda *args:self.observe(*args),psql_args=lambda name,role:['MOCK_PSQL',CID,role],command=lambda *args,**kwargs:self.command(*args,**kwargs))
+        ns['CATALOG'].update(tools=self.tools,pins=self.pins,expected=deepcopy(self.manifest),plan=deepcopy(self.plan),oracle_sql=self.files['expression-oracle.sql'].decode(),public=recipe)
+        strings,names=ns['metadata_allowlist'](ns['CATALOG']['expected'],self.tools)
+        ns['CATALOG'].update(strings=strings,generated_names=names)
+        ns.update(finalize=self.finalize,migrate_success=self.migrate)
+        self.queue=[]
+
+    def event(self,stage,status,**safe):self.ns['report']['stage']=stage;self.actions.append(stage);self.ns['report']['events'].append({'stage':stage,'status':status,**safe})
+    def observe(self,name,sql,stage):self.actions.append(stage);return {'migrator':0,'tagged_other_clients':0}
+    def finalize(self,name):self.actions.append('finalize');self.ns['finalization_attempted'].add(name);self.ns['finalized'].add(name)
+    def migrate(self,*args):self.actions.append('genuine_deploy');return {'schema':'workinants.local-f0-migrate-result.v2','operation':'deploy','run_id':RUN,'container_id':CID,'source_sql_sha256':self.ns['APPLICATION_SHA'],'attestation_sha256':'2'*64,'status':'CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS','exit_code':0}
+    def command(self,args,text=None,timeout=None):
+        self.actions.append('client');self.assertEqual(args,['MOCK_PSQL',CID,'postgres']);self.assertEqual(timeout,180)
+        item=self.queue.pop(0)
+        if isinstance(item,BaseException):raise item
+        return item
+    def result(self,value,code=0,stderr=''):
+        text=value if type(value) is str else json.dumps(value)
+        return subprocess.CompletedProcess([],code,text,stderr)
+    def native(self):
+        return {**{k:[] for k in self.ns['NATIVE_LISTS']},'format':'workinants.native-catalog.v1','server_version_num':170011,'read_only':True,'collected_as':'postgres','collector_is_superuser':True,'public_schema_owner':'pg_database_owner'}
+    def oracle(self):
+        plan=self.ns['CATALOG']['plan'];expected=self.ns['CATALOG']['expected'];prereqs=self.tools['catalog_expression_oracle']._prerequisites(expected,self.ns['DB'],'postgres')
+        return [{'format':'workinants.expression-oracle-preflight.v1','plan_sha256':plan['plan_sha256'],'outcomes':dict.fromkeys(prereqs,True)}, {'format':'workinants.expression-oracle-results.v1','source_expected_sha256':self.ns['EXPECTED_SHA'],'source_inputs_aggregate_sha256':expected['inputs_aggregate_sha256'],'plan_sha256':plan['plan_sha256'],'server_version_num':170011,'expression_count':416,'expressions':[{k:r[k] for k in ('category','subject','field','source_expression_sha256')}|{'value_sha256':'0'*64} for r in plan['expressions']]}, {'format':'workinants.expression-oracle-closure.v1','plan_sha256':plan['plan_sha256'],'all_oracle_tables_absent':True,'all_oracle_functions_absent':True}]
+    def ledger(self):
+        spec=deepcopy(self.tools['prisma_ledger_proof'].schema_expectation());row=self.tools['prisma_ledger_proof'].build_registration(self.ns['MANIFEST']['catalog']['ledger_expectation'],run_id=RUN,target_attestation_sha256='2'*64,source_expected_sha256=self.ns['EXPECTED_SHA'],root=self.root)['history_expected'][0]
+        return {**spec,'format':'workinants.prisma-ledger-native.v1','server_version_num':170011,'database':self.ns['DB'],'read_only':True,'isolation':'repeatable read','collected_as':'postgres','session_user':'postgres','collector_is_superuser':True,'history_ids_unique':True,'history':[row]}
+    def pipeline(self,status='PASS'):
+        native=self.native();self.queue=[self.result(native),self.result('\n'.join(map(json.dumps,self.oracle()))),self.result(native),self.result(self.ledger()),self.result(native)]
+        return patch.object(self.tools['compare_native_catalog'],'compare_manifest',return_value={'format':'workinants.catalog-comparison.v1','status':status,'database_posture':'D'})
+    def refusal(self,code,callback):
+        with self.assertRaises(self.ns['Stop']) as error:callback()
+        self.assertEqual(error.exception.code,code)
+        self.assertNotIn(CANARY,json.dumps(self.ns['report'])+str(error.exception))
+
+    def test_common_definitions_are_byte_equivalent_except_function_rename(self):
+        original=(TASK/'local_f0_catalog_common.py.txt').read_text().replace('def verify_packet():','def verify_common_packet():').rstrip()
+        actual=STEPS.read_text().split('# New catalog-only pipeline.',1)[0].rstrip()
+        self.assertEqual(actual,original)
+        fn=next(n for n in ast.parse(STEPS.read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='catalog_experiment')
+        calls=[n.func.id for n in ast.walk(fn) if isinstance(n,ast.Call) and isinstance(n.func,ast.Name)]
+        self.assertEqual(calls.count('migrate_success'),1);self.assertNotIn('migrate',calls)
+
+    def test_real_source_assets_reproduce_before_creation(self):
+        self.ns['verify_packet']()
+        self.assertEqual(self.actions,['common_packet']);self.assertEqual(self.ns['report']['catalog_preparation']['closed_source_files'],16)
+        self.assertEqual(self.ns['report']['catalog_preparation']['status'],'SOURCE_REPRODUCED_NOT_RUN')
+
+    def test_changed_generator_refused_before_code_execution(self):
+        original=Path.read_bytes
+        def changed(path):return ('print('+repr(CANARY)+')').encode() if path==self.root/self.ns['GENERATOR'] else original(path)
+        with patch.object(Path,'read_bytes',changed):self.refusal('CATALOG_PACKET_SOURCE_DRIFT',self.ns['verify_packet'])
+
+    def test_ignored_package_data_is_bound_to_both_reviewed_closures(self):
+        self.ns['MANIFEST']['catalog']['tool_source_files_sha256']['node_modules/prisma/package.json']='0'*64
+        self.refusal('TOOL_SOURCE_DATA_CLOSURE_MISMATCH',self.ns['verify_tool_data'])
+
+    def test_source_public_baseline_cannot_be_learned_from_observation(self):
+        self.ns['report']['targets'][NAME]['pre_bootstrap_public_baseline']['public_acl'].append({'role':'wa_worker','grantor':'postgres','privilege':'CREATE','grant_option':False})
+        self.refusal('PUBLIC_PREBOOTSTRAP_ACL_NOT_PREDECLARED',lambda:self.ns['observe_public_baseline'](NAME))
+
+    def test_client_exit_and_independent_closure_precede_observation(self):
+        self.queue=[self.result(self.native())]
+        self.ns['collect_native'](NAME,'NATIVE_BEFORE_ORACLE','native-before.json')
+        self.assertEqual(self.actions,['client','NATIVE_BEFORE_ORACLE_BACKEND_CLOSURE'])
+        self.assertTrue((self.ns['OUT']/'native-before.json').is_file())
+        self.assertEqual(self.ns['report']['native_snapshots'][0]['status'],'OBSERVED_NOT_QUALIFIED')
+
+    def test_active_backend_prevents_metadata_retention(self):
+        self.queue=[self.result(self.native())];self.ns['observe']=lambda *a:{'migrator':1,'tagged_other_clients':0}
+        self.refusal('CATALOG_BACKEND_CLOSURE_UNCONFIRMED',lambda:self.ns['collect_native'](NAME,'NATIVE_BEFORE_ORACLE','native-before.json'))
+        self.assertFalse((self.ns['OUT']/'native-before.json').exists())
+
+    def test_timeout_remains_unconfirmed_and_executes_no_observer(self):
+        self.queue=[subprocess.TimeoutExpired('mock',180,output=CANARY,stderr=CANARY)]
+        self.refusal('CATALOG_QUERY_TIMEOUT_CLOSURE_UNCONFIRMED',lambda:self.ns['run_catalog_query'](NAME,'SOURCE SQL','TEST'))
+        self.assertEqual(self.actions,['client'])
+
+    def test_rejected_native_strings_never_persist_but_known_counts_do(self):
+        native=self.native();native['schemas']=[{'object':CANARY,'owner':'wa_schema_owner'}];self.queue=[self.result(native)]
+        self.refusal('CATALOG_METADATA_STRING',lambda:self.ns['collect_native'](NAME,'NATIVE_BEFORE_ORACLE','native-before.json'))
+        self.assertEqual(self.ns['report']['rejected_observations'][0]['known_component_counts']['schemas'],1)
+        self.assertFalse((self.ns['OUT']/'native-before.json').exists())
+
+    def test_native_field_sets_and_typed_booleans_are_closed(self):
+        for field,value,code in [('read_only',1,'CATALOG_METADATA_BOOLEAN'),('server_version_num',170011.0,'CATALOG_METADATA_INTEGER')]:
+            native=self.native();native[field]=value;self.queue=[self.result(native)]
+            self.refusal(code,lambda:self.ns['collect_native'](NAME,'TEST','native-before.json'))
+        native=self.native();native['schemas']=[{'object':'app'}];self.queue=[self.result(native)]
+        self.refusal('CATALOG_COMPONENT_FIELDS',lambda:self.ns['collect_native'](NAME,'TEST','native-before.json'))
+
+    def test_source_words_cannot_impersonate_an_authorized_role(self):
+        # 'secret' is a source function parameter, but is not an owner identity.
+        native=self.native();native['schemas']=[{'object':'app','owner':'secret'}];self.queue=[self.result(native)]
+        self.refusal('CATALOG_METADATA_ROLE',lambda:self.ns['collect_native'](NAME,'TEST','native-before.json'))
+
+    def test_duplicate_or_nonfinite_json_and_unknown_stderr_fail_closed(self):
+        self.refusal('DUPLICATE_CATALOG_JSON_FIELD',lambda:self.ns['records']('{"format":1,"format":2}'))
+        self.refusal('NONFINITE_CATALOG_JSON',lambda:self.ns['records']('{"value":NaN}'))
+        self.queue=[self.result(self.native(),stderr=CANARY)]
+        self.refusal('CATALOG_UNEXPECTED_STDERR',lambda:self.ns['collect_native'](NAME,'TEST','native-before.json'))
+        self.assertTrue((self.ns['OUT']/'native-before.json').is_file())
+
+    def test_native_generated_names_are_source_derived_not_arbitrary(self):
+        self.assertTrue(self.ns['generated_identifier']('RI_ConstraintTrigger_c_1234'))
+        candidate=self.ns['CATALOG']['generated_names'][0];ns,table,column,label,relation=candidate
+        name=table+('_'+column if column else '')+'_'+label
+        if len(name)<=63:self.assertTrue(self.ns['generated_identifier'](ns+'.'+name))
+        self.assertFalse(self.ns['generated_identifier']('app.secret_password_check'))
+
+    def test_exact_three_oracle_records_and_416_source_identities(self):
+        values=self.oracle();parsed=self.ns['oracle_records']('\n'.join(map(json.dumps,values)))
+        self.assertEqual(parsed,values);self.assertEqual(len(parsed[1]['expressions']),416)
+        self.assertEqual(len(self.ns['report']['oracle_records']),3)
+
+    def test_oracle_unknown_identity_or_duplicate_never_persists_result(self):
+        values=self.oracle();values[1]['expressions'][0]['subject']=CANARY
+        self.refusal('ORACLE_EXPRESSION_IDENTITY',lambda:self.ns['oracle_records']('\n'.join(map(json.dumps,values))))
+        self.assertTrue((self.ns['OUT']/'oracle-preflight.json').is_file());self.assertFalse((self.ns['OUT']/'oracle-results.json').exists())
+
+    def test_oracle_preserves_preflight_before_later_malformed_output(self):
+        first=json.dumps(self.oracle()[0])
+        self.refusal('CATALOG_JSON_OUTPUT_REJECTED',lambda:self.ns['oracle_records'](first+'\n'+CANARY))
+        self.assertTrue((self.ns['OUT']/'oracle-preflight.json').is_file())
+        self.assertFalse((self.ns['OUT']/'oracle-results.json').exists())
+
+    def test_failed_oracle_retains_safe_preflight_and_stops_all_later_steps(self):
+        preflight=self.oracle()[0];preflight['outcomes'][next(iter(preflight['outcomes']))]=False
+        self.queue=[self.result(self.native()),self.result(json.dumps(preflight),3,'ERROR:  42501: '+CANARY)]
+        self.refusal('CATALOG_SQL_FAILED',self.ns['catalog_experiment'])
+        self.assertTrue((self.ns['OUT']/'oracle-preflight.json').is_file());self.assertFalse((self.ns['OUT']/'native-after-oracle.json').exists())
+        self.assertEqual(self.ns['report']['catalog_operations'][-1]['sqlstates'],['42501'])
+
+    def test_genuine_install_failure_always_finalizes_without_collecting(self):
+        self.ns['migrate_success']=lambda *a:(_ for _ in ()).throw(self.ns['Stop']('PRISMA_COMPLETED_STATUS_REQUIRED'))
+        self.refusal('PRISMA_COMPLETED_STATUS_REQUIRED',self.ns['catalog_experiment'])
+        self.assertEqual(self.actions,['finalize']);self.assertEqual(self.queue,[])
+
+    def test_full_mock_pipeline_is_one_deploy_then_oracle_ledger_and_comparison(self):
+        with self.pipeline():self.ns['catalog_experiment']()
+        self.assertEqual(self.queue,[]);self.assertEqual(self.actions.count('genuine_deploy'),1);self.assertEqual(self.actions.count('finalize'),1)
+        self.assertEqual(len(self.ns['report']['native_snapshots']),3)
+        self.assertEqual(len(self.ns['report']['backend_closures']),5)
+        self.assertEqual(self.ns['report']['ledger_comparison']['status'],'PASS')
+        self.assertIn('qualified_native_snapshot_sha256',self.ns['report'])
+
+    def test_comparison_incomplete_keeps_all_safe_partial_snapshots(self):
+        with self.pipeline(status='INCOMPLETE'):self.refusal('NATIVE_CATALOG_COMPARISON_NOT_PASS',self.ns['catalog_experiment'])
+        self.assertEqual(len(self.ns['report']['native_snapshots']),3)
+        self.assertTrue((self.ns['OUT']/'catalog-comparison.json').is_file())
+        self.assertNotIn('qualified_native_snapshot_sha256',self.ns['report'])
+
+    def test_main_always_scans_cleans_and_preserves_stop_origin(self):
+        self.ns['OUT'].rmdir()
+        for name in ('verify_packet','preflight','ensure_image','create_resources','bootstrap_all','provision_migration_tools'):
+            self.ns[name]=lambda name=name:self.actions.append(name)
+        self.ns['catalog_experiment']=lambda:(_ for _ in ()).throw(RuntimeError(CANARY))
+        self.ns['secret_scan']=lambda:self.actions.append('secret_scan')
+        self.ns['cleanup']=lambda:self.actions.append('cleanup')
+        output=io.StringIO()
+        with redirect_stdout(output),redirect_stderr(output):result=self.ns['main']()
+        self.assertEqual(result,1);self.assertEqual(self.actions[-2:],['secret_scan','cleanup'])
+        self.assertNotIn(CANARY,output.getvalue()+json.dumps(self.ns['report']))
+        self.assertTrue(self.ns['report']['packet_unchanged_after_run'])
+
+
+if __name__=='__main__':unittest.main(verbosity=2)
