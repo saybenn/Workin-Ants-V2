@@ -1,0 +1,365 @@
+{
+  "schema": "workinants.selected-f0-owner-read-source-plan.v1",
+  "recorded_at": "2026-11-18T07:37:18.307713+00:00",
+  "status": "SOURCE_PLAN_NOT_EXECUTED",
+  "scope": "SELECTED94_FINITE_EXISTING_OWNER_READ_PURPOSE_AND_GATE_DENIAL_ONLY",
+  "posture": "D",
+  "source_pins_sha256": {
+    "context/reconciliation/local-f0-assertions.json": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558",
+    "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+    "context/reconciliation/foundation-sql-scope-policy.json": "a1c56896b12e15e03eb04bef6d5c9254692cdc3918167e024e54006b6fa38b1b",
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "review-output/context-control-rehearsal/fixtures.json": "118454c9171267f8c7696ec3df9019a4e8883676157b57c9a2a5154d272edb69",
+    "review-output/worker-control-rehearsal/fixtures.json": "6e3f126fd014c91f1c2ac519e77635eef2d2232bca2b609c90023495d626aff2",
+    "scripts/sql-review/run-worker-control-rehearsal.py": "84b7268b4ef0f2d529927a267297981cec01a5166658f571c84c41e046bd893d",
+    "scripts/sql-review/run-context-control-rehearsal.py": "5ec53d01d7c5b19bea0a584ef9f5b4e6742d9509c21ac7e2250b9bdd62511f33"
+  },
+  "planned_assertion_links": [
+    {
+      "case_id": "P0C-TABLE-ProfessionalProfile-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "assertion_sha256": "41a5d782fceb82afaed5c6f6cc90104a04cf603bfb0cf6e3d78a124f095aeb93",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "planned_claim": "EXACT_LOCAL_SQL_SELECT_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-CandidateProfile-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "assertion_sha256": "2e656fd3e8fe7c020bafba0c7b369c989a783febeb35d313b7014f3ba6553cec",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "planned_claim": "EXACT_LOCAL_SQL_SELECT_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-User-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "assertion_sha256": "9ffac29c9aeea4f373773c47ceb0b73bf61e2dae392b00f20c7c2f1cbce560e4",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "planned_claim": "EXACT_LOCAL_SQL_SELECT_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-UserSecurityProfile-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "assertion_sha256": "05db62ca709407c51ce692fc8d03f0947984da6f6e69ef30b60653cfa547fe00",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "planned_claim": "EXACT_LOCAL_SQL_SELECT_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlan-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "assertion_sha256": "a1f40fecc167bf2280426e193ae1cb986ac728d8f147d1079a029d5e52ce6653",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "planned_claim": "EXACT_LOCAL_SQL_SELECT_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlan-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "assertion_sha256": "23dd6615ef124a55ef18ee7c7e320a671d695626239ff8ebf30ef858c8d6b0bc",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "planned_claim": "EXACT_LOCAL_SQL_SELECT_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementDefinition-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "assertion_sha256": "f7ae392e93246d7a1fe1271a57bef60f0f4236d142bebb3f9a0ae2fc4774bda2",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "planned_claim": "EXACT_LOCAL_SQL_SELECT_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementDefinition-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "assertion_sha256": "cf89b2b786ac68bdc0103ee7a92b5913daa6ef6328588608916cfd2d04b8dc9e",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "planned_claim": "EXACT_LOCAL_SQL_SELECT_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlanEntitlement-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "assertion_sha256": "103ff8a2692b7792c5dded84e93d917d130497c063ff9055efe9f568b04c89e3",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "planned_claim": "EXACT_LOCAL_SQL_SELECT_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlanEntitlement-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "assertion_sha256": "ee7028ef48cc17f099eb9b7327ab0d01061ff5b4635610e0731574dcf2644b23",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "planned_claim": "EXACT_LOCAL_SQL_SELECT_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "assertion_sha256": "93bdbc62de4e3c5e70157b9c29e79687040dabf5b5308ee1067369fb38542291",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "planned_claim": "EXACT_LOCAL_SQL_SELECT_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentContentRevision-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "assertion_sha256": "ca6741f80b791882fb06eae7c4085125f652187792f88ff62a577fc2b0f2f076",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "planned_claim": "EXACT_LOCAL_SQL_SELECT_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentPresentation-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "assertion_sha256": "545e3f8c8380ddf9de6cc0b4c10121a6374b4a8efd93f92b3391695e4fcd9d4d",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "planned_claim": "EXACT_LOCAL_SQL_SELECT_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRequest-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "assertion_sha256": "1bcc554d334f2ace25d7c7f057569296a2bb8a72910698627911bd80ab6aa917",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "planned_claim": "EXACT_LOCAL_SQL_SELECT_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-CTX-01",
+      "assertion_id": "vector.READ-PURPOSE-NO-WRITE.positive",
+      "assertion_sha256": "d5a606a4ceef3e270b38fda59e99852f5725065c166800ba3008ae734aec6491",
+      "expected_assertion": "Canonical query/pure/result/presentation and projection/history/access-evidence source scopes admit only SELECT",
+      "planned_claim": "PARTIAL_FINITE_NONMUTATING_PURPOSE_FAMILIES_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-CTX-01",
+      "assertion_id": "vector.READ-PURPOSE-NO-WRITE.adversarial",
+      "assertion_sha256": "37926b737f8652dc5ec61d1020fd530a71ebab6e12085254858edbfa9021d070",
+      "expected_assertion": "Give SH-003 or another nonmutating purpose otherwise matching root UPDATE capabilities",
+      "planned_claim": "PARTIAL_FINITE_OTHERWISE_MATCHING_UPDATE_CAPS_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentContentRevision-ALLOW",
+      "assertion_id": "vector.CONSENT-CONTENT-SCOPE.adversarial",
+      "assertion_sha256": "441f9a72fb7ae63d4d8a93e2038c4f5053d22fd643e6b6b10d05017399842abe",
+      "expected_assertion": "Use a query purpose to INSERT or supply a foreign content root",
+      "planned_claim": "QUERY_INSERT_AND_FOREIGN_ROOT_DENIAL_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentPresentation-ALLOW",
+      "assertion_id": "vector.CONSENT-PRESENTATION-SCOPE.adversarial",
+      "assertion_sha256": "c4fee1416db5f31beb1174a86aafbc3bcd12c4bda57a4f9c8eab82496897b926",
+      "expected_assertion": "Foreign principal/content or SH-010 presentation purpose attempts INSERT",
+      "planned_claim": "QUERY_INSERT_DENIAL_ONLY_NOT_FOREIGN_PRINCIPAL_WRITE",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentLog-ALLOW",
+      "assertion_id": "vector.CONSENT-SCOPE-CHAIN.adversarial",
+      "assertion_sha256": "75f4aac07e6e7ecfaf126ecadba9e54d608a45932238e3d2d240f5cd433bca91",
+      "expected_assertion": "Substitute an otherwise row-authorized foreign presentation/content, wrong root/purpose, or omit root-to-child capability",
+      "planned_claim": "PARTIAL_EXISTING_FOREIGN_CHILD_AND_MISSING_RELATION_READ_DENIAL_ONLY",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRequest-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.privacy_completion",
+      "assertion_sha256": "3cf9f263da0469de3796fae2017ad572c37beea03cb8a1f83d159595c21f0f19",
+      "expected_assertion": "Actual completed/partially_completed request mutation remains denied by the explicit owner-accounting gate, separately from ordinary open-state positives.",
+      "planned_claim": "EXACT_0A000_OWNER_ACCOUNTING_GATE_ONLY",
+      "runtime": "NOT_RUN"
+    }
+  ],
+  "read_paths": [
+    {
+      "model": "ProfessionalProfile",
+      "actual_login": "wa_app_runtime",
+      "scope": "Use an exact existing registered owner/action/purpose/root entry; every role-visible SELECT field plus exact revision/currentness.",
+      "existing_rows_per_model": 2
+    },
+    {
+      "model": "CandidateProfile",
+      "actual_login": "wa_app_runtime",
+      "scope": "Use an exact existing registered owner/action/purpose/root entry; every role-visible SELECT field plus exact revision/currentness.",
+      "existing_rows_per_model": 2
+    },
+    {
+      "model": "User",
+      "actual_login": "wa_app_runtime",
+      "scope": "Use an exact existing registered owner/action/purpose/root entry; every role-visible SELECT field plus exact revision/currentness.",
+      "existing_rows_per_model": 2
+    },
+    {
+      "model": "UserSecurityProfile",
+      "actual_login": "wa_app_runtime",
+      "scope": "Use an exact existing registered owner/action/purpose/root entry; every role-visible SELECT field plus exact revision/currentness.",
+      "existing_rows_per_model": 2
+    },
+    {
+      "model": "TrackPlan",
+      "actual_login": "wa_app_runtime",
+      "scope": "Use an exact existing registered owner/action/purpose/root entry; every role-visible SELECT field plus exact revision/currentness.",
+      "existing_rows_per_model": 2
+    },
+    {
+      "model": "TrackEntitlementDefinition",
+      "actual_login": "wa_app_runtime",
+      "scope": "Use an exact existing registered owner/action/purpose/root entry; every role-visible SELECT field plus exact revision/currentness.",
+      "existing_rows_per_model": 2
+    },
+    {
+      "model": "TrackPlanEntitlement",
+      "actual_login": "wa_app_runtime",
+      "scope": "Use an exact existing registered owner/action/purpose/root entry; every role-visible SELECT field plus exact revision/currentness.",
+      "existing_rows_per_model": 2
+    },
+    {
+      "model": "ConsentLog",
+      "actual_login": "wa_app_runtime",
+      "scope": "Use an exact existing registered owner/action/purpose/root entry; every role-visible SELECT field plus exact revision/currentness.",
+      "existing_rows_per_model": 2
+    },
+    {
+      "model": "ConsentContentRevision",
+      "actual_login": "wa_app_runtime",
+      "scope": "Use an exact existing registered owner/action/purpose/root entry; every role-visible SELECT field plus exact revision/currentness.",
+      "existing_rows_per_model": 2
+    },
+    {
+      "model": "ConsentPresentation",
+      "actual_login": "wa_app_runtime",
+      "scope": "Use an exact existing registered owner/action/purpose/root entry; every role-visible SELECT field plus exact revision/currentness.",
+      "existing_rows_per_model": 2
+    },
+    {
+      "model": "PrivacyRequest",
+      "actual_login": "wa_app_runtime",
+      "scope": "Use an exact existing registered owner/action/purpose/root entry; every role-visible SELECT field plus exact revision/currentness.",
+      "existing_rows_per_model": 2
+    },
+    {
+      "model": "TrackPlan",
+      "actual_login": "wa_worker",
+      "scope": "Existing assignDefaultFreeTrack.v1 / default_free_enrollment / RuntimeWorkItem current independent Identity service; exact worker32-row ACL subset and real pending source work.",
+      "existing_rows_per_model": 2
+    },
+    {
+      "model": "TrackEntitlementDefinition",
+      "actual_login": "wa_worker",
+      "scope": "Existing assignDefaultFreeTrack.v1 / default_free_enrollment / RuntimeWorkItem current independent Identity service; exact worker32-row ACL subset and real pending source work.",
+      "existing_rows_per_model": 2
+    },
+    {
+      "model": "TrackPlanEntitlement",
+      "actual_login": "wa_worker",
+      "scope": "Existing assignDefaultFreeTrack.v1 / default_free_enrollment / RuntimeWorkItem current independent Identity service; exact worker32-row ACL subset and real pending source work.",
+      "existing_rows_per_model": 2
+    }
+  ],
+  "purpose_families": [
+    {
+      "model": "ProfessionalProfile",
+      "actions": [
+        "SH-003.v1",
+        "SH-015.v1",
+        "SH-016.v1",
+        "SH-094.v1",
+        "SH-031.v1"
+      ]
+    },
+    {
+      "model": "CandidateProfile",
+      "actions": [
+        "SH-003.v1",
+        "SH-115.v1",
+        "SH-125.v1"
+      ]
+    },
+    {
+      "model": "User",
+      "actions": [
+        "SH-001.v1"
+      ]
+    },
+    {
+      "model": "UserSecurityProfile",
+      "actions": [
+        "SH-001.v1"
+      ]
+    },
+    {
+      "models": [
+        "TrackPlan",
+        "TrackEntitlementDefinition",
+        "TrackPlanEntitlement"
+      ],
+      "action": "SH-005.v1"
+    },
+    {
+      "model": "ConsentContentRevision",
+      "action": "SH-009.v1"
+    },
+    {
+      "model": "ConsentPresentation",
+      "action": "SH-010.v1",
+      "related": "Exact existing content via root relationship plus complete child fields"
+    },
+    {
+      "model": "ConsentLog",
+      "action": "SH-008.v1",
+      "related": "Exact existing presentation/content via both root relationships plus complete child fields"
+    },
+    {
+      "model": "PrivacyRequest",
+      "action": "SH-003.v1"
+    }
+  ],
+  "mandatory_negative_controls": [
+    "Exact source row exists under privileged observation before any negative; positive same-row control passes.",
+    "Wrong purpose/action and wrong root for ordinary app roots; missing mandatory visible field and stale/missing revision where meaningful.",
+    "Consent foreign existing presentation/content have complete field caps but omit or mismatch relationship tokens; observe both existing source rows independently.",
+    "Otherwise matching UPDATE row/changed-field/revision caps under genuine nonmutating User and Track read scopes must alter zero rows; hash/count parity afterward.",
+    "SH-009 and SH-010 cannot INSERT new coherent immutable roots despite matching finite INSERT caps; exact42501 RLS diagnostic and markers.",
+    "Privacy SH-049 completion reaches exact0A000 owner-accounting gate with real existing request and valid scope/caps; rollback and full-state parity."
+  ],
+  "fixture_contract": {
+    "base": "Copy reviewed CTX source Customer/Identity prerequisites and actual source/issuer schedule unchanged, with independently observed trigger restoration; no205Nativefixture dependency.",
+    "new_existing_rows": "Two coherent rows for profile/catalog/Privacy/Consent roots, stable UUID5 fixtures and per-table exact counts/coherence/hashes. No business-owner creation or policy claim.",
+    "bypasses": "Only exact listed deferred owner_commit triggers may be disabled for fixture creation; physical guards remain enabled. Consent presentation/proof fixtures use actual principal-bound restricted app contexts and prerequisite reads while those exact owner_commit triggers alone are disabled; finally close operation, re-enable and independently prove every expected trigger/function definition unchanged.",
+    "no_bypass": "No physical guard, consent proof, subject guard, runtime transition, RLS, ACL or business function is disabled/replaced."
+  },
+  "runtime_coordinator_contract": [
+    "New paths only, explicit reviewed same-run/CID/source/tree/closed-packet/native comparator PASS gate before fixtures.",
+    "Preverify all helper bytes and imports; return same hash-checked bytes for every executed/parsed source; no unchecked second reads.",
+    "Actual restricted login capture READ COMMITTED PID/xid before protected read; separate actual issuer COMMIT, actual created_at and immutable21-field retained row checks; same app tuple bind.",
+    "Strict typed count/hash/marker and exact source-bound diagnostic allowlists; no generic42501/P0001, raw stderr, SQL bodies, private values, credentials or handles persisted.",
+    "Close operation backend before privileged observations; exact whole-state table counts/hash parity except independently retained grant rows; trigger/native/ACL parity.",
+    "Persist sanitized partial evidence incrementally/on unexpected failures, stop later cases, preserve cleanup instructions; external wrapper alone owns resources."
+  ],
+  "new_paths": [
+    "scripts/owner_read_control_protocol.py",
+    "scripts/prepare-owner-read-control-rehearsal.py",
+    "scripts/check-owner-read-control-rehearsal.py",
+    "scripts/sql-review/run-owner-read-control-rehearsal.py",
+    "scripts/check-owner-read-control-coordinator.py",
+    "review-output/owner-read-control-rehearsal/"
+  ],
+  "offline_validation": [
+    "Environment-free projection-aware subprocess mocks at every process boundary.",
+    "Static parser checks for every generatedSQL and dynamic grant/observation query.",
+    "Deterministic generator byte reproduction; source/predicate invariants unchanged."
+  ],
+  "held_or_unclaimed": [
+    "No User/UserSG/Track/Privacy write positive or publisher/presentation/proof owner creation qualifies from fixture setup.",
+    "No global SH003 scope, Customer no-result digest/codec alias, SH004 borrow, ownerCreate port or grant/ACL expansion.",
+    "No worker loop, claim/lease/currentness deployment, later owner/P0F port qualification, restore, hosted or production activity.",
+    "All actual runtime outcomes NOT_RUN until independently reviewed exact packet execution. No status integration or whole-case promotion by this author."
+  ]
+}

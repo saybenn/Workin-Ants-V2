@@ -1,0 +1,52 @@
+"""Exercise both real image-admission functions with all process boundaries mocked."""
+from contextlib import ExitStack
+import hashlib,json,runpy,socket,subprocess,tempfile,unittest
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import Mock,patch
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+RAW=(ROOT/'scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json').read_bytes()
+IMAGE='docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1'
+MANIFEST=IMAGE.split('@')[1];CONFIG='sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d'
+CANARY='IMAGE_BOUNDARY_UNRESTRICTED_STDERR_AND_ENV_CANARY'
+CASES=(('execute_local_f0_lease_revoke_20261118_image_v2.py','local-f0-lease-revoke-plan-eadc8d26/operation-manifest.json'),('execute_local_f0_restore_20261117_image_v2.py','local-f0-restore-plan-3af2e049/operation-manifest.json'))
+class Tests(unittest.TestCase):
+    def setUp(self):
+        stack=ExitStack();self.addCleanup(stack.close)
+        for name in ('run','Popen','check_call','check_output','call'):stack.enter_context(patch.object(subprocess,name,side_effect=AssertionError('NO_REAL_PROCESS')))
+        stack.enter_context(patch.object(socket,'create_connection',side_effect=AssertionError('NO_NETWORK')))
+    def exercise(self,core,manifest,kind='manifest',fault=None):
+        module=runpy.run_path(str(TASK/core));g=module['ensure_image'].__globals__;g['initialize'](TASK/manifest)
+        value={'Id':MANIFEST if kind=='manifest' else CONFIG,'Os':'linux','Architecture':'amd64','RepoDigests':['postgres@'+MANIFEST],
+            'Config':{'Env':['PG_VERSION=17.11-1.pgdg13+2','PRIVATE='+CANARY]}}
+        if kind=='manifest':value['Descriptor']={'mediaType':'application/vnd.oci.image.manifest.v1+json','digest':MANIFEST,'size':len(RAW)}
+        raw=RAW.decode()+'\n';returncode=0
+        if fault=='platform':value['Architecture']='arm64'
+        if fault=='raw':raw=raw.replace('17.11','17.12')
+        if fault=='read':returncode=1
+        calls=[]
+        def docker(argv,**kwargs):
+            calls.append(argv)
+            if argv==['image','inspect',IMAGE]:return SimpleNamespace(returncode=0,stdout=json.dumps([value]),stderr=CANARY)
+            assert argv==['buildx','imagetools','inspect','--raw',IMAGE]
+            return SimpleNamespace(returncode=returncode,stdout=raw,stderr=CANARY)
+        g['docker']=docker;g['event']=Mock();g['save']=Mock()
+        if fault:
+            with self.assertRaises(g['Stop']) as failure:g['ensure_image']()
+            self.assertNotIn(CANARY,str(failure.exception));self.assertNotIn('image',g['report'])
+        else:
+            g['ensure_image']();self.assertEqual(g['report']['image']['image_store_identity'],kind.upper())
+            self.assertNotIn(CANARY,json.dumps(g['report']['image']))
+        self.assertEqual(len(calls),2)
+        self.assertFalse(any(any(part in ('pull','create','run','rm','prune') for part in call) for call in calls))
+    def test_lease_current_manifest_store(self):self.exercise(*CASES[0])
+    def test_restore_current_manifest_store(self):self.exercise(*CASES[1])
+    def test_lease_legacy_config_store(self):self.exercise(*CASES[0],kind='config')
+    def test_restore_legacy_config_store(self):self.exercise(*CASES[1],kind='config')
+    def test_lease_wrong_platform_stops(self):self.exercise(*CASES[0],fault='platform')
+    def test_restore_wrong_platform_stops(self):self.exercise(*CASES[1],fault='platform')
+    def test_lease_raw_manifest_tamper_stops(self):self.exercise(*CASES[0],fault='raw')
+    def test_restore_raw_manifest_tamper_stops(self):self.exercise(*CASES[1],fault='raw')
+    def test_lease_metadata_read_failure_stops(self):self.exercise(*CASES[0],fault='read')
+    def test_restore_metadata_read_failure_stops(self):self.exercise(*CASES[1],fault='read')
+if __name__=='__main__':unittest.main(verbosity=2)

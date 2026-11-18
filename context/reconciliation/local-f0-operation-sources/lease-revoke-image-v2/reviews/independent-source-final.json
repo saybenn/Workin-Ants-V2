@@ -1,0 +1,83 @@
+{
+  "schema": "workinants.lease-revoke-operation-independent-source-review.v1",
+  "reviewer": "/root/restricted_controls_operator",
+  "decision": "SOURCE_APPROVED_FINITE_EXTERNAL_OPERATOR_REQUIRES_FRESH_LITERAL_REVIEW",
+  "initial_review_sha256": "a0c816c3b3af54d4ff491ebb057b77a5371ab4863e7a67594634dcb37eab4b70",
+  "author_final_delta_sha256": "77966f9a83ead2920839b157b5ef44d56628e4f3b465662613ff23a19843d860",
+  "source_files_sha256": {
+    "execute_local_f0_lease_revoke_20261118.py": "d5c8e37edb9ea4243b24a21e6b990baa57422b9a4ad9b57181090a87458b0d39",
+    "local_f0_lease_revoke_operation_steps.py": "accca8fba1c9f0ea8fc1dec658aaecce9b85d5a372477d9a3c709271f1cb6132",
+    "prepare_local_f0_lease_revoke_plan.py": "ef0dc09978fb4b60a0e6a7666f231d0f175902068361124c8a3879ca6b54d557",
+    "check_local_f0_lease_revoke_operation.py": "7c6ecd4688159fe0c69787c986100fc15541076c3bdbf56f195ca1408fe1fc25",
+    "pin_local_f0_lease_revoke_plan_20261118.py": "a18c75cbd8f169a853e475a7e4d5c53cee4f752a86d4806c2306a6f4ce3cdc76"
+  },
+  "preservations": {
+    "original_preservation": {
+      "directory": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\lease-revoke-operation-before-closure-fix-20261118",
+      "manifest_sha256": "e6dac1688c2abc1ba4c8d4859f463233d4c1c7407d244c3912720034b561fa65",
+      "all_files_verified": 6
+    },
+    "intermediate_preservation": {
+      "directory": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\lease-revoke-operation-before-reference-size-cap-20261118",
+      "manifest_sha256": "b0e9a0de3a01f5458a2d72af028ab809d6f61a98b01fdf949d4e14b5ccf1d314",
+      "all_files_verified": 7
+    }
+  },
+  "closed_findings": [
+    {
+      "id": "REFERENCE_FAILURE_CAN_BYPASS_GLOBAL_CLOSURE",
+      "status": "CLOSED",
+      "evidence": "nested finally attempts global all-client observer on reference stat/read/save failure; fixed unavailable status stops verdict/native metadata"
+    },
+    {
+      "id": "OBSERVER_FAILURE_LACKS_FIXED_UNCONFIRMED_CLOSURE_EVIDENCE",
+      "status": "CLOSED",
+      "evidence": "typed exact int-zero counts; fixed global-scope observation/count validity/absence flags retained for malformed or throwing observations"
+    }
+  ],
+  "additional_bounded_reference_closure": "typed stat size <=16MiB, stream reads <=16MiB+1, oversized/absent/unavailable fixed status, verdict consumes exact cached hash-bound bytes without second read",
+  "changed_existing_steps_definitions": [
+    "closed_backends",
+    "retain_coordinator_reference",
+    "lease_experiment"
+  ],
+  "all_other_original_steps_functions_ast_identical": true,
+  "core_preparer_pin_byte_identical_to_initial_freeze": true,
+  "offline_validation": {
+    "command": "python check_local_f0_lease_revoke_operation.py",
+    "passed": 27,
+    "failed": 0,
+    "elapsed_seconds": 4.331,
+    "five_source_modules_compiled_without_execution": true,
+    "subprocess_and_network_boundaries": "BLOCKED_OR_MOCKED",
+    "actual_reviewed_coordinator_source_proof_loader": "EXERCISED_ONLY_WITH_MOCK_METADATA_NO_LIVE_PREFLIGHT"
+  },
+  "unchanged_source_files_sha256": {
+    "scripts/sql-review/run-lease-revoke-control-rehearsal.py": "9a2acbfcbf17719a83eb993bebce5ca9d4210574cf82c701d26f9303b5b818e8",
+    "scripts/lease_revoke_control_protocol.py": "df6754f7a01b721d9c4ca300956626c3798014cff1d4e117e4c1aba2a9745394",
+    "review-output/lease-revoke-control-rehearsal/fixtures.json": "fe59a9867093f1cbab01741fa7d4f1fd727090e410374e663bbbd0796903c7e5",
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "scripts/sql-review/run-context-control-rehearsal.py": "5ec53d01d7c5b19bea0a584ef9f5b4e6742d9509c21ac7e2250b9bdd62511f33",
+    "scripts/sql-review/rehearsal-diagnostics.py": "c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e"
+  },
+  "all_fixture_prepared_files_verified": 35,
+  "all_fixture_source_inputs_verified": 24,
+  "reviewed_scope": [
+    "one fresh fixed-name container+volume; same exact pinned cached PG17.11 image, no ports/network",
+    "six independent SCRAM credentials with correct/wrong controls, private owner-DACL host and root0600 tmpfs handling",
+    "canonical install and strict original-grantor finalization, full V4 native/ACL/TEXT/expression/guarded-ledger gate before finite behavior",
+    "full source/all external snapshots/tool closure/source archive/helper graph pinned before creation and cached helper compilation",
+    "actual reviewed coordinator CLI with same-run CID/source/tree/native attestation and exact19 protocols/15 restricted outcomes",
+    "old-holder unexpired/current grant witnesses, finite issuer commits, actual source guard diagnostics/markers/closure, original case statuses NOT_RUN",
+    "global client closure spans all databases/roles/tags and precedes verdict/native observations on return or throw",
+    "exact owned CID/labels and volume creation identity cleanup, secret cleanup even when resource removal fails, source/tool/history preservation"
+  ],
+  "source_edits_by_reviewer": false,
+  "Docker_database_network_Git_actions": false,
+  "runtime": "NOT_RUN_BY_REVIEW",
+  "literal_plan_approval": "REQUIRED_SEPARATELY",
+  "posture": "D",
+  "whole_selected_cases_and_94_451_promotion": false,
+  "plain_english": "The runner checks the toy room first, plays only the small approved games, and checks every connection is closed even if a report breaks. Real play still needs a fresh plan check."
+}

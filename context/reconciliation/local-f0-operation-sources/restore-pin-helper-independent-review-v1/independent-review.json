@@ -1,0 +1,39 @@
+{
+  "schema": "workinants.restore-pin-helper-independent-review.v1",
+  "reviewed_at": "2026-11-18T08:38:34.418617+00:00",
+  "decision": "APPROVED_SOURCE_PIN_HELPER_ONLY_PENDING_ROOT_COMMIT_AND_FRESH_LITERAL_REVIEW",
+  "helper_sha256": "f80c317ce9b0aa81f3313ed38d928635a4becae1fe6d1a835b54570f8db07478",
+  "mocks_sha256": "d417dc7ea128d9b30b97c6d608f27a16cb558adc6f579131f530070b3ce6c359",
+  "independent_mock_report": {
+    "path": "restore-pin-helper-independent-mocks-20261118.json",
+    "sha256": "7e0653342c9a5864fe02a385ab1cfc60a021d38d7970edf715328209fefed75f",
+    "tests": 9,
+    "status": "PASS",
+    "unittest_seconds": 49.099,
+    "process_seconds": 50.719
+  },
+  "reviewed_source_archive": {
+    "root": "context/reconciliation/local-f0-operation-sources/restore-physical-v1",
+    "files": 53,
+    "current_files_hash_match": true,
+    "validation_sha256": "a07e7eee6c5180c68387baf549a296bfc3e7ae66d10ee48c1c1aa9c292ee989b"
+  },
+  "findings_open": [],
+  "reviewed_safeguards": [
+    "Import/help process-free. All helper subprocess call sites are local Git rev-parse HEAD/tree and show exact commit:path with shellFalse/no optional locks; no fetch/checkout/index/history or Docker/database call.",
+    "All filesystem/source/archived-review/proposal67/artifact25 checks precede any preservation or manifest update. Exact approved4live operator hashes match .txt snapshots and source-only reviewb4a71. Current archive contains exactly its closed53-file map with no symlinks.",
+    "Fresh UUID4 and exact source/staging/target names,2volumes,private archive/bootstrap paths and nested source identities; evidence OUT absent. Original literal must remain unpinned/source-prepared/PENDING.",
+    "Exact7source snapshot files match archive member bytes and current canonical6source files; fresh history run/manifest/SQL/source closure is checked without modifying/adopting history.",
+    "Pinned tool archive digest matches the committed source-tooling closure with10,300files; nested tool map equals closure. No tools or source archive code executes during pinning.",
+    "Before pin, each full packet current file SHA must equal exact selected commit Git blob SHA; full40-character HEAD/tree are read, HEAD and held literal are rechecked, filesystem inputs are fully revalidated. Sorted NUL/hash/newline aggregate is recomputed from admitted files.",
+    "Only after all checks, exclusively preserve original literal, write exclusive temporary metadata and atomically replace that exact external manifest. Existing work/history are not deleted.",
+    "review_status remains PENDING_OPERATIONAL_REVIEW and result runtime_approvedFalse. Failures export fixed metadata only and mocks prove Git/source/snapshot mismatches leave the original literal and preservation state unchanged."
+  ],
+  "review_limits": [
+    "These9checks mock every real Git/process/network boundary. The reviewer did not run actual Git, Docker, databases, SQL, pin a real literal or modify helper/source snapshots.",
+    "Actual current+committed source equality remains for Root to establish after its source commit by invoking the reviewed helper. No existing uncommitted archive is claimed committed by this review.",
+    "A fresh exact literal source/run/resource/image/storage/evidence review remains required after pinning. Endpoint/server/resource absence and runtime controls are NOT_RUN here.",
+    "The helper is source-pin metadata tooling, not an execution authorization or full Restore01/Privacy/production claim. PostureD remains."
+  ],
+  "plain_english": "This helper labels the exact saved instructions after checking them. It keeps the old label and still says a separate review is needed before starting anything."
+}

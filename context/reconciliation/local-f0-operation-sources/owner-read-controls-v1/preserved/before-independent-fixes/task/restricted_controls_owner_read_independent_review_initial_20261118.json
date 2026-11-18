@@ -1,0 +1,86 @@
+{
+  "schema": "workinants.owner-read-independent-source-review.v1",
+  "reviewer": "/root/restricted_controls_operator",
+  "decision": "SOURCE_HELD_THREE_BOUNDED_SOURCE_AND_MOCK_REALISM_FINDINGS",
+  "reviewed_source_plan_sha256": "a4a16346823eec803771b27bce6cdbe84517db8092c33e625a9d15e8db389efe",
+  "source_files_sha256": {
+    "scripts/owner_read_control_protocol.py": "d5c830263121b1fa9413fcd2f5aa169db348881b3816419d3dbb8a1c43f1a4c7",
+    "scripts/prepare-owner-read-control-rehearsal.py": "6b482293d71081553c1317613ee7b1301133ff601d77c9bcaad43cec6bb7169c",
+    "scripts/sql-review/run-owner-read-control-rehearsal.py": "259a9a1288eb0c191e36102b6a593bf9f05b320fd0062035e4d9374ded4fd7e8",
+    "scripts/check-owner-read-control-rehearsal.py": "10e58e8518ee0555f6542a154750402e84abf7c677c4ee860fb99de41f1552b9",
+    "scripts/check-owner-read-control-coordinator.py": "100684870d01ac0c78fe272c04b227c9a9188c375257235ef3e3852a37e97713"
+  },
+  "all_current_source_inputs_and_141_artifacts_match_author_freeze": true,
+  "finite_counts": {
+    "scope_family_positive_protocols": 17,
+    "worker_catalog_positive_protocols": 3,
+    "read_and_denial_protocols": 121,
+    "extra_restricted_consent_fixture_operations": 4,
+    "exact_grants_maximum": 128,
+    "sql_files": 140,
+    "existing_application_relations_observed": 41,
+    "declared_positive_select_assertions": 14,
+    "bounded_control_or_denial_assertions": 6
+  },
+  "assertion_claim_bounds": {
+    "named_assertions": 20,
+    "positive_SELECT_only_assertions": 14,
+    "partial_or_gate_denial_assertions": 6,
+    "all_runtime": "NOT_RUN",
+    "no_owner_create_or_whole_case_promotion": true
+  },
+  "independent_offline_results": {
+    "source_checks": {
+      "passed": 14,
+      "elapsed_seconds": 0.492,
+      "all140_SQL_parse_and141_artifact_reproduction": "PASS"
+    },
+    "projection_transport_mocks": {
+      "passed": 19,
+      "elapsed_seconds": 31.216
+    },
+    "all_five_new_Python_sources_compile": true,
+    "subprocess_database_Docker_network": "BLOCKED_OR_MOCKED"
+  },
+  "findings": [
+    {
+      "id": "VERBOSE_LOCATION_FORMAT_MOCK_MISMATCH",
+      "status": "OPEN",
+      "file": "scripts/owner_read_control_protocol.py",
+      "function": "diagnostic",
+      "evidence": "LOCATION regex and mocks expect routine, file.c, line; PG17.11 verbose format is routine, file.c:line (consistent with pinned native_diagnostic and author-confirmed fe-protocol3.c1111-1116). Correct actual diagnostics would be rejected.",
+      "closure_required": "Colon-positive/old-comma-negative/canary regressions, unchanged exact SQLSTATE/message/frame/markers and no generic-state qualification"
+    },
+    {
+      "id": "CONSENT_OPEN_COMMITTED_BEFORE_RESTORATION_FLAG",
+      "status": "OPEN",
+      "file": "scripts/sql-review/run-owner-read-control-rehearsal.py",
+      "function": "Coordinator.setup",
+      "evidence": "bypass_open=True is assigned only after fixture_commit(open) returns. Committed exact-two disable plus post-commit verification failure leaves flagFalse and outer finally skips restoration.",
+      "closure_required": "Set bounded restoration obligation before attempted open after all-enabled source baseline; on committed-open post-commit failure prove closure, exact-two re-enable and full native verification; no later cases"
+    },
+    {
+      "id": "WORKER_ZERO_DENIAL_WITHOUT_PER_CASE_LIVE_LEASE_WITNESS",
+      "status": "OPEN",
+      "file": "scripts/sql-review/run-owner-read-control-rehearsal.py",
+      "function": "Coordinator.execute/claim_for_catalog",
+      "evidence": "Only one post-claim clock witness covers twelve subsequent worker reads. Expiry can produce the same zero rows as missing-field/revision/purpose negatives; immutable work hashes do not prove lease is still current.",
+      "closure_required": "Existing exact private preimage/fence/live-lease observer before and after every worker case, current just-used-grant unexpired after closed operation, fixed safe evidence, expiry stops without qualification or renewal; regression where later zero result follows expiry"
+    }
+  ],
+  "otherwise_reviewed": [
+    "closed complete helper/full packet/native source-run-CID admission before compilation",
+    "actual separately committed issuer grant and same restricted PID/xid transaction binding",
+    "exact source-known nonmutating scope/capability graph, two actual root and child fixture namespaces, complete all-visible-field capability and revision controls",
+    "source-known only owner_commit seed bypasses; no nonexistent Profile bypass, physical/principal/Consent exact chain guards retained",
+    "coherent hashes/native typed Track values, nonempty Consent context, separate actual presentation then proof transactions",
+    "actual restricted claim/preimage/current source Customer, unchanged worker32ACL, no enrollment loop or invented work-to-catalog/status denial",
+    "exact Privacy0A000 gate requires otherwise matching actual SH049 row/change/revision caps; no Privacy completion or owner adapter qualification",
+    "complete41table state count/hash and issuer21field retention, actual backend closure before permitted observers, stopped partial evidence and secret exclusion"
+  ],
+  "source_edits_by_reviewer": false,
+  "runtime": "NOT_RUN",
+  "Git_Docker_database_network_actions": false,
+  "posture": "D",
+  "plain_english": "The pretend checks passed, but three real-run details still need fixing: read the right error format, remember to put two locks back even if a report breaks, and check that the worker ticket has not expired."
+}

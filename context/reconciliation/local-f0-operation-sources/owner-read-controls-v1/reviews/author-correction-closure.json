@@ -1,0 +1,100 @@
+{
+  "schema": "workinants.owner-read-independent-findings-author-closure.v1",
+  "status": "FROZEN_CORRECTED_SOURCE_FOR_INDEPENDENT_DELTA_REVIEW_NOT_RUN",
+  "initial_review_sha256": "0443f9f71b0a9cc4a2226ede416af8ac6f72b04660542b7a6cce3ee697cbf0c7",
+  "preservation_sha256": "b616e94a66c0c77b109e596027ed60905f5c87a3fd6ee736dccf77474acda869",
+  "frozen_source_sha256": {
+    "scripts/owner_read_control_protocol.py": "ac7d134c102d27f5cc8d60a0a1e4a9aaa591517141c64d1a37f289c28b9f5c04",
+    "scripts/prepare-owner-read-control-rehearsal.py": "6b482293d71081553c1317613ee7b1301133ff601d77c9bcaad43cec6bb7169c",
+    "scripts/sql-review/run-owner-read-control-rehearsal.py": "8b55f608573459531d15dd732da5947f0cfda0aeb2b2632ca6ec9223e8dae6a5",
+    "scripts/check-owner-read-control-rehearsal.py": "10e58e8518ee0555f6542a154750402e84abf7c677c4ee860fb99de41f1552b9",
+    "scripts/check-owner-read-control-coordinator.py": "28c1c08f2ad21f44a3f503d7318f0e85cdbdeacac01496517288affb30c91ee5"
+  },
+  "corrected_plan": {
+    "path": "selected-owner-read-corrected-source-plan-20261118.json",
+    "sha256": "e80939ccfaab6844fd074806ad2a9373ae30a9ca67c11f87768762e22b4ce4a8"
+  },
+  "fixtures_sha256": "7f8d292ddc8ca11e12ae91e94ac62cca6cdd09d0c1f8a427ac5eefa414e66aca",
+  "content_sha256": "fd722b13789f1afcf244bafd4484acf4d331e1ba97387be88317718c6e42605c",
+  "offline_report": {
+    "path": "owner-read-corrected-author-offline-results-20261118.json",
+    "sha256": "28d6a025fd1971044700d3eaf452cb70d104583acb6a34e183d096034124c73b",
+    "source_tests": 14,
+    "source_seconds": 0.641,
+    "coordinator_mocks": 23,
+    "coordinator_seconds": 50.074,
+    "status": "PASS",
+    "sql_parser": {
+      "files": 140,
+      "statements": 578,
+      "executed": false
+    }
+  },
+  "AST_changes": {
+    "scripts/owner_read_control_protocol.py": {
+      "changed": [
+        "diagnostic"
+      ],
+      "added": [],
+      "removed": []
+    },
+    "scripts/prepare-owner-read-control-rehearsal.py": {
+      "changed": [],
+      "added": [],
+      "removed": []
+    },
+    "scripts/sql-review/run-owner-read-control-rehearsal.py": {
+      "changed": [
+        "coordinator_type"
+      ],
+      "added": [],
+      "removed": []
+    },
+    "scripts/check-owner-read-control-rehearsal.py": {
+      "changed": [],
+      "added": [],
+      "removed": []
+    },
+    "scripts/check-owner-read-control-coordinator.py": {
+      "changed": [
+        "Transport",
+        "CoordinatorTests"
+      ],
+      "added": [],
+      "removed": []
+    }
+  },
+  "unchanged": {
+    "generator_bytes": true,
+    "source_check_bytes": true,
+    "all140SQL_bytes": true,
+    "all121case_semantic_objects": true,
+    "all14SELECT_plus6partial_gate_mappings": true,
+    "canonical_SQL5ae_A_D_guards_32workerACL_existing_packets": true
+  },
+  "closed_findings": [
+    {
+      "id": "PG17_VERBOSE_LOCATION_FORMAT",
+      "resolution": "Only exact known routine and file:decimal line are accepted; header/state/message/frame/stage/terminal checks unchanged. Positive colon and negative old comma/private-tail regressions cover all three intended diagnostics.",
+      "primary_source": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/interfaces/libpq/fe-protocol3.c",
+      "source_lines": "1111-1116"
+    },
+    {
+      "id": "COMMITTED_OPEN_RESTORATION_OBLIGATION",
+      "resolution": "A new pre-open full native parity proof establishes original enabled state. The exact-two restoration obligation is set before the open attempt. On committed-open/post-commit-verification failure, outer finally independently confirms global closure, reenables only those two original triggers and verifies full native parity. Regression models committed DDL then failure and proves no Consent fixture or later behavioral case starts."
+    },
+    {
+      "id": "LEASE_AND_GRANT_EXPIRY_FALSE_NEGATIVE_QUALIFICATION",
+      "resolution": "The just-used grant is rechecked with all21 immutable fields and unexpired status after closure before every verdict. Every worker case has exact private lease/preimage/fence/time witnesses before and after its operation. Separate clock-expiry mocks show zero-result negatives are not appended, previous results persist, later cases stop, secrets remain absent, and no lease renewal/repair occurs."
+    }
+  ],
+  "limits": {
+    "runtime": "NOT_RUN",
+    "review": "AWAITING_INDEPENDENT_DELTA_REVIEW",
+    "new_resources_created": false,
+    "Docker_DB_SQL_network_or_Git_mutations": false,
+    "full_selected94_or451_promoted": false,
+    "posture": "D"
+  },
+  "plain_english": "The checklist now reads the real error format, always remembers to put the two test rules back, and checks that keys and worker time limits are still valid. If time runs out, it stops and keeps only the results already proved."
+}

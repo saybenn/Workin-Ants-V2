@@ -1,0 +1,94 @@
+{
+  "schema": "workinants.owner-read-independent-source-review.v1",
+  "reviewer": "/root/restricted_controls_operator",
+  "decision": "SOURCE_APPROVED_FINITE_OWNER_READ_SQL_SUBSET_REQUIRES_EXTERNAL_OPERATOR_AND_FRESH_LITERAL_REVIEW",
+  "initial_held_review_sha256": "0443f9f71b0a9cc4a2226ede416af8ac6f72b04660542b7a6cce3ee697cbf0c7",
+  "author_correction_report_sha256": "bb8b27f3c41aab7f5b13aee29b3bed0bf1b3586e72993d0357fceba2c3178059",
+  "source_files_sha256": {
+    "scripts/owner_read_control_protocol.py": "ac7d134c102d27f5cc8d60a0a1e4a9aaa591517141c64d1a37f289c28b9f5c04",
+    "scripts/prepare-owner-read-control-rehearsal.py": "6b482293d71081553c1317613ee7b1301133ff601d77c9bcaad43cec6bb7169c",
+    "scripts/sql-review/run-owner-read-control-rehearsal.py": "8b55f608573459531d15dd732da5947f0cfda0aeb2b2632ca6ec9223e8dae6a5",
+    "scripts/check-owner-read-control-rehearsal.py": "10e58e8518ee0555f6542a154750402e84abf7c677c4ee860fb99de41f1552b9",
+    "scripts/check-owner-read-control-coordinator.py": "28c1c08f2ad21f44a3f503d7318f0e85cdbdeacac01496517288affb30c91ee5"
+  },
+  "corrected_source_plan": {
+    "path": "selected-owner-read-corrected-source-plan-20261118.json",
+    "sha256": "e80939ccfaab6844fd074806ad2a9373ae30a9ca67c11f87768762e22b4ce4a8"
+  },
+  "fixture_manifest_sha256": "7f8d292ddc8ca11e12ae91e94ac62cca6cdd09d0c1f8a427ac5eefa414e66aca",
+  "content_sha256": "fd722b13789f1afcf244bafd4484acf4d331e1ba97387be88317718c6e42605c",
+  "preservation": {
+    "directory": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\owner-read-before-independent-fixes-20261118",
+    "manifest_sha256": "b616e94a66c0c77b109e596027ed60905f5c87a3fd6ee736dccf77474acda869",
+    "all152_prior_files_verified": true
+  },
+  "all140_SQL_bytes_unchanged": true,
+  "all121_case_objects_unchanged": true,
+  "all20_assertion_mapping_obligations_unchanged": true,
+  "generator_and_source_check_bytes_unchanged": true,
+  "protocol_only_three_LOCATION_punctuation_constants_changed": true,
+  "coordinator_changed_definitions": [
+    "coordinator_type",
+    "coordinator_type.Coordinator.bound",
+    "coordinator_type.Coordinator.setup",
+    "coordinator_type.Coordinator.claim_for_catalog",
+    "coordinator_type.Coordinator.execute"
+  ],
+  "new_worker_lease_observer": "coordinator_type.Coordinator.worker_live",
+  "all_other_coordinator_functions_AST_identical": true,
+  "closed_findings": [
+    {
+      "id": "VERBOSE_LOCATION_FORMAT_MOCK_MISMATCH",
+      "status": "CLOSED",
+      "evidence": "correct source-known routine,file:line patterns; exact colon-positive, old-comma/private-tail negative tests; unchanged exact SQLSTATE/message/frame/markers"
+    },
+    {
+      "id": "CONSENT_OPEN_COMMITTED_BEFORE_RESTORATION_FLAG",
+      "status": "CLOSED",
+      "evidence": "full original-enabled native baseline before pre-attempt restoration obligation; committed-open verification-failure mock proves global closure then exact-two restore and full native parity, no later fixture/case"
+    },
+    {
+      "id": "WORKER_ZERO_DENIAL_WITHOUT_PER_CASE_LIVE_LEASE_WITNESS",
+      "status": "CLOSED",
+      "evidence": "before+after every worker operation, exact private preimage/fence1/live-clock/zero-effect witnesses; just-used21field grant rechecked unexpired after closure before verdict; actual-expiry mocks retain only earlier results and stop later cases, with no renewal/repair"
+    }
+  ],
+  "independent_offline_results": {
+    "source_checks": {
+      "passed": 14,
+      "failed": 0,
+      "elapsed_seconds": 5.145,
+      "140_SQL_files_578_statements_parsed_and141_artifacts_reproduced": true
+    },
+    "process_projection_mocks": {
+      "passed": 23,
+      "failed": 0,
+      "elapsed_seconds": 90.597
+    },
+    "all_five_new_Python_modules_compile": true,
+    "all_Docker_database_network_process_boundaries": "MOCKED_OR_FORBIDDEN"
+  },
+  "unchanged_source_boundaries_sha256": {
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "scripts/sql-review/run-context-control-rehearsal.py": "5ec53d01d7c5b19bea0a584ef9f5b4e6742d9509c21ac7e2250b9bdd62511f33",
+    "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e",
+    "scripts/sql-review/rehearsal-diagnostics.py": "c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e"
+  },
+  "claim_limits": {
+    "named_assertions": 20,
+    "SELECT_only_named_assertions": 14,
+    "partial_or_gate_denial_named_assertions": 6,
+    "all_selected_cases_assertions_contract_questions": "NOT_RUN",
+    "fixture_owner_create_publisher_legal_or_API_qualification": false,
+    "Privacy_positive_completion_and_restore": "NOT_RUN",
+    "owner_security_source_generation_CAS_and_missing_codecs": "NOT_RUN_DEPENDENCIES_NOT_WAIVED",
+    "worker_enrollment_loop": false,
+    "whole94_451_or_production_promotion": false
+  },
+  "source_edits_by_reviewer": false,
+  "runtime_Docker_database_SQL_network_or_Git_actions": false,
+  "posture": "D",
+  "source_only_followup": "Archive exact independent source evidence; prepare/review a separate external operator and fresh literal manifest before any actual run.",
+  "plain_english": "The pretend tests now use the real error format, put the two test rules back after a broken report, and stop if a key or worker ticket expires. These source checks do not mean the real database games have run."
+}

@@ -1,0 +1,46 @@
+{
+  "lease": {
+    "old_files_sha256": {
+      "execute_local_f0_lease_revoke_20261118.py": "d5c8e37edb9ea4243b24a21e6b990baa57422b9a4ad9b57181090a87458b0d39",
+      "local_f0_lease_revoke_operation_steps.py": "accca8fba1c9f0ea8fc1dec658aaecce9b85d5a372477d9a3c709271f1cb6132",
+      "prepare_local_f0_lease_revoke_plan.py": "ef0dc09978fb4b60a0e6a7666f231d0f175902068361124c8a3879ca6b54d557",
+      "check_local_f0_lease_revoke_operation.py": "7c6ecd4688159fe0c69787c986100fc15541076c3bdbf56f195ca1408fe1fc25",
+      "pin_local_f0_lease_revoke_plan_20261118.py": "a18c75cbd8f169a853e475a7e4d5c53cee4f752a86d4806c2306a6f4ce3cdc76"
+    },
+    "new_files_sha256": {
+      "execute_local_f0_lease_revoke_20261118_image_v2.py": "abc20af2612a0c006b4cb31406220ce10db1f6b6d18b15907f0e2204bc04ec08",
+      "local_f0_lease_revoke_operation_steps_image_v2.py": "97ca0fd22faf817705df745cfbcfdbed8e9f54163fe1a35a1ea1304530bb4b41",
+      "prepare_local_f0_lease_revoke_plan_image_v2.py": "5aa9d83ff2cf0d1bd83e3bff485981285ab7eb3ecf3802fac8114f66a5424b4a",
+      "check_local_f0_lease_revoke_operation_image_v2.py": "437492fe0679b4a23f53d8b05480412b1f1c47209d3a694b1d075c702f9784bf",
+      "pin_local_f0_lease_revoke_plan_20261118_image_v2.py": "3773eb1e0ac496ee1eda061665909022863a84dab618a759634a515a2703dbec"
+    },
+    "changes": "Image admission only; filename/closed-inventory bindings for new immutable version. Old sources and all behavioral SQL unchanged."
+  },
+  "restore": {
+    "old_files_sha256": {
+      "execute_local_f0_restore_20261117.py": "ad60d95c8921180cdc495835408c3a30adfc583786f2b45ecd5217adad60bd86",
+      "local_f0_restore_operation_steps.py": "a51e653bd979d15174a23f9ad04e85924132ec5a820b027e2551390bc89dce1a",
+      "prepare_local_f0_restore_plan.py": "efe9385c9acb868fbc1531c4e9e8f92514a4e39afe4351f1def467dd5a40ce45",
+      "check_local_f0_restore_operation.py": "df853bc7a9c35ae0129afecbcd13351e0158bacd0fe771e665c4c550d038df1e",
+      "pin_local_f0_restore_plan_20261118.py": "f80c317ce9b0aa81f3313ed38d928635a4becae1fe6d1a835b54570f8db07478"
+    },
+    "new_files_sha256": {
+      "execute_local_f0_restore_20261117_image_v2.py": "2a1aa6f41a0a6ef99c758249a9cade3f8b308b363170ba0a6bc7a1f53f2e2569",
+      "local_f0_restore_operation_steps_image_v2.py": "26a50040c2a6c1220d4bba93136a7fa3fcbed607db746eab282ad046d6d8a4f8",
+      "prepare_local_f0_restore_plan_image_v2.py": "9f9e66537e95e9f4c27ab2afb090c0305ef462350e272a3284f15821e7d3b405",
+      "check_local_f0_restore_operation_image_v2.py": "28d05b6d1ef201460e4ca70b903496da892668ad1e05739b4a261a8567ab89c9",
+      "pin_local_f0_restore_plan_20261118_image_v2.py": "ee0d5cfc76d89905d111f8419b84304d809fa79f3355845b6a0d0b2af21dcf1c"
+    },
+    "changes": "Image admission only; filename/closed-inventory bindings for new immutable version. Old sources and all behavioral SQL unchanged."
+  },
+  "image_module_files_sha256": {
+    "scripts/sql-review/local_image_identity.py": "a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604",
+    "scripts/sql-review/test_local_image_identity.py": "0edae319a544aaaa8ed112e2ec477fe7ac428b58a7970ca8cd0e33ff006abe93",
+    "scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json": "996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1"
+  },
+  "followup": {
+    "scope": "Bind restored/staging/source container Image to independently admitted store Id; all other isolation/owner/mount checks unchanged.",
+    "preservation_manifest_sha256": "2f4e5f06fabc5c9d62f5844aa262ab598136aa08f581049b214c77de0b6ec0fd",
+    "new_32nd_restore_test": "All3resource kinds/current+legacy store IDs pass only exact admitted identity; mismatch rejects."
+  }
+}
