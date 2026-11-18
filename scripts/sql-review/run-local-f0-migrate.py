@@ -9,7 +9,7 @@ Importing this module, --help, and the offline checks contact no runtime.
 import argparse
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import re
 import runpy
 import subprocess
@@ -23,6 +23,43 @@ ENDPOINT = "npipe:////./pipe/dockerDesktopLinuxEngine"
 SOURCE_ROOT = "/run/wa-f0-source"
 TOOLS_ROOT = "/run/wa-f0-tools"
 PRIVATE_ROOT = "/run/wa-secrets"
+MOUNT_CHECKS = ('metadata_list','one_data_volume','one_bootstrap_bind','bootstrap_source','bootstrap_destination','bootstrap_readonly','only_declared_mounts','source_exact_windows','source_exact_desktop')
+
+
+def bootstrap_source_comparison(actual, expected):
+    """Only the exact planned Windows path or observed Desktop translation.
+
+    No suffix/case folding, alternate host prefixes, URI decoding or general
+    path normalization. The manifest's Windows path is validated first.
+    """
+    try: preparation['validate_bootstrap_secret_path'](expected)
+    except HeldFailure:return False, False
+    if type(actual) is not str:return False, False
+    windows=PureWindowsPath(expected)
+    desktop='/run/desktop/mnt/host/'+windows.drive[0].lower()+'/'+'/'.join(windows.parts[1:])
+    return actual==expected, actual==desktop
+
+
+def private_mount_comparison(target, mounts):
+    checks=dict.fromkeys(MOUNT_CHECKS,False)
+    if type(mounts) is not list or not all(type(m) is dict for m in mounts):return checks
+    checks['metadata_list']=True
+    data=[m for m in mounts if m.get('Type')=='volume' and m.get('Name')==target['volume_name'] and m.get('Destination')=='/var/lib/postgresql/data' and m.get('RW') is True]
+    binds=[m for m in mounts if m.get('Type')=='bind']
+    checks['one_data_volume']=len(data)==1;checks['one_bootstrap_bind']=len(binds)==1
+    secret=[]
+    if len(binds)==1:
+        bind=binds[0]
+        windows,desktop=bootstrap_source_comparison(bind.get('Source'),target['bootstrap_secret_host_path'])
+        checks.update(source_exact_windows=windows,source_exact_desktop=desktop,bootstrap_source=windows or desktop,bootstrap_destination=bind.get('Destination')=='/run/bootstrap-password',bootstrap_readonly=bind.get('RW') is False)
+        if checks['bootstrap_source'] and checks['bootstrap_destination'] and checks['bootstrap_readonly']:secret=[bind]
+    checks['only_declared_mounts']=all(m in data or m in secret or m.get('Type')=='tmpfs' and m.get('Destination')==PRIVATE_ROOT for m in mounts)
+    return checks
+
+
+def mount_failure_comparison(error):
+    value=getattr(error,'mount_comparison',None)
+    return value if type(value) is dict and set(value)==set(MOUNT_CHECKS) and all(type(v) is bool for v in value.values()) else None
 
 
 def unique_json(raw):
@@ -56,14 +93,10 @@ def inspect_live(manifest, context, container, volume):
             host.get("IpcMode") in ("", "private") and
             not host.get("Devices") and not host.get("CapAdd"), "PRIVATE_CONTAINER_REQUIRED")
     mounts = container.get("Mounts", [])
-    data = [m for m in mounts if m.get("Type") == "volume" and
-            m.get("Name") == target["volume_name"] and m.get("Destination") == "/var/lib/postgresql/data" and m.get("RW") is True]
-    secret = [m for m in mounts if m.get("Type") == "bind" and
-              m.get("Source") == target["bootstrap_secret_host_path"] and
-              m.get("Destination") == "/run/bootstrap-password" and m.get("RW") is False]
-    require(len(data) == 1 and len(secret) == 1 and
-            all(m in data or m in secret or m.get("Type") == "tmpfs" and m.get("Destination") == PRIVATE_ROOT for m in mounts),
-            "EXACT_PRIVATE_MOUNTS_REQUIRED")
+    checks=private_mount_comparison(target,mounts)
+    if not all(checks[name] for name in MOUNT_CHECKS[:7]):
+        error=HeldFailure('EXACT_PRIVATE_MOUNTS_REQUIRED');error.mount_comparison=checks
+        raise error
     require(volume.get("Name") == target["volume_name"] and volume.get("Driver") == "local" and
             not volume.get("Options") and volume.get("Scope") == "local" and
             all(volume.get("Labels", {}).get(key) == value for key, value in target["labels"].items()), "RUN_OWNED_VOLUME_REQUIRED")
@@ -213,8 +246,10 @@ def main(argv=None, process=subprocess.run):
     except Exception as error:
         # Never print a subprocess exception, raw engine output, input document,
         # URL, error detail or environment value.
+        comparison=mount_failure_comparison(error)
         print(json.dumps({"schema": "workinants.local-f0-migrate-result.v1", "status": "REFUSED_OR_INCOMPLETE",
                           "code": error.code if isinstance(error, HeldFailure) else "INVALID_INPUT_IO_OR_UNCONFIRMED_PROCESS",
+                          **({'mount_comparison':comparison} if comparison is not None else {}),
                           "raw_output_discarded": True, "database_qualification_claimed": False}))
         return 1
 

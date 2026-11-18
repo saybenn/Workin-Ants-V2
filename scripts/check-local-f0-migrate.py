@@ -129,6 +129,28 @@ class HistoryTests(unittest.TestCase):
 
 
 class LauncherTests(unittest.TestCase):
+    def test_observed_desktop_translation_matches_only_exact_manifest_path(self):
+        from pathlib import PureWindowsPath
+        manifest,*_,context,container,volume=fixture()
+        expected=manifest['target']['bootstrap_secret_host_path'];windows=PureWindowsPath(expected)
+        desktop='/run/desktop/mnt/host/'+windows.drive[0].lower()+'/'+'/'.join(windows.parts[1:])
+        container['Mounts'][1]['Source']=desktop
+        self.assertNotEqual(desktop,expected)  # Restores the previous exact-equality mismatch.
+        launcher['inspect_live'](manifest,context,container,volume)
+        self.assertEqual(launcher['bootstrap_source_comparison'](desktop,expected),(False,True))
+        from unittest.mock import patch
+        with patch.dict(launcher['inspect_live'].__globals__,bootstrap_source_comparison=lambda actual,planned:(actual==planned,False)):
+            with self.assertRaises(Exception) as caught:launcher['inspect_live'](manifest,context,container,volume)
+            self.assertEqual(caught.exception.code,'EXACT_PRIVATE_MOUNTS_REQUIRED')
+        for value in (desktop+'/extra',desktop.replace('/run/desktop/mnt/host/','/unapproved/'),desktop.replace('/c/','/d/',1),desktop+'CANARY',expected+'CANARY'):
+            with self.subTest(value=value):
+                container['Mounts'][1]['Source']=value
+                with self.assertRaises(Exception) as caught:launcher['inspect_live'](manifest,context,container,volume)
+                checks=launcher['mount_failure_comparison'](caught.exception)
+                self.assertEqual(set(checks),set(launcher['MOUNT_CHECKS']))
+                self.assertTrue(all(type(v) is bool for v in checks.values()))
+                self.assertFalse(checks['bootstrap_source']);self.assertNotIn('CANARY',json.dumps(checks))
+
     def assert_held(self, function):
         # Launcher imports its own runpy class, so identify the fixed error code.
         with self.assertRaises(Exception) as caught: function()

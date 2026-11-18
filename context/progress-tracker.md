@@ -1,3 +1,9 @@
+## Current local F0 action — bounded mount protocol correction, 17 November2026
+
+Step3.1–3.5 small rehearsal passes remain source0623028-qualified. Current3.6 attempt847ef29/55d6f091 stopped before Prisma at EXACT_PRIVATE_MOUNTS_REQUIRED; fresh setup/auth12correct+12wrong and Linux Node/engine compatibility passed, but no migration/ledger/noop/recovery case ran. Both finalizers and exact cleanup passed; [retained safe evidence](reconciliation/local-f0-migration-847ef29-mount-stop.json) reconciles stale outer failure stage.
+
+A reviewed unstarted/no-database probe1345468b observed only the exact Desktop host path translation; marker/container/volume removed. The Python guard now accepts that exact derived representation or the original Windows path, keeps all identity/network/volume/readonly/private bounds, and emits only fixedBoolean comparisons on failure.14focused Python tests and40unchanged Node checks pass; restoration of old equality is detected; independent source review approved. Next: fresh unique source-pinned manifest and reviewed operational retry, preserving every old report/checksum. No business SQL, fixtures,32workerACL or runtime3 change; all genuine migration and broader94 assertions remain unpromoted. Posture D and later-phase boundaries remain.
+
 ## Current local F0 action — small rehearsal PASS, Step3.6 next, 17 November2026
 
 Completed3.1–3.5 on source0623028/tree389fe778, packet94cefd73: FIRST01–10 passed. Actual restricted Customer COMMIT persisted1command/1Customer/1history/1evidence/2exactmessages, coherenttrue, Track enrollment0. Wrong-person42501/CUSTOMER_PRINCIPAL_GUARD and missing-outboxP0001/CUSTOMER_DEFAULT_FREE_GUARD rejected at exact markers with complete zero residue. Backend closure preceded observations; fixture triggers restored; both install/finalization paths passed; all exact resources/secrets absent independently. [Full sanitized evidence](reconciliation/local-f0-small-rehearsal-0623028-execution.json).

@@ -1,0 +1,86 @@
+"""Never starts a container/database; inspect one exact synthetic readonly bind."""
+from pathlib import Path,PureWindowsPath
+import hashlib,json,subprocess,sys,uuid
+PLAN=Path(sys.argv[1]);manifest=json.loads(PLAN.read_text(encoding='utf8'))
+assert manifest['review_status']=='APPROVED_UNSTARTED_MOUNT_PROBE'
+assert hashlib.sha256(Path(__file__).read_bytes()).hexdigest()==manifest['operator_sha256']
+assert manifest['purpose']=='UNSTARTED_PINNED_CONTAINER_BIND_REPRESENTATION_ONLY'
+assert manifest['image']=='docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1'
+assert str(uuid.UUID(manifest['run_id']))==manifest['run_id']
+assert manifest['container']=='wa-p0c-'+manifest['run_id'].split('-')[0]+'-mount-probe' and manifest['volume']==manifest['container']+'-data'
+assert manifest['labels']=={'workinants.rehearsal':'p0c-local-f0-mount-probe','workinants.rehearsal.run':manifest['run_id']}
+assert Path(manifest['evidence_directory']).parent==Path(__file__).resolve().parent and Path(manifest['marker'])==Path(manifest['evidence_directory'])/'probe-marker.txt'
+assert manifest['container_started'] is False and manifest['SQL_executed'] is False
+out=Path(manifest['evidence_directory']);out.mkdir(exist_ok=False)
+container=manifest['container'];volume=manifest['volume'];labels=manifest['labels'];marker=Path(manifest['marker'])
+report={'scope':manifest['purpose'],'manifest':manifest,'manifest_sha256':hashlib.sha256(PLAN.read_bytes()).hexdigest(),'container_started':False,'database_connected':False,'sql_executed':False,'status':'IN_PROGRESS','cleanup':{}}
+identity=None;volume_created=None;container_attempted=False;volume_attempted=False
+def save():(out/'probe-evidence.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf8',newline='\n')
+def need(value,code):
+    if not value:raise RuntimeError(code)
+def docker(args):return subprocess.run(['docker','--context','desktop-linux',*args],capture_output=True,text=True,timeout=30)
+def inspect(kind,name):
+    r=docker([kind,'inspect',name]);return json.loads(r.stdout)[0] if r.returncode==0 else None
+def owned(value):return all(value.get(k)==v for k,v in labels.items())
+def presence():
+    containers=docker(['container','ls','-a','--format','{{.Names}}']);volumes=docker(['volume','ls','--format','{{.Name}}'])
+    need(containers.returncode==volumes.returncode==0,'INVENTORY_FAILED')
+    return {'container':container in containers.stdout.splitlines(),'volume':volume in volumes.stdout.splitlines()}
+try:
+    context=json.loads(docker(['context','inspect','desktop-linux']).stdout)[0];need(context['Endpoints']['docker']['Host']=='npipe:////./pipe/dockerDesktopLinuxEngine','NONLOCAL_ENDPOINT')
+    server=json.loads(docker(['version','--format','{{json .Server}}']).stdout);need(server['Os']=='linux' and server['Arch']=='amd64','SERVER_PLATFORM')
+    initial=presence();need(not any(initial.values()),'NAME_CONFLICT');report['initial_presence']=initial
+    image=inspect('image',manifest['image']);need(image and image['Os']=='linux' and image['Architecture']=='amd64' and any(d.endswith('@'+manifest['image'].split('@')[1]) for d in image['RepoDigests']),'PINNED_IMAGE_REQUIRED')
+    marker.write_text(manifest['marker_text'],encoding='utf8',newline='\n');need(hashlib.sha256(marker.read_bytes()).hexdigest()==manifest['marker_sha256'],'MARKER_HASH')
+    flags=[p for k,v in labels.items() for p in ('--label',k+'='+v)]
+    volume_attempted=True;need(docker(['volume','create',*flags,volume]).returncode==0,'VOLUME_CREATE')
+    actual=inspect('volume',volume);need(actual and owned(actual.get('Labels') or {}),'VOLUME_OWNER');volume_created=actual['CreatedAt']
+    container_attempted=True;result=docker(['container','create','--name',container,*flags,'--network','none','--platform','linux/amd64','--mount','type=volume,src='+volume+',dst=/var/lib/postgresql/data','--mount','type=bind,src='+str(marker)+',dst=/run/bootstrap-password,readonly','--tmpfs','/run/wa-secrets:rw,nosuid,noexec,nodev,mode=0700',manifest['image']]);need(result.returncode==0,'CONTAINER_CREATE')
+    actual=inspect('container',container);need(actual and owned(actual['Config']['Labels']),'CONTAINER_OWNER');identity=actual['Id']
+    need(actual['State']['Status']=='created' and actual['State']['Running'] is False and actual['HostConfig']['NetworkMode']=='none' and not actual['HostConfig'].get('PortBindings'),'UNSTARTED_ISOLATION')
+    mounts=actual['Mounts'];binds=[m for m in mounts if m['Type']=='bind'];data=[m for m in mounts if m['Type']=='volume']
+    need(len(binds)==len(data)==1 and len(mounts)==2 and data[0]['Name']==volume and binds[0]['Destination']=='/run/bootstrap-password' and binds[0]['RW'] is False,'EXACT_MOUNTS')
+    expected=str(marker);win=PureWindowsPath(expected);desktop='/run/desktop/mnt/host/'+win.drive[0].lower()+'/'+ '/'.join(win.parts[1:])
+    source=binds[0]['Source']
+    comparisons={'windows_path_equal':source==expected,'desktop_translation_equal':source==desktop,'readonly':binds[0]['RW'] is False,'exact_destination':binds[0]['Destination']=='/run/bootstrap-password','exact_named_volume':data[0]['Name']==volume,'never_started':not actual['State']['Running'] and actual['State']['Status']=='created'}
+    report['comparisons']=comparisons;report['source_representation']='MANIFEST_WINDOWS_PATH' if comparisons['windows_path_equal'] else 'EXACT_DOCKER_DESKTOP_HOST_TRANSLATION' if comparisons['desktop_translation_equal'] else 'UNRECOGNIZED_REDACTED'
+    report['container_id']=identity;report['volume_created_at']=volume_created
+    need(comparisons['windows_path_equal'] or comparisons['desktop_translation_equal'],'SOURCE_REPRESENTATION_UNRECOGNIZED')
+    report['status']='PASS_REPRESENTATION_OBSERVED_NO_DATABASE'
+except BaseException as error:
+    allowed={'NONLOCAL_ENDPOINT','SERVER_PLATFORM','NAME_CONFLICT','PINNED_IMAGE_REQUIRED','MARKER_HASH','VOLUME_CREATE','VOLUME_OWNER','CONTAINER_CREATE','CONTAINER_OWNER','UNSTARTED_ISOLATION','EXACT_MOUNTS','SOURCE_REPRESENTATION_UNRECOGNIZED','INVENTORY_FAILED'}
+    report.update(status='STOPPED',failure=str(error) if type(error) is RuntimeError and str(error) in allowed else 'UNEXPECTED_PROBE_FAILURE')
+finally:
+    save()
+    cleanup_errors=[]
+    def attempt(label,action):
+        try:action()
+        except BaseException:cleanup_errors.append(label)
+    def remove_container():
+        if not container_attempted:return
+        state=presence()
+        if not state['container']:report['cleanup']['container_already_absent']=True;return
+        actual=inspect('container',container)
+        need(actual and owned(actual['Config']['Labels']) and (identity is None or actual['Id']==identity) and actual['State']['Status']=='created' and not actual['State']['Running'],'CLEANUP_CONTAINER_IDENTITY')
+        need(docker(['container','rm',actual['Id']]).returncode==0,'CLEANUP_CONTAINER_FAILED');report['cleanup']['container_removed']=True
+    def remove_volume():
+        if not volume_attempted:return
+        state=presence()
+        if not state['volume']:report['cleanup']['volume_already_absent']=True;return
+        actual=inspect('volume',volume)
+        need(actual and owned(actual.get('Labels') or {}) and (volume_created is None or actual['CreatedAt']==volume_created),'CLEANUP_VOLUME_IDENTITY')
+        need(docker(['volume','rm',volume]).returncode==0,'CLEANUP_VOLUME_FAILED');report['cleanup']['volume_removed']=True
+    def remove_marker():
+        need(marker.parent==out and marker.name=='probe-marker.txt','MARKER_CLEANUP_IDENTITY')
+        if marker.exists():marker.unlink()
+        report['cleanup']['marker_absent']=not marker.exists()
+    attempt('CONTAINER_CLEANUP_UNCONFIRMED',remove_container)
+    attempt('VOLUME_CLEANUP_UNCONFIRMED',remove_volume)
+    attempt('MARKER_CLEANUP_UNCONFIRMED',remove_marker)
+    try:
+        final=presence();report['cleanup'].update(container_absent=not final['container'],volume_absent=not final['volume'])
+        need(all(report['cleanup'].get(k) for k in ('container_absent','volume_absent','marker_absent')),'CLEANUP_ABSENCE')
+    except BaseException:cleanup_errors.append('ABSENCE_UNCONFIRMED')
+    if cleanup_errors:report.update(status='STOPPED_CLEANUP_UNCONFIRMED',cleanup_failures=cleanup_errors)
+    save();print(json.dumps(report))
+raise SystemExit(0 if report['status']=='PASS_REPRESENTATION_OBSERVED_NO_DATABASE' else 1)
