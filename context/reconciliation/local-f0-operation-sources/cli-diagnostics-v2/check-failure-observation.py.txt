@@ -1,0 +1,75 @@
+"""Environment-free tests of external operator failure observation ordering."""
+import ast,importlib.util,json,unittest
+from pathlib import Path
+from unittest.mock import Mock
+PATH=Path(__file__).with_name('local_f0_migration_operation_steps.py')
+class Halt(Exception):pass
+def load():
+    spec=importlib.util.spec_from_file_location('steps',PATH);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    module.report={'steps':{},'targets':{'owned':{}}};module.save=Mock()
+    def need(value,code,*unused):
+        if not value:raise Halt(code)
+    module.need=need
+    return module
+class FailureObservationTests(unittest.TestCase):
+    def test_every_success_phase_rejects_actual_exit_zero_with_stop_status(self):
+        phases={'EMPTY_PRISMA_DEPLOY','SECOND_PRISMA_DEPLOY','STANDARD_PRISMA_RESOLVE','SAME_CHECKSUM_RECOVERY_DEPLOY','RECOVERED_SECOND_DEPLOY'}
+        tree=ast.parse(PATH.read_text(encoding='utf8'));experiment=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='migration_experiment')
+        calls=[n for n in ast.walk(experiment) if isinstance(n,ast.Call) and isinstance(n.func,ast.Name)]
+        self.assertFalse(any(n.func.id=='migrate' for n in calls));self.assertEqual({n.args[2].value for n in calls if n.func.id=='migrate_success'},phases)
+        for phase in phases:
+            m=load();m.migrate=Mock(return_value={'status':'CLI_OUTPUT_REJECTED_STOP_AND_INSPECT','exit_code':0,'no_pending_message_observed':False})
+            with self.assertRaisesRegex(Halt,'^PRISMA_COMPLETED_STATUS_REQUIRED$'):m.migrate_success({'name':'owned'},'resolve-rolled-back' if phase=='STANDARD_PRISMA_RESOLVE' else 'deploy',phase)
+            m.migrate.assert_called_once()
+    def test_completed_status_is_required_together_with_integer_zero(self):
+        for status,code,ok in [('CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS',0,True),('CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS',1,False),('CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS',False,False),('CLI_CLOSURE_UNCONFIRMED_STOP_AND_CLEAN_EXACT_RESOURCE',None,False)]:
+            m=load();value={'status':status,'exit_code':code};m.migrate=Mock(return_value=value)
+            if ok:self.assertIs(m.migrate_success({'name':'owned'},'deploy','FIXED_STAGE'),value)
+            else:
+                with self.assertRaises(Halt):m.migrate_success({'name':'owned'},'deploy','FIXED_STAGE')
+    def test_unknown_codes_observed_after_closure_and_finalizer_before_stop(self):
+        m=load();order=[]
+        m.migrate=lambda *a:order.append('closed_cli') or {'status':'CLI_FAILED_STOP_AND_INSPECT','exit_code':1,'prisma_codes':[],'sqlstates':[]}
+        m.finalize=lambda *a:order.append('original_grantor_finalize')
+        m.ledger=lambda *a:order.append('bounded_observation') or {'rows':None}
+        with self.assertRaisesRegex(Halt,'^EXPECTED_MIGRATION_FAILURE_NOT_PROVEN$'):m.attempt_expected_failure({'name':'owned'})
+        self.assertEqual(order,['closed_cli','original_grantor_finalize','bounded_observation']);self.assertEqual(m.report['steps']['MIGRATE-FAILURE'],'ATTEMPTED_UNQUALIFIED')
+    def test_expected_codes_return_observation_without_promotion_or_proof(self):
+        m=load();state={'rows':[{'name':'fixed'}]}
+        m.migrate=Mock(return_value={'status':'CLI_FAILED_STOP_AND_INSPECT','exit_code':1,'prisma_codes':['P3018'],'sqlstates':['42501']});m.finalize=Mock();m.ledger=Mock(return_value=state)
+        self.assertIs(m.attempt_expected_failure({'name':'owned'}),state);self.assertEqual(m.report['steps']['MIGRATE-FAILURE'],'ATTEMPTED_UNQUALIFIED')
+    def test_rejected_format_closed_nonzero_observes_but_never_qualifies(self):
+        m=load();m.migrate=Mock(return_value={'status':'CLI_OUTPUT_REJECTED_STOP_AND_INSPECT','exit_code':1,'prisma_codes':['P3018'],'sqlstates':['42501']});m.finalize=Mock();m.ledger=Mock(return_value={'rows':None})
+        with self.assertRaisesRegex(Halt,'^EXPECTED_MIGRATION_FAILURE_NOT_PROVEN$'):m.attempt_expected_failure({'name':'owned'})
+        m.ledger.assert_called_once()
+    def test_unconfirmed_process_or_finalization_never_observes_or_recovers(self):
+        for failure in ('process','finalizer'):
+            m=load();m.ledger=Mock();m.finalize=Mock();m.migrate=Mock(return_value={'status':'CLI_FAILED_STOP_AND_INSPECT','exit_code':1})
+            if failure=='process':m.migrate.side_effect=Halt('PROCESS_UNCONFIRMED')
+            else:m.finalize.side_effect=Halt('FINALIZATION_UNCONFIRMED')
+            with self.assertRaises(Halt):m.attempt_expected_failure({'name':'owned'})
+            m.finalize.assert_called_once();m.ledger.assert_not_called()
+    def test_nonfailure_result_never_reads_failed_ledger(self):
+        m=load();m.migrate=Mock(return_value={'status':'PASS','exit_code':0});m.finalize=Mock();m.ledger=Mock()
+        with self.assertRaisesRegex(Halt,'^EXPECTED_CLOSED_CLI_FAILURE_NOT_PROVEN$'):m.attempt_expected_failure({'name':'owned'})
+        m.ledger.assert_not_called()
+    def test_absent_or_odd_ledger_preserves_catalog_and_never_reads_rows(self):
+        for field in ('ledger_present','ledger_regular','ledger_owner_expected'):
+            m=load();presence={'ledger_present':True,'ledger_regular':True,'ledger_owner_expected':True,'active_migrators':0,'application_relations':0,'application_functions':0,'application_types':0,'application_enums':0};presence[field]=False
+            calls=[]
+            def observe(name,sql,stage):
+                calls.append((sql,stage));self.assertNotIn('FROM public._prisma_migrations',sql);return presence
+            m.observe=observe
+            with self.assertRaisesRegex(Halt,'^PRIVATE_LEDGER_PRESENCE_OR_BACKEND_BOUNDARY_FAILED$'):m.ledger('owned','FAILURE')
+            self.assertEqual(len(calls),1);kept=m.report['targets']['owned']['ledger_observations'][0]
+            self.assertFalse(kept[field]);self.assertIsNone(kept['rows']);self.assertFalse(kept['ledger_rows_observed']);m.save.assert_called_once()
+    def test_ledger_row_read_failure_keeps_presence(self):
+        m=load();presence={'ledger_present':True,'ledger_regular':True,'ledger_owner_expected':True,'active_migrators':0}
+        m.observe=Mock(side_effect=[presence,Halt('ROW_READ_FAILED')])
+        with self.assertRaisesRegex(Halt,'^ROW_READ_FAILED$'):m.ledger('owned','FAILURE')
+        self.assertEqual(m.report['targets']['owned']['ledger_observations'][0],{'stage':'FAILURE',**presence,'rows':None,'ledger_rows_observed':False})
+    def test_retained_failure_metadata_has_no_unrestricted_cli_output(self):
+        m=load();m.migrate=Mock(return_value={'status':'CLI_FAILED_STOP_AND_INSPECT','exit_code':1,'prisma_codes':[],'sqlstates':[],'untrusted_output':'SECRET_CANARY'});m.finalize=Mock();m.ledger=Mock(return_value={'rows':None})
+        with self.assertRaises(Halt):m.attempt_expected_failure({'name':'owned'})
+        self.assertNotIn('SECRET_CANARY',json.dumps(m.report))
+if __name__=='__main__':unittest.main(verbosity=2)

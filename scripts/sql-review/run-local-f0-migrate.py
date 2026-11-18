@@ -23,6 +23,8 @@ ENDPOINT = "npipe:////./pipe/dockerDesktopLinuxEngine"
 SOURCE_ROOT = "/run/wa-f0-source"
 TOOLS_ROOT = "/run/wa-f0-tools"
 PRIVATE_ROOT = "/run/wa-secrets"
+PRISMA_CODES = set("P1000 P1001 P1002 P1003 P1008 P1010 P1011 P1012 P1013 P1014 P1015 P1016 P1017 P3000 P3001 P3002 P3003 P3004 P3005 P3006 P3007 P3008 P3009 P3010 P3011 P3012 P3013 P3014 P3015 P3016 P3017 P3018 P3019 P3020 P3021 P3022".split())
+DIAGNOSTIC_FLAGS = {"text_valid", "sgr_stripped", "headers_valid", "prisma_header_present", "prisma_header_unique", "database_header_present", "database_header_unique"}
 MOUNT_CHECKS = ('metadata_list','one_data_volume','one_bootstrap_bind','bootstrap_source','bootstrap_destination','bootstrap_readonly','only_declared_mounts','source_exact_windows','source_exact_desktop')
 
 
@@ -159,22 +161,39 @@ def validate_rollback(proof, manifest, observed):
                 for key in ("catalog_evidence_sha256", "ledger_evidence_sha256")), "INDEPENDENT_ROLLBACK_REVIEW_REQUIRED")
 
 
+def runner_succeeded(value):
+    return value["exit_code"] == 0 and value["status"] == "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS"
+
+
 def safe_result(raw, manifest, observed, operation):
     value = unique_json(raw)
-    require(type(value) is dict and value.get("schema") == "workinants.local-f0-migrate-result.v1", "RUNNER_RESULT_SCHEMA")
+    require(type(value) is dict and value.get("schema") == "workinants.local-f0-migrate-result.v2", "RUNNER_RESULT_SCHEMA")
     permitted = {"schema", "operation", "status", "exit_code", "prisma_codes", "sqlstates", "no_pending_message_observed",
-                 "raw_output_discarded", "database_qualification_claimed", "run_id", "container_id", "source_sql_sha256", "attestation_sha256"}
+                 "raw_output_discarded", "database_qualification_claimed", "run_id", "container_id", "source_sql_sha256", "attestation_sha256", "diagnostic_format"}
     require(set(value) == permitted and value["operation"] == operation and
             value["run_id"] == manifest["run_id"] and value["container_id"] == observed["container_id"] and
             value["source_sql_sha256"] == manifest["source"]["integrated_sql_sha256"] and
             value["raw_output_discarded"] is True and value["database_qualification_claimed"] is False,
             "RUNNER_RESULT_IDENTITY")
-    require(value["status"] in {"CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS", "CLI_FAILED_STOP_AND_INSPECT", "CLI_CLOSURE_UNCONFIRMED_STOP_AND_CLEAN_EXACT_RESOURCE"} and
+    require(value["status"] in {"CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS", "CLI_FAILED_STOP_AND_INSPECT", "CLI_OUTPUT_REJECTED_STOP_AND_INSPECT", "CLI_CLOSURE_UNCONFIRMED_STOP_AND_CLEAN_EXACT_RESOURCE"} and
             (value["exit_code"] is None or type(value["exit_code"]) is int and 0 <= value["exit_code"] <= 255) and
             type(value["no_pending_message_observed"]) is bool and
-            type(value["prisma_codes"]) is list and all(type(code) is str and re.fullmatch(r"P[13][0-9]{3}", code) for code in value["prisma_codes"]) and
-            type(value["sqlstates"]) is list and set(value["sqlstates"]).issubset({"42501", "42703", "22012", "P0001", "23503", "23505", "23514"}) and
+            type(value["prisma_codes"]) is list and len(value["prisma_codes"]) <= 1 and all(type(code) is str and code in PRISMA_CODES for code in value["prisma_codes"]) and
+            type(value["sqlstates"]) is list and len(value["sqlstates"]) <= 1 and all(type(code) is str and code in {"42501", "42703", "22012", "P0001", "23503", "23505", "23514"} for code in value["sqlstates"]) and
             type(value["attestation_sha256"]) is str and re.fullmatch(r"[0-9a-f]{64}", value["attestation_sha256"]), "RUNNER_RESULT_VALUES")
+    flags = value["diagnostic_format"]
+    require(type(flags) is dict and set(flags) == DIAGNOSTIC_FLAGS and all(type(flag) is bool for flag in flags.values()), "RUNNER_DIAGNOSTIC_FLAGS")
+    require((not flags["headers_valid"] or flags["text_valid"]) and
+            all(not flags[family + "_unique"] or flags[family + "_present"] for family in ("prisma_header", "database_header")) and
+            (flags["text_valid"] or not any(flags[key] for key in DIAGNOSTIC_FLAGS - {"text_valid", "sgr_stripped"})), "RUNNER_DIAGNOSTIC_CONSISTENCY")
+    accepted = flags["text_valid"] and flags["headers_valid"] and all(not flags[family + "_present"] or flags[family + "_unique"] for family in ("prisma_header", "database_header"))
+    require((not value["prisma_codes"] or accepted and flags["prisma_header_unique"]) and
+            (not value["sqlstates"] or accepted and flags["database_header_unique"]) and
+            (not value["no_pending_message_observed"] or accepted and operation == "deploy" and value["exit_code"] == 0 and not flags["prisma_header_present"] and not flags["database_header_present"]), "RUNNER_DIAGNOSTIC_CONSISTENCY")
+    status = ("CLI_CLOSURE_UNCONFIRMED_STOP_AND_CLEAN_EXACT_RESOURCE" if value["exit_code"] is None else
+              "CLI_OUTPUT_REJECTED_STOP_AND_INSPECT" if not accepted else
+              "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS" if value["exit_code"] == 0 else "CLI_FAILED_STOP_AND_INSPECT")
+    require(value["status"] == status, "RUNNER_STATUS_CONSISTENCY")
     return value
 
 
@@ -217,7 +236,7 @@ def coordinate(manifest_bytes, operation, proof_bytes=None, process=subprocess.r
                      input=raw, text=True, capture_output=True, timeout=150, shell=False)
     value = safe_result(result.stdout, manifest, observed, operation)
     require(value["attestation_sha256"] == hashlib.sha256(raw.encode("utf8")).hexdigest(), "ATTESTATION_RESULT_MISMATCH")
-    require((result.returncode == 0) == (value["exit_code"] == 0), "RUNNER_EXIT_MISMATCH")
+    require(result.returncode == (0 if runner_succeeded(value) else 1), "RUNNER_EXIT_MISMATCH")
     return value
 
 
@@ -242,12 +261,12 @@ def main(argv=None, process=subprocess.run):
             with args.evidence_file.open("x", encoding="utf8", newline="\n") as file:
                 file.write(json.dumps(value, indent=2) + "\n")
         print(json.dumps(value))
-        return 0 if value["exit_code"] == 0 else 1
+        return 0 if runner_succeeded(value) else 1
     except Exception as error:
         # Never print a subprocess exception, raw engine output, input document,
         # URL, error detail or environment value.
         comparison=mount_failure_comparison(error)
-        print(json.dumps({"schema": "workinants.local-f0-migrate-result.v1", "status": "REFUSED_OR_INCOMPLETE",
+        print(json.dumps({"schema": "workinants.local-f0-migrate-result.v2", "status": "REFUSED_OR_INCOMPLETE",
                           "code": error.code if isinstance(error, HeldFailure) else "INVALID_INPUT_IO_OR_UNCONFIRMED_PROCESS",
                           **({'mount_comparison':comparison} if comparison is not None else {}),
                           "raw_output_discarded": True, "database_qualification_claimed": False}))

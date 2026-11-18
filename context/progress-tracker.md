@@ -1,3 +1,9 @@
+## Current local F0 action — bounded Prisma diagnostics correction, 17 November2026
+
+The first/no-op migration passes and unknown failure cause remain [version7406805 historical evidence](reconciliation/local-f0-migration-7406805-partial-execution.json). [Replacement diagnostic validation](reconciliation/local-f0-cli-diagnostics-validation.json) records exact focused checks and independent source review: internal protocolv2 retains seven fixedBoolean flags and unique allowlisted headers after complete-SGR-only decoding; color-disabling child environment is rebuilt, other controls/ambiguous headers stop. External operator now saves bounded catalog/ledger clues after confirmed CLI closure and finalization before checking expected failure codes. Absent/odd ledger is explicit, never fabricated rollback proof.
+
+Canonical integrated migration/checksum, A–D and32workerACL remain unchanged. Next is a fresh reviewed unique migration/recovery experiment. No recovery permission follows from an arbitrary error or agent agreement; actual exact failure/zero-object ledger proof must be independently reviewed before standard resolve. Broader source-only Customer/worker/native packets remain NOT_RUN. Posture D remains.
+
 ## Current local F0 action — genuine migration partial evidence, 17 November2026
 
 Step3.1–3.5 source0623028 small-subset passes remain. Current3.6 source7406805/run2afac3f7 passed genuine Prisma empty deployment, canonical-checksum private ledger, then second no-pending deployment with identical ledger and normalized schema fingerprint. Both targets repeated12correct/12wrong authentication controls and copied Linux Node/engine compatibility.

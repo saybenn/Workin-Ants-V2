@@ -210,9 +210,10 @@ class LauncherTests(unittest.TestCase):
             self.assertNotIn("CANARY", json.dumps(arguments))
             self.assertNotIn("env", kwargs)
             attestation = json.loads(kwargs["input"])
-            value = {"schema": "workinants.local-f0-migrate-result.v1", "operation": "deploy",
+            value = {"schema": "workinants.local-f0-migrate-result.v2", "operation": "deploy",
                      "status": "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS", "exit_code": 0,
                      "prisma_codes": [], "sqlstates": [], "no_pending_message_observed": False,
+                     "diagnostic_format": {"text_valid": True, "sgr_stripped": False, "headers_valid": True, "prisma_header_present": False, "prisma_header_unique": False, "database_header_present": False, "database_header_unique": False},
                      "raw_output_discarded": True, "database_qualification_claimed": False,
                      "run_id": manifest["run_id"], "container_id": container["Id"],
                      "source_sql_sha256": manifest["source"]["integrated_sql_sha256"],
@@ -268,6 +269,83 @@ class LauncherTests(unittest.TestCase):
                            ("failed_row_checksum", "f" * 64), ("container_id", "e" * 64)):
             wrong = {**proof, key: value}
             self.assert_held(lambda: launcher["validate_rollback"](wrong, manifest, observed))
+
+
+class ResultProtocolTests(unittest.TestCase):
+    def setUp(self):
+        self.manifest, *_, context, container, volume = fixture()
+        self.observed = launcher["inspect_live"](self.manifest, context, container, volume)
+        self.value = {"schema": "workinants.local-f0-migrate-result.v2", "operation": "deploy",
+                      "status": "CLI_FAILED_STOP_AND_INSPECT", "exit_code": 1,
+                      "prisma_codes": ["P3018"], "sqlstates": ["42703"], "no_pending_message_observed": False,
+                      "diagnostic_format": {"text_valid": True, "sgr_stripped": True, "headers_valid": True,
+                          "prisma_header_present": True, "prisma_header_unique": True,
+                          "database_header_present": True, "database_header_unique": True},
+                      "raw_output_discarded": True, "database_qualification_claimed": False,
+                      "run_id": self.manifest["run_id"], "container_id": self.observed["container_id"],
+                      "source_sql_sha256": self.manifest["source"]["integrated_sql_sha256"], "attestation_sha256": "a" * 64}
+
+    def accepted(self, value):
+        return launcher["safe_result"](json.dumps(value), self.manifest, self.observed, "deploy")
+
+    def rejected(self, value):
+        with self.assertRaises(Exception) as caught: self.accepted(value)
+        self.assertTrue(hasattr(caught.exception, "code"))
+        self.assertNotIn("CANARY", str(caught.exception))
+
+    def test_exact_v2_has_only_fixed_flags_and_bounded_codes(self):
+        self.assertEqual(self.accepted(self.value), self.value)
+        self.assertFalse(launcher["runner_succeeded"](self.value))
+        legacy = {**self.value, "schema": "workinants.local-f0-migrate-result.v1"}
+        self.rejected(legacy)
+        for change in ({"prisma_codes": ["P1999"]}, {"prisma_codes": ["P3018", "P3018"]},
+                       {"sqlstates": ["XX999"]}, {"sqlstates": ["42703", "42501"]},
+                       {"raw_text": "CANARY"}):
+            with self.subTest(keys=list(change)): self.rejected({**self.value, **change})
+        for flags in ({**self.value["diagnostic_format"], "text_valid": 1},
+                      {**self.value["diagnostic_format"], "raw_header": "CANARY"},
+                      {key: val for key, val in self.value["diagnostic_format"].items() if key != "headers_valid"}):
+            self.rejected({**self.value, "diagnostic_format": flags})
+
+    def test_invalid_text_flags_cannot_claim_codes_no_pending_or_cli_success(self):
+        flags = dict.fromkeys(launcher["DIAGNOSTIC_FLAGS"], False)
+        flags["sgr_stripped"] = True
+        rejected_output = {**self.value, "status": "CLI_OUTPUT_REJECTED_STOP_AND_INSPECT", "exit_code": 0,
+                           "prisma_codes": [], "sqlstates": [], "diagnostic_format": flags}
+        self.assertEqual(self.accepted(rejected_output), rejected_output)
+        self.assertFalse(launcher["runner_succeeded"](rejected_output))
+        self.rejected({**rejected_output, "prisma_codes": ["P3018"]})
+        self.rejected({**rejected_output, "no_pending_message_observed": True})
+        self.rejected({**rejected_output, "status": "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS"})
+        self.rejected({**rejected_output, "diagnostic_format": {**flags, "headers_valid": True}})
+
+    def test_header_ambiguity_and_missing_presence_fail_closed(self):
+        ambiguous = {**self.value, "status": "CLI_OUTPUT_REJECTED_STOP_AND_INSPECT", "prisma_codes": [], "sqlstates": [],
+                     "diagnostic_format": {**self.value["diagnostic_format"], "prisma_header_unique": False}}
+        self.accepted(ambiguous)
+        self.rejected({**ambiguous, "sqlstates": ["42703"]})
+        self.rejected({**self.value, "diagnostic_format": {**self.value["diagnostic_format"], "database_header_present": False}})
+        malformed = {**self.value, "status": "CLI_OUTPUT_REJECTED_STOP_AND_INSPECT", "prisma_codes": [], "sqlstates": [],
+                     "diagnostic_format": {**self.value["diagnostic_format"], "headers_valid": False}}
+        self.accepted(malformed)
+        self.rejected({**malformed, "prisma_codes": ["P3018"]})
+
+    def test_no_pending_requires_clean_unique_deploy_success_without_headers(self):
+        flags = dict.fromkeys(launcher["DIAGNOSTIC_FLAGS"], False)
+        flags.update(text_valid=True, headers_valid=True)
+        success = {**self.value, "status": "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS", "exit_code": 0,
+                   "prisma_codes": [], "sqlstates": [], "no_pending_message_observed": True, "diagnostic_format": flags}
+        self.accepted(success)
+        self.assertTrue(launcher["runner_succeeded"](success))
+        self.rejected({**success, "diagnostic_format": {**flags, "prisma_header_present": True, "prisma_header_unique": True}})
+        self.rejected({**success, "exit_code": 1})
+        self.rejected({**success, "status": "CLI_FAILED_STOP_AND_INSPECT"})
+
+    def test_closure_failure_keeps_status_separate_from_output_format(self):
+        unclosed = {**self.value, "status": "CLI_CLOSURE_UNCONFIRMED_STOP_AND_CLEAN_EXACT_RESOURCE", "exit_code": None}
+        self.accepted(unclosed)
+        self.assertFalse(launcher["runner_succeeded"](unclosed))
+        self.rejected({**unclosed, "status": "CLI_FAILED_STOP_AND_INSPECT"})
 
 
 if __name__ == "__main__":

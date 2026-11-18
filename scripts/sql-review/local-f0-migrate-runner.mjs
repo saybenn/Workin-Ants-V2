@@ -37,21 +37,48 @@ export function childEnvironment(local) {
   // root dotenv, config override or additional Prisma binary can enter a child.
   return {PATH: TOOLS_ROOT + "/node/bin:/usr/bin:/bin", HOME: PRIVATE_ROOT,
     XDG_CACHE_HOME: PRIVATE_ROOT + "/cache", LANG: "C.UTF-8", CI: "1",
+    NO_COLOR: "1", NODE_DISABLE_COLORS: "1", TERM: "dumb",
     CHECKPOINT_DISABLE: "1", PRISMA_HIDE_UPDATE_MESSAGE: "1",
     PRISMA_SCHEMA_ENGINE_BINARY: local.engine};
 }
 
+const PRISMA_CODES = new Set("P1000 P1001 P1002 P1003 P1008 P1010 P1011 P1012 P1013 P1014 P1015 P1016 P1017 P3000 P3001 P3002 P3003 P3004 P3005 P3006 P3007 P3008 P3009 P3010 P3011 P3012 P3013 P3014 P3015 P3016 P3017 P3018 P3019 P3020 P3021 P3022".split(" "));
+const SQLSTATES = new Set(["42501", "42703", "22012", "P0001", "23503", "23505", "23514"]);
+
+function normalizeDiagnosticText(value) {
+  if (value === null || value === undefined) value = "";
+  if (typeof value !== "string") return {valid: false, stripped: false, text: ""};
+  let stripped = false;
+  // Consume only complete seven-bit Select Graphic Rendition sequences. Do not
+  // repair a partial ESC/CSI, concatenate streams, or strip another control.
+  const text = value.replace(/\x1b\[[0-9;:]*m/g, () => {stripped = true; return "";}).replace(/\r\n/g, "\n");
+  const rejected = /[\p{Cc}\p{Cf}\p{Zl}\p{Zp}\ud800-\udfff\ufffd]/u.test(text.replace(/[\t\n]/g, ""));
+  return {valid: !rejected, stripped, text: rejected ? "" : text};
+}
+
 export function summarizeProcess(result, operation) {
-  const output = String(result.stdout || "") + "\n" + String(result.stderr || "");
-  const knownCodes = [...new Set(output.split("\n").map(line => line.match(/^\s*(?:Error:|Error code:)\s*(P(?:1000|1001|1002|1003|1008|1010|1011|1012|1013|1014|1015|1016|1017|3000|3001|3002|3003|3004|3005|3006|3007|3008|3009|3010|3011|3012|3013|3014|3015|3016|3017|3018|3019|3020|3021|3022))(?::|\s|$)/)?.[1]).filter(Boolean))].sort();
-  // Only the engine's explicit diagnostic header counts. SQL, passwords or
-  // arbitrary messages containing five-character strings supply no SQLSTATE.
-  const sqlstates = [...new Set(output.split("\n").map(line => line.match(/^\s*Database error code:\s*(42501|42703|22012|P0001|23503|23505|23514)\s*$/)?.[1]).filter(Boolean))].sort();
+  const streams = [normalizeDiagnosticText(result.stdout), normalizeDiagnosticText(result.stderr)];
+  const textValid = streams.every(stream => stream.valid);
+  const lines = textValid ? streams.flatMap(stream => stream.text.split("\n")) : [];
+  const prismaHeaders = lines.filter(line => /^[ \t]*(?:Error:|Error code:)/.test(line));
+  const databaseHeaders = lines.filter(line => /^[ \t]*Database error code:/.test(line));
+  const prismaMatches = prismaHeaders.map(line => line.match(/^[ \t]*(?:Error:|Error code:)[ \t]*(P[0-9]{4})(?:[ \t]*|:[ \t]+[^\r\n]*)$/));
+  const databaseMatches = databaseHeaders.map(line => line.match(/^[ \t]*Database error code:[ \t]*([0-9A-Z]{5})[ \t]*$/));
+  const format = {text_valid: textValid, sgr_stripped: streams.some(stream => stream.stripped),
+    headers_valid: textValid && [...prismaMatches, ...databaseMatches].every(Boolean),
+    prisma_header_present: prismaHeaders.length > 0, prisma_header_unique: prismaHeaders.length === 1,
+    database_header_present: databaseHeaders.length > 0, database_header_unique: databaseHeaders.length === 1};
+  const accepted = format.text_valid && format.headers_valid && prismaHeaders.length <= 1 && databaseHeaders.length <= 1;
+  const prismaCode = accepted && prismaMatches[0]?.[1];
+  const sqlstate = accepted && databaseMatches[0]?.[1];
+  const knownCodes = prismaCode && PRISMA_CODES.has(prismaCode) ? [prismaCode] : [];
+  const sqlstates = sqlstate && SQLSTATES.has(sqlstate) ? [sqlstate] : [];
   const closed = !result.error && !result.signal && Number.isInteger(result.status);
-  return {schema: "workinants.local-f0-migrate-result.v1", operation,
-    status: closed ? (result.status === 0 ? "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS" : "CLI_FAILED_STOP_AND_INSPECT") : "CLI_CLOSURE_UNCONFIRMED_STOP_AND_CLEAN_EXACT_RESOURCE",
+  return {schema: "workinants.local-f0-migrate-result.v2", operation,
+    status: !closed ? "CLI_CLOSURE_UNCONFIRMED_STOP_AND_CLEAN_EXACT_RESOURCE" : !accepted ? "CLI_OUTPUT_REJECTED_STOP_AND_INSPECT" : result.status === 0 ? "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS" : "CLI_FAILED_STOP_AND_INSPECT",
     exit_code: closed ? result.status : null, prisma_codes: knownCodes, sqlstates,
-    no_pending_message_observed: operation === "deploy" && result.status === 0 && /(?:^|\n)No pending migrations to apply\.\s*(?:\n|$)/.test(output),
+    diagnostic_format: format,
+    no_pending_message_observed: accepted && closed && operation === "deploy" && result.status === 0 && prismaHeaders.length === 0 && databaseHeaders.length === 0 && lines.filter(line => /^[ \t]*No pending migrations to apply\.[ \t]*$/.test(line)).length === 1,
     raw_output_discarded: true, database_qualification_claimed: false};
 }
 
@@ -94,10 +121,10 @@ export function main(argv = process.argv.slice(2), dependencies = {}) {
     summary.source_sql_sha256 = attestation.planned.source.integrated_sql_sha256;
     summary.attestation_sha256 = sha256(raw);
     (dependencies.emit || (value => process.stdout.write(JSON.stringify(value) + "\n")))(summary);
-    return summary.exit_code === 0 ? 0 : 1;
+    return summary.exit_code === 0 && summary.status === "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS" ? 0 : 1;
   } catch (error) {
     (dependencies.emit || (value => process.stdout.write(JSON.stringify(value) + "\n")))({
-      schema: "workinants.local-f0-migrate-result.v1", status: "REFUSED_OR_INCOMPLETE",
+      schema: "workinants.local-f0-migrate-result.v2", status: "REFUSED_OR_INCOMPLETE",
       code: error instanceof HeldFailure ? error.code : "INVALID_LOCAL_INPUT_OR_IO", raw_output_discarded: true,
       database_qualification_claimed: false,
     });
