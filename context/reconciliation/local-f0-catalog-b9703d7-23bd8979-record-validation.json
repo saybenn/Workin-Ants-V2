@@ -1,0 +1,43 @@
+{
+  "recorded_at": "2026-11-18T06:12:17.350882+00:00",
+  "scope": "CATALOG_EVIDENCE_AND_CURRENT_PROGRESS_RECORDS",
+  "records_sha256": {
+    "context/reconciliation/local-f0-catalog-b9703d7-23bd8979-execution.json": "bbf604e3eb2c7a066f2287a2f2f2ab825582d366dc5330394170b33a0fd22de8",
+    "context/reconciliation/local-f0-catalog-b9703d7-23bd8979-audit.json": "9ba3bcb59439c29c21df56a27a858f53bf69ffb3eea39dd824610d34ea51cbdb",
+    "context/reconciliation/local-f0-catalog-b9703d7-8fa680ed-preflight-stop.json": "4760f5f9b2ee2d1478f7216003bef4ddfb36c187196f593667261db49c399ca2"
+  },
+  "checks": {
+    "context": {
+      "command": [
+        "C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "scripts/check-context.py"
+      ],
+      "recorded_at": "2026-11-18T06:11:12.072677+00:00",
+      "exit_code": 0,
+      "seconds": 11.922,
+      "stdout": "{\n  \"clusters\": 10,\n  \"modules\": 34,\n  \"cluster_documents\": 20,\n  \"module_documents\": 68,\n  \"handoffs\": 10,\n  \"shared_operations\": 132,\n  \"shared_statuses\": {\n    \"Confirmed\": 109,\n    \"Proposed ruling\": 23\n  },\n  \"prisma_models\": 177,\n  \"prisma_enums\": 207,\n  \"sql_migrations\": 1,\n  \"created_tables\": 53,\n  \"created_enums\": 31\n}\nWARNINGS: 124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay\nStructural checks PASSED; semantic readiness is a separate gate.\n",
+      "stderr": "",
+      "scope": "OFFLINE_CONTEXT_ONLY",
+      "report_sha256": "6dad2cb969db7cda5d65e7622ee62719fef436a80066d8ba630f240feca9ec7b"
+    },
+    "phase0": {
+      "command": [
+        "C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "scripts/check-phase0.py"
+      ],
+      "recorded_at": "2026-11-18T06:11:01.062601+00:00",
+      "exit_code": 0,
+      "seconds": 0.907,
+      "stdout": "{\n  \"errors\": [],\n  \"nine_roles\": 9,\n  \"archived_files\": 21,\n  \"source_models\": 177,\n  \"database_posture\": \"D\",\n  \"status\": \"FRAMEWORK_ACCEPTANCE_PASS_DEPENDENCY_SECURITY_REQUALIFIED\",\n  \"scope\": \"Static source/evidence/context/denial gate checks, including integrity of the separately recorded read-only existing-database observation. No fresh-target adoption, RLS behavior, owner-runtime or SH qualification.\"\n}\n",
+      "stderr": "",
+      "scope": "OFFLINE_CONTEXT_ONLY",
+      "report_sha256": "857badc9a5cf7bb249a844bedd3f33a1e991da329598ed8616a5819b35e163a8"
+    }
+  },
+  "canonical_application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+  "unrelated_suites_not_repeated": "Business SQL, source expected manifest and strict comparison modules unchanged; actual comparator independently reproduced and new progress/context records checked. Existing version-qualified source suites retained.",
+  "posture": "D",
+  "new_runtime_executed_by_record_checks": false
+}
