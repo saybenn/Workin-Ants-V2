@@ -1,0 +1,1 @@
+SELECT jsonb_build_object('row_count',(SELECT count(*) FROM "platform"."database_action_grant" WHERE "id"='f1597749-8f18-5ade-87b5-e4a3dd56107c'::pg_catalog.uuid));

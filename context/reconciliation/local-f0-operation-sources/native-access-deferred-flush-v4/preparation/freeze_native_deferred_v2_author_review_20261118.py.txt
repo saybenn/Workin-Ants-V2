@@ -1,0 +1,64 @@
+"""Source-only postcheck/freeze; no runtime, Docker, Git or database calls."""
+import ast
+import hashlib
+import json
+from pathlib import Path
+from pglast import parse_sql
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+OLD=ROOT/'review-output/native-table-denials';NEW=ROOT/'review-output/native-table-denials-v2'
+BEFORE=TASK/'native-before-deferred-flush-correction-20261118'
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def load(path):return json.loads(path.read_bytes())
+preservation=load(BEFORE/'preservation.json')
+assert sha((BEFORE/'preservation.json').read_bytes())=='4425c2ad39ff762698d65a6d711b82bb7a63b50902a9005ff19c3b1270123cec'
+for name,wanted in preservation['files_sha256'].items():
+    assert sha((BEFORE/name).read_bytes())==wanted
+    assert sha((ROOT/name).read_bytes())==wanted
+sources={name:sha((ROOT/name).read_bytes()) for name in ('scripts/prepare-native-table-denials-v2.py','scripts/sql-review/test_native_deny_deferred_flush.py','scripts/sql-review/native-table-denials-deferred-flush-v2.md')}
+for name in sources:
+    if name.endswith('.py'):compile((ROOT/name).read_bytes(),str(ROOT/name),'exec')
+old_packet=load(OLD/'packet.json');packet=load(NEW/'packet.json')
+assert sha((OLD/'packet.json').read_bytes())=='bf542f88525e96d7d1c93ef06425278a82e1328043d60879ac34191f1bee3000'
+assert sha((NEW/'packet.json').read_bytes())=='8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69'
+artifacts={path.name:sha(path.read_bytes()) for path in sorted(NEW.iterdir()) if path.is_file()}
+assert set(artifacts)==set(packet['files_sha256'])|{'packet.json'} and len(artifacts)==84
+statements=0
+for name,wanted in packet['files_sha256'].items():
+    assert artifacts[name]==wanted;statements+=len(parse_sql((NEW/name).read_text()))
+for name,wanted in packet['source_inputs_sha256'].items():assert sha((ROOT/name).read_bytes())==wanted
+changed=[name for name in old_packet['files_sha256'] if (OLD/name).read_bytes()!=(NEW/name).read_bytes()]
+assert changed==['native-fact-setup.sql']
+assert (NEW/'native-fact-setup.sql').read_text().replace('SET CONSTRAINTS ALL IMMEDIATE;\n','')==(OLD/'native-fact-setup.sql').read_text()
+for key in ('cases','synthetic_facts','setup_bypassed_user_triggers','setup_retained_user_triggers','preparation_blocks','selected_case_ids','offline_source_check_derivations','offline_native_key_derivation'):
+    assert packet[key]==old_packet[key],key
+def funcs(path):return {node.name:ast.dump(node) for node in ast.parse(path.read_bytes()).body if isinstance(node,ast.FunctionDef)}
+old_defs,new_defs=map(funcs,(ROOT/'scripts/prepare-native-table-denials.py',ROOT/'scripts/prepare-native-table-denials-v2.py'))
+assert set(old_defs)==set(new_defs)
+assert [name for name in old_defs if old_defs[name]!=new_defs[name]]==['build']
+report={
+ 'schema':'workinants.native-deferred-flush-v2-author-review.v1',
+ 'status':'NEW_SOURCE_PACKET_FROZEN_FOR_INDEPENDENT_REVIEW_NOT_EXECUTED',
+ 'author':'/root/restricted_controls_operator','source_files_sha256':sources,
+ 'packet':{'path':'review-output/native-table-denials-v2/packet.json','sha256':artifacts['packet.json'],'setup_sql_sha256':artifacts['native-fact-setup.sql'],
+   'artifact_files_sha256':artifacts,'source_inputs_sha256':packet['source_inputs_sha256'],'artifacts':84,'SQL_files':83,'SQL_statements':statements,'source_inputs':len(packet['source_inputs_sha256'])},
+ 'preservation':{'directory':str(BEFORE),'manifest_sha256':sha((BEFORE/'preservation.json').read_bytes()),'all109_original_source_and_BF_packet_files_preserved_and_current_unchanged':True,
+   'original_generator_sha256':'41eceb73acb05ff6f0695acd7c8b4aff674dabe2448a72f6a33ff5944fb9ff8b','original_packet_sha256':'bf542f88525e96d7d1c93ef06425278a82e1328043d60879ac34191f1bee3000'},
+ 'actual_stop_audit':{'path':'native_v3_55006_independent_stop_source_audit_20261118.json','sha256':'51f145d485c64383122016532492ff53e649351f0ec47211ed951624d8fd0a12',
+   'observed':'55006 SQLSTATE_ONLY; exit3/noack/noexactoutput; operationclosed,42tablesempty,100triggersrestored,zerofacets',
+   'actual_exact_message_relation_statement_and_C_branch':'UNOBSERVED','older_stop_complete_causes':'UNOBSERVED'},
+ 'source_correction':'Exactly one SET CONSTRAINTS ALL IMMEDIATE after all205 seed INSERTs and before any trigger-enable DDL. Run retained deferred infrastructure_commit checks without weakening their semantics.',
+ 'exact_semantics_unchanged':{'other_SQL_files':82,'seed_rows':205,'bypassed_USER_triggers':60,'retained_USER_triggers':40,'retained_initially_deferred_infrastructure_triggers':2,
+    'selected_DENY_cases':40,'probes':960,'blocked_native_facets':4,'all_case_probe_and_owner_positive_statuses':'NOT_RUN','canonical_SQL5ae':'UNCHANGED','worker32ACL':'UNCHANGED','native_constraints_and_internal_RI':'UNCHANGED'},
+ 'generator_delta':'New filename/output/source pin plus retained-check phase metadata; only build function AST differs, all other generator functions identical',
+ 'offline_checks':{'command':'python -B scripts/sql-review/test_native_deny_deferred_flush.py','passed':20,'failed':0,'elapsed_seconds':5.411,
+   'existing_factory_checks_on_new_generator':13,'new_emitted_SQL_event_order_checks':7,'all83_SQL_parse':True,'all84_artifacts_reproduced':True,
+   'event_model':'PG17.11 pending-event ALTER rule only; source metadata and parsed emitted statements; not engine/owner semantics',
+   'regressions':['old order reproduces55006 in model','new boundary validates retained checks before restoration','removed/late barrier rejects','retained-check failure still raises/stops before any restore','no bypass/row/guard/constraint changes'],
+   'process_Docker_database_network_boundaries':'FORBIDDEN_OR_MOCKED'},
+ 'runtime_integration':'NOT_REPOINTED. Existing e134 coordinator/BF packet and V3 operators remain untouched. Root must independently review and explicitly bind a replacement coordinator/operation packet to this new directory/digest before any fresh run.',
+ 'runtime_Docker_database_SQL_or_Git_actions_by_author':False,'independent_source_approval':'PENDING_ROOT_OR_SEPARATE_REVIEWER','posture':'D','whole94_451_or_owner_qualification':False,
+ 'primary_sources':['https://github.com/postgres/postgres/blob/REL_17_11/src/backend/commands/tablecmds.c#L4026','https://github.com/postgres/postgres/blob/REL_17_11/src/backend/utils/errcodes.txt#L382','https://www.postgresql.org/docs/17/sql-set-constraints.html'],
+ 'plain_english':'The waiting checks now run before setup puts the other rules back. If a waiting check fails, the test still stops. The old packet is saved, and this new packet has only passed pretend tests.'}
+path=TASK/'native_deferred_flush_v2_author_review_20261118.json'
+with path.open('xb') as handle:handle.write((json.dumps(report,indent=2)+'\n').encode())
+print(json.dumps({'report':str(path),'sha256':sha(path.read_bytes()),'source_files_sha256':sources,'packet_sha256':artifacts['packet.json'],'SQL_statements':statements,'offline_pass':20}))

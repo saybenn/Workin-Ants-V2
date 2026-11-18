@@ -1,0 +1,129 @@
+"""Exclusive archival preparation only. No Git/network/database/process calls."""
+import ast
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+digest=lambda path:sha(path.read_bytes())
+def encoded(value):return (json.dumps(value,indent=2)+'\n').encode()
+def write(path,raw):
+    path.parent.mkdir(parents=True,exist_ok=True)
+    with path.open('xb') as out:out.write(raw)
+
+record=json.loads((TASK/'native_access_v4_exact_transform_author_record_20261118.json').read_bytes())
+author=json.loads((TASK/'native_deferred_flush_v2_author_review_20261118.json').read_bytes())
+binding=json.loads((TASK/'native_v2_coordinator_binding_independent_review_20261118.json').read_bytes())
+archive_relative='context/reconciliation/local-f0-operation-sources/native-access-deferred-flush-v4'
+archive=ROOT/archive_relative
+validation=ROOT/'context/reconciliation/local-f0-native-access-deferred-flush-source-validation.json'
+assert not archive.exists() and not validation.exists()
+for name,want in record['external_files_sha256'].items():assert digest(TASK/name)==want
+for name,want in record['old_external_files_sha256'].items():assert digest(TASK/name)==want
+pin=ast.parse((TASK/'pin_native_access_v4_plan_20261118.py').read_bytes())
+assignment=next(n for n in pin.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='SOURCE_FILES' for t in n.targets))
+names=ast.literal_eval(assignment.value.generators[0].iter)
+snapshot_names={n:n+'.txt' for n in names}
+assert set(names)==set(record['external_files_sha256'])
+blobs={};origins={}
+def collect(source,relative):
+    assert relative not in blobs
+    raw=source.read_bytes();blobs[relative]=raw
+    origins[relative]={'source_path':str(source),'sha256':sha(raw)}
+for external,snapshot in snapshot_names.items():collect(TASK/external,snapshot)
+reports={
+    'native_deferred_flush_v2_author_review_20261118.json':'generator-author-20-check-review.json',
+    'native_v2_coordinator_binding_independent_review_20261118.json':'coordinator-binding-independent-review.json',
+    'native_v2_coordinator_binding_source_record_20261118.json':'historical-initial-coordinator-binding-author-record.json.txt',
+    'native-unexpected-diagnostics-root-review-20261118.json':'base-coordinator-root-independent-31-review.json',
+    'native_v3_55006_independent_stop_source_audit_20261118.json':'native-v3-55006-independent-stop-source-audit.json',
+    'native_access_v4_exact_transform_author_record_20261118.json':'external-v4-exact-transform-author-record.json',
+    'restricted_controls_native_v3_source_independent_review_20261118.json':'previous-external-v3-independent-review.json',
+    'native_access_v4_focused_offline_check_20261118.json':'external-v4-focused-six-offline-checks.json',
+}
+for source,name in reports.items():collect(TASK/source,name)
+for name in ('build_native_access_v4_source_20261118.py','freeze_native_access_v4_source_package_20261118.py','prepare_native_deferred_v2_source_20261118.py','freeze_native_deferred_v2_author_review_20261118.py','audit_native_v3_55006_20261118.py'):
+    collect(TASK/name,'preparation/'+name+'.txt')
+sources={**author['source_files_sha256'],
+    'scripts/sql-review/run-native-table-denials-v2.py':'21dce763c809b579eff009871b44315f9ddbcd5b9cc03a33d3af305bc096445b',
+    'scripts/sql-review/test_run_native_table_denials_v2.py':'8c2b9b8ead57292eb65c85f515db3c3da831467d677ee7c3866d26864315d065',
+}
+for path,want in sources.items():
+    assert digest(ROOT/path)==want
+    collect(ROOT/path,'current-source/'+path+'.txt')
+artifact_map=author['packet']['artifact_files_sha256']
+artifact_root=ROOT/'review-output/native-table-denials-v2'
+assert {p.name:digest(p) for p in artifact_root.iterdir() if p.is_file()}==artifact_map
+packet_raw=(artifact_root/'packet.json').read_bytes()
+packet=json.loads(packet_raw)
+assert sha(packet_raw)=='8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69'
+for name,want in packet['source_inputs_sha256'].items():assert digest(ROOT/name)==want
+preservations={}
+for directory,wanted_manifest,wanted_count,current_required in (
+    ('native-before-deferred-flush-correction-20261118','4425c2ad39ff762698d65a6d711b82bb7a63b50902a9005ff19c3b1270123cec',109,True),
+    ('native-v2-binding-before-packet-sha-fix-20261118','dd060e7d7e5a7e6f65412b4deef5397252c04687b69319b953e5a58ad5fd0c24',3,False),
+):
+    base=TASK/directory
+    assert digest(base/'preservation.json')==wanted_manifest
+    manifest=json.loads((base/'preservation.json').read_bytes())
+    expected=manifest['files_sha256'];assert len(expected)==wanted_count
+    actual={p.relative_to(base).as_posix():digest(p) for p in base.rglob('*') if p.is_file()}
+    assert set(actual)==set(expected)|{'preservation.json'}
+    for name,want in expected.items():
+        assert actual[name]==want
+        if current_required:assert digest(ROOT/name)==want
+    archived={}
+    for path in sorted(base.rglob('*')):
+        if path.is_file():
+            relative='preserved/'+directory+'/'+path.relative_to(base).as_posix()+'.txt'
+            collect(path,relative);archived[path.relative_to(base).as_posix()]={'archive_path':archive_relative+'/'+relative,'sha256':digest(path)}
+    preservations[directory]={'manifest_sha256':wanted_manifest,'original_files':wanted_count,'all_bytes_preserved':True,'current_original_bytes_unchanged':current_required,'recursive_original_to_archive_map':archived}
+actual_record=ROOT/'context/reconciliation/local-f0-native-access-4adca02-a2f520b7-execution.json'
+assert digest(actual_record)=='e2a954c0f85bf878e6c19d85b269454a16876c3336393f6c32e5efda196d9ea8'
+collect(actual_record,'historical-native-v3-execution.json.txt')
+audit=json.loads((TASK/'native_v3_55006_independent_stop_source_audit_20261118.json').read_bytes())
+primary={'source_audit_sha256':digest(TASK/'native_v3_55006_independent_stop_source_audit_20261118.json'),'primary_sources':audit['primary_sources'],'observed_exact_message_relation_statement_C_branch':'UNOBSERVED_NOT_RECONSTRUCTED','network_or_database_actions_for_this_package':False}
+blobs['postgresql-17.11-primary-reference-index.json']=encoded(primary)
+limits={
+    'posture':'D','replacement_packet_runtime':'NOT_RUN',
+    'all_owner_positive_and_native_denial_cases':'NOT_RUN',
+    'full94_or451_promotion':False,'hosted_or_migration_adoption':False,
+    'fresh_source_commit_tree_full_packet_and_literal_review':'REQUIRED_BEFORE_ANY_EXECUTION',
+    'actual_prior55006_relation_statement_message_C_branch':'UNOBSERVED',
+}
+v={
+    'schema':'workinants.native-access-deferred-flush-source-validation.v1',
+    'recorded_at':datetime.now(timezone.utc).isoformat(),
+    'status':'SOURCE_ARCHIVED_EXTERNAL_ROOT_REVIEW_PENDING_NOT_EXECUTED',
+    'author':'/root/restricted_controls_operator',
+    'source_files_sha256':sources,
+    'packet':{'path':'review-output/native-table-denials-v2/packet.json','sha256':sha(packet_raw),'artifact_files_sha256':artifact_map,'source_inputs_sha256':packet['source_inputs_sha256'],'SQL_files':83,'artifacts':84,'SQL_statements':997,'cases':40,'facets':960,'blocked_facets':4},
+    'external_files_sha256':record['external_files_sha256'],
+    'snapshot_files_sha256':{archive_relative+'/'+name:sha(raw) for name,raw in sorted(blobs.items())},
+    'snapshot_original_sources':{archive_relative+'/'+name:origin for name,origin in sorted(origins.items())},
+    'preservations':preservations,
+    'external_transform':record,
+    'reviews':{
+        'generator_author_20':{'path':'generator-author-20-check-review.json','sha256':digest(TASK/'native_deferred_flush_v2_author_review_20261118.json'),'tests':20,'PASS':True,'seconds':5.411},
+        'generator_independent_root_20':{'tests':20,'PASS':True,'seconds':5.010,'source_approval':'APPROVED_BY_SEPARATE_ROOT_REVIEWER','provenance':'Parent Root completion messages; source/AST/manual review of exact ddf5/c52d/1a568'},
+        'coordinator_binding_independent':{'sha256':digest(TASK/'native_v2_coordinator_binding_independent_review_20261118.json'),'decision':binding['decision']},
+        'coordinator_root_actual_31':binding['root_actual_offline_result'],
+        'external_v4_source':'PENDING_ROOT_INDEPENDENT_REVIEW',
+        'external_v4_focused_6':json.loads((TASK/'native_access_v4_focused_offline_check_20261118.json').read_bytes()),
+        'unchanged_framework52':'Prior V2 version-qualified PASS plus exact declared V3-to-V4 transform; not relabelled as a fresh52 run.',
+    },
+    'semantics':{'only_SQL_change':'SET CONSTRAINTS ALL IMMEDIATE after all205 INSERTs and before first trigger restore','other82_SQL_unchanged':True,'retained_deferred_checks_still_execute_and_may_fail':True,'canonical5ae_and_worker32ACL_unchanged':True,'security':'Exact nine-role SCRAM controls/provider sentinels, guarded genuine migration, original-grantor finalizer, full-native+expression+ledger gate before finite Native; global all-client closure and exact owned cleanup unchanged','dual_digests':'Finite8044 bound separately from future full committed source packet; no historical baseline chooses oldBF executable packet'},
+    'prior_actual_stop':{'source_record':str(actual_record.relative_to(ROOT).as_posix()),'sha256':digest(actual_record),'audit_sha256':digest(TASK/'native_v3_55006_independent_stop_source_audit_20261118.json'),'SQLSTATE':'55006','facets_exercised':0,'full_cause':'UNOBSERVED_NOT_RECONSTRUCTED','cleanup':'PROVEN_IN_FROZEN_EVIDENCE'},
+    'limits':limits,
+    'runtime_Docker_database_SQL_Git_network_actions_by_packager':False,
+    'plain_english':'The new setup checks waiting rules before putting other rules back. All old files are saved. Pretend tests passed. A different reviewer must approve the new runner and a fresh exact plan before a real test.'
+}
+for relative,raw in blobs.items():write(archive/relative,raw)
+write(validation,encoded(v))
+assert {p.relative_to(archive).as_posix():digest(p) for p in archive.rglob('*') if p.is_file()}=={p:sha(raw) for p,raw in blobs.items()}
+summary={'schema':'workinants.native-access-v4-committable-source-package.v1','source_validation':validation.relative_to(ROOT).as_posix(),'source_validation_sha256':digest(validation),'archive_directory':archive_relative,'archive_files':len(blobs),'archive_files_sha256':v['snapshot_files_sha256'],'external_files_sha256':record['external_files_sha256'],'external_source_review':'PENDING_ROOT','new_literal_plan':'NOT_PREPARED','runtime':'NOT_RUN'}
+write(TASK/'native_access_v4_committable_source_package_20261118.json',encoded(summary))
+print(json.dumps({k:summary[k] for k in ('source_validation','source_validation_sha256','archive_directory','archive_files','external_files_sha256','external_source_review')}))

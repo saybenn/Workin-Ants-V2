@@ -1,0 +1,83 @@
+"""Read stabilized source/evidence only. No runtime, Git or resource actions."""
+import hashlib
+import json
+from pathlib import Path
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def load(path):return json.loads(path.read_bytes())
+def canonical(value):return json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False)
+record_path=ROOT/'context/reconciliation/local-f0-native-access-4adca02-a2f520b7-execution.json'
+assert sha(record_path.read_bytes())=='e2a954c0f85bf878e6c19d85b269454a16876c3336393f6c32e5efda196d9ea8'
+record=load(record_path);base=TASK/'local-f0-native-access-20261118-a2f520b7'
+raw_path=base/'run-evidence.json';assert sha(raw_path.read_bytes())=='c81fa30739fcbefe066db90063fe55232030cfd4e6a6d68d1cf1157fbe252dcd'
+run=load(raw_path);assert record['sanitized_report']==run
+for name,wanted in record['snapshot_files_sha256'].items():assert sha((ROOT/name).read_bytes())==wanted
+coor_path=base/'native-denials/native-denial-results.json';coor=load(coor_path)
+assert sha(coor_path.read_bytes())=='c5ac4018e2bee51a4a88425126d51471cc15d9da6afa802267aad86757b469f0'
+assert coor['status']=='STOPPED' and coor['failure']=={'code':'EXACT_OPERATION_RESULT_REQUIRED','stage':'EXECUTE_native-fact-setup'}
+assert len(coor['operations'])==1 and coor['facets']==coor['native_controls']==[] and coor['subsequent_cases_stopped'] is True
+operation=coor['operations'][0]
+assert operation['name']=='native-fact-setup' and operation['role']=='postgres' and operation['closed_before_observers'] is True
+assert operation['exit_code']==3 and operation['acknowledgement'] is False and operation['exact_output_matches'] is False
+assert operation['unexpected_operation_diagnostic']=={'classification':'SQLSTATE_ONLY','sqlstate':'55006','identifier_classification':'NOT_RETAINED','frame_classification':'NOT_RETAINED'}
+setup_path=ROOT/'review-output/native-table-denials/native-fact-setup.sql';assert sha(setup_path.read_bytes())==operation['source_sql_sha256']=='921e2d18cc2761e2f0712c965fe47de543e9942bf6e03f6a886fb08777b3a0de'
+current=coor['current'];assert current['all_100_trigger_functions_restored'] is True and current['post_failure_observation_verified'] is True
+assert len(current['data_projection'])==42 and all(type(row['row_count']) is int and row['row_count']==0 and row['rows_sha256']==sha(b'') for row in current['data_projection'])
+assert all(row['status']=='NOT_RUN' for row in coor['selected_cases'])
+assert run['steps']['CATALOG-INSTALL']=='PASS' and run['steps']['CATALOG-COMPARE']=='PASS_SOURCE_BOUND_NATIVE_CATALOG_ONLY' and run['steps']['CATALOG-CLEANUP']=='PASS'
+assert run['steps']['NATIVE-ACCESS-FACETS']=='NOT_RUN' and run['status']=='STOPPED_ATTEMPT_PRESERVED'
+assert run['catalog_comparison']['status']==run['ledger_comparison']['status']=='PASS'
+assert run['catalog_comparison']['check_counts']=={'PASS':29089} and run['catalog_comparison']['findings']==[]
+assert run['packet_unchanged_after_run'] is True and run['tool_source_data_unchanged_after_run'] is True
+name='wa-p0c-a2f520b7-native';volume=name+'-data'
+target=run['targets'][name];final=target['finalization_observation']
+assert final['grantor']=='postgres' and final['auth']=='scram-sha-256:postgres' and final['remaining_memberships']==final['active_install_connections']==0
+assert all(value is False for value in final['leaf_create'].values())
+assert run['cleanup_summary']=={'resource_presence_after':{name:False,volume:False},'test_owned_secret_files_deleted':['ok-bootstrap-password'],'private_directory_absent':True,'image_removed':False,'unrelated_resources_changed':False}
+assert run['cleanup'][name]['removed'] is True and run['cleanup'][name]['verified_id']==target['container_id'] and run['cleanup'][name]['name_and_both_labels_verified'] is True
+assert run['cleanup'][volume]['removed'] is True and run['cleanup'][volume]['name_labels_creation_identity_verified'] is True
+assert not (base/'private').exists()
+assert run['sanitization']['actual_password_values_found'] is False and run['sanitization']['raw_context_handles_persisted'] is False
+closures=run['backend_closures'];assert closures and all(row['migrator_zero'] is True and row['other_clients_zero'] is True for row in closures)
+assert any('AFTER_NATIVE_DENIAL_COORDINATOR' in row['stage'] for row in closures)
+packet_path=ROOT/'review-output/native-table-denials/packet.json';packet=load(packet_path)
+assert sha(packet_path.read_bytes())=='bf542f88525e96d7d1c93ef06425278a82e1328043d60879ac34191f1bee3000'
+for item,wanted in packet['files_sha256'].items():assert sha((packet_path.parent/item).read_bytes())==wanted
+native=load(base/'native-before.json')
+deferred_fk=[row for row in native['constraints'] if row['kind']=='f' and row['deferrable']]
+assert deferred_fk==[]
+retained={(row['table'],row['name']) for row in packet['setup_retained_user_triggers']}
+pending_sources=[{'table':row['table_name'],'name':row['name'],'function':row['function'],'initially_deferred':row['initially_deferred']} for row in native['triggers']
+                 if not row['internal'] and row['deferrable'] and row['initially_deferred'] and (row['table_name'],row['name']) in retained]
+assert {row['table'] for row in pending_sources}=={'platform.owner_mutation_evidence','platform.runtime_outbox_message'} and len(pending_sources)==2
+setup=setup_path.read_text(encoding='utf8');lines=setup.splitlines()
+last_insert=max(i for i,line in enumerate(lines) if line.startswith('INSERT INTO '));first_enable=min(i for i,line in enumerate(lines) if ' ENABLE TRIGGER ' in line)
+assert last_insert<first_enable and not any(line.startswith('SET CONSTRAINTS ') for line in lines[:first_enable])
+enable_order=[line for line in lines if ' ENABLE TRIGGER ' in line]
+predicted_first=next(line.split(' ENABLE TRIGGER ')[0].removeprefix('ALTER TABLE ') for line in enable_order if any(row['table'].replace('.','"."') in line for row in pending_sources))
+report={'schema':'workinants.native-v3-55006-independent-stop-and-source-audit.v1','reviewer':'/root/restricted_controls_operator',
+ 'actual_stop_record_sha256':sha(record_path.read_bytes()),'safe_raw_report_sha256':sha(raw_path.read_bytes()),'coordinator_evidence_sha256':sha(coor_path.read_bytes()),
+ 'all_snapshot_assets_verified':len(record['snapshot_files_sha256']),
+ 'observed':{'source_commit':record['source_commit'],'source_tree':record['source_tree'],'full_packet_sha256':record['packet_sha256'],'actual_setup_sql_sha256':operation['source_sql_sha256'],
+   'setup_exit':3,'acknowledgement':False,'exact_output_matches':False,'sqlstate':'55006','classification':'SQLSTATE_ONLY','relation_or_frame_retained':False,
+   'operation_closed_before_observers':True,'all42_tables_rollback_to_empty':True,'all100_triggers_restored':True,'no_native_controls_or_facets_exercised':True,
+   'genuine_install_finalization_full_native_oracle_ledger_gate':'PASS_SOURCE_BOUND_SUBSET_ONLY','full_native_comparator_checks_PASS':29089,
+   'exact_run_owned_cleanup_and_name_absence':'PROVEN_IN_FROZEN_EVIDENCE','host_secret_files_absent':True,'image_retained':True,'source181_and_tool_data_postchecks':True},
+ 'source_diagnosis':{'classification':'PROVEN_DEFERRED_EVENT_BEFORE_RESTORE_ORDERING_DEFECT_CONSISTENT_WITH_OBSERVED_55006',
+   'observed_exact_message_relation_statement_and_C_branch':'UNOBSERVED_NOT_RECONSTRUCTED','deferrable_foreign_keys_in_approved_actual_native':0,
+   'retained_initially_deferred_USER_trigger_sources':pending_sources,
+   'generator_defect':'All205 seed INSERTs run before ALTER TABLE trigger restores without first draining retained deferred infrastructure_commit events. PG17.11 ALTER TABLE checks reject pending AFTER events on the relation with55006.',
+   'predicted_first_affected_restore_relation_source_analysis_only':predicted_first,
+   'proposed_correction':'In a NEW packet, SET CONSTRAINTS ALL IMMEDIATE after the last seed INSERT and before the first restore ALTER. Run retained checks while bypassed guards remain in the same exact reviewed scope; a retained-check failure must still stop and roll back.',
+   'not_an_enforcement_relaxation':'No additional trigger disables, constraint deferral, data repair, schema/ACL changes, permission expansion or owner qualification; only earlier execution of already-retained checks.'},
+ 'primary_sources':[
+  {'url':'https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/commands/tablecmds.c','lines':'4026-4044,4138-4148','supports':'ALTER checks active-use and pending AFTER-trigger events; both use object_in_use'},
+  {'url':'https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/utils/errcodes.txt','line':382,'supports':'55006 maps to ERRCODE_OBJECT_IN_USE'},
+  {'url':'https://www.postgresql.org/docs/17/sql-set-constraints.html','supports':'IMMEDIATE retroactively executes outstanding deferred constraints, including constraint triggers, and fails if a check fails'}],
+ 'historical_limits':{'earlier_2cde_complete_cause':'UNOBSERVED','earlier_e7_complete_cause':'UNOBSERVED','no_retroactive_probe_values_or_outcomes_invented':True},
+ 'next_source_work':'Preserve initial sources+BF83 bytes, author fresh generator/output and environment-free event-order regression, then independent source review before fresh literal plan.',
+ 'runtime_Docker_database_SQL_or_Git_actions_by_reviewer':False,'reviewer_network_use':'Primary PostgreSQL source/documentation only, explicitly requested','posture':'D','whole94_451_or_owner_qualification':False,
+ 'plain_english':'The test box was safely cleaned up. A saved rule was still waiting its turn when the setup tried to change another rule. The new plan should check waiting rules first, then put the other rules back. We still do not know the full cause of older stops.'}
+path=TASK/'native_v3_55006_independent_stop_source_audit_20261118.json'
+with path.open('xb') as handle:handle.write((json.dumps(report,indent=2)+'\n').encode())
+print(json.dumps({'report':str(path),'sha256':sha(path.read_bytes()),'source_pending_trigger_count':len(pending_sources),'snapshot_assets_verified':len(record['snapshot_files_sha256'])}))

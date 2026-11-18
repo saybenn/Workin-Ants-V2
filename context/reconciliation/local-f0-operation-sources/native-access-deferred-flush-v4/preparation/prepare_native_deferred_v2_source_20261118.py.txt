@@ -1,0 +1,40 @@
+"""Preserve the executed baseline, then emit a NEW dormant source generator."""
+import hashlib
+import json
+from pathlib import Path
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+old_packet=ROOT/'review-output/native-table-denials/packet.json'
+assert sha(old_packet.read_bytes())=='bf542f88525e96d7d1c93ef06425278a82e1328043d60879ac34191f1bee3000'
+packet=json.loads(old_packet.read_bytes())
+names=set(packet['source_inputs_sha256'])|{'scripts/sql-review/run-native-table-denials.py','scripts/sql-review/test_run_native_table_denials.py','scripts/sql-review/native-table-denials-coordinator.md'}
+names|={'review-output/native-table-denials/'+name for name in packet['files_sha256']}|{'review-output/native-table-denials/packet.json'}
+preserved=TASK/'native-before-deferred-flush-correction-20261118'
+assert not preserved.exists()
+blobs={name:(ROOT/name).read_bytes() for name in sorted(names)}
+for name,wanted in packet['source_inputs_sha256'].items():assert sha(blobs[name])==wanted
+for name,wanted in packet['files_sha256'].items():assert sha(blobs['review-output/native-table-denials/'+name])==wanted
+assert sha(blobs['scripts/prepare-native-table-denials.py'])=='41eceb73acb05ff6f0695acd7c8b4aff674dabe2448a72f6a33ff5944fb9ff8b'
+new='scripts/prepare-native-table-denials-v2.py';check='scripts/sql-review/test_native_deny_deferred_flush.py'
+assert not (ROOT/new).exists() and not (ROOT/check).exists() and not (ROOT/'review-output/native-table-denials-v2').exists()
+preserved.mkdir(exist_ok=False)
+for name,raw in blobs.items():
+    path=preserved/name;path.parent.mkdir(parents=True,exist_ok=True)
+    with path.open('xb') as handle:handle.write(raw)
+manifest={'scope':'PRESERVE_EXECUTED_NATIVE_V3_SOURCE_INPUTS_AND_BF83_BEFORE_NEW_PACKET','files_sha256':{name:sha(raw) for name,raw in blobs.items()},
+          'native_packet_sha256':sha(old_packet.read_bytes()),'actual_stop_audit_sha256':'51f145d485c64383122016532492ff53e649351f0ec47211ed951624d8fd0a12'}
+with (preserved/'preservation.json').open('xb') as handle:handle.write((json.dumps(manifest,indent=2)+'\n').encode())
+text=blobs['scripts/prepare-native-table-denials.py'].decode().replace('\r\n','\n')
+text=text.replace('review-output/native-table-denials"','review-output/native-table-denials-v2"')
+old='    setup.extend(trigger_sql(row, True) for row in reversed(bypass))'
+assert text.count(old)==1
+text=text.replace(old,'    # Retained deferred checks must run before ALTER TABLE restores any guard.\n    # A failed retained check still aborts this same transaction; no guard is relaxed.\n    setup.append("SET CONSTRAINTS ALL IMMEDIATE;")\n'+old)
+old='              "scripts/prepare-native-table-denials.py": digest(Path(__file__).read_bytes())}'
+assert text.count(old)==1
+text=text.replace(old,'              "'+check+'": digest((root / "'+check+'").read_bytes()),\n              "'+new+'": digest(Path(__file__).read_bytes())}')
+old='              "cases": cases, "preparation_blocks": preparation_blocks, "synthetic_facts": facts,'
+assert text.count(old)==1
+text=text.replace(old,'              "deferred_trigger_restore_boundary": {"statement": "SET CONSTRAINTS ALL IMMEDIATE;", "placement": "AFTER_ALL_SEED_INSERTS_BEFORE_ANY_ENABLE_TRIGGER",\n                  "purpose": "Run retained deferred checks before restoration DDL; failure stops and rolls back. No new trigger bypass or constraint weakening."},\n'+old)
+compile(text,str(ROOT/new),'exec')
+with (ROOT/new).open('xb') as handle:handle.write(text.encode())
+print(json.dumps({'generator':new,'sha256':sha((ROOT/new).read_bytes()),'preservation':str(preserved),'preservation_manifest_sha256':sha((preserved/'preservation.json').read_bytes()),'preserved_files':len(blobs),'old_BF83_unchanged':True}))

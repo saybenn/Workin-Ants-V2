@@ -1,0 +1,23 @@
+"""Exercise full pinned Restore source loading; only read-only Git can run."""
+from pathlib import Path
+import datetime,hashlib,json,runpy,traceback
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass';sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+CORE=TASK/'execute_local_f0_restore_20261117_image_v2.py';STEPS=TASK/'local_f0_restore_operation_steps_image_v2.py';PLAN=TASK/'local-f0-restore-plan-6743d825/operation-manifest.json'
+v=json.loads(PLAN.read_bytes());assert sha(CORE)==v['wrapper_sha256'] and sha(STEPS)==v['steps_sha256']
+n=runpy.run_path(str(CORE));g=n['launch'].__globals__;g['initialize'](PLAN);exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),g)
+original=g['command'];calls=[];events=[]
+def gated(args,*a,**kw):
+    assert args[:3]==['git','-c','core.longpaths=true'] and args[3] in ('rev-parse','show'),'NON_READONLY_SOURCE_GIT_REFUSED'
+    calls.append(args[3]);return original(args,*a,**kw)
+g['command']=gated;g['save']=lambda:None
+def event(stage,status,**facts):g['report']['stage']=stage;events.append({'stage':stage,'status':status})
+g['event']=event
+record={'recorded_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'scope':'EXACT_APPROVED_RESTORE_WHOLE_SOURCE_VERIFIER_ONLY','manifest_sha256':sha(PLAN),'source_commit':v['source_commit'],'source_tree':v['source_tree'],'packet_sha256':v['packet_sha256'],'commands':calls,'events':events,'Docker_SQL_database_resource_secret_or_network_actions':False}
+try:g['verify_restore_packet']();record['status']='WHOLE_SOURCE_VERIFIER_PASS'
+except BaseException as e:
+    record['status']='SOURCE_VERIFIER_STOPPED';record['exception_class']=type(e).__name__ if type(e).__name__ in {'KeyError','TypeError','FileNotFoundError','AssertionError','NameError','PermissionError'} else 'OTHER_DISCARDED'
+    record['source_frames']=[{'file':Path(f.filename).name,'function':f.name,'line':f.lineno} for f in traceback.extract_tb(e.__traceback__) if Path(f.filename).resolve() in (CORE.resolve(),STEPS.resolve())][-5:]
+record['raw_errors_discarded']=True
+p=TASK/'restore_6743d825_whole_source_verifier_readonly_v2_20261118.json'
+with p.open('x',encoding='utf8',newline='\n') as out:json.dump(record,out,indent=2);out.write('\n')
+print(json.dumps(record))

@@ -1,0 +1,111 @@
+"""Pure exclusive source preparation; no runtime, network, Git or DB actions."""
+import ast
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+digest=lambda path:sha(path.read_bytes())
+def write_json(path,value):
+    with path.open('xb') as out:out.write((json.dumps(value,indent=2)+'\n').encode())
+def trees(raw):
+    return {n.name:ast.dump(n,include_attributes=False) for n in ast.parse(raw).body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))}
+
+old_coor='scripts/sql-review/run-native-table-denials.py'
+new_coor='scripts/sql-review/run-native-table-denials-v2.py'
+old_test='scripts/sql-review/test_run_native_table_denials.py'
+new_test='scripts/sql-review/test_run_native_table_denials_v2.py'
+OLD_PACKET='bf542f88525e96d7d1c93ef06425278a82e1328043d60879ac34191f1bee3000'
+NEW_PACKET='8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69'
+coor_changes={
+    "ROOT / 'review-output/native-table-denials'":"ROOT / 'review-output/native-table-denials-v2'",
+    OLD_PACKET:NEW_PACKET, old_coor:new_coor,
+}
+old=(ROOT/old_coor).read_bytes();new=(ROOT/new_coor).read_bytes()
+assert sha(old)=='e1343f547c6eed2371ea6fc12df74e3e3f1dc4b44502d39e7ddfcd14b8b3cd94'
+assert sha(new)=='21dce763c809b579eff009871b44315f9ddbcd5b9cc03a33d3af305bc096445b'
+expected=old.decode()
+for before,after in coor_changes.items():
+    assert expected.count(before)==1,(before,expected.count(before))
+    expected=expected.replace(before,after)
+assert new.decode()==expected
+assert trees(old)==trees(new)
+test_before=(ROOT/old_test).read_text();test_after=(ROOT/new_test).read_text()
+assert test_before.replace(old_coor,new_coor)==test_after
+assert digest(ROOT/new_test)=='8c2b9b8ead57292eb65c85f515db3c3da831467d677ee7c3866d26864315d065'
+binding={
+    'schema':'workinants.native-v2-coordinator-binding-independent-review.v1',
+    'recorded_at':datetime.now(timezone.utc).isoformat(),
+    'reviewer':'/root/restricted_controls_operator',
+    'decision':'SOURCE_APPROVED_EXACT_THREE_CONSTANT_BINDINGS_ONLY',
+    'source_files_sha256':{p:digest(ROOT/p) for p in (old_coor,new_coor,old_test,new_test)},
+    'declared_replacements':coor_changes,
+    'complete_coordinator_text_equal_exact_replacements':True,
+    'all_functions_and_classes_AST_identical':True,
+    'tests_equal_exact_coordinator_path_replacement':True,
+    'root_actual_offline_result':{'tests':31,'status':'PASS','unit_seconds':28.353,'provenance':'Parent Root completion message, 2026-11-18; not rerun by this reviewer'},
+    'initial_binding_failures':'Two-constant initial candidate missed PACKET_SHA. Preserved initial record remains historical; it is not the final coordinator review.',
+    'initial_preservation_manifest_sha256':digest(TASK/'native-v2-binding-before-packet-sha-fix-20261118/preservation.json'),
+    'scope':'Independent review of Root-authored binding only. Base coordinator implementation separately independently reviewed by Root.',
+    'runtime_database_Git_network_actions':False,
+    'posture':'D',
+    'plain_english':'The new runner points to the new box of test files. Its rules did not change. Pretend tests passed; real tests still need a fresh reviewed plan.'
+}
+binding_path=TASK/'native_v2_coordinator_binding_independent_review_20261118.json'
+assert not binding_path.exists()
+
+review=json.loads((TASK/'restricted_controls_native_v3_source_independent_review_20261118.json').read_bytes())
+names={
+ 'execute_local_f0_native_access_v3_20261118.py':'execute_local_f0_native_access_v4_20261118.py',
+ 'local_f0_native_access_v3_operation_steps.py':'local_f0_native_access_v4_operation_steps.py',
+ 'prepare_local_f0_native_access_v3_plan.py':'prepare_local_f0_native_access_v4_plan.py',
+ 'check_native_access_v3_operation.py':'check_native_access_v4_operation.py',
+ 'pin_native_access_v3_plan_20261118.py':'pin_native_access_v4_plan_20261118.py',
+}
+changes={**names,
+    old_coor:new_coor,old_test:new_test,
+    'scripts/prepare-native-table-denials.py':'scripts/prepare-native-table-denials-v2.py',
+    'review-output/native-table-denials':'review-output/native-table-denials-v2',
+    'scripts/sql-review/native-table-denials-coordinator.md':'scripts/sql-review/native-table-denials-deferred-flush-v2.md',
+    OLD_PACKET:NEW_PACKET,
+    'e1343f547c6eed2371ea6fc12df74e3e3f1dc4b44502d39e7ddfcd14b8b3cd94':'21dce763c809b579eff009871b44315f9ddbcd5b9cc03a33d3af305bc096445b',
+    '41eceb73acb05ff6f0695acd7c8b4aff674dabe2448a72f6a33ff5944fb9ff8b':'ddf5a627a334bfb059ab63d71acc50b908c1891fe40c2825325f52147ed6d939',
+    '55e8ad94351efe9cffcaa363d308de4b80c676dae32ba8d5512866659d2254a7':'1a56853ec4ea0881e05fc611c05094d2898bdada25d4d284bb747c6dc9281789',
+    'local-f0-operation-sources/native-access-unexpected-diagnostics-v3':'local-f0-operation-sources/native-access-deferred-flush-v4',
+    'local-f0-native-access-unexpected-diagnostics-source-validation.json':'local-f0-native-access-deferred-flush-source-validation.json',
+}
+outputs={};counts={}
+for before,after in names.items():
+    path=TASK/before
+    assert digest(path)==review['external_files_sha256'][before]
+    text=path.read_text(encoding='utf8')
+    occurrences={}
+    for old_value,new_value in changes.items():
+        occurrences[old_value]=text.count(old_value)
+        text=text.replace(old_value,new_value)
+    counts[after]={k:v for k,v in occurrences.items() if v}
+    compile(text,after,'exec')
+    outputs[after]=text.encode()
+    assert not (TASK/after).exists()
+write_json(binding_path,binding)
+for name,raw in outputs.items():
+    with (TASK/name).open('xb') as out:out.write(raw)
+assert all(digest(TASK/p)==h for p,h in review['external_files_sha256'].items())
+report={
+    'schema':'workinants.native-v4-exact-transform-author-record.v1',
+    'recorded_at':datetime.now(timezone.utc).isoformat(),
+    'author':'/root/restricted_controls_operator',
+    'old_external_files_sha256':review['external_files_sha256'],
+    'external_files_sha256':{p:sha(raw) for p,raw in outputs.items()},
+    'declared_replacements':changes,'replacement_occurrences':counts,
+    'all_old_five_sources_unchanged':True,'all_new_five_compile':True,
+    'coordinator_binding_independent_review_sha256':digest(binding_path),
+    'external_source_independent_review':'PENDING_ROOT_REVIEW',
+    'runtime':'NOT_RUN','posture':'D',
+    'plain_english':'We saved the old plan and made a new copy. The new copy picks the corrected test files. A different reviewer must check it before it can run.'
+}
+write_json(TASK/'native_access_v4_exact_transform_author_record_20261118.json',report)
+print(json.dumps({'external_files_sha256':report['external_files_sha256'],'binding_review_sha256':digest(binding_path),'external_review':'PENDING_ROOT_REVIEW'}))

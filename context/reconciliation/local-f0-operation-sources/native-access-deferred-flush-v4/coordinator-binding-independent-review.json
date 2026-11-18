@@ -1,0 +1,32 @@
+{
+  "schema": "workinants.native-v2-coordinator-binding-independent-review.v1",
+  "recorded_at": "2026-11-18T22:00:48.437324+00:00",
+  "reviewer": "/root/restricted_controls_operator",
+  "decision": "SOURCE_APPROVED_EXACT_THREE_CONSTANT_BINDINGS_ONLY",
+  "source_files_sha256": {
+    "scripts/sql-review/run-native-table-denials.py": "e1343f547c6eed2371ea6fc12df74e3e3f1dc4b44502d39e7ddfcd14b8b3cd94",
+    "scripts/sql-review/run-native-table-denials-v2.py": "21dce763c809b579eff009871b44315f9ddbcd5b9cc03a33d3af305bc096445b",
+    "scripts/sql-review/test_run_native_table_denials.py": "e69e04f026301fc9308b810b53ec8bb16a02c9aabd04424f47bce218541ffe60",
+    "scripts/sql-review/test_run_native_table_denials_v2.py": "8c2b9b8ead57292eb65c85f515db3c3da831467d677ee7c3866d26864315d065"
+  },
+  "declared_replacements": {
+    "ROOT / 'review-output/native-table-denials'": "ROOT / 'review-output/native-table-denials-v2'",
+    "bf542f88525e96d7d1c93ef06425278a82e1328043d60879ac34191f1bee3000": "8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69",
+    "scripts/sql-review/run-native-table-denials.py": "scripts/sql-review/run-native-table-denials-v2.py"
+  },
+  "complete_coordinator_text_equal_exact_replacements": true,
+  "all_functions_and_classes_AST_identical": true,
+  "tests_equal_exact_coordinator_path_replacement": true,
+  "root_actual_offline_result": {
+    "tests": 31,
+    "status": "PASS",
+    "unit_seconds": 28.353,
+    "provenance": "Parent Root completion message, 2026-11-18; not rerun by this reviewer"
+  },
+  "initial_binding_failures": "Two-constant initial candidate missed PACKET_SHA. Preserved initial record remains historical; it is not the final coordinator review.",
+  "initial_preservation_manifest_sha256": "dd060e7d7e5a7e6f65412b4deef5397252c04687b69319b953e5a58ad5fd0c24",
+  "scope": "Independent review of Root-authored binding only. Base coordinator implementation separately independently reviewed by Root.",
+  "runtime_database_Git_network_actions": false,
+  "posture": "D",
+  "plain_english": "The new runner points to the new box of test files. Its rules did not change. Pretend tests passed; real tests still need a fresh reviewed plan."
+}
