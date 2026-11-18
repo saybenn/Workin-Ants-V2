@@ -15,6 +15,19 @@ ALLOW case, registered vector, owner lifecycle, 94-case selection or 451 registe
 
 ## External operator prerequisites
 
+Before the empty-table fingerprint, a read-only, rollback-only control sorts the
+42 source-known relation names under both the database default and explicit
+`COLLATE "C"`. Only the explicit C order must match the declared source order;
+the default comparison is recorded as a Boolean observation. Both the relation
+ordering and hexadecimal row-hash ordering in actual fingerprints use C.
+Malformed responses retain only fixed shape comparisons before execution stops.
+No rejected row, unknown name, statement body or arbitrary diagnostic is saved.
+
+The e7a7beff attempt stopped before fixture setup with DATA_FINGERPRINT_SHAPE.
+Its complete failing comparison was not retained. The differing default/Python
+sorting contracts are a source defect; the original complete cause remains
+unobserved. Earlier evidence is preserved unchanged.
+
 The operator supplies one already-created immutable container ID, its reviewed
 local-F0 target manifest, fresh external evidence and the exact source/helper pins.
 The coordinator creates no resource, role, credential, migration or image. Every

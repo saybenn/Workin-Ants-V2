@@ -362,11 +362,37 @@ class Coordinator:
         value = self.json(query); good = canonical(value) == canonical({'expected_count': 100, 'actual_count': 100, 'exact_trigger_function_body_state_set': True})
         self.evidence.value['current']['all_100_trigger_functions_restored'] = good; self.evidence.save(); need(good, 'EXACT_TRIGGER_RESTORATION_FAILED')
 
+    def fingerprint_order_control(self):
+        self.evidence.stage('SOURCE_NAME_COLLATION_CONTROL')
+        names = ','.join('(' + quote(name) + '::text)' for name in self.tables)
+        expected = 'to_jsonb(ARRAY[' + ','.join(quote(name) for name in self.tables) + ']::text[])'
+        query = 'BEGIN READ ONLY; WITH names(name) AS (VALUES ' + names + ") SELECT jsonb_build_object('format','workinants.native-fingerprint-order.v1','server_version_num',current_setting('server_version_num')::integer,'collected_as',current_user,'read_only',current_setting('transaction_read_only')='on','known_name_count',count(*),'c_order_matches_source',jsonb_agg(name ORDER BY name COLLATE \"C\")=" + expected + ",'default_order_matches_source',jsonb_agg(name ORDER BY name)=" + expected + ') FROM names; ROLLBACK;'
+        value = self.json(query)
+        fields = {'format', 'server_version_num', 'collected_as', 'read_only', 'known_name_count', 'c_order_matches_source', 'default_order_matches_source'}
+        checks = {'object': type(value) is dict}
+        checks['fields'] = checks['object'] and set(value) == fields
+        checks['identity'] = checks['fields'] and value['format'] == 'workinants.native-fingerprint-order.v1' and value['collected_as'] == 'postgres'
+        checks['typed_version_and_count'] = checks['fields'] and type(value['server_version_num']) is int and value['server_version_num'] == 170011 and type(value['known_name_count']) is int and value['known_name_count'] == 42
+        checks['typed_flags'] = checks['fields'] and all(type(value[k]) is bool for k in ('read_only', 'c_order_matches_source', 'default_order_matches_source'))
+        self.evidence.value['fingerprint_order_comparisons'] = checks; self.evidence.save()
+        need(all(checks.values()), 'FINGERPRINT_ORDER_CONTROL_SHAPE')
+        self.evidence.value['fingerprint_order_control'] = value; self.evidence.save()
+        need(value['read_only'] is True and value['c_order_matches_source'] is True, 'FINGERPRINT_C_ORDER_REQUIRED')
+
     def fingerprint(self):
-        parts = ["SELECT " + quote(name) + " AS object,count(*)::integer AS row_count,encode(sha256(convert_to(coalesce(string_agg(encode(sha256(convert_to(to_jsonb(t)::text,'UTF8')),'hex'),'' ORDER BY encode(sha256(convert_to(to_jsonb(t)::text,'UTF8')),'hex')),''),'UTF8')),'hex') AS rows_sha256 FROM " + table(name) + ' t' for name in self.tables]
-        rows = self.json('SELECT jsonb_agg(to_jsonb(x) ORDER BY object) FROM (' + ' UNION ALL '.join(parts) + ') x;')
-        need(type(rows) is list and len(rows) == 42 and [row.get('object') for row in rows] == self.tables and
-             all(set(row) == {'object', 'row_count', 'rows_sha256'} and type(row['row_count']) is int and 0 <= row['row_count'] <= 1000000000 and type(row['rows_sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['rows_sha256']) for row in rows), 'DATA_FINGERPRINT_SHAPE')
+        self.evidence.stage('SEEDED_DATA_FINGERPRINT' if self.seeded else 'EMPTY_DATA_FINGERPRINT')
+        parts = ["SELECT " + quote(name) + " AS object,count(*)::integer AS row_count,encode(sha256(convert_to(coalesce(string_agg(encode(sha256(convert_to(to_jsonb(t)::text,'UTF8')),'hex'),'' ORDER BY encode(sha256(convert_to(to_jsonb(t)::text,'UTF8')),'hex') COLLATE \"C\"),''),'UTF8')),'hex') AS rows_sha256 FROM " + table(name) + ' t' for name in self.tables]
+        rows = self.json('SELECT jsonb_agg(to_jsonb(x) ORDER BY object COLLATE "C") FROM (' + ' UNION ALL '.join(parts) + ') x;')
+        checks = {'list': type(rows) is list}
+        checks['exact_row_count'] = checks['list'] and len(rows) == 42
+        checks['objects'] = checks['exact_row_count'] and all(type(row) is dict for row in rows)
+        checks['fields'] = checks['objects'] and all(set(row) == {'object', 'row_count', 'rows_sha256'} for row in rows)
+        checks['known_name_set'] = checks['fields'] and all(type(row['object']) is str for row in rows) and set(row['object'] for row in rows) == set(self.tables)
+        checks['source_name_order'] = checks['known_name_set'] and [row['object'] for row in rows] == self.tables
+        checks['typed_bounded_counts'] = checks['fields'] and all(type(row['row_count']) is int and 0 <= row['row_count'] <= 1000000000 for row in rows)
+        checks['digest_shape'] = checks['fields'] and all(type(row['rows_sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['rows_sha256']) is not None for row in rows)
+        self.evidence.value['current']['fingerprint_checks'] = checks; self.evidence.save()
+        need(all(checks.values()), 'DATA_FINGERPRINT_SHAPE')
         self.evidence.value['current']['data_projection'] = rows; self.evidence.save()
         expected = self.setup_counts if self.seeded else dict.fromkeys(self.tables, 0)
         need({row['object']: row['row_count'] for row in rows} == expected, 'EXACT_NATIVE_FACT_COUNTS')
@@ -472,6 +498,7 @@ class Coordinator:
         flags = self.json("SELECT jsonb_agg(jsonb_build_object('name',rolname,'login',rolcanlogin,'inherit',rolinherit,'superuser',rolsuper,'createdb',rolcreatedb,'createrole',rolcreaterole,'replication',rolreplication,'bypassrls',rolbypassrls,'memberships',(SELECT count(*) FROM pg_auth_members m WHERE m.member=r.oid OR m.roleid=r.oid),'connect',has_database_privilege(rolname,current_database(),'CONNECT'),'create',has_database_privilege(rolname,current_database(),'CREATE'),'temp',has_database_privilege(rolname,current_database(),'TEMP')) ORDER BY rolname) FROM pg_roles r WHERE rolname IN ('anon','authenticated','service_role');")
         need(canonical(flags) == canonical(sorted(provider_flags(), key=lambda row: row['name'])), 'LOCAL_PROVIDER_ROLE_BOUNDARY')
         self.evidence.value['provider_roles'] = provider_flags(); self.evidence.save()
+        self.fingerprint_order_control()
         self.fingerprint()
 
     def run(self):

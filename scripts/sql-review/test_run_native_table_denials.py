@@ -9,7 +9,7 @@ import re
 import runpy
 import subprocess
 import tempfile
-from types import SimpleNamespace
+from types import FunctionType, SimpleNamespace
 import unittest
 from unittest.mock import patch
 import sys
@@ -126,8 +126,32 @@ class World:
         if "'workinants.native-catalog.v1'" in text: return json.dumps(self.native)
         if 'exact_trigger_function_body_state_set' in text:
             return json.dumps({'expected_count': 100, 'actual_count': 100, 'exact_trigger_function_body_state_set': not (self.mode == 'guards-disabled' and self.controls)})
+        if 'workinants.native-fingerprint-order.v1' in text:
+            nodes = parse_sql(text)
+            assert [type(n.stmt).__name__ for n in nodes] == ['TransactionStmt', 'SelectStmt', 'TransactionStmt']
+            assert text.startswith('BEGIN READ ONLY;') and text.endswith('ROLLBACK;') and 'ORDER BY name COLLATE "C"' in text
+            value = {'format': 'workinants.native-fingerprint-order.v1', 'server_version_num': 170011, 'collected_as': 'postgres', 'read_only': True, 'known_name_count': 42, 'c_order_matches_source': True, 'default_order_matches_source': self.mode == 'order-default-already-C'}
+            if self.mode == 'order-bad-flag': value['c_order_matches_source'] = CANARY
+            if self.mode == 'order-unknown-role': value['collected_as'] = CANARY
+            if self.mode == 'order-extra-field': value['stderr'] = CANARY
+            if self.mode == 'order-bool-count': value['known_name_count'] = True
+            if self.mode == 'order-C-false': value['c_order_matches_source'] = False
+            return json.dumps(value)
         if 'AS rows_sha256' in text:
-            rows = [{'object': name, 'row_count': self.counts[name] if self.seeded else 0, 'rows_sha256': 'a' * 64} for name in self.counts]
+            # Emulate a non-C default that ignores punctuation. The reply
+            # depends on the actual SQL projection, never the desired result.
+            names = sorted(self.counts) if 'ORDER BY object COLLATE "C"' in text else sorted(self.counts, key=lambda name: name.replace('.', '').replace('_', ''))
+            assert names == sorted(self.counts) or 'ORDER BY object COLLATE "C"' not in text
+            rows = [{'object': name, 'row_count': self.counts[name] if self.seeded else 0, 'rows_sha256': 'a' * 64} for name in names]
+            if self.mode == 'fingerprint-not-list': return json.dumps({'value': CANARY})
+            if self.mode == 'fingerprint-extra-key': rows[0]['unknown'] = CANARY
+            if self.mode == 'fingerprint-unknown-name': rows[0]['object'] = CANARY
+            if self.mode == 'fingerprint-duplicate-name': rows[0]['object'] = rows[1]['object']
+            if self.mode == 'fingerprint-bool-count': rows[0]['row_count'] = True
+            if self.mode == 'fingerprint-float-count': rows[0]['row_count'] = 0.0
+            if self.mode == 'fingerprint-bad-digest': rows[0]['rows_sha256'] = CANARY
+            if self.mode == 'fingerprint-short': rows.pop()
+            if self.mode == 'fingerprint-nested-row': rows[0] = [CANARY]
             if self.mode == 'facts-changed' and self.restricted: rows[0]['rows_sha256'] = 'c' * 64
             return json.dumps(rows)
         if "current_user='postgres'" in text: return 't'
@@ -241,6 +265,59 @@ class NativeCoordinatorTests(unittest.TestCase):
         self.assertTrue(all(row['status'] == row['source_vectors_status'] == row['allow_case_status'] == 'NOT_RUN' for row in data['selected_cases']))
         self.assertTrue(all(row['closed_before_observers'] for row in data['operations'])); self.assertGreater(memory.saves, 960)
         self.assertTrue(all(row.get('whole_case_promoted') is False for row in data['facets'] if row['status'] != 'NOT_RUN'))
+
+    def test_actual_projection_rejects_restored_default_collation(self):
+        method = M['Coordinator'].fingerprint
+        original = 'SELECT jsonb_agg(to_jsonb(x) ORDER BY object COLLATE "C") FROM ('
+        self.assertIn(original, method.__code__.co_consts)
+        constants = tuple(c.replace('ORDER BY object COLLATE "C"', 'ORDER BY object') if type(c) is str else c for c in method.__code__.co_consts)
+        mutant = FunctionType(method.__code__.replace(co_consts=constants), method.__globals__)
+        with patch.object(M['Coordinator'], 'fingerprint', mutant):
+            code, data, world, _ = self.exercise(subset=['ConsentLog'])
+        self.assertEqual(code, 2); self.assertFalse(world.seeded); self.assertFalse(world.restricted)
+        self.assertEqual(data['failure'], {'code': 'DATA_FINGERPRINT_SHAPE', 'stage': 'EMPTY_DATA_FINGERPRINT'})
+        self.assertTrue(data['current']['fingerprint_checks']['known_name_set'])
+        self.assertFalse(data['current']['fingerprint_checks']['source_name_order'])
+
+    def test_corrected_projection_and_default_already_C_are_both_valid(self):
+        for mode in ('normal', 'order-default-already-C'):
+            code, data, world, _ = self.exercise(mode, ['ConsentLog'])
+            self.assertEqual(code, 0, data.get('failure'))
+            self.assertTrue(data['fingerprint_order_control']['c_order_matches_source'])
+            self.assertEqual(data['fingerprint_order_control']['default_order_matches_source'], mode == 'order-default-already-C')
+
+    def test_fingerprint_shape_failures_keep_only_fixed_checks_and_stop_before_setup(self):
+        for suffix in ('not-list', 'extra-key', 'unknown-name', 'duplicate-name', 'bool-count', 'float-count', 'bad-digest', 'short', 'nested-row'):
+            with self.subTest(suffix=suffix):
+                code, data, world, _ = self.exercise('fingerprint-' + suffix, ['ConsentLog'])
+                self.assertEqual(code, 2); self.assertFalse(world.seeded); self.assertFalse(world.restricted)
+                self.assertEqual(data['failure'], {'code': 'DATA_FINGERPRINT_SHAPE', 'stage': 'EMPTY_DATA_FINGERPRINT'})
+                checks = data['current']['fingerprint_checks']
+                self.assertEqual(set(checks), {'list','exact_row_count','objects','fields','known_name_set','source_name_order','typed_bounded_counts','digest_shape'})
+                self.assertTrue(all(type(v) is bool for v in checks.values())); self.assertFalse(all(checks.values()))
+                self.assertNotIn('data_projection', data['current'])
+
+    def test_order_control_shape_and_unknowns_stop_before_data_or_setup(self):
+        for mode in ('order-bad-flag','order-unknown-role','order-extra-field','order-bool-count','order-C-false'):
+            code, data, world, _ = self.exercise(mode, ['ConsentLog'])
+            self.assertEqual(code, 2); self.assertFalse(world.seeded); self.assertFalse(world.restricted)
+            self.assertEqual(data['failure']['stage'], 'SOURCE_NAME_COLLATION_CONTROL')
+            self.assertEqual(data['failure']['code'], 'FINGERPRINT_C_ORDER_REQUIRED' if mode == 'order-C-false' else 'FINGERPRINT_ORDER_CONTROL_SHAPE')
+            self.assertTrue(all(type(v) is bool for v in data['fingerprint_order_comparisons'].values()))
+
+    def test_hash_and_object_order_are_explicit_C_in_emitted_sql(self):
+        queries = []
+        original = World.raw
+        def capture(world, role, text):
+            if 'AS rows_sha256' in text: queries.append(text)
+            return original(world, role, text)
+        with patch.object(World, 'raw', capture):
+            code, data, _, _ = self.exercise(subset=['ConsentLog'])
+        self.assertEqual(code, 0, data.get('failure')); self.assertTrue(queries)
+        for text in set(queries):
+            self.assertEqual(text.count('COLLATE "C"'),43)
+            self.assertIn('ORDER BY object COLLATE "C"', text)
+            self.assertEqual(len(parse_sql(text)),1)
 
     def test_native_state_routine_extra_errors_controls_and_exit_two_reject(self):
         for mode in ('trigger-42501', 'unrelated-P0001', 'extra-error', 'terminal-control', 'wrong-exit'):

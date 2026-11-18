@@ -1,0 +1,44 @@
+{
+  "format": "workinants.independent-source-review.v1",
+  "reviewer": "/root/review_track_ports",
+  "review_scope": "SOURCE_ONLY_NO_RUNTIME_OR_LITERAL_PLAN_APPROVAL",
+  "decisions": {
+    "native_denial_coordinator_collation_correction": "APPROVED_SOURCE",
+    "native_access_v2_external_transform": "APPROVED_SOURCE"
+  },
+  "coordinator_files_sha256": {
+    "scripts/sql-review/run-native-table-denials.py": "334c1b7622b53c1a7cf6fbf2e9f41f7d924f5b42208eab713a04ccf91d42b03c",
+    "scripts/sql-review/test_run_native_table_denials.py": "d7d6c80f42448da5075c2e4500b97769f6614e3191c7e02df2986dfb6c273d9e",
+    "scripts/sql-review/native-table-denials-coordinator.md": "92e8f10fc42339555f8c1b578fe81a0a2ba30e623de184e07bb69fbc8e2413b6"
+  },
+  "external_files_sha256": {
+    "execute_local_f0_native_access_v2_20261118.py": "de19dcdf256709220cd2adb98e78a524c0e6475e88e676bb29e53b2ac06427a6",
+    "local_f0_native_access_v2_operation_steps.py": "5ca7ae7e5d835701d04f3236b1cf538edaf47566421cc154a2a06cdf027522dd",
+    "prepare_local_f0_native_access_v2_plan.py": "67d2b2c26e056ce1cbe2b8aa483e48df7143ef502138f663ebfe37840a533c32",
+    "check_native_access_v2_operation.py": "c80101efb4abdbd2b6d0a2a0bc1724a49b85946377e92329b96b828bb85457c3",
+    "pin_native_access_v2_plan_20261118.py": "d5c6ab519651a6560b68349964280f647701f4703bd36998e8718b584aece6d5"
+  },
+  "independent_offline_execution": {
+    "test_methods": 21,
+    "result": "PASS",
+    "elapsed_seconds": 68.669,
+    "database_contacted": false,
+    "docker_invoked": false
+  },
+  "review_findings": [
+    "Fixed read-only control derives its 42 known names from source; C ordering must match source while default ordering is only observed and need not differ.",
+    "Outer object ordering and all 42 inner hexadecimal hash orderings explicitly use COLLATE C. Existing shape, count, hash, privilege and restoration requirements remain enforced.",
+    "Eight typed fixed Boolean shape observations precede retention of accepted fingerprint metadata; unknown values are not retained.",
+    "All five V2 external files are byte-exact declared transformations of the reviewed V1 sources: new file references, the two reviewed coordinator/document hashes and new committed snapshot/validation paths. Function bodies otherwise remain unchanged.",
+    "The pin helper validates current bytes and corresponding Git blobs, the five live/snapshot identities and archives, preserves the pre-pin manifest, and leaves operational review pending."
+  ],
+  "preservation": {
+    "coordinator_before_directory": "native-denial-fingerprint-before-collation-20261118",
+    "old_four_external_sources_rehashed_unchanged": true,
+    "canonical_sql_changed": false,
+    "native_deny_packet_changed": false,
+    "acceptance_vocabulary_weakened": false
+  },
+  "historical_limit": "The e7a7beff DATA_FINGERPRINT_SHAPE failure retained no actual row-order observations. Collation is a source-supported hypothesis and this change defines deterministic ordering; it does not establish the historical cause. No NativeDENY facets ran in that attempt.",
+  "remaining_gate": "A fresh literal manifest, current/Git full-packet bindings, exact resource identities and operational review are required before execution. No runtime result, whole-case PASS, 94-case or 451-test promotion follows from this source review."
+}

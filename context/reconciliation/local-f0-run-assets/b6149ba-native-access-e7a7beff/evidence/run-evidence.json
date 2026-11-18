@@ -1,0 +1,1687 @@
+{
+  "run_id": "e7a7beff-dcb1-4107-8dbe-b46aa9291dfa",
+  "approved_commit": "b6149bae655ad40b6c721b40561e678ac6b752af",
+  "approved_tree": "000befda867e157f40613333e8b2ea4289b427ec",
+  "approved_packet_sha256": "1e2ba4c6f46f915b0beb610b74758ee885240c3fd52c8449baf7b2a72f3f58d6",
+  "started_at": "2026-11-18T06:36:53.600688+00:00",
+  "status": "STOPPED_ATTEMPT_PRESERVED",
+  "stage": "CONTROLLED_CLEANUP",
+  "steps": {
+    "CATALOG-SETUP": "PASS",
+    "CATALOG-AUTH": "PASS",
+    "CATALOG-TOOLS": "PASS",
+    "CATALOG-INSTALL": "PASS",
+    "NATIVE-PROVIDER-PREINSTALL": "PASS_LOCAL_SIMULATION_ONLY",
+    "NATIVE-PROVIDER-POSTINSTALL": "PASS_NINE_SOURCE_REVOKES_OBSERVED",
+    "NATIVE-ACCESS-ATTESTATION": "PASS_SOURCE_BOUND_PREREQUISITES_ONLY",
+    "NATIVE-ACCESS-FACETS": "NOT_RUN",
+    "CATALOG-ACL-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+    "CATALOG-TEXT-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+    "CATALOG-NATIVE": "PASS_OBSERVED_NOT_QUALIFIED",
+    "CATALOG-ORACLE": "PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE",
+    "CATALOG-LEDGER": "PASS_SOURCE_BOUND_NATIVE_SUBSET",
+    "CATALOG-COMPARE": "PASS_SOURCE_BOUND_NATIVE_CATALOG_ONLY",
+    "CATALOG-SANITIZED_EXPORT": "PASS",
+    "CATALOG-CLEANUP": "PASS"
+  },
+  "events": [
+    {
+      "stage": "SOURCE_VERIFICATION",
+      "status": "PASS",
+      "files": 181,
+      "packet_sha256": "1e2ba4c6f46f915b0beb610b74758ee885240c3fd52c8449baf7b2a72f3f58d6"
+    },
+    {
+      "stage": "LOCAL_PREFLIGHT",
+      "status": "PASS",
+      "all_created_names_absent": true,
+      "expected_resource_names": 2
+    },
+    {
+      "stage": "PINNED_IMAGE",
+      "status": "PASS",
+      "pulled": false,
+      "image_id": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1"
+    },
+    {
+      "stage": "RESOURCE_READY",
+      "status": "PASS",
+      "target": "wa-p0c-e7a7beff-native",
+      "pgpass_owner_mode": "600:0:0"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "BOOTSTRAP_SETTINGS",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "e34a456e83b77f9da89457031948d474f3ce2e42395375ba65f90e141ca91945"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "034c8c93758257d9a9519909fca04ad4502780a4e576468bcfb15987fb4d414c"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "BOOTSTRAP",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "CREDENTIAL_PROVISION",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "EMPTY_APPLICATION_BASELINE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "0ad532c233732dd68c98710fcc791e6ebfecb4a1a8c4866a01caaf2290ba04fc"
+    },
+    {
+      "stage": "AUTHENTICATION_PREFLIGHT",
+      "status": "PASS",
+      "target": "wa-p0c-e7a7beff-native",
+      "roles": 6
+    },
+    {
+      "stage": "LINUX_TOOL_COMPATIBILITY",
+      "status": "PASS",
+      "target": "wa-p0c-e7a7beff-native"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "PROVIDER_ROLE_ABSENCE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "5a24dc2dc4a727204abc1ffe8691a9a1a8136ade8f71aa7acf53f51b1720a88f"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "PROVIDER_ROLE_SIMULATION_BACKEND_CLOSURE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "PROVIDER_PRIVATE_SCRAM_PROVISION_BACKEND_CLOSURE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "PROVIDER_BEFORE_CANONICAL_INSTALL_BACKEND_CLOSURE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "PROVIDER_AUTHENTICATION_BACKEND_CLOSURE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "PRE_FINALIZATION_CONNECTION_OBSERVER",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "ORIGINAL_GRANTOR_FINALIZATION",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "FINALIZATION_OBSERVER",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "a833d27aedd52cef2eaa2afce4f4206db6a2f19e2aa15a007a16a1ae87d2c53e"
+    },
+    {
+      "stage": "FINALIZATION",
+      "status": "PASS",
+      "target": "wa-p0c-e7a7beff-native"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "PROVIDER_AFTER_CANONICAL_INSTALL_BACKEND_CLOSURE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "CATALOG_ACL_COMPATIBILITY_BACKEND_CLOSURE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "CATALOG_TEXT_COMPATIBILITY_BACKEND_CLOSURE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "NATIVE_BEFORE_ORACLE_BACKEND_CLOSURE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "EXPRESSION_ORACLE_BACKEND_CLOSURE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "NATIVE_AFTER_ORACLE_BACKEND_CLOSURE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "PRISMA_LEDGER_NATIVE_BACKEND_CLOSURE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "NATIVE_AFTER_LEDGER_BACKEND_CLOSURE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f"
+    },
+    {
+      "stage": "NATIVE_CATALOG_REHEARSAL",
+      "status": "PASS_SUBSET_ONLY"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "BEFORE_NATIVE_DENIAL_COORDINATOR_BACKEND_CLOSURE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f"
+    },
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "role": "postgres",
+      "operation": "AFTER_NATIVE_DENIAL_COORDINATOR_BACKEND_CLOSURE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f"
+    },
+    {
+      "stage": "STOP",
+      "status": "NO_LATER_STEPS",
+      "failure": {
+        "stage": "AFTER_NATIVE_DENIAL_COORDINATOR_BACKEND_CLOSURE",
+        "code": "NATIVE_DENIAL_COORDINATOR_STOPPED"
+      }
+    },
+    {
+      "stage": "CONTROLLED_CLEANUP",
+      "status": "PASS",
+      "all_created_names_absent": true,
+      "expected_resource_names": 2,
+      "test_secret_files_absent": true
+    }
+  ],
+  "targets": {
+    "wa-p0c-e7a7beff-native": {
+      "container_id": "7d3570ae04ac09723d2ffbfcfccd7d72172576ed4fd59aa2c0e517416ba11a38",
+      "volume": "wa-p0c-e7a7beff-native-data",
+      "volume_created_at": "2026-11-18T06:37:25Z",
+      "labels": {
+        "workinants.rehearsal": "p0c-local-f0",
+        "workinants.rehearsal.run": "e7a7beff-dcb1-4107-8dbe-b46aa9291dfa"
+      },
+      "network_mode": "none",
+      "published_ports": false,
+      "mounts": [
+        {
+          "type": "volume",
+          "destination": "/var/lib/postgresql/data",
+          "rw": true,
+          "volume": "wa-p0c-e7a7beff-native-data"
+        },
+        {
+          "type": "bind",
+          "destination": "/run/bootstrap-password",
+          "rw": false
+        }
+      ],
+      "tmpfs": {
+        "/run/wa-secrets": "rw,nosuid,noexec,nodev,mode=0700"
+      },
+      "bootstrap": "PASS",
+      "application": "NOT_RUN",
+      "finalization": "PASS",
+      "server_settings": {
+        "auth": "scram-sha-256:postgres",
+        "safe": true,
+        "login": "postgres",
+        "superuser": true,
+        "diagnostics_safe": true
+      },
+      "pre_bootstrap_public_baseline": {
+        "public_acl": [
+          {
+            "role": "PUBLIC",
+            "grantor": "pg_database_owner",
+            "privilege": "USAGE",
+            "grant_option": false
+          },
+          {
+            "role": "pg_database_owner",
+            "grantor": "pg_database_owner",
+            "privilege": "CREATE",
+            "grant_option": false
+          },
+          {
+            "role": "pg_database_owner",
+            "grantor": "pg_database_owner",
+            "privilege": "USAGE",
+            "grant_option": false
+          }
+        ],
+        "public_owner": "pg_database_owner",
+        "event_triggers": 0,
+        "application_roles": 0
+      },
+      "authentication_preflight": {
+        "status": "PASS",
+        "roles": 6,
+        "correct_password": 6,
+        "wrong_password_rejected": 6,
+        "evidence": "authentication-ok\\authentication-results-ok.json"
+      },
+      "baseline": {
+        "public_acl": "{pg_database_owner=UC/pg_database_owner,=U/pg_database_owner,wa_migrator=UC/pg_database_owner}",
+        "public_owner": "pg_database_owner",
+        "event_triggers": 0,
+        "public_relations": 0,
+        "application_relations": 0
+      },
+      "linux_tool_compatibility": {
+        "node": "v24.22.1",
+        "engine_commit": "d1b3f377ca835d73fd50954a5e22128b9ebdd6b8",
+        "preexec_hashes_verified": true
+      },
+      "connections_before_finalization": {
+        "migrator": 0,
+        "other_client_backends": 0
+      },
+      "finalization_observation": {
+        "auth": "scram-sha-256:postgres",
+        "grantor": "postgres",
+        "leaf_create": {
+          "wa_track_verifier": false,
+          "wa_customer_verifier": false,
+          "wa_private_helper_owner": false
+        },
+        "remaining_memberships": 0,
+        "active_install_connections": 0
+      }
+    }
+  },
+  "unexpected": [
+    {
+      "stage": "AFTER_NATIVE_DENIAL_COORDINATOR_BACKEND_CLOSURE",
+      "code": "NATIVE_DENIAL_COORDINATOR_STOPPED"
+    }
+  ],
+  "cleanup": {
+    "wa-p0c-e7a7beff-native": {
+      "removed": true,
+      "verified_id": "7d3570ae04ac09723d2ffbfcfccd7d72172576ed4fd59aa2c0e517416ba11a38",
+      "name_and_both_labels_verified": true
+    },
+    "wa-p0c-e7a7beff-native-data": {
+      "removed": true,
+      "name_labels_creation_identity_verified": true
+    }
+  },
+  "limits": {
+    "posture": "D",
+    "451_register": "NOT_PROMOTED",
+    "94_selection": "NOT_PROMOTED",
+    "hosted_changes": false,
+    "migration_adoption": false,
+    "worker_loop": false,
+    "production_readiness": false
+  },
+  "authorization": {
+    "scope": "STANDING_LOCAL_F0_NATIVE_ACCESS_REHEARSAL",
+    "packet_identity": "source_commit_tree_and_packet_sha256_fields",
+    "no_retry_on_unexpected": true
+  },
+  "source_verification": {
+    "commit": "b6149bae655ad40b6c721b40561e678ac6b752af",
+    "tree": "000befda867e157f40613333e8b2ea4289b427ec",
+    "packet_sha256": "1e2ba4c6f46f915b0beb610b74758ee885240c3fd52c8449baf7b2a72f3f58d6",
+    "files_sha256": {
+      "context/reconciliation/database-candidate-corrections-first-replay-selection.json": "2bed2825a3918db0da6b426bfb7d129d256455afca3f6e0bbdd387057fc2d762",
+      "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+      "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+      "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+      "context/reconciliation/foundation-sql-verifier-access.json": "f84421c4957fcb4cf7fa5b04d3b5f804f8810ee58da2c1529e98daba8ab36bde",
+      "context/reconciliation/local-f0-catalog-eb2aae6-2e4f5d40-execution.json": "76923eea9f3a68cb6157a0ed23432662492d79c068a7b58be507309edbe3e452",
+      "context/reconciliation/local-f0-cli-diagnostics-validation.json": "8bf070ea0473fa41cd815737de96920f70ecf6896bf9188c52d90dbd42ed6e7b",
+      "context/reconciliation/local-f0-migration-tooling-validation.json": "83d079ae068a04aee70c2d307ba7352a58a20409aef47df4f6a8866c25c2ce33",
+      "context/reconciliation/local-f0-native-access-source-validation.json": "a2055721dac26e5691f3854292e06b37e17d393930030d420e7f6c83a99c83a3",
+      "context/reconciliation/local-f0-native-catalog-acl-correction.json": "017c9ee8c46de01c8a70ffbd68c0c80c27a1508cf4f1887fffaafcdba8d54f85",
+      "context/reconciliation/local-f0-native-catalog-metadata-diagnostics.json": "5acadf4bbcc01b6133ebc0c81cb72e806a2c3d6f3840fd8f752353bde9c1735d",
+      "context/reconciliation/local-f0-native-catalog-text-correction.json": "83766af0fc699b88a56081ccebd59eff59b6c850678506f6ffe67c3d04b38565",
+      "context/reconciliation/local-f0-native-catalog-validation.json": "cbc26b6d1935ced05a03b3d186658864cb687de6b49af888c92c551976279d75",
+      "context/reconciliation/local-f0-operation-sources/native-access-v1/check_native_access_operation.py.txt": "f2b2647bb7605632d03376ae86dc009d8cfa9efb172333869078076a3a00b65d",
+      "context/reconciliation/local-f0-operation-sources/native-access-v1/execute_local_f0_native_access_20261118.py.txt": "d055251eb9648482922f1dcc567c82531ef34628031d2866ee0aca333829fd9e",
+      "context/reconciliation/local-f0-operation-sources/native-access-v1/local_f0_native_access_operation_steps.py.txt": "2340a3048a6acc5241e1f8fc4f7400b6e488f0fea681f07d527b84d5d8a44f83",
+      "context/reconciliation/local-f0-operation-sources/native-access-v1/pin_native_access_plan_20261118.py.txt": "4682fb5d65debe85cd487c28ac9df2ee964e1e87c4da3ff316b58e52ab62ba67",
+      "context/reconciliation/local-f0-operation-sources/native-access-v1/prepare_local_f0_native_access_plan.py.txt": "f0b727d4a53d14b8595b1e80b4dbc2e4e426d8465f8f8d619d64e5f474e57c6b",
+      "context/reconciliation/local-f0-run-assets/eb2aae6-native-catalog-2e4f5d40/source-prefix-analysis.json": "b3931b71fe3d0560d6864ce20aa64cc88086563c4399a34e4b442ed108c4fc4d",
+      "context/reconciliation/local-f0-server-diagnostics-validation.json": "560504eea761a06864edea01fba42e2e2a9a086ecfaab583309868f8f2f9c027",
+      "context/reconciliation/local-f0-tooling/linux-tooling-manifest.json": "e8fcce8f3ed4eaad0f7834e908166a0947b997e75513d589078f0d79c9a940d0",
+      "context/reconciliation/local-f0-tooling/prisma-tools-closure.json": "610e36e4006e9680d0e6a036486f302a18ecce9593699125b4173f5914acb88b",
+      "contracts/database-review/foundation-payloads.v1.schema.json": "a9e7eb1e44fd0cce0bff97b906d0c3cb98c49f63f2f07b95560e0d7013105cfe",
+      "contracts/database-review/owner-mutation-evidence.v1.schema.json": "5b95ff84e970a9587b4c04f37f2730878164c8aa77e2311410556f7b8d3c99a2",
+      "contracts/shared/SH-004.v1.schema.json": "e7cd3008e84dce839f189ff882feb9bb68b42784e0f403981e652d239328667e",
+      "contracts/shared/SH-114.v1.schema.json": "4df69f47f60f276d65c548c900590e06bf0530d4d03e16371972495bd7a2e78b",
+      "contracts/shared/types.v1.schema.json": "606d2f772bedf96ae59e82995831e741435dc573fdca477c8e735b5a63c30cf2",
+      "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+      "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+      "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+      "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+      "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+      "review-output/first-rehearsal/diagnostic-identifiers.json": "204b7c9f5888fd253c338286cc5446e1a346fb02073930124ccaf097f6bd9bb2",
+      "review-output/first-rehearsal/fixtures.json": "df00d519f11cd0a443dba906d724216d0e9d4f16f3ccbd9a703f9d02d0f3b3be",
+      "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+      "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+      "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+      "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+      "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+      "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+      "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+      "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+      "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+      "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+      "review-output/native-catalog/README.md": "89e82bb70f53d6e959109c1e249bb4dda0101d22470d68211715baf5b1c74388",
+      "review-output/native-catalog/expected.json": "9ad2129c9b7b7b5fd99f2088ae94215326f6ccbf40550945694c44538d8d0976",
+      "review-output/native-catalog/expression-oracle-plan.json": "cce4b19c1931472841de2fec2662fa4b002278b275341815782078689a1af36f",
+      "review-output/native-catalog/expression-oracle.sql": "74d585741e1e097ac0614621b86c7ec97673697eb7dde344023e1dbe0ca613d2",
+      "review-output/native-catalog/public-schema-registration.json": "f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3",
+      "review-output/native-catalog/source-pins.json": "a0e9c36eecf61b1d4ce717744c29f4b72424ecd8d9db5ce0519b6bdaf9f58d00",
+      "review-output/native-table-denials/00-ConsentLog-existing-observe.sql": "55e5a7c7b78844780cc9aba431b7b7505e4551ba428c0706b48782757793815d",
+      "review-output/native-table-denials/00-ConsentLog-native-controls.sql": "218cbd41788755c1ef8a0dd300613e06df4caa162b12e18e215ee9468f499b88",
+      "review-output/native-table-denials/01-PrivacyRequest-existing-observe.sql": "fb98048abc7f33f7da73f10a5ad6c53fc1611898c4b9bf43da925d5b43d66135",
+      "review-output/native-table-denials/01-PrivacyRequest-native-controls.sql": "c583806b8ee592ca179ad81d5f49de76d78fba1917f9fdd747a18af8c907b380",
+      "review-output/native-table-denials/02-AgeGateAttempt-existing-observe.sql": "0eb78169bb122be1f29fdbc7ea00fc1fe2b7228c996d4b998bfa34d1de6490fc",
+      "review-output/native-table-denials/02-AgeGateAttempt-native-controls.sql": "8d246278ef764b9cd0be3a6d3c39ec6dc23fe544a04421fabf2db8061cfee6ab",
+      "review-output/native-table-denials/03-AgeGateBlock-existing-observe.sql": "81d7d2732c4e4bd35df0f2ac966085edb1be9fa1855ac12c382769eb0c685129",
+      "review-output/native-table-denials/03-AgeGateBlock-native-controls.sql": "9248b8e4fe4ca61a2a1176f4486227ce0bee062de58b11cad5af44bb05489980",
+      "review-output/native-table-denials/04-AccessAuditLog-existing-observe.sql": "a207add0a567c586c46d848b2391a5cc38334dabdec55624be218a2ccf3f09c1",
+      "review-output/native-table-denials/04-AccessAuditLog-native-controls.sql": "466137602af53d1198db1243661dc1e0e64d9c203187ccdf082d6aa354883288",
+      "review-output/native-table-denials/05-User-existing-observe.sql": "cd74ed8f1e21afb3cdf4e916faf9b57c24861b34489c65c0c59c9eecb845d279",
+      "review-output/native-table-denials/05-User-native-controls.sql": "887082b9e7759e85c517c377b58ba2ebd8f95258d3846184462fb3be59334793",
+      "review-output/native-table-denials/06-UserRole-existing-observe.sql": "33423e25b41189db6247e9539c544e173dcdf730a218b22b51527977098487e8",
+      "review-output/native-table-denials/06-UserRole-native-controls.sql": "271322a4bfac48c43168eab83024396bb2d5250d131f5d12e049cc41f5b87671",
+      "review-output/native-table-denials/07-ProfessionalProfile-existing-observe.sql": "3e1c59e0a0a5bb2503533d4f04faf8177627d2b2f6431c1bebfc945c48c9018a",
+      "review-output/native-table-denials/07-ProfessionalProfile-native-controls.sql": "3ef87085ade359fad3f11624b8cab874cce957c5bd05e6da3fdeee1b672050f5",
+      "review-output/native-table-denials/08-CustomerProfile-existing-observe.sql": "8c6ddb7a0f011c34bd5e803feee16e1826978299965a9fdfaf0e66d870b9a464",
+      "review-output/native-table-denials/08-CustomerProfile-native-controls.sql": "17070f90afc1d082ad8e941b48d3089876183a20f28373e9edd6a9312eef7888",
+      "review-output/native-table-denials/09-CandidateProfile-existing-observe.sql": "a50f3e3127e81d091849c573872f4cd8d630e2e1a70e864620bcf7e985cb4015",
+      "review-output/native-table-denials/09-CandidateProfile-native-controls.sql": "39bfe47603ca487cdb3bc6183ea6ebd164e5713e23c6e2e20bcf6dfa6d40fcbc",
+      "review-output/native-table-denials/10-AuditEvent-existing-observe.sql": "590944f17275ec9c9031efc1c6dee626e62d0626705de50dc1e3e6cb83b4230c",
+      "review-output/native-table-denials/10-AuditEvent-native-controls.sql": "2c89777889e5252989b50ca8466cfb9ee3749a17c1d259048577048b6a853926",
+      "review-output/native-table-denials/11-UserSecurityProfile-existing-observe.sql": "7fcb10bf0fca41539dfefcbf515d6bc2c302e21ba3bf48dbaf98f0b7465be2dc",
+      "review-output/native-table-denials/11-UserSecurityProfile-native-controls.sql": "b0d30cdcc5a7c73d104025b7230b942b08e7739772834cba9160b76e4923ad32",
+      "review-output/native-table-denials/12-AuthProviderAccount-existing-observe.sql": "f19717b853f3c31dc677ebdf2eeedc54c2c23334d96fc445d2aff60307b8ee14",
+      "review-output/native-table-denials/12-AuthProviderAccount-native-controls.sql": "7360c733d0324184d0e3ecb38bc64376533d8232cf3179cd41967469b77d0e7a",
+      "review-output/native-table-denials/13-TrackPlan-existing-observe.sql": "3a1c5a130e8d94bd35e840da0385c6d06fda648c943ef2012798fdb2c940fa3d",
+      "review-output/native-table-denials/13-TrackPlan-native-controls.sql": "3938722ab8c48e43a28a01cfc906acc3a811559c3fca4f33c30c61102ba33644",
+      "review-output/native-table-denials/14-TrackEntitlementDefinition-existing-observe.sql": "3633bb3274e8b94f573534c94097a479dfc10501b96f1b6a4629ee68db26bfbf",
+      "review-output/native-table-denials/14-TrackEntitlementDefinition-native-controls.sql": "c5f488a568ee448d3754d22d80303edfa9afe57e1e07570c8dd3c8c0b6f796fe",
+      "review-output/native-table-denials/15-TrackPlanEntitlement-existing-observe.sql": "41c89def251a37846f7d020f702107c87a459ad62af0607cec54dc3dac265da7",
+      "review-output/native-table-denials/15-TrackPlanEntitlement-native-controls.sql": "d54b31f8a118ca1d403456282763c8e1b5643e33b549a098f41ef018fa8e9144",
+      "review-output/native-table-denials/16-TrackSubscription-existing-observe.sql": "3e3124fd42575d5646bbc8720eab56aa8134cec883b7c2902274800160ca1e59",
+      "review-output/native-table-denials/16-TrackSubscription-native-controls.sql": "2e7716c51caca00be698d1aef074dfb9c75c11e5bc77c745f3320d901e2e9ee6",
+      "review-output/native-table-denials/17-TrackEntitlementGrant-existing-observe.sql": "de8c4f7045c1c80b1dde91ef01e23c55f4f783e4eae3ce4f715429ffa939df5b",
+      "review-output/native-table-denials/17-TrackEntitlementGrant-native-controls.sql": "13300963a064fecca27bc4e4dc89ad556686b106b2ab67b9e07b215393928e4c",
+      "review-output/native-table-denials/18-TrackUsageEvent-existing-observe.sql": "b1425f89c862a660c74dd129f5f33ecf6afb617d7a8035d52f2ae6e5c5103b3e",
+      "review-output/native-table-denials/18-TrackUsageEvent-native-controls.sql": "c8d20d87adff3e1a191b6feb0872b2c26a2f0df8ff462e1b2ac598c7891d405a",
+      "review-output/native-table-denials/19-TrackUsageCounter-existing-observe.sql": "65003057473988054acb49e88fa223f56d75774be8f3330394bf3d5a3c6321fd",
+      "review-output/native-table-denials/19-TrackUsageCounter-native-controls.sql": "f78955ca6a8359571014b00153bf95c6f21b037b64b2a9eb76cdbf3c468980b0",
+      "review-output/native-table-denials/20-TrackSubscriptionEvent-existing-observe.sql": "878cc8ba35c921d3d45f960aeee4393a2e79f822c22ebf011bc49e55fbce8ba1",
+      "review-output/native-table-denials/20-TrackSubscriptionEvent-native-controls.sql": "a9525288fa6d6b5fcd6e0f023b6359e7ed2ee32a808021a6286497304dea6bc4",
+      "review-output/native-table-denials/21-ConsentContentRevision-existing-observe.sql": "5478800a3b3d46f577ecb353258a467988d3104db382d077d96e913e0c9c939c",
+      "review-output/native-table-denials/21-ConsentContentRevision-native-controls.sql": "cf2521e9bd79d6e3e3c8bbed5f3ea4dccbb2f7651d95f397c0eaab1f33da37f8",
+      "review-output/native-table-denials/22-ConsentPresentation-existing-observe.sql": "360f72aa058a92911aabe0c19b57a8194b24aee71b973b1c3bfe4c2d7798891d",
+      "review-output/native-table-denials/22-ConsentPresentation-native-controls.sql": "7fc2a6abe4a7818570ee32054413c6dd6e7dea085683ac6429713fd30cb82135",
+      "review-output/native-table-denials/23-ConsentDisposition-existing-observe.sql": "fa1410954dfc662d5fd10023b31a1a8c2045a7e92543a25ae710b7ca81634d26",
+      "review-output/native-table-denials/23-ConsentDisposition-native-controls.sql": "09e8e22452e52a6bab1465a14e499024aadc8cd536c25b8ebf189d48b81c886d",
+      "review-output/native-table-denials/24-DatabaseActionGrant-existing-observe.sql": "774e283cd0a31986a9352fcf776133ae88c67e66ac18175270ecf9be0ed29a58",
+      "review-output/native-table-denials/24-DatabaseActionGrant-native-controls.sql": "2e2d3547c3654cbd1fc686bb2013caafe4103d07bb795b04b874d8eb065f169f",
+      "review-output/native-table-denials/25-RuntimeCommandReceipt-existing-observe.sql": "d576a20764dc7aa928ed9d48ef07a42fb44e0b51e9c81f6fa51e1ca0d8a2f846",
+      "review-output/native-table-denials/25-RuntimeCommandReceipt-native-controls.sql": "542cefc359a312a693e83223ae6029c2336c458a0c4d1ca759dda7f9657da0f3",
+      "review-output/native-table-denials/26-RuntimeOutboxMessage-existing-observe.sql": "4b52fb3d44c43928ef5f5d4d9ac3e19c9392ef3191f5a43b682d7ce1c09c248b",
+      "review-output/native-table-denials/26-RuntimeOutboxMessage-native-controls.sql": "2603194e29364fa82b36656b4e0dd18b15bff466c10c55ebe3c0ee19e6877237",
+      "review-output/native-table-denials/27-RuntimeEffectReceipt-existing-observe.sql": "6c971274711f9c8eab4ba11a2c987525b98f95cf41d3300b9db99fda9e1c86e5",
+      "review-output/native-table-denials/27-RuntimeEffectReceipt-native-controls.sql": "22e780421aae44c58c9d4067680d9a71730337ca833d7fd51039b3645c643233",
+      "review-output/native-table-denials/28-RuntimeWorkItem-existing-observe.sql": "872ca7eadfa65b5d7a8199aebe941467065bcbcdc38feead056e01f20a532039",
+      "review-output/native-table-denials/28-RuntimeWorkItem-native-controls.sql": "48b6b0ab2ce9210667a894e74b465fb5c65b44b03af02aa980ce0af995530869",
+      "review-output/native-table-denials/29-RuntimeAttempt-existing-observe.sql": "09d8485474e0a09891e59af9c7b38a4d774fad01d4bec1aab9c5ab221f10e7b3",
+      "review-output/native-table-denials/29-RuntimeAttempt-native-controls.sql": "9dc4e6e82926ff0575519493113b18f4c33df8eb66ff65ccf17f1e2aad1787e0",
+      "review-output/native-table-denials/30-RuntimeInboxReceipt-existing-observe.sql": "b10f2d8d53440a3627f140cb5ac2b209ce1c6a35ba563519953a5b2549ba0a16",
+      "review-output/native-table-denials/30-RuntimeInboxReceipt-native-controls.sql": "3728fcace996cc8d4d60e7b22e2f9c15e84ccd59a79862a9e141ab43fbf7f6de",
+      "review-output/native-table-denials/31-RuntimeReservation-existing-observe.sql": "fe494cc38dbadb9b859f1fb659fe9b6338ef7253e4268cb479ad938ad3327339",
+      "review-output/native-table-denials/31-RuntimeReservation-native-controls.sql": "1b04c6e23238580fc90cf6860d99419294f16e93d6d7647f094d853c4c100e21",
+      "review-output/native-table-denials/32-OwnerMutationEvidence-existing-observe.sql": "9c1bef439a9e01a83e7306b0e21afe0e36c67469899f19b46ab5c5365a0f41fa",
+      "review-output/native-table-denials/32-OwnerMutationEvidence-native-controls.sql": "2ea104c0acadaf4e797c5d6724d6faa9a78c4f22e22e405595316d8e7618cacc",
+      "review-output/native-table-denials/33-CustomerProfileLifecycleEvent-existing-observe.sql": "2e6bce436b043d7750d2243e13eba63617160d83ac991ac37975a9ffe5e38bd1",
+      "review-output/native-table-denials/33-CustomerProfileLifecycleEvent-native-controls.sql": "d2ecd45a943c294d7d5ca98733025e7942ee6b752375f813537559f3dd9dd891",
+      "review-output/native-table-denials/34-TrackBaseSelection-existing-observe.sql": "6c0ec824ccb6a00478519dffc6594f5802e99319449cf96a1f13f8dbef68799c",
+      "review-output/native-table-denials/34-TrackBaseSelection-native-controls.sql": "bc3f7bcf07b808a018a7b6847f81efb6e3931716132247448c31deb780bf5f13",
+      "review-output/native-table-denials/35-TrackEnrollmentReceipt-existing-observe.sql": "55340512b2c3d6623327c9f74b600545f18e5c235c2102bac5cbdc290e2570fe",
+      "review-output/native-table-denials/35-TrackEnrollmentReceipt-native-controls.sql": "0dd59ff3baf94c424bbcb714bdc7fdcbab949240e6fa6d39caae572cc2050975",
+      "review-output/native-table-denials/36-TrackUsageReservation-existing-observe.sql": "b6d4b4876a02c7761c538e067bcc2827fd62ce781a4c3d227b3eaf041750c817",
+      "review-output/native-table-denials/36-TrackUsageReservation-native-controls.sql": "4a4c971e2b135a1f7c7386c5d101614b5288bc4b96554d9676d033ab29e85521",
+      "review-output/native-table-denials/37-PrivacyTargetInstruction-existing-observe.sql": "61db2cc5b4ad42f59afeee90a964c1985a10c439796be8d25451d3cf7507aed0",
+      "review-output/native-table-denials/37-PrivacyTargetInstruction-native-controls.sql": "b6bf8afb8e30148f7d8bd4ed167f82b00e2b3112b263c6736ea0af553d1b6ca8",
+      "review-output/native-table-denials/38-PrivacyOwnerReceipt-existing-observe.sql": "f0ddac1824cda9978003a740133c1ee05466fb188061bc089454e8290c02ce13",
+      "review-output/native-table-denials/38-PrivacyOwnerReceipt-native-controls.sql": "ffab956b4f6b7679f119e81c5bccbafdbc2950257805c10fe7ba2f568e86c9b0",
+      "review-output/native-table-denials/39-PrivacyRestoreMarker-existing-observe.sql": "140ed8b0da00a5e2a87d5c734d65ae3da17a9a4f25743105e0c51d3c5bea6089",
+      "review-output/native-table-denials/39-PrivacyRestoreMarker-native-controls.sql": "63bcf652c0ecfd75c046a944225d8949ef7f0199c01e49e70a7697ee52dd3520",
+      "review-output/native-table-denials/all-user-trigger-closure.sql": "0f2a00899a87bb776bc647ad339772ebf058d635566e478097ae7b059b992a80",
+      "review-output/native-table-denials/native-fact-setup.sql": "921e2d18cc2761e2f0712c965fe47de543e9942bf6e03f6a886fb08777b3a0de",
+      "review-output/native-table-denials/packet.json": "bf542f88525e96d7d1c93ef06425278a82e1328043d60879ac34191f1bee3000",
+      "review-output/native-table-denials/provider-role-simulation-before-migrate.sql": "42b59ad2960aea933e1d72ff4707fcaae75eb7299e856ebbb9ea0097a8ed5156",
+      "scripts/assemble-foundation-sql-review.py": "136489b5fb966085020128bfbd7140dad5e0b340a2312319d346305311fc212f",
+      "scripts/check-first-rehearsal-mocks.py": "777d9d74788c37c9b20891196180708400e4f58991026075e60bb6bc74a96adf",
+      "scripts/check-local-f0-migrate.py": "59d890c145e1f14a62e296fba0139eaa22ab728b70fa76a7dbd7dc3883222a14",
+      "scripts/check-migration-server-diagnostics.py": "cb3ded2eaf6c1532691a41af241897b11072907c37aaeb2d3f2f1478da157163",
+      "scripts/check-native-catalog-review.py": "05d39953bd26c61ef7d414a53bb5c0bc65cb2e59ec8513e17230ad5f7e4ef859",
+      "scripts/check-trigger-row-shapes.py": "7e6c851630a65c9e07685138e03eca5d4fd5404e8a4bb2b36895e34069d52ce9",
+      "scripts/contract_schema.py": "27b91594ac3dc9e1345b5bde912b4a849f0a324e90819df56150f7e3d326bc8c",
+      "scripts/database-candidate-correction-rules.py": "6b79a14ffa77c450c3864ba5e2d930d61d5a427a6b0c11545e1afdd37ccaabb3",
+      "scripts/prepare-database-candidate-review-assets.py": "dcb1544afc39cffbd9a8b052749f544c7531ff3dee2ff9cc738fd38d8d3bc9ed",
+      "scripts/prepare-first-rehearsal.py": "b03f4b7fda4e60ff7bafc2b6a7463d7bb9a3ee7bffc9f4e6c8f840f99b4116ce",
+      "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+      "scripts/prepare-native-catalog-review.py": "cef4f4f191e478593a679e9b86c7eee410531b01501a896c0b6f0e1bc1ac4fa2",
+      "scripts/prepare-native-table-denials.py": "41eceb73acb05ff6f0695acd7c8b4aff674dabe2448a72f6a33ff5944fb9ff8b",
+      "scripts/prepare-rehearsal-diagnostics.py": "598bc556999a16f303171003324be8763cb00a0fff2bb54de8a1195e1e7c852b",
+      "scripts/sql-review/catalog-acl-preflight.sql": "7018c8f415923533dc461b212a0df0f9a0f4144457e410c4505c9322df4647f4",
+      "scripts/sql-review/catalog-text-preflight.sql": "f1cab9adf94fe5aa2452f34213eea43cf4ecfe35c9ce5f5289486b7d4f859823",
+      "scripts/sql-review/catalog_expression_oracle.py": "c5034cc982a5523e42cd721214cbca5820980fafd2c233f83f7706fcee826dfc",
+      "scripts/sql-review/catalog_manifest.py": "1f1deb607dd2b2b4583cabeeae6be3205964d8a5ad897fe7bb1003699bfc9c16",
+      "scripts/sql-review/check-local-f0-migrate-guard.mjs": "bf7c166a23eaf29ed2ac084def03115e30d308439566d2f29af10d5fd22496cc",
+      "scripts/sql-review/collect_native_catalog.sql": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+      "scripts/sql-review/collect_prisma_ledger.sql": "6dfa02fa375da4a126b996fc547dfff063c61b41c854db6b07ea62f52d63286b",
+      "scripts/sql-review/compare_native_catalog.py": "20441930b769d93eb00d762861018878d18d8c0f64194d65c468f0e320c204f6",
+      "scripts/sql-review/foundation-bootstrap-finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+      "scripts/sql-review/foundation-invariants.sql": "8fc28f505bf100db89c8d441a507f3a8d58532dfb5ef960c8790d729a73f9904",
+      "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+      "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+      "scripts/sql-review/migration_server_diagnostics.py": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+      "scripts/sql-review/native-table-denials-coordinator.md": "5953b5161efd2c77b6a97f24488c753e2378cfa5a9487df4919439c56f970695",
+      "scripts/sql-review/native_deny_fixture_factory.py": "77655142f3fe56ba860a910e97815da048ad78ab9b4535a898206430072d37ff",
+      "scripts/sql-review/pg17_catalog_rules.py": "448b46b7b5a8d6bc62dd25fc85cb12ad488f3e9dfabd70d028a5f6f49afea342",
+      "scripts/sql-review/prisma-ledger-proof.md": "05ed0aff941305f5e2800b49633f029a8a68ca05ec2b80171060632917577992",
+      "scripts/sql-review/prisma_ledger_proof.py": "1cb05b1d82b67580671cccf5f9289fbc481fef2d77532b049658912428604b21",
+      "scripts/sql-review/rehearsal-diagnostics.py": "c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e",
+      "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e",
+      "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f",
+      "scripts/sql-review/run-native-table-denials.py": "e263b4ade8e18b21f30c3b6cb2c2115494fbe16971934b994bf7fa59541305b6",
+      "scripts/sql-review/test_catalog_collector_acl.py": "d9ac90cb8c335bd70b04056e422692c55bf73569ef109d3f8fb2bd73e9e1b57b",
+      "scripts/sql-review/test_catalog_collector_text.py": "fe7a29132b7d69b69213f61ccfda3e14a7339735c202f3cae1334c92dc6e24a7",
+      "scripts/sql-review/test_catalog_expression_oracle.py": "a758a17b8cd92922e7a599dc06679e6309dc107028c151387e533dcf8a5f5c85",
+      "scripts/sql-review/test_catalog_manifest.py": "633e4f8c8f3b93d7e44d7c8abff7aa5ca1f3caa063cc354d592d1913d4ba9750",
+      "scripts/sql-review/test_compare_native_catalog.py": "38d0e26ac030a1024c739c8ea79e0c653b3f0bf9aee54e9815bf314b8887ce37",
+      "scripts/sql-review/test_native_deny_fixture_factory.py": "54d645d500ab2b158cf789de4fdc7229a59298a1ea410909fbbfefff47fd1314",
+      "scripts/sql-review/test_pg17_catalog_rules.py": "c6879cd715df8bb45b26bbeec90352189e339d87be2f37c869cf471e42cfbb4a",
+      "scripts/sql-review/test_prisma_ledger_proof.py": "62685fbff83d42cad600de2d1f387647737a42bd5cffc50c2240eb1c66006095",
+      "scripts/sql-review/test_run_native_table_denials.py": "e75aac1996efbf2e48f3834deb8426a25a40a56a0bf258998fad9ae32f949a0e"
+    },
+    "file_count": 181
+  },
+  "run_manifest": {
+    "purpose": "LOCAL_F0_NATIVE_ACCESS_REHEARSAL",
+    "authority": "context/reconciliation/directives/local-f0-standing-authority-2026-11-17.md",
+    "run_id": "e7a7beff-dcb1-4107-8dbe-b46aa9291dfa",
+    "source_commit": "b6149bae655ad40b6c721b40561e678ac6b752af",
+    "source_tree": "000befda867e157f40613333e8b2ea4289b427ec",
+    "packet_files_sha256": {
+      "context/reconciliation/database-candidate-corrections-first-replay-selection.json": "2bed2825a3918db0da6b426bfb7d129d256455afca3f6e0bbdd387057fc2d762",
+      "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+      "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+      "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+      "context/reconciliation/foundation-sql-verifier-access.json": "f84421c4957fcb4cf7fa5b04d3b5f804f8810ee58da2c1529e98daba8ab36bde",
+      "context/reconciliation/local-f0-catalog-eb2aae6-2e4f5d40-execution.json": "76923eea9f3a68cb6157a0ed23432662492d79c068a7b58be507309edbe3e452",
+      "context/reconciliation/local-f0-cli-diagnostics-validation.json": "8bf070ea0473fa41cd815737de96920f70ecf6896bf9188c52d90dbd42ed6e7b",
+      "context/reconciliation/local-f0-migration-tooling-validation.json": "83d079ae068a04aee70c2d307ba7352a58a20409aef47df4f6a8866c25c2ce33",
+      "context/reconciliation/local-f0-native-access-source-validation.json": "a2055721dac26e5691f3854292e06b37e17d393930030d420e7f6c83a99c83a3",
+      "context/reconciliation/local-f0-native-catalog-acl-correction.json": "017c9ee8c46de01c8a70ffbd68c0c80c27a1508cf4f1887fffaafcdba8d54f85",
+      "context/reconciliation/local-f0-native-catalog-metadata-diagnostics.json": "5acadf4bbcc01b6133ebc0c81cb72e806a2c3d6f3840fd8f752353bde9c1735d",
+      "context/reconciliation/local-f0-native-catalog-text-correction.json": "83766af0fc699b88a56081ccebd59eff59b6c850678506f6ffe67c3d04b38565",
+      "context/reconciliation/local-f0-native-catalog-validation.json": "cbc26b6d1935ced05a03b3d186658864cb687de6b49af888c92c551976279d75",
+      "context/reconciliation/local-f0-operation-sources/native-access-v1/check_native_access_operation.py.txt": "f2b2647bb7605632d03376ae86dc009d8cfa9efb172333869078076a3a00b65d",
+      "context/reconciliation/local-f0-operation-sources/native-access-v1/execute_local_f0_native_access_20261118.py.txt": "d055251eb9648482922f1dcc567c82531ef34628031d2866ee0aca333829fd9e",
+      "context/reconciliation/local-f0-operation-sources/native-access-v1/local_f0_native_access_operation_steps.py.txt": "2340a3048a6acc5241e1f8fc4f7400b6e488f0fea681f07d527b84d5d8a44f83",
+      "context/reconciliation/local-f0-operation-sources/native-access-v1/pin_native_access_plan_20261118.py.txt": "4682fb5d65debe85cd487c28ac9df2ee964e1e87c4da3ff316b58e52ab62ba67",
+      "context/reconciliation/local-f0-operation-sources/native-access-v1/prepare_local_f0_native_access_plan.py.txt": "f0b727d4a53d14b8595b1e80b4dbc2e4e426d8465f8f8d619d64e5f474e57c6b",
+      "context/reconciliation/local-f0-run-assets/eb2aae6-native-catalog-2e4f5d40/source-prefix-analysis.json": "b3931b71fe3d0560d6864ce20aa64cc88086563c4399a34e4b442ed108c4fc4d",
+      "context/reconciliation/local-f0-server-diagnostics-validation.json": "560504eea761a06864edea01fba42e2e2a9a086ecfaab583309868f8f2f9c027",
+      "context/reconciliation/local-f0-tooling/linux-tooling-manifest.json": "e8fcce8f3ed4eaad0f7834e908166a0947b997e75513d589078f0d79c9a940d0",
+      "context/reconciliation/local-f0-tooling/prisma-tools-closure.json": "610e36e4006e9680d0e6a036486f302a18ecce9593699125b4173f5914acb88b",
+      "contracts/database-review/foundation-payloads.v1.schema.json": "a9e7eb1e44fd0cce0bff97b906d0c3cb98c49f63f2f07b95560e0d7013105cfe",
+      "contracts/database-review/owner-mutation-evidence.v1.schema.json": "5b95ff84e970a9587b4c04f37f2730878164c8aa77e2311410556f7b8d3c99a2",
+      "contracts/shared/SH-004.v1.schema.json": "e7cd3008e84dce839f189ff882feb9bb68b42784e0f403981e652d239328667e",
+      "contracts/shared/SH-114.v1.schema.json": "4df69f47f60f276d65c548c900590e06bf0530d4d03e16371972495bd7a2e78b",
+      "contracts/shared/types.v1.schema.json": "606d2f772bedf96ae59e82995831e741435dc573fdca477c8e735b5a63c30cf2",
+      "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+      "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+      "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+      "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+      "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+      "review-output/first-rehearsal/diagnostic-identifiers.json": "204b7c9f5888fd253c338286cc5446e1a346fb02073930124ccaf097f6bd9bb2",
+      "review-output/first-rehearsal/fixtures.json": "df00d519f11cd0a443dba906d724216d0e9d4f16f3ccbd9a703f9d02d0f3b3be",
+      "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+      "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+      "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+      "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+      "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+      "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+      "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+      "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+      "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+      "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+      "review-output/native-catalog/README.md": "89e82bb70f53d6e959109c1e249bb4dda0101d22470d68211715baf5b1c74388",
+      "review-output/native-catalog/expected.json": "9ad2129c9b7b7b5fd99f2088ae94215326f6ccbf40550945694c44538d8d0976",
+      "review-output/native-catalog/expression-oracle-plan.json": "cce4b19c1931472841de2fec2662fa4b002278b275341815782078689a1af36f",
+      "review-output/native-catalog/expression-oracle.sql": "74d585741e1e097ac0614621b86c7ec97673697eb7dde344023e1dbe0ca613d2",
+      "review-output/native-catalog/public-schema-registration.json": "f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3",
+      "review-output/native-catalog/source-pins.json": "a0e9c36eecf61b1d4ce717744c29f4b72424ecd8d9db5ce0519b6bdaf9f58d00",
+      "review-output/native-table-denials/00-ConsentLog-existing-observe.sql": "55e5a7c7b78844780cc9aba431b7b7505e4551ba428c0706b48782757793815d",
+      "review-output/native-table-denials/00-ConsentLog-native-controls.sql": "218cbd41788755c1ef8a0dd300613e06df4caa162b12e18e215ee9468f499b88",
+      "review-output/native-table-denials/01-PrivacyRequest-existing-observe.sql": "fb98048abc7f33f7da73f10a5ad6c53fc1611898c4b9bf43da925d5b43d66135",
+      "review-output/native-table-denials/01-PrivacyRequest-native-controls.sql": "c583806b8ee592ca179ad81d5f49de76d78fba1917f9fdd747a18af8c907b380",
+      "review-output/native-table-denials/02-AgeGateAttempt-existing-observe.sql": "0eb78169bb122be1f29fdbc7ea00fc1fe2b7228c996d4b998bfa34d1de6490fc",
+      "review-output/native-table-denials/02-AgeGateAttempt-native-controls.sql": "8d246278ef764b9cd0be3a6d3c39ec6dc23fe544a04421fabf2db8061cfee6ab",
+      "review-output/native-table-denials/03-AgeGateBlock-existing-observe.sql": "81d7d2732c4e4bd35df0f2ac966085edb1be9fa1855ac12c382769eb0c685129",
+      "review-output/native-table-denials/03-AgeGateBlock-native-controls.sql": "9248b8e4fe4ca61a2a1176f4486227ce0bee062de58b11cad5af44bb05489980",
+      "review-output/native-table-denials/04-AccessAuditLog-existing-observe.sql": "a207add0a567c586c46d848b2391a5cc38334dabdec55624be218a2ccf3f09c1",
+      "review-output/native-table-denials/04-AccessAuditLog-native-controls.sql": "466137602af53d1198db1243661dc1e0e64d9c203187ccdf082d6aa354883288",
+      "review-output/native-table-denials/05-User-existing-observe.sql": "cd74ed8f1e21afb3cdf4e916faf9b57c24861b34489c65c0c59c9eecb845d279",
+      "review-output/native-table-denials/05-User-native-controls.sql": "887082b9e7759e85c517c377b58ba2ebd8f95258d3846184462fb3be59334793",
+      "review-output/native-table-denials/06-UserRole-existing-observe.sql": "33423e25b41189db6247e9539c544e173dcdf730a218b22b51527977098487e8",
+      "review-output/native-table-denials/06-UserRole-native-controls.sql": "271322a4bfac48c43168eab83024396bb2d5250d131f5d12e049cc41f5b87671",
+      "review-output/native-table-denials/07-ProfessionalProfile-existing-observe.sql": "3e1c59e0a0a5bb2503533d4f04faf8177627d2b2f6431c1bebfc945c48c9018a",
+      "review-output/native-table-denials/07-ProfessionalProfile-native-controls.sql": "3ef87085ade359fad3f11624b8cab874cce957c5bd05e6da3fdeee1b672050f5",
+      "review-output/native-table-denials/08-CustomerProfile-existing-observe.sql": "8c6ddb7a0f011c34bd5e803feee16e1826978299965a9fdfaf0e66d870b9a464",
+      "review-output/native-table-denials/08-CustomerProfile-native-controls.sql": "17070f90afc1d082ad8e941b48d3089876183a20f28373e9edd6a9312eef7888",
+      "review-output/native-table-denials/09-CandidateProfile-existing-observe.sql": "a50f3e3127e81d091849c573872f4cd8d630e2e1a70e864620bcf7e985cb4015",
+      "review-output/native-table-denials/09-CandidateProfile-native-controls.sql": "39bfe47603ca487cdb3bc6183ea6ebd164e5713e23c6e2e20bcf6dfa6d40fcbc",
+      "review-output/native-table-denials/10-AuditEvent-existing-observe.sql": "590944f17275ec9c9031efc1c6dee626e62d0626705de50dc1e3e6cb83b4230c",
+      "review-output/native-table-denials/10-AuditEvent-native-controls.sql": "2c89777889e5252989b50ca8466cfb9ee3749a17c1d259048577048b6a853926",
+      "review-output/native-table-denials/11-UserSecurityProfile-existing-observe.sql": "7fcb10bf0fca41539dfefcbf515d6bc2c302e21ba3bf48dbaf98f0b7465be2dc",
+      "review-output/native-table-denials/11-UserSecurityProfile-native-controls.sql": "b0d30cdcc5a7c73d104025b7230b942b08e7739772834cba9160b76e4923ad32",
+      "review-output/native-table-denials/12-AuthProviderAccount-existing-observe.sql": "f19717b853f3c31dc677ebdf2eeedc54c2c23334d96fc445d2aff60307b8ee14",
+      "review-output/native-table-denials/12-AuthProviderAccount-native-controls.sql": "7360c733d0324184d0e3ecb38bc64376533d8232cf3179cd41967469b77d0e7a",
+      "review-output/native-table-denials/13-TrackPlan-existing-observe.sql": "3a1c5a130e8d94bd35e840da0385c6d06fda648c943ef2012798fdb2c940fa3d",
+      "review-output/native-table-denials/13-TrackPlan-native-controls.sql": "3938722ab8c48e43a28a01cfc906acc3a811559c3fca4f33c30c61102ba33644",
+      "review-output/native-table-denials/14-TrackEntitlementDefinition-existing-observe.sql": "3633bb3274e8b94f573534c94097a479dfc10501b96f1b6a4629ee68db26bfbf",
+      "review-output/native-table-denials/14-TrackEntitlementDefinition-native-controls.sql": "c5f488a568ee448d3754d22d80303edfa9afe57e1e07570c8dd3c8c0b6f796fe",
+      "review-output/native-table-denials/15-TrackPlanEntitlement-existing-observe.sql": "41c89def251a37846f7d020f702107c87a459ad62af0607cec54dc3dac265da7",
+      "review-output/native-table-denials/15-TrackPlanEntitlement-native-controls.sql": "d54b31f8a118ca1d403456282763c8e1b5643e33b549a098f41ef018fa8e9144",
+      "review-output/native-table-denials/16-TrackSubscription-existing-observe.sql": "3e3124fd42575d5646bbc8720eab56aa8134cec883b7c2902274800160ca1e59",
+      "review-output/native-table-denials/16-TrackSubscription-native-controls.sql": "2e7716c51caca00be698d1aef074dfb9c75c11e5bc77c745f3320d901e2e9ee6",
+      "review-output/native-table-denials/17-TrackEntitlementGrant-existing-observe.sql": "de8c4f7045c1c80b1dde91ef01e23c55f4f783e4eae3ce4f715429ffa939df5b",
+      "review-output/native-table-denials/17-TrackEntitlementGrant-native-controls.sql": "13300963a064fecca27bc4e4dc89ad556686b106b2ab67b9e07b215393928e4c",
+      "review-output/native-table-denials/18-TrackUsageEvent-existing-observe.sql": "b1425f89c862a660c74dd129f5f33ecf6afb617d7a8035d52f2ae6e5c5103b3e",
+      "review-output/native-table-denials/18-TrackUsageEvent-native-controls.sql": "c8d20d87adff3e1a191b6feb0872b2c26a2f0df8ff462e1b2ac598c7891d405a",
+      "review-output/native-table-denials/19-TrackUsageCounter-existing-observe.sql": "65003057473988054acb49e88fa223f56d75774be8f3330394bf3d5a3c6321fd",
+      "review-output/native-table-denials/19-TrackUsageCounter-native-controls.sql": "f78955ca6a8359571014b00153bf95c6f21b037b64b2a9eb76cdbf3c468980b0",
+      "review-output/native-table-denials/20-TrackSubscriptionEvent-existing-observe.sql": "878cc8ba35c921d3d45f960aeee4393a2e79f822c22ebf011bc49e55fbce8ba1",
+      "review-output/native-table-denials/20-TrackSubscriptionEvent-native-controls.sql": "a9525288fa6d6b5fcd6e0f023b6359e7ed2ee32a808021a6286497304dea6bc4",
+      "review-output/native-table-denials/21-ConsentContentRevision-existing-observe.sql": "5478800a3b3d46f577ecb353258a467988d3104db382d077d96e913e0c9c939c",
+      "review-output/native-table-denials/21-ConsentContentRevision-native-controls.sql": "cf2521e9bd79d6e3e3c8bbed5f3ea4dccbb2f7651d95f397c0eaab1f33da37f8",
+      "review-output/native-table-denials/22-ConsentPresentation-existing-observe.sql": "360f72aa058a92911aabe0c19b57a8194b24aee71b973b1c3bfe4c2d7798891d",
+      "review-output/native-table-denials/22-ConsentPresentation-native-controls.sql": "7fc2a6abe4a7818570ee32054413c6dd6e7dea085683ac6429713fd30cb82135",
+      "review-output/native-table-denials/23-ConsentDisposition-existing-observe.sql": "fa1410954dfc662d5fd10023b31a1a8c2045a7e92543a25ae710b7ca81634d26",
+      "review-output/native-table-denials/23-ConsentDisposition-native-controls.sql": "09e8e22452e52a6bab1465a14e499024aadc8cd536c25b8ebf189d48b81c886d",
+      "review-output/native-table-denials/24-DatabaseActionGrant-existing-observe.sql": "774e283cd0a31986a9352fcf776133ae88c67e66ac18175270ecf9be0ed29a58",
+      "review-output/native-table-denials/24-DatabaseActionGrant-native-controls.sql": "2e2d3547c3654cbd1fc686bb2013caafe4103d07bb795b04b874d8eb065f169f",
+      "review-output/native-table-denials/25-RuntimeCommandReceipt-existing-observe.sql": "d576a20764dc7aa928ed9d48ef07a42fb44e0b51e9c81f6fa51e1ca0d8a2f846",
+      "review-output/native-table-denials/25-RuntimeCommandReceipt-native-controls.sql": "542cefc359a312a693e83223ae6029c2336c458a0c4d1ca759dda7f9657da0f3",
+      "review-output/native-table-denials/26-RuntimeOutboxMessage-existing-observe.sql": "4b52fb3d44c43928ef5f5d4d9ac3e19c9392ef3191f5a43b682d7ce1c09c248b",
+      "review-output/native-table-denials/26-RuntimeOutboxMessage-native-controls.sql": "2603194e29364fa82b36656b4e0dd18b15bff466c10c55ebe3c0ee19e6877237",
+      "review-output/native-table-denials/27-RuntimeEffectReceipt-existing-observe.sql": "6c971274711f9c8eab4ba11a2c987525b98f95cf41d3300b9db99fda9e1c86e5",
+      "review-output/native-table-denials/27-RuntimeEffectReceipt-native-controls.sql": "22e780421aae44c58c9d4067680d9a71730337ca833d7fd51039b3645c643233",
+      "review-output/native-table-denials/28-RuntimeWorkItem-existing-observe.sql": "872ca7eadfa65b5d7a8199aebe941467065bcbcdc38feead056e01f20a532039",
+      "review-output/native-table-denials/28-RuntimeWorkItem-native-controls.sql": "48b6b0ab2ce9210667a894e74b465fb5c65b44b03af02aa980ce0af995530869",
+      "review-output/native-table-denials/29-RuntimeAttempt-existing-observe.sql": "09d8485474e0a09891e59af9c7b38a4d774fad01d4bec1aab9c5ab221f10e7b3",
+      "review-output/native-table-denials/29-RuntimeAttempt-native-controls.sql": "9dc4e6e82926ff0575519493113b18f4c33df8eb66ff65ccf17f1e2aad1787e0",
+      "review-output/native-table-denials/30-RuntimeInboxReceipt-existing-observe.sql": "b10f2d8d53440a3627f140cb5ac2b209ce1c6a35ba563519953a5b2549ba0a16",
+      "review-output/native-table-denials/30-RuntimeInboxReceipt-native-controls.sql": "3728fcace996cc8d4d60e7b22e2f9c15e84ccd59a79862a9e141ab43fbf7f6de",
+      "review-output/native-table-denials/31-RuntimeReservation-existing-observe.sql": "fe494cc38dbadb9b859f1fb659fe9b6338ef7253e4268cb479ad938ad3327339",
+      "review-output/native-table-denials/31-RuntimeReservation-native-controls.sql": "1b04c6e23238580fc90cf6860d99419294f16e93d6d7647f094d853c4c100e21",
+      "review-output/native-table-denials/32-OwnerMutationEvidence-existing-observe.sql": "9c1bef439a9e01a83e7306b0e21afe0e36c67469899f19b46ab5c5365a0f41fa",
+      "review-output/native-table-denials/32-OwnerMutationEvidence-native-controls.sql": "2ea104c0acadaf4e797c5d6724d6faa9a78c4f22e22e405595316d8e7618cacc",
+      "review-output/native-table-denials/33-CustomerProfileLifecycleEvent-existing-observe.sql": "2e6bce436b043d7750d2243e13eba63617160d83ac991ac37975a9ffe5e38bd1",
+      "review-output/native-table-denials/33-CustomerProfileLifecycleEvent-native-controls.sql": "d2ecd45a943c294d7d5ca98733025e7942ee6b752375f813537559f3dd9dd891",
+      "review-output/native-table-denials/34-TrackBaseSelection-existing-observe.sql": "6c0ec824ccb6a00478519dffc6594f5802e99319449cf96a1f13f8dbef68799c",
+      "review-output/native-table-denials/34-TrackBaseSelection-native-controls.sql": "bc3f7bcf07b808a018a7b6847f81efb6e3931716132247448c31deb780bf5f13",
+      "review-output/native-table-denials/35-TrackEnrollmentReceipt-existing-observe.sql": "55340512b2c3d6623327c9f74b600545f18e5c235c2102bac5cbdc290e2570fe",
+      "review-output/native-table-denials/35-TrackEnrollmentReceipt-native-controls.sql": "0dd59ff3baf94c424bbcb714bdc7fdcbab949240e6fa6d39caae572cc2050975",
+      "review-output/native-table-denials/36-TrackUsageReservation-existing-observe.sql": "b6d4b4876a02c7761c538e067bcc2827fd62ce781a4c3d227b3eaf041750c817",
+      "review-output/native-table-denials/36-TrackUsageReservation-native-controls.sql": "4a4c971e2b135a1f7c7386c5d101614b5288bc4b96554d9676d033ab29e85521",
+      "review-output/native-table-denials/37-PrivacyTargetInstruction-existing-observe.sql": "61db2cc5b4ad42f59afeee90a964c1985a10c439796be8d25451d3cf7507aed0",
+      "review-output/native-table-denials/37-PrivacyTargetInstruction-native-controls.sql": "b6bf8afb8e30148f7d8bd4ed167f82b00e2b3112b263c6736ea0af553d1b6ca8",
+      "review-output/native-table-denials/38-PrivacyOwnerReceipt-existing-observe.sql": "f0ddac1824cda9978003a740133c1ee05466fb188061bc089454e8290c02ce13",
+      "review-output/native-table-denials/38-PrivacyOwnerReceipt-native-controls.sql": "ffab956b4f6b7679f119e81c5bccbafdbc2950257805c10fe7ba2f568e86c9b0",
+      "review-output/native-table-denials/39-PrivacyRestoreMarker-existing-observe.sql": "140ed8b0da00a5e2a87d5c734d65ae3da17a9a4f25743105e0c51d3c5bea6089",
+      "review-output/native-table-denials/39-PrivacyRestoreMarker-native-controls.sql": "63bcf652c0ecfd75c046a944225d8949ef7f0199c01e49e70a7697ee52dd3520",
+      "review-output/native-table-denials/all-user-trigger-closure.sql": "0f2a00899a87bb776bc647ad339772ebf058d635566e478097ae7b059b992a80",
+      "review-output/native-table-denials/native-fact-setup.sql": "921e2d18cc2761e2f0712c965fe47de543e9942bf6e03f6a886fb08777b3a0de",
+      "review-output/native-table-denials/packet.json": "bf542f88525e96d7d1c93ef06425278a82e1328043d60879ac34191f1bee3000",
+      "review-output/native-table-denials/provider-role-simulation-before-migrate.sql": "42b59ad2960aea933e1d72ff4707fcaae75eb7299e856ebbb9ea0097a8ed5156",
+      "scripts/assemble-foundation-sql-review.py": "136489b5fb966085020128bfbd7140dad5e0b340a2312319d346305311fc212f",
+      "scripts/check-first-rehearsal-mocks.py": "777d9d74788c37c9b20891196180708400e4f58991026075e60bb6bc74a96adf",
+      "scripts/check-local-f0-migrate.py": "59d890c145e1f14a62e296fba0139eaa22ab728b70fa76a7dbd7dc3883222a14",
+      "scripts/check-migration-server-diagnostics.py": "cb3ded2eaf6c1532691a41af241897b11072907c37aaeb2d3f2f1478da157163",
+      "scripts/check-native-catalog-review.py": "05d39953bd26c61ef7d414a53bb5c0bc65cb2e59ec8513e17230ad5f7e4ef859",
+      "scripts/check-trigger-row-shapes.py": "7e6c851630a65c9e07685138e03eca5d4fd5404e8a4bb2b36895e34069d52ce9",
+      "scripts/contract_schema.py": "27b91594ac3dc9e1345b5bde912b4a849f0a324e90819df56150f7e3d326bc8c",
+      "scripts/database-candidate-correction-rules.py": "6b79a14ffa77c450c3864ba5e2d930d61d5a427a6b0c11545e1afdd37ccaabb3",
+      "scripts/prepare-database-candidate-review-assets.py": "dcb1544afc39cffbd9a8b052749f544c7531ff3dee2ff9cc738fd38d8d3bc9ed",
+      "scripts/prepare-first-rehearsal.py": "b03f4b7fda4e60ff7bafc2b6a7463d7bb9a3ee7bffc9f4e6c8f840f99b4116ce",
+      "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+      "scripts/prepare-native-catalog-review.py": "cef4f4f191e478593a679e9b86c7eee410531b01501a896c0b6f0e1bc1ac4fa2",
+      "scripts/prepare-native-table-denials.py": "41eceb73acb05ff6f0695acd7c8b4aff674dabe2448a72f6a33ff5944fb9ff8b",
+      "scripts/prepare-rehearsal-diagnostics.py": "598bc556999a16f303171003324be8763cb00a0fff2bb54de8a1195e1e7c852b",
+      "scripts/sql-review/catalog-acl-preflight.sql": "7018c8f415923533dc461b212a0df0f9a0f4144457e410c4505c9322df4647f4",
+      "scripts/sql-review/catalog-text-preflight.sql": "f1cab9adf94fe5aa2452f34213eea43cf4ecfe35c9ce5f5289486b7d4f859823",
+      "scripts/sql-review/catalog_expression_oracle.py": "c5034cc982a5523e42cd721214cbca5820980fafd2c233f83f7706fcee826dfc",
+      "scripts/sql-review/catalog_manifest.py": "1f1deb607dd2b2b4583cabeeae6be3205964d8a5ad897fe7bb1003699bfc9c16",
+      "scripts/sql-review/check-local-f0-migrate-guard.mjs": "bf7c166a23eaf29ed2ac084def03115e30d308439566d2f29af10d5fd22496cc",
+      "scripts/sql-review/collect_native_catalog.sql": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+      "scripts/sql-review/collect_prisma_ledger.sql": "6dfa02fa375da4a126b996fc547dfff063c61b41c854db6b07ea62f52d63286b",
+      "scripts/sql-review/compare_native_catalog.py": "20441930b769d93eb00d762861018878d18d8c0f64194d65c468f0e320c204f6",
+      "scripts/sql-review/foundation-bootstrap-finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+      "scripts/sql-review/foundation-invariants.sql": "8fc28f505bf100db89c8d441a507f3a8d58532dfb5ef960c8790d729a73f9904",
+      "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+      "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+      "scripts/sql-review/migration_server_diagnostics.py": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+      "scripts/sql-review/native-table-denials-coordinator.md": "5953b5161efd2c77b6a97f24488c753e2378cfa5a9487df4919439c56f970695",
+      "scripts/sql-review/native_deny_fixture_factory.py": "77655142f3fe56ba860a910e97815da048ad78ab9b4535a898206430072d37ff",
+      "scripts/sql-review/pg17_catalog_rules.py": "448b46b7b5a8d6bc62dd25fc85cb12ad488f3e9dfabd70d028a5f6f49afea342",
+      "scripts/sql-review/prisma-ledger-proof.md": "05ed0aff941305f5e2800b49633f029a8a68ca05ec2b80171060632917577992",
+      "scripts/sql-review/prisma_ledger_proof.py": "1cb05b1d82b67580671cccf5f9289fbc481fef2d77532b049658912428604b21",
+      "scripts/sql-review/rehearsal-diagnostics.py": "c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e",
+      "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e",
+      "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f",
+      "scripts/sql-review/run-native-table-denials.py": "e263b4ade8e18b21f30c3b6cb2c2115494fbe16971934b994bf7fa59541305b6",
+      "scripts/sql-review/test_catalog_collector_acl.py": "d9ac90cb8c335bd70b04056e422692c55bf73569ef109d3f8fb2bd73e9e1b57b",
+      "scripts/sql-review/test_catalog_collector_text.py": "fe7a29132b7d69b69213f61ccfda3e14a7339735c202f3cae1334c92dc6e24a7",
+      "scripts/sql-review/test_catalog_expression_oracle.py": "a758a17b8cd92922e7a599dc06679e6309dc107028c151387e533dcf8a5f5c85",
+      "scripts/sql-review/test_catalog_manifest.py": "633e4f8c8f3b93d7e44d7c8abff7aa5ca1f3caa063cc354d592d1913d4ba9750",
+      "scripts/sql-review/test_compare_native_catalog.py": "38d0e26ac030a1024c739c8ea79e0c653b3f0bf9aee54e9815bf314b8887ce37",
+      "scripts/sql-review/test_native_deny_fixture_factory.py": "54d645d500ab2b158cf789de4fdc7229a59298a1ea410909fbbfefff47fd1314",
+      "scripts/sql-review/test_pg17_catalog_rules.py": "c6879cd715df8bb45b26bbeec90352189e339d87be2f37c869cf471e42cfbb4a",
+      "scripts/sql-review/test_prisma_ledger_proof.py": "62685fbff83d42cad600de2d1f387647737a42bd5cffc50c2240eb1c66006095",
+      "scripts/sql-review/test_run_native_table_denials.py": "e75aac1996efbf2e48f3834deb8426a25a40a56a0bf258998fad9ae32f949a0e"
+    },
+    "packet_sha256": "1e2ba4c6f46f915b0beb610b74758ee885240c3fd52c8449baf7b2a72f3f58d6",
+    "evidence_directory": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-native-access-20261118-e7a7beff",
+    "targets": [
+      {
+        "name": "wa-p0c-e7a7beff-native",
+        "volume": "wa-p0c-e7a7beff-native-data",
+        "kind": "ok"
+      }
+    ],
+    "migration_targets": {
+      "ok": {
+        "manifest_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-native-access-plan-e7a7beff\\ok-migration-manifest.json",
+        "manifest_sha256": "4eaa64e77122551f4a671417dbf0f60c824c26be9c71e3394f055d25faaa5499",
+        "source_snapshot": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-native-access-plan-e7a7beff\\source-ok",
+        "source_files_sha256": {
+          "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+          "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+          "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+          "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+          "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+          "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+          "prisma/foundation/history-manifest.json": "608b0ee6c9067ff18b4f67822b26f44d141b77b71505eb2a18d8d5c1c6e4b459"
+        },
+        "source_archive": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-native-access-plan-e7a7beff\\source-ok.tar.gz",
+        "source_archive_sha256": "e3e8bd207318b1fd39a070f18b8fc791f32c24f6cd5ba571b50f97007a6f5bb5"
+      }
+    },
+    "image": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "database": "wa_p0c_rehearsal",
+    "run_label": "p0c-local-f0",
+    "tool_archive": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-linux-tooling-20261117\\pinned-prisma-tools.tar.gz",
+    "tool_archive_sha256": "481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb",
+    "wrapper_sha256": "d055251eb9648482922f1dcc567c82531ef34628031d2866ee0aca333829fd9e",
+    "review_status": "APPROVED_LOCAL_F0_NATIVE_ACCESS_ATTEMPT",
+    "storage": {
+      "PGDATA": "Exact run-created named volume:/var/lib/postgresql/data",
+      "bootstrap_password": "Exact readonly manifested owner-only host bind:/run/bootstrap-password",
+      "private_credentials": "root0700 tmpfs noexec,nosuid,nodev:/run/wa-secrets; pgpass+URL root0600",
+      "source_and_tools": "Exact hashed run-owned copied source/tool closure,root-owned, no symlinks/group-other writes",
+      "network": "none",
+      "ports": []
+    },
+    "cleanup": "Remove only the single exact created containerID/name/labels and named volume/name/labels/CreatedAt. Delete only its test-owned ok-bootstrap-password file and empty owner-only private directory. Independently confirm both resource names and secrets absent. Retain cached image, shared resources, all prior reports and source/tool snapshots.",
+    "source_history_rule": "One canonical integrated migrationID/checksum; no rawstructure duplicate, June edits, ledger writes, dbpush/reset or hosted/shadow targets. Per-target immutable snapshot metadata differs only targetmanifest identity; migrationSQL bytes identical.",
+    "status": "SOURCE_PREPARED_NOT_EXECUTED",
+    "server_diagnostics": {
+      "prefix": "WA_F0_DIAG|%e|%u|%d|",
+      "verbosity": "terse",
+      "lc_messages": "C",
+      "log_min_messages": "warning",
+      "log_statement": "none",
+      "log_min_error_statement": "panic",
+      "module_sha256": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+      "raw_log_retention": false
+    },
+    "catalog": {
+      "generator": "scripts/prepare-native-catalog-review.py",
+      "artifact_root": "review-output/native-catalog",
+      "assets": {
+        "source-pins.json": {
+          "path": "review-output/native-catalog/source-pins.json",
+          "sha256": "a0e9c36eecf61b1d4ce717744c29f4b72424ecd8d9db5ce0519b6bdaf9f58d00"
+        },
+        "expected.json": {
+          "path": "review-output/native-catalog/expected.json",
+          "sha256": "9ad2129c9b7b7b5fd99f2088ae94215326f6ccbf40550945694c44538d8d0976"
+        },
+        "expression-oracle-plan.json": {
+          "path": "review-output/native-catalog/expression-oracle-plan.json",
+          "sha256": "cce4b19c1931472841de2fec2662fa4b002278b275341815782078689a1af36f"
+        },
+        "expression-oracle.sql": {
+          "path": "review-output/native-catalog/expression-oracle.sql",
+          "sha256": "74d585741e1e097ac0614621b86c7ec97673697eb7dde344023e1dbe0ca613d2"
+        },
+        "public-schema-registration.json": {
+          "path": "review-output/native-catalog/public-schema-registration.json",
+          "sha256": "f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3"
+        },
+        "README.md": {
+          "path": "review-output/native-catalog/README.md",
+          "sha256": "89e82bb70f53d6e959109c1e249bb4dda0101d22470d68211715baf5b1c74388"
+        }
+      },
+      "source_expected_sha256": "3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433",
+      "public_schema_owner": "pg_database_owner",
+      "bootstrap_grantor": "postgres",
+      "tool_source_files_sha256": {
+        "node_modules/@prisma/engines-version/package.json": "2dd9793255d6bbb5c399a624ecbfb6323d39233860863d172946b7f750f528bd",
+        "node_modules/prisma/package.json": "6cdfef6df08d9a37f28908855797fe8bfc97a2d3d886a8d5cbe2e502d6848151"
+      },
+      "ledger_expectation": [
+        {
+          "path": "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql",
+          "migration_name": "20261117000100_f0_local_initial",
+          "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+          "state": "applied",
+          "count": 1
+        }
+      ]
+    },
+    "allowed_catalog_operations": [
+      "Fixed read-only TEXT-vs-NAME full-identifier preflight after ACL control before main native collector",
+      "Bounded refusal-only metadata paths/hashes/classes; unchanged strict acceptance, no unknown values exported",
+      "Fixed reviewed read-only ACL compatibility preflight after install/finalize, before native collector",
+      "One actual guarded Prisma deploy as wa_migrator; original-grantor finalization after connection exit",
+      "Fixed read-only native catalog collector before/after Oracle and ledger",
+      "Exact source-derived empty TEMP expression compilation in one explicit BEGIN/ROLLBACK with no application data reads/writes",
+      "Catalog-only guarded private-ledger observation, predeclared one applied canonical migration; no baseline adoption or ledger writes",
+      "Catalog portion permits no worker loop, hosted contact or recovery; separately reviewed finite native access follows only complete catalog PASS."
+    ],
+    "steps_sha256": "2340a3048a6acc5241e1f8fc4f7400b6e488f0fea681f07d527b84d5d8a44f83",
+    "prepared_source_files_aggregate_sha256": "ecb884d73cddc9ccfd35df43bdf3a461021d2f461a3a83cbbb6641e237c6cb91",
+    "native_access": {
+      "coordinator": "scripts/sql-review/run-native-table-denials.py",
+      "coordinator_sha256": "e263b4ade8e18b21f30c3b6cb2c2115494fbe16971934b994bf7fa59541305b6",
+      "packet": "review-output/native-table-denials/packet.json",
+      "packet_sha256": "bf542f88525e96d7d1c93ef06425278a82e1328043d60879ac34191f1bee3000",
+      "document": "scripts/sql-review/native-table-denials-coordinator.md",
+      "document_sha256": "5953b5161efd2c77b6a97f24488c753e2378cfa5a9487df4919439c56f970695"
+    },
+    "operator_sources_sha256": {
+      "execute_local_f0_native_access_20261118.py": "d055251eb9648482922f1dcc567c82531ef34628031d2866ee0aca333829fd9e",
+      "local_f0_native_access_operation_steps.py": "2340a3048a6acc5241e1f8fc4f7400b6e488f0fea681f07d527b84d5d8a44f83",
+      "prepare_local_f0_native_access_plan.py": "f0b727d4a53d14b8595b1e80b4dbc2e4e426d8465f8f8d619d64e5f474e57c6b",
+      "check_native_access_operation.py": "f2b2647bb7605632d03376ae86dc009d8cfa9efb172333869078076a3a00b65d"
+    },
+    "allowed_native_access_operations": [
+      "Exactly three local provider simulations after canonical bootstrap before genuine immutable Prisma install",
+      "Independent private-tmpfs SCRAM credentials, CONNECT only, all nine schema USAGE sentinels before and removal after canonical install",
+      "Complete source-derived native catalog/expression/private-ledger PASS before finite coordinator",
+      "Only exact approved finite NativeDENY coordinator with all 100 USER triggers restored and 205 native rows watched",
+      "All other client backends absent at external boundaries, regardless of application tags",
+      "Stop first unexpected outcome; no permission repair, SQL change, worker loop or whole-case promotion"
+    ]
+  },
+  "run_manifest_sha256": "da0211950c6fe344639ea5c9940b28f57f3e62723829145464b1b50808b8a52f",
+  "catalog_preparation": {
+    "status": "SOURCE_REPRODUCED_NOT_RUN",
+    "assets_sha256": {
+      "README.md": "89e82bb70f53d6e959109c1e249bb4dda0101d22470d68211715baf5b1c74388",
+      "expected.json": "9ad2129c9b7b7b5fd99f2088ae94215326f6ccbf40550945694c44538d8d0976",
+      "expression-oracle-plan.json": "cce4b19c1931472841de2fec2662fa4b002278b275341815782078689a1af36f",
+      "expression-oracle.sql": "74d585741e1e097ac0614621b86c7ec97673697eb7dde344023e1dbe0ca613d2",
+      "public-schema-registration.json": "f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3",
+      "source-pins.json": "a0e9c36eecf61b1d4ce717744c29f4b72424ecd8d9db5ce0519b6bdaf9f58d00"
+    },
+    "source_expected_sha256": "3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433",
+    "closed_source_files": 16
+  },
+  "native_access_preparation": {
+    "status": "SOURCE_REPRODUCED_NOT_RUN",
+    "coordinator_sha256": "e263b4ade8e18b21f30c3b6cb2c2115494fbe16971934b994bf7fa59541305b6",
+    "packet_sha256": "bf542f88525e96d7d1c93ef06425278a82e1328043d60879ac34191f1bee3000",
+    "cases": 40,
+    "sql_files": 83,
+    "facets": 960,
+    "blocked_facets": 4,
+    "whole_cases_promoted": false
+  },
+  "local_preflight": {
+    "endpoint": "npipe:////./pipe/dockerDesktopLinuxEngine",
+    "server_version": "29.6.2",
+    "server_os": "linux",
+    "server_arch": "amd64",
+    "initial_resource_presence": {
+      "wa-p0c-e7a7beff-native": false,
+      "wa-p0c-e7a7beff-native-data": false
+    },
+    "unrelated_containers_untouched": 12,
+    "unrelated_volumes_untouched": 3
+  },
+  "image": {
+    "reference": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "image_id": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "manifest_descriptor": {
+      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+      "digest": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "size": 3628
+    },
+    "config_digest": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "manifest_content_hash_verified": true,
+    "repo_digests": [
+      "postgres@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1"
+    ],
+    "os": "linux",
+    "architecture": "amd64",
+    "pg_version": "17.11-1.pgdg13+2",
+    "pulled_this_run": false,
+    "retained_image_reused": true,
+    "removed": false
+  },
+  "credential_handling": {
+    "host_private_directory_owner_only_acl_verified": true,
+    "real_credentials_in_argv_env_or_evidence": false,
+    "container_pgpass": "root_owned_0600_tmpfs",
+    "independent_per_role_per_target": true
+  },
+  "catalog_operations": [
+    {
+      "stage": "PROVIDER_ROLE_SIMULATION",
+      "input_sha256": "42b59ad2960aea933e1d72ff4707fcaae75eb7299e856ebbb9ea0097a8ed5156",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    {
+      "stage": "PROVIDER_PRIVATE_SCRAM_PROVISION",
+      "input_sha256": "279c8e8deaef8c9cf5bedc6b1f8732b41dba1a8c42a9f41839e2a5fe1232420d",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    {
+      "stage": "PROVIDER_BEFORE_CANONICAL_INSTALL",
+      "input_sha256": "6431eaa5236eef3e45ea8ce0ef41f25adf77202d3bfda9e7622eb9e20fcf85dd",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    {
+      "stage": "PROVIDER_AFTER_CANONICAL_INSTALL",
+      "input_sha256": "6431eaa5236eef3e45ea8ce0ef41f25adf77202d3bfda9e7622eb9e20fcf85dd",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    {
+      "stage": "CATALOG_ACL_COMPATIBILITY",
+      "input_sha256": "7018c8f415923533dc461b212a0df0f9a0f4144457e410c4505c9322df4647f4",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    {
+      "stage": "CATALOG_TEXT_COMPATIBILITY",
+      "input_sha256": "f1cab9adf94fe5aa2452f34213eea43cf4ecfe35c9ce5f5289486b7d4f859823",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    {
+      "stage": "NATIVE_BEFORE_ORACLE",
+      "input_sha256": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    {
+      "stage": "EXPRESSION_ORACLE",
+      "input_sha256": "74d585741e1e097ac0614621b86c7ec97673697eb7dde344023e1dbe0ca613d2",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    {
+      "stage": "NATIVE_AFTER_ORACLE",
+      "input_sha256": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    {
+      "stage": "PRISMA_LEDGER_NATIVE",
+      "input_sha256": "6dfa02fa375da4a126b996fc547dfff063c61b41c854db6b07ea62f52d63286b",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    {
+      "stage": "NATIVE_AFTER_LEDGER",
+      "input_sha256": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    }
+  ],
+  "backend_closures": [
+    {
+      "stage": "PROVIDER_ROLE_SIMULATION",
+      "migrator_zero": true,
+      "other_clients_zero": true
+    },
+    {
+      "stage": "PROVIDER_PRIVATE_SCRAM_PROVISION",
+      "migrator_zero": true,
+      "other_clients_zero": true
+    },
+    {
+      "stage": "PROVIDER_BEFORE_CANONICAL_INSTALL",
+      "migrator_zero": true,
+      "other_clients_zero": true
+    },
+    {
+      "stage": "PROVIDER_AUTHENTICATION",
+      "migrator_zero": true,
+      "other_clients_zero": true
+    },
+    {
+      "stage": "PROVIDER_AFTER_CANONICAL_INSTALL",
+      "migrator_zero": true,
+      "other_clients_zero": true
+    },
+    {
+      "stage": "CATALOG_ACL_COMPATIBILITY",
+      "migrator_zero": true,
+      "other_clients_zero": true
+    },
+    {
+      "stage": "CATALOG_TEXT_COMPATIBILITY",
+      "migrator_zero": true,
+      "other_clients_zero": true
+    },
+    {
+      "stage": "NATIVE_BEFORE_ORACLE",
+      "migrator_zero": true,
+      "other_clients_zero": true
+    },
+    {
+      "stage": "EXPRESSION_ORACLE",
+      "migrator_zero": true,
+      "other_clients_zero": true
+    },
+    {
+      "stage": "NATIVE_AFTER_ORACLE",
+      "migrator_zero": true,
+      "other_clients_zero": true
+    },
+    {
+      "stage": "PRISMA_LEDGER_NATIVE",
+      "migrator_zero": true,
+      "other_clients_zero": true
+    },
+    {
+      "stage": "NATIVE_AFTER_LEDGER",
+      "migrator_zero": true,
+      "other_clients_zero": true
+    },
+    {
+      "stage": "BEFORE_NATIVE_DENIAL_COORDINATOR",
+      "migrator_zero": true,
+      "other_clients_zero": true
+    },
+    {
+      "stage": "AFTER_NATIVE_DENIAL_COORDINATOR",
+      "migrator_zero": true,
+      "other_clients_zero": true
+    }
+  ],
+  "provider_observations": [
+    {
+      "stage": "PROVIDER_BEFORE_CANONICAL_INSTALL",
+      "roles": [
+        {
+          "name": "anon",
+          "login": true,
+          "inherit": false,
+          "superuser": false,
+          "createdb": false,
+          "createrole": false,
+          "replication": false,
+          "bypassrls": false,
+          "memberships": 0,
+          "connect": true,
+          "create": false,
+          "temp": false
+        },
+        {
+          "name": "authenticated",
+          "login": true,
+          "inherit": false,
+          "superuser": false,
+          "createdb": false,
+          "createrole": false,
+          "replication": false,
+          "bypassrls": false,
+          "memberships": 0,
+          "connect": true,
+          "create": false,
+          "temp": false
+        },
+        {
+          "name": "service_role",
+          "login": true,
+          "inherit": false,
+          "superuser": false,
+          "createdb": false,
+          "createrole": false,
+          "replication": false,
+          "bypassrls": true,
+          "memberships": 0,
+          "connect": true,
+          "create": false,
+          "temp": false
+        }
+      ],
+      "explicit_usage": 9,
+      "effective_usage": 9
+    },
+    {
+      "stage": "PROVIDER_AFTER_CANONICAL_INSTALL",
+      "roles": [
+        {
+          "name": "anon",
+          "login": true,
+          "inherit": false,
+          "superuser": false,
+          "createdb": false,
+          "createrole": false,
+          "replication": false,
+          "bypassrls": false,
+          "memberships": 0,
+          "connect": true,
+          "create": false,
+          "temp": false
+        },
+        {
+          "name": "authenticated",
+          "login": true,
+          "inherit": false,
+          "superuser": false,
+          "createdb": false,
+          "createrole": false,
+          "replication": false,
+          "bypassrls": false,
+          "memberships": 0,
+          "connect": true,
+          "create": false,
+          "temp": false
+        },
+        {
+          "name": "service_role",
+          "login": true,
+          "inherit": false,
+          "superuser": false,
+          "createdb": false,
+          "createrole": false,
+          "replication": false,
+          "bypassrls": true,
+          "memberships": 0,
+          "connect": true,
+          "create": false,
+          "temp": false
+        }
+      ],
+      "explicit_usage": 0,
+      "effective_usage": 0
+    }
+  ],
+  "provider_authentication": [
+    {
+      "role": "anon",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password_rejected": true,
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "authenticated",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password_rejected": true,
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "service_role",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password_rejected": true,
+      "wrong_password_exit_code": 2
+    }
+  ],
+  "public_baseline_verification": {
+    "predeclared_owner_and_three_acl_rows_match": true,
+    "learned_post_install_baseline": false
+  },
+  "migration_operations": [
+    {
+      "target": "wa-p0c-e7a7beff-native",
+      "stage": "CATALOG_GENUINE_INITIAL_DEPLOY",
+      "schema": "workinants.local-f0-migrate-result.v2",
+      "operation": "deploy",
+      "status": "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS",
+      "exit_code": 0,
+      "prisma_codes": [],
+      "sqlstates": [],
+      "diagnostic_format": {
+        "text_valid": true,
+        "sgr_stripped": false,
+        "headers_valid": true,
+        "prisma_header_present": false,
+        "prisma_header_unique": false,
+        "database_header_present": false,
+        "database_header_unique": false
+      },
+      "no_pending_message_observed": false,
+      "raw_output_discarded": true,
+      "database_qualification_claimed": false,
+      "run_id": "e7a7beff-dcb1-4107-8dbe-b46aa9291dfa",
+      "container_id": "7d3570ae04ac09723d2ffbfcfccd7d72172576ed4fd59aa2c0e517416ba11a38",
+      "source_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "attestation_sha256": "95cfb946368c8fbe9cce7bbc4f421c4ce1341c5eddacf24af9cbad837af01963"
+    }
+  ],
+  "ledger_registration_sha256": "5973380786430d8e18b2530ad90ba0754dfa35c987c6808b6db22b1aaeead9eb",
+  "acl_compatibility_preflight": {
+    "format": "workinants.catalog-acl-preflight.v1",
+    "read_only": true,
+    "collected_as": "postgres",
+    "server_version_num": 170011,
+    "collector_is_superuser": true,
+    "null_acl_has_zero_rows": true,
+    "empty_acl_guard_has_zero_rows": true,
+    "old_zero_dimensional_acl_rejected_exactly": true,
+    "sequence_default_has_exact_owner_privileges": true
+  },
+  "text_compatibility_preflight": {
+    "format": "workinants.catalog-text-preflight.v1",
+    "read_only": true,
+    "collected_as": "postgres",
+    "server_version_num": 170011,
+    "collector_is_superuser": true,
+    "identifier_limit_is_63": true,
+    "old_projection_type_is_name": true,
+    "corrected_projection_type_is_text": true,
+    "old_projection_truncates_long_value": true,
+    "corrected_projection_preserves_long_value": true
+  },
+  "native_snapshots": [
+    {
+      "stage": "NATIVE_BEFORE_ORACLE",
+      "status": "OBSERVED_NOT_QUALIFIED",
+      "native_sha256": "89cdb3a7beb84c64e9dc45574b9f56d9ac8540457639fabd16ded6ea237658a5",
+      "artifact": "native-before.json",
+      "artifact_sha256": "ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb"
+    },
+    {
+      "stage": "NATIVE_AFTER_ORACLE",
+      "status": "OBSERVED_NOT_QUALIFIED",
+      "native_sha256": "89cdb3a7beb84c64e9dc45574b9f56d9ac8540457639fabd16ded6ea237658a5",
+      "artifact": "native-after-oracle.json",
+      "artifact_sha256": "ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb"
+    },
+    {
+      "stage": "NATIVE_AFTER_LEDGER",
+      "status": "OBSERVED_NOT_QUALIFIED",
+      "native_sha256": "89cdb3a7beb84c64e9dc45574b9f56d9ac8540457639fabd16ded6ea237658a5",
+      "artifact": "native-after-ledger.json",
+      "artifact_sha256": "ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb"
+    }
+  ],
+  "oracle_records": [
+    {
+      "index": 0,
+      "status": "OBSERVED_NOT_QUALIFIED",
+      "sha256": "cc90ff705264951fc3882e01113f3dfbece59224b9d40923b2882c80c9de3e17"
+    },
+    {
+      "index": 1,
+      "status": "OBSERVED_NOT_QUALIFIED",
+      "sha256": "b51291d82cc20e606cfe7fed1bdec3c48d9137b2e8ca805be8f366dcc472e807"
+    },
+    {
+      "index": 2,
+      "status": "OBSERVED_NOT_QUALIFIED",
+      "sha256": "f7c5d2835733c597bc9b99e2c69db45e619e1ec12b634c5a1932d213f262fbe0"
+    }
+  ],
+  "ledger_observation_sha256": "ad782a8cd17870a8e1da1bbaecdf5eaa93b51a31b55d360f51e008df27786682",
+  "ledger_comparison": {
+    "status": "PASS",
+    "checks": [
+      {
+        "field": "source-bound-registration",
+        "status": "PASS",
+        "expected_sha256": "5973380786430d8e18b2530ad90ba0754dfa35c987c6808b6db22b1aaeead9eb",
+        "actual_sha256": "5973380786430d8e18b2530ad90ba0754dfa35c987c6808b6db22b1aaeead9eb"
+      },
+      {
+        "field": "same-run-collector-and-catalog-binding",
+        "status": "PASS",
+        "expected_sha256": "6b5f2f633b280b480431a44bdec7562a942e46f7fa1ba61ff1a1c50acc532ee1",
+        "actual_sha256": "6b5f2f633b280b480431a44bdec7562a942e46f7fa1ba61ff1a1c50acc532ee1"
+      },
+      {
+        "field": "complete-observation-fields",
+        "status": "PASS",
+        "expected_sha256": "9c0469cfcdcb88a1a8b4916dc2747e49604276c9ee9abbed1e4a683c7a65a65e",
+        "actual_sha256": "9c0469cfcdcb88a1a8b4916dc2747e49604276c9ee9abbed1e4a683c7a65a65e"
+      },
+      {
+        "field": "format",
+        "status": "PASS",
+        "expected_sha256": "696042fbe47a53b89d09bb0ca1eedddd1ea7d724bfb728c3a6d121baafbbcd34",
+        "actual_sha256": "696042fbe47a53b89d09bb0ca1eedddd1ea7d724bfb728c3a6d121baafbbcd34"
+      },
+      {
+        "field": "server_version_num",
+        "status": "PASS",
+        "expected_sha256": "9dd5c6c71f65902b0ee92bd4de57997b2a11aaadcbb24f825c2c9bf0c4467f40",
+        "actual_sha256": "9dd5c6c71f65902b0ee92bd4de57997b2a11aaadcbb24f825c2c9bf0c4467f40"
+      },
+      {
+        "field": "database",
+        "status": "PASS",
+        "expected_sha256": "4bcf3096a81c120d07c78b08b224e58b5839ec35466c98da2197e9a7582b2938",
+        "actual_sha256": "4bcf3096a81c120d07c78b08b224e58b5839ec35466c98da2197e9a7582b2938"
+      },
+      {
+        "field": "read_only",
+        "status": "PASS",
+        "expected_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+        "actual_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b"
+      },
+      {
+        "field": "isolation",
+        "status": "PASS",
+        "expected_sha256": "658083cb363b5a7941c1c0163886e48baa63a67a161d63c9bc84279ade9275b4",
+        "actual_sha256": "658083cb363b5a7941c1c0163886e48baa63a67a161d63c9bc84279ade9275b4"
+      },
+      {
+        "field": "collected_as",
+        "status": "PASS",
+        "expected_sha256": "264c0424e4bd463a7d02b9db6896143e1a96cd1c52511119f839d2bc9c934241",
+        "actual_sha256": "264c0424e4bd463a7d02b9db6896143e1a96cd1c52511119f839d2bc9c934241"
+      },
+      {
+        "field": "session_user",
+        "status": "PASS",
+        "expected_sha256": "264c0424e4bd463a7d02b9db6896143e1a96cd1c52511119f839d2bc9c934241",
+        "actual_sha256": "264c0424e4bd463a7d02b9db6896143e1a96cd1c52511119f839d2bc9c934241"
+      },
+      {
+        "field": "collector_is_superuser",
+        "status": "PASS",
+        "expected_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+        "actual_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b"
+      },
+      {
+        "field": "history_ids_unique",
+        "status": "PASS",
+        "expected_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+        "actual_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b"
+      },
+      {
+        "field": "exact-relations",
+        "status": "PASS",
+        "expected_sha256": "bbb5bf5338d48a59e95099e51188ae2972eb80f14b1fbda7f726c967faa5e0ba",
+        "actual_sha256": "bbb5bf5338d48a59e95099e51188ae2972eb80f14b1fbda7f726c967faa5e0ba"
+      },
+      {
+        "field": "exact-columns",
+        "status": "PASS",
+        "expected_sha256": "6c326beb4bb05d0948f1435b4c84164829525fb91683aca051f7f927406bd5c0",
+        "actual_sha256": "6c326beb4bb05d0948f1435b4c84164829525fb91683aca051f7f927406bd5c0"
+      },
+      {
+        "field": "exact-constraints",
+        "status": "PASS",
+        "expected_sha256": "a8383b1d73f2a3661faf15cf4f95a8687801b912e8063a463ee842f8379c6e22",
+        "actual_sha256": "a8383b1d73f2a3661faf15cf4f95a8687801b912e8063a463ee842f8379c6e22"
+      },
+      {
+        "field": "exact-indexes",
+        "status": "PASS",
+        "expected_sha256": "a2d38a8919cdde5b50d67b96fd8c0cd1c6981d215aaa083e224f13c1c257fd87",
+        "actual_sha256": "a2d38a8919cdde5b50d67b96fd8c0cd1c6981d215aaa083e224f13c1c257fd87"
+      },
+      {
+        "field": "exact-table_acl",
+        "status": "PASS",
+        "expected_sha256": "4ba930b6150a33836a90b936db3757f2c89015ec1a6bb37bc906cf8118a4cc4c",
+        "actual_sha256": "4ba930b6150a33836a90b936db3757f2c89015ec1a6bb37bc906cf8118a4cc4c"
+      },
+      {
+        "field": "exact-column_acl",
+        "status": "PASS",
+        "expected_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "actual_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "field": "exact-triggers_count",
+        "status": "PASS",
+        "expected_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "actual_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+      },
+      {
+        "field": "exact-policies_count",
+        "status": "PASS",
+        "expected_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "actual_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+      },
+      {
+        "field": "exact-rules_count",
+        "status": "PASS",
+        "expected_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "actual_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+      },
+      {
+        "field": "complete-source-checksum-and-state-history",
+        "status": "PASS",
+        "expected_sha256": "c9cf4432e8a5111f795c088a7958787c5427e4ed09f5a3729daad2e9765aa0da",
+        "actual_sha256": "c9cf4432e8a5111f795c088a7958787c5427e4ed09f5a3729daad2e9765aa0da"
+      }
+    ]
+  },
+  "catalog_comparison": {
+    "format": "workinants.catalog-comparison.v1",
+    "status": "PASS",
+    "case_id": "P0C-CATALOG-01",
+    "source_expected_sha256": "3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433",
+    "native_snapshot_sha256": "89cdb3a7beb84c64e9dc45574b9f56d9ac8540457639fabd16ded6ea237658a5",
+    "check_counts": {
+      "PASS": 29089
+    },
+    "findings": [],
+    "database_contacted_by_comparator": false,
+    "database_posture": "D",
+    "pg17_rule_release": "REL_17_11",
+    "pg17_rule_sources": {
+      "foreign_key_inheritance_and_trigger_matrix": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/commands/tablecmds.c",
+        "ranges": [
+          "9568-9619",
+          "11309-11463",
+          "11594-11794"
+        ],
+        "symbols": [
+          "addFkConstraint",
+          "transformFkeyCheckAttrs",
+          "CreateFKCheckTrigger",
+          "createForeignKeyActionTriggers"
+        ]
+      },
+      "index_constraint_inheritance_and_deferred_trigger": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/index.c",
+        "ranges": [
+          "1819-1864",
+          "1888-1914"
+        ],
+        "symbols": [
+          "index_constraint_create"
+        ]
+      },
+      "dependent_type_acl": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/pg_type.c",
+        "ranges": [
+          "315-325",
+          "383-394"
+        ],
+        "symbols": [
+          "TypeCreate"
+        ]
+      },
+      "type_acl_defaults_and_owner_flags": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/utils/adt/acl.c",
+        "ranges": [
+          "816-820",
+          "840-861"
+        ],
+        "symbols": [
+          "acldefault"
+        ]
+      },
+      "array_effective_usage_delegation": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/aclchk.c",
+        "ranges": [
+          "2301-2316",
+          "3592-3617"
+        ],
+        "symbols": [
+          "ExecGrant_Type_check",
+          "pg_type_aclmask_ext"
+        ]
+      },
+      "user_constraint_trigger_catalog_row_and_internal_names": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/commands/trigger.c",
+        "ranges": [
+          "754-803",
+          "813-868",
+          "978-1055"
+        ],
+        "symbols": [
+          "CreateTriggerFiringOn"
+        ]
+      },
+      "pinned_dependencies_are_omitted": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/pg_depend.c",
+        "ranges": [
+          "98-106"
+        ],
+        "symbols": [
+          "recordMultipleDependencies"
+        ]
+      },
+      "pinned_object_classification": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/catalog.c",
+        "ranges": [
+          "317-372"
+        ],
+        "symbols": [
+          "IsPinnedObject"
+        ]
+      },
+      "release_pinned_trigger_functions": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/include/catalog/pg_proc.dat",
+        "ranges": [
+          "3743-3789"
+        ],
+        "symbols": [
+          "unique_key_recheck",
+          "RI_FKey_*"
+        ]
+      }
+    },
+    "limit": "Public owner baseline and genuine Prisma ledger require separate reviewed evidence; unresolved expression hashes remain INCOMPLETE. Array effective USAGE follows verified element ACL; generated-type rows compare the collector default-ACL projection."
+  },
+  "native_access_attestation": {
+    "artifact": "native-access-attestation.json",
+    "artifact_sha256": "c57567cb31fadecdb238207e3c4ee6853d6617741ad54d0fbcf70da742475a61",
+    "schema": "workinants.native-access-operator-attestation.v1",
+    "run_id": "e7a7beff-dcb1-4107-8dbe-b46aa9291dfa",
+    "container_id": "7d3570ae04ac09723d2ffbfcfccd7d72172576ed4fd59aa2c0e517416ba11a38",
+    "source_commit": "b6149bae655ad40b6c721b40561e678ac6b752af",
+    "source_tree": "000befda867e157f40613333e8b2ea4289b427ec",
+    "operation_packet_sha256": "1e2ba4c6f46f915b0beb610b74758ee885240c3fd52c8449baf7b2a72f3f58d6",
+    "deny_packet_sha256": "bf542f88525e96d7d1c93ef06425278a82e1328043d60879ac34191f1bee3000",
+    "coordinator_sha256": "e263b4ade8e18b21f30c3b6cb2c2115494fbe16971934b994bf7fa59541305b6",
+    "provider_proof_sha256": "b4b05f440a65ff5c9efb76fbc25eee60fcef318642abc0ba5d105737d7a67ab3",
+    "coordinator_plan_sha256": "77f288f2ec978ab3c5adde2c6091ab6df9872485eeac617128947fb55508c0e7",
+    "source_expected_sha256": "3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433",
+    "native_snapshot_sha256": "89cdb3a7beb84c64e9dc45574b9f56d9ac8540457639fabd16ded6ea237658a5",
+    "native_snapshot_file_sha256": "ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb",
+    "comparison_file_sha256": "9107fb1c023f63c4cd5b2eb12eb1642fac0dca46c9f30324bcd0e3cdae76f2c2",
+    "original_grantor_finalized": true,
+    "all_other_client_backends_absent": true,
+    "native_comparison_status": "PASS",
+    "whole_case_promotion": false
+  },
+  "sanitization": {
+    "files_scanned": 20,
+    "actual_password_values_found": false,
+    "unrestricted_subprocess_output_persisted": false,
+    "raw_context_handles_persisted": false,
+    "coordinator_evidence_uses_reviewed_allowlist": true
+  },
+  "host_secret_cleanup": {
+    "deleted": [
+      "ok-bootstrap-password"
+    ],
+    "private_directory_absent": true
+  },
+  "cleanup_summary": {
+    "resource_presence_after": {
+      "wa-p0c-e7a7beff-native": false,
+      "wa-p0c-e7a7beff-native-data": false
+    },
+    "test_owned_secret_files_deleted": [
+      "ok-bootstrap-password"
+    ],
+    "private_directory_absent": true,
+    "image_removed": false,
+    "unrelated_resources_changed": false
+  },
+  "finished_at": "2026-11-18T06:41:36.750715+00:00",
+  "packet_unchanged_after_run": true,
+  "tool_source_data_unchanged_after_run": true
+}

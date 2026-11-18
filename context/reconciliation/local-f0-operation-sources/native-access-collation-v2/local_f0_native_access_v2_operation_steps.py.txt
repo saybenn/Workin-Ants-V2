@@ -1,0 +1,787 @@
+import runpy
+import tarfile
+
+def validate_archive(path,expected):
+    seen=set()
+    with tarfile.open(path,'r:gz') as archive:
+        for member in archive:
+            need(member.isfile() and not member.name.startswith('/') and all(p not in ('','.','..') for p in member.name.split('/')) and member.name not in seen,'UNSAFE_ARCHIVE_MEMBER')
+            need(member.name in expected,'UNLISTED_ARCHIVE_MEMBER')
+            need(hashlib.sha256(archive.extractfile(member).read()).hexdigest()==expected[member.name],'ARCHIVE_MEMBER_HASH_DRIFT')
+            seen.add(member.name)
+    need(seen==set(expected),'ARCHIVE_FILE_SET_MISMATCH')
+
+def verify_common_packet():
+    need(MANIFEST['review_status']=='APPROVED_LOCAL_F0_NATIVE_ACCESS_ATTEMPT','OPERATION_NOT_REVIEWED')
+    need(MANIFEST['wrapper_sha256']==hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'WRAPPER_SOURCE_MISMATCH')
+    need(command(['git','-c','core.longpaths=true','rev-parse','HEAD']).stdout.strip()==COMMIT and command(['git','-c','core.longpaths=true','rev-parse','HEAD^{tree}']).stdout.strip()==TREE,'SOURCE_CHECKPOINT_MISMATCH')
+    hashes=MANIFEST['packet_files_sha256']
+    required={'review-output/foundation-bootstrap.review.sql','review-output/foundation-bootstrap-finalize.review.sql','review-output/foundation-application.review.sql','scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/prepare-local-f0-history.py','scripts/sql-review/run-local-f0-migrate.py','prisma.local-f0.config.mjs','scripts/sql-review/local-f0-migrate-guard.mjs','scripts/sql-review/local-f0-migrate-runner.mjs','scripts/sql-review/migration_server_diagnostics.py'}
+    need(required<=set(hashes),'REQUIRED_PACKET_FILES_MISSING')
+    for path,expected in hashes.items():
+        need(not Path(path).is_absolute() and '..' not in Path(path).parts,'UNSAFE_PACKET_PATH')
+        need(hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==expected,'PACKET_FILE_DRIFT',{'path':path})
+        blob=subprocess.run(['git','-c','core.longpaths=true','show',COMMIT+':'+path],cwd=ROOT,capture_output=True,timeout=30)
+        need(blob.returncode==0 and hashlib.sha256(blob.stdout).hexdigest()==expected,'COMMITTED_PACKET_MISMATCH',{'path':path})
+    aggregate=hashlib.sha256(''.join(p+'\0'+hashes[p]+'\n' for p in sorted(hashes)).encode()).hexdigest()
+    need(aggregate==PACKET,'PACKET_AGGREGATE_MISMATCH')
+    need(MANIFEST['image']==IMAGE and MANIFEST['database']==DB and MANIFEST['run_label']==LABEL,'TARGET_MANIFEST_MISMATCH')
+    need(MANIFEST['server_diagnostics']=={'prefix':'WA_F0_DIAG|%e|%u|%d|','verbosity':'terse','lc_messages':'C','log_min_messages':'warning','log_statement':'none','log_min_error_statement':'panic','module_sha256':hashes['scripts/sql-review/migration_server_diagnostics.py'],'raw_log_retention':False},'SERVER_DIAGNOSTIC_PLAN_MISMATCH')
+    need(hashlib.sha256(Path(MANIFEST['tool_archive']).read_bytes()).hexdigest()==MANIFEST['tool_archive_sha256'],'TOOL_ARCHIVE_DRIFT')
+    verified_tools=None
+    for kind,plan in MANIFEST['migration_targets'].items():
+        raw=Path(plan['manifest_path']).read_bytes();need(hashlib.sha256(raw).hexdigest()==plan['manifest_sha256'],'TARGET_PLAN_DRIFT')
+        migration=json.loads(raw);target=next(t for t in TARGETS if t['kind']==kind)
+        if verified_tools is None:
+            validate_archive(MANIFEST['tool_archive'],migration['tools']['files_sha256']);verified_tools=migration['tools']['files_sha256']
+        else:need(verified_tools==migration['tools']['files_sha256'],'TARGET_TOOL_CLOSURES_DIFFER')
+        need(migration['run_id']==RUN_ID and migration['target']['container_name']==target['name'] and migration['target']['volume_name']==target['volume'],'TARGET_PLAN_IDENTITY')
+        need(migration['target']['bootstrap_secret_host_path']==str(PRIVATE/(kind+'-bootstrap-password')),'SECRET_MOUNT_PLAN_MISMATCH')
+        snapshot=Path(plan['source_snapshot'])
+        current={p.relative_to(snapshot).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in snapshot.rglob('*') if p.is_file()}
+        need(current==plan['source_files_sha256'],'SOURCE_SNAPSHOT_DRIFT')
+        need(hashlib.sha256(Path(plan['source_archive']).read_bytes()).hexdigest()==plan['source_archive_sha256'],'SOURCE_ARCHIVE_DRIFT')
+        validate_archive(plan['source_archive'],current)
+        for path in ('prisma.local-f0.config.mjs','scripts/sql-review/local-f0-migrate-guard.mjs','scripts/sql-review/local-f0-migrate-runner.mjs','prisma/review/foundation-candidate.prisma','prisma/foundation/migrations/migration_lock.toml','prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql'):
+            need(current[path]==hashes[path],'SOURCE_SNAPSHOT_NOT_COMMITTED_PACKET',{'path':path})
+    report['source_verification']={'commit':COMMIT,'tree':TREE,'packet_sha256':aggregate,'files_sha256':hashes,'file_count':len(hashes)}
+    report['run_manifest']=MANIFEST;report['run_manifest_sha256']=hashlib.sha256(MANIFEST_PATH.read_bytes()).hexdigest()
+    event('SOURCE_VERIFICATION','PASS',files=len(hashes),packet_sha256=aggregate)
+
+def bootstrap_all():
+    coordinator=runpy.run_path(str(ROOT/'scripts/sql-review/run-first-rehearsal.py'))
+    for target in TARGETS:
+        name=target['name']
+        settings=observe(name,"SELECT jsonb_build_object('login',session_user,'auth',system_user,'safe',current_setting('log_statement')='none' AND current_setting('log_min_error_statement')='panic' AND current_setting('password_encryption')='scram-sha-256' AND current_setting('server_version') LIKE '17.11%','diagnostics_safe',current_setting('log_error_verbosity')='terse' AND current_setting('log_line_prefix')='WA_F0_DIAG|%e|%u|%d|' AND current_setting('lc_messages')='C' AND current_setting('log_min_messages')='warning' AND current_setting('log_destination')='stderr' AND current_setting('logging_collector')='off' AND current_setting('debug_print_parse')='off' AND current_setting('debug_print_rewritten')='off' AND current_setting('debug_print_plan')='off','superuser',(SELECT rolsuper FROM pg_roles WHERE rolname=session_user));",'BOOTSTRAP_SETTINGS')
+        need(settings=={'login':'postgres','auth':'scram-sha-256:postgres','safe':True,'diagnostics_safe':True,'superuser':True},'UNSAFE_BOOTSTRAP_SETTINGS')
+        report['targets'][name]['server_settings']=settings
+        before=observe(name,"SELECT jsonb_build_object('public_owner',(SELECT pg_get_userbyid(nspowner) FROM pg_namespace WHERE nspname='public'),'public_acl',(SELECT jsonb_agg(jsonb_build_object('role',CASE WHEN x.grantee=0 THEN 'PUBLIC' ELSE pg_get_userbyid(x.grantee) END,'privilege',x.privilege_type,'grantor',pg_get_userbyid(x.grantor),'grant_option',x.is_grantable) ORDER BY x.grantee,x.privilege_type) FROM pg_namespace n CROSS JOIN LATERAL aclexplode(coalesce(n.nspacl,acldefault('n',n.nspowner))) x WHERE n.nspname='public'),'application_roles',(SELECT count(*) FROM pg_roles WHERE rolname LIKE 'wa_%'),'event_triggers',(SELECT count(*) FROM pg_event_trigger));",'FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE')
+        expected=[{'role':'pg_database_owner','privilege':p,'grantor':'pg_database_owner','grant_option':False} for p in ('CREATE','USAGE')]+[{'role':'PUBLIC','privilege':'USAGE','grantor':'pg_database_owner','grant_option':False}]
+        need(before['public_owner']=='pg_database_owner' and before['application_roles']==before['event_triggers']==0 and sorted(before['public_acl'],key=lambda r:(r['role'],r['privilege']))==sorted(expected,key=lambda r:(r['role'],r['privilege'])),'FRESH_PUBLIC_BASELINE_NOT_EXPECTED')
+        report['targets'][name]['pre_bootstrap_public_baseline']=before
+        bootstrap_attempted.add(name);report['targets'][name]['bootstrap']='ATTEMPTED';save()
+        sql(name,'postgres',(ROOT/'review-output/foundation-bootstrap.review.sql').read_text(encoding='utf8'),'BOOTSTRAP')
+        bootstrapped.add(name);report['targets'][name]['bootstrap']='PASS'
+        statements=[f'ALTER DATABASE {DB} SET log_statement=none;',f'ALTER DATABASE {DB} SET log_min_error_statement=panic;',f'REVOKE CONNECT,TEMP ON DATABASE {DB} FROM PUBLIC;',f'GRANT CONNECT ON DATABASE {DB} TO '+','.join(ROLES)+';']
+        statements+=['ALTER ROLE '+role+" PASSWORD '"+passwords[name][role]+"';" for role in ROLES if role!='postgres']
+        sql(name,'postgres','\n'.join(statements),'CREDENTIAL_PROVISION')
+        directory=OUT/('authentication-'+target['kind']);evidence=coordinator['Evidence'](directory,True,coordinator['CONTAINER'])
+        coordinator['authentication_preflight'](evidence,created_containers[name])
+        evidence.value.update(status='PASS_PREFLIGHT_ONLY',target=name,current_stage='COMPLETE');evidence.save()
+        need(len(evidence.value['authentication'])==6,'AUTHENTICATION_INCOMPLETE')
+        report['targets'][name]['authentication_preflight']={'status':'PASS','roles':6,'correct_password':6,'wrong_password_rejected':6,'evidence':str(evidence.path.relative_to(OUT))};save()
+        baseline=observe(name,"SELECT jsonb_build_object('public_owner',(SELECT pg_get_userbyid(nspowner) FROM pg_namespace WHERE nspname='public'),'public_acl',(SELECT nspacl::text FROM pg_namespace WHERE nspname='public'),'event_triggers',(SELECT count(*) FROM pg_event_trigger),'public_relations',(SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public'),'application_relations',(SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname IN ('app','platform','platform_private')));",'EMPTY_APPLICATION_BASELINE')
+        need(baseline['event_triggers']==baseline['public_relations']==baseline['application_relations']==0,'NONEMPTY_MIGRATION_BASELINE')
+        report['targets'][name]['baseline']=baseline;event('AUTHENTICATION_PREFLIGHT','PASS',target=name,roles=6)
+    report['steps']['CATALOG-AUTH']='PASS';save()
+
+def provision_migration_tools():
+    for target in TARGETS:
+        name=target['name'];identity=created_containers[name];plan=MANIFEST['migration_targets'][target['kind']]
+        need(docker(['exec',identity,'mkdir','-p','/run/wa-f0-tools','/run/wa-f0-source']).returncode==0,'TOOL_DIRECTORIES_FAILED')
+        need(docker(['cp',MANIFEST['tool_archive'],identity+':/run/wa-f0-tools.tar.gz'],timeout=120).returncode==0,'TOOL_COPY_FAILED')
+        need(docker(['exec',identity,'tar','-xzf','/run/wa-f0-tools.tar.gz','-C','/run/wa-f0-tools'],timeout=120).returncode==0,'TOOL_EXTRACT_FAILED')
+        need(docker(['exec',identity,'rm','--','/run/wa-f0-tools.tar.gz']).returncode==0,'TOOL_ARCHIVE_REMOVAL_FAILED')
+        # This archive is prepared/reviewed from the exact immutable file map.
+        need(hashlib.sha256(Path(plan['source_archive']).read_bytes()).hexdigest()==plan['source_archive_sha256'],'SOURCE_ARCHIVE_DRIFT')
+        need(docker(['cp',plan['source_archive'],identity+':/run/wa-f0-source.tar.gz'],timeout=120).returncode==0,'SOURCE_COPY_FAILED')
+        need(docker(['exec',identity,'tar','-xzf','/run/wa-f0-source.tar.gz','-C','/run/wa-f0-source'],timeout=60).returncode==0,'SOURCE_EXTRACT_FAILED')
+        need(docker(['exec',identity,'rm','--','/run/wa-f0-source.tar.gz']).returncode==0,'SOURCE_ARCHIVE_REMOVAL_FAILED')
+        migrator_url='postgresql://wa_migrator:'+passwords[name]['wa_migrator']+'@127.0.0.1:5432/'+DB+'?schema=public&sslmode=disable'
+        r=docker(['exec','-i',identity,'sh','-ceu','umask 077; cat > /run/wa-secrets/wa-local-f0-migrator-url; chmod 600 /run/wa-secrets/wa-local-f0-migrator-url; stat -c "%a:%u:%g" /run/wa-secrets/wa-local-f0-migrator-url'],input=migrator_url)
+        need(r.returncode==0 and r.stdout.strip()=='600:0:0','MIGRATOR_URL_OWNER_MODE')
+        # Trusted image utility verifies copied binaries before first execution.
+        expected=json.loads(Path(plan['manifest_path']).read_text())['tools']['files_sha256']
+        names=['node/bin/node','schema-engine','node_modules/prisma/build/index.js','node_modules/prisma/build/cli.js','node_modules/prisma/config.js']
+        actual=docker(['exec',identity,'/usr/bin/sha256sum','--',*['/run/wa-f0-tools/'+p for p in names]])
+        need(actual.returncode==0,'TOOL_PREEXEC_HASH_FAILED')
+        parsed={line.split('  ',1)[1].removeprefix('/run/wa-f0-tools/'):line.split('  ',1)[0] for line in actual.stdout.splitlines()}
+        need(parsed=={p:expected[p] for p in names},'TOOL_PREEXEC_HASH_MISMATCH')
+        node=docker(['exec',identity,'/run/wa-f0-tools/node/bin/node','--version'])
+        engine=docker(['exec',identity,'/run/wa-f0-tools/schema-engine','--version'])
+        need(node.returncode==0 and node.stdout.strip()=='v24.22.1' and engine.returncode==0 and re.search(r'\bd1b3f377ca835d73fd50954a5e22128b9ebdd6b8\b',engine.stdout),'LINUX_TOOL_COMPATIBILITY_FAILED')
+        report['targets'][name]['linux_tool_compatibility']={'node':'v24.22.1','engine_commit':'d1b3f377ca835d73fd50954a5e22128b9ebdd6b8','preexec_hashes_verified':True};event('LINUX_TOOL_COMPATIBILITY','PASS',target=name)
+    report['steps']['CATALOG-TOOLS']='PASS';save()
+
+def migrate(target,operation,label,proof=None):
+    name=target['name'];plan=MANIFEST['migration_targets'][target['kind']]
+    module=runpy.run_path(str(ROOT/'scripts/sql-review/run-local-f0-migrate.py'))
+    report['stage']=label;save()
+    def created_identity_process(arguments,**options):
+        result=subprocess.run(arguments,**options)
+        if arguments==['docker','--context','desktop-linux','inspect',name] and result.returncode==0:
+            objects=json.loads(result.stdout)
+            need(len(objects)==1 and objects[0]['Id']==created_containers[name],'CREATED_CONTAINER_IDENTITY_CHANGED')
+        return result
+    try:value=module['coordinate'](Path(plan['manifest_path']).read_bytes(),operation,None if proof is None else proof.read_bytes(),process=created_identity_process)
+    except module['HeldFailure'] as error:
+        comparison=module['mount_failure_comparison'](error)
+        if comparison is not None:report['resource_guard_comparison']=comparison;save()
+        raise Stop('MIGRATION_GUARD_REFUSED',{'code':error.code,**({'mount_comparison':comparison} if comparison is not None else {})}) from None
+    except subprocess.TimeoutExpired:raise Stop('MIGRATION_PROCESS_TIMEOUT_CLOSURE_UNCONFIRMED') from None
+    except Exception:raise Stop('MIGRATION_RESPONSE_OR_PROCESS_UNCONFIRMED') from None
+    report.setdefault('migration_operations',[]).append({'target':name,'stage':label,**value});save()
+    return value
+
+def migrate_success(target,operation,label,proof=None):
+    value=migrate(target,operation,label,proof)
+    need(value['status']=='CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS' and type(value['exit_code']) is int and value['exit_code']==0,'PRISMA_COMPLETED_STATUS_REQUIRED')
+    return value
+
+
+
+# New catalog-only pipeline. The common definitions above are preserved; only
+# verify_packet was renamed to allow this additional pre-creation verification.
+import contextlib
+import io
+import math
+from types import ModuleType
+
+GENERATOR = 'scripts/prepare-native-catalog-review.py'
+GENERATOR_SHA = 'cef4f4f191e478593a679e9b86c7eee410531b01501a896c0b6f0e1bc1ac4fa2'
+EXPECTED_SHA = '3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433'
+MIGRATION = '20261117000100_f0_local_initial'
+APPLICATION_SHA = '5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+CATALOG = {}
+ASSET_NAMES = {'source-pins.json','expected.json','expression-oracle-plan.json','expression-oracle.sql','public-schema-registration.json','README.md'}
+TOOL_DATA = {'node_modules/@prisma/engines-version/package.json','node_modules/prisma/package.json'}
+NATIVE_LISTS = {'schemas','roles','memberships','relations','columns','types','enums','constraints','indexes','functions','triggers','policies','nonowner_acl','owner_acl','generated_type_acl','default_acl','default_acl_outside_registered_schemas','extensions','public_owned_relations','public_schema_acl','public_wa_schema_acl'}
+BOOL_KEYS = {'read_only','collector_is_superuser','rolsuper','rolinherit','rolcreaterole','rolcreatedb','rolcanlogin','rolreplication','rolbypassrls','admin','inherit','set','rls','force_rls','nullable','collation_is_type_default','storage_is_type_default','is_local','deferrable','initially_deferred','validated','no_inherit','has_index','unique','primary','valid','ready','live','immediate','clustered','nulls_not_distinct','included','opclass_default','descending','nulls_first','returns_set','security_definer','strict','leakproof','variadic','support_function','internal','constraint','function_release_builtin','has_constraint_relation','has_constraint_index','permissive','grant_option','history_ids_unique','checksum_format_valid','id_is_uuid_v4','started','finished','rolled_back','time_order_valid','no_options','default_tablespace','not_partition','no_inheritance','no_index_acl','no_expressions','no_predicate','no_referenced_relation','no_expression'}
+INT_KEYS = {'server_version_num','rolconnlimit','ordinal','typmod','array_dimensions','inherited_count','key_count','total_count','position','default_count','type_bits','argument_count','object_subid','referenced_subid','triggers_count','policies_count','rules_count','steps'}
+META_KEYS = NATIVE_LISTS | BOOL_KEYS | INT_KEYS | {'format','collected_as','public_schema_owner','object','owner','name','rolvaliduntil','rolconfig','role','member','grantor','kind','persistence','replica_identity','table_name','type','identity','generated','compression','default_sha256','category','element','relation','labels','columns','references','referenced_columns','match','update_action','delete_action','expression_sha256','definition_sha256','referenced_unique_index','index_name','access_method','keys','predicate_sha256','column','opclass','language','return_type','volatility','parallel','cost','rows','settings','defaults_sha256','body_sha256','parameters','mode','enabled','function','function_identity','arguments_sha256','when_sha256','constraint_name','constraint_table','referenced_table','constraint_index','dependencies','direction','class','dependency_type','command','roles','using_sha256','with_check_sha256','grantee','privilege','creator','schema','entries','database','isolation','session_user','history','logs_state','name_sha256','checksum_sha256'}
+SAFE_FILES = {'text-preflight.json','acl-preflight.json','native-before.json','native-after-oracle.json','native-after-ledger.json','oracle-preflight.json','oracle-results.json','oracle-closure.json','oracle-evidence.json','ledger-registration.json','ledger-observation.json','ledger-evidence.json','catalog-comparison.json'}
+ACL_FIELDS='grantee grantor privilege grant_option'
+NATIVE_ROWS={
+ 'schemas':'object owner','roles':'name rolsuper rolinherit rolcreaterole rolcreatedb rolcanlogin rolreplication rolbypassrls rolconnlimit rolvaliduntil rolconfig',
+ 'memberships':'role member grantor admin inherit set','relations':'object kind owner persistence rls force_rls replica_identity',
+ 'columns':'table_name name ordinal type typmod array_dimensions nullable identity generated collation_is_type_default storage_is_type_default compression is_local inherited_count default_sha256',
+ 'types':'object owner kind category element relation','enums':'object owner labels',
+ 'constraints':'table_name name kind deferrable initially_deferred validated no_inherit columns references referenced_columns match update_action delete_action expression_sha256 definition_sha256 has_index referenced_unique_index index_name',
+ 'indexes':'object table_name owner access_method unique primary valid ready live immediate clustered replica_identity nulls_not_distinct key_count keys predicate_sha256 definition_sha256',
+ 'functions':'object name owner language return_type returns_set security_definer strict leakproof volatility parallel kind cost rows settings variadic support_function default_count defaults_sha256 body_sha256 parameters',
+ 'triggers':'table_name name internal type_bits enabled constraint deferrable initially_deferred function function_identity function_release_builtin argument_count arguments_sha256 when_sha256 constraint_name constraint_table has_constraint_relation referenced_table has_constraint_index constraint_index dependencies',
+ 'policies':'table_name name command permissive roles using_sha256 with_check_sha256',
+ 'nonowner_acl':'kind object column '+ACL_FIELDS,'owner_acl':'kind object column '+ACL_FIELDS,'generated_type_acl':'object '+ACL_FIELDS,
+ 'default_acl':'creator schema kind entries','default_acl_outside_registered_schemas':'creator schema kind','extensions':'name version schema owner',
+ 'public_owned_relations':'object kind owner rls force_rls nonowner_acl','public_schema_acl':ACL_FIELDS,'public_wa_schema_acl':ACL_FIELDS,
+}
+META_KEYS.add('version')
+META_KEYS.update(('table_acl','column_acl'))
+
+
+def canonical(value):
+    return json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)
+
+
+def digest(value):
+    return hashlib.sha256(canonical(value).encode('utf8')).hexdigest()
+
+
+def exact(value,expected,code):
+    need(canonical(value)==canonical(expected),code)
+
+
+def unique_json(raw):
+    def pairs(items):
+        value={}
+        for key,item in items:
+            need(key not in value,'DUPLICATE_CATALOG_JSON_FIELD');value[key]=item
+        return value
+    def bad_constant(_):raise Stop('NONFINITE_CATALOG_JSON')
+    return json.loads(raw,object_pairs_hook=pairs,parse_constant=bad_constant)
+
+
+def read_pinned(relative):
+    need(type(relative) is str and not relative.startswith('/') and '\\' not in relative and all(x not in ('','.','..') for x in relative.split('/')),'UNSAFE_CATALOG_PACKET_PATH')
+    path=(ROOT/relative).resolve();need(path.is_relative_to(ROOT.resolve()),'CATALOG_PACKET_PATH_ESCAPE')
+    raw=path.read_bytes()
+    need(hashlib.sha256(raw).hexdigest()==MANIFEST['packet_files_sha256'][relative],'CATALOG_PACKET_SOURCE_DRIFT')
+    return raw
+
+
+def verify_tool_data():
+    expected=MANIFEST['catalog']['tool_source_files_sha256']
+    need(type(expected) is dict and set(expected)==TOOL_DATA,'TOOL_SOURCE_DATA_SET')
+    closure=unique_json(read_pinned('context/reconciliation/local-f0-tooling/prisma-tools-closure.json'))
+    plan=MANIFEST['migration_targets']['ok']
+    raw=Path(plan['manifest_path']).read_bytes()
+    need(hashlib.sha256(raw).hexdigest()==plan['manifest_sha256'],'TARGET_PLAN_DRIFT')
+    tools=unique_json(raw)['tools']['files_sha256']
+    for relative,value in expected.items():
+        need(type(value) is str and re.fullmatch('[0-9a-f]{64}',value),'TOOL_SOURCE_DATA_HASH')
+        need(value==closure['tools_files_sha256'][relative]==tools[relative],'TOOL_SOURCE_DATA_CLOSURE_MISMATCH')
+        need(hashlib.sha256((ROOT/relative).read_bytes()).hexdigest()==value,'TOOL_SOURCE_DATA_DRIFT')
+
+
+def verify_catalog_packet():
+    verify_common_packet()
+    need(MANIFEST['packet_files_sha256'].get('scripts/sql-review/catalog-text-preflight.sql')=='f1cab9adf94fe5aa2452f34213eea43cf4ecfe35c9ce5f5289486b7d4f859823','TEXT_PREFLIGHT_SOURCE_REQUIRED')
+    need(MANIFEST['packet_files_sha256'].get('scripts/sql-review/catalog-acl-preflight.sql')=='7018c8f415923533dc461b212a0df0f9a0f4144457e410c4505c9322df4647f4','ACL_PREFLIGHT_SOURCE_REQUIRED')
+    need(len(TARGETS)==1 and TARGETS[0]['kind']=='ok' and set(MANIFEST['migration_targets'])=={'ok'},'ONE_CATALOG_TARGET_REQUIRED')
+    name='wa-p0c-'+RUN_ID[:8]+'-native'
+    exact(TARGETS,[{'name':name,'volume':name+'-data','kind':'ok'}],'CATALOG_RESOURCE_NAMES')
+    cfg=MANIFEST['catalog']
+    exact(sorted(cfg),sorted(('generator','artifact_root','assets','source_expected_sha256','public_schema_owner','bootstrap_grantor','tool_source_files_sha256','ledger_expectation')),'CATALOG_CONFIGURATION_FIELDS')
+    need(cfg['generator']==GENERATOR and cfg['artifact_root']=='review-output/native-catalog' and cfg['source_expected_sha256']==EXPECTED_SHA and cfg['public_schema_owner']=='pg_database_owner' and cfg['bootstrap_grantor']=='postgres','CATALOG_CONFIGURATION_IDENTITY')
+    exact(cfg['ledger_expectation'],[{'path':'prisma/foundation/migrations/'+MIGRATION+'/migration.sql','migration_name':MIGRATION,'sha256':APPLICATION_SHA,'state':'applied','count':1}],'ONE_CANONICAL_APPLIED_HISTORY_REQUIRED')
+    verify_tool_data()
+    generator=read_pinned(GENERATOR)
+    need(hashlib.sha256(generator).hexdigest()==GENERATOR_SHA,'CATALOG_GENERATOR_NOT_REVIEWED')
+    namespace=ModuleType('_reviewed_catalog_generator');namespace.__file__=str(ROOT/GENERATOR)
+    output=io.StringIO()
+    with contextlib.redirect_stdout(output),contextlib.redirect_stderr(output):
+        exec(compile(generator,str(ROOT/GENERATOR),'exec'),namespace.__dict__)
+    need(not output.getvalue(),'CATALOG_GENERATOR_IMPORT_OUTPUT')
+    assets=cfg['assets'];need(type(assets) is dict and set(assets)==ASSET_NAMES,'CATALOG_ASSET_SET')
+    actual={}
+    for key,value in assets.items():
+        exact(value,{'path':cfg['artifact_root']+'/'+key,'sha256':MANIFEST['packet_files_sha256'][cfg['artifact_root']+'/'+key]},'CATALOG_ASSET_BINDING')
+        actual[key]=read_pinned(value['path'])
+    pins=unique_json(actual['source-pins.json'])
+    need(set(pins)==set(namespace.REQUIRED_FILES) and len(pins)==16,'CLOSED_CATALOG_SOURCES_REQUIRED')
+    for relative,value in pins.items():need(MANIFEST['packet_files_sha256'][relative]==value,'CATALOG_SOURCE_PIN_NOT_IN_PACKET')
+    with contextlib.redirect_stdout(output),contextlib.redirect_stderr(output):
+        reproduced,summary=namespace.prepare(ROOT,pins)
+        tools=namespace.load_catalog_tools(ROOT,pins)
+        runtime_manifest=tools['catalog_manifest'].build_manifest(ROOT,pins)
+        runtime_plan=tools['catalog_expression_oracle'].build_plan(runtime_manifest,ROOT)
+    need(not output.getvalue(),'CATALOG_PREPARATION_OUTPUT')
+    need(reproduced==actual and summary['status']=='NOT_RUN' and summary['source_expected_sha256']==EXPECTED_SHA,'CATALOG_ASSET_REPRODUCTION')
+    need(namespace.encoded(runtime_manifest)==actual['expected.json'] and namespace.encoded(runtime_plan)==actual['expression-oracle-plan.json'],'CATALOG_RUNTIME_SOURCE_REPRODUCTION')
+    # emit_sql uses source declaration order; sorted JSON is a review artifact,
+    # not a replacement for the freshly compiled source object's insertion order.
+    CATALOG.update(generator=namespace,tools=tools,pins=pins,expected=runtime_manifest,plan=runtime_plan,oracle_sql=actual['expression-oracle.sql'].decode('utf8'),public=unique_json(actual['public-schema-registration.json']))
+    CATALOG['strings'],CATALOG['generated_names']=metadata_allowlist(CATALOG['expected'],tools)
+    report['catalog_preparation']={'status':'SOURCE_REPRODUCED_NOT_RUN','assets_sha256':{k:hashlib.sha256(v).hexdigest() for k,v in sorted(actual.items())},'source_expected_sha256':EXPECTED_SHA,'closed_source_files':16}
+    save()
+
+
+def metadata_allowlist(manifest,tools):
+    allowed={'',' ','postgres','pg_database_owner','PUBLIC','public','pg_catalog','plpgsql','sql','internal','btree','1.0','repeatable read','NULL','EMPTY','NONEMPTY','O','r','p','v','m','S','f','b','c','e','u','x','t','d','n','a','s','i','w','C','A','E','U','*','TABLE','SEQUENCE','FUNCTION','TYPE','SCHEMA','SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER','MAINTAIN','EXECUTE','USAGE','CREATE','trigger_to','to_trigger','function','relation','constraint','unsupported','workinants.native-catalog.v1','workinants.prisma-ledger-native.v1',DB}
+    def add(value):
+        if type(value) is str:
+            if len(value)<=1024 and not any(ord(x)<32 for x in value):allowed.add(value)
+        elif type(value) is dict:
+            for key,item in value.items():add(key);add(item)
+        elif type(value) is list:
+            for item in value:add(item)
+    expected=manifest['expected']
+    for key in ('roles','schemas','tables','enums','functions','explicit_indexes','policies','triggers','memberships','nonowner_acl','default_acl'):add(expected[key])
+    add(tools['pg17_catalog_rules'].generated_types(expected))
+    add(tools['prisma_ledger_proof'].schema_expectation())
+    add(tools['pg17_catalog_rules'].PINNED_TRIGGER_FUNCTIONS)
+    for name in tools['pg17_catalog_rules'].PINNED_TRIGGER_FUNCTIONS:add(name.removesuffix('()'))
+    for typ in ('uuid','text','timestamptz','timestamp','int2','int4','int8','bool','numeric','float4','float8','jsonb','array','enum','bpchar','varchar'):
+        allowed.add('pg_catalog.'+typ+'_ops')
+    generated=[]
+    for table,info in expected['tables'].items():
+        ns,base=table.split('.')
+        for con in info['constraints']:
+            if con['name']:
+                add(con['name']);add(ns+'.'+con['name']);add(table+'/'+con['name'])
+            elif con['kind'] in ('PRIMARY','UNIQUE','FOREIGN','CHECK'):
+                label={'PRIMARY':'pkey','UNIQUE':'key','FOREIGN':'fkey','CHECK':'check'}[con['kind']]
+                columns=con['columns']
+                names=[None] if label=='pkey' else ['_'.join(columns)] if columns else [None]
+                if label=='check':
+                    names=[None]+sorted(tools['compare_native_catalog']._column_refs(con['expression']['ast'])) if con['expression'] else [None]
+                generated.extend((ns,base,column,label,table) for column in names)
+        for column in info['columns'].values():
+            value=column['type'];add(value['name']+'[]'*value['array_dimensions'])
+    for identity,fn in expected['functions'].items():
+        add(identity);add(fn['name']);add(fn['return_type']['name']+'[]'*fn['return_type']['array_dimensions'])
+        for setting in fn['settings_ast']:
+            add(setting['name']+'='+', '.join(str(tools['catalog_manifest'].literal(v)) for v in setting.get('args',[])))
+    return allowed,generated
+
+
+def generated_identifier(value):
+    if re.fullmatch(r'(?:RI_ConstraintTrigger_[ac]_|Unique_ConstraintTrigger_)[0-9]{1,12}',value):return True
+    if '/' in value:
+        table,value=value.split('/',1);namespace=table.split('.')[0]
+    else:
+        table=None
+        if '.' in value:namespace,value=value.split('.',1)
+        else:namespace=None
+    match=re.search(r'_(pkey|key|check|fkey)([0-9]{0,3})$',value)
+    if not match or len(value)>63:return False
+    for ns,base,column,label,relation in CATALOG['generated_names']:
+        if label!=match[1] or namespace not in (None,ns) or table not in (None,relation):continue
+        suffix=label+match[2];one,two=len(base),len(column) if column else 0
+        available=63-len(suffix)-(2 if column else 1)
+        while one+two>available:
+            if one>two:one-=1
+            else:two-=1
+        candidate=base[:one]+('_'+column[:two] if column else '')+'_'+suffix
+        if value==candidate:return True
+    return False
+
+
+def filter_metadata(value,key=None,depth=0):
+    need(depth<=20,'CATALOG_METADATA_DEPTH')
+    if key in BOOL_KEYS:need(type(value) is bool,'CATALOG_METADATA_BOOLEAN');return
+    if key in INT_KEYS:need(type(value) is int and -1<=value<=2147483647,'CATALOG_METADATA_INTEGER');return
+    if value is None:return
+    if key and key.endswith('_sha256'):
+        need(type(value) is str and re.fullmatch('[0-9a-f]{64}',value),'CATALOG_METADATA_HASH');return
+    if type(value) is dict:
+        need(set(value)<=META_KEYS,'CATALOG_METADATA_FIELD')
+        for name,item in value.items():filter_metadata(item,name,depth+1)
+    elif type(value) is list:
+        need(len(value)<=20000,'CATALOG_METADATA_LIMIT')
+        for item in value:filter_metadata(item,None,depth+1)
+    elif type(value) is str:
+        if key in ('owner','role','member','grantor','grantee','creator','collected_as','session_user','public_schema_owner'):
+            need(value in set(CATALOG['expected']['expected']['roles'])|{'postgres','PUBLIC','pg_database_owner'},'CATALOG_METADATA_ROLE')
+        if key in ('table_name','references','constraint_table','referenced_table','relation'):
+            need(value in CATALOG['expected']['expected']['tables'],'CATALOG_METADATA_RELATION')
+        need(value in CATALOG['strings'] or generated_identifier(value),'CATALOG_METADATA_STRING')
+    elif type(value) is bool:pass
+    elif type(value) in (int,float):
+        need(key in ('cost','rows') and math.isfinite(value) and 0<=value<=1000000,'CATALOG_METADATA_NUMBER')
+    else:raise Stop('CATALOG_METADATA_TYPE')
+
+
+# Diagnostics describe rejected strings only by fixed paths and hashes. They do
+# not expand metadata_allowlist/filter_metadata or authorize a native snapshot.
+METADATA_DIAGNOSTIC_ENTRY_LIMIT=256
+METADATA_DIAGNOSTIC_NODE_LIMIT=262144
+
+def metadata_vocabulary_diagnostics(value):
+    import unicodedata
+    hints=[];stats={'visited_nodes':0,'unknown_strings_seen':0,'unregistered_fields_omitted':0,'traversal_complete':True}
+    def length_class(size):
+        if size==0:return 'EMPTY'
+        if size==1:return 'ONE'
+        if size<=63:return 'TWO_TO_63'
+        if size<=255:return '64_TO_255'
+        if size<=1024:return '256_TO_1024'
+        return 'OVER_1024'
+    def walk(item,path,key=None,depth=0):
+        if stats['visited_nodes']>=METADATA_DIAGNOSTIC_NODE_LIMIT or depth>20:
+            stats['traversal_complete']=False;return
+        stats['visited_nodes']+=1
+        if type(item) is dict:
+            # Never place an unregistered dictionary key or its subtree in a path.
+            registered=sorted(name for name in item if type(name) is str and name in META_KEYS)
+            omitted=len(item)-len(registered)
+            stats['unregistered_fields_omitted']+=omitted
+            if omitted:stats['traversal_complete']=False
+            for name in registered:walk(item[name],path+[name],name,depth+1)
+        elif type(item) is list:
+            if len(item)>20000:stats['traversal_complete']=False
+            for index,child in enumerate(item[:20000]):
+                if stats['visited_nodes']>=METADATA_DIAGNOSTIC_NODE_LIMIT:
+                    stats['traversal_complete']=False;break
+                walk(child,path+[index],None,depth+1)
+        elif type(item) is str:
+            if key and key.endswith('_sha256') and re.fullmatch('[0-9a-f]{64}',item):return
+            if item in CATALOG['strings'] or generated_identifier(item):return
+            stats['unknown_strings_seen']+=1
+            if len(hints)<METADATA_DIAGNOSTIC_ENTRY_LIMIT:
+                hints.append({'path':path,'value_sha256':hashlib.sha256(item.encode('utf8')).hexdigest(),
+                              'length_class':length_class(len(item)),
+                              'has_control_characters':any(unicodedata.category(char) in ('Cc','Cf','Cs') for char in item)})
+        elif item is not None and type(item) not in (bool,int,float):stats['traversal_complete']=False
+    walk(value,[])
+    return {'format':'workinants.catalog-metadata-refusal-diagnostics.v1','qualification':'NOT_QUALIFIED',
+            **stats,'entry_limit':METADATA_DIAGNOSTIC_ENTRY_LIMIT,'node_limit':METADATA_DIAGNOSTIC_NODE_LIMIT,
+            'entries_truncated':stats['unknown_strings_seen']>len(hints),'unknown_strings':hints}
+
+
+def row_shapes(value,spec):
+    for category,fields in spec.items():
+        rows=value[category];need(type(rows) is list,'CATALOG_COMPONENT_ARRAY')
+        for row in rows:
+            need(type(row) is dict and set(row)==set(fields.split()),'CATALOG_COMPONENT_FIELDS')
+    nested=[(row['keys'],'position column included expression_sha256 opclass opclass_default collation_is_type_default descending nulls_first') for row in value.get('indexes',[]) if 'table_name' in row]
+    nested += [(row['keys'],'position column included opclass opclass_default collation_is_type_default descending nulls_first') for row in value.get('indexes',[]) if 'table_name' not in row]
+    nested += [(row['parameters'],'name mode type') for row in value.get('functions',[])]
+    nested += [(row['dependencies'],'direction class object dependency_type object_subid referenced_subid') for row in value.get('triggers',[])]
+    nested += [(row['entries'],ACL_FIELDS) for row in value.get('default_acl',[])]
+    nested += [(row['nonowner_acl'],ACL_FIELDS) for row in value.get('public_owned_relations',[])]
+    for rows,fields in nested:
+        need(type(rows) is list and all(type(row) is dict and set(row)==set(fields.split()) for row in rows),'CATALOG_NESTED_FIELDS')
+
+
+def write_safe(name,value):
+    need(name in SAFE_FILES,'UNREGISTERED_SAFE_ARTIFACT')
+    raw=(json.dumps(value,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode('utf8')
+    path=OUT/name
+    with path.open('xb') as handle:handle.write(raw)
+    return {'artifact':name,'artifact_sha256':hashlib.sha256(raw).hexdigest()}
+
+
+def safe_rejection(stage,value,raw_sha,vocabulary_review=None):
+    info={'stage':stage,'status':'REJECTED_NOT_QUALIFIED','raw_sha256':raw_sha}
+    if type(value) is dict:
+        if value.get('format') in ('workinants.native-catalog.v1','workinants.prisma-ledger-native.v1'):info['format']=value['format']
+        info['known_component_counts']={key:len(value[key]) for key in sorted(NATIVE_LISTS|{'history'}) if type(value.get(key)) is list}
+        if type(value.get('server_version_num')) is int:info['server_version_num']=value['server_version_num']
+        for key in ('read_only','collector_is_superuser'):
+            if type(value.get(key)) is bool:info[key]=value[key]
+        if value.get('collected_as') in {'postgres'}:info['collected_as']='postgres'
+    if vocabulary_review is not None and (vocabulary_review['unknown_strings_seen'] or not vocabulary_review['traversal_complete']):info['metadata_vocabulary_review']=vocabulary_review
+    report.setdefault('rejected_observations',[]).append(info);save()
+
+
+def closed_backends(name,stage):
+    value=observe(name,"SELECT jsonb_build_object('migrator',(SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND usename='wa_migrator'),'other_client_backends',(SELECT count(*) FROM pg_stat_activity WHERE backend_type='client backend' AND pid<>pg_backend_pid()));",stage+'_BACKEND_CLOSURE')
+    report.setdefault('backend_closures',[]).append({'stage':stage,'migrator_zero':type(value.get('migrator')) is int and value['migrator']==0,'other_clients_zero':type(value.get('other_client_backends')) is int and value['other_client_backends']==0});save()
+    exact(value,{'migrator':0,'other_client_backends':0},'CATALOG_BACKEND_CLOSURE_UNCONFIRMED')
+
+
+def run_catalog_query(name,text,stage):
+    report['stage']=stage;save()
+    source_sha=hashlib.sha256(text.encode('utf8')).hexdigest()
+    try:result=command(psql_args(name,'postgres'),text,timeout=180)
+    except subprocess.TimeoutExpired:raise Stop('CATALOG_QUERY_TIMEOUT_CLOSURE_UNCONFIRMED') from None
+    except BaseException:raise Stop('CATALOG_QUERY_PROCESS_UNCONFIRMED') from None
+    need(type(result.returncode) is int and 0<=result.returncode<=255,'CATALOG_QUERY_EXIT_UNCONFIRMED')
+    states=sorted(set(re.findall(r'(?:ERROR|FATAL):\s+([0-9A-Z]{5}):',result.stderr)))[:8]
+    report.setdefault('catalog_operations',[]).append({'stage':stage,'input_sha256':source_sha,'exit_code':result.returncode,'client_exited':True,'sqlstates':states,'unexpected_stderr':bool(result.stderr.strip()),'raw_output_discarded':True})
+    save();closed_backends(name,stage)
+    report['stage']=stage;save()
+    return result
+
+
+def successful_query(result):
+    need(result.returncode==0,'CATALOG_SQL_FAILED')
+    need(not result.stderr.strip(),'CATALOG_UNEXPECTED_STDERR')
+
+
+def records(stdout):
+    need(type(stdout) is str and len(stdout.encode('utf8'))<=16*1024*1024,'CATALOG_OUTPUT_LIMIT')
+    try:return [unique_json(line) for line in stdout.splitlines() if line.strip()]
+    except Stop:raise
+    except BaseException:raise Stop('CATALOG_JSON_OUTPUT_REJECTED') from None
+
+
+def collect_native(name,stage,filename):
+    text=read_pinned('scripts/sql-review/collect_native_catalog.sql').decode('utf8')
+    result=run_catalog_query(name,text,stage)
+    value=None;vocabulary_review=None;raw_sha=hashlib.sha256(result.stdout.encode('utf8')).hexdigest()
+    try:
+        parsed=records(result.stdout);need(len(parsed)==1,'ONE_NATIVE_RECORD_REQUIRED');value=parsed[0]
+        need(type(value) is dict and set(value)==NATIVE_LISTS|{'format','server_version_num','read_only','collected_as','collector_is_superuser','public_schema_owner'},'NATIVE_TOP_LEVEL_FIELDS')
+        vocabulary_review=metadata_vocabulary_diagnostics(value)
+        row_shapes(value,NATIVE_ROWS)
+        filter_metadata(value)
+        exact({k:value[k] for k in ('format','server_version_num','read_only','collected_as','collector_is_superuser')},{'format':'workinants.native-catalog.v1','server_version_num':170011,'read_only':True,'collected_as':'postgres','collector_is_superuser':True},'NATIVE_COLLECTOR_IDENTITY')
+    except BaseException:
+        safe_rejection(stage,value,raw_sha,vocabulary_review);raise
+    reference=write_safe(filename,value)
+    report.setdefault('native_snapshots',[]).append({'stage':stage,'status':'OBSERVED_NOT_QUALIFIED','native_sha256':digest(value),**reference});save()
+    successful_query(result)
+    return value
+
+
+def observe_public_baseline(name):
+    before=report['targets'][name]['pre_bootstrap_public_baseline'];recipe=CATALOG['public']
+    need(type(before) is dict and set(before)=={'public_owner','public_acl','application_roles','event_triggers'},'PUBLIC_PREBOOTSTRAP_FIELDS')
+    exact({k:before[k] for k in ('public_owner','application_roles','event_triggers')},{'public_owner':recipe['owner'],'application_roles':0,'event_triggers':0},'PUBLIC_PREBOOTSTRAP_IDENTITY')
+    converted=[]
+    for row in before['public_acl']:
+        need(type(row) is dict and set(row)=={'role','grantor','privilege','grant_option'},'PUBLIC_PREBOOTSTRAP_ACL_FIELDS')
+        converted.append({'grantee':row['role'],'grantor':row['grantor'],'privilege':row['privilege'],'grant_option':row['grant_option']})
+    exact(sorted(converted,key=canonical),sorted(recipe['baseline_acl'],key=canonical),'PUBLIC_PREBOOTSTRAP_ACL_NOT_PREDECLARED')
+    report['public_baseline_verification']={'predeclared_owner_and_three_acl_rows_match':True,'learned_post_install_baseline':False};save()
+
+
+def oracle_records(stdout):
+    need(type(stdout) is str and len(stdout.encode('utf8'))<=16*1024*1024,'CATALOG_OUTPUT_LIMIT')
+    safe=[]
+    formats=('workinants.expression-oracle-preflight.v1','workinants.expression-oracle-results.v1','workinants.expression-oracle-closure.v1')
+    plan=CATALOG['plan'];expected=CATALOG['expected'];oracle=CATALOG['tools']['catalog_expression_oracle']
+    # Retain a valid preflight even when a later output line is malformed.
+    for index,line in enumerate(line for line in stdout.splitlines() if line.strip()):
+        need(index<3,'ORACLE_RECORD_COUNT')
+        try:value=unique_json(line)
+        except Stop:raise
+        except BaseException:raise Stop('CATALOG_JSON_OUTPUT_REJECTED') from None
+        need(type(value) is dict and value.get('format')==formats[index],'ORACLE_RECORD_ORDER')
+        if index==0:
+            need(set(value)=={'format','plan_sha256','outcomes'},'ORACLE_PREFLIGHT_FIELDS')
+            exact(value['plan_sha256'],plan['plan_sha256'],'ORACLE_PLAN_BINDING')
+            required=set(oracle._prerequisites(expected,DB,'postgres'))
+            need(type(value['outcomes']) is dict and set(value['outcomes'])==required and all(type(x) is bool for x in value['outcomes'].values()),'ORACLE_PREFLIGHT_OUTCOMES')
+        elif index==1:
+            need(set(value)=={'format','source_expected_sha256','source_inputs_aggregate_sha256','plan_sha256','server_version_num','expression_count','expressions'},'ORACLE_RESULT_FIELDS')
+            exact({k:value[k] for k in ('source_expected_sha256','source_inputs_aggregate_sha256','plan_sha256','server_version_num','expression_count')},{'source_expected_sha256':EXPECTED_SHA,'source_inputs_aggregate_sha256':expected['inputs_aggregate_sha256'],'plan_sha256':plan['plan_sha256'],'server_version_num':170011,'expression_count':416},'ORACLE_RESULT_BINDING')
+            wanted={(r['category'],r['subject'],r['field'],r['source_expression_sha256']) for r in plan['expressions']};seen=set()
+            need(type(value['expressions']) is list and len(value['expressions'])==416,'ORACLE_EXPRESSION_COUNT')
+            for row in value['expressions']:
+                need(type(row) is dict and set(row)=={'category','subject','field','source_expression_sha256','value_sha256'},'ORACLE_EXPRESSION_FIELDS')
+                identity=tuple(row[k] for k in ('category','subject','field','source_expression_sha256'))
+                need(identity in wanted and identity not in seen and type(row['value_sha256']) is str and re.fullmatch('[0-9a-f]{64}',row['value_sha256']),'ORACLE_EXPRESSION_IDENTITY')
+                seen.add(identity)
+            need(seen==wanted,'ORACLE_EXPRESSION_COVERAGE')
+        else:
+            need(set(value)=={'format','plan_sha256','all_oracle_tables_absent','all_oracle_functions_absent'},'ORACLE_CLOSURE_FIELDS')
+            exact(value,{'format':formats[index],'plan_sha256':plan['plan_sha256'],'all_oracle_tables_absent':True,'all_oracle_functions_absent':True},'ORACLE_TEMP_ABSENCE')
+        write_safe(('oracle-preflight.json','oracle-results.json','oracle-closure.json')[index],value)
+        report.setdefault('oracle_records',[]).append({'index':index,'status':'OBSERVED_NOT_QUALIFIED','sha256':digest(value)});save()
+        safe.append(value)
+    return safe
+
+
+def acl_compatibility_preflight(name):
+    text=read_pinned('scripts/sql-review/catalog-acl-preflight.sql').decode('utf8')
+    result=run_catalog_query(name,text,'CATALOG_ACL_COMPATIBILITY')
+    successful_query(result)
+    parsed=records(result.stdout)
+    expected={'format':'workinants.catalog-acl-preflight.v1','server_version_num':170011,'read_only':True,'collected_as':'postgres','collector_is_superuser':True,'old_zero_dimensional_acl_rejected_exactly':True,'null_acl_has_zero_rows':True,'empty_acl_guard_has_zero_rows':True,'sequence_default_has_exact_owner_privileges':True}
+    need(len(parsed)==1 and type(parsed[0]) is dict and set(parsed[0])==set(expected),'ACL_PREFLIGHT_FIELDS')
+    for key,value in expected.items():need(type(parsed[0][key]) is type(value) and parsed[0][key]==value,'ACL_PREFLIGHT_COMPARISON')
+    write_safe('acl-preflight.json',parsed[0])
+    report['acl_compatibility_preflight']=parsed[0]
+    report['steps']['CATALOG-ACL-COMPAT']='PASS_NEW_SOURCE_COMPATIBILITY_CONTROL';save()
+
+
+def text_compatibility_preflight(name):
+    text=read_pinned('scripts/sql-review/catalog-text-preflight.sql').decode('utf8')
+    result=run_catalog_query(name,text,'CATALOG_TEXT_COMPATIBILITY')
+    successful_query(result)
+    parsed=records(result.stdout)
+    expected={'format':'workinants.catalog-text-preflight.v1','server_version_num':170011,'read_only':True,'collected_as':'postgres','collector_is_superuser':True,'identifier_limit_is_63':True,'old_projection_type_is_name':True,'old_projection_truncates_long_value':True,'corrected_projection_type_is_text':True,'corrected_projection_preserves_long_value':True}
+    need(len(parsed)==1 and type(parsed[0]) is dict and set(parsed[0])==set(expected),'TEXT_PREFLIGHT_FIELDS')
+    for key,value in expected.items():need(type(parsed[0][key]) is type(value) and parsed[0][key]==value,'TEXT_PREFLIGHT_COMPARISON')
+    write_safe('text-preflight.json',parsed[0])
+    report['text_compatibility_preflight']=parsed[0]
+    report['steps']['CATALOG-TEXT-COMPAT']='PASS_NEW_SOURCE_COMPATIBILITY_CONTROL';save()
+
+
+def catalog_experiment():
+    target=TARGETS[0];name=target['name'];tools=CATALOG['tools'];manifest=CATALOG['expected'];recipe=CATALOG['public']
+    observe_public_baseline(name)
+    try:installed=migrate_success(target,'deploy','CATALOG_GENUINE_INITIAL_DEPLOY')
+    finally:finalize(name)
+    exact({k:installed[k] for k in ('schema','operation','run_id','container_id','source_sql_sha256')},{'schema':'workinants.local-f0-migrate-result.v2','operation':'deploy','run_id':RUN_ID,'container_id':created_containers[name],'source_sql_sha256':APPLICATION_SHA},'CATALOG_GENUINE_INSTALL_BINDING')
+    need(type(installed['attestation_sha256']) is str and re.fullmatch('[0-9a-f]{64}',installed['attestation_sha256']),'CATALOG_TARGET_ATTESTATION')
+    report['steps']['CATALOG-INSTALL']='PASS';save()
+    verify_tool_data()
+    registration=tools['prisma_ledger_proof'].build_registration(MANIFEST['catalog']['ledger_expectation'],run_id=RUN_ID,target_attestation_sha256=installed['attestation_sha256'],source_expected_sha256=EXPECTED_SHA,root=ROOT,database=DB)
+    write_safe('ledger-registration.json',registration);report['ledger_registration_sha256']=digest(registration);save()
+    provider_postinstall(name,installed)
+    acl_compatibility_preflight(name)
+    text_compatibility_preflight(name)
+    native=collect_native(name,'NATIVE_BEFORE_ORACLE','native-before.json')
+    report['steps']['CATALOG-NATIVE']='PASS_OBSERVED_NOT_QUALIFIED';save()
+    result=run_catalog_query(name,CATALOG['oracle_sql'],'EXPRESSION_ORACLE')
+    parts=oracle_records(result.stdout)
+    successful_query(result)
+    need(len(parts)==3 and all(x is True for x in parts[0]['outcomes'].values()),'ORACLE_ALL_THREE_RECORDS_REQUIRED')
+    second=collect_native(name,'NATIVE_AFTER_ORACLE','native-after-oracle.json')
+    exact(digest(second),digest(native),'ORACLE_CHANGED_NATIVE_CATALOG')
+    oracle_evidence={'format':'workinants.reviewed-expression-oracle-evidence.v1','database':DB,'oracle_sql_sha256':hashlib.sha256(CATALOG['oracle_sql'].encode()).hexdigest(),'preflight':parts[0],'results':parts[1],'closure':parts[2],'connection_closed_before_observation':True,'pre_oracle_catalog_sha256':digest(native),'post_rollback_catalog_sha256':digest(second)}
+    tools['catalog_expression_oracle'].validate_evidence(manifest,native,oracle_evidence,database=DB,grantor='postgres',root=ROOT)
+    write_safe('oracle-evidence.json',oracle_evidence);report['steps']['CATALOG-ORACLE']='PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE';save()
+    result=run_catalog_query(name,read_pinned('scripts/sql-review/collect_prisma_ledger.sql').decode(),'PRISMA_LEDGER_NATIVE')
+    parsed=records(result.stdout);value=parsed[0] if len(parsed)==1 else None
+    try:
+        need(type(value) is dict,'ONE_LEDGER_RECORD_REQUIRED')
+        need(set(value)==set(tools['prisma_ledger_proof'].schema_expectation())|{'format','server_version_num','database','read_only','isolation','collected_as','session_user','collector_is_superuser','history','history_ids_unique'},'LEDGER_TOP_LEVEL_FIELDS')
+        spec=tools['prisma_ledger_proof'].schema_expectation()
+        shapes={key:' '.join(rows[0]) for key,rows in spec.items() if type(rows) is list and rows}
+        shapes.update({'column_acl':'column '+ACL_FIELDS,'history':'name_sha256 checksum_sha256 checksum_format_valid id_is_uuid_v4 started finished rolled_back time_order_valid steps logs_state'})
+        row_shapes(value,shapes)
+        filter_metadata(value)
+    except BaseException:safe_rejection('PRISMA_LEDGER_NATIVE',value,hashlib.sha256(result.stdout.encode()).hexdigest());raise
+    write_safe('ledger-observation.json',value);report['ledger_observation_sha256']=digest(value);save()
+    successful_query(result)
+    third=collect_native(name,'NATIVE_AFTER_LEDGER','native-after-ledger.json')
+    exact(digest(third),digest(native),'LEDGER_COLLECTION_CHANGED_NATIVE_CATALOG')
+    ledger_evidence={'format':'workinants.prisma-ledger-evidence.v1','registration_sha256':digest(registration),'collector_sql_sha256':MANIFEST['packet_files_sha256']['scripts/sql-review/collect_prisma_ledger.sql'],'run_id':RUN_ID,'target_attestation_sha256':installed['attestation_sha256'],'native_catalog_before_sha256':digest(second),'native_catalog_after_sha256':digest(third),'observation':value}
+    write_safe('ledger-evidence.json',ledger_evidence)
+    ledger_result=tools['prisma_ledger_proof'].compare_proof(registration,ledger_evidence,native,bootstrap_grantor='postgres',source_expected_sha256=EXPECTED_SHA,root=ROOT)
+    report['ledger_comparison']=ledger_result;save()
+    need(ledger_result['status']=='PASS','NATIVE_LEDGER_COMPARISON_NOT_PASS')
+    report['steps']['CATALOG-LEDGER']='PASS_SOURCE_BOUND_NATIVE_SUBSET';save()
+    comparison=tools['compare_native_catalog'].compare_manifest(manifest,native,bootstrap_grantor='postgres',bootstrap_superuser=True,public_schema_owner='pg_database_owner',public_acl_registration=recipe['full_acl'],ledger_registration=registration,ledger_evidence=ledger_evidence,expression_oracle_evidence=oracle_evidence,oracle_database=DB,root=ROOT)
+    write_safe('catalog-comparison.json',comparison);report['catalog_comparison']=comparison;save()
+    need(comparison['status']=='PASS','NATIVE_CATALOG_COMPARISON_NOT_PASS')
+    report['qualified_native_snapshot_sha256']=digest(native)
+    report['steps']['CATALOG-COMPARE']='PASS_SOURCE_BOUND_NATIVE_CATALOG_ONLY';event('NATIVE_CATALOG_REHEARSAL','PASS_SUBSET_ONLY')
+
+
+# NEW local-only native access pipeline. No existing coordinator/packet is edited.
+import os
+import secrets
+NATIVE_COORDINATOR='scripts/sql-review/run-native-table-denials.py'
+NATIVE_COORDINATOR_SHA='334c1b7622b53c1a7cf6fbf2e9f41f7d924f5b42208eab713a04ccf91d42b03c'
+NATIVE_PACKET='review-output/native-table-denials/packet.json'
+NATIVE_PACKET_SHA='bf542f88525e96d7d1c93ef06425278a82e1328043d60879ac34191f1bee3000'
+NATIVE_DOC='scripts/sql-review/native-table-denials-coordinator.md'
+NATIVE_DOC_SHA='92e8f10fc42339555f8c1b578fe81a0a2ba30e623de184e07bb69fbc8e2413b6'
+PROVIDER_ROLES=('anon','authenticated','service_role')
+NATIVE_MODULES=(NATIVE_COORDINATOR,'scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/run-local-f0-migrate.py','scripts/sql-review/collect_native_catalog.sql','scripts/sql-review/rehearsal-diagnostics.py','scripts/prepare-local-f0-history.py','review-output/first-rehearsal/diagnostic-identifiers.json')
+NATIVE_ACCESS={}
+SAFE_FILES.update(('provider-preinstall-proof.json','native-deny-run-plan.json','native-access-attestation.json'))
+
+
+def verify_packet():
+    verify_catalog_packet()
+    cfg=MANIFEST['native_access']
+    need(type(cfg) is dict and set(cfg)=={'coordinator','coordinator_sha256','packet','packet_sha256','document','document_sha256'},'NATIVE_ACCESS_CONFIGURATION_FIELDS')
+    exact(cfg,{'coordinator':NATIVE_COORDINATOR,'coordinator_sha256':NATIVE_COORDINATOR_SHA,'packet':NATIVE_PACKET,'packet_sha256':NATIVE_PACKET_SHA,'document':NATIVE_DOC,'document_sha256':NATIVE_DOC_SHA},'NATIVE_ACCESS_CONFIGURATION_IDENTITY')
+    raw=read_pinned(NATIVE_COORDINATOR);need(hashlib.sha256(raw).hexdigest()==NATIVE_COORDINATOR_SHA,'NATIVE_COORDINATOR_NOT_REVIEWED')
+    need(hashlib.sha256(read_pinned(NATIVE_DOC)).hexdigest()==NATIVE_DOC_SHA,'NATIVE_DOCUMENT_NOT_REVIEWED')
+    packet_raw=read_pinned(NATIVE_PACKET);need(hashlib.sha256(packet_raw).hexdigest()==NATIVE_PACKET_SHA,'NATIVE_PACKET_NOT_REVIEWED')
+    packet=unique_json(packet_raw)
+    need(packet['schema']=='workinants.native-table-denials.v1' and packet['selected_count']==40 and len(packet['cases'])==40 and len(packet['files_sha256'])==83 and len(packet['preparation_blocks'])==4,'NATIVE_PACKET_FINITE_SCOPE')
+    for path,value in packet['source_inputs_sha256'].items():need(hashlib.sha256(read_pinned(path)).hexdigest()==value,'NATIVE_PACKET_SOURCE_INPUT')
+    blobs={}
+    for name,value in packet['files_sha256'].items():
+        need(type(name) is str and Path(name).name==name and name.endswith('.sql'),'NATIVE_PACKET_SQL_NAME')
+        blob=read_pinned('review-output/native-table-denials/'+name);need(hashlib.sha256(blob).hexdigest()==value,'NATIVE_PACKET_SQL_SOURCE')
+        blobs[name]=blob
+    for path in NATIVE_MODULES:read_pinned(path)
+    namespace={'__name__':'_reviewed_native_access_coordinator','__file__':str(ROOT/NATIVE_COORDINATOR)}
+    output=io.StringIO()
+    with contextlib.redirect_stdout(output),contextlib.redirect_stderr(output):exec(compile(raw,str(ROOT/NATIVE_COORDINATOR),'exec'),namespace)
+    need(not output.getvalue(),'NATIVE_COORDINATOR_IMPORT_OUTPUT')
+    need(namespace['MODULES']==NATIVE_MODULES,'NATIVE_MODULE_CLOSURE')
+    NATIVE_ACCESS.update(module=namespace,packet=packet,blobs=blobs,preinstall_observed=False,postinstall_observed=False)
+    report['native_access_preparation']={'status':'SOURCE_REPRODUCED_NOT_RUN','coordinator_sha256':NATIVE_COORDINATOR_SHA,'packet_sha256':NATIVE_PACKET_SHA,'cases':40,'sql_files':83,'facets':960,'blocked_facets':4,'whole_cases_promoted':False};save()
+
+
+def provider_observation(name,stage):
+    roles="'anon','authenticated','service_role'"
+    query="SELECT jsonb_build_object('roles',(SELECT jsonb_agg(jsonb_build_object('name',rolname,'login',rolcanlogin,'inherit',rolinherit,'superuser',rolsuper,'createdb',rolcreatedb,'createrole',rolcreaterole,'replication',rolreplication,'bypassrls',rolbypassrls,'memberships',(SELECT count(*) FROM pg_auth_members m WHERE m.member=r.oid OR m.roleid=r.oid),'connect',has_database_privilege(rolname,current_database(),'CONNECT'),'create',has_database_privilege(rolname,current_database(),'CREATE'),'temp',has_database_privilege(rolname,current_database(),'TEMP')) ORDER BY rolname) FROM pg_roles r WHERE rolname IN ("+roles+")),'explicit_usage',(SELECT count(*) FROM pg_namespace n CROSS JOIN LATERAL aclexplode(n.nspacl) a WHERE n.nspname IN ('app','platform','platform_private') AND a.grantee IN (SELECT oid FROM pg_roles WHERE rolname IN ("+roles+")) AND a.privilege_type='USAGE'),'effective_usage',(SELECT count(*) FROM (VALUES('anon'),('authenticated'),('service_role')) r(role) CROSS JOIN (VALUES('app'),('platform'),('platform_private')) n(schema) WHERE has_schema_privilege(r.role,n.schema,'USAGE')));"
+    result=run_catalog_query(name,query,stage);successful_query(result);rows=records(result.stdout)
+    need(len(rows)==1 and type(rows[0]) is dict and set(rows[0])=={'roles','explicit_usage','effective_usage'},'PROVIDER_OBSERVATION_FIELDS')
+    value=rows[0];flags=sorted(NATIVE_ACCESS['module']['provider_flags'](),key=lambda row:row['name'])
+    exact(value['roles'],flags,'PROVIDER_FLAGS_DIFFERENT')
+    for key in ('explicit_usage','effective_usage'):need(type(value[key]) is int and 0<=value[key]<=9,'PROVIDER_USAGE_COUNT')
+    safe={'stage':stage,'roles':flags,'explicit_usage':value['explicit_usage'],'effective_usage':value['effective_usage']}
+    report.setdefault('provider_observations',[]).append(safe);save();return value
+
+
+def provider_authentication(name):
+    for role in PROVIDER_ROLES:
+        result=command(psql_args(name,role),"SELECT jsonb_build_object('login',session_user,'auth',system_user,'database',current_database(),'client',host(inet_client_addr()),'server',host(inet_server_addr()));")
+        need(type(result.returncode) is int and result.returncode==0 and not result.stderr.strip(),'PROVIDER_CORRECT_PASSWORD_REQUIRED')
+        rows=records(result.stdout)
+        expected={'login':role,'auth':'scram-sha-256:'+role,'database':DB,'client':'127.0.0.1','server':'127.0.0.1'}
+        need(len(rows)==1 and canonical(rows[0])==canonical(expected),'PROVIDER_AUTH_IDENTITY')
+        # This random wrong-password control is not an actual credential.
+        environment=os.environ.copy();environment['PGPASSWORD']=secrets.token_hex(32)
+        args=psql_args(name,role);slot=args.index('PGPASSFILE=/run/wa-secrets/pgpass');args[slot]='PGPASSFILE=/dev/null';args[slot+1:slot+1]=['-e','PGPASSWORD']
+        wrong=subprocess.run(args,input='SELECT 1;\n',capture_output=True,text=True,encoding='utf8',errors='strict',env=environment,timeout=30,cwd=ROOT)
+        text=wrong.stderr.replace('\r\n','\n')
+        pattern=r'(?:psql: error: connection to server at "127\.0\.0\.1", port 5432 failed: )?FATAL:\s+password authentication failed for user "'+role+r'"\n?'
+        good=type(wrong.returncode) is int and wrong.returncode==2 and wrong.stdout=='' and re.fullmatch(pattern,text) is not None
+        report.setdefault('provider_authentication',[]).append({'role':role,'correct_password':'PASS_SCRAM','wrong_password_rejected':good,'wrong_password_exit_code':wrong.returncode});save()
+        need(good,'PROVIDER_WRONG_PASSWORD_CONTROL_REQUIRED')
+    closed_backends(name,'PROVIDER_AUTHENTICATION')
+
+
+def provider_preinstall():
+    name=TARGETS[0]['name'];report['stage']='NATIVE_PROVIDER_PREINSTALL';save()
+    roles="'anon','authenticated','service_role'"
+    absent=observe(name,'SELECT jsonb_build_object(\'roles\',(SELECT count(*) FROM pg_roles WHERE rolname IN ('+roles+')));','PROVIDER_ROLE_ABSENCE')
+    exact(absent,{'roles':0},'FRESH_PROVIDER_ROLES_REQUIRED')
+    text=NATIVE_ACCESS['blobs']['provider-role-simulation-before-migrate.sql'].decode('utf8')
+    result=run_catalog_query(name,text,'PROVIDER_ROLE_SIMULATION');successful_query(result);need(not result.stdout.strip(),'PROVIDER_SETUP_UNEXPECTED_OUTPUT')
+    for role in PROVIDER_ROLES:
+        password=secrets.token_hex(32);passwords[name][role]=password;all_secrets.append(password)
+    statement='REVOKE CONNECT,CREATE,TEMP ON DATABASE '+DB+' FROM '+','.join(PROVIDER_ROLES)+';\nGRANT CONNECT ON DATABASE '+DB+' TO '+','.join(PROVIDER_ROLES)+';\n'
+    statement+='\n'.join('ALTER ROLE '+role+" PASSWORD '"+passwords[name][role]+"';" for role in PROVIDER_ROLES)
+    result=run_catalog_query(name,statement,'PROVIDER_PRIVATE_SCRAM_PROVISION');successful_query(result);need(not result.stdout.strip(),'PROVIDER_CREDENTIAL_OUTPUT')
+    need(len(set(passwords[name].values()))==9,'NINE_INDEPENDENT_CREDENTIALS_REQUIRED')
+    pgpass=''.join('127.0.0.1:5432:'+DB+':'+role+':'+passwords[name][role]+'\n' for role in (*ROLES,*PROVIDER_ROLES))
+    result=docker(['exec','-i',created_containers[name],'sh','-ceu','umask 077; cat > /run/wa-secrets/pgpass; chmod 600 /run/wa-secrets/pgpass; stat -c "%a:%u:%g" /run/wa-secrets/pgpass'],input=pgpass)
+    need(result.returncode==0 and result.stdout.strip()=='600:0:0','PROVIDER_PGPASS_OWNER_MODE')
+    value=provider_observation(name,'PROVIDER_BEFORE_CANONICAL_INSTALL');exact({k:value[k] for k in ('explicit_usage','effective_usage')},{'explicit_usage':9,'effective_usage':9},'ALL_NINE_PREINSTALL_SENTINELS_REQUIRED')
+    provider_authentication(name);NATIVE_ACCESS['preinstall_observed']=True
+    report['steps']['NATIVE-PROVIDER-PREINSTALL']='PASS_LOCAL_SIMULATION_ONLY';save()
+
+
+def provider_postinstall(name,installed):
+    need(NATIVE_ACCESS.get('preinstall_observed') is True,'PROVIDER_PREINSTALL_NOT_OBSERVED')
+    need(name in finalized and report['targets'][name].get('finalization')=='PASS','PROVIDER_ORIGINAL_GRANTOR_NOT_FINALIZED')
+    value=provider_observation(name,'PROVIDER_AFTER_CANONICAL_INSTALL');exact({k:value[k] for k in ('explicit_usage','effective_usage')},{'explicit_usage':0,'effective_usage':0},'CANONICAL_PROVIDER_REVOKES_REQUIRED')
+    need(installed['status']=='CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS' and type(installed['exit_code']) is int and installed['exit_code']==0,'PROVIDER_GENUINE_INSTALL_REQUIRED')
+    NATIVE_ACCESS['postinstall_observed']=True
+    report['steps']['NATIVE-PROVIDER-POSTINSTALL']='PASS_NINE_SOURCE_REVOKES_OBSERVED';save()
+
+
+def verify_native_result(result,packet):
+    need(type(result) is dict and result.get('schema')=='workinants.native-denial-evidence.v1' and result.get('status')=='COMPLETED_PREPARED_FACETS_ONLY_CASES_STILL_NOT_RUN' and result.get('run_id')==RUN_ID and result.get('source_commit')==COMMIT and result.get('source_tree')==TREE and result.get('source_packet_sha256')==NATIVE_PACKET_SHA,'NATIVE_COORDINATOR_EVIDENCE_REQUIRED')
+    selected=[{'id':case['id'],'status':'NOT_RUN','source_vectors_status':'NOT_RUN','allow_case_status':'NOT_RUN'} for case in packet['cases']]
+    exact(result.get('selected_cases'),selected,'NATIVE_CASE_PROMOTION_FORBIDDEN')
+    controls=[{'case_id':case['id'],'status':'NATIVE_CONSTRAINT_FIXTURE_VALIDITY_ONLY','insert_one':True,'update_controls_one':len(case['native_update_control_columns']),'delete_one':True,'rollback_and_restoration_proven':True} for case in packet['cases']]
+    exact(result.get('native_controls'),controls,'NATIVE_VALIDITY_RESTORATION_EVIDENCE')
+    probes=[(case,probe) for case in packet['cases'] for probe in case['probes']]
+    facets=result.get('facets');need(type(facets) is list and len(facets)==len(probes)==960,'NATIVE_FACET_COUNT')
+    for row,(case,probe) in zip(facets,probes):
+        need(type(row) is dict and all(row.get(key)==wanted for key,wanted in {'case_id':case['id'],'role':probe['role'],'verb':probe['verb']}.items()),'NATIVE_FACET_SOURCE_IDENTITY')
+        if probe['preparation']=='BLOCKED':
+            exact(row,{'case_id':case['id'],'role':probe['role'],'verb':probe['verb'],'status':'NOT_RUN','blocker':probe['preparation_blocker']},'BLOCKED_NATIVE_FACET_MUST_STAY_NOT_RUN')
+            continue
+        status='PASS_EXISTING_ROW_EMPTY_ONLY' if probe['facet'].startswith('RLS_') else 'PASS_OBSERVED_NATIVE_GATE_ONLY'
+        need(row.get('status')==status and row.get('facet')==probe['facet'] and row.get('whole_case_promoted') is False,'NATIVE_FACET_SCOPE')
+        exact(row.get('post_probe_observers'),{'operation_backend_absent':True,'all_100_trigger_functions_restored':True,'all_205_native_facts_unchanged':True},'NATIVE_FACET_RESTORATION_CLOSURE')
+        if status=='PASS_EXISTING_ROW_EMPTY_ONLY':
+            need(type(row.get('existing_row_count')) is int and row['existing_row_count']==1 and type(row.get('restricted_count')) is int and row['restricted_count']==0,'NATIVE_EXISTING_ROW_EMPTY_PROOF')
+        else:
+            diag=row.get('diagnostic');need(type(diag) is dict and diag.get('matched') is True and diag.get('sqlstate')=='42501' and diag.get('observed_gate') in ('SCHEMA','TABLE','COLUMN') and diag.get('native_location') in ('aclcheck_error@aclchk.c','aclcheck_error_col@aclchk.c') and diag.get('selected_column_isolation_claimed') is False,'NATIVE_EXACT_ACL_DIAGNOSTIC_REQUIRED')
+    operations=result.get('operations');expected_operations=1+len(packet['cases'])+sum(case['issuer_ownership_controls'] is not None for case in packet['cases'])+956
+    need(type(operations) is list and len(operations)==expected_operations and all(type(row) is dict and row.get('closed_before_observers') is True and row.get('actual_login_context_absent') is True for row in operations),'NATIVE_ALL_OPERATION_CLOSURES_REQUIRED')
+    counts={status:sum(row['status']==status for row in facets) for status in ('PASS_OBSERVED_NATIVE_GATE_ONLY','PASS_EXISTING_ROW_EMPTY_ONLY','NOT_RUN')}
+    exact(counts,{'PASS_OBSERVED_NATIVE_GATE_ONLY':908,'PASS_EXISTING_ROW_EMPTY_ONLY':48,'NOT_RUN':4},'NATIVE_FACET_SCOPE_COUNTS');return counts
+
+
+def native_access_experiment():
+    name=TARGETS[0]['name'];module=NATIVE_ACCESS['module'];packet=NATIVE_ACCESS['packet']
+    catalog_experiment()
+    need(report.get('qualified_native_snapshot_sha256') is not None and report['catalog_comparison']['status']=='PASS','FULL_NATIVE_BEFORE_ACCESS_REQUIRED')
+    need(NATIVE_ACCESS.get('preinstall_observed') is True and NATIVE_ACCESS.get('postinstall_observed') is True,'PROVIDER_SEQUENCE_PROOF_REQUIRED')
+    closed_backends(name,'BEFORE_NATIVE_DENIAL_COORDINATOR')
+    provider={'schema':'workinants.native-deny-provider-preinstall.v1','run_id':RUN_ID,'container_id':created_containers[name],'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':NATIVE_PACKET_SHA,'application_sql_sha256':APPLICATION_SHA,'roles':module['provider_flags'](),'all_nine_schema_usage_sentinels_before_install':True,'canonical_install_removed_all_nine':True,'genuine_prisma_one_applied_migration':True,'original_grantor_finalized':True,'local_simulation_only':True,'hosted_parity_claimed':False}
+    provider_ref=write_safe('provider-preinstall-proof.json',provider)
+    target_plan=MANIFEST['migration_targets']['ok'];raw=Path(target_plan['manifest_path']).read_bytes();need(hashlib.sha256(raw).hexdigest()==target_plan['manifest_sha256'],'TARGET_PLAN_DRIFT')
+    plan={'schema':'workinants.native-deny-run.v1','scope':'FINITE_NATIVE_DENIAL_FACETS_ONLY','run_id':RUN_ID,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':NATIVE_PACKET_SHA,'source_modules_sha256':{path:MANIFEST['packet_files_sha256'][path] for path in module['MODULES']},'target_manifest':unique_json(raw),'immutable_container_id':created_containers[name],'native_snapshot':{'path':str(OUT/'native-before.json'),'sha256':hashlib.sha256((OUT/'native-before.json').read_bytes()).hexdigest()},'native_comparison':{'path':str(OUT/'catalog-comparison.json'),'sha256':hashlib.sha256((OUT/'catalog-comparison.json').read_bytes()).hexdigest()},'provider_preinstall_proof':{'path':str(OUT/'provider-preinstall-proof.json'),'sha256':provider_ref['artifact_sha256']},'selected_case_ids':packet['selected_case_ids']}
+    plan_ref=write_safe('native-deny-run-plan.json',plan)
+    attestation={'schema':'workinants.native-access-operator-attestation.v1','run_id':RUN_ID,'container_id':created_containers[name],'source_commit':COMMIT,'source_tree':TREE,'operation_packet_sha256':PACKET,'deny_packet_sha256':NATIVE_PACKET_SHA,'coordinator_sha256':NATIVE_COORDINATOR_SHA,'provider_proof_sha256':provider_ref['artifact_sha256'],'coordinator_plan_sha256':plan_ref['artifact_sha256'],'source_expected_sha256':EXPECTED_SHA,'native_snapshot_sha256':report['qualified_native_snapshot_sha256'],'native_snapshot_file_sha256':plan['native_snapshot']['sha256'],'comparison_file_sha256':plan['native_comparison']['sha256'],'original_grantor_finalized':True,'all_other_client_backends_absent':True,'native_comparison_status':'PASS','whole_case_promotion':False}
+    reference=write_safe('native-access-attestation.json',attestation);report['native_access_attestation']={**reference,**attestation};report['steps']['NATIVE-ACCESS-ATTESTATION']='PASS_SOURCE_BOUND_PREREQUISITES_ONLY';save()
+    report['stage']='NATIVE_DENIAL_COORDINATOR';save();code=None
+    try:
+        output=io.StringIO()
+        with contextlib.redirect_stdout(output),contextlib.redirect_stderr(output):code=module['main'](['--execute-reviewed-native-denials','--run-plan',str(OUT/'native-deny-run-plan.json'),'--evidence-directory',str(OUT/'native-denials')])
+        need(not output.getvalue(),'NATIVE_COORDINATOR_UNEXPECTED_OUTPUT')
+    finally:closed_backends(name,'AFTER_NATIVE_DENIAL_COORDINATOR')
+    need(type(code) is int and code==0,'NATIVE_DENIAL_COORDINATOR_STOPPED')
+    raw=(OUT/'native-denials/native-denial-results.json').read_bytes();result=unique_json(raw)
+    counts=verify_native_result(result,packet)
+    report['native_denial_results']={'artifact':'native-denials/native-denial-results.json','artifact_sha256':hashlib.sha256(raw).hexdigest(),'status':result['status'],'facets_by_status':counts,'whole_cases_promoted':False}
+    report['steps']['NATIVE-ACCESS-FACETS']='PASS_PREPARED_NATIVE_FACETS_ONLY_CASES_STILL_NOT_RUN';save()
+
+
+def main():
+    OUT.mkdir(exist_ok=False);save()
+    try:
+        verify_packet();preflight();ensure_image();create_resources();bootstrap_all();provision_migration_tools();provider_preinstall();native_access_experiment()
+        report['status']='PASS_LOCAL_NATIVE_ACCESS_SUBSET_ONLY'
+    except BaseException as error:
+        safe={'stage':error.stage if isinstance(error,Stop) else report['stage'],'code':error.code if isinstance(error,Stop) else 'TIMEOUT_CLOSURE_UNCONFIRMED' if isinstance(error,subprocess.TimeoutExpired) else 'INTERRUPTED' if isinstance(error,KeyboardInterrupt) else 'UNEXPECTED_NATIVE_ACCESS_WRAPPER_FAILURE'}
+        report['unexpected'].append(safe);report['status']='STOPPED_ATTEMPT_PRESERVED';event('STOP','NO_LATER_STEPS',failure=safe)
+    finally:
+        for name in sorted(bootstrap_attempted-finalization_attempted):
+            try:finalize(name)
+            except BaseException:report['unexpected'].append({'stage':'FINALLY_FINALIZATION','target':name,'code':'FINALIZATION_UNCONFIRMED'});save()
+        try:secret_scan();report['steps']['CATALOG-SANITIZED_EXPORT']='PASS';save()
+        except BaseException:report['unexpected'].append({'stage':'SANITIZATION','code':'SECRET_SCAN_UNCONFIRMED'});save()
+        try:cleanup()
+        except BaseException:report['unexpected'].append({'stage':'CLEANUP','code':'CLEANUP_UNCONFIRMED'});save()
+        report['finished_at']=datetime.datetime.now(datetime.timezone.utc).isoformat()
+        try:
+            files=report.get('source_verification',{}).get('files_sha256',{})
+            report['packet_unchanged_after_run']=bool(files) and all(hashlib.sha256((ROOT/p).read_bytes()).hexdigest()==h for p,h in files.items())
+            verify_tool_data();report['tool_source_data_unchanged_after_run']=True
+        except BaseException:report['packet_unchanged_after_run']=False;report['tool_source_data_unchanged_after_run']=False
+        if not report['packet_unchanged_after_run']:report['unexpected'].append({'stage':'POST_RUN_PACKET_VERIFICATION','code':'SOURCE_DRIFT_OR_UNVERIFIED_PACKET'})
+        if report['unexpected']:
+            report['status']='STOPPED_ATTEMPT_PRESERVED';report.pop('qualified_native_snapshot_sha256',None)
+        save();print(json.dumps({'status':report['status'],'evidence':str(OUT/'run-evidence.json'),'steps':report['steps'],'unexpected':report['unexpected'],'cleanup':report.get('cleanup_summary')}),flush=True)
+    return 0 if not report['unexpected'] else 1
