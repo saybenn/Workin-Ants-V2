@@ -1,3 +1,7 @@
+## Current local F0 action — genuine migration execution, 17 November2026
+
+Fresh48ecadc/run0c223ddc stopped; preserve exact partial outcomes and actual failure rather than promoting subsequent steps. See retained evidence and the numbered board for diagnosis and next action. [Actual safe evidence](reconciliation/local-f0-migration-48ecadc-execution.json). No hosted contact/adoption, worker permission expansion, P0-D or whole94/451 promotion; Posture D remains.
+
 ## Current local F0 action — bounded Prisma diagnostics correction, 17 November2026
 
 The first/no-op migration passes and unknown failure cause remain [version7406805 historical evidence](reconciliation/local-f0-migration-7406805-partial-execution.json). [Replacement diagnostic validation](reconciliation/local-f0-cli-diagnostics-validation.json) records exact focused checks and independent source review: internal protocolv2 retains seven fixedBoolean flags and unique allowlisted headers after complete-SGR-only decoding; color-disabling child environment is rebuilt, other controls/ambiguous headers stop. External operator now saves bounded catalog/ledger clues after confirmed CLI closure and finalization before checking expected failure codes. Absent/odd ledger is explicit, never fabricated rollback proof.
