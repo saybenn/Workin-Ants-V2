@@ -1,0 +1,152 @@
+"""Prepare a HELD source-only restricted-controls plan. Never execute a tool.
+
+The integration owner must first preserve these sources in the declared Git
+snapshot directory. Root then pins commit/tree and obtains a separate literal
+operation review. Source preparation supplies no runtime permission or evidence.
+"""
+import argparse
+import ast
+from copy import deepcopy
+import gzip
+import hashlib
+import io
+import json
+from pathlib import Path
+import tarfile
+from types import ModuleType
+import uuid
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+SOURCE_ROOT='context/reconciliation/local-f0-operation-sources/restricted-controls-v2'
+SOURCE_FILES={
+ 'restricted_controls_operator_20261118.py':'operator-snapshot.py.txt',
+ 'restricted_controls_operation_steps.py':'operation-steps.py.txt',
+ 'restricted_controls_additions.py.txt':'orchestration-source.py.txt',
+ 'restricted_controls_build_sources.py':'build-sources.py.txt',
+ 'restricted_controls_prepare_plan.py':'prepare-plan.py.txt',
+ 'restricted_controls_check_operation.py':'check-operation.py.txt',
+ 'restricted_controls_pin_plan.py':'pin-plan.py.txt'}
+ORDER=('customer','worker','context','unique')
+APPLICATION_SHA='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+EXPECTED_SHA='3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433'
+HISTORY_HELPER='scripts/prepare-local-f0-history.py'
+UNIQUE_REVIEW={'path':'context/reconciliation/local-f0-operation-sources/restricted-controls-v1/unique-source-review.json','sha256':'85782ddbf981dac2f64c35b89ed3d18fc495ad8d03fd471a47df84752b61ab12'}
+
+class PreparationHeld(Exception):
+    def __init__(self,code):self.code=code;super().__init__(code)
+def need(value,code):
+    if not value:raise PreparationHeld(code)
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def encoded(value):return (json.dumps(value,indent=2)+'\n').encode()
+def canonical(value):return json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)
+def unique_json(raw):
+    def pairs(values):
+        result={}
+        for key,value in values:need(key not in result,'DUPLICATE_JSON_FIELD');result[key]=value
+        return result
+    return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in ()).throw(PreparationHeld('NONFINITE_JSON')))
+def source_path(root,relative):
+    need(type(relative) is str and '\\' not in relative and not Path(relative).is_absolute() and all(p not in ('','.','..') for p in relative.split('/')),'SOURCE_PATH')
+    path=(root/relative).resolve();need(path.is_relative_to(root.resolve()),'SOURCE_PATH');return path
+def same_source(root,files,path,expected):
+    raw=source_path(root,path).read_bytes();need(sha(raw)==expected,'SOURCE_ADMISSION_DRIFT')
+    need(path not in files or files[path]==expected,'SOURCE_MAP_CONFLICT');files[path]=expected;return raw
+
+def literal_specs(raw):
+    tree=ast.parse(raw)
+    values=[n.value for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='CONTROL_SPECS' for t in n.targets)]
+    need(len(values)==1,'SPEC_DECLARATION');specs=ast.literal_eval(values[0]);need(type(specs) is dict and tuple(specs)==ORDER,'SPEC_CONTROL_ORDER');return specs
+
+def load_base(root,path):
+    raw=Path(path).read_bytes();base=unique_json(raw)
+    need(base.get('purpose')=='LOCAL_F0_NATIVE_CATALOG_REHEARSAL' and base.get('review_status')=='APPROVED_LOCAL_F0_NATIVE_CATALOG_ATTEMPT','APPROVED_CATALOG_MANIFEST_REQUIRED')
+    need(base.get('catalog',{}).get('source_expected_sha256')==EXPECTED_SHA,'EXPECTED_CATALOG_REQUIRED')
+    files=base.get('packet_files_sha256');need(type(files) is dict and files,'FULL_CATALOG_PACKET_REQUIRED')
+    need(sha(''.join(p+'\0'+files[p]+'\n' for p in sorted(files)).encode())==base.get('packet_sha256'),'BASE_PACKET_AGGREGATE')
+    current={}
+    for relative,value in files.items():same_source(root,current,relative,value)
+    need(current.get('review-output/foundation-application.review.sql')==APPLICATION_SHA,'CANONICAL_APPLICATION_REQUIRED')
+    need('scripts/sql-review/catalog-text-preflight.sql' in current,'TEXT_CORRECTION_PACKET_REQUIRED')
+    return base,current,sha(raw)
+
+def prepare(root,task,base_path,selected,run_id=None):
+    root=Path(root).resolve();task=Path(task).resolve()
+    need(root.parent==task and root.name=='workinants-correction-pass','ISOLATED_TASK_ROOT_REQUIRED')
+    need(type(selected) is list and selected and len(selected)==len(set(selected)) and [n for n in ORDER if n in selected]==selected,'SELECTED_FIXED_ORDER')
+    base,files,base_sha=load_base(root,base_path)
+    for filename,snapshot in SOURCE_FILES.items():
+        raw=(task/filename).read_bytes();relative=SOURCE_ROOT+'/'+snapshot
+        same_source(root,files,relative,sha(raw))
+    specs=literal_specs((task/'restricted_controls_operation_steps.py').read_bytes())
+    descriptors={}
+    for name in ORDER:
+        spec=specs[name]
+        review={'decision':'APPROVED_SOURCE','reviewer':'Root_independent_unique_transport_review_20261118','evidence':dict(UNIQUE_REVIEW)} if name=='unique' else {'decision':'APPROVED_SOURCE','reviewer':'parent_recorded_independent_review','evidence':None}
+        descriptor={k:spec[k] for k in ('coordinator','coordinator_sha256','manifest','manifest_sha256','content_sha256')}
+        descriptor.update(scenario_names=[],source_review=review);descriptors[name]=descriptor
+        if name not in selected:continue
+        if name=='unique':same_source(root,files,UNIQUE_REVIEW['path'],UNIQUE_REVIEW['sha256'])
+        packet=unique_json(same_source(root,files,spec['manifest'],spec['manifest_sha256']))
+        need(packet.get('status')=='NOT_RUN' and packet.get('database_contacted') is False and packet.get('sql_executed') is False,'SOURCE_ONLY_PACKET_REQUIRED')
+        source=packet[spec['source_group']];prepared=packet[spec['prepared_group']]
+        for path,value in source.items():same_source(root,files,path,value)
+        if name=='customer':
+            same_source(root,files,'scripts/prepare-customer-control-rehearsal.py',packet['generator_source_sha256'])
+            same_source(root,files,'scripts/check-customer-control-rehearsal.py',packet['focused_check_source_sha256'])
+        prefix=spec['manifest'].rsplit('/',1)[0]
+        for path,value in prepared.items():
+            need(type(path) is str and Path(path).name==path and path not in ('','.','..'),'PREPARED_FILE_NAME')
+            same_source(root,files,prefix+'/'+path,value)
+        for path in spec['modules']:
+            current=source_path(root,path).read_bytes();same_source(root,files,path,sha(current))
+        same_source(root,files,spec['coordinator'],spec['coordinator_sha256'])
+        if spec['content_sha256'] is not None:need(sha(canonical({spec['source_group']:source,spec['prepared_group']:prepared}).encode())==spec['content_sha256'],'PACKET_CONTENT')
+        cases=packet[spec['case_group']];need(len(cases)==spec['case_count'],'FINITE_CASE_COUNT')
+        descriptor['scenario_names']=[case['name'] for case in cases]
+    helper_raw=same_source(root,files,HISTORY_HELPER,files[HISTORY_HELPER]);helper=ModuleType('_reviewed_history_preparation');helper.__file__=str(root/HISTORY_HELPER)
+    exec(compile(helper_raw,helper.__file__,'exec'),helper.__dict__)
+    run_id=str(uuid.uuid4()) if run_id is None else run_id
+    need(str(uuid.UUID(run_id))==run_id and uuid.UUID(run_id).version==4,'FRESH_RUN_ID')
+    short=run_id[:8];plan_directory=task/('local-f0-restricted-controls-plan-'+short);out=task/('local-f0-restricted-controls-20261118-'+short)
+    need(not plan_directory.exists() and not out.exists(),'FRESH_PLAN_AND_EVIDENCE_REQUIRED')
+    closure_path='context/reconciliation/local-f0-tooling/prisma-tools-closure.json';closure=unique_json(same_source(root,files,closure_path,files[closure_path]))
+    runtime={p:sha(source_path(root,p).read_bytes()) for p in helper.RUNTIME_FILES}
+    name='wa-p0c-'+short+'-controls';target={'name':name,'volume':name+'-data','kind':'ok'}
+    target_manifest={'schema':'workinants.local-f0-run.v1','run_id':run_id,'purpose':'LOCAL_F0_MIGRATION_REHEARSAL','target':{'container_name':name,'volume_name':target['volume'],'database':'wa_p0c_rehearsal','image':helper.IMAGE,'network':'none','labels':{'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':run_id},'bootstrap_secret_host_path':str(out/'private/ok-bootstrap-password')},'source':{'integrated_sql_sha256':APPLICATION_SHA,'foundation_schema_sha256':sha(source_path(root,helper.SCHEMA).read_bytes()),'runtime_files_sha256':runtime},'migration':{'id':'20261117000100_f0_local_initial','history':helper.HISTORY},'tools':{'node_version':'v24.22.1','prisma_version':'7.10.1','engine_commit':'d1b3f377ca835d73fd50954a5e22128b9ebdd6b8','files_sha256':closure['tools_files_sha256']}}
+    helper.validate_manifest(target_manifest);target_raw=encoded(target_manifest)
+    history_files,provenance=helper.prepare_plan(target_manifest,target_raw,source_path(root,helper.SOURCE).read_bytes(),source_path(root,helper.SCHEMA).read_bytes(),{p:source_path(root,p).read_bytes() for p in helper.RUNTIME_FILES},APPLICATION_SHA)
+    # The original ROOT history/provenance is immutable. Only fresh external
+    # target metadata is generated; migration SQL/checksum/ID remain identical.
+    for path,data in history_files.items():need(source_path(root,path).read_bytes()==data,'ROOT_HISTORY_MUST_ALREADY_MATCH')
+    snapshot_files={**history_files,helper.SCHEMA:source_path(root,helper.SCHEMA).read_bytes(),**{p:source_path(root,p).read_bytes() for p in helper.RUNTIME_FILES},'prisma/foundation/history-manifest.json':encoded(provenance)}
+    need(len(snapshot_files)==7,'SEVEN_IMMUTABLE_SOURCE_FILES')
+    plan_directory.mkdir(exist_ok=False);snapshot=plan_directory/'source-ok';snapshot.mkdir()
+    for path,data in snapshot_files.items():
+        destination=snapshot/path;destination.parent.mkdir(parents=True,exist_ok=True)
+        with destination.open('xb') as handle:handle.write(data)
+    target_path=plan_directory/'ok-migration-manifest.json'
+    with target_path.open('xb') as handle:handle.write(target_raw)
+    archive=plan_directory/'source-ok.tar.gz'
+    with archive.open('xb') as handle:
+        with gzip.GzipFile(filename='',mode='wb',fileobj=handle,mtime=0) as zipped:
+            with tarfile.open(fileobj=zipped,mode='w|') as tar:
+                for path,data in sorted(snapshot_files.items()):
+                    info=tarfile.TarInfo(path);info.size=len(data);info.uid=info.gid=0;info.mode=0o644;info.mtime=0;tar.addfile(info,io.BytesIO(data))
+    master={k:deepcopy(base[k]) for k in ('authority','image','database','run_label','storage','source_history_rule','server_diagnostics','catalog')}
+    master.update(purpose='LOCAL_F0_RESTRICTED_CONTROLS_REHEARSAL',run_id=run_id,source_commit='TO_BE_PINNED',source_tree='TO_BE_PINNED',packet_files_sha256=dict(sorted(files.items())),packet_sha256=sha(''.join(p+'\0'+files[p]+'\n' for p in sorted(files)).encode()),evidence_directory=str(out),targets=[target],migration_targets={'ok':{'manifest_path':str(target_path),'manifest_sha256':sha(target_raw),'source_snapshot':str(snapshot),'source_files_sha256':{p:sha(data) for p,data in sorted(snapshot_files.items())},'source_archive':str(archive),'source_archive_sha256':sha(archive.read_bytes())}},tool_archive=str(task/'local-f0-linux-tooling-20261117/pinned-prisma-tools.tar.gz'),tool_archive_sha256=closure['archive_sha256'],wrapper_sha256=sha((task/'restricted_controls_operator_20261118.py').read_bytes()),steps_sha256=sha((task/'restricted_controls_operation_steps.py').read_bytes()),review_status='PENDING_OPERATIONAL_REVIEW',status='SOURCE_PREPARED_NOT_EXECUTED',catalog_source_manifest_sha256=base_sha,restricted_controls={'scope':'FINITE_REVIEWED_SQL_PACKETS_NO_OWNER_ADAPTER_OR_WORKER_LOOP','order':selected,'components':descriptors})
+    master['cleanup']='Remove only the exact created controls containerID/name/bothlabels and volume/name/labels/CreatedAt; delete only ok-bootstrap-password and its empty owner-only private directory. Independently confirm both names/secrets absent; retain image, tools, source snapshots, unrelated resources and all reports.'
+    master['allowed_operations']=['One genuine canonical Prisma5ae deployment and original-grantor finalization','Full reviewed native/ACL/TEXT/expression-oracle/private-ledger parity before any restricted packet','Only the explicitly selected ordered subset of Customer17/Workerfinite4plus2blocked/CTX31/Unique5 packets','Every packet uses actual restricted logins, exact issuer COMMIT/current transaction bindings and source-reviewed fixture restoration','Zero other client backends at every packet boundary; independent native hash unchanged after each completed packet','Unexpected outcome stops all later packets, preserves sanitized partial evidence and performs exact owned cleanup','No NativeDENY/provider-role setup, permission repair, owner adapters, replay expansion, hosted contact, migration adoption or worker loop']
+    path=plan_directory/'operation-manifest.json'
+    with path.open('xb') as handle:handle.write(encoded(master))
+    return path,master
+
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--prepare-reviewed-controls-plan',action='store_true');parser.add_argument('--reviewed-catalog-manifest',type=Path);parser.add_argument('--controls',nargs='+',choices=ORDER,default=['customer','worker','context']);args=parser.parse_args(argv)
+    try:
+        need(args.prepare_reviewed_controls_plan and args.reviewed_catalog_manifest is not None,'EXPLICIT_SOURCE_PREPARATION_REQUIRED')
+        path,master=prepare(ROOT,TASK,args.reviewed_catalog_manifest,args.controls)
+        print(json.dumps({'status':'PREPARED_HELD_NOT_RUN','manifest':str(path),'manifest_sha256':sha(path.read_bytes()),'run_id':master['run_id'],'selected_controls':master['restricted_controls']['order'],'source_commit':'TO_BE_PINNED','review_status':'PENDING_OPERATIONAL_REVIEW','unique_source_review':master['restricted_controls']['components']['unique']['source_review']['decision'],'database_contacted':False}));return 0
+    except BaseException as error:
+        print(json.dumps({'status':'REFUSED_SOURCE_PREPARATION','code':error.code if isinstance(error,PreparationHeld) else 'UNEXPECTED_PREPARATION_FAILURE','database_contacted':False,'raw_exception_discarded':True}));return 2
+if __name__=='__main__':raise SystemExit(main())

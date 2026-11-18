@@ -1,0 +1,244 @@
+# Restricted packets remain separately scoped. Their selected controls do not
+# become qualified merely because this operator completed a finite packet.
+CONTROL_ORDER = ('customer','worker','context','unique')
+UNIQUE_REVIEW={'path':'context/reconciliation/local-f0-operation-sources/restricted-controls-v1/unique-source-review.json','sha256':'85782ddbf981dac2f64c35b89ed3d18fc495ad8d03fd471a47df84752b61ab12'}
+CONTROL_SPECS = {
+ 'customer': {'coordinator':'scripts/sql-review/run-customer-control-rehearsal.py','coordinator_sha256':'3c9a75b6c5e2585d54069d65265b48b44fea90b2f9238c378155fe837f70bed3','manifest':'review-output/customer-control-rehearsal/fixtures.json','manifest_sha256':'b59ab33ba26a29d2d82ee4f7f289d26e95300b7afb8ce7eaf7806fd5fb08a9c3','content_sha256':None,'modules':('scripts/sql-review/run-customer-control-rehearsal.py','scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/run-local-f0-migrate.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/prepare-local-f0-history.py','scripts/sql-review/collect_native_catalog.sql'),'source_group':'source_inputs_sha256','prepared_group':'files_sha256','case_group':'cases','case_count':17,'evidence':'customer-control-results.json','evidence_schema':'workinants.customer-control-evidence.v1','success_status':'PASS_PREPARED_CREATE_SUBSET_ONLY_CONTROLS_NOT_RUN','run_schema':'workinants.customer-control-run.v1','scope':'REVIEWED_LOCAL_CUSTOMER_CREATE_SUBSET_ONLY','flag':'--execute-reviewed-customer-controls','plan_flag':'--reviewed-run-plan'},
+ 'worker': {'coordinator':'scripts/sql-review/run-worker-control-rehearsal.py','coordinator_sha256':'84b7268b4ef0f2d529927a267297981cec01a5166658f571c84c41e046bd893d','manifest':'review-output/worker-control-rehearsal/fixtures.json','manifest_sha256':'6e3f126fd014c91f1c2ac519e77635eef2d2232bca2b609c90023495d626aff2','content_sha256':'65003efc621a3552059504a8b78530d2d921f8caee17fd51f3c92eb9ad6f9ba7','modules':('scripts/sql-review/run-worker-control-rehearsal.py','scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/run-local-f0-migrate.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/prepare-local-f0-history.py','scripts/sql-review/collect_native_catalog.sql','review-output/first-rehearsal/diagnostic-identifiers.json'),'source_group':'source_files_sha256','prepared_group':'prepared_files_sha256','case_group':'scenarios','case_count':6,'evidence':'worker-control-results.json','evidence_schema':'workinants.worker-control-evidence.v1','success_status':'PREPARED_FINITE_SUBSET_COMPLETED_NOT_FULL_CONTROL_QUALIFICATION','run_schema':'workinants.worker-control-run.v1','scope':'REVIEWED_LOCAL_WORKER_SQL_SUBSET_ONLY','flag':'--execute-reviewed-worker-controls','plan_flag':'--run-plan'},
+ 'context': {'coordinator':'scripts/sql-review/run-context-control-rehearsal.py','coordinator_sha256':'5ec53d01d7c5b19bea0a584ef9f5b4e6742d9509c21ac7e2250b9bdd62511f33','manifest':'review-output/context-control-rehearsal/fixtures.json','manifest_sha256':'118454c9171267f8c7696ec3df9019a4e8883676157b57c9a2a5154d272edb69','content_sha256':'71f00a7b12cad6bef6f70f232a10b431d3785f03ea36ad9fce803b79ffa537d7','modules':('scripts/sql-review/run-context-control-rehearsal.py','scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/run-local-f0-migrate.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/prepare-local-f0-history.py','scripts/sql-review/collect_native_catalog.sql'),'source_group':'source_files_sha256','prepared_group':'prepared_files_sha256','case_group':'cases','case_count':31,'evidence':'context-control-results.json','evidence_schema':'workinants.context-control-evidence.v1','success_status':'PASS_CTX01_PREPARED_SQL_PROTOCOLS_ONLY_CONTROLS_NOT_RUN','run_schema':'workinants.context-control-run.v1','scope':'REVIEWED_LOCAL_CTX01_SQL_SUBSET_ONLY','flag':'--execute-reviewed-context-controls','plan_flag':'--reviewed-run-plan'},
+ 'unique': {'coordinator':'scripts/sql-review/run-unique-control-rehearsal.py','coordinator_sha256':'ab8fe68023105352e8ac8df4aa4cd5e1852d7c5448d7b5b346c79db0843d7425','manifest':'review-output/unique-control-rehearsal/fixtures.json','manifest_sha256':'5eb0ae5413e917cd50ab35d1e3be2b9f0b38006c2ce93241f589b863647c6875','content_sha256':'bbb26d95da0f0592f542fb6e9e23e963519a5a8a6a5effb9c07870cecc82f79a','modules':('scripts/sql-review/run-unique-control-rehearsal.py','scripts/sql-review/run-context-control-rehearsal.py','scripts/unique_control_protocol.py','scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/run-local-f0-migrate.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/prepare-local-f0-history.py','scripts/sql-review/collect_native_catalog.sql'),'source_group':'source_files_sha256','prepared_group':'prepared_files_sha256','case_group':'races','case_count':5,'evidence':'unique-control-results.json','evidence_schema':'workinants.unique-control-evidence.v1','success_status':'COMPLETED_FIVE_SQL_STORAGE_RACES_ONLY_ASSERTIONS_NOT_RUN','run_schema':'workinants.unique-control-run.v1','scope':'FIVE_FINITE_UNIQUE_SQL_STORAGE_RACES_ONLY','flag':'--execute-reviewed-unique-controls','plan_flag':'--reviewed-run-plan'}
+}
+CONTROLS = {}
+CLOSED_MODULE_BYTES = {}
+for _component in CONTROL_ORDER:
+    SAFE_FILES.update((_component+'-run-plan.json',_component+'-native-attestation.json',_component+'-after-native.json'))
+
+
+def control_source_blob(relative,expected):
+    need(type(expected) is str and re.fullmatch('[0-9a-f]{64}',expected),'CONTROL_SOURCE_HASH')
+    need(MANIFEST['packet_files_sha256'].get(relative)==expected,'CONTROL_SOURCE_NOT_IN_FULL_PACKET')
+    return read_pinned(relative)
+
+
+def control_packet_graph(name,descriptor):
+    spec=CONTROL_SPECS[name]
+    exact(sorted(descriptor),sorted(('coordinator','coordinator_sha256','manifest','manifest_sha256','content_sha256','scenario_names','source_review')),'CONTROL_DESCRIPTOR_FIELDS')
+    for key in ('coordinator','coordinator_sha256','manifest','manifest_sha256','content_sha256'):exact(descriptor[key],spec[key],'CONTROL_DESCRIPTOR_IDENTITY')
+    review=descriptor['source_review']
+    need(type(review) is dict and set(review)=={'decision','reviewer','evidence'} and review['decision'] in ('APPROVED_SOURCE','PENDING_SOURCE_REVIEW') and type(review['reviewer']) is str and re.fullmatch('[A-Za-z0-9_/.-]{1,96}',review['reviewer']),'CONTROL_SOURCE_REVIEW_FIELDS')
+    if name=='unique':
+        exact(review['evidence'],UNIQUE_REVIEW,'UNIQUE_ROOT_SOURCE_REVIEW_BINDING')
+        exact(review['reviewer'],'Root_independent_unique_transport_review_20261118','UNIQUE_ROOT_SOURCE_REVIEWER')
+        control_source_blob(UNIQUE_REVIEW['path'],UNIQUE_REVIEW['sha256'])
+    else:need(review['evidence'] is None,'CONTROL_UNREGISTERED_SOURCE_REVIEW_EVIDENCE')
+    raw=control_source_blob(spec['manifest'],spec['manifest_sha256']);packet=unique_json(raw)
+    need(packet.get('status')=='NOT_RUN' and packet.get('database_posture')=='D' and packet.get('database_contacted') is False and packet.get('sql_executed') is False,'CONTROL_SOURCE_PACKET_STATUS')
+    source=packet[spec['source_group']];prepared=packet[spec['prepared_group']]
+    need(type(source) is dict and type(prepared) is dict,'CONTROL_PACKET_FILE_MAPS')
+    for path,value in source.items():control_source_blob(path,value)
+    if name=='customer':
+        control_source_blob('scripts/prepare-customer-control-rehearsal.py',packet['generator_source_sha256'])
+        control_source_blob('scripts/check-customer-control-rehearsal.py',packet['focused_check_source_sha256'])
+    prefix=spec['manifest'].rsplit('/',1)[0]
+    for path,value in prepared.items():
+        need(type(path) is str and '/' not in path and '\\' not in path and path not in ('','.','..'),'CONTROL_PREPARED_PATH')
+        control_source_blob(prefix+'/'+path,value)
+    cases=packet[spec['case_group']]
+    need(type(cases) is list and len(cases)==spec['case_count'],'CONTROL_CASE_COUNT')
+    names=[case['name'] for case in cases]
+    exact(descriptor['scenario_names'],names,'CONTROL_EXACT_CASE_ORDER')
+    if spec['content_sha256'] is not None:
+        exact(digest({spec['source_group']:source,spec['prepared_group']:prepared}),spec['content_sha256'],'CONTROL_CONTENT_HASH')
+        exact(packet['source_only_packet_sha256'],spec['content_sha256'],'CONTROL_CONTENT_DECLARATION')
+    for path in spec['modules']:
+        need(path in MANIFEST['packet_files_sha256'],'CONTROL_MODULE_MISSING')
+        read_pinned(path)
+    control_source_blob(spec['coordinator'],spec['coordinator_sha256'])
+    return packet
+
+
+def source_uuid_namespace(value,found=None,depth=0):
+    found=set() if found is None else found
+    need(depth<=40,'CONTROL_NAMESPACE_DEPTH')
+    if type(value) is dict:
+        for item in value.values():source_uuid_namespace(item,found,depth+1)
+    elif type(value) is list:
+        for item in value:source_uuid_namespace(item,found,depth+1)
+    elif type(value) is str and re.fullmatch('[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}',value):found.add(value)
+    return found
+
+
+def closed_module(relative):
+    """Every transitive runpy request compiles prehashed admitted bytes only."""
+    import builtins
+    need(relative in CLOSED_MODULE_BYTES,'CONTROL_HELPER_NOT_PREHASHED')
+    module=ModuleType('_restricted_closed_'+relative.replace('/','_').replace('.','_'));module.__file__=str(ROOT/relative)
+    shim=ModuleType('runpy')
+    def run_path(path):
+        target=Path(path).resolve()
+        need(target.is_relative_to(ROOT.resolve()),'CONTROL_HELPER_PATH_ESCAPE')
+        return closed_module(target.relative_to(ROOT.resolve()).as_posix())
+    shim.run_path=run_path
+    original_import=builtins.__import__
+    def limited_import(name,*args,**kwargs):return shim if name=='runpy' else original_import(name,*args,**kwargs)
+    module.__dict__['__builtins__']={**vars(builtins),'__import__':limited_import}
+    stream=io.StringIO()
+    try:
+        with contextlib.redirect_stdout(stream),contextlib.redirect_stderr(stream):exec(compile(CLOSED_MODULE_BYTES[relative],module.__file__,'exec'),module.__dict__)
+    except Stop:raise
+    except BaseException:raise Stop('CONTROL_COORDINATOR_IMPORT_REFUSED') from None
+    need(not stream.getvalue(),'CONTROL_COORDINATOR_IMPORT_OUTPUT')
+    return module.__dict__
+
+
+def verify_controls():
+    cfg=MANIFEST['restricted_controls']
+    need(type(cfg) is dict and set(cfg)=={'scope','order','components'},'RESTRICTED_CONTROL_FIELDS')
+    exact(cfg['scope'],'FINITE_REVIEWED_SQL_PACKETS_NO_OWNER_ADAPTER_OR_WORKER_LOOP','RESTRICTED_CONTROL_SCOPE')
+    order=cfg['order']
+    need(type(order) is list and order and len(order)==len(set(order)) and [name for name in CONTROL_ORDER if name in order]==order,'CONTROL_SELECTED_ORDER')
+    need(type(cfg['components']) is dict and set(cfg['components'])==set(CONTROL_ORDER),'CONTROL_COMPONENT_SET')
+    # Every selected source/module/fixture graph is admitted before ANY
+    # coordinator code. Unselected unfinished packets do not enter this run.
+    packets={name:control_packet_graph(name,cfg['components'][name]) for name in order}
+    namespaces={name:source_uuid_namespace(packets[name]) for name in order}
+    for index,one in enumerate(order):
+        for two in order[index+1:]:need(not namespaces[one]&namespaces[two],'CONTROL_FIXTURE_NAMESPACES_OVERLAP')
+    for name in order:need(cfg['components'][name]['source_review']['decision']=='APPROVED_SOURCE','CONTROL_SOURCE_REVIEW_PENDING')
+    # Include bootstrap/migration transitive runpy helpers. There is no disk
+    # reread or helper-loading fallback after the bytes have been admitted.
+    closure=set(path for name in order for path in CONTROL_SPECS[name]['modules'] if path.endswith('.py'))
+    closure.update(('scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/run-local-f0-migrate.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/prepare-local-f0-history.py'))
+    CLOSED_MODULE_BYTES.update({path:read_pinned(path) for path in sorted(closure)})
+    modules={}
+    for name in order:
+        spec=CONTROL_SPECS[name]
+        module=closed_module(spec['coordinator'])
+        need(callable(module.get('main')),'CONTROL_COORDINATOR_ENTRYPOINT')
+        declared=module.get('SOURCE_MODULES',module.get('MODULES'))
+        exact(tuple(declared),spec['modules'],'CONTROL_TRANSITIVE_MODULE_CLOSURE')
+        modules[name]=module
+    CONTROLS.update(order=order,packets=packets,modules=modules)
+    report['control_preparation']={'status':'SOURCE_REPRODUCED_NOT_RUN','selected_order':order,'fixture_uuid_namespace_sizes':{name:len(namespaces[name]) for name in order},'selected_fixture_namespaces_disjoint':True,'all_selected_graphs_in_committed_full_packet':True}
+    report['control_packets']={name:{'status':'NOT_RUN','selected':name in order} for name in CONTROL_ORDER};save()
+
+
+def verify_packet():
+    verify_catalog_packet()
+    verify_controls()
+
+
+def all_control_clients_closed(name,stage):
+    observed=False;value=None
+    try:
+        value=observe(name,"SELECT jsonb_build_object('other_client_backends',(SELECT count(*) FROM pg_stat_activity WHERE backend_type='client backend' AND pid<>pg_backend_pid()));",stage+'_ALL_CLIENTS_CLOSED')
+        observed=True
+    except BaseException:pass
+    good=type(value) is dict and set(value)=={'other_client_backends'} and type(value['other_client_backends']) is int and value['other_client_backends']==0
+    report.setdefault('control_backend_closures',[]).append({'stage':stage,'scope':'ALL_DATABASES_ALL_ROLES_ALL_TAGS','observation_completed':observed,'all_other_client_backends_absent':good});save()
+    need(good,'CONTROL_ALL_CLIENTS_CLOSURE_UNCONFIRMED')
+
+
+def native_control_assets():
+    need(TARGETS[0]['name'] in finalized and report['targets'][TARGETS[0]['name']].get('finalization')=='PASS','CONTROL_ORIGINAL_GRANTOR_FINALIZATION_REQUIRED')
+    native_raw=(OUT/'native-before.json').read_bytes();comparison_raw=(OUT/'catalog-comparison.json').read_bytes()
+    native=unique_json(native_raw);comparison=unique_json(comparison_raw)
+    first=report['native_snapshots'][0]
+    need(first['artifact']=='native-before.json' and first['artifact_sha256']==hashlib.sha256(native_raw).hexdigest() and first['native_sha256']==digest(native)==report.get('qualified_native_snapshot_sha256'),'CONTROL_NATIVE_SNAPSHOT_BINDING')
+    exact(comparison,report['catalog_comparison'],'CONTROL_NATIVE_COMPARISON_BINDING')
+    counts=comparison.get('check_counts')
+    need(comparison.get('format')=='workinants.catalog-comparison.v1' and comparison.get('status')=='PASS' and comparison.get('source_expected_sha256')==EXPECTED_SHA and comparison.get('native_snapshot_sha256')==digest(native) and comparison.get('findings')==[] and type(counts) is dict and set(counts)<={'PASS','FAIL','INCOMPLETE'} and 'PASS' in counts and all(type(v) is int for v in counts.values()) and counts['PASS']>0 and counts.get('FAIL',0)==counts.get('INCOMPLETE',0)==0,'CONTROL_FULL_NATIVE_PASS_REQUIRED')
+    need(report.get('ledger_comparison',{}).get('status')=='PASS' and report['steps'].get('CATALOG-ORACLE')=='PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE' and report['steps'].get('CATALOG-LEDGER')=='PASS_SOURCE_BOUND_NATIVE_SUBSET','CONTROL_FULL_NATIVE_LEDGER_ORACLE_REQUIRED')
+    return native,{'path':str(OUT/'native-before.json'),'sha256':hashlib.sha256(native_raw).hexdigest()},{'path':str(OUT/'catalog-comparison.json'),'sha256':hashlib.sha256(comparison_raw).hexdigest()}
+
+
+def build_control_run_plan(component,native,native_ref,comparison_ref):
+    spec=CONTROL_SPECS[component];descriptor=MANIFEST['restricted_controls']['components'][component]
+    target_plan=MANIFEST['migration_targets']['ok'];raw=Path(target_plan['manifest_path']).read_bytes()
+    need(hashlib.sha256(raw).hexdigest()==target_plan['manifest_sha256'],'CONTROL_TARGET_MANIFEST_DRIFT')
+    target=unique_json(raw)
+    need(target['run_id']==RUN_ID and target['target']['container_name']==TARGETS[0]['name'] and target['source']['integrated_sql_sha256']==APPLICATION_SHA,'CONTROL_TARGET_RUN_SOURCE')
+    pins={path:MANIFEST['packet_files_sha256'][path] for path in spec['modules']}
+    for path,value in pins.items():control_source_blob(path,value)
+    plan={'schema':spec['run_schema'],'scope':spec['scope'],'reviewed_packet_sha256':spec['manifest_sha256'],'source_modules_sha256':pins,'target_manifest':target,'native_snapshot':native_ref,'native_comparison':dict(comparison_ref),'scenario_names':descriptor['scenario_names']}
+    if component=='customer':plan['native_comparison']['source_expected_sha256']=EXPECTED_SHA
+    else:plan.update(reviewed_content_sha256=spec['content_sha256'],immutable_container_id=created_containers[TARGETS[0]['name']])
+    if component in ('context','unique'):
+        plan.update(run_id=RUN_ID,source_commit=COMMIT,source_tree=TREE,packet_sha256=PACKET)
+        attestation={'schema':'workinants.'+component+'-native-attestation.v1','run_id':RUN_ID,'container_id':created_containers[TARGETS[0]['name']],'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'collector_sha256':pins['scripts/sql-review/collect_native_catalog.sql'],'source_expected_sha256':EXPECTED_SHA,'native_snapshot_sha256':digest(native),'native_comparison_file_sha256':comparison_ref['sha256'],'original_grantor_finalized':True,'operation_backends_absent':True,'comparison_status':'PASS'}
+        reference=write_safe(component+'-native-attestation.json',attestation)
+        plan['native_attestation']={'path':str(OUT/reference['artifact']),'sha256':reference['artifact_sha256']}
+    if component=='unique':plan['race_names']=plan.pop('scenario_names')
+    return plan
+
+
+def invoke_control(component,plan_path,directory):
+    module=CONTROLS['modules'][component];spec=CONTROL_SPECS[component]
+    args=[spec['flag'],spec['plan_flag'],str(plan_path),'--evidence-directory',str(directory)]
+    stream=io.StringIO()
+    try:
+        with contextlib.redirect_stdout(stream),contextlib.redirect_stderr(stream):
+            if component=='customer':
+                original=module['resource_identity']
+                def exact_created_identity(target):
+                    value=original(target)
+                    need(value==created_containers[TARGETS[0]['name']],'CUSTOMER_CREATED_CID_MISMATCH')
+                    return value
+                result=module['main'](args,dependencies={'resource_identity':exact_created_identity})
+            else:result=module['main'](args)
+    except BaseException:raise Stop('CONTROL_COMPONENT_EXCEPTION_OUTPUT_DISCARDED') from None
+    # Output is never persisted, even on failure. Coordinator artifacts use its
+    # independently reviewed closed evidence schema; raw diagnostics stay private.
+    need(type(result) is int and 0<=result<=255,'CONTROL_COMPONENT_EXIT_UNCONFIRMED')
+    return result
+
+
+def control_result_summary(component,path,exit_code,require_complete=True):
+    spec=CONTROL_SPECS[component];summary={'component':component,'status':'STOPPED_COMPONENT_PACKET','exit_code':exit_code,'evidence_file':str(path.relative_to(OUT)),'completed_results':0}
+    if path.is_file():
+        raw=path.read_bytes();summary['evidence_sha256']=hashlib.sha256(raw).hexdigest()
+        try:value=unique_json(raw)
+        except BaseException:value=None
+        if type(value) is dict and type(value.get('results')) is list and len(value['results'])<=64:summary['completed_results']=len(value['results'])
+    else:value=None
+    report['control_packets'][component]=summary;save()
+    if not require_complete:return summary
+    need(exit_code==0 and type(value) is dict and value.get('schema')==spec['evidence_schema'] and value.get('status')==spec['success_status'] and value.get('subsequent_cases_stopped') is False,'CONTROL_COMPONENT_NOT_COMPLETE')
+    rows=value['results'];need(type(rows) is list and all(type(row) is dict for row in rows),'CONTROL_RESULT_ROWS')
+    if component in ('customer','context','unique'):
+        expected=MANIFEST['restricted_controls']['components'][component]['scenario_names']
+        exact([row.get('name') for row in rows],expected,'CONTROL_RESULT_NAMES')
+        status={'customer':'PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL','context':'PASS_FINITE_SCENARIO_ONLY_NOT_SELECTED_CONTROL','unique':'PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION'}[component]
+        need(all(row.get('status')==status for row in rows),'CONTROL_RESULT_STATUSES')
+    else:
+        packet=CONTROLS['packets']['worker'];names=[row['name'] for row in packet['scenarios']]
+        expected=['restricted-Customer-source-creation','actual-app-schedule','actual-worker-claim',*names[:4]]+['currentness-'+name for name in packet['scenarios'][2]['grants'] if name!='issuer-revocation']
+        observed=[row.get('component') for row in rows]
+        need(len(observed)==len(set(observed)) and set(observed)==set(expected),'CONTROL_WORKER_FINITE_COMPONENTS')
+        allowed={'PASS_COMPONENT_ONLY','PASS_PREPARED_SQL_SCOPE_ONLY','PASS_THREE_REVERSE_BRANCHES_ONLY','PASS_READONLY_WORK_SERVICE_CURRENTNESS_ONLY','PASS_READONLY_WORK_GRANT_REVOCATION_ONLY'}
+        need(all(row.get('status') in allowed for row in rows) and not set(names[4:])&set(observed),'CONTROL_WORKER_BLOCKED_PROPOSALS_NOT_RUN')
+    return summary
+
+
+def restricted_experiments():
+    name=TARGETS[0]['name'];native,native_ref,comparison_ref=native_control_assets()
+    for component in CONTROLS['order']:
+        report['stage']='CONTROL_'+component.upper();save()
+        all_control_clients_closed(name,'BEFORE_'+component.upper())
+        plan=build_control_run_plan(component,native,native_ref,comparison_ref)
+        reference=write_safe(component+'-run-plan.json',plan);directory=OUT/('control-'+component)
+        need(not directory.exists(),'CONTROL_FRESH_EVIDENCE_DIRECTORY_REQUIRED')
+        report['control_packets'][component]={'component':component,'status':'ATTEMPTED','run_plan_sha256':reference['artifact_sha256']};save()
+        result=255
+        try:result=invoke_control(component,OUT/reference['artifact'],directory)
+        finally:
+            # Retain completed/partial safe references even when invocation
+            # throws. Independently observe ALL other clients before a verdict
+            # or native observation, including other tags/roles/databases.
+            try:control_result_summary(component,directory/CONTROL_SPECS[component]['evidence'],result,require_complete=False)
+            finally:all_control_clients_closed(name,'AFTER_'+component.upper())
+        summary=control_result_summary(component,directory/CONTROL_SPECS[component]['evidence'],result)
+        after=collect_native(name,'AFTER_CONTROL_'+component.upper(),component+'-after-native.json')
+        exact(digest(after),digest(native),'CONTROL_CHANGED_NATIVE_CATALOG')
+        summary.update(status='PASS_FINITE_PACKET_ONLY_NOT_SELECTED_CASES',native_catalog_unchanged=True,all_operation_clients_absent=True)
+        report['control_packets'][component]=summary;report['steps']['CONTROL-'+component.upper()]='PASS_FINITE_PACKET_ONLY';event('CONTROL_'+component.upper(),'PASS_FINITE_PACKET_ONLY',completed_results=summary['completed_results'])

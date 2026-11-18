@@ -1,0 +1,393 @@
+"""Environment-free combined-operator transport/control-flow mocks.
+
+All subprocess/Docker/database/network boundaries are blocked or mocked. Mock
+catalog PASS and scenario rows prove source behavior only, never qualification.
+No real plan is prepared in the task root and no Git command is permitted here.
+"""
+import ast
+from contextlib import ExitStack,redirect_stdout,redirect_stderr
+from copy import deepcopy
+import datetime
+import hashlib
+import io
+import json
+from pathlib import Path
+import re
+import runpy
+import socket
+import subprocess
+import tarfile
+import tempfile
+import unittest
+from unittest.mock import patch
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+STEPS=TASK/'restricted_controls_operation_steps.py'
+RUN='719dffcb-a5f9-4a93-bffe-7faf83f7a914'
+NAME='wa-p0c-719dffcb-controls'
+CID='1'*64
+CANARY='postgresql://DO_NOT_EXPORT_SECRET@unlisted.invalid/raw_statement'
+
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def encoded(value):return (json.dumps(value,indent=2)+'\n').encode()
+
+
+class RestrictedControlTests(unittest.TestCase):
+    def setUp(self):
+        self.stack=ExitStack();self.addCleanup(self.stack.close)
+        for name in ('run','Popen','check_call','check_output','call'):
+            self.stack.enter_context(patch.object(subprocess,name,side_effect=AssertionError('PROCESS_FORBIDDEN')))
+        self.stack.enter_context(patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN')))
+        self.temp=tempfile.TemporaryDirectory(prefix='offline-restricted-controls-',dir=TASK);self.addCleanup(self.temp.cleanup)
+        self.out=Path(self.temp.name)/'out';self.out.mkdir()
+        report={'stage':'ENTRY','status':'IN_PROGRESS','steps':{},'events':[],'unexpected':[],'targets':{NAME:{}},'control_packets':{}}
+        ns={'__name__':'restricted_steps_test','__file__':str(TASK/'restricted_controls_operator_20261118.py'),'Path':Path,'hashlib':hashlib,'json':json,'re':re,'subprocess':subprocess,'datetime':datetime,'ROOT':ROOT,'OUT':self.out,'DB':'wa_p0c_rehearsal','RUN_ID':RUN,'COMMIT':'a'*40,'TREE':'b'*40,'PACKET':'c'*64,'CONNECTION_TAG':'wa-first-'+RUN,'created_containers':{NAME:CID},'bootstrap_attempted':set(),'finalization_attempted':set(),'finalized':set(),'report':report}
+        exec("class Stop(Exception):\n def __init__(self,code,details=None):\n  self.code=code;self.details=details or {};self.stage=report.get('stage','ENTRY');super().__init__(code)\ndef need(value,code,details=None):\n if not value:raise Stop(code,details)\n",ns)
+        exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),ns)
+        self.ns=ns;self.saved=[];self.actions=[]
+        self.target={'name':NAME,'volume':NAME+'-data','kind':'ok'}
+        self.target_file=Path(self.temp.name)/'target.json'
+        self.target_doc={'run_id':RUN,'target':{'container_name':NAME},'source':{'integrated_sql_sha256':ns['APPLICATION_SHA']}}
+        self.target_file.write_bytes(encoded(self.target_doc))
+        self.packet={};self.descriptors={};self.packets={}
+        for component,spec in ns['CONTROL_SPECS'].items():
+            raw=(ROOT/spec['manifest']).read_bytes();packet=json.loads(raw);self.packets[component]=packet
+            self.packet[spec['manifest']]=sha(raw)
+            for path,value in packet[spec['source_group']].items():self.packet[path]=value
+            prefix=spec['manifest'].rsplit('/',1)[0]
+            self.packet.update({prefix+'/'+p:v for p,v in packet[spec['prepared_group']].items()})
+            for path in spec['modules']:self.packet[path]=sha((ROOT/path).read_bytes())
+            if component=='customer':
+                self.packet['scripts/prepare-customer-control-rehearsal.py']=packet['generator_source_sha256']
+                self.packet['scripts/check-customer-control-rehearsal.py']=packet['focused_check_source_sha256']
+            self.descriptors[component]={k:spec[k] for k in ('coordinator','coordinator_sha256','manifest','manifest_sha256','content_sha256')}
+            self.descriptors[component].update(scenario_names=[r['name'] for r in packet[spec['case_group']]],source_review={'decision':'APPROVED_SOURCE','reviewer':'OFFLINE_MOCK_REVIEW_ONLY','evidence':None})
+        review=ns['UNIQUE_REVIEW'];review_raw=(TASK/'local-f0-unique-transport-review-20261118.json').read_bytes();self.assertEqual(sha(review_raw),review['sha256'])
+        self.descriptors['unique']['source_review']={'decision':'APPROVED_SOURCE','reviewer':'Root_independent_unique_transport_review_20261118','evidence':dict(review)}
+        self.packet[review['path']]=review['sha256']
+        original_read=Path.read_bytes
+        self.stack.enter_context(patch.object(Path,'read_bytes',lambda path:review_raw if path==(ROOT/review['path']).resolve() else original_read(path)))
+        manifest={'packet_files_sha256':self.packet,'targets':[self.target],'migration_targets':{'ok':{'manifest_path':str(self.target_file),'manifest_sha256':sha(self.target_file.read_bytes())}},'restricted_controls':{'scope':'FINITE_REVIEWED_SQL_PACKETS_NO_OWNER_ADAPTER_OR_WORKER_LOOP','order':['customer','worker','context'],'components':self.descriptors}}
+        ns.update(MANIFEST=manifest,TARGETS=[self.target],save=lambda:self.saved.append(deepcopy(report)),event=self.event)
+
+    def event(self,stage,status,**safe):self.ns['report']['stage']=stage;self.actions.append(stage);self.ns['report']['events'].append({'stage':stage,'status':status,**safe})
+    def refusal(self,code,callback):
+        with self.assertRaises(self.ns['Stop']) as error:callback()
+        self.assertEqual(error.exception.code,code)
+        self.assertNotIn(CANARY,str(error.exception)+json.dumps(self.ns['report']))
+
+    def native_assets(self):
+        native={'format':'workinants.native-catalog.v1','schemas':[]}
+        raw=encoded(native);self.out.joinpath('native-before.json').write_bytes(raw)
+        comparison={'format':'workinants.catalog-comparison.v1','status':'PASS','source_expected_sha256':self.ns['EXPECTED_SHA'],'native_snapshot_sha256':self.ns['digest'](native),'check_counts':{'PASS':418,'FAIL':0,'INCOMPLETE':0},'findings':[]}
+        self.out.joinpath('catalog-comparison.json').write_bytes(encoded(comparison))
+        r=self.ns['report'];r.update(native_snapshots=[{'artifact':'native-before.json','artifact_sha256':sha(raw),'native_sha256':self.ns['digest'](native)}],catalog_comparison=comparison,ledger_comparison={'status':'PASS'},qualified_native_snapshot_sha256=self.ns['digest'](native))
+        r['steps'].update({'CATALOG-ORACLE':'PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE','CATALOG-LEDGER':'PASS_SOURCE_BOUND_NATIVE_SUBSET'})
+        r['targets'][NAME]['finalization']='PASS';self.ns['finalized'].add(NAME)
+        return native
+
+    def result_doc(self,component):
+        spec=self.ns['CONTROL_SPECS'][component]
+        if component=='worker':
+            names=[r['name'] for r in self.packets['worker']['scenarios']]
+            items=['restricted-Customer-source-creation','actual-app-schedule','actual-worker-claim',*names[:4]]+['currentness-'+name for name in self.packets['worker']['scenarios'][2]['grants'] if name!='issuer-revocation']
+            rows=[{'component':name,'status':'PASS_COMPONENT_ONLY'} for name in items]
+        else:
+            status={'customer':'PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL','context':'PASS_FINITE_SCENARIO_ONLY_NOT_SELECTED_CONTROL','unique':'PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION'}[component]
+            rows=[{'name':name,'status':status} for name in self.descriptors[component]['scenario_names']]
+        return {'schema':spec['evidence_schema'],'status':spec['success_status'],'subsequent_cases_stopped':False,'results':rows}
+
+    def prepare_pipeline(self,order=None):
+        native=self.native_assets();self.ns['CONTROLS'].update(order=order or ['customer','worker','context'],packets=self.packets)
+        self.ns['report']['control_packets']={n:{'status':'NOT_RUN'} for n in self.ns['CONTROL_ORDER']}
+        self.ns['all_control_clients_closed']=lambda name,stage:self.actions.append(stage)
+        self.ns['collect_native']=lambda name,stage,filename:(self.actions.append(stage) or deepcopy(native))
+        def invoke(component,plan,directory):
+            self.actions.append(component);directory.mkdir()
+            directory.joinpath(self.ns['CONTROL_SPECS'][component]['evidence']).write_bytes(encoded(self.result_doc(component)))
+            return 0
+        self.ns['invoke_control']=invoke
+        return native
+
+    def test_generated_sources_reproduce_exact_reviewed_base_with_declared_changes(self):
+        base=ast.parse((TASK/'local_f0_catalog_v4_operation_steps.py').read_bytes());current=ast.parse(STEPS.read_bytes())
+        before={n.name:ast.dump(n,include_attributes=False) for n in base.body if isinstance(n,ast.FunctionDef)}
+        after={n.name:ast.dump(n,include_attributes=False) for n in current.body if isinstance(n,ast.FunctionDef)}
+        self.assertEqual({n for n in before if n in after and before[n]!=after[n]},{'verify_common_packet','bootstrap_all','migrate','main','verify_packet'})
+        source=(TASK/'local_f0_catalog_v4_operation_steps.py').read_text()
+        original=next(n for n in base.body if isinstance(n,ast.FunctionDef) and n.name=='verify_packet')
+        changed=ast.get_source_segment(source,original).replace('def verify_packet():','def verify_catalog_packet():').replace("name='wa-p0c-'+RUN_ID[:8]+'-catalog'","name='wa-p0c-'+RUN_ID[:8]+'-controls'")
+        self.assertEqual(after['verify_catalog_packet'],ast.dump(ast.parse(changed).body[0],include_attributes=False))
+        self.assertNotIn('runpy.run_path',STEPS.read_text().split('# Restricted packets remain',1)[0])
+
+    def test_real_selected_graphs_are_admitted_before_any_compilation(self):
+        self.ns['verify_controls']()
+        r=self.ns['report']['control_preparation'];self.assertTrue(r['selected_fixture_namespaces_disjoint'])
+        self.assertEqual(r['selected_order'],['customer','worker','context'])
+        self.assertEqual(tuple(self.ns['CONTROLS']['modules']),('customer','worker','context'))
+        self.assertNotIn(self.ns['CONTROL_SPECS']['unique']['coordinator'],self.ns['CLOSED_MODULE_BYTES'])
+        self.assertTrue(all(v>0 for v in r['fixture_uuid_namespace_sizes'].values()))
+
+    def test_real_unique_graph_is_source_checked_but_pending_review_compiles_nothing(self):
+        self.ns['MANIFEST']['restricted_controls']['order']=['unique']
+        self.descriptors['unique']['source_review']['decision']='PENDING_SOURCE_REVIEW'
+        with patch.dict(self.ns,closed_module=lambda *a:(_ for _ in ()).throw(AssertionError('COMPILE_FORBIDDEN'))):
+            self.refusal('CONTROL_SOURCE_REVIEW_PENDING',self.ns['verify_controls'])
+        self.assertEqual(self.ns['CLOSED_MODULE_BYTES'],{})
+
+    def test_unique_root_review_binding_is_mandatory_before_compilation(self):
+        self.ns['MANIFEST']['restricted_controls']['order']=['unique']
+        self.descriptors['unique']['source_review']['evidence']['sha256']='0'*64
+        self.refusal('UNIQUE_ROOT_SOURCE_REVIEW_BINDING',self.ns['verify_controls'])
+        self.assertEqual(self.ns['CLOSED_MODULE_BYTES'],{})
+
+    def test_selected_hash_drift_stops_before_any_compile_or_process(self):
+        spec=self.ns['CONTROL_SPECS']['context'];self.packet[spec['manifest']]='0'*64
+        with patch.dict(self.ns,closed_module=lambda *a:(_ for _ in ()).throw(AssertionError('COMPILE_FORBIDDEN'))):
+            self.refusal('CONTROL_SOURCE_NOT_IN_FULL_PACKET',self.ns['verify_controls'])
+
+    def test_unselected_unfinished_coordinator_is_outside_admitted_graph(self):
+        self.ns['MANIFEST']['restricted_controls']['order']=['customer']
+        self.packet.pop(self.ns['CONTROL_SPECS']['unique']['manifest'])
+        self.ns['verify_controls']();self.assertEqual(self.ns['CONTROLS']['order'],['customer'])
+
+    def test_order_duplicates_unknown_and_empty_selection_fail_closed(self):
+        for order in ([],['worker','customer'],['customer','customer'],['owner-adapter']):
+            self.ns['MANIFEST']['restricted_controls']['order']=order
+            self.refusal('CONTROL_SELECTED_ORDER',self.ns['verify_controls'])
+
+    def test_namespace_overlap_blocks_before_compilation(self):
+        with patch.dict(self.ns,source_uuid_namespace=lambda *a:{'719dffcb-a5f9-4a93-bffe-7faf83f7a914'},closed_module=lambda *a:(_ for _ in ()).throw(AssertionError('COMPILE_FORBIDDEN'))):
+            self.refusal('CONTROL_FIXTURE_NAMESPACES_OVERLAP',self.ns['verify_controls'])
+
+    def test_source_namespace_depth_bound_and_uuid_values_only(self):
+        self.assertEqual(self.ns['source_uuid_namespace']({'id':RUN,'ignored':'secret'}),{RUN})
+        value=RUN
+        for unused in range(42):value=[value]
+        self.refusal('CONTROL_NAMESPACE_DEPTH',lambda:self.ns['source_uuid_namespace'](value))
+
+    def test_transitive_runpy_uses_admitted_cached_bytes_after_disk_changes(self):
+        self.ns['verify_controls']()
+        original=Path.read_bytes
+        def drift(path):
+            if path.suffix=='.py':raise AssertionError('POST_ADMISSION_DISK_READ_FORBIDDEN')
+            return original(path)
+        with patch.object(Path,'read_bytes',drift):
+            module=self.ns['closed_module']('scripts/sql-review/run-local-f0-migrate.py')
+        self.assertTrue(callable(module['coordinate']))
+        self.refusal('CONTROL_HELPER_NOT_PREHASHED',lambda:self.ns['closed_module']('unreviewed-helper.py'))
+
+    def test_helper_import_has_no_unlisted_path_fallback(self):
+        self.ns['CLOSED_MODULE_BYTES']['sample.py']=b"import runpy\nrunpy.run_path(__file__+'/../missing.py')\n"
+        self.refusal('CONTROL_HELPER_NOT_PREHASHED',lambda:self.ns['closed_module']('sample.py'))
+
+    def test_native_gate_requires_full_pass_ledger_oracle_and_original_finalization(self):
+        self.native_assets();self.assertEqual(self.ns['native_control_assets']()[0]['schemas'],[])
+        self.ns['finalized'].clear();self.refusal('CONTROL_ORIGINAL_GRANTOR_FINALIZATION_REQUIRED',self.ns['native_control_assets'])
+        self.native_assets();self.ns['report']['ledger_comparison']['status']='INCOMPLETE'
+        self.refusal('CONTROL_FULL_NATIVE_LEDGER_ORACLE_REQUIRED',self.ns['native_control_assets'])
+
+    def test_native_incomplete_and_malformed_counts_never_admit_controls(self):
+        for changes in ({'status':'INCOMPLETE'},{'check_counts':{'PASS':True}},{'check_counts':{'PASS':1,'FAIL':1}},{'check_counts':{'PASS':0}},{'findings':[{'result':'FAIL'}]}):
+            self.native_assets();self.ns['report']['catalog_comparison'].update(changes)
+            (self.out/'catalog-comparison.json').write_bytes(encoded(self.ns['report']['catalog_comparison']))
+            self.refusal('CONTROL_FULL_NATIVE_PASS_REQUIRED',self.ns['native_control_assets'])
+
+    def test_native_snapshot_and_comparison_file_binding_rejects_replacement(self):
+        self.native_assets();(self.out/'native-before.json').write_bytes(encoded({'different':True}))
+        self.refusal('CONTROL_NATIVE_SNAPSHOT_BINDING',self.ns['native_control_assets'])
+        self.native_assets();value=json.loads((self.out/'catalog-comparison.json').read_bytes());value['status']='INCOMPLETE';(self.out/'catalog-comparison.json').write_bytes(encoded(value))
+        self.refusal('CONTROL_NATIVE_COMPARISON_BINDING',self.ns['native_control_assets'])
+
+    def test_all_client_backend_closure_requires_exact_integer_zero(self):
+        for value in ({'other_client_backends':1},{'other_client_backends':False},{'other_client_backends':0,'secret':CANARY},None):
+            self.ns['observe']=lambda *args,value=value:value
+            self.refusal('CONTROL_ALL_CLIENTS_CLOSURE_UNCONFIRMED',lambda:self.ns['all_control_clients_closed'](NAME,'BEFORE_TEST'))
+        self.ns['observe']=lambda *args:{'other_client_backends':0};self.ns['all_control_clients_closed'](NAME,'AFTER_TEST')
+        self.assertTrue(self.ns['report']['control_backend_closures'][-1]['all_other_client_backends_absent'])
+
+    def test_exact_run_plan_schemas_and_same_run_native_attestations(self):
+        native=self.native_assets();_,nr,cr=self.ns['native_control_assets']()
+        common={'schema','scope','reviewed_packet_sha256','source_modules_sha256','target_manifest','native_snapshot','native_comparison','scenario_names'}
+        for component in self.ns['CONTROL_ORDER']:
+            plan=self.ns['build_control_run_plan'](component,native,nr,cr)
+            expected=set(common)
+            if component!='customer':expected.update({'reviewed_content_sha256','immutable_container_id'})
+            if component in ('context','unique'):expected.update({'run_id','source_commit','source_tree','packet_sha256','native_attestation'})
+            if component=='unique':expected.remove('scenario_names');expected.add('race_names')
+            self.assertEqual(set(plan),expected)
+            self.assertEqual(set(plan['source_modules_sha256']),set(self.ns['CONTROL_SPECS'][component]['modules']))
+            if component in ('context','unique'):
+                att=json.loads(Path(plan['native_attestation']['path']).read_bytes())
+                self.assertEqual(att['run_id'],RUN);self.assertEqual(att['container_id'],CID);self.assertEqual(att['source_commit'],'a'*40);self.assertEqual(att['packet_sha256'],'c'*64)
+                self.assertTrue(att['original_grantor_finalized'] and att['operation_backends_absent'])
+                self.assertEqual(att['native_snapshot_sha256'],self.ns['digest'](native))
+
+    def test_run_plan_refuses_nested_manifest_drift_and_other_run(self):
+        native=self.native_assets();_,nr,cr=self.ns['native_control_assets']()
+        self.target_file.write_bytes(encoded({'secret':CANARY}))
+        self.refusal('CONTROL_TARGET_MANIFEST_DRIFT',lambda:self.ns['build_control_run_plan']('context',native,nr,cr))
+        self.target_doc['run_id']='b'*40;self.target_file.write_bytes(encoded(self.target_doc));self.ns['MANIFEST']['migration_targets']['ok']['manifest_sha256']=sha(self.target_file.read_bytes())
+        self.refusal('CONTROL_TARGET_RUN_SOURCE',lambda:self.ns['build_control_run_plan']('context',native,nr,cr))
+
+    def test_real_four_coordinator_input_apis_accept_generated_source_only_plans(self):
+        self.ns['MANIFEST']['restricted_controls']['order']=list(self.ns['CONTROL_ORDER'])
+        self.ns['verify_controls']()
+        base=json.loads((TASK/'local-f0-catalog-v4-plan-8fa680ed/operation-manifest.json').read_bytes())
+        target=json.loads(Path(base['migration_targets']['ok']['manifest_path']).read_bytes())
+        target['run_id']=RUN;target['target'].update(container_name=NAME,volume_name=NAME+'-data')
+        target['target']['labels']['workinants.rehearsal.run']=RUN
+        self.target_file.write_bytes(encoded(target));self.ns['MANIFEST']['migration_targets']['ok']['manifest_sha256']=sha(self.target_file.read_bytes())
+        native=self.native_assets();native.update(server_version_num=170011,read_only=True,collected_as='postgres',collector_is_superuser=True)
+        native_raw=encoded(native);(self.out/'native-before.json').write_bytes(native_raw)
+        self.ns['report']['native_snapshots'][0].update(artifact_sha256=sha(native_raw),native_sha256=self.ns['digest'](native))
+        self.ns['report']['qualified_native_snapshot_sha256']=self.ns['digest'](native)
+        self.ns['report']['catalog_comparison']['native_snapshot_sha256']=self.ns['digest'](native)
+        (self.out/'catalog-comparison.json').write_bytes(encoded(self.ns['report']['catalog_comparison']))
+        native,nr,cr=self.ns['native_control_assets']()
+        for component in self.ns['CONTROL_ORDER']:
+            plan=self.ns['build_control_run_plan'](component,native,nr,cr)
+            value=self.ns['CONTROLS']['modules'][component]['load_inputs'](plan)
+            self.assertIsInstance(value,tuple)
+
+    def test_customer_identity_hook_calls_real_guard_and_requires_created_cid(self):
+        calls=[]
+        def guard(target):calls.append('real_guard');return '2'*64
+        def main(args,dependencies):return dependencies['resource_identity']({})
+        self.ns['CONTROLS']['modules']={'customer':{'main':main,'resource_identity':guard}}
+        self.refusal('CONTROL_COMPONENT_EXCEPTION_OUTPUT_DISCARDED',lambda:self.ns['invoke_control']('customer',self.out/'plan',self.out/'coor'))
+        self.assertEqual(calls,['real_guard'])
+
+    def test_actual_cli_flags_are_used_and_arbitrary_output_is_discarded(self):
+        observed=[]
+        def main(args,**kwargs):observed.append(args);print(CANARY);return 0
+        self.ns['CONTROLS']['modules']={n:{'main':main,'resource_identity':lambda target:CID} for n in self.ns['CONTROL_ORDER']}
+        for component in self.ns['CONTROL_ORDER']:
+            self.assertEqual(self.ns['invoke_control'](component,self.out/'plan',self.out/'evidence'),0)
+            spec=self.ns['CONTROL_SPECS'][component]
+            self.assertEqual(observed[-1],[spec['flag'],spec['plan_flag'],str(self.out/'plan'),'--evidence-directory',str(self.out/'evidence')])
+        self.assertNotIn(CANARY,json.dumps(self.ns['report']))
+
+    def test_unexpected_coordinator_output_and_exception_are_not_exported(self):
+        def main(args):print(CANARY);raise RuntimeError(CANARY)
+        self.ns['CONTROLS']['modules']={'context':{'main':main}}
+        self.refusal('CONTROL_COMPONENT_EXCEPTION_OUTPUT_DISCARDED',lambda:self.ns['invoke_control']('context',self.out/'plan',self.out/'evidence'))
+        self.assertNotIn(CANARY,json.dumps(self.saved))
+
+    def test_component_result_retains_only_safe_reference_before_rejection(self):
+        path=self.out/'partial.json';path.write_bytes(encoded({'schema':'unexpected','results':[{'secret':CANARY}],'raw':CANARY}))
+        self.refusal('CONTROL_COMPONENT_NOT_COMPLETE',lambda:self.ns['control_result_summary']('customer',path,1))
+        summary=self.ns['report']['control_packets']['customer'];self.assertEqual(summary['completed_results'],1);self.assertEqual(summary['evidence_sha256'],sha(path.read_bytes()))
+        self.assertNotIn(CANARY,json.dumps(summary))
+
+    def test_worker_two_blocked_proposals_can_never_become_pass_results(self):
+        self.ns['CONTROLS']['packets']=self.packets;path=self.out/'worker.json';value=self.result_doc('worker');path.write_bytes(encoded(value))
+        self.ns['control_result_summary']('worker',path,0)
+        value['results'].append({'component':self.packets['worker']['scenarios'][4]['name'],'status':'PASS_COMPONENT_ONLY'});path.write_bytes(encoded(value))
+        self.refusal('CONTROL_WORKER_FINITE_COMPONENTS',lambda:self.ns['control_result_summary']('worker',path,0))
+
+    def test_mock_ordered_pipeline_checks_closure_native_and_preserves_not_run_limits(self):
+        self.prepare_pipeline();self.ns['restricted_experiments']()
+        self.assertEqual(self.actions,['BEFORE_CUSTOMER','customer','AFTER_CUSTOMER','AFTER_CONTROL_CUSTOMER','CONTROL_CUSTOMER','BEFORE_WORKER','worker','AFTER_WORKER','AFTER_CONTROL_WORKER','CONTROL_WORKER','BEFORE_CONTEXT','context','AFTER_CONTEXT','AFTER_CONTROL_CONTEXT','CONTROL_CONTEXT'])
+        self.assertEqual(self.ns['report']['control_packets']['unique']['status'],'NOT_RUN')
+        self.assertTrue(all(self.ns['report']['control_packets'][n]['status']=='PASS_FINITE_PACKET_ONLY_NOT_SELECTED_CASES' for n in ('customer','worker','context')))
+
+    def test_unexpected_middle_failure_preserves_partial_and_stops_later_packet(self):
+        self.prepare_pipeline();normal=self.ns['invoke_control']
+        def invoke(component,plan,directory):
+            if component!='worker':return normal(component,plan,directory)
+            self.actions.append(component);directory.mkdir();directory.joinpath(self.ns['CONTROL_SPECS'][component]['evidence']).write_bytes(encoded({'results':[{'component':'completed'}],'status':'STOPPED'}));raise self.ns['Stop']('CONTROL_COMPONENT_EXCEPTION_OUTPUT_DISCARDED')
+        self.ns['invoke_control']=invoke
+        self.refusal('CONTROL_COMPONENT_EXCEPTION_OUTPUT_DISCARDED',self.ns['restricted_experiments'])
+        self.assertNotIn('context',self.actions);self.assertEqual(self.ns['report']['control_packets']['worker']['completed_results'],1)
+        self.assertEqual(self.ns['report']['control_packets']['customer']['status'],'PASS_FINITE_PACKET_ONLY_NOT_SELECTED_CASES')
+        self.assertEqual(self.ns['report']['control_packets']['context']['status'],'NOT_RUN')
+
+    def test_native_change_after_first_packet_stops_remaining_packets(self):
+        self.prepare_pipeline();self.ns['collect_native']=lambda *args:{'changed':True}
+        self.refusal('CONTROL_CHANGED_NATIVE_CATALOG',self.ns['restricted_experiments'])
+        self.assertNotIn('worker',self.actions);self.assertNotIn('CONTROL-CUSTOMER',self.ns['report']['steps'])
+
+    def test_unconfirmed_closure_prevents_plan_and_coordinator(self):
+        self.prepare_pipeline();self.ns['all_control_clients_closed']=lambda *args:(_ for _ in ()).throw(self.ns['Stop']('CONTROL_ALL_CLIENTS_CLOSURE_UNCONFIRMED'))
+        self.refusal('CONTROL_ALL_CLIENTS_CLOSURE_UNCONFIRMED',self.ns['restricted_experiments'])
+        self.assertFalse((self.out/'customer-run-plan.json').exists());self.assertEqual(self.actions,[])
+
+    def test_main_always_finalizes_scans_cleans_and_stops_after_control_failure(self):
+        self.out.rmdir();self.ns['report']['source_verification']={'files_sha256':{'review-output/foundation-application.review.sql':self.ns['APPLICATION_SHA']}}
+        for name in ('verify_packet','preflight','ensure_image','create_resources','bootstrap_all','provision_migration_tools','catalog_experiment'):
+            self.ns[name]=lambda name=name:self.actions.append(name)
+        self.ns['bootstrap_attempted'].add(NAME)
+        self.ns['restricted_experiments']=lambda:(_ for _ in ()).throw(RuntimeError(CANARY))
+        self.ns['finalize']=lambda name:self.actions.append('original_grantor_finally')
+        self.ns['secret_scan']=lambda:self.actions.append('secret_scan');self.ns['cleanup']=lambda:self.actions.append('cleanup');self.ns['verify_tool_data']=lambda:None
+        output=io.StringIO()
+        with redirect_stdout(output),redirect_stderr(output):code=self.ns['main']()
+        self.assertEqual(code,1);self.assertEqual(self.actions[-3:],['original_grantor_finally','secret_scan','cleanup'])
+        self.assertNotIn(CANARY,output.getvalue()+json.dumps(self.ns['report']))
+        self.assertTrue(self.ns['report']['packet_unchanged_after_run'])
+
+
+class SourcePreparationTests(unittest.TestCase):
+    def setUp(self):
+        self.stack=ExitStack();self.addCleanup(self.stack.close)
+        for method in ('run','Popen','check_call','check_output','call'):
+            self.stack.enter_context(patch.object(subprocess,method,side_effect=AssertionError('PROCESS_FORBIDDEN')))
+        self.stack.enter_context(patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN')))
+        self.ns=runpy.run_path(str(TASK/'restricted_controls_prepare_plan.py'))
+
+    def test_preparer_import_help_and_missing_approval_are_process_free(self):
+        output=io.StringIO()
+        with redirect_stdout(output),redirect_stderr(output):code=self.ns['main']([])
+        self.assertEqual(code,2);self.assertIn('EXPLICIT_SOURCE_PREPARATION_REQUIRED',output.getvalue())
+        with redirect_stdout(io.StringIO()),self.assertRaises(SystemExit) as error:self.ns['main'](['--help'])
+        self.assertEqual(error.exception.code,0)
+
+    def test_preparer_source_paths_reject_absolute_parent_and_backslash(self):
+        for path in ('../escape','C:/escape','a\\b'):
+            with self.assertRaises(self.ns['PreparationHeld']):self.ns['source_path'](ROOT,path)
+
+    def test_held_preparation_has_only_fresh_external_target_metadata_and_no_root_writes(self):
+        with tempfile.TemporaryDirectory(prefix='offline-controls-preparer-',dir=TASK) as directory:
+            task=Path(directory);root=task/'workinants-correction-pass';root.mkdir()
+            base=json.loads((TASK/'local-f0-catalog-v4-plan-8fa680ed/operation-manifest.json').read_bytes())
+            # Synthetic admission inventory uses current bytes solely to test
+            # source preparation. It is not an operational review approval.
+            files={}
+            for relative in base['packet_files_sha256']:
+                raw=(ROOT/relative).read_bytes();path=root/relative;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw);files[relative]=sha(raw)
+            for relative in ('node_modules/prisma/package.json','node_modules/@prisma/engines-version/package.json'):
+                path=root/relative;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes((ROOT/relative).read_bytes())
+            for filename,snapshot in self.ns['SOURCE_FILES'].items():
+                raw=(TASK/filename).read_bytes();(task/filename).write_bytes(raw);path=root/self.ns['SOURCE_ROOT']/snapshot;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
+            specs=self.ns['literal_specs']((TASK/'restricted_controls_operation_steps.py').read_bytes())
+            spec=specs['customer'];packet=json.loads((ROOT/spec['manifest']).read_bytes())
+            extra={spec['manifest']:spec['manifest_sha256'],**packet[spec['source_group']],**{spec['manifest'].rsplit('/',1)[0]+'/'+p:v for p,v in packet[spec['prepared_group']].items()},**{p:sha((ROOT/p).read_bytes()) for p in spec['modules']},'scripts/prepare-customer-control-rehearsal.py':packet['generator_source_sha256'],'scripts/check-customer-control-rehearsal.py':packet['focused_check_source_sha256']}
+            for relative in extra:
+                path=root/relative;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes((ROOT/relative).read_bytes())
+            base.update(packet_files_sha256=files,packet_sha256=sha(''.join(p+'\0'+files[p]+'\n' for p in sorted(files)).encode()),review_status='APPROVED_LOCAL_F0_NATIVE_CATALOG_ATTEMPT')
+            basefile=task/'mock-base.json';basefile.write_bytes(encoded(base));before={p.relative_to(root).as_posix():sha(p.read_bytes()) for p in root.rglob('*') if p.is_file()}
+            path,master=self.ns['prepare'](root,task,basefile,['customer'],RUN)
+            after={p.relative_to(root).as_posix():sha(p.read_bytes()) for p in root.rglob('*') if p.is_file()};self.assertEqual(before,after)
+            self.assertEqual(master['review_status'],'PENDING_OPERATIONAL_REVIEW');self.assertEqual(master['source_commit'],'TO_BE_PINNED')
+            self.assertEqual(master['restricted_controls']['components']['unique']['source_review']['decision'],'APPROVED_SOURCE')
+            self.assertEqual(master['restricted_controls']['components']['unique']['source_review']['evidence'],self.ns['UNIQUE_REVIEW'])
+            target=master['migration_targets']['ok'];self.assertEqual(len(target['source_files_sha256']),7)
+            with tarfile.open(target['source_archive'],'r:gz') as archive:self.assertEqual(set(archive.getnames()),set(target['source_files_sha256']))
+            nested=json.loads(Path(target['manifest_path']).read_bytes());self.assertEqual(nested['target']['container_name'],NAME);self.assertEqual(nested['run_id'],RUN)
+            snapshot=json.loads((Path(target['source_snapshot'])/'prisma/foundation/history-manifest.json').read_bytes())
+            self.assertIn(RUN,json.dumps(snapshot));self.assertEqual(master['targets'],[{'name':NAME,'volume':NAME+'-data','kind':'ok'}])
+            self.assertTrue(path.is_relative_to(task) and not path.is_relative_to(root))
+            with self.assertRaises(self.ns['PreparationHeld']) as error:self.ns['prepare'](root,task,basefile,['customer'],RUN)
+            self.assertEqual(error.exception.code,'FRESH_PLAN_AND_EVIDENCE_REQUIRED')
+            changed=next(iter(files));(root/changed).write_bytes(b'CHANGED_SOURCE_BYTES')
+            with self.assertRaises(self.ns['PreparationHeld']) as error:self.ns['load_base'](root,basefile)
+            self.assertEqual(error.exception.code,'SOURCE_ADMISSION_DRIFT')
+
+    def test_literal_specs_reads_data_without_executing_operations(self):
+        raw=b"raise RuntimeError('MUST_NOT_EXECUTE')\nCONTROL_SPECS={'customer':{},'worker':{},'context':{},'unique':{}}\n"
+        self.assertEqual(tuple(self.ns['literal_specs'](raw)),('customer','worker','context','unique'))
+
+
+if __name__=='__main__':unittest.main(verbosity=2)

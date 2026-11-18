@@ -1,0 +1,5024 @@
+{
+  "schema": "workinants.context-control-fixtures.v1",
+  "status": "NOT_RUN",
+  "database_posture": "D",
+  "database_contacted": false,
+  "sql_executed": false,
+  "selected_control_ids": [
+    "P0C-CTX-01"
+  ],
+  "source_control_definition": {
+    "id": "P0C-CTX-01",
+    "phase": "P0-C",
+    "stage": "F0_FOUNDATION",
+    "requirement": [
+      "SQL-02",
+      "SQL-06"
+    ],
+    "setup": "Separate issuer login plus two runtime/worker READ COMMITTED connections; issue nonnullable immutable tuple before each bind",
+    "action": "Exercise full ROLLBACK after bind; SAVEPOINT then bind then ROLLBACK TO SAVEPOINT then full rollback; a failed bind; commit then same-pool reuse; different backend, same backend/new xid, and wrong isolation. Try every old token in a later transaction, then obtain a freshly authorized tuple grant for the same semantic command key",
+    "expected": "Old tuple survives bind rollback in issuer-owned committed row and never authorizes a later xid; no runtime/helper grant writes; fresh grant succeeds. Same-live-transaction rebind is idempotent",
+    "status": "NOT_RUN",
+    "p0c03a_vectors": [
+      {
+        "id": "READ-PURPOSE-NO-WRITE",
+        "positive": "Canonical query/pure/result/presentation and projection/history/access-evidence source scopes admit only SELECT",
+        "adversarial": "Give SH-003 or another nonmutating purpose otherwise matching root UPDATE capabilities",
+        "expected": "Source writes deny; any independent append-only read proof needs an explicitly registered owner operation",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "SERVICE-BOOTSTRAP",
+        "positive": "Identity writer commits bootstrap receipt and generation zero, then issuer binds a current service grant",
+        "adversarial": "Issuer/app/worker tries to manufacture service currentness, wrong tuple, or stale generation",
+        "expected": "Only independent Identity currentness authorizes service; issuer cannot write its own current source",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "SCOPE-PURPOSE",
+        "positive": "Exact Customer action/purpose/root and otherwise valid row/field caps",
+        "adversarial": "Keep the same row/fields while substituting purpose, action or root",
+        "expected": "Protected operation succeeds only for its registered scope",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "POOL-LIFETIME",
+        "positive": "New READ COMMITTED transaction on the same backend obtains a fresh separately committed grant",
+        "adversarial": "Reuse old handle after full/savepoint rollback or commit; use another backend or xid",
+        "expected": "Current tuple succeeds; all stale or foreign tuples deny",
+        "status": "NOT_RUN"
+      }
+    ]
+  },
+  "source_files_sha256": {
+    "scripts/prepare-context-control-rehearsal.py": "459c4ce2c0f44c6ffd2dfe5ef50f2593a23c21b54b35a014209359094fda9ec4",
+    "scripts/check-context-control-rehearsal.py": "1591ec9ff16805234b04295c4eb46efe9bd94c8873ffa749aee082f40384def7",
+    "scripts/prepare-customer-control-rehearsal.py": "6d67c52ab7c3cc95082c5c82cf007910fcb75a7721d832d3236fe213e3bba174",
+    "scripts/contract_schema.py": "27b91594ac3dc9e1345b5bde912b4a849f0a324e90819df56150f7e3d326bc8c",
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "scripts/assemble-foundation-sql-review.py": "136489b5fb966085020128bfbd7140dad5e0b340a2312319d346305311fc212f",
+    "scripts/sql-review/foundation-verification.sql": "053a0e26bffab95324e2ed70b74ec3f13e49b4a5f08ec6ff50367d2e219dda6c",
+    "scripts/sql-review/foundation-service-authority.sql": "7e61a56e66bf17a168b5b07db0f6c7a5522e4a71b9976119e5800cc969bbac82",
+    "context/reconciliation/foundation-sql-scope-policy.json": "a1c56896b12e15e03eb04bef6d5c9254692cdc3918167e024e54006b6fa38b1b",
+    "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+    "contracts/shared/SH-004.v1.schema.json": "e7cd3008e84dce839f189ff882feb9bb68b42784e0f403981e652d239328667e",
+    "contracts/shared/types.v1.schema.json": "606d2f772bedf96ae59e82995831e741435dc573fdca477c8e735b5a63c30cf2",
+    "contracts/database-review/foundation-payloads.v1.schema.json": "a9e7eb1e44fd0cce0bff97b906d0c3cb98c49f63f2f07b95560e0d7013105cfe",
+    "contracts/database-review/owner-mutation-evidence.v1.schema.json": "5b95ff84e970a9587b4c04f37f2730878164c8aa77e2311410556f7b8d3c99a2",
+    "context/shared/contracts/SH-004.md": "114d4269db29edf0946d01fa2f9ac21769b22244aca940fe8270445ddd33d1bd",
+    "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-module-architecture.md": "9c9c86fc035b151c31060269a69342d80f729cebdcdd090747b2681de9ca7f3b",
+    "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-implementation-plan.md": "1264589c05d92a40746ebf71de3b04368ce511755f538dc58e7bc3e80ede0853",
+    "context/clusters/identity, authority, & consent/Identity & Access module/identity-access-module-architecture.md": "a99147effb732761118bb4959bfee4810239a88359660f68cea434e7f4609e52",
+    "context/clusters/identity, authority, & consent/Identity & Access module/identity-access-module-implementation-plan.md": "2cf19c6e2e06972bd403dc747de28a42af99c7c6fea8ae191ca1de0e8fc4aa9d"
+  },
+  "namespace_policy": {
+    "mode": "FRESH_DISJOINT_ONLY",
+    "reuse": "BLOCKED_WITHOUT_SEPARATELY_REVIEWED_EXACT_STATE_AND_SOURCE_PROOF",
+    "ids": {
+      "CustomerProfile": "bbe23c0b-ee0e-57f8-a60e-8333fe8650e2",
+      "RuntimeCommandReceipt": "2d606abb-7830-5094-82f3-09e70adca015",
+      "CustomerProfileLifecycleEvent": "0158773c-db88-52bc-b895-7dce8eef32e9",
+      "OwnerMutationEvidence": "7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e",
+      "event": "0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd",
+      "free": "73c0bd05-54fe-5bee-acb1-17b64224f16a",
+      "extra": "5fd92e10-6c7c-5788-baaa-b1c6ae9155db",
+      "duplicate": "b312887e-1745-5cc2-8e5e-36e08d06fbd1",
+      "user": "078052af-7e37-53e9-a1ae-462cceb06d30",
+      "grant": "4beb2dcd-0c54-5a35-8250-39feb6c13479",
+      "work": "927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7",
+      "identity_bootstrap": "9f6b0fa9-7a6f-52a6-8297-6ea55cbf6c0f",
+      "user_security": "0ad89161-cd46-5bc5-b5d8-769ddb12c8a6"
+    },
+    "service_principal": "ctx01-control-synthetic.v1",
+    "all_identity_business_work_grant_instances_must_be_absent": true,
+    "unissued_hash_must_have_no_matching_row": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "source_customer": {
+    "name": "ctx01-source-customer",
+    "variation": "valid",
+    "status": "NOT_RUN",
+    "runtime_eligibility": "PENDING_INDEPENDENT_SOURCE_PACKET_AND_RUN_REVIEW",
+    "control_ids": [
+      "P0C-CTX-01"
+    ],
+    "grant": {
+      "id": "4beb2dcd-0c54-5a35-8250-39feb6c13479",
+      "principal_user_id": "078052af-7e37-53e9-a1ae-462cceb06d30",
+      "database_login_role": "wa_app_runtime",
+      "owner_module_id": "customer_buyer_profile",
+      "action": "SH-004.v1",
+      "purpose": "provision",
+      "target_kind": "CustomerProfile",
+      "target_id": "bbe23c0b-ee0e-57f8-a60e-8333fe8650e2",
+      "source_generation": "0",
+      "security_generation": "0",
+      "allowed_fields": [
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/archivedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/avatarMediaId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/city",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/country",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/displayName",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/id",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/privacyGeneration",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/revision",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/state",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/status",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/updatedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/userId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/archivedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/avatarMediaId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/city",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/country",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/createdAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/displayName",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/id",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/mutationTransactionId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/privacyGeneration",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/revision",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/state",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/status",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/updatedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/userId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/revision/0",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/INSERT/actorUserId",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/INSERT/commandReceiptId",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/INSERT/customerProfileId",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/INSERT/fromStatus",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/INSERT/id",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/INSERT/name",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/INSERT/sourceRevision",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/INSERT/toStatus",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/actorUserId",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/commandReceiptId",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/createdAt",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/customerProfileId",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/fromStatus",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/id",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/mutationTransactionId",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/name",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/sourceRevision",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/toStatus",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/action",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/aggregateId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/aggregateKind",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/commandReceiptId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/committedRevision",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/decisionRef",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/evidenceBody",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/evidenceDigest",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/evidenceSchemaId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/evidenceSchemaVersion",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/id",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/ownerModuleId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/previousRevision",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/action",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/aggregateId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/aggregateKind",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/commandReceiptId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/committedRevision",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/createdAt",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/decisionRef",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/evidenceBody",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/evidenceDigest",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/evidenceSchemaId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/evidenceSchemaVersion",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/id",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/mutationTransactionId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/ownerModuleId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/previousRevision",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/fingerprint",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/id",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/operation",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/ownerModuleId",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/resultBody",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/resultDigest",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/resultSchemaId",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/resultSchemaVersion",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/semanticKey",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/sourceRevision",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/state",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/subjectScope",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/createdAt",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/fingerprint",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/id",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/mutationTransactionId",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/operation",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/ownerModuleId",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/resultBody",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/resultDigest",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/resultSchemaId",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/resultSchemaVersion",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/semanticKey",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/sourceRevision",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/state",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/subjectScope",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/aggregateId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/aggregateKind",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/causationId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/commandReceiptId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/correctionOfId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/correlationId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/effectiveAt",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/id",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/kind",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/name",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/occurredAt",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/ordinal",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/payload",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/payloadHash",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/payloadSchemaId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/producerOwner",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/schemaVersion",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/sourceGeneration",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/sourceRevision",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/aggregateId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/aggregateKind",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/causationId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/commandReceiptId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/correctionOfId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/correlationId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/createdAt",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/effectiveAt",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/id",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/kind",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/mutationTransactionId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/name",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/occurredAt",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/ordinal",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/payload",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/payloadHash",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/payloadSchemaId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/producerOwner",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/schemaVersion",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/sourceGeneration",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/sourceRevision",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/aggregateId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/aggregateKind",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/causationId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/commandReceiptId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/correctionOfId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/correlationId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/effectiveAt",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/id",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/kind",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/name",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/occurredAt",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/ordinal",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/payload",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/payloadHash",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/payloadSchemaId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/producerOwner",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/schemaVersion",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/sourceGeneration",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/sourceRevision",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/aggregateId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/aggregateKind",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/causationId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/commandReceiptId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/correctionOfId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/correlationId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/createdAt",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/effectiveAt",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/id",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/kind",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/mutationTransactionId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/name",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/occurredAt",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/ordinal",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/payload",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/payloadHash",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/payloadSchemaId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/producerOwner",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/schemaVersion",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/sourceGeneration",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/sourceRevision"
+      ]
+    },
+    "ids": {
+      "CustomerProfile": "bbe23c0b-ee0e-57f8-a60e-8333fe8650e2",
+      "RuntimeCommandReceipt": "2d606abb-7830-5094-82f3-09e70adca015",
+      "CustomerProfileLifecycleEvent": "0158773c-db88-52bc-b895-7dce8eef32e9",
+      "OwnerMutationEvidence": "7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e",
+      "event": "0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd",
+      "free": "73c0bd05-54fe-5bee-acb1-17b64224f16a",
+      "extra": "5fd92e10-6c7c-5788-baaa-b1c6ae9155db",
+      "duplicate": "b312887e-1745-5cc2-8e5e-36e08d06fbd1",
+      "user": "078052af-7e37-53e9-a1ae-462cceb06d30",
+      "grant": "4beb2dcd-0c54-5a35-8250-39feb6c13479"
+    },
+    "semantic_key": "customer-controls-ctx01-source-customer",
+    "fixture_values": {
+      "response": {
+        "contract": "SH-004.v1",
+        "requestId": "ctx01-source-customer",
+        "status": "ok",
+        "value": {
+          "customerProfileId": "bbe23c0b-ee0e-57f8-a60e-8333fe8650e2",
+          "userId": "078052af-7e37-53e9-a1ae-462cceb06d30",
+          "lifecycle": "active",
+          "sourceToken": "0",
+          "receipt": {
+            "owner": "customer_buyer_profile",
+            "id": "2d606abb-7830-5094-82f3-09e70adca015",
+            "semanticKey": "customer-controls-ctx01-source-customer",
+            "fingerprint": "5b80bc22fcd144a2d2b501f58f31c14b4046a9a5d58e033110594432dc74f193",
+            "sourceToken": "0",
+            "recordedAt": "2026-11-17T00:00:00Z"
+          }
+        }
+      },
+      "event": {
+        "eventName": "customer.lifecycle_changed.v1",
+        "customerProfileId": "bbe23c0b-ee0e-57f8-a60e-8333fe8650e2",
+        "userId": "078052af-7e37-53e9-a1ae-462cceb06d30",
+        "lifecycleRevision": "0",
+        "safeState": "active"
+      },
+      "free_command": {
+        "sourceOwner": "customer_buyer_profile",
+        "userId": "078052af-7e37-53e9-a1ae-462cceb06d30",
+        "track": "customer",
+        "customerProfileId": "bbe23c0b-ee0e-57f8-a60e-8333fe8650e2",
+        "sourceCreationRevision": "0",
+        "sourceCreationReceipt": "2d606abb-7830-5094-82f3-09e70adca015",
+        "semanticKey": "customer_buyer_profile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/default-free-enrollment/v1"
+      },
+      "evidence": {
+        "schema": "database-owner-evidence.v1",
+        "owner": "customer_buyer_profile",
+        "model": "CustomerProfile",
+        "primaryKey": {
+          "id": "bbe23c0b-ee0e-57f8-a60e-8333fe8650e2"
+        },
+        "prior": null,
+        "committed": {
+          "id": "bbe23c0b-ee0e-57f8-a60e-8333fe8650e2",
+          "userId": "078052af-7e37-53e9-a1ae-462cceb06d30",
+          "status": "active",
+          "revision": "0",
+          "privacyGeneration": "0"
+        },
+        "decisionRef": "customer-controls-v1"
+      }
+    },
+    "expected_commit": true,
+    "intended_diagnostic": null,
+    "stage_marker_oracle": {
+      "expected_failure_stage": null,
+      "expected_failure_timing": null,
+      "expected_completed_markers": [
+        "WA_CUSTOMER_CONTROL_READY_TO_COMMIT"
+      ],
+      "forbidden_markers": [],
+      "commit_acknowledgement_required": true
+    },
+    "observer_expected": {
+      "customer": 1,
+      "command": 1,
+      "history": 1,
+      "evidence": 1,
+      "outbox": 2,
+      "track_enrollments": 0,
+      "coherent": true
+    },
+    "transaction_sql": "source-customer.sql",
+    "observer_sql": "source-customer-observe.sql",
+    "transaction_contract": "Root opens actual app READ COMMITTED transaction, captures login/pid/xid before business locks, issuer independently commits fresh handle hash + exact finite caps, then app binds handle. SQL contains neither handle nor issuer writes. Failure requires client/backend closure before independent observer; never treat command count as a commit proof.",
+    "diagnostic_limit": "For P0002 require source-bound customer_atomic frame; state alone does not identify missing history/evidence. Unlisted diagnostics stop. 23505 proves native duplicate rejection only, not a production semantic-idempotency adapter."
+  },
+  "source_creation_lifetime_protocol": {
+    "status": "NOT_RUN",
+    "actual_login": "wa_app_runtime",
+    "steps": [
+      {
+        "op": "capture",
+        "session": "A",
+        "login_identity": "session_user=current_user=actual_login",
+        "database": "wa_p0c_rehearsal",
+        "tuple_fields": [
+          "backend_pid",
+          "transaction_id",
+          "backend_start"
+        ],
+        "protected_reads_before_capture": false,
+        "tuple_label": "C1"
+      },
+      {
+        "op": "issue",
+        "session": "A",
+        "instance": "CREATE1",
+        "template": "source_customer",
+        "commit_and_close_issuer_before_bind": true
+      },
+      {
+        "op": "bind",
+        "session": "A",
+        "instance": "CREATE1"
+      },
+      {
+        "op": "sql",
+        "session": "A",
+        "file": "source-customer-rollback.sql",
+        "expected": {
+          "marker": "WA_CUSTOMER_CONTROL_READY_TO_COMMIT",
+          "transaction_end": "ROLLBACK_ACK"
+        }
+      },
+      {
+        "op": "begin",
+        "session": "A",
+        "isolation": "read committed",
+        "same_actual_connection": true
+      },
+      {
+        "op": "capture",
+        "session": "A",
+        "login_identity": "session_user=current_user=actual_login",
+        "database": "wa_p0c_rehearsal",
+        "tuple_fields": [
+          "backend_pid",
+          "transaction_id",
+          "backend_start"
+        ],
+        "protected_reads_before_capture": false,
+        "tuple_label": "C2",
+        "require_same_backend_as": "C1",
+        "require_distinct_xid_from": "C1"
+      },
+      {
+        "op": "issue",
+        "session": "A",
+        "instance": "CREATE2",
+        "template": "source_customer",
+        "commit_and_close_issuer_before_bind": true
+      },
+      {
+        "op": "bind",
+        "session": "A",
+        "instance": "CREATE2"
+      },
+      {
+        "op": "sql",
+        "session": "A",
+        "file": "source-customer.sql",
+        "expected": {
+          "marker": "WA_CUSTOMER_CONTROL_READY_TO_COMMIT",
+          "transaction_end": "COMMIT_ACK"
+        }
+      },
+      {
+        "op": "begin",
+        "session": "A",
+        "isolation": "read committed",
+        "same_actual_connection": true
+      },
+      {
+        "op": "capture",
+        "session": "A",
+        "login_identity": "session_user=current_user=actual_login",
+        "database": "wa_p0c_rehearsal",
+        "tuple_fields": [
+          "backend_pid",
+          "transaction_id",
+          "backend_start"
+        ],
+        "protected_reads_before_capture": false,
+        "tuple_label": "C3",
+        "require_same_backend_as": "C1",
+        "require_distinct_xid_from": [
+          "C1",
+          "C2"
+        ]
+      },
+      {
+        "op": "expect_bind_error",
+        "session": "A",
+        "instance": "CREATE1",
+        "reason": "TUPLE_MISMATCH",
+        "psql_exit_code": 3,
+        "acknowledgement": false,
+        "diagnostic": {
+          "sqlstate": "42501",
+          "exact_message": "invalid, stale or unsupported context",
+          "function": "platform_private.bind_request_context(text)",
+          "require_exact_source_body_hash_and_raise_line": true
+        },
+        "later_statements_forbidden": true
+      },
+      {
+        "op": "close",
+        "session": "A",
+        "require_client_exit_and_exact_backend_absence": true
+      },
+      {
+        "op": "observer",
+        "file": "source-customer-observe.sql",
+        "expected": {
+          "customer": 1,
+          "command": 1,
+          "history": 1,
+          "evidence": 1,
+          "outbox": 2,
+          "track_enrollments": 0,
+          "coherent": true
+        }
+      },
+      {
+        "op": "observer",
+        "file": "grant-retention",
+        "instances": [
+          "CREATE1",
+          "CREATE2"
+        ],
+        "expected_unchanged_issuer_rows": 2
+      }
+    ],
+    "execution_dependencies": [
+      "EXACT_SOURCE_AND_PACKET_REVIEW",
+      "FRESH_OWNED_DISPOSABLE_TARGET",
+      "AUTHENTICATION_AND_FINALIZATION_PASS",
+      "EXACT_NATIVE_CATALOG_PARITY",
+      "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+      "FIXTURE_TRIGGER_RESTORATION_PROOF",
+      "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+      "REVIEWED_FINITE_SESSION_COORDINATOR"
+    ],
+    "semantic_key": "customer-controls-ctx01-source-customer",
+    "limit": "Same SQL source group retried once after proven rollback; not an owner application adapter or durable committed-result replay."
+  },
+  "setup_order": [
+    "verify pinned source/native catalog/auth/finalization and exact fresh namespace",
+    "fixture-trigger-restore-observe.sql",
+    "trusted-identity-fixtures.sql as original bootstrap grantor",
+    "fixture-trigger-restore-observe.sql after COMMIT or failed-backend closure",
+    "source_creation_lifetime_protocol on actual app; complete observer only after closure",
+    "identity-bootstrap.sql as actual wa_identity_service_authority; COMMIT then close",
+    "schedule.sql as actual bound app with fresh issuer grant; COMMIT then close",
+    "work-observe.sql and grant-write-acl-observe.sql; then cases"
+  ],
+  "fixture_trigger_contract": {
+    "status": "NOT_RUN",
+    "bypassed": [
+      {
+        "table": "app.users",
+        "trigger": "owner_commit"
+      },
+      {
+        "table": "app.user_security_profiles",
+        "trigger": "owner_commit"
+      }
+    ],
+    "physical_guards_retained": true,
+    "expected_user_triggers": [
+      {
+        "table": "app.user_security_profiles",
+        "trigger": "owner_commit",
+        "function": "platform_private.commit_usersecurityprofile",
+        "enabled": "O"
+      },
+      {
+        "table": "app.user_security_profiles",
+        "trigger": "physical_guard",
+        "function": "platform_private.guard_usersecurityprofile",
+        "enabled": "O"
+      },
+      {
+        "table": "app.users",
+        "trigger": "owner_commit",
+        "function": "platform_private.commit_user",
+        "enabled": "O"
+      },
+      {
+        "table": "app.users",
+        "trigger": "physical_guard",
+        "function": "platform_private.guard_user",
+        "enabled": "O"
+      }
+    ],
+    "observer_expected": {
+      "expected_user_trigger_count": 4,
+      "actual_user_trigger_count": 4,
+      "exact_user_trigger_set_and_states": true,
+      "no_project_user_trigger_disabled": true
+    }
+  },
+  "mandatory_after_case_observers": [
+    {
+      "file": "source-customer-observe.sql",
+      "expected": {
+        "customer": 1,
+        "command": 1,
+        "history": 1,
+        "evidence": 1,
+        "outbox": 2,
+        "track_enrollments": 0,
+        "coherent": true
+      }
+    },
+    {
+      "file": "work-observe.sql",
+      "expected": {
+        "work_count": 1,
+        "exact_pending_work": true,
+        "attempts": 0,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "file": "fixture-trigger-restore-observe.sql",
+      "expected": {
+        "expected_user_trigger_count": 4,
+        "actual_user_trigger_count": 4,
+        "exact_user_trigger_set_and_states": true,
+        "no_project_user_trigger_disabled": true
+      }
+    },
+    {
+      "file": "grant-write-acl-observe.sql",
+      "expected": {
+        "app_no_grant_write": true,
+        "worker_no_grant_write": true,
+        "helper_no_grant_write": true,
+        "app_native_update_columns": true
+      }
+    }
+  ],
+  "after_case_observer_order": "After ALL original/retirement clients exit and exact backends are independently absent, execute every mandatory_after_case_observers entry and exact per-instance immutable grant-retention observations. No later case if any result differs; save partial evidence and controlled cleanup.",
+  "grants": {
+    "app": {
+      "template_id": "app",
+      "database_login_role": "wa_app_runtime",
+      "issuer_service": "wa_context_issuer",
+      "owner_module_id": "customer_buyer_profile",
+      "action": "SH-004.v1",
+      "purpose": "resolve",
+      "target_kind": "CustomerProfile",
+      "target_id": "bbe23c0b-ee0e-57f8-a60e-8333fe8650e2",
+      "principal_user_id": "078052af-7e37-53e9-a1ae-462cceb06d30",
+      "service_principal": null,
+      "source_generation": "0",
+      "security_generation": "0",
+      "allowed_fields": [
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/archivedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/avatarMediaId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/city",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/country",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/createdAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/displayName",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/id",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/mutationTransactionId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/privacyGeneration",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/revision",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/state",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/status",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/updatedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/userId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/revision/0"
+      ],
+      "policy_version": "ctx01-source-fixture.v1",
+      "status": "NOT_RUN"
+    },
+    "worker": {
+      "template_id": "worker",
+      "database_login_role": "wa_worker",
+      "issuer_service": "wa_context_issuer",
+      "owner_module_id": "platform_integration_owner",
+      "action": "runtime.claim_work.v1",
+      "purpose": "work.claim",
+      "target_kind": "RuntimeWorkItem",
+      "target_id": "927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7",
+      "principal_user_id": null,
+      "service_principal": "ctx01-control-synthetic.v1",
+      "source_generation": "0",
+      "security_generation": "0",
+      "allowed_fields": [
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/attemptCount",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/createdAt",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/effectReceiptId",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/fence",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/handlerName",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/id",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/leaseExpiresAt",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/leaseTokenHash",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/mutationTransactionId",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/nextAttemptAt",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/outboxMessageId",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/semanticWorkKey",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/state",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/revision/0"
+      ],
+      "policy_version": "ctx01-source-fixture.v1",
+      "status": "NOT_RUN"
+    },
+    "schedule": {
+      "template_id": "schedule",
+      "database_login_role": "wa_app_runtime",
+      "issuer_service": "wa_context_issuer",
+      "owner_module_id": "platform_integration_owner",
+      "action": "runtime.schedule_work.v1",
+      "purpose": "work.schedule",
+      "target_kind": "RuntimeWorkItem",
+      "target_id": "927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7",
+      "principal_user_id": "078052af-7e37-53e9-a1ae-462cceb06d30",
+      "service_principal": null,
+      "source_generation": "0",
+      "security_generation": "0",
+      "allowed_fields": [
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/INSERT/attemptCount",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/INSERT/effectReceiptId",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/INSERT/fence",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/INSERT/handlerName",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/INSERT/id",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/INSERT/leaseExpiresAt",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/INSERT/leaseTokenHash",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/INSERT/nextAttemptAt",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/INSERT/outboxMessageId",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/INSERT/semanticWorkKey",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/INSERT/state",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/attemptCount",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/createdAt",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/effectReceiptId",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/fence",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/handlerName",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/id",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/leaseExpiresAt",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/leaseTokenHash",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/mutationTransactionId",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/nextAttemptAt",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/outboxMessageId",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/semanticWorkKey",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/SELECT/state",
+        "RuntimeWorkItem/927e6a91-e9f9-5a6a-88c0-2c6b7402e5f7/revision/0"
+      ],
+      "policy_version": "ctx01-source-fixture.v1",
+      "status": "NOT_RUN"
+    },
+    "source_customer": {
+      "id": "4beb2dcd-0c54-5a35-8250-39feb6c13479",
+      "principal_user_id": "078052af-7e37-53e9-a1ae-462cceb06d30",
+      "database_login_role": "wa_app_runtime",
+      "owner_module_id": "customer_buyer_profile",
+      "action": "SH-004.v1",
+      "purpose": "provision",
+      "target_kind": "CustomerProfile",
+      "target_id": "bbe23c0b-ee0e-57f8-a60e-8333fe8650e2",
+      "source_generation": "0",
+      "security_generation": "0",
+      "allowed_fields": [
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/archivedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/avatarMediaId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/city",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/country",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/displayName",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/id",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/privacyGeneration",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/revision",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/state",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/status",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/updatedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/INSERT/userId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/archivedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/avatarMediaId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/city",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/country",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/createdAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/displayName",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/id",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/mutationTransactionId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/privacyGeneration",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/revision",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/state",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/status",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/updatedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/userId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/revision/0",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/INSERT/actorUserId",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/INSERT/commandReceiptId",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/INSERT/customerProfileId",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/INSERT/fromStatus",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/INSERT/id",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/INSERT/name",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/INSERT/sourceRevision",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/INSERT/toStatus",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/actorUserId",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/commandReceiptId",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/createdAt",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/customerProfileId",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/fromStatus",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/id",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/mutationTransactionId",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/name",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/sourceRevision",
+        "CustomerProfileLifecycleEvent/0158773c-db88-52bc-b895-7dce8eef32e9/SELECT/toStatus",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/action",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/aggregateId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/aggregateKind",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/commandReceiptId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/committedRevision",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/decisionRef",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/evidenceBody",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/evidenceDigest",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/evidenceSchemaId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/evidenceSchemaVersion",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/id",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/ownerModuleId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/INSERT/previousRevision",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/action",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/aggregateId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/aggregateKind",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/commandReceiptId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/committedRevision",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/createdAt",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/decisionRef",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/evidenceBody",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/evidenceDigest",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/evidenceSchemaId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/evidenceSchemaVersion",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/id",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/mutationTransactionId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/ownerModuleId",
+        "OwnerMutationEvidence/7694bc87-8e5b-5b8b-bc9c-7bc8e039b18e/SELECT/previousRevision",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/fingerprint",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/id",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/operation",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/ownerModuleId",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/resultBody",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/resultDigest",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/resultSchemaId",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/resultSchemaVersion",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/semanticKey",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/sourceRevision",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/state",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/INSERT/subjectScope",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/createdAt",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/fingerprint",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/id",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/mutationTransactionId",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/operation",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/ownerModuleId",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/resultBody",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/resultDigest",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/resultSchemaId",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/resultSchemaVersion",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/semanticKey",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/sourceRevision",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/state",
+        "RuntimeCommandReceipt/2d606abb-7830-5094-82f3-09e70adca015/SELECT/subjectScope",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/aggregateId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/aggregateKind",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/causationId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/commandReceiptId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/correctionOfId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/correlationId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/effectiveAt",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/id",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/kind",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/name",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/occurredAt",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/ordinal",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/payload",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/payloadHash",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/payloadSchemaId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/producerOwner",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/schemaVersion",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/sourceGeneration",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/INSERT/sourceRevision",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/aggregateId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/aggregateKind",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/causationId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/commandReceiptId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/correctionOfId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/correlationId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/createdAt",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/effectiveAt",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/id",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/kind",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/mutationTransactionId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/name",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/occurredAt",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/ordinal",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/payload",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/payloadHash",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/payloadSchemaId",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/producerOwner",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/schemaVersion",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/sourceGeneration",
+        "RuntimeOutboxMessage/0f65064e-b1a9-5e5e-ab5e-6767e1b5cbcd/SELECT/sourceRevision",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/aggregateId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/aggregateKind",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/causationId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/commandReceiptId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/correctionOfId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/correlationId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/effectiveAt",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/id",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/kind",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/name",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/occurredAt",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/ordinal",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/payload",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/payloadHash",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/payloadSchemaId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/producerOwner",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/schemaVersion",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/sourceGeneration",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/INSERT/sourceRevision",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/aggregateId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/aggregateKind",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/causationId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/commandReceiptId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/correctionOfId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/correlationId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/createdAt",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/effectiveAt",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/id",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/kind",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/mutationTransactionId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/name",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/occurredAt",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/ordinal",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/payload",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/payloadHash",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/payloadSchemaId",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/producerOwner",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/schemaVersion",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/sourceGeneration",
+        "RuntimeOutboxMessage/73c0bd05-54fe-5bee-acb1-17b64224f16a/SELECT/sourceRevision"
+      ]
+    },
+    "app-read-with-update-caps": {
+      "template_id": "app-read-with-update-caps",
+      "database_login_role": "wa_app_runtime",
+      "issuer_service": "wa_context_issuer",
+      "owner_module_id": "customer_buyer_profile",
+      "action": "SH-004.v1",
+      "purpose": "resolve",
+      "target_kind": "CustomerProfile",
+      "target_id": "bbe23c0b-ee0e-57f8-a60e-8333fe8650e2",
+      "principal_user_id": "078052af-7e37-53e9-a1ae-462cceb06d30",
+      "service_principal": null,
+      "source_generation": "0",
+      "security_generation": "0",
+      "allowed_fields": [
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/archivedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/avatarMediaId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/city",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/country",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/createdAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/displayName",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/id",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/mutationTransactionId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/privacyGeneration",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/revision",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/state",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/status",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/updatedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/userId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/UPDATE/@row",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/UPDATE/displayName",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/UPDATE/revision",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/revision/0"
+      ],
+      "policy_version": "ctx01-source-fixture.v1",
+      "status": "NOT_RUN"
+    },
+    "wrong-purpose": {
+      "template_id": "wrong-purpose",
+      "database_login_role": "wa_app_runtime",
+      "issuer_service": "wa_context_issuer",
+      "owner_module_id": "customer_buyer_profile",
+      "action": "SH-004.v1",
+      "purpose": "profile_update",
+      "target_kind": "CustomerProfile",
+      "target_id": "bbe23c0b-ee0e-57f8-a60e-8333fe8650e2",
+      "principal_user_id": "078052af-7e37-53e9-a1ae-462cceb06d30",
+      "service_principal": null,
+      "source_generation": "0",
+      "security_generation": "0",
+      "allowed_fields": [
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/archivedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/avatarMediaId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/city",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/country",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/createdAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/displayName",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/id",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/mutationTransactionId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/privacyGeneration",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/revision",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/state",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/status",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/updatedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/userId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/revision/0"
+      ],
+      "policy_version": "ctx01-source-fixture.v1",
+      "status": "NOT_RUN"
+    },
+    "wrong-action": {
+      "template_id": "wrong-action",
+      "database_login_role": "wa_app_runtime",
+      "issuer_service": "wa_context_issuer",
+      "owner_module_id": "customer_buyer_profile",
+      "action": "SH-114.v1",
+      "purpose": "resolve",
+      "target_kind": "CustomerProfile",
+      "target_id": "bbe23c0b-ee0e-57f8-a60e-8333fe8650e2",
+      "principal_user_id": "078052af-7e37-53e9-a1ae-462cceb06d30",
+      "service_principal": null,
+      "source_generation": "0",
+      "security_generation": "0",
+      "allowed_fields": [
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/archivedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/avatarMediaId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/city",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/country",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/createdAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/displayName",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/id",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/mutationTransactionId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/privacyGeneration",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/revision",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/state",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/status",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/updatedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/userId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/revision/0"
+      ],
+      "policy_version": "ctx01-source-fixture.v1",
+      "status": "NOT_RUN"
+    },
+    "wrong-owner": {
+      "template_id": "wrong-owner",
+      "database_login_role": "wa_app_runtime",
+      "issuer_service": "wa_context_issuer",
+      "owner_module_id": "track_subscription_entitlement",
+      "action": "SH-004.v1",
+      "purpose": "resolve",
+      "target_kind": "CustomerProfile",
+      "target_id": "bbe23c0b-ee0e-57f8-a60e-8333fe8650e2",
+      "principal_user_id": "078052af-7e37-53e9-a1ae-462cceb06d30",
+      "service_principal": null,
+      "source_generation": "0",
+      "security_generation": "0",
+      "allowed_fields": [
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/archivedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/avatarMediaId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/city",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/country",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/createdAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/displayName",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/id",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/mutationTransactionId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/privacyGeneration",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/revision",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/state",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/status",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/updatedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/userId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/revision/0"
+      ],
+      "policy_version": "ctx01-source-fixture.v1",
+      "status": "NOT_RUN"
+    },
+    "wrong-root-id": {
+      "template_id": "wrong-root-id",
+      "database_login_role": "wa_app_runtime",
+      "issuer_service": "wa_context_issuer",
+      "owner_module_id": "customer_buyer_profile",
+      "action": "SH-004.v1",
+      "purpose": "resolve",
+      "target_kind": "CustomerProfile",
+      "target_id": "a31febae-f409-51d2-b744-0b301e8d0f66",
+      "principal_user_id": "078052af-7e37-53e9-a1ae-462cceb06d30",
+      "service_principal": null,
+      "source_generation": "0",
+      "security_generation": "0",
+      "allowed_fields": [
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/archivedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/avatarMediaId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/city",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/country",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/createdAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/displayName",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/id",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/mutationTransactionId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/privacyGeneration",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/revision",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/state",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/status",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/updatedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/userId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/revision/0"
+      ],
+      "policy_version": "ctx01-source-fixture.v1",
+      "status": "NOT_RUN"
+    },
+    "wrong-root-kind": {
+      "template_id": "wrong-root-kind",
+      "database_login_role": "wa_app_runtime",
+      "issuer_service": "wa_context_issuer",
+      "owner_module_id": "customer_buyer_profile",
+      "action": "SH-004.v1",
+      "purpose": "resolve",
+      "target_kind": "RuntimeWorkItem",
+      "target_id": "bbe23c0b-ee0e-57f8-a60e-8333fe8650e2",
+      "principal_user_id": "078052af-7e37-53e9-a1ae-462cceb06d30",
+      "service_principal": null,
+      "source_generation": "0",
+      "security_generation": "0",
+      "allowed_fields": [
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/archivedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/avatarMediaId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/city",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/country",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/createdAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/displayName",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/id",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/mutationTransactionId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/privacyGeneration",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/revision",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/state",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/status",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/updatedAt",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/SELECT/userId",
+        "CustomerProfile/bbe23c0b-ee0e-57f8-a60e-8333fe8650e2/revision/0"
+      ],
+      "policy_version": "ctx01-source-fixture.v1",
+      "status": "NOT_RUN"
+    }
+  },
+  "cases": [
+    {
+      "name": "app-no-context",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 0
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-same-live-xid-rebind",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "app",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-rollback-same-pool-fresh-then-old",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T1"
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "app",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "begin",
+          "session": "A",
+          "isolation": "read committed",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T2",
+          "require_same_backend_as": "T1",
+          "require_distinct_xid_from": "T1"
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G2",
+          "template": "app",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G2"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "commit.sql",
+          "expected": null
+        },
+        {
+          "op": "begin",
+          "session": "A",
+          "isolation": "read committed",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T3",
+          "require_same_backend_as": "T1",
+          "require_distinct_xid_from": [
+            "T1",
+            "T2"
+          ]
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "G1",
+          "reason": "TUPLE_MISMATCH",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        },
+        {
+          "op": "observer",
+          "file": "grant-retention",
+          "instances": [
+            "G1",
+            "G2"
+          ],
+          "expected_unchanged_issuer_rows": 2
+        }
+      ],
+      "bounded_claim": "Fresh separately committed G2 succeeds on same backend/new xid; G1 rejects later xid. No owner/API idempotency claim.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-commit-same-pool-fresh-then-old",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T1"
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "app",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "commit.sql",
+          "expected": null
+        },
+        {
+          "op": "begin",
+          "session": "A",
+          "isolation": "read committed",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T2",
+          "require_same_backend_as": "T1",
+          "require_distinct_xid_from": "T1"
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G2",
+          "template": "app",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G2"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "commit.sql",
+          "expected": null
+        },
+        {
+          "op": "begin",
+          "session": "A",
+          "isolation": "read committed",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T3",
+          "require_same_backend_as": "T1",
+          "require_distinct_xid_from": [
+            "T1",
+            "T2"
+          ]
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "G1",
+          "reason": "TUPLE_MISMATCH",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        },
+        {
+          "op": "observer",
+          "file": "grant-retention",
+          "instances": [
+            "G1",
+            "G2"
+          ],
+          "expected_unchanged_issuer_rows": 2
+        }
+      ],
+      "bounded_claim": "Fresh separately committed G2 succeeds on same backend/new xid; G1 rejects later xid. No owner/API idempotency claim.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-savepoint-bind-rollback-rebind",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "savepoint.sql",
+          "expected": null
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "app",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback-to-savepoint.sql",
+          "expected": null
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 0
+          }
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "begin",
+          "session": "A",
+          "isolation": "read committed",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T2",
+          "require_same_backend_as": "T1",
+          "require_distinct_xid_from": "T1"
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "G1",
+          "reason": "TUPLE_MISMATCH",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        },
+        {
+          "op": "observer",
+          "file": "grant-retention",
+          "instances": [
+            "G1"
+          ],
+          "expected_unchanged_issuer_rows": 1
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-different-backend",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T1"
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "app",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "begin",
+          "session": "B",
+          "isolation": "read committed",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "B",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T2",
+          "require_distinct_backend_from": "T1"
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "B",
+          "instance": "G1",
+          "reason": "TUPLE_MISMATCH",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "B",
+          "require_client_exit_and_exact_backend_absence": true
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-wrong-isolation-repeatable-read",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "begin",
+          "session": "A",
+          "isolation": "repeatable read",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "app",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "G1",
+          "reason": "UNSUPPORTED_ISOLATION",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-wrong-isolation-serializable",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "begin",
+          "session": "A",
+          "isolation": "serializable",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "app",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "G1",
+          "reason": "UNSUPPORTED_ISOLATION",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-unissued-hash-and-caller-gucs",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME",
+        "SCOPE-PURPOSE"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "unissued-guc.sql",
+          "expected": null
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 0
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Unissued context hash and caller identity/action GUCs confer no authority. A hash matching an independently committed exact tuple is valid transport, not an additional authorization source.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-well-formed-unissued-secret",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "UNISSUED_FRESH_SECRET",
+          "reason": "NO_ISSUER_ROW",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-malformed-secret",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "MALFORMED_RUNTIME_SECRET",
+          "reason": "MALFORMED_SECRET",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-failed-bind-wrong-xid-retains-issued-row",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T1"
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "app",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "begin",
+          "session": "A",
+          "isolation": "read committed",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T2",
+          "require_same_backend_as": "T1",
+          "require_distinct_xid_from": "T1"
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "G1",
+          "reason": "TUPLE_MISMATCH",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        },
+        {
+          "op": "observer",
+          "file": "grant-retention",
+          "instances": [
+            "G1"
+          ],
+          "expected_unchanged_issuer_rows": 1
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "worker-no-context",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_worker",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "worker-read.sql",
+          "expected": {
+            "visible_exact_root": 0
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "worker-same-live-xid-rebind",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_worker",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "worker",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "worker-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "worker-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "worker-rollback-same-pool-fresh-then-old",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_worker",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T1"
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "worker",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "worker-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "begin",
+          "session": "A",
+          "isolation": "read committed",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T2",
+          "require_same_backend_as": "T1",
+          "require_distinct_xid_from": "T1"
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G2",
+          "template": "worker",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G2"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "worker-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "commit.sql",
+          "expected": null
+        },
+        {
+          "op": "begin",
+          "session": "A",
+          "isolation": "read committed",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T3",
+          "require_same_backend_as": "T1",
+          "require_distinct_xid_from": [
+            "T1",
+            "T2"
+          ]
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "G1",
+          "reason": "TUPLE_MISMATCH",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        },
+        {
+          "op": "observer",
+          "file": "grant-retention",
+          "instances": [
+            "G1",
+            "G2"
+          ],
+          "expected_unchanged_issuer_rows": 2
+        }
+      ],
+      "bounded_claim": "Fresh separately committed G2 succeeds on same backend/new xid; G1 rejects later xid. No owner/API idempotency claim.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "worker-commit-same-pool-fresh-then-old",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_worker",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T1"
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "worker",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "worker-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "commit.sql",
+          "expected": null
+        },
+        {
+          "op": "begin",
+          "session": "A",
+          "isolation": "read committed",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T2",
+          "require_same_backend_as": "T1",
+          "require_distinct_xid_from": "T1"
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G2",
+          "template": "worker",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G2"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "worker-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "commit.sql",
+          "expected": null
+        },
+        {
+          "op": "begin",
+          "session": "A",
+          "isolation": "read committed",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T3",
+          "require_same_backend_as": "T1",
+          "require_distinct_xid_from": [
+            "T1",
+            "T2"
+          ]
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "G1",
+          "reason": "TUPLE_MISMATCH",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        },
+        {
+          "op": "observer",
+          "file": "grant-retention",
+          "instances": [
+            "G1",
+            "G2"
+          ],
+          "expected_unchanged_issuer_rows": 2
+        }
+      ],
+      "bounded_claim": "Fresh separately committed G2 succeeds on same backend/new xid; G1 rejects later xid. No owner/API idempotency claim.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "worker-savepoint-bind-rollback-rebind",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_worker",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "savepoint.sql",
+          "expected": null
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "worker",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "worker-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback-to-savepoint.sql",
+          "expected": null
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "worker-read.sql",
+          "expected": {
+            "visible_exact_root": 0
+          }
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "worker-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "begin",
+          "session": "A",
+          "isolation": "read committed",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T2",
+          "require_same_backend_as": "T1",
+          "require_distinct_xid_from": "T1"
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "G1",
+          "reason": "TUPLE_MISMATCH",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        },
+        {
+          "op": "observer",
+          "file": "grant-retention",
+          "instances": [
+            "G1"
+          ],
+          "expected_unchanged_issuer_rows": 1
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "worker-different-backend",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_worker",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T1"
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "worker",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "worker-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "begin",
+          "session": "B",
+          "isolation": "read committed",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "B",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T2",
+          "require_distinct_backend_from": "T1"
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "B",
+          "instance": "G1",
+          "reason": "TUPLE_MISMATCH",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "B",
+          "require_client_exit_and_exact_backend_absence": true
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "worker-wrong-isolation-repeatable-read",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_worker",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "begin",
+          "session": "A",
+          "isolation": "repeatable read",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "worker",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "G1",
+          "reason": "UNSUPPORTED_ISOLATION",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "worker-wrong-isolation-serializable",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_worker",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "begin",
+          "session": "A",
+          "isolation": "serializable",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "worker",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "G1",
+          "reason": "UNSUPPORTED_ISOLATION",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "worker-unissued-hash-and-caller-gucs",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME",
+        "SCOPE-PURPOSE"
+      ],
+      "actual_login": "wa_worker",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "unissued-guc.sql",
+          "expected": null
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "worker-read.sql",
+          "expected": {
+            "visible_exact_root": 0
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Unissued context hash and caller identity/action GUCs confer no authority. A hash matching an independently committed exact tuple is valid transport, not an additional authorization source.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "worker-well-formed-unissued-secret",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_worker",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "UNISSUED_FRESH_SECRET",
+          "reason": "NO_ISSUER_ROW",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "worker-malformed-secret",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_worker",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "MALFORMED_RUNTIME_SECRET",
+          "reason": "MALFORMED_SECRET",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "worker-failed-bind-wrong-xid-retains-issued-row",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_worker",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T1"
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "worker",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "begin",
+          "session": "A",
+          "isolation": "read committed",
+          "same_actual_connection": true
+        },
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T2",
+          "require_same_backend_as": "T1",
+          "require_distinct_xid_from": "T1"
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "G1",
+          "reason": "TUPLE_MISMATCH",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        },
+        {
+          "op": "observer",
+          "file": "grant-retention",
+          "instances": [
+            "G1"
+          ],
+          "expected_unchanged_issuer_rows": 1
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-wrong-purpose",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "SCOPE-PURPOSE"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "wrong-purpose",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 0
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-wrong-action",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "SCOPE-PURPOSE"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "wrong-action",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 0
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-wrong-owner",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "SCOPE-PURPOSE"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "wrong-owner",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 0
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-wrong-root-id",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "SCOPE-PURPOSE"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "wrong-root-id",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 0
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-wrong-root-kind",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "SCOPE-PURPOSE"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "wrong-root-kind",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 0
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Only exact restricted source binding/visibility for this finite transaction protocol.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-resolve-purpose-denies-source-update",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "READ-PURPOSE-NO-WRITE"
+      ],
+      "actual_login": "wa_app_runtime",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "app-read-with-update-caps",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "bind",
+          "session": "A",
+          "instance": "G1"
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read.sql",
+          "expected": {
+            "visible_exact_root": 1
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "app-read-purpose-update.sql",
+          "expected": {
+            "modified": 0
+          }
+        },
+        {
+          "op": "sql",
+          "session": "A",
+          "file": "rollback.sql",
+          "expected": null
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Registered Customer resolve allows SELECT only despite exact root/revision/UPDATE caps and native column UPDATE privileges. Zero-row RLS denial, no update/result codec invented.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    },
+    {
+      "name": "app-grant-does-not-bind-worker-login",
+      "control_id": "P0C-CTX-01",
+      "vectors": [
+        "POOL-LIFETIME"
+      ],
+      "actual_login": "wa_worker",
+      "status": "NOT_RUN",
+      "runtime_eligibility": "PENDING_INDEPENDENT_PACKET_AND_COORDINATOR_REVIEW",
+      "execution_dependencies": [
+        "EXACT_SOURCE_AND_PACKET_REVIEW",
+        "FRESH_OWNED_DISPOSABLE_TARGET",
+        "AUTHENTICATION_AND_FINALIZATION_PASS",
+        "EXACT_NATIVE_CATALOG_PARITY",
+        "EXACT_FIXTURE_NAMESPACE_ABSENCE",
+        "FIXTURE_TRIGGER_RESTORATION_PROOF",
+        "ACTUAL_RESTRICTED_CUSTOMER_CREATION_AND_SCHEDULING",
+        "REVIEWED_FINITE_SESSION_COORDINATOR"
+      ],
+      "steps": [
+        {
+          "op": "capture",
+          "session": "A",
+          "login_identity": "session_user=current_user=actual_login",
+          "database": "wa_p0c_rehearsal",
+          "tuple_fields": [
+            "backend_pid",
+            "transaction_id",
+            "backend_start"
+          ],
+          "protected_reads_before_capture": false,
+          "tuple_label": "T1"
+        },
+        {
+          "op": "issue",
+          "session": "A",
+          "instance": "G1",
+          "template": "app",
+          "commit_and_close_issuer_before_bind": true
+        },
+        {
+          "op": "expect_bind_error",
+          "session": "A",
+          "instance": "G1",
+          "reason": "ACTUAL_LOGIN_MISMATCH",
+          "psql_exit_code": 3,
+          "acknowledgement": false,
+          "diagnostic": {
+            "sqlstate": "42501",
+            "exact_message": "invalid, stale or unsupported context",
+            "function": "platform_private.bind_request_context(text)",
+            "require_exact_source_body_hash_and_raise_line": true
+          },
+          "later_statements_forbidden": true
+        },
+        {
+          "op": "close",
+          "session": "A",
+          "require_client_exit_and_exact_backend_absence": true
+        }
+      ],
+      "bounded_claim": "Issuer deliberately names app login while capture and bind use actual worker; login mismatch rejects even if PID/xid match.",
+      "mandatory_after_case": "After all case backends close, independently verify every issued row remains issuer-owned, immutable, unrevoked and unexpired; attempt EACH case-issued old instance once on a fresh actual connection of its declared login/new xid, exact source-bound42501/psql3/noACK, then close before observations. The fresh unissued instance has no retention row."
+    }
+  ],
+  "registered_positive_scope": {
+    "owner": "customer_buyer_profile",
+    "action": "SH-004.v1",
+    "purpose": "resolve",
+    "root_kind": "CustomerProfile",
+    "verbs": [
+      "SELECT"
+    ]
+  },
+  "worker_acl_ceiling_rows": [
+    {
+      "model": "TrackPlan",
+      "role": "wa_worker",
+      "operation": "SELECT",
+      "fields": [
+        "id",
+        "track",
+        "key",
+        "status",
+        "billingModel",
+        "version",
+        "contentHash",
+        "revision"
+      ],
+      "columns": [
+        "id",
+        "track",
+        "key",
+        "status",
+        "billing_model",
+        "version",
+        "content_hash",
+        "revision"
+      ]
+    },
+    {
+      "model": "TrackEntitlementDefinition",
+      "role": "wa_worker",
+      "operation": "SELECT",
+      "fields": [
+        "id",
+        "key",
+        "valueType",
+        "track",
+        "isActive",
+        "revision"
+      ],
+      "columns": [
+        "id",
+        "key",
+        "value_type",
+        "track",
+        "is_active",
+        "revision"
+      ]
+    },
+    {
+      "model": "TrackPlanEntitlement",
+      "role": "wa_worker",
+      "operation": "SELECT",
+      "fields": [
+        "id",
+        "planId",
+        "entitlementId",
+        "valueType",
+        "booleanValue",
+        "intValue",
+        "decimalValue",
+        "stringValue",
+        "usagePeriod",
+        "revision"
+      ],
+      "columns": [
+        "id",
+        "plan_id",
+        "entitlement_id",
+        "value_type",
+        "boolean_value",
+        "int_value",
+        "decimal_value",
+        "string_value",
+        "usage_period",
+        "revision"
+      ]
+    },
+    {
+      "model": "TrackSubscription",
+      "role": "wa_worker",
+      "operation": "INSERT",
+      "fields": [
+        "id",
+        "userId",
+        "planId",
+        "track",
+        "customerProfileId",
+        "candidateProfileId",
+        "professionalProfileId",
+        "status",
+        "provider"
+      ],
+      "columns": [
+        "id",
+        "user_id",
+        "plan_id",
+        "track",
+        "customer_profile_id",
+        "candidate_profile_id",
+        "professional_profile_id",
+        "status",
+        "provider"
+      ]
+    },
+    {
+      "model": "TrackSubscription",
+      "role": "wa_worker",
+      "operation": "SELECT",
+      "fields": [
+        "id",
+        "userId",
+        "planId",
+        "track",
+        "customerProfileId",
+        "candidateProfileId",
+        "professionalProfileId",
+        "status",
+        "provider",
+        "currentPeriodStart",
+        "currentPeriodEnd",
+        "endedAt",
+        "revision"
+      ],
+      "columns": [
+        "id",
+        "user_id",
+        "plan_id",
+        "track",
+        "customer_profile_id",
+        "candidate_profile_id",
+        "professional_profile_id",
+        "status",
+        "provider",
+        "current_period_start",
+        "current_period_end",
+        "ended_at",
+        "revision"
+      ]
+    },
+    {
+      "model": "TrackEntitlementGrant",
+      "role": "wa_worker",
+      "operation": "INSERT",
+      "fields": [
+        "id",
+        "userId",
+        "subscriptionId",
+        "entitlementId",
+        "track",
+        "customerProfileId",
+        "candidateProfileId",
+        "professionalProfileId",
+        "status",
+        "valueType",
+        "booleanValue",
+        "intValue",
+        "decimalValue",
+        "stringValue",
+        "startsAt",
+        "sourcePlanId",
+        "sourceEventId"
+      ],
+      "columns": [
+        "id",
+        "user_id",
+        "subscription_id",
+        "entitlement_id",
+        "track",
+        "customer_profile_id",
+        "candidate_profile_id",
+        "professional_profile_id",
+        "status",
+        "value_type",
+        "boolean_value",
+        "int_value",
+        "decimal_value",
+        "string_value",
+        "starts_at",
+        "source_plan_id",
+        "source_event_id"
+      ]
+    },
+    {
+      "model": "TrackEntitlementGrant",
+      "role": "wa_worker",
+      "operation": "SELECT",
+      "fields": [
+        "id",
+        "userId",
+        "subscriptionId",
+        "entitlementId",
+        "track",
+        "customerProfileId",
+        "candidateProfileId",
+        "professionalProfileId",
+        "status",
+        "valueType",
+        "booleanValue",
+        "intValue",
+        "decimalValue",
+        "stringValue",
+        "startsAt",
+        "expiresAt",
+        "revokedAt",
+        "sourcePlanId",
+        "sourceEventId",
+        "revision"
+      ],
+      "columns": [
+        "id",
+        "user_id",
+        "subscription_id",
+        "entitlement_id",
+        "track",
+        "customer_profile_id",
+        "candidate_profile_id",
+        "professional_profile_id",
+        "status",
+        "value_type",
+        "boolean_value",
+        "int_value",
+        "decimal_value",
+        "string_value",
+        "starts_at",
+        "expires_at",
+        "revoked_at",
+        "source_plan_id",
+        "source_event_id",
+        "revision"
+      ]
+    },
+    {
+      "model": "TrackSubscriptionEvent",
+      "role": "wa_worker",
+      "operation": "INSERT",
+      "fields": [
+        "id",
+        "subscriptionId",
+        "planId",
+        "userId",
+        "name",
+        "fromStatus",
+        "toStatus",
+        "provider"
+      ],
+      "columns": [
+        "id",
+        "subscription_id",
+        "plan_id",
+        "user_id",
+        "name",
+        "from_status",
+        "to_status",
+        "provider"
+      ]
+    },
+    {
+      "model": "RuntimeCommandReceipt",
+      "role": "wa_worker",
+      "operation": "INSERT",
+      "fields": [
+        "id",
+        "ownerModuleId",
+        "operation",
+        "subjectScope",
+        "semanticKey",
+        "fingerprint",
+        "state",
+        "sourceRevision",
+        "resultSchemaId",
+        "resultSchemaVersion",
+        "resultDigest",
+        "resultBody"
+      ],
+      "columns": [
+        "id",
+        "owner_module_id",
+        "operation",
+        "subject_scope",
+        "semantic_key",
+        "fingerprint",
+        "state",
+        "source_revision",
+        "result_schema_id",
+        "result_schema_version",
+        "result_digest",
+        "result_body"
+      ]
+    },
+    {
+      "model": "RuntimeCommandReceipt",
+      "role": "wa_worker",
+      "operation": "SELECT",
+      "fields": [
+        "id",
+        "ownerModuleId",
+        "operation",
+        "subjectScope",
+        "semanticKey",
+        "fingerprint",
+        "state",
+        "sourceRevision",
+        "resultSchemaId",
+        "resultSchemaVersion",
+        "resultDigest",
+        "resultBody",
+        "createdAt",
+        "mutationTransactionId"
+      ],
+      "columns": [
+        "id",
+        "owner_module_id",
+        "operation",
+        "subject_scope",
+        "semantic_key",
+        "fingerprint",
+        "state",
+        "source_revision",
+        "result_schema_id",
+        "result_schema_version",
+        "result_digest",
+        "result_body",
+        "created_at",
+        "mutation_transaction_id"
+      ]
+    },
+    {
+      "model": "RuntimeCommandReceipt",
+      "role": "wa_worker",
+      "operation": "UPDATE",
+      "fields": [
+        "id",
+        "ownerModuleId",
+        "operation",
+        "subjectScope",
+        "semanticKey",
+        "fingerprint",
+        "state",
+        "sourceRevision",
+        "resultSchemaId",
+        "resultSchemaVersion",
+        "resultDigest",
+        "resultBody",
+        "createdAt",
+        "mutationTransactionId"
+      ],
+      "columns": [
+        "id",
+        "owner_module_id",
+        "operation",
+        "subject_scope",
+        "semantic_key",
+        "fingerprint",
+        "state",
+        "source_revision",
+        "result_schema_id",
+        "result_schema_version",
+        "result_digest",
+        "result_body",
+        "created_at",
+        "mutation_transaction_id"
+      ]
+    },
+    {
+      "model": "RuntimeOutboxMessage",
+      "role": "wa_worker",
+      "operation": "INSERT",
+      "fields": [
+        "id",
+        "commandReceiptId",
+        "kind",
+        "producerOwner",
+        "aggregateKind",
+        "aggregateId",
+        "sourceRevision",
+        "sourceGeneration",
+        "ordinal",
+        "name",
+        "schemaVersion",
+        "payloadSchemaId",
+        "payloadHash",
+        "payload",
+        "correlationId",
+        "causationId",
+        "correctionOfId",
+        "occurredAt",
+        "effectiveAt"
+      ],
+      "columns": [
+        "id",
+        "command_receipt_id",
+        "kind",
+        "producer_owner",
+        "aggregate_kind",
+        "aggregate_id",
+        "source_revision",
+        "source_generation",
+        "ordinal",
+        "name",
+        "schema_version",
+        "payload_schema_id",
+        "payload_hash",
+        "payload",
+        "correlation_id",
+        "causation_id",
+        "correction_of_id",
+        "occurred_at",
+        "effective_at"
+      ]
+    },
+    {
+      "model": "RuntimeOutboxMessage",
+      "role": "wa_worker",
+      "operation": "SELECT",
+      "fields": [
+        "id",
+        "commandReceiptId",
+        "kind",
+        "producerOwner",
+        "aggregateKind",
+        "aggregateId",
+        "sourceRevision",
+        "sourceGeneration",
+        "ordinal",
+        "name",
+        "schemaVersion",
+        "payloadSchemaId",
+        "payloadHash",
+        "payload",
+        "correlationId",
+        "causationId",
+        "correctionOfId",
+        "occurredAt",
+        "effectiveAt",
+        "createdAt",
+        "mutationTransactionId"
+      ],
+      "columns": [
+        "id",
+        "command_receipt_id",
+        "kind",
+        "producer_owner",
+        "aggregate_kind",
+        "aggregate_id",
+        "source_revision",
+        "source_generation",
+        "ordinal",
+        "name",
+        "schema_version",
+        "payload_schema_id",
+        "payload_hash",
+        "payload",
+        "correlation_id",
+        "causation_id",
+        "correction_of_id",
+        "occurred_at",
+        "effective_at",
+        "created_at",
+        "mutation_transaction_id"
+      ]
+    },
+    {
+      "model": "RuntimeEffectReceipt",
+      "role": "wa_worker",
+      "operation": "INSERT",
+      "fields": [
+        "id",
+        "commandReceiptId",
+        "ownerModuleId",
+        "operation",
+        "subjectScope",
+        "semanticEffectKey",
+        "fingerprint",
+        "state",
+        "sourceRevision",
+        "fence",
+        "resultSchemaId",
+        "resultHash",
+        "committedAt"
+      ],
+      "columns": [
+        "id",
+        "command_receipt_id",
+        "owner_module_id",
+        "operation",
+        "subject_scope",
+        "semantic_effect_key",
+        "fingerprint",
+        "state",
+        "source_revision",
+        "fence",
+        "result_schema_id",
+        "result_hash",
+        "committed_at"
+      ]
+    },
+    {
+      "model": "RuntimeEffectReceipt",
+      "role": "wa_worker",
+      "operation": "SELECT",
+      "fields": [
+        "id",
+        "commandReceiptId",
+        "ownerModuleId",
+        "operation",
+        "subjectScope",
+        "semanticEffectKey",
+        "fingerprint",
+        "state",
+        "sourceRevision",
+        "fence",
+        "resultSchemaId",
+        "resultHash",
+        "committedAt",
+        "createdAt",
+        "mutationTransactionId"
+      ],
+      "columns": [
+        "id",
+        "command_receipt_id",
+        "owner_module_id",
+        "operation",
+        "subject_scope",
+        "semantic_effect_key",
+        "fingerprint",
+        "state",
+        "source_revision",
+        "fence",
+        "result_schema_id",
+        "result_hash",
+        "committed_at",
+        "created_at",
+        "mutation_transaction_id"
+      ]
+    },
+    {
+      "model": "RuntimeWorkItem",
+      "role": "wa_worker",
+      "operation": "INSERT",
+      "fields": [
+        "id",
+        "outboxMessageId",
+        "handlerName",
+        "semanticWorkKey",
+        "state",
+        "fence",
+        "leaseTokenHash",
+        "leaseExpiresAt",
+        "attemptCount",
+        "nextAttemptAt",
+        "effectReceiptId"
+      ],
+      "columns": [
+        "id",
+        "outbox_message_id",
+        "handler_name",
+        "semantic_work_key",
+        "state",
+        "fence",
+        "lease_token_hash",
+        "lease_expires_at",
+        "attempt_count",
+        "next_attempt_at",
+        "effect_receipt_id"
+      ]
+    },
+    {
+      "model": "RuntimeWorkItem",
+      "role": "wa_worker",
+      "operation": "SELECT",
+      "fields": [
+        "id",
+        "outboxMessageId",
+        "handlerName",
+        "semanticWorkKey",
+        "state",
+        "fence",
+        "leaseTokenHash",
+        "leaseExpiresAt",
+        "attemptCount",
+        "nextAttemptAt",
+        "effectReceiptId",
+        "createdAt",
+        "mutationTransactionId"
+      ],
+      "columns": [
+        "id",
+        "outbox_message_id",
+        "handler_name",
+        "semantic_work_key",
+        "state",
+        "fence",
+        "lease_token_hash",
+        "lease_expires_at",
+        "attempt_count",
+        "next_attempt_at",
+        "effect_receipt_id",
+        "created_at",
+        "mutation_transaction_id"
+      ]
+    },
+    {
+      "model": "RuntimeWorkItem",
+      "role": "wa_worker",
+      "operation": "UPDATE",
+      "fields": [
+        "id",
+        "outboxMessageId",
+        "handlerName",
+        "semanticWorkKey",
+        "state",
+        "fence",
+        "leaseTokenHash",
+        "leaseExpiresAt",
+        "attemptCount",
+        "nextAttemptAt",
+        "effectReceiptId",
+        "createdAt",
+        "mutationTransactionId"
+      ],
+      "columns": [
+        "id",
+        "outbox_message_id",
+        "handler_name",
+        "semantic_work_key",
+        "state",
+        "fence",
+        "lease_token_hash",
+        "lease_expires_at",
+        "attempt_count",
+        "next_attempt_at",
+        "effect_receipt_id",
+        "created_at",
+        "mutation_transaction_id"
+      ]
+    },
+    {
+      "model": "RuntimeAttempt",
+      "role": "wa_worker",
+      "operation": "INSERT",
+      "fields": [
+        "id",
+        "workItemId",
+        "attemptNumber",
+        "fence",
+        "workerId",
+        "result",
+        "reasonCode",
+        "startedAt",
+        "finishedAt"
+      ],
+      "columns": [
+        "id",
+        "work_item_id",
+        "attempt_number",
+        "fence",
+        "worker_id",
+        "result",
+        "reason_code",
+        "started_at",
+        "finished_at"
+      ]
+    },
+    {
+      "model": "RuntimeAttempt",
+      "role": "wa_worker",
+      "operation": "SELECT",
+      "fields": [
+        "id",
+        "workItemId",
+        "attemptNumber",
+        "fence",
+        "workerId",
+        "result",
+        "reasonCode",
+        "startedAt",
+        "finishedAt",
+        "createdAt",
+        "mutationTransactionId"
+      ],
+      "columns": [
+        "id",
+        "work_item_id",
+        "attempt_number",
+        "fence",
+        "worker_id",
+        "result",
+        "reason_code",
+        "started_at",
+        "finished_at",
+        "created_at",
+        "mutation_transaction_id"
+      ]
+    },
+    {
+      "model": "RuntimeInboxReceipt",
+      "role": "wa_worker",
+      "operation": "INSERT",
+      "fields": [
+        "id",
+        "outboxMessageId",
+        "consumerOwner",
+        "handlerName",
+        "payloadHash",
+        "effectReceiptId"
+      ],
+      "columns": [
+        "id",
+        "outbox_message_id",
+        "consumer_owner",
+        "handler_name",
+        "payload_hash",
+        "effect_receipt_id"
+      ]
+    },
+    {
+      "model": "RuntimeInboxReceipt",
+      "role": "wa_worker",
+      "operation": "SELECT",
+      "fields": [
+        "id",
+        "outboxMessageId",
+        "consumerOwner",
+        "handlerName",
+        "payloadHash",
+        "effectReceiptId",
+        "createdAt",
+        "mutationTransactionId"
+      ],
+      "columns": [
+        "id",
+        "outbox_message_id",
+        "consumer_owner",
+        "handler_name",
+        "payload_hash",
+        "effect_receipt_id",
+        "created_at",
+        "mutation_transaction_id"
+      ]
+    },
+    {
+      "model": "RuntimeReservation",
+      "role": "wa_worker",
+      "operation": "INSERT",
+      "fields": [
+        "id",
+        "commandReceiptId",
+        "ownerModuleId",
+        "resourceKind",
+        "resourceKey",
+        "semanticKey",
+        "quantity",
+        "state",
+        "fence",
+        "effectReceiptId",
+        "expiresAt"
+      ],
+      "columns": [
+        "id",
+        "command_receipt_id",
+        "owner_module_id",
+        "resource_kind",
+        "resource_key",
+        "semantic_key",
+        "quantity",
+        "state",
+        "fence",
+        "effect_receipt_id",
+        "expires_at"
+      ]
+    },
+    {
+      "model": "RuntimeReservation",
+      "role": "wa_worker",
+      "operation": "SELECT",
+      "fields": [
+        "id",
+        "commandReceiptId",
+        "ownerModuleId",
+        "resourceKind",
+        "resourceKey",
+        "semanticKey",
+        "quantity",
+        "state",
+        "fence",
+        "effectReceiptId",
+        "expiresAt",
+        "createdAt",
+        "mutationTransactionId"
+      ],
+      "columns": [
+        "id",
+        "command_receipt_id",
+        "owner_module_id",
+        "resource_kind",
+        "resource_key",
+        "semantic_key",
+        "quantity",
+        "state",
+        "fence",
+        "effect_receipt_id",
+        "expires_at",
+        "created_at",
+        "mutation_transaction_id"
+      ]
+    },
+    {
+      "model": "RuntimeReservation",
+      "role": "wa_worker",
+      "operation": "UPDATE",
+      "fields": [
+        "id",
+        "commandReceiptId",
+        "ownerModuleId",
+        "resourceKind",
+        "resourceKey",
+        "semanticKey",
+        "quantity",
+        "state",
+        "fence",
+        "effectReceiptId",
+        "expiresAt",
+        "createdAt",
+        "mutationTransactionId"
+      ],
+      "columns": [
+        "id",
+        "command_receipt_id",
+        "owner_module_id",
+        "resource_kind",
+        "resource_key",
+        "semantic_key",
+        "quantity",
+        "state",
+        "fence",
+        "effect_receipt_id",
+        "expires_at",
+        "created_at",
+        "mutation_transaction_id"
+      ]
+    },
+    {
+      "model": "OwnerMutationEvidence",
+      "role": "wa_worker",
+      "operation": "INSERT",
+      "fields": [
+        "id",
+        "commandReceiptId",
+        "ownerModuleId",
+        "aggregateKind",
+        "aggregateId",
+        "previousRevision",
+        "committedRevision",
+        "action",
+        "decisionRef",
+        "evidenceSchemaId",
+        "evidenceSchemaVersion",
+        "evidenceDigest",
+        "evidenceBody"
+      ],
+      "columns": [
+        "id",
+        "command_receipt_id",
+        "owner_module_id",
+        "aggregate_kind",
+        "aggregate_id",
+        "previous_revision",
+        "committed_revision",
+        "action",
+        "decision_ref",
+        "evidence_schema_id",
+        "evidence_schema_version",
+        "evidence_digest",
+        "evidence_body"
+      ]
+    },
+    {
+      "model": "OwnerMutationEvidence",
+      "role": "wa_worker",
+      "operation": "SELECT",
+      "fields": [
+        "id",
+        "commandReceiptId",
+        "ownerModuleId",
+        "aggregateKind",
+        "aggregateId",
+        "previousRevision",
+        "committedRevision",
+        "action",
+        "decisionRef",
+        "evidenceSchemaId",
+        "evidenceSchemaVersion",
+        "evidenceDigest",
+        "createdAt",
+        "evidenceBody",
+        "mutationTransactionId"
+      ],
+      "columns": [
+        "id",
+        "command_receipt_id",
+        "owner_module_id",
+        "aggregate_kind",
+        "aggregate_id",
+        "previous_revision",
+        "committed_revision",
+        "action",
+        "decision_ref",
+        "evidence_schema_id",
+        "evidence_schema_version",
+        "evidence_digest",
+        "created_at",
+        "evidence_body",
+        "mutation_transaction_id"
+      ]
+    },
+    {
+      "model": "TrackBaseSelection",
+      "role": "wa_worker",
+      "operation": "INSERT",
+      "fields": [
+        "id",
+        "userId",
+        "track",
+        "customerProfileId",
+        "candidateProfileId",
+        "professionalProfileId",
+        "subscriptionId",
+        "sourceGeneration"
+      ],
+      "columns": [
+        "id",
+        "user_id",
+        "track",
+        "customer_profile_id",
+        "candidate_profile_id",
+        "professional_profile_id",
+        "subscription_id",
+        "source_generation"
+      ]
+    },
+    {
+      "model": "TrackBaseSelection",
+      "role": "wa_worker",
+      "operation": "SELECT",
+      "fields": [
+        "id",
+        "userId",
+        "track",
+        "customerProfileId",
+        "candidateProfileId",
+        "professionalProfileId",
+        "subscriptionId",
+        "revision",
+        "sourceGeneration"
+      ],
+      "columns": [
+        "id",
+        "user_id",
+        "track",
+        "customer_profile_id",
+        "candidate_profile_id",
+        "professional_profile_id",
+        "subscription_id",
+        "revision",
+        "source_generation"
+      ]
+    },
+    {
+      "model": "TrackBaseSelection",
+      "role": "wa_worker",
+      "operation": "UPDATE",
+      "fields": [
+        "subscriptionId",
+        "revision",
+        "sourceGeneration"
+      ],
+      "columns": [
+        "subscription_id",
+        "revision",
+        "source_generation"
+      ]
+    },
+    {
+      "model": "TrackEnrollmentReceipt",
+      "role": "wa_worker",
+      "operation": "INSERT",
+      "fields": [
+        "id",
+        "userId",
+        "track",
+        "profileId",
+        "sourceOwner",
+        "sourceCreationRevision",
+        "selectionId",
+        "selectionRevision",
+        "semanticKey",
+        "fingerprint",
+        "resultCode",
+        "effectReceiptId"
+      ],
+      "columns": [
+        "id",
+        "user_id",
+        "track",
+        "profile_id",
+        "source_owner",
+        "source_creation_revision",
+        "selection_id",
+        "selection_revision",
+        "semantic_key",
+        "fingerprint",
+        "result_code",
+        "effect_receipt_id"
+      ]
+    },
+    {
+      "model": "TrackEnrollmentReceipt",
+      "role": "wa_worker",
+      "operation": "SELECT",
+      "fields": [
+        "id",
+        "userId",
+        "track",
+        "profileId",
+        "sourceOwner",
+        "sourceCreationRevision",
+        "selectionId",
+        "selectionRevision",
+        "semanticKey",
+        "fingerprint",
+        "resultCode",
+        "effectReceiptId"
+      ],
+      "columns": [
+        "id",
+        "user_id",
+        "track",
+        "profile_id",
+        "source_owner",
+        "source_creation_revision",
+        "selection_id",
+        "selection_revision",
+        "semantic_key",
+        "fingerprint",
+        "result_code",
+        "effect_receipt_id"
+      ]
+    }
+  ],
+  "worker_acl_ceiling_sha256": "85495186b4d6ca384a4bc5d9157e3748302bab61a4cb43309648a2e59da3d774",
+  "worker_read_scope_limit": "Actual worker SELECT uses existing runtime.claim_work/work.claim transport scope and exact pending fence0 job. No claim, lease, enrollment, owner result, pure-query purpose or worker loop is created.",
+  "runtime_binding_contract": {
+    "status": "NOT_RUN",
+    "login": "Actual separately authenticated login, never SET ROLE.",
+    "isolation": "READ COMMITTED except explicit denial controls.",
+    "tuple_capture": "Capture actual session_user/current_user/database/PID/full xid/backend_start before protected work; exact PID and full xid must come from that same connection.",
+    "issuance": "Fresh UUID grant instance and 256-bit secret per issue step; independently committed immutable row through actual wa_context_issuer; hash only in database, issuer client/backend closed before bind. Bound instance labels refer to memory only.",
+    "lifetime": "SAVEPOINT is after tuple capture but before first bind, with fresh connection/no preexisting hash. ROLLBACK TO clears binding; same live full xid may rebind. Full ROLLBACK/COMMIT require explicit acknowledgements before BEGIN/new xid capture.",
+    "error": "ON_ERROR_STOP remains enabled. Each expected binder failure requires exact psql3, no ACK, exactly one allowlisted source-bound diagnostic/frame. End connection; never send a later behavioral statement on it.",
+    "closure": "Client exit plus independent absence of exact PID/backend_start/login/database before full-state observers. Same-backend new-xid controls finish before this closure; no concurrent business observer is used between their transactions.",
+    "grant_retention": "External coordinator must derive fixed query from runtime-only instance UUIDs and compare issuer-owned immutable fields/token hashes to their pre-issue expectations; emit only exact_count/all_immutable_fields_equal/issuer_owned/revoked_false/unexpired booleans. Never retain hashes, secrets, PIDs, xids, backend_start or raw rows.",
+    "every_old_instance": "After each finite case and source-creation lifetime protocol, test EVERY issued instance in a fresh actual declared-login READ COMMITTED connection with distinct xid while unrevoked/unexpired; require exact stale binder42501/psql3/noACK and closure. Runtime instance maps remain memory-only. Wrong-isolation cases also retain valid committed grant and retry only at new tuple; no expiry/revocation substitution for tuple proof.",
+    "output": "Only allowlisted counts/Boolean comparisons/stage/exit code/source hashes. No arbitrary stderr, diagnostic dictionary, statement bodies or credentials. Persist incrementally on every stage and unexpected failure; stop later cases."
+  },
+  "finite_caps": {
+    "source_customer_groups_committed": 1,
+    "source_customer_full_rollback_attempts": 1,
+    "scheduled_jobs": 1,
+    "worker_claims": 0,
+    "worker_processing": 0,
+    "worker_enrollments": 0,
+    "context_case_count": 31,
+    "grant_instances_max": 30,
+    "old_instance_retirement_probes_max": 30,
+    "grant_ttl_seconds_max": 300,
+    "pool_connections_per_case_max": 2,
+    "service_bootstraps": 1,
+    "polling_or_worker_loop": false
+  },
+  "unprepared_obligations": [
+    {
+      "control_id": "P0C-CTX-01",
+      "vector": "READ-PURPOSE-NO-WRITE",
+      "status": "NOT_RUN",
+      "execution_dependencies": [
+        "OTHER_OWNER_READ_FIXTURES_AND_EXACT_SOURCE_REGISTERED_PURPOSES",
+        "APPEND_READ_PROOF_OWNER_OPERATION_RESULT_NOT_REGISTERED"
+      ],
+      "limit": "Customer resolve covered only. No invented Customer SH003, projection/history/access-evidence write purpose or append-read proof."
+    },
+    {
+      "control_id": "P0C-CTX-01",
+      "vector": "SERVICE-BOOTSTRAP",
+      "status": "NOT_RUN",
+      "execution_dependencies": [
+        "REAL_IDENTITY_UPSTREAM_AUTHORIZATION_QUALIFICATION"
+      ],
+      "limit": "Synthetic independent service bootstrap supports worker binding only; generation/revoke transitions remain worker CTX02 proposal scope."
+    },
+    {
+      "control_id": "P0C-IMMUTABLE-01",
+      "status": "NOT_RUN",
+      "execution_dependencies": [
+        "SEPARATE_SOURCE_REVIEWED_AGE_AND_CONSENT_PACKET"
+      ],
+      "limit": "No age/consent mutation or empty-context registry is fabricated here."
+    }
+  ],
+  "safety_review_requirements": [
+    "Review session FSM and every dynamic instance allocation/tuple equality; source packet is NOT a runtime coordinator.",
+    "Pin all source/helper/output hashes before helper execution or SQL; bind fresh immutable created container ID externally.",
+    "Authentication, original-grantor finalization and complete native catalog must pass before setup; rerun exact trigger restoration after any failure closure.",
+    "Verify every issued grant row remains immutable/issuer-owned across consumer rollback and binder failure without exporting handle or tuple.",
+    "Stop on unexpected diagnostic, marker, count, rollback/COMMIT acknowledgment, identity, closure or fixture conflict; retain partial sanitized evidence and controlled exact-resource cleanup.",
+    "All94 selection and451 database register cases remain NOT_RUN outside individually reviewed/exercised assertions; no migration/hosted/product/P0D authority."
+  ],
+  "prepared_files_sha256": {
+    "trusted-identity-fixtures.sql": "4df630eefa7875a89e71ec039dcebca003ff6140b3a41171425f495a3d8936a7",
+    "fixture-trigger-restore-observe.sql": "0b030f37f1e32bc8ff410547b95d85a4ff955a7005d81b1f5375b9089132a6a8",
+    "source-customer.sql": "9110445ab6d188d9796d2d495b9e9574874bbc018658a0fed82267378ec71ba6",
+    "source-customer-observe.sql": "ab05fd62664de42df4a123df35969037f626c8f58903e13f1ec7da2b773aa9da",
+    "source-customer-rollback.sql": "76977c3fdd1da8deb13fc0280cb78d98cdbe12898715c6e97a8896940d3354db",
+    "identity-bootstrap.sql": "ad98db21ff8efd096c6edac061546364e8a69f8c9ad5a09a1b906309dc993cc4",
+    "schedule.sql": "8b0c6731118f70c528703a2de1ce6a4418017e22182f547d9ebd01af138d527c",
+    "app-read.sql": "c76984507b9fa82f26b5ed9550828fd627eb2cf5859b8e627a29840930b2736d",
+    "worker-read.sql": "0fbd2c2a534caff45f2387f1a7b88490a02a74624e5f4f9113fecbe28076904c",
+    "app-read-purpose-update.sql": "085a91f614b09ceea1eea25b27bd816c462fbaecd8cf8860f4409a27feb2145c",
+    "savepoint.sql": "5575a66b052257c36dd47d949f879074f0d660d95698d77905632f88c312c5c2",
+    "rollback-to-savepoint.sql": "e802e52ae035c7ea698d445b45850f0981dd507198284c99608ff9df4bd4bce3",
+    "rollback.sql": "3c41bb5fdf19c0e14c34a58b7dd7ee6c6a1ee9fb70b77b5ce0fe2788a689c8a8",
+    "commit.sql": "e83e8c1f4ad612a5bd92067c29bdb9b1597fd541ebed41026079aabd6a4a5bf3",
+    "unissued-guc.sql": "23c6e327fa3c101e63834c51f1fad57e7e7314b999d1ce2e3a43851a951ee5cf",
+    "work-observe.sql": "27b3d8610ee521c6ffee2287cd9db90e5601f35e54439601e6e70734d6debfde",
+    "grant-write-acl-observe.sql": "0f330d91a958a36109340ba4454790bedaecae42c698646efb35f248860c7c9b",
+    "README.md": "49198b9b0f0455835c99f74cbea0ca55099e5d0fd5ac476721278c8118ec6619"
+  },
+  "packet_digest_recipe": "SHA256(UTF8 json.dumps({'source_files_sha256':...,'prepared_files_sha256':...},sort_keys=True,separators=(',',':'))); fixtures.json excluded",
+  "source_only_packet_sha256": "71f00a7b12cad6bef6f70f232a10b431d3785f03ea36ad9fce803b79ffa537d7"
+}

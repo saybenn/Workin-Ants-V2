@@ -1,0 +1,64 @@
+{
+  "schema": "workinants.restricted-controls-operator-author-review.v2",
+  "recorded_at": "2026-11-18T06:03:19.684674+00:00",
+  "status": "SOURCE_PREPARED_NOT_EXECUTED_PENDING_INDEPENDENT_DELTA_REVIEW",
+  "files_sha256": {
+    "restricted_controls_operator_20261118.py": "7cc8b782ae20f7a3e3b570ebb5a68c6486d17a3dfcaa8ca1e86b532b771cf7b3",
+    "restricted_controls_operation_steps.py": "f3f5011731ba1f539fcf7e87d3f8dd30796c74a096528e780fbf3ddf96a5626e",
+    "restricted_controls_additions.py.txt": "3f0fd7aa7501fb616363c8919ee95705fb12827edb30d1f8c03c90da6084d1d4",
+    "restricted_controls_build_sources.py": "879eba425350269b703b87d1861af48b3265db3fc1b3565125f6826d29ebefea",
+    "restricted_controls_prepare_plan.py": "6726c8845c6080eb86cf19e4e5d0f9378a80ac97e8ccd8c3613b2be1643d77c2",
+    "restricted_controls_check_operation.py": "d61e31c9998a5395539dc4c9e6505938ae54dd479c9f6ecc3e7b42502d3d5511",
+    "restricted_controls_pin_plan.py": "28915cba4efb9df309b5aefebbedb69a16a648f9ef9a43071f199cd512b825b6",
+    "restricted_controls_operator.md": "4c33e820efb4434bd7caa8c390e4c3bd437dc266005e5ad131c3314ad002f8a9"
+  },
+  "focused_mocks": {
+    "passed": 37,
+    "failed": 0,
+    "skipped": 0,
+    "every_subprocess_docker_database_network_boundary": "FORBIDDEN_OR_MOCKED",
+    "mock_pass_values": "SYNTHETIC_NOT_RUNTIME_QUALIFICATION"
+  },
+  "delta": {
+    "independent_finding": "Failed/throwing coordinator bypassed global after-component closure",
+    "closure_after_invocation": "FINALLY_ON_RETURN_OR_EXCEPTION_BEFORE_VERDICT_AND_NATIVE_OBSERVATIONS",
+    "client_scope": "ALL_DATABASES_ALL_ROLES_ALL_TAGS_EXCEPT_OBSERVING_BACKEND",
+    "partial_references": "RETAINED_BEFORE_CLOSURE_AND_VERDICT",
+    "unknown_observer": "FIXED_UNCONFIRMED_RESULT_RETAINED",
+    "unconfirmed_closure": "STOP_LATER_COMPONENTS_AND_NATIVE_OBSERVERS",
+    "regressions": [
+      "global SQL scope",
+      "failed observer fixed result",
+      "returned failure with other-database/different-tag/non-migrator client",
+      "throwing failure with same other client",
+      "malformed evidence still runs closure"
+    ],
+    "new_committed_source_root": "context/reconciliation/local-f0-operation-sources/restricted-controls-v2",
+    "historical_unique_review_path": "context/reconciliation/local-f0-operation-sources/restricted-controls-v1/unique-source-review.json"
+  },
+  "preservation": {
+    "frozen_v1_directory": "restricted_controls_v1_frozen",
+    "all_eight_source_hashes": "VERIFIED_UNCHANGED",
+    "prior_author_report_sha256": "9f11ebdb25cae2afcb7a3bfd805ce86bef4a0542c090a8f273e009daefc0b60d",
+    "builder_byte_reproduction": "PASS",
+    "python_ast_compile_sources": 7
+  },
+  "limits": {
+    "posture": "D",
+    "git_invoked": false,
+    "docker_invoked": false,
+    "database_contacted": false,
+    "sql_executed": false,
+    "resources_created": false,
+    "all_behavioral_cases": "NOT_RUN_BY_THIS_SOURCE_AUTHOR",
+    "94_selection": "NOT_PROMOTED",
+    "451_register": "NOT_PROMOTED",
+    "hosted_changes": false,
+    "migration_adoption": false,
+    "worker_loop": false,
+    "native_deny": "EXCLUDED_FROM_COMBINED_WRAPPER",
+    "independent_wrapper_review": "PENDING",
+    "runtime_operation_review": "PENDING"
+  },
+  "plain_english": "Even when a small game crashes, check that every other player left before looking at the town again. If we cannot prove that, stop the next games and keep safe notes."
+}

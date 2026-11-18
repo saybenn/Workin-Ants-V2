@@ -1,0 +1,1 @@
+WITH changed AS (UPDATE app.customer_profiles SET display_name='ctx01 forbidden update',revision=revision+1 WHERE id='bbe23c0b-ee0e-57f8-a60e-8333fe8650e2' RETURNING id) SELECT jsonb_build_object('modified',count(*)) FROM changed;
