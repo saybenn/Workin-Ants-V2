@@ -1,0 +1,79 @@
+{
+  "status": "AUTHORED_OFFLINE_VALIDATED_PENDING_ROOT_INDEPENDENT_SOURCE_REVIEW",
+  "recorded_at": "2026-11-18T07:22:11.083712+00:00",
+  "source_and_output_files_sha256": {
+    "scripts/prepare-local-f0-status.py": "f524152f2467b1375ad9d97d1e9b82fba681995f2ea62e34248a7e1e17fc3ab1",
+    "scripts/check-local-f0-status.py": "8ddadf3331085fb86c095b871cc49ac48f3c4f4d77fe5ab0f71feaead13bb2ae",
+    "context/reconciliation/local-f0-assertion-evidence.json": "95834a68811d166e74df9e687290f357d514643b46d7f2f3770c021e532f0f91",
+    "context/reconciliation/local-f0-qualification-status.json": "cf40b8997f48157de9f66bdd8704d16f0788dcc84005fb561ca7227469efa9ce"
+  },
+  "preserved_prior_state": {
+    "directory": "catalog-only-status-70a00a2d-frozen",
+    "prior_assertion_links_unchanged": 36,
+    "prior_execution_entries_unchanged": 3,
+    "previous_qualification_status_sha256": "70a00a2dc845241d6068d5bfa5486a347b7560435a58776cd2ceace74dc7a9a9"
+  },
+  "new_links": {
+    "PASS": 45,
+    "PARTIAL": 25,
+    "total": 70,
+    "source_record_sha256": "9a090022c11f150cb133617af11cb9c6afafba1624313673ee3a5237ae637232",
+    "independent_actual_audit_sha256": "9f217bb9064ed941ef932aa9298e8c7b6bfe0ca7dbeae8f292eea3158ba0bebd",
+    "root_parser_source_review_sha256": "14c1bed73c70a4af539d414c1ec75208bd139ad4696f6b9faccf4c07646f67ae",
+    "all70_links_individually_validated_through_real_adapter_before_write": true
+  },
+  "focused_validation": {
+    "command": "python -B scripts/check-local-f0-status.py",
+    "exit_code": 0,
+    "tests_passed": 13,
+    "tests_failed": 0,
+    "seconds": 218.059,
+    "Python_source_files_compiled": 2,
+    "real_dispatch_observed": {
+      "restricted": 70,
+      "old_migration": 7,
+      "restricted_fell_back_to_migration": false
+    }
+  },
+  "derived_output": {
+    "assertion_status_counts": {
+      "PASS": 79,
+      "PARTIAL": 27,
+      "FAILED": 0,
+      "DEPENDENCY_BLOCKED": 32,
+      "NOT_RUN": 889,
+      "UNRESOLVED_SOURCE": 7
+    },
+    "case_status_counts": {
+      "PASS": 2,
+      "PARTIAL": 26,
+      "FAILED": 0,
+      "DEPENDENCY_BLOCKED": 0,
+      "NOT_RUN": 66
+    },
+    "completed_case_ids": [
+      "P0C-TABLE-DatabaseActionGrant-ALLOW",
+      "P0C-UNIQUE-01"
+    ],
+    "catalog_adversarial": "NOT_RUN",
+    "Customer_app_UPDATE": "NOT_RUN",
+    "Privacy_not_promoted": true
+  },
+  "counting": "Customer17 SQL scenarios; worker4 prepared protocol scopes and15 component-result entries; Context31 SQL protocols; Unique5 actual two-session SQL races. Heterogeneous records are never summed as68 selected cases.",
+  "repository_mutations": [
+    "scripts/prepare-local-f0-status.py",
+    "scripts/check-local-f0-status.py",
+    "context/reconciliation/local-f0-assertion-evidence.json",
+    "context/reconciliation/local-f0-qualification-status.json",
+    "new parser-root-review and integration-author-validation records only"
+  ],
+  "excluded_mutations": [
+    "progress",
+    "qualification-board",
+    "phase0 documents",
+    "HEAD",
+    "admitted181packet files"
+  ],
+  "posture": "D",
+  "Docker_database_or_Git_invoked": false
+}

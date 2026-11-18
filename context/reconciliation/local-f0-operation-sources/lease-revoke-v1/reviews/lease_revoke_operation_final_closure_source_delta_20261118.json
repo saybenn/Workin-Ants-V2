@@ -1,0 +1,37 @@
+{
+  "format": "workinants.lease-revoke-operation-author-delta.v1",
+  "author": "/root/review_track_ports",
+  "status": "FINAL_FROZEN_FOR_INDEPENDENT_REREVIEW",
+  "source_files_sha256": {
+    "execute_local_f0_lease_revoke_20261118.py": "d5c8e37edb9ea4243b24a21e6b990baa57422b9a4ad9b57181090a87458b0d39",
+    "local_f0_lease_revoke_operation_steps.py": "accca8fba1c9f0ea8fc1dec658aaecce9b85d5a372477d9a3c709271f1cb6132",
+    "prepare_local_f0_lease_revoke_plan.py": "ef0dc09978fb4b60a0e6a7666f231d0f175902068361124c8a3879ca6b54d557",
+    "check_local_f0_lease_revoke_operation.py": "7c6ecd4688159fe0c69787c986100fc15541076c3bdbf56f195ca1408fe1fc25",
+    "pin_local_f0_lease_revoke_plan_20261118.py": "a18c75cbd8f169a853e475a7e4d5c53cee4f752a86d4806c2306a6f4ce3cdc76"
+  },
+  "original_preservation": {
+    "directory": "lease-revoke-operation-before-closure-fix-20261118",
+    "manifest_sha256": "e6dac1688c2abc1ba4c8d4859f463233d4c1c7407d244c3912720034b561fa65"
+  },
+  "intermediate_preservation": {
+    "directory": "lease-revoke-operation-before-reference-size-cap-20261118",
+    "manifest_sha256": "b0e9a0de3a01f5458a2d72af028ab809d6f61a98b01fdf949d4e14b5ccf1d314"
+  },
+  "changes": [
+    "Reference stat/read/save exceptions cannot bypass the global closure observer because it runs in nested finally; fixed unavailable status requires STOP before verdict/native.",
+    "Reference stat size must be a nonnegative integer and at most16MiB; the stream reads at most16MiB+1. Absent, unavailable or oversized references cannot qualify. Exact hash-bound bounded bytes remain private in memory and are consumed by the verdict without an unbounded second read.",
+    "Global closure retains only fixed all-database/all-role/all-tag observation-completed/counts-valid/zero/absent booleans, even for malformed or throwing observers. Exact nonnegative int-zero counts are mandatory. No arbitrary observation or exception values are retained."
+  ],
+  "offline_mock_methods": 27,
+  "offline_result": "PASS",
+  "elapsed_seconds": 4.288,
+  "compiled_modules": 5,
+  "unchanged_core_preparer_pin": true,
+  "SQL_or_coordinator_or_fixture_changed": false,
+  "runtime": "NOT_RUN",
+  "independent_source_approval": "PENDING_REVIEWER",
+  "literal_plan_approval": "REQUIRED_SEPARATELY",
+  "Docker_invoked": false,
+  "database_contacted": false,
+  "Git_mutated": false
+}

@@ -1,0 +1,63 @@
+{
+  "schema": "workinants.lease-revoke-source-plan.v2",
+  "status": "SOURCE_FROZEN_PENDING_INDEPENDENT_REVIEW_NOT_RUN",
+  "initial_plan_sha256": "6661a443ba637920f9f70bf213962b3a46d04624349bbd66c9169a7bdbf98530",
+  "actual_selected_ids": [
+    "P0C-TRACK-01",
+    "P0C-CTX-02"
+  ],
+  "new_source_files_sha256": {
+    "scripts/prepare-lease-revoke-control-rehearsal.py": "118c5c7e560e5963e21a49ea93a69a97dcea557934af4720a76b1db5df600d12",
+    "scripts/lease_revoke_control_protocol.py": "df6754f7a01b721d9c4ca300956626c3798014cff1d4e117e4c1aba2a9745394",
+    "scripts/sql-review/run-lease-revoke-control-rehearsal.py": "9a2acbfcbf17719a83eb993bebce5ca9d4210574cf82c701d26f9303b5b818e8",
+    "scripts/check-lease-revoke-control-rehearsal.py": "d4dff78082330acf8203662c98538968f01be47f9c48ca8dda175f038b23cc48",
+    "scripts/sql-review/lease-revoke-controls-coordinator.md": "5f08073523432c8ec6ddbc7ee6056f1a135109d718b43006ea70bed6451d3580"
+  },
+  "fixture_packet_sha256": "fe59a9867093f1cbab01741fa7d4f1fd727090e410374e663bbbd0796903c7e5",
+  "content_sha256": "9107197cf9f1b84c07becb194da4e00c950bc9c69e674cc962704af860db0cbf",
+  "finite_order": [
+    "worker-claim",
+    "worker-renew",
+    "live-reclaim-denied",
+    "expired-renew-denied",
+    "concurrent-reclaim-stale-holder",
+    "current-holder-renew",
+    "shorten-renew-denied",
+    "copied-hash-renew-denied",
+    "old-secret-renew-denied",
+    "hash-change-denied",
+    "attempt-only-denied",
+    "app-issuer-revocation",
+    "app-bound-before-rotate",
+    "app-old-after-rotate",
+    "app-fresh-after-rotate",
+    "app-bound-before-revoke",
+    "app-revoked-generation",
+    "app-old-after-recover",
+    "app-fresh-after-recover"
+  ],
+  "clock_bounds": {
+    "grant_instances_max": 48,
+    "sessions_simultaneous_max": 3,
+    "clock_wait_seconds_max": 45,
+    "clock_poll_seconds": 0.1,
+    "old_holder_idle_seconds_max": 60,
+    "no_enrollment_loop": true
+  },
+  "old_fence_proof": "Exact original retained tuple/caps, unrevoked, context TTL future, renew route and independent service epoch current BEFORE and AFTER refusal; higher-fence lease independently still live; same backend/xid recaptured before action; successful identical renew scope required beforehand",
+  "attribution_limit": "Actual scoped renewal RLS/CAS zero visible/changed rows; no always-false worker_lease_valid claim under wrong route",
+  "boundaries": {
+    "selected_cases": "NOT_RUN",
+    "whole_94": "NOT_PROMOTED",
+    "whole_451": "NOT_PROMOTED",
+    "Identity_adapter": "SYNTHETIC_NOT_QUALIFIED",
+    "lease_attach_and_recovery": "NOT_PREPARED_HERE",
+    "owner_generations": "NOT_PREPARED_MISSING_OWNER_PORTS",
+    "Customer_update_gate": "CUSTOMER_UPDATE_RECEIPT_NO_RESULT_IDENTITY_AND_CODEC_NOT_REGISTERED"
+  },
+  "independent_review_required": true,
+  "actual_runtime": "NOT_RUN",
+  "new_full_run_manifest": "NOT_PREPARED",
+  "parent_executor": "Root_only",
+  "author_report_sha256": "7fe0b794dc362ef1b721842baba20c5e5a5a0626a7eb63c5994e6181b3333fd7"
+}

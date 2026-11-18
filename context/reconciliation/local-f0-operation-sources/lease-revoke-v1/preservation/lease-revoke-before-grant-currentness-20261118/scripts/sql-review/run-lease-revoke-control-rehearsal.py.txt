@@ -1,0 +1,309 @@
+"""Dormant finite lease/revocation coordinator. Import/help never run helpers.
+
+No provisioning, permissions, migrations, source-owner generation repair or
+worker loop. Root supplies an independently reviewed same-run/native-PASS plan.
+Only the exact finite SQL protocols can pass; compound selected cases stay NOT_RUN.
+"""
+import argparse
+from contextlib import redirect_stdout,redirect_stderr
+from copy import deepcopy
+import hashlib
+import io
+import json
+import os
+from pathlib import Path
+import re
+import secrets
+import time
+from types import ModuleType
+import uuid
+
+ROOT=Path(__file__).resolve().parents[2];TASK=ROOT.parent
+PACKET=ROOT/'review-output/lease-revoke-control-rehearsal'
+SELF='scripts/sql-review/run-lease-revoke-control-rehearsal.py'
+PROTOCOL='scripts/lease_revoke_control_protocol.py'
+CTX='scripts/sql-review/run-context-control-rehearsal.py'
+API='scripts/sql-review/run-first-rehearsal.py';HOST='scripts/sql-review/run-local-f0-migrate.py'
+DIAG='scripts/sql-review/rehearsal-diagnostics.py';HISTORY='scripts/prepare-local-f0-history.py';COLLECTOR='scripts/sql-review/collect_native_catalog.sql'
+MODULES=(SELF,PROTOCOL,CTX,API,HOST,DIAG,HISTORY,COLLECTOR)
+CTX_SHA='5ec53d01d7c5b19bea0a584ef9f5b4e6742d9509c21ac7e2250b9bdd62511f33'
+PACKET_SHA='5891c89b04ae5ee928fa696bd1ec421d3127c8a2cdad3c86a0b80f54c81f68c8';CONTENT_SHA='f7861e7f4b8f9a02ff67b96188fa50a061c61d01cddc7650fc77d57c201d3e7c'
+EXPECTED='3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433'
+
+class HeldFailure(Exception):
+    def __init__(self,code):self.code=code;super().__init__(code)
+def need(ok,code):
+    if not ok:raise HeldFailure(code)
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def canonical(value):return json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)
+def digest(value):return sha(canonical(value).encode())
+def quote(value):return "'"+str(value).replace("'","''")+"'"
+def exact(actual,wanted,code):need(canonical(actual)==canonical(wanted),code)
+def unique_json(raw):
+    def pairs(items):
+        result={}
+        for key,value in items:need(key not in result,'DUPLICATE_JSON_FIELD');result[key]=value
+        return result
+    return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in ()).throw(HeldFailure('NONFINITE_JSON')))
+def source(path):
+    need(type(path) is str and not path.startswith('/') and '\\' not in path and all(part not in ('','.','..') for part in path.split('/')),'SOURCE_PATH')
+    value=(ROOT/path).resolve();need(value.is_relative_to(ROOT.resolve()),'SOURCE_PATH');return value
+def external(path):
+    value=Path(path).resolve();need(value.is_relative_to(TASK.resolve()) and not value.is_relative_to(ROOT.resolve()),'EXTERNAL_EVIDENCE_REQUIRED');return value
+def compiled(path,raw):
+    module=ModuleType('_lease_revoke_'+Path(path).stem.replace('-','_'));module.__file__=str(source(path))
+    output=io.StringIO()
+    with redirect_stdout(output),redirect_stderr(output):exec(compile(raw,module.__file__,'exec'),module.__dict__)
+    need(not output.getvalue(),'HELPER_IMPORT_OUTPUT');return module.__dict__
+
+def load_inputs(plan):
+    fields={'schema','scope','run_id','source_commit','source_tree','packet_sha256','reviewed_packet_sha256','reviewed_content_sha256','source_modules_sha256','target_manifest','immutable_container_id','native_snapshot','native_comparison','native_attestation','case_names'}
+    need(type(plan) is dict and set(plan)==fields,'RUN_PLAN_FIELDS')
+    need(plan['schema']=='workinants.lease-revoke-run.v1' and plan['scope']=='FINITE_LEASE_AND_APPLICATION_CURRENTNESS_SQL_ONLY','RUN_PLAN_SCOPE')
+    need(str(uuid.UUID(plan['run_id']))==plan['run_id'] and uuid.UUID(plan['run_id']).version==4,'RUN_UUID_REQUIRED')
+    for key in ('source_commit','source_tree'):need(type(plan[key]) is str and re.fullmatch('[0-9a-f]{40}',plan[key]),'SOURCE_CHECKPOINT_REQUIRED')
+    for key in ('packet_sha256','immutable_container_id'):need(type(plan[key]) is str and re.fullmatch('[0-9a-f]{64}',plan[key]),'RUN_IDENTITY_REQUIRED')
+    need(plan['reviewed_packet_sha256']==PACKET_SHA and plan['reviewed_content_sha256']==CONTENT_SHA,'EXACT_REVIEWED_PACKET_REQUIRED')
+    pins=plan['source_modules_sha256'];need(type(pins) is dict and set(pins)==set(MODULES),'CLOSED_HELPER_PINS_REQUIRED')
+    modules={path:source(path).read_bytes() for path in MODULES}
+    need(all(sha(raw)==pins[path] for path,raw in modules.items()) and sha(modules[CTX])==CTX_SHA,'HELPER_SOURCE_DRIFT')
+    raw=(PACKET/'fixtures.json').read_bytes();need(sha(raw)==PACKET_SHA,'PACKET_FILE_DRIFT');packet=unique_json(raw)
+    need(packet['schema']=='workinants.lease-revoke-fixtures.v1' and packet['status']=='NOT_RUN' and packet['database_posture']=='D' and packet['database_contacted'] is False and packet['sql_executed'] is False,'SOURCE_ONLY_PACKET_REQUIRED')
+    exact(packet['selected_control_ids'],['P0C-TRACK-01','P0C-CTX-02'],'SELECTED_IDS_REQUIRED')
+    need(digest({k:packet[k] for k in ('source_files_sha256','prepared_files_sha256')})==CONTENT_SHA==packet['source_only_packet_sha256'],'CONTENT_AGGREGATE_DRIFT')
+    for path,value in packet['source_files_sha256'].items():need(sha(source(path).read_bytes())==value,'PACKET_SOURCE_DRIFT')
+    for name,value in packet['prepared_files_sha256'].items():
+        need(type(name) is str and Path(name).name==name and name not in ('','.','..'),'PACKET_FILE_NAME')
+        need(sha((PACKET/name).read_bytes())==value,'PREPARED_SQL_DRIFT')
+    exact(plan['case_names'],packet['case_order'],'EXACT_FINITE_CASE_ORDER')
+    need(type(packet['case_order']) is list and len(packet['case_order'])==19 and len(set(packet['case_order']))==19,'FINITE_CASE_COUNT_REQUIRED')
+    documents={}
+    for key in ('native_snapshot','native_comparison','native_attestation'):
+        item=plan[key];need(type(item) is dict and set(item)=={'path','sha256'},'NATIVE_FILE_BINDING')
+        raw=external(item['path']).read_bytes();need(sha(raw)==item['sha256'],'NATIVE_FILE_DRIFT');documents[key]=unique_json(raw)
+    native,comparison,attestation=(documents[k] for k in ('native_snapshot','native_comparison','native_attestation'))
+    need(native.get('format')=='workinants.native-catalog.v1' and type(native.get('server_version_num')) is int and native['server_version_num']==170011 and native.get('read_only') is True and native.get('collected_as')=='postgres' and native.get('collector_is_superuser') is True,'NATIVE_SNAPSHOT_REQUIRED')
+    counts=comparison.get('check_counts')
+    need(comparison.get('format')=='workinants.catalog-comparison.v1' and comparison.get('status')=='PASS' and comparison.get('source_expected_sha256')==EXPECTED and comparison.get('native_snapshot_sha256')==digest(native) and comparison.get('findings')==[] and type(counts) is dict and set(counts)<={'PASS','FAIL','INCOMPLETE'} and all(type(value) is int and value>=0 for value in counts.values()) and counts.get('PASS',0)>0 and counts.get('FAIL',0)==counts.get('INCOMPLETE',0)==0,'FULL_NATIVE_PASS_REQUIRED')
+    wanted={'schema':'workinants.lease-revoke-native-attestation.v1','run_id':plan['run_id'],'container_id':plan['immutable_container_id'],'source_commit':plan['source_commit'],'source_tree':plan['source_tree'],'packet_sha256':plan['packet_sha256'],'collector_sha256':pins[COLLECTOR],'source_expected_sha256':EXPECTED,'native_snapshot_sha256':digest(native),'native_comparison_file_sha256':plan['native_comparison']['sha256'],'original_grantor_finalized':True,'operation_backends_absent':True,'comparison_status':'PASS'}
+    exact(attestation,wanted,'SAME_RUN_NATIVE_ATTESTATION_REQUIRED')
+    # No project helper executes until the entire source, SQL and proof graph
+    # has been admitted above. CTX's verified loader has no disk/import fallback.
+    ctx=compiled(CTX,modules[CTX]);need(set(ctx['SOURCE_MODULES'])<=set(MODULES),'TRANSITIVE_CLOSURE_REQUIRED');ctx['load_helpers']({p:modules[p] for p in ctx['SOURCE_MODULES']})
+    protocol=compiled(PROTOCOL,modules[PROTOCOL]);exact(plan['case_names'],list(protocol['CASE_ORDER']),'EXACT_FINITE_CASE_ORDER')
+    exact(packet['case_order'],plan['case_names'],'PACKET_FINITE_CASE_ORDER')
+    target=ctx['HOST']['validate_manifest'](plan['target_manifest']);need(target['run_id']==plan['run_id'] and target['source']['integrated_sql_sha256']==packet['source_files_sha256']['review-output/foundation-application.review.sql'],'TARGET_RUN_SOURCE_REQUIRED')
+    return packet,native,target,ctx,protocol
+
+class Evidence:
+    def __init__(self,directory,packet):
+        directory.mkdir(parents=True,exist_ok=False);self.path=directory/'lease-revoke-results.json'
+        self.value={'schema':'workinants.lease-revoke-evidence.v1','status':'IN_PROGRESS','current_stage':'ENTRY','current_case':None,'current':{},'results':[],'operations':[],'authentication':[],'cleanup_required':True,'subsequent_cases_stopped':False,'database_posture':'D','selected_controls':[{'id':name,'status':'NOT_RUN'} for name in packet['selected_control_ids']],'coverage_limits':deepcopy(packet['coverage_limits'])};self.save()
+    def save(self):
+        temporary=self.path.with_suffix('.json.tmp')
+        with temporary.open('w',encoding='utf8',newline='\n') as handle:handle.write(json.dumps(self.value,indent=2)+'\n');handle.flush();os.fsync(handle.fileno())
+        temporary.replace(self.path)
+    def stage(self,name):self.value['current_stage']=name;self.save()
+
+def coordinator_class(ctx,protocol):
+    class Coordinator(ctx['Coordinator']):
+        def __init__(self,plan,packet,native,target,evidence,session_factory=None,clock=time.monotonic,sleep=time.sleep):
+            super().__init__(plan,packet,native,target,evidence,session_factory or ctx['Session'])
+            self.live=[];self.revoked=set();self.clock=clock;self.sleep=sleep;self.lease_a=secrets.token_hex(32);self.lease_b=secrets.token_hex(32);self.lease_c=secrets.token_hex(32)
+            need(len({self.lease_a,self.lease_b,self.lease_c})==3 and all(re.fullmatch('[0-9a-f]{64}',value) for value in (self.lease_a,self.lease_b,self.lease_c)),'THREE_INDEPENDENT_LEASE_PREIMAGES_REQUIRED')
+            self.state=0;self.app_scheduled=False;self.app_generation=0;self.app_revoked=False;self.old=None;self.old_key=None;self.last_work_transactions={}
+        def session(self,role):
+            value=super().session(role);self.live.append(value);need(len([s for s in self.live if not s.closed])<=3,'FINITE_LIVE_SESSION_CAP');return value
+        def text(self,name):
+            need(name in self.packet['prepared_files_sha256'],'PREPARED_FILE_REQUIRED');raw=(PACKET/name).read_bytes();need(sha(raw)==self.packet['prepared_files_sha256'][name],'SQL_SOURCE_DRIFT');return raw.decode()
+        def all_closed(self):
+            self.evidence.stage('CLOSE_ALL_ORIGINAL_OPERATIONS')
+            good=True
+            for session in self.live:
+                try:session.close()
+                except BaseException:good=False
+            self.record({'stage':'ALL_OWNED_OPERATION_CLOSURES','all_original_sessions_closed':good});need(good,'OPERATION_CLOSURE_UNCONFIRMED')
+        def global_closed(self):
+            observed=False;absent=False
+            try:absent=self.raw('postgres',"SELECT count(*) FROM pg_stat_activity WHERE backend_type='client backend' AND pid<>pg_backend_pid();")=='0';observed=True
+            except BaseException:pass
+            self.record({'stage':'GLOBAL_CLIENT_CLOSURE','scope':'ALL_DATABASES_ALL_ROLES_ALL_TAGS','observation_completed':observed,'all_other_client_backends_absent':absent})
+            need(absent,'GLOBAL_CLIENT_CLOSURE_REQUIRED')
+        def opened(self,template,lease=None,fence=None,stale=False):
+            self.evidence.stage('CAPTURE_ACTUAL_RESTRICTED_TUPLE');session=self.session(template['database_login_role']);session.begin('read committed');backend=session.capture()
+            self.evidence.stage('SEPARATE_ISSUER_COMMIT');key=self.issue(template,backend);self.evidence.stage('BIND_ORIGINAL_RESTRICTED_TRANSACTION')
+            if stale:
+                try:self.stale(session,self.instances[key]['secret'],'invalid, stale or unsupported context')
+                finally:code=session.close()
+                need(type(code) is int and code==3,'STALE_BIND_TERMINAL_REQUIRED');return session,key
+            rows,ack,errors=session.call('SELECT platform_private.bind_request_context('+quote(self.instances[key]['secret'])+');');need(ack is True and rows==[] and not errors,'CONTEXT_BIND_REQUIRED')
+            if lease is not None:
+                rows,ack,errors=session.call('SET LOCAL wa.lease_secret='+quote(lease)+'; SET LOCAL wa.fence='+quote(str(fence))+';');need(ack is True and rows==[] and not errors,'PRIVATE_LEASE_BIND_REQUIRED')
+            return session,key
+        def execute(self,name,session,body,expected=({'changed':1},)):
+            outcome=None;record={'stage':'ACTUAL_OPERATION','name':name,'actual_login':session.role,'operation_closed':False};self.record(record)
+            self.evidence.stage('EXECUTE_'+name.upper().replace('-','_'))
+            try:rows,ack,errors=session.call(body)
+            finally:
+                self.evidence.stage('CLOSE_'+name.upper().replace('-','_'))
+                code=session.close();record['operation_closed']=session.closed;self.evidence.save()
+            self.evidence.stage('VERIFY_'+name.upper().replace('-','_'))
+            outcome=protocol['verdict'](name,code,rows,ack,errors,self.application,list(expected));record['outcome']=outcome;self.evidence.save()
+            need(record['operation_closed'] and outcome['matched'],'SOURCE_OPERATION_VERDICT_NOT_PROVEN')
+            return deepcopy(session.backend)
+        def operation(self,name,template,filename,lease=None,fence=None):
+            session=None
+            try:
+                session,key=self.opened(self.packet['grants'][template],lease,fence)
+                return self.execute(name,session,self.text(filename))
+            finally:
+                if session is not None:session.close()
+        def source_operation(self,key):
+            session=None
+            try:
+                session,instance=self.opened(self.packet['grants']['source-'+key]);rows,ack,errors=session.call(self.text('source-'+key+'.sql'))
+            finally:
+                if session is not None:code=session.close()
+            need(code==0 and ack is True and rows==['WA_CUSTOMER_CONTROL_READY_TO_COMMIT'] and not errors,'COMPLETE_CUSTOMER_SOURCE_COMMIT_REQUIRED')
+            case=self.packet['sources'][key];self.observe('SOURCE_'+key,self.text('source-'+key+'-observe.sql'),case['observer_expected'])
+            xid=session.backend['xid'];self.observe('CUSTOMER_ACTUAL_XID',"SELECT jsonb_build_object('same_transaction',EXISTS(SELECT 1 FROM app.customer_profiles WHERE id="+quote(case['ids']['CustomerProfile'])+' AND mutation_transaction_id='+quote(xid)+'));',{'same_transaction':True})
+        def schedule(self,key,template):
+            session=None
+            try:
+                session,instance=self.opened(self.packet['grants'][template]);rows,ack,errors=session.call(self.text('schedule-'+key+'.sql'))
+            finally:
+                if session is not None:code=session.close()
+            need(code==0 and ack is True and rows==['WA_LR_SCHEDULE_READY'] and not errors,'ACTUAL_SCHEDULER_COMMIT_REQUIRED');return session.backend
+        def identity(self,step):
+            self.commit('wa_identity_service_authority',self.text('identity-app-'+step+'.sql'),'INDEPENDENT_IDENTITY_'+step.upper())
+            self.app_generation={'rotate':1,'revoke':2,'recover':3}[step];self.app_revoked=step=='revoke';self.identity_observe('app',self.app_generation,self.app_revoked)
+        def identity_observe(self,kind,generation,revoked):
+            service=self.packet['services'][kind];receipt=self.packet['identity_receipts'][kind][('bootstrap','rotate','revoke','recover')[generation]]
+            query="SELECT jsonb_build_object('authorizations',(SELECT count(*) FROM platform_private.identity_service_authorization WHERE service_principal="+quote(service)+"),'receipts',(SELECT count(*) FROM platform_private.identity_service_receipt WHERE service_principal="+quote(service)+"),'exact_current_link',EXISTS(SELECT 1 FROM platform_private.identity_service_authorization a JOIN platform_private.identity_service_receipt r ON r.id=a.identity_receipt_id AND r.service_principal=a.service_principal AND r.security_generation=a.security_generation AND r.revoked_at IS NOT DISTINCT FROM a.revoked_at AND r.mutation_transaction_id=a.mutation_transaction_id WHERE a.service_principal="+quote(service)+' AND a.security_generation='+str(generation)+' AND a.identity_receipt_id='+quote(receipt)+' AND (a.revoked_at IS NOT NULL)='+('true' if revoked else 'false')+'));'
+            self.observe('INDEPENDENT_IDENTITY_LINK',query,{'authorizations':1,'receipts':generation+1,'exact_current_link':True})
+        def work_observe(self,key,backend=None):
+            work=self.packet['work_ids'][key];state,fence,attempts=('pending',0,0) if key!='lease' or self.state==0 else ('leased',self.state,self.state)
+            case=self.packet['sources'][key]
+            clauses=['state='+quote(state),'fence='+str(fence),'attempt_count='+str(attempts),'effect_receipt_id IS NULL',"handler_name='assignDefaultFreeTrack.v1'",'outbox_message_id='+quote(case['ids']['free']),'semantic_work_key='+quote(case['fixture_values']['free_command']['semanticKey'])]
+            if key=='lease' and self.state:clauses+=['lease_token_hash='+quote(sha(bytes.fromhex(self.lease_a if self.state==1 else self.lease_b))),'lease_expires_at IS NOT NULL']
+            else:clauses+=['lease_token_hash IS NULL','lease_expires_at IS NULL']
+            captured=backend or self.last_work_transactions.get(key)
+            if captured is not None:clauses+=['mutation_transaction_id='+quote(captured['xid'])]
+            self.observe('WORK_COMPLETE_STATE',"SELECT jsonb_build_object('work_count',count(*),'coherent',coalesce(bool_and("+' AND '.join(clauses)+'),false)) FROM platform.runtime_work_item WHERE id='+quote(work)+';',{'work_count':1,'coherent':True})
+            if backend is not None:self.last_work_transactions[key]=deepcopy(backend)
+        def wait_expired(self):
+            self.evidence.stage('WAIT_ACTUAL_LEASE_EXPIRY');start=self.clock();polls=0
+            while self.clock()-start<=45:
+                value=unique_json(self.raw('postgres',self.text('lease-clock.sql')))
+                need(type(value) is dict and set(value)=={'expired','same_fence','same_attempt','effect_absent'} and all(type(v) is bool for v in value.values()) and value['same_fence'] and value['same_attempt'] and value['effect_absent'],'BOUNDED_CLOCK_OBSERVATION_REQUIRED')
+                if polls==0:need(value['expired'] is False,'OLD_HOLDER_MUST_BIND_DURING_LIVE_LEASE')
+                polls+=1;self.evidence.value['current']={'clock_polls':polls,'live_lease_observed_after_old_holder_bind':True,'actual_clock_expired':value['expired'],'privileged_expiry_edit':False};self.evidence.save()
+                if value['expired']:return
+                self.sleep(.1)
+            raise HeldFailure('ACTUAL_LEASE_EXPIRY_NOT_OBSERVED')
+        def check_retention(self):
+            if not self.instances:return
+            rows=[]
+            for key,instance in self.instances.items():
+                values=instance['values'];checks=['g.'+column+' IS NOT DISTINCT FROM ('+value+')' for column,value in values.items() if column!='revoked_at']
+                checks.append('g.revoked_at IS '+('NOT NULL' if key in self.revoked else 'NULL'))
+                rows.append('SELECT ('+' AND '.join(checks)+') AS exact FROM platform.database_action_grant g WHERE g.id='+values['id'])
+            expected={'count':len(rows),'exact':True};query="SELECT jsonb_build_object('count',count(*),'exact',coalesce(bool_and(exact),false)) FROM ("+' UNION ALL '.join(rows)+') retained;'
+            value=unique_json(self.raw('wa_context_issuer',query));self.record({'stage':'ISSUER_RETENTION','count':len(rows),'exact_fields_and_declared_revocations':canonical(value)==canonical(expected)});exact(value,expected,'ISSUER_RETENTION_REQUIRED')
+        def complete(self):
+            need(all(session.closed for session in self.live),'ALL_ORIGINAL_SESSIONS_MUST_CLOSE_BEFORE_STATE_OBSERVERS');self.global_closed()
+            for key,case in self.packet['sources'].items():self.observe('COMPLETE_SOURCE_'+key,self.text('source-'+key+'-observe.sql'),case['observer_expected'])
+            self.work_observe('lease');self.work_observe('app-positive')
+            if self.app_scheduled:self.work_observe('app-recovery')
+            else:self.observe('RECOVERY_WORK_ABSENT','SELECT jsonb_build_object(\'count\',count(*)) FROM platform.runtime_work_item WHERE id='+quote(self.packet['work_ids']['app-recovery'])+';',{'count':0})
+            self.observe('TRIGGER_RESTORATION',self.text('fixture-trigger-restore-observe.sql'),self.packet['fixture_trigger_contract']['observer_expected'])
+            self.observe('NO_ATTEMPTS_OR_TRACK_EFFECTS',self.text('no-effects-observe.sql'),dict.fromkeys(('attempt_rows','effect_links','track_subscriptions','track_selections','track_grants','track_history'),0))
+            self.identity_observe('worker',0,False);self.identity_observe('app',self.app_generation,self.app_revoked);self.check_retention();self.native_unchanged()
+        def preflight(self):
+            self.resource();self.global_closed();self.native_unchanged();ctx['API']['authentication_preflight'](self.evidence,self.container)
+            need(self.raw('postgres',"SELECT current_setting('server_version_num')='170011' AND current_setting('log_statement')='none' AND current_setting('log_min_error_statement')='panic' AND current_setting('password_encryption')='scram-sha-256';")=='t','SAFE_SERVER_SETTINGS_REQUIRED')
+            need(self.raw('postgres',"SELECT NOT EXISTS(SELECT 1 FROM pg_auth_members WHERE member='wa_schema_owner'::regrole AND roleid=ANY(ARRAY['wa_private_helper_owner'::regrole,'wa_customer_verifier'::regrole,'wa_track_verifier'::regrole])) AND NOT has_schema_privilege('wa_private_helper_owner','platform_private','CREATE') AND NOT has_schema_privilege('wa_customer_verifier','platform_private','CREATE') AND NOT has_schema_privilege('wa_track_verifier','platform_private','CREATE');")=='t','ORIGINAL_GRANTOR_FINALIZATION_REQUIRED')
+            checks=[]
+            for key,case in self.packet['sources'].items():
+                checks+=['NOT EXISTS(SELECT 1 FROM app.users WHERE id='+quote(case['ids']['user'])+')','NOT EXISTS(SELECT 1 FROM app.customer_profiles WHERE id='+quote(case['ids']['CustomerProfile'])+')','NOT EXISTS(SELECT 1 FROM platform.runtime_work_item WHERE id='+quote(self.packet['work_ids'][key])+')']
+            for service in self.packet['services'].values():checks+=['NOT EXISTS(SELECT 1 FROM platform_private.identity_service_authorization WHERE service_principal='+quote(service)+')','NOT EXISTS(SELECT 1 FROM platform_private.identity_service_receipt WHERE service_principal='+quote(service)+')']
+            need(self.raw('postgres','SELECT '+' AND '.join(checks)+';')=='t','FRESH_FIXTURE_NAMESPACE_REQUIRED')
+        def setup(self):
+            self.preflight()
+            try:self.commit('postgres',self.text('independent-user-fixtures.sql'),'INDEPENDENT_USER_FIXTURES')
+            finally:
+                self.all_closed();self.observe('TRIGGERS_AFTER_SETUP',self.text('fixture-trigger-restore-observe.sql'),self.packet['fixture_trigger_contract']['observer_expected'])
+            for key in self.packet['sources']:self.source_operation(key)
+            for kind in ('worker','app'):self.commit('wa_identity_service_authority',self.text('identity-'+kind+'-bootstrap.sql'),'INDEPENDENT_'+kind.upper()+'_BOOTSTRAP');self.identity_observe(kind,0,False)
+            self.work_observe('lease',self.schedule('lease','schedule-lease'));self.work_observe('app-positive',self.schedule('app-positive','app-positive'));self.complete()
+        def stage(self,name,completed):self.evidence.value.update(current_case=name,current={'completed_prior_scenarios':completed});self.evidence.stage('FINITE_'+name.upper().replace('-','_'))
+        def stopped(self,name,completed):self.evidence.value.update(subsequent_cases_stopped=True);self.record({'stage':'STOP_FINITE_CASES','completed_scenarios':completed})
+        def completed(self,name):self.evidence.value['results'].append({'name':name,'status':'PASS_FINITE_SQL_PROTOCOL_ONLY_SELECTED_CASE_NOT_RUN'});self.evidence.save()
+        def case(self,name):
+            grants=self.packet['grants']
+            if name=='worker-claim':self.state=1;self.work_observe('lease',self.operation(name,'claim-0',name+'.sql',self.lease_a,0))
+            elif name=='worker-renew':self.work_observe('lease',self.operation(name,'renew-1',name+'.sql',self.lease_a,1))
+            elif name=='live-reclaim-denied':self.operation(name,'claim-1',name+'.sql',self.lease_c,1)
+            elif name=='expired-renew-denied':
+                self.old,self.old_key=self.opened(grants['old-holder'],self.lease_a,1)
+                rows,ack,errors=self.old.call("SET LOCAL idle_in_transaction_session_timeout='60s';");need(ack is True and rows==[] and not errors,'BOUNDED_OLD_HOLDER_IDLE_TIMEOUT_REQUIRED')
+                self.wait_expired();self.operation(name,'renew-1',name+'.sql',self.lease_a,1)
+                self.work_observe('lease')
+                # The old holder stays idle with no protected action/row lock.
+                # Its original transaction is the other participant in reclaim.
+                self.record({'stage':'SCOPED_OLD_HOLDER_REMAINS_BOUND','no_protected_action_before_reclaim':True,'affected_expired_renew_backend_closed':True,'full_state_observation_deferred_until_both_concurrency_participants_close':True});return
+            elif name=='concurrent-reclaim-stale-holder':
+                reclaim,key=self.opened(grants['claim-1'],self.lease_b,1);need(reclaim.backend['pid']!=self.old.backend['pid'] and reclaim.backend['xid']!=self.old.backend['xid'],'ACTUAL_CONCURRENT_DISTINCT_TUPLES_REQUIRED')
+                backend=self.execute(name,reclaim,self.text('reclaim.sql'));self.state=2
+                self.execute(name,self.old,self.text('stale-holder.sql'),({'visible_exact_work':0},{'changed':0}));self.old=None
+                self.work_observe('lease',backend)
+            elif name=='current-holder-renew':self.work_observe('lease',self.operation(name,'renew-2',name+'.sql',self.lease_b,2))
+            elif name in ('shorten-renew-denied','copied-hash-renew-denied','old-secret-renew-denied','hash-change-denied','attempt-only-denied'):
+                lease=sha(bytes.fromhex(self.lease_b)) if name=='copied-hash-renew-denied' else self.lease_a if name=='old-secret-renew-denied' else self.lease_c if name=='hash-change-denied' else self.lease_b
+                template='claim-2' if name in ('hash-change-denied','attempt-only-denied') else 'renew-2';self.operation(name,template,name+'.sql',lease,2)
+            elif name=='app-issuer-revocation':
+                session,key=self.opened(grants['app-read-0']);instance=self.instances[key]
+                body='BEGIN; WITH changed AS (UPDATE platform.database_action_grant SET revoked_at=clock_timestamp() WHERE id='+instance['values']['id']+" AND issuer_service=session_user::text AND revoked_at IS NULL RETURNING 1) SELECT jsonb_build_object('changed',count(*)) FROM changed; COMMIT;"
+                revoker=self.session('wa_context_issuer')
+                try:
+                    revoker.begin('read committed');revoker.capture();rows,ack,errors=revoker.call(body.removeprefix('BEGIN; '));need(ack is True and not errors and len(rows)==1 and canonical(unique_json(rows[0]))==canonical({'changed':1}),'OWN_ISSUER_REVOCATION_COMMIT_REQUIRED')
+                finally:need(revoker.close()==0,'ISSUER_REVOCATION_CLOSURE_REQUIRED')
+                self.revoked.add(key);instance['values']['mutation_transaction_id']=quote(revoker.backend['xid'])
+                rows,ack,errors=session.call(self.text('app-read.sql'));code=session.close();need(code==0 and ack is True and not errors and len(rows)==1 and canonical(unique_json(rows[0]))==canonical({'visible_exact_work':0}),'APP_REVOKED_READ_DENIAL_REQUIRED')
+                self.record({'stage':'APP_ISSUER_REVOCATION','issuer_commit_before_protected_statement':True,'protected_rows_disclosed':0,'operation_closed':True})
+            elif name in ('app-bound-before-rotate','app-bound-before-revoke'):
+                generation=0 if name.endswith('rotate') else 1;session,key=self.opened(grants['app-write-'+str(generation)]);self.identity('rotate' if generation==0 else 'revoke');self.execute(name,session,self.text(name+'.sql'))
+            elif name in ('app-old-after-rotate','app-revoked-generation','app-old-after-recover'):
+                if name=='app-old-after-recover':self.identity('recover')
+                generation={'app-old-after-rotate':0,'app-revoked-generation':2,'app-old-after-recover':1}[name];self.opened(grants['app-write-'+str(generation)],stale=True)
+            elif name=='app-fresh-after-rotate':
+                session,key=self.opened(grants['app-read-1']);rows,ack,errors=session.call(self.text('app-read.sql'));code=session.close();need(code==0 and ack is True and not errors and len(rows)==1 and canonical(unique_json(rows[0]))==canonical({'visible_exact_work':1}),'FRESH_APP_CURRENTNESS_POSITIVE_REQUIRED')
+            elif name=='app-fresh-after-recover':
+                self.app_scheduled=True;self.work_observe('app-recovery',self.operation(name,'app-write-3',name+'.sql'))
+            else:raise HeldFailure('UNREGISTERED_FINITE_SCENARIO')
+            self.complete()
+        def run(self):
+            failure=None;failed_stage=None
+            try:self.setup();protocol['finite_driver'](self)
+            except BaseException as error:failure=error;failed_stage=self.evidence.value['current_stage']
+            finally:self.all_closed()
+            if failure is not None:
+                self.global_closed();self.observe('TRIGGERS_AFTER_FAILURE',self.text('fixture-trigger-restore-observe.sql'),self.packet['fixture_trigger_contract']['observer_expected']);self.native_unchanged();self.evidence.stage(failed_stage);raise failure
+            need(all(sha(source(path).read_bytes())==value for path,value in self.plan['source_modules_sha256'].items()) and all(sha(source(path).read_bytes())==value for path,value in self.packet['source_files_sha256'].items()) and all(sha((PACKET/name).read_bytes())==value for name,value in self.packet['prepared_files_sha256'].items()),'POST_RUN_SOURCE_PRESERVATION_REQUIRED')
+            self.evidence.value.update(status='COMPLETED_FINITE_LEASE_AND_APP_CURRENTNESS_ONLY_CASES_NOT_RUN',current_stage='COMPLETE',source_packet_unchanged_after_run=True);self.evidence.save()
+    return Coordinator
+
+def main(argv=None,dependencies=None):
+    dependencies=dependencies or {};parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--execute-reviewed-lease-revoke-controls',action='store_true');parser.add_argument('--reviewed-run-plan',type=Path);parser.add_argument('--evidence-directory',type=Path);args=parser.parse_args(argv);evidence=None
+    try:
+        need(args.execute_reviewed_lease_revoke_controls and args.reviewed_run_plan and args.evidence_directory,'EXPLICIT_REVIEWED_EXECUTION_REQUIRED');raw=external(args.reviewed_run_plan).read_bytes();plan=unique_json(raw)
+        packet,native,target,ctx,protocol=(dependencies.get('load_inputs') or load_inputs)(plan);directory=external(args.evidence_directory);need(not directory.exists(),'FRESH_EVIDENCE_DIRECTORY_REQUIRED')
+        evidence=(dependencies.get('evidence') or Evidence)(directory,packet);evidence.value.update(reviewed_run_plan_sha256=sha(raw),run_id=plan['run_id'],container_id=plan['immutable_container_id'],source_commit=plan['source_commit'],source_tree=plan['source_tree'],packet_sha256=plan['packet_sha256']);evidence.save()
+        factory=dependencies.get('coordinator') or coordinator_class(ctx,protocol);factory(plan,packet,native,target,evidence).run();return 0
+    except BaseException as error:
+        if evidence is not None:
+            code=getattr(error,'code','UNEXPECTED_RESPONSE_OR_INTERNAL');code=code if type(code) is str and re.fullmatch('[A-Z0-9_]{1,96}',code) else 'UNEXPECTED_RESPONSE_OR_INTERNAL'
+            evidence.value.update(status='STOPPED_UNEXPECTED_RESULT',subsequent_cases_stopped=True,failure={'code':code,'stage':evidence.value['current_stage'],'raw_exception_discarded':True});evidence.save()
+        else:print(json.dumps({'status':'HELD_BEFORE_RUNTIME','code':'SOURCE_PLAN_OR_EXTERNAL_EVIDENCE_REQUIRED'}))
+        return 2
+if __name__=='__main__':raise SystemExit(main())

@@ -1,0 +1,12 @@
+BEGIN;
+ALTER TABLE app.users DISABLE TRIGGER owner_commit;
+ALTER TABLE app.user_security_profiles DISABLE TRIGGER owner_commit;
+INSERT INTO app.users(id,is_public,revision,privacy_generation,created_at,updated_at) VALUES ('1c213b83-2541-55e7-baf4-f34e5fdf08dd',false,0,0,clock_timestamp(),clock_timestamp());
+INSERT INTO app.user_security_profiles(id,user_id,revision,security_generation,created_at,updated_at) VALUES ('2e9cff58-1a29-524b-8cd8-88b2b92533ac','1c213b83-2541-55e7-baf4-f34e5fdf08dd',0,0,clock_timestamp(),clock_timestamp());
+INSERT INTO app.users(id,is_public,revision,privacy_generation,created_at,updated_at) VALUES ('696f0d79-8baa-5e8c-a188-19547807a7ea',false,0,0,clock_timestamp(),clock_timestamp());
+INSERT INTO app.user_security_profiles(id,user_id,revision,security_generation,created_at,updated_at) VALUES ('306d77a5-120d-5467-bd15-4ca81f84ea7c','696f0d79-8baa-5e8c-a188-19547807a7ea',0,0,clock_timestamp(),clock_timestamp());
+INSERT INTO app.users(id,is_public,revision,privacy_generation,created_at,updated_at) VALUES ('2e434f49-8b15-5e8d-aba9-ae6759f43fee',false,0,0,clock_timestamp(),clock_timestamp());
+INSERT INTO app.user_security_profiles(id,user_id,revision,security_generation,created_at,updated_at) VALUES ('745d0711-41f1-516c-8e6c-37f03b6969c2','2e434f49-8b15-5e8d-aba9-ae6759f43fee',0,0,clock_timestamp(),clock_timestamp());
+ALTER TABLE app.user_security_profiles ENABLE TRIGGER owner_commit;
+ALTER TABLE app.users ENABLE TRIGGER owner_commit;
+COMMIT;

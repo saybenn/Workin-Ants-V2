@@ -142,6 +142,103 @@ def native_diagnostic(stderr, case, metadata, sql=''):
     return {**result, 'matched': True, 'sqlstate': '42501', 'observed_gate': gate, 'native_location': routine + '@aclchk.c', 'native_object': object_, 'native_column': column}
 
 
+def unexpected_operation_metadata(stderr, native, application_sha, metadata=None, declared=None):
+    """Pure diagnostic projection only; no return value can qualify a verdict.
+
+    Native identifiers come solely from the previously full-comparator-approved
+    snapshot, with constraint/column-to-relation association. Primary messages,
+    DETAIL/HINT/SQL/positions and C locations are never projected. Optional
+    source_metadata frames must also match the cached declaration and native
+    no-argument function identity/body. Unknown values become fixed classes.
+    """
+    result = {'classification': 'UNRECOGNIZED', 'sqlstate': None,
+              'identifier_classification': 'NOT_RETAINED', 'frame_classification': 'NOT_RETAINED'}
+    if type(stderr) is not str or len(stderr) > 16384:
+        result['classification'] = 'OUTPUT_LIMIT_OR_TYPE'; return result
+    text = clean_text(stderr)
+    if text is None:
+        result['classification'] = 'CONTROL_CHARACTERS'; return result
+    lines = [line for line in text.split('\n') if line]
+    if len(lines) > 128 or any(len(line) > 2048 for line in lines):
+        result['classification'] = 'OUTPUT_LIMIT_OR_TYPE'; return result
+    header = re.compile(r'(?:psql:<stdin>:[1-9][0-9]{0,5}: )?(?:ERROR|FATAL):\s+([0-9A-Z]{5}):\s+.+')
+    headers = [match for line in lines if (match := header.fullmatch(line))]
+    # Count severity/header shapes, not bare words in discarded row DETAIL.
+    # Include malformed line-start headers and a second verbose header even
+    # when appended to the same physical line as the first primary message.
+    severities = {match.start('severity') for match in re.finditer(
+        r'(?m)^(?:psql:<stdin>:[1-9][0-9]{0,5}: )?(?P<severity>ERROR|FATAL|PANIC)(?::|\s|$)', text)}
+    severities.update(match.start('severity') for match in re.finditer(r'\b(?P<severity>ERROR|FATAL|PANIC):\s+[0-9A-Z]{5}:', text))
+    if len(headers) != 1 or len(severities) != 1 or not lines or not header.fullmatch(lines[0]):
+        result['classification'] = 'NO_SINGLE_VALID_ERROR'; return result
+    state = headers[0][1]
+    # A single exact five-character state is safe observation for any error,
+    # including input/datatype/syntax errors. It is never a negative verdict.
+    result.update(classification='SQLSTATE_ONLY', sqlstate=state)
+    identifier = r'[a-z_][a-z0-9_]{0,62}'
+    fields = {}
+    for label in ('SCHEMA', 'TABLE', 'COLUMN', 'CONSTRAINT'):
+        candidates = [line for line in lines if line.startswith(label + ' NAME:')]
+        match = re.fullmatch(label + r' NAME:\s+(' + identifier + ')', candidates[0]) if len(candidates) == 1 else None
+        if candidates and not match:
+            result['identifier_classification'] = 'REDACTED_IDENTIFIERS'; break
+        if match: fields[label] = match[1]
+    else:
+        relations = {row['object'] for row in native.get('relations', []) if type(row) is dict and
+                     type(row.get('object')) is str and re.fullmatch(identifier + r'\.' + identifier, row['object']) and row.get('kind') == 'r'}
+        relation = fields.get('SCHEMA', '') + '.' + fields.get('TABLE', '')
+        if fields:
+            result['identifier_classification'] = 'REDACTED_IDENTIFIERS'
+            associated = relation in relations
+            if 'COLUMN' in fields:
+                associated = associated and any(type(row) is dict and row.get('table_name') == relation and row.get('name') == fields['COLUMN']
+                    and (state != '23502' or row.get('nullable') is False) for row in native.get('columns', []))
+            if 'CONSTRAINT' in fields:
+                kinds = {'23514': {'c'}, '23503': {'f'}, '23505': {'p', 'u'}}.get(state, set())
+                associated = associated and any(type(row) is dict and row.get('table_name') == relation and row.get('name') == fields['CONSTRAINT']
+                    and row.get('kind') in kinds and re.fullmatch(identifier, row['name']) for row in native.get('constraints', []))
+            useful = ('CONSTRAINT' in fields and state in {'23514', '23503', '23505'}) or ('COLUMN' in fields and state == '23502')
+            if associated and useful:
+                result.update(classification='NATIVE_IDENTIFIER_METADATA', identifier_classification='SOURCE_KNOWN_ASSOCIATION', native_object=relation)
+                if 'COLUMN' in fields: result['native_column'] = fields['COLUMN']
+                if 'CONSTRAINT' in fields: result['native_constraint'] = fields['CONSTRAINT']
+    # The helper's return dictionary is untrusted at this retention boundary.
+    # Check the complete allowed shape before copying a single frame field.
+    if any('CONTEXT:' in line or 'PL/pgSQL function ' in line for line in lines):
+        result['frame_classification'] = 'REDACTED_CONTEXT'
+    if type(metadata) is not dict or type(declared) is not dict: return result
+    base = {'classification', 'frame_classification'}
+    classification = metadata.get('classification')
+    if type(classification) is not str: return result
+    if classification == 'RECORD_FIELD_MISSING': base |= {'record_alias', 'column', 'source_sha256'}
+    elif classification not in {'UNRECOGNIZED', 'RECORD_FIELD_MISSING_REDACTED'}: return result
+    if metadata.get('frame_classification') != 'SOURCE_BOUND_FRAME' or set(metadata) != base | {'frame'}: return result
+    canonical_sha = '5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+    if application_sha != canonical_sha or declared.get('source') != 'review-output/foundation-application.review.sql' or declared.get('source_sha256') != canonical_sha: return result
+    if classification == 'RECORD_FIELD_MISSING' and (metadata['record_alias'] not in ('new', 'old') or type(metadata['column']) is not str or
+            metadata['column'] not in declared.get('columns', []) or metadata['source_sha256'] != canonical_sha): return result
+    frame = metadata.get('frame')
+    if type(frame) is not dict or set(frame) != {'schema', 'function', 'body_line', 'body_sha256', 'source_sha256'}: return result
+    if not all(type(frame[key]) is str and re.fullmatch(identifier, frame[key]) for key in ('schema', 'function')): return result
+    frame_lines = [line for line in lines if 'PL/pgSQL function ' in line]
+    frame_pattern = r'(?:CONTEXT:\s+|\s*)PL/pgSQL function (' + identifier + r')\.(' + identifier + r')\(\) line ([1-9][0-9]{0,3}) at (IF|assignment|RETURN|SQL statement|PERFORM|RAISE)'
+    actual_frame = re.fullmatch(frame_pattern, frame_lines[0]) if len(frame_lines) == 1 else None
+    if not actual_frame or (actual_frame[1], actual_frame[2], int(actual_frame[3])) != (frame['schema'], frame['function'], frame['body_line']): return result
+    name = frame['schema'] + '.' + frame['function']
+    functions = declared.get('no_argument_plpgsql_functions')
+    known = functions.get(name) if type(functions) is dict else None
+    if type(known) is not dict or set(known) != {'schema', 'function', 'body_sha256', 'max_body_line'}: return result
+    if (known['schema'] != frame['schema'] or known['function'] != frame['function'] or type(known['max_body_line']) is not int or
+            not 1 <= known['max_body_line'] <= 9999 or type(frame['body_line']) is not int or not 1 <= frame['body_line'] <= known['max_body_line'] or
+            type(frame['body_sha256']) is not str or not re.fullmatch('[0-9a-f]{64}', frame['body_sha256']) or
+            known['body_sha256'] != frame['body_sha256'] or frame['source_sha256'] != canonical_sha): return result
+    matches = [row for row in native.get('functions', []) if type(row) is dict and row.get('name') == name and row.get('object') == name + '()' and
+               row.get('kind') == 'f' and row.get('language') == 'plpgsql' and row.get('parameters') == [] and row.get('body_sha256') == frame['body_sha256']]
+    if len(matches) == 1:
+        result.update(frame_classification='SOURCE_BOUND_FRAME', frame={key: frame[key] for key in ('schema', 'function', 'body_line', 'body_sha256', 'source_sha256')})
+    return result
+
+
 def output_matches(lines, expected):
     if type(lines) is not list or type(expected) is not list or len(lines) != len(expected): return False
     for actual, wanted in zip(lines, expected):
@@ -229,6 +326,7 @@ def load_inputs(plan):
     host['validate_manifest'](plan['target_manifest'])
     need(plan['target_manifest']['run_id'] == plan['run_id'] and plan['target_manifest']['source']['integrated_sql_sha256'] == sql_sha, 'TARGET_SOURCE_IDENTITY')
     blobs['__models'] = inputs['context/reconciliation/foundation-sql-draft-models.json']; blobs['__collector'] = modules[COLLECTOR]
+    blobs['__diagnostic_identifiers'] = modules['review-output/first-rehearsal/diagnostic-identifiers.json']
     return packet, blobs, native, api, host
 
 
@@ -420,7 +518,19 @@ class Coordinator:
             else:
                 # Raw output is compared in memory, never copied into evidence.
                 record['exact_output_matches'] = output_matches(lines, expected)
-                self.evidence.save(); need(code == 0 and ack is True and errors == '' and record['exact_output_matches'], 'EXACT_OPERATION_RESULT_REQUIRED')
+                exact = code == 0 and ack is True and errors == '' and record['exact_output_matches']
+                if not exact and (name == 'native-fact-setup' or name in {'native-control-' + case['model'] for case in self.packet['cases']}):
+                    # Unexpected setup/control metadata explains only this stop.
+                    # No raw helper dictionary or arbitrary exception crosses it.
+                    metadata = None
+                    if type(errors) is str and len(errors) <= 16384 and clean_text(errors) is not None:
+                        try: metadata = self.api['source_metadata'](errors)
+                        except Exception: pass
+                    record['unexpected_operation_diagnostic'] = unexpected_operation_metadata(errors, self.native,
+                        self.packet['source_inputs_sha256']['review-output/foundation-application.review.sql'], metadata,
+                        unique_json(self.blobs['__diagnostic_identifiers']))
+                    record['diagnostic_stage'] = 'UNEXPECTED_NATIVE_SETUP' if name == 'native-fact-setup' else 'UNEXPECTED_NATIVE_CONTROL'
+                self.evidence.save(); need(exact, 'EXACT_OPERATION_RESULT_REQUIRED')
                 result = True
         except (Exception, KeyboardInterrupt) as error:
             failure, stage = error, self.evidence.value['current_stage']

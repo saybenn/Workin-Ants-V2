@@ -1,0 +1,304 @@
+"""Offline evidence mutations against the independently audited actual f161 run.
+
+The exact 70-claim scope is checked independently against the inventory. Shared
+whole-bundle proof runs for one PASS and one PARTIAL; component contract mutations
+exercise the actual retained observations directly. No process/network boundary
+may be crossed. Writes affect only an exclusively created temporary fixture tree.
+"""
+import contextlib
+import copy
+import hashlib
+import importlib.util
+import io
+import json
+import os
+from pathlib import Path
+import socket
+import subprocess
+import tempfile
+import unittest
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[1]
+SPEC = importlib.util.spec_from_file_location('restricted_evidence', ROOT / 'scripts/local_f0_restricted_evidence.py')
+API = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(API)
+RECORD = ROOT / 'context/reconciliation/local-f0-restricted-b8f6b10-f161d454-execution.json'
+RECORD_SHA = '9a090022c11f150cb133617af11cb9c6afafba1624313673ee3a5237ae637232'
+CANARY = 'postgresql://secret_canary_password@unknown.invalid/private'
+
+
+class RestrictedEvidenceTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        raw = RECORD.read_bytes()
+        if hashlib.sha256(raw).hexdigest() != RECORD_SHA:
+            raise AssertionError('Reviewed actual record bytes changed')
+        cls.execution = json.loads(raw)
+        cls.report = cls.execution['sanitized_report']
+        cls.temp = tempfile.TemporaryDirectory(prefix='wa-offline-restricted-evidence-')
+        cls.root = Path(cls.temp.name).resolve()
+        cls.temp_parent = Path(tempfile.gettempdir()).resolve()
+        if cls.root.parent != cls.temp_parent or not cls.root.name.startswith('wa-offline-restricted-evidence-'):
+            raise AssertionError('Exclusive temporary fixture boundary changed')
+        paths = set(cls.report['run_manifest']['packet_files_sha256']) | set(cls.execution['snapshot_files_sha256']) | set(API.TOOL_PACKAGES)
+        paths.update((API.AUDIT, 'context/reconciliation/local-f0-assertions.json'))
+        for relative in paths:
+            target = cls.root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes((ROOT / relative).read_bytes())
+        cls.assets = API._assets(cls.root, cls.execution)
+        cls.components = {kind: cls.assets['evidence/control-' + kind + '/' + kind + '-control-results.json'] for kind in ('customer', 'worker', 'context', 'unique')}
+        cls.packets = {kind: json.loads((cls.root / ('review-output/' + kind + '-control-rehearsal/fixtures.json')).read_bytes()) for kind in cls.components}
+        cls.application = (cls.root / 'review-output/foundation-application.review.sql').read_bytes().decode('utf8')
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls.root.parent != cls.temp_parent or not cls.root.name.startswith('wa-offline-restricted-evidence-'):
+            raise AssertionError('Refusing cleanup outside exclusive fixture directory')
+        cls.temp.cleanup()
+
+    def validate(self, execution=None, case='P0C-UNIQUE-01', assertion='control.same_semantic_identity', status='PASS', pointer=None):
+        key = (case, assertion)
+        return API.validate_claim(case, assertion, status, self.execution if execution is None else execution, self.root, json_pointer=API.POINTERS.get(key) if pointer is None else pointer)
+
+    def refuses(self, action, code):
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output), self.assertRaisesRegex(API.EvidenceFailure, '^' + code + '$') as caught:
+            action()
+        self.assertEqual(output.getvalue(), '')
+        self.assertNotIn(CANARY, str(caught.exception))
+
+    def changed_record(self, change, code):
+        value = copy.deepcopy(self.execution)
+        change(value)
+        self.refuses(lambda: self.validate(value), code)
+
+    def component_refuses(self, kind, change, code):
+        value = copy.deepcopy(self.components[kind])
+        change(value)
+        arguments = [value, self.packets[kind]]
+        if kind == 'customer':
+            arguments.append(self.application)
+        elif kind in ('worker', 'context'):
+            arguments.append('9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009')
+        self.refuses(lambda: getattr(API, '_' + kind)(*arguments), code)
+
+    def test_exact_seventy_claims_and_requirement_hashes(self):
+        expected = {}
+        def add(case, names, status='PASS'):
+            expected.update({(case, name): status for name in names.split()})
+        add('P0C-UNIQUE-01', 'control.same_semantic_identity control.changed_fingerprint control.different_scope')
+        add('P0C-INSTALL-01', 'vector.FUNCTION-ACL-AUTHORITY.positive')
+        add('P0C-BOOT-01', 'control.missing_piece_denial')
+        add('P0C-ATOMIC-01', 'vector.RESULT-VERSION.adversarial')
+        add('P0C-CTX-01', 'control.fresh_tuple control.rollback_lifetime control.backend_pool_lifetime control.wrong_isolation vector.SCOPE-PURPOSE.positive vector.SCOPE-PURPOSE.adversarial vector.POOL-LIFETIME.positive vector.POOL-LIFETIME.adversarial vector.READ-PURPOSE-NO-WRITE.adversarial vector.SERVICE-BOOTSTRAP.positive')
+        add('P0C-CTX-02', 'control.role_appropriate_positive control.independent_service_currentness vector.SERVICE-REVOKE.positive vector.SERVICE-REVOKE.adversarial')
+        add('P0C-TRACK-01', 'control.actual_worker_enrollment vector.LEASE-ATTACH.positive')
+        for model in ('TrackSubscription', 'TrackEntitlementGrant', 'TrackSubscriptionEvent', 'RuntimeCommandReceipt', 'RuntimeEffectReceipt', 'RuntimeAttempt', 'RuntimeInboxReceipt', 'OwnerMutationEvidence', 'TrackBaseSelection', 'TrackEnrollmentReceipt'):
+            add('P0C-TABLE-' + model + '-ALLOW', 'positive.wa_worker.insert')
+        add('P0C-TABLE-RuntimeWorkItem-ALLOW', 'positive.wa_app_runtime.insert positive.wa_worker.select positive.wa_worker.update')
+        add('P0C-TABLE-CustomerProfile-ALLOW', 'positive.wa_app_runtime.select')
+        add('P0C-TABLE-DatabaseActionGrant-ALLOW', 'positive.wa_context_issuer.insert positive.wa_context_issuer.select positive.wa_context_issuer.update positive.wa_private_helper_owner.select positive.wa_app_runtime.execute positive.wa_app_runtime.context positive.wa_worker.execute positive.wa_worker.context')
+        add('P0C-TABLE-UserSecurityProfile-ALLOW', 'positive.wa_private_helper_owner.select')
+        add('P0C-BOOT-01', 'vector.FIRST-CUSTOMER.positive vector.FIRST-CUSTOMER.adversarial', 'PARTIAL')
+        add('P0C-ATOMIC-01', 'control.omit_each_piece control.message_reverse vector.MESSAGE-REVERSE.adversarial', 'PARTIAL')
+        add('P0C-CTX-01', 'control.no_authority_from_transport vector.READ-PURPOSE-NO-WRITE.positive vector.SERVICE-BOOTSTRAP.adversarial', 'PARTIAL')
+        add('P0C-CTX-02', 'control.revocation_schedule', 'PARTIAL')
+        add('P0C-PRIV-01', 'control.issuer_ceiling control.direct_ports vector.BOOLEAN-PORTS.positive vector.BOOLEAN-PORTS.adversarial vector.DIRECT-PORT-CAPS.positive vector.DIRECT-PORT-CAPS.adversarial', 'PARTIAL')
+        add('P0C-TRACK-01', 'control.lease_transitions vector.DIRECT-TRACK-SNAPSHOT.positive vector.DIRECT-TRACK-SNAPSHOT.adversarial', 'PARTIAL')
+        add('P0C-EVIDENCE-01', 'control.closed_codec control.invented_evidence control.worker_reverse vector.WORKER-REVERSE-PROOF.positive vector.WORKER-REVERSE-PROOF.adversarial vector.EVIDENCE-CODEC.positive vector.EVIDENCE-CODEC.adversarial', 'PARTIAL')
+        self.assertEqual(API.CLAIMS, expected)
+        self.assertEqual(sum(s == 'PASS' for s in expected.values()), 45)
+        self.assertEqual(sum(s == 'PARTIAL' for s in expected.values()), 25)
+        inventory = json.loads((self.root / 'context/reconciliation/local-f0-assertions.json').read_bytes())
+        items = {(case['id'], a['id']): a for case in inventory['cases'] for a in case['assertions']}
+        for key in expected:
+            self.assertEqual(hashlib.sha256(items[key]['expected_assertion'].encode()).hexdigest(), API.WHITELIST[key]['assertion_sha256'])
+            value = self.execution
+            for part in API.POINTERS[key][1:].split('/'):
+                value = value[part]
+            self.assertIs(type(value), dict)
+
+    def test_actual_pass_and_partial_shared_bundle_without_process_or_network(self):
+        original = copy.deepcopy(self.execution)
+        with patch.object(subprocess, 'Popen', side_effect=AssertionError('PROCESS_FORBIDDEN')) as process, patch.object(socket, 'socket', side_effect=AssertionError('NETWORK_FORBIDDEN')) as network, patch.object(os, 'system', side_effect=AssertionError('SHELL_FORBIDDEN')) as shell:
+            self.assertTrue(self.validate())
+            self.assertTrue(self.validate(case='P0C-EVIDENCE-01', assertion='control.closed_codec', status='PARTIAL'))
+            process.assert_not_called(); network.assert_not_called(); shell.assert_not_called()
+        self.assertEqual(self.execution, original)
+        self.assertEqual(self.execution['limits']['assertion_mapping'], 'PENDING_REVIEW')
+
+    def test_unlisted_whole_case_and_partial_promotion_reject_before_reads(self):
+        with patch.object(Path, 'read_bytes', side_effect=AssertionError('UNSUPPORTED_READ')):
+            for case, assertion in [('P0C-UNIQUE-01', 'PASS'), ('P0C-CAS-01', 'control.concurrent_customer_update'), ('P0C-TRACK-01', 'vector.LEASE-RENEW.positive'), ('P0C-CATALOG-01', 'vector.CATALOG-LEAVES.adversarial')]:
+                with self.subTest(case=case, assertion=assertion):
+                    self.refuses(lambda: self.validate(case=case, assertion=assertion), 'RESTRICTED_CLAIM_NOT_SUPPORTED')
+            self.refuses(lambda: self.validate(case='P0C-EVIDENCE-01', assertion='control.closed_codec'), 'RESTRICTED_CLAIM_NOT_SUPPORTED')
+
+    def test_existing_forged_dictionary_pointer_is_rejected_before_read(self):
+        with patch.object(Path, 'read_bytes', side_effect=AssertionError('POINTER_READ')):
+            self.refuses(lambda: self.validate(pointer='/sanitized_report/limits'), 'RESTRICTED_PROOF_POINTER')
+        self.refuses(lambda: API.validate_claim('P0C-UNIQUE-01', 'control.same_semantic_identity', 'PASS', self.execution, self.root), 'RESTRICTED_PROOF_POINTER')
+
+    def test_unknown_fields_canary_and_unexpected_records_are_safe(self):
+        self.changed_record(lambda d: d.update(error_body=CANARY), 'RESTRICTED_RECORD_FIELDS')
+        self.changed_record(lambda d: d.update(unexpected=[CANARY]), 'RESTRICTED_UNEXPECTED')
+        self.changed_record(lambda d: d['sanitized_report'].update(unexpected=[CANARY]), 'RESTRICTED_UNEXPECTED')
+        self.changed_record(lambda d: d['sanitized_report'].update(stderr=CANARY), 'RESTRICTED_RETAINED_REPORT_BINDING')
+        for value in ({'actual_result': API.RESULT}, [], None):
+            with self.subTest(kind=type(value).__name__), self.assertRaises(API.EvidenceFailure):
+                API.validate_claim('P0C-UNIQUE-01', 'control.same_semantic_identity', 'PASS', value, self.root, API.POINTERS[('P0C-UNIQUE-01', 'control.same_semantic_identity')])
+
+    def test_exact_source_and_all_sixteen_steps(self):
+        for field in ('run_id', 'source_commit', 'source_tree', 'packet_sha256', 'application_sql_sha256'):
+            value = copy.deepcopy(self.execution); value[field] = CANARY
+            self.refuses(lambda: API._source(self.root, value, self.report, self.assets), 'RESTRICTED_SOURCE_IDENTITY')
+        for stage in API.STEPS:
+            with self.subTest(stage=stage):
+                self.changed_record(lambda d, s=stage: d['actual_steps'].update({s: 'NOT_RUN'}), 'RESTRICTED_STEPS')
+
+    def test_typed_source_count_and_preservation(self):
+        for value in (243, 245, 244.0, True):
+            report = copy.deepcopy(self.report); report['source_verification']['file_count'] = value
+            self.refuses(lambda: API._source(self.root, self.execution, report, self.assets), 'RESTRICTED_SOURCE_VERIFICATION')
+        report = copy.deepcopy(self.report); report['packet_unchanged_after_run'] = False
+        self.refuses(lambda: API._source(self.root, self.execution, report, self.assets), 'RESTRICTED_SOURCE_PRESERVATION')
+
+    def test_source_asset_audit_and_fixed_junction_package_hashes(self):
+        original = Path.read_bytes
+        for relative, code in [('review-output/foundation-application.review.sql', 'RESTRICTED_EVIDENCE_FILE_HASH'), (API.ASSETS + '/evidence/control-unique/unique-control-results.json', 'RESTRICTED_EVIDENCE_FILE_HASH'), (API.AUDIT, 'RESTRICTED_EVIDENCE_FILE_HASH'), ('node_modules/prisma/package.json', 'RESTRICTED_TOOL_HASH')]:
+            target = self.root / relative
+            def changed(path, *args, **kwargs):
+                raw = original(path, *args, **kwargs)
+                return raw + b'\nSECRET_CANARY\n' if path == target else raw
+            with self.subTest(relative=relative), patch.object(Path, 'read_bytes', changed):
+                self.refuses(lambda: self.validate(), code)
+
+    def test_changed_second_fixture_read_is_hashed_before_parse(self):
+        target = self.root / 'review-output/context-control-rehearsal/fixtures.json'
+        original_read, original_parse = Path.read_bytes, json.loads
+        changed_raw = json.dumps({'canary': CANARY, 'cases': []}).encode()
+        reads, parsed_canary = [], []
+        def changed(path, *args, **kwargs):
+            raw = original_read(path, *args, **kwargs)
+            if path == target:
+                reads.append(True)
+                return changed_raw if len(reads) == 2 else raw
+            return raw
+        def parse(value, *args, **kwargs):
+            if value == changed_raw:
+                parsed_canary.append(True)
+                raise AssertionError('UNVERIFIED_FIXTURE_PARSED')
+            return original_parse(value, *args, **kwargs)
+        with patch.object(Path, 'read_bytes', changed), patch.object(json, 'loads', parse), patch.object(subprocess, 'Popen', side_effect=AssertionError('PROCESS_FORBIDDEN')) as process, patch.object(socket, 'socket', side_effect=AssertionError('NETWORK_FORBIDDEN')) as network:
+            self.refuses(lambda: self.validate(), 'RESTRICTED_EVIDENCE_FILE_HASH')
+            process.assert_not_called(); network.assert_not_called()
+        self.assertEqual(len(reads), 2)
+        self.assertEqual(parsed_canary, [])
+
+    def test_changed_requirement_and_snapshot_traversal(self):
+        original = Path.read_bytes; target = self.root / 'context/reconciliation/local-f0-assertions.json'
+        def changed(path, *args, **kwargs):
+            raw = original(path, *args, **kwargs)
+            if path == target:
+                value = json.loads(raw)
+                next(a for c in value['cases'] if c['id'] == 'P0C-UNIQUE-01' for a in c['assertions'] if a['id'] == 'control.same_semantic_identity')['expected_assertion'] = CANARY
+                return json.dumps(value).encode()
+            return raw
+        with patch.object(Path, 'read_bytes', changed):
+            self.refuses(lambda: self.validate(), 'RESTRICTED_ASSERTION_REQUIREMENT')
+        self.changed_record(lambda d: d['snapshot_files_sha256'].update({'../SECRET_CANARY': '0' * 64}), 'RESTRICTED_SNAPSHOT_BINDING')
+        for relative in ('../SECRET_CANARY', '/SECRET_CANARY', 'C:/SECRET_CANARY', 'a' + chr(92) + 'SECRET_CANARY'):
+            self.refuses(lambda: API._read(self.root, relative, '0' * 64), 'RESTRICTED_EVIDENCE_PATH')
+
+    def test_native_comparator_and_oracle_do_not_pass_counts_alone(self):
+        assets = copy.deepcopy(self.assets); report = copy.deepcopy(self.report)
+        report['catalog_comparison']['findings'] = [{'message': CANARY}]
+        self.refuses(lambda: API._native(report, assets), 'RESTRICTED_NATIVE_COMPARISON')
+        assets['evidence/oracle-evidence.json']['connection_closed_before_observation'] = False
+        self.refuses(lambda: API._native(self.report, assets), 'RESTRICTED_ORACLE_CLOSURE')
+        report = copy.deepcopy(self.report); report['ledger_comparison']['checks'][0]['actual_sha256'] = '0' * 64
+        self.refuses(lambda: API._native(report, self.assets), 'RESTRICTED_LEDGER_PROOF')
+
+    def test_component_count_source_cid_native_gate_and_closures(self):
+        for kind in ('customer', 'worker', 'context', 'unique'):
+            report = copy.deepcopy(self.report); report['control_packets'][kind]['completed_results'] += 1
+            self.refuses(lambda: API._components(self.root, report, self.assets), 'RESTRICTED_COMPONENT_BINDING')
+        assets = copy.deepcopy(self.assets); assets['evidence/control-context/context-control-results.json']['container_id'] = '0' * 64
+        self.refuses(lambda: API._components(self.root, self.report, assets), 'RESTRICTED_COMPONENT_CID')
+        report = copy.deepcopy(self.report); report['control_backend_closures'][0]['all_other_client_backends_absent'] = False
+        self.refuses(lambda: API._components(self.root, report, self.assets), 'RESTRICTED_COMPONENT_CLOSURE')
+        assets = copy.deepcopy(self.assets); assets['evidence/control-context/context-control-results.json']['status'] = 'PASS_ALL_CONTEXT_TESTS'
+        self.refuses(lambda: API._components(self.root, self.report, assets), 'RESTRICTED_COMPONENT_STATUS')
+        assets = copy.deepcopy(self.assets); assets['evidence/control-context/context-control-results.json']['selected_controls'][0]['status'] = 'PASS'
+        self.refuses(lambda: API._components(self.root, self.report, assets), 'RESTRICTED_HISTORICAL_LABELS')
+
+    def test_actual_installation_original_grantor_and_closed_connection(self):
+        report = copy.deepcopy(self.report); report['migration_operations'][0]['exit_code'] = False
+        self.refuses(lambda: API._installation(report), 'RESTRICTED_INSTALL_OPERATION')
+        report = copy.deepcopy(self.report); report['targets'][API.TARGET]['finalization_observation']['remaining_memberships'] = 1
+        self.refuses(lambda: API._installation(report), 'RESTRICTED_ORIGINAL_GRANTOR_FINALIZATION')
+        report = copy.deepcopy(self.report); report['targets'][API.TARGET]['connections_before_finalization']['migrator'] = 1
+        self.refuses(lambda: API._installation(report), 'RESTRICTED_INSTALL_CLOSURE')
+
+    def test_customer_exact_markers_failure_stage_diagnostic_and_full_counts(self):
+        self.component_refuses('customer', lambda v: v['results'][1]['stage_markers'].pop(), 'RESTRICTED_CUSTOMER_MARKERS')
+        self.component_refuses('customer', lambda v: v['results'][1].update(expected_failure_stage='EARLIER'), 'RESTRICTED_CUSTOMER_STAGE')
+        self.component_refuses('customer', lambda v: v['results'][1]['diagnostic'].update(matched=False), 'RESTRICTED_CUSTOMER_DIAGNOSTIC')
+        self.component_refuses('customer', lambda v: v['results'][1]['diagnostic']['source_frame'].update(body_line=1), 'RESTRICTED_CUSTOMER_SOURCE_FRAME')
+        self.component_refuses('customer', lambda v: v['results'][1]['counts'].update(customer=1), 'RESTRICTED_CUSTOMER_COMPLETE_STATE')
+        self.component_refuses('customer', lambda v: v['results'][0].update(commit_ack_count=True), 'RESTRICTED_CUSTOMER_COMMIT')
+        self.component_refuses('customer', lambda v: v.update(trigger_restoration_verified=False), 'RESTRICTED_CUSTOMER_FIXTURES')
+
+    def test_worker_complete_group_currentness_and_prepared_limits(self):
+        self.component_refuses('worker', lambda v: v['results'][3]['WORKER_COMPLETE_STATE'].update(TrackSubscription=2), 'RESTRICTED_WORKER_COMPLETE_STATE')
+        self.component_refuses('worker', lambda v: v['results'][3]['FIXTURE_GUARDS'].update(owner_guards_reenabled=False), 'RESTRICTED_WORKER_FIXTURES')
+        self.component_refuses('worker', lambda v: v['results'][7]['diagnostic'].update(source_frame_verified=False), 'RESTRICTED_WORKER_DIAGNOSTIC')
+        self.component_refuses('worker', lambda v: v['unprepared_vectors'].pop(), 'RESTRICTED_WORKER_UNPREPARED')
+
+    def test_context_issuer_created_at_retention_and_retirement(self):
+        def change(stage, key, value):
+            return lambda d: next(r for r in d['operations'] if r['stage'] == stage).update({key: value})
+        self.component_refuses('context', change('SEPARATE_ISSUER_COMMIT', 'created_at_return_verified', False), 'RESTRICTED_CONTEXT_ISSUER_COMMIT')
+        self.component_refuses('context', change('ISSUER_ROW_RETENTION', 'immutable_issuer_rows_match', False), 'RESTRICTED_CONTEXT_ISSUER_RETENTION')
+        self.component_refuses('context', change('OLD_INSTANCE_RETIREMENT', 'operation_closed', False), 'RESTRICTED_CONTEXT_RETIREMENT')
+        self.component_refuses('context', lambda v: next(r for r in v['operations'] if r['stage'] == 'EXPECTED_BINDER_FAILURE')['diagnostic'].update(source_body_sha256='0' * 64), 'RESTRICTED_CONTEXT_DIAGNOSTIC')
+        self.component_refuses('context', lambda v: next(r for r in v['operations'] if r['stage'] == 'EXPECTED_BINDER_FAILURE' and r['diagnostic']['source_body_line'] == 4)['diagnostic'].update(source_body_line=7), 'RESTRICTED_CONTEXT_SOURCE_LINE')
+
+    def test_context_no_track_and_exact_mandatory_observers(self):
+        self.component_refuses('context', lambda v: next(r for r in v['operations'] if r['stage'] == 'COMPLETE_SOURCE_CUSTOMER_OBSERVE')['observation']['values'].update(track_enrollments=1), 'RESTRICTED_CONTEXT_COMPLETE_STATE')
+        self.component_refuses('context', lambda v: v['unprepared_obligations'].pop(), 'RESTRICTED_CONTEXT_UNPREPARED')
+
+    def test_unique_actual_wait_issuer_tuple_and_native_guard(self):
+        self.component_refuses('unique', lambda v: next(r for r in v['operations'] if r['stage'] == 'NATIVE_WAIT_OBSERVATION')['comparisons']['values'].update(B_blocked_only_by_A=False), 'RESTRICTED_UNIQUE_WAIT')
+        self.component_refuses('unique', lambda v: next(r for r in v['operations'] if r['stage'] == 'ACTUAL_APP_BOUND').update(same_tuple=False), 'RESTRICTED_UNIQUE_TUPLE')
+        self.component_refuses('unique', lambda v: next(r for r in v['operations'] if r['stage'] == 'NATIVE_DUPLICATE_VERDICT')['diagnostic'].update(sqlstate='P0001'), 'RESTRICTED_UNIQUE_DUPLICATE')
+        self.component_refuses('unique', lambda v: v['results'][0].update(B_acknowledged=True), 'RESTRICTED_UNIQUE_DUPLICATE')
+
+    def test_unique_closure_full_winner_counts_and_transaction_witness(self):
+        self.component_refuses('unique', lambda v: next(r for r in v['operations'] if r['stage'] == 'OPERATION_CLOSURE').update(exact_backend_absent=False), 'RESTRICTED_UNIQUE_CLOSURE')
+        self.component_refuses('unique', lambda v: next(r for r in v['operations'] if r['stage'] == 'EXACT_COMPLETE_GROUP_COUNTS')['observation']['values'].update(commands=2), 'RESTRICTED_UNIQUE_COMPLETE_STATE')
+        self.component_refuses('unique', lambda v: next(r for r in v['operations'] if r['stage'] == 'WINNER_ACTUAL_TRANSACTION_A')['observation']['values'].update(source_xid_matches=False), 'RESTRICTED_UNIQUE_XID_WITNESS')
+
+    def test_cleanup_identity_absence_and_sanitization(self):
+        for change, code in [(lambda r: r['cleanup'][API.TARGET].update(verified_id='0' * 64), 'RESTRICTED_CLEANUP_IDENTITY'), (lambda r: r['cleanup_summary']['resource_presence_after'].update({API.TARGET: True}), 'RESTRICTED_CLEANUP_ABSENCE'), (lambda r: r['sanitization'].update(actual_password_values_found=True), 'RESTRICTED_SANITIZATION')]:
+            report = copy.deepcopy(self.report); change(report)
+            self.refuses(lambda: API._cleanup(report), code)
+
+    def test_unmodeled_record_change_cannot_bypass_canonical_pin(self):
+        self.changed_record(lambda d: d.update(counting_limit=CANARY), 'RESTRICTED_RETAINED_EXECUTION_HASH')
+
+    def test_malformed_io_uses_fixed_secret_free_exception(self):
+        original = Path.read_bytes
+        target = self.root / API.AUDIT
+        def changed(path, *args, **kwargs):
+            if path == target:
+                raise OSError(CANARY)
+            return original(path, *args, **kwargs)
+        with patch.object(Path, 'read_bytes', changed):
+            self.refuses(lambda: self.validate(), 'RESTRICTED_EVIDENCE_REJECTED')
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

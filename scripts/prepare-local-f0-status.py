@@ -7,6 +7,7 @@ import hashlib,json
 from pathlib import Path
 from local_f0_migration_evidence import validate_claim, EvidenceFailure
 from local_f0_catalog_evidence import validate_claim as validate_catalog_claim, EvidenceFailure as CatalogEvidenceFailure
+from local_f0_restricted_evidence import validate_claim as validate_restricted_claim, EvidenceFailure as RestrictedEvidenceFailure
 ROOT=Path(__file__).resolve().parents[1]
 REC=ROOT/'context/reconciliation'
 SMALL_PASSES={(f'P0C-TABLE-{model}-ALLOW','positive.wa_app_runtime.insert') for model in ('CustomerProfile','CustomerProfileLifecycleEvent','RuntimeCommandReceipt','OwnerMutationEvidence','RuntimeOutboxMessage')}|{
@@ -25,6 +26,7 @@ EVIDENCE_RECORDS={
     'context/reconciliation/local-f0-small-rehearsal-0623028-execution.json':('269812ab154775e0cea58c3305ffbef141c2c0978590f8000c18c79cb2f0d28b','PASS_FIRST01_THROUGH_FIRST10_SUBSET_ONLY'),
     'context/reconciliation/local-f0-migration-6b8910d-execution.json':('e657bd4de3c288acbd86faa7ae9514f59e76566e1bba170a6ef19f7770c91158','PASS_GENUINE_FIRST_NOOP_FAILURE_REVIEWED_RESOLVE_SAME_CHECKSUM_RETRY'),
     'context/reconciliation/local-f0-catalog-b9703d7-23bd8979-execution.json':('bbf604e3eb2c7a066f2287a2f2f2ab825582d366dc5330394170b33a0fd22de8','PASS_LOCAL_NATIVE_CATALOG_SUBSET_ONLY'),
+    'context/reconciliation/local-f0-restricted-b8f6b10-f161d454-execution.json':('9a090022c11f150cb133617af11cb9c6afafba1624313673ee3a5237ae637232','PASS_LOCAL_RESTRICTED_CONTROL_PACKETS_ONLY'),
 }
 
 def build():
@@ -73,6 +75,9 @@ def build():
                     assert pointer==expected_pointer,'Catalog evidence pointer does not identify the reviewed proof'
                     try:validate_catalog_claim(case['id'],item['id'],row['status'],execution,ROOT)
                     except CatalogEvidenceFailure as error:raise AssertionError(str(error)) from None
+                elif execution.get('actual_result')=='PASS_LOCAL_RESTRICTED_CONTROL_PACKETS_ONLY':
+                    try:validate_restricted_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer)
+                    except RestrictedEvidenceFailure as error:raise AssertionError(str(error)) from None
                 else:
                     try:validate_claim(case['id'],item['id'],row['status'],execution,ROOT)
                     except EvidenceFailure as error:raise AssertionError(str(error)) from None

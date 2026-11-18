@@ -30,6 +30,29 @@ RUN = '941ae300-a3eb-4807-b47b-d46902372c98'
 CANARY = 'SECRET_PASSWORD_HANDLE_SQL_NOT_TO_RETAIN'
 
 
+def diagnostic_native():
+    """Minimal source-known catalog slice; no runtime or learned error values."""
+    return {'relations': [{'object': name, 'kind': 'r'} for name in ('app.access_audit_logs', 'app.audit_events')],
+            'columns': [{'table_name': 'app.access_audit_logs', 'name': 'id', 'nullable': False},
+                        {'table_name': 'app.access_audit_logs', 'name': 'actor_user_id', 'nullable': True}],
+            'constraints': [{'table_name': 'app.access_audit_logs', 'name': 'access_audit_logs_actor_user_id_fkey', 'kind': 'f'},
+                            {'table_name': 'app.access_audit_logs', 'name': 'access_audit_logs_pkey', 'kind': 'p'},
+                            {'table_name': 'app.audit_events', 'name': 'f0_null_metadata', 'kind': 'c'}],
+            'functions': [{'name': 'platform_private.runtime_transition', 'object': 'platform_private.runtime_transition()',
+                           'kind': 'f', 'language': 'plpgsql', 'parameters': [],
+                           'body_sha256': '10f9fbdd4b20513d2fa74af2136bb2a60e07eaf567b3425c365bc68290e54038'}]}
+
+
+def unexpected_stderr(state='23503', relation='access_audit_logs', constraint='access_audit_logs_actor_user_id_fkey', column=None):
+    # Match psql VERBOSITY verbose: the message/details may contain secrets and
+    # the separate structured identifier fields are the only native projection.
+    text = 'psql:<stdin>:159: ERROR:  ' + state + ': ' + CANARY + '\nDETAIL:  Failing row contains (' + CANARY + ', postgresql://u:' + CANARY + '@example/db)\n'
+    text += 'HINT: SELECT ' + CANARY + ';\nSCHEMA NAME:  app\nTABLE NAME:  ' + relation + '\n'
+    if column is not None: text += 'COLUMN NAME:  ' + column + '\n'
+    if constraint is not None: text += 'CONSTRAINT NAME:  ' + constraint + '\n'
+    return text + 'LOCATION:  ExecConstraints, execMain.c:2058\n'
+
+
 def diagnostic(case, gate='SCHEMA', column=None, routine=None):
     schema, relation = case['table'].split('.')
     if gate == 'SCHEMA': message = 'permission denied for schema ' + schema
@@ -62,12 +85,13 @@ class FakeSession:
         if 'all-native-fact-setup-triggers-restored' in text:
             assert self.role == 'postgres' and text.count('DISABLE TRIGGER') == 60
             world.seeded = True
-            if world.mode == 'setup-error': return 3, [], False, 'ERROR:  23503: ' + CANARY
+            if world.mode == 'setup-error': return 3, [], False, world.unexpected_error or 'ERROR:  23503: ' + CANARY
             return 0, [json.dumps({'control': 'all-native-fact-setup-triggers-restored', 'all_declared_user_triggers_restored': True})], True, ''
         if "'native-control-" in text:
             assert self.role == 'postgres' and 'COMMIT;' not in text and '\nROLLBACK;' in text
             model = re.search("'native-control-([A-Za-z0-9]+)'", text)[1]
-            if world.mode == 'native-invalid': return 3, [], False, 'ERROR:  23503: ' + CANARY
+            if world.mode == 'native-invalid' or world.mode == 'native-late' and world.controls == 1:
+                return 3, [], False, world.unexpected_error or 'ERROR:  23503: ' + CANARY
             world.controls += 1
             return 0, ['t'] * (text.count('AS native_update_one') + 2) + [json.dumps({'control': 'native-control-' + model, 'all_declared_user_triggers_restored': True})], True, ''
         if "'own_row'" in text:
@@ -96,8 +120,9 @@ class FakeSession:
 
 
 class World:
-    def __init__(self, mode='normal', subset=None):
+    def __init__(self, mode='normal', subset=None, unexpected_error=None):
         self.mode, self.subset, self.sessions, self.events, self.evidence = mode, subset, [], [], None
+        self.unexpected_error = unexpected_error
         self.seeded = False; self.controls = self.restricted = 0; self.issuer_seen = False; self.passwords = []
         self.target, _, _, _, self.context, self.container, self.volume = LOCAL()
         self.target['run_id'] = RUN
@@ -106,7 +131,7 @@ class World:
         self.container['Id'] = CID; self.container['Config']['Labels']['workinants.rehearsal.run'] = RUN; self.volume['Labels']['workinants.rehearsal.run'] = RUN
         self.image = {'Id': self.container['Image'], 'Os': 'linux', 'Architecture': 'amd64', 'RepoDigests': [self.target['target']['image']]}
         self.native = {'format': 'workinants.native-catalog.v1', 'server_version_num': 170011, 'read_only': True, 'collected_as': 'postgres', 'collector_is_superuser': True,
-                       'nonowner_acl': compare_native_catalog._acl_expected(EXPECTED, 'pg_database_owner')}
+                       'nonowner_acl': compare_native_catalog._acl_expected(EXPECTED, 'pg_database_owner'), **diagnostic_native()}
         self.acl = {(row['kind'], row['object'], row['grantee'], row['privilege'], row.get('column')) for row in self.native['nonowner_acl']}
         setup = (M['PACKET'] / 'native-fact-setup.sql').read_text(encoding='utf8')
         self.counts = {name: len(re.findall('^INSERT INTO ' + re.escape(M['table'](name)) + r'\(', setup, re.M)) for name in sorted(PACKET['synthetic_facts']['baseline'])}
@@ -223,8 +248,8 @@ class NativeCoordinatorTests(unittest.TestCase):
     def setUp(self):
         for name in ('run', 'Popen', 'check_output'):
             guard = patch.object(subprocess, name, side_effect=AssertionError('UNMOCKED_PROCESS_FORBIDDEN')); guard.start(); self.addCleanup(guard.stop)
-    def exercise(self, mode='normal', subset=None):
-        world = World(mode, subset)
+    def exercise(self, mode='normal', subset=None, unexpected_error=None):
+        world = World(mode, subset, unexpected_error)
         with tempfile.TemporaryDirectory(prefix='native-deny-offline-', dir=M['TASK']) as temporary:
             directory = Path(temporary)
             report = {'format': 'workinants.catalog-comparison.v1', 'status': 'PASS', 'source_expected_sha256': M['EXPECTED_SOURCE'], 'native_snapshot_sha256': M['digest'](world.native), 'check_counts': {'PASS': 1}, 'findings': []}
@@ -433,6 +458,194 @@ class NativeCoordinatorTests(unittest.TestCase):
             retained = json.loads(value.path.read_bytes()); self.assertEqual(retained['current_stage'], 'SAFE_COMPLETED_STAGE')
             self.assertTrue(retained['operations'][0]['closed_before_observers'])
             with self.assertRaises(FileExistsError): M['Evidence'](path)
+
+    def safe_unexpected(self, text, native=None, metadata=None, declared=None, application_sha=None):
+        declaration = json.loads((ROOT / 'review-output/first-rehearsal/diagnostic-identifiers.json').read_bytes())
+        result = M['unexpected_operation_metadata'](text, native or diagnostic_native(), application_sha or declaration['source_sha256'], metadata,
+                                                    declaration if declared is None else declared)
+        self.assertNotIn(CANARY, json.dumps(result))
+        self.assertNotIn('matched', result)
+        return result
+
+    def test_unexpected_known_native_constraint_and_not_null_metadata_is_diagnostic_only(self):
+        for state, relation, constraint, column in (('23503', 'access_audit_logs', 'access_audit_logs_actor_user_id_fkey', None),
+                ('23505', 'access_audit_logs', 'access_audit_logs_pkey', None), ('23514', 'audit_events', 'f0_null_metadata', None),
+                ('23502', 'access_audit_logs', None, 'id')):
+            with self.subTest(state=state):
+                result = self.safe_unexpected(unexpected_stderr(state, relation, constraint, column))
+                self.assertEqual(result['classification'], 'NATIVE_IDENTIFIER_METADATA')
+                self.assertEqual(result['sqlstate'], state); self.assertEqual(result['native_object'], 'app.' + relation)
+                self.assertEqual(result.get('native_constraint'), constraint); self.assertEqual(result.get('native_column'), column)
+
+    def test_unexpected_unknown_or_misassociated_identifiers_are_redacted(self):
+        samples = [unexpected_stderr(relation='audit_events'), unexpected_stderr(constraint=CANARY),
+                   unexpected_stderr().replace('SCHEMA NAME:  app', 'SCHEMA NAME:  ' + CANARY),
+                   unexpected_stderr(relation=CANARY), unexpected_stderr('23502', constraint=None, column=CANARY),
+                   unexpected_stderr('23502', constraint=None, column='actor_user_id'),
+                   unexpected_stderr('23514'), unexpected_stderr() + 'CONSTRAINT NAME:  access_audit_logs_pkey\n',
+                   unexpected_stderr().replace('TABLE NAME:  access_audit_logs', 'TABLE NAME:  postgresql://' + CANARY)]
+        for text in samples:
+            result = self.safe_unexpected(text)
+            self.assertEqual(result['identifier_classification'], 'REDACTED_IDENTIFIERS')
+            self.assertFalse(set(result) & {'native_object', 'native_column', 'native_constraint'})
+
+    def test_unexpected_caps_controls_and_multiple_or_malformed_headers_fail_closed(self):
+        valid = unexpected_stderr()
+        cases = [(valid + valid, 'NO_SINGLE_VALID_ERROR'), (valid.replace(CANARY, CANARY + ' ERROR:  23505: x', 1), 'NO_SINGLE_VALID_ERROR'),
+                 (valid + 'ERROR malformed ' + CANARY, 'NO_SINGLE_VALID_ERROR'),
+                 (valid.replace('ERROR:  23503:', 'ERROR: malformed'), 'NO_SINGLE_VALID_ERROR'),
+                 ('DETAIL: ' + CANARY + '\n' + valid, 'NO_SINGLE_VALID_ERROR'),
+                 (valid + '\x1b]0;' + CANARY + '\x07', 'CONTROL_CHARACTERS'), (valid + '\r', 'CONTROL_CHARACTERS'),
+                 (valid + '\x7f', 'CONTROL_CHARACTERS'), (valid + '\x85', 'CONTROL_CHARACTERS'),
+                 (valid + 'x' * 16385, 'OUTPUT_LIMIT_OR_TYPE'), (valid + 'x' * 2049, 'OUTPUT_LIMIT_OR_TYPE'),
+                 (valid + '\n'.join(['DETAIL: x'] * 129), 'OUTPUT_LIMIT_OR_TYPE'), (None, 'OUTPUT_LIMIT_OR_TYPE')]
+        for text, classification in cases:
+            with self.subTest(classification=classification):
+                result = self.safe_unexpected(text); self.assertEqual(result['classification'], classification)
+                self.assertIsNone(result['sqlstate']); self.assertFalse(set(result) & {'frame', 'native_object'})
+        self.assertEqual(self.safe_unexpected(valid.replace('\n', '\r\n'))['native_constraint'], 'access_audit_logs_actor_user_id_fkey')
+        self.assertEqual(self.safe_unexpected(valid.replace('ERROR:', 'FATAL:'))['sqlstate'], '23503')
+
+    def test_unexpected_any_formatted_sqlstate_survives_private_bad_input_but_still_stops(self):
+        for state in ('22P02', '42804', '42601', 'XX999', 'ZZZZZ'):
+            text = 'ERROR:  ' + state + ': invalid input syntax for uuid: "' + CANARY + '"\n'
+            text += 'DETAIL: Failing row contains (ERROR, FATAL, PANIC, ' + CANARY + ')\nHINT: SELECT ' + CANARY + ';\n'
+            safe = self.safe_unexpected(text)
+            self.assertEqual(safe, {'classification': 'SQLSTATE_ONLY', 'sqlstate': state,
+                                  'identifier_classification': 'NOT_RETAINED', 'frame_classification': 'NOT_RETAINED'})
+            code, data, world, _ = self.exercise('setup-error', ['ConsentLog'], text)
+            self.assertEqual(code, 2); self.assertEqual(data['failure']['code'], 'EXACT_OPERATION_RESULT_REQUIRED')
+            self.assertEqual(data['operations'][-1]['unexpected_operation_diagnostic'], safe)
+            self.assertTrue(data['operations'][-1]['closed_before_observers']); self.assertFalse(world.restricted)
+            self.assertFalse(data['facets']); self.assertFalse(world.controls)
+            # Known-looking structured fields do not grant an unknown state's
+            # error body any native-constraint association or verdict.
+            safe = self.safe_unexpected(unexpected_stderr(state))
+            self.assertEqual(safe['sqlstate'], state); self.assertEqual(safe['classification'], 'SQLSTATE_ONLY')
+            self.assertEqual(safe['identifier_classification'], 'REDACTED_IDENTIFIERS')
+
+    def test_unexpected_generic_guard_states_never_qualify_expected_denial(self):
+        case = PACKET['cases'][0]; privilege = {'schema_usage': False, 'required_permission_missing': True, 'missing_referenced_columns': ['id']}
+        for state in ('P0001', '42501'):
+            text = unexpected_stderr(state)
+            result = self.safe_unexpected(text); self.assertEqual(result['classification'], 'SQLSTATE_ONLY')
+            self.assertFalse(M['native_diagnostic'](text, case, privilege)['matched'])
+            code, data, world, _ = self.exercise('setup-error', ['ConsentLog'], text)
+            self.assertEqual(code, 2); self.assertEqual(data['failure']['code'], 'EXACT_OPERATION_RESULT_REQUIRED')
+            self.assertFalse(data['facets']); self.assertFalse(world.controls); self.assertFalse(world.restricted)
+
+    def test_unexpected_frame_requires_exact_source_native_body_identity_and_typed_bounds(self):
+        text = 'ERROR:  P0001: ' + CANARY + '\nCONTEXT:  PL/pgSQL function platform_private.runtime_transition() line 2 at IF\n'
+        helper = runpy.run_path(str(ROOT / 'scripts/sql-review/rehearsal-diagnostics.py'))['source_metadata']
+        metadata = helper(text)
+        result = self.safe_unexpected(text, metadata=metadata)
+        self.assertEqual(result['frame_classification'], 'SOURCE_BOUND_FRAME'); self.assertEqual(result['frame']['body_line'], 2)
+        self.assertEqual(set(result['frame']), {'schema', 'function', 'body_line', 'body_sha256', 'source_sha256'})
+        mutants = []
+        for key, value in (('body_line', True), ('body_line', 2.0), ('body_line', 0), ('body_line', 10000), ('schema', CANARY),
+                           ('function', CANARY), ('body_sha256', CANARY), ('source_sha256', CANARY)):
+            item = deepcopy(metadata); item['frame'][key] = value; mutants.append(item)
+        for key, value in (('extra', CANARY), ('classification', [CANARY]), ('frame', {CANARY: CANARY})):
+            item = deepcopy(metadata); item[key] = value; mutants.append(item)
+        for item in mutants:
+            self.assertEqual(self.safe_unexpected(text, metadata=item)['frame_classification'], 'REDACTED_CONTEXT')
+        for key, value in (('body_sha256', '0' * 64), ('object', 'platform_private.runtime_transition(pg_catalog.text)'),
+                           ('parameters', [{'name': CANARY}]), ('language', 'sql'), ('kind', 'p')):
+            native = diagnostic_native(); native['functions'][0][key] = value
+            self.assertEqual(self.safe_unexpected(text, native=native, metadata=metadata)['frame_classification'], 'REDACTED_CONTEXT')
+        declaration = json.loads((ROOT / 'review-output/first-rehearsal/diagnostic-identifiers.json').read_bytes())
+        for key, value in (('source_sha256', CANARY), ('source', CANARY)):
+            item = deepcopy(declaration); item[key] = value
+            self.assertEqual(self.safe_unexpected(text, metadata=metadata, declared=item)['frame_classification'], 'REDACTED_CONTEXT')
+        self.assertEqual(self.safe_unexpected(text, metadata=metadata, application_sha='0' * 64)['frame_classification'], 'REDACTED_CONTEXT')
+        native = diagnostic_native(); native['functions'] *= 2
+        self.assertEqual(self.safe_unexpected(text, native=native, metadata=metadata)['frame_classification'], 'REDACTED_CONTEXT')
+
+    def test_unexpected_unknown_malformed_multiple_and_sql_expression_frames_never_export_context(self):
+        helper = runpy.run_path(str(ROOT / 'scripts/sql-review/rehearsal-diagnostics.py'))['source_metadata']
+        header = 'ERROR:  42703: record "new" has no field "' + CANARY + '"\n'
+        known = 'PL/pgSQL function platform_private.runtime_transition() line 2 at IF'
+        for context in ('CONTEXT: ' + CANARY, 'CONTEXT: PL/pgSQL function platform_private.' + CANARY + '() line 2 at IF',
+                        'CONTEXT: ' + known + '\n' + known, 'CONTEXT: ' + known.replace('()', '(text)'),
+                        'CONTEXT: ' + known.replace('line 2', 'line 9999'), 'CONTEXT: ' + known + CANARY):
+            text = header + context + '\n'
+            result = self.safe_unexpected(text, metadata=helper(text)); self.assertEqual(result['frame_classification'], 'REDACTED_CONTEXT')
+        # A valid single source frame may coexist with an ignored SQL-expression
+        # context. Its SQL, record-field value and DETAIL never cross retention.
+        text = header + 'CONTEXT: SQL expression "SELECT ' + CANARY + '"\n' + known + '\nDETAIL: ' + CANARY + '\n'
+        result = self.safe_unexpected(text, metadata=helper(text)); self.assertEqual(result['frame_classification'], 'SOURCE_BOUND_FRAME')
+
+    def test_unexpected_setup_and_late_control_keep_metadata_partial_facets_and_stop(self):
+        for mode in ('setup-error', 'native-invalid', 'native-late'):
+            code, data, world, memory = self.exercise(mode, ['ConsentLog', 'ConsentContentRevision'], unexpected_stderr())
+            self.assertEqual(code, 2); self.assertEqual(data['failure']['code'], 'EXACT_OPERATION_RESULT_REQUIRED')
+            last = data['operations'][-1]; safe = last['unexpected_operation_diagnostic']
+            self.assertEqual(safe['native_constraint'], 'access_audit_logs_actor_user_id_fkey')
+            self.assertEqual(last['role'], 'postgres'); self.assertRegex(last['source_sql_sha256'], r'^[0-9a-f]{64}$')
+            self.assertTrue(last['closed_before_observers']); self.assertTrue(data['subsequent_cases_stopped'])
+            self.assertEqual(len(data['facets']), 24 if mode == 'native-late' else 0)
+            self.assertEqual(memory.completed_before_failure, len(data['facets']))
+            self.assertEqual(len(data['native_controls']), 1 if mode == 'native-late' else 0)
+            for i, event in enumerate(world.events):
+                if event[0] == 'execute': self.assertEqual(world.events[i + 1][0], 'close')
+
+    def test_unexpected_diagnostic_never_observes_after_unconfirmed_backend_closure(self):
+        def unconfirmed(session):
+            session.world.events.append(('close-unconfirmed', session.role))
+            raise M['HeldFailure']('OPERATION_BACKEND_STILL_LIVE')
+        with patch.object(FakeSession, 'close', unconfirmed):
+            code, data, world, _ = self.exercise('setup-error', ['ConsentLog'], unexpected_stderr())
+        self.assertEqual(code, 2); self.assertEqual(data['failure']['code'], 'BACKEND_CLOSURE_UNCONFIRMED')
+        last = data['operations'][-1]; self.assertFalse(last['closed_before_observers'])
+        self.assertEqual(last['unexpected_operation_diagnostic']['sqlstate'], '23503')
+        self.assertEqual(world.events[-1][0], 'close-unconfirmed'); self.assertFalse(data['facets']); self.assertFalse(world.restricted)
+
+    def real_source_error(self, text):
+        processes, events = [], []
+        class ErrorProcess(PipeProcess):
+            def write(process, value):
+                if M['TUPLE'] in value: return super().write(value)
+                process.writes.append(value)
+                process.stderr.queue.put(text); process.stderr.queue.put(''); process.stdout.queue.put(''); process.returncode = 3
+        def popen(*args, **kwargs):
+            value = ErrorProcess(*args, **kwargs); processes.append(value); return value
+        def observer(role, query):
+            self.assertEqual(processes[0].poll(), 3); events.append('closure-observer'); return '0'
+        def after():
+            self.assertEqual(events[-1], 'closure-observer'); events.append('rollback-guard-observer')
+        api = runpy.run_path(str(ROOT / M['API']))
+        with tempfile.TemporaryDirectory(prefix='native-error-transport-offline-', dir=M['TASK']) as temporary:
+            evidence = MemoryEvidence(Path(temporary) / 'evidence'); evidence.value['facets'] = [{'status': 'PRIOR_FACET_RETAINED'}]
+            original_save = evidence.save
+            def save():
+                if 'unexpected_operation_diagnostic' in evidence.value['current'] and not evidence.value['current']['closed_before_observers']:
+                    events.append('safe-metadata-persisted-before-close')
+                original_save()
+            evidence.save = save
+            coor = M['Coordinator'].__new__(M['Coordinator']); coor.cid, coor.api, coor.evidence = CID, api, evidence
+            coor.native, coor.packet = diagnostic_native(), PACKET
+            coor.blobs = {'__diagnostic_identifiers': (ROOT / 'review-output/first-rehearsal/diagnostic-identifiers.json').read_bytes()}
+            coor.raw, coor.guards, coor.fingerprint = observer, after, lambda: []
+            with patch.object(subprocess, 'Popen', side_effect=popen), self.assertRaises(M['HeldFailure']) as found:
+                coor.operation('native-fact-setup', 'postgres', 'BEGIN;\nSELECT 1;\nCOMMIT;', expected=['never'])
+            self.assertEqual(found.exception.code, 'EXACT_OPERATION_RESULT_REQUIRED')
+            self.assertLess(events.index('safe-metadata-persisted-before-close'), events.index('closure-observer'))
+            self.assertLess(events.index('closure-observer'), events.index('rollback-guard-observer'))
+            self.assertEqual(evidence.value['facets'], [{'status': 'PRIOR_FACET_RETAINED'}])
+            self.assertTrue(evidence.value['operations'][-1]['closed_before_observers'])
+            self.assertNotIn(CANARY, json.dumps(evidence.value))
+            return evidence.value['operations'][-1]['unexpected_operation_diagnostic']
+
+    def test_real_session_source_error_persists_before_close_then_observes_and_still_stops(self):
+        self.assertEqual(self.real_source_error(unexpected_stderr())['native_constraint'], 'access_audit_logs_actor_user_id_fkey')
+        self.assertEqual(self.real_source_error(unexpected_stderr('23502', constraint=None, column='id'))['native_column'], 'id')
+        frame = 'ERROR:  P0001: ' + CANARY + '\nCONTEXT:  PL/pgSQL function platform_private.runtime_transition() line 2 at IF\n'
+        self.assertEqual(self.real_source_error(frame)['frame_classification'], 'SOURCE_BOUND_FRAME')
+        for text, classification in ((unexpected_stderr(constraint=CANARY), 'SQLSTATE_ONLY'),
+                (unexpected_stderr() + unexpected_stderr(), 'NO_SINGLE_VALID_ERROR'),
+                (unexpected_stderr() + '\x1b]0;' + CANARY + '\x07', 'CONTROL_CHARACTERS'),
+                (unexpected_stderr() + 'x' * 17000, 'OUTPUT_LIMIT_OR_TYPE')):
+            self.assertEqual(self.real_source_error(text)['classification'], classification)
 
 
 if __name__ == '__main__': unittest.main(verbosity=2)

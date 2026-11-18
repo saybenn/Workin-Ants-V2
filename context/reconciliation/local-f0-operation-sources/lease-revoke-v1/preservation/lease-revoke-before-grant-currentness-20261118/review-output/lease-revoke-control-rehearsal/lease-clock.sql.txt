@@ -1,0 +1,1 @@
+SELECT jsonb_build_object('expired',lease_expires_at<=clock_timestamp(),'same_fence',fence=1,'same_attempt',attempt_count=1,'effect_absent',effect_receipt_id IS NULL) FROM platform.runtime_work_item WHERE id='b3c6b69b-8f03-5406-88e6-b2434ee6c797';

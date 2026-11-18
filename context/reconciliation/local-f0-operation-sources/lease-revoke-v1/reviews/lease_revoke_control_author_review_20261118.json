@@ -1,0 +1,74 @@
+{
+  "schema": "workinants.lease-revoke-author-source-review.v1",
+  "recorded_at": "2026-11-18T07:21:29.771253+00:00",
+  "status": "SOURCE_FROZEN_PENDING_INDEPENDENT_REVIEW_NOT_RUN",
+  "source_files_sha256": {
+    "scripts/prepare-lease-revoke-control-rehearsal.py": "118c5c7e560e5963e21a49ea93a69a97dcea557934af4720a76b1db5df600d12",
+    "scripts/lease_revoke_control_protocol.py": "df6754f7a01b721d9c4ca300956626c3798014cff1d4e117e4c1aba2a9745394",
+    "scripts/sql-review/run-lease-revoke-control-rehearsal.py": "9a2acbfcbf17719a83eb993bebce5ca9d4210574cf82c701d26f9303b5b818e8",
+    "scripts/check-lease-revoke-control-rehearsal.py": "d4dff78082330acf8203662c98538968f01be47f9c48ca8dda175f038b23cc48",
+    "scripts/sql-review/lease-revoke-controls-coordinator.md": "5f08073523432c8ec6ddbc7ee6056f1a135109d718b43006ea70bed6451d3580"
+  },
+  "packet_sha256": "fe59a9867093f1cbab01741fa7d4f1fd727090e410374e663bbbd0796903c7e5",
+  "content_sha256": "9107197cf9f1b84c07becb194da4e00c950bc9c69e674cc962704af860db0cbf",
+  "prepared_artifacts": 36,
+  "prepared_SQL_files": 34,
+  "source_pins": 24,
+  "finite_protocols": 19,
+  "actual_offline_checks": {
+    "focused_mocks": 50,
+    "passed": 50,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_seconds": 2.774,
+    "command": "python scripts/check-lease-revoke-control-rehearsal.py",
+    "process_Docker_database_network_boundaries": "FORBIDDEN_OR_MOCKED",
+    "prepared_SQL_parse": "PASS_ALL_34",
+    "artifact_byte_reproduction": "PASS_ALL_36",
+    "Python_AST_and_compile": "PASS_FOUR_NEW_SOURCES"
+  },
+  "preservation": {
+    "original_244_file_snapshot_count": 244,
+    "original_244_current_hash_differences": [],
+    "active_181_runtime_packet_current_hashes_all_match": true,
+    "authored_paths_intersect_active_packet": false,
+    "canonical_application_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "worker_acl_source_sha256": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "worker_acl_rows": 32,
+    "before_currentness_and_deadline_draft_directory": "lease-revoke-before-grant-currentness-20261118",
+    "prior_41_files_verified_exact": true,
+    "prior_preservation_manifest_sha256": "0f61e978e107bc40bdadc24d5a6a696db93219c8198324b6cd863c6af1db29fa"
+  },
+  "closure_evidence": {
+    "old_holder_grant_context": "Exact original retained tuple/caps, unrevoked, context TTL future, renew route and independent service epoch current BEFORE and AFTER refusal; higher-fence lease independently still live; same backend/xid recaptured before action; successful identical renew scope required beforehand",
+    "old_fence_guard": "Actual scoped renewal RLS/CAS zero visible/changed rows; no always-false worker_lease_valid claim under wrong route",
+    "lease_expiration": "Actual server-clock first-live then expired observations; one monotonic45s deadline checked before and after each query; process timeout min5s/remaining; over-budget expired response stops with explicit not-qualified flag",
+    "source_exact_denials": "P0001/42501 alone reject; exact source message and function raise line, exact stage markers and closure required",
+    "issuer_revocation": "Original tuple immutable; declaration permits only actual one-way revocation plus trigger-assigned captured revoker mutation xid; independent row retention verifies fields",
+    "partial_evidence": "Fixed current stage/outcomes, completed cases, source-frame/marker booleans only; original session closure before rollback/state observations; uncertainty stops later observations and cases",
+    "scoped_concurrency_exception": "Old holder remains idle through expiry/reclaim; failed-renew backend closes before its exact rollback witness. Full state/native observations after original and reclaimer close."
+  },
+  "coverage_limits": {
+    "selected_cases": "NOT_RUN",
+    "whole_94": "NOT_PROMOTED",
+    "whole_451": "NOT_PROMOTED",
+    "Identity_adapter": "SYNTHETIC_NOT_QUALIFIED",
+    "lease_attach_and_recovery": "NOT_PREPARED_HERE",
+    "owner_generations": "NOT_PREPARED_MISSING_OWNER_PORTS",
+    "Customer_update_gate": "CUSTOMER_UPDATE_RECEIPT_NO_RESULT_IDENTITY_AND_CODEC_NOT_REGISTERED"
+  },
+  "runtime_limits": {
+    "database_contacted": false,
+    "SQL_executed": false,
+    "Docker_invoked": false,
+    "Git_writes": false,
+    "new_full_root_run_manifest_prepared": false,
+    "independent_source_review": "PENDING",
+    "literal_execution_review": "PENDING",
+    "posture": "D",
+    "all_prepared_cases": "NOT_RUN",
+    "selected94": "NOT_PROMOTED",
+    "whole451": "NOT_PROMOTED"
+  },
+  "plain_english": "The pretend tests check timed work tickets, changing holders and canceled permissions. All50 source checks passed. The real games have not run, and missing owner features still block a whole-case pass."
+}

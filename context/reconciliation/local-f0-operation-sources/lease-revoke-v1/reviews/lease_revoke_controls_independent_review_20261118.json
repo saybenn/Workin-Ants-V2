@@ -1,0 +1,64 @@
+{
+  "format": "workinants.independent-source-review.v1",
+  "reviewer": "/root/review_track_ports",
+  "author": "/root/restricted_controls_operator",
+  "decision": "APPROVED_SOURCE_ONLY",
+  "source_files_sha256": {
+    "scripts/prepare-lease-revoke-control-rehearsal.py": "118c5c7e560e5963e21a49ea93a69a97dcea557934af4720a76b1db5df600d12",
+    "scripts/lease_revoke_control_protocol.py": "df6754f7a01b721d9c4ca300956626c3798014cff1d4e117e4c1aba2a9745394",
+    "scripts/sql-review/run-lease-revoke-control-rehearsal.py": "9a2acbfcbf17719a83eb993bebce5ca9d4210574cf82c701d26f9303b5b818e8",
+    "scripts/check-lease-revoke-control-rehearsal.py": "d4dff78082330acf8203662c98538968f01be47f9c48ca8dda175f038b23cc48",
+    "scripts/sql-review/lease-revoke-controls-coordinator.md": "5f08073523432c8ec6ddbc7ee6056f1a135109d718b43006ea70bed6451d3580"
+  },
+  "packet": {
+    "path": "review-output/lease-revoke-control-rehearsal/fixtures.json",
+    "sha256": "fe59a9867093f1cbab01741fa7d4f1fd727090e410374e663bbbd0796903c7e5",
+    "content_sha256": "9107197cf9f1b84c07becb194da4e00c950bc9c69e674cc962704af860db0cbf",
+    "artifacts": 36,
+    "sql_files": 34,
+    "source_pins": 24,
+    "finite_protocols": 19
+  },
+  "independent_offline_checks": {
+    "command": "python -B scripts/check-lease-revoke-control-rehearsal.py",
+    "test_methods": 50,
+    "elapsed_seconds": 4.788,
+    "result": "PASS",
+    "source_SQL_parsing_and_all_artifact_byte_reproduction": "PASS",
+    "all_five_frozen_sources_and_fixture_sha_rechecked_after_tests": true,
+    "subprocess_and_network_boundaries": "BLOCKED_OR_MOCKED",
+    "database_contacted": false,
+    "docker_invoked": false,
+    "git_mutated": false
+  },
+  "closed_finding": {
+    "issue": "A final expired=True response could originally arrive after the declared 45-second monotonic budget and still qualify actual expiry.",
+    "correction": "One deadline is checked before the query and after its response. The observer process timeout is bounded to the lesser of 5 seconds and remaining budget. A late response records only fixed unqualified budget exhaustion and stops.",
+    "independent_regression": "The valid live-first then expired-after-deadline scenario rejects without retaining an actual-expiry qualification."
+  },
+  "reviewed_boundaries": [
+    "Correct selected register identities are P0C-TRACK-01 and P0C-CTX-02. The original compound definitions and assertions remain NOT_RUN; nonexistent LEASE/REVOKE aliases are not invented.",
+    "Complete module/source/prepared-file/native-proof admission precedes helper compilation. The fixed CTX loader compiles the verified transitive bytes; import/help are dormant. Runtime SQL and canonical diagnostic source use the exact verified read.",
+    "A genuine native-PASS same-run/CID/source/tree/full-operation-packet attestation is mandatory. Resource identity, private target/immutable image, SCRAM and original-grantor finalization remain prerequisites.",
+    "Claim and renew issue independent tuple-bound grants and use actual restricted operation clocks, real lease preimages, exact finite capabilities, monotonic fence/attempt changes and source-bound guard diagnostics.",
+    "The old holder first binds during a live lease; actual expiry is observed without editing timestamps. A different live PID/xid reclaims with a new secret, fence 2 and attempt 2, and commits while the original holder transaction remains open.",
+    "The original holder is recaptured unchanged and must disclose zero exact work rows and update zero rows. Before and after, independently minimized witnesses require its exact immutable original tuple/capabilities/renew route, no revocation, future context TTL, current separate service epoch and a live higher-fence lease. A prior actual successful fresh renew is mandatory. No always-false worker_lease_valid call under a renew grant is used.",
+    "Service currentness uses the existing narrow Identity authority and exact predecessor receipt transactions. Customer fixtures remain actual user-principal creates; service principals are used only for supported scheduler/work routes. Actual issuer revocation commits before the original app protected statement and preserves the original consumer tuple.",
+    "All completed finite protocols require exact Customer/source/work state, captured mutation xid, zero attempts/effect links/Track footprints, immutable grant fields with only declared revocation changes, restored triggers and unchanged native metadata. The intentional overlapping old holder has an explicit finite concurrency boundary before full state observers resume.",
+    "Unexpected results stop later protocols. Actual owned sessions close before permitted failure observers; all-other-client checks span every database, role and tag. Fixed markers/typed Boolean comparisons and source-exact diagnostics avoid exporting secrets, raw tuple handles, SQL bodies or stderr.",
+    "The source/model checks inspect emitted SQL projections for claim/renew/reclaim transitions, reject unrelated diagnostics and malformed fields, exercise timing mutations and retain sanitized partial failures. They do not qualify real concurrency or production adapters."
+  ],
+  "remaining_limits": {
+    "runtime": "NOT_RUN",
+    "literal_operation_approval": "REQUIRED_SEPARATELY",
+    "P0C_TRACK_01_whole_case": "NOT_RUN",
+    "P0C_CTX_02_whole_case": "NOT_RUN",
+    "lease_attach_and_recovery": "NOT_PREPARED_HERE",
+    "owner_security_and_source_generation_schedule": "NOT_PREPARED_MISSING_OWNER_PORTS",
+    "Customer_update_CAS_and_result_codec": "DEPENDENCY_BLOCKED_NOT_GREEN",
+    "Identity_owner_adapter": "SYNTHETIC_NOT_QUALIFIED",
+    "whole_94_or_451_promotion": false,
+    "posture": "D"
+  },
+  "plain_english": "The pretend tests check that an old timed work ticket stops working after a new worker takes over, and that canceled permissions stop working. The plan is ready for a separate run review; those real games have not run yet."
+}

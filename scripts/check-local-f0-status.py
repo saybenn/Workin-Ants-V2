@@ -9,13 +9,27 @@ build=runpy.run_path(str(ROOT/'scripts/prepare-local-f0-status.py'))['build']
 
 class StatusTests(unittest.TestCase):
     def test_recorded_subset_does_not_promote_compound_cases(self):
-        result=build();self.assertEqual(result['selected_cases'],94)
-        self.assertEqual(result['assertion_status_counts']['PASS'],34)
-        self.assertEqual(result['assertion_status_counts']['PARTIAL'],2)
-        self.assertEqual(result['case_status_counts']['PASS'],0)
+        namespace=build.__globals__;restricted=namespace['validate_restricted_claim'];migration=namespace['validate_claim']
+        restricted_calls=[];migration_calls=[]
+        def restricted_dispatch(*args,**kwargs):
+            restricted_calls.append((args[0],args[1],args[2],kwargs.get('json_pointer')))
+            return restricted(*args,**kwargs)
+        def migration_dispatch(*args,**kwargs):
+            migration_calls.append(args[3]['actual_result'])
+            return migration(*args,**kwargs)
+        with patch.dict(namespace,validate_restricted_claim=restricted_dispatch,validate_claim=migration_dispatch):result=build()
+        self.assertEqual(result['selected_cases'],94)
+        self.assertEqual(result['assertion_status_counts'],{'PASS':79,'PARTIAL':27,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':889,'UNRESOLVED_SOURCE':7})
+        self.assertEqual({c['id'] for c in result['cases'] if c['status']=='PASS'},{'P0C-UNIQUE-01','P0C-TABLE-DatabaseActionGrant-ALLOW'})
+        self.assertEqual(len(restricted_calls),70)
+        self.assertEqual(len(migration_calls),7)
+        self.assertNotIn('PASS_LOCAL_RESTRICTED_CONTROL_PACKETS_ONLY',migration_calls)
         catalog=next(c for c in result['cases'] if c['id']=='P0C-CATALOG-01')
         self.assertEqual(catalog['status'],'PARTIAL')
         self.assertEqual(next(a for a in catalog['assertions'] if a['id']=='vector.CATALOG-LEAVES.adversarial')['status'],'NOT_RUN')
+        customer=next(c for c in result['cases'] if c['id']=='P0C-TABLE-CustomerProfile-ALLOW')
+        self.assertEqual(next(a for a in customer['assertions'] if a['id']=='positive.wa_app_runtime.update')['status'],'NOT_RUN')
+        self.assertFalse(any(c['status']=='PASS' and 'Privacy' in c['id'] for c in result['cases']))
     def test_changed_current_sql_does_not_reuse_stale_inventory(self):
         original=Path.read_bytes
         def changed(path):
@@ -52,6 +66,36 @@ class StatusTests(unittest.TestCase):
                 return json.dumps(value)
             return text
         with patch.object(Path,'read_text',changed),self.assertRaisesRegex(AssertionError,'Catalog evidence pointer'):build()
+    def test_restricted_reference_cannot_point_to_unrelated_existing_dictionary(self):
+        original=Path.read_text
+        def changed(path,*args,**kwargs):
+            text=original(path,*args,**kwargs)
+            if path.name=='local-f0-assertion-evidence.json':
+                value=json.loads(text);next(r for r in value['assertions'] if r['case_id']=='P0C-TABLE-CustomerProfile-ALLOW' and r['assertion_id']=='positive.wa_app_runtime.select')['json_pointer']='/sanitized_report/limits';return json.dumps(value)
+            return text
+        with patch.object(Path,'read_text',changed),self.assertRaisesRegex(AssertionError,'RESTRICTED_PROOF_POINTER'):build()
+    def test_restricted_partial_cannot_be_promoted(self):
+        original=Path.read_text
+        def changed(path,*args,**kwargs):
+            text=original(path,*args,**kwargs)
+            if path.name=='local-f0-assertion-evidence.json':
+                value=json.loads(text);next(r for r in value['assertions'] if r['case_id']=='P0C-EVIDENCE-01' and r['assertion_id']=='control.closed_codec')['status']='PASS';return json.dumps(value)
+            return text
+        with patch.object(Path,'read_text',changed),self.assertRaisesRegex(AssertionError,'RESTRICTED_CLAIM_NOT_SUPPORTED'):build()
+    def test_restricted_record_cannot_promote_unlisted_case(self):
+        original=Path.read_text
+        inventory=json.loads(original(ROOT/'context/reconciliation/local-f0-assertions.json'))
+        assertion=next(a for c in inventory['cases'] if c['id']=='P0C-TABLE-ConsentLog-ALLOW' for a in c['assertions'] if a['id']=='positive.wa_app_runtime.insert')
+        def changed(path,*args,**kwargs):
+            text=original(path,*args,**kwargs)
+            if path.name=='local-f0-assertion-evidence.json':
+                value=json.loads(text);row=next(r for r in value['assertions'] if r['run_id']=='f161d454-13dd-453f-a9ee-6e92f95ea8d6');row.update(case_id='P0C-TABLE-ConsentLog-ALLOW',assertion_id=assertion['id'],status='PASS',expected_assertion_sha256=hashlib.sha256(assertion['expected_assertion'].encode()).hexdigest());return json.dumps(value)
+            return text
+        with patch.object(Path,'read_text',changed),self.assertRaisesRegex(AssertionError,'RESTRICTED_CLAIM_NOT_SUPPORTED'):build()
+    def test_restricted_record_kind_cannot_fall_back_to_migration(self):
+        records=build.__globals__['EVIDENCE_RECORDS'];path='context/reconciliation/local-f0-restricted-b8f6b10-f161d454-execution.json'
+        changed={**records,path:(records[path][0],'PASS_GENUINE_FIRST_NOOP_FAILURE_REVIEWED_RESOLVE_SAME_CHECKSUM_RETRY')}
+        with patch.dict(build.__globals__,EVIDENCE_RECORDS=changed),self.assertRaisesRegex(AssertionError,'Execution evidence kind changed'):build()
     def test_partial_migration_claim_cannot_be_promoted(self):
         original=Path.read_text
         def changed(path,*args,**kwargs):
@@ -88,9 +132,9 @@ class StatusTests(unittest.TestCase):
     def test_parses_exact_hashed_bytes_without_second_file_read(self):
         original=Path.read_text
         def second_read_trap(path,*args,**kwargs):
-            if path.name in ('local-f0-small-rehearsal-0623028-execution.json','local-f0-migration-6b8910d-execution.json','local-f0-catalog-b9703d7-23bd8979-execution.json'):raise RuntimeError('UNVERIFIED_SECOND_READ')
+            if path.name in ('local-f0-small-rehearsal-0623028-execution.json','local-f0-migration-6b8910d-execution.json','local-f0-catalog-b9703d7-23bd8979-execution.json','local-f0-restricted-b8f6b10-f161d454-execution.json'):raise RuntimeError('UNVERIFIED_SECOND_READ')
             return original(path,*args,**kwargs)
         with patch.object(Path,'read_text',second_read_trap):result=build()
-        self.assertEqual(result['assertion_status_counts']['PASS'],34)
+        self.assertEqual(result['assertion_status_counts']['PASS'],79)
 
 if __name__=='__main__':unittest.main(verbosity=2)

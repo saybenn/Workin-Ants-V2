@@ -1,0 +1,38 @@
+{
+  "status": "PASS_OFFLINE_SAME_READ_CORRECTION_PENDING_ROOT_REVIEW",
+  "recorded_at": "2026-11-18T07:03:59.114774+00:00",
+  "preserved_frozen_directory": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restricted-evidence-bf23eeb8-frozen",
+  "preserved_source_hashes": {
+    "adapter": "bf23eeb891338aa71b4c39a156d77b1fa47d88ada3587ff6a4287a470afbddc9",
+    "checks": "e65c6271b8b6a72c13319a129a5f024cee9acd4dfff689e3609a29faaedd550f"
+  },
+  "corrected_files_sha256": {
+    "scripts/local_f0_restricted_evidence.py": "8809426d7dba4cc2f14f41b1b3230dbb704f758542d42134e2d0ea25b25054f3",
+    "scripts/check-local-f0-restricted-evidence.py": "5c306666bc8a6bfb7f7dbc3f57e4da5b69b95e2a6cb54c5c24e12f72297d72ee"
+  },
+  "change": "All four fixture packets are parsed from the exact _read bytes whose SHA256 matches the admitted244file packet; documentation follows exact mandatory-assertion aggregation for both completed cases.",
+  "focused_checks": {
+    "command": "python -B scripts/check-local-f0-restricted-evidence.py",
+    "exit_code": 0,
+    "tests_passed": 22,
+    "tests_failed": 0,
+    "seconds": 27.177,
+    "Python_files_parsed": 2
+  },
+  "restoration_regression": {
+    "frozen_old_adapter_with_new_second_read_test": "DETECTED_OLD_REREAD_GAP_AS_EXPECTED",
+    "tests": 1,
+    "expected_failures_observed": 1,
+    "errors": 0,
+    "new_adapter_changed_second_read": "REFUSED_RESTRICTED_EVIDENCE_FILE_HASH_BEFORE_JSON_PARSE",
+    "canary_echoed": false,
+    "process_or_network_called": false
+  },
+  "postchecks": {
+    "immutable_record_9a090022_unchanged": true,
+    "f161_packet244_unchanged": true,
+    "claims_45PASS25PARTIAL_unchanged": true,
+    "integration": "NOT_DONE",
+    "Docker_database_Git_invocation": false
+  }
+}

@@ -145,6 +145,36 @@ Unexpected outcomes stop all later cases and persist sanitized partial evidence.
 Unconfirmed closure stops observations; the external operator retains controlled
 cleanup responsibility for the exact owned resource identities.
 
+Unexpected fixture-setup or native-control results retain diagnostic metadata
+before the unchanged `EXACT_OPERATION_RESULT_REQUIRED` stop. This diagnostic
+projection accepts one bounded verbose ERROR/FATAL header, records its exact
+five-character SQLSTATE, and may retain a native constraint or NOT NULL column only with its
+source-known relation association from the full-comparator-approved snapshot.
+CHECK, FK and unique constraints must have the corresponding native kind. Unknown
+or misassociated names are redacted. SQLSTATE alone never qualifies a native
+denial or turns an unexpected operation into success. The expected-denial
+sanitizer and its exact ACL verdict remain unchanged.
+
+An optional no-argument PL/pgSQL frame from the existing source-metadata helper
+must have an exact allowed shape, match the cached pinned declaration, canonical
+application SQL SHA, native function identity/body SHA, and a strictly typed line
+within that declared body. Unknown, malformed, multiple or mismatched frames are
+redacted. Messages, DETAIL/HINT, SQL expressions/bodies, position excerpts, raw
+context, handles and credentials are never retained. Controls, excess output or
+multiple/malformed errors yield fixed classes. Input/datatype/syntax and otherwise
+unrecognized error bodies still retain their formatted SQLSTATE only; bare severity
+words in discarded DETAIL do not mask the single header. Metadata changes no verdict, and
+connection closure still precedes rollback/restoration/fingerprint observations.
+
+The preserved 2cde0d9b attempt passed the C-order control and its eight empty-data
+fingerprint comparisons, then stopped at the first fixture operation (exit 3,
+no acknowledgement, exact output false). Its error state and constraint were
+not retained; its complete cause remains unobserved. This source correction
+adds safe observation for a separately approved future attempt. It supplies no
+fixture repair, runtime qualification or explanation invented for that stop.
+
 Plain English: The operator builds a clean pretend room first. Each limited key
 tries one prepared door. We write down which lock stopped it, then check that the
 room is unchanged. A blocked door does not prove the person can do the real job.
+If room setup stops, we can save the known rule's name without saving anyone's
+private note. We still stop, close the connection, and check the room afterward.

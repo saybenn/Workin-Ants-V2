@@ -1,0 +1,25 @@
+from pathlib import Path
+import ast,hashlib,json
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass';sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+review=json.loads((TASK/'native_access_collation_v2_independent_review_20261118.json').read_bytes())
+names={
+ 'execute_local_f0_native_access_v2_20261118.py':'execute_local_f0_native_access_v3_20261118.py',
+ 'local_f0_native_access_v2_operation_steps.py':'local_f0_native_access_v3_operation_steps.py',
+ 'prepare_local_f0_native_access_v2_plan.py':'prepare_local_f0_native_access_v3_plan.py',
+ 'check_native_access_v2_operation.py':'check_native_access_v3_operation.py',
+ 'pin_native_access_v2_plan_20261118.py':'pin_native_access_v3_plan_20261118.py',
+}
+assert sha(ROOT/'scripts/sql-review/run-native-table-denials.py')=='e1343f547c6eed2371ea6fc12df74e3e3f1dc4b44502d39e7ddfcd14b8b3cd94'
+assert sha(ROOT/'scripts/sql-review/native-table-denials-coordinator.md')=='55e8ad94351efe9cffcaa363d308de4b80c676dae32ba8d5512866659d2254a7'
+for before,after in names.items():
+    assert sha(TASK/before)==review['external_files_sha256'][before]
+    text=(TASK/before).read_text(encoding='utf8')
+    for old,new in names.items():text=text.replace(old,new)
+    text=text.replace('334c1b7622b53c1a7cf6fbf2e9f41f7d924f5b42208eab713a04ccf91d42b03c','e1343f547c6eed2371ea6fc12df74e3e3f1dc4b44502d39e7ddfcd14b8b3cd94')
+    text=text.replace('92e8f10fc42339555f8c1b578fe81a0a2ba30e623de184e07bb69fbc8e2413b6','55e8ad94351efe9cffcaa363d308de4b80c676dae32ba8d5512866659d2254a7')
+    text=text.replace('local-f0-operation-sources/native-access-collation-v2','local-f0-operation-sources/native-access-unexpected-diagnostics-v3')
+    text=text.replace('local-f0-native-access-collation-source-validation.json','local-f0-native-access-unexpected-diagnostics-source-validation.json')
+    ast.parse(text,filename=after)
+    with (TASK/after).open('x',encoding='utf8',newline='\n') as out:out.write(text)
+assert all(sha(TASK/p)==h for p,h in review['external_files_sha256'].items())
+print(json.dumps({'files_sha256':{p:sha(TASK/p) for p in names.values()},'old5sources_unchanged':True,'runtime':'NOT_RUN'}))

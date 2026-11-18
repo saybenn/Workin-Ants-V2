@@ -1,0 +1,43 @@
+{
+  "schema": "workinants.lease-revoke-operation-independent-source-review.v1",
+  "reviewer": "/root/restricted_controls_operator",
+  "status": "SOURCE_HELD_PENDING_BOUNDED_CLOSURE_FIX",
+  "reviewed_author_report": "lease_revoke_operation_source_author_review_20261118.json",
+  "reviewed_author_report_sha256": "7386a9d3718b4e88839a31c48896a8921db351460e35fb1211c862bb12e444a4",
+  "reviewed_five_source_hashes_independently_matched": true,
+  "static_ast_comparison": "restricted_controls_lease_operator_static_review_20261118.json",
+  "reviewed_existing_coordinator_sha256": "9a2acbfcbf17719a83eb993bebce5ca9d4210574cf82c701d26f9303b5b818e8",
+  "existing_fixture_sha256": "fe59a9867093f1cbab01741fa7d4f1fd727090e410374e663bbbd0796903c7e5",
+  "findings": [
+    {
+      "id": "REFERENCE_FAILURE_CAN_BYPASS_GLOBAL_CLOSURE",
+      "status": "OPEN",
+      "file": "local_f0_lease_revoke_operation_steps.py",
+      "function": "lease_experiment",
+      "evidence": "finally calls retain_coordinator_reference before closed_backends without nested finally; reference stat/read/save exceptions skip required all-client observer",
+      "required_closure": "Always attempt global closure after invocation, retain fixed unavailable-reference result, and stop verdict/native observers on reference failure; regression for reference IO exception"
+    },
+    {
+      "id": "OBSERVER_FAILURE_LACKS_FIXED_UNCONFIRMED_CLOSURE_EVIDENCE",
+      "status": "OPEN",
+      "file": "local_f0_lease_revoke_operation_steps.py",
+      "function": "closed_backends",
+      "evidence": "observe exception retains no closure result; non-dict response raises at .get before fixed evidence; later operations stop but fixed closure proof is absent",
+      "required_closure": "Always retain fixed scope/observation/absence booleans, validate exact nonnegative integer counts before success, and reject malformed/throw paths before verdict/native metadata"
+    }
+  ],
+  "otherwise_reviewed": [
+    "23 shared V4 steps AST-identical, including full catalog_experiment/native/oracle/ledger pipeline",
+    "21 core functions AST-identical to preserved RESTORE ad60d95c source; strict typed global original-grantor finalizer manually reviewed",
+    "Exact finite 19-protocol/15-action typed output, no whole-case promotion, six-role SCRAM/correct-wrong authentication, old-holder current-grant witnesses",
+    "Exact module graph verified before first helper compile; cached-byte-only runpy loader and actual nested same-read manifest",
+    "Pure preparer emits fresh seven-file external guarded history without editing Root history; held pin helper verifies current/Git source and snapshots without operational approval",
+    "Immutable created CID/run labels and volume creation identity constrain cleanup; host secret cleanup follows even resource errors; no provider simulation or enrollment loop"
+  ],
+  "independent_focused_mocks": "PENDING_FINAL_SOURCE_FREEZE_AFTER_FIX",
+  "source_edits_by_reviewer": false,
+  "runtime": "NOT_RUN",
+  "Docker_database_network_Git_actions": false,
+  "posture": "D",
+  "plain_english": "A broken report must not stop us from checking whether every connection closed. Keep that check and stop the remaining games when the answer is unknown."
+}
