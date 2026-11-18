@@ -1,0 +1,3578 @@
+{
+  "schema": "workinants.unique-control-evidence.v1",
+  "status": "COMPLETED_FIVE_SQL_STORAGE_RACES_ONLY_ASSERTIONS_NOT_RUN",
+  "database_posture": "D",
+  "current_stage": "COMPLETE_PENDING_EVIDENCE_REVIEW",
+  "current_case": "different-subjects-identical-text-key",
+  "current": {},
+  "operations": [
+    {
+      "stage": "RESOURCE_IDENTITY",
+      "exact_created_container": true
+    },
+    {
+      "stage": "NATIVE_CATALOG",
+      "unchanged": true
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "TRUSTED_UNIQUE_IDENTITY_FIXTURES",
+      "actual_login": "postgres",
+      "commit_acknowledged": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "ACTUAL_APP_BOUND",
+      "side": "A",
+      "issuer_commit_and_closure_verified": true,
+      "same_tuple": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "ACTUAL_APP_BOUND",
+      "side": "B",
+      "issuer_commit_and_closure_verified": true,
+      "same_tuple": true
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "GROUP_CONSTRAINTS_CHECKED",
+      "side": "A",
+      "markers_exact": true,
+      "acknowledged": true,
+      "errors_absent": true
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "WAITER_COMMAND_SENT",
+      "before_marker_exact": true,
+      "later_output_absent": true
+    },
+    {
+      "stage": "NATIVE_WAIT_OBSERVATION",
+      "attempt": 1,
+      "shape_matches": true,
+      "comparisons": {
+        "fields_match": true,
+        "values": {
+          "A_idle_in_transaction": true,
+          "B_active": true,
+          "B_wait_event_type_lock": true,
+          "B_wait_event_transactionid": true,
+          "B_blocked_only_by_A": true
+        }
+      }
+    },
+    {
+      "stage": "TRANSACTION_END",
+      "side": "A",
+      "outcome": "COMMIT",
+      "acknowledged": true,
+      "exact_output": true
+    },
+    {
+      "stage": "OPERATION_CLOSURE",
+      "side": "A",
+      "exact_backend_absent": true,
+      "exit_code": 0,
+      "expected_exit": true
+    },
+    {
+      "stage": "NATIVE_DUPLICATE_VERDICT",
+      "exit_code": 3,
+      "acknowledgement": false,
+      "before_only": true,
+      "diagnostic": {
+        "matched": true,
+        "sqlstate": "23505",
+        "schema_table_constraint_exact": true,
+        "native_location_exact": true,
+        "detail_absent": true
+      }
+    },
+    {
+      "stage": "OPERATION_CLOSURE",
+      "side": "B",
+      "exact_backend_absent": true,
+      "exit_code": 3,
+      "expected_exit": true
+    },
+    {
+      "stage": "EXACT_COMPLETE_GROUP_COUNTS",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "customers": 1,
+          "commands": 1,
+          "history": 1,
+          "evidence": 1,
+          "outbox": 2,
+          "effects": 0,
+          "track_enrollments": 0
+        }
+      }
+    },
+    {
+      "stage": "WINNER_COHERENCE_A",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "customer": 1,
+          "command": 1,
+          "history": 1,
+          "evidence": 1,
+          "outbox": 2,
+          "track_enrollments": 0,
+          "coherent": true
+        }
+      }
+    },
+    {
+      "stage": "WINNER_ACTUAL_TRANSACTION_A",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "source_xid_matches": true,
+          "command_xid_matches": true,
+          "history_xid_matches": true,
+          "evidence_xid_matches": true,
+          "outbox_xid_matches": true
+        }
+      }
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "NATIVE_CATALOG",
+      "unchanged": true
+    },
+    {
+      "stage": "ISSUER_ROW_RETENTION",
+      "instances": 2,
+      "immutable_issuer_rows_match": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "exact_count": 2,
+          "all_immutable_fields_equal": true,
+          "issuer_owned": true,
+          "revoked_false": true,
+          "unexpired": true
+        }
+      }
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "ACTUAL_APP_BOUND",
+      "side": "A",
+      "issuer_commit_and_closure_verified": true,
+      "same_tuple": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "ACTUAL_APP_BOUND",
+      "side": "B",
+      "issuer_commit_and_closure_verified": true,
+      "same_tuple": true
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "GROUP_CONSTRAINTS_CHECKED",
+      "side": "A",
+      "markers_exact": true,
+      "acknowledged": true,
+      "errors_absent": true
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "WAITER_COMMAND_SENT",
+      "before_marker_exact": true,
+      "later_output_absent": true
+    },
+    {
+      "stage": "NATIVE_WAIT_OBSERVATION",
+      "attempt": 1,
+      "shape_matches": true,
+      "comparisons": {
+        "fields_match": true,
+        "values": {
+          "A_idle_in_transaction": true,
+          "B_active": true,
+          "B_wait_event_type_lock": true,
+          "B_wait_event_transactionid": true,
+          "B_blocked_only_by_A": true
+        }
+      }
+    },
+    {
+      "stage": "TRANSACTION_END",
+      "side": "A",
+      "outcome": "ROLLBACK",
+      "acknowledged": true,
+      "exact_output": true
+    },
+    {
+      "stage": "OPERATION_CLOSURE",
+      "side": "A",
+      "exact_backend_absent": true,
+      "exit_code": 0,
+      "expected_exit": true
+    },
+    {
+      "stage": "WAITING_COMMAND_RELEASED",
+      "after_marker_exact": true,
+      "acknowledged": true,
+      "errors_absent": true
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "GROUP_CONSTRAINTS_CHECKED",
+      "side": "B",
+      "markers_exact": true,
+      "acknowledged": true,
+      "errors_absent": true
+    },
+    {
+      "stage": "TRANSACTION_END",
+      "side": "B",
+      "outcome": "COMMIT",
+      "acknowledged": true,
+      "exact_output": true
+    },
+    {
+      "stage": "OPERATION_CLOSURE",
+      "side": "B",
+      "exact_backend_absent": true,
+      "exit_code": 0,
+      "expected_exit": true
+    },
+    {
+      "stage": "EXACT_COMPLETE_GROUP_COUNTS",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "customers": 1,
+          "commands": 1,
+          "history": 1,
+          "evidence": 1,
+          "outbox": 2,
+          "effects": 0,
+          "track_enrollments": 0
+        }
+      }
+    },
+    {
+      "stage": "WINNER_COHERENCE_B",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "customer": 1,
+          "command": 1,
+          "history": 1,
+          "evidence": 1,
+          "outbox": 2,
+          "track_enrollments": 0,
+          "coherent": true
+        }
+      }
+    },
+    {
+      "stage": "WINNER_ACTUAL_TRANSACTION_B",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "source_xid_matches": true,
+          "command_xid_matches": true,
+          "history_xid_matches": true,
+          "evidence_xid_matches": true,
+          "outbox_xid_matches": true
+        }
+      }
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "NATIVE_CATALOG",
+      "unchanged": true
+    },
+    {
+      "stage": "ISSUER_ROW_RETENTION",
+      "instances": 2,
+      "immutable_issuer_rows_match": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "exact_count": 2,
+          "all_immutable_fields_equal": true,
+          "issuer_owned": true,
+          "revoked_false": true,
+          "unexpired": true
+        }
+      }
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "ACTUAL_APP_BOUND",
+      "side": "A",
+      "issuer_commit_and_closure_verified": true,
+      "same_tuple": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "ACTUAL_APP_BOUND",
+      "side": "B",
+      "issuer_commit_and_closure_verified": true,
+      "same_tuple": true
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "GROUP_CONSTRAINTS_CHECKED",
+      "side": "A",
+      "markers_exact": true,
+      "acknowledged": true,
+      "errors_absent": true
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "WAITER_COMMAND_SENT",
+      "before_marker_exact": true,
+      "later_output_absent": true
+    },
+    {
+      "stage": "NATIVE_WAIT_OBSERVATION",
+      "attempt": 1,
+      "shape_matches": true,
+      "comparisons": {
+        "fields_match": true,
+        "values": {
+          "A_idle_in_transaction": true,
+          "B_active": true,
+          "B_wait_event_type_lock": true,
+          "B_wait_event_transactionid": true,
+          "B_blocked_only_by_A": true
+        }
+      }
+    },
+    {
+      "stage": "TRANSACTION_END",
+      "side": "A",
+      "outcome": "COMMIT",
+      "acknowledged": true,
+      "exact_output": true
+    },
+    {
+      "stage": "OPERATION_CLOSURE",
+      "side": "A",
+      "exact_backend_absent": true,
+      "exit_code": 0,
+      "expected_exit": true
+    },
+    {
+      "stage": "NATIVE_DUPLICATE_VERDICT",
+      "exit_code": 3,
+      "acknowledgement": false,
+      "before_only": true,
+      "diagnostic": {
+        "matched": true,
+        "sqlstate": "23505",
+        "schema_table_constraint_exact": true,
+        "native_location_exact": true,
+        "detail_absent": true
+      }
+    },
+    {
+      "stage": "OPERATION_CLOSURE",
+      "side": "B",
+      "exact_backend_absent": true,
+      "exit_code": 3,
+      "expected_exit": true
+    },
+    {
+      "stage": "EXACT_COMPLETE_GROUP_COUNTS",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "customers": 1,
+          "commands": 1,
+          "history": 1,
+          "evidence": 1,
+          "outbox": 2,
+          "effects": 0,
+          "track_enrollments": 0
+        }
+      }
+    },
+    {
+      "stage": "WINNER_COHERENCE_A",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "customer": 1,
+          "command": 1,
+          "history": 1,
+          "evidence": 1,
+          "outbox": 2,
+          "track_enrollments": 0,
+          "coherent": true
+        }
+      }
+    },
+    {
+      "stage": "WINNER_ACTUAL_TRANSACTION_A",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "source_xid_matches": true,
+          "command_xid_matches": true,
+          "history_xid_matches": true,
+          "evidence_xid_matches": true,
+          "outbox_xid_matches": true
+        }
+      }
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "NATIVE_CATALOG",
+      "unchanged": true
+    },
+    {
+      "stage": "ISSUER_ROW_RETENTION",
+      "instances": 2,
+      "immutable_issuer_rows_match": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "exact_count": 2,
+          "all_immutable_fields_equal": true,
+          "issuer_owned": true,
+          "revoked_false": true,
+          "unexpired": true
+        }
+      }
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "ACTUAL_APP_BOUND",
+      "side": "A",
+      "issuer_commit_and_closure_verified": true,
+      "same_tuple": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "ACTUAL_APP_BOUND",
+      "side": "B",
+      "issuer_commit_and_closure_verified": true,
+      "same_tuple": true
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "GROUP_CONSTRAINTS_CHECKED",
+      "side": "A",
+      "markers_exact": true,
+      "acknowledged": true,
+      "errors_absent": true
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "WAITER_COMMAND_SENT",
+      "before_marker_exact": true,
+      "later_output_absent": true
+    },
+    {
+      "stage": "NATIVE_WAIT_OBSERVATION",
+      "attempt": 1,
+      "shape_matches": true,
+      "comparisons": {
+        "fields_match": true,
+        "values": {
+          "A_idle_in_transaction": true,
+          "B_active": true,
+          "B_wait_event_type_lock": true,
+          "B_wait_event_transactionid": true,
+          "B_blocked_only_by_A": true
+        }
+      }
+    },
+    {
+      "stage": "TRANSACTION_END",
+      "side": "A",
+      "outcome": "ROLLBACK",
+      "acknowledged": true,
+      "exact_output": true
+    },
+    {
+      "stage": "OPERATION_CLOSURE",
+      "side": "A",
+      "exact_backend_absent": true,
+      "exit_code": 0,
+      "expected_exit": true
+    },
+    {
+      "stage": "WAITING_COMMAND_RELEASED",
+      "after_marker_exact": true,
+      "acknowledged": true,
+      "errors_absent": true
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "GROUP_CONSTRAINTS_CHECKED",
+      "side": "B",
+      "markers_exact": true,
+      "acknowledged": true,
+      "errors_absent": true
+    },
+    {
+      "stage": "TRANSACTION_END",
+      "side": "B",
+      "outcome": "COMMIT",
+      "acknowledged": true,
+      "exact_output": true
+    },
+    {
+      "stage": "OPERATION_CLOSURE",
+      "side": "B",
+      "exact_backend_absent": true,
+      "exit_code": 0,
+      "expected_exit": true
+    },
+    {
+      "stage": "EXACT_COMPLETE_GROUP_COUNTS",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "customers": 1,
+          "commands": 1,
+          "history": 1,
+          "evidence": 1,
+          "outbox": 2,
+          "effects": 0,
+          "track_enrollments": 0
+        }
+      }
+    },
+    {
+      "stage": "WINNER_COHERENCE_B",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "customer": 1,
+          "command": 1,
+          "history": 1,
+          "evidence": 1,
+          "outbox": 2,
+          "track_enrollments": 0,
+          "coherent": true
+        }
+      }
+    },
+    {
+      "stage": "WINNER_ACTUAL_TRANSACTION_B",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "source_xid_matches": true,
+          "command_xid_matches": true,
+          "history_xid_matches": true,
+          "evidence_xid_matches": true,
+          "outbox_xid_matches": true
+        }
+      }
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "NATIVE_CATALOG",
+      "unchanged": true
+    },
+    {
+      "stage": "ISSUER_ROW_RETENTION",
+      "instances": 2,
+      "immutable_issuer_rows_match": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "exact_count": 2,
+          "all_immutable_fields_equal": true,
+          "issuer_owned": true,
+          "revoked_false": true,
+          "unexpired": true
+        }
+      }
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "ACTUAL_APP_BOUND",
+      "side": "A",
+      "issuer_commit_and_closure_verified": true,
+      "same_tuple": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "ACTUAL_APP_BOUND",
+      "side": "B",
+      "issuer_commit_and_closure_verified": true,
+      "same_tuple": true
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "GROUP_CONSTRAINTS_CHECKED",
+      "side": "A",
+      "markers_exact": true,
+      "acknowledged": true,
+      "errors_absent": true
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "GROUP_CONSTRAINTS_CHECKED",
+      "side": "B",
+      "markers_exact": true,
+      "acknowledged": true,
+      "errors_absent": true
+    },
+    {
+      "stage": "TRANSACTION_END",
+      "side": "A",
+      "outcome": "COMMIT",
+      "acknowledged": true,
+      "exact_output": true
+    },
+    {
+      "stage": "OPERATION_CLOSURE",
+      "side": "A",
+      "exact_backend_absent": true,
+      "exit_code": 0,
+      "expected_exit": true
+    },
+    {
+      "stage": "TRANSACTION_END",
+      "side": "B",
+      "outcome": "COMMIT",
+      "acknowledged": true,
+      "exact_output": true
+    },
+    {
+      "stage": "OPERATION_CLOSURE",
+      "side": "B",
+      "exact_backend_absent": true,
+      "exit_code": 0,
+      "expected_exit": true
+    },
+    {
+      "stage": "EXACT_COMPLETE_GROUP_COUNTS",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "customers": 2,
+          "commands": 2,
+          "history": 2,
+          "evidence": 2,
+          "outbox": 4,
+          "effects": 0,
+          "track_enrollments": 0
+        }
+      }
+    },
+    {
+      "stage": "WINNER_COHERENCE_A",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "customer": 1,
+          "command": 1,
+          "history": 1,
+          "evidence": 1,
+          "outbox": 2,
+          "track_enrollments": 0,
+          "coherent": true
+        }
+      }
+    },
+    {
+      "stage": "WINNER_ACTUAL_TRANSACTION_A",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "source_xid_matches": true,
+          "command_xid_matches": true,
+          "history_xid_matches": true,
+          "evidence_xid_matches": true,
+          "outbox_xid_matches": true
+        }
+      }
+    },
+    {
+      "stage": "WINNER_COHERENCE_B",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "customer": 1,
+          "command": 1,
+          "history": 1,
+          "evidence": 1,
+          "outbox": 2,
+          "track_enrollments": 0,
+          "coherent": true
+        }
+      }
+    },
+    {
+      "stage": "WINNER_ACTUAL_TRANSACTION_B",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "source_xid_matches": true,
+          "command_xid_matches": true,
+          "history_xid_matches": true,
+          "evidence_xid_matches": true,
+          "outbox_xid_matches": true
+        }
+      }
+    },
+    {
+      "stage": "FIXTURE_TRIGGER_RESTORATION",
+      "matches": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "expected_user_trigger_count": 4,
+          "actual_user_trigger_count": 4,
+          "exact_user_trigger_set_and_states": true,
+          "no_project_user_trigger_disabled": true
+        }
+      }
+    },
+    {
+      "stage": "NATIVE_CATALOG",
+      "unchanged": true
+    },
+    {
+      "stage": "ISSUER_ROW_RETENTION",
+      "instances": 2,
+      "immutable_issuer_rows_match": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "exact_count": 2,
+          "all_immutable_fields_equal": true,
+          "issuer_owned": true,
+          "revoked_false": true,
+          "unexpired": true
+        }
+      }
+    },
+    {
+      "stage": "ISSUER_ROW_RETENTION",
+      "instances": 10,
+      "immutable_issuer_rows_match": true,
+      "observation": {
+        "fields_match": true,
+        "values": {
+          "exact_count": 10,
+          "all_immutable_fields_equal": true,
+          "issuer_owned": true,
+          "revoked_false": true,
+          "unexpired": true
+        }
+      }
+    },
+    {
+      "stage": "NATIVE_CATALOG",
+      "unchanged": true
+    }
+  ],
+  "results": [
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION",
+      "stage": "COMPLETE",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "native_unique_guard": true,
+        "complete_state": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1,
+      "B_exit_code": 3,
+      "B_acknowledged": false
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION",
+      "stage": "COMPLETE",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true,
+        "B_group_ready": true,
+        "B_transaction_end": true,
+        "complete_state": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION",
+      "stage": "COMPLETE",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "native_unique_guard": true,
+        "complete_state": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1,
+      "B_exit_code": 3,
+      "B_acknowledged": false
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION",
+      "stage": "COMPLETE",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true,
+        "B_group_ready": true,
+        "B_transaction_end": true,
+        "complete_state": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION",
+      "stage": "COMPLETE",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_group_ready": true,
+        "A_transaction_end": true,
+        "B_transaction_end": true,
+        "complete_state": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    }
+  ],
+  "authentication": [
+    {
+      "role": "postgres",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_migrator",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_context_issuer",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_identity_service_authority",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_app_runtime",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_worker",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    }
+  ],
+  "protocol_snapshots": [
+    {
+      "status": "SOURCE_PROTOCOL_ONLY",
+      "stage": "ENTRY",
+      "database_assertions": "NOT_RUN",
+      "results": [],
+      "subsequent_cases_stopped": false
+    },
+    {
+      "status": "SOURCE_PROTOCOL_ONLY",
+      "stage": "PREFLIGHT",
+      "database_assertions": "NOT_RUN",
+      "results": [],
+      "subsequent_cases_stopped": false
+    },
+    {
+      "status": "SOURCE_PROTOCOL_ONLY",
+      "stage": "SYNTHETIC_IDENTITY_SETUP",
+      "database_assertions": "NOT_RUN",
+      "results": [],
+      "subsequent_cases_stopped": false
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_A",
+      "bindings": {},
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_A",
+      "bindings": {
+        "A": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_B",
+      "bindings": {
+        "A": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_B",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "GROUP_A_READY",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "GROUP_A_READY",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_COMMAND_SENT_BEFORE_MARKER",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_COMMAND_SENT_BEFORE_MARKER",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OBSERVE_NATIVE_WAIT_B_ON_A",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OBSERVE_NATIVE_WAIT_B_ON_A",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_A_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_A_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_A_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_EXPECT_NATIVE_DUPLICATE",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_EXPECT_NATIVE_DUPLICATE",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "native_unique_guard": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1,
+      "B_exit_code": 3,
+      "B_acknowledged": false
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_EXPECT_NATIVE_DUPLICATE",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "native_unique_guard": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1,
+      "B_exit_code": 3,
+      "B_acknowledged": false
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "COMPLETE_STATE_AFTER_BOTH_CLOSURES",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "native_unique_guard": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1,
+      "B_exit_code": 3,
+      "B_acknowledged": false
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "COMPLETE_STATE_AFTER_BOTH_CLOSURES",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "native_unique_guard": true,
+        "complete_state": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1,
+      "B_exit_code": 3,
+      "B_acknowledged": false
+    },
+    {
+      "name": "same-fingerprint-holder-commit",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION",
+      "stage": "COMPLETE",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "native_unique_guard": true,
+        "complete_state": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1,
+      "B_exit_code": 3,
+      "B_acknowledged": false
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_A",
+      "bindings": {},
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_A",
+      "bindings": {
+        "A": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_B",
+      "bindings": {
+        "A": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_B",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "GROUP_A_READY",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "GROUP_A_READY",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_COMMAND_SENT_BEFORE_MARKER",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_COMMAND_SENT_BEFORE_MARKER",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OBSERVE_NATIVE_WAIT_B_ON_A",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OBSERVE_NATIVE_WAIT_B_ON_A",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_A_ROLLBACK",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_A_ROLLBACK",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_A_ROLLBACK",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_COMMAND_RELEASED_AFTER_A_ROLLBACK",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_COMMAND_RELEASED_AFTER_A_ROLLBACK",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "GROUP_B_READY",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "GROUP_B_READY",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true,
+        "B_group_ready": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_B_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true,
+        "B_group_ready": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_B_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true,
+        "B_group_ready": true,
+        "B_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_B_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true,
+        "B_group_ready": true,
+        "B_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "COMPLETE_STATE_AFTER_BOTH_CLOSURES",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true,
+        "B_group_ready": true,
+        "B_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "COMPLETE_STATE_AFTER_BOTH_CLOSURES",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true,
+        "B_group_ready": true,
+        "B_transaction_end": true,
+        "complete_state": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "same-fingerprint-holder-rollback",
+      "assertion_id": "control.same_semantic_identity",
+      "status": "PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION",
+      "stage": "COMPLETE",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true,
+        "B_group_ready": true,
+        "B_transaction_end": true,
+        "complete_state": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_A",
+      "bindings": {},
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_A",
+      "bindings": {
+        "A": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_B",
+      "bindings": {
+        "A": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_B",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "GROUP_A_READY",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "GROUP_A_READY",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_COMMAND_SENT_BEFORE_MARKER",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_COMMAND_SENT_BEFORE_MARKER",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OBSERVE_NATIVE_WAIT_B_ON_A",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OBSERVE_NATIVE_WAIT_B_ON_A",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_A_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_A_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_A_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_EXPECT_NATIVE_DUPLICATE",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_EXPECT_NATIVE_DUPLICATE",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "native_unique_guard": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1,
+      "B_exit_code": 3,
+      "B_acknowledged": false
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_EXPECT_NATIVE_DUPLICATE",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "native_unique_guard": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1,
+      "B_exit_code": 3,
+      "B_acknowledged": false
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "COMPLETE_STATE_AFTER_BOTH_CLOSURES",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "native_unique_guard": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1,
+      "B_exit_code": 3,
+      "B_acknowledged": false
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "COMPLETE_STATE_AFTER_BOTH_CLOSURES",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "native_unique_guard": true,
+        "complete_state": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1,
+      "B_exit_code": 3,
+      "B_acknowledged": false
+    },
+    {
+      "name": "changed-fingerprint-holder-commit",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION",
+      "stage": "COMPLETE",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "native_unique_guard": true,
+        "complete_state": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1,
+      "B_exit_code": 3,
+      "B_acknowledged": false
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_A",
+      "bindings": {},
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_A",
+      "bindings": {
+        "A": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_B",
+      "bindings": {
+        "A": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_B",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "GROUP_A_READY",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "GROUP_A_READY",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_COMMAND_SENT_BEFORE_MARKER",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_COMMAND_SENT_BEFORE_MARKER",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OBSERVE_NATIVE_WAIT_B_ON_A",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OBSERVE_NATIVE_WAIT_B_ON_A",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_A_ROLLBACK",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_A_ROLLBACK",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_A_ROLLBACK",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_COMMAND_RELEASED_AFTER_A_ROLLBACK",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "B_COMMAND_RELEASED_AFTER_A_ROLLBACK",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "GROUP_B_READY",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "GROUP_B_READY",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true,
+        "B_group_ready": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_B_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true,
+        "B_group_ready": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_B_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true,
+        "B_group_ready": true,
+        "B_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_B_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true,
+        "B_group_ready": true,
+        "B_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "COMPLETE_STATE_AFTER_BOTH_CLOSURES",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true,
+        "B_group_ready": true,
+        "B_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "COMPLETE_STATE_AFTER_BOTH_CLOSURES",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true,
+        "B_group_ready": true,
+        "B_transaction_end": true,
+        "complete_state": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "changed-fingerprint-holder-rollback",
+      "assertion_id": "control.changed_fingerprint",
+      "status": "PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION",
+      "stage": "COMPLETE",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_before_command": true,
+        "actual_wait_barrier": true,
+        "A_transaction_end": true,
+        "B_waiting_command_released": true,
+        "B_group_ready": true,
+        "B_transaction_end": true,
+        "complete_state": true
+      },
+      "runtime_assertion_status": "NOT_RUN",
+      "barrier_observations": 1
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_A",
+      "bindings": {},
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_A",
+      "bindings": {
+        "A": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_B",
+      "bindings": {
+        "A": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "OPEN_BIND_B",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "GROUP_A_READY",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {},
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "GROUP_A_READY",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "GROUP_B_READY",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "GROUP_B_READY",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_group_ready": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_A_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_group_ready": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_A_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": false,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_group_ready": true,
+        "A_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_A_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_group_ready": true,
+        "A_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_B_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_group_ready": true,
+        "A_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_B_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": false
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_group_ready": true,
+        "A_transaction_end": true,
+        "B_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "END_B_COMMIT",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_group_ready": true,
+        "A_transaction_end": true,
+        "B_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "COMPLETE_STATE_AFTER_BOTH_CLOSURES",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_group_ready": true,
+        "A_transaction_end": true,
+        "B_transaction_end": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "IN_PROGRESS_PROTOCOL_ONLY",
+      "stage": "COMPLETE_STATE_AFTER_BOTH_CLOSURES",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_group_ready": true,
+        "A_transaction_end": true,
+        "B_transaction_end": true,
+        "complete_state": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "name": "different-subjects-identical-text-key",
+      "assertion_id": "control.different_scope",
+      "status": "PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION",
+      "stage": "COMPLETE",
+      "bindings": {
+        "A": true,
+        "B": true
+      },
+      "closed": {
+        "A": true,
+        "B": true
+      },
+      "comparisons": {
+        "A_group_ready": true,
+        "B_group_ready": true,
+        "A_transaction_end": true,
+        "B_transaction_end": true,
+        "complete_state": true
+      },
+      "runtime_assertion_status": "NOT_RUN"
+    },
+    {
+      "status": "SOURCE_PROTOCOL_ONLY",
+      "stage": "FINISHED_PROTOCOL_ONLY",
+      "database_assertions": "NOT_RUN",
+      "results": [
+        {
+          "name": "same-fingerprint-holder-commit",
+          "assertion_id": "control.same_semantic_identity",
+          "status": "PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION",
+          "stage": "COMPLETE",
+          "bindings": {
+            "A": true,
+            "B": true
+          },
+          "closed": {
+            "A": true,
+            "B": true
+          },
+          "comparisons": {
+            "A_group_ready": true,
+            "B_before_command": true,
+            "actual_wait_barrier": true,
+            "A_transaction_end": true,
+            "native_unique_guard": true,
+            "complete_state": true
+          },
+          "runtime_assertion_status": "NOT_RUN",
+          "barrier_observations": 1,
+          "B_exit_code": 3,
+          "B_acknowledged": false
+        },
+        {
+          "name": "same-fingerprint-holder-rollback",
+          "assertion_id": "control.same_semantic_identity",
+          "status": "PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION",
+          "stage": "COMPLETE",
+          "bindings": {
+            "A": true,
+            "B": true
+          },
+          "closed": {
+            "A": true,
+            "B": true
+          },
+          "comparisons": {
+            "A_group_ready": true,
+            "B_before_command": true,
+            "actual_wait_barrier": true,
+            "A_transaction_end": true,
+            "B_waiting_command_released": true,
+            "B_group_ready": true,
+            "B_transaction_end": true,
+            "complete_state": true
+          },
+          "runtime_assertion_status": "NOT_RUN",
+          "barrier_observations": 1
+        },
+        {
+          "name": "changed-fingerprint-holder-commit",
+          "assertion_id": "control.changed_fingerprint",
+          "status": "PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION",
+          "stage": "COMPLETE",
+          "bindings": {
+            "A": true,
+            "B": true
+          },
+          "closed": {
+            "A": true,
+            "B": true
+          },
+          "comparisons": {
+            "A_group_ready": true,
+            "B_before_command": true,
+            "actual_wait_barrier": true,
+            "A_transaction_end": true,
+            "native_unique_guard": true,
+            "complete_state": true
+          },
+          "runtime_assertion_status": "NOT_RUN",
+          "barrier_observations": 1,
+          "B_exit_code": 3,
+          "B_acknowledged": false
+        },
+        {
+          "name": "changed-fingerprint-holder-rollback",
+          "assertion_id": "control.changed_fingerprint",
+          "status": "PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION",
+          "stage": "COMPLETE",
+          "bindings": {
+            "A": true,
+            "B": true
+          },
+          "closed": {
+            "A": true,
+            "B": true
+          },
+          "comparisons": {
+            "A_group_ready": true,
+            "B_before_command": true,
+            "actual_wait_barrier": true,
+            "A_transaction_end": true,
+            "B_waiting_command_released": true,
+            "B_group_ready": true,
+            "B_transaction_end": true,
+            "complete_state": true
+          },
+          "runtime_assertion_status": "NOT_RUN",
+          "barrier_observations": 1
+        },
+        {
+          "name": "different-subjects-identical-text-key",
+          "assertion_id": "control.different_scope",
+          "status": "PROTOCOL_COMPLETED_NOT_RUNTIME_QUALIFICATION",
+          "stage": "COMPLETE",
+          "bindings": {
+            "A": true,
+            "B": true
+          },
+          "closed": {
+            "A": true,
+            "B": true
+          },
+          "comparisons": {
+            "A_group_ready": true,
+            "B_group_ready": true,
+            "A_transaction_end": true,
+            "B_transaction_end": true,
+            "complete_state": true
+          },
+          "runtime_assertion_status": "NOT_RUN"
+        }
+      ],
+      "subsequent_cases_stopped": false
+    }
+  ],
+  "committed_groups": [
+    {
+      "race": "same-fingerprint-holder-commit",
+      "side": "A",
+      "commit_acknowledged": true
+    },
+    {
+      "race": "same-fingerprint-holder-rollback",
+      "side": "B",
+      "commit_acknowledged": true
+    },
+    {
+      "race": "changed-fingerprint-holder-commit",
+      "side": "A",
+      "commit_acknowledged": true
+    },
+    {
+      "race": "changed-fingerprint-holder-rollback",
+      "side": "B",
+      "commit_acknowledged": true
+    },
+    {
+      "race": "different-subjects-identical-text-key",
+      "side": "A",
+      "commit_acknowledged": true
+    },
+    {
+      "race": "different-subjects-identical-text-key",
+      "side": "B",
+      "commit_acknowledged": true
+    }
+  ],
+  "cleanup_required": true,
+  "subsequent_cases_stopped": false,
+  "selected_controls": [
+    {
+      "id": "P0C-UNIQUE-01",
+      "status": "NOT_RUN"
+    }
+  ],
+  "scope": "FIVE_FINITE_SQL_STORAGE_RACES_ONLY_NOT_API_OR_CAS_QUALIFICATION",
+  "run_id": "f161d454-13dd-453f-a9ee-6e92f95ea8d6",
+  "container_id": "4fc7d96656376b9174d377ffcdf95a0bdbf3677ff52e4f1cd167f011749aa037",
+  "source_commit": "b8f6b1039c743706f70278dd8b598cab6cbcd9db",
+  "source_tree": "b0dd6288af19b0ae2d524e0332245922f5b25ca2",
+  "packet_sha256": "d2582c07eb74f3c010e8b42cbecad9abd81a8380d37cde1a855b1fdfde6e31fa",
+  "reviewed_run_plan_sha256": "3a0a0b348b24855992f3c9f3442813942d1f5e66ebe7c9499ba3d1abc4a68354",
+  "effective_hba_selections": [
+    {
+      "role": "postgres",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_migrator",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_context_issuer",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_identity_service_authority",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_app_runtime",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_worker",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "postgres",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_migrator",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_context_issuer",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_identity_service_authority",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_app_runtime",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_worker",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    }
+  ],
+  "current_auth_role": "wa_worker",
+  "authentication_comparison": {
+    "json_parsed": true,
+    "object": true,
+    "fields": true,
+    "string_fields": true,
+    "login": true,
+    "scram_identity": true,
+    "database": true,
+    "client_loopback": true,
+    "server_loopback": true
+  },
+  "source_packet_unchanged": true
+}

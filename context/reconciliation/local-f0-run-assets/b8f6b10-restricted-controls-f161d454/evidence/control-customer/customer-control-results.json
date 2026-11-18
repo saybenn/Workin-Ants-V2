@@ -1,0 +1,1132 @@
+{
+  "schema": "workinants.customer-control-evidence.v1",
+  "status": "PASS_PREPARED_CREATE_SUBSET_ONLY_CONTROLS_NOT_RUN",
+  "current_stage": "COMPLETE",
+  "current_case": "unique-distinct-scope-b",
+  "current": {
+    "operation_closed": true,
+    "authenticated_login": "wa_app_runtime",
+    "stage_markers": [
+      "WA_CUSTOMER_CONTROL_READY_TO_COMMIT"
+    ],
+    "issuer_committed": true,
+    "expected_failure_stage": null,
+    "expected_failure_timing": null,
+    "exit_code": 0,
+    "commit_acknowledged": true,
+    "commit_ack_count": 1,
+    "unexpected_stdout": false,
+    "diagnostic": {
+      "sqlstate": null,
+      "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+      "single_error_header": false,
+      "diagnostic_format_valid": true,
+      "source_frame_verified": true,
+      "source_frame": null,
+      "matched": true
+    },
+    "counts": {
+      "outbox": 2,
+      "command": 1,
+      "history": 1,
+      "coherent": true,
+      "customer": 1,
+      "evidence": 1,
+      "track_enrollments": 0
+    }
+  },
+  "results": [
+    {
+      "name": "customer-00-valid",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_READY_TO_COMMIT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": null,
+      "expected_failure_timing": null,
+      "exit_code": 0,
+      "commit_acknowledged": true,
+      "commit_ack_count": 1,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": null,
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": false,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": null,
+        "matched": true
+      },
+      "counts": {
+        "outbox": 2,
+        "command": 1,
+        "history": 1,
+        "coherent": true,
+        "customer": 1,
+        "evidence": 1,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "name": "customer-01-missing-history",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EVIDENCE_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_EVIDENCE_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EVENT_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_EVENT_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_FREE_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_FREE_INSERT",
+        "WA_CUSTOMER_CONTROL_READY_TO_COMMIT",
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMIT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": "COMMIT",
+      "expected_failure_timing": "DEFERRED_COMMIT",
+      "exit_code": 3,
+      "commit_acknowledged": false,
+      "commit_ack_count": 0,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": "P0002",
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": true,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": {
+          "function": "platform_private.customer_atomic",
+          "body_line": 7,
+          "operation": "SQL statement",
+          "body_sha256": "804b80f484b9b65bd109b4e011ffa6660d103d6cb96d77dd67e8138e46674f07"
+        },
+        "matched": true
+      },
+      "counts": {
+        "outbox": 0,
+        "command": 0,
+        "history": 0,
+        "coherent": false,
+        "customer": 0,
+        "evidence": 0,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "name": "customer-02-missing-evidence",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EVENT_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_EVENT_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_FREE_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_FREE_INSERT",
+        "WA_CUSTOMER_CONTROL_READY_TO_COMMIT",
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMIT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": "COMMIT",
+      "expected_failure_timing": "DEFERRED_COMMIT",
+      "exit_code": 3,
+      "commit_acknowledged": false,
+      "commit_ack_count": 0,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": "P0002",
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": true,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": {
+          "function": "platform_private.customer_atomic",
+          "body_line": 4,
+          "operation": "SQL statement",
+          "body_sha256": "804b80f484b9b65bd109b4e011ffa6660d103d6cb96d77dd67e8138e46674f07"
+        },
+        "matched": true
+      },
+      "counts": {
+        "outbox": 0,
+        "command": 0,
+        "history": 0,
+        "coherent": false,
+        "customer": 0,
+        "evidence": 0,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "name": "customer-03-missing-event",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EVIDENCE_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_EVIDENCE_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_FREE_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_FREE_INSERT",
+        "WA_CUSTOMER_CONTROL_READY_TO_COMMIT",
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMIT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": "COMMIT",
+      "expected_failure_timing": "DEFERRED_COMMIT",
+      "exit_code": 3,
+      "commit_acknowledged": false,
+      "commit_ack_count": 0,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": "P0001",
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": true,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": {
+          "function": "platform_private.customer_atomic",
+          "body_line": 18,
+          "operation": "RAISE",
+          "body_sha256": "804b80f484b9b65bd109b4e011ffa6660d103d6cb96d77dd67e8138e46674f07"
+        },
+        "matched": true
+      },
+      "counts": {
+        "outbox": 0,
+        "command": 0,
+        "history": 0,
+        "coherent": false,
+        "customer": 0,
+        "evidence": 0,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "name": "customer-04-missing-free",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EVIDENCE_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_EVIDENCE_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EVENT_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_EVENT_INSERT",
+        "WA_CUSTOMER_CONTROL_READY_TO_COMMIT",
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMIT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": "COMMIT",
+      "expected_failure_timing": "DEFERRED_COMMIT",
+      "exit_code": 3,
+      "commit_acknowledged": false,
+      "commit_ack_count": 0,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": "P0001",
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": true,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": {
+          "function": "platform_private.customer_atomic",
+          "body_line": 24,
+          "operation": "RAISE",
+          "body_sha256": "804b80f484b9b65bd109b4e011ffa6660d103d6cb96d77dd67e8138e46674f07"
+        },
+        "matched": true
+      },
+      "counts": {
+        "outbox": 0,
+        "command": 0,
+        "history": 0,
+        "coherent": false,
+        "customer": 0,
+        "evidence": 0,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "name": "customer-05-create-predecessor",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EVIDENCE_INSERT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": "EVIDENCE_INSERT",
+      "expected_failure_timing": "IMMEDIATE_STATEMENT",
+      "exit_code": 3,
+      "commit_acknowledged": false,
+      "commit_ack_count": 0,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": "23514",
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": true,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": null,
+        "matched": true
+      },
+      "counts": {
+        "outbox": 0,
+        "command": 0,
+        "history": 0,
+        "coherent": false,
+        "customer": 0,
+        "evidence": 0,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "name": "customer-06-missing-event-user",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EVIDENCE_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_EVIDENCE_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EVENT_INSERT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": "EVENT_INSERT",
+      "expected_failure_timing": "IMMEDIATE_STATEMENT",
+      "exit_code": 3,
+      "commit_acknowledged": false,
+      "commit_ack_count": 0,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": "P0001",
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": true,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": {
+          "function": "platform_private.message_json_guard",
+          "body_line": 17,
+          "operation": "RAISE",
+          "body_sha256": "48f6177f47abdcbe0cf4442e19ec5ac8633a40eb7b1e737dde25f01caa959418"
+        },
+        "matched": true
+      },
+      "counts": {
+        "outbox": 0,
+        "command": 0,
+        "history": 0,
+        "coherent": false,
+        "customer": 0,
+        "evidence": 0,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "name": "customer-07-wrong-event-user",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EVIDENCE_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_EVIDENCE_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EVENT_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_EVENT_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_FREE_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_FREE_INSERT",
+        "WA_CUSTOMER_CONTROL_READY_TO_COMMIT",
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMIT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": "COMMIT",
+      "expected_failure_timing": "DEFERRED_COMMIT",
+      "exit_code": 3,
+      "commit_acknowledged": false,
+      "commit_ack_count": 0,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": "P0001",
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": true,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": {
+          "function": "platform_private.customer_atomic",
+          "body_line": 18,
+          "operation": "RAISE",
+          "body_sha256": "804b80f484b9b65bd109b4e011ffa6660d103d6cb96d77dd67e8138e46674f07"
+        },
+        "matched": true
+      },
+      "counts": {
+        "outbox": 0,
+        "command": 0,
+        "history": 0,
+        "coherent": false,
+        "customer": 0,
+        "evidence": 0,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "name": "customer-08-wrong-history-actor",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EVIDENCE_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_EVIDENCE_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EVENT_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_EVENT_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_FREE_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_FREE_INSERT",
+        "WA_CUSTOMER_CONTROL_READY_TO_COMMIT",
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMIT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": "COMMIT",
+      "expected_failure_timing": "DEFERRED_COMMIT",
+      "exit_code": 3,
+      "commit_acknowledged": false,
+      "commit_ack_count": 0,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": "P0001",
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": true,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": {
+          "function": "platform_private.customer_atomic",
+          "body_line": 18,
+          "operation": "RAISE",
+          "body_sha256": "804b80f484b9b65bd109b4e011ffa6660d103d6cb96d77dd67e8138e46674f07"
+        },
+        "matched": true
+      },
+      "counts": {
+        "outbox": 0,
+        "command": 0,
+        "history": 0,
+        "coherent": false,
+        "customer": 0,
+        "evidence": 0,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "name": "customer-09-missing-result-receipt",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMAND_INSERT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": "COMMAND_INSERT",
+      "expected_failure_timing": "IMMEDIATE_STATEMENT",
+      "exit_code": 3,
+      "commit_acknowledged": false,
+      "commit_ack_count": 0,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": "23514",
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": true,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": null,
+        "matched": true
+      },
+      "counts": {
+        "outbox": 0,
+        "command": 0,
+        "history": 0,
+        "coherent": false,
+        "customer": 0,
+        "evidence": 0,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "name": "customer-10-result-version",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMAND_INSERT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": "COMMAND_INSERT",
+      "expected_failure_timing": "IMMEDIATE_STATEMENT",
+      "exit_code": 3,
+      "commit_acknowledged": false,
+      "commit_ack_count": 0,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": "23514",
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": true,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": null,
+        "matched": true
+      },
+      "counts": {
+        "outbox": 0,
+        "command": 0,
+        "history": 0,
+        "coherent": false,
+        "customer": 0,
+        "evidence": 0,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "name": "customer-11-missing-evidence-status",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EVIDENCE_INSERT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": "EVIDENCE_INSERT",
+      "expected_failure_timing": "IMMEDIATE_STATEMENT",
+      "exit_code": 3,
+      "commit_acknowledged": false,
+      "commit_ack_count": 0,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": "23514",
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": true,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": null,
+        "matched": true
+      },
+      "counts": {
+        "outbox": 0,
+        "command": 0,
+        "history": 0,
+        "coherent": false,
+        "customer": 0,
+        "evidence": 0,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "name": "customer-12-extra-free",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_CUSTOMER_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_HISTORY_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EVIDENCE_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_EVIDENCE_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EVENT_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_EVENT_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_FREE_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_FREE_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_EXTRA_FREE_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_EXTRA_FREE_INSERT",
+        "WA_CUSTOMER_CONTROL_READY_TO_COMMIT",
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMIT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": "COMMIT",
+      "expected_failure_timing": "DEFERRED_COMMIT",
+      "exit_code": 3,
+      "commit_acknowledged": false,
+      "commit_ack_count": 0,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": "P0001",
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": true,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": {
+          "function": "platform_private.customer_atomic",
+          "body_line": 28,
+          "operation": "RAISE",
+          "body_sha256": "804b80f484b9b65bd109b4e011ffa6660d103d6cb96d77dd67e8138e46674f07"
+        },
+        "matched": true
+      },
+      "counts": {
+        "outbox": 0,
+        "command": 0,
+        "history": 0,
+        "coherent": false,
+        "customer": 0,
+        "evidence": 0,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "name": "customer-13-duplicate-semantic",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_DUPLICATE_COMMAND_INSERT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": "DUPLICATE_COMMAND_INSERT",
+      "expected_failure_timing": "IMMEDIATE_STATEMENT",
+      "exit_code": 3,
+      "commit_acknowledged": false,
+      "commit_ack_count": 0,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": "23505",
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": true,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": null,
+        "matched": true
+      },
+      "counts": {
+        "outbox": 0,
+        "command": 0,
+        "history": 0,
+        "coherent": false,
+        "customer": 0,
+        "evidence": 0,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "name": "customer-14-changed-fingerprint",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_BEFORE_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_AFTER_COMMAND_INSERT",
+        "WA_CUSTOMER_CONTROL_BEFORE_DUPLICATE_COMMAND_INSERT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": "DUPLICATE_COMMAND_INSERT",
+      "expected_failure_timing": "IMMEDIATE_STATEMENT",
+      "exit_code": 3,
+      "commit_acknowledged": false,
+      "commit_ack_count": 0,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": "23505",
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": true,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": null,
+        "matched": true
+      },
+      "counts": {
+        "outbox": 0,
+        "command": 0,
+        "history": 0,
+        "coherent": false,
+        "customer": 0,
+        "evidence": 0,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "name": "unique-distinct-scope-a",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_READY_TO_COMMIT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": null,
+      "expected_failure_timing": null,
+      "exit_code": 0,
+      "commit_acknowledged": true,
+      "commit_ack_count": 1,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": null,
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": false,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": null,
+        "matched": true
+      },
+      "counts": {
+        "outbox": 2,
+        "command": 1,
+        "history": 1,
+        "coherent": true,
+        "customer": 1,
+        "evidence": 1,
+        "track_enrollments": 0
+      }
+    },
+    {
+      "name": "unique-distinct-scope-b",
+      "status": "PASS_SCENARIO_ONLY_NOT_SELECTED_CONTROL",
+      "operation_closed": true,
+      "authenticated_login": "wa_app_runtime",
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_READY_TO_COMMIT"
+      ],
+      "issuer_committed": true,
+      "expected_failure_stage": null,
+      "expected_failure_timing": null,
+      "exit_code": 0,
+      "commit_acknowledged": true,
+      "commit_ack_count": 1,
+      "unexpected_stdout": false,
+      "diagnostic": {
+        "sqlstate": null,
+        "classification": "EXPECTED_SOURCE_DIAGNOSTIC",
+        "single_error_header": false,
+        "diagnostic_format_valid": true,
+        "source_frame_verified": true,
+        "source_frame": null,
+        "matched": true
+      },
+      "counts": {
+        "outbox": 2,
+        "command": 1,
+        "history": 1,
+        "coherent": true,
+        "customer": 1,
+        "evidence": 1,
+        "track_enrollments": 0
+      }
+    }
+  ],
+  "authentication": [
+    {
+      "role": "postgres",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_migrator",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_context_issuer",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_identity_service_authority",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_app_runtime",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_worker",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    }
+  ],
+  "transactions": {
+    "trusted-identity-setup": {
+      "role": "postgres",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "customer-00-valid/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "customer-01-missing-history/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "customer-02-missing-evidence/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "customer-03-missing-event/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "customer-04-missing-free/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "customer-05-create-predecessor/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "customer-06-missing-event-user/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "customer-07-wrong-event-user/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "customer-08-wrong-history-actor/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "customer-09-missing-result-receipt/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "customer-10-result-version/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "customer-11-missing-evidence-status/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "customer-12-extra-free/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "customer-13-duplicate-semantic/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "customer-14-changed-fingerprint/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "unique-distinct-scope-a/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    },
+    "unique-distinct-scope-b/issuer": {
+      "role": "wa_context_issuer",
+      "operation_closed": true,
+      "commit_acknowledged": true,
+      "exit_code": 0,
+      "commit_ack_count": 1,
+      "stderr_empty": true,
+      "unexpected_stdout": false
+    }
+  },
+  "cleanup_required": true,
+  "subsequent_cases_stopped": false,
+  "reviewed_packet_sha256": "b59ab33ba26a29d2d82ee4f7f289d26e95300b7afb8ce7eaf7806fd5fb08a9c3",
+  "selected_controls": [
+    {
+      "id": "P0C-BOOT-01",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "P0C-ATOMIC-01",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "P0C-UNIQUE-01",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "P0C-CAS-01",
+      "status": "NOT_RUN"
+    }
+  ],
+  "blocked_plans": [
+    {
+      "name": "create-then-fresh-update",
+      "status": "NOT_RUN",
+      "execution_dependencies": [
+        "CUSTOMER_UPDATE_RECEIPT_NO_RESULT_IDENTITY_AND_CODEC_NOT_REGISTERED"
+      ]
+    },
+    {
+      "name": "two-real-app-session-cas",
+      "status": "NOT_RUN",
+      "execution_dependencies": [
+        "CUSTOMER_UPDATE_RECEIPT_NO_RESULT_IDENTITY_AND_CODEC_NOT_REGISTERED"
+      ]
+    }
+  ],
+  "reviewed_run_plan_sha256": "acdc3128f32393e99d953f160e12cd06b0ecda203fae34e43cdd5559b2a676c0",
+  "source_modules_sha256": {
+    "scripts/sql-review/run-customer-control-rehearsal.py": "3c9a75b6c5e2585d54069d65265b48b44fea90b2f9238c378155fe837f70bed3",
+    "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e",
+    "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f",
+    "scripts/sql-review/rehearsal-diagnostics.py": "c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e",
+    "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+    "scripts/sql-review/collect_native_catalog.sql": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f"
+  },
+  "approved_scenario_names": [
+    "customer-00-valid",
+    "customer-01-missing-history",
+    "customer-02-missing-evidence",
+    "customer-03-missing-event",
+    "customer-04-missing-free",
+    "customer-05-create-predecessor",
+    "customer-06-missing-event-user",
+    "customer-07-wrong-event-user",
+    "customer-08-wrong-history-actor",
+    "customer-09-missing-result-receipt",
+    "customer-10-result-version",
+    "customer-11-missing-evidence-status",
+    "customer-12-extra-free",
+    "customer-13-duplicate-semantic",
+    "customer-14-changed-fingerprint",
+    "unique-distinct-scope-a",
+    "unique-distinct-scope-b"
+  ],
+  "reviewed_native_snapshot_sha256": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+  "reviewed_native_comparison_sha256": "34d94ba869e1dc969bec09d70d2c74430e9d3af5f9d93bc39dcff67e9a983c0e",
+  "container_id": "4fc7d96656376b9174d377ffcdf95a0bdbf3677ff52e4f1cd167f011749aa037",
+  "effective_hba_selections": [
+    {
+      "role": "postgres",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_migrator",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_context_issuer",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_identity_service_authority",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_app_runtime",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_worker",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "postgres",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_migrator",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_context_issuer",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_identity_service_authority",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_app_runtime",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_worker",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    }
+  ],
+  "current_auth_role": "wa_worker",
+  "authentication_comparison": {
+    "json_parsed": true,
+    "object": true,
+    "fields": true,
+    "string_fields": true,
+    "login": true,
+    "scram_identity": true,
+    "database": true,
+    "client_loopback": true,
+    "server_loopback": true
+  },
+  "native_catalog_unchanged": true,
+  "trigger_restoration_verified": true,
+  "fresh_synthetic_ids_verified": true
+}

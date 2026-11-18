@@ -10,9 +10,12 @@ build=runpy.run_path(str(ROOT/'scripts/prepare-local-f0-status.py'))['build']
 class StatusTests(unittest.TestCase):
     def test_recorded_subset_does_not_promote_compound_cases(self):
         result=build();self.assertEqual(result['selected_cases'],94)
-        self.assertEqual(result['assertion_status_counts']['PASS'],20)
-        self.assertEqual(result['assertion_status_counts']['PARTIAL'],3)
+        self.assertEqual(result['assertion_status_counts']['PASS'],34)
+        self.assertEqual(result['assertion_status_counts']['PARTIAL'],2)
         self.assertEqual(result['case_status_counts']['PASS'],0)
+        catalog=next(c for c in result['cases'] if c['id']=='P0C-CATALOG-01')
+        self.assertEqual(catalog['status'],'PARTIAL')
+        self.assertEqual(next(a for a in catalog['assertions'] if a['id']=='vector.CATALOG-LEAVES.adversarial')['status'],'NOT_RUN')
     def test_changed_current_sql_does_not_reuse_stale_inventory(self):
         original=Path.read_bytes
         def changed(path):
@@ -39,12 +42,22 @@ class StatusTests(unittest.TestCase):
                 value=json.loads(text);row=value['assertions'][0];row.update(case_id='P0C-CAS-01',assertion_id=assertion['id'],expected_assertion_sha256=hashlib.sha256(assertion['expected_assertion'].encode()).hexdigest());return json.dumps(value)
             return text
         with patch.object(Path,'read_text',changed),self.assertRaisesRegex(AssertionError,'Unsupported small-rehearsal assertion'):build()
+    def test_catalog_reference_cannot_point_to_unrelated_existing_dictionary(self):
+        original=Path.read_text
+        def changed(path,*args,**kwargs):
+            text=original(path,*args,**kwargs)
+            if path.name=='local-f0-assertion-evidence.json':
+                value=json.loads(text)
+                next(r for r in value['assertions'] if r['case_id']=='P0C-CATALOG-01' and r['assertion_id']=='control.visibility')['json_pointer']='/sanitized_report/limits'
+                return json.dumps(value)
+            return text
+        with patch.object(Path,'read_text',changed),self.assertRaisesRegex(AssertionError,'Catalog evidence pointer'):build()
     def test_partial_migration_claim_cannot_be_promoted(self):
         original=Path.read_text
         def changed(path,*args,**kwargs):
             text=original(path,*args,**kwargs)
             if path.name=='local-f0-assertion-evidence.json':
-                value=json.loads(text);next(r for r in value['assertions'] if r['assertion_id']=='control.private_ledger')['status']='PASS';return json.dumps(value)
+                value=json.loads(text);next(r for r in value['assertions'] if r['assertion_id']=='control.intended_failure')['status']='PASS';return json.dumps(value)
             return text
         with patch.object(Path,'read_text',changed),self.assertRaisesRegex(AssertionError,'MIGRATION_CLAIM_NOT_SUPPORTED'):build()
     def test_unreviewed_evidence_path_is_not_read(self):
@@ -75,9 +88,9 @@ class StatusTests(unittest.TestCase):
     def test_parses_exact_hashed_bytes_without_second_file_read(self):
         original=Path.read_text
         def second_read_trap(path,*args,**kwargs):
-            if path.name in ('local-f0-small-rehearsal-0623028-execution.json','local-f0-migration-6b8910d-execution.json'):raise RuntimeError('UNVERIFIED_SECOND_READ')
+            if path.name in ('local-f0-small-rehearsal-0623028-execution.json','local-f0-migration-6b8910d-execution.json','local-f0-catalog-b9703d7-23bd8979-execution.json'):raise RuntimeError('UNVERIFIED_SECOND_READ')
             return original(path,*args,**kwargs)
         with patch.object(Path,'read_text',second_read_trap):result=build()
-        self.assertEqual(result['assertion_status_counts']['PASS'],20)
+        self.assertEqual(result['assertion_status_counts']['PASS'],34)
 
 if __name__=='__main__':unittest.main(verbosity=2)

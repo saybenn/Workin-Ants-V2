@@ -1,0 +1,71 @@
+{
+  "schema": "workinants.native-access-independent-source-review.v2",
+  "recorded_at": "2026-11-18T06:20:06.831146+00:00",
+  "reviewer": "restricted_controls_operator_independent_of_native_access_author",
+  "decision": "APPROVED_SOURCE_ONLY_LITERAL_OPERATION_NOT_REVIEWED",
+  "files_sha256": {
+    "execute_local_f0_native_access_20261118.py": "d055251eb9648482922f1dcc567c82531ef34628031d2866ee0aca333829fd9e",
+    "local_f0_native_access_operation_steps.py": "2340a3048a6acc5241e1f8fc4f7400b6e488f0fea681f07d527b84d5d8a44f83",
+    "prepare_local_f0_native_access_plan.py": "f0b727d4a53d14b8595b1e80b4dbc2e4e426d8465f8f8d619d64e5f474e57c6b",
+    "check_native_access_operation.py": "f2b2647bb7605632d03376ae86dc009d8cfa9efb172333869078076a3a00b65d"
+  },
+  "actual_offline_results": {
+    "native_access_mocks": {
+      "passed": 52,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 48.562
+    },
+    "all_four_sources_ast": "PASS",
+    "full_suite_command": "python check_native_access_operation.py",
+    "process_docker_database_network_boundaries": "FORBIDDEN_OR_MOCKED"
+  },
+  "closed_findings": [
+    {
+      "id": "STRICT_FINALIZATION_ZERO_COUNTS",
+      "status": "CLOSED",
+      "evidence": "Exact field set and strict nonnegative int counts before revoke; only typed-zero passes; False/0.0/None/negative/missing/extra/wrong-container-shape responses reject without SQL or finalized marking"
+    },
+    {
+      "id": "POST_FINALIZATION_PROOF_SANITIZATION",
+      "status": "CLOSED",
+      "evidence": "Exact field set, strict two integer counts, exact three Boolean leaf flags and exact postgres/SCRAM identity before retention; wrong auth canary/dict-grantor canary reject without raw value retention or finalized marking"
+    }
+  ],
+  "preservation": {
+    "before_directory": "native-access-before-typed-finalization-20261118T061603Z",
+    "manifest_sha256": "5c2547c02114b0195f17890c57825a0415ecbd49fe2cfe9b2b63ecc845d2372d",
+    "all_four_initial_files_preserved_exactly": true,
+    "changed_existing_core_functions": [
+      "finalize"
+    ],
+    "steps_and_preparer_unchanged": true,
+    "initial_independent_report_sha256": "a1749f255bcecc5152ddd8e4233a287ae1ec2549081f4723bdc70efd48b951ab",
+    "initial_49_pass_and_bad_type_reproductions_preserved": true
+  },
+  "other_source_review": {
+    "provider_roles": "Exact pinned three-role local preinstall recipe; absence guard; no hosted parity claim",
+    "credentials": "Nine independent actual random credentials through stdin/private tmpfs; SCRAM method and loopback/database/login controls plus wrong-password rejection",
+    "schema_usage_sentinels": "Nine explicit/effective before canonical install, zero after original-grantor finalization",
+    "canonical_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "finite_deny_packet_sha256": "bf542f88525e96d7d1c93ef06425278a82e1328043d60879ac34191f1bee3000",
+    "full_vs_finite_binding": "Explicit distinct operation_packet_sha256 and deny_packet_sha256 in same-run/CID/source/native attestation",
+    "native_gate": "Genuine immutable install then original-grantor finalization/full V4 ACL+TEXT/native+416-expression+private-ledger parity before finite coordinator",
+    "scope": "Forty selected cases stay NOT_RUN; 908 native ACL facets, 48 existing-row-empty facets, four blocked facets remain separately scoped",
+    "coordinator_external_closure": "Global all-other-client count; finally on coordinator return/throw before verdict",
+    "cleanup_and_source": "V4 exact owned identity/labels/secrets/absence/image-retention/source-preservation boundaries retained",
+    "preparer": "Pure held external seven-file snapshot/archive construction with unchanged canonical migration bytes; no repository history mutation"
+  },
+  "limits": {
+    "source_edits_by_reviewer": false,
+    "git_invoked": false,
+    "docker_invoked": false,
+    "database_contacted": false,
+    "real_resources_created": false,
+    "runtime_or_literal_operation_approval": false,
+    "posture": "D",
+    "selected_94_promoted": false,
+    "whole_451_promoted": false
+  },
+  "plain_english": "The wrong-number lock check is fixed, and strange login answers are thrown away safely. All 52 pretend checks passed. A real run still needs its own exact plan review."
+}

@@ -1,0 +1,50 @@
+{
+  "recorded_at": "2026-11-18T06:26:12.486947+00:00",
+  "scope": "SOURCE_ONLY_FINITE_NATIVE_DENY_OPERATION",
+  "status": "INDEPENDENT_SOURCE_APPROVED_LITERAL_RUNTIME_PENDING",
+  "independent_review_sha256": "fcdf0cfff96c76797dc826f76a15af2d6bc666d95c137ec6f3a7af0a25c61420",
+  "snapshot_files_sha256": {
+    "context/reconciliation/local-f0-operation-sources/native-access-v1/execute_local_f0_native_access_20261118.py.txt": "d055251eb9648482922f1dcc567c82531ef34628031d2866ee0aca333829fd9e",
+    "context/reconciliation/local-f0-operation-sources/native-access-v1/local_f0_native_access_operation_steps.py.txt": "2340a3048a6acc5241e1f8fc4f7400b6e488f0fea681f07d527b84d5d8a44f83",
+    "context/reconciliation/local-f0-operation-sources/native-access-v1/prepare_local_f0_native_access_plan.py.txt": "f0b727d4a53d14b8595b1e80b4dbc2e4e426d8465f8f8d619d64e5f474e57c6b",
+    "context/reconciliation/local-f0-operation-sources/native-access-v1/check_native_access_operation.py.txt": "f2b2647bb7605632d03376ae86dc009d8cfa9efb172333869078076a3a00b65d",
+    "context/reconciliation/local-f0-operation-sources/native-access-v1/pin_native_access_plan_20261118.py.txt": "4682fb5d65debe85cd487c28ac9df2ee964e1e87c4da3ff316b58e52ab62ba67",
+    "context/reconciliation/local-f0-operation-sources/native-access-v1/independent-review.json": "fcdf0cfff96c76797dc826f76a15af2d6bc666d95c137ec6f3a7af0a25c61420",
+    "context/reconciliation/local-f0-operation-sources/native-access-v1/initial-review.json": "a1749f255bcecc5152ddd8e4233a287ae1ec2549081f4723bdc70efd48b951ab",
+    "context/reconciliation/local-f0-operation-sources/native-access-v1/before-typed-finalization/execute_local_f0_native_access_20261118.py.txt": "2d2fc860aeb54aa859d7732ee693f9ac2a1cf40195a41e8d164adf2e10993ea8",
+    "context/reconciliation/local-f0-operation-sources/native-access-v1/before-typed-finalization/local_f0_native_access_operation_steps.py.txt": "2340a3048a6acc5241e1f8fc4f7400b6e488f0fea681f07d527b84d5d8a44f83",
+    "context/reconciliation/local-f0-operation-sources/native-access-v1/before-typed-finalization/prepare_local_f0_native_access_plan.py.txt": "f0b727d4a53d14b8595b1e80b4dbc2e4e426d8465f8f8d619d64e5f474e57c6b",
+    "context/reconciliation/local-f0-operation-sources/native-access-v1/before-typed-finalization/check_native_access_operation.py.txt": "1cc0d9823945f614cb179fdac9a3df7eac056f169ee0a8d37f33ea36e1eaa409"
+  },
+  "actual_offline_results": {
+    "native_access_mocks": {
+      "passed": 52,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 48.562
+    },
+    "all_four_sources_ast": "PASS",
+    "full_suite_command": "python check_native_access_operation.py",
+    "process_docker_database_network_boundaries": "FORBIDDEN_OR_MOCKED"
+  },
+  "closed_findings": [
+    {
+      "id": "STRICT_FINALIZATION_ZERO_COUNTS",
+      "status": "CLOSED",
+      "evidence": "Exact field set and strict nonnegative int counts before revoke; only typed-zero passes; False/0.0/None/negative/missing/extra/wrong-container-shape responses reject without SQL or finalized marking"
+    },
+    {
+      "id": "POST_FINALIZATION_PROOF_SANITIZATION",
+      "status": "CLOSED",
+      "evidence": "Exact field set, strict two integer counts, exact three Boolean leaf flags and exact postgres/SCRAM identity before retention; wrong auth canary/dict-grantor canary reject without raw value retention or finalized marking"
+    }
+  ],
+  "root_pin_helper": "Source-only Git-blob/hash binding; requires separate literal review before any execution. It adds these committed snapshots to the full operation packet; finite DENY digest remains bf542 unchanged.",
+  "limits": {
+    "posture": "D",
+    "new_runtime": "NOT_RUN",
+    "whole94_or451_promoted": false,
+    "hosted_contact": false,
+    "literal_review_required": true
+  }
+}

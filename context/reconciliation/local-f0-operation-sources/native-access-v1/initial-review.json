@@ -1,0 +1,58 @@
+{
+  "schema": "workinants.native-access-independent-source-review.v1",
+  "recorded_at": "2026-11-18T06:11:22.587376+00:00",
+  "reviewer": "restricted_controls_operator_independent_of_native_access_author",
+  "decision": "HOLD_ONE_BOUNDED_TYPED_CLOSURE_CORRECTION",
+  "files_sha256": {
+    "execute_local_f0_native_access_20261118.py": "2d2fc860aeb54aa859d7732ee693f9ac2a1cf40195a41e8d164adf2e10993ea8",
+    "local_f0_native_access_operation_steps.py": "2340a3048a6acc5241e1f8fc4f7400b6e488f0fea681f07d527b84d5d8a44f83",
+    "prepare_local_f0_native_access_plan.py": "f0b727d4a53d14b8595b1e80b4dbc2e4e426d8465f8f8d619d64e5f474e57c6b",
+    "check_native_access_operation.py": "1cc0d9823945f614cb179fdac9a3df7eac056f169ee0a8d37f33ea36e1eaa409"
+  },
+  "actual_offline_results": {
+    "native_access_mocks": {
+      "passed": 49,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 30.642
+    },
+    "all_four_sources_ast": "PASS",
+    "malformed_finalizer_count_reproduction": {
+      "bool_False": "INCORRECTLY_ADMITTED_MOCKED_ORIGINAL_GRANTOR_SQL_AND_FINALIZED",
+      "float_0_0": "INCORRECTLY_ADMITTED_MOCKED_ORIGINAL_GRANTOR_SQL_AND_FINALIZED",
+      "real_sql_executed": false
+    }
+  },
+  "finding": {
+    "file": "execute_local_f0_native_access_20261118.py",
+    "function": "finalize",
+    "line": 221,
+    "problem": "Python dict equality treats False and 0.0 as integer zero; malformed connection counts pass before original-grantor SQL",
+    "required_correction": "Require exact field set and strict int-zero values for migrator and other_client_backends before any revoke; regress malformed fields/types and preserve frozen prior bundle"
+  },
+  "other_source_review": {
+    "provider_roles": "Exact pinned three-role local preinstall recipe; absence guard; no hosted parity claim",
+    "credentials": "Nine independent actual random credentials through stdin/private tmpfs; SCRAM method and loopback/database/login controls plus wrong-password rejection",
+    "schema_usage_sentinels": "Nine explicit/effective before canonical install, zero after original-grantor finalization",
+    "canonical_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "finite_deny_packet_sha256": "bf542f88525e96d7d1c93ef06425278a82e1328043d60879ac34191f1bee3000",
+    "full_vs_finite_binding": "Explicit distinct operation_packet_sha256 and deny_packet_sha256 in same-run/CID/source/native attestation",
+    "native_gate": "Genuine immutable install then original-grantor finalization/full V4 ACL+TEXT/native+416-expression+private-ledger parity before finite coordinator",
+    "scope": "Forty selected cases stay NOT_RUN; 908 native ACL facets, 48 existing-row-empty facets, four blocked facets remain separately scoped",
+    "coordinator_external_closure": "Global all-other-client count; finally on coordinator return/throw before verdict",
+    "cleanup_and_source": "V4 exact owned identity/labels/secrets/absence/image-retention/source-preservation boundaries retained",
+    "preparer": "Pure held external seven-file snapshot/archive construction with unchanged canonical migration bytes; no repository history mutation"
+  },
+  "limits": {
+    "source_edits_by_reviewer": false,
+    "git_invoked": false,
+    "docker_invoked": false,
+    "database_contacted": false,
+    "real_resources_created": false,
+    "runtime_or_literal_operation_approval": false,
+    "posture": "D",
+    "selected_94_promoted": false,
+    "whole_451_promoted": false
+  },
+  "plain_english": "The pretend checks passed, but one lock check accepted the wrong kind of number. Fix that small check before approving a real run."
+}

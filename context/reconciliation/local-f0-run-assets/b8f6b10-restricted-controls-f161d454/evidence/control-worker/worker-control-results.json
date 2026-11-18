@@ -1,0 +1,1599 @@
+{
+  "schema": "workinants.worker-control-evidence.v1",
+  "status": "PREPARED_FINITE_SUBSET_COMPLETED_NOT_FULL_CONTROL_QUALIFICATION",
+  "current_stage": "FINITE_WORKER_SUBSET_COMPLETE",
+  "current_case": "bound-before-issuer-revoke",
+  "current": {
+    "operation_closed": true,
+    "stage_markers": [],
+    "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+    "actual_login_verified": true,
+    "commit_or_rollback_acknowledged": true,
+    "output_comparisons": {
+      "row_count_matches": true,
+      "rows": [
+        {
+          "object": true,
+          "fields": true,
+          "comparisons": {
+            "visible_exact_work": true
+          },
+          "values": {
+            "visible_exact_work": 0
+          }
+        }
+      ]
+    },
+    "exit_code": 0,
+    "WORKER_COMPLETE_STATE": {
+      "coherent": true,
+      "RuntimeAttempt": 1,
+      "evidence_count": 3,
+      "exact_evidence": true,
+      "RuntimeWorkItem": 1,
+      "TrackSubscription": 1,
+      "TrackBaseSelection": 1,
+      "RuntimeInboxReceipt": 1,
+      "RuntimeEffectReceipt": 1,
+      "RuntimeCommandReceipt": 1,
+      "TrackEntitlementGrant": 1,
+      "TrackEnrollmentReceipt": 1,
+      "TrackSubscriptionEvent": 1
+    },
+    "SOURCE_CUSTOMER": {
+      "outbox": 2,
+      "command": 1,
+      "history": 1,
+      "coherent": true,
+      "customer": 1,
+      "evidence": 1,
+      "track_enrollments": 1
+    },
+    "FIXTURE_GUARDS": {
+      "owner_guards_reenabled": true,
+      "no_project_user_trigger_disabled": true
+    },
+    "native_catalog_unchanged": true,
+    "catalog_and_usage_unchanged": true
+  },
+  "results": [
+    {
+      "component": "restricted-Customer-source-creation",
+      "status": "PASS_COMPONENT_ONLY",
+      "operation_closed": true,
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_READY_TO_COMMIT"
+      ],
+      "executed_sql_sha256": "e583a49ba736c7ee3d694d9edc1fb12837c13eff7f27b3c095b17f1d2b7a4e6d",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": []
+      },
+      "exit_code": 0,
+      "SOURCE_CUSTOMER": {
+        "outbox": 2,
+        "command": 1,
+        "history": 1,
+        "coherent": true,
+        "customer": 1,
+        "evidence": 1,
+        "track_enrollments": 0
+      },
+      "SOURCE_TRANSACTION": {
+        "source_uses_captured_transaction": true
+      }
+    },
+    {
+      "component": "actual-app-schedule",
+      "status": "PASS_COMPONENT_ONLY",
+      "operation_closed": true,
+      "stage_markers": [
+        "WA_WORKER_SCHEDULE_READY"
+      ],
+      "executed_sql_sha256": "74981f20d2ab6d5bcf5ce20638debe15776e14f2ea47bc5df1c23a48ae1a428e",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": []
+      },
+      "exit_code": 0,
+      "WORK_SCHEDULED": {
+        "exact_work_state": true
+      }
+    },
+    {
+      "component": "actual-worker-claim",
+      "status": "PASS_COMPONENT_ONLY",
+      "operation_closed": true,
+      "stage_markers": [
+        "WA_WORKER_CLAIM_READY"
+      ],
+      "executed_sql_sha256": "fad1888f9188eb609a35b57d0965b13379fafe54aaa62458a358ac9e2737d4c5",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": []
+      },
+      "exit_code": 0,
+      "WORK_CLAIMED": {
+        "exact_work_state": true
+      }
+    },
+    {
+      "component": "one-complete-default-free",
+      "status": "PASS_PREPARED_SQL_SCOPE_ONLY",
+      "operation_closed": true,
+      "stage_markers": [
+        "WA_WORKER_EFFECT_LINKED",
+        "WA_WORKER_GROUP_STAGED",
+        "WA_WORKER_CONSTRAINTS_CHECKED"
+      ],
+      "executed_sql_sha256": "b67bad02eb8a6cb70859bc930eaeefbbfdd947cb5a8845784d6b5ea3405e4163",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "model": true,
+              "exact_reverse": true,
+              "wrong_xid": true
+            },
+            "values": {
+              "model": "TrackSubscription",
+              "exact_reverse": true,
+              "wrong_xid": false
+            }
+          },
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "model": true,
+              "exact_reverse": true,
+              "wrong_xid": true
+            },
+            "values": {
+              "model": "TrackEntitlementGrant",
+              "exact_reverse": true,
+              "wrong_xid": false
+            }
+          },
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "model": true,
+              "exact_reverse": true,
+              "wrong_xid": true
+            },
+            "values": {
+              "model": "TrackBaseSelection",
+              "exact_reverse": true,
+              "wrong_xid": false
+            }
+          }
+        ]
+      },
+      "exit_code": 0,
+      "WORKER_COMPLETE_STATE": {
+        "coherent": true,
+        "RuntimeAttempt": 1,
+        "evidence_count": 3,
+        "exact_evidence": true,
+        "RuntimeWorkItem": 1,
+        "TrackSubscription": 1,
+        "TrackBaseSelection": 1,
+        "RuntimeInboxReceipt": 1,
+        "RuntimeEffectReceipt": 1,
+        "RuntimeCommandReceipt": 1,
+        "TrackEntitlementGrant": 1,
+        "TrackEnrollmentReceipt": 1,
+        "TrackSubscriptionEvent": 1
+      },
+      "SOURCE_CUSTOMER": {
+        "outbox": 2,
+        "command": 1,
+        "history": 1,
+        "coherent": true,
+        "customer": 1,
+        "evidence": 1,
+        "track_enrollments": 1
+      },
+      "FIXTURE_GUARDS": {
+        "owner_guards_reenabled": true,
+        "no_project_user_trigger_disabled": true
+      },
+      "native_catalog_unchanged": true,
+      "catalog_and_usage_unchanged": true,
+      "WORKER_TRANSACTION": {
+        "worker_uses_captured_transaction": true
+      }
+    },
+    {
+      "component": "direct-source-snapshot-controls",
+      "status": "PASS_THREE_REVERSE_BRANCHES_ONLY",
+      "operation_closed": true,
+      "stage_markers": [
+        "WA_WORKER_EFFECT_LINKED",
+        "WA_WORKER_GROUP_STAGED",
+        "WA_WORKER_CONSTRAINTS_CHECKED"
+      ],
+      "executed_sql_sha256": "b67bad02eb8a6cb70859bc930eaeefbbfdd947cb5a8845784d6b5ea3405e4163",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "model": true,
+              "exact_reverse": true,
+              "wrong_xid": true
+            },
+            "values": {
+              "model": "TrackSubscription",
+              "exact_reverse": true,
+              "wrong_xid": false
+            }
+          },
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "model": true,
+              "exact_reverse": true,
+              "wrong_xid": true
+            },
+            "values": {
+              "model": "TrackEntitlementGrant",
+              "exact_reverse": true,
+              "wrong_xid": false
+            }
+          },
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "model": true,
+              "exact_reverse": true,
+              "wrong_xid": true
+            },
+            "values": {
+              "model": "TrackBaseSelection",
+              "exact_reverse": true,
+              "wrong_xid": false
+            }
+          }
+        ]
+      },
+      "exit_code": 0,
+      "WORKER_COMPLETE_STATE": {
+        "coherent": true,
+        "RuntimeAttempt": 1,
+        "evidence_count": 3,
+        "exact_evidence": true,
+        "RuntimeWorkItem": 1,
+        "TrackSubscription": 1,
+        "TrackBaseSelection": 1,
+        "RuntimeInboxReceipt": 1,
+        "RuntimeEffectReceipt": 1,
+        "RuntimeCommandReceipt": 1,
+        "TrackEntitlementGrant": 1,
+        "TrackEnrollmentReceipt": 1,
+        "TrackSubscriptionEvent": 1
+      },
+      "SOURCE_CUSTOMER": {
+        "outbox": 2,
+        "command": 1,
+        "history": 1,
+        "coherent": true,
+        "customer": 1,
+        "evidence": 1,
+        "track_enrollments": 1
+      },
+      "FIXTURE_GUARDS": {
+        "owner_guards_reenabled": true,
+        "no_project_user_trigger_disabled": true
+      },
+      "native_catalog_unchanged": true,
+      "catalog_and_usage_unchanged": true,
+      "WORKER_TRANSACTION": {
+        "worker_uses_captured_transaction": true
+      }
+    },
+    {
+      "component": "currentness-baseline-current",
+      "status": "PASS_PREPARED_SQL_SCOPE_ONLY",
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "visible_exact_work": true
+            },
+            "values": {
+              "visible_exact_work": 1
+            }
+          }
+        ]
+      },
+      "exit_code": 0,
+      "WORKER_COMPLETE_STATE": {
+        "coherent": true,
+        "RuntimeAttempt": 1,
+        "evidence_count": 3,
+        "exact_evidence": true,
+        "RuntimeWorkItem": 1,
+        "TrackSubscription": 1,
+        "TrackBaseSelection": 1,
+        "RuntimeInboxReceipt": 1,
+        "RuntimeEffectReceipt": 1,
+        "RuntimeCommandReceipt": 1,
+        "TrackEntitlementGrant": 1,
+        "TrackEnrollmentReceipt": 1,
+        "TrackSubscriptionEvent": 1
+      },
+      "SOURCE_CUSTOMER": {
+        "outbox": 2,
+        "command": 1,
+        "history": 1,
+        "coherent": true,
+        "customer": 1,
+        "evidence": 1,
+        "track_enrollments": 1
+      },
+      "FIXTURE_GUARDS": {
+        "owner_guards_reenabled": true,
+        "no_project_user_trigger_disabled": true
+      },
+      "native_catalog_unchanged": true,
+      "catalog_and_usage_unchanged": true
+    },
+    {
+      "component": "currentness-bound-before-rotate",
+      "status": "PASS_PREPARED_SQL_SCOPE_ONLY",
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "visible_exact_work": true
+            },
+            "values": {
+              "visible_exact_work": 0
+            }
+          }
+        ]
+      },
+      "exit_code": 0,
+      "WORKER_COMPLETE_STATE": {
+        "coherent": true,
+        "RuntimeAttempt": 1,
+        "evidence_count": 3,
+        "exact_evidence": true,
+        "RuntimeWorkItem": 1,
+        "TrackSubscription": 1,
+        "TrackBaseSelection": 1,
+        "RuntimeInboxReceipt": 1,
+        "RuntimeEffectReceipt": 1,
+        "RuntimeCommandReceipt": 1,
+        "TrackEntitlementGrant": 1,
+        "TrackEnrollmentReceipt": 1,
+        "TrackSubscriptionEvent": 1
+      },
+      "SOURCE_CUSTOMER": {
+        "outbox": 2,
+        "command": 1,
+        "history": 1,
+        "coherent": true,
+        "customer": 1,
+        "evidence": 1,
+        "track_enrollments": 1
+      },
+      "FIXTURE_GUARDS": {
+        "owner_guards_reenabled": true,
+        "no_project_user_trigger_disabled": true
+      },
+      "native_catalog_unchanged": true,
+      "catalog_and_usage_unchanged": true
+    },
+    {
+      "component": "currentness-old-after-rotate",
+      "status": "PASS_PREPARED_SQL_SCOPE_ONLY",
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "diagnostic": {
+        "matched": true,
+        "classification": "EXPECTED_STALE_BINDER",
+        "sqlstate": "42501",
+        "source_frame_verified": true,
+        "body_sha256": "9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009",
+        "body_line": 7
+      },
+      "exit_code": 3,
+      "acknowledgement": false,
+      "WORKER_COMPLETE_STATE": {
+        "coherent": true,
+        "RuntimeAttempt": 1,
+        "evidence_count": 3,
+        "exact_evidence": true,
+        "RuntimeWorkItem": 1,
+        "TrackSubscription": 1,
+        "TrackBaseSelection": 1,
+        "RuntimeInboxReceipt": 1,
+        "RuntimeEffectReceipt": 1,
+        "RuntimeCommandReceipt": 1,
+        "TrackEntitlementGrant": 1,
+        "TrackEnrollmentReceipt": 1,
+        "TrackSubscriptionEvent": 1
+      },
+      "SOURCE_CUSTOMER": {
+        "outbox": 2,
+        "command": 1,
+        "history": 1,
+        "coherent": true,
+        "customer": 1,
+        "evidence": 1,
+        "track_enrollments": 1
+      },
+      "FIXTURE_GUARDS": {
+        "owner_guards_reenabled": true,
+        "no_project_user_trigger_disabled": true
+      },
+      "native_catalog_unchanged": true,
+      "catalog_and_usage_unchanged": true
+    },
+    {
+      "component": "currentness-fresh-after-rotate",
+      "status": "PASS_PREPARED_SQL_SCOPE_ONLY",
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "visible_exact_work": true
+            },
+            "values": {
+              "visible_exact_work": 1
+            }
+          }
+        ]
+      },
+      "exit_code": 0,
+      "WORKER_COMPLETE_STATE": {
+        "coherent": true,
+        "RuntimeAttempt": 1,
+        "evidence_count": 3,
+        "exact_evidence": true,
+        "RuntimeWorkItem": 1,
+        "TrackSubscription": 1,
+        "TrackBaseSelection": 1,
+        "RuntimeInboxReceipt": 1,
+        "RuntimeEffectReceipt": 1,
+        "RuntimeCommandReceipt": 1,
+        "TrackEntitlementGrant": 1,
+        "TrackEnrollmentReceipt": 1,
+        "TrackSubscriptionEvent": 1
+      },
+      "SOURCE_CUSTOMER": {
+        "outbox": 2,
+        "command": 1,
+        "history": 1,
+        "coherent": true,
+        "customer": 1,
+        "evidence": 1,
+        "track_enrollments": 1
+      },
+      "FIXTURE_GUARDS": {
+        "owner_guards_reenabled": true,
+        "no_project_user_trigger_disabled": true
+      },
+      "native_catalog_unchanged": true,
+      "catalog_and_usage_unchanged": true
+    },
+    {
+      "component": "currentness-bound-before-revoke",
+      "status": "PASS_PREPARED_SQL_SCOPE_ONLY",
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "visible_exact_work": true
+            },
+            "values": {
+              "visible_exact_work": 0
+            }
+          }
+        ]
+      },
+      "exit_code": 0,
+      "WORKER_COMPLETE_STATE": {
+        "coherent": true,
+        "RuntimeAttempt": 1,
+        "evidence_count": 3,
+        "exact_evidence": true,
+        "RuntimeWorkItem": 1,
+        "TrackSubscription": 1,
+        "TrackBaseSelection": 1,
+        "RuntimeInboxReceipt": 1,
+        "RuntimeEffectReceipt": 1,
+        "RuntimeCommandReceipt": 1,
+        "TrackEntitlementGrant": 1,
+        "TrackEnrollmentReceipt": 1,
+        "TrackSubscriptionEvent": 1
+      },
+      "SOURCE_CUSTOMER": {
+        "outbox": 2,
+        "command": 1,
+        "history": 1,
+        "coherent": true,
+        "customer": 1,
+        "evidence": 1,
+        "track_enrollments": 1
+      },
+      "FIXTURE_GUARDS": {
+        "owner_guards_reenabled": true,
+        "no_project_user_trigger_disabled": true
+      },
+      "native_catalog_unchanged": true,
+      "catalog_and_usage_unchanged": true
+    },
+    {
+      "component": "currentness-revoked-current-generation",
+      "status": "PASS_PREPARED_SQL_SCOPE_ONLY",
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "diagnostic": {
+        "matched": true,
+        "classification": "EXPECTED_STALE_BINDER",
+        "sqlstate": "42501",
+        "source_frame_verified": true,
+        "body_sha256": "9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009",
+        "body_line": 7
+      },
+      "exit_code": 3,
+      "acknowledgement": false,
+      "WORKER_COMPLETE_STATE": {
+        "coherent": true,
+        "RuntimeAttempt": 1,
+        "evidence_count": 3,
+        "exact_evidence": true,
+        "RuntimeWorkItem": 1,
+        "TrackSubscription": 1,
+        "TrackBaseSelection": 1,
+        "RuntimeInboxReceipt": 1,
+        "RuntimeEffectReceipt": 1,
+        "RuntimeCommandReceipt": 1,
+        "TrackEntitlementGrant": 1,
+        "TrackEnrollmentReceipt": 1,
+        "TrackSubscriptionEvent": 1
+      },
+      "SOURCE_CUSTOMER": {
+        "outbox": 2,
+        "command": 1,
+        "history": 1,
+        "coherent": true,
+        "customer": 1,
+        "evidence": 1,
+        "track_enrollments": 1
+      },
+      "FIXTURE_GUARDS": {
+        "owner_guards_reenabled": true,
+        "no_project_user_trigger_disabled": true
+      },
+      "native_catalog_unchanged": true,
+      "catalog_and_usage_unchanged": true
+    },
+    {
+      "component": "currentness-old-after-recover",
+      "status": "PASS_PREPARED_SQL_SCOPE_ONLY",
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "diagnostic": {
+        "matched": true,
+        "classification": "EXPECTED_STALE_BINDER",
+        "sqlstate": "42501",
+        "source_frame_verified": true,
+        "body_sha256": "9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009",
+        "body_line": 7
+      },
+      "exit_code": 3,
+      "acknowledgement": false,
+      "WORKER_COMPLETE_STATE": {
+        "coherent": true,
+        "RuntimeAttempt": 1,
+        "evidence_count": 3,
+        "exact_evidence": true,
+        "RuntimeWorkItem": 1,
+        "TrackSubscription": 1,
+        "TrackBaseSelection": 1,
+        "RuntimeInboxReceipt": 1,
+        "RuntimeEffectReceipt": 1,
+        "RuntimeCommandReceipt": 1,
+        "TrackEntitlementGrant": 1,
+        "TrackEnrollmentReceipt": 1,
+        "TrackSubscriptionEvent": 1
+      },
+      "SOURCE_CUSTOMER": {
+        "outbox": 2,
+        "command": 1,
+        "history": 1,
+        "coherent": true,
+        "customer": 1,
+        "evidence": 1,
+        "track_enrollments": 1
+      },
+      "FIXTURE_GUARDS": {
+        "owner_guards_reenabled": true,
+        "no_project_user_trigger_disabled": true
+      },
+      "native_catalog_unchanged": true,
+      "catalog_and_usage_unchanged": true
+    },
+    {
+      "component": "currentness-fresh-after-recover",
+      "status": "PASS_PREPARED_SQL_SCOPE_ONLY",
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "visible_exact_work": true
+            },
+            "values": {
+              "visible_exact_work": 1
+            }
+          }
+        ]
+      },
+      "exit_code": 0,
+      "WORKER_COMPLETE_STATE": {
+        "coherent": true,
+        "RuntimeAttempt": 1,
+        "evidence_count": 3,
+        "exact_evidence": true,
+        "RuntimeWorkItem": 1,
+        "TrackSubscription": 1,
+        "TrackBaseSelection": 1,
+        "RuntimeInboxReceipt": 1,
+        "RuntimeEffectReceipt": 1,
+        "RuntimeCommandReceipt": 1,
+        "TrackEntitlementGrant": 1,
+        "TrackEnrollmentReceipt": 1,
+        "TrackSubscriptionEvent": 1
+      },
+      "SOURCE_CUSTOMER": {
+        "outbox": 2,
+        "command": 1,
+        "history": 1,
+        "coherent": true,
+        "customer": 1,
+        "evidence": 1,
+        "track_enrollments": 1
+      },
+      "FIXTURE_GUARDS": {
+        "owner_guards_reenabled": true,
+        "no_project_user_trigger_disabled": true
+      },
+      "native_catalog_unchanged": true,
+      "catalog_and_usage_unchanged": true
+    },
+    {
+      "component": "worker-service-currentness",
+      "status": "PASS_READONLY_WORK_SERVICE_CURRENTNESS_ONLY",
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "visible_exact_work": true
+            },
+            "values": {
+              "visible_exact_work": 1
+            }
+          }
+        ]
+      },
+      "exit_code": 0,
+      "WORKER_COMPLETE_STATE": {
+        "coherent": true,
+        "RuntimeAttempt": 1,
+        "evidence_count": 3,
+        "exact_evidence": true,
+        "RuntimeWorkItem": 1,
+        "TrackSubscription": 1,
+        "TrackBaseSelection": 1,
+        "RuntimeInboxReceipt": 1,
+        "RuntimeEffectReceipt": 1,
+        "RuntimeCommandReceipt": 1,
+        "TrackEntitlementGrant": 1,
+        "TrackEnrollmentReceipt": 1,
+        "TrackSubscriptionEvent": 1
+      },
+      "SOURCE_CUSTOMER": {
+        "outbox": 2,
+        "command": 1,
+        "history": 1,
+        "coherent": true,
+        "customer": 1,
+        "evidence": 1,
+        "track_enrollments": 1
+      },
+      "FIXTURE_GUARDS": {
+        "owner_guards_reenabled": true,
+        "no_project_user_trigger_disabled": true
+      },
+      "native_catalog_unchanged": true,
+      "catalog_and_usage_unchanged": true
+    },
+    {
+      "component": "worker-grant-revocation",
+      "status": "PASS_READONLY_WORK_GRANT_REVOCATION_ONLY",
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "visible_exact_work": true
+            },
+            "values": {
+              "visible_exact_work": 0
+            }
+          }
+        ]
+      },
+      "exit_code": 0,
+      "WORKER_COMPLETE_STATE": {
+        "coherent": true,
+        "RuntimeAttempt": 1,
+        "evidence_count": 3,
+        "exact_evidence": true,
+        "RuntimeWorkItem": 1,
+        "TrackSubscription": 1,
+        "TrackBaseSelection": 1,
+        "RuntimeInboxReceipt": 1,
+        "RuntimeEffectReceipt": 1,
+        "RuntimeCommandReceipt": 1,
+        "TrackEntitlementGrant": 1,
+        "TrackEnrollmentReceipt": 1,
+        "TrackSubscriptionEvent": 1
+      },
+      "SOURCE_CUSTOMER": {
+        "outbox": 2,
+        "command": 1,
+        "history": 1,
+        "coherent": true,
+        "customer": 1,
+        "evidence": 1,
+        "track_enrollments": 1
+      },
+      "FIXTURE_GUARDS": {
+        "owner_guards_reenabled": true,
+        "no_project_user_trigger_disabled": true
+      },
+      "native_catalog_unchanged": true,
+      "catalog_and_usage_unchanged": true
+    }
+  ],
+  "operations": [
+    {
+      "name": "independent-fixtures",
+      "login": "postgres",
+      "status": "SQL_COMPLETED",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "604fa1ccb0c001b73f3f5c48443c85fb9cb52feaa6ac7160ff2a03907b6a94c2",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": []
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "source-customer",
+      "login": "wa_app_runtime",
+      "status": "SQL_COMPLETED",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [
+        "WA_CUSTOMER_CONTROL_READY_TO_COMMIT"
+      ],
+      "executed_sql_sha256": "e583a49ba736c7ee3d694d9edc1fb12837c13eff7f27b3c095b17f1d2b7a4e6d",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": []
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "identity-bootstrap",
+      "login": "wa_identity_service_authority",
+      "status": "SQL_COMPLETED",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "1e12c8d30781b321bccb40a0cd680fcf2c4d1b20a3e96104fde19867810bdc92",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": []
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "schedule",
+      "login": "wa_app_runtime",
+      "status": "SQL_COMPLETED",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [
+        "WA_WORKER_SCHEDULE_READY"
+      ],
+      "executed_sql_sha256": "74981f20d2ab6d5bcf5ce20638debe15776e14f2ea47bc5df1c23a48ae1a428e",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": []
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "claim",
+      "login": "wa_worker",
+      "status": "SQL_COMPLETED",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [
+        "WA_WORKER_CLAIM_READY"
+      ],
+      "executed_sql_sha256": "fad1888f9188eb609a35b57d0965b13379fafe54aaa62458a358ac9e2737d4c5",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": []
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "worker-enroll",
+      "login": "wa_worker",
+      "status": "SQL_COMPLETED",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [
+        "WA_WORKER_EFFECT_LINKED",
+        "WA_WORKER_GROUP_STAGED",
+        "WA_WORKER_CONSTRAINTS_CHECKED"
+      ],
+      "executed_sql_sha256": "b67bad02eb8a6cb70859bc930eaeefbbfdd947cb5a8845784d6b5ea3405e4163",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "model": true,
+              "exact_reverse": true,
+              "wrong_xid": true
+            },
+            "values": {
+              "model": "TrackSubscription",
+              "exact_reverse": true,
+              "wrong_xid": false
+            }
+          },
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "model": true,
+              "exact_reverse": true,
+              "wrong_xid": true
+            },
+            "values": {
+              "model": "TrackEntitlementGrant",
+              "exact_reverse": true,
+              "wrong_xid": false
+            }
+          },
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "model": true,
+              "exact_reverse": true,
+              "wrong_xid": true
+            },
+            "values": {
+              "model": "TrackBaseSelection",
+              "exact_reverse": true,
+              "wrong_xid": false
+            }
+          }
+        ]
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "currentness-baseline-current",
+      "login": "wa_worker",
+      "status": "SQL_COMPLETED",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "visible_exact_work": true
+            },
+            "values": {
+              "visible_exact_work": 1
+            }
+          }
+        ]
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "identity-rotate",
+      "login": "wa_identity_service_authority",
+      "status": "SQL_COMPLETED",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "856302e9529940efbacdfedd91205a37aa1960e92cc778403e853744099d4e2e",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": []
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "currentness-bound-before-rotate",
+      "login": "wa_worker",
+      "status": "SQL_COMPLETED",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "visible_exact_work": true
+            },
+            "values": {
+              "visible_exact_work": 0
+            }
+          }
+        ]
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "currentness-old-after-rotate",
+      "login": "wa_worker",
+      "status": "EXPECTED_BIND_REJECT",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "diagnostic": {
+        "matched": true,
+        "classification": "EXPECTED_STALE_BINDER",
+        "sqlstate": "42501",
+        "source_frame_verified": true,
+        "body_sha256": "9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009",
+        "body_line": 7
+      },
+      "exit_code": 3,
+      "acknowledgement": false
+    },
+    {
+      "name": "currentness-fresh-after-rotate",
+      "login": "wa_worker",
+      "status": "SQL_COMPLETED",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "visible_exact_work": true
+            },
+            "values": {
+              "visible_exact_work": 1
+            }
+          }
+        ]
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "identity-revoke",
+      "login": "wa_identity_service_authority",
+      "status": "SQL_COMPLETED",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "42791ca4f6ab4dc5ce501a4fba218dc5a3cf6689e2b4f505e98f3980536b19db",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": []
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "currentness-bound-before-revoke",
+      "login": "wa_worker",
+      "status": "SQL_COMPLETED",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "visible_exact_work": true
+            },
+            "values": {
+              "visible_exact_work": 0
+            }
+          }
+        ]
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "currentness-revoked-current-generation",
+      "login": "wa_worker",
+      "status": "EXPECTED_BIND_REJECT",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "diagnostic": {
+        "matched": true,
+        "classification": "EXPECTED_STALE_BINDER",
+        "sqlstate": "42501",
+        "source_frame_verified": true,
+        "body_sha256": "9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009",
+        "body_line": 7
+      },
+      "exit_code": 3,
+      "acknowledgement": false
+    },
+    {
+      "name": "identity-recover",
+      "login": "wa_identity_service_authority",
+      "status": "SQL_COMPLETED",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "b90a0bfc8d324b48e2a060bb627481f43c4efe69c8a5c4b6a720581274ece50a",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": []
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "currentness-old-after-recover",
+      "login": "wa_worker",
+      "status": "EXPECTED_BIND_REJECT",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "diagnostic": {
+        "matched": true,
+        "classification": "EXPECTED_STALE_BINDER",
+        "sqlstate": "42501",
+        "source_frame_verified": true,
+        "body_sha256": "9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009",
+        "body_line": 7
+      },
+      "exit_code": 3,
+      "acknowledgement": false
+    },
+    {
+      "name": "currentness-fresh-after-recover",
+      "login": "wa_worker",
+      "status": "SQL_COMPLETED",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "visible_exact_work": true
+            },
+            "values": {
+              "visible_exact_work": 1
+            }
+          }
+        ]
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "issuer-revoke",
+      "login": "wa_context_issuer",
+      "status": "SQL_COMPLETED",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "cd472bc2f5d6b3c631a902a78d3bd7ce7062c4abf579ff4bbd9ff7d7f5700c36",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "revoked": true
+            },
+            "values": {
+              "revoked": 1
+            }
+          }
+        ]
+      },
+      "exit_code": 0
+    },
+    {
+      "name": "bound-before-issuer-revoke",
+      "login": "wa_worker",
+      "status": "SQL_COMPLETED",
+      "failure_code": null,
+      "failure_stage": null,
+      "operation_closed": true,
+      "stage_markers": [],
+      "executed_sql_sha256": "d36df4f44cf62053cae0c55c20d59db01bc6d90f1d7b4d15f91e8b39884030d4",
+      "actual_login_verified": true,
+      "commit_or_rollback_acknowledged": true,
+      "output_comparisons": {
+        "row_count_matches": true,
+        "rows": [
+          {
+            "object": true,
+            "fields": true,
+            "comparisons": {
+              "visible_exact_work": true
+            },
+            "values": {
+              "visible_exact_work": 0
+            }
+          }
+        ]
+      },
+      "exit_code": 0
+    }
+  ],
+  "authentication": [
+    {
+      "role": "postgres",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_migrator",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_context_issuer",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_identity_service_authority",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_app_runtime",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_worker",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    }
+  ],
+  "cleanup_required": true,
+  "subsequent_cases_stopped": false,
+  "reviewed_packet_sha256": "6e3f126fd014c91f1c2ac519e77635eef2d2232bca2b609c90023495d626aff2",
+  "reviewed_content_sha256": "65003efc621a3552059504a8b78530d2d921f8caee17fd51f3c92eb9ad6f9ba7",
+  "selected_controls": [
+    {
+      "id": "P0C-TRACK-01",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "P0C-EVIDENCE-01",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "P0C-CTX-02",
+      "status": "NOT_RUN"
+    }
+  ],
+  "proposals": [
+    {
+      "name": "one-complete-default-free",
+      "status": "NOT_RUN",
+      "execution_dependencies": [
+        "FRESH_EXACT_DISPOSABLE_TARGET",
+        "AUTH_PREFLIGHT_ALL_RESTRICTED_LOGINS",
+        "EXACT_SOURCE_AND_NATIVE_CATALOG_PARITY",
+        "SOURCE_CUSTOMER_RESTRICTED_CREATION_PROOF",
+        "FIXTURE_GUARDS_REENABLED",
+        "ROOT_REVIEWED_FINITE_EXECUTION_WRAPPER"
+      ]
+    },
+    {
+      "name": "direct-source-snapshot-controls",
+      "status": "NOT_RUN",
+      "execution_dependencies": [
+        "FRESH_EXACT_DISPOSABLE_TARGET",
+        "AUTH_PREFLIGHT_ALL_RESTRICTED_LOGINS",
+        "EXACT_SOURCE_AND_NATIVE_CATALOG_PARITY",
+        "SOURCE_CUSTOMER_RESTRICTED_CREATION_PROOF",
+        "FIXTURE_GUARDS_REENABLED",
+        "ROOT_REVIEWED_FINITE_EXECUTION_WRAPPER"
+      ]
+    },
+    {
+      "name": "worker-service-currentness",
+      "status": "NOT_RUN",
+      "execution_dependencies": [
+        "FRESH_EXACT_DISPOSABLE_TARGET",
+        "AUTH_PREFLIGHT_ALL_RESTRICTED_LOGINS",
+        "EXACT_SOURCE_AND_NATIVE_CATALOG_PARITY",
+        "SOURCE_CUSTOMER_RESTRICTED_CREATION_PROOF",
+        "FIXTURE_GUARDS_REENABLED",
+        "ROOT_REVIEWED_FINITE_EXECUTION_WRAPPER"
+      ]
+    },
+    {
+      "name": "worker-grant-revocation",
+      "status": "NOT_RUN",
+      "execution_dependencies": [
+        "FRESH_EXACT_DISPOSABLE_TARGET",
+        "AUTH_PREFLIGHT_ALL_RESTRICTED_LOGINS",
+        "EXACT_SOURCE_AND_NATIVE_CATALOG_PARITY",
+        "SOURCE_CUSTOMER_RESTRICTED_CREATION_PROOF",
+        "FIXTURE_GUARDS_REENABLED",
+        "ROOT_REVIEWED_FINITE_EXECUTION_WRAPPER"
+      ]
+    },
+    {
+      "name": "worker-source-generation",
+      "status": "NOT_RUN",
+      "execution_dependencies": [
+        "CUSTOMER_UPDATE_RECEIPT_NO_RESULT_IDENTITY_AND_CODEC_NOT_REGISTERED"
+      ]
+    },
+    {
+      "name": "worker-user-security-generation",
+      "status": "NOT_RUN",
+      "execution_dependencies": [
+        "IDENTITY_USER_SECURITY_PROFILE_OWNER_TRANSITION_RESULT_NOT_REGISTERED"
+      ]
+    }
+  ],
+  "unprepared_vectors": [
+    {
+      "vector": "LEASE-RENEW",
+      "control_id": "P0C-TRACK-01",
+      "status": "NOT_RUN",
+      "reason": "Separate exact renew/reclaim/concurrent-higher-fence statement plan required; no elapsed-expiry success invented."
+    },
+    {
+      "vector": "LEASE-RECOVERY",
+      "control_id": "P0C-TRACK-01",
+      "status": "NOT_RUN",
+      "reason": "Needs a retained committed effect followed by controlled higher-fence reclaim; not the one-success path."
+    },
+    {
+      "vector": "FULL-DIRECT-TRACK-SNAPSHOT",
+      "control_id": "P0C-TRACK-01",
+      "status": "NOT_RUN",
+      "reason": "Every exposed branch and complete foreign/minus-cap snapshots require separately reviewed SQL variants."
+    },
+    {
+      "vector": "BASE-SELECTION-UPDATE",
+      "control_id": "P0C-EVIDENCE-01",
+      "status": "NOT_RUN",
+      "reason": "Needs authentic noncurrent prior selection and exact previous evidence; no direct worker grants widened."
+    },
+    {
+      "vector": "ALL-EVIDENCE-NEGATIVES",
+      "control_id": "P0C-EVIDENCE-01",
+      "status": "NOT_RUN",
+      "reason": "Wrong enum/PK/revision/extra keys and source-transaction variants require exact diagnostic+marker/full rollback observers, not generic P0001 acceptance."
+    }
+  ],
+  "database_posture": "D",
+  "coverage_limits": [
+    "Synthetic SQL fixtures, not owner/API/runner qualification.",
+    "Currentness covers only exact work SELECT under transport claim scope.",
+    "Only three prepared reverse-proof exact/wrong-xid branches; broader source substitutions and all owner-generation positives remain NOT_RUN."
+  ],
+  "resource": {
+    "container_id": "4fc7d96656376b9174d377ffcdf95a0bdbf3677ff52e4f1cd167f011749aa037",
+    "container_name": "wa-p0c-f161d454-controls",
+    "volume_name": "wa-p0c-f161d454-controls-data",
+    "image": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "network": "none",
+    "published_ports": false,
+    "labels": {
+      "workinants.rehearsal": "p0c-local-f0",
+      "workinants.rehearsal.run": "f161d454-13dd-453f-a9ee-6e92f95ea8d6"
+    }
+  },
+  "effective_hba_selections": [
+    {
+      "role": "postgres",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_migrator",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_context_issuer",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_identity_service_authority",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_app_runtime",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_worker",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "postgres",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_migrator",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_context_issuer",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_identity_service_authority",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_app_runtime",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_worker",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    }
+  ],
+  "current_auth_role": "wa_worker",
+  "authentication_comparison": {
+    "json_parsed": true,
+    "object": true,
+    "fields": true,
+    "string_fields": true,
+    "login": true,
+    "scram_identity": true,
+    "database": true,
+    "client_loopback": true,
+    "server_loopback": true
+  },
+  "catalog_usage_baseline": {
+    "app.track_plans": {
+      "count": 1,
+      "sha256": "493e4b5beaec087fe154ff74165f5420a3fd7856e1ba2aca65627a04cfece875"
+    },
+    "app.track_usage_events": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "app.track_usage_counters": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "app.track_plan_entitlements": {
+      "count": 1,
+      "sha256": "ca107dd9a7c11af033613da934f125b210a414930691c4cc89a6572323b40bd4"
+    },
+    "app.track_usage_reservation": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "app.track_entitlement_definitions": {
+      "count": 1,
+      "sha256": "3edc35382bd2ef347a9340d6cbb41dd08b6a3d99c95c3ba54e68ea469e3647ee"
+    }
+  }
+}

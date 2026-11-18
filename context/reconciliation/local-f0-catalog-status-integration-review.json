@@ -1,0 +1,60 @@
+{
+  "status": "APPROVED_EXACT14_CATALOG_CLAIMS_AND_REGENERATED_DERIVED_STATUS_ONLY",
+  "recorded_at": "2026-11-18T06:24:12.073832+00:00",
+  "source_files_sha256": {
+    "scripts/prepare-local-f0-status.py": "400c44f6b96c2fc6ecc8793f707083a97802f43b56a30a504581dcd31d711ca0",
+    "scripts/check-local-f0-status.py": "d3f48a091a69f4f9994556107c0d26373934de2b15e68e980ab9647894c170bb",
+    "context/reconciliation/local-f0-assertion-evidence.json": "52c3c7364f9e700361871d79bf3008ea06afe877960dc8b33da2421cbac67c42"
+  },
+  "focused_checks": {
+    "command": "python -B scripts/check-local-f0-status.py",
+    "exit_code": 0,
+    "tests_passed": 9,
+    "seconds": 26.449
+  },
+  "dispatch_recomputed": {
+    "catalog_calls": 14,
+    "old_migration_calls": 7,
+    "catalog_claim_set_exact": true,
+    "catalog_cannot_fall_back_to_old_migration": true,
+    "fixed_structured_pointer_required": true
+  },
+  "ledger_delta": {
+    "old_rows": 23,
+    "current_rows": 36,
+    "added_catalog_rows": 13,
+    "only_replaced_existing_row": "P0C-INSTALL-01/control.private_ledger PARTIAL to PASS",
+    "prior_execution_history_preserved": 2,
+    "new_execution_entries": 1
+  },
+  "output": {
+    "path": "context/reconciliation/local-f0-qualification-status.json",
+    "previous_sha256": "a078d61033125ac14a3febc076a88d5176d737304cca4a7e2e76ee2bebce64c6",
+    "sha256": "70a00a2dc845241d6068d5bfa5486a347b7560435a58776cd2ceace74dc7a9a9",
+    "assertion_status_counts": {
+      "PASS": 34,
+      "PARTIAL": 2,
+      "FAILED": 0,
+      "DEPENDENCY_BLOCKED": 32,
+      "NOT_RUN": 959,
+      "UNRESOLVED_SOURCE": 7
+    },
+    "case_status_counts": {
+      "PASS": 0,
+      "PARTIAL": 11,
+      "FAILED": 0,
+      "DEPENDENCY_BLOCKED": 0,
+      "NOT_RUN": 83
+    },
+    "selected_cases": 94,
+    "catalog_adversarial": "NOT_RUN",
+    "posture": "D"
+  },
+  "reviewer_mutations": [
+    "Only derived local-f0-qualification-status.json written; source integration authored by Root."
+  ],
+  "limits": [
+    "No database/Docker/Git invocation in this review step.",
+    "New combined-run outcomes are not integrated by this catalog-only mapping."
+  ]
+}
