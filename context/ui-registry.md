@@ -42,3 +42,5 @@ No component,API,class or token changed. The same bounded shell passes lint/type
 17 November2026 local F0 small-rehearsal/migration-guard slice: no component/API/classes/token changes. Actual three-case SQL rehearsal passed its subset; native migration guard/source tests and unstarted mount probe are separate from UI/owner-adapter qualification. Current board is local-f0-qualification-board.json.
 
 17 November2026 native catalog preparation: no UI component/API/classes/token changes. New source-only catalog/expression/private-ledger collectors, isolated loader and local operation mocks; runtime remains NOT_RUN until reviewed execution.
+
+18 November2026 native catalog TEXT correction: no component/API/classes/token change; structured UI inventory remains unchanged. Only read-only database-inspection SQL, bounded diagnostics, source tests and qualification evidence changed.

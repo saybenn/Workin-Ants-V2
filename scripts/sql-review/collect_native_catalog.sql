@@ -184,7 +184,7 @@ policy_rows AS (
  FROM pg_policy p JOIN relations r ON r.oid=p.polrelid
 ),
 acl_objects AS (
- SELECT 'SCHEMA'::text AS kind,n.nspname AS object,n.nspowner AS owner,NULL::text AS column,
+ SELECT 'SCHEMA'::text AS kind,n.nspname::text AS object,n.nspowner AS owner,NULL::text AS column,
   COALESCE(n.nspacl,acldefault('n',n.nspowner)) AS acl FROM namespaces n
  UNION ALL SELECT CASE WHEN r.relkind='S' THEN 'SEQUENCE' ELSE 'TABLE' END,r.object,r.relowner,NULL,
   COALESCE(r.relacl,acldefault(CASE WHEN r.relkind='S' THEN 's'::"char" ELSE 'r'::"char" END,r.relowner)) FROM relations r

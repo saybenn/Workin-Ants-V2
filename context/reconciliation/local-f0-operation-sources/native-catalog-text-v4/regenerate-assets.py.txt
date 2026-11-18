@@ -1,0 +1,18 @@
+from pathlib import Path
+import hashlib,json,subprocess
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+path=ROOT/'scripts/prepare-native-catalog-review.py';raw=path.read_bytes();assert sha(raw)=='cef4f4f191e478593a679e9b86c7eee410531b01501a896c0b6f0e1bc1ac4fa2'
+g={'__name__':'reviewed_generator','__file__':str(path)};exec(compile(raw,str(path),'exec'),g)
+pins={p:sha((ROOT/p).read_bytes()) for p in g['REQUIRED_FILES']}
+assert pins['scripts/sql-review/collect_native_catalog.sql']=='9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f'
+files,summary=g['prepare'](ROOT,pins)
+assert summary['source_expected_sha256']=='3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433' and summary['status']=='NOT_RUN'
+out=TASK/'native-catalog-v4-source-assets-9313c89';g['write_assets'](out,files)
+changed=[]
+for name,value in files.items():
+    relative='review-output/native-catalog/'+name;p=ROOT/relative
+    old=subprocess.check_output(['git','-c','core.longpaths=true','show','eb2aae6e9f26ad9cf4caff2c5a4a9ca72f2b5a24:'+relative],cwd=ROOT)
+    assert p.read_bytes()==old,'Existing generated asset has newer work'
+    if value!=old:p.write_bytes(value);changed.append(relative)
+print(json.dumps({'changed_artifacts':changed,'summary':summary,'database_contacted':False}))
