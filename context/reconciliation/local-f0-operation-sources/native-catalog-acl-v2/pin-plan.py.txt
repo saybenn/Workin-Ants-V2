@@ -1,0 +1,12 @@
+from pathlib import Path
+import hashlib,json,subprocess
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass';PLAN=Path((TASK/'current-local-f0-catalog-v2-plan.txt').read_text())
+def git(*args):return subprocess.check_output(['git','-c','core.longpaths=true',*args],cwd=ROOT,text=True).strip()
+p=PLAN/'operation-manifest.json';master=json.loads(p.read_text());master.update(source_commit=git('rev-parse','HEAD'),source_tree=git('rev-parse','HEAD^{tree}'))
+for path,expected in master['packet_files_sha256'].items():
+    raw=subprocess.check_output(['git','-c','core.longpaths=true','show',master['source_commit']+':'+path],cwd=ROOT)
+    assert hashlib.sha256(raw).hexdigest()==expected==hashlib.sha256((ROOT/path).read_bytes()).hexdigest(),path
+assert hashlib.sha256((TASK/'execute_local_f0_catalog_v2_20261117.py').read_bytes()).hexdigest()==master['wrapper_sha256']
+assert hashlib.sha256((TASK/'local_f0_catalog_v2_operation_steps.py').read_bytes()).hexdigest()==master['steps_sha256']
+p.write_text(json.dumps(master,indent=2)+'\n',encoding='utf8',newline='\n')
+print(json.dumps({'source_commit':master['source_commit'],'source_tree':master['source_tree'],'packet_sha256':master['packet_sha256'],'manifest_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'review_status':master['review_status']}))

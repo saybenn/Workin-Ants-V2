@@ -1,0 +1,67 @@
+from pathlib import Path
+import hashlib
+TASK=Path(__file__).resolve().parent
+def source(name,sha):
+    raw=(TASK/name).read_bytes();assert hashlib.sha256(raw).hexdigest()==sha
+    return raw.decode()
+def emit(name,value):
+    with (TASK/name).open('x',encoding='utf8',newline='\n') as h:h.write(value)
+    print(name,hashlib.sha256((TASK/name).read_bytes()).hexdigest())
+core=source('execute_local_f0_catalog_20261117.py','9438cd5901f65757843721137308a2a1e63f0aea0efd03d023d3ac7629806404')
+core=core.replace("TASK/'local_f0_catalog_operation_steps.py'","TASK/'local_f0_catalog_v2_operation_steps.py'").replace("'CATALOG-INSTALL','CATALOG-NATIVE'","'CATALOG-INSTALL','CATALOG-ACL-COMPAT','CATALOG-NATIVE'")
+core=core.replace("'approved_packet_section':'local_f0_migration_31ada25'","'packet_identity':'source_commit_tree_and_packet_sha256_fields'")
+emit('execute_local_f0_catalog_v2_20261117.py',core)
+steps=source('local_f0_catalog_operation_steps.py','f6b168fd1f8bd207ac3a25fdaa8be92eef08b396d668f3fd67385a9a82084542')
+steps=steps.replace("SAFE_FILES = {'native-before.json'","SAFE_FILES = {'acl-preflight.json','native-before.json'")
+steps=steps.replace("    verify_common_packet()\n","    verify_common_packet()\n    need(MANIFEST['packet_files_sha256'].get('scripts/sql-review/catalog-acl-preflight.sql')=='7018c8f415923533dc461b212a0df0f9a0f4144457e410c4505c9322df4647f4','ACL_PREFLIGHT_SOURCE_REQUIRED')\n",1)
+steps=steps.replace('save();closed_backends(name,stage)\n    return result','save();closed_backends(name,stage)\n    report[\'stage\']=stage;save()\n    return result')
+new='''def acl_compatibility_preflight(name):
+    text=read_pinned('scripts/sql-review/catalog-acl-preflight.sql').decode('utf8')
+    result=run_catalog_query(name,text,'CATALOG_ACL_COMPATIBILITY')
+    successful_query(result)
+    parsed=records(result.stdout)
+    expected={'format':'workinants.catalog-acl-preflight.v1','server_version_num':170011,'read_only':True,'collected_as':'postgres','collector_is_superuser':True,'old_zero_dimensional_acl_rejected_exactly':True,'null_acl_has_zero_rows':True,'empty_acl_guard_has_zero_rows':True,'sequence_default_has_exact_owner_privileges':True}
+    need(len(parsed)==1 and type(parsed[0]) is dict and set(parsed[0])==set(expected),'ACL_PREFLIGHT_FIELDS')
+    for key,value in expected.items():need(type(parsed[0][key]) is type(value) and parsed[0][key]==value,'ACL_PREFLIGHT_COMPARISON')
+    write_safe('acl-preflight.json',parsed[0])
+    report['acl_compatibility_preflight']=parsed[0]
+    report['steps']['CATALOG-ACL-COMPAT']='PASS_NEW_SOURCE_COMPATIBILITY_CONTROL';save()
+
+
+'''
+steps=steps.replace('def catalog_experiment():',new+'def catalog_experiment():')
+steps=steps.replace("    native=collect_native(name,'NATIVE_BEFORE_ORACLE'","    acl_compatibility_preflight(name)\n    native=collect_native(name,'NATIVE_BEFORE_ORACLE'",1)
+emit('local_f0_catalog_v2_operation_steps.py',steps)
+tests=source('check_native_catalog_operation.py','51fc1dc02c128cd64f0ca6eb2cca254d0ccc785118e0599b06c4622b99fdd72e')
+tests=tests.replace("STEPS=TASK/'local_f0_catalog_operation_steps.py'","STEPS=TASK/'local_f0_catalog_v2_operation_steps.py'").replace("TASK/'execute_local_f0_catalog_20261117.py'","TASK/'execute_local_f0_catalog_v2_20261117.py'")
+tests=tests.replace("paths=list(generator['REQUIRED_FILES'])+['scripts/prepare-native-catalog-review.py'","paths=list(generator['REQUIRED_FILES'])+['scripts/sql-review/catalog-acl-preflight.sql','scripts/prepare-native-catalog-review.py'")
+tests=tests.replace('    def pipeline(self,status=',"    def acl(self):\n        return {'format':'workinants.catalog-acl-preflight.v1','server_version_num':170011,'read_only':True,'collected_as':'postgres','collector_is_superuser':True,'old_zero_dimensional_acl_rejected_exactly':True,'null_acl_has_zero_rows':True,'empty_acl_guard_has_zero_rows':True,'sequence_default_has_exact_owner_privileges':True}\n    def pipeline(self,status=")
+tests=tests.replace('self.queue=[self.result(native),self.result(', 'self.queue=[self.result(self.acl()),self.result(native),self.result(')
+tests=tests.replace('self.queue=[self.result(self.native()),self.result(json.dumps(preflight)', 'self.queue=[self.result(self.acl()),self.result(self.native()),self.result(json.dumps(preflight)')
+tests=tests.replace("self.assertEqual(len(self.ns['report']['backend_closures']),5)","self.assertEqual(len(self.ns['report']['backend_closures']),6)")
+more='''    def test_fixed_acl_preflight_requires_exact_typed_boolean_controls(self):
+        self.queue=[self.result(self.acl())]
+        self.ns['acl_compatibility_preflight'](NAME)
+        self.assertTrue((self.ns['OUT']/'acl-preflight.json').is_file())
+        self.assertEqual(self.ns['report']['stage'],'CATALOG_ACL_COMPATIBILITY')
+        self.assertTrue(self.ns['report']['backend_closures'][0]['tagged_clients_zero'])
+
+    def test_failed_acl_control_stops_before_native_and_preserves_safe_operation(self):
+        self.queue=[self.result('',3,'ERROR:  22023: '+CANARY)]
+        self.refusal('CATALOG_SQL_FAILED',self.ns['catalog_experiment'])
+        self.assertEqual(self.ns['report']['catalog_operations'][-1]['sqlstates'],['22023'])
+        self.assertFalse((self.ns['OUT']/'native-before.json').exists())
+        self.assertFalse((self.ns['OUT']/'acl-preflight.json').exists())
+        self.assertEqual(self.actions.count('genuine_deploy'),1)
+
+    def test_bad_acl_preflight_never_exports_arbitrary_values(self):
+        for field,bad in [('read_only',1),('collected_as',CANARY),('empty_acl_guard_has_zero_rows',False),('UNREGISTERED',CANARY)]:
+            value=self.acl();value[field]=bad;self.queue=[self.result(value)]
+            with self.assertRaises(self.ns['Stop']):self.ns['acl_compatibility_preflight'](NAME)
+            self.assertFalse((self.ns['OUT']/'acl-preflight.json').exists())
+            self.assertNotIn(CANARY,json.dumps(self.ns['report']))
+
+
+'''
+tests=tests.replace("if __name__=='__main__':",more+"if __name__=='__main__':")
+emit('check_native_catalog_v2_operation.py',tests)

@@ -1,0 +1,18 @@
+from pathlib import Path
+import hashlib,json
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+old=json.loads((ROOT/'context/reconciliation/local-f0-native-catalog-validation.json').read_text())['operation_source_snapshots_sha256']
+def read(name,snapshot):
+    raw=(TASK/name).read_bytes();assert hashlib.sha256(raw).hexdigest()==old['context/reconciliation/local-f0-operation-sources/native-catalog/'+snapshot]
+    return raw.decode()
+def emit(name,text):
+    with (TASK/name).open('x',encoding='utf8',newline='\n') as h:h.write(text)
+    print(name,hashlib.sha256((TASK/name).read_bytes()).hexdigest())
+prepare=read('prepare_native_catalog_plan.py','prepare-plan.py.txt').replace("'local-f0-catalog-plan-'","'local-f0-catalog-v2-plan-'").replace("'local-f0-catalog-20261117-'","'local-f0-catalog-v2-20261117-'").replace('current-local-f0-catalog-plan.txt','current-local-f0-catalog-v2-plan.txt')
+prepare=prepare.replace("master['allowed_catalog_operations']=[","master['allowed_catalog_operations']=['Fixed reviewed read-only ACL compatibility preflight after install/finalize, before native collector',")
+emit('prepare_native_catalog_v2_plan.py',prepare)
+finalize=read('finalize_native_catalog_plan.py','finalize-plan.py.txt').replace('current-local-f0-catalog-plan.txt','current-local-f0-catalog-v2-plan.txt').replace('execute_local_f0_catalog_20261117.py','execute_local_f0_catalog_v2_20261117.py').replace('local_f0_catalog_operation_steps.py','local_f0_catalog_v2_operation_steps.py')
+finalize=finalize.replace("paths|={item['path']", "paths|={'scripts/sql-review/catalog-acl-preflight.sql','scripts/sql-review/test_catalog_collector_acl.py','context/reconciliation/local-f0-native-catalog-acl-correction.json'}\npaths|={item['path']")
+emit('finalize_native_catalog_v2_plan.py',finalize)
+pin=read('pin_native_catalog_plan.py','pin-plan.py.txt').replace('current-local-f0-catalog-plan.txt','current-local-f0-catalog-v2-plan.txt').replace('execute_local_f0_catalog_20261117.py','execute_local_f0_catalog_v2_20261117.py').replace('local_f0_catalog_operation_steps.py','local_f0_catalog_v2_operation_steps.py')
+emit('pin_native_catalog_v2_plan.py',pin)

@@ -187,7 +187,7 @@ acl_objects AS (
  SELECT 'SCHEMA'::text AS kind,n.nspname AS object,n.nspowner AS owner,NULL::text AS column,
   COALESCE(n.nspacl,acldefault('n',n.nspowner)) AS acl FROM namespaces n
  UNION ALL SELECT CASE WHEN r.relkind='S' THEN 'SEQUENCE' ELSE 'TABLE' END,r.object,r.relowner,NULL,
-  COALESCE(r.relacl,acldefault(CASE WHEN r.relkind='S' THEN 'S'::"char" ELSE 'r'::"char" END,r.relowner)) FROM relations r
+  COALESCE(r.relacl,acldefault(CASE WHEN r.relkind='S' THEN 's'::"char" ELSE 'r'::"char" END,r.relowner)) FROM relations r
  UNION ALL SELECT 'TABLE',r.object,r.relowner,a.attname,a.attacl FROM relations r
   JOIN pg_attribute a ON a.attrelid=r.oid WHERE a.attnum>0 AND NOT a.attisdropped AND a.attacl IS NOT NULL
  UNION ALL SELECT 'FUNCTION',f.identity,f.proowner,NULL,COALESCE(f.proacl,acldefault('f',f.proowner)) FROM functions f
@@ -213,7 +213,7 @@ generated_type_acl AS (
 ),
 default_slots AS (
  SELECT r.oid AS creator_oid,r.rolname AS creator,s.schema,k.kind,k.code,
-  CASE WHEN s.schema='*' THEN COALESCE(d.defaclacl,acldefault(k.code,r.oid)) ELSE COALESCE(d.defaclacl,'{}'::aclitem[]) END AS acl
+  CASE WHEN s.schema='*' THEN COALESCE(d.defaclacl,acldefault(CASE WHEN k.code='S' THEN 's'::"char" ELSE k.code END,r.oid)) ELSE d.defaclacl END AS acl
  FROM wa_roles r CROSS JOIN (VALUES ('*'),('app'),('platform'),('platform_private')) s(schema)
  CROSS JOIN (VALUES ('TABLE','r'::"char"),('SEQUENCE','S'::"char"),('FUNCTION','f'::"char"),('TYPE','T'::"char"),('SCHEMA','n'::"char")) k(kind,code)
  LEFT JOIN pg_namespace n ON n.nspname=s.schema
@@ -225,7 +225,7 @@ default_rows AS (
  SELECT d.creator,d.schema,d.kind,COALESCE((SELECT jsonb_agg(jsonb_build_object(
   'grantee',CASE WHEN a.grantee=0 THEN 'PUBLIC' ELSE pg_get_userbyid(a.grantee) END,
   'grantor',pg_get_userbyid(a.grantor),'privilege',a.privilege_type,'grant_option',a.is_grantable)
-  ORDER BY a.grantee,a.privilege_type,a.grantor) FROM aclexplode(d.acl) a WHERE a.grantee<>d.creator_oid),'[]') AS entries
+  ORDER BY a.grantee,a.privilege_type,a.grantor) FROM aclexplode(CASE WHEN cardinality(d.acl)>0 THEN d.acl ELSE NULL::aclitem[] END) a WHERE a.grantee<>d.creator_oid),'[]') AS entries
  FROM default_slots d
 )
 SELECT jsonb_build_object(

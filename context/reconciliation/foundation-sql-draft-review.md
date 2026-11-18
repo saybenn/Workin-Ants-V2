@@ -1,3 +1,7 @@
+## Native collector ACL correction — 17 November2026
+
+The first native collector attempt installed canonical SQL and finalized successfully, then stopped at collector22023 before any native snapshot. Backend closure, exact cleanup and69-file preservation passed; [immutable run evidence](local-f0-catalog-e345509-719dffcb-execution.json) preserves the unknown primary. [Reviewed ACL compatibility correction](local-f0-native-catalog-acl-correction.json) passes122 focused tests; it preserves missing/empty privileges and distinguishes the sequence function/catalog codes. A fresh fixedBoolean read-only control precedes collection. Expected manifest/416expressions/canonical5ae/A–D/32workerACL unchanged. Current3.7 remains pending fresh exact-manifest review/execution; Posture D, no whole94/451 promotion.
+
 ## Native catalog preparation — 17 November2026
 
 [Source validation](local-f0-native-catalog-validation.json) records114 focused offline passes, six byte-reproduced source artifacts, strict prehash/isolated helper loading, PostgreSQL17.11 expression oracle and full private-ledger collector. Expected public baseline is predeclared. Runtime remains NOT_RUN pending exact committed packet and independent manifest review. Canonical5ae SQL/applied checksum/A–D/32workerACL unchanged; whole94/451 unpromoted, Posture D.
