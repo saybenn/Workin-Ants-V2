@@ -1,0 +1,22 @@
+{
+  "local_date": "2026-11-17",
+  "scope": "EXTERNAL_OFFLINE_CONTEXT_CHECK_REPORT_ONLY",
+  "incident": "An incorrectly parameterized invocation of record_local_f0_check.py overwrote external local-f0-offline-checks-20261117/context.json with an exit2 argument-error report. The previous external report bytes cannot be reconstructed; do not claim they remain available.",
+  "original_recorded_sha256": "8cd9d7167171cbf78f66be6378570c112c50b21906013a7f2146181b69774f68",
+  "original_git_record": "foundation-sql-draft-validation.json → local_f0_diagnostic_20fd199 → offline_checks → context retains original exit0, duration19.27s and SHA256. This summary is historical evidence, not restoration of the missing full report.",
+  "unaffected": [
+    "All committed historical records and their hashes",
+    "All actual database-run reports, authentication reports and source/operator snapshots",
+    "The separate local-f0-row-shape-checks-20261117/context.json report",
+    "Original and integration source checkouts, migration SQL/checksum and runtime resources"
+  ],
+  "correction": "New record_cli_correction_check.py writes a distinct report directory with exclusive creation and refuses existing report paths. No rerun substitutes for the lost original bytes.",
+  "current_context_rerun": {
+    "command": ["python", "-B", "scripts/check-context.py"],
+    "exit_code": 0,
+    "seconds": 18.39,
+    "report_sha256": "513bf7ef7705c63a78bb6d5258c7160cabfa7cad510662a0ca8b45deb1d62734"
+  },
+  "impact": "Historical full offline report availability is reduced and explicitly disclosed. Current structural check passes; no database assertion, raw historical run or source identity depends on reconstructing that report.",
+  "posture": "D"
+}

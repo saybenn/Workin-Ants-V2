@@ -1,3 +1,9 @@
+## Current local F0 action — genuine migration partial evidence, 17 November2026
+
+Step3.1–3.5 source0623028 small-subset passes remain. Current3.6 source7406805/run2afac3f7 passed genuine Prisma empty deployment, canonical-checksum private ledger, then second no-pending deployment with identical ledger and normalized schema fingerprint. Both targets repeated12correct/12wrong authentication controls and copied Linux Node/engine compatibility.
+
+The deliberate failure CLI closed nonzero, but no expected error codes were recognized. The wrapper stopped before its failure-ledger observer: database cause and rollback remain unobserved; resolve/recovery stayed NOT_RUN. [Preserved safe evidence and exact operator snapshots](reconciliation/local-f0-migration-7406805-partial-execution.json) reconcile that attempted-but-unproved step. Both original-grantor finalizers and exact cleanup/independentabsence passed. The missing SGR decoder is a source-proven diagnostic vulnerability, not a proven explanation of the discarded output. Next: reviewed bounded diagnostics plus failure-state observation before strict verdict, then fresh source-pinned attempt. Canonical SQL/applied checksum, worker32ACL and root aliases stay unchanged; selected94/451 unpromoted, Posture D.
+
 ## Current local F0 action — bounded mount protocol correction, 17 November2026
 
 Step3.1–3.5 small rehearsal passes remain source0623028-qualified. Current3.6 attempt847ef29/55d6f091 stopped before Prisma at EXACT_PRIVATE_MOUNTS_REQUIRED; fresh setup/auth12correct+12wrong and Linux Node/engine compatibility passed, but no migration/ledger/noop/recovery case ran. Both finalizers and exact cleanup passed; [retained safe evidence](reconciliation/local-f0-migration-847ef29-mount-stop.json) reconciles stale outer failure stage.
