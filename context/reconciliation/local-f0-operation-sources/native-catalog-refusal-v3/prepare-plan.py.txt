@@ -1,0 +1,51 @@
+"""Prepare literal reviewed-target inputs and one source-only candidate history."""
+from pathlib import Path
+import hashlib,json,runpy,uuid
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+helper=runpy.run_path(str(ROOT/'scripts/prepare-local-f0-history.py'))
+RUN=str(uuid.uuid4());SHORT=RUN.split('-')[0]
+PLAN=TASK/('local-f0-catalog-v3-plan-'+SHORT);PLAN.mkdir(exist_ok=False)
+OUT=TASK/('local-f0-catalog-v3-20261117-'+SHORT)
+closure=json.loads((TASK/'local-f0-linux-tooling-20261117/prisma-tools-closure.json').read_text())
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+runtime={p:sha(ROOT/p) for p in helper['RUNTIME_FILES']}
+targets=[];planned={}
+for kind in ('ok',):
+    name='wa-p0c-'+SHORT+'-catalog'
+    target={'name':name,'volume':name+'-data','kind':kind};targets.append(target)
+    manifest={'schema':'workinants.local-f0-run.v1','run_id':RUN,'purpose':'LOCAL_F0_MIGRATION_REHEARSAL','target':{'container_name':name,'volume_name':target['volume'],'database':'wa_p0c_rehearsal','image':helper['IMAGE'],'network':'none','labels':{'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':RUN},'bootstrap_secret_host_path':str(OUT/'private'/(kind+'-bootstrap-password'))},'source':{'integrated_sql_sha256':sha(ROOT/helper['SOURCE']),'foundation_schema_sha256':sha(ROOT/helper['SCHEMA']),'runtime_files_sha256':runtime},'migration':{'id':'20261117000100_f0_local_initial','history':helper['HISTORY']},'tools':{'node_version':'v24.22.1','prisma_version':'7.10.1','engine_commit':'d1b3f377ca835d73fd50954a5e22128b9ebdd6b8','files_sha256':closure['tools_files_sha256']}}
+    helper['validate_manifest'](manifest)
+    path=PLAN/(kind+'-migration-manifest.json');raw=(json.dumps(manifest,indent=2)+'\n').encode();path.write_bytes(raw)
+    files,provenance=helper['prepare_plan'](manifest,raw,(ROOT/helper['SOURCE']).read_bytes(),(ROOT/helper['SCHEMA']).read_bytes(),{p:(ROOT/p).read_bytes() for p in helper['RUNTIME_FILES']},manifest['source']['integrated_sql_sha256'])
+    snapshot=PLAN/('source-'+kind);snapshot.mkdir()
+    for relative,data in {**files,helper['SCHEMA']:(ROOT/helper['SCHEMA']).read_bytes(),**{p:(ROOT/p).read_bytes() for p in helper['RUNTIME_FILES']},'prisma/foundation/history-manifest.json':(json.dumps(provenance,indent=2)+'\n').encode()}.items():
+        destination=snapshot/relative;destination.parent.mkdir(parents=True,exist_ok=True);destination.write_bytes(data)
+    planned[kind]={'manifest_path':str(path),'manifest_sha256':sha(path),'source_snapshot':str(snapshot),'source_files_sha256':{p.relative_to(snapshot).as_posix():sha(p) for p in sorted(snapshot.rglob('*')) if p.is_file()}}
+    if kind=='ok':
+        history=ROOT/helper['HISTORY']
+        if history.exists():
+            # Preserve the first prepared history/provenance. A fresh run uses
+            # separate immutable metadata snapshots with IDENTICAL SQL bytes.
+            for relative,data in files.items():assert (ROOT/relative).read_bytes()==data
+        else:
+            for relative,data in files.items():
+                destination=ROOT/relative;destination.parent.mkdir(parents=True,exist_ok=True);destination.write_bytes(data)
+            (ROOT/'prisma/foundation/history-manifest.json').write_text(json.dumps(provenance,indent=2)+'\n',encoding='utf8',newline='\n')
+master={'purpose':'LOCAL_F0_NATIVE_CATALOG_REHEARSAL','authority':'context/reconciliation/directives/local-f0-standing-authority-2026-11-17.md','run_id':RUN,'source_commit':'TO_BE_PINNED','source_tree':'TO_BE_PINNED','packet_files_sha256':{},'packet_sha256':'TO_BE_PINNED','evidence_directory':str(OUT),'targets':targets,'migration_targets':planned,'image':helper['IMAGE'],'database':'wa_p0c_rehearsal','run_label':'p0c-local-f0','tool_archive':str(TASK/'local-f0-linux-tooling-20261117/pinned-prisma-tools.tar.gz'),'tool_archive_sha256':closure['archive_sha256'],'wrapper_sha256':'TO_BE_PINNED','review_status':'PENDING_OPERATIONAL_REVIEW','fault':{'target':'fail','canonical_sql_unchanged':True,'action':'Original grantor withholds only temporary wa_schema_owner->wa_customer_verifier SET membership before actual Prisma deploy.','expected_sqlstate':'42501','expected_fixed_diagnostic':'CUSTOMER_VERIFIER_SET_ROLE_REQUIRED','expected_primary_message':'must be able to SET ROLE "wa_customer_verifier"','failure_boundary':'ALTER FUNCTION ownership transfer inside canonical integrated transaction','required_after_failure':'Engine/client/backend closure, original-grantor finalization,0appobjects,1failed ledger row/canonicalchecksum,0finished/rolledback rows.','recovery':'Independently reviewed exact rollback evidence then standard migrate resolve--rolled-back; verify ledger rolledback flag; original grantor restores exact3temporary SETTRUE/INHERITFALSE/ADMINFALSE memberships; retry sameSQL/checksum; finalize; second deploy no-op.'},'storage':{'PGDATA':'Exact run-created named volume:/var/lib/postgresql/data','bootstrap_password':'Exact readonly manifested owner-only host bind:/run/bootstrap-password','private_credentials':'root0700 tmpfs noexec,nosuid,nodev:/run/wa-secrets; pgpass+URL root0600','source_and_tools':'Exact hashed run-owned copied source/tool closure,root-owned, no symlinks/group-other writes','network':'none','ports':[]},'cleanup':'Verify exact created containerIDs/names/labels and volume names/labels/CreatedAt. Remove only those resources; delete only2test-owned hostsecretfiles/private directory. Independently confirm absence. Retain image, priorreports, source/tool snapshots.','source_history_rule':'One canonical integrated migrationID/checksum; no rawstructure duplicate, June edits, ledger writes, dbpush/reset or hosted/shadow targets. Per-target immutable snapshot metadata differs only targetmanifest identity; migrationSQL bytes identical.','status':'SOURCE_PREPARED_NOT_EXECUTED'}
+master['server_diagnostics']={'prefix':'WA_F0_DIAG|%e|%u|%d|','verbosity':'terse','lc_messages':'C','log_min_messages':'warning','log_statement':'none','log_min_error_statement':'panic','module_sha256':sha(ROOT/'scripts/sql-review/migration_server_diagnostics.py'),'raw_log_retention':False}
+master['fault']['diagnostic_provenance']='Fixed owned PostgreSQL SQLSTATE/terse exact-message before/after delta after CLI closure and original-grantor finalization. Normal P3018 path or separately evidenced server42501 plus secondary25P02/unwrittenNULL failure-log path; no inference from generic CLI/old reports.'
+master.pop('fault')
+asset_root='review-output/native-catalog'
+asset_names=('source-pins.json','expected.json','expression-oracle-plan.json','expression-oracle.sql','public-schema-registration.json','README.md')
+expected=json.loads((ROOT/asset_root/'expected.json').read_text(encoding='utf8'))
+assert expected['expected_sha256']=='3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433'
+tool_source_names=('node_modules/@prisma/engines-version/package.json','node_modules/prisma/package.json')
+tool_source_hashes={path:closure['tools_files_sha256'][path] for path in tool_source_names}
+assert all(sha(ROOT/path)==value for path,value in tool_source_hashes.items())
+master['catalog']={'generator':'scripts/prepare-native-catalog-review.py','artifact_root':asset_root,'assets':{name:{'path':asset_root+'/'+name,'sha256':sha(ROOT/asset_root/name)} for name in asset_names},'source_expected_sha256':expected['expected_sha256'],'public_schema_owner':'pg_database_owner','bootstrap_grantor':'postgres','tool_source_files_sha256':tool_source_hashes,'ledger_expectation':[{'path':'prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql','migration_name':'20261117000100_f0_local_initial','sha256':sha(ROOT/helper['SOURCE']),'state':'applied','count':1}]}
+master['cleanup']='Remove only the single exact created containerID/name/labels and named volume/name/labels/CreatedAt. Delete only its test-owned ok-bootstrap-password file and empty owner-only private directory. Independently confirm both resource names and secrets absent. Retain cached image, shared resources, all prior reports and source/tool snapshots.'
+master['allowed_catalog_operations']=['Bounded refusal-only metadata paths/hashes/classes; unchanged strict acceptance, no unknown values exported','Fixed reviewed read-only ACL compatibility preflight after install/finalize, before native collector','One actual guarded Prisma deploy as wa_migrator; original-grantor finalization after connection exit','Fixed read-only native catalog collector before/after Oracle and ledger','Exact source-derived empty TEMP expression compilation in one explicit BEGIN/ROLLBACK with no application data reads/writes','Catalog-only guarded private-ledger observation, predeclared one applied canonical migration; no baseline adoption or ledger writes','No business scenarios, worker loop, hosted contact or recovery commands']
+
+p=PLAN/'operation-manifest.json';p.write_text(json.dumps(master,indent=2)+'\n',encoding='utf8',newline='\n')
+(TASK/'current-local-f0-catalog-v3-plan.txt').write_text(str(PLAN),encoding='utf8')
+print(json.dumps({'plan_directory':str(PLAN),'operation_manifest':str(p),'run_id':RUN,'targets':targets,'migration_id':'20261117000100_f0_local_initial','migration_sha256':sha(ROOT/helper['HISTORY']/'20261117000100_f0_local_initial/migration.sql'),'root_history_prepared':True,'database_contacted':False}))
