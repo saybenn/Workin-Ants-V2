@@ -1,0 +1,116 @@
+{
+  "schema": "workinants.lease-c3a-independent-parser-environment-diagnosis.v1",
+  "recorded_at": "2026-11-19T01:26:20.838598+00:00",
+  "reviewer": "/root/catalog_v4_review",
+  "decision": "CONTROLLED_SOURCE_ENVIRONMENT_OMISSION_PROVEN_OFFLINE_PYTHONPATH_RESOLVES_SAME_UNCHANGED_VERIFIER",
+  "original_stopped_record_sha256": "81811a510bd52c8ce25e5fb20050ba4b6f52df5b9fbf40109af737445ff6b6b6",
+  "original_complete_cause": "UNOBSERVED_NOT_BACKFILLED",
+  "controlled_comparison": {
+    "without-offline": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\lease-c3a-parser-environment-without-offline-independent-20261119.json",
+      "sha256": "3b5e38add3b3ac71886a04c162decfbf94c5344c412c3e35ea180179c5688b22",
+      "value": {
+        "schema": "workinants.lease-c3a-source-environment-comparison-part.v1",
+        "recorded_at": "2026-11-19T01:23:23.987335+00:00",
+        "mode": "without-offline",
+        "source_commit": "3ee9788021e6adfdfabc6ae6f14e595436d7c18a",
+        "source_tree": "95343b8a588c4683fa426bc6b8e12679be0fb6bd",
+        "packet_sha256": "748b33d34d07e809ae6ca4799e7927f1c314f3bc905cbf1afcb0ee4addab14a6",
+        "manifest_sha256": "8dec592ec59586e05b2bc97416c656c7dde9cd59df7980290ff767edc1c328a5",
+        "availability": {
+          "python_executable": "C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "python_version": "3.12.10",
+          "PYTHONUTF8": "1",
+          "PYTHONPATH": null,
+          "find_spec_found": false,
+          "origin": null,
+          "pglast_version": null
+        },
+        "original_stopped_run_complete_cause": "UNOBSERVED_NOT_BACKFILLED",
+        "planned_evidence_directory_modified": false,
+        "result": "STOPPED_SOURCE_ONLY",
+        "exception_class": "PreparationFailure",
+        "source_frames": [
+          {
+            "source": "local_f0_lease_revoke_operation_steps_finally_v4.py",
+            "line": 746
+          },
+          {
+            "source": "local_f0_lease_revoke_operation_steps_finally_v4.py",
+            "line": 250
+          },
+          {
+            "source": "scripts/prepare-native-catalog-review.py",
+            "line": 178
+          },
+          {
+            "source": "scripts/prepare-native-catalog-review.py",
+            "line": 111
+          }
+        ],
+        "all5_physical_snapshots_verified": true,
+        "all195_current_and_committed_source_gate_passed": true,
+        "resource_actions": false,
+        "readonly_Git_calls": 197,
+        "no_Docker_DB_SQL_network_Git_mutation": true,
+        "all_source195_unchanged_after": true,
+        "only_OUT_overridden_to_fresh_offline_temporary_directory": true,
+        "raw_exception_args_messages_output_discarded": true
+      }
+    },
+    "with-offline": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\lease-c3a-parser-environment-with-offline-independent-20261119.json",
+      "sha256": "496c93087f27eeaf87ae144ca7719116c51f42990d83c39d84b212ee479d36c0",
+      "value": {
+        "schema": "workinants.lease-c3a-source-environment-comparison-part.v1",
+        "recorded_at": "2026-11-19T01:24:01.644037+00:00",
+        "mode": "with-offline",
+        "source_commit": "3ee9788021e6adfdfabc6ae6f14e595436d7c18a",
+        "source_tree": "95343b8a588c4683fa426bc6b8e12679be0fb6bd",
+        "packet_sha256": "748b33d34d07e809ae6ca4799e7927f1c314f3bc905cbf1afcb0ee4addab14a6",
+        "manifest_sha256": "8dec592ec59586e05b2bc97416c656c7dde9cd59df7980290ff767edc1c328a5",
+        "availability": {
+          "python_executable": "C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "python_version": "3.12.10",
+          "PYTHONUTF8": "1",
+          "PYTHONPATH": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\offline-python",
+          "find_spec_found": true,
+          "origin": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\offline-python\\pglast\\__init__.py",
+          "pglast_version": "v7.21"
+        },
+        "original_stopped_run_complete_cause": "UNOBSERVED_NOT_BACKFILLED",
+        "planned_evidence_directory_modified": false,
+        "result": "PASS_FULL_REAL_SOURCE_VERIFIER",
+        "exception_class": null,
+        "source_frames": [],
+        "all5_physical_snapshots_verified": true,
+        "all195_current_and_committed_source_gate_passed": true,
+        "resource_actions": false,
+        "readonly_Git_calls": 197,
+        "no_Docker_DB_SQL_network_Git_mutation": true,
+        "all_source195_unchanged_after": true,
+        "only_OUT_overridden_to_fresh_offline_temporary_directory": true,
+        "raw_exception_args_messages_output_discarded": true
+      }
+    }
+  },
+  "proven_source_fact": "prepare-native-catalog-review.py105 imports pglast and line106 requires exactv7.21; current Python without PYTHONPATH cannot find it and reproduces wrapper failure atsource746/250/178/111. Same interpreter/195source/five snapshots with reviewed offlinepath passes full source admission.",
+  "required_same_invocation_PowerShell_environment": [
+    "$env:PYTHONUTF8='1'",
+    "$env:PYTHONPATH='C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\offline-python'"
+  ],
+  "launch_scope": "Set both in the same exec/PowerShell process that launches the exact freshly reviewed wrapper. Environment set in a previous separate tool process is not evidence of this launch environment.",
+  "source_or_dependency_changes_required": false,
+  "global_package_install_or_system_environment_change_required": false,
+  "known_effect": "Source-only parser/helper preparation succeeds; this does not exercise Docker/preflight/authentication/SQL or establish runtime outcomes.",
+  "fresh_retry_requirement": "Root preserves c3 stop, uses fresh UUID/resource names/OUT/source7 runhistory metadata, same195source packet, independent literal review and mandatory runtime name/endpoint checks.",
+  "restore_boundary": "Same pinned parser gate is used by unchanged Restore source. Existing2ba6 literal source approval applies only with the reviewed offline environment; no Restore runtime executed by this diagnosis.",
+  "reviewer_actions": {
+    "actual_readonly_Git": true,
+    "Docker_database_SQL_network_Git_mutation": false,
+    "planned_evidence_or_source_changes": false
+  },
+  "posture": "D",
+  "runtime_cases": "NOT_RUN",
+  "plain_english": "The checker could not see its saved parser tool. Pointing this same checker at that existing tool makes its file checks pass. That fixes the launch setup; it does not turn the stopped database test into a pass."
+}

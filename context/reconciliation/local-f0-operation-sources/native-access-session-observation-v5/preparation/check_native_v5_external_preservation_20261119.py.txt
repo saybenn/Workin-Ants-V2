@@ -1,0 +1,32 @@
+"""Real preservation function against private synthetic files; every process forbidden."""
+from pathlib import Path
+import datetime
+import hashlib
+import json
+import runpy
+from unittest.mock import patch
+
+TASK=Path(__file__).resolve().parent
+module=runpy.run_path(str(TASK/'check_native_access_v5_operation.py'))
+rows=[]
+for mode in ('ALL_PASS','EARLIER_FAILURE_CONTINUES'):
+ case=module['NativeV5BoundaryTests']();case.setUp()
+ try:
+  namespace=case.n;root=case.directory/'inputs';root.mkdir();snapshot=root/'snapshot';snapshot.mkdir();(snapshot/'a').write_bytes(b'known-source')
+  tool=root/'tool.tar.gz';tool.write_bytes(b'known-tool');archive=root/'source.tar.gz';archive.write_bytes(b'known-archive');target=root/'target.json';target.write_bytes(b'{}')
+  digest=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+  namespace['MANIFEST']={'tool_archive':str(tool),'tool_archive_sha256':digest(tool)if mode=='ALL_PASS'else'0'*64,'migration_targets':{'ok':{'manifest_path':str(target),'manifest_sha256':digest(target)if mode=='ALL_PASS'else'0'*64,'source_archive':str(archive),'source_archive_sha256':digest(archive),'source_snapshot':str(snapshot),'source_files_sha256':{'a':digest(snapshot/'a')}}}}
+  actual=Path.read_bytes;reads=[]
+  def read(path,*args,**kwargs):reads.append(path);return actual(path,*args,**kwargs)
+  stopped=False
+  with patch.object(Path,'read_bytes',read):
+   try:namespace['verify_external_input_preservation']()
+   except namespace['Stop']:stopped=True
+  assert stopped==(mode!='ALL_PASS')
+  assert all(path in reads for path in (tool,target,archive,snapshot/'a'))
+  rows.append({'mode':mode,'PASS':True,'stopped':stopped,'every_tool_target_archive_snapshot_family_read':True,'source_Docker_database_network_Git_actions':False})
+ finally:case.doCleanups()
+record={'recorded_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'scope':'ACTUAL_POSTCHECK_SOURCE_WITH_ONLY_SYNTHETIC_PRIVATE_FILES','steps_sha256':hashlib.sha256((TASK/'local_f0_native_access_v5_operation_steps.py').read_bytes()).hexdigest(),'checks':rows}
+path=TASK/'native_v5_external_preservation_offline_results_20261119.json'
+with path.open('x',encoding='utf8',newline='\n')as stream:json.dump(record,stream,indent=2);stream.write('\n')
+print(json.dumps(record));print('RESULT_SHA256',hashlib.sha256(path.read_bytes()).hexdigest())

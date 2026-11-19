@@ -1,0 +1,4 @@
+SELECT 'WA_SRC_BEFORE_ACCESSAUDITLOG_CROSS_MODEL_COMPLETE_CAPS';
+SELECT jsonb_build_object('root',(SELECT count(*) FROM app.access_audit_logs WHERE id='e0040869-baf7-58e8-8393-3b67678e26d5'),'foreign',(SELECT count(*) FROM app.access_audit_logs WHERE id='3cf6104c-0178-51c9-8e40-13a31121c5a0'),'User_root',(SELECT count(*) FROM app.users WHERE id='8a9a4b27-ce71-52f9-aa47-c45f09f71952'),'User_foreign',(SELECT count(*) FROM app.users WHERE id='3950fc46-5cfd-5911-a245-ff5e90e915d3'),'UserSecurityProfile_root',(SELECT count(*) FROM app.user_security_profiles WHERE id='24bb1d93-a33d-5de1-aee2-0a6844186ce0'),'UserSecurityProfile_foreign',(SELECT count(*) FROM app.user_security_profiles WHERE id='dbebcfec-f4e8-576a-82f8-122e5bcf3ded'));
+SELECT 'WA_SRC_AFTER_ACCESSAUDITLOG_CROSS_MODEL_COMPLETE_CAPS';
+COMMIT;

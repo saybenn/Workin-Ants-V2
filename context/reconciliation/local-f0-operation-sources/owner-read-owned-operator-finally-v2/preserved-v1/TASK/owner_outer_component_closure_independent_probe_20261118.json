@@ -1,0 +1,41 @@
+{
+  "schema": "workinants.owner-outer-component-closure-independent-probe.v1",
+  "steps_sha256": "635014dbc206a174c1e00060351081d81636c396e7f13f078e0ae4c30205a62e",
+  "actual_frozen_outer_function_probes": [
+    {
+      "mode": "PARTIAL_RETURN",
+      "closure_stages_attempted": [
+        "OWNER_READ_PRE_COMPONENT"
+      ],
+      "outer_post_component_closure_attempted": false,
+      "fixed_stop_code": "OWNER_READ_COMPONENT_NOT_QUALIFIED",
+      "partial_child_report_present": false,
+      "bounded_partial_reference_retained": false,
+      "native_final_observer_attempted": false
+    },
+    {
+      "mode": "MALFORMED_CID_RETURN",
+      "closure_stages_attempted": [
+        "OWNER_READ_PRE_COMPONENT"
+      ],
+      "outer_post_component_closure_attempted": false,
+      "fixed_stop_code": "OWNER_READ_COMPONENT_EXACT_SOURCE_RUN_CID",
+      "partial_child_report_present": false,
+      "bounded_partial_reference_retained": false,
+      "native_final_observer_attempted": false
+    },
+    {
+      "mode": "THROW_WITH_PARTIAL_REPORT",
+      "closure_stages_attempted": [
+        "OWNER_READ_PRE_COMPONENT"
+      ],
+      "outer_post_component_closure_attempted": false,
+      "fixed_stop_code": "OWNER_READ_COMPONENT_UNEXPECTED_STOP_EVIDENCE_RETAINED",
+      "partial_child_report_present": true,
+      "bounded_partial_reference_retained": false,
+      "native_final_observer_attempted": false
+    }
+  ],
+  "source_SQL_Git_Docker_database_network_actions": false,
+  "boundary_rule": "Post-component global closure must be attempted in finally before return/exception/result/reference/evidence failures can escape; child finally alone is not independent outer confirmation."
+}

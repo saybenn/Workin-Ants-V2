@@ -1,0 +1,65 @@
+"""Actual V5 pinner under mock Git, with real Root/source snapshots. No process API executes."""
+from contextlib import ExitStack,redirect_stdout
+from copy import deepcopy
+from pathlib import Path
+import datetime
+import hashlib
+import io
+import json
+import runpy
+import shutil
+import socket
+import subprocess
+import sys
+import time
+import uuid
+from unittest.mock import patch
+
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+aggregate=lambda files:sha(''.join(name+'\0'+files[name]+'\n'for name in sorted(files)).encode())
+prepare=runpy.run_path(str(TASK/'prepare_local_f0_native_access_v5_plan.py'))['prepare']
+pinner=runpy.run_path(str(TASK/'pin_native_access_v5_plan_20261118.py'))
+baseline=json.loads((TASK/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json').read_bytes())
+results=[];start=time.monotonic()
+with ExitStack()as guards:
+ for name in ('run','Popen','call','check_call','check_output'):
+  guards.enter_context(patch.object(subprocess,name,side_effect=AssertionError('UNMOCKED_PROCESS_FORBIDDEN')))
+ guards.enter_context(patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN')))
+ guards.enter_context(patch.object(socket.socket,'connect',side_effect=AssertionError('NETWORK_FORBIDDEN')))
+ for mode in ('VALID_PIN','MISSING_SNAPSHOT','BAD_CURRENT_SNAPSHOT','BAD_COMMITTED_BLOB'):
+  plan,manifest,files=prepare(ROOT,TASK,deepcopy(baseline),str(uuid.uuid4()));plan.mkdir()
+  try:
+   for name,raw in files.items():
+    path=plan/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
+   path=plan/'operation-manifest.json';snapshot=pinner['SOURCE_ROOT']+'/'+next(iter(pinner['SOURCE_FILES'].values()))
+   if mode=='MISSING_SNAPSHOT':manifest['packet_files_sha256'].pop(snapshot)
+   if mode=='BAD_CURRENT_SNAPSHOT':manifest['packet_files_sha256'][snapshot]='0'*64
+   manifest['prepared_source_files_aggregate_sha256']=aggregate(manifest['packet_files_sha256'])
+   raw=(json.dumps(manifest,indent=2)+'\n').encode();path.write_bytes(raw);calls=[]
+   def git(args,**kwargs):
+    assert args[:3]==['git','-c','core.longpaths=true'];tail=args[3:];calls.append(tail[0])
+    if tail==['rev-parse','HEAD']:return ('a'*40+'\n').encode()
+    if tail==['rev-parse','HEAD^{tree}']:return ('b'*40+'\n').encode()
+    assert tail[0]=='show'and tail[1].startswith('a'*40+':')
+    if mode=='BAD_COMMITTED_BLOB':return b'fixed-bad-committed-source'
+    return (ROOT/tail[1].split(':',1)[1]).read_bytes()
+   refused=False
+   with patch.object(subprocess,'check_output',side_effect=git),patch.object(sys,'argv',['pin_native_access_v5_plan_20261118.py',str(path)]),redirect_stdout(io.StringIO()):
+    try:pinner['main']()
+    except AssertionError:refused=True
+   if mode=='VALID_PIN':
+    value=json.loads(path.read_bytes());assert not refused and value['source_commit']=='a'*40 and value['source_tree']=='b'*40 and value['review_status']=='PENDING_OPERATIONAL_REVIEW'
+    assert value['packet_sha256']==aggregate(value['packet_files_sha256'])and (plan/'operation-manifest-before-source-pin.json').read_bytes()==raw
+   else:
+    assert refused and path.read_bytes()==raw and not(plan/'operation-manifest-before-source-pin.json').exists()
+   if mode in ('MISSING_SNAPSHOT','BAD_CURRENT_SNAPSHOT'):assert calls==[]
+   assert not Path(manifest['evidence_directory']).exists()
+   results.append({'mode':mode,'PASS':True,'mock_Git_calls':len(calls),'rejected_before_mock_Git':not calls if mode!='VALID_PIN'else None,'real_Git_or_process_calls':False})
+  finally:
+   assert plan.resolve().parent==TASK.resolve()and plan.name.startswith('local-f0-native-access-plan-')and not plan.is_relative_to(ROOT)
+   shutil.rmtree(plan)
+record={'recorded_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'scope':'ACTUAL_PURE_SOURCE_PINNER_REAL_ROOT_FIVE_SNAPSHOTS_GIT_NETWORK_PROCESS_MOCKED','checks':results,'elapsed_seconds':round(time.monotonic()-start,3),'pinner_sha256':sha((TASK/'pin_native_access_v5_plan_20261118.py').read_bytes()),'Root_source_or_Git_runtime_actions':False}
+path=TASK/'native_v5_pin_binding_offline_results_20261119.json'
+with path.open('x',encoding='utf8',newline='\n')as handle:json.dump(record,handle,indent=2);handle.write('\n')
+print(json.dumps(record));print('RESULT_SHA256',sha(path.read_bytes()))

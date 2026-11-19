@@ -1,0 +1,79 @@
+{
+  "schema": "workinants.owner-finally-v2-bounded-reference-author-review.v1",
+  "recorded_at": "2026-11-19T00:07:40.995900+00:00",
+  "author": "/root/catalog_v4_review",
+  "status": "FROZEN_TINY_DELTA_PENDING_INDEPENDENT_RE_REVIEW_NOT_EXECUTED",
+  "source_files_sha256": {
+    "execute_local_f0_owner_read_20261118_finally_v2.py": "c29375d9a8476bf54725443ead8b7f4d78a07b94498bd8095e84082783719d58",
+    "local_f0_owner_read_operation_steps_finally_v2.py": "c8df99d852767bdbf20f1559cb91b277ef8ed6540ef6b22a52db2265de29601d",
+    "prepare_local_f0_owner_read_plan_finally_v2.py": "fd1cc9461e08ca611468c2b56b1e28228eea2bffbed3913d1301c7a48cf567d9",
+    "check_local_f0_owner_read_operation_finally_v2.py": "153ffdf9736c0a2a3903f97ccd43d5d44e3fa4958b4b4de5b3bf32bc4f05e23e",
+    "pin_local_f0_owner_read_plan_20261118_finally_v2.py": "fd2134bd6c4e951fa9fd2d8f48ffdbfe72deff577c9cdc9acd9e7c0cde6682bd"
+  },
+  "exact_source_delta": {
+    "steps_changed_function_only": "owner_read_experiment",
+    "core_preparer_pin": "BYTE_IDENTICAL_TO_PRE_REFERENCE_V2",
+    "reference_metadata": "Fixed artifact, nullable present, fixed UNAVAILABLE status assigned before import/stat/open/read. Direct lstat distinguishes absent and excludes nonregular/symlink metadata.",
+    "typed_size": "st_mode exact int and regular file; st_size exact int (bool rejected), nonnegative and <=16MiB.",
+    "actual_read": "with fixed.open(rb): handle.read(16MiB+1); reject excess before hashing. Never read_bytes/read(-1) at this boundary.",
+    "fixed_read_statuses": [
+      "UNAVAILABLE",
+      "ABSENT",
+      "OVERSIZED",
+      "RETAINED"
+    ],
+    "preserved_finally": "Global all-client closure unchanged, always attempted before verdict/native; original component STOP unchanged when reference failure follows."
+  },
+  "actual_focused_checks": {
+    "reference_and_component_tests": 12,
+    "PASS": true,
+    "unit_seconds": 1.437,
+    "real_whole_source_verifier_tests": 1,
+    "real_whole_verifier_PASS": true,
+    "unit_seconds_whole_verifier": 6.692,
+    "only_outer_common_Git_gate_mocked": true,
+    "all_Docker_DB_process_network_boundaries_mocked_or_forbidden": true
+  },
+  "new_actual_regressions": [
+    "Exactly one read request of16MiB+1, no unbounded -1 read",
+    "post-stat growth returns cap+1 sentinel, rejects OVERSIZED before hash/native",
+    "typed invalid sizes negative/bool/string/None reject before read; oversized stat rejects before read",
+    "stat/open errors retain fixed path+UNAVAILABLE+correct present-known/unknown marker",
+    "absent report after child throw retains ABSENT/path and original STOP",
+    "normal/partial/malformed/throw/unknownfields/wrongCID/global-otherclient failures preserve existing closure and qualification limits"
+  ],
+  "retained_prior_tests": {
+    "author44PASS52_560": "VERSION_QUALIFIED_BEFORE_THIS_TINY_REFERENCE_DELTA_NOT_RELABELLED_AS_FRESH48",
+    "independent20PASS13_672": "VERSION_QUALIFIED_PRE_REFERENCE_REVIEW17c7"
+  },
+  "initial_whole_verifier_read_failure": {
+    "tests": 1,
+    "status": "ERROR_BEFORE_PROJECT_HELPER_COMPILE_OR_RESOURCES",
+    "unit_seconds": 4.484,
+    "error_class": "OSError",
+    "errno": 22,
+    "stage": "UNCHANGED_PREPARER_TOOL_ARCHIVE_READ_BYTES",
+    "complete_cause": "UNOBSERVED",
+    "subsequent_independent_readability_proof": {
+      "streamed_bytes": 113900903,
+      "size_and_mtime_unchanged": true,
+      "sha256": "481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb"
+    },
+    "single_subsequent_whole_verifier": "PASS6.692s, no code/archive change"
+  },
+  "independent_finding_sha256": "17c7dbdcb9d7df1d5a9e43e144cebf60415fda19c3f069366c3d0bdc98cdfa53",
+  "independent_bound_probe_sha256": "daad769a4d505c923f6e54cfc9e64d7b762a78e625d41fe161d3ed5a35124f57",
+  "pre_reference_preservation_sha256": "6222d53fee5499d11dc57d9530821a9c794db277770bff5806c04c07f1bcc531",
+  "pre_reference_preserved_files": 69,
+  "old_owner_source67_and_SQL140": "UNCHANGED_VERIFIED",
+  "limits": {
+    "runtime121": "NOT_RUN",
+    "named20_assertions": "NOT_RUN",
+    "posture": "D",
+    "whole94_451": "NOT_PROMOTED",
+    "owner_API_qualified": false,
+    "SQL_Docker_DB_Git_network_executed": false,
+    "six_read_plan": "HELD_NO_IMPLEMENTATION"
+  },
+  "plain_english": "The report reader now asks for only one small, fixed amount of data. If the file is missing, too big, or unreadable, it keeps a clear safe label and still checks that all clients are gone."
+}

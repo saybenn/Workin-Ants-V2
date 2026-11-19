@@ -8,22 +8,42 @@ ROOT=Path(__file__).resolve().parents[1]
 build=runpy.run_path(str(ROOT/'scripts/prepare-local-f0-status.py'))['build']
 
 class StatusTests(unittest.TestCase):
+    def setUp(self):
+        # Native prefix bytes/132 claims and their mutations have a dedicated
+        # real-data suite. These existing tests isolate legacy evidence and
+        # dispatcher behavior, avoiding repeated 182-source/25-asset hashing.
+        links=json.loads((ROOT/'context/reconciliation/local-f0-native-495976-exact132-links.json').read_text())['links']
+        allowed={(row['case_id'],row['assertion_id']) for row in links}
+        def admitted_native_boundary(case_id,assertion_id,status,execution,root,json_pointer=None):
+            self.assertIn((case_id,assertion_id),allowed)
+            self.assertEqual(status,'PASS')
+            self.assertEqual(execution['actual_result'],'STOPPED_ATTEMPT_PRESERVED')
+            self.assertEqual(json_pointer,'/actual_outcomes')
+            return True
+        boundary=patch.dict(build.__globals__,validate_native_prefix_claim=admitted_native_boundary)
+        boundary.start();self.addCleanup(boundary.stop)
     def test_recorded_subset_does_not_promote_compound_cases(self):
-        namespace=build.__globals__;restricted=namespace['validate_restricted_claim'];migration=namespace['validate_claim']
-        restricted_calls=[];migration_calls=[]
+        namespace=build.__globals__;restricted=namespace['validate_restricted_claim'];migration=namespace['validate_claim'];native=namespace['validate_native_prefix_claim']
+        restricted_calls=[];migration_calls=[];native_calls=[]
         def restricted_dispatch(*args,**kwargs):
             restricted_calls.append((args[0],args[1],args[2],kwargs.get('json_pointer')))
             return restricted(*args,**kwargs)
         def migration_dispatch(*args,**kwargs):
             migration_calls.append(args[3]['actual_result'])
             return migration(*args,**kwargs)
-        with patch.dict(namespace,validate_restricted_claim=restricted_dispatch,validate_claim=migration_dispatch):result=build()
+        def native_dispatch(*args,**kwargs):
+            native_calls.append((args[0],args[1],args[3]['actual_result']))
+            return native(*args,**kwargs)
+        with patch.dict(namespace,validate_restricted_claim=restricted_dispatch,validate_claim=migration_dispatch,validate_native_prefix_claim=native_dispatch):result=build()
         self.assertEqual(result['selected_cases'],94)
-        self.assertEqual(result['assertion_status_counts'],{'PASS':79,'PARTIAL':27,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':889,'UNRESOLVED_SOURCE':7})
+        self.assertEqual(result['assertion_status_counts'],{'PASS':211,'PARTIAL':27,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':757,'UNRESOLVED_SOURCE':7})
         self.assertEqual({c['id'] for c in result['cases'] if c['status']=='PASS'},{'P0C-UNIQUE-01','P0C-TABLE-DatabaseActionGrant-ALLOW'})
         self.assertEqual(len(restricted_calls),70)
         self.assertEqual(len(migration_calls),7)
         self.assertNotIn('PASS_LOCAL_RESTRICTED_CONTROL_PACKETS_ONLY',migration_calls)
+        self.assertEqual(len(native_calls),132)
+        self.assertTrue(all(row[2]=='STOPPED_ATTEMPT_PRESERVED' for row in native_calls))
+        self.assertNotIn('STOPPED_ATTEMPT_PRESERVED',migration_calls)
         catalog=next(c for c in result['cases'] if c['id']=='P0C-CATALOG-01')
         self.assertEqual(catalog['status'],'PARTIAL')
         self.assertEqual(next(a for a in catalog['assertions'] if a['id']=='vector.CATALOG-LEAVES.adversarial')['status'],'NOT_RUN')
@@ -132,9 +152,9 @@ class StatusTests(unittest.TestCase):
     def test_parses_exact_hashed_bytes_without_second_file_read(self):
         original=Path.read_text
         def second_read_trap(path,*args,**kwargs):
-            if path.name in ('local-f0-small-rehearsal-0623028-execution.json','local-f0-migration-6b8910d-execution.json','local-f0-catalog-b9703d7-23bd8979-execution.json','local-f0-restricted-b8f6b10-f161d454-execution.json'):raise RuntimeError('UNVERIFIED_SECOND_READ')
+            if path.name in ('local-f0-small-rehearsal-0623028-execution.json','local-f0-migration-6b8910d-execution.json','local-f0-catalog-b9703d7-23bd8979-execution.json','local-f0-restricted-b8f6b10-f161d454-execution.json','local-f0-native-access-0a29cf6-495976eb-execution.json'):raise RuntimeError('UNVERIFIED_SECOND_READ')
             return original(path,*args,**kwargs)
         with patch.object(Path,'read_text',second_read_trap):result=build()
-        self.assertEqual(result['assertion_status_counts']['PASS'],79)
+        self.assertEqual(result['assertion_status_counts']['PASS'],211)
 
 if __name__=='__main__':unittest.main(verbosity=2)

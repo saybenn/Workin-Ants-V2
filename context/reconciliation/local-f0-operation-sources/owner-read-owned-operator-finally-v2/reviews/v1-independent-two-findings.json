@@ -1,0 +1,163 @@
+{
+  "schema": "workinants.owner-read-owned-operator-independent-source-review.v1",
+  "recorded_at": "2026-11-18T23:26:10.258945+00:00",
+  "reviewer": "/root/restricted_controls_operator",
+  "author": "/root/catalog_v4_review",
+  "decision": "FINDINGS_REQUIRE_BOUNDED_CORRECTIONS_BEFORE_SOURCE_APPROVAL",
+  "frozen_plan_sha256": "a277b4509587c6170792399751ec6fa5394eaf0d1ca66872bf29a77f6434fe9a",
+  "source_files_sha256": {
+    "execute_local_f0_owner_read_20261118.py": "b9eb3262d6489674dee3f331cca4994654d9193cce7405a87ddbba696d42ba7b",
+    "local_f0_owner_read_operation_steps.py": "635014dbc206a174c1e00060351081d81636c396e7f13f078e0ae4c30205a62e",
+    "prepare_local_f0_owner_read_plan.py": "b5f9c1b7bee74c2a05879a1f49233f909dc26aebcfba1c859ff64471fd0aadee",
+    "check_local_f0_owner_read_operation.py": "2369d8f281a2d2544d0c393a15185a9818d239037415e2f8fa0baf8ec15ba4c6",
+    "pin_local_f0_owner_read_plan_20261118.py": "1b22fc14cb9a9d0b6b2d2ef2a9d369da27cb86b6f2ca4117ab1e23f242a1977d"
+  },
+  "owned_validation_sha256": "ac5e7b886d61a3c30f009725a82bd290b172e8231c773bd20e11634bc7c862b5",
+  "all7_archive_files_sha256": {
+    "context/reconciliation/local-f0-operation-sources/owner-read-owned-operator-v1/check_local_f0_owner_read_operation.py.txt": "2369d8f281a2d2544d0c393a15185a9818d239037415e2f8fa0baf8ec15ba4c6",
+    "context/reconciliation/local-f0-operation-sources/owner-read-owned-operator-v1/execute_local_f0_owner_read_20261118.py.txt": "b9eb3262d6489674dee3f331cca4994654d9193cce7405a87ddbba696d42ba7b",
+    "context/reconciliation/local-f0-operation-sources/owner-read-owned-operator-v1/local_f0_owner_read_operation_steps.py.txt": "635014dbc206a174c1e00060351081d81636c396e7f13f078e0ae4c30205a62e",
+    "context/reconciliation/local-f0-operation-sources/owner-read-owned-operator-v1/pin_local_f0_owner_read_plan_20261118.py.txt": "1b22fc14cb9a9d0b6b2d2ef2a9d369da27cb86b6f2ca4117ab1e23f242a1977d",
+    "context/reconciliation/local-f0-operation-sources/owner-read-owned-operator-v1/prepare_local_f0_owner_read_plan.py.txt": "b5f9c1b7bee74c2a05879a1f49233f909dc26aebcfba1c859ff64471fd0aadee",
+    "context/reconciliation/local-f0-operation-sources/owner-read-owned-operator-v1/reviews/author-offline-results.json": "78b7347ee2844db3ff4bc1c345c8c1e60918ed350a7039e9b64b5581520c791e",
+    "context/reconciliation/local-f0-operation-sources/owner-read-owned-operator-v1/reviews/image-proof-independent-source.json": "b628b6d98ad22ea7def4dd7a51264025c50bde116451ae516f3e52f55ba9542a"
+  },
+  "real_prepared_inventory_files": 597,
+  "all597_current_hashes_verified": true,
+  "prepared_inventory_aggregate_verified": true,
+  "five_live_sources_and_five_archived_snapshots_exact": true,
+  "pending_literal_unchanged_not_executed": true,
+  "findings": [
+    {
+      "id": "OWNER-OUTER-01",
+      "priority": 1,
+      "file": "local_f0_owner_read_operation_steps.py",
+      "lines": [
+        737,
+        739,
+        752,
+        754
+      ],
+      "title": "Always perform independent post-component global closure before any return/exception/result-reference verdict can escape",
+      "source_fact": "Only the final qualified-result path reaches closed_backends OWNER_READ_POST_COMPONENT. Coordinator throws, partial result, malformed identity/fields/results and summary write/save failure escape earlier. The child finally is not independent outer closure proof.",
+      "actual_mock_proof": {
+        "path": "owner_outer_component_closure_independent_probe_20261118.json",
+        "sha256": "1d2b7208cbefb54abd980102613decc37f449ae4cabb35df78c2102156eac2f7",
+        "paths": 3,
+        "only_external_closure_attempted": "OWNER_READ_PRE_COMPONENT",
+        "modes": [
+          "PARTIAL_RETURN",
+          "MALFORMED_CID_RETURN",
+          "THROW_WITH_PARTIAL_REPORT"
+        ]
+      },
+      "bounded_required_fix": "Use nested finally covering the invocation and bounded fixed child report reference retention. Always attempt global closure for all databases/roles/tags on return or throw, including stat/read/save failures. Retain typed confirmed/unconfirmed flags before verdicts. If closure is unconfirmed, stop before result qualification and final native observations; preserve only bounded hash/path/count partial evidence and original failure classification. Add failed/throwing/different-tag client/observer error/reference I/O regressions."
+    },
+    {
+      "id": "OWNER-OUTER-02",
+      "priority": 1,
+      "file": "local_f0_owner_read_operation_steps.py",
+      "lines": [
+        769,
+        773,
+        775,
+        777,
+        779
+      ],
+      "title": "Evidence persistence errors must not skip independent cleanup attempts",
+      "source_fact": "Bare save() in FINALLY_FINALIZATION or SANITIZATION exception handlers can raise out of the main finally before cleanup(). The same frozen-main pattern exists in Lease Snapshot V3 and Restore Closure V3.",
+      "actual_mock_proof": {
+        "path": "shared_outer_finally_save_failure_independent_probe_20261118.json",
+        "sha256": "aa902d9f1daba59eeddbf51d111fd198cef9a7748618008fc6fe18fc24fce0f8",
+        "source_mains": 3,
+        "paths": 6,
+        "actual_main_AST_executed": true,
+        "cleanup_skipped_in_all6": true
+      },
+      "bounded_required_fix": "Nonthrowing best-effort recording/persistence around each finalizer, scan, cleanup and preservation step. Every target/owned resource and host-secret cleanup must still be independently attempted when any evidence write fails. Preserve STOP, mark evidence/cleanup unconfirmed, fail return on evidence incompleteness. No retries/SQL/permission/timeouts relaxation. Root will sequence new versioned Lease/Restore source corrections separately."
+    }
+  ],
+  "focused_offline_tests": {
+    "tests": 9,
+    "PASS": true,
+    "unit_seconds": 32.734,
+    "session": 23640,
+    "command_prefix": "python -B -m unittest check_local_f0_owner_read_operation.OwnerOperationTests",
+    "selected": [
+      "test_actual_whole_verifier_real_prepared_inventory_and_all_five_snapshots",
+      "test_missing_helper_source_or_catalog_import_rejects_before_any_compile",
+      "test_missing_or_historical_operator_snapshot_rejects_before_compile",
+      "test_component_plan_binds_same_source_run_CID_and_exact121_names",
+      "test_partial_component_keeps_safe_summary_and_stops_without_native_final",
+      "test_cleanup_deletes_only_exact_created_container_volume_and_testsecret",
+      "test_foreign_cleanup_identity_is_preserved_and_inventory_uncertainty_rejects",
+      "test_pinner_validates_real_pending_files_before_readonly_git_pin",
+      "test_pinner_mismatched_committed_blob_preserves_pending_literal"
+    ],
+    "actual_whole_verifier": "Real pure-generated pending manifest/current Root597 physical files +7archival files/five snapshots; only outer common Git/review gate mocked. Actual catalog6/16 and all7helper compilation/reconstruction runs.",
+    "Git_pin_checks": "Read-only Git stream boundary mocked from actual current source bytes; no actual Git action by reviewer",
+    "whole29_rerun": false,
+    "author29_version_qualified": {
+      "report_sha256": "78b7347ee2844db3ff4bc1c345c8c1e60918ed350a7039e9b64b5581520c791e",
+      "PASS": 29,
+      "seconds": 81.577
+    }
+  },
+  "reviewed_other_source_assessment": [
+    "No other confirmed blocker after full five-file source/security review.",
+    "Complete current source graph/source-validation/archive names, 67owner source inputs/140SQL, catalog6/16, exact5external snapshots and image3 hashes are admitted before first helper compile; actual full verifier and before-compile mutants independently passed.",
+    "Pure preparer emits fresh pending metadata/seven-file canonical history/tar only; metadata pinner revalidates complete current+mock-committed597inventory, exact source snapshots,10300tools and archive identities, retains exclusive pre-pin copy and keeps review pending. Actual Git/source checkpoint/literal review remains Root work.",
+    "Imagea074 manifest-vs-config proof, exact created CID plus original observed image ID, labels/mounts/root0700tmpfs/noports/networknone and volumeCreatedAt checks preserved. Core21 functions AST-identical to prior ImageV2; only resource initialization/creation/launch bindings differ, reviewed directly.",
+    "Owner-only host DACL and inherited secret files, six independent credentials/private stdin0600tmpfs, typed original-grantor finalizer and full native/oracle/private-ledger gates precede any owner-read coordinator call.",
+    "The actual coordinator remains peer-approvedf693 at8b55; exact121 order/known result status/confirmed operation-before-observation flags, source-after and trigger-restored flags must qualify. Current-grant and worker pre/post lease expiry controls remain the unchanged independently reviewed child source; no renewal/guard repair or owner-positive claim from fixture bypasses.",
+    "No later native observer after partial/unknown component return in tested paths. Safe summary exports only fixed status/count/digest. The required missing independent finally closure and I/O-safe cleanup are the findings above.",
+    "Exact cleanup identity/foreign resource preservation was independently mocked; no runtime resource state is inferred from these source tests."
+  ],
+  "AST_reuse": {
+    "unchanged_core_functions": [
+      "Stop",
+      "cleanup",
+      "command",
+      "docker",
+      "ensure_image",
+      "event",
+      "finalize",
+      "inspect_container",
+      "inspect_volume",
+      "inventory",
+      "json_ok",
+      "need",
+      "observe",
+      "owned",
+      "preflight",
+      "psql_args",
+      "safe_error",
+      "save",
+      "secret_scan",
+      "secure_private_directory",
+      "sql"
+    ],
+    "changed_core_functions": [
+      "create_resources",
+      "initialize",
+      "launch"
+    ]
+  },
+  "limits": {
+    "posture": "D",
+    "source_approval": "WITHHELD_PENDING_TWO_FINDINGS",
+    "all121_protocols": "NOT_RUN",
+    "all20_named_assertion_links": "NOT_RUN",
+    "new_literal_or_runtime_approval": false,
+    "whole94_451_or_owner_API_promotion": false,
+    "historical_unclean_cleanup_claimed": false,
+    "actual_Native260_runtime_cleanup": "Not reinterpreted; Root reports exact successful cleanup with no evidence-I/O failure"
+  },
+  "reviewer_actions": {
+    "repository_source_edits": false,
+    "Git_actions": false,
+    "Docker_DB_SQL_network_execution": false,
+    "TASK_only_test_probes_and_review_files": true
+  },
+  "plain_english": "The saved parts match and the pretend tests pass, but two emergency paths need fixing. Always check that clients are gone, even when a test fails. A broken report writer must never stop cleanup of the toy box."
+}

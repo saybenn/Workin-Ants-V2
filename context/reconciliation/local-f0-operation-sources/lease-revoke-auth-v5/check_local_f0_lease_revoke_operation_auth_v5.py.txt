@@ -1,0 +1,645 @@
+"""Environment-free external operator checks; every process/network is mocked."""
+import ast
+from contextlib import redirect_stdout
+from copy import deepcopy
+import hashlib
+import io
+import json
+from pathlib import Path
+import runpy
+import socket
+import subprocess
+import tempfile
+from types import SimpleNamespace
+import unittest
+from unittest.mock import Mock,patch
+
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+CORE=TASK/'execute_local_f0_lease_revoke_20261118_auth_v5.py';STEPS=TASK/'local_f0_lease_revoke_operation_steps_auth_v5.py';CANARY='PRIVATE_RAW_SQL_PASSWORD_CANARY_MUST_NOT_APPEAR'
+def namespace():
+    n=runpy.run_path(str(CORE));n=n['launch'].__globals__;exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),n)
+    n.update(ROOT=ROOT,TASK=TASK,RUN_ID='550e8400-e29b-41d4-a716-446655440000',COMMIT='a'*40,TREE='b'*40,PACKET='c'*64,TARGETS=[{'name':'source','volume':'source-data','kind':'ok'}],ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker'),LEAVES=('wa_private_helper_owner','wa_customer_verifier','wa_track_verifier'),LABEL='p0c-local-f0',created_containers={'source':'d'*64},created_volumes={'source-data':'CREATED'},RESOURCE_CONTAINERS=('source',),RESOURCE_VOLUMES=('source-data',),bootstrap_attempted=set(),finalization_attempted=set(),finalized={'source'},attempted_containers=set(),attempted_volumes=set(),passwords={},all_secrets=[],secret_paths=[],save=lambda:None,event=lambda *a,**k:None)
+    n['report']={'stage':'TEST','steps':{},'events':[],'targets':{'source':{}},'lease_revoke':{},'unexpected':[],'cleanup':{},'qualified_native_snapshot_sha256':'e'*64,'catalog_comparison':{'status':'PASS'},'ledger_comparison':{'status':'PASS'}}
+    protocol=runpy.run_path(str(ROOT/'scripts/lease_revoke_control_protocol.py'));packet=json.loads((ROOT/n['FIXTURES']).read_bytes());n['LEASE'].update(packet=packet,protocol=protocol)
+    return n
+class Tests(unittest.TestCase):
+    def setUp(self):
+        self.guards=[]
+        for name in ('run','Popen','check_call','check_output','call'):
+            guard=patch.object(subprocess,name,side_effect=AssertionError('PROCESS_NOT_MOCKED'));guard.start();self.addCleanup(guard.stop)
+        guard=patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+        self.n=namespace()
+    def fixture(self):
+        n=self.n;directory=tempfile.TemporaryDirectory(prefix='offline-lease-operation-',dir=TASK);self.addCleanup(directory.cleanup);n['OUT']=Path(directory.name);n['PRIVATE']=n['OUT']/'private'
+        (n['OUT']/'native-before.json').write_text('{}');(n['OUT']/'catalog-comparison.json').write_text('{}');planfile=n['OUT']/'nested.json';raw=b'{}';planfile.write_bytes(raw)
+        n['MANIFEST']={'migration_targets':{'ok':{'manifest_path':str(planfile),'manifest_sha256':hashlib.sha256(raw).hexdigest()}},'packet_files_sha256':{path:hashlib.sha256((ROOT/path).read_bytes()).hexdigest() for path in n['LR_MODULES']}}
+        n['closed_backends']=lambda *a:self.events.append(('closure',a[-1]));n['collect_native']=lambda *a:self.events.append(('native',)) or {};n['report']['qualified_native_snapshot_sha256']=n['digest']({});self.events=[]
+        n['LEASE']['module']={'main':lambda args:0};n['qualified_finite_result']=lambda value,plan:{'finite_protocols':19}
+        return n
+    def test_import_help_and_unapproved_entry_are_process_free(self):
+        for path in (CORE,TASK/'prepare_local_f0_lease_revoke_plan_auth_v5.py',TASK/'pin_local_f0_lease_revoke_plan_20261118_auth_v5.py'):
+            module=runpy.run_path(str(path));entry=module.get('launch',module.get('main'))
+            with redirect_stdout(io.StringIO()),self.assertRaises(SystemExit) as found:entry(['--help'])
+            self.assertEqual(found.exception.code,0)
+        with redirect_stdout(io.StringIO()):self.assertEqual(self.n['launch']([]),1)
+    def test_pipeline_has_full_native_before_finite_and_stops_first_failure(self):
+        n=self.fixture();n['OUT']=n['OUT']/'fresh';n['MANIFEST']={'review_status':'APPROVED_LOCAL_F0_LEASE_REVOKE_ATTEMPT'};events=[]
+        for name in ('verify_packet','preflight','ensure_image','create_resources','bootstrap_all','provision_migration_tools','secret_scan','cleanup','verify_tool_data','verify_external_input_preservation'):n[name]=lambda name=name:events.append(name)
+        n['catalog_experiment']=lambda:(_ for _ in ()).throw(n['Stop']('MOCK_NATIVE_STOP'));n['lease_experiment']=Mock(side_effect=AssertionError('NO_BEHAVIOR'))
+        self.assertEqual(n['main'](),1);n['lease_experiment'].assert_not_called();self.assertIn('cleanup',events);self.assertNotIn('qualified_native_snapshot_sha256',n['report'])
+    def test_native_finalization_and_ledger_gates_precede_any_coordinator_call(self):
+        for change in ('finalizer','native','ledger'):
+            n=self.fixture();call=Mock(side_effect=AssertionError('NO_COORDINATOR'));n['LEASE']['module']={'main':call}
+            if change=='finalizer':n['finalized']=set()
+            elif change=='native':n['report']['catalog_comparison']['status']='INCOMPLETE'
+            else:n['report']['ledger_comparison']['status']='FAIL'
+            with self.assertRaises(n['Stop']):n['lease_experiment']()
+            call.assert_not_called()
+    def test_actual_cli_descriptor_and_same_run_attestation(self):
+        n=self.fixture()
+        def run(args):
+            self.events.append(('CLI',args));plan=json.loads((n['OUT']/'lease-revoke-run-plan.json').read_bytes());att=json.loads((n['OUT']/'lease-revoke-native-attestation.json').read_bytes())
+            self.assertEqual(args[:1],['--execute-reviewed-lease-revoke-controls']);self.assertEqual(plan['immutable_container_id'],'d'*64);self.assertEqual(plan['source_commit'],n['COMMIT']);self.assertEqual(plan['packet_sha256'],n['PACKET']);self.assertEqual(plan['reviewed_packet_sha256'],n['FIXTURES_SHA']);self.assertEqual(len(plan['case_names']),19);self.assertEqual(set(plan['source_modules_sha256']),set(n['LR_MODULES']));self.assertEqual(att['collector_sha256'],n['MANIFEST']['packet_files_sha256'][n['LR_MODULES'][-1]]);self.assertTrue(att['original_grantor_finalized'])
+            d=n['OUT']/'lease-revoke';d.mkdir();(d/'lease-revoke-results.json').write_text('{}');return 0
+        n['LEASE']['module']={'main':run};n['lease_experiment']()
+        self.assertLess(next(i for i,e in enumerate(self.events) if e[0]=='CLI'),next(i for i,e in enumerate(self.events) if e==('closure','LEASE_REVOKE_AFTER_COORDINATOR')));self.assertEqual(self.events[-1],('native',));self.assertEqual(n['report']['lease_revoke']['result']['finite_protocols'],19)
+    def test_returned_and_throwing_failures_retain_reference_then_global_closure(self):
+        for throws in (False,True):
+            n=self.fixture()
+            def run(args):
+                d=n['OUT']/'lease-revoke';d.mkdir();(d/'lease-revoke-results.json').write_text(CANARY)
+                if throws:raise RuntimeError(CANARY)
+                return 2
+            n['LEASE']['module']={'main':run}
+            with self.assertRaises((n['Stop'],RuntimeError)):n['lease_experiment']()
+            self.assertEqual(self.events[-1],('closure','LEASE_REVOKE_AFTER_COORDINATOR'));self.assertFalse(any(e[0]=='native' for e in self.events));self.assertTrue(n['report']['lease_revoke']['coordinator_reference']['present']);self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_closure_uncertainty_blocks_verdict_and_all_metadata(self):
+        n=self.fixture();count=[0]
+        def closure(*args):
+            count[0]+=1
+            if count[0]==2:raise n['Stop']('CLOSURE_UNCONFIRMED')
+        n['closed_backends']=closure;n['qualified_finite_result']=Mock(side_effect=AssertionError('NO_VERDICT'))
+        with self.assertRaisesRegex(n['Stop'],'CLOSURE_UNCONFIRMED'):n['lease_experiment']()
+        n['qualified_finite_result'].assert_not_called();self.assertFalse(any(e[0]=='native' for e in self.events))
+    def complete_evidence(self):
+        n=self.fixture();plan={'immutable_container_id':'d'*64};(n['OUT']/'lease-revoke-run-plan.json').write_text('{}');packet=n['LEASE']['packet'];protocol=n['LEASE']['protocol']
+        value={'schema':'workinants.lease-revoke-evidence.v1','status':'COMPLETED_FINITE_LEASE_AND_APP_CURRENTNESS_ONLY_CASES_NOT_RUN','current_stage':'COMPLETE','current_case':'app-fresh-after-recover','current':{},'results':[{'name':name,'status':'PASS_FINITE_SQL_PROTOCOL_ONLY_SELECTED_CASE_NOT_RUN'} for name in packet['case_order']],'operations':[],'authentication':[{'role':role,'transport':'TCP_127.0.0.1_5432','correct_password':'PASS_SCRAM','wrong_password':'PASS_REJECTED','wrong_password_exit_code':2} for role in n['ROLES']],'cleanup_required':True,'subsequent_cases_stopped':False,'database_posture':'D','selected_controls':[{'id':name,'status':'NOT_RUN'} for name in packet['selected_control_ids']],'coverage_limits':packet['coverage_limits'],'reviewed_run_plan_sha256':hashlib.sha256(b'{}').hexdigest(),'run_id':n['RUN_ID'],'container_id':'d'*64,'source_commit':n['COMMIT'],'source_tree':n['TREE'],'packet_sha256':n['PACKET'],'effective_hba_selections':[],'current_auth_role':'wa_worker','authentication_comparison':{},'source_packet_unchanged_after_run':True}
+        names=['worker-claim','worker-renew','live-reclaim-denied','expired-renew-denied','concurrent-reclaim-stale-holder','concurrent-reclaim-stale-holder','current-holder-renew','shorten-renew-denied','copied-hash-renew-denied','old-secret-renew-denied','hash-change-denied','attempt-only-denied','app-bound-before-rotate','app-bound-before-revoke','app-fresh-after-recover']
+        for i,name in enumerate(names):
+            negative=name in protocol['DIAGNOSTICS'];outcome={'exit_code':3 if negative else 0,'acknowledged':not negative,'stage_markers':protocol['expected_markers'](name,negative),'matched':True}
+            if negative:outcome['diagnostic']={'matched':True,'sqlstate':'P0001','source_guard':'runtime_transition','source_body_sha256':'f'*64,'source_body_line':10,'classification':'SOURCE_EXACT_GUARD'}
+            else:outcome['comparisons']={'row_count_matches':True,'shape_and_values_match':True}
+            value['operations'].append({'stage':'ACTUAL_OPERATION','name':name,'actual_login':'wa_worker' if i<12 else 'wa_app_runtime','operation_closed':True,'outcome':outcome})
+        value['operations'] += [{'stage':'SEPARATE_ISSUER_COMMIT','issuer_committed':True,'commit_acknowledged':True,'created_at_return_verified':True,'operation_closed':True},{'stage':'GLOBAL_CLIENT_CLOSURE','scope':'ALL_DATABASES_ALL_ROLES_ALL_TAGS','observation_completed':True,'all_other_client_backends_absent':True},{'stage':'ALL_OWNED_OPERATION_CLOSURES','all_original_sessions_closed':True}]
+        for phase,live in (('BEFORE_STALE_ACTION',True),('AFTER_STALE_ACTION',False)):value['operations'].append({'stage':'OLD_HOLDER_DENIAL_ATTRIBUTION','phase':phase,'renew_scope_positive_previously_observed':True,'same_current_unrevoked_unexpired_grant':True,'independent_service_epoch_current':True,'higher_fence_lease_still_live':True,'original_backend_live':live})
+        # Restore the real validator after fixture() replaces it for CLI tests.
+        real=namespace()['qualified_finite_result'];real.__globals__.update(n);return n,real,value,plan
+    def test_typed_complete_19_results_accepts_only_declared_scope(self):
+        n,validate,value,plan=self.complete_evidence();self.assertEqual(validate(value,plan)['finite_protocols'],19);self.assertFalse(validate(value,plan)['whole_case_promotion'])
+    def test_missing_reordered_wrong_scope_and_identity_results_reject(self):
+        for mutation in ('missing','order','scope','cid','whole','unknown'):
+            n,validate,value,plan=self.complete_evidence()
+            if mutation=='missing':value['results'].pop()
+            elif mutation=='order':value['results'].reverse()
+            elif mutation=='scope':value['status']='PASS_ALL_CASES'
+            elif mutation=='cid':value['container_id']='1'*64
+            elif mutation=='whole':value['selected_controls'][0]['status']='PASS'
+            else:value['secret']=CANARY
+            with self.assertRaises(n['Stop']):validate(value,plan)
+            self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_boolean_float_exit_or_truthy_matched_never_qualifies(self):
+        for key,bad in (('exit_code',False),('exit_code',0.0),('matched',1),('acknowledged',1)):
+            n,validate,value,plan=self.complete_evidence();value['operations'][0]['outcome'][key]=bad
+            with self.assertRaises(n['Stop']):validate(value,plan)
+    def test_missing_current_grant_witness_or_closed_operation_rejects(self):
+        for mutation in ('witness','unexpired','closed','issuer','global'):
+            n,validate,value,plan=self.complete_evidence()
+            if mutation=='witness':value['operations'].pop()
+            elif mutation=='unexpired':value['operations'][-1]['same_current_unrevoked_unexpired_grant']=False
+            elif mutation=='closed':value['operations'][0]['operation_closed']=False
+            elif mutation=='issuer':next(row for row in value['operations'] if row['stage']=='SEPARATE_ISSUER_COMMIT')['commit_acknowledged']=False
+            else:next(row for row in value['operations'] if row['stage']=='GLOBAL_CLIENT_CLOSURE')['all_other_client_backends_absent']=False
+            with self.assertRaises(n['Stop']):validate(value,plan)
+    def test_nested_manifest_drift_is_checked_before_any_tool_or_helper(self):
+        n=self.fixture();n['docker']=Mock(side_effect=AssertionError('NO_DOCKER'));n['load_reviewed_helper']=Mock(side_effect=AssertionError('NO_HELPER'))
+        Path(n['MANIFEST']['migration_targets']['ok']['manifest_path']).write_text(CANARY)
+        with self.assertRaises(n['Stop']):n['provision_migration_tools']()
+        with self.assertRaises(n['Stop']):n['migrate'](n['TARGETS'][0],'deploy','MOCK')
+        n['docker'].assert_not_called();n['load_reviewed_helper'].assert_not_called();self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_cached_helper_chain_has_no_disk_reexecution(self):
+        n=self.n;n['HELPER_BYTES'].update({path:b'x=1\n' for path in n['HELPER_FILES']});n['read_pinned']=Mock(side_effect=AssertionError('NO_REOPEN'));module=n['load_reviewed_helper'](n['HELPER_FILES'][0]);self.assertEqual(module['x'],1);n['read_pinned'].assert_not_called()
+    def test_strict_finalizer_rejects_malformed_active_counts_before_revoke(self):
+        n=self.n;n['sql']=Mock(side_effect=AssertionError('NO_REVOKE'))
+        for value in ({'migrator':False,'other_client_backends':0},{'migrator':0.0,'other_client_backends':0},{'migrator':0},{'migrator':0,'other_client_backends':0,'extra':CANARY}):
+            n['finalization_attempted']=set();n['observe']=lambda *a,value=value:value
+            with self.assertRaises(n['Stop']):n['finalize']('source')
+        n['sql'].assert_not_called();self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_preparer_fresh_seven_file_history_never_edits_root(self):
+        module=runpy.run_path(str(TASK/'prepare_local_f0_lease_revoke_plan_auth_v5.py'));baseline=json.loads((TASK/'local-f0-catalog-v4-plan-8fa680ed/operation-manifest.json').read_bytes());history=ROOT/'prisma/foundation/history-manifest.json';before=history.read_bytes()
+        directory,master,files=module['prepare'](ROOT,TASK,baseline)
+        self.assertFalse(directory.exists());self.assertEqual(master['source_commit'],'TO_BE_PINNED');self.assertEqual(master['source_tree'],'TO_BE_PINNED');self.assertEqual(master['review_status'],'PENDING_OPERATIONAL_REVIEW');self.assertEqual(history.read_bytes(),before)
+        snapshot=[name for name in files if name.startswith('source-ok/')];self.assertEqual(len(snapshot),7);nested=json.loads(files['ok-migration-manifest.json']);fresh=json.loads(files['source-ok/prisma/foundation/history-manifest.json']);self.assertEqual(fresh['run_id'],master['run_id']);self.assertEqual(fresh['run_manifest_sha256'],hashlib.sha256(files['ok-migration-manifest.json']).hexdigest());self.assertEqual(nested['target']['container_name'],master['targets'][0]['name']);self.assertTrue(master['targets'][0]['name'].endswith('-lease'))
+    def test_pin_helper_has_no_runtime_or_approval_bypass(self):
+        source=(TASK/'pin_local_f0_lease_revoke_plan_20261118_auth_v5.py').read_text();tree=ast.parse(source)
+        self.assertNotIn('APPROVED_LOCAL_F0_LEASE_REVOKE_ATTEMPT',source);self.assertIn('operation-manifest-before-source-pin.json',source);self.assertIn("git('show',commit+':'+relative)",source)
+        self.assertFalse(any(isinstance(node,ast.Constant) and isinstance(node.value,str) and node.value.startswith('docker') for node in ast.walk(tree)))
+    def test_no_provider_or_native_denial_setup_in_pipeline(self):
+        tree=ast.parse(STEPS.read_bytes());main=next(node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name=='main');calls=[node.func.id for node in ast.walk(main) if isinstance(node,ast.Call) and isinstance(node.func,ast.Name)]
+        self.assertIn('catalog_experiment',calls);self.assertIn('lease_experiment',calls);self.assertNotIn('provider_preinstall',calls);self.assertNotIn('provider_postinstall',calls);self.assertNotIn('native_access_experiment',calls)
+        self.assertNotIn("'anon'",STEPS.read_text());self.assertNotIn('DISABLE TRIGGER',STEPS.read_text())
+    def test_emitted_plan_is_admitted_by_actual_reviewed_coordinator_loader(self):
+        n=self.fixture();native={'format':'workinants.native-catalog.v1','server_version_num':170011,'read_only':True,'collected_as':'postgres','collector_is_superuser':True};snapshot=n['digest'](native)
+        target=json.loads((TASK/'local-f0-catalog-v4-plan-8fa680ed/ok-migration-manifest.json').read_bytes());target['run_id']=n['RUN_ID'];target['target'].update(container_name='wa-p0c-550e8400-lease',volume_name='wa-p0c-550e8400-lease-data',bootstrap_secret_host_path=str(n['PRIVATE']/'ok-bootstrap-password'),labels={'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':n['RUN_ID']})
+        nested=n['MANIFEST']['migration_targets']['ok'];raw=json.dumps(target).encode();Path(nested['manifest_path']).write_bytes(raw);nested['manifest_sha256']=hashlib.sha256(raw).hexdigest()
+        comparison={'format':'workinants.catalog-comparison.v1','status':'PASS','source_expected_sha256':n['EXPECTED_SHA'],'native_snapshot_sha256':snapshot,'findings':[],'check_counts':{'PASS':1}}
+        (n['OUT']/'native-before.json').write_text(json.dumps(native));(n['OUT']/'catalog-comparison.json').write_text(json.dumps(comparison));n['report']['qualified_native_snapshot_sha256']=snapshot;n['collect_native']=lambda *a:native
+        actual=runpy.run_path(str(ROOT/n['COORDINATOR']))
+        # This exercises only the real source/proof loader with mock metadata;
+        # the live resource/preflight/run methods are never invoked.
+        def entry(args):
+            plan=json.loads((n['OUT']/'lease-revoke-run-plan.json').read_bytes());packet,observed,target,ctx,protocol=actual['load_inputs'](plan)
+            self.assertEqual(packet['source_only_packet_sha256'],n['CONTENT_SHA']);self.assertEqual(observed,native);self.assertEqual(len(protocol['CASE_ORDER']),19);self.assertTrue(callable(ctx['Session']))
+            d=n['OUT']/'lease-revoke';d.mkdir();(d/'lease-revoke-results.json').write_text('{}');return 0
+        n['LEASE']['module']={'main':entry};n['lease_experiment']()
+    def test_inspection_errors_require_successful_independent_absence_inventory(self):
+        n=self.n;n['docker']=lambda *a,**k:SimpleNamespace(returncode=1,stdout='',stderr=CANARY);n['inventory']=lambda:(_ for _ in ()).throw(n['Stop']('INVENTORY_FAILED'))
+        for fn,name in ((n['inspect_container'],'source'),(n['inspect_volume'],'source-data')):
+            with self.assertRaises(n['Stop']):fn(name)
+        n['inventory']=lambda:(set(),set());self.assertIsNone(n['inspect_container']('source'));self.assertIsNone(n['inspect_volume']('source-data'))
+        n['inventory']=lambda:({'source'},{'source-data'})
+        with self.assertRaises(n['Stop']):n['inspect_container']('source')
+        self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_cleanup_uses_captured_CID_and_preserves_unrelated_resources(self):
+        n=self.fixture();n['PRIVATE'].mkdir();secret=n['PRIVATE']/'ok-bootstrap-password';secret.write_text(CANARY);n['secret_paths']=[secret]
+        labels={'workinants.rehearsal':n['LABEL'],'workinants.rehearsal.run':n['RUN_ID']};containers={'source':{'Name':'/source','Id':'d'*64,'Config':{'Labels':labels}}};volumes={'source-data':{'Name':'source-data','CreatedAt':'CREATED','Labels':labels}};commands=[]
+        n.update(attempted_containers={'source'},attempted_volumes={'source-data'},inspect_container=lambda name:containers.get(name),inspect_volume=lambda name:volumes.get(name),inventory=lambda:(set(containers)|{'unrelated'},set(volumes)|{'unrelated-data'}))
+        def process(args,**options):
+            commands.append(args)
+            if args[:2]==['container','rm']:self.assertEqual(args[-1],'d'*64);containers.clear()
+            elif args[:2]==['volume','rm']:self.assertEqual(args[-1],'source-data');volumes.clear()
+            else:raise AssertionError('UNEXPECTED_CLEANUP')
+            return SimpleNamespace(returncode=0,stdout='',stderr='')
+        n['docker']=process;n['cleanup']();self.assertEqual(len(commands),2);self.assertFalse(n['PRIVATE'].exists());self.assertNotIn('unrelated',repr(commands));self.assertFalse(n['report']['cleanup_summary']['image_removed'])
+    def test_cleanup_rejects_foreign_CID_but_still_attempts_host_secret_cleanup(self):
+        n=self.fixture();n['PRIVATE'].mkdir();secret=n['PRIVATE']/'ok-bootstrap-password';secret.write_text(CANARY);n['secret_paths']=[secret];labels={'workinants.rehearsal':n['LABEL'],'workinants.rehearsal.run':n['RUN_ID']}
+        n.update(attempted_containers={'source'},attempted_volumes=set(),inspect_container=lambda name:{'Name':'/source','Id':'1'*64,'Config':{'Labels':labels}},inventory=lambda:({'source'},set()));n['docker']=Mock(side_effect=AssertionError('NO_FOREIGN_REMOVAL'))
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        n['docker'].assert_not_called();self.assertFalse(n['PRIVATE'].exists());self.assertTrue(n['report']['cleanup_summary']['resource_presence_after']['source'])
+    def test_invalid_operator_steps_never_reaches_main_or_processes(self):
+        n=self.n;n['initialize']=lambda path:n.update(MANIFEST={'wrapper_sha256':hashlib.sha256(CORE.read_bytes()).hexdigest(),'steps_sha256':'0'*64});n['main']=Mock(side_effect=AssertionError('NO_MAIN'))
+        with redirect_stdout(io.StringIO()):self.assertEqual(n['launch'](['--execute-reviewed-lease-revoke','--manifest','MOCK.json']),1)
+        n['main'].assert_not_called()
+    def test_full_helper_and_packet_graph_is_checked_before_first_helper_compile(self):
+        n=self.n;packet=n['LEASE']['packet'];paths=set(packet['source_files_sha256'])|set(n['LR_MODULES'])|{n['FIXTURES'],n['DOCUMENT']}|{'review-output/lease-revoke-control-rehearsal/'+name for name in packet['prepared_files_sha256']};blobs={path:(ROOT/path).read_bytes() for path in paths}
+        external={name:(TASK/name).read_bytes() for name in n['OPERATOR_FILES']}
+        blobs.update({n['SOURCE_ROOT']+'/'+name+'.txt':raw for name,raw in external.items()})
+        cfg={'coordinator':n['COORDINATOR'],'coordinator_sha256':n['COORDINATOR_SHA'],'fixtures':n['FIXTURES'],'fixtures_sha256':n['FIXTURES_SHA'],'content_sha256':n['CONTENT_SHA'],'document':n['DOCUMENT'],'document_sha256':n['DOCUMENT_SHA']}
+        n['MANIFEST']={'lease_revoke':cfg,'operator_sources_sha256':{name:hashlib.sha256(raw).hexdigest() for name,raw in external.items()},'packet_files_sha256':{name:hashlib.sha256(raw).hexdigest() for name,raw in blobs.items()}}
+        actual=Path.read_bytes
+        def read(path):
+            if path.is_relative_to(ROOT):
+                relative=path.relative_to(ROOT).as_posix()
+                if relative in blobs:return blobs[relative]
+            return actual(path)
+        actual_exists=Path.is_file
+        def exists(path):
+            if path.is_relative_to(ROOT) and path.relative_to(ROOT).as_posix() in blobs:return True
+            return actual_exists(path)
+        n['verify_common_packet']=Mock();n['verify_catalog_packet']=Mock(side_effect=n['Stop']('FIRST_ALLOWED_HELPER_BOUNDARY'));n['load_reviewed_helper']=Mock(side_effect=AssertionError('NO_HELPER_YET'))
+        with patch.object(Path,'read_bytes',read),patch.object(Path,'is_file',exists),self.assertRaisesRegex(n['Stop'],'FIRST_ALLOWED_HELPER_BOUNDARY'):n['verify_packet']()
+        n['load_reviewed_helper'].assert_not_called();n['verify_catalog_packet'].reset_mock();blobs['scripts/sql-review/run-first-rehearsal.py']=CANARY.encode()
+        with patch.object(Path,'read_bytes',read),patch.object(Path,'is_file',exists),self.assertRaisesRegex(n['Stop'],'CATALOG_PACKET_SOURCE_DRIFT'):n['verify_packet']()
+        n['verify_catalog_packet'].assert_not_called();n['load_reviewed_helper'].assert_not_called();self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_reference_read_stat_and_save_failures_always_attempt_global_closure(self):
+        for failure in ('read','stat','save'):
+            n=self.fixture();path=n['OUT']/'lease-revoke'/'lease-revoke-results.json'
+            def entry(args):path.parent.mkdir();path.write_text('{}');return 0
+            n['LEASE']['module']={'main':entry};n['qualified_finite_result']=Mock(side_effect=AssertionError('NO_VERDICT'))
+            original_open=Path.open;original_stat=Path.is_file;failed=[False]
+            def read(item,*args,**kwargs):
+                if item==path and args[:1]==('rb',):raise OSError(CANARY)
+                return original_open(item,*args,**kwargs)
+            def stat(item):
+                if item==path:raise OSError(CANARY)
+                return original_stat(item)
+            def save():
+                if not failed[0] and n['report']['lease_revoke'].get('coordinator_reference',{}).get('present') is True:failed[0]=True;raise OSError(CANARY)
+            context=patch.object(Path,'open',read) if failure=='read' else patch.object(Path,'is_file',stat) if failure=='stat' else patch.dict(n,save=save)
+            with context,self.assertRaisesRegex(n['Stop'],'LEASE_COORDINATOR_REFERENCE_UNAVAILABLE'):n['lease_experiment']()
+            self.assertEqual(self.events[-1],('closure','LEASE_REVOKE_AFTER_COORDINATOR'));n['qualified_finite_result'].assert_not_called();self.assertFalse(any(row[0]=='native' for row in self.events));self.assertEqual(n['report']['lease_revoke']['coordinator_reference']['status'],'UNAVAILABLE_STOP_REQUIRED');self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_global_closure_malformed_or_throwing_observation_retains_fixed_unconfirmed(self):
+        for value in ([],{},None,{'migrator':False,'other_client_backends':0},{'migrator':0.0,'other_client_backends':0},{'migrator':-1,'other_client_backends':0},{'migrator':0,'other_client_backends':0,'extra':CANARY},RuntimeError(CANARY)):
+            n=self.n;n['report']['backend_closures']=[]
+            def observe(*args):
+                if isinstance(value,BaseException):raise value
+                return value
+            n['observe']=observe
+            with self.assertRaisesRegex(n['Stop'],'CATALOG_BACKEND_CLOSURE_UNCONFIRMED'):n['closed_backends']('source','MOCK')
+            proof=n['report']['backend_closures'][-1];self.assertEqual(proof['scope'],'ALL_DATABASES_ALL_ROLES_ALL_TAGS');self.assertFalse(proof['all_other_client_backends_absent']);self.assertFalse(proof['counts_valid']);self.assertIs(proof['observation_completed'],not isinstance(value,BaseException));self.assertNotIn(CANARY,json.dumps(n['report']))
+        n['observe']=lambda *a:{'migrator':0,'other_client_backends':0};n['closed_backends']('source','MOCK_POSITIVE');self.assertTrue(n['report']['backend_closures'][-1]['all_other_client_backends_absent'])
+    def test_after_coordinator_unconfirmed_observer_blocks_verdict_and_final_native(self):
+        for value in ([],RuntimeError(CANARY)):
+            real=namespace()['closed_backends'];n=self.fixture();real.__globals__.update(n);calls=[0]
+            def closed(name,stage):
+                calls[0]+=1
+                if calls[0]==1:return
+                return real(name,stage)
+            def observe(*args):
+                if isinstance(value,BaseException):raise value
+                return value
+            n['closed_backends']=closed;real.__globals__['observe']=observe
+            def entry(args):d=n['OUT']/'lease-revoke';d.mkdir();(d/'lease-revoke-results.json').write_text('{}');return 0
+            n['LEASE']['module']={'main':entry};n['qualified_finite_result']=Mock(side_effect=AssertionError('NO_VERDICT'))
+            with self.assertRaisesRegex(n['Stop'],'CATALOG_BACKEND_CLOSURE_UNCONFIRMED'):n['lease_experiment']()
+            n['qualified_finite_result'].assert_not_called();self.assertFalse(any(row[0]=='native' for row in self.events));self.assertFalse(n['report']['backend_closures'][-1]['all_other_client_backends_absent']);self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_oversized_reference_is_not_read_and_closure_still_precedes_stop(self):
+        n=self.fixture();path=n['OUT']/'lease-revoke'/'lease-revoke-results.json';path.parent.mkdir();path.write_text('{}');original_stat=Path.stat;original_open=Path.open
+        def stat(item,*args,**kwargs):
+            actual=original_stat(item,*args,**kwargs)
+            return SimpleNamespace(st_mode=actual.st_mode,st_size=16*1024*1024+1) if item==path else actual
+        def opened(item,*args,**kwargs):
+            if item==path and args[:1]==('rb',):raise AssertionError('OVERSIZED_REFERENCE_MUST_NOT_BE_READ')
+            return original_open(item,*args,**kwargs)
+        n['LEASE']['module']={'main':lambda args:0};n['qualified_finite_result']=Mock(side_effect=AssertionError('NO_VERDICT'))
+        with patch.object(Path,'stat',stat),patch.object(Path,'open',opened),self.assertRaisesRegex(n['Stop'],'LEASE_COORDINATOR_REFERENCE_UNAVAILABLE'):n['lease_experiment']()
+        self.assertEqual(self.events[-1],('closure','LEASE_REVOKE_AFTER_COORDINATOR'));self.assertEqual(n['report']['lease_revoke']['coordinator_reference']['status'],'OVERSIZED_STOP_REQUIRED');n['qualified_finite_result'].assert_not_called();self.assertFalse(any(row[0]=='native' for row in self.events))
+    def test_verdict_consumes_exact_bounded_reference_bytes_without_second_read(self):
+        n=self.fixture();path=n['OUT']/'lease-revoke'/'lease-revoke-results.json';original_read=Path.read_bytes;accepted=[]
+        def entry(args):path.parent.mkdir();path.write_text('{"source_bound":true}');return 0
+        def read(item):
+            if item==path:raise AssertionError('NO_UNBOUNDED_SECOND_REFERENCE_READ')
+            return original_read(item)
+        n['LEASE']['module']={'main':entry};n['qualified_finite_result']=lambda value,plan:accepted.append(value) or {'finite_protocols':19}
+        with patch.object(Path,'read_bytes',read):n['lease_experiment']()
+        self.assertEqual(accepted,[{'source_bound':True}]);self.assertNotIn('coordinator_evidence_bytes',n['LEASE'])
+    def real_full_namespace(self):
+        """Real pending preparer/closed bytes on physical temp files, no IO mocks.
+
+        Only common committed-Git verification is replaced. Real full catalog,
+        fixture/helper admission, helper compilation and packet verification run.
+        The pending source/approval fields never become an operational approval.
+        """
+        cls=type(self)
+        if not hasattr(cls,'real_pending'):
+            pending=runpy.run_path(str(TASK/'prepare_local_f0_lease_revoke_plan_auth_v5.py'))
+            baseline_path=TASK/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json'
+            raw=baseline_path.read_bytes()
+            self.assertEqual(hashlib.sha256(raw).hexdigest(),'92cca48f0e8e24c35f1de5fe2b635a229adf2731376a5e91cd33c91071d51be5')
+            _,master,files=pending['prepare'](ROOT,TASK,json.loads(raw))
+            self.assertEqual(master['review_status'],'PENDING_OPERATIONAL_REVIEW')
+            self.assertEqual(master['source_commit'],'TO_BE_PINNED')
+            cls.real_pending=(master,files)
+        master,files=deepcopy(cls.real_pending)
+        directory=tempfile.TemporaryDirectory(prefix='offline-lease-fullverify-',dir=TASK)
+        self.addCleanup(directory.cleanup);base=Path(directory.name);clone=base/'workinants-correction-pass';clone.mkdir();plan=base/'plan';plan.mkdir()
+        # Copy all actual admitted ROOT inputs byte-for-byte; no fallback reader.
+        paths=set(master['packet_files_sha256'])|set(master['catalog']['tool_source_files_sha256'])
+        for relative in paths:
+            source=ROOT/relative;raw=source.read_bytes();wanted=master['packet_files_sha256'].get(relative,master['catalog']['tool_source_files_sha256'].get(relative))
+            self.assertEqual(hashlib.sha256(raw).hexdigest(),wanted)
+            destination=clone/relative;destination.parent.mkdir(parents=True,exist_ok=True);destination.write_bytes(raw)
+        snapshot_root='context/reconciliation/local-f0-operation-sources/lease-revoke-auth-v5'
+        for name,want in master['operator_sources_sha256'].items():
+            raw=(TASK/name).read_bytes();self.assertEqual(hashlib.sha256(raw).hexdigest(),want)
+            relative=snapshot_root+'/'+name+'.txt';destination=clone/relative;destination.parent.mkdir(parents=True,exist_ok=True);destination.write_bytes(raw)
+            master['packet_files_sha256'][relative]=want
+        master['prepared_source_files_aggregate_sha256']=hashlib.sha256(''.join(p+'\0'+master['packet_files_sha256'][p]+'\n' for p in sorted(master['packet_files_sha256'])).encode()).hexdigest()
+        for relative,raw in files.items():
+            destination=plan/relative;destination.parent.mkdir(parents=True,exist_ok=True);destination.write_bytes(raw)
+        nested=master['migration_targets']['ok'];nested.update(manifest_path=str(plan/'ok-migration-manifest.json'),source_snapshot=str(plan/'source-ok'),source_archive=str(plan/'source-ok.tar.gz'))
+        out=base/'evidence';out.mkdir();master['evidence_directory']=str(out)
+        manifest=base/'pending-manifest.json';manifest.write_text(json.dumps(master))
+        n=runpy.run_path(str(CORE))['initialize'].__globals__;n['initialize'](manifest);exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),n)
+        n['ROOT']=clone
+        # The only admitted mock supplies the unavailable future Git checkpoint.
+        n.update(COMMIT='a'*40,TREE='b'*40,PACKET=hashlib.sha256(''.join(p+'\0'+master['packet_files_sha256'][p]+'\n' for p in sorted(master['packet_files_sha256'])).encode()).hexdigest())
+        n['verify_common_packet']=Mock(name='only_outer_committed_Git_boundary')
+        self.assertEqual(n['MANIFEST']['review_status'],'PENDING_OPERATIONAL_REVIEW')
+        return n
+    def test_actual_full_verify_packet_real_pending_inventory_and_physical_new_five_snapshots(self):
+        n=self.real_full_namespace();n['verify_packet']();n['verify_common_packet'].assert_called_once_with()
+        self.assertEqual(n['report']['operator_snapshot_verification'],{'required_snapshots':5,'checked_snapshots':5,'complete':True})
+        self.assertEqual(n['report']['catalog_preparation']['status'],'SOURCE_REPRODUCED_NOT_RUN')
+        self.assertEqual(n['report']['catalog_preparation']['closed_source_files'],16)
+        self.assertEqual(n['LEASE']['protocol']['CASE_ORDER'],tuple(n['LEASE']['packet']['case_order']))
+        self.assertEqual(len(n['HELPER_BYTES']),7)
+        self.assertEqual(n['report']['lease_revoke']['source_preparation'],'REVIEWED_BYTES_VERIFIED_NOT_EXECUTED')
+        self.assertEqual(n['MANIFEST']['source_commit'],'TO_BE_PINNED')
+    def test_frozen_old_actual_full_verifier_reproduces_missing_folder_before_process(self):
+        old_core=TASK/'execute_local_f0_lease_revoke_20261118_image_v2.py';old_steps=TASK/'local_f0_lease_revoke_operation_steps_image_v2.py'
+        n=runpy.run_path(str(old_core))['initialize'].__globals__
+        actual=json.loads((TASK/'local-f0-lease-revoke-plan-bb6843ed/operation-manifest.json').read_bytes())
+        temp=tempfile.TemporaryDirectory(prefix='offline-old-lease-folder-',dir=TASK);self.addCleanup(temp.cleanup);base=Path(temp.name);out=base/'evidence';out.mkdir();actual['evidence_directory']=str(out)
+        path=base/'manifest.json';path.write_text(json.dumps(actual));n['initialize'](path);exec(compile(old_steps.read_bytes(),str(old_steps),'exec'),n)
+        n['verify_common_packet']=Mock(name='only_outer_committed_Git_boundary')
+        self.assertEqual(n['SOURCE_ROOT'],'context/reconciliation/local-f0-operation-sources/lease-revoke-v1')
+        with self.assertRaises(FileNotFoundError):n['verify_packet']()
+        n['verify_common_packet'].assert_called_once_with()
+        self.assertNotIn('lease_revoke',n['report'])
+    def test_restoring_old_snapshot_folder_rejects_before_unadmitted_filesystem_read(self):
+        n=self.real_full_namespace();n['SOURCE_ROOT']='context/reconciliation/local-f0-operation-sources/lease-revoke-v1'
+        with self.assertRaisesRegex(n['Stop'],'CATALOG_PACKET_PATH_NOT_ADMITTED'):n['verify_packet']()
+        self.assertEqual(n['report']['operator_snapshot_verification']['checked_snapshots'],0)
+        self.assertNotIn('catalog_preparation',n['report'])
+    def test_actual_missing_snapshot_rejects_with_fixed_partial_proof(self):
+        n=self.real_full_namespace();relative=n['SOURCE_ROOT']+'/'+n['OPERATOR_FILES'][0]+'.txt';(n['ROOT']/relative).unlink()
+        with self.assertRaisesRegex(n['Stop'],'CATALOG_PACKET_SOURCE_MISSING'):n['verify_packet']()
+        self.assertEqual(n['report']['operator_snapshot_verification'],{'required_snapshots':5,'checked_snapshots':0,'complete':False})
+        self.assertNotIn('catalog_preparation',n['report'])
+    def test_unpinned_and_malformed_pin_snapshots_reject_before_read(self):
+        for value in (None,True,'G'*64,'a'*63):
+            n=self.real_full_namespace();relative=n['SOURCE_ROOT']+'/'+n['OPERATOR_FILES'][0]+'.txt'
+            if value is None:del n['MANIFEST']['packet_files_sha256'][relative]
+            else:n['MANIFEST']['packet_files_sha256'][relative]=value
+            # The actual physical file exists. Admission must fail before its read.
+            self.assertTrue((n['ROOT']/relative).is_file())
+            with self.assertRaisesRegex(n['Stop'],'CATALOG_PACKET_PATH_NOT_ADMITTED' if value is None else 'CATALOG_PACKET_PIN_INVALID'):n['verify_packet']()
+            self.assertEqual(n['report']['operator_snapshot_verification']['checked_snapshots'],0)
+            self.assertNotIn('catalog_preparation',n['report'])
+    def test_snapshot_hash_drift_and_unknown_operator_stop_without_canary_retention(self):
+        n=self.real_full_namespace();relative=n['SOURCE_ROOT']+'/'+n['OPERATOR_FILES'][1]+'.txt';(n['ROOT']/relative).write_text(CANARY)
+        with self.assertRaisesRegex(n['Stop'],'CATALOG_PACKET_SOURCE_DRIFT'):n['verify_packet']()
+        self.assertEqual(n['report']['operator_snapshot_verification']['checked_snapshots'],1)
+        self.assertNotIn(CANARY,json.dumps(n['report']));self.assertNotIn('catalog_preparation',n['report'])
+        n=self.real_full_namespace();n['MANIFEST']['operator_sources_sha256']['unknown_canary.py']='a'*64
+        with self.assertRaisesRegex(n['Stop'],'CLOSED_OPERATOR_SOURCES_REQUIRED'):n['verify_packet']()
+        self.assertNotIn('operator_snapshot_verification',n['report'])
+    def test_pin_helper_and_runtime_snapshot_bindings_match_and_require_independent_review(self):
+        n=self.n;pin=runpy.run_path(str(TASK/'pin_local_f0_lease_revoke_plan_20261118_auth_v5.py'))
+        self.assertEqual(pin['SOURCE_ROOT'],n['SOURCE_ROOT']);self.assertEqual(pin['FILES'],n['OPERATOR_FILES'])
+        self.assertEqual(pin['VALIDATION'],'context/reconciliation/local-f0-lease-revoke-auth-v5-source-validation.json')
+        source=(TASK/'pin_local_f0_lease_revoke_plan_20261118_auth_v5.py').read_text()
+        self.assertIn("validation['independent_snapshot_correction_review']['decision']=='SOURCE_APPROVED'",source)
+        node=next(x for x in ast.parse(STEPS.read_text()).body if isinstance(x,ast.FunctionDef) and x.name=='read_pinned')
+        calls=[x for x in ast.walk(node) if isinstance(x,ast.Call)]
+        read=next(x for x in calls if isinstance(x.func,ast.Attribute) and x.func.attr=='read_bytes')
+        admission=next(x for x in calls if any(isinstance(a,ast.Constant) and a.value=='CATALOG_PACKET_PATH_NOT_ADMITTED' for a in x.args))
+        pincheck=next(x for x in calls if any(isinstance(a,ast.Constant) and a.value=='CATALOG_PACKET_PIN_INVALID' for a in x.args))
+        self.assertLess(admission.lineno,read.lineno);self.assertLess(pincheck.lineno,read.lineno)
+    def test_actual_pin_helper_refuses_pending_snapshot_review_before_any_Git(self):
+        n=self.real_full_namespace();pin=runpy.run_path(str(TASK/'pin_local_f0_lease_revoke_plan_20261118_auth_v5.py'))
+        pin['pin'].__globals__['ROOT']=n['ROOT']
+        review=n['ROOT']/pin['VALIDATION'];review.parent.mkdir(parents=True,exist_ok=True)
+        review.write_text(json.dumps({'independent_image_correction_review':{'decision':'SOURCE_APPROVED'},'independent_snapshot_correction_review':{'decision':'PENDING_ROOT_REVIEW'}}))
+        with self.assertRaisesRegex(ValueError,'SNAPSHOT_CORRECTION_REVIEW_REQUIRED'):pin['pin'](n['MANIFEST_PATH'])
+class FinallySafetyTests(unittest.TestCase):
+    """Actual new main/cleanup/save bodies; every operation process is refused."""
+    def setUp(self):
+        from types import SimpleNamespace
+        self.Result=SimpleNamespace;self.guards=[]
+        for name in ('run','Popen','check_call','check_output','call'):
+            guard=patch.object(subprocess,name,side_effect=AssertionError('NO_REAL_PROCESS'));guard.start();self.addCleanup(guard.stop)
+        guard=patch.object(socket,'create_connection',side_effect=AssertionError('NO_NETWORK'));guard.start();self.addCleanup(guard.stop)
+        tmp=tempfile.TemporaryDirectory(prefix='offline-finally-v4-',dir=TASK);self.addCleanup(tmp.cleanup);self.base=Path(tmp.name)
+        n=runpy.run_path(str(CORE));self.n=n['launch'].__globals__;exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),self.n);self.lease='lease_revoke' in CORE.name;self.events=[]
+        n=self.n;n.update(ROOT=ROOT,TASK=TASK,OUT=self.base/'evidence',PRIVATE=self.base/'evidence/private',RUN_ID='550e8400-e29b-41d4-a716-446655440000',LABEL='p0c-local-f0',CONNECTION_TAG='wa-first-test',ROLES=('postgres','wa_migrator'),all_secrets=[],secret_paths=[],created_containers={},created_volumes={},attempted_containers=set(),attempted_volumes=set(),bootstrap_attempted=set(),finalization_attempted=set(),finalized=set(),RESOURCE_CONTAINERS=(),RESOURCE_VOLUMES=())
+        n['report']={'stage':'ENTRY','status':'IN_PROGRESS','unexpected':[],'events':[],'steps':{},'targets':{},'cleanup':{},'qualified_native_snapshot_sha256':'a'*64,'source_verification':{'files_sha256':{'AGENTS.md':hashlib.sha256((ROOT/'AGENTS.md').read_bytes()).hexdigest()}}}
+        external={CORE.name:hashlib.sha256(CORE.read_bytes()).hexdigest()};n['MANIFEST']={'review_status':'APPROVED_LOCAL_F0_LEASE_REVOKE_ATTEMPT' if self.lease else 'APPROVED_LOCAL_F0_RESTORE_ATTEMPT','operator_sources_sha256':external,'restore':{'external_files_sha256':external}}
+        self.raw_save=n['save'];self.raw_cleanup=n['cleanup'];self.raw_event=n['event']
+        for name in ('verify_packet' if self.lease else 'verify_restore_packet','preflight','ensure_image','create_resources','bootstrap_all','provision_migration_tools','catalog_experiment','lease_experiment' if self.lease else 'restore_experiment'):
+            n[name]=lambda name=name:self.events.append(name)
+        n['finalize']=lambda name:self.events.append('finalize:'+name);n['secret_scan']=lambda:self.events.append('scan');n['cleanup']=lambda:self.events.append('cleanup');n['verify_tool_data']=lambda:self.events.append('tool-postcheck');n['verify_external_input_preservation']=lambda:self.events.append('archive-postcheck')
+        n['save']=lambda:None;n['event']=lambda *a,**k:None
+    def invoke(self):
+        with redirect_stdout(io.StringIO()) as output:result=self.n['main']()
+        self.assertNotIn(CANARY,output.getvalue());self.assertNotIn(CANARY,json.dumps(self.n['report']));return result
+    def persistent_after_initial(self):
+        calls=[0]
+        def save():
+            calls[0]+=1
+            if calls[0]>1:raise OSError(CANARY)
+        self.n['save']=save
+    def test_actual_operational_stop_finalizer_and_persistent_save_do_not_skip_any_finally_branch(self):
+        n=self.n;n['bootstrap_attempted']={'first','second'};self.persistent_after_initial()
+        def stop():n['report']['stage']='ORIGINAL_OPERATION';raise n['Stop']('ORIGINAL_OPERATION_STOP')
+        n['verify_packet' if self.lease else 'verify_restore_packet']=stop
+        def finalize(name):
+            self.events.append('finalize:'+name)
+            if name=='first':raise OSError(CANARY)
+        n['finalize']=finalize;self.assertEqual(self.invoke(),1)
+        for key in ('finalize:first','finalize:second','scan','cleanup','tool-postcheck','archive-postcheck'):self.assertIn(key,self.events)
+        self.assertEqual(n['report']['primary_failure'],{'stage':'ORIGINAL_OPERATION','code':'ORIGINAL_OPERATION_STOP'});self.assertFalse(n['report']['evidence_complete']);self.assertNotIn('qualified_native_snapshot_sha256',n['report'])
+    def test_actual_scan_failure_and_persistent_save_still_attempt_cleanup_and_all_postchecks(self):
+        n=self.n;self.persistent_after_initial()
+        def scan():self.events.append('scan');raise OSError(CANARY)
+        n['secret_scan']=scan;self.assertEqual(self.invoke(),1)
+        for key in ('cleanup','tool-postcheck','archive-postcheck'):self.assertIn(key,self.events)
+        self.assertFalse(n['report']['evidence_complete'])
+    def test_stop_event_output_failure_cannot_skip_finally(self):
+        n=self.n;n['verify_packet' if self.lease else 'verify_restore_packet']=lambda:(_ for _ in ()).throw(n['Stop']('ORIGINAL_OPERATION_STOP'));n['event']=lambda *a,**k:(_ for _ in ()).throw(BrokenPipeError(CANARY))
+        self.assertEqual(self.invoke(),1);self.assertIn('cleanup',self.events);self.assertIn('archive-postcheck',self.events);self.assertEqual(n['report']['primary_failure']['code'],'ORIGINAL_OPERATION_STOP');self.assertFalse(n['report']['evidence_complete'])
+    def test_initial_evidence_failure_stops_before_preflight_or_creation(self):
+        n=self.n;n['save']=lambda:(_ for _ in ()).throw(OSError(CANARY));self.assertEqual(self.invoke(),1);self.assertNotIn('preflight',self.events);self.assertNotIn('create_resources',self.events);self.assertIn('cleanup',self.events)
+    def test_final_save_failure_cannot_return_or_emit_pass(self):
+        self.persistent_after_initial();self.assertEqual(self.invoke(),1);self.assertEqual(self.n['report']['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertFalse(self.n['report']['evidence_complete'])
+    def test_final_output_failure_is_sticky_nonzero_even_if_file_saving_recovers(self):
+        n=self.n
+        with patch('builtins.print',side_effect=BrokenPipeError(CANARY)):self.assertEqual(n['main'](),1)
+        self.assertFalse(n['report']['evidence_complete']);self.assertNotIn('qualified_native_snapshot_sha256',n['report'])
+    def test_raw_operational_event_output_failure_marks_incomplete_before_main_handles_it(self):
+        n=self.n;n['OUT'].mkdir();n['event']=self.raw_event;n['save']=self.raw_save
+        with patch('builtins.print',side_effect=BrokenPipeError(CANARY)),self.assertRaises(BrokenPipeError):n['event']('SAFE_STAGE','ATTEMPTED')
+        self.assertFalse(n['evidence_is_complete']());n['save']();self.assertFalse(json.loads((n['OUT']/'run-evidence.json').read_bytes())['evidence_complete'])
+    def test_raw_save_failure_remains_sticky_after_a_later_real_save_succeeds(self):
+        n=self.n;n['OUT'].mkdir();n['save']=self.raw_save
+        with patch.object(Path,'open',side_effect=OSError(CANARY)),self.assertRaises(OSError):n['save']()
+        n['save']();self.assertFalse(n['evidence_is_complete']());value=json.loads((n['OUT']/'run-evidence.json').read_bytes());self.assertFalse(value['evidence_complete']);self.assertTrue(value['persistence_failure'])
+    def test_tool_and_archive_postchecks_run_after_packet_read_failure(self):
+        n=self.n;n['report']['source_verification']['files_sha256']={'not-a-current-source-file': '0'*64};self.assertEqual(self.invoke(),1);self.assertIn('tool-postcheck',self.events);self.assertIn('archive-postcheck',self.events);self.assertFalse(n['report']['packet_unchanged_after_run']);self.assertTrue(n['report']['external_sources_unchanged_after_run'])
+    def test_archive_and_operator_postchecks_run_after_tool_postcheck_exception(self):
+        n=self.n;n['verify_tool_data']=lambda:(_ for _ in ()).throw(OSError(CANARY));self.assertEqual(self.invoke(),1);self.assertIn('archive-postcheck',self.events);self.assertTrue(n['report']['external_sources_unchanged_after_run'])
+    def test_unmodified_all_success_status_is_preserved(self):
+        self.assertEqual(self.invoke(),0);expected='PASS_FINITE_LEASE_AND_APP_CURRENTNESS_ONLY_CASES_NOT_RUN' if self.lease else 'PASS_LOCAL_PHYSICAL_RESTORE_SUBSET_ONLY_FULL_CASE_NOT_RUN';self.assertEqual(self.n['report']['status'],expected);self.assertTrue(self.n['evidence_is_complete']())
+    def cleanup_fixture(self,mode):
+        n=self.n;n['OUT'].mkdir();n['PRIVATE'].mkdir();names=('source',) if self.lease else ('source','staging','target');volumes=('source-data',) if self.lease else ('source-data','target-data');ids={name:format(i+1,'064x') for i,name in enumerate(names)};labels={'workinants.rehearsal':n['LABEL'],'workinants.rehearsal.run':n['RUN_ID']};present_c=set(names);present_v=set(volumes);calls=[]
+        n.update(RESOURCE_CONTAINERS=names,RESOURCE_VOLUMES=volumes,created_containers=ids,created_volumes={name:'FIXED_CREATED_AT' for name in volumes},attempted_containers=set(names),attempted_volumes=set(volumes));n['secret_paths']=[n['PRIVATE']/'ok-bootstrap-password']+([] if self.lease else [n['PRIVATE']/'restore01-base.tar'])
+        for path in n['secret_paths']:path.write_text('synthetic test bytes')
+        def container(name):
+            calls.append(('inspect-container',name))
+            if name==names[0] and mode=='inspection':raise OSError(CANARY)
+            return {'Id':'f'*64 if name==names[0] and mode=='foreign' else ids[name],'Name':'/'+name,'Config':{'Labels':labels}}
+        def volume(name):calls.append(('inspect-volume',name));return {'Name':name,'CreatedAt':'FIXED_CREATED_AT','Labels':labels}
+        def docker(args,**kwargs):
+            calls.append(tuple(args))
+            if args[:2]==['container','rm']:present_c.remove(next(name for name in ids if ids[name]==args[-1]))
+            if args[:2]==['volume','rm']:present_v.remove(args[-1])
+            return self.Result(returncode=0,stdout='',stderr='')
+        def inventory():
+            calls.append(('independent-absence',))
+            if mode=='absence':raise OSError(CANARY)
+            return present_c,present_v
+        n.update(inspect_container=container,inspect_volume=volume,docker=docker,inventory=inventory,cleanup=self.raw_cleanup);n['save']=lambda:(_ for _ in ()).throw(OSError(CANARY));return names,volumes,ids,calls
+    def test_cleanup_report_save_failure_does_not_skip_volumes_private_files_or_final_absence(self):
+        names,volumes,ids,calls=self.cleanup_fixture('save');n=self.n
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertTrue(all(('container','rm','-f',ids[name]) in calls for name in names));self.assertTrue(all(('volume','rm',name) in calls for name in volumes));self.assertFalse(n['PRIVATE'].exists());self.assertIn(('independent-absence',),calls);self.assertFalse(n['report']['evidence_complete']);self.assertNotEqual(n['report']['steps'].get('CATALOG-CLEANUP'),'PASS')
+    def test_cleanup_inspection_failure_and_failed_error_save_do_not_skip_other_resources(self):
+        names,volumes,ids,calls=self.cleanup_fixture('inspection');n=self.n
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertTrue(all(('container','rm','-f',ids[name]) in calls for name in names[1:]));self.assertTrue(all(('volume','rm',name) in calls for name in volumes));self.assertFalse(n['PRIVATE'].exists());self.assertIn(('independent-absence',),calls)
+    def test_cleanup_foreign_identity_is_not_deleted_despite_failed_bookkeeping(self):
+        names,volumes,ids,calls=self.cleanup_fixture('foreign');n=self.n
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertNotIn(('container','rm','-f','f'*64),calls);self.assertNotIn(('container','rm','-f',ids[names[0]]),calls);self.assertIn(('independent-absence',),calls);self.assertFalse(n['PRIVATE'].exists())
+    def test_private_metadata_read_error_never_claims_absence_and_still_observes_resources(self):
+        names,volumes,ids,calls=self.cleanup_fixture('metadata');n=self.n;original=Path.lstat
+        def lstat(path,*a,**k):
+            if path==n['PRIVATE']:raise PermissionError(CANARY)
+            return original(path,*a,**k)
+        with patch.object(Path,'lstat',lstat),self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertIn(('independent-absence',),calls);self.assertFalse(n['report']['host_secret_cleanup']['private_directory_absent']);self.assertFalse(n['report']['cleanup_summary']['private_directory_absent']);self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_cleanup_unknown_absence_retains_fixed_unconfirmed_flags(self):
+        names,volumes,ids,calls=self.cleanup_fixture('absence');n=self.n
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertFalse(n['report']['cleanup_summary']['resource_absence_observation_completed']);self.assertIsNone(n['report']['cleanup_summary']['resource_presence_after']);self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_one_private_unlink_failure_does_not_skip_other_secret_or_absence(self):
+        names,volumes,ids,calls=self.cleanup_fixture('unlink');n=self.n;original=Path.unlink;first=n['secret_paths'][0]
+        def unlink(path,*a,**k):
+            if path==first:raise OSError(CANARY)
+            return original(path,*a,**k)
+        with patch.object(Path,'unlink',unlink),self.assertRaises(n['Stop']):n['cleanup']()
+        for path in n['secret_paths'][1:]:self.assertFalse(path.exists())
+        self.assertIn(('independent-absence',),calls);self.assertNotIn(CANARY,json.dumps(n['report']))
+
+
+TEMPLATE_OLD_STEPS=TASK/'auth-v5-before-author-20261119'/'local_f0_lease_revoke_operation_steps_finally_v4.py'
+
+# The auth oracle projects pinned libpq formatting from the actual process argv.
+import copy as _auth_copy
+import types as _auth_types
+
+class AuthV5ProjectionTests(unittest.TestCase):
+    def setUp(self):
+        for key in ('run','Popen','call','check_call','check_output'):
+            guard=patch.object(subprocess,key,side_effect=AssertionError('RUNTIME_NOT_MOCKED'));guard.start();self.addCleanup(guard.stop)
+        guard=patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+        self.n=namespace();self.n.update(DB='wa_p0c_rehearsal',CONNECTION_TAG='wa-auth-v5-offline');self.events=[];self.saved=[]
+        self.n['closed_backends']=lambda *args:self.events.append(('closure',args))
+        self.n['save']=lambda:self.saved.append(_auth_copy.deepcopy(self.n['report']))
+        self.root_key='restore' if 'restore' in STEPS.name and 'lease' not in STEPS.name else 'lease_revoke'
+    def projected(self,args,expected='password',visible_state=False,crlf=False):
+        role=args[args.index('-U')+1];host=args[args.index('-h')+1];port=args[args.index('-p')+1];db=args[args.index('-d')+1]
+        file=next(value[len('PGPASSFILE='):] for value in args if value.startswith('PGPASSFILE='))
+        state='28P01' if expected=='password' else '28000'
+        primary='password authentication failed for user "'+role+'"' if expected=='password' else 'pg_hba.conf rejects connection for host "'+host+'", user "'+role+'", database "'+db+'", no encryption'
+        output='psql: error: connection to server at "'+host+'", port '+port+' failed: FATAL:  '+(state+': ' if visible_state else '')+primary+'\n'
+        if expected=='password':output+='password retrieved from file "'+file+'"\n'
+        if crlf:output=output.replace('\n','\r\n')
+        return _auth_types.SimpleNamespace(returncode=2,stdout='',stderr=output)
+    def call(self,role='postgres',file='/run/wa-secrets/wrong.pgpass',expected='password'):
+        self.n['auth_control']('source',role,file,expected)
+        return self.n['report'][self.root_key]['authentication'][-1]
+    def assert_safe_comparison(self,proof):
+        expected={'result_fields_typed','exit_two','stdout_empty','text_bounded','controls_absent','endpoint_exact','single_fatal','expected_primary','sqlstate_compatible','selected_file_warning_exact','line_count_exact','transport_exact','sqlstate_category','password_file_basename'}
+        self.assertEqual(set(proof['comparison']),expected)
+        for key in expected-{'sqlstate_category','password_file_basename'}:self.assertIs(type(proof['comparison'][key]),bool)
+        self.assertIn(proof['comparison']['sqlstate_category'],('UNOBSERVED','ABSENT_EXACT_PRIMARY','EXPECTED','MISMATCH','MALFORMED'))
+        self.assertNotIn(CANARY,json.dumps(self.n['report']));self.assertNotIn('password retrieved',json.dumps(self.n['report']));self.assertNotIn('password authentication failed',json.dumps(self.n['report']))
+    def test_all_roles_actual_passfile_projection_and_visible_state_or_crlf(self):
+        files=('/run/wa-secrets/wrong.pgpass','/run/wa-secrets/source-old.pgpass') if self.root_key=='restore' else ('/run/wa-secrets/wrong.pgpass',)
+        for role in self.n['ROLES']:
+            for file in files:
+                for visible,crlf in ((False,False),(True,False),(False,True)):
+                    with self.subTest(role=role,file=file,visible=visible,crlf=crlf):
+                        self.n['command']=lambda args,*a,visible=visible,crlf=crlf,**kw:self.projected(args,visible_state=visible,crlf=crlf)
+                        proof=self.call(role,file);self.assertTrue(proof['matched']);self.assertTrue(proof['operation_closed']);self.assert_safe_comparison(proof)
+                        self.assertEqual(proof['comparison']['sqlstate_category'],'EXPECTED' if visible else 'ABSENT_EXACT_PRIMARY')
+    def test_hba_exact_28000_remains_separate_and_rejects_warning(self):
+        for role in self.n['ROLES']:
+            for visible in (False,True):
+                self.n['command']=lambda args,*a,visible=visible,**kw:self.projected(args,'hba',visible_state=visible)
+                proof=self.call(role,'/run/wa-secrets/pgpass','hba');self.assertTrue(proof['matched']);self.assert_safe_comparison(proof)
+            def warning(args,*a,**kw):
+                result=self.projected(args,'hba');result.stderr+='password retrieved from file "/run/wa-secrets/pgpass"\n';return result
+            self.n['command']=warning
+            with self.assertRaises(self.n['Stop']):self.call(role,'/run/wa-secrets/pgpass','hba')
+            proof=self.n['report'][self.root_key]['authentication'][-1];self.assertFalse(proof['matched']);self.assertFalse(proof['comparison']['selected_file_warning_exact']);self.assertTrue(proof['operation_closed'])
+    def test_hba_wrong_category_identity_transport_or_extra_never_pass(self):
+        changes=(lambda s:s.replace('FATAL:  ','FATAL:  28P01: '),lambda s:s.replace('FATAL:  ','FATAL:  42501: '),lambda s:s.replace('FATAL:  ','FATAL:  P0001: '),lambda s:s.replace('user "postgres"','user "wa_worker"'),lambda s:s.replace('database "wa_p0c_rehearsal"','database "other_db"'),lambda s:s.replace('127.0.0.1','192.0.2.1'),lambda s:s.replace('no encryption','SSL encryption'),lambda s:s+CANARY+'\n')
+        for change in changes:
+            def command(args,*a,change=change,**kw):
+                result=self.projected(args,'hba');result.stderr=change(result.stderr);return result
+            self.n['command']=command
+            with self.assertRaises(self.n['Stop']):self.call(file='/run/wa-secrets/pgpass',expected='hba')
+            proof=self.n['report'][self.root_key]['authentication'][-1];self.assertFalse(proof['matched']);self.assertTrue(proof['operation_closed']);self.assert_safe_comparison(proof)
+            before=self.saved[-2][self.root_key]['authentication'][-1];self.assertEqual(before['comparison'],proof['comparison']);self.assertFalse(before['matched']);self.assertFalse(before['operation_closed'])
+    def test_missing_warning_is_required_and_old_parser_restoration_is_detected(self):
+        self.n['command']=lambda args,*a,**kw:self.projected(args)
+        old=TEMPLATE_OLD_STEPS
+        tree=ast.parse(old.read_bytes());node=next(x for x in tree.body if isinstance(x,ast.FunctionDef) and x.name=='auth_control')
+        exec(compile(ast.Module(body=[node],type_ignores=[]),str(old),'exec'),self.n)
+        with self.assertRaises(self.n['Stop']) as failure:self.call()
+        self.assertEqual(failure.exception.code,'RESTORE_AUTH_EXACT_DENIAL')
+        self.n=namespace();self.n.update(DB='wa_p0c_rehearsal',CONNECTION_TAG='wa-auth-v5-offline');self.n['closed_backends']=lambda *a:None;self.n['save']=lambda:None
+        def missing(args,*a,**kw):
+            result=self.projected(args);result.stderr=result.stderr.split('\n')[0]+'\n';return result
+        self.n['command']=missing
+        with self.assertRaises(self.n['Stop']):self.call()
+        self.assertFalse(self.n['report'][self.root_key]['authentication'][-1]['comparison']['selected_file_warning_exact'])
+    def test_wrong_role_state_file_endpoint_and_extra_lines_reject_before_next_step(self):
+        changes={
+            'role':lambda s:s.replace('user "postgres"','user "wa_worker"'),
+            '28000':lambda s:s.replace('FATAL:  ','FATAL:  28000: '),
+            '42501':lambda s:s.replace('FATAL:  ','FATAL:  42501: '),
+            'P0001':lambda s:s.replace('FATAL:  ','FATAL:  P0001: '),
+            'malformed_state':lambda s:s.replace('FATAL:  ','FATAL:  28P01X: '),
+            'file':lambda s:s.replace('/run/wa-secrets/wrong.pgpass','/run/wa-secrets/source-old.pgpass'),
+            'unknown_file':lambda s:s.replace('/run/wa-secrets/wrong.pgpass',CANARY),
+            'path_suffix':lambda s:s.replace('wrong.pgpass','wrong.pgpass.extra'),
+            'other_host':lambda s:s.replace('127.0.0.1','192.0.2.1'),
+            'other_port':lambda s:s.replace('5432','6432'),
+            'parentheses':lambda s:s.replace('"127.0.0.1",','"127.0.0.1" (127.0.0.1),'),
+            'bare_primary':lambda s:s.split(' failed: ',1)[1],
+            'extra':lambda s:s+CANARY+'\n',
+            'detail':lambda s:s+'DETAIL: '+CANARY+'\n',
+            'hint':lambda s:s+'HINT: '+CANARY+'\n',
+            'duplicate_primary':lambda s:s+s.split('\n')[0]+'\n',
+            'duplicate_warning':lambda s:s+s.split('\n')[1]+'\n',
+            'blank':lambda s:s+'\n',
+            'sgr':lambda s:'\x1b[31m'+s,
+            'cr':lambda s:s+'\r',
+            'unicode':lambda s:s+'\u200b',
+            'oversize':lambda s:s+'x'*4097,
+            'surrogate':lambda s:s+'\ud800'}
+        for name,change in changes.items():
+            with self.subTest(name=name):
+                def command(args,*a,change=change,**kw):
+                    result=self.projected(args);result.stderr=change(result.stderr);return result
+                self.n['command']=command
+                with self.assertRaises(self.n['Stop']):self.call()
+                proof=self.n['report'][self.root_key]['authentication'][-1];self.assertFalse(proof['matched']);self.assertTrue(proof['operation_closed']);self.assert_safe_comparison(proof)
+                before=self.saved[-2][self.root_key]['authentication'][-1];self.assertEqual(before['comparison'],proof['comparison']);self.assertFalse(before['matched']);self.assertFalse(before['operation_closed'])
+        self.assertEqual(len(self.events),len(changes))
+    def test_result_type_stdout_and_transport_controls_keep_fixed_failure_metadata(self):
+        for field,value in (('returncode',True),('returncode',2.0),('returncode',None),('returncode',0),('stdout',CANARY),('stdout',None),('stderr',None),('stderr',{CANARY:CANARY})):
+            def command(args,*a,field=field,value=value,**kw):
+                result=self.projected(args);setattr(result,field,value);return result
+            self.n['command']=command
+            with self.assertRaises(self.n['Stop']):self.call()
+            proof=self.n['report'][self.root_key]['authentication'][-1];self.assertFalse(proof['matched']);self.assertTrue(proof['operation_closed']);self.assert_safe_comparison(proof)
+        original=self.n['psql_args']
+        for field,value in (('-h','192.0.2.1'),('-p','6432'),('-U','wa_worker'),('-d','other_db')):
+            def args(name,role,field=field,value=value):
+                result=original(name,role);result[result.index(field)+1]=value;return result
+            self.n['psql_args']=args;self.n['command']=lambda args,*a,**kw:self.projected(args)
+            with self.assertRaises(self.n['Stop']):self.call()
+            proof=self.n['report'][self.root_key]['authentication'][-1];self.assertFalse(proof['comparison']['transport_exact']);self.assert_safe_comparison(proof)
+    def test_correct_identity_and_io_failure_still_run_closure(self):
+        self.n['command']=lambda *a,**kw:_auth_types.SimpleNamespace(returncode=0,stderr='',stdout=json.dumps({'session_user':'postgres','current_user':'postgres','database':self.n['DB'],'system_user':'scram-sha-256:postgres'}))
+        proof=self.call(file='/run/wa-secrets/pgpass',expected='correct');self.assertTrue(proof['matched']);self.assertNotIn('comparison',proof)
+        self.n['command']=lambda args,*a,**kw:self.projected(args)
+        calls=[]
+        def fail_comparison_save():
+            proof=self.n['report'][self.root_key].get('authentication',[])
+            if proof and 'comparison' in proof[-1]:calls.append('comparison');raise OSError(CANARY)
+        self.n['save']=fail_comparison_save
+        with self.assertRaises(OSError):self.call()
+        self.assertEqual(len(self.events),2);self.assertNotIn(CANARY,json.dumps(self.n['report']));self.assertTrue(calls)
+    def test_pure_comparison_shapes_have_no_observed_text_or_unknown_keys(self):
+        args=self.n['psql_args']('source','postgres');args[args.index('PGPASSFILE=/run/wa-secrets/pgpass')]='PGPASSFILE=/run/wa-secrets/wrong.pgpass'
+        result=self.projected(args);comparison=self.n['auth_denial_comparison'](result,'postgres','/run/wa-secrets/wrong.pgpass','password',args)
+        self.assert_safe_comparison({'comparison':comparison})
+        for key in ('stdout','stderr','primary','warning','message','unknown'):self.assertNotIn(key,comparison)
+        self.assertTrue(all(value is True for key,value in comparison.items() if type(value) is bool))
+
+if __name__=='__main__':unittest.main(verbosity=2)

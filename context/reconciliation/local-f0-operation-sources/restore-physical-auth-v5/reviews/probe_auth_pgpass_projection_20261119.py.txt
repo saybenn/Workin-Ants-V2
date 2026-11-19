@@ -1,0 +1,71 @@
+"""Offline source-defect reproduction; AST-isolated frozen auth_control only."""
+import ast,copy,hashlib,json,re,socket,subprocess,types,unittest
+from pathlib import Path
+from unittest.mock import patch
+T=Path(__file__).resolve().parent
+FILES={'lease':'local_f0_lease_revoke_operation_steps_finally_v4.py','restore':'local_f0_restore_operation_steps_finally_v4.py'}
+ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker')
+class Stop(Exception):pass
+
+def namespace(kind):
+    path=T/FILES[kind];tree=ast.parse(path.read_bytes());node=next(x for x in tree.body if isinstance(x,ast.FunctionDef) and x.name=='auth_control')
+    output={'stage':'TEST','lease_revoke':{},'restore':{}};events=[]
+    def need(value,code):
+        if not value:raise Stop(code)
+    def args(name,role):return ['docker','exec','-i','-e','PGPASSFILE=/run/wa-secrets/pgpass','psql','-X','-w','-h','127.0.0.1','-p','5432','-U',role,'-d','wa_p0c_rehearsal']
+    n={'re':re,'need':need,'created_containers':{'source':'a'*64},'ROLES':ROLES,'report':output,'save':lambda:None,'psql_args':args,'DB':'wa_p0c_rehearsal','closed_backends':lambda *a:events.append('closed')}
+    n['exact']=lambda a,b,c:need(a==b,c);n['unique_json']=json.loads
+    exec(compile(ast.Module(body=[node],type_ignores=[]),str(path),'exec'),n)
+    return n,events
+
+def projection(args,*,include_warning=True):
+    role=args[args.index('-U')+1];file=next(x[len('PGPASSFILE='):] for x in args if x.startswith('PGPASSFILE='))
+    first='psql: error: connection to server at "127.0.0.1", port 5432 failed: FATAL:  password authentication failed for user "'+role+'"\n'
+    # REL_17_11 fe-connect.c 3612-3615/7143-7155, startup.c281-285,
+    # logging.c309-314: one frontend prefix, exact file-warning second line.
+    return types.SimpleNamespace(returncode=2,stdout='',stderr=first+('password retrieved from file "'+file+'"\n' if include_warning else ''))
+
+class ProjectionTests(unittest.TestCase):
+    def setUp(self):
+        self.guards=[patch.object(subprocess,name,side_effect=AssertionError('RUNTIME_FORBIDDEN')) for name in ('run','Popen','call','check_call','check_output')]+[patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN'))]
+        for guard in self.guards:guard.start();self.addCleanup(guard.stop)
+    def test_old_synthetic_without_file_warning_passes_both_frozen_parsers(self):
+        for kind in FILES:
+            n,events=namespace(kind);n['command']=lambda args,*a,**kw:projection(args,include_warning=False)
+            n['auth_control']('source','postgres','/run/wa-secrets/wrong.pgpass','password')
+            self.assertTrue(n['report']['restore' if kind=='restore' else 'lease_revoke']['authentication'][-1]['matched']);self.assertEqual(events,['closed'])
+    def test_actual_selected_passfile_projection_reproduces_frozen_rejection(self):
+        for kind in FILES:
+            for role in ROLES:
+                for file in (('/run/wa-secrets/wrong.pgpass','/run/wa-secrets/source-old.pgpass') if kind=='restore' else ('/run/wa-secrets/wrong.pgpass',)):
+                    with self.subTest(kind=kind,role=role,file=file):
+                        n,events=namespace(kind);n['command']=lambda args,*a,**kw:projection(args)
+                        with self.assertRaisesRegex(Stop,'^RESTORE_AUTH_EXACT_DENIAL$'):n['auth_control']('source',role,file,'password')
+                        proof=n['report']['restore' if kind=='restore' else 'lease_revoke']['authentication'][-1]
+                        self.assertEqual((proof['exit_code'],proof['matched'],proof['operation_closed']),(2,False,True));self.assertEqual(events,['closed'])
+    def test_correct_scram_identity_still_passes(self):
+        for kind in FILES:
+            n,events=namespace(kind)
+            n['command']=lambda *a,**k:types.SimpleNamespace(returncode=0,stderr='',stdout=json.dumps({'session_user':'postgres','current_user':'postgres','database':'wa_p0c_rehearsal','system_user':'scram-sha-256:postgres'}))
+            n['auth_control']('source','postgres','/run/wa-secrets/pgpass','correct');self.assertEqual(events,['closed'])
+    def test_hba_is_separate_and_does_not_accept_password_warning(self):
+        for kind in FILES:
+            n,events=namespace(kind)
+            text='psql: error: connection to server at "127.0.0.1", port 5432 failed: FATAL:  pg_hba.conf rejects connection for host "127.0.0.1", user "postgres", database "wa_p0c_rehearsal", no encryption\n'
+            n['command']=lambda *a,**k:types.SimpleNamespace(returncode=2,stdout='',stderr=text)
+            n['auth_control']('source','postgres','/run/wa-secrets/pgpass','hba')
+            n['command']=lambda *a,**k:types.SimpleNamespace(returncode=2,stdout='',stderr=text+'password retrieved from file "/run/wa-secrets/pgpass"\n')
+            with self.assertRaisesRegex(Stop,'RESTORE_AUTH_EXACT_DENIAL'):n['auth_control']('source','postgres','/run/wa-secrets/pgpass','hba')
+            self.assertEqual(events,['closed','closed'])
+    def test_actual_safe_records_do_not_retain_original_denial_text(self):
+        for directory,key in (('local-f0-restore-2ba6b43e','restore'),('local-f0-lease-revoke-20261118-ee4fdad7','lease_revoke')):
+            r=json.loads((T/directory/'run-evidence.json').read_bytes());proof=r[key]['authentication']
+            self.assertEqual([(x['expected'],x['matched'],x['exit_code'],x['operation_closed']) for x in proof],[('correct',True,0,True),('password',False,2,True)])
+            self.assertTrue(r['all_source_and_external_inputs_preserved_after_run']);self.assertEqual(r['primary_failure']['code'],'RESTORE_AUTH_EXACT_DENIAL')
+            self.assertFalse(any(key in x for x in proof for key in ('stderr','stdout','primary','warning')))
+    def test_preserved_old10_bytes_still_exact(self):
+        D=T/'auth-v5-before-author-20261119';m=json.loads((D/'preservation-manifest.json').read_bytes())
+        selected={k:v for k,v in m['files_sha256'].items() if '/' not in k and 'finally_v4.py' in k}
+        self.assertEqual(len(selected),10)
+        for name,expected in selected.items():self.assertEqual(hashlib.sha256((T/name).read_bytes()).hexdigest(),expected);self.assertEqual((T/name).read_bytes(),(D/name).read_bytes())
+if __name__=='__main__':unittest.main()

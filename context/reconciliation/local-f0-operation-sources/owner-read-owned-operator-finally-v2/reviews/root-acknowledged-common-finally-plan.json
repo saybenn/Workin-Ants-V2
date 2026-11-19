@@ -1,0 +1,90 @@
+{
+  "schema": "workinants.common-outer-finally-source-plan.v1",
+  "recorded_at": "2026-11-18T23:27:58.663225+00:00",
+  "status": "TASK_PROPOSAL_ONLY_PENDING_ROOT_ACKNOWLEDGEMENT_NOT_IMPLEMENTED",
+  "source_files_sha256": {
+    "execute_local_f0_owner_read_20261118.py": "b9eb3262d6489674dee3f331cca4994654d9193cce7405a87ddbba696d42ba7b",
+    "local_f0_owner_read_operation_steps.py": "635014dbc206a174c1e00060351081d81636c396e7f13f078e0ae4c30205a62e",
+    "execute_local_f0_lease_revoke_20261118_snapshot_v3.py": "b8548f4b63bf2c1ee0e80bd9be2c7bb9308edf96b243df03bc0bba95e491ff24",
+    "local_f0_lease_revoke_operation_steps_snapshot_v3.py": "5b0ec9d7c844ec86da4c5ed0cfc7d8b0839bbbf7bc962355b08b2e8a21c02022",
+    "execute_local_f0_restore_20261117_closure_v3.py": "ce8824f641e019117443751fcd5ce694f59db15ec92e749f220bba9695703a71",
+    "local_f0_restore_operation_steps_closure_v3.py": "43777294b46b6e12f8ae631524e1cd0b4662d591d194760e16ad7d5c1da2d328"
+  },
+  "finding_proof_sha256": "aa902d9f1daba59eeddbf51d111fd198cef9a7748618008fc6fe18fc24fce0f8",
+  "owner_findings_sha256": "af986ca395694d0f084523dc3d0c19e93508fb3e2f17a841cd1f0b2517e8201f",
+  "scope": "Small versioned outer-wrapper cleanup/persistence change for OwnerRead, LeaseSnapshotV3 and RestoreClosureV3. No project SQL/coordinator/domain protocol or permission change.",
+  "confirmed_defect": "A finalizer/scan failure followed by failed bare save() leaves main.finally before cleanup(). Six exact frozen-main all-mock paths demonstrate this across3families. Cleanup internal attempt() also invokes bare save() in its error handler; a persistent write error can abort remaining resource/secret attempts. Both levels must be covered.",
+  "minimal_semantics": [
+    {
+      "step": 1,
+      "rule": "Keep original operational STOP as primary failure. Append only fixed allowlisted stage/code and typed booleans/counts; no exception strings, SQL, credentials, PID/xid or handles. Do not replace the original failure with a later persistence error."
+    },
+    {
+      "step": 2,
+      "rule": "Add a tiny local nonthrowing best-effort persistence helper/error recorder to each new external version, without introducing a shared imported module. It calls existing save() once, catches failure, marks a sticky in-memory evidence_complete=false/persistence_failure flag and fixed EVIDENCE_WRITE_UNCONFIRMED entry. If persistence later recovers, retain the sticky failure and nonzero result; earlier lost evidence is not retroactively complete."
+    },
+    {
+      "step": 3,
+      "rule": "Initial evidence failure stops before preflight/resource creation/behavior. Operational exception error recording/STOP event output must itself be best effort so stdout/file errors cannot prevent finally. No behavioral continuation with unreliable evidence."
+    },
+    {
+      "step": 4,
+      "rule": "In main.finally, independently attempt every existing eligible original-grantor finalizer once under its unchanged attempt guard. Each target exception is recorded best effort and cannot stop later targets. Existing finalization guard failures remain unconfirmed, never retried broadly or treated as success."
+    },
+    {
+      "step": 5,
+      "rule": "Independently attempt secret_scan, cleanup and all source/tool/archive preservation checks after finalization attempts. Each branch records fixed outcomes best effort and continues to the next mandatory cleanup/preservation action despite failed persistence. No blanket catch that silently removes the failure."
+    },
+    {
+      "step": 6,
+      "rule": "Apply the same best-effort recording rule inside cleanup.attempt(): container A inspection/removal/report failure must not skip container B, exact volume attempts, every test-owned secret-file deletion, empty-private-directory removal and independent final name absence. A bookkeeping write failure after a successful actual removal must not undo that removal or cause adoption/deletion of an unrelated resource."
+    },
+    {
+      "step": 7,
+      "rule": "Preserve every existing exact CID/name/both-run-label/volumeCreatedAt/path/DACL boundary, captured identities and foreign-resource refusal. No prune, fallback name adoption, new mounts, broader paths, new credentials, retries or permission repair. Do not suppress actual removal/absence/closure uncertainty."
+    },
+    {
+      "step": 8,
+      "rule": "Return/emit PASS only when original behavior succeeded AND every required finalizer/scan/cleanup/source check confirmed AND evidence is complete. Any operation/error-record/scan/cleanup/preservation/final-save uncertainty gives nonzero STOP and removes qualified native marker. Final save failure must be reflected in exit status and a fixed bounded output even if no file can be written."
+    },
+    {
+      "step": 9,
+      "rule": "Owner-specific component closure is separate: nested finally must always retain bounded partial reference and independently check global other-client absence before any component verdict/native observer, including return/throw/malformed/reference I/O failure. Shared main fix must not be used to waive this earlier closure requirement."
+    }
+  ],
+  "function_delta_budget": {
+    "core": "Small best-effort persistence/error-record helper and cleanup error-record calls only; existing authenticated resource/secret/identity operations unchanged.",
+    "steps": "main error/finally bookkeeping only; Owner also its separately required component-finally change.",
+    "domain": "No changes to canonical5ae, worker32ACL, migration guards/history, any coor packet, resource capabilities, role policy, timeouts or expected verdicts."
+  },
+  "versioning_and_admission": [
+    "Preserve all current frozen five-file families, archives/validation/held literals and historical evidence before edits. Root sequences catalog author for Owner and track author for NEW Lease/Restore V4.",
+    "Each replacement family uses one consistent NEW filename map and exclusive source archive/validation name across core/steps/preparer/check/pin helper, including runtime snapshot SOURCE_ROOT. No active old packet/HEAD mutation.",
+    "Update only new pure preparer/pinner references and snapshots as required. Add actual whole-verifier regression against real pure-prepared pending inventory/current Root inputs/physical five snapshots; only outer committed-Git/common gate mocked, all process/Docker/database/network boundaries forbidden.",
+    "Independent source review and applicable focused checks precede Root commit/pin and a fresh literal review. Prior35/39/29 passes stay version-qualified, not approval of the new failure paths."
+  ],
+  "focused_regression_matrix": [
+    "For EACH3 exact new main: operational STOP + first eligible finalizer failure + persistent save failure; all other finalizers, scan, cleanup and postchecks still attempted; original STOP retained and nonzero result.",
+    "For EACH3 main: scan failure + save failure; cleanup and every preservation check attempted; no PASS.",
+    "Error-event output/STOP-save failure cannot skip finally; final evidence save failure makes otherwise-successful result nonzero.",
+    "Inside each cleanup: failed inspection/removal or report-save at first container cannot skip remaining owned containers/volumes/private secrets or final absence attempt. Exact foreign identity remains untouched.",
+    "Unknown cleanup/absence observation retains fixed unconfirmed flags and nonzero status even if unrelated resource removal succeeded.",
+    "Only one bounded write attempt per required record; no sleep/retry policy changes. All actions mocked and emitted operations inspected for exact identities/paths.",
+    "Unmodified all-success path still returns exact finite old status and preservation/cleanup confirmations, with no whole-case promotion.",
+    "Owner component failed/throw/malformed/reference-IO + different-tag/non-migrator client proves independent finally closure attempted and later native/result qualification stopped."
+  ],
+  "historical_limits": {
+    "prior_runtime_cleanup_reinterpreted": false,
+    "old_runtime_IO_error_claimed": false,
+    "NativeV4_260facets_cleanup_success": "PRESERVED_AS_ACTUALLY_RECORDED",
+    "Posture": "D",
+    "new_runtime_attempt": "NOT_AUTHORIZED_BY_THIS_PLAN_ALONE"
+  },
+  "current_actions": {
+    "Root_source_edits": false,
+    "Git_actions": false,
+    "Docker_database_SQL_runtime": false,
+    "TASK_only_plan": true
+  },
+  "plain_english": "If writing the report breaks, keep cleaning every part of the toy box. Remember that the report broke and do not say the run passed. Keep the first real problem, and write any cleanup trouble when writing works again."
+}

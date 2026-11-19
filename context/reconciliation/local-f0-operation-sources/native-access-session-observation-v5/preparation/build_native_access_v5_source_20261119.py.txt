@@ -1,0 +1,127 @@
+"""Exclusive source preparation only. No subprocess, Git, network or database API."""
+from pathlib import Path
+import ast
+import datetime
+import hashlib
+import json
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+OLD={
+ 'execute_local_f0_native_access_v4_20261118.py':'9b246435c2dadd33d5d8cee773df20081433cd868c8461bf2e9f4063a05bca07',
+ 'local_f0_native_access_v4_operation_steps.py':'f420df9d8b3a06db30c6e4172939033faeae2eb0011edd1df976cf47dec54654',
+ 'prepare_local_f0_native_access_v4_plan.py':'6dcdd8a07b8ce990525943a30c19aeeb16e6a0996d7ce94685351211e9fff147',
+ 'check_native_access_v4_operation.py':'19b4559335a88c2bff0adf9a32dcad3cc47e9269476cd64fedb01a089d8e9573',
+ 'pin_native_access_v4_plan_20261118.py':'135976b43ed85075681607d6510a7b3bea63314eec5e305c6fba6bb08b77a83a'}
+NAMES={name:name.replace('_v4','_v5') for name in OLD}
+ARCHIVE='context/reconciliation/local-f0-operation-sources/native-access-session-observation-v5'
+VALIDATION='context/reconciliation/local-f0-native-access-session-observation-v5-source-validation.json'
+SHA=lambda raw:hashlib.sha256(raw).hexdigest()
+old={name:(TASK/name).read_bytes() for name in OLD}
+assert all(SHA(raw)==OLD[name] for name,raw in old.items())
+assert SHA((ROOT/'scripts/sql-review/run-native-table-denials-v3.py').read_bytes())=='6e74115cc7a77e626c4379c5a5744efdede1257d04b206fc339e62a23fd49cd3'
+owner_core=(TASK/'execute_local_f0_owner_read_20261118_finally_v2.py').read_text()
+assert SHA(owner_core.encode())=='c29375d9a8476bf54725443ead8b7f4d78a07b94498bd8095e84082783719d58'
+owner_steps=(TASK/'local_f0_owner_read_operation_steps_finally_v2.py').read_text()
+
+def function(text,name):
+ node=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef) and n.name==name)
+ return ''.join(text.splitlines(keepends=True)[node.lineno-1:node.end_lineno])
+def replace_function(text,name,replacement):
+ node=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef) and n.name==name)
+ lines=text.splitlines(keepends=True)
+ return ''.join(lines[:node.lineno-1])+replacement+''.join(lines[node.end_lineno:])
+
+preserved=TASK/'native-access-v5-before-common-finally-20261119'
+preserved.mkdir(exist_ok=False)
+files={'TASK/'+n:raw for n,raw in old.items()}
+literal=TASK/'local-f0-native-access-plan-495976eb/operation-manifest.json'
+previous=json.loads(literal.read_bytes())
+assert len(previous['packet_files_sha256'])==182
+for relative,wanted in previous['packet_files_sha256'].items():
+ raw=(ROOT/relative).read_bytes();assert SHA(raw)==wanted
+ files['ROOT/'+relative]=raw
+for path in (ROOT/'context/reconciliation/local-f0-operation-sources/native-access-deferred-flush-v4').rglob('*'):
+ if path.is_file():files['ROOT/'+path.relative_to(ROOT).as_posix()]=path.read_bytes()
+record=ROOT/'context/reconciliation/local-f0-native-access-0a29cf6-495976eb-execution.json'
+assert SHA(record.read_bytes())=='e47ecfcc00064e22f2731c6a1e24ddc64df672690c2eabbb821d45c3aa5a6bdf'
+historic=json.loads(record.read_bytes());files['ROOT/'+record.relative_to(ROOT).as_posix()]=record.read_bytes()
+for relative,wanted in historic['snapshot_files_sha256'].items():
+ raw=(ROOT/relative).read_bytes();assert SHA(raw)==wanted;files['ROOT/'+relative]=raw
+files['TASK/local-f0-native-access-plan-495976eb/operation-manifest.json']=literal.read_bytes()
+files['TASK/execute_local_f0_owner_read_20261118_finally_v2.py']=owner_core.encode()
+files['TASK/local_f0_owner_read_operation_steps_finally_v2.py']=owner_steps.encode()
+for name in ('owner_finally_v2_independent_delta_review_20261118.json','common_outer_finally_failure_source_plan_20261118.json','native_session_observation_v3_independent_root_review_20261118.json'):
+ files['TASK/'+name]=(TASK/name).read_bytes()
+for relative,raw in files.items():
+ path=preserved/relative;path.parent.mkdir(parents=True,exist_ok=True)
+ with path.open('xb') as stream:stream.write(raw)
+metadata={'recorded_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'scope':'NativeV4/all182admitted/complete139archive/e47assets/Ownercommon_source_preserved_before_NEW_V5','files_sha256':{n:SHA(raw) for n,raw in sorted(files.items())},'historical_complete_cause':'UNOBSERVED_NOT_BACKFILLED'}
+with (preserved/'preservation.json').open('x',encoding='utf8',newline='\n') as stream:json.dump(metadata,stream,indent=2);stream.write('\n')
+
+mapping={**NAMES,'scripts/sql-review/run-native-table-denials-v2.py':'scripts/sql-review/run-native-table-denials-v3.py','scripts/sql-review/test_run_native_table_denials_v2.py':'scripts/sql-review/test_run_native_table_denials_v3.py','scripts/sql-review/native-table-denials-deferred-flush-v2.md':'scripts/sql-review/native-table-denials-session-observation-v3.md','21dce763c809b579eff009871b44315f9ddbcd5b9cc03a33d3af305bc096445b':'6e74115cc7a77e626c4379c5a5744efdede1257d04b206fc339e62a23fd49cd3','1a56853ec4ea0881e05fc611c05094d2898bdada25d4d284bb747c6dc9281789':'b62791ecc1edc8966b57b9edc0863eaa47fee57c568612bfb10c0f7a7ec55d40','native-access-deferred-flush-v4':'native-access-session-observation-v5','local-f0-native-access-deferred-flush-source-validation.json':'local-f0-native-access-session-observation-v5-source-validation.json'}
+texts={}
+for name,raw in old.items():
+ text=raw.decode()
+ for before,after in mapping.items():text=text.replace(before,after)
+ texts[NAMES[name]]=text
+
+core_name=NAMES['execute_local_f0_native_access_v4_20261118.py'];core=texts[core_name]
+helpers='\n\n'.join(function(owner_core,n).rstrip() for n in ('remember_failure','persist_best_effort','emit_best_effort','event_best_effort'))+'\n\n'
+core=core.replace('def event(stage,status,**safe):',helpers+'def event(stage,status,**safe):',1)
+core=core.replace("'status':'IN_PROGRESS','stage':'ENTRY',","'status':'IN_PROGRESS','stage':'ENTRY','evidence_complete':True,'persistence_failure':False,'output_complete':True,",1)
+cleanup=function(owner_core,'cleanup').replace("path.name in ('ok-bootstrap-password',)","path.name in ('ok-bootstrap-password','fail-bootstrap-password')").replace("for name in RESOURCE_CONTAINERS}","for name in (target['name'] for target in TARGETS)}").replace("for name in RESOURCE_VOLUMES}","for name in (target['volume'] for target in TARGETS)}").replace('len(RESOURCE_CONTAINERS)+len(RESOURCE_VOLUMES)','2*len(TARGETS)')
+core=replace_function(core,'cleanup',cleanup)
+core=core.replace("need(hashlib.sha256(STEPS.read_bytes()).hexdigest()==MANIFEST['steps_sha256'],'OPERATION_STEPS_SOURCE_MISMATCH')\nexec(compile(STEPS.read_text(encoding='utf8'),str(STEPS),'exec'),globals())","STEPS_RAW=STEPS.read_bytes()\nneed(hashlib.sha256(STEPS_RAW).hexdigest()==MANIFEST['steps_sha256'],'OPERATION_STEPS_SOURCE_MISMATCH')\nexec(compile(STEPS_RAW,str(STEPS),'exec'),globals())")
+texts[core_name]=core
+
+steps_name=NAMES['local_f0_native_access_v4_operation_steps.py'];steps=texts[steps_name]
+steps=steps.replace("    raw=path.read_bytes()\n    need(hashlib.sha256(raw).hexdigest()==MANIFEST['packet_files_sha256'][relative],'CATALOG_PACKET_SOURCE_DRIFT')","    pins=MANIFEST['packet_files_sha256']\n    need(relative in pins and type(pins[relative]) is str and re.fullmatch('[0-9a-f]{64}',pins[relative]),'CATALOG_PACKET_MEMBER_REQUIRED')\n    raw=path.read_bytes()\n    need(hashlib.sha256(raw).hexdigest()==pins[relative],'CATALOG_PACKET_SOURCE_DRIFT')",1)
+admission="""OPERATOR_SOURCE_ROOT='ARCHIVE_VALUE'
+OPERATOR_VALIDATION='VALIDATION_VALUE'
+OPERATOR_FILES=FILES_VALUE
+
+def admit_native_operation_sources():
+    pins=MANIFEST['packet_files_sha256']
+    need(type(pins) is dict and bool(pins),'NATIVE_COMPLETE_SOURCE_MAP_REQUIRED')
+    required={OPERATOR_VALIDATION,NATIVE_COORDINATOR,NATIVE_DOC,NATIVE_PACKET}|set(NATIVE_MODULES)|{OPERATOR_SOURCE_ROOT+'/'+name+'.txt' for name in OPERATOR_FILES}
+    need(required<=set(pins),'NATIVE_REQUIRED_SOURCE_SNAPSHOT_MISSING')
+    admitted={relative:read_pinned(relative) for relative in pins}
+    external=MANIFEST['operator_sources_sha256']
+    need(type(external) is dict and set(external)==set(OPERATOR_FILES),'NATIVE_EXACT_FIVE_OPERATOR_SOURCES')
+    for name,wanted in external.items():
+        need(type(wanted) is str and re.fullmatch('[0-9a-f]{64}',wanted),'NATIVE_OPERATOR_HASH_SHAPE')
+        raw=(TASK/name).read_bytes()
+        need(hashlib.sha256(raw).hexdigest()==wanted and raw==admitted[OPERATOR_SOURCE_ROOT+'/'+name+'.txt'],'NATIVE_COMMITTED_OPERATOR_SNAPSHOT_REQUIRED')
+    validation=unique_json(admitted[OPERATOR_VALIDATION])
+    need(validation['schema']=='workinants.native-access-operation-source-validation.v1' and validation['external_files_sha256']==external,'NATIVE_OPERATOR_VALIDATION_BINDING')
+    archive=validation['snapshot_files_sha256']
+    need(type(archive) is dict and all(relative.startswith(OPERATOR_SOURCE_ROOT+'/') and pins.get(relative)==wanted for relative,wanted in archive.items()),'NATIVE_OPERATOR_ARCHIVE_ADMISSION')
+    actual={path.relative_to(ROOT).as_posix():hashlib.sha256(path.read_bytes()).hexdigest() for path in (ROOT/OPERATOR_SOURCE_ROOT).rglob('*') if path.is_file()}
+    need(actual==archive,'NATIVE_OPERATOR_ARCHIVE_TREE')
+    return admitted
+
+
+""".replace('ARCHIVE_VALUE',ARCHIVE).replace('VALIDATION_VALUE',VALIDATION).replace('FILES_VALUE',repr(tuple(NAMES.values())))
+steps=steps.replace('def verify_packet():\n    verify_catalog_packet()',admission+'def verify_packet():\n    admit_native_operation_sources()\n    verify_catalog_packet()',1)
+steps=steps[:steps.index('def main():')]+function(owner_steps,'verify_external_input_preservation').replace('OWNER_READ_','NATIVE_ACCESS_')+'\n\n'+function(owner_steps,'main').replace("need(MANIFEST['review_status']=='APPROVED_LOCAL_F0_OWNER_READ_ATTEMPT','OWNER_READ_EXACT_OPERATION_NOT_REVIEWED');need(not OUT.exists(),'OWNER_READ_FRESH_EVIDENCE_DIRECTORY')","need(MANIFEST['review_status']=='APPROVED_LOCAL_F0_NATIVE_ACCESS_ATTEMPT','NATIVE_ACCESS_EXACT_OPERATION_NOT_REVIEWED');need(not OUT.exists(),'NATIVE_ACCESS_FRESH_EVIDENCE_DIRECTORY')").replace('verify_owner_read_packet();preflight();ensure_image();create_resources();bootstrap_all();provision_migration_tools();catalog_experiment();owner_read_experiment();','verify_packet();preflight();ensure_image();create_resources();bootstrap_all();provision_migration_tools();provider_preinstall();native_access_experiment();').replace('PASS_LOCAL_OWNER_READ_SQL_SUBSET_ONLY','PASS_LOCAL_NATIVE_ACCESS_SUBSET_ONLY').replace('UNEXPECTED_OWNER_READ_WRAPPER_FAILURE','UNEXPECTED_NATIVE_ACCESS_WRAPPER_FAILURE').replace("MANIFEST['owner_read']['external_files_sha256']","MANIFEST['operator_sources_sha256']").replace('try:secret_scan()','try:secret_scan();report[\'steps\'][\'CATALOG-SANITIZED_EXPORT\']=\'PASS\';persist_best_effort(\'SANITIZATION_RECORD\')')
+texts[steps_name]=steps
+
+prep_name=NAMES['prepare_local_f0_native_access_v4_plan.py'];prep=texts[prep_name]
+prep=prep.replace("OPERATOR_FILES=", "OPERATOR_SOURCE_ROOT="+repr(ARCHIVE)+"\nOPERATOR_VALIDATION="+repr(VALIDATION)+"\nOPERATOR_FILES=",1)
+opline=next(line for line in prep.splitlines() if line.startswith('OPERATOR_FILES='))
+prep=prep.replace(opline,'OPERATOR_FILES='+repr(tuple(NAMES.values())))
+prep=prep.replace("    paths|={'review-output/native-table-denials-v2/'+name for name in packet['files_sha256']}","    paths|={'review-output/native-table-denials-v2/'+name for name in packet['files_sha256']}\n    validation_raw=safe_path(root,OPERATOR_VALIDATION).read_bytes();validation=json.loads(validation_raw)\n    need(validation['schema']=='workinants.native-access-operation-source-validation.v1','NATIVE_OPERATOR_VALIDATION_SCHEMA')\n    paths|={OPERATOR_VALIDATION}|set(validation['snapshot_files_sha256'])\n    need(all(name.startswith(OPERATOR_SOURCE_ROOT+'/') for name in validation['snapshot_files_sha256']),'NATIVE_OPERATOR_ARCHIVE_ROOT')")
+prep=prep.replace("    for path,want in packet['source_inputs_sha256'].items():", "    external_hashes={name:sha((task/name).read_bytes()) for name in OPERATOR_FILES}\n    need(validation['external_files_sha256']==external_hashes,'NATIVE_OPERATOR_VALIDATION_BINDING')\n    for name,wanted in validation['snapshot_files_sha256'].items():need(sha(source[name])==wanted,'NATIVE_OPERATOR_ARCHIVE_DRIFT')\n    for name,wanted in external_hashes.items():need(sha(source[OPERATOR_SOURCE_ROOT+'/'+name+'.txt'])==wanted,'NATIVE_OPERATOR_SNAPSHOT_DRIFT')\n    for path,want in packet['source_inputs_sha256'].items():",1)
+texts[prep_name]=prep
+
+pin_name=NAMES['pin_native_access_v4_plan_20261118.py'];pin=texts[pin_name]
+pin=pin.replace("    commit=git('rev-parse','HEAD').decode().strip();tree=git('rev-parse','HEAD^{tree}').decode().strip()\n",'')
+pin=pin.replace("        relative=SOURCE_ROOT+'/'+snapshot;assert sha(TASK/external)==sha(ROOT/relative)\n        files[relative]=sha(ROOT/relative)","        relative=SOURCE_ROOT+'/'+snapshot;assert relative in files and sha(TASK/external)==files[relative]==sha(ROOT/relative)")
+pin=pin.replace(";files[review]=sha(ROOT/review)",";assert review in files and files[review]==sha(ROOT/review)")
+pin=pin.replace("    for relative,digest in files.items():\n        assert sha(ROOT/relative)==digest==hashlib.sha256(git('show',commit+':'+relative)).hexdigest(),relative", "    assert set(v['operator_sources_sha256'])==set(SOURCE_FILES)\n    for relative,digest in files.items():assert sha(ROOT/relative)==digest,relative\n    commit=git('rev-parse','HEAD').decode().strip();tree=git('rev-parse','HEAD^{tree}').decode().strip()\n    for relative,digest in files.items():\n        assert digest==hashlib.sha256(git('show',commit+':'+relative)).hexdigest(),relative")
+texts[pin_name]=pin
+for name,text in texts.items():
+ compile(text,name,'exec')
+ with (TASK/name).open('x',encoding='utf8',newline='\n') as stream:stream.write(text)
+print(json.dumps({'preservation_sha256':SHA((preserved/'preservation.json').read_bytes()),'preserved_files':len(files),'new_source_files_sha256':{name:SHA((TASK/name).read_bytes()) for name in texts}},indent=2))

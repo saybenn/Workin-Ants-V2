@@ -1,0 +1,41 @@
+"""Source archive/validation preparation only; no operational APIs."""
+from pathlib import Path
+import hashlib
+import json
+import datetime
+
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+ARCHIVE=ROOT/'context/reconciliation/local-f0-operation-sources/native-access-session-observation-v5'
+VALIDATION=ROOT/'context/reconciliation/local-f0-native-access-session-observation-v5-source-validation.json'
+FILES=('execute_local_f0_native_access_v5_20261118.py','local_f0_native_access_v5_operation_steps.py','prepare_local_f0_native_access_v5_plan.py','check_native_access_v5_operation.py','pin_native_access_v5_plan_20261118.py')
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+ARCHIVE.mkdir(exist_ok=True)
+def archive(relative,raw,refresh=False):
+ path=ARCHIVE/relative;path.parent.mkdir(parents=True,exist_ok=True)
+ if path.exists():
+  if refresh:path.write_bytes(raw)
+  else:assert path.read_bytes()==raw,relative
+ else:
+  with path.open('xb')as stream:stream.write(raw)
+for name in FILES:archive(name+'.txt',(TASK/name).read_bytes(),True)
+for source,target in (('native-access-v5-before-common-finally-20261119','preserved-native-v4'),('native-v5-before-reviewed-track-finally-20261119','preserved-unexecuted-owner-template-draft')):
+ directory=TASK/source
+ for path in directory.rglob('*'):
+  if path.is_file():archive(target+'/'+path.relative_to(directory).as_posix(),path.read_bytes())
+for name in ('build_native_access_v5_source_20261119.py','adapt_native_v5_checks_20261119.py','stage_native_v5_source_package_20261119.py'):
+ archive('preparation/'+name+'.txt',(TASK/name).read_bytes())
+for source,target in (
+ ('native_session_observation_v3_independent_root_review_20261118.json','reviews/native-session-independent-root.json'),
+ ('native_session_observation_v3_source_author_review_20261118.json','reviews/native-session-author48.json'),
+ ('native_session_observation_v3_completeness_source_delta_20261118.json','reviews/native-session-author-final18.json'),
+ ('outer_finally_v4_independent_root_review_20261119.json','reviews/common-finally-independent-root.json'),
+ ('common_outer_finally_failure_source_plan_20261118.json','reviews/common-finally-root-ack-plan.json')):
+ archive(target,(TASK/source).read_bytes())
+for name in ('execute_local_f0_lease_revoke_20261118_finally_v4.py','local_f0_lease_revoke_operation_steps_finally_v4.py'):
+ archive('common-reviewed-template/'+name+'.txt',(TASK/name).read_bytes())
+for name in ('run-native-table-denials-v3.py','test_run_native_table_denials_v3.py','native-table-denials-session-observation-v3.md'):
+ archive('coordinator/'+name+('.txt'if name.endswith('.py')else''),(ROOT/'scripts/sql-review'/name).read_bytes())
+snapshot={path.relative_to(ROOT).as_posix():sha(path)for path in ARCHIVE.rglob('*')if path.is_file()}
+value={'schema':'workinants.native-access-operation-source-validation.v1','recorded_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'SOURCE_AUTHORING_INDEPENDENT_REVIEW_PENDING_NOT_EXECUTED','source_version':'session-observation-v5','external_files_sha256':{name:sha(TASK/name)for name in FILES},'snapshot_files_sha256':snapshot,'native_coordinator_sha256':'6e74115cc7a77e626c4379c5a5744efdede1257d04b206fc339e62a23fd49cd3','finite_packet_sha256':'8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69','common_finally_independent_review_sha256':'1c7d763fcd5fd17221a3a01302ae0df3f0b4bdb2034b5d27c98fd1e0c97a1b83','native_session_independent_review_sha256':sha(TASK/'native_session_observation_v3_independent_root_review_20261118.json'),'preservation_sha256':'88150b1e56365322c35885f626c7e98731f2d0404b6ea8773050e7410dca5bad','historical_e47_complete_cause':'UNOBSERVED_NOT_BACKFILLED','limits':{'Posture':'D','new_runtime':'NOT_RUN','whole94_451':'NOT_PROMOTED','Git_Docker_database_SQL_network_actions':False}}
+VALIDATION.write_text(json.dumps(value,indent=2)+'\n',encoding='utf8',newline='\n')
+print(json.dumps({'archive_files':len(snapshot),'validation_sha256':sha(VALIDATION),'sources':value['external_files_sha256']},indent=2))

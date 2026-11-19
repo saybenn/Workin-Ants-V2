@@ -1,0 +1,66 @@
+"""Freeze source-only V5 metadata; never pin Git or invoke any runtime API."""
+from pathlib import Path
+import ast
+import datetime
+import difflib
+import hashlib
+import json
+import runpy
+import uuid
+
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+ARCHIVE=ROOT/'context/reconciliation/local-f0-operation-sources/native-access-session-observation-v5'
+VALIDATION=ROOT/'context/reconciliation/local-f0-native-access-session-observation-v5-source-validation.json'
+FILES=('execute_local_f0_native_access_v5_20261118.py','local_f0_native_access_v5_operation_steps.py','prepare_local_f0_native_access_v5_plan.py','check_native_access_v5_operation.py','pin_native_access_v5_plan_20261118.py')
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+encoded=lambda value:(json.dumps(value,indent=2)+'\n').encode()
+def exclusive(path,raw):
+ path.parent.mkdir(parents=True,exist_ok=True)
+ with path.open('xb')as stream:stream.write(raw)
+def functions(path):return {node.name:ast.dump(node,include_attributes=False)for node in ast.parse(path.read_bytes()).body if isinstance(node,(ast.FunctionDef,ast.ClassDef))}
+
+oldcore=TASK/'execute_local_f0_native_access_v4_20261118.py';newcore=TASK/FILES[0]
+oldsteps=TASK/'local_f0_native_access_v4_operation_steps.py';newsteps=TASK/FILES[1]
+a,b=functions(oldcore),functions(newcore);changedcore=sorted(name for name in a if a[name]!=b[name]);addedcore=sorted(set(b)-set(a))
+assert changedcore==['cleanup','event','save']
+assert set(addedcore)=={'mark_evidence_incomplete','evidence_is_complete','confirmed_path_absent','best_effort_save','record_failure','best_effort_event','finish_report'}
+c,d=functions(oldsteps),functions(newsteps);changedsteps=sorted(name for name in c if c[name]!=d[name]);addedsteps=sorted(set(d)-set(c))
+assert changedsteps==['main','read_pinned','verify_packet']and addedsteps==['admit_native_operation_sources','verify_external_input_preservation']
+template=functions(TASK/'execute_local_f0_lease_revoke_20261118_finally_v4.py')
+assert all(b[name]==template[name]for name in addedcore+['save','event'])
+for name in FILES:assert sha(TASK/name)==sha(ARCHIVE/(name+'.txt'));compile((TASK/name).read_bytes(),name,'exec')
+preservation=TASK/'native-access-v5-before-common-finally-20261119/preservation.json';pres=json.loads(preservation.read_bytes())
+for name,wanted in pres['files_sha256'].items():
+ path=preservation.parent/name;assert sha(path)==wanted
+ if name.startswith('ROOT/'):assert sha(ROOT/name[5:])==wanted
+ elif name.startswith('TASK/')and 'owner_read' not in name:assert sha(TASK/name[5:])==wanted
+assert sha(ROOT/'context/reconciliation/local-f0-native-access-0a29cf6-495976eb-execution.json')=='e47ecfcc00064e22f2731c6a1e24ddc64df672690c2eabbb821d45c3aa5a6bdf'
+assert sha(ROOT/'review-output/native-table-denials-v2/packet.json')=='8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69'
+assert sha(ROOT/'review-output/foundation-application.review.sql')=='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+assert sha(ROOT/'context/reconciliation/foundation-sql-draft-access.json')=='f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea'
+boundary={'recorded_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'scope':'V5_ACTUAL_MAIN_CLEANUP_AND_REAL_WHOLE_VERIFIER_PROCESS_NETWORK_FORBIDDEN','tests_run':14,'PASS':14,'elapsed_seconds':3319.547,'elapsed_qualification':'Actual unittest output from exec session11844, exit0; long duration recorded without cause attribution.','source_check_sha256':sha(TASK/FILES[3]),'all_new_runtime':'NOT_RUN'}
+boundary_path=TASK/'native_access_v5_boundary14_offline_results_20261119.json';exclusive(boundary_path,encoded(boundary))
+derivation={'recorded_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'scope':'EXACT_SOURCE_AST_AND_FULLTEXT_DELTA','old_version':'NativeV4','new_version':'NativeV5','source_files_sha256':{name:sha(TASK/name)for name in FILES},'core':{'changed':changedcore,'added':addedcore,'all_other_function_AST_identical':True,'seven_helpers_plus_save_event_AST_exact_Root_reviewed_Track_V4':True,'other_top_level_delta':'Versioned steps path; sticky evidence fields/global; compile exact once-read hash-checked steps bytes.'},'steps':{'changed':changedsteps,'added':addedsteps,'all_other_function_AST_identical':True,'other_constant_delta':'Only new coor6e74/docb627 versioned bindings, exact five-source archive/validation metadata; finite8044 unchanged.'},'cleanup_template_adaptation':'Same exact Name/CID/both labels/volumeCreatedAt/private parent guards and strict lstat; target name/volume list comes from unchanged Native TARGETS; keep preexisting ok/fail password basename allowlist; actual rm uses observed CID; success sets cleanup_actions_confirmed after confirmed report event.','main_template_adaptation':'Root-reviewed Track V4 main with Native pipeline/status; preserves Native sanitized-export flag; explicit cleanup_actions_confirmed gate; original Native exception classes, waits, source/catalog/provider/roles/verdicts unchanged.','preparer_pin_delta':'New five names/root/validation and coor/test/doc pins; include/verify full archive and five actual snapshots before compile; pinner rejects missing/current snapshots before mock/real Git, no fallback adds unpinned files.','new_review_status':'PENDING_ROOT_INDEPENDENT_SOURCE_REVIEW','preservation_sha256':sha(preservation),'preserved_file_count':len(pres['files_sha256']),'old_V4_and_e47_current_bytes_unchanged':True,'canonical5ae_worker32ACL_finite8044_unchanged':True}
+derivation_path=TASK/'native_access_v5_exact_derivation_author_record_20261119.json';exclusive(derivation_path,encoded(derivation))
+diff=[]
+for old,new in zip(('execute_local_f0_native_access_v4_20261118.py','local_f0_native_access_v4_operation_steps.py','prepare_local_f0_native_access_v4_plan.py','check_native_access_v4_operation.py','pin_native_access_v4_plan_20261118.py'),FILES):
+ diff.extend(difflib.unified_diff((TASK/old).read_text().splitlines(keepends=True),(TASK/new).read_text().splitlines(keepends=True),fromfile=old,tofile=new))
+diff_path=TASK/'native_access_v5_full_source_delta_20261119.diff';exclusive(diff_path,''.join(diff).encode())
+for source,target in (
+ (boundary_path,'reviews/author-boundary14.json'),(TASK/'native_access_v5_inherited52_offline_results_20261119.json','reviews/author-inherited52.json'),
+ (TASK/'native_v5_pin_binding_offline_results_20261119.json','reviews/author-actual-pinner4.json'),(TASK/'native_v5_external_preservation_offline_results_20261119.json','reviews/author-external-preservation2.json'),
+ (derivation_path,'reviews/author-exact-derivation.json'),(diff_path,'reviews/full-source-delta.diff')):
+ exclusive(ARCHIVE/target,source.read_bytes())
+for name in ('check_native_v5_pin_binding_20261119.py','check_native_v5_external_preservation_20261119.py','freeze_native_v5_source_package_20261119.py'):
+ exclusive(ARCHIVE/'preparation'/(name+'.txt'),(TASK/name).read_bytes())
+value=json.loads(VALIDATION.read_bytes());value['status']='FROZEN_SOURCE_PENDING_ROOT_INDEPENDENT_REVIEW_NOT_EXECUTED';value['recorded_at']=datetime.datetime.now(datetime.timezone.utc).isoformat()
+value['snapshot_files_sha256']={path.relative_to(ROOT).as_posix():sha(path)for path in ARCHIVE.rglob('*')if path.is_file()}
+value['author_offline_results']={'inherited52':{'PASS':52,'seconds':46.375,'result_sha256':sha(TASK/'native_access_v5_inherited52_offline_results_20261119.json')},'new_boundary14':boundary,'pinner4_sha256':sha(TASK/'native_v5_pin_binding_offline_results_20261119.json'),'external_preservation2_sha256':sha(TASK/'native_v5_external_preservation_offline_results_20261119.json'),'combined66_single_run_claimed':False,'all_process_network_and_Git_boundaries':'MOCKED_OR_FORBIDDEN'}
+value['exact_derivation_record_sha256']=sha(derivation_path);value['full_source_delta_sha256']=sha(diff_path)
+VALIDATION.write_bytes(encoded(value))
+module=runpy.run_path(str(TASK/FILES[2]));baseline=json.loads((TASK/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json').read_bytes());plan,manifest,files=module['prepare'](ROOT,TASK,baseline,str(uuid.uuid4()))
+assert not plan.exists()and not Path(manifest['evidence_directory']).exists();plan.mkdir()
+for relative,raw in files.items():exclusive(plan/relative,raw)
+frozen={'schema':'workinants.native-access-v5-frozen-source-plan.v1','recorded_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'FROZEN_SOURCE_PENDING_ROOT_REVIEW_NOT_EXECUTED','source_files_sha256':{name:sha(TASK/name)for name in FILES},'source_validation':str(VALIDATION),'source_validation_sha256':sha(VALIDATION),'archive_files':len(value['snapshot_files_sha256']),'preservation_sha256':sha(preservation),'exact_derivation_sha256':sha(derivation_path),'full_source_diff_sha256':sha(diff_path),'source_only_pending_plan':str(plan/'operation-manifest.json'),'source_only_pending_plan_sha256':sha(plan/'operation-manifest.json'),'source_inventory_files':len(manifest['packet_files_sha256']),'prepared_source_aggregate_sha256':manifest['prepared_source_files_aggregate_sha256'],'commit_tree_packet':'TO_BE_PINNED_AFTER_INDEPENDENT_SOURCE_REVIEW','review_status':manifest['review_status'],'evidence_directory_absent':not Path(manifest['evidence_directory']).exists(),'runtime':'NOT_RUN','Posture':'D','self_source_approval':False}
+frozen_path=TASK/'native_access_v5_frozen_source_plan_20261119.json';exclusive(frozen_path,encoded(frozen))
+print(json.dumps(frozen,indent=2));print('FROZEN_PLAN_SHA256',sha(frozen_path))

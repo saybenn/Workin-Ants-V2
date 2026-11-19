@@ -1,0 +1,59 @@
+{
+  "recorded_at": "2026-11-19T00:10:51.535764+00:00",
+  "reviewer": "/root/restricted_controls_operator",
+  "decision": "SOURCE_APPROVED_ALL_OWNER_OUTER_FINDINGS_CLOSED_FRESH_LITERAL_REQUIRED",
+  "frozen_plan_sha256": "f0a5f6f4991b7515f9d292be587ccdc14e2197a3be4784efb713a7efbc653892",
+  "source_files_sha256": {
+    "execute_local_f0_owner_read_20261118_finally_v2.py": "c29375d9a8476bf54725443ead8b7f4d78a07b94498bd8095e84082783719d58",
+    "local_f0_owner_read_operation_steps_finally_v2.py": "c8df99d852767bdbf20f1559cb91b277ef8ed6540ef6b22a52db2265de29601d",
+    "prepare_local_f0_owner_read_plan_finally_v2.py": "fd1cc9461e08ca611468c2b56b1e28228eea2bffbed3913d1301c7a48cf567d9",
+    "check_local_f0_owner_read_operation_finally_v2.py": "153ffdf9736c0a2a3903f97ccd43d5d44e3fa4958b4b4de5b3bf32bc4f05e23e",
+    "pin_local_f0_owner_read_plan_20261118_finally_v2.py": "fd2134bd6c4e951fa9fd2d8f48ffdbfe72deff577c9cdc9acd9e7c0cde6682bd"
+  },
+  "validation_sha256": "43c8f3f69b7995fb69b773b144c80dd29d7257140d49beae740a3b61484159c7",
+  "bounded_reference": "Fixed artifact/present/read_status assigned before lstat; only FileNotFound gives ABSENT, other errors fixed UNAVAILABLE; strict regular-file and typed nonnegative <=16MiB size; actual stream.read(16MiB+1); growth/excess marked OVERSIZED before hash; retained bytes/hash only on success. No arbitrary fields/raw bytes/error text.",
+  "exact_delta": "Only owner_read_experiment reference block differs from independently reviewed b56d steps. Core/preparer/pin unchanged; nested global closure and common IO-safe main/cleanup unchanged.",
+  "closed_findings": [
+    "OWNER-OUTER-01 global closure",
+    "OWNER-OUTER-01-REFERENCE bounded read and fixed unavailable reference",
+    "OWNER-OUTER-02 common persistence/cleanup"
+  ],
+  "independent_focused_checks": {
+    "PASS": 12,
+    "seconds": 1.109,
+    "selected": [
+      "test_reference_requests_exact_bounded_read_and_retains_fixed_success_marker",
+      "test_reference_growth_is_bounded_rejected_and_marked_before_no_later_native",
+      "test_reference_typed_size_and_oversize_reject_before_any_read",
+      "test_reference_absent_after_child_throw_retains_path_and_absent_marker",
+      "test_component_partial_malformed_and_throw_always_independently_close",
+      "test_component_reference_read_or_stat_failure_still_closes_before_stop",
+      "test_component_summary_write_failure_occurs_after_confirmed_closure",
+      "test_component_throw_plus_reference_and_persistence_failure_preserves_first_stop",
+      "test_different_tag_other_database_client_or_observer_failure_stops_before_verdict",
+      "test_wrong_component_CID_is_rejected_before_any_result_export",
+      "test_unknown_component_fields_are_rejected_without_export",
+      "test_partial_component_keeps_safe_summary_and_stops_without_native_final"
+    ],
+    "all_process_database_network_boundaries": "MOCKED_OR_FORBIDDEN",
+    "Git_actions": false
+  },
+  "other_checks": {
+    "archive122_current_exact": true,
+    "all712_inventory_current_exact": true,
+    "aggregate_verified": true,
+    "prototype_unpinned_no_evidence": true,
+    "prior20_tests_and_whole_verifier_version_qualified_report": "17c7dbdcb9d7df1d5a9e43e144cebf60415fda19c3f069366c3d0bdc98cdfa53",
+    "author_real_whole_verifier_after_final_metadata_PASS_seconds": 4.719,
+    "unrelated20_not_repeated": true
+  },
+  "review_bookkeeping": "First narrow run passed12 but review runner then looked for b56d in a later Native template copy already at c8df. Corrected to author preserved-before-reference exactb56d and reran only same12. No source/test correction needed.",
+  "limits": {
+    "Posture": "D",
+    "runtime121_and20_links": "NOT_RUN",
+    "new_literal_runtime_approval": false,
+    "whole94_451_or_owner_API_promotion": false,
+    "source_edits_Git_Docker_database_SQL_network_actions": false
+  },
+  "plain_english": "The report reader now has a firm page limit and leaves a small missing-note marker if reading breaks. Cleanup still runs. No real database test happened."
+}

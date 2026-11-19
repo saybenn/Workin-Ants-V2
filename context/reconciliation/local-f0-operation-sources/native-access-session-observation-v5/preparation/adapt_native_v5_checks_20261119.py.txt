@@ -1,0 +1,37 @@
+from pathlib import Path
+import ast
+
+TASK=Path(__file__).resolve().parent
+path=TASK/'check_native_access_v5_operation.py'
+text=path.read_text()
+text=text.replace('from unittest.mock import patch','from unittest.mock import patch, Mock')
+text=text.replace('import unittest\n','import unittest\nimport os\nimport secrets\nimport time\nimport uuid\nimport shutil\n',1)
+text=text.replace("        for name in ('execute_local_f0_native_access_v5_20261118.py','local_f0_native_access_v5_operation_steps.py','prepare_local_f0_native_access_v5_plan.py','check_native_access_v5_operation.py'):","        validation=json.loads((SOURCE/'context/reconciliation/local-f0-native-access-session-observation-v5-source-validation.json').read_bytes())\n        paths=sorted(set(paths)|{'context/reconciliation/local-f0-native-access-session-observation-v5-source-validation.json'}|set(validation['snapshot_files_sha256']))\n        for name in ('execute_local_f0_native_access_v5_20261118.py','local_f0_native_access_v5_operation_steps.py','prepare_local_f0_native_access_v5_plan.py','check_native_access_v5_operation.py','pin_native_access_v5_plan_20261118.py'):")
+text=text.replace("        self.ns=ns;self.actions=[];self.saved=[]", "        core_tree=ast.parse((TASK/'execute_local_f0_native_access_v5_20261118.py').read_bytes())\n        safe_helpers={'mark_evidence_incomplete','evidence_is_complete','confirmed_path_absent','best_effort_save','record_failure','best_effort_event','finish_report'}\n        exec(compile(ast.Module(body=[node for node in core_tree.body if isinstance(node,ast.FunctionDef) and node.name in safe_helpers],type_ignores=[]),'_actual_native_v5_helpers','exec'),ns)\n        ns['EVIDENCE_FAILED']=False\n        self.ns=ns;self.actions=[];self.saved=[]",1)
+text=text.replace("        recipe=json.loads(self.files['public-schema-registration.json'])", "        manifest.update(review_status='APPROVED_LOCAL_F0_NATIVE_ACCESS_ATTEMPT',operator_sources_sha256={name:hashlib.sha256((TASK/name).read_bytes()).hexdigest() for name in ns['OPERATOR_FILES']})\n        recipe=json.loads(self.files['public-schema-registration.json'])",1)
+
+def replace_method(source,name,replacement):
+ node=next(n for n in ast.walk(ast.parse(source)) if isinstance(n,ast.FunctionDef) and n.name==name)
+ lines=source.splitlines(keepends=True)
+ return ''.join(lines[:node.lineno-1])+replacement+''.join(lines[node.end_lineno:])
+
+text=replace_method(text,'test_native_access_delta_preserves_catalog_acceptance_and_migration_guards', '''    def test_native_access_delta_preserves_catalog_acceptance_and_migration_guards(self):
+        old=ast.parse((TASK/'local_f0_native_access_v4_operation_steps.py').read_bytes());new=ast.parse(STEPS.read_bytes())
+        before={n.name:ast.dump(n,include_attributes=False) for n in old.body if isinstance(n,ast.FunctionDef)}
+        after={n.name:ast.dump(n,include_attributes=False) for n in new.body if isinstance(n,ast.FunctionDef)}
+        self.assertEqual(set(after)-set(before),{'admit_native_operation_sources','verify_external_input_preservation'})
+        self.assertEqual({name for name in before if before[name]!=after[name]},{'read_pinned','verify_packet','main'})
+        for name in ('migrate','migrate_success','provision_migration_tools','metadata_allowlist','generated_identifier','filter_metadata','collect_native','oracle_records','provider_preinstall','provider_postinstall','verify_native_result','native_access_experiment'):
+            self.assertEqual(before[name],after[name])
+''')
+text=replace_method(text,'test_native_access_core_preserves_all_resource_and_secret_operations_except_stronger_finalization', '''    def test_native_access_core_preserves_all_resource_and_secret_operations_except_stronger_finalization(self):
+        old=ast.parse((TASK/'execute_local_f0_native_access_v4_20261118.py').read_bytes());new=ast.parse((TASK/'execute_local_f0_native_access_v5_20261118.py').read_bytes())
+        before={n.name:ast.dump(n,include_attributes=False) for n in old.body if isinstance(n,ast.FunctionDef)}
+        after={n.name:ast.dump(n,include_attributes=False) for n in new.body if isinstance(n,ast.FunctionDef)}
+        self.assertEqual(set(after)-set(before),{'mark_evidence_incomplete','evidence_is_complete','confirmed_path_absent','best_effort_save','record_failure','best_effort_event','finish_report'})
+        self.assertEqual({name for name in before if before[name]!=after[name]},{'save','event','cleanup'})
+        for name in ('create_resources','secret_scan','preflight','ensure_image','finalize','secure_private_directory','sql','psql_args'):
+            if name in before:self.assertEqual(before[name],after[name])
+''')
+compile(text,str(path),'exec')
+path.write_text(text,encoding='utf8',newline='\n')

@@ -1,0 +1,23 @@
+from pathlib import Path
+import datetime,hashlib,json,runpy,traceback
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+CORE=TASK/'execute_local_f0_lease_revoke_20261118_finally_v4.py';STEPS=TASK/'local_f0_lease_revoke_operation_steps_finally_v4.py';MANIFEST=TASK/'local-f0-lease-revoke-plan-c3a2656b/operation-manifest.json'
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+v=json.loads(MANIFEST.read_bytes());assert sha(CORE)==v['wrapper_sha256'] and sha(STEPS)==v['steps_sha256']
+n=runpy.run_path(str(CORE))['launch'].__globals__;n['initialize'](MANIFEST);exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),n)
+original=n['command'];calls=[]
+def gated(args,*a,**kw):
+    assert args[:3]==['git','-c','core.longpaths=true'] and args[3] in ('rev-parse','show'),'ONLY_READONLY_GIT_ALLOWED'
+    calls.append('READONLY_GIT');return original(args,*a,**kw)
+n.update(command=gated,save=lambda:None,event=lambda stage,status,**facts:n['report'].update(stage=stage))
+r={'recorded_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'scope':'SEPARATE_SOURCE_ONLY_REPRODUCTION_NO_DOCKER_OR_DATABASE','source_commit':v['source_commit'],'source_tree':v['source_tree'],'wrapper_sha256':sha(CORE),'steps_sha256':sha(STEPS),'historical_complete_cause':'UNOBSERVED_NOT_BACKFILLED'}
+try:n['verify_packet']();r['result']='PASS'
+except BaseException as e:
+    r['result']='STOPPED';r['exception_class']=type(e).__name__ if type(e).__name__ in ('ModuleNotFoundError','ImportError','KeyError','FileNotFoundError','OSError','ValueError','AssertionError') else 'OTHER_DISCARDED'
+    r['pinned_parser_module_missing']=isinstance(e,ModuleNotFoundError) and e.name=='pglast'
+    admitted={str((ROOT/p).resolve()):p for p in v['packet_files_sha256'] if p.endswith('.py')}|{str(CORE.resolve()):CORE.name,str(STEPS.resolve()):STEPS.name}
+    r['known_source_frames']=[{'source':admitted[str(Path(f.filename).resolve())],'line':f.lineno} for f in traceback.extract_tb(e.__traceback__) if str(Path(f.filename).resolve()) in admitted][-8:]
+r.update(readonly_Git_calls=len(calls),raw_messages_args_output_discarded=True,planned_evidence_directory_modified=False)
+p=TASK/'lease_c3a2656b_source_only_diagnostic_20261119.json'
+with p.open('x',encoding='utf8',newline='\n') as f:json.dump(r,f,indent=2);f.write('\n')
+print(json.dumps(r))

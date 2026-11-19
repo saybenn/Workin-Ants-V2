@@ -1,0 +1,146 @@
+"""Offline evidence-binding mutations. Never invokes a process or database."""
+import hashlib,json
+from pathlib import Path
+import runpy
+import unittest
+from unittest.mock import patch
+ROOT=Path(__file__).resolve().parents[1]
+build=runpy.run_path(str(ROOT/'scripts/prepare-local-f0-status.py'))['build']
+
+class StatusTests(unittest.TestCase):
+    def test_recorded_subset_does_not_promote_compound_cases(self):
+        namespace=build.__globals__;restricted=namespace['validate_restricted_claim'];migration=namespace['validate_claim'];native=namespace['validate_native_prefix_claim']
+        restricted_calls=[];migration_calls=[];native_calls=[]
+        def restricted_dispatch(*args,**kwargs):
+            restricted_calls.append((args[0],args[1],args[2],kwargs.get('json_pointer')))
+            return restricted(*args,**kwargs)
+        def migration_dispatch(*args,**kwargs):
+            migration_calls.append(args[3]['actual_result'])
+            return migration(*args,**kwargs)
+        def native_dispatch(*args,**kwargs):
+            native_calls.append((args[0],args[1],args[3]['actual_result']))
+            return native(*args,**kwargs)
+        with patch.dict(namespace,validate_restricted_claim=restricted_dispatch,validate_claim=migration_dispatch,validate_native_prefix_claim=native_dispatch):result=build()
+        self.assertEqual(result['selected_cases'],94)
+        self.assertEqual(result['assertion_status_counts'],{'PASS':211,'PARTIAL':27,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':757,'UNRESOLVED_SOURCE':7})
+        self.assertEqual({c['id'] for c in result['cases'] if c['status']=='PASS'},{'P0C-UNIQUE-01','P0C-TABLE-DatabaseActionGrant-ALLOW'})
+        self.assertEqual(len(restricted_calls),70)
+        self.assertEqual(len(migration_calls),7)
+        self.assertNotIn('PASS_LOCAL_RESTRICTED_CONTROL_PACKETS_ONLY',migration_calls)
+        self.assertEqual(len(native_calls),132)
+        self.assertTrue(all(row[2]=='STOPPED_ATTEMPT_PRESERVED' for row in native_calls))
+        self.assertNotIn('STOPPED_ATTEMPT_PRESERVED',migration_calls)
+        catalog=next(c for c in result['cases'] if c['id']=='P0C-CATALOG-01')
+        self.assertEqual(catalog['status'],'PARTIAL')
+        self.assertEqual(next(a for a in catalog['assertions'] if a['id']=='vector.CATALOG-LEAVES.adversarial')['status'],'NOT_RUN')
+        customer=next(c for c in result['cases'] if c['id']=='P0C-TABLE-CustomerProfile-ALLOW')
+        self.assertEqual(next(a for a in customer['assertions'] if a['id']=='positive.wa_app_runtime.update')['status'],'NOT_RUN')
+        self.assertFalse(any(c['status']=='PASS' and 'Privacy' in c['id'] for c in result['cases']))
+    def test_changed_current_sql_does_not_reuse_stale_inventory(self):
+        original=Path.read_bytes
+        def changed(path):
+            data=original(path)
+            return data+b'\n-- source changed\n' if path.name=='foundation-application.review.sql' else data
+        with patch.object(Path,'read_bytes',changed),self.assertRaisesRegex(AssertionError,'Inventory source changed'):build()
+    def test_pointer_and_execution_identities_fail_closed(self):
+        original=Path.read_text
+        for field,value in [('json_pointer','/coordinator/no_such_observation'),('run_id','00000000-0000-0000-0000-000000000000'),('source_commit','0'*40),('source_tree','0'*40),('packet_sha256','0'*64),('expected_assertion_sha256','0'*64)]:
+            with self.subTest(field=field):
+                def changed(path,*args,**kwargs):
+                    data=original(path,*args,**kwargs)
+                    if path.name=='local-f0-assertion-evidence.json':
+                        ledger=json.loads(data);ledger['assertions'][0][field]=value;return json.dumps(ledger)
+                    return data
+                with patch.object(Path,'read_text',changed),self.assertRaises(AssertionError):build()
+    def test_small_pass_record_cannot_promote_unexercised_cas(self):
+        original=Path.read_text
+        inventory=json.loads(original(ROOT/'context/reconciliation/local-f0-assertions.json'))
+        assertion=next(a for c in inventory['cases'] if c['id']=='P0C-CAS-01' for a in c['assertions'] if a['id']=='control.concurrent_customer_update')
+        def changed(path,*args,**kwargs):
+            text=original(path,*args,**kwargs)
+            if path.name=='local-f0-assertion-evidence.json':
+                value=json.loads(text);row=value['assertions'][0];row.update(case_id='P0C-CAS-01',assertion_id=assertion['id'],expected_assertion_sha256=hashlib.sha256(assertion['expected_assertion'].encode()).hexdigest());return json.dumps(value)
+            return text
+        with patch.object(Path,'read_text',changed),self.assertRaisesRegex(AssertionError,'Unsupported small-rehearsal assertion'):build()
+    def test_catalog_reference_cannot_point_to_unrelated_existing_dictionary(self):
+        original=Path.read_text
+        def changed(path,*args,**kwargs):
+            text=original(path,*args,**kwargs)
+            if path.name=='local-f0-assertion-evidence.json':
+                value=json.loads(text)
+                next(r for r in value['assertions'] if r['case_id']=='P0C-CATALOG-01' and r['assertion_id']=='control.visibility')['json_pointer']='/sanitized_report/limits'
+                return json.dumps(value)
+            return text
+        with patch.object(Path,'read_text',changed),self.assertRaisesRegex(AssertionError,'Catalog evidence pointer'):build()
+    def test_restricted_reference_cannot_point_to_unrelated_existing_dictionary(self):
+        original=Path.read_text
+        def changed(path,*args,**kwargs):
+            text=original(path,*args,**kwargs)
+            if path.name=='local-f0-assertion-evidence.json':
+                value=json.loads(text);next(r for r in value['assertions'] if r['case_id']=='P0C-TABLE-CustomerProfile-ALLOW' and r['assertion_id']=='positive.wa_app_runtime.select')['json_pointer']='/sanitized_report/limits';return json.dumps(value)
+            return text
+        with patch.object(Path,'read_text',changed),self.assertRaisesRegex(AssertionError,'RESTRICTED_PROOF_POINTER'):build()
+    def test_restricted_partial_cannot_be_promoted(self):
+        original=Path.read_text
+        def changed(path,*args,**kwargs):
+            text=original(path,*args,**kwargs)
+            if path.name=='local-f0-assertion-evidence.json':
+                value=json.loads(text);next(r for r in value['assertions'] if r['case_id']=='P0C-EVIDENCE-01' and r['assertion_id']=='control.closed_codec')['status']='PASS';return json.dumps(value)
+            return text
+        with patch.object(Path,'read_text',changed),self.assertRaisesRegex(AssertionError,'RESTRICTED_CLAIM_NOT_SUPPORTED'):build()
+    def test_restricted_record_cannot_promote_unlisted_case(self):
+        original=Path.read_text
+        inventory=json.loads(original(ROOT/'context/reconciliation/local-f0-assertions.json'))
+        assertion=next(a for c in inventory['cases'] if c['id']=='P0C-TABLE-ConsentLog-ALLOW' for a in c['assertions'] if a['id']=='positive.wa_app_runtime.insert')
+        def changed(path,*args,**kwargs):
+            text=original(path,*args,**kwargs)
+            if path.name=='local-f0-assertion-evidence.json':
+                value=json.loads(text);row=next(r for r in value['assertions'] if r['run_id']=='f161d454-13dd-453f-a9ee-6e92f95ea8d6');row.update(case_id='P0C-TABLE-ConsentLog-ALLOW',assertion_id=assertion['id'],status='PASS',expected_assertion_sha256=hashlib.sha256(assertion['expected_assertion'].encode()).hexdigest());return json.dumps(value)
+            return text
+        with patch.object(Path,'read_text',changed),self.assertRaisesRegex(AssertionError,'RESTRICTED_CLAIM_NOT_SUPPORTED'):build()
+    def test_restricted_record_kind_cannot_fall_back_to_migration(self):
+        records=build.__globals__['EVIDENCE_RECORDS'];path='context/reconciliation/local-f0-restricted-b8f6b10-f161d454-execution.json'
+        changed={**records,path:(records[path][0],'PASS_GENUINE_FIRST_NOOP_FAILURE_REVIEWED_RESOLVE_SAME_CHECKSUM_RETRY')}
+        with patch.dict(build.__globals__,EVIDENCE_RECORDS=changed),self.assertRaisesRegex(AssertionError,'Execution evidence kind changed'):build()
+    def test_partial_migration_claim_cannot_be_promoted(self):
+        original=Path.read_text
+        def changed(path,*args,**kwargs):
+            text=original(path,*args,**kwargs)
+            if path.name=='local-f0-assertion-evidence.json':
+                value=json.loads(text);next(r for r in value['assertions'] if r['assertion_id']=='control.intended_failure')['status']='PASS';return json.dumps(value)
+            return text
+        with patch.object(Path,'read_text',changed),self.assertRaisesRegex(AssertionError,'MIGRATION_CLAIM_NOT_SUPPORTED'):build()
+    def test_unreviewed_evidence_path_is_not_read(self):
+        original=Path.read_text
+        def changed(path,*args,**kwargs):
+            text=original(path,*args,**kwargs)
+            if path.name=='local-f0-assertion-evidence.json':
+                value=json.loads(text);value['assertions'][0]['evidence_path']='../SECRET_CANARY';return json.dumps(value)
+            return text
+        with patch.object(Path,'read_text',changed),self.assertRaisesRegex(AssertionError,'Unsupported execution evidence path'):build()
+    def test_approved_small_pair_cannot_use_forged_empty_pass_record(self):
+        original_text,original_bytes=Path.read_text,Path.read_bytes
+        old=json.loads(original_text(ROOT/'context/reconciliation/local-f0-small-rehearsal-0623028-execution.json'))
+        forged={key:old[key] for key in ('run_id','source_commit','source_tree','packet_sha256')}
+        forged.update(actual_result='PASS_FIRST01_THROUGH_FIRST10_SUBSET_ONLY',empty_observation={})
+        raw=json.dumps(forged).encode();digest=hashlib.sha256(raw).hexdigest()
+        def changed_bytes(path):return raw if path.name=='local-f0-small-rehearsal-0623028-execution.json' else original_bytes(path)
+        def changed_text(path,*args,**kwargs):
+            text=original_text(path,*args,**kwargs)
+            if path.name=='local-f0-small-rehearsal-0623028-execution.json':return raw.decode()
+            if path.name=='local-f0-assertion-evidence.json':
+                value=json.loads(text)
+                for row in value['assertions']:
+                    if row['source_commit']==old['source_commit']:row.update(evidence_sha256=digest,json_pointer='/empty_observation')
+                return json.dumps(value)
+            return text
+        with patch.object(Path,'read_text',changed_text),patch.object(Path,'read_bytes',changed_bytes),self.assertRaisesRegex(AssertionError,'independently reviewed record'):build()
+    def test_parses_exact_hashed_bytes_without_second_file_read(self):
+        original=Path.read_text
+        def second_read_trap(path,*args,**kwargs):
+            if path.name in ('local-f0-small-rehearsal-0623028-execution.json','local-f0-migration-6b8910d-execution.json','local-f0-catalog-b9703d7-23bd8979-execution.json','local-f0-restricted-b8f6b10-f161d454-execution.json','local-f0-native-access-0a29cf6-495976eb-execution.json'):raise RuntimeError('UNVERIFIED_SECOND_READ')
+            return original(path,*args,**kwargs)
+        with patch.object(Path,'read_text',second_read_trap):result=build()
+        self.assertEqual(result['assertion_status_counts']['PASS'],211)
+
+if __name__=='__main__':unittest.main(verbosity=2)

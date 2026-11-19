@@ -1,0 +1,4 @@
+SELECT 'WA_SRC_BEFORE_AGEGATEBLOCK_CROSS_MODEL_COMPLETE_CAPS';
+SELECT jsonb_build_object('root',(SELECT count(*) FROM app.age_gate_blocks WHERE id='966acdc1-5960-59ce-a11f-087556336be7'),'foreign',(SELECT count(*) FROM app.age_gate_blocks WHERE id='ff81a7a1-da2a-5cdd-af0d-d0fe55091448'),'User_root',(SELECT count(*) FROM app.users WHERE id='8a9a4b27-ce71-52f9-aa47-c45f09f71952'),'User_foreign',(SELECT count(*) FROM app.users WHERE id='3950fc46-5cfd-5911-a245-ff5e90e915d3'),'UserSecurityProfile_root',(SELECT count(*) FROM app.user_security_profiles WHERE id='24bb1d93-a33d-5de1-aee2-0a6844186ce0'),'UserSecurityProfile_foreign',(SELECT count(*) FROM app.user_security_profiles WHERE id='dbebcfec-f4e8-576a-82f8-122e5bcf3ded'));
+SELECT 'WA_SRC_AFTER_AGEGATEBLOCK_CROSS_MODEL_COMPLETE_CAPS';
+COMMIT;

@@ -1,0 +1,763 @@
+--- execute_local_f0_native_access_v4_20261118.py
++++ execute_local_f0_native_access_v5_20261118.py
+@@ -37,10 +37,11 @@
+ LEAVES=('wa_private_helper_owner','wa_customer_verifier','wa_track_verifier')
+ TARGETS=MANIFEST['targets']
+ report={'run_id':RUN_ID,'approved_commit':COMMIT,'approved_tree':TREE,'approved_packet_sha256':PACKET,
+-        'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'IN_PROGRESS','stage':'ENTRY',
++        'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'IN_PROGRESS','stage':'ENTRY','evidence_complete':True,'persistence_failure':False,'output_complete':True,
+         'steps':{name:'NOT_RUN' for name in ('CATALOG-SETUP','CATALOG-AUTH','CATALOG-TOOLS','CATALOG-INSTALL','NATIVE-PROVIDER-PREINSTALL','NATIVE-PROVIDER-POSTINSTALL','NATIVE-ACCESS-ATTESTATION','NATIVE-ACCESS-FACETS','CATALOG-ACL-COMPAT','CATALOG-TEXT-COMPAT','CATALOG-NATIVE','CATALOG-ORACLE','CATALOG-LEDGER','CATALOG-COMPARE','CATALOG-SANITIZED_EXPORT','CATALOG-CLEANUP')},'events':[],'targets':{},'unexpected':[],
+         'cleanup':{},'limits':{'posture':'D','451_register':'NOT_PROMOTED','94_selection':'NOT_PROMOTED','hosted_changes':False,'migration_adoption':False,'worker_loop':False,'production_readiness':False}}
+ report['authorization']={'scope':'STANDING_LOCAL_F0_NATIVE_ACCESS_REHEARSAL','packet_identity':'source_commit_tree_and_packet_sha256_fields','no_retry_on_unexpected':True}
++EVIDENCE_FAILED=False
+ passwords={};secret_paths=[];all_secrets=[];created_containers={};created_volumes={};attempted_containers=set();attempted_volumes=set();bootstrap_attempted=set();bootstrapped=set();finalization_attempted=set();finalized=set()
+ 
+ class Stop(Exception):
+@@ -50,16 +51,77 @@
+     if not ok:raise Stop(code,details)
+ 
+ def save():
+-    temp=OUT/'run-evidence.json.tmp'
+-    with temp.open('w',encoding='utf8',newline='\n') as f:
+-        text=json.dumps(report,indent=2)+'\n'
+-        for secret in all_secrets:text=text.replace(secret,'[REDACTED]')
+-        f.write(text);f.flush();os.fsync(f.fileno())
+-    temp.replace(OUT/'run-evidence.json')
++    try:
++        temp=OUT/'run-evidence.json.tmp'
++        with temp.open('w',encoding='utf8',newline='\n') as f:
++            text=json.dumps(report,indent=2)+'\n'
++            for secret in all_secrets:text=text.replace(secret,'[REDACTED]')
++            f.write(text);f.flush();os.fsync(f.fileno())
++        temp.replace(OUT/'run-evidence.json')
++    except BaseException:
++        mark_evidence_incomplete();raise
++
++
++
++
++
++def mark_evidence_incomplete(code='EVIDENCE_WRITE_UNCONFIRMED'):
++    global EVIDENCE_FAILED
++    EVIDENCE_FAILED=True
++    try:
++        report['evidence_complete']=False
++        report['persistence_failure']=True
++        report['status']='STOPPED_ATTEMPT_PRESERVED'
++        report.pop('qualified_native_snapshot_sha256',None)
++        safe={'stage':'EVIDENCE','code':code if code in ('EVIDENCE_WRITE_UNCONFIRMED','EVIDENCE_EVENT_UNCONFIRMED','EVIDENCE_OUTPUT_UNCONFIRMED') else 'EVIDENCE_WRITE_UNCONFIRMED'}
++        if safe not in report['unexpected']:report['unexpected'].append(safe)
++    except BaseException:pass
++
++def evidence_is_complete():
++    try:return not EVIDENCE_FAILED and report.get('evidence_complete',True) is True
++    except BaseException:return False
++
++def confirmed_path_absent(path):
++    try:path.lstat();return False
++    except FileNotFoundError:return True
++
++def best_effort_save():
++    try:save();return True
++    except BaseException:mark_evidence_incomplete();return False
++
++def record_failure(stage,code,primary=False):
++    try:
++        safe={'stage':stage,'code':code}
++        report['unexpected'].append(safe);report['status']='STOPPED_ATTEMPT_PRESERVED'
++        report.pop('qualified_native_snapshot_sha256',None)
++        if primary:report['primary_failure']=safe
++        else:report.setdefault('primary_failure',safe)
++    except BaseException:mark_evidence_incomplete()
++    return best_effort_save()
++
++def best_effort_event(stage,status,**safe):
++    try:event(stage,status,**safe);return True
++    except BaseException:mark_evidence_incomplete('EVIDENCE_EVENT_UNCONFIRMED');return False
++
++def finish_report(success_status):
++    def acceptable():
++        return evidence_is_complete() and not report['unexpected'] and report['status']==success_status
++    if not acceptable():report['status']='STOPPED_ATTEMPT_PRESERVED';report.pop('qualified_native_snapshot_sha256',None)
++    report['finished_at']=datetime.datetime.now(datetime.timezone.utc).isoformat()
++    best_effort_save()
++    if not acceptable():report['status']='STOPPED_ATTEMPT_PRESERVED';report.pop('qualified_native_snapshot_sha256',None)
++    try:
++        print(json.dumps({'status':report['status'],'evidence_complete':evidence_is_complete(),'persistence_failure':report.get('persistence_failure',False),'evidence':str(OUT/'run-evidence.json')}),flush=True)
++    except BaseException:
++        mark_evidence_incomplete('EVIDENCE_OUTPUT_UNCONFIRMED');best_effort_save()
++    return 0 if acceptable() else 1
+ 
+ def event(stage,status,**safe):
+-    report['stage']=stage;report['events'].append({'stage':stage,'status':status,**safe});save()
+-    print(json.dumps({'stage':stage,'status':status,**safe}),flush=True)
++    try:
++        report['stage']=stage;report['events'].append({'stage':stage,'status':status,**safe});save()
++        print(json.dumps({'stage':stage,'status':status,**safe}),flush=True)
++    except BaseException:
++        mark_evidence_incomplete('EVIDENCE_EVENT_UNCONFIRMED');raise
+ 
+ def command(args,input=None,timeout=60):
+     return subprocess.run(args,input=input,capture_output=True,text=True,encoding='utf8',errors='strict',timeout=timeout,cwd=ROOT)
+@@ -241,28 +303,28 @@
+         try:action()
+         except BaseException as exc:
+             item={'stage':'CLEANUP','target':target,'code':exc.code if isinstance(exc,Stop) else label}
+-            errors.append(item);report['cleanup'][target]={'status':'BLOCKED','failure':item['code']};save()
++            errors.append(item);report['cleanup'][target]={'status':'BLOCKED','failure':item['code']};best_effort_save()
+     def container_cleanup(name):
+         value=inspect_container(name)
+         if name not in created_containers:
+             if value is None or not owned(value['Config']['Labels']):return
+             created_containers[name]=value['Id']
+         if value is None:
+-            report['cleanup'][name]={'status':'ABSENT_AT_CLEANUP'};save();return
++            report['cleanup'][name]={'status':'ABSENT_AT_CLEANUP'};best_effort_save();return
+         identity=created_containers[name]
+-        need(value['Id']==identity and owned(value['Config']['Labels']),'CLEANUP_CONTAINER_OWNERSHIP_MISMATCH',{'target':name})
+-        need(docker(['container','rm','-f',name]).returncode==0,'EXACT_CONTAINER_REMOVAL_FAILED',{'target':name})
+-        report['cleanup'][name]={'removed':True,'verified_id':identity,'name_and_both_labels_verified':True};save()
++        need(value.get('Name')=='/'+name and value['Id']==identity and owned(value['Config']['Labels']),'CLEANUP_CONTAINER_OWNERSHIP_MISMATCH',{'target':name})
++        need(docker(['container','rm','-f',identity]).returncode==0,'EXACT_CONTAINER_REMOVAL_FAILED',{'target':name})
++        report['cleanup'][name]={'removed':True,'verified_id':identity,'name_and_both_labels_verified':True};best_effort_save()
+     def volume_cleanup(name):
+         value=inspect_volume(name)
+         if name not in created_volumes:
+             if value is None or not owned(value.get('Labels') or {}):return
+             created_volumes[name]=value['CreatedAt']
+         if value is None:
+-            report['cleanup'][name]={'status':'ABSENT_AT_CLEANUP'};save();return
+-        need(value['CreatedAt']==created_volumes[name] and owned(value.get('Labels') or {}),'CLEANUP_VOLUME_OWNERSHIP_MISMATCH',{'target':name})
++            report['cleanup'][name]={'status':'ABSENT_AT_CLEANUP'};best_effort_save();return
++        need(value.get('Name')==name and value['CreatedAt']==created_volumes[name] and owned(value.get('Labels') or {}),'CLEANUP_VOLUME_OWNERSHIP_MISMATCH',{'target':name})
+         need(docker(['volume','rm',name]).returncode==0,'EXACT_VOLUME_REMOVAL_FAILED',{'target':name})
+-        report['cleanup'][name]={'removed':True,'name_labels_creation_identity_verified':True};save()
++        report['cleanup'][name]={'removed':True,'name_labels_creation_identity_verified':True};best_effort_save()
+     try:
+         for name in sorted(attempted_containers):attempt('CONTAINER_CLEANUP_FAILED',name,lambda name=name:container_cleanup(name))
+         for name in sorted(attempted_volumes):attempt('VOLUME_CLEANUP_FAILED',name,lambda name=name:volume_cleanup(name))
+@@ -270,25 +332,34 @@
+         deleted=[]
+         for path in secret_paths:
+             def delete_secret(path=path):
+-                need(path.resolve().parent==PRIVATE.resolve() and path.name in ('ok-bootstrap-password','fail-bootstrap-password'),'SECRET_CLEANUP_PATH_MISMATCH')
+-                if path.exists():path.unlink()
++                private_resolved=PRIVATE.resolve()
++                need(private_resolved==OUT.resolve()/'private' and private_resolved.is_relative_to(TASK.resolve()) and not private_resolved.is_relative_to(ROOT.resolve()),'SECRET_CLEANUP_DIRECTORY_MISMATCH')
++                need(path.resolve().parent==private_resolved and path.name in ('ok-bootstrap-password','fail-bootstrap-password'),'SECRET_CLEANUP_PATH_MISMATCH')
++                if not confirmed_path_absent(path):path.unlink()
+                 deleted.append(path.name)
+             attempt('SECRET_FILE_REMOVAL_FAILED',path.name,delete_secret)
+-        if PRIVATE.exists():attempt('PRIVATE_DIRECTORY_REMOVAL_FAILED','private_directory',PRIVATE.rmdir)
+-        report['host_secret_cleanup']={'deleted':deleted,'private_directory_absent':not PRIVATE.exists()};save()
++        attempt('PRIVATE_DIRECTORY_REMOVAL_FAILED','private_directory',lambda: None if confirmed_path_absent(PRIVATE) else PRIVATE.rmdir())
++        report['host_secret_cleanup']={'deleted':deleted,'private_directory_absent':False}
++        try:report['host_secret_cleanup']['private_directory_absent']=confirmed_path_absent(PRIVATE)
++        except BaseException:errors.append({'stage':'CLEANUP','code':'PRIVATE_ABSENCE_OBSERVATION_FAILED'})
++        best_effort_save()
++    report['cleanup_summary']={'resource_absence_observation_completed':False,'resource_presence_after':None,'private_directory_absent':False}
+     try:
+         containers,volumes=inventory()
+-        presence={t['name']:t['name'] in containers for t in TARGETS}|{t['volume']:t['volume'] in volumes for t in TARGETS}
+-        report['cleanup_summary']={'resource_presence_after':presence,'test_owned_secret_files_deleted':report['host_secret_cleanup']['deleted'],'private_directory_absent':not PRIVATE.exists(),'image_removed':False,'unrelated_resources_changed':False}
++        presence={name:name in containers for name in (target['name'] for target in TARGETS)}|{name:name in volumes for name in (target['volume'] for target in TARGETS)}
++        report['cleanup_summary']={'resource_absence_observation_completed':True,'resource_presence_after':presence,'test_owned_secret_files_deleted':report['host_secret_cleanup']['deleted'],'private_directory_absent':report['host_secret_cleanup']['private_directory_absent'],'image_removed':False,'unrelated_resources_changed':False}
+         need(not any(presence.values()),'RESOURCE_ABSENCE_NOT_CONFIRMED')
+     except BaseException as exc:
+         errors.append({'stage':'CLEANUP','code':exc.code if isinstance(exc,Stop) else 'CLEANUP_ABSENCE_OBSERVATION_FAILED'})
+-    if errors:
+-        report['unexpected'].extend(errors);save();raise Stop('CONTROLLED_CLEANUP_INCOMPLETE')
+-    report['steps']['CATALOG-CLEANUP']='PASS';event('CONTROLLED_CLEANUP','PASS',all_created_names_absent=True,expected_resource_names=2*len(TARGETS),test_secret_files_absent=True)
++    if errors or not evidence_is_complete():
++        report['unexpected'].extend(errors);best_effort_save();raise Stop('CONTROLLED_CLEANUP_INCOMPLETE')
++    if not best_effort_event('CONTROLLED_CLEANUP','PASS',all_created_names_absent=True,expected_resource_names=2*len(TARGETS),test_secret_files_absent=True):raise Stop('CLEANUP_EVIDENCE_UNCONFIRMED')
++    report['cleanup_actions_confirmed']=True
++    report['steps']['CATALOG-CLEANUP']='PASS'
+ 
+ # Load only the exact independently reviewed operational steps snapshot.
+-STEPS=TASK/'local_f0_native_access_v4_operation_steps.py'
+-need(hashlib.sha256(STEPS.read_bytes()).hexdigest()==MANIFEST['steps_sha256'],'OPERATION_STEPS_SOURCE_MISMATCH')
+-exec(compile(STEPS.read_text(encoding='utf8'),str(STEPS),'exec'),globals())
++STEPS=TASK/'local_f0_native_access_v5_operation_steps.py'
++STEPS_RAW=STEPS.read_bytes()
++need(hashlib.sha256(STEPS_RAW).hexdigest()==MANIFEST['steps_sha256'],'OPERATION_STEPS_SOURCE_MISMATCH')
++exec(compile(STEPS_RAW,str(STEPS),'exec'),globals())
+ if __name__=='__main__':raise SystemExit(main())
+--- local_f0_native_access_v4_operation_steps.py
++++ local_f0_native_access_v5_operation_steps.py
+@@ -194,8 +194,10 @@
+ def read_pinned(relative):
+     need(type(relative) is str and not relative.startswith('/') and '\\' not in relative and all(x not in ('','.','..') for x in relative.split('/')),'UNSAFE_CATALOG_PACKET_PATH')
+     path=(ROOT/relative).resolve();need(path.is_relative_to(ROOT.resolve()),'CATALOG_PACKET_PATH_ESCAPE')
++    pins=MANIFEST['packet_files_sha256']
++    need(relative in pins and type(pins[relative]) is str and re.fullmatch('[0-9a-f]{64}',pins[relative]),'CATALOG_PACKET_MEMBER_REQUIRED')
+     raw=path.read_bytes()
+-    need(hashlib.sha256(raw).hexdigest()==MANIFEST['packet_files_sha256'][relative],'CATALOG_PACKET_SOURCE_DRIFT')
++    need(hashlib.sha256(raw).hexdigest()==pins[relative],'CATALOG_PACKET_SOURCE_DRIFT')
+     return raw
+ 
+ 
+@@ -607,19 +609,54 @@
+ # NEW local-only native access pipeline. No existing coordinator/packet is edited.
+ import os
+ import secrets
+-NATIVE_COORDINATOR='scripts/sql-review/run-native-table-denials-v2.py'
+-NATIVE_COORDINATOR_SHA='21dce763c809b579eff009871b44315f9ddbcd5b9cc03a33d3af305bc096445b'
++NATIVE_COORDINATOR='scripts/sql-review/run-native-table-denials-v3.py'
++NATIVE_COORDINATOR_SHA='6e74115cc7a77e626c4379c5a5744efdede1257d04b206fc339e62a23fd49cd3'
+ NATIVE_PACKET='review-output/native-table-denials-v2/packet.json'
+ NATIVE_PACKET_SHA='8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69'
+-NATIVE_DOC='scripts/sql-review/native-table-denials-deferred-flush-v2.md'
+-NATIVE_DOC_SHA='1a56853ec4ea0881e05fc611c05094d2898bdada25d4d284bb747c6dc9281789'
++NATIVE_DOC='scripts/sql-review/native-table-denials-session-observation-v3.md'
++NATIVE_DOC_SHA='b62791ecc1edc8966b57b9edc0863eaa47fee57c568612bfb10c0f7a7ec55d40'
+ PROVIDER_ROLES=('anon','authenticated','service_role')
+ NATIVE_MODULES=(NATIVE_COORDINATOR,'scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/run-local-f0-migrate.py','scripts/sql-review/collect_native_catalog.sql','scripts/sql-review/rehearsal-diagnostics.py','scripts/prepare-local-f0-history.py','review-output/first-rehearsal/diagnostic-identifiers.json')
+ NATIVE_ACCESS={}
+ SAFE_FILES.update(('provider-preinstall-proof.json','native-deny-run-plan.json','native-access-attestation.json'))
+ 
+ 
++OPERATOR_SOURCE_ROOT='context/reconciliation/local-f0-operation-sources/native-access-session-observation-v5'
++OPERATOR_VALIDATION='context/reconciliation/local-f0-native-access-session-observation-v5-source-validation.json'
++OPERATOR_FILES=('execute_local_f0_native_access_v5_20261118.py', 'local_f0_native_access_v5_operation_steps.py', 'prepare_local_f0_native_access_v5_plan.py', 'check_native_access_v5_operation.py', 'pin_native_access_v5_plan_20261118.py')
++
++def admit_native_operation_sources():
++    pins=MANIFEST['packet_files_sha256']
++    need(type(pins) is dict and bool(pins),'NATIVE_COMPLETE_SOURCE_MAP_REQUIRED')
++    required={OPERATOR_VALIDATION,NATIVE_COORDINATOR,NATIVE_DOC,NATIVE_PACKET,GENERATOR,'review-output/native-catalog/source-pins.json'}|set(NATIVE_MODULES)|{OPERATOR_SOURCE_ROOT+'/'+name+'.txt' for name in OPERATOR_FILES}
++    need(required<=set(pins),'NATIVE_REQUIRED_SOURCE_SNAPSHOT_MISSING')
++    admitted={relative:read_pinned(relative) for relative in pins}
++    need(hashlib.sha256(admitted[NATIVE_COORDINATOR]).hexdigest()==NATIVE_COORDINATOR_SHA and hashlib.sha256(admitted[NATIVE_DOC]).hexdigest()==NATIVE_DOC_SHA and hashlib.sha256(admitted[NATIVE_PACKET]).hexdigest()==NATIVE_PACKET_SHA,'NATIVE_REVIEWED_SOURCE_BINDING')
++    packet=unique_json(admitted[NATIVE_PACKET])
++    for relative,wanted in packet['source_inputs_sha256'].items():need(pins.get(relative)==wanted and relative in admitted,'NATIVE_PACKET_INPUT_ADMISSION')
++    for name,wanted in packet['files_sha256'].items():
++        relative='review-output/native-table-denials-v2/'+name
++        need(pins.get(relative)==wanted and relative in admitted,'NATIVE_PACKET_SQL_ADMISSION')
++    need(hashlib.sha256(admitted[GENERATOR]).hexdigest()==GENERATOR_SHA,'NATIVE_CATALOG_GENERATOR_ADMISSION')
++    catalog_pins=unique_json(admitted['review-output/native-catalog/source-pins.json'])
++    need(type(catalog_pins) is dict and len(catalog_pins)==16 and all(pins.get(relative)==wanted and relative in admitted for relative,wanted in catalog_pins.items()),'NATIVE_CATALOG_CLOSURE_ADMISSION')
++    external=MANIFEST['operator_sources_sha256']
++    need(type(external) is dict and set(external)==set(OPERATOR_FILES),'NATIVE_EXACT_FIVE_OPERATOR_SOURCES')
++    for name,wanted in external.items():
++        need(type(wanted) is str and re.fullmatch('[0-9a-f]{64}',wanted),'NATIVE_OPERATOR_HASH_SHAPE')
++        raw=(TASK/name).read_bytes()
++        need(hashlib.sha256(raw).hexdigest()==wanted and raw==admitted[OPERATOR_SOURCE_ROOT+'/'+name+'.txt'],'NATIVE_COMMITTED_OPERATOR_SNAPSHOT_REQUIRED')
++    validation=unique_json(admitted[OPERATOR_VALIDATION])
++    need(validation['schema']=='workinants.native-access-operation-source-validation.v1' and validation['external_files_sha256']==external,'NATIVE_OPERATOR_VALIDATION_BINDING')
++    archive=validation['snapshot_files_sha256']
++    need(type(archive) is dict and all(relative.startswith(OPERATOR_SOURCE_ROOT+'/') and pins.get(relative)==wanted for relative,wanted in archive.items()),'NATIVE_OPERATOR_ARCHIVE_ADMISSION')
++    actual={path.relative_to(ROOT).as_posix():hashlib.sha256(path.read_bytes()).hexdigest() for path in (ROOT/OPERATOR_SOURCE_ROOT).rglob('*') if path.is_file()}
++    need(actual==archive,'NATIVE_OPERATOR_ARCHIVE_TREE')
++    return admitted
++
++
+ def verify_packet():
++    admit_native_operation_sources()
+     verify_catalog_packet()
+     cfg=MANIFEST['native_access']
+     need(type(cfg) is dict and set(cfg)=={'coordinator','coordinator_sha256','packet','packet_sha256','document','document_sha256'},'NATIVE_ACCESS_CONFIGURATION_FIELDS')
+@@ -758,30 +795,60 @@
+     report['steps']['NATIVE-ACCESS-FACETS']='PASS_PREPARED_NATIVE_FACETS_ONLY_CASES_STILL_NOT_RUN';save()
+ 
+ 
++def verify_external_input_preservation():
++    complete=True
++    try:need(hashlib.sha256(Path(MANIFEST['tool_archive']).read_bytes()).hexdigest()==MANIFEST['tool_archive_sha256'],'NATIVE_ACCESS_TOOL_ARCHIVE_POSTRUN_DRIFT')
++    except BaseException:complete=False
++    for plan in MANIFEST['migration_targets'].values():
++        try:
++            raw=Path(plan['manifest_path']).read_bytes();need(hashlib.sha256(raw).hexdigest()==plan['manifest_sha256'],'NATIVE_ACCESS_TARGET_PLAN_POSTRUN_DRIFT');unique_json(raw)
++        except BaseException:complete=False
++        try:need(hashlib.sha256(Path(plan['source_archive']).read_bytes()).hexdigest()==plan['source_archive_sha256'],'NATIVE_ACCESS_SOURCE_ARCHIVE_POSTRUN_DRIFT')
++        except BaseException:complete=False
++        try:
++            source=Path(plan['source_snapshot']);current={path.relative_to(source).as_posix():hashlib.sha256(path.read_bytes()).hexdigest() for path in source.rglob('*') if path.is_file()};need(current==plan['source_files_sha256'],'NATIVE_ACCESS_SOURCE_SNAPSHOT_POSTRUN_DRIFT')
++        except BaseException:complete=False
++    need(complete,'NATIVE_ACCESS_EXTERNAL_INPUT_PRESERVATION_UNCONFIRMED')
++
++
+ def main():
+-    OUT.mkdir(exist_ok=False);save()
++    need(MANIFEST['review_status']=='APPROVED_LOCAL_F0_NATIVE_ACCESS_ATTEMPT','EXACT_OPERATION_NOT_REVIEWED');need(not OUT.exists(),'FRESH_EVIDENCE_DIRECTORY_REQUIRED')
++    OUT.mkdir(exist_ok=False)
++    report.setdefault('evidence_complete',True);report.setdefault('persistence_failure',False)
+     try:
++        need(best_effort_save(),'EVIDENCE_WRITE_UNCONFIRMED')
+         verify_packet();preflight();ensure_image();create_resources();bootstrap_all();provision_migration_tools();provider_preinstall();native_access_experiment()
+         report['status']='PASS_LOCAL_NATIVE_ACCESS_SUBSET_ONLY'
+     except BaseException as error:
+         safe={'stage':error.stage if isinstance(error,Stop) else report['stage'],'code':error.code if isinstance(error,Stop) else 'TIMEOUT_CLOSURE_UNCONFIRMED' if isinstance(error,subprocess.TimeoutExpired) else 'INTERRUPTED' if isinstance(error,KeyboardInterrupt) else 'UNEXPECTED_NATIVE_ACCESS_WRAPPER_FAILURE'}
+-        report['unexpected'].append(safe);report['status']='STOPPED_ATTEMPT_PRESERVED';event('STOP','NO_LATER_STEPS',failure=safe)
++        record_failure(safe['stage'],safe['code'],primary=True)
++        best_effort_event('STOP','NO_LATER_STEPS',failure=safe)
+     finally:
+         for name in sorted(bootstrap_attempted-finalization_attempted):
+             try:finalize(name)
+-            except BaseException:report['unexpected'].append({'stage':'FINALLY_FINALIZATION','target':name,'code':'FINALIZATION_UNCONFIRMED'});save()
+-        try:secret_scan();report['steps']['CATALOG-SANITIZED_EXPORT']='PASS';save()
+-        except BaseException:report['unexpected'].append({'stage':'SANITIZATION','code':'SECRET_SCAN_UNCONFIRMED'});save()
+-        try:cleanup()
+-        except BaseException:report['unexpected'].append({'stage':'CLEANUP','code':'CLEANUP_UNCONFIRMED'});save()
+-        report['finished_at']=datetime.datetime.now(datetime.timezone.utc).isoformat()
++            except BaseException:record_failure('FINALLY_FINALIZATION','FINALIZATION_UNCONFIRMED')
++        try:secret_scan();report['steps']['CATALOG-SANITIZED_EXPORT']='PASS';best_effort_save()
++        except BaseException:record_failure('SANITIZATION','SECRET_SCAN_UNCONFIRMED')
++        try:cleanup();need(report.get('cleanup_actions_confirmed') is True,'CLEANUP_ACTIONS_UNCONFIRMED')
++        except BaseException:record_failure('CLEANUP','CLEANUP_UNCONFIRMED')
++        # Each existing preservation branch runs even when another branch or
++        # its bookkeeping fails. No source, tool or archive is repaired/retried.
+         try:
+-            files=report.get('source_verification',{}).get('files_sha256',{})
+-            report['packet_unchanged_after_run']=bool(files) and all(hashlib.sha256((ROOT/p).read_bytes()).hexdigest()==h for p,h in files.items())
+-            verify_tool_data();report['tool_source_data_unchanged_after_run']=True
+-        except BaseException:report['packet_unchanged_after_run']=False;report['tool_source_data_unchanged_after_run']=False
+-        if not report['packet_unchanged_after_run']:report['unexpected'].append({'stage':'POST_RUN_PACKET_VERIFICATION','code':'SOURCE_DRIFT_OR_UNVERIFIED_PACKET'})
+-        if report['unexpected']:
+-            report['status']='STOPPED_ATTEMPT_PRESERVED';report.pop('qualified_native_snapshot_sha256',None)
+-        save();print(json.dumps({'status':report['status'],'evidence':str(OUT/'run-evidence.json'),'steps':report['steps'],'unexpected':report['unexpected'],'cleanup':report.get('cleanup_summary')}),flush=True)
+-    return 0 if not report['unexpected'] else 1
++            hashes=report.get('source_verification',{}).get('files_sha256',{})
++            need(hashes and all(hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==value for path,value in hashes.items()),'SOURCE_PACKET_DRIFT_OR_UNVERIFIED')
++            report['packet_unchanged_after_run']=True
++        except BaseException:
++            report['packet_unchanged_after_run']=False;record_failure('SOURCE_PRESERVATION','SOURCE_DRIFT_OR_UNVERIFIED_PACKET')
++        try:verify_tool_data();report['tool_source_data_unchanged_after_run']=True
++        except BaseException:
++            report['tool_source_data_unchanged_after_run']=False;record_failure('TOOL_SOURCE_PRESERVATION','TOOL_SOURCE_DRIFT_OR_UNVERIFIED')
++        try:verify_external_input_preservation();report['external_input_archives_and_fresh_history_unchanged_after_run']=True
++        except BaseException:
++            report['external_input_archives_and_fresh_history_unchanged_after_run']=False;record_failure('EXTERNAL_INPUT_PRESERVATION','ARCHIVE_OR_FRESH_SOURCE_HISTORY_DRIFT_OR_UNVERIFIED')
++        try:
++            need(all(hashlib.sha256((TASK/path).read_bytes()).hexdigest()==value for path,value in MANIFEST['operator_sources_sha256'].items()),'OPERATOR_SOURCE_DRIFT')
++            report['external_sources_unchanged_after_run']=True
++        except BaseException:
++            report['external_sources_unchanged_after_run']=False;record_failure('EXTERNAL_SOURCE_PRESERVATION','EXTERNAL_SOURCE_DRIFT_OR_UNVERIFIED_PACKET')
++        report['all_source_and_external_inputs_preserved_after_run']=all(report.get(key) is True for key in ('packet_unchanged_after_run','tool_source_data_unchanged_after_run','external_input_archives_and_fresh_history_unchanged_after_run','external_sources_unchanged_after_run'))
++    return finish_report('PASS_LOCAL_NATIVE_ACCESS_SUBSET_ONLY')
+--- prepare_local_f0_native_access_v4_plan.py
++++ prepare_local_f0_native_access_v5_plan.py
+@@ -18,13 +18,15 @@
+ ROOT=TASK/'workinants-correction-pass'
+ HISTORY_HELPER='scripts/prepare-local-f0-history.py'
+ HISTORY_HELPER_SHA='33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8'
+-COORDINATOR='scripts/sql-review/run-native-table-denials-v2.py'
+-COORDINATOR_SHA='21dce763c809b579eff009871b44315f9ddbcd5b9cc03a33d3af305bc096445b'
++COORDINATOR='scripts/sql-review/run-native-table-denials-v3.py'
++COORDINATOR_SHA='6e74115cc7a77e626c4379c5a5744efdede1257d04b206fc339e62a23fd49cd3'
+ DENY_PACKET='review-output/native-table-denials-v2/packet.json'
+ DENY_PACKET_SHA='8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69'
+-DOCUMENT='scripts/sql-review/native-table-denials-deferred-flush-v2.md'
+-DOCUMENT_SHA='1a56853ec4ea0881e05fc611c05094d2898bdada25d4d284bb747c6dc9281789'
+-OPERATOR_FILES=('execute_local_f0_native_access_v4_20261118.py','local_f0_native_access_v4_operation_steps.py','prepare_local_f0_native_access_v4_plan.py','check_native_access_v4_operation.py')
++DOCUMENT='scripts/sql-review/native-table-denials-session-observation-v3.md'
++DOCUMENT_SHA='b62791ecc1edc8966b57b9edc0863eaa47fee57c568612bfb10c0f7a7ec55d40'
++OPERATOR_SOURCE_ROOT='context/reconciliation/local-f0-operation-sources/native-access-session-observation-v5'
++OPERATOR_VALIDATION='context/reconciliation/local-f0-native-access-session-observation-v5-source-validation.json'
++OPERATOR_FILES=('execute_local_f0_native_access_v5_20261118.py', 'local_f0_native_access_v5_operation_steps.py', 'prepare_local_f0_native_access_v5_plan.py', 'check_native_access_v5_operation.py', 'pin_native_access_v5_plan_20261118.py')
+ sha=lambda raw:hashlib.sha256(raw).hexdigest()
+ 
+ class HeldFailure(Exception):
+@@ -53,9 +55,17 @@
+     need(baseline['purpose']=='LOCAL_F0_NATIVE_CATALOG_REHEARSAL' and len(baseline['targets'])==1 and set(baseline['migration_targets'])=={'ok'},'REVIEWED_CATALOG_BASELINE_REQUIRED')
+     packet_raw=safe_path(root,DENY_PACKET).read_bytes();need(sha(packet_raw)==DENY_PACKET_SHA,'DENY_PACKET_SOURCE_DRIFT');packet=json.loads(packet_raw)
+     need(packet['schema']=='workinants.native-table-denials.v1' and packet['selected_count']==40 and len(packet['cases'])==40 and len(packet['files_sha256'])==83 and len(packet['preparation_blocks'])==4,'DENY_PACKET_FINITE_SCOPE')
+-    paths=set(baseline['packet_files_sha256'])|set(packet['source_inputs_sha256'])|{COORDINATOR,DENY_PACKET,DOCUMENT,'scripts/sql-review/test_run_native_table_denials_v2.py',HISTORY_HELPER,'review-output/first-rehearsal/diagnostic-identifiers.json'}
++    paths=set(baseline['packet_files_sha256'])|set(packet['source_inputs_sha256'])|{COORDINATOR,DENY_PACKET,DOCUMENT,'scripts/sql-review/test_run_native_table_denials_v3.py',HISTORY_HELPER,'review-output/first-rehearsal/diagnostic-identifiers.json'}
+     paths|={'review-output/native-table-denials-v2/'+name for name in packet['files_sha256']}
++    validation_raw=safe_path(root,OPERATOR_VALIDATION).read_bytes();validation=json.loads(validation_raw)
++    need(validation['schema']=='workinants.native-access-operation-source-validation.v1','NATIVE_OPERATOR_VALIDATION_SCHEMA')
++    paths|={OPERATOR_VALIDATION}|set(validation['snapshot_files_sha256'])
++    need(all(name.startswith(OPERATOR_SOURCE_ROOT+'/') for name in validation['snapshot_files_sha256']),'NATIVE_OPERATOR_ARCHIVE_ROOT')
+     source={path:safe_path(root,path).read_bytes() for path in sorted(paths)}
++    external_hashes={name:sha((task/name).read_bytes()) for name in OPERATOR_FILES}
++    need(validation['external_files_sha256']==external_hashes,'NATIVE_OPERATOR_VALIDATION_BINDING')
++    for name,wanted in validation['snapshot_files_sha256'].items():need(sha(source[name])==wanted,'NATIVE_OPERATOR_ARCHIVE_DRIFT')
++    for name,wanted in external_hashes.items():need(sha(source[OPERATOR_SOURCE_ROOT+'/'+name+'.txt'])==wanted,'NATIVE_OPERATOR_SNAPSHOT_DRIFT')
+     for path,want in packet['source_inputs_sha256'].items():need(sha(source[path])==want,'DENY_SOURCE_INPUT_DRIFT')
+     for name,want in packet['files_sha256'].items():need(sha(source['review-output/native-table-denials-v2/'+name])==want,'DENY_SQL_DRIFT')
+     for path,want in ((COORDINATOR,COORDINATOR_SHA),(DOCUMENT,DOCUMENT_SHA),(HISTORY_HELPER,HISTORY_HELPER_SHA)):
+--- check_native_access_v4_operation.py
++++ check_native_access_v5_operation.py
+@@ -19,11 +19,16 @@
+ import tempfile
+ from types import SimpleNamespace
+ import unittest
+-from unittest.mock import patch
++import os
++import secrets
++import time
++import uuid
++import shutil
++from unittest.mock import patch, Mock
+ 
+ TASK=Path(__file__).resolve().parent
+ SOURCE=TASK/'workinants-correction-pass'
+-STEPS=TASK/'local_f0_native_access_v4_operation_steps.py'
++STEPS=TASK/'local_f0_native_access_v5_operation_steps.py'
+ RUN='719dffcb-a5f9-4a93-bffe-7faf83f7a914'
+ NAME='wa-p0c-719dffcb-native'
+ CID='1'*64
+@@ -39,8 +44,10 @@
+         paths=list(generator['REQUIRED_FILES'])+['scripts/sql-review/catalog-acl-preflight.sql','scripts/sql-review/catalog-text-preflight.sql','scripts/prepare-native-catalog-review.py','context/reconciliation/local-f0-tooling/prisma-tools-closure.json','prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql','node_modules/@prisma/engines-version/package.json','node_modules/prisma/package.json']
+         cls.baseline=json.loads((TASK/'local-f0-catalog-v4-plan-8fa680ed/operation-manifest.json').read_text())
+         deny=json.loads((SOURCE/'review-output/native-table-denials-v2/packet.json').read_text())
+-        paths=sorted(set(paths)|set(cls.baseline['packet_files_sha256'])|set(deny['source_inputs_sha256'])|{'scripts/sql-review/run-native-table-denials-v2.py','scripts/sql-review/test_run_native_table_denials_v2.py','scripts/sql-review/native-table-denials-deferred-flush-v2.md','review-output/native-table-denials-v2/packet.json'}|{'review-output/native-table-denials-v2/'+name for name in deny['files_sha256']})
+-        for name in ('execute_local_f0_native_access_v4_20261118.py','local_f0_native_access_v4_operation_steps.py','prepare_local_f0_native_access_v4_plan.py','check_native_access_v4_operation.py'):(Path(cls.temp.name)/name).write_bytes((TASK/name).read_bytes())
++        paths=sorted(set(paths)|set(cls.baseline['packet_files_sha256'])|set(deny['source_inputs_sha256'])|{'scripts/sql-review/run-native-table-denials-v3.py','scripts/sql-review/test_run_native_table_denials_v3.py','scripts/sql-review/native-table-denials-session-observation-v3.md','review-output/native-table-denials-v2/packet.json'}|{'review-output/native-table-denials-v2/'+name for name in deny['files_sha256']})
++        validation=json.loads((SOURCE/'context/reconciliation/local-f0-native-access-session-observation-v5-source-validation.json').read_bytes())
++        paths=sorted(set(paths)|{'context/reconciliation/local-f0-native-access-session-observation-v5-source-validation.json'}|set(validation['snapshot_files_sha256']))
++        for name in ('execute_local_f0_native_access_v5_20261118.py','local_f0_native_access_v5_operation_steps.py','prepare_local_f0_native_access_v5_plan.py','check_native_access_v5_operation.py','pin_native_access_v5_plan_20261118.py'):(Path(cls.temp.name)/name).write_bytes((TASK/name).read_bytes())
+         for relative in paths:
+             target=cls.root/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((SOURCE/relative).read_bytes())
+         pins={n:hashlib.sha256((cls.root/n).read_bytes()).hexdigest() for n in generator['REQUIRED_FILES']}
+@@ -69,12 +76,17 @@
+         self.stack.enter_context(patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN')))
+         self.case=tempfile.TemporaryDirectory(prefix='case-',dir=self.temp.name);self.addCleanup(self.case.cleanup)
+         out=Path(self.case.name)/'out';out.mkdir()
+-        ns={'__name__':'catalog_steps_test','__file__':str(TASK/'execute_local_f0_native_access_v4_20261118.py'),'Path':Path,'hashlib':hashlib,'json':json,'re':re,'subprocess':subprocess,'datetime':datetime,'ROOT':self.root,'OUT':out,'DB':'wa_p0c_rehearsal','RUN_ID':RUN,'COMMIT':'a'*40,'TREE':'b'*40,'PACKET':'c'*64,'CONNECTION_TAG':'wa-first-'+RUN,'created_containers':{NAME:CID},'bootstrap_attempted':set(),'finalization_attempted':set(),'finalized':set()}
++        ns={'__name__':'catalog_steps_test','__file__':str(TASK/'execute_local_f0_native_access_v5_20261118.py'),'Path':Path,'hashlib':hashlib,'json':json,'re':re,'subprocess':subprocess,'datetime':datetime,'ROOT':self.root,'OUT':out,'DB':'wa_p0c_rehearsal','RUN_ID':RUN,'COMMIT':'a'*40,'TREE':'b'*40,'PACKET':'c'*64,'CONNECTION_TAG':'wa-first-'+RUN,'created_containers':{NAME:CID},'bootstrap_attempted':set(),'finalization_attempted':set(),'finalized':set()}
+         exec("class Stop(Exception):\n def __init__(self,code,details=None):\n  self.code=code; self.details=details or {}; self.stage=report.get('stage','ENTRY'); super().__init__(code)\ndef need(value,code,details=None):\n if not value: raise Stop(code,details)\n",ns)
+         exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),ns)
++        core_tree=ast.parse((TASK/'execute_local_f0_native_access_v5_20261118.py').read_bytes())
++        safe_helpers={'mark_evidence_incomplete','evidence_is_complete','confirmed_path_absent','best_effort_save','record_failure','best_effort_event','finish_report'}
++        exec(compile(ast.Module(body=[node for node in core_tree.body if isinstance(node,ast.FunctionDef) and node.name in safe_helpers],type_ignores=[]),'_actual_native_v5_helpers','exec'),ns)
++        ns['EVIDENCE_FAILED']=False
+         self.ns=ns;self.actions=[];self.saved=[]
+         self.target={'name':NAME,'volume':NAME+'-data','kind':'ok'}
+         manifest={'targets':[self.target],'migration_targets':{'ok':{'manifest_path':str(self.targetplan),'manifest_sha256':self.targetplan_sha}},'packet_files_sha256':deepcopy(self.packet),'catalog':{'generator':ns['GENERATOR'],'artifact_root':'review-output/native-catalog','assets':{n:{'path':'review-output/native-catalog/'+n,'sha256':hashlib.sha256(raw).hexdigest()} for n,raw in self.files.items()},'source_expected_sha256':ns['EXPECTED_SHA'],'public_schema_owner':'pg_database_owner','bootstrap_grantor':'postgres','tool_source_files_sha256':deepcopy(self.tool_data),'ledger_expectation':[{'path':'prisma/foundation/migrations/'+ns['MIGRATION']+'/migration.sql','migration_name':ns['MIGRATION'],'sha256':ns['APPLICATION_SHA'],'state':'applied','count':1}]}}
++        manifest.update(review_status='APPROVED_LOCAL_F0_NATIVE_ACCESS_ATTEMPT',operator_sources_sha256={name:hashlib.sha256((TASK/name).read_bytes()).hexdigest() for name in ns['OPERATOR_FILES']})
+         recipe=json.loads(self.files['public-schema-registration.json'])
+         before={'public_owner':'pg_database_owner','public_acl':[{'role':r['grantee'],**{k:v for k,v in r.items() if k!='grantee'}} for r in recipe['baseline_acl']],'application_roles':0,'event_triggers':0}
+         report={'stage':'ENTRY','status':'IN_PROGRESS','steps':{},'events':[],'unexpected':[],'targets':{NAME:{'pre_bootstrap_public_baseline':before}},'source_verification':{'files_sha256':deepcopy(self.packet)}}
+@@ -277,16 +289,13 @@
+ 
+ 
+     def test_native_access_delta_preserves_catalog_acceptance_and_migration_guards(self):
+-        prior=ast.parse((TASK/'local_f0_catalog_v4_operation_steps.py').read_bytes());current=ast.parse(STEPS.read_bytes())
+-        before={n.name:ast.dump(n,include_attributes=False) for n in prior.body if isinstance(n,ast.FunctionDef)}
+-        after={n.name:ast.dump(n,include_attributes=False) for n in current.body if isinstance(n,ast.FunctionDef)}
+-        self.assertEqual(set(after)-set(before),{'verify_catalog_packet','provider_observation','provider_authentication','provider_preinstall','provider_postinstall','verify_native_result','native_access_experiment'})
+-        self.assertEqual({name for name in before if before[name]!=after[name]},{'verify_common_packet','verify_packet','closed_backends','catalog_experiment','main'})
+-        for name in ('migrate','migrate_success','provision_migration_tools','metadata_allowlist','generated_identifier','filter_metadata','collect_native','oracle_records'):
++        old=ast.parse((TASK/'local_f0_native_access_v4_operation_steps.py').read_bytes());new=ast.parse(STEPS.read_bytes())
++        before={n.name:ast.dump(n,include_attributes=False) for n in old.body if isinstance(n,ast.FunctionDef)}
++        after={n.name:ast.dump(n,include_attributes=False) for n in new.body if isinstance(n,ast.FunctionDef)}
++        self.assertEqual(set(after)-set(before),{'admit_native_operation_sources','verify_external_input_preservation'})
++        self.assertEqual({name for name in before if before[name]!=after[name]},{'read_pinned','verify_packet','main'})
++        for name in ('migrate','migrate_success','provision_migration_tools','metadata_allowlist','generated_identifier','filter_metadata','collect_native','oracle_records','provider_preinstall','provider_postinstall','verify_native_result','native_access_experiment'):
+             self.assertEqual(before[name],after[name])
+-        core=(TASK/'execute_local_f0_native_access_v4_20261118.py').read_text()
+-        self.assertIn("ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker')",core)
+-        self.assertIn("backend_type='client backend' AND pid<>pg_backend_pid()",core)
+ 
+     def test_vocabulary_diagnostics_keep_all_unknown_sites_after_the_first_refusal(self):
+         one=CANARY;two='SECOND_DIAGNOSTIC_CANARY\t'
+@@ -495,13 +504,13 @@
+     def test_preparer_is_import_help_only_until_explicit_source_action(self):
+         output=io.StringIO()
+         with redirect_stdout(output),redirect_stderr(output):
+-            module=runpy.run_path(str(TASK/'prepare_local_f0_native_access_v4_plan.py'))
++            module=runpy.run_path(str(TASK/'prepare_local_f0_native_access_v5_plan.py'))
+             with self.assertRaises(SystemExit) as error:module['main'](['--help'])
+         self.assertEqual(error.exception.code,0)
+         self.assertNotIn('subprocess',module);self.assertNotIn('runpy',module);self.assertNotIn('socket',module)
+ 
+     def test_preparer_builds_only_pending_fresh_external_history_with_same_sql(self):
+-        module=runpy.run_path(str(TASK/'prepare_local_f0_native_access_v4_plan.py'))
++        module=runpy.run_path(str(TASK/'prepare_local_f0_native_access_v5_plan.py'))
+         root_before={str(p.relative_to(self.root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in self.root.rglob('*') if p.is_file()}
+         run='d4efb1a7-3333-4444-8888-123456789abc';plan,master,files=module['prepare'](self.root,Path(self.temp.name),deepcopy(self.baseline),run)
+         self.assertFalse(plan.exists());self.assertFalse(Path(master['evidence_directory']).exists())
+@@ -516,7 +525,7 @@
+             self.assertEqual(len(archive.getmembers()),7);self.assertTrue(all(m.isfile() and m.mode==0o644 for m in archive.getmembers()))
+ 
+     def test_preparer_refuses_drifted_helper_before_compile_and_existing_output(self):
+-        module=runpy.run_path(str(TASK/'prepare_local_f0_native_access_v4_plan.py'));original=Path.read_bytes
++        module=runpy.run_path(str(TASK/'prepare_local_f0_native_access_v5_plan.py'));original=Path.read_bytes
+         def changed(path):return ('print('+repr(CANARY)+');raise SystemExit').encode() if path==self.root/module['HISTORY_HELPER'] else original(path)
+         output=io.StringIO()
+         with patch.object(Path,'read_bytes',changed),redirect_stdout(output),self.assertRaises(module['HeldFailure']) as found:module['prepare'](self.root,Path(self.temp.name),deepcopy(self.baseline),'d4efb1a7-3333-4444-8888-123456789abc')
+@@ -527,15 +536,16 @@
+ 
+ 
+     def test_native_access_core_preserves_all_resource_and_secret_operations_except_stronger_finalization(self):
+-        old=ast.parse((TASK/'execute_local_f0_catalog_v4_20261118.py').read_bytes());new=ast.parse((TASK/'execute_local_f0_native_access_v4_20261118.py').read_bytes())
++        old=ast.parse((TASK/'execute_local_f0_native_access_v4_20261118.py').read_bytes());new=ast.parse((TASK/'execute_local_f0_native_access_v5_20261118.py').read_bytes())
+         before={n.name:ast.dump(n,include_attributes=False) for n in old.body if isinstance(n,ast.FunctionDef)}
+         after={n.name:ast.dump(n,include_attributes=False) for n in new.body if isinstance(n,ast.FunctionDef)}
+-        self.assertEqual(set(before),set(after));self.assertEqual({name for name in before if before[name]!=after[name]},{'finalize'})
+-        for name in ('create_resources','cleanup','secret_scan','private_acl','preflight','ensure_image'):
++        self.assertEqual(set(after)-set(before),{'mark_evidence_incomplete','evidence_is_complete','confirmed_path_absent','best_effort_save','record_failure','best_effort_event','finish_report'})
++        self.assertEqual({name for name in before if before[name]!=after[name]},{'save','event','cleanup'})
++        for name in ('create_resources','secret_scan','preflight','ensure_image','finalize','secure_private_directory','sql','psql_args'):
+             if name in before:self.assertEqual(before[name],after[name])
+ 
+     def test_core_finalization_blocks_an_unrelated_client_before_any_revoke(self):
+-        tree=ast.parse((TASK/'execute_local_f0_native_access_v4_20261118.py').read_bytes());function=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='finalize')
++        tree=ast.parse((TASK/'execute_local_f0_native_access_v5_20261118.py').read_bytes());function=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='finalize')
+         ns=dict(self.ns);queries=[];writes=[]
+         ns.update(observe=lambda name,query,stage:(queries.append(query) or {'migrator':0,'other_client_backends':1}),sql=lambda *a:writes.append(a),finalized=set(),finalization_attempted=set())
+         exec(compile(ast.Module(body=[function],type_ignores=[]),'_core_finalization','exec'),ns)
+@@ -544,7 +554,7 @@
+ 
+ 
+     def test_finalization_rejects_malformed_counts_before_any_revoke(self):
+-        tree=ast.parse((TASK/'execute_local_f0_native_access_v4_20261118.py').read_bytes());function=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='finalize')
++        tree=ast.parse((TASK/'execute_local_f0_native_access_v5_20261118.py').read_bytes());function=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='finalize')
+         values=[{'migrator':bad,'other_client_backends':0} for bad in (False,0.0,None,-1)]+[{'migrator':0,'other_client_backends':bad} for bad in (False,0.0,None,-1)]+[{}, {'migrator':0}, {'migrator':0,'other_client_backends':0,'unknown':CANARY}, None, []]
+         for value in values:
+             ns=dict(self.ns);writes=[];ns['report']=deepcopy(self.ns['report'])
+@@ -553,7 +563,7 @@
+             self.refusal('FINALIZATION_BLOCKED_ACTIVE_OPERATION',lambda:ns['finalize'](NAME));self.assertEqual(writes,[]);self.assertNotIn(NAME,ns['finalized']);self.assertNotIn(CANARY,json.dumps(ns['report']))
+ 
+     def test_finalization_requires_typed_post_revoke_proof_before_marking_finalized(self):
+-        tree=ast.parse((TASK/'execute_local_f0_native_access_v4_20261118.py').read_bytes());function=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='finalize')
++        tree=ast.parse((TASK/'execute_local_f0_native_access_v5_20261118.py').read_bytes());function=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='finalize')
+         leaves=('wa_private_helper_owner','wa_customer_verifier','wa_track_verifier')
+         good={'grantor':'postgres','auth':'scram-sha-256:postgres','remaining_memberships':0,'active_install_connections':0,'leaf_create':dict.fromkeys(leaves,False)}
+         values=[{**good,key:bad} for key in ('remaining_memberships','active_install_connections') for bad in (False,0.0,None,-1)]
+@@ -565,11 +575,208 @@
+             self.refusal('FINALIZATION_VERIFICATION_FAILED',lambda:ns['finalize'](NAME));self.assertEqual(len(writes),1);self.assertNotIn(NAME,ns['finalized']);self.assertNotIn(CANARY,json.dumps(ns['report']))
+ 
+     def test_typed_zero_finalization_preserves_legitimate_revoke_path(self):
+-        tree=ast.parse((TASK/'execute_local_f0_native_access_v4_20261118.py').read_bytes());function=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='finalize')
++        tree=ast.parse((TASK/'execute_local_f0_native_access_v5_20261118.py').read_bytes());function=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='finalize')
+         ns=dict(self.ns);writes=[];leaves=('wa_private_helper_owner','wa_customer_verifier','wa_track_verifier');responses=iter([{'migrator':0,'other_client_backends':0},{'grantor':'postgres','auth':'scram-sha-256:postgres','remaining_memberships':0,'active_install_connections':0,'leaf_create':dict.fromkeys(leaves,False)}]);ns['report']=deepcopy(self.ns['report'])
+         ns.update(observe=lambda *a:next(responses),sql=lambda *a:writes.append(a),finalized=set(),finalization_attempted=set(),LEAVES=leaves,event=lambda *a,**kw:None)
+         exec(compile(ast.Module(body=[function],type_ignores=[]),'_typed_good_finalization','exec'),ns);ns['finalize'](NAME)
+         self.assertEqual(len(writes),1);self.assertIn(NAME,ns['finalized']);self.assertEqual(ns['report']['targets'][NAME]['finalization'],'PASS')
+ 
+ 
++def boundary_namespace():
++    path=TASK/'execute_local_f0_native_access_v5_20261118.py'
++    tree=ast.parse(path.read_bytes())
++    pure=[node for node in tree.body if isinstance(node,(ast.Import,ast.ImportFrom,ast.FunctionDef,ast.ClassDef))]
++    value={'__name__':'_offline_native_v5_core','__file__':str(path)}
++    exec(compile(ast.Module(body=pure,type_ignores=[]),str(path),'exec'),value)
++    exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),value)
++    value.update(TASK=TASK,ROOT=SOURCE,RUN_ID=RUN,DB='wa_p0c_rehearsal',LABEL='p0c-local-f0',COMMIT='a'*40,TREE='b'*40,PACKET='c'*64,
++        IMAGE='docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1',CONFIG='sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d',
++        TARGETS=[{'name':NAME,'volume':NAME+'-data','kind':'ok'}],EVIDENCE_FAILED=False,
++        report={'stage':'TEST','status':'IN_PROGRESS','evidence_complete':True,'persistence_failure':False,'events':[],'steps':{},'targets':{},'unexpected':[],'cleanup':{}},
++        created_containers={NAME:CID},created_volumes={NAME+'-data':'CREATED'},attempted_containers={NAME},attempted_volumes={NAME+'-data'},bootstrap_attempted=set(),finalization_attempted=set(),finalized=set(),all_secrets=[],passwords={},secret_paths=[])
++    return value
++
++
++class NativeV5BoundaryTests(unittest.TestCase):
++    def setUp(self):
++        for name in ('run','Popen','call','check_call','check_output'):
++            guard=patch.object(subprocess,name,side_effect=AssertionError('UNMOCKED_PROCESS_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
++        for target,name in ((socket,'create_connection'),(socket.socket,'connect')):
++            guard=patch.object(target,name,side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
++        temporary=tempfile.TemporaryDirectory(prefix='offline-native-v5-boundary-',dir=TASK);self.addCleanup(temporary.cleanup)
++        self.directory=Path(temporary.name);self.n=boundary_namespace();self.n.update(OUT=self.directory/'out',PRIVATE=self.directory/'out/private')
++        self.n['source_save']=self.n['save'];self.n['source_event']=self.n['event'];self.n['save']=lambda:None
++
++    def setup_main(self):
++        n=self.n;events=[];relative='review-output/foundation-application.review.sql'
++        n['MANIFEST']={'review_status':'APPROVED_LOCAL_F0_NATIVE_ACCESS_ATTEMPT','operator_sources_sha256':{name:hashlib.sha256((TASK/name).read_bytes()).hexdigest() for name in n['OPERATOR_FILES']}}
++        n['report']['source_verification']={'files_sha256':{relative:hashlib.sha256((SOURCE/relative).read_bytes()).hexdigest()}}
++        for name in ('verify_packet','preflight','ensure_image','create_resources','bootstrap_all','provision_migration_tools','provider_preinstall','native_access_experiment','verify_tool_data','verify_external_input_preservation'):
++            n[name]=lambda name=name:events.append(name)
++        n['secret_scan']=lambda:events.append('scan')
++        def cleanup():events.append('cleanup');n['report']['cleanup_actions_confirmed']=True
++        n['cleanup']=cleanup
++        return n,events
++
++    def test_primary_stop_finalizer_and_persistent_writer_still_attempt_every_branch(self):
++        n,events=self.setup_main();n['bootstrap_attempted']={NAME,'second-synthetic-target'};failed=[]
++        def operation():failed.append(True);raise n['Stop']('MOCK_ORIGINAL_STOP')
++        def save():
++            if failed:raise OSError(CANARY)
++        def finalizer(name):
++            events.append('finalize:'+name);n['finalization_attempted'].add(name)
++            if name==sorted(n['bootstrap_attempted'])[0]:raise OSError(CANARY)
++        n.update(native_access_experiment=operation,save=save,finalize=finalizer)
++        with redirect_stdout(io.StringIO()):self.assertEqual(n['main'](),1)
++        self.assertEqual([x for x in events if x.startswith('finalize:')],['finalize:'+name for name in sorted(n['bootstrap_attempted'])])
++        for item in ('scan','cleanup','verify_tool_data','verify_external_input_preservation'):self.assertIn(item,events)
++        self.assertEqual(n['report']['primary_failure']['code'],'MOCK_ORIGINAL_STOP');self.assertFalse(n['evidence_is_complete']());self.assertNotIn(CANARY,json.dumps(n['report']))
++
++    def test_scan_and_each_postcheck_progress_despite_persistent_writer_failure(self):
++        n,events=self.setup_main();broken=[]
++        def scan():events.append('scan');broken.append(True);raise RuntimeError(CANARY)
++        def save():
++            if broken:raise OSError(CANARY)
++        def tool():events.append('verify_tool_data');raise OSError(CANARY)
++        n.update(secret_scan=scan,save=save,verify_tool_data=tool)
++        with redirect_stdout(io.StringIO()):self.assertEqual(n['main'](),1)
++        for item in ('cleanup','verify_tool_data','verify_external_input_preservation'):self.assertIn(item,events)
++        self.assertFalse(n['report']['tool_source_data_unchanged_after_run']);self.assertTrue(n['report']['external_sources_unchanged_after_run'])
++        self.assertFalse(n['evidence_is_complete']());self.assertNotIn(CANARY,json.dumps(n['report']))
++
++    def test_initial_failure_prevents_resources_and_recovery_stays_incomplete(self):
++        n,events=self.setup_main();calls=[]
++        def save():
++            calls.append(True)
++            if len(calls)==1:raise OSError(CANARY)
++        n['save']=save
++        with redirect_stdout(io.StringIO()):self.assertEqual(n['main'](),1)
++        self.assertNotIn('preflight',events);self.assertNotIn('create_resources',events);self.assertIn('cleanup',events)
++        self.assertGreater(len(calls),1);self.assertFalse(n['evidence_is_complete']())
++
++    def test_final_save_or_stdout_cannot_return_pass(self):
++        for mode in ('save','stdout'):
++            with self.subTest(mode=mode):
++                self.n=boundary_namespace();self.n.update(OUT=self.directory/mode,PRIVATE=self.directory/mode/'private',save=lambda:None)
++                n,events=self.setup_main();output=io.StringIO()
++                def save():
++                    if 'finished_at' in n['report']:raise OSError(CANARY)
++                if mode=='save':n['save']=save
++                with redirect_stdout(output):
++                    if mode=='stdout':
++                        with patch('builtins.print',side_effect=OSError(CANARY)):self.assertEqual(n['main'](),1)
++                    else:self.assertEqual(n['main'](),1)
++                self.assertIn('cleanup',events);self.assertFalse(n['evidence_is_complete']());self.assertNotIn('PASS_LOCAL_NATIVE_ACCESS_SUBSET_ONLY',output.getvalue());self.assertNotIn(CANARY,json.dumps(n['report']))
++
++    def test_raw_save_and_event_failures_latch_even_if_caller_catches(self):
++        n=self.n;n['OUT'].mkdir();n['report']['status']='PASS_LOCAL_NATIVE_ACCESS_SUBSET_ONLY'
++        with patch.object(Path,'open',side_effect=OSError(CANARY)),self.assertRaises(OSError):n['source_save']()
++        self.assertFalse(n['evidence_is_complete']())
++        n['save']=lambda:None
++        with patch('builtins.print',side_effect=OSError(CANARY)),self.assertRaises(OSError):n['source_event']('MOCK_STAGE','MOCK_STATUS')
++        with redirect_stdout(io.StringIO()):self.assertEqual(n['finish_report']('PASS_LOCAL_NATIVE_ACCESS_SUBSET_ONLY'),1)
++        self.assertNotIn(CANARY,json.dumps(n['report']))
++
++    def test_unconfirmed_cleanup_cannot_return_pass_and_success_remains_finite(self):
++        n,events=self.setup_main();n['cleanup']=lambda:events.append('cleanup')
++        with redirect_stdout(io.StringIO()):self.assertEqual(n['main'](),1)
++        self.assertIn('verify_external_input_preservation',events)
++        self.n=boundary_namespace();self.n.update(OUT=self.directory/'success',PRIVATE=self.directory/'success/private',save=lambda:None)
++        n,events=self.setup_main()
++        with redirect_stdout(io.StringIO()):self.assertEqual(n['main'](),0)
++        self.assertEqual(n['report']['status'],'PASS_LOCAL_NATIVE_ACCESS_SUBSET_ONLY')
++        self.assertTrue(n['report']['all_source_and_external_inputs_preserved_after_run'])
++
++    def cleanup_fixture(self):
++        n=self.n;n['OUT'].mkdir();n['PRIVATE'].mkdir();secret=n['PRIVATE']/'ok-bootstrap-password';secret.write_text(CANARY);n['secret_paths']=[secret]
++        labels={'workinants.rehearsal':n['LABEL'],'workinants.rehearsal.run':RUN}
++        containers={NAME:{'Name':'/'+NAME,'Id':CID,'Config':{'Labels':labels}}};volume_name=NAME+'-data'
++        volumes={volume_name:{'Name':volume_name,'CreatedAt':'CREATED','Labels':labels}};events=[]
++        n['inspect_container']=lambda name:containers.get(name);n['inspect_volume']=lambda name:volumes.get(name)
++        def inventory():events.append('absence');return set(containers),set(volumes)
++        def docker(args,input=None,timeout=60):
++            events.append(tuple(args))
++            if args==['container','rm','-f',CID]:containers.pop(NAME)
++            elif args==['volume','rm',volume_name]:volumes.pop(volume_name)
++            else:raise AssertionError('FOREIGN_OR_UNDECLARED_REMOVAL')
++            return SimpleNamespace(returncode=0,stdout='',stderr='')
++        n.update(docker=docker,inventory=inventory)
++        return n,secret,containers,volumes,events
++
++    def test_inner_cleanup_writer_failure_does_not_skip_volume_secret_or_absence(self):
++        n,secret,containers,volumes,events=self.cleanup_fixture();n['save']=Mock(side_effect=OSError(CANARY))
++        with self.assertRaises(n['Stop']):n['cleanup']()
++        self.assertIn(('container','rm','-f',CID),events);self.assertIn(('volume','rm',NAME+'-data'),events);self.assertIn('absence',events)
++        self.assertFalse(secret.exists());self.assertFalse(n['PRIVATE'].exists());self.assertFalse(n['evidence_is_complete']());self.assertNotIn(CANARY,json.dumps(n['report']))
++
++    def test_first_container_error_and_writer_failure_still_attempt_other_owned_parts(self):
++        n,secret,containers,volumes,events=self.cleanup_fixture();n['inspect_container']=Mock(side_effect=OSError(CANARY));n['save']=Mock(side_effect=OSError(CANARY))
++        with self.assertRaises(n['Stop']):n['cleanup']()
++        self.assertIn(('volume','rm',NAME+'-data'),events);self.assertIn('absence',events);self.assertFalse(secret.exists());self.assertFalse(n['PRIVATE'].exists())
++        self.assertFalse(n['report'].get('cleanup_actions_confirmed',False));self.assertNotIn(CANARY,json.dumps(n['report']))
++
++    def test_cleanup_refuses_foreign_CID_labels_volume_creation_and_secret_path(self):
++        n,secret,containers,volumes,events=self.cleanup_fixture();containers[NAME]['Id']='f'*64;volumes[NAME+'-data']['CreatedAt']='FOREIGN'
++        foreign=self.directory/'foreign-password';foreign.write_text(CANARY);n['secret_paths'].append(foreign)
++        with self.assertRaises(n['Stop']):n['cleanup']()
++        self.assertFalse(any(type(e)is tuple and e[:2] in (('container','rm'),('volume','rm')) for e in events));self.assertTrue(foreign.exists());self.assertNotIn(CANARY,json.dumps(n['report']))
++
++    def test_strict_absence_uses_only_FileNotFound_and_IO_uncertainty_stops(self):
++        n=self.n;path=self.directory/'missing';actual=Path.lstat
++        with patch.object(Path,'lstat',side_effect=PermissionError(CANARY)),self.assertRaises(PermissionError):n['confirmed_path_absent'](path)
++        with patch.object(Path,'lstat',side_effect=FileNotFoundError):self.assertTrue(n['confirmed_path_absent'](path))
++        n,secret,containers,volumes,events=self.cleanup_fixture()
++        def lstat(path,*args,**kwargs):
++            if path==n['PRIVATE']:raise PermissionError(CANARY)
++            return actual(path,*args,**kwargs)
++        with patch.object(Path,'lstat',lstat),self.assertRaises(n['Stop']):n['cleanup']()
++        self.assertIn('absence',events);self.assertFalse(n['report']['host_secret_cleanup']['private_directory_absent']);self.assertFalse(n['report'].get('cleanup_actions_confirmed',False))
++
++    def prepared_actual(self):
++        module=runpy.run_path(str(TASK/'prepare_local_f0_native_access_v5_plan.py'));baseline=json.loads((TASK/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json').read_bytes())
++        plan,manifest,files=module['prepare'](SOURCE,TASK,baseline,str(uuid.uuid4()))
++        self.assertFalse(plan.exists());plan.mkdir()
++        for name,raw in files.items():
++            target=plan/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
++        def remove():
++            assert plan.resolve().parent==TASK.resolve() and plan.name.startswith('local-f0-native-access-plan-') and not plan.is_relative_to(SOURCE)
++            shutil.rmtree(plan)
++        self.addCleanup(remove)
++        return plan,manifest
++
++    def verifier(self,manifest):
++        n=self.n;manifest=deepcopy(manifest);manifest.update(source_commit='a'*40,source_tree='b'*40,packet_sha256=manifest['prepared_source_files_aggregate_sha256'])
++        n.update(MANIFEST=manifest,COMMIT=manifest['source_commit'],TREE=manifest['source_tree'],PACKET=manifest['packet_sha256'],TARGETS=manifest['targets'],RUN_ID=manifest['run_id'],verify_common_packet=Mock())
++        return n
++
++    def test_actual_full_verifier_uses_all_real_Root_inputs_and_physical_five_snapshots(self):
++        plan,manifest=self.prepared_actual();n=self.verifier(manifest);output=io.StringIO()
++        with redirect_stdout(output),redirect_stderr(output):n['verify_packet']()
++        n['verify_common_packet'].assert_called_once();self.assertEqual(output.getvalue(),'')
++        self.assertEqual(n['report']['catalog_preparation']['closed_source_files'],16);self.assertEqual(len(n['NATIVE_ACCESS']['packet']['cases']),40)
++        self.assertEqual(n['NATIVE_ACCESS']['module']['MODULES'],n['NATIVE_MODULES']);self.assertEqual(len(manifest['operator_sources_sha256']),5)
++        self.assertFalse(Path(manifest['evidence_directory']).exists());self.assertEqual(json.loads((plan/'operation-manifest.json').read_bytes())['source_commit'],'TO_BE_PINNED')
++
++    def test_missing_unpinned_or_historical_snapshot_and_helper_reject_before_compile(self):
++        plan,manifest=self.prepared_actual();root=self.n['OPERATOR_SOURCE_ROOT'];snapshot=root+'/'+self.n['OPERATOR_FILES'][0]+'.txt'
++        for relative in (snapshot,self.n['NATIVE_COORDINATOR'],'scripts/sql-review/catalog_manifest.py'):
++            with self.subTest(relative=relative):
++                value=deepcopy(manifest);value['packet_files_sha256'].pop(relative);n=self.verifier(value)
++                with patch('builtins.compile',side_effect=AssertionError('COMPILE_BEFORE_ADMISSION')),self.assertRaises(n['Stop']):n['verify_packet']()
++        value=deepcopy(manifest);value['packet_files_sha256'][snapshot]='0'*64;n=self.verifier(value)
++        with patch('builtins.compile',side_effect=AssertionError('COMPILE_BEFORE_ADMISSION')),self.assertRaises(n['Stop']):n['verify_packet']()
++        value=deepcopy(manifest);wanted=value['packet_files_sha256'].pop(snapshot);value['packet_files_sha256']['context/reconciliation/local-f0-operation-sources/native-access-deferred-flush-v4/execute_local_f0_native_access_v4_20261118.py.txt']=wanted;n=self.verifier(value)
++        with patch('builtins.compile',side_effect=AssertionError('COMPILE_BEFORE_ADMISSION')),self.assertRaises(n['Stop']):n['verify_packet']()
++
++    def test_pin_member_lookup_precedes_missing_file_read(self):
++        n=self.n;n['MANIFEST']={'packet_files_sha256':{}};path='missing-native-source.py'
++        with patch.object(Path,'read_bytes',side_effect=AssertionError('UNPINNED_FILESYSTEM_READ')),self.assertRaises(n['Stop'])as found:n['read_pinned'](path)
++        self.assertEqual(found.exception.code,'CATALOG_PACKET_MEMBER_REQUIRED')
++
++    def test_seven_common_helpers_equal_Root_approved_Track_template(self):
++        get=lambda p:{node.name:ast.dump(node,include_attributes=False)for node in ast.parse(p.read_bytes()).body if isinstance(node,ast.FunctionDef)}
++        old=get(TASK/'execute_local_f0_lease_revoke_20261118_finally_v4.py');new=get(TASK/'execute_local_f0_native_access_v5_20261118.py')
++        for name in ('mark_evidence_incomplete','evidence_is_complete','confirmed_path_absent','best_effort_save','record_failure','best_effort_event','finish_report','save','event'):self.assertEqual(old[name],new[name])
++
++
+ if __name__=='__main__':unittest.main(verbosity=2)
+--- pin_native_access_v4_plan_20261118.py
++++ pin_native_access_v5_plan_20261118.py
+@@ -2,8 +2,8 @@
+ from pathlib import Path
+ import argparse,hashlib,json,subprocess
+ TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+-SOURCE_ROOT='context/reconciliation/local-f0-operation-sources/native-access-deferred-flush-v4'
+-SOURCE_FILES={name:name+'.txt' for name in ('execute_local_f0_native_access_v4_20261118.py','local_f0_native_access_v4_operation_steps.py','prepare_local_f0_native_access_v4_plan.py','check_native_access_v4_operation.py','pin_native_access_v4_plan_20261118.py')}
++SOURCE_ROOT='context/reconciliation/local-f0-operation-sources/native-access-session-observation-v5'
++SOURCE_FILES={name:name+'.txt' for name in ('execute_local_f0_native_access_v5_20261118.py','local_f0_native_access_v5_operation_steps.py','prepare_local_f0_native_access_v5_plan.py','check_native_access_v5_operation.py','pin_native_access_v5_plan_20261118.py')}
+ def main():
+     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('manifest',type=Path);args=parser.parse_args()
+     path=args.manifest.resolve();assert path.is_relative_to(TASK) and not path.is_relative_to(ROOT)
+@@ -12,15 +12,16 @@
+     assert v['native_access']['packet_sha256']=='8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69'
+     def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+     def git(*argv):return subprocess.check_output(['git','-c','core.longpaths=true',*argv],cwd=ROOT)
+-    commit=git('rev-parse','HEAD').decode().strip();tree=git('rev-parse','HEAD^{tree}').decode().strip()
+     files=dict(v['packet_files_sha256'])
+     assert hashlib.sha256(''.join(p+'\0'+files[p]+'\n' for p in sorted(files)).encode()).hexdigest()==v['prepared_source_files_aggregate_sha256']
+     for external,snapshot in SOURCE_FILES.items():
+-        relative=SOURCE_ROOT+'/'+snapshot;assert sha(TASK/external)==sha(ROOT/relative)
+-        files[relative]=sha(ROOT/relative)
+-    review='context/reconciliation/local-f0-native-access-deferred-flush-source-validation.json';files[review]=sha(ROOT/review)
++        relative=SOURCE_ROOT+'/'+snapshot;assert relative in files and sha(TASK/external)==files[relative]==sha(ROOT/relative)
++    review='context/reconciliation/local-f0-native-access-session-observation-v5-source-validation.json';assert review in files and files[review]==sha(ROOT/review)
++    assert set(v['operator_sources_sha256'])==set(SOURCE_FILES)
++    for relative,digest in files.items():assert sha(ROOT/relative)==digest,relative
++    commit=git('rev-parse','HEAD').decode().strip();tree=git('rev-parse','HEAD^{tree}').decode().strip()
+     for relative,digest in files.items():
+-        assert sha(ROOT/relative)==digest==hashlib.sha256(git('show',commit+':'+relative)).hexdigest(),relative
++        assert digest==hashlib.sha256(git('show',commit+':'+relative)).hexdigest(),relative
+     for external,digest in v['operator_sources_sha256'].items():assert sha(TASK/external)==digest
+     with path.with_name('operation-manifest-before-source-pin.json').open('xb') as out:out.write(raw)
+     v.update(source_commit=commit,source_tree=tree,packet_files_sha256=dict(sorted(files.items())),packet_sha256=hashlib.sha256(''.join(p+'\0'+files[p]+'\n' for p in sorted(files)).encode()).hexdigest())

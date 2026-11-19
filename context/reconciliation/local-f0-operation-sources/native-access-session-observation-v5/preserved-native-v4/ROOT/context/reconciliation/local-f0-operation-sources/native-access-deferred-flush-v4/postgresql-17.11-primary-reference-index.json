@@ -1,0 +1,21 @@
+{
+  "source_audit_sha256": "51f145d485c64383122016532492ff53e649351f0ec47211ed951624d8fd0a12",
+  "primary_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/commands/tablecmds.c",
+      "lines": "4026-4044,4138-4148",
+      "supports": "ALTER checks active-use and pending AFTER-trigger events; both use object_in_use"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/utils/errcodes.txt",
+      "line": 382,
+      "supports": "55006 maps to ERRCODE_OBJECT_IN_USE"
+    },
+    {
+      "url": "https://www.postgresql.org/docs/17/sql-set-constraints.html",
+      "supports": "IMMEDIATE retroactively executes outstanding deferred constraints, including constraint triggers, and fails if a check fails"
+    }
+  ],
+  "observed_exact_message_relation_statement_C_branch": "UNOBSERVED_NOT_RECONSTRUCTED",
+  "network_or_database_actions_for_this_package": false
+}

@@ -1,0 +1,118 @@
+"""SOURCE-ONLY plan preparation for one isolated native access rehearsal.
+
+No Docker, database, Git, network or process boundary exists here. The source/tree
+remain TO_BE_PINNED and PENDING_OPERATIONAL_REVIEW prevents operational execution.
+Only a fresh external directory is written; repository history is never changed.
+"""
+import argparse
+from copy import deepcopy
+import gzip
+import hashlib
+import io
+import json
+from pathlib import Path
+import tarfile
+import uuid
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+HISTORY_HELPER='scripts/prepare-local-f0-history.py'
+HISTORY_HELPER_SHA='33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8'
+COORDINATOR='scripts/sql-review/run-native-table-denials-v3.py'
+COORDINATOR_SHA='6e74115cc7a77e626c4379c5a5744efdede1257d04b206fc339e62a23fd49cd3'
+DENY_PACKET='review-output/native-table-denials-v2/packet.json'
+DENY_PACKET_SHA='8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69'
+DOCUMENT='scripts/sql-review/native-table-denials-session-observation-v3.md'
+DOCUMENT_SHA='b62791ecc1edc8966b57b9edc0863eaa47fee57c568612bfb10c0f7a7ec55d40'
+OPERATOR_SOURCE_ROOT='context/reconciliation/local-f0-operation-sources/native-access-session-observation-v5'
+OPERATOR_VALIDATION='context/reconciliation/local-f0-native-access-session-observation-v5-source-validation.json'
+OPERATOR_FILES=('execute_local_f0_native_access_v5_20261118.py', 'local_f0_native_access_v5_operation_steps.py', 'prepare_local_f0_native_access_v5_plan.py', 'check_native_access_v5_operation.py', 'pin_native_access_v5_plan_20261118.py')
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+
+class HeldFailure(Exception):
+    def __init__(self,code):self.code=code;super().__init__(code)
+def need(value,code):
+    if not value:raise HeldFailure(code)
+def encoded(value):return (json.dumps(value,indent=2)+'\n').encode('utf8')
+def safe_path(root,relative):
+    need(type(relative) is str and not relative.startswith('/') and '\\' not in relative and all(p not in ('','.','..') for p in relative.split('/')),'SOURCE_PATH')
+    result=(root/relative).resolve();need(result.is_relative_to(root.resolve()),'SOURCE_PATH');return result
+
+def source_archive(files):
+    buffer=io.BytesIO()
+    with gzip.GzipFile(filename='',fileobj=buffer,mode='wb',mtime=0) as zipped:
+        with tarfile.open(fileobj=zipped,mode='w|') as tar:
+            for relative,raw in sorted(files.items()):
+                info=tarfile.TarInfo(relative);info.size=len(raw);info.uid=info.gid=0;info.mode=0o644;info.mtime=0
+                tar.addfile(info,io.BytesIO(raw))
+    return buffer.getvalue()
+
+def prepare(root,task,baseline,run_id=None):
+    root=root.resolve();task=task.resolve();need(root.is_relative_to(task) and root!=task,'ROOT_TASK_BOUNDARY')
+    run_id=run_id or str(uuid.uuid4());parsed=uuid.UUID(run_id);need(str(parsed)==run_id and parsed.version==4,'FRESH_V4_RUN_ID')
+    prefix=run_id[:8];plan=task/('local-f0-native-access-plan-'+prefix);out=task/('local-f0-native-access-20261118-'+prefix)
+    need(not plan.exists() and not out.exists(),'FRESH_PLAN_AND_OUTPUT_REQUIRED')
+    need(baseline['purpose']=='LOCAL_F0_NATIVE_CATALOG_REHEARSAL' and len(baseline['targets'])==1 and set(baseline['migration_targets'])=={'ok'},'REVIEWED_CATALOG_BASELINE_REQUIRED')
+    packet_raw=safe_path(root,DENY_PACKET).read_bytes();need(sha(packet_raw)==DENY_PACKET_SHA,'DENY_PACKET_SOURCE_DRIFT');packet=json.loads(packet_raw)
+    need(packet['schema']=='workinants.native-table-denials.v1' and packet['selected_count']==40 and len(packet['cases'])==40 and len(packet['files_sha256'])==83 and len(packet['preparation_blocks'])==4,'DENY_PACKET_FINITE_SCOPE')
+    paths=set(baseline['packet_files_sha256'])|set(packet['source_inputs_sha256'])|{COORDINATOR,DENY_PACKET,DOCUMENT,'scripts/sql-review/test_run_native_table_denials_v3.py',HISTORY_HELPER,'review-output/first-rehearsal/diagnostic-identifiers.json'}
+    paths|={'review-output/native-table-denials-v2/'+name for name in packet['files_sha256']}
+    validation_raw=safe_path(root,OPERATOR_VALIDATION).read_bytes();validation=json.loads(validation_raw)
+    need(validation['schema']=='workinants.native-access-operation-source-validation.v1','NATIVE_OPERATOR_VALIDATION_SCHEMA')
+    paths|={OPERATOR_VALIDATION}|set(validation['snapshot_files_sha256'])
+    need(all(name.startswith(OPERATOR_SOURCE_ROOT+'/') for name in validation['snapshot_files_sha256']),'NATIVE_OPERATOR_ARCHIVE_ROOT')
+    source={path:safe_path(root,path).read_bytes() for path in sorted(paths)}
+    external_hashes={name:sha((task/name).read_bytes()) for name in OPERATOR_FILES}
+    need(validation['external_files_sha256']==external_hashes,'NATIVE_OPERATOR_VALIDATION_BINDING')
+    for name,wanted in validation['snapshot_files_sha256'].items():need(sha(source[name])==wanted,'NATIVE_OPERATOR_ARCHIVE_DRIFT')
+    for name,wanted in external_hashes.items():need(sha(source[OPERATOR_SOURCE_ROOT+'/'+name+'.txt'])==wanted,'NATIVE_OPERATOR_SNAPSHOT_DRIFT')
+    for path,want in packet['source_inputs_sha256'].items():need(sha(source[path])==want,'DENY_SOURCE_INPUT_DRIFT')
+    for name,want in packet['files_sha256'].items():need(sha(source['review-output/native-table-denials-v2/'+name])==want,'DENY_SQL_DRIFT')
+    for path,want in ((COORDINATOR,COORDINATOR_SHA),(DOCUMENT,DOCUMENT_SHA),(HISTORY_HELPER,HISTORY_HELPER_SHA)):
+        need(sha(source[path])==want,'REVIEWED_HELPER_DRIFT')
+    # Execute only already pinned stdlib-only pure history construction bytes.
+    helper={'__file__':str(root/HISTORY_HELPER),'__name__':'_verified_native_access_history'}
+    exec(compile(source[HISTORY_HELPER],str(root/HISTORY_HELPER),'exec'),helper)
+    name='wa-p0c-'+prefix+'-native';target={'name':name,'volume':name+'-data','kind':'ok'}
+    master=deepcopy(baseline);old_target=master['migration_targets']['ok'];raw=Path(old_target['manifest_path']).read_bytes()
+    need(sha(raw)==old_target['manifest_sha256'],'BASE_TARGET_MANIFEST_DRIFT');nested=json.loads(raw)
+    closure=json.loads(source['context/reconciliation/local-f0-tooling/prisma-tools-closure.json'])
+    need(nested['tools']['files_sha256']==closure['tools_files_sha256'] and len(nested['tools']['files_sha256'])==10300,'EXACT_PINNED_TOOL_CLOSURE')
+    need(master['tool_archive_sha256']==closure['archive_sha256'],'TOOL_ARCHIVE_PIN')
+    nested['run_id']=run_id;nested['target'].update(container_name=name,volume_name=target['volume'],labels={'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':run_id},bootstrap_secret_host_path=str(out/'private/ok-bootstrap-password'))
+    runtime={path:safe_path(root,path).read_bytes() for path in helper['RUNTIME_FILES']}
+    nested['source']['runtime_files_sha256']={path:sha(value) for path,value in runtime.items()}
+    nested['source']['integrated_sql_sha256']=sha(source[helper['SOURCE']]);nested['source']['foundation_schema_sha256']=sha(source[helper['SCHEMA']])
+    need(nested['source']['integrated_sql_sha256']=='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad','CANONICAL_SQL_REQUIRED')
+    nested_raw=encoded(nested);generated,provenance=helper['prepare_plan'](nested,nested_raw,source[helper['SOURCE']],source[helper['SCHEMA']],runtime,nested['source']['integrated_sql_sha256'])
+    for relative,value in generated.items():need(safe_path(root,relative).read_bytes()==value,'EXISTING_HISTORY_MUST_STAY_IDENTICAL')
+    snapshot={**generated,helper['SCHEMA']:source[helper['SCHEMA']],**runtime,'prisma/foundation/history-manifest.json':encoded(provenance)}
+    external={'ok-migration-manifest.json':nested_raw,**{'source-ok/'+path:value for path,value in snapshot.items()},'source-ok.tar.gz':source_archive(snapshot)}
+    source_map={path:sha(value) for path,value in source.items()}
+    master.update(purpose='LOCAL_F0_NATIVE_ACCESS_REHEARSAL',run_id=run_id,source_commit='TO_BE_PINNED',source_tree='TO_BE_PINNED',packet_files_sha256=source_map,packet_sha256='TO_BE_PINNED',evidence_directory=str(out),targets=[target],migration_targets={'ok':{'manifest_path':str(plan/'ok-migration-manifest.json'),'manifest_sha256':sha(nested_raw),'source_snapshot':str(plan/'source-ok'),'source_files_sha256':{path:sha(value) for path,value in snapshot.items()},'source_archive':str(plan/'source-ok.tar.gz'),'source_archive_sha256':sha(external['source-ok.tar.gz'])}},wrapper_sha256=sha((task/OPERATOR_FILES[0]).read_bytes()),steps_sha256=sha((task/OPERATOR_FILES[1]).read_bytes()),review_status='PENDING_OPERATIONAL_REVIEW',status='SOURCE_PREPARED_NOT_EXECUTED')
+    master['prepared_source_files_aggregate_sha256']=sha(''.join(path+'\0'+value+'\n' for path,value in sorted(source_map.items())).encode())
+    master['allowed_catalog_operations'][-1]='Catalog portion permits no worker loop, hosted contact or recovery; separately reviewed finite native access follows only complete catalog PASS.'
+    master['native_access']={'coordinator':COORDINATOR,'coordinator_sha256':COORDINATOR_SHA,'packet':DENY_PACKET,'packet_sha256':DENY_PACKET_SHA,'document':DOCUMENT,'document_sha256':DOCUMENT_SHA}
+    master['operator_sources_sha256']={path:sha((task/path).read_bytes()) for path in OPERATOR_FILES}
+    master['allowed_native_access_operations']=['Exactly three local provider simulations after canonical bootstrap before genuine immutable Prisma install','Independent private-tmpfs SCRAM credentials, CONNECT only, all nine schema USAGE sentinels before and removal after canonical install','Complete source-derived native catalog/expression/private-ledger PASS before finite coordinator','Only exact approved finite NativeDENY coordinator with all 100 USER triggers restored and 205 native rows watched','All other client backends absent at external boundaries, regardless of application tags','Stop first unexpected outcome; no permission repair, SQL change, worker loop or whole-case promotion']
+    master['authority']='context/reconciliation/directives/local-f0-standing-authority-2026-11-17.md'
+    external['operation-manifest.json']=encoded(master)
+    return plan,master,external
+
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--prepare-source-only',action='store_true',required=True);parser.add_argument('--baseline-manifest',type=Path,required=True);parser.add_argument('--baseline-sha256',required=True);parser.add_argument('--run-id')
+    args=parser.parse_args(argv)
+    try:
+        path=args.baseline_manifest.resolve();need(path.is_relative_to(TASK) and not path.is_relative_to(ROOT),'EXTERNAL_BASELINE_REQUIRED')
+        raw=path.read_bytes();need(sha(raw)==args.baseline_sha256,'BASELINE_MANIFEST_HASH')
+        plan,master,files=prepare(ROOT,TASK,json.loads(raw),args.run_id)
+        plan.mkdir(exist_ok=False)
+        for relative,value in files.items():
+            destination=safe_path(plan,relative);destination.parent.mkdir(parents=True,exist_ok=True)
+            with destination.open('xb') as handle:handle.write(value)
+        print(json.dumps({'status':'SOURCE_PREPARED_NOT_EXECUTED','plan_directory':str(plan),'run_id':master['run_id'],'review_status':master['review_status'],'source_commit':master['source_commit'],'source_tree':master['source_tree'],'database_contacted':False,'git_mutated':False}));return 0
+    except Exception as error:
+        print(json.dumps({'status':'SOURCE_PREPARATION_REFUSED','code':error.code if isinstance(error,HeldFailure) else 'UNCONFIRMED_SOURCE_PREPARATION','database_contacted':False}));return 1
+
+if __name__=='__main__':raise SystemExit(main())

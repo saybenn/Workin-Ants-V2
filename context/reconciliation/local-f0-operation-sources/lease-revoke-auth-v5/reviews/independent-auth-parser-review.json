@@ -1,0 +1,137 @@
+{
+  "recorded_at": "2026-11-19T01:42:21.553506+00:00",
+  "reviewer": "/root",
+  "decision": "SOURCE_APPROVED_EXACT_AUTHV5_DELTA_FRESH_COMMIT_FULL_PACKET_AND_LITERAL_REQUIRED",
+  "source_files_sha256": {
+    "check_local_f0_lease_revoke_operation_auth_v5.py": "3770e76674855935143a24486f781b12f49107f47f10b4231d6ede5ceb58aebc",
+    "check_local_f0_restore_operation_auth_v5.py": "3c11c62e77e65707340e832ed85899104efaf3d4042c6d9dad30308b8cb2344c",
+    "execute_local_f0_lease_revoke_20261118_auth_v5.py": "a76e594950ce102377621be39b59194a9753222761954243a20adac0a7712d42",
+    "execute_local_f0_restore_20261117_auth_v5.py": "02e7db3dfc2dd8c60e02a753599e6fd6970ad607b63b6e5605cbce95f8122853",
+    "local_f0_lease_revoke_operation_steps_auth_v5.py": "84b9dcb3293ab3714ffaebf2591a6bc14d2069a7632c68c220299593cf594e3a",
+    "local_f0_restore_operation_steps_auth_v5.py": "cf1def90032da64dca80e7b3670d1eb807d484504cd6720d03d9a5c9f78a767f",
+    "pin_local_f0_lease_revoke_plan_20261118_auth_v5.py": "d5eb600d758a095fdb8a36c2c7f06ecedcc355f387cc71c0b54dc2f6fadc4ec3",
+    "pin_local_f0_restore_plan_20261118_auth_v5.py": "01ce08f1e0740b71d1a44d36e6e8f4d2ed2bba56dcc68111a9225a9709cfba06",
+    "prepare_local_f0_lease_revoke_plan_auth_v5.py": "5d211470645d44d36d0e23baba4535371f2da1b194f5e04124c945f1f3a26f1f",
+    "prepare_local_f0_restore_plan_auth_v5.py": "77afa8a9062bc8c2b4ab7f357deadc69fa58d9a5e5cb7b9b3210edba2080423a"
+  },
+  "independent_actual_checks": {
+    "lease": {
+      "tests": 9,
+      "seconds": 9.353,
+      "exit_code": 0
+    },
+    "restore": {
+      "tests": 9,
+      "seconds": 10.697,
+      "exit_code": 0
+    },
+    "selection": "eight new projection/error/mutation methods plus actual real whole source verifier per family; all processes/network mocked or forbidden",
+    "whole124_root_rerun": false
+  },
+  "independent_AST_proof": {
+    "check_local_f0_lease_revoke_operation_auth_v5.py": {
+      "changed": [],
+      "added": [
+        "AuthV5ProjectionTests"
+      ]
+    },
+    "check_local_f0_restore_operation_auth_v5.py": {
+      "changed": [
+        "RestoreOperationTests"
+      ],
+      "added": [
+        "AuthV5ProjectionTests"
+      ]
+    },
+    "execute_local_f0_lease_revoke_20261118_auth_v5.py": {
+      "changed": [],
+      "added": []
+    },
+    "execute_local_f0_restore_20261117_auth_v5.py": {
+      "changed": [],
+      "added": []
+    },
+    "local_f0_lease_revoke_operation_steps_auth_v5.py": {
+      "changed": [
+        "auth_control"
+      ],
+      "added": [
+        "auth_denial_comparison"
+      ]
+    },
+    "local_f0_restore_operation_steps_auth_v5.py": {
+      "changed": [
+        "auth_control"
+      ],
+      "added": [
+        "auth_denial_comparison"
+      ]
+    },
+    "pin_local_f0_lease_revoke_plan_20261118_auth_v5.py": {
+      "changed": [
+        "pin"
+      ],
+      "added": []
+    },
+    "pin_local_f0_restore_plan_20261118_auth_v5.py": {
+      "changed": [
+        "validate_filesystem"
+      ],
+      "added": []
+    },
+    "prepare_local_f0_lease_revoke_plan_auth_v5.py": {
+      "changed": [],
+      "added": []
+    },
+    "prepare_local_f0_restore_plan_auth_v5.py": {
+      "changed": [],
+      "added": []
+    }
+  },
+  "same_pure_comparison_helper_both_families": true,
+  "manual_review": "Read full pure comparison and auth_control. Require exact numeric TCP endpoint/role/database/file arguments, exit2/empty stdout, bounded ASCII diagnostic, one exact expected FATAL primary with absent or correct explicit state, required exact selected password-file warning for password controls; HBA28000 controls separately prohibit it. Unknown extra/duplicate/detail/canary/state/file/role/control/type content rejects. Only fixed booleans, state enum and known basename are retained before assertion; closure remains in finally. No raw text or arbitrary probe dictionaries retained. Correct SCRAM branch unchanged. Core/resource/image/timeouts/SQL/finalization/common IO behavior unchanged after exact version substitutions. Pin gates require independent exact AuthV5 source approval.",
+  "primary_source_proof": [
+    {
+      "fact": "Startup error path invokes pgpassfileWarning before connection failure.",
+      "url": "https://github.com/postgres/postgres/blob/REL_17_11/src/interfaces/libpq/fe-connect.c#L3612-L3615"
+    },
+    {
+      "fact": "Password-file presence plus actual invalid-password SQLSTATE appends the exact selected-file warning.",
+      "url": "https://github.com/postgres/postgres/blob/REL_17_11/src/interfaces/libpq/fe-connect.c#L7138-L7155"
+    },
+    {
+      "fact": "Endpoint formatting and conditional resolved-address parentheses.",
+      "url": "https://github.com/postgres/postgres/blob/REL_17_11/src/interfaces/libpq/fe-connect.c#L1995-L2021"
+    },
+    {
+      "fact": "Failed initial connection logs the complete PQerrorMessage and exits EXIT_BADCONN.",
+      "url": "https://github.com/postgres/postgres/blob/REL_17_11/src/bin/psql/startup.c#L281-L285"
+    },
+    {
+      "fact": "Frontend logs the complete multiline message, stripping and restoring one final newline.",
+      "url": "https://github.com/postgres/postgres/blob/REL_17_11/src/common/logging.c#L309-L314"
+    },
+    {
+      "fact": "Password/MD5/SCRAM rejection uses the exact role primary and invalid-password SQLSTATE.",
+      "url": "https://github.com/postgres/postgres/blob/REL_17_11/src/backend/libpq/auth.c#L267-L272"
+    },
+    {
+      "fact": "Initial libpq verbosity defaults to DEFAULT; absence of visible SQLSTATE must not imply an absent server category.",
+      "url": "https://github.com/postgres/postgres/blob/REL_17_11/src/interfaces/libpq/fe-connect.c#L4300-L4308"
+    }
+  ],
+  "preservation": {
+    "files": 49,
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\auth-v5-before-author-20261119\\preservation-manifest.json",
+    "sha256": "56e9334d8cd60d75dce88d255ea1e0e02705f14f69d4581f0778f6b3010bb611"
+  },
+  "prior_finally_review": "1c7d763fcd5fd17221a3a01302ae0df3f0b4bdb2034b5d27c98fd1e0c97a1b83",
+  "limits": {
+    "posture": "D",
+    "all_new_runtime": "NOT_RUN",
+    "old_actual_stderr_complete_cause": "UNOBSERVED_NOT_BACKFILLED",
+    "source_defect": "PROVEN_PINNED_FRONTEND_FILE_WARNING_GRAMMAR",
+    "whole94_or451_promoted": false,
+    "worker32ACL_and_canonical_SQL_unchanged": true
+  }
+}
