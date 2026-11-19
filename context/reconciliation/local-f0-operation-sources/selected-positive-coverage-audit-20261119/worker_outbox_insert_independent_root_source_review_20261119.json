@@ -1,0 +1,35 @@
+{
+  "schema": "workinants.worker-outbox-insert-source-reachability-review.v1",
+  "recorded_at_utc": "2026-11-19T03:08:49.298129+00:00",
+  "reviewer": "root",
+  "discovered_by": "install_outer_review coverage audit",
+  "source_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+  "case_id": "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+  "assertion_id": "positive.wa_worker.insert",
+  "finding": "SOURCE_ONLY_POSITIVE_REACHABILITY_CONFLICT_REQUIRES_POLICY_OR_REGISTER_DECISION",
+  "source_facts": {
+    "function": "platform_private.worker_track_allowed(text,jsonb,text)",
+    "function_start_line": 3170,
+    "function_end_line": 3279,
+    "Outbox_exact_branch_line": 3198,
+    "branch_requires_literal_verb": "SELECT",
+    "policy_line": 3523,
+    "policy_name": "p_worker_insert",
+    "policy_target": "platform.runtime_outbox_message",
+    "policy_role": "wa_worker",
+    "policy_calls_same_function_with_literal_verb": "INSERT",
+    "other_worker_insert_policy_observed": false
+  },
+  "reasoning": "The existing worker Outbox INSERT WITH CHECK conjunct calls the same function with model RuntimeOutboxMessage and literal INSERT. Its sole Outbox branch requires literal SELECT, so that conjunct cannot be true for this operation. Earlier guards may reject sooner; they cannot make this conjunct true. This is exact-source reachability analysis, not observed database execution.",
+  "limits": {
+    "runtime": "NOT_RUN",
+    "complete_runtime_cause_or_diagnostic_claimed": false,
+    "policy_or_permission_changed": false,
+    "register_or_qualification_status_changed": false,
+    "existing7_source_question_classification": "PRESERVED",
+    "ownership_or_policy_fix_authorized": false,
+    "other_attainable_work": "CONTINUES",
+    "posture": "D"
+  },
+  "smallest_later_decision": "Resolve the intended worker Outbox positive scope against the accepted ownership/permission contract and register. Do not silently widen the helper or waive the mandatory positive assertion."
+}

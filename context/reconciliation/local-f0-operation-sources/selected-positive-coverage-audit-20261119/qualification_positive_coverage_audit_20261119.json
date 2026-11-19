@@ -1,0 +1,659 @@
+{
+  "schema": "workinants.bounded-not-run-positive-coverage-audit.v1",
+  "reviewer": "/root/install_outer_review",
+  "recorded_at_utc": "2026-11-19T03:08:51.283794+00:00",
+  "scope": "CURRENT_SELECTED94_TABLE_POSITIVE_PREFIX_ONLY; READ_ONLY_AUDIT_NO_STATUS_PROMOTION",
+  "source_files": {
+    "status": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\context\\reconciliation\\local-f0-qualification-status.json",
+      "sha256": "8fc3d0f4d3dbd1c39569a4a1dc378b8393d7794b8e9144913dfaac7d76a285ce"
+    },
+    "assertions": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\context\\reconciliation\\local-f0-assertions.json",
+      "sha256": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558"
+    },
+    "historical_roadmap": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\context\\reconciliation\\local-f0-selected-gap-plan-after-f161d454.json",
+      "sha256": "39b5ca35d79bf4f7272e057801042dd1a826c002451aa28c325c6fd2f08f0257"
+    },
+    "Owner121": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\selected-owner-read-corrected-source-plan-20261118.json",
+      "sha256": "e80939ccfaab6844fd074806ad2a9373ae30a9ca67c11f87768762e22b4ce4a8"
+    },
+    "Owner_fixture": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\review-output\\owner-read-control-rehearsal\\fixtures.json",
+      "sha256": "7f8d292ddc8ca11e12ae91e94ac62cca6cdd09d0c1f8a427ac5eefa414e66aca"
+    },
+    "Owner_generator": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\scripts\\prepare-owner-read-control-rehearsal.py",
+      "sha256": "6b482293d71081553c1317613ee7b1301133ff601d77c9bcaad43cec6bb7169c"
+    },
+    "SixRead71": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\scoped-read-companions-finite-source-plan-20261118.json",
+      "sha256": "e47149f77d615d5af15f8436a3a1640645962f4cb1bbec3c901da1ad1e8137ed"
+    },
+    "SixRead_fixture": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\review-output\\scoped-read-companion-rehearsal\\fixtures.json",
+      "sha256": "7f5bd6e713a1f0eaf330c2acf0267cd45aa2e8f47467e03d6f4c4c6dc754420c"
+    },
+    "Worker21": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\remaining-worker-protected-transitions-finite-source-plan-v2-20261119.json",
+      "sha256": "1a6b3bfe380aba7250fd8dfbf900ab260fab5668c0e4352c0624b850a6bd612b"
+    },
+    "Lease19": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\lease_revoke_control_source_plan_v2_20261118.json",
+      "sha256": "ae5e8699d212b07cb13eaaa27852f112a7d4bea7eed2df0e60d4e65251d2c5e9"
+    },
+    "Lease_fixture": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\review-output\\lease-revoke-control-rehearsal\\fixtures.json",
+      "sha256": "fe59a9867093f1cbab01741fa7d4f1fd727090e410374e663bbbd0796903c7e5"
+    },
+    "Restore5": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\review-output\\restore-control-rehearsal\\proposal.json",
+      "sha256": "91834ed47f63820db5bb4cc16d77056577f7831f57eeed923198b630af15aaca"
+    },
+    "Privilege200": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\context\\reconciliation\\privilege-ceiling-approved-source-plan.json",
+      "sha256": "3298704adfe2110a4a333945c37de4432e851e918598dfc966e665473aa7e066"
+    },
+    "Privilege_fixture": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\review-output\\privilege-ceiling-control-rehearsal\\fixtures.json",
+      "sha256": "4ebe8b6cd7b85ff5ad8dbb79d431bb7001cf16dea72e3920138be4b5f2855e68"
+    },
+    "canonical_SQL": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\review-output\\foundation-application.review.sql",
+      "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad"
+    },
+    "worker_ACL": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\context\\reconciliation\\foundation-sql-draft-access.json",
+      "sha256": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea"
+    },
+    "scope_registry": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\context\\reconciliation\\foundation-sql-scope-policy.json",
+      "sha256": "a1c56896b12e15e03eb04bef6d5c9254692cdc3918167e024e54006b6fa38b1b"
+    }
+  },
+  "current_assertion_status_counts": {
+    "PASS": 211,
+    "PARTIAL": 27,
+    "FAILED": 0,
+    "DEPENDENCY_BLOCKED": 32,
+    "NOT_RUN": 757,
+    "UNRESOLVED_SOURCE": 7
+  },
+  "current_case_status_counts": {
+    "PASS": 2,
+    "PARTIAL": 36,
+    "FAILED": 0,
+    "DEPENDENCY_BLOCKED": 0,
+    "NOT_RUN": 56
+  },
+  "summary": {
+    "currently_NOT_RUN_positive_assertions": 76,
+    "explicit_positive_links_in_named_finite_plans": 31,
+    "without_exact_positive_claim_link_in_these_plans": 45,
+    "uncovered_app_SELECT": 13,
+    "uncovered_app_INSERT": 18,
+    "uncovered_app_UPDATE": 12,
+    "uncovered_worker_UPDATE": 1,
+    "uncovered_worker_INSERT_source_route_question": 1,
+    "dependency_blocked_rows_preserved": 32,
+    "frozen_source_questions_preserved": 7,
+    "actual_new_results": 0
+  },
+  "explicit_positive_plan_mapping": {
+    "Owner121": {
+      "currently_NOT_RUN_positive_links": 14,
+      "exact_ids": [
+        [
+          "P0C-TABLE-CandidateProfile-ALLOW",
+          "positive.wa_app_runtime.select"
+        ],
+        [
+          "P0C-TABLE-ConsentContentRevision-ALLOW",
+          "positive.wa_app_runtime.select"
+        ],
+        [
+          "P0C-TABLE-ConsentLog-ALLOW",
+          "positive.wa_app_runtime.select"
+        ],
+        [
+          "P0C-TABLE-ConsentPresentation-ALLOW",
+          "positive.wa_app_runtime.select"
+        ],
+        [
+          "P0C-TABLE-PrivacyRequest-ALLOW",
+          "positive.wa_app_runtime.select"
+        ],
+        [
+          "P0C-TABLE-ProfessionalProfile-ALLOW",
+          "positive.wa_app_runtime.select"
+        ],
+        [
+          "P0C-TABLE-TrackEntitlementDefinition-ALLOW",
+          "positive.wa_app_runtime.select"
+        ],
+        [
+          "P0C-TABLE-TrackEntitlementDefinition-ALLOW",
+          "positive.wa_worker.select"
+        ],
+        [
+          "P0C-TABLE-TrackPlan-ALLOW",
+          "positive.wa_app_runtime.select"
+        ],
+        [
+          "P0C-TABLE-TrackPlan-ALLOW",
+          "positive.wa_worker.select"
+        ],
+        [
+          "P0C-TABLE-TrackPlanEntitlement-ALLOW",
+          "positive.wa_app_runtime.select"
+        ],
+        [
+          "P0C-TABLE-TrackPlanEntitlement-ALLOW",
+          "positive.wa_worker.select"
+        ],
+        [
+          "P0C-TABLE-User-ALLOW",
+          "positive.wa_app_runtime.select"
+        ],
+        [
+          "P0C-TABLE-UserSecurityProfile-ALLOW",
+          "positive.wa_app_runtime.select"
+        ]
+      ],
+      "qualification": "PLANNED_ONLY_NO_PROMOTION"
+    },
+    "SixRead71": {
+      "currently_NOT_RUN_positive_links": 6,
+      "exact_ids": [
+        [
+          "P0C-TABLE-AccessAuditLog-ALLOW",
+          "positive.wa_app_runtime.select"
+        ],
+        [
+          "P0C-TABLE-AgeGateAttempt-ALLOW",
+          "positive.wa_app_runtime.select"
+        ],
+        [
+          "P0C-TABLE-AgeGateBlock-ALLOW",
+          "positive.wa_app_runtime.select"
+        ],
+        [
+          "P0C-TABLE-AuditEvent-ALLOW",
+          "positive.wa_app_runtime.select"
+        ],
+        [
+          "P0C-TABLE-AuthProviderAccount-ALLOW",
+          "positive.wa_app_runtime.select"
+        ],
+        [
+          "P0C-TABLE-UserRole-ALLOW",
+          "positive.wa_app_runtime.select"
+        ]
+      ],
+      "qualification": "PLANNED_ONLY_NO_PROMOTION"
+    },
+    "Worker21": {
+      "currently_NOT_RUN_positive_links": 11,
+      "exact_ids": [
+        [
+          "P0C-TABLE-OwnerMutationEvidence-ALLOW",
+          "positive.wa_worker.select"
+        ],
+        [
+          "P0C-TABLE-RuntimeAttempt-ALLOW",
+          "positive.wa_worker.select"
+        ],
+        [
+          "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+          "positive.wa_worker.select"
+        ],
+        [
+          "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+          "positive.wa_worker.update"
+        ],
+        [
+          "P0C-TABLE-RuntimeEffectReceipt-ALLOW",
+          "positive.wa_worker.select"
+        ],
+        [
+          "P0C-TABLE-RuntimeInboxReceipt-ALLOW",
+          "positive.wa_worker.select"
+        ],
+        [
+          "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+          "positive.wa_worker.select"
+        ],
+        [
+          "P0C-TABLE-TrackBaseSelection-ALLOW",
+          "positive.wa_worker.select"
+        ],
+        [
+          "P0C-TABLE-TrackEnrollmentReceipt-ALLOW",
+          "positive.wa_worker.select"
+        ],
+        [
+          "P0C-TABLE-TrackEntitlementGrant-ALLOW",
+          "positive.wa_worker.select"
+        ],
+        [
+          "P0C-TABLE-TrackSubscription-ALLOW",
+          "positive.wa_worker.select"
+        ]
+      ],
+      "qualification": "PLANNED_ONLY_NO_PROMOTION"
+    }
+  },
+  "named_plans_with_no_new_table_positive_claim_links": {
+    "Lease19": {
+      "positive_links": 0,
+      "target": "P0C-TRACK-01 lease/renew/concurrent-fence and P0C-CTX-02 issuer/Identity currentness controls; existing worker Work UPDATE is already qualified narrowly.19 prepared protocols do not cover an unlinked table positive.",
+      "runtime": "NOT_RUN"
+    },
+    "Restore5": {
+      "positive_links": 0,
+      "target": "P0C-RESTORE-01 real backup/parity and partial synthetic authority; three Privacy/service-restore obligations retain the explicit P0F gate.",
+      "runtime": "NOT_RUN"
+    },
+    "Privilege200": {
+      "positive_links": 0,
+      "target": "200 negative contrasts,5 control links and40 issuer DENY umbrellas. Own-grant INSERT/SELECT/revoke are separate issuer controls; none is one of the76 table positive.* obligations.",
+      "runtime": "NOT_RUN"
+    }
+  },
+  "remaining_exact_ids_grouped": [
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "count": 18,
+      "case_ids": [
+        "P0C-TABLE-AccessAuditLog-ALLOW",
+        "P0C-TABLE-AgeGateAttempt-ALLOW",
+        "P0C-TABLE-AgeGateBlock-ALLOW",
+        "P0C-TABLE-AuditEvent-ALLOW",
+        "P0C-TABLE-AuthProviderAccount-ALLOW",
+        "P0C-TABLE-ConsentContentRevision-ALLOW",
+        "P0C-TABLE-ConsentDisposition-ALLOW",
+        "P0C-TABLE-ConsentLog-ALLOW",
+        "P0C-TABLE-ConsentPresentation-ALLOW",
+        "P0C-TABLE-PrivacyRequest-ALLOW",
+        "P0C-TABLE-RuntimeEffectReceipt-ALLOW",
+        "P0C-TABLE-RuntimeReservation-ALLOW",
+        "P0C-TABLE-TrackEntitlementDefinition-ALLOW",
+        "P0C-TABLE-TrackPlan-ALLOW",
+        "P0C-TABLE-TrackPlanEntitlement-ALLOW",
+        "P0C-TABLE-User-ALLOW",
+        "P0C-TABLE-UserRole-ALLOW",
+        "P0C-TABLE-UserSecurityProfile-ALLOW"
+      ]
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.select",
+      "count": 13,
+      "case_ids": [
+        "P0C-TABLE-ConsentDisposition-ALLOW",
+        "P0C-TABLE-CustomerProfileLifecycleEvent-ALLOW",
+        "P0C-TABLE-OwnerMutationEvidence-ALLOW",
+        "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+        "P0C-TABLE-RuntimeEffectReceipt-ALLOW",
+        "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+        "P0C-TABLE-RuntimeReservation-ALLOW",
+        "P0C-TABLE-RuntimeWorkItem-ALLOW",
+        "P0C-TABLE-TrackEntitlementGrant-ALLOW",
+        "P0C-TABLE-TrackSubscription-ALLOW",
+        "P0C-TABLE-TrackSubscriptionEvent-ALLOW",
+        "P0C-TABLE-TrackUsageCounter-ALLOW",
+        "P0C-TABLE-TrackUsageEvent-ALLOW"
+      ]
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.update",
+      "count": 12,
+      "case_ids": [
+        "P0C-TABLE-AuthProviderAccount-ALLOW",
+        "P0C-TABLE-CustomerProfile-ALLOW",
+        "P0C-TABLE-PrivacyRequest-ALLOW",
+        "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+        "P0C-TABLE-RuntimeReservation-ALLOW",
+        "P0C-TABLE-RuntimeWorkItem-ALLOW",
+        "P0C-TABLE-TrackEntitlementDefinition-ALLOW",
+        "P0C-TABLE-TrackPlan-ALLOW",
+        "P0C-TABLE-TrackPlanEntitlement-ALLOW",
+        "P0C-TABLE-User-ALLOW",
+        "P0C-TABLE-UserRole-ALLOW",
+        "P0C-TABLE-UserSecurityProfile-ALLOW"
+      ]
+    },
+    {
+      "assertion_id": "positive.wa_worker.insert",
+      "count": 1,
+      "case_ids": [
+        "P0C-TABLE-RuntimeOutboxMessage-ALLOW"
+      ]
+    },
+    {
+      "assertion_id": "positive.wa_worker.update",
+      "count": 1,
+      "case_ids": [
+        "P0C-TABLE-TrackBaseSelection-ALLOW"
+      ]
+    }
+  ],
+  "concrete_next_gaps": [
+    {
+      "priority": 1,
+      "work": "Prepare the13 unlinked actual-app companion/owner SELECT positives with complete field/row/revision/relationship caps and meaningful existing source targets. Current sources identify candidate local paths; fixtures/read prototypes are preparation rather than missing later-owner ports.",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "case_ids": [
+        "P0C-TABLE-ConsentDisposition-ALLOW",
+        "P0C-TABLE-CustomerProfileLifecycleEvent-ALLOW",
+        "P0C-TABLE-OwnerMutationEvidence-ALLOW",
+        "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+        "P0C-TABLE-RuntimeEffectReceipt-ALLOW",
+        "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+        "P0C-TABLE-RuntimeReservation-ALLOW",
+        "P0C-TABLE-RuntimeWorkItem-ALLOW",
+        "P0C-TABLE-TrackEntitlementGrant-ALLOW",
+        "P0C-TABLE-TrackSubscription-ALLOW",
+        "P0C-TABLE-TrackSubscriptionEvent-ALLOW",
+        "P0C-TABLE-TrackUsageCounter-ALLOW",
+        "P0C-TABLE-TrackUsageEvent-ALLOW"
+      ],
+      "qualification_limit": "Each exact selected criterion only; source/currentness/companion route review still required before implementation/execution."
+    },
+    {
+      "priority": 2,
+      "work": "Prepare complete owner mutation transactions for18 app INSERT and12 app UPDATE positives. Do not substitute privileged read fixtures or trigger-disabled source rows for intended-role COMMIT/evidence/terminal proof. Resolve exact result identity/codec before Customer update or reservation terminal preparation.",
+      "counts": {
+        "INSERT": 18,
+        "UPDATE": 12
+      },
+      "boundaries": "Customer update, app command/effect/reservation result binding is source-contract preparation; not a new P0D/E/F dependency waiver. Ordinary Privacy submitted/open mutations stay distinct from owner-accounting completion gate. Track catalog publisher operations stay distinct from fixtures and external legal/billing policy."
+    },
+    {
+      "priority": 3,
+      "work": "Prepare separate TrackBaseSelection predecessor UPDATE and full direct/reverse matrix after a legitimate complete source-group recipe is established.",
+      "case_id": "P0C-TABLE-TrackBaseSelection-ALLOW",
+      "assertion_id": "positive.wa_worker.update",
+      "source_plan": "Worker21 /after_core_remaining_finite_source_derivations/0",
+      "limit": "Core21 does not claim this UPDATE. Existing primitive/source logic is not an executed or fully planned positive; preserve valid selection and durable semantic receipt."
+    },
+    {
+      "priority": 4,
+      "work": "Independently reconcile the exact worker Outbox INSERT reachability question below; do not expand Worker21 or widen grants/policy.",
+      "case_id": "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+      "assertion_id": "positive.wa_worker.insert"
+    }
+  ],
+  "source_reachability_question_distinct_from_frozen7": {
+    "case_id": "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+    "assertion_id": "positive.wa_worker.insert",
+    "current_status": "NOT_RUN",
+    "current_source_availability": "CANDIDATE_LOCAL_SQL_PATH",
+    "dependency_ids": [],
+    "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+    "declared_operation": "INSERT_REGISTERED_HANDLER_EVIDENCE",
+    "candidate_registry_path_review": {
+      "scope": "Exact current RuntimeWorkItem/default-Free handler; claim and renew use separate registered platform scopes",
+      "constraints": "Current Customer, approved plan, lease secret/fence, exact source fields and atomic effect/inbox/receipt required"
+    },
+    "exact_generated_ACL": {
+      "model": "RuntimeOutboxMessage",
+      "role": "wa_worker",
+      "operation": "INSERT",
+      "fields": [
+        "id",
+        "commandReceiptId",
+        "kind",
+        "producerOwner",
+        "aggregateKind",
+        "aggregateId",
+        "sourceRevision",
+        "sourceGeneration",
+        "ordinal",
+        "name",
+        "schemaVersion",
+        "payloadSchemaId",
+        "payloadHash",
+        "payload",
+        "correlationId",
+        "causationId",
+        "correctionOfId",
+        "occurredAt",
+        "effectiveAt"
+      ],
+      "columns": [
+        "id",
+        "command_receipt_id",
+        "kind",
+        "producer_owner",
+        "aggregate_kind",
+        "aggregate_id",
+        "source_revision",
+        "source_generation",
+        "ordinal",
+        "name",
+        "schema_version",
+        "payload_schema_id",
+        "payload_hash",
+        "payload",
+        "correlation_id",
+        "causation_id",
+        "correction_of_id",
+        "occurred_at",
+        "effective_at"
+      ]
+    },
+    "existing_registered_context": "Only current wa_worker registered service/default-Free RuntimeWorkItem processing context, action assignDefaultFreeTrack.v1, purpose default_free_enrollment with live lease/preimage/fence, exact Customer and scoped fields; claim/renew are separate WorkItem-only branches.",
+    "source_SQL_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "source_lines": [
+      {
+        "line": 3022,
+        "detail": "worker row-capability helper has an INSERT field check; this plus native ACL is insufficient."
+      },
+      {
+        "line": 3179,
+        "through": 3183,
+        "detail": "claim/renew shortcut applies only to RuntimeWorkItem; other models require current processing lease."
+      },
+      {
+        "line": 3198,
+        "detail": "Outbox worker route returns verb=SELECT and exact linked source message ID."
+      },
+      {
+        "line": 3523,
+        "detail": "Worker INSERT RLS policy conjunct explicitly calls worker_track_allowed with literal INSERT."
+      }
+    ],
+    "conclusion": "The declared worker Outbox INSERT path cannot satisfy this canonical policy conjunction. Source-only question corroborated by Root; no runtime attempt or failure is claimed.",
+    "required_followup": "Independent bounded classification/reconciliation of declaration versus actual source route; no permission or policy change, no phase waiver. Keep current NOT_RUN and frozen7 classifications unchanged in this audit."
+  },
+  "fixture_only_limits": {
+    "Owner121": "Four restricted ConsentPresentation/ConsentLog INSERT operations retain physical/subject guards but explicitly bypass their owner_commit guards for read fixture construction. They do not cover positive insert or full Consent proof/publisher/rendering vectors. Other read seed tables likewise are not owner write qualification.",
+    "SixRead71": "Privileged coherent existing-row fixtures qualify neither INSERT nor UPDATE.",
+    "Worker21": "A/B/C setup and existing qualified first-claim/enrollment prerequisites do not count as new positive links unless explicitly mapped.",
+    "source_reference": {
+      "path": "scripts/prepare-owner-read-control-rehearsal.py",
+      "lines": [
+        115,
+        130,
+        134,
+        166
+      ]
+    }
+  },
+  "preserved_classifications": {
+    "exact_current_dependency_blocked_ids": [
+      [
+        "P0C-CAS-01",
+        "vector.OWNER-REVISIONS.adversarial"
+      ],
+      [
+        "P0C-CAS-01",
+        "vector.OWNER-REVISIONS.positive"
+      ],
+      [
+        "P0C-RESTORE-01",
+        "control.privacy_reapplication"
+      ],
+      [
+        "P0C-RESTORE-01",
+        "vector.SERVICE-RESTORE.adversarial"
+      ],
+      [
+        "P0C-RESTORE-01",
+        "vector.SERVICE-RESTORE.positive"
+      ],
+      [
+        "P0C-TABLE-PrivacyOwnerReceipt-ALLOW",
+        "positive.wa_app_runtime.insert"
+      ],
+      [
+        "P0C-TABLE-PrivacyOwnerReceipt-ALLOW",
+        "positive.wa_app_runtime.select"
+      ],
+      [
+        "P0C-TABLE-PrivacyRequest-ALLOW",
+        "positive.wa_app_runtime.privacy_completion"
+      ],
+      [
+        "P0C-TABLE-PrivacyRestoreMarker-ALLOW",
+        "positive.wa_app_runtime.insert"
+      ],
+      [
+        "P0C-TABLE-PrivacyRestoreMarker-ALLOW",
+        "positive.wa_app_runtime.select"
+      ],
+      [
+        "P0C-TABLE-PrivacyRestoreMarker-ALLOW",
+        "positive.wa_app_runtime.update"
+      ],
+      [
+        "P0C-TABLE-PrivacyTargetInstruction-ALLOW",
+        "positive.wa_app_runtime.insert"
+      ],
+      [
+        "P0C-TABLE-PrivacyTargetInstruction-ALLOW",
+        "positive.wa_app_runtime.select"
+      ],
+      [
+        "P0C-TABLE-RuntimeReservation-ALLOW",
+        "positive.wa_worker.insert"
+      ],
+      [
+        "P0C-TABLE-RuntimeReservation-ALLOW",
+        "positive.wa_worker.select"
+      ],
+      [
+        "P0C-TABLE-RuntimeReservation-ALLOW",
+        "positive.wa_worker.update"
+      ],
+      [
+        "P0C-TABLE-TrackBaseSelection-ALLOW",
+        "positive.wa_app_runtime.insert"
+      ],
+      [
+        "P0C-TABLE-TrackBaseSelection-ALLOW",
+        "positive.wa_app_runtime.select"
+      ],
+      [
+        "P0C-TABLE-TrackBaseSelection-ALLOW",
+        "positive.wa_app_runtime.update"
+      ],
+      [
+        "P0C-TABLE-TrackEnrollmentReceipt-ALLOW",
+        "positive.wa_app_runtime.insert"
+      ],
+      [
+        "P0C-TABLE-TrackEnrollmentReceipt-ALLOW",
+        "positive.wa_app_runtime.select"
+      ],
+      [
+        "P0C-TABLE-TrackEntitlementGrant-ALLOW",
+        "positive.wa_app_runtime.insert"
+      ],
+      [
+        "P0C-TABLE-TrackEntitlementGrant-ALLOW",
+        "positive.wa_app_runtime.update"
+      ],
+      [
+        "P0C-TABLE-TrackSubscription-ALLOW",
+        "positive.wa_app_runtime.insert"
+      ],
+      [
+        "P0C-TABLE-TrackSubscription-ALLOW",
+        "positive.wa_app_runtime.update"
+      ],
+      [
+        "P0C-TABLE-TrackSubscriptionEvent-ALLOW",
+        "positive.wa_app_runtime.insert"
+      ],
+      [
+        "P0C-TABLE-TrackUsageCounter-ALLOW",
+        "positive.wa_app_runtime.insert"
+      ],
+      [
+        "P0C-TABLE-TrackUsageCounter-ALLOW",
+        "positive.wa_app_runtime.update"
+      ],
+      [
+        "P0C-TABLE-TrackUsageEvent-ALLOW",
+        "positive.wa_app_runtime.insert"
+      ],
+      [
+        "P0C-TABLE-TrackUsageReservation-ALLOW",
+        "positive.wa_app_runtime.insert"
+      ],
+      [
+        "P0C-TABLE-TrackUsageReservation-ALLOW",
+        "positive.wa_app_runtime.select"
+      ],
+      [
+        "P0C-TABLE-TrackUsageReservation-ALLOW",
+        "positive.wa_app_runtime.update"
+      ]
+    ],
+    "exact_current_frozen_source_question_ids": [
+      [
+        "P0C-TABLE-RuntimeAttempt-ALLOW",
+        "positive.wa_app_runtime.insert"
+      ],
+      [
+        "P0C-TABLE-RuntimeAttempt-ALLOW",
+        "positive.wa_app_runtime.select"
+      ],
+      [
+        "P0C-TABLE-RuntimeInboxReceipt-ALLOW",
+        "positive.wa_app_runtime.insert"
+      ],
+      [
+        "P0C-TABLE-RuntimeInboxReceipt-ALLOW",
+        "positive.wa_app_runtime.select"
+      ],
+      [
+        "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+        "positive.wa_app_runtime.update"
+      ],
+      [
+        "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+        "positive.wa_worker.update"
+      ],
+      [
+        "P0C-TABLE-RuntimeWorkItem-ALLOW",
+        "positive.wa_worker.insert"
+      ]
+    ],
+    "later_owner_vs_route": "23 later-owner plus9 frozen principal/route boundaries remain. Unwritten attainable harnesses remain NOT_RUN, not dependency-blocked.",
+    "roadmap": "The after-f161 roadmap preserves its historical79PASS baseline; this audit joins its next-batch guidance to actual211PASS current status."
+  },
+  "limits": {
+    "status_ledger_assertions_or_source_modified": false,
+    "new_harness_or_SQL_authored": false,
+    "Git_Docker_DB_SQL_network_or_test_execution": false,
+    "file_inspection_and_TASK_audit_only": true,
+    "all_planned_statuses_remain": "NOT_RUN_OR_EXISTING_PARTIAL",
+    "all94_or451": "NOT_PROMOTED",
+    "posture": "D"
+  },
+  "plain_english": "There are76 positive jobs left. The named plans cover31 of them. The other45 still need exact test work or source clarification. A missing test is not a reason to say the job is blocked by another team, and no check became passed today."
+}
