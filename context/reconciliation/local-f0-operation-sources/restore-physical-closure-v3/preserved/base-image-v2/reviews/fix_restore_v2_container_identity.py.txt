@@ -1,0 +1,37 @@
+from pathlib import Path
+import hashlib,json
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass';sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+first=json.loads((TASK/'image_store_v2_source_derivation_20261118.json').read_bytes())
+folder=TASK/'image-store-v2-before-restore-container-followup-20261118';folder.mkdir(exist_ok=False);saved={}
+names=[name for group in ('lease','restore') for name in first[group]['new_files_sha256']]+['image_store_v2_source_derivation_20261118.json','image_store_v2_author_initial_checks_20261118.json','image_store_v2_author_final_checks_20261118.json','check_image_store_v2_operator_boundaries.py','build_image_store_v2_sources.py']
+for name in names:
+    p=TASK/name;q=folder/name
+    with q.open('xb') as out:out.write(p.read_bytes())
+    saved[name]=sha(q)
+with (folder/'preservation.json').open('x',encoding='utf8',newline='\n') as out:json.dump({'files_sha256':saved,'scope':'INITIAL_UNEXECUTED_IMAGE_V2_SOURCE_BEFORE_SECOND_CONTAINER_ID_PREDICATE_CORRECTION'},out,indent=2);out.write('\n')
+steps=TASK/'local_f0_restore_operation_steps_image_v2.py';check=TASK/'check_local_f0_restore_operation_image_v2.py';pin=TASK/'pin_local_f0_restore_plan_20261118_image_v2.py'
+old_steps,old_check=sha(steps),sha(check)
+s=steps.read_text();assert s.count("value['Image']==CONFIG")==1;s=s.replace("value['Image']==CONFIG","value['Image']==report['image']['image_id']");steps.write_text(s,encoding='utf8',newline='\n')
+s=check.read_text();old="        n['PRIVATE']=Path(with_root);n['ARCHIVE']=n['PRIVATE']/'restore01-base.tar'";assert s.count(old)==1
+s=s.replace(old,old+"\n        n['report']['image']={'image_id':n['IMAGE'].split('@')[1]}")
+assert s.count("'Image':n['CONFIG']")==1;s=s.replace("'Image':n['CONFIG']","'Image':n['report']['image']['image_id']")
+marker='    def test_physical_archive_validation_exports_only_hashes_counts(self):'
+assert s.count(marker)==1
+new='''    def test_all_three_resources_bind_the_exact_admitted_store_id(self):
+        for kind in ('source','staging','target'):
+            for admitted in (self.n['IMAGE'].split('@')[1], self.n['CONFIG']):
+                name,value,vol=self.valid_resource(kind)
+                self.n['report']['image']={'image_id':admitted};value['Image']=admitted
+                self.n['inspect_restore'](name,kind)
+                value['Image']=self.n['CONFIG'] if admitted!=self.n['CONFIG'] else self.n['IMAGE'].split('@')[1]
+                with self.subTest(kind=kind,admitted=admitted),self.assertRaises(self.n['Stop']):
+                    self.n['inspect_restore'](name,kind)
+
+'''
+s=s.replace(marker,new+marker);check.write_text(s,encoding='utf8',newline='\n')
+s=pin.read_text();assert s.count(old_steps)==1 and s.count(old_check)==1;s=s.replace(old_steps,sha(steps)).replace(old_check,sha(check));pin.write_text(s,encoding='utf8',newline='\n')
+v={**first,'followup':{'scope':'Bind restored/staging/source container Image to independently admitted store Id; all other isolation/owner/mount checks unchanged.','preservation_manifest_sha256':sha(folder/'preservation.json'),'new_32nd_restore_test':'All3resource kinds/current+legacy store IDs pass only exact admitted identity; mismatch rejects.'}}
+for group in ('lease','restore'):v[group]['new_files_sha256']={name:sha(TASK/name) for name in first[group]['new_files_sha256']}
+p=TASK/'image_store_v2_final_source_derivation_20261118.json'
+with p.open('x',encoding='utf8',newline='\n') as out:json.dump(v,out,indent=2);out.write('\n')
+print(json.dumps({'final_map_sha256':sha(p),'preserved':len(saved),'steps':sha(steps),'checks':sha(check),'pin':sha(pin)}))

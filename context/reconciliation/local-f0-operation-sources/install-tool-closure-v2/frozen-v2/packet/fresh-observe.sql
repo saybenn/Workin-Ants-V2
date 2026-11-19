@@ -1,0 +1,1 @@
+SELECT jsonb_build_object('no_existing_application_namespaces',NOT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname IN ('app','platform','platform_private')),'no_existing_application_roles',NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname LIKE 'wa\_%' ESCAPE '\'),'ledger_absent',to_regclass('public._prisma_migrations') IS NULL);

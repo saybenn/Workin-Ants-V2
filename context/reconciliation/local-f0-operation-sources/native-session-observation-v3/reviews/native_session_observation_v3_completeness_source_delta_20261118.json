@@ -1,0 +1,77 @@
+{
+  "schema": "workinants.native-session-observation-completeness-source-delta.v1",
+  "recorded_at": "2026-11-18T23:51:53.875602+00:00",
+  "decision": "FINAL_AUTHOR_SOURCE_FROZEN_PENDING_ROOT_INDEPENDENT_REVIEW",
+  "Root_authorized_delta": "Post-failure observers already run only after confirmed close. An observer failure, including a nested evidence save failure or interruption, now conservatively latches incomplete evidence while preserving the original STOP; no later case resumes.",
+  "new_source_files_sha256": {
+    "scripts/sql-review/run-native-table-denials-v3.py": "6e74115cc7a77e626c4379c5a5744efdede1257d04b206fc339e62a23fd49cd3",
+    "scripts/sql-review/test_run_native_table_denials_v3.py": "56742be994a9966714a7f8e16859cbce7c6da9506b38b086cd627339f4da595f",
+    "scripts/sql-review/native-table-denials-session-observation-v3.md": "b62791ecc1edc8966b57b9edc0863eaa47fee57c568612bfb10c0f7a7ec55d40"
+  },
+  "prior_48_candidate_author_report_sha256": "506e6df535f5d728858f98ff3e80369dc5f81524552b60ec0a49cdac6ae029fa",
+  "interim_preservation": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\native-session-observation-v3-before-completeness-fix-20261118\\preservation.json",
+    "sha256": "68552ba6a8832da5fec348d919dfe246763c25f75a680d0fdfb5e1a322e6bf68",
+    "all_five_files_sha256": {
+      "ROOT/scripts/sql-review/run-native-table-denials-v3.py": "cbb734409bb1b9db8265758c9e925333e7803bcfa73e19d15661b1123e56f5e5",
+      "ROOT/scripts/sql-review/test_run_native_table_denials_v3.py": "99e9b1ab128dadb6894095f61bd9f57f4fde64a9d26e64c2a1a08c831bd7e53b",
+      "ROOT/scripts/sql-review/native-table-denials-session-observation-v3.md": "b62791ecc1edc8966b57b9edc0863eaa47fee57c568612bfb10c0f7a7ec55d40",
+      "TASK/native_session_observation_v3_source_author_review_20261118.json": "506e6df535f5d728858f98ff3e80369dc5f81524552b60ec0a49cdac6ae029fa",
+      "TASK/native_session_observation_v3_offline_results_20261118.json": "a31cc4e8e0685844d9475f425f9f91f1c42ba9940cb8001dbbf24c23a8d3f3f3"
+    },
+    "all_five_verified": true
+  },
+  "original_preservation": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\native-before-session-observation-v3-20261118\\preservation.json",
+    "sha256": "fe1261bfb318ac174a00b962fd5ae76bd941da0598a1f52fb14dd599ea2f92a0",
+    "all_136_original_current_and_preserved_files_verified": true
+  },
+  "exact_derivation": {
+    "coordinator_only_change": "One post-failure observer except arm widened to include KeyboardInterrupt and added evidence_complete=false to current operation/global evidence. All other coordinator bytes identical to preserved cbb candidate.",
+    "all_prior_48_test_and_helper_method_ASTs_identical": true,
+    "one_new_focused_method": "test_postfailure_observer_nested_save_failure_latches_incomplete_and_preserves_stop",
+    "document_byte_identical": true,
+    "SQL_factory_verdict_sanitizer_capture_finish_close_timeout_permissions_and_packet_bytes_unchanged": true
+  },
+  "checks": {
+    "final_18_focused": {
+      "recorded_at": "2026-11-18T23:51:10.254635+00:00",
+      "scope": "FINAL_COMPLETENESS_DELTA_ALL18_FOCUSED_SESSION_METHODS_ALL_PROCESS_DATABASE_BOUNDARIES_MOCKED",
+      "test_source_sha256": "56742be994a9966714a7f8e16859cbce7c6da9506b38b086cd627339f4da595f",
+      "coordinator_sha256": "6e74115cc7a77e626c4379c5a5744efdede1257d04b206fc339e62a23fd49cd3",
+      "tests_run": 18,
+      "failures": [],
+      "errors": [],
+      "skipped": 0,
+      "elapsed_seconds": 1.094,
+      "passed": true
+    },
+    "final_focused_result_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\native_session_observation_v3_completeness_delta_offline_results_20261118.json",
+    "final_focused_result_sha256": "0ddb9232a595f35823528fa1495483de3d4417aa75504272ff0a5413f742b6e4",
+    "prior_full_48_version_qualified_result_sha256": "a31cc4e8e0685844d9475f425f9f91f1c42ba9940cb8001dbbf24c23a8d3f3f3",
+    "prior_full_48_result": "PASS22.797s at cbb/99 frozen bytes, not relabeled as final49",
+    "final_combined_49_suite": "NOT_REPEATED; exact tiny STOP-arm derivation and all18 relevant session mocks checked. Root independent review pending.",
+    "two_sources_compile": true
+  },
+  "focused_regression": {
+    "actual_frozen_Coordinator_operation_and_guard_with_mocked_processes": true,
+    "original_failure_preserved": "UNEXPECTED_EXCEPTION",
+    "closure_proven_before_failed_nested_save": true,
+    "prior_facets_retained": 2,
+    "restricted_operations_before_stop": 3,
+    "native_controls_before_stop": 1,
+    "second_case_not_run": true,
+    "post_failure_observation_verified": false,
+    "operation_and_global_evidence_complete": false,
+    "secret_SQL_handle_canaries_retained": false
+  },
+  "historical_record_e47_complete_cause": "UNOBSERVED_NOT_BACKFILLED",
+  "external_V4": "UNCHANGED; common-finally IO blocker requires independently reviewed replacement before future literal admission",
+  "limits": {
+    "runtime": "NOT_RUN",
+    "Posture": "D",
+    "Docker_database_SQL_network_Git_actions": false,
+    "whole_case_94_451_or_production_promotion": false
+  },
+  "plain_english": "Even if the note fails while checking the closed connection, mark the notebook incomplete and keep the original stop. Do not run the next test."
+}

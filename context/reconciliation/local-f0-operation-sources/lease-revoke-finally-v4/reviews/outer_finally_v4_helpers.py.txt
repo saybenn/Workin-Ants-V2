@@ -1,0 +1,49 @@
+# In-file evidence state. No imported persistence module or retry mechanism.
+EVIDENCE_FAILED=False
+
+def mark_evidence_incomplete(code='EVIDENCE_WRITE_UNCONFIRMED'):
+    global EVIDENCE_FAILED
+    EVIDENCE_FAILED=True
+    try:
+        report['evidence_complete']=False
+        report['persistence_failure']=True
+        report['status']='STOPPED_ATTEMPT_PRESERVED'
+        report.pop('qualified_native_snapshot_sha256',None)
+        safe={'stage':'EVIDENCE','code':code if code in ('EVIDENCE_WRITE_UNCONFIRMED','EVIDENCE_EVENT_UNCONFIRMED','EVIDENCE_OUTPUT_UNCONFIRMED') else 'EVIDENCE_WRITE_UNCONFIRMED'}
+        if safe not in report['unexpected']:report['unexpected'].append(safe)
+    except BaseException:pass
+
+def evidence_is_complete():
+    try:return not EVIDENCE_FAILED and report.get('evidence_complete',True) is True
+    except BaseException:return False
+
+def best_effort_save():
+    try:save();return True
+    except BaseException:mark_evidence_incomplete();return False
+
+def record_failure(stage,code,primary=False):
+    try:
+        safe={'stage':stage,'code':code}
+        report['unexpected'].append(safe);report['status']='STOPPED_ATTEMPT_PRESERVED'
+        report.pop('qualified_native_snapshot_sha256',None)
+        if primary:report['primary_failure']=safe
+        else:report.setdefault('primary_failure',safe)
+    except BaseException:mark_evidence_incomplete()
+    return best_effort_save()
+
+def best_effort_event(stage,status,**safe):
+    try:event(stage,status,**safe);return True
+    except BaseException:mark_evidence_incomplete('EVIDENCE_EVENT_UNCONFIRMED');return False
+
+def finish_report(success_status):
+    def acceptable():
+        return evidence_is_complete() and not report['unexpected'] and report['status']==success_status
+    if not acceptable():report['status']='STOPPED_ATTEMPT_PRESERVED';report.pop('qualified_native_snapshot_sha256',None)
+    report['finished_at']=datetime.datetime.now(datetime.timezone.utc).isoformat()
+    best_effort_save()
+    if not acceptable():report['status']='STOPPED_ATTEMPT_PRESERVED';report.pop('qualified_native_snapshot_sha256',None)
+    try:
+        print(json.dumps({'status':report['status'],'evidence_complete':evidence_is_complete(),'persistence_failure':report.get('persistence_failure',False),'evidence':str(OUT/'run-evidence.json')}),flush=True)
+    except BaseException:
+        mark_evidence_incomplete('EVIDENCE_OUTPUT_UNCONFIRMED');best_effort_save()
+    return 0 if acceptable() else 1

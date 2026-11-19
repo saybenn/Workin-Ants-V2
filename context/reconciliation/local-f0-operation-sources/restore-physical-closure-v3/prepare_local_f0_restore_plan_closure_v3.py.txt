@@ -1,0 +1,141 @@
+"""Prepare NEW source-only literal restore inputs. No process, Docker or DB API.
+
+Commit/tree/full packet stay unpinned and execution stays held until root review.
+Import and --help read no helper code, source manifest or credential material.
+"""
+import argparse
+import copy
+import gzip
+import hashlib
+import io
+import json
+from pathlib import Path
+import re
+import tarfile
+import uuid
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+PROPOSAL='review-output/restore-control-rehearsal/proposal.json'
+PROPOSAL_SHA='91834ed47f63820db5bb4cc16d77056577f7831f57eeed923198b630af15aaca'
+CONTENT_SHA='2752ff8019c7d2c59a029e0595e5c42de6cc3e0c16d3ce18dffa75b1be70c1f1'
+IMAGE='docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1'
+SQL='review-output/foundation-application.review.sql'
+SQL_SHA='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+RUNTIME_FILES=('prisma.local-f0.config.mjs','scripts/sql-review/local-f0-migrate-guard.mjs','scripts/sql-review/local-f0-migrate-runner.mjs')
+MIGRATION='prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql'
+SCHEMA='prisma/review/foundation-candidate.prisma'
+LOCK='prisma/foundation/migrations/migration_lock.toml'
+HISTORY_HELPER='scripts/prepare-local-f0-history.py'
+HISTORY_HELPER_SHA='33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8'
+IMAGE_FILES=('scripts/sql-review/local_image_identity.py', 'scripts/sql-review/test_local_image_identity.py', 'scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json')
+HELPER_FILES=('scripts/sql-review/run-first-rehearsal.py', 'scripts/sql-review/rehearsal-diagnostics.py', 'scripts/sql-review/run-local-f0-migrate.py', 'scripts/prepare-local-f0-history.py', 'scripts/sql-review/run-worker-control-rehearsal.py')
+HELPER_PINS={'scripts/sql-review/run-first-rehearsal.py': '279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e', 'scripts/sql-review/rehearsal-diagnostics.py': 'c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e', 'scripts/sql-review/run-local-f0-migrate.py': '4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f', 'scripts/prepare-local-f0-history.py': '33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8', 'scripts/sql-review/run-worker-control-rehearsal.py': '84b7268b4ef0f2d529927a267297981cec01a5166658f571c84c41e046bd893d'}
+EXTERNAL_FILES=('execute_local_f0_restore_20261117_closure_v3.py','local_f0_restore_operation_steps_closure_v3.py','prepare_local_f0_restore_plan_closure_v3.py','check_local_f0_restore_operation_closure_v3.py')
+
+
+class Refused(Exception): pass
+def need(value,code):
+    if not value:raise Refused(code)
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def data(value):return (json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+
+
+def source_blob(relative,expected=None):
+    need(type(relative) is str and not Path(relative).is_absolute() and chr(92) not in relative and all(part not in ('','.','..') for part in relative.split('/')),'RESTORE_SOURCE_PATH')
+    path=(ROOT/relative).resolve();need(path.is_relative_to(ROOT.resolve()),'RESTORE_SOURCE_PATH')
+    raw=path.read_bytes()
+    if expected is not None:need(sha(raw)==expected,'RESTORE_SOURCE_ADMISSION_DRIFT')
+    return raw
+
+
+def prepare(baseline_path,baseline_sha,run_id=None):
+    baseline_path=Path(baseline_path).resolve()
+    need(baseline_path.is_relative_to(TASK) and not baseline_path.is_relative_to(ROOT),'EXTERNAL_BASELINE_PATH')
+    raw=baseline_path.read_bytes();need(sha(raw)==baseline_sha,'REVIEWED_BASELINE_SHA')
+    baseline=json.loads(raw)
+    need(baseline['purpose']=='LOCAL_F0_NATIVE_CATALOG_REHEARSAL' and baseline['image']==IMAGE and baseline['database']=='wa_p0c_rehearsal','BASELINE_SCOPE')
+    need(baseline['review_status']=='APPROVED_LOCAL_F0_NATIVE_CATALOG_ATTEMPT','REVIEWED_BASELINE_REQUIRED')
+    current={path:source_blob(path,value) for path,value in baseline['packet_files_sha256'].items()}
+    need(sha(''.join(path+'\0'+baseline['packet_files_sha256'][path]+'\n' for path in sorted(baseline['packet_files_sha256'])).encode())==baseline['packet_sha256'],'BASELINE_PACKET_AGGREGATE')
+    proposal_raw=(ROOT/PROPOSAL).read_bytes();need(sha(proposal_raw)==PROPOSAL_SHA,'APPROVED_RESTORE_PROPOSAL')
+    proposal=json.loads(proposal_raw);need(proposal['source_only_packet_sha256']==CONTENT_SHA and proposal['status']=='NOT_RUN','RESTORE_PROPOSAL_SCOPE')
+    for name,expected in proposal['source_files_sha256'].items():need(sha((ROOT/name).read_bytes())==expected,'RESTORE_PROPOSAL_INPUT_DRIFT')
+    for name,expected in proposal['prepared_files_sha256'].items():need(sha((ROOT/'review-output/restore-control-rehearsal'/name).read_bytes())==expected,'RESTORE_ARTIFACT_DRIFT')
+    for artifact in baseline['catalog']['assets'].values():need(sha((ROOT/artifact['path']).read_bytes())==artifact['sha256'],'BASELINE_CATALOG_ASSET_DRIFT')
+    need(sha((ROOT/SQL).read_bytes())==sha((ROOT/MIGRATION).read_bytes())==SQL_SHA,'CANONICAL_SQL')
+    identity=str(uuid.uuid4()) if run_id is None else run_id
+    need(type(identity) is str and str(uuid.UUID(identity))==identity and uuid.UUID(identity).version==4,'FRESH_RUN_UUID4')
+    stem=identity[:8];name='wa-p0c-'+stem+'-restore-source';target='wa-p0c-'+stem+'-restore-target';stage='wa-p0c-'+stem+'-restore-staging'
+    directory=TASK/('local-f0-restore-plan-'+stem);out=TASK/('local-f0-restore-'+stem)
+    need(not directory.exists() and not out.exists(),'FRESH_PLAN_AND_EVIDENCE_REQUIRED')
+    old=baseline['migration_targets']['ok'];old_raw=Path(old['manifest_path']).read_bytes();need(sha(old_raw)==old['manifest_sha256'],'BASELINE_NESTED_PLAN')
+    nested=json.loads(old_raw)
+    nested['run_id']=identity;nested['target'].update(container_name=name,volume_name=name+'-data',bootstrap_secret_host_path=str(out/'private/ok-bootstrap-password'))
+    nested['target']['labels']={'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':identity}
+    nested['source']['runtime_files_sha256']={path:sha((ROOT/path).read_bytes()) for path in RUNTIME_FILES}
+    need(nested['source']['integrated_sql_sha256']==SQL_SHA and nested['source']['foundation_schema_sha256']==sha((ROOT/SCHEMA).read_bytes()),'BASELINE_SOURCE_BINDING')
+    need(sha(Path(baseline['tool_archive']).read_bytes())==baseline['tool_archive_sha256'],'BASELINE_TOOL_ARCHIVE')
+    closure=json.loads((ROOT/'context/reconciliation/local-f0-tooling/prisma-tools-closure.json').read_bytes())
+    need(nested['tools']['files_sha256']==closure['tools_files_sha256'],'TOOL_CLOSURE_BINDING')
+    snapshot={path:(ROOT/path).read_bytes() for path in (MIGRATION,LOCK,SCHEMA,*RUNTIME_FILES)}
+    nested_raw=data(nested)
+    # Every runtime helper is admitted before the pure history helper compiles.
+    helper_hashes={path:sha(source_blob(path,HELPER_PINS[path])) for path in HELPER_FILES}
+    helper_raw=source_blob(HISTORY_HELPER,HISTORY_HELPER_SHA)
+    helper={'__file__':str(ROOT/HISTORY_HELPER),'__name__':'_restore_guarded_source_history'}
+    exec(compile(helper_raw,str(ROOT/HISTORY_HELPER),'exec'),helper)
+    generated,history=helper['prepare_plan'](nested,nested_raw,snapshot[MIGRATION],snapshot[SCHEMA],{path:snapshot[path] for path in RUNTIME_FILES},SQL_SHA)
+    need(set(generated)=={MIGRATION,LOCK} and all(generated[path]==snapshot[path] for path in generated),'CANONICAL_HISTORY_FILES_MUST_STAY_IDENTICAL')
+    snapshot['prisma/foundation/history-manifest.json']=data(history)
+    master=copy.deepcopy(baseline)
+    master.update(purpose='LOCAL_F0_RESTORE_REHEARSAL',run_id=identity,source_commit='TO_BE_PINNED',source_tree='TO_BE_PINNED',packet_files_sha256={},packet_sha256='TO_BE_PINNED',
+        evidence_directory=str(out),targets=[{'name':name,'volume':name+'-data','kind':'ok'}],review_status='PENDING_OPERATIONAL_REVIEW',status='SOURCE_PREPARED_NOT_EXECUTED')
+    master['migration_targets']={'ok':{'manifest_path':str(directory/'ok-migration-manifest.json'),'manifest_sha256':sha(nested_raw),'source_snapshot':str(directory/'source-ok'),
+        'source_files_sha256':{path:sha(value) for path,value in snapshot.items()},'source_archive':str(directory/'source-ok.tar.gz')}}
+    external={path:sha((TASK/path).read_bytes()) for path in EXTERNAL_FILES}
+    master['wrapper_sha256']=external[EXTERNAL_FILES[0]];master['steps_sha256']=external[EXTERNAL_FILES[1]]
+    master['restore']={'proposal_sha256':PROPOSAL_SHA,'content_sha256':CONTENT_SHA,'restored':{'name':target,'volume':target+'-data'},'staging':{'name':stage},
+        'archive_path':str(out/'private/restore01-base.tar'),'external_files_sha256':external}
+    master['cleanup']='Exact three created CIDs/names/run-labels and two volume names/run-labels/CreatedAt only; source/staging/target private copies disappear with owned resources. Delete only exact owner-DACL private ok-bootstrap-password and restore01-base.tar, then empty private directory; independently confirm all five resource names and private paths absent. Retain cached image, previous reports, reviewed sources and tools.'
+    master['storage']=copy.deepcopy(proposal['required_literal_resource_manifest'])
+    master['allowed_catalog_operations']=['One genuine source-only guarded canonical Prisma deploy/finalize/full native+oracle+ledger PASS before synthetic facts.',
+        'Only frozen synthetic source Customer/schedule/private-Identity bootstrap and finite source SELECT positives.',
+        'Postgres-only source quiescence, real WALstream physical backup and two pg_verifybackup runs; protected archive outside Git.',
+        'Empty owned target volume staged without initdb/bootstrap/migration; admin-only restore and exact parity before transition.',
+        'Six independent target credentials; actual synthetic Identity revoke/recover; five quarantined SELECT/denial probes; re-quarantine.',
+        'No production serving, worker loop, real Privacy replay, owner-adapter or full RESTORE01 qualification.']
+    master['guarded_history_helper_sha256']=HISTORY_HELPER_SHA
+    master['restore_runtime_helpers_sha256']=helper_hashes
+    inventory=set(HELPER_FILES)|set(IMAGE_FILES)|set(current)|set(proposal['source_files_sha256'])|{PROPOSAL,HISTORY_HELPER}|{'review-output/restore-control-rehearsal/'+name for name in proposal['prepared_files_sha256']}
+    master['prepared_source_file_inventory_sha256']={path:sha(source_blob(path)) for path in sorted(inventory)}
+    need(all(master['prepared_source_file_inventory_sha256'][path]==helper_hashes[path] for path in HELPER_FILES),'RUNTIME_HELPER_CHANGED_DURING_PREPARATION')
+    master['execution_hold']='Source commit/tree/full closed Git packet and exact external hashes must be pinned and independently reviewed; no execution from this preparation output.'
+    # All checks finish before the first NEW file is created. No existing source,
+    # migration, old operator, plan or evidence file is overwritten.
+    directory.mkdir(exist_ok=False);(directory/'ok-migration-manifest.json').write_bytes(nested_raw)
+    for path,value in snapshot.items():
+        dest=directory/'source-ok'/path;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(value)
+    archive=io.BytesIO()
+    with gzip.GzipFile(fileobj=archive,mode='wb',mtime=0) as stream:
+        with tarfile.open(fileobj=stream,mode='w',format=tarfile.PAX_FORMAT) as tar:
+            for path,value in sorted(snapshot.items()):
+                info=tarfile.TarInfo(path);info.size=len(value);info.mode=0o600;info.mtime=0;tar.addfile(info,io.BytesIO(value))
+    source_archive=archive.getvalue();(directory/'source-ok.tar.gz').write_bytes(source_archive)
+    master['migration_targets']['ok']['source_archive_sha256']=sha(source_archive)
+    (directory/'operation-manifest.json').write_bytes(data(master))
+    return {'status':'PREPARED_SOURCE_ONLY_HELD','run_id':identity,'operation_manifest':str(directory/'operation-manifest.json'),'operation_manifest_sha256':sha(data(master)),
+        'source_archive_sha256':sha(source_archive),'source_files':len(snapshot),'database_contacted':False,'resources_created':False}
+
+
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--prepare-plan',action='store_true');parser.add_argument('--baseline-manifest',type=Path);parser.add_argument('--baseline-sha256');parser.add_argument('--run-id')
+    args=parser.parse_args(argv)
+    try:
+        need(args.prepare_plan and args.baseline_manifest is not None and args.baseline_sha256 is not None,'EXPLICIT_REVIEWED_BASELINE_REQUIRED')
+        value=prepare(args.baseline_manifest,args.baseline_sha256,args.run_id);print(json.dumps(value));return 0
+    except BaseException as error:
+        print(json.dumps({'status':'HELD','code':str(error) if isinstance(error,Refused) else 'SOURCE_PREPARATION_REFUSED','raw_output_discarded':True}));return 1
+
+
+if __name__=='__main__':raise SystemExit(main())

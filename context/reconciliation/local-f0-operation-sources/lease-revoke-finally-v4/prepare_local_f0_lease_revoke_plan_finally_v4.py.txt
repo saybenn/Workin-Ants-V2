@@ -1,0 +1,98 @@
+"""Prepare a fresh held finite lease/revocation operation. No process or DB calls.
+
+Only NEW external files are emitted. Source commit/tree remain TO_BE_PINNED and
+review stays pending; the separate pin helper never authorizes execution.
+"""
+import argparse
+from copy import deepcopy
+import gzip
+import hashlib
+import io
+import json
+from pathlib import Path
+import tarfile
+import uuid
+
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+COORDINATOR='scripts/sql-review/run-lease-revoke-control-rehearsal.py'
+COORDINATOR_SHA='9a2acbfcbf17719a83eb993bebce5ca9d4210574cf82c701d26f9303b5b818e8'
+FIXTURES='review-output/lease-revoke-control-rehearsal/fixtures.json'
+FIXTURES_SHA='fe59a9867093f1cbab01741fa7d4f1fd727090e410374e663bbbd0796903c7e5'
+CONTENT_SHA='9107197cf9f1b84c07becb194da4e00c950bc9c69e674cc962704af860db0cbf'
+DOCUMENT='scripts/sql-review/lease-revoke-controls-coordinator.md'
+DOCUMENT_SHA='5f08073523432c8ec6ddbc7ee6056f1a135109d718b43006ea70bed6451d3580'
+MODULES=(COORDINATOR,'scripts/lease_revoke_control_protocol.py','scripts/sql-review/run-context-control-rehearsal.py','scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/run-local-f0-migrate.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/prepare-local-f0-history.py','scripts/sql-review/collect_native_catalog.sql')
+HISTORY_HELPER='scripts/prepare-local-f0-history.py';HISTORY_HELPER_SHA='33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8'
+IMAGE_FILES=('scripts/sql-review/local_image_identity.py', 'scripts/sql-review/test_local_image_identity.py', 'scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json')
+OPERATOR_FILES=('execute_local_f0_lease_revoke_20261118_finally_v4.py','local_f0_lease_revoke_operation_steps_finally_v4.py','prepare_local_f0_lease_revoke_plan_finally_v4.py','check_local_f0_lease_revoke_operation_finally_v4.py','pin_local_f0_lease_revoke_plan_20261118_finally_v4.py')
+IMAGE='docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1'
+APPLICATION_SHA='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def encoded(value):return (json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+class Refused(Exception):pass
+def need(value,code):
+    if not value:raise Refused(code)
+def safe_path(root,relative):
+    need(type(relative) is str and not Path(relative).is_absolute() and '\\' not in relative and all(p not in ('','.','..') for p in relative.split('/')),'SOURCE_PATH')
+    value=(root/relative).resolve();need(value.is_relative_to(root.resolve()),'SOURCE_PATH');return value
+def archive(files):
+    out=io.BytesIO()
+    with gzip.GzipFile(filename='',fileobj=out,mode='wb',mtime=0) as stream:
+        with tarfile.open(fileobj=stream,mode='w|') as tar:
+            for name,raw in sorted(files.items()):
+                info=tarfile.TarInfo(name);info.size=len(raw);info.mode=0o600;info.mtime=0;tar.addfile(info,io.BytesIO(raw))
+    return out.getvalue()
+def prepare(root,task,baseline,run_id=None):
+    root=root.resolve();task=task.resolve();need(root.is_relative_to(task) and root!=task,'ROOT_TASK_BOUNDARY')
+    need(baseline['purpose']=='LOCAL_F0_NATIVE_CATALOG_REHEARSAL' and baseline['review_status']=='APPROVED_LOCAL_F0_NATIVE_CATALOG_ATTEMPT' and baseline['image']==IMAGE and len(baseline['targets'])==1 and set(baseline['migration_targets'])=={'ok'},'REVIEWED_V4_BASELINE_REQUIRED')
+    baseline_pins=baseline['packet_files_sha256'];need(type(baseline_pins) is dict and baseline_pins,'BASELINE_SOURCE_INVENTORY_REQUIRED')
+    need(sha(''.join(p+'\0'+baseline_pins[p]+'\n' for p in sorted(baseline_pins)).encode())==baseline['packet_sha256'],'BASELINE_PACKET_AGGREGATE')
+    source={path:safe_path(root,path).read_bytes() for path in baseline_pins}
+    need(all(sha(source[path])==value for path,value in baseline_pins.items()),'BASELINE_CURRENT_SOURCE_DRIFT')
+    raw=safe_path(root,FIXTURES).read_bytes();need(sha(raw)==FIXTURES_SHA,'LEASE_FIXTURE_DRIFT');packet=json.loads(raw)
+    need(packet['source_only_packet_sha256']==CONTENT_SHA and packet['status']=='NOT_RUN' and packet['database_contacted'] is False and packet['sql_executed'] is False,'REVIEWED_SOURCE_ONLY_PACKET')
+    need(sha(json.dumps({key:packet[key] for key in ('source_files_sha256','prepared_files_sha256')},sort_keys=True,separators=(',',':'),ensure_ascii=False).encode())==CONTENT_SHA,'LEASE_CONTENT_AGGREGATE')
+    paths=set(IMAGE_FILES)|set(source)|set(packet['source_files_sha256'])|set(MODULES)|{FIXTURES,DOCUMENT,'scripts/check-lease-revoke-control-rehearsal.py'}|{'review-output/lease-revoke-control-rehearsal/'+name for name in packet['prepared_files_sha256']}
+    source={path:safe_path(root,path).read_bytes() for path in sorted(paths)}
+    need(all(sha(source[path])==value for path,value in baseline_pins.items()),'BASELINE_CURRENT_SOURCE_DRIFT')
+    for path,value in packet['source_files_sha256'].items():need(sha(source[path])==value,'LEASE_SOURCE_DRIFT')
+    for name,value in packet['prepared_files_sha256'].items():need(sha(source['review-output/lease-revoke-control-rehearsal/'+name])==value,'LEASE_ARTIFACT_DRIFT')
+    for path,value in ((COORDINATOR,COORDINATOR_SHA),(DOCUMENT,DOCUMENT_SHA),(HISTORY_HELPER,HISTORY_HELPER_SHA)):need(sha(source[path])==value,'REVIEWED_HELPER_DRIFT')
+    run_id=run_id or str(uuid.uuid4());need(str(uuid.UUID(run_id))==run_id and uuid.UUID(run_id).version==4,'FRESH_UUID4_REQUIRED')
+    prefix=run_id[:8];directory=task/('local-f0-lease-revoke-plan-'+prefix);out=task/('local-f0-lease-revoke-20261118-'+prefix)
+    need(not directory.exists() and not out.exists(),'FRESH_PLAN_AND_OUTPUT_REQUIRED')
+    name='wa-p0c-'+prefix+'-lease';target={'name':name,'volume':name+'-data','kind':'ok'}
+    old=baseline['migration_targets']['ok'];raw=Path(old['manifest_path']).read_bytes();need(sha(raw)==old['manifest_sha256'],'BASELINE_NESTED_PLAN_DRIFT');nested=json.loads(raw)
+    closure=json.loads(source['context/reconciliation/local-f0-tooling/prisma-tools-closure.json'])
+    need(nested['tools']['files_sha256']==closure['tools_files_sha256'] and len(nested['tools']['files_sha256'])==10300,'EXACT_TOOL_CLOSURE')
+    need(sha(Path(baseline['tool_archive']).read_bytes())==baseline['tool_archive_sha256']==closure['archive_sha256'],'TOOL_ARCHIVE_DRIFT')
+    helper={'__file__':str(root/HISTORY_HELPER),'__name__':'_reviewed_lease_history'};exec(compile(source[HISTORY_HELPER],str(root/HISTORY_HELPER),'exec'),helper)
+    runtime={path:source[path] for path in helper['RUNTIME_FILES']}
+    nested['run_id']=run_id;nested['target'].update(container_name=name,volume_name=target['volume'],labels={'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':run_id},bootstrap_secret_host_path=str(out/'private/ok-bootstrap-password'))
+    nested['source'].update(runtime_files_sha256={path:sha(raw) for path,raw in runtime.items()},integrated_sql_sha256=sha(source[helper['SOURCE']]),foundation_schema_sha256=sha(source[helper['SCHEMA']]))
+    need(nested['source']['integrated_sql_sha256']==APPLICATION_SHA,'UNCHANGED_CANONICAL_SOURCE_REQUIRED')
+    nested_raw=encoded(nested);generated,history=helper['prepare_plan'](nested,nested_raw,source[helper['SOURCE']],source[helper['SCHEMA']],runtime,APPLICATION_SHA)
+    for path,raw in generated.items():need(safe_path(root,path).read_bytes()==raw,'ROOT_HISTORY_MUST_STAY_UNCHANGED')
+    snapshot={**generated,helper['SCHEMA']:source[helper['SCHEMA']],**runtime,'prisma/foundation/history-manifest.json':encoded(history)};source_archive=archive(snapshot)
+    files={'ok-migration-manifest.json':nested_raw,**{'source-ok/'+path:raw for path,raw in snapshot.items()},'source-ok.tar.gz':source_archive}
+    master=deepcopy(baseline);pins={path:sha(raw) for path,raw in source.items()}
+    master.update(purpose='LOCAL_F0_LEASE_REVOKE_REHEARSAL',run_id=run_id,source_commit='TO_BE_PINNED',source_tree='TO_BE_PINNED',packet_sha256='TO_BE_PINNED',packet_files_sha256=pins,prepared_source_files_aggregate_sha256=sha(''.join(p+'\0'+pins[p]+'\n' for p in sorted(pins)).encode()),review_status='PENDING_OPERATIONAL_REVIEW',status='SOURCE_PREPARED_NOT_EXECUTED',evidence_directory=str(out),targets=[target])
+    master['migration_targets']={'ok':{'manifest_path':str(directory/'ok-migration-manifest.json'),'manifest_sha256':sha(nested_raw),'source_snapshot':str(directory/'source-ok'),'source_files_sha256':{path:sha(raw) for path,raw in snapshot.items()},'source_archive':str(directory/'source-ok.tar.gz'),'source_archive_sha256':sha(source_archive)}}
+    master['operator_sources_sha256']={name:sha((task/name).read_bytes()) for name in OPERATOR_FILES};master['wrapper_sha256']=master['operator_sources_sha256'][OPERATOR_FILES[0]];master['steps_sha256']=master['operator_sources_sha256'][OPERATOR_FILES[1]]
+    master['lease_revoke']={'coordinator':COORDINATOR,'coordinator_sha256':COORDINATOR_SHA,'fixtures':FIXTURES,'fixtures_sha256':FIXTURES_SHA,'content_sha256':CONTENT_SHA,'document':DOCUMENT,'document_sha256':DOCUMENT_SHA}
+    master['allowed_lease_revoke_operations']=['Genuine canonical install, original-grantor finalization and full V4 native/oracle/ledger PASS before finite behavior.','Only the reviewed 19 lease/revocation protocols on one fresh target, with separate issuer commits, real overlapping reclaim and bounded actual-clock expiry.','Separate narrow synthetic Identity receipts; no owner-generation/CAS/codec repair, provider simulation, enrollment loop or whole-case qualification.','All other clients absent after coordinator return or throw and before verdict/state observers. Exact CID/name/run-label and volume CreatedAt cleanup; private bootstrap file absent; image retained.']
+    master['execution_hold']='TO_BE_PINNED and PENDING_OPERATIONAL_REVIEW. Root must copy five snapshots, commit, pin, and obtain independent literal review before execution.'
+    files['operation-manifest.json']=encoded(master);return directory,master,files
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--prepare-source-only',action='store_true');parser.add_argument('--baseline-manifest',type=Path);parser.add_argument('--baseline-sha256');parser.add_argument('--run-id');args=parser.parse_args(argv)
+    try:
+        need(args.prepare_source_only and args.baseline_manifest and args.baseline_sha256,'EXPLICIT_REVIEWED_BASELINE_REQUIRED');path=args.baseline_manifest.resolve();need(path.is_relative_to(TASK) and not path.is_relative_to(ROOT),'EXTERNAL_BASELINE_REQUIRED')
+        raw=path.read_bytes();need(sha(raw)==args.baseline_sha256,'BASELINE_MANIFEST_SHA');directory,master,files=prepare(ROOT,TASK,json.loads(raw),args.run_id)
+        directory.mkdir(exist_ok=False)
+        for name,raw in files.items():
+            path=safe_path(directory,name);path.parent.mkdir(parents=True,exist_ok=True)
+            with path.open('xb') as handle:handle.write(raw)
+        print(json.dumps({'status':'SOURCE_PREPARED_NOT_EXECUTED','plan_directory':str(directory),'source_commit':master['source_commit'],'review_status':master['review_status'],'database_contacted':False}));return 0
+    except BaseException as error:
+        print(json.dumps({'status':'HELD','code':str(error) if isinstance(error,Refused) else 'SOURCE_PREPARATION_REFUSED','raw_output_discarded':True}));return 1
+if __name__=='__main__':raise SystemExit(main())

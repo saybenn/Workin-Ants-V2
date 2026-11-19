@@ -1,0 +1,87 @@
+"""Exclusive source archive; no runtime/network/Git/database/process calls."""
+import ast
+from datetime import datetime,timezone
+import hashlib
+import json
+from pathlib import Path
+import sys
+
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+digest=lambda p:sha(p.read_bytes())
+enc=lambda value:(json.dumps(value,indent=2)+'\n').encode()
+def write(path,raw):
+    path.parent.mkdir(parents=True,exist_ok=True)
+    with path.open('xb') as out:out.write(raw)
+seconds=float(sys.argv[1]);assert 0<seconds<600
+derivation=json.loads((TASK/'lease_snapshot_v3_initial_derivation_20261118.json').read_bytes())
+base_validation_path=ROOT/'context/reconciliation/local-f0-lease-revoke-image-v2-source-validation.json'
+base=json.loads(base_validation_path.read_bytes())
+old_names=list(derivation['old_five_sources_sha256'])
+names=[derivation['replacements'][name] for name in old_names]
+all_hashes={name:digest(TASK/name) for name in names}
+for name,want in derivation['old_five_sources_sha256'].items():assert digest(TASK/name)==want
+bb=json.loads((TASK/'local-f0-lease-revoke-plan-bb6843ed/operation-manifest.json').read_bytes())
+assert len(bb['packet_files_sha256'])==176
+for path,want in bb['packet_files_sha256'].items():assert digest(ROOT/path)==want
+functions=lambda text:{n.name:ast.dump(n,include_attributes=False) for n in ast.parse(text).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
+changes={};added={}
+for old,new in zip(old_names,names):
+    text=(TASK/old).read_text()
+    for left,right in derivation['replacements'].items():text=text.replace(left,right)
+    old_ast=functions(text);new_ast=functions((TASK/new).read_text())
+    changes[new]=sorted(k for k in old_ast if old_ast[k]!=new_ast[k])
+    added[new]=sorted(set(new_ast)-set(old_ast))
+    compile((TASK/new).read_bytes(),new,'exec')
+assert changes[names[0]]==[] and changes[names[1]]==['read_pinned','verify_packet'] and changes[names[2]]==[] and changes[names[4]]==['pin']
+assert changes[names[3]]==['Tests']
+test_node=next(n for n in ast.parse((TASK/names[3]).read_bytes()).body if isinstance(n,ast.ClassDef) and n.name=='Tests')
+assert sum(isinstance(n,ast.FunctionDef) and n.name.startswith('test_') for n in test_node.body)==35
+archive_relative='context/reconciliation/local-f0-operation-sources/lease-revoke-snapshot-v3'
+archive=ROOT/archive_relative
+validation_path=ROOT/'context/reconciliation/local-f0-lease-revoke-snapshot-v3-source-validation.json'
+assert not archive.exists() and not validation_path.exists()
+preserved=TASK/'lease-before-snapshot-v3-correction-20261118'
+initial=TASK/'lease-snapshot-v3-before-virtual-existence-mock-20261118'
+preservation_map={p.relative_to(preserved).as_posix():digest(p) for p in preserved.rglob('*') if p.is_file()}
+initial_map={p.relative_to(initial).as_posix():digest(p) for p in initial.rglob('*') if p.is_file()}
+source_pins=dict(base['shared_image_sources_sha256'])
+fixture_path=ROOT/'review-output/lease-revoke-control-rehearsal/fixtures.json';fixture=json.loads(fixture_path.read_bytes())
+source_pins.update(fixture['source_files_sha256'])
+for path,want in source_pins.items():assert digest(ROOT/path)==want
+for name,want in fixture['prepared_files_sha256'].items():assert digest(ROOT/'review-output/lease-revoke-control-rehearsal'/name)==want
+author={
+ 'schema':'workinants.lease-snapshot-v3-source-author-review.v1','recorded_at':datetime.now(timezone.utc).isoformat(),'author':'/root/restricted_controls_operator','decision':'SOURCE_FROZEN_FOR_ROOT_INDEPENDENT_REVIEW_NOT_EXECUTED',
+ 'operator_sources_sha256':all_hashes,'old_operator_sources_sha256':derivation['old_five_sources_sha256'],'declared_binding_replacements':derivation['replacements'],'function_AST_changes_after_bindings':changes,'new_top_level_classes_functions':added,
+ 'correction':'All five runtime/preparer/pin filenames and both snapshot roots consistently use lease-revoke-snapshot-v3; all validation refs use local-f0-lease-revoke-snapshot-v3-source-validation.json. read_pinned requires exact manifest membership and lowercase64 hash before filesystem reads; missing/directory/symlink targets reject with fixed code. verify_packet retains fixed required/checked/complete snapshot progress before failures. Pin helper requires independent snapshot SOURCE_APPROVED before any Git reads.',
+ 'focused_checks':{'tests':35,'PASS':True,'unit_seconds':seconds,'five_sources_compile':True,'new_checks':8,'prior_checks':27,'actual_full_verify':'Actual pure23bd pending manifest and all actual Root source/tool-data inputs copied byte-for-byte to physical temporary clone, plus actual new5 snapshot bytes; complete real verify_packet/catalog reproduction/helper admission+compile runs. Only outer committed-Git/common boundary mocked; pending approval/source fields remain pending.','old_failure_regression':'Frozen ImageV2 full verify_packet on copied actual bb manifest reproduces FileNotFoundError in old folder with only common mocked and all process/network forbidden; no old evidence files written.','negative_checks':['restore old folder','unknown operator','missing snapshot','unpinned snapshot','Boolean/uppercase/truncated pin','snapshot hash drift/canary exclusion','actual pending-review pin refusal before Git'],'process_network_database_Docker':'ALL_FORBIDDEN_OR_MOCKED','earlier_offline_outcomes':[{'tests':34,'failures':1,'seconds':19.650,'cause':'Older virtual-byte fixture omitted existence simulation; its pre-fix source preserved.'},{'tests':34,'PASS':True,'seconds':17.785},{'tests':35,'errors':1,'seconds':30.004,'cause':'New pin-review regression named Refused instead of actual ValueError; test-only correction.'}]},
+ 'preservation':{'old_five_unchanged':True,'old176_source_files_unchanged':True,'old176_full_map':bb['packet_files_sha256'],'original_and_diagnostic_preservation_files_sha256':preservation_map,'initial_test_fixture_preservation_files_sha256':initial_map},
+ 'current_source_diagnosis':'Runtime SOURCE_ROOT remained lease-revoke-v1 while renamed ImageV2 files were committed under lease-revoke-image-v2. Current read-only reproduction and frozen source prove this pre-Docker snapshot lookup defect.',
+ 'historical_complete_bb_failure_cause':'UNOBSERVED_NOT_RECONSTRUCTED',
+ 'unchanged':{'image_module_sources_sha256':base['shared_image_sources_sha256'],'image_container_identity':'Reviewed manifest-vs-config identity and exact admitted CID logic unchanged','canonical_SQL5ae':True,'worker32ACL':True,'lease_fixture_sha256':digest(fixture_path),'lease_content_sha256':fixture['source_only_packet_sha256'],'all19_protocols_and35_prepared_files':True,'full_native_expression_ledger_gates':True,'strict_original_grantor_finalizer':True,'global_backend_closure_and_exact_cleanup':True,'coordinator_source_and_SQL':True},
+ 'limits':{'posture':'D','runtime':'NOT_RUN','all19_protocols_for_replacement':'NOT_RUN','new_literal_plan':'NOT_PREPARED','source_commit_tree_full_packet':'NOT_PINNED','independent_source_review':'PENDING_ROOT','selected94_451_owner_positive_or_production_promotion':False},
+ 'Root_repository_existing_files_Git_Docker_DB_SQL_network_actions':False,
+ 'plain_english':'The runner looked in the old drawer for newly named files. The new runner uses one correct drawer everywhere and checks the file list before opening files. Real-file pretend tests passed; another reviewer and a fresh exact plan are still required.'
+}
+author_path=TASK/'lease_snapshot_v3_source_author_review_20261118.json';write(author_path,enc(author))
+blobs={name+'.txt':(TASK/name).read_bytes() for name in names}
+blobs.update({'reviews/snapshot-correction-author.json':author_path.read_bytes(),'preparation/build-source.py.txt':(TASK/'build_lease_snapshot_v3_source_20261118.py').read_bytes(),'preparation/freeze-source.py.txt':Path(__file__).read_bytes(),'preparation/initial-derivation.json.txt':(TASK/'lease_snapshot_v3_initial_derivation_20261118.json').read_bytes(),'base-image-v2-source-validation.json.txt':base_validation_path.read_bytes()})
+for directory,mapping in ((preserved,preservation_map),(initial,initial_map)):
+    for relative,want in mapping.items():
+        raw=(directory/relative).read_bytes();assert sha(raw)==want
+        blobs['preserved/'+directory.name+'/'+relative+'.txt']=raw
+archive_map={archive_relative+'/'+path:sha(raw) for path,raw in sorted(blobs.items())}
+validation={
+ 'schema':'workinants.local-f0-lease-snapshot-source-validation.v3','recorded_at':datetime.now(timezone.utc).isoformat(),'status':'SOURCE_FROZEN_OFFLINE_PASS_ROOT_INDEPENDENT_REVIEW_PENDING','scope':'BOUNDED_SNAPSHOT_ROOT_ADMISSION_AND_ACTUAL_FULL_PACKET_PREFLIGHT_CORRECTION_ONLY','operator_sources_sha256':all_hashes,'pin_helper_sha256':all_hashes[names[4]],'source_root':archive_relative,'archive_files_sha256':archive_map,'source_files_sha256':source_pins,
+ 'independent_image_correction_review':base['independent_image_correction_review'],
+ 'independent_snapshot_correction_review':{'decision':'PENDING_ROOT_REVIEW','author_review_path':archive_relative+'/reviews/snapshot-correction-author.json','author_review_sha256':digest(author_path)},
+ 'prior_source_reviews_version_qualified':{'base_image_v2_validation_sha256':digest(base_validation_path),'base_operator_source_review':base['independent_source_review'],'base_image_review_covers_unchanged_image_and_container_functions_only':True},
+ 'offline_checks':author['focused_checks'],'preservation':author['preservation'],'unchanged':author['unchanged'],'limits':author['limits'],'historical_context':{'current_readonly_diagnostic_path':'lease_bb6843ed_current_preflight_readonly_diagnostic_20261118.json','current_readonly_diagnostic_sha256':digest(TASK/'lease_bb6843ed_current_preflight_readonly_diagnostic_20261118.json'),'current_reproduction':'WRONG_SNAPSHOT_FOLDER_SOURCE_LOOKUP_BEFORE_DOCKER','original_bb_complete_cause':'UNOBSERVED_NOT_RECONSTRUCTED'},'plain_english':author['plain_english']}
+for relative,raw in blobs.items():write(archive/relative,raw)
+write(validation_path,enc(validation))
+assert {p.relative_to(archive).as_posix():digest(p) for p in archive.rglob('*') if p.is_file()}=={p:sha(raw) for p,raw in blobs.items()}
+for name,want in derivation['old_five_sources_sha256'].items():assert digest(TASK/name)==want
+for path,want in bb['packet_files_sha256'].items():assert digest(ROOT/path)==want
+summary={'author_review_sha256':digest(author_path),'source_validation':validation_path.relative_to(ROOT).as_posix(),'source_validation_sha256':digest(validation_path),'operator_sources_sha256':all_hashes,'archive_files_sha256':archive_map,'archive_files':len(blobs),'old5_and176_unchanged':True,'Root_source_review':'PENDING','runtime':'NOT_RUN'}
+write(TASK/'lease_snapshot_v3_committable_source_package_20261118.json',enc(summary))
+print(json.dumps({k:v for k,v in summary.items() if k!='archive_files_sha256'}))

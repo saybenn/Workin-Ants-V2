@@ -1,0 +1,75 @@
+from pathlib import Path
+import ast,hashlib,json
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+IMAGE_FILES=('scripts/sql-review/local_image_identity.py','scripts/sql-review/test_local_image_identity.py','scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json')
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+MODULE_SHA=sha(ROOT/IMAGE_FILES[0])
+function='''def ensure_image():
+    # Read the cached image plus immutable registry manifest metadata; never pull.
+    values=json_ok(docker(['image','inspect',IMAGE]),'PINNED_CACHED_IMAGE_REQUIRED')
+    raw=docker(['buildx','imagetools','inspect','--raw',IMAGE],timeout=90)
+    need(type(raw.returncode) is int and raw.returncode==0,'PINNED_MANIFEST_READ_FAILED')
+    path=ROOT/'scripts/sql-review/local_image_identity.py';source=path.read_bytes()
+    need(hashlib.sha256(source).hexdigest()=='MODULE_SHA','IMAGE_IDENTITY_MODULE_DRIFT')
+    module={'__file__':str(path),'__name__':'_reviewed_local_image_identity'}
+    exec(compile(source,str(path),'exec'),module)
+    try:identity=module['validate_cached_image'](values,raw.stdout.encode('utf8'))
+    except module['ImageIdentityError'] as error:raise Stop(error.code) from None
+    report['image']=identity;event('PINNED_IMAGE','PASS',pulled=False,image_id=identity['image_id'],image_store_identity=identity['image_store_identity'])
+'''.replace('MODULE_SHA',MODULE_SHA)
+groups={
+ 'lease':('execute_local_f0_lease_revoke_20261118.py','local_f0_lease_revoke_operation_steps.py','prepare_local_f0_lease_revoke_plan.py','check_local_f0_lease_revoke_operation.py','pin_local_f0_lease_revoke_plan_20261118.py'),
+ 'restore':('execute_local_f0_restore_20261117.py','local_f0_restore_operation_steps.py','prepare_local_f0_restore_plan.py','check_local_f0_restore_operation.py','pin_local_f0_restore_plan_20261118.py')}
+result={}
+for group,names in groups.items():
+    replacements={name:name.removesuffix('.py')+'_image_v2.py' for name in names}
+    texts={name:(TASK/name).read_text(encoding='utf8') for name in names}
+    tree=ast.parse(texts[names[0]]);node=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='ensure_image')
+    lines=texts[names[0]].splitlines(keepends=True)
+    texts[names[0]]=''.join(lines[:node.lineno-1])+function+'\n'+''.join(lines[node.end_lineno:])
+    for name,text in list(texts.items()):
+        for old,new in replacements.items():text=text.replace(old,new)
+        if name==names[2]:
+            marker="HISTORY_HELPER_SHA='33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8'"
+            assert text.count(marker)==1
+            text=text.replace(marker,marker+'\nIMAGE_FILES='+repr(IMAGE_FILES))
+            if group=='lease':
+                assert text.count('paths=set(source)|')==1;text=text.replace('paths=set(source)|','paths=set(IMAGE_FILES)|set(source)|')
+            else:
+                assert text.count('inventory=set(current)|')==1;text=text.replace('inventory=set(current)|','inventory=set(IMAGE_FILES)|set(current)|')
+        if name==names[4]:
+            old_folder='lease-revoke-v1' if group=='lease' else 'restore-physical-v1'
+            new_folder='lease-revoke-image-v2' if group=='lease' else 'restore-physical-image-v2'
+            text=text.replace('/'+old_folder,"/"+new_folder)
+            old_record='local-f0-lease-revoke-operation-source-validation.json' if group=='lease' else 'local-f0-restore-operation-source-validation.json'
+            new_record='local-f0-lease-revoke-image-v2-source-validation.json' if group=='lease' else 'local-f0-restore-image-v2-source-validation.json'
+            text=text.replace(old_record,new_record)
+            if group=='lease':
+                marker="    files[VALIDATION]=sha((ROOT/VALIDATION).read_bytes())"
+                assert text.count(marker)==1
+                text=text.replace(marker,"""    validation=json.loads((ROOT/VALIDATION).read_bytes())
+    need(validation['independent_image_correction_review']['decision']=='SOURCE_APPROVED','IMAGE_CORRECTION_REVIEW_REQUIRED')
+    for relative,digest in validation['archive_files_sha256'].items():
+        need(sha((ROOT/relative).read_bytes())==digest,'IMAGE_V2_ARCHIVE_DRIFT');files[relative]=digest
+"""+marker)
+            else:
+                marker="    archive=mapping(validation['archive_files_sha256'],'ARCHIVE_SOURCE_MAP_REQUIRED')"
+                assert text.count(marker)==1
+                text=text.replace(marker,"    need(validation['independent_image_correction_review']['decision']=='SOURCE_APPROVED','IMAGE_CORRECTION_REVIEW_REQUIRED')\n"+marker)
+        texts[name]=text
+    for name in names[:4]:
+        p=TASK/replacements[name]
+        with p.open('x',encoding='utf8',newline='\n') as out:out.write(texts[name])
+        ast.parse(p.read_bytes())
+    pin=texts[names[4]]
+    if group=='restore':
+        for name in names[:4]:
+            old=sha(TASK/name);new=sha(TASK/replacements[name]);assert pin.count(old)==1;pin=pin.replace(old,new)
+    p=TASK/replacements[names[4]]
+    with p.open('x',encoding='utf8',newline='\n') as out:out.write(pin)
+    ast.parse(pin)
+    result[group]={'old_files_sha256':{name:sha(TASK/name) for name in names},'new_files_sha256':{name:sha(TASK/name) for name in replacements.values()},'changes':'Image admission only; filename/closed-inventory bindings for new immutable version. Old sources and all behavioral SQL unchanged.'}
+result['image_module_files_sha256']={p:sha(ROOT/p) for p in IMAGE_FILES}
+p=TASK/'image_store_v2_source_derivation_20261118.json'
+with p.open('x',encoding='utf8',newline='\n') as out:json.dump(result,out,indent=2);out.write('\n')
+print(json.dumps({'derivation_sha256':sha(p),'module_sha256':MODULE_SHA,'new_sources':10}))

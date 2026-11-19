@@ -1,0 +1,115 @@
+"""Preserve both V3 families; create new in-file finally-safe V4 sources."""
+from pathlib import Path
+import ast
+import hashlib
+import json
+
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+
+def replace_function(text,name,replacement):
+    tree=ast.parse(text);node=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name==name);lines=text.splitlines(keepends=True)
+    return ''.join(lines[:node.lineno-1])+replacement.rstrip()+'\n'+''.join(lines[node.end_lineno:])
+
+def main_source(kind):
+    lease=kind=='lease';review='APPROVED_LOCAL_F0_LEASE_REVOKE_ATTEMPT' if lease else 'APPROVED_LOCAL_F0_RESTORE_ATTEMPT';success='PASS_FINITE_LEASE_AND_APP_CURRENTNESS_ONLY_CASES_NOT_RUN' if lease else 'PASS_LOCAL_PHYSICAL_RESTORE_SUBSET_ONLY_FULL_CASE_NOT_RUN';verify='verify_packet' if lease else 'verify_restore_packet';behavior='lease_experiment' if lease else 'restore_experiment';operator="MANIFEST['operator_sources_sha256']" if lease else "MANIFEST['restore']['external_files_sha256']";generic='UNEXPECTED_LEASE_WRAPPER_FAILURE' if lease else 'UNEXPECTED_RESTORE_WRAPPER_FAILURE'
+    return f'''def main():
+    need(MANIFEST['review_status']=='{review}','EXACT_OPERATION_NOT_REVIEWED');need(not OUT.exists(),'FRESH_EVIDENCE_DIRECTORY_REQUIRED')
+    OUT.mkdir(exist_ok=False)
+    report.setdefault('evidence_complete',True);report.setdefault('persistence_failure',False)
+    try:
+        need(best_effort_save(),'EVIDENCE_WRITE_UNCONFIRMED')
+        {verify}();preflight();ensure_image();create_resources();bootstrap_all();provision_migration_tools();catalog_experiment();{behavior}()
+        report['status']='{success}'
+    except BaseException as error:
+        safe={{'stage':error.stage if isinstance(error,Stop) else report['stage'],'code':error.code if isinstance(error,Stop) else 'TIMEOUT_CLOSURE_UNCONFIRMED' if isinstance(error,subprocess.TimeoutExpired) else 'INTERRUPTED' if isinstance(error,KeyboardInterrupt) else '{generic}'}}
+        record_failure(safe['stage'],safe['code'],primary=True)
+        best_effort_event('STOP','NO_LATER_STEPS',failure=safe)
+    finally:
+        for name in sorted(bootstrap_attempted-finalization_attempted):
+            try:finalize(name)
+            except BaseException:record_failure('FINALLY_FINALIZATION','FINALIZATION_UNCONFIRMED')
+        try:secret_scan()
+        except BaseException:record_failure('SANITIZATION','SECRET_SCAN_UNCONFIRMED')
+        try:cleanup()
+        except BaseException:record_failure('CLEANUP','CLEANUP_UNCONFIRMED')
+        # Each existing preservation branch runs even when another branch or
+        # its bookkeeping fails. No source, tool or archive is repaired/retried.
+        try:
+            hashes=report.get('source_verification',{{}}).get('files_sha256',{{}})
+            need(hashes and all(hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==value for path,value in hashes.items()),'SOURCE_PACKET_DRIFT_OR_UNVERIFIED')
+            report['packet_unchanged_after_run']=True
+        except BaseException:
+            report['packet_unchanged_after_run']=False;record_failure('SOURCE_PRESERVATION','SOURCE_DRIFT_OR_UNVERIFIED_PACKET')
+        try:verify_tool_data();report['tool_source_data_unchanged_after_run']=True
+        except BaseException:
+            report['tool_source_data_unchanged_after_run']=False;record_failure('TOOL_SOURCE_PRESERVATION','TOOL_SOURCE_DRIFT_OR_UNVERIFIED')
+        try:verify_external_input_preservation();report['external_input_archives_and_fresh_history_unchanged_after_run']=True
+        except BaseException:
+            report['external_input_archives_and_fresh_history_unchanged_after_run']=False;record_failure('EXTERNAL_INPUT_PRESERVATION','ARCHIVE_OR_FRESH_SOURCE_HISTORY_DRIFT_OR_UNVERIFIED')
+        try:
+            need(all(hashlib.sha256((TASK/path).read_bytes()).hexdigest()==value for path,value in {operator}.items()),'OPERATOR_SOURCE_DRIFT')
+            report['external_sources_unchanged_after_run']=True
+        except BaseException:
+            report['external_sources_unchanged_after_run']=False;record_failure('EXTERNAL_SOURCE_PRESERVATION','EXTERNAL_SOURCE_DRIFT_OR_UNVERIFIED_PACKET')
+        report['all_source_and_external_inputs_preserved_after_run']=all(report.get(key) is True for key in ('packet_unchanged_after_run','tool_source_data_unchanged_after_run','external_input_archives_and_fresh_history_unchanged_after_run','external_sources_unchanged_after_run'))
+    return finish_report('{success}')
+'''
+
+def main():
+    plan=TASK/'common_outer_finally_failure_source_plan_20261118.json';assert sha(plan.read_bytes())=='72fb2ef99d187fc74972d57a647dd93c4ede49ea664a4338e7d5aca85781ca69'
+    lease=json.loads((TASK/'lease_snapshot_v3_source_author_review_20261118.json').read_bytes())['operator_sources_sha256'];restore=json.loads((TASK/'restore_runtime_closure_v3_source_author_review_20261118.json').read_bytes())['new_sources_sha256'];families={'lease':lease,'restore':restore}
+    preserve=TASK/'outer-finally-v4-before-author-20261118';preserve.mkdir(exist_ok=False)
+    def copy(p,relative):
+        out=preserve/relative;out.parent.mkdir(parents=True,exist_ok=True)
+        with out.open('xb') as file:file.write(p.read_bytes())
+    for kind,mapping in families.items():
+        for name,digest in mapping.items():assert sha((TASK/name).read_bytes())==digest;copy(TASK/name,kind+'/'+name)
+    for source,label in [('context/reconciliation/local-f0-operation-sources/lease-revoke-snapshot-v3','archive-lease-v3'),('context/reconciliation/local-f0-operation-sources/restore-physical-closure-v3','archive-restore-v3')]:
+        for p in (ROOT/source).rglob('*'):
+            assert not p.is_symlink()
+            if p.is_file():copy(p,label+'/'+p.relative_to(ROOT/source).as_posix())
+    for folder in ('local-f0-lease-revoke-plan-fc13ba9f','local-f0-restore-plan-0c09a383'):
+        for p in (TASK/folder).rglob('*'):
+            assert not p.is_symlink()
+            if p.is_file():copy(p,'held/'+folder+'/'+p.relative_to(TASK/folder).as_posix())
+    for p in (plan,TASK/'shared_outer_finally_save_failure_independent_probe_20261118.json'):copy(p,'reviews/'+p.name)
+    pm=preserve/'manifest.json';pm.write_text(json.dumps({'files_sha256':{p.relative_to(preserve).as_posix():sha(p.read_bytes()) for p in preserve.rglob('*') if p.is_file()},'scope':'Source/public held inputs only; no physical backup or credentials'},indent=2)+'\n',encoding='utf8')
+    helpers=(TASK/'outer_finally_v4_helpers.py.txt').read_text();result={}
+    for kind,mapping in families.items():
+        names=list(mapping);suffix='_snapshot_v3.py' if kind=='lease' else '_closure_v3.py';renames={p:p.replace(suffix,'_finally_v4.py') for p in names};texts={}
+        for name in names:
+            text=(TASK/name).read_text()
+            for a,b in renames.items():text=text.replace(a,b)
+            text=text.replace('lease-revoke-snapshot-v3','lease-revoke-finally-v4').replace('restore-physical-closure-v3','restore-physical-finally-v4').replace('local-f0-restore-closure-v3-source-validation.json','local-f0-restore-finally-v4-source-validation.json')
+            texts[name]=text
+        core=texts[names[0]];tree=ast.parse(core);save_node=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='save');lines=core.splitlines(keepends=True);body=''.join(lines[save_node.lineno:save_node.end_lineno]);tracked='def save():\n    try:\n'+''.join('    '+line for line in body.splitlines(keepends=True))+'    except BaseException:\n        mark_evidence_incomplete();raise\n';core=replace_function(core,'save',tracked)
+        core=core.replace('def event(stage,status,**safe):',helpers+'\n\ndef event(stage,status,**safe):',1)
+        # A reused process must start a fresh sticky state for each admitted run.
+        core=core.replace('    global TASK,ROOT,','    global EVIDENCE_FAILED\n    EVIDENCE_FAILED=False\n    global TASK,ROOT,',1)
+        node=next(n for n in ast.parse(core).body if isinstance(n,ast.FunctionDef) and n.name=='cleanup');lines=core.splitlines(keepends=True);cleanup=''.join(lines[node.lineno-1:node.end_lineno]).replace('save()','best_effort_save()')
+        cleanup=cleanup.replace("        if PRIVATE.exists():attempt('PRIVATE_DIRECTORY_REMOVAL_FAILED','private_directory',PRIVATE.rmdir)","        attempt('PRIVATE_DIRECTORY_REMOVAL_FAILED','private_directory',lambda: PRIVATE.rmdir() if PRIVATE.exists() else None)")
+        cleanup=cleanup.replace("'private_directory_absent':not PRIVATE.exists()};best_effort_save()", "'private_directory_absent':False}\n        try:report['host_secret_cleanup']['private_directory_absent']=not PRIVATE.exists()\n        except BaseException:errors.append({'stage':'CLEANUP','code':'PRIVATE_ABSENCE_OBSERVATION_FAILED'})\n        best_effort_save()",1)
+        cleanup=cleanup.replace("    try:\n        containers,volumes=inventory()", "    report['cleanup_summary']={'resource_absence_observation_completed':False,'resource_presence_after':None,'private_directory_absent':False}\n    try:\n        containers,volumes=inventory()",1)
+        cleanup=cleanup.replace("report['cleanup_summary']={'resource_presence_after':presence", "report['cleanup_summary']={'resource_absence_observation_completed':True,'resource_presence_after':presence",1)
+        cleanup=cleanup.replace('    if errors:\n','    if errors or not evidence_is_complete():\n',1)
+        final="    report['steps']['CATALOG-CLEANUP']='PASS';event('CONTROLLED_CLEANUP','PASS',"
+        assert final in cleanup
+        cleanup=cleanup.replace(final,"    report['steps']['CATALOG-CLEANUP']='PASS'\n    if not best_effort_event('CONTROLLED_CLEANUP','PASS',",1)
+        cleanup=cleanup.rstrip()+"):raise Stop('CLEANUP_EVIDENCE_UNCONFIRMED')\n" if not cleanup.rstrip().endswith(")") else cleanup.rstrip()+":raise Stop('CLEANUP_EVIDENCE_UNCONFIRMED')\n"
+        core=replace_function(core,'cleanup',cleanup);texts[names[0]]=core;texts[names[1]]=replace_function(texts[names[1]],'main',main_source(kind))
+        pin=texts[names[4]];marker="    need(validation['independent_";anchor="    archive=mapping(validation['archive_files_sha256'],'ARCHIVE_SOURCE_MAP_REQUIRED')" if kind=='restore' else "    for relative,digest in validation['archive_files_sha256'].items():"
+        assert anchor in pin;pin=pin.replace(anchor,"    need(validation['independent_finally_safety_review']['decision']=='SOURCE_APPROVED','FINALLY_SAFETY_REVIEW_REQUIRED')\n"+anchor,1);texts[names[4]]=pin
+        for name in names[:4]:
+            target=TASK/renames[name]
+            with target.open('x',encoding='utf8',newline='\n') as file:file.write(texts[name])
+            ast.parse(target.read_bytes())
+        pin=texts[names[4]]
+        if kind=='restore':
+            for name in names[:4]:assert pin.count(mapping[name])==1;pin=pin.replace(mapping[name],sha((TASK/renames[name]).read_bytes()))
+        target=TASK/renames[names[4]]
+        with target.open('x',encoding='utf8',newline='\n') as file:file.write(pin)
+        ast.parse(target.read_bytes());result[kind]={'old_sources_sha256':mapping,'new_sources_sha256':{p:sha((TASK/p).read_bytes()) for p in renames.values()}}
+    out=TASK/'outer_finally_v4_initial_derivation_20261118.json';out.write_text(json.dumps({'families':result,'plan_sha256':sha(plan.read_bytes()),'preservation_manifest_sha256':sha(pm.read_bytes())},indent=2)+'\n',encoding='utf8');print(json.dumps({'path':str(out),'sha256':sha(out.read_bytes()),'new_files':10}))
+
+if __name__=='__main__':main()

@@ -1,0 +1,29 @@
+{
+  "recorded_at": "2026-11-18T22:29:24.813660+00:00",
+  "reviewer": "/root",
+  "decision": "SOURCE_APPROVED",
+  "author_record_sha256": "c395ef321d887af85a5cdd49b575e5fa1c16fd243f05afe65c8d2f3393625e2f",
+  "source_validation_before_review_sha256": "2104570ecd396922648ca41fdc7e4e5a5a431e5cb79bc2aa343bf06f73b3ed40",
+  "operator_sources_sha256": {
+    "execute_local_f0_lease_revoke_20261118_snapshot_v3.py": "b8548f4b63bf2c1ee0e80bd9be2c7bb9308edf96b243df03bc0bba95e491ff24",
+    "local_f0_lease_revoke_operation_steps_snapshot_v3.py": "5b0ec9d7c844ec86da4c5ed0cfc7d8b0839bbbf7bc962355b08b2e8a21c02022",
+    "prepare_local_f0_lease_revoke_plan_snapshot_v3.py": "f60b2de72ce8dacca05673a43c5c2bf6fa0b2fb82a5cd49c1a63e73f28341873",
+    "check_local_f0_lease_revoke_operation_snapshot_v3.py": "aeb8ff79aa236b539b891d16144e9140f5710fa2c5c60da6cd7e36e162bc07b9",
+    "pin_local_f0_lease_revoke_plan_20261118_snapshot_v3.py": "dc842919f0265d80ba642246ffba4620b581b08cf195513b11488e012430774a"
+  },
+  "all20_archive_files_verified": true,
+  "independent_actual_checks": {
+    "tests": 35,
+    "exit_code": 0,
+    "unit_seconds": 15.185
+  },
+  "manual_review": "Entire normalized five-source delta reviewed. Core/preparer retain all function ASTs; runtime read_pinned admits typed pin before filesystem reads and verifies same bytes; runtime snapshot folder and five filenames match actual pin helper and physical committed snapshots. Fixed snapshot progress precedes failure. Full real-file verifier regressions prohibit all processes except mocked outer common/Git gate; old verifier failure reproduced, corrected real helpers/catalog admitted. Pin helper blocks pending independent review before Git.",
+  "preserved": "Imagea074, exact observed image-store IDs, canonical5ae, source19protocols, originalgrantor finalizer, worker32ACL, privatecredentials, nativegate, globalclosure and exactownedcleanup unchanged.",
+  "limits": {
+    "posture": "D",
+    "runtime": "NOT_RUN",
+    "fresh_commit_pin_and_literal_review_required": true,
+    "original_bb_complete_exception": "UNOBSERVED_NOT_RECONSTRUCTED",
+    "whole94_or451_promoted": false
+  }
+}

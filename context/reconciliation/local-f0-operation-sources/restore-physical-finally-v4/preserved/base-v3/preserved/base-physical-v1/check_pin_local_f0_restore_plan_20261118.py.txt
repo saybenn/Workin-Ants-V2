@@ -1,0 +1,75 @@
+"""Offline pin-helper checks; real Git/process/network boundaries are forbidden."""
+from contextlib import ExitStack,redirect_stdout
+import hashlib
+import io
+import json
+from pathlib import Path
+import runpy
+import socket
+import subprocess
+import tempfile
+import unittest
+from unittest.mock import Mock,patch
+
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+HELPER=TASK/'pin_local_f0_restore_plan_20261118.py'
+BASELINE=TASK/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json'
+CANARY='RESTORE_PIN_RAW_CREDENTIAL_CANARY_NEVER_EXPORT'
+class Tests(unittest.TestCase):
+    def setUp(self):
+        stack=ExitStack();self.addCleanup(stack.close)
+        for name in ('run','Popen','check_call','check_output','call'):stack.enter_context(patch.object(subprocess,name,side_effect=AssertionError('NO_REAL_PROCESS')))
+        stack.enter_context(patch.object(socket,'create_connection',side_effect=AssertionError('NO_NETWORK')))
+        temporary=tempfile.TemporaryDirectory(prefix='offline-restore-pin-',dir=TASK);self.addCleanup(temporary.cleanup);self.directory=Path(temporary.name)
+        prepare=runpy.run_path(str(TASK/'prepare_local_f0_restore_plan.py'));g=prepare['prepare'].__globals__;g['TASK']=self.directory
+        raw=BASELINE.read_bytes();baseline=self.directory/'reviewed-baseline.json';baseline.write_bytes(raw)
+        for name in g['EXTERNAL_FILES']:(self.directory/name).write_bytes((TASK/name).read_bytes())
+        result=g['prepare'](baseline,hashlib.sha256(raw).hexdigest());self.path=Path(result['operation_manifest']);self.before=self.path.read_bytes()
+        module=runpy.run_path(str(HELPER));self.g=module['pin'].__globals__;self.g['TASK']=self.directory
+        self.git=Mock(side_effect=self.git_bytes);self.g['git_read']=self.git
+    def git_bytes(self,*args):
+        if args==('rev-parse','HEAD'):return b'a'*40+b'\n'
+        if args==('rev-parse','HEAD^{tree}'):return b'b'*40+b'\n'
+        if len(args)==2 and args[0]=='show':return (ROOT/args[1].split(':',1)[1]).read_bytes()
+        raise AssertionError('UNREGISTERED_GIT_READ')
+    def unchanged(self):
+        self.assertEqual(self.path.read_bytes(),self.before);self.assertFalse(self.path.with_name('operation-manifest-before-source-pin.json').exists())
+    def update(self,change):
+        value=json.loads(self.before);change(value);self.path.write_text(json.dumps(value));self.before=self.path.read_bytes()
+    def test_import_help_are_process_free(self):
+        with redirect_stdout(io.StringIO()),self.assertRaises(SystemExit) as found:self.g['main'](['--help'])
+        self.assertEqual(found.exception.code,0);self.git.assert_not_called()
+    def test_positive_pin_binds_actual_git_blobs_and_preserves_pending_literal(self):
+        result=self.g['pin'](self.path);value=json.loads(self.path.read_bytes())
+        self.assertEqual(value['source_commit'],'a'*40);self.assertEqual(value['source_tree'],'b'*40);self.assertEqual(value['review_status'],'PENDING_OPERATIONAL_REVIEW');self.assertFalse(result['runtime_approved']);self.assertFalse(result['git_mutated']);self.assertEqual(self.path.with_name('operation-manifest-before-source-pin.json').read_bytes(),self.before)
+        self.assertEqual(value['packet_sha256'],self.g['aggregate'](value['packet_files_sha256']));self.assertTrue(any(path.endswith('pin_local_f0_restore_plan_20261118.py.txt') for path in value['packet_files_sha256']));self.assertIn(self.g['VALIDATION'],value['packet_files_sha256'])
+    def test_wrong_git_blob_preserves_original_and_never_pins(self):
+        self.g['git_read']=lambda *args:b'wrong' if args[0]=='show' else self.git_bytes(*args)
+        with self.assertRaisesRegex(self.g['Held'],'CURRENT_AND_COMMITTED_BLOB_MISMATCH'):self.g['pin'](self.path)
+        self.unchanged()
+    def test_nonpending_or_forged_external_hash_rejects_before_git(self):
+        for change in (lambda v:v.update(review_status='APPROVED_LOCAL_F0_RESTORE_ATTEMPT'),lambda v:v['restore']['external_files_sha256'].update({'execute_local_f0_restore_20261117.py':'0'*64})):
+            old=self.before;self.update(change)
+            with self.assertRaises(self.g['Held']):self.g['pin'](self.path)
+            self.unchanged();self.git.assert_not_called();self.path.write_bytes(old);self.before=old
+    def test_fresh_history_snapshot_drift_stops_before_git(self):
+        value=json.loads(self.before);snapshot=Path(value['migration_targets']['ok']['source_snapshot']);(snapshot/'prisma/foundation/history-manifest.json').write_text(CANARY)
+        with self.assertRaisesRegex(self.g['Held'],'FRESH_SOURCE_SNAPSHOT_DRIFT'):self.g['pin'](self.path)
+        self.git.assert_not_called();self.unchanged()
+    def test_nested_manifest_drift_stops_before_git(self):
+        value=json.loads(self.before);Path(value['migration_targets']['ok']['manifest_path']).write_text(CANARY)
+        with self.assertRaisesRegex(self.g['Held'],'NESTED_MANIFEST_SHA'):self.g['pin'](self.path)
+        self.git.assert_not_called();self.unchanged()
+    def test_current_inventory_mismatch_stops_before_git(self):
+        self.update(lambda v:v['prepared_source_file_inventory_sha256'].update({self.g['HISTORY_HELPER']:'0'*64}))
+        with self.assertRaisesRegex(self.g['Held'],'PREPARED_CURRENT_SOURCE_DRIFT'):self.g['pin'](self.path)
+        self.git.assert_not_called();self.unchanged()
+    def test_live_external_script_drift_stops_before_git(self):
+        (self.directory/'local_f0_restore_operation_steps.py').write_text(CANARY)
+        with self.assertRaisesRegex(self.g['Held'],'FROZEN_EXTERNAL_SOURCE_DRIFT'):self.g['pin'](self.path)
+        self.git.assert_not_called();self.unchanged()
+    def test_no_real_git_failure_text_is_exported(self):
+        self.g['pin']=lambda path:(_ for _ in ()).throw(RuntimeError(CANARY));out=io.StringIO()
+        with redirect_stdout(out):self.assertEqual(self.g['main']([str(self.path)]),1)
+        self.assertNotIn(CANARY,out.getvalue());self.assertEqual(json.loads(out.getvalue())['status'],'HELD')
+if __name__=='__main__':unittest.main(verbosity=2)

@@ -1,0 +1,169 @@
+{
+  "schema": "workinants.outer-finally-v4-source-author-review.v1",
+  "recorded_at_utc": "2026-11-18T23:59:48.817961+00:00",
+  "author": "review_track_ports",
+  "status": "FROZEN_SOURCE_ONLY_PENDING_ROOT_AND_PEER_INDEPENDENT_REVIEW",
+  "approved_common_plan_sha256": "72fb2ef99d187fc74972d57a647dd93c4ede49ea664a4338e7d5aca85781ca69",
+  "original_all_mock_failure_proof_sha256": "aa902d9f1daba59eeddbf51d111fd198cef9a7748618008fc6fe18fc24fce0f8",
+  "families": {
+    "lease": {
+      "old_sources_sha256": {
+        "execute_local_f0_lease_revoke_20261118_snapshot_v3.py": "b8548f4b63bf2c1ee0e80bd9be2c7bb9308edf96b243df03bc0bba95e491ff24",
+        "local_f0_lease_revoke_operation_steps_snapshot_v3.py": "5b0ec9d7c844ec86da4c5ed0cfc7d8b0839bbbf7bc962355b08b2e8a21c02022",
+        "prepare_local_f0_lease_revoke_plan_snapshot_v3.py": "f60b2de72ce8dacca05673a43c5c2bf6fa0b2fb82a5cd49c1a63e73f28341873",
+        "check_local_f0_lease_revoke_operation_snapshot_v3.py": "aeb8ff79aa236b539b891d16144e9140f5710fa2c5c60da6cd7e36e162bc07b9",
+        "pin_local_f0_lease_revoke_plan_20261118_snapshot_v3.py": "dc842919f0265d80ba642246ffba4620b581b08cf195513b11488e012430774a"
+      },
+      "new_sources_sha256": {
+        "execute_local_f0_lease_revoke_20261118_finally_v4.py": "52e6af9d0eef6bef4d1b39a448ef7f71cf2b804b2b1981b3b314636845577aa2",
+        "local_f0_lease_revoke_operation_steps_finally_v4.py": "ff13c5f177498bd784b27d23c2454158f881716151015df285d90f53690c505a",
+        "prepare_local_f0_lease_revoke_plan_finally_v4.py": "d48f1871dff20ad2562928b9b90ca3d2be3b8a82b3a7641ae43ba3efea6f38a3",
+        "check_local_f0_lease_revoke_operation_finally_v4.py": "480298a2c67a5dc481ecea2a8f1d50f229d490aa58387318444402025f41aa04",
+        "pin_local_f0_lease_revoke_plan_20261118_finally_v4.py": "21a5ac638e271596a5706c47f6977fe454906bd84dfed8594163aa3d29eaa619"
+      },
+      "source_root": "context/reconciliation/local-f0-operation-sources/lease-revoke-finally-v4",
+      "source_validation": "context/reconciliation/local-f0-lease-revoke-finally-v4-source-validation.json"
+    },
+    "restore": {
+      "old_sources_sha256": {
+        "execute_local_f0_restore_20261117_closure_v3.py": "ce8824f641e019117443751fcd5ce694f59db15ec92e749f220bba9695703a71",
+        "local_f0_restore_operation_steps_closure_v3.py": "43777294b46b6e12f8ae631524e1cd0b4662d591d194760e16ad7d5c1da2d328",
+        "prepare_local_f0_restore_plan_closure_v3.py": "1b47a3c0df4582992ce58240d5c370f2488add34f59c113fde443246eab0469d",
+        "check_local_f0_restore_operation_closure_v3.py": "3efefa122847f5f2d505678f4c2c888e250e8a9917654926f9ec77a38be4637e",
+        "pin_local_f0_restore_plan_20261118_closure_v3.py": "fcb59a54b3d61321c1d0b206ac480e02047f9203bee70c95d313687a7b0f969d"
+      },
+      "new_sources_sha256": {
+        "execute_local_f0_restore_20261117_finally_v4.py": "13785972fa041f8c40e12c7e94090e76dd06eeba9b4c452171540b8eba6e14e6",
+        "local_f0_restore_operation_steps_finally_v4.py": "c838b57b722e1b2a68be4dcbab5c746d825e851061e661a3471e5150eff72395",
+        "prepare_local_f0_restore_plan_finally_v4.py": "93f39507a67e3d64fdb4d9e163754d5f93285fbc38f69d6688f4ec44a80400f9",
+        "check_local_f0_restore_operation_finally_v4.py": "3e9eb6eeedeb481d96f4e5c398e98e468abf849d717b2e7e2d0c44fbf86bcfc2",
+        "pin_local_f0_restore_plan_20261118_finally_v4.py": "4a32ffcaeba374f9641e6e505404363339e387f5624972cfc20061f45fba2372"
+      },
+      "source_root": "context/reconciliation/local-f0-operation-sources/restore-physical-finally-v4",
+      "source_validation": "context/reconciliation/local-f0-restore-finally-v4-source-validation.json"
+    }
+  },
+  "AST_scope_proof": {
+    "lease": {
+      "execute_local_f0_lease_revoke_20261118_finally_v4.py": {
+        "changed_functions": [
+          "initialize",
+          "save",
+          "event",
+          "cleanup"
+        ],
+        "new_infile_helpers": [
+          "best_effort_event",
+          "best_effort_save",
+          "confirmed_path_absent",
+          "evidence_is_complete",
+          "finish_report",
+          "mark_evidence_incomplete",
+          "record_failure"
+        ]
+      },
+      "local_f0_lease_revoke_operation_steps_finally_v4.py": {
+        "changed_functions": [
+          "main"
+        ],
+        "new_infile_helpers": []
+      }
+    },
+    "restore": {
+      "execute_local_f0_restore_20261117_finally_v4.py": {
+        "changed_functions": [
+          "initialize",
+          "save",
+          "event",
+          "cleanup"
+        ],
+        "new_infile_helpers": [
+          "best_effort_event",
+          "best_effort_save",
+          "confirmed_path_absent",
+          "evidence_is_complete",
+          "finish_report",
+          "mark_evidence_incomplete",
+          "record_failure"
+        ]
+      },
+      "local_f0_restore_operation_steps_finally_v4.py": {
+        "changed_functions": [
+          "main"
+        ],
+        "new_infile_helpers": []
+      }
+    }
+  },
+  "focused_checks": {
+    "lease": {
+      "methods": 52,
+      "seconds": 21.129,
+      "exit_code": 0,
+      "result": "PASS",
+      "prior_source_verifier_and_protocol_checks": 35,
+      "new_IO_methods": 17
+    },
+    "restore": {
+      "methods": 56,
+      "seconds": 29.38,
+      "exit_code": 0,
+      "result": "PASS",
+      "prior_source_verifier_and_protocol_checks": 39,
+      "new_IO_methods": 17
+    },
+    "total": 108,
+    "all_process_and_network_boundaries": "MOCKED_OR_FORBIDDEN",
+    "actual_full_whole_source_verifiers": "BOTH_PASS_REAL_PURE_PREPARATION_CURRENT_SOURCE_INPUTS_PHYSICAL_FIVE_SNAPSHOTS_ONLY_OUTER_GIT_COMMON_BOUNDARY_REPLACED",
+    "real_Pending_manifest_and_old_source_failure_regressions": "RETAINED_PASS",
+    "ten_Python_sources_AST_parse": true
+  },
+  "implementation": [
+    "Raw save and event failures mark a sticky in-file EVIDENCE_FAILED/evidence_complete=false flag and fixed evidence uncertainty; later successful persistence cannot clear it. No shared imported module.",
+    "Nonthrowing best-effort save/error/event bookkeeping keeps original operational STOP primary and independently attempts every eligible finalizer, scan, cleanup and each packet/tool-data/external-input/operator preservation branch.",
+    "cleanup.attempt and all resource/private bookkeeping writes use best-effort persistence; first inspection/removal/report/secret error cannot skip remaining exact owned actions or independent absence.",
+    "Private-path absence uses lstat with FileNotFound-only success; metadata errors retain unconfirmed false flags. Existing exact CID/name/labels/volumeCreatedAt/privatepath/foreign refusal checks remain unchanged.",
+    "Initial write failure prevents preflight/create/behavior. Final save/output uncertainty removes qualified native marker and gives nonzero STOP with fixed bounded output. Nominal exact finite status remains unchanged.",
+    "Both new source families use consistent filenames/snapshot roots/preparer/pin/validation names, and require separate independent_finally_safety_review SOURCE_APPROVED before pinning."
+  ],
+  "IO_matrix": [
+    "Operational STOP + first finalizer failure + persistent save failure: every later finalizer/scan/cleanup/postcheck attempted; original primary retained.",
+    "Scan failure + persistent save: cleanup and all postchecks attempted.",
+    "STOP-event/raw event/final output failure and final save failure: sticky incomplete/nonzero.",
+    "Raw save later recovers: evidence remains incomplete.",
+    "First container inspection or report-save failure: remaining containers/volumes/private files/absence attempted.",
+    "Foreign identity never removed, even with failed bookkeeping.",
+    "One private unlink or metadata-read failure: remaining secrets/independent resource absence attempted; private absence not falsely confirmed.",
+    "All-success returns original exact finite status."
+  ],
+  "preservation": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\outer-finally-v4-before-author-20261118",
+    "manifest_sha256": "9545882b57be107471f4802aa89c234b008821a7898b5a84b1c74fdb07edf65e",
+    "file_count": 182,
+    "old_five_per_family_unchanged": true,
+    "old_Lease20_Restore130_archives_unchanged": true,
+    "held_fc13_and_0c09_all_nested_source7_and_archives_unchanged": true,
+    "INSTALL_V2_frozen5_13_unchanged": true
+  },
+  "initial_derivation": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\outer_finally_v4_initial_derivation_20261118.json",
+    "sha256": "66fe439d1cbc537325f1c4e945865f27cba5f5794480ced81154c90ccb003594"
+  },
+  "final_derivation": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\outer_finally_v4_final_derivation_20261118.json",
+    "sha256": "f6ccfcbed9f7b473232265add2c16bed13a38dc96c487e7175878e41990bfd14"
+  },
+  "limits": {
+    "posture": "D",
+    "new_runtime": "NOT_RUN",
+    "source_approval": "PENDING_INDEPENDENT_REVIEW",
+    "prior35_39_reviews": "VERSION_QUALIFIED_BASE_ONLY",
+    "prior_actual_cleanup_or_IO_failure_reinterpreted": false,
+    "new_SQL_or_roles_permissions_timeouts_image_history_or_coordinator_changes": false,
+    "Git_Docker_database_network_actions": false,
+    "owner_component_scope": "SEPARATE_CATALOG_AUTHOR_TASK",
+    "whole94_or451_promotion": false,
+    "fresh_source_commit_packet_and_literal_review_required": true
+  },
+  "plain_english": "If writing the report breaks, keep cleaning every part of the toy box. Remember that the report broke and do not say the run passed. These checks used pretend processes."
+}

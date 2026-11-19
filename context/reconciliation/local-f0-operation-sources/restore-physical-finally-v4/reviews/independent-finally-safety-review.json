@@ -1,0 +1,103 @@
+{
+  "recorded_at": "2026-11-19T00:05:39.904228+00:00",
+  "reviewer": "/root",
+  "decision": "SOURCE_APPROVED_FRESH_COMMITTED_SOURCE_AND_LITERAL_REVIEW_REQUIRED",
+  "scope": "COMMON_OUTER_FINALLY_IO_FAILURE_ONLY_PRESERVES_BOUNDED_PRIOR_SOURCE_REVIEWS",
+  "all_ten_sources_sha256": {
+    "execute_local_f0_lease_revoke_20261118_finally_v4.py": "52e6af9d0eef6bef4d1b39a448ef7f71cf2b804b2b1981b3b314636845577aa2",
+    "local_f0_lease_revoke_operation_steps_finally_v4.py": "ff13c5f177498bd784b27d23c2454158f881716151015df285d90f53690c505a",
+    "prepare_local_f0_lease_revoke_plan_finally_v4.py": "d48f1871dff20ad2562928b9b90ca3d2be3b8a82b3a7641ae43ba3efea6f38a3",
+    "check_local_f0_lease_revoke_operation_finally_v4.py": "480298a2c67a5dc481ecea2a8f1d50f229d490aa58387318444402025f41aa04",
+    "pin_local_f0_lease_revoke_plan_20261118_finally_v4.py": "21a5ac638e271596a5706c47f6977fe454906bd84dfed8594163aa3d29eaa619",
+    "execute_local_f0_restore_20261117_finally_v4.py": "13785972fa041f8c40e12c7e94090e76dd06eeba9b4c452171540b8eba6e14e6",
+    "local_f0_restore_operation_steps_finally_v4.py": "c838b57b722e1b2a68be4dcbab5c746d825e851061e661a3471e5150eff72395",
+    "prepare_local_f0_restore_plan_finally_v4.py": "93f39507a67e3d64fdb4d9e163754d5f93285fbc38f69d6688f4ec44a80400f9",
+    "check_local_f0_restore_operation_finally_v4.py": "3e9eb6eeedeb481d96f4e5c398e98e468abf849d717b2e7e2d0c44fbf86bcfc2",
+    "pin_local_f0_restore_plan_20261118_finally_v4.py": "4a32ffcaeba374f9641e6e505404363339e387f5624972cfc20061f45fba2372"
+  },
+  "independent_checks": {
+    "lease": {
+      "methods": 52,
+      "seconds": 21.608,
+      "exit_code": 0
+    },
+    "restore": {
+      "methods": 56,
+      "seconds": 32.342,
+      "exit_code": 0
+    },
+    "all_process_and_network_boundaries": "MOCKED_OR_FORBIDDEN",
+    "actual_real_whole_source_verifiers": "BOTH_PASS"
+  },
+  "AST_scope_proof": {
+    "execute_local_f0_lease_revoke_20261118_finally_v4.py": {
+      "changed": [
+        "cleanup",
+        "event",
+        "initialize",
+        "save"
+      ],
+      "added": [
+        "best_effort_event",
+        "best_effort_save",
+        "confirmed_path_absent",
+        "evidence_is_complete",
+        "finish_report",
+        "mark_evidence_incomplete",
+        "record_failure"
+      ],
+      "all_other_function_and_class_AST_identical": true
+    },
+    "local_f0_lease_revoke_operation_steps_finally_v4.py": {
+      "changed": [
+        "main"
+      ],
+      "added": [],
+      "all_other_function_and_class_AST_identical": true
+    },
+    "execute_local_f0_restore_20261117_finally_v4.py": {
+      "changed": [
+        "cleanup",
+        "event",
+        "initialize",
+        "save"
+      ],
+      "added": [
+        "best_effort_event",
+        "best_effort_save",
+        "confirmed_path_absent",
+        "evidence_is_complete",
+        "finish_report",
+        "mark_evidence_incomplete",
+        "record_failure"
+      ],
+      "all_other_function_and_class_AST_identical": true
+    },
+    "local_f0_restore_operation_steps_finally_v4.py": {
+      "changed": [
+        "main"
+      ],
+      "added": [],
+      "all_other_function_and_class_AST_identical": true
+    }
+  },
+  "same_seven_helper_AST_both_families": true,
+  "manual_review": "Read both new mains and core save/event/error/final-output/cleanup methods. Sticky evidence failure removes qualified marker and cannot become PASS after persistence recovers. Initial evidence failure stops before preflight; original operational STOP remains primary. Finalizers, scan, cleanup and each source/tool/archive/operator preservation branch are independently attempted. Inner cleanup continues after first report/resource/secret error with original identity/path/foreign-resource guards preserved. Strict lstat treats only FileNotFound as absence. Final save or stdout error returns nonzero. No retry, timeout, SQL, native verdict or permission change.",
+  "prep_pin_review": "Full unified differences inspected: exact family filename/root/validation transformations and refreshed actual frozen digests; added independent_finally_safety_review gate. No preparation/resource/approval semantics changed.",
+  "preservation": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\outer-finally-v4-before-author-20261118",
+    "manifest_sha256": "9545882b57be107471f4802aa89c234b008821a7898b5a84b1c74fdb07edf65e",
+    "file_count": 182,
+    "old_five_per_family_unchanged": true,
+    "old_Lease20_Restore130_archives_unchanged": true,
+    "held_fc13_and_0c09_all_nested_source7_and_archives_unchanged": true,
+    "INSTALL_V2_frozen5_13_unchanged": true
+  },
+  "limits": {
+    "posture": "D",
+    "new_runtime": "NOT_RUN",
+    "whole94_or451_promoted": false,
+    "historical_cleanup_failure_claimed": false,
+    "canonical_SQL_and_worker32ACL_unchanged": true
+  }
+}

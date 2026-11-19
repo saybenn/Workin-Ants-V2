@@ -1,0 +1,73 @@
+{
+  "schema": "workinants.restore-provenance-independent-source-review.v1",
+  "recorded_at": "2026-11-18T06:14:13.284275+00:00",
+  "decision": "APPROVED_SOURCE_PROVENANCE_ONLY",
+  "reviewer": "restricted_controls_operator_independent_of_restore_author",
+  "proposal_sha256": "91834ed47f63820db5bb4cc16d77056577f7831f57eeed923198b630af15aaca",
+  "content_sha256": "2752ff8019c7d2c59a029e0595e5c42de6cc3e0c16d3ce18dffa75b1be70c1f1",
+  "baseline_preservation": {
+    "directory": "restore-before-provenance-operator-takeover-20261118T060743Z",
+    "manifest_sha256": "2d682f610acc0395a55cf787f1d162aa8b43c3cdeec0cb1693646d7691791956",
+    "all_manifested_preserved_files_match": true,
+    "all_25_nonproposal_artifacts_byte_identical": true,
+    "generator_sha256": "39b1b3816d493313649b41463c7b416d51f179b032d149b5f896813518cd28b7",
+    "check_sha256": "f67f0f671fed2b3151a433ed52d969f3723ebd1345a318b01ef824908440bc9a",
+    "both_code_files_unchanged": true
+  },
+  "metadata_delta": {
+    "changed_source_pins": {
+      "scripts/sql-review/collect_native_catalog.sql": {
+        "before": "eac44a3c418220302b2eae9f37501d3e8453c1dacaa96cbcab625de68f4528dd",
+        "after": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f"
+      },
+      "review-output/native-catalog/source-pins.json": {
+        "before": "8d0f9f7788e7277193705cc191ab057fa4350fb6eeb0d66cbf77ffa5aeabf64b",
+        "after": "a0e9c36eecf61b1d4ce717744c29f4b72424ecd8d9db5ce0519b6bdaf9f58d00"
+      }
+    },
+    "other_changed_field": "source_only_packet_sha256",
+    "all_other_proposal_fields_unchanged": true,
+    "source_pins": 67,
+    "every_source_pin_matches_current_bytes": true,
+    "content_digest_recomputed": "PASS",
+    "current_native_assets_sha256": {
+      "source-pins.json": "a0e9c36eecf61b1d4ce717744c29f4b72424ecd8d9db5ce0519b6bdaf9f58d00",
+      "expression-oracle-plan.json": "cce4b19c1931472841de2fec2662fa4b002278b275341815782078689a1af36f",
+      "expression-oracle.sql": "74d585741e1e097ac0614621b86c7ec97673697eb7dde344023e1dbe0ca613d2"
+    }
+  },
+  "independent_validation": {
+    "pure_generator_executed_from_prehashed_unchanged_bytes_with_process_network_boundaries_forbidden": true,
+    "all_26_artifact_bytes_reproduced_exactly": true,
+    "strict_expected_source_pins_supplied": true,
+    "source_author_reported_focused_checks": 19,
+    "focused_checks_rerun_by_independent_reviewer": false,
+    "reason_no_repeat": "Generator and check modules are byte-identical; current full data reproduction verifies this provenance-only delta"
+  },
+  "preserved_limits": {
+    "whole_restore_case": "NOT_RUN",
+    "database_posture": "D",
+    "database_contacted": false,
+    "sql_executed": false,
+    "production_restore_ready": false,
+    "three_Privacy_SERVICE_RESTORE_obligations": "DEPENDENCY_BLOCKED_NOT_RUN",
+    "privacy_gate": "P0F_PRIVACY_RESTORE_GENERATION_PORT",
+    "no_vacuous_privacy_pass": true,
+    "real_service_activation": false,
+    "owner_adapter_qualification": false,
+    "runtime_or_literal_operator_approval": false,
+    "external_restore_operator": "INCOMPLETE_REQUIRES_LATER_INDEPENDENT_REVIEW"
+  },
+  "preserved_corrections": {
+    "permanent_vs_temporary_memberships": "Full authority/membership fingerprints must match; zero requirement names temporary installation memberships only. No requirement that every permanent membership vanish. Byte-identical proposal and SQL preserve prior correction.",
+    "hba": "Byte-identical source/admin/Identity/diagnostic HBA files. postgres physical replication SCRAM precedes rejection; server HBA is OS-postgres0600 PGDATA/pg_hba.conf, separate from root0700 client-secret tmpfs; no initdb/bootstrap/application/migration on restored target."
+  },
+  "actions": {
+    "source_edits": false,
+    "git": false,
+    "docker": false,
+    "database": false,
+    "network": false
+  },
+  "plain_english": "Only the labels naming the current approved pieces changed. Every other puzzle piece stayed the same. The restore game still has not run, and the missing privacy step still blocks a full pass."
+}

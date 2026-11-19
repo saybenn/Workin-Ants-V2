@@ -1,0 +1,88 @@
+"""Exclusive source-only Lease snapshot correction; no process or runtime."""
+import ast
+from datetime import datetime,timezone
+import hashlib
+import json
+from pathlib import Path
+
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+encoded=lambda v:(json.dumps(v,indent=2)+'\n').encode()
+def write(path,raw):
+    path.parent.mkdir(parents=True,exist_ok=True)
+    with path.open('xb') as out:out.write(raw)
+old_names={
+ 'execute_local_f0_lease_revoke_20261118_image_v2.py':'execute_local_f0_lease_revoke_20261118_snapshot_v3.py',
+ 'local_f0_lease_revoke_operation_steps_image_v2.py':'local_f0_lease_revoke_operation_steps_snapshot_v3.py',
+ 'prepare_local_f0_lease_revoke_plan_image_v2.py':'prepare_local_f0_lease_revoke_plan_snapshot_v3.py',
+ 'check_local_f0_lease_revoke_operation_image_v2.py':'check_local_f0_lease_revoke_operation_snapshot_v3.py',
+ 'pin_local_f0_lease_revoke_plan_20261118_image_v2.py':'pin_local_f0_lease_revoke_plan_20261118_snapshot_v3.py',
+}
+validation=json.loads((ROOT/'context/reconciliation/local-f0-lease-revoke-image-v2-source-validation.json').read_bytes())
+old_hashes=validation['operator_sources_sha256'];assert set(old_hashes)==set(old_names)
+for name,want in old_hashes.items():assert sha((TASK/name).read_bytes())==want
+bb=json.loads((TASK/'local-f0-lease-revoke-plan-bb6843ed/operation-manifest.json').read_bytes())
+assert len(bb['packet_files_sha256'])==176
+for name,want in bb['packet_files_sha256'].items():assert sha((ROOT/name).read_bytes())==want
+preserved=TASK/'lease-before-snapshot-v3-correction-20261118';assert not preserved.exists()
+for name in old_names:write(preserved/name,(TASK/name).read_bytes())
+for name in ('lease_bb6843ed_current_preflight_readonly_diagnostic_20261118.json','lease_revoke_image_v2_literal_review_bb6843ed_20261118.json'):
+    write(preserved/name,(TASK/name).read_bytes())
+write(preserved/'preservation.json',encoded({'recorded_at':datetime.now(timezone.utc).isoformat(),'old_five_sources_sha256':old_hashes,'bb176_source_files_sha256':bb['packet_files_sha256'],'bb_manifest_sha256':sha((TASK/'local-f0-lease-revoke-plan-bb6843ed/operation-manifest.json').read_bytes()),'old176_all_current_unchanged':True,'historical_complete_exception_cause':'UNOBSERVED_NOT_RECONSTRUCTED','current_reproduction':'FileNotFoundError at wrong snapshot folder before Docker; separately observed source reproduction only'}))
+replacements={**old_names,
+ 'local-f0-operation-sources/lease-revoke-image-v2':'local-f0-operation-sources/lease-revoke-snapshot-v3',
+ 'local-f0-operation-sources/lease-revoke-v1':'local-f0-operation-sources/lease-revoke-snapshot-v3',
+ 'local-f0-lease-revoke-image-v2-source-validation.json':'local-f0-lease-revoke-snapshot-v3-source-validation.json',
+}
+generated={};function_changes={}
+for before,after in old_names.items():
+    text=(TASK/before).read_text()
+    for old,new in replacements.items():text=text.replace(old,new)
+    if before.startswith('local_f0_'):
+        original="""    path=(ROOT/relative).resolve();need(path.is_relative_to(ROOT.resolve()),'CATALOG_PACKET_PATH_ESCAPE')
+    raw=path.read_bytes()
+    need(hashlib.sha256(raw).hexdigest()==MANIFEST['packet_files_sha256'][relative],'CATALOG_PACKET_SOURCE_DRIFT')
+"""
+        corrected="""    pins=MANIFEST.get('packet_files_sha256')
+    need(type(pins) is dict and relative in pins,'CATALOG_PACKET_PATH_NOT_ADMITTED')
+    wanted=pins[relative]
+    need(type(wanted) is str and re.fullmatch('[0-9a-f]{64}',wanted),'CATALOG_PACKET_PIN_INVALID')
+    path=(ROOT/relative).resolve();need(path.is_relative_to(ROOT.resolve()),'CATALOG_PACKET_PATH_ESCAPE')
+    need(path.is_file() and not path.is_symlink(),'CATALOG_PACKET_SOURCE_MISSING')
+    raw=path.read_bytes()
+    need(hashlib.sha256(raw).hexdigest()==wanted,'CATALOG_PACKET_SOURCE_DRIFT')
+"""
+        assert text.count(original)==1;text=text.replace(original,corrected)
+        original="""    for name,wanted in sources.items():
+        raw=(TASK/name).read_bytes();need(hashlib.sha256(raw).hexdigest()==wanted,'OPERATOR_SOURCE_DRIFT')
+        need(read_pinned(SOURCE_ROOT+'/'+name+'.txt')==raw,'OPERATOR_NOT_COMMITTED_SNAPSHOT')
+"""
+        corrected="""    report['stage']='LEASE_OPERATOR_SOURCE_VERIFICATION'
+    proof={'required_snapshots':len(OPERATOR_FILES),'checked_snapshots':0,'complete':False}
+    report['operator_snapshot_verification']=proof;save()
+    for name,wanted in sources.items():
+        raw=(TASK/name).read_bytes();need(hashlib.sha256(raw).hexdigest()==wanted,'OPERATOR_SOURCE_DRIFT')
+        need(read_pinned(SOURCE_ROOT+'/'+name+'.txt')==raw,'OPERATOR_NOT_COMMITTED_SNAPSHOT')
+        proof['checked_snapshots']+=1;save()
+    proof['complete']=True;save()
+"""
+        assert text.count(original)==1;text=text.replace(original,corrected)
+    if before.startswith('pin_'):
+        original="    need(validation['independent_image_correction_review']['decision']=='SOURCE_APPROVED','IMAGE_CORRECTION_REVIEW_REQUIRED')"
+        assert text.count(original)==1
+        text=text.replace(original,original+"\n    need(validation['independent_snapshot_correction_review']['decision']=='SOURCE_APPROVED','SNAPSHOT_CORRECTION_REVIEW_REQUIRED')")
+    generated[after]=text
+    compile(text,after,'exec')
+    assert not (TASK/after).exists()
+for name,text in generated.items():write(TASK/name,text.encode())
+for before,after in old_names.items():
+    old=(TASK/before).read_text()
+    for left,right in replacements.items():old=old.replace(left,right)
+    functions=lambda s:{n.name:ast.dump(n,include_attributes=False) for n in ast.parse(s).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
+    a=functions(old);b=functions(generated[after]);function_changes[after]=sorted(k for k in a if a[k]!=b[k])
+assert function_changes['local_f0_lease_revoke_operation_steps_snapshot_v3.py']==['read_pinned','verify_packet']
+assert function_changes['pin_local_f0_lease_revoke_plan_20261118_snapshot_v3.py']==['pin']
+assert function_changes['execute_local_f0_lease_revoke_20261118_snapshot_v3.py']==[]
+assert function_changes['prepare_local_f0_lease_revoke_plan_snapshot_v3.py']==[]
+write(TASK/'lease_snapshot_v3_initial_derivation_20261118.json',encoded({'old_five_sources_sha256':old_hashes,'initial_new_files_sha256':{p:sha((TASK/p).read_bytes()) for p in generated},'replacements':replacements,'changed_function_AST_after_bindings':function_changes,'preservation_manifest_sha256':sha((preserved/'preservation.json').read_bytes()),'pending_change':'Add focused actual full-verify tests before final check-source/snapshot freeze','runtime':'NOT_RUN'}))
+print(json.dumps({'new_files':list(generated),'old176_unchanged':True,'preservation_manifest_sha256':sha((preserved/'preservation.json').read_bytes()),'function_changes':function_changes}))

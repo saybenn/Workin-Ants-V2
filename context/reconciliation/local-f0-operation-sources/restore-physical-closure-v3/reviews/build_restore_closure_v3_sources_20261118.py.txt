@@ -1,0 +1,63 @@
+"""Create new Restore V3 sources; preserve every reviewed Image V2 byte."""
+from pathlib import Path
+import ast
+import hashlib
+import json
+
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+HELPERS=('scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/sql-review/run-local-f0-migrate.py','scripts/prepare-local-f0-history.py','scripts/sql-review/run-worker-control-rehearsal.py')
+PINS={'scripts/sql-review/run-first-rehearsal.py':'279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e','scripts/sql-review/rehearsal-diagnostics.py':'c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e','scripts/sql-review/run-local-f0-migrate.py':'4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f','scripts/prepare-local-f0-history.py':'33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8','scripts/sql-review/run-worker-control-rehearsal.py':'84b7268b4ef0f2d529927a267297981cec01a5166658f571c84c41e046bd893d'}
+
+def replace_once(text,old,new):
+    assert text.count(old)==1,(old[:80],text.count(old));return text.replace(old,new)
+
+def build():
+    derivation=json.loads((TASK/'image_store_v2_final_source_derivation_20261118.json').read_bytes());old=derivation['restore']['new_files_sha256'];names=list(old);renames={p:p.replace('_image_v2.py','_closure_v3.py') for p in names}
+    for name,digest in old.items():assert sha((TASK/name).read_bytes())==digest
+    for path,digest in PINS.items():assert sha((ROOT/path).read_bytes())==digest
+    preserved=TASK/'restore-image-v2-before-runtime-closure-v3-20261118';preserved.mkdir(exist_ok=False)
+    for name in names:(preserved/name).write_bytes((TASK/name).read_bytes())
+    for name in ('image_store_v2_final_source_derivation_20261118.json','restore_6743d825_whole_source_verifier_readonly_v2_20261118.json'):(preserved/name).write_bytes((TASK/name).read_bytes())
+    literal=TASK/'local-f0-restore-plan-6743d825/operation-manifest.json';raw=literal.read_bytes();assert sha(raw)=='b31f8e4e3c9b105faef1cd71ff8c4a59316ccd86426cff26442bf71892783734';(preserved/'approved-unexecuted-image-v2-manifest.json').write_bytes(raw)
+    manifest={'files_sha256':{p.name:sha(p.read_bytes()) for p in preserved.iterdir() if p.is_file()},'scope':'Reviewed sources and public held literal only. No database, backup or secret archive.'};mp=preserved/'manifest.json';mp.write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf8')
+    texts={p:(TASK/p).read_text(encoding='utf8') for p in names}
+    for name,text in texts.items():
+        for before,after in renames.items():text=text.replace(before,after)
+        texts[name]=text
+    steps=texts[names[1]]
+    steps=replace_once(steps,"    raw=path.read_bytes()\n    need(hashlib.sha256(raw).hexdigest()==MANIFEST['packet_files_sha256'][relative],'CATALOG_PACKET_SOURCE_DRIFT')", "    pins=MANIFEST['packet_files_sha256']\n    need(type(pins) is dict and relative in pins and type(pins[relative]) is str and re.fullmatch('[0-9a-f]{64}',pins[relative]),'CATALOG_PACKET_SOURCE_PIN_REQUIRED')\n    raw=path.read_bytes()\n    need(hashlib.sha256(raw).hexdigest()==pins[relative],'CATALOG_PACKET_SOURCE_DRIFT')")
+    # Pin membership must be checked even before resolve()/filesystem metadata.
+    old_path="    path=(ROOT/relative).resolve();need(path.is_relative_to(ROOT.resolve()),'CATALOG_PACKET_PATH_ESCAPE')\n    pins=MANIFEST['packet_files_sha256']\n    need(type(pins) is dict and relative in pins and type(pins[relative]) is str and re.fullmatch('[0-9a-f]{64}',pins[relative]),'CATALOG_PACKET_SOURCE_PIN_REQUIRED')"
+    new_path="    pins=MANIFEST['packet_files_sha256']\n    need(type(pins) is dict and relative in pins and type(pins[relative]) is str and re.fullmatch('[0-9a-f]{64}',pins[relative]),'CATALOG_PACKET_SOURCE_PIN_REQUIRED')\n    path=(ROOT/relative).resolve();need(path.is_relative_to(ROOT.resolve()),'CATALOG_PACKET_PATH_ESCAPE')"
+    steps=replace_once(steps,old_path,new_path)
+    anchor="    verify_catalog_packet()\n    raw=read_pinned(RESTORE_PACKET+'/proposal.json')"
+    replacement="    # Admit the entire executable chain before even native catalog helpers compile.\n    declared=MANIFEST.get('restore_runtime_helpers_sha256')\n    need(type(declared) is dict and set(declared)==set(HELPER_FILES),'RESTORE_CLOSED_RUNTIME_HELPERS_REQUIRED')\n    for name in HELPER_FILES:\n        need(MANIFEST['packet_files_sha256'].get(name)==declared[name] and type(declared[name]) is str and re.fullmatch('[0-9a-f]{64}',declared[name]),'RESTORE_RUNTIME_HELPER_BINDING')\n        read_pinned(name)\n    verify_catalog_packet()\n    raw=read_pinned(RESTORE_PACKET+'/proposal.json')"
+    steps=replace_once(steps,anchor,replacement);texts[names[1]]=steps
+    prep=texts[names[2]];prep=replace_once(prep,'EXTERNAL_FILES=', 'HELPER_FILES='+repr(HELPERS)+'\nHELPER_PINS='+repr(PINS)+'\nEXTERNAL_FILES=')
+    anchor="    helper_raw=source_blob(HISTORY_HELPER,HISTORY_HELPER_SHA)"
+    prep=replace_once(prep,anchor,"    # Every runtime helper is admitted before the pure history helper compiles.\n    helper_hashes={path:sha(source_blob(path,HELPER_PINS[path])) for path in HELPER_FILES}\n"+anchor)
+    prep=replace_once(prep,"    inventory=set(IMAGE_FILES)|", "    master['restore_runtime_helpers_sha256']=helper_hashes\n    inventory=set(HELPER_FILES)|set(IMAGE_FILES)|")
+    texts[names[2]]=prep
+    pin=texts[names[4]];pin=pin.replace('restore-physical-image-v2','restore-physical-closure-v3').replace('local-f0-restore-image-v2-source-validation.json','local-f0-restore-closure-v3-source-validation.json')
+    pin=replace_once(pin,'SOURCE_FILES=', 'HELPER_FILES='+repr(HELPERS)+'\nHELPER_PINS='+repr(PINS)+'\nSOURCE_FILES=')
+    anchor="    need(value['guarded_history_helper_sha256']==HISTORY_HELPER_SHA"
+    pin=replace_once(pin,anchor,"    need(value.get('restore_runtime_helpers_sha256')==HELPER_PINS and set(HELPER_PINS)<=set(inventory),'CLOSED_RUNTIME_HELPER_INVENTORY_REQUIRED')\n    for name,digest in HELPER_PINS.items():need(inventory[name]==digest==file_sha(source_path(name)),'RUNTIME_HELPER_SOURCE_DRIFT')\n"+anchor)
+    anchor="    need(validation['independent_image_correction_review']['decision']=='SOURCE_APPROVED','IMAGE_CORRECTION_REVIEW_REQUIRED')"
+    pin=replace_once(pin,anchor,anchor+"\n    need(validation['independent_runtime_closure_review']['decision']=='SOURCE_APPROVED','RUNTIME_CLOSURE_REVIEW_REQUIRED')")
+    texts[names[4]]=pin
+    for name in names[:4]:
+        p=TASK/renames[name]
+        with p.open('x',encoding='utf8',newline='\n') as f:f.write(texts[name])
+        ast.parse(p.read_bytes())
+    pin=texts[names[4]]
+    for name in names[:4]:pin=replace_once(pin,old[name],sha((TASK/renames[name]).read_bytes()))
+    p=TASK/renames[names[4]]
+    with p.open('x',encoding='utf8',newline='\n') as f:f.write(pin)
+    ast.parse(p.read_bytes())
+    result={'old_sources_sha256':old,'new_sources_sha256':{new:sha((TASK/new).read_bytes()) for new in renames.values()},'runtime_helpers_sha256':PINS,'preservation':{'path':str(preserved),'manifest_sha256':sha(mp.read_bytes())},'scope':'Closed runtime helper inventory; strict pin-before-filesystem read; fresh names/namespaces only. SQL/proposal/image behavior unchanged.'}
+    p=TASK/'restore_closure_v3_source_derivation_20261118.json'
+    with p.open('x',encoding='utf8',newline='\n') as f:json.dump(result,f,indent=2);f.write('\n')
+    print(json.dumps({'path':str(p),'sha256':sha(p.read_bytes()),**result}))
+
+if __name__=='__main__':build()

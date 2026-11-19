@@ -1,0 +1,107 @@
+class FinallySafetyTests(unittest.TestCase):
+    """Actual new main/cleanup/save bodies; every operation process is refused."""
+    def setUp(self):
+        from types import SimpleNamespace
+        self.Result=SimpleNamespace;self.guards=[]
+        for name in ('run','Popen','check_call','check_output','call'):
+            guard=patch.object(subprocess,name,side_effect=AssertionError('NO_REAL_PROCESS'));guard.start();self.addCleanup(guard.stop)
+        guard=patch.object(socket,'create_connection',side_effect=AssertionError('NO_NETWORK'));guard.start();self.addCleanup(guard.stop)
+        tmp=tempfile.TemporaryDirectory(prefix='offline-finally-v4-',dir=TASK);self.addCleanup(tmp.cleanup);self.base=Path(tmp.name)
+        n=runpy.run_path(str(CORE));self.n=n['launch'].__globals__;exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),self.n);self.lease='lease_revoke' in CORE.name;self.events=[]
+        n=self.n;n.update(ROOT=ROOT,TASK=TASK,OUT=self.base/'evidence',PRIVATE=self.base/'evidence/private',RUN_ID='550e8400-e29b-41d4-a716-446655440000',LABEL='p0c-local-f0',CONNECTION_TAG='wa-first-test',ROLES=('postgres','wa_migrator'),all_secrets=[],secret_paths=[],created_containers={},created_volumes={},attempted_containers=set(),attempted_volumes=set(),bootstrap_attempted=set(),finalization_attempted=set(),finalized=set(),RESOURCE_CONTAINERS=(),RESOURCE_VOLUMES=())
+        n['report']={'stage':'ENTRY','status':'IN_PROGRESS','unexpected':[],'events':[],'steps':{},'targets':{},'cleanup':{},'qualified_native_snapshot_sha256':'a'*64,'source_verification':{'files_sha256':{'AGENTS.md':hashlib.sha256((ROOT/'AGENTS.md').read_bytes()).hexdigest()}}}
+        external={CORE.name:hashlib.sha256(CORE.read_bytes()).hexdigest()};n['MANIFEST']={'review_status':'APPROVED_LOCAL_F0_LEASE_REVOKE_ATTEMPT' if self.lease else 'APPROVED_LOCAL_F0_RESTORE_ATTEMPT','operator_sources_sha256':external,'restore':{'external_files_sha256':external}}
+        self.raw_save=n['save'];self.raw_cleanup=n['cleanup'];self.raw_event=n['event']
+        for name in ('verify_packet' if self.lease else 'verify_restore_packet','preflight','ensure_image','create_resources','bootstrap_all','provision_migration_tools','catalog_experiment','lease_experiment' if self.lease else 'restore_experiment'):
+            n[name]=lambda name=name:self.events.append(name)
+        n['finalize']=lambda name:self.events.append('finalize:'+name);n['secret_scan']=lambda:self.events.append('scan');n['cleanup']=lambda:self.events.append('cleanup');n['verify_tool_data']=lambda:self.events.append('tool-postcheck');n['verify_external_input_preservation']=lambda:self.events.append('archive-postcheck')
+        n['save']=lambda:None;n['event']=lambda *a,**k:None
+    def invoke(self):
+        with redirect_stdout(io.StringIO()) as output:result=self.n['main']()
+        self.assertNotIn(CANARY,output.getvalue());self.assertNotIn(CANARY,json.dumps(self.n['report']));return result
+    def persistent_after_initial(self):
+        calls=[0]
+        def save():
+            calls[0]+=1
+            if calls[0]>1:raise OSError(CANARY)
+        self.n['save']=save
+    def test_actual_operational_stop_finalizer_and_persistent_save_do_not_skip_any_finally_branch(self):
+        n=self.n;n['bootstrap_attempted']={'first','second'};self.persistent_after_initial()
+        def stop():n['report']['stage']='ORIGINAL_OPERATION';raise n['Stop']('ORIGINAL_OPERATION_STOP')
+        n['verify_packet' if self.lease else 'verify_restore_packet']=stop
+        def finalize(name):
+            self.events.append('finalize:'+name)
+            if name=='first':raise OSError(CANARY)
+        n['finalize']=finalize;self.assertEqual(self.invoke(),1)
+        for key in ('finalize:first','finalize:second','scan','cleanup','tool-postcheck','archive-postcheck'):self.assertIn(key,self.events)
+        self.assertEqual(n['report']['primary_failure'],{'stage':'ORIGINAL_OPERATION','code':'ORIGINAL_OPERATION_STOP'});self.assertFalse(n['report']['evidence_complete']);self.assertNotIn('qualified_native_snapshot_sha256',n['report'])
+    def test_actual_scan_failure_and_persistent_save_still_attempt_cleanup_and_all_postchecks(self):
+        n=self.n;self.persistent_after_initial()
+        def scan():self.events.append('scan');raise OSError(CANARY)
+        n['secret_scan']=scan;self.assertEqual(self.invoke(),1)
+        for key in ('cleanup','tool-postcheck','archive-postcheck'):self.assertIn(key,self.events)
+        self.assertFalse(n['report']['evidence_complete'])
+    def test_stop_event_output_failure_cannot_skip_finally(self):
+        n=self.n;n['verify_packet' if self.lease else 'verify_restore_packet']=lambda:(_ for _ in ()).throw(n['Stop']('ORIGINAL_OPERATION_STOP'));n['event']=lambda *a,**k:(_ for _ in ()).throw(BrokenPipeError(CANARY))
+        self.assertEqual(self.invoke(),1);self.assertIn('cleanup',self.events);self.assertIn('archive-postcheck',self.events);self.assertEqual(n['report']['primary_failure']['code'],'ORIGINAL_OPERATION_STOP');self.assertFalse(n['report']['evidence_complete'])
+    def test_initial_evidence_failure_stops_before_preflight_or_creation(self):
+        n=self.n;n['save']=lambda:(_ for _ in ()).throw(OSError(CANARY));self.assertEqual(self.invoke(),1);self.assertNotIn('preflight',self.events);self.assertNotIn('create_resources',self.events);self.assertIn('cleanup',self.events)
+    def test_final_save_failure_cannot_return_or_emit_pass(self):
+        self.persistent_after_initial();self.assertEqual(self.invoke(),1);self.assertEqual(self.n['report']['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertFalse(self.n['report']['evidence_complete'])
+    def test_final_output_failure_is_sticky_nonzero_even_if_file_saving_recovers(self):
+        n=self.n
+        with patch('builtins.print',side_effect=BrokenPipeError(CANARY)):self.assertEqual(n['main'](),1)
+        self.assertFalse(n['report']['evidence_complete']);self.assertNotIn('qualified_native_snapshot_sha256',n['report'])
+    def test_raw_save_failure_remains_sticky_after_a_later_real_save_succeeds(self):
+        n=self.n;n['OUT'].mkdir();n['save']=self.raw_save
+        with patch.object(Path,'open',side_effect=OSError(CANARY)),self.assertRaises(OSError):n['save']()
+        n['save']();self.assertFalse(n['evidence_is_complete']());value=json.loads((n['OUT']/'run-evidence.json').read_bytes());self.assertFalse(value['evidence_complete']);self.assertTrue(value['persistence_failure'])
+    def test_tool_and_archive_postchecks_run_after_packet_read_failure(self):
+        n=self.n;n['report']['source_verification']['files_sha256']={'not-a-current-source-file': '0'*64};self.assertEqual(self.invoke(),1);self.assertIn('tool-postcheck',self.events);self.assertIn('archive-postcheck',self.events);self.assertFalse(n['report']['packet_unchanged_after_run']);self.assertTrue(n['report']['external_sources_unchanged_after_run'])
+    def test_archive_and_operator_postchecks_run_after_tool_postcheck_exception(self):
+        n=self.n;n['verify_tool_data']=lambda:(_ for _ in ()).throw(OSError(CANARY));self.assertEqual(self.invoke(),1);self.assertIn('archive-postcheck',self.events);self.assertTrue(n['report']['external_sources_unchanged_after_run'])
+    def test_unmodified_all_success_status_is_preserved(self):
+        self.assertEqual(self.invoke(),0);expected='PASS_FINITE_LEASE_AND_APP_CURRENTNESS_ONLY_CASES_NOT_RUN' if self.lease else 'PASS_LOCAL_PHYSICAL_RESTORE_SUBSET_ONLY_FULL_CASE_NOT_RUN';self.assertEqual(self.n['report']['status'],expected);self.assertTrue(self.n['evidence_is_complete']())
+    def cleanup_fixture(self,mode):
+        n=self.n;n['OUT'].mkdir();n['PRIVATE'].mkdir();names=('source',) if self.lease else ('source','staging','target');volumes=('source-data',) if self.lease else ('source-data','target-data');ids={name:format(i+1,'064x') for i,name in enumerate(names)};labels={'workinants.rehearsal':n['LABEL'],'workinants.rehearsal.run':n['RUN_ID']};present_c=set(names);present_v=set(volumes);calls=[]
+        n.update(RESOURCE_CONTAINERS=names,RESOURCE_VOLUMES=volumes,created_containers=ids,created_volumes={name:'FIXED_CREATED_AT' for name in volumes},attempted_containers=set(names),attempted_volumes=set(volumes));n['secret_paths']=[n['PRIVATE']/'ok-bootstrap-password']+([] if self.lease else [n['PRIVATE']/'restore01-base.tar'])
+        for path in n['secret_paths']:path.write_text('synthetic test bytes')
+        def container(name):
+            calls.append(('inspect-container',name))
+            if name==names[0] and mode=='inspection':raise OSError(CANARY)
+            return {'Id':'f'*64 if name==names[0] and mode=='foreign' else ids[name],'Name':'/'+name,'Config':{'Labels':labels}}
+        def volume(name):calls.append(('inspect-volume',name));return {'Name':name,'CreatedAt':'FIXED_CREATED_AT','Labels':labels}
+        def docker(args,**kwargs):
+            calls.append(tuple(args))
+            if args[:2]==['container','rm']:present_c.remove(next(name for name in ids if ids[name]==args[-1]))
+            if args[:2]==['volume','rm']:present_v.remove(args[-1])
+            return self.Result(returncode=0,stdout='',stderr='')
+        def inventory():
+            calls.append(('independent-absence',))
+            if mode=='absence':raise OSError(CANARY)
+            return present_c,present_v
+        n.update(inspect_container=container,inspect_volume=volume,docker=docker,inventory=inventory,cleanup=self.raw_cleanup);n['save']=lambda:(_ for _ in ()).throw(OSError(CANARY));return names,volumes,ids,calls
+    def test_cleanup_report_save_failure_does_not_skip_volumes_private_files_or_final_absence(self):
+        names,volumes,ids,calls=self.cleanup_fixture('save');n=self.n
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertTrue(all(('container','rm','-f',ids[name]) in calls for name in names));self.assertTrue(all(('volume','rm',name) in calls for name in volumes));self.assertFalse(n['PRIVATE'].exists());self.assertIn(('independent-absence',),calls);self.assertFalse(n['report']['evidence_complete']);self.assertNotEqual(n['report']['steps'].get('CATALOG-CLEANUP'),'PASS')
+    def test_cleanup_inspection_failure_and_failed_error_save_do_not_skip_other_resources(self):
+        names,volumes,ids,calls=self.cleanup_fixture('inspection');n=self.n
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertTrue(all(('container','rm','-f',ids[name]) in calls for name in names[1:]));self.assertTrue(all(('volume','rm',name) in calls for name in volumes));self.assertFalse(n['PRIVATE'].exists());self.assertIn(('independent-absence',),calls)
+    def test_cleanup_foreign_identity_is_not_deleted_despite_failed_bookkeeping(self):
+        names,volumes,ids,calls=self.cleanup_fixture('foreign');n=self.n
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertNotIn(('container','rm','-f','f'*64),calls);self.assertNotIn(('container','rm','-f',ids[names[0]]),calls);self.assertIn(('independent-absence',),calls);self.assertFalse(n['PRIVATE'].exists())
+    def test_cleanup_unknown_absence_retains_fixed_unconfirmed_flags(self):
+        names,volumes,ids,calls=self.cleanup_fixture('absence');n=self.n
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertFalse(n['report']['cleanup_summary']['resource_absence_observation_completed']);self.assertIsNone(n['report']['cleanup_summary']['resource_presence_after']);self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_one_private_unlink_failure_does_not_skip_other_secret_or_absence(self):
+        names,volumes,ids,calls=self.cleanup_fixture('unlink');n=self.n;original=Path.unlink;first=n['secret_paths'][0]
+        def unlink(path,*a,**k):
+            if path==first:raise OSError(CANARY)
+            return original(path,*a,**k)
+        with patch.object(Path,'unlink',unlink),self.assertRaises(n['Stop']):n['cleanup']()
+        for path in n['secret_paths'][1:]:self.assertFalse(path.exists())
+        self.assertIn(('independent-absence',),calls);self.assertNotIn(CANARY,json.dumps(n['report']))

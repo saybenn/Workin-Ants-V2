@@ -1,0 +1,63 @@
+"""Preserve frozen INSTALL v1; create separate source-only tool-closure v2."""
+from pathlib import Path
+import ast
+import hashlib
+import json
+
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+RENAMES={'scripts/install_control_protocol.py':'scripts/install_control_protocol_v2.py','scripts/prepare-install-control-rehearsal.py':'scripts/prepare-install-control-rehearsal-v2.py','scripts/check-install-control-rehearsal.py':'scripts/check-install-control-rehearsal-v2.py','scripts/sql-review/run-install-control-rehearsal.py':'scripts/sql-review/run-install-control-rehearsal-v2.py','scripts/sql-review/install-controls-coordinator.md':'scripts/sql-review/install-controls-coordinator-v2.md','review-output/install-control-rehearsal':'review-output/install-control-rehearsal-v2'}
+CLOSURE='context/reconciliation/local-f0-tooling/prisma-tools-closure.json'
+CLOSURE_SHA='610e36e4006e9680d0e6a036486f302a18ecce9593699125b4173f5914acb88b'
+
+def once(text,old,new):assert text.count(old)==1,(old[:64],text.count(old));return text.replace(old,new)
+
+def main():
+    report_path=TASK/'install_controls_source_author_review_20261118.json';report=json.loads(report_path.read_bytes());assert sha(report_path.read_bytes())=='51bf67c012e518e5ee36f2eb88d8b5a1a7acf9596442a892875146cd3ad2274f'
+    peer_path=TASK/'install_controls_source_independent_review_20261118.json';assert sha(peer_path.read_bytes())=='3b15586bf6e7b966f914fb0e35a5c57eda5155541b2f698af786fdafa87981cf'
+    for p,h in report['source_files_sha256'].items():assert sha((ROOT/p).read_bytes())==h
+    for p,h in report['prepared_files_sha256'].items():assert sha((ROOT/'review-output/install-control-rehearsal'/p).read_bytes())==h
+    assert sha((ROOT/CLOSURE).read_bytes())==CLOSURE_SHA
+    preserved=TASK/'install-source01-before-v2-tool-closure-20261118';preserved.mkdir(exist_ok=False)
+    def copy(source,relative):
+        dest=preserved/relative;dest.parent.mkdir(parents=True,exist_ok=True)
+        with dest.open('xb') as f:f.write(source.read_bytes())
+    for p in report['source_files_sha256']:copy(ROOT/p,'source/'+p+'.txt')
+    for p in report['prepared_files_sha256']:copy(ROOT/'review-output/install-control-rehearsal'/p,'packet/'+p)
+    for p in ('install_controls_source_author_review_20261118.json','install_controls_source_independent_review_20261118.json','install_tool_closure_independent_probe_20261118.json','install_tool_value_independent_probe_20261118.json'):
+        if (TASK/p).exists():copy(TASK/p,'reports/'+p)
+    original=TASK/'install-controls-source-freeze-20261118';manifest=original/'manifest.json';assert sha(manifest.read_bytes())=='f45467d03ea3ac7119a6d9eeacbb8b95e732ffa689c9b862e020b83fa03b6818'
+    for p,h in json.loads(manifest.read_bytes())['files_sha256'].items():assert sha((original/p).read_bytes())==h
+    for p in original.rglob('*'):
+        assert not p.is_symlink()
+        if p.is_file():copy(p,'original-freeze/'+p.relative_to(original).as_posix())
+    mp=preserved/'manifest.json';mp.write_text(json.dumps({'files_sha256':{p.relative_to(preserved).as_posix():sha(p.read_bytes()) for p in preserved.rglob('*') if p.is_file()},'scope':'Frozen v1 source/packet/reviews only; no runtime data'},indent=2)+'\n',encoding='utf8')
+    for before in report['source_files_sha256']:
+        text=(ROOT/before).read_text(encoding='utf8')
+        for old,new in RENAMES.items():text=text.replace(old,new)
+        if before=='scripts/prepare-install-control-rehearsal.py':
+            marker="PINNED={APPLICATION:"
+            text=once(text,marker,"TOOL_CLOSURE='"+CLOSURE+"'\nPINNED={TOOL_CLOSURE:'"+CLOSURE_SHA+"',APPLICATION:")
+            marker="'variants':variants,'migration_id':MIGRATION"
+            text=once(text,marker,"'tool_closure_source':{'path':TOOL_CLOSURE,'sha256':pins[TOOL_CLOSURE],'file_count':10300},"+marker)
+        elif before=='scripts/sql-review/run-install-control-rehearsal.py':
+            marker="MODULES=(SELF,PROTOCOL,GEN,CTX,API,HOST,DIAG,HISTORY,COLLECTOR)"
+            text=once(text,marker,marker+"\nTOOL_CLOSURE='"+CLOSURE+"'\nTOOL_CLOSURE_SHA='"+CLOSURE_SHA+"'")
+            marker="    inputs={path:source(path).read_bytes() for path in packet['source_files_sha256']}"
+            text=once(text,marker,"    # Source-pinned data dependency, not a caller-selected tool whitelist.\n    exact(packet.get('tool_closure_source'),{'path':TOOL_CLOSURE,'sha256':TOOL_CLOSURE_SHA,'file_count':10300},'PINNED_TOOL_CLOSURE_DEPENDENCY_REQUIRED')\n    need(packet['source_files_sha256'].get(TOOL_CLOSURE)==TOOL_CLOSURE_SHA,'PINNED_TOOL_CLOSURE_DEPENDENCY_REQUIRED')\n"+marker)
+            marker="    sql={}"
+            text=once(text,marker,"    closure=unique_json(inputs[TOOL_CLOSURE])\n    need(type(closure) is dict and type(closure.get('tools_files_sha256')) is dict and type(closure.get('file_count')) is int and closure['file_count']==len(closure['tools_files_sha256'])==10300,'PINNED_TOOL_CLOSURE_SHAPE')\n    tool_files=closure['tools_files_sha256']\n"+marker)
+            marker="manifest=unique_json(raw);wanted=item['source_files_sha256']"
+            text=once(text,marker,marker+"\n        need(type(manifest.get('tools')) is dict and type(manifest['tools'].get('files_sha256')) is dict,'HISTORY_TOOL_CLOSURE_SHAPE')\n        exact(manifest['tools']['files_sha256'],tool_files,'HISTORY_TOOL_CLOSURE_NOT_SOURCE_REGISTERED')")
+        elif before=='scripts/sql-review/install-controls-coordinator.md':
+            text=text.replace('Remaining INSTALL controls: source-only integration contract','Remaining INSTALL controls V2: source-only integration contract')
+            text+='\nV2 closes INSTALL-SOURCE-01. Before the first project helper compiler runs,\nall four cached nested manifests must carry exactly the same 10,300 paths and\nhashes as the cached source-pinned `prisma-tools-closure.json`. That JSON is an\nexplicit packet dependency. Reduced, same-count changed-critical, and cross-target\nwhitelists reject even when their manifests/provenance/archives are rehashed.\nExisting host/Node guards and every SQL/control protocol remain unchanged.\n'
+        target=ROOT/RENAMES[before]
+        with target.open('x',encoding='utf8',newline='\n') as f:f.write(text)
+        if target.suffix=='.py':ast.parse(target.read_bytes())
+    result={'schema':'workinants.install-source01-v2-derivation.v1','scope':'TOOL_CLOSURE_ADMISSION_ONLY_SOURCE_NOT_RUNTIME_APPROVAL','old_source_files_sha256':report['source_files_sha256'],'new_source_files_sha256':{RENAMES[p]:sha((ROOT/RENAMES[p]).read_bytes()) for p in report['source_files_sha256']},'source_tool_closure':{'path':CLOSURE,'sha256':CLOSURE_SHA,'file_count':10300},'preservation_manifest_sha256':sha(mp.read_bytes()),'preservation_path':str(preserved),'peer_finding_sha256':sha(peer_path.read_bytes()),'runtime_actions':False}
+    p=TASK/'install_source01_v2_initial_derivation_20261118.json'
+    with p.open('x',encoding='utf8',newline='\n') as f:json.dump(result,f,indent=2);f.write('\n')
+    print(json.dumps({'path':str(p),'sha256':sha(p.read_bytes()),**result}))
+
+if __name__=='__main__':main()

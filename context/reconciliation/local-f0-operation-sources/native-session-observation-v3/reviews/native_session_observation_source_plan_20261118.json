@@ -1,0 +1,55 @@
+{
+  "schema": "workinants.native-session-observation-source-plan.v1",
+  "recorded_at": "2026-11-18T23:30:25.363166+00:00",
+  "status": "TASK_SOURCE_PROPOSAL_PENDING_ROOT_REVIEW_NOT_IMPLEMENTED",
+  "scope": "Metadata-only Session/operation stop observability in NEW versioned coordinator/test paths. No Native SQL/generator/guard/timeouts/permission/verdict changes.",
+  "preserve": {
+    "coordinator_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\scripts\\sql-review\\run-native-table-denials-v2.py",
+    "coordinator_sha256": "21dce763c809b579eff009871b44315f9ddbcd5b9cc03a33d3af305bc096445b",
+    "finite_SQL_packet_sha256": "8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69",
+    "canonical_SQL": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "actual_stop_record_sha256": "e47ecfcc00064e22f2731c6a1e24ddc64df672690c2eabbb821d45c3aa5a6bdf",
+    "all_old_completed260_facets_and273_operation_records": "PRESERVED_VERSION_QUALIFIED_ONLY",
+    "new_source_paths": "run-native-table-denials-v3.py/test_run_native_table_denials_v3.py plus new narrow document; Root binds a fresh external version only after review"
+  },
+  "actual_historical_observation": {
+    "setup": "205 facts committed and100guards restored",
+    "native_controls_completed": 11,
+    "facets_completed": 260,
+    "native_gate_facets": 249,
+    "existing_row_empty_facets": 11,
+    "stopped_at": "CLOSE_deny-AuditEvent-wa_context_issuer-SELECT",
+    "retained_code": "BACKEND_CLOSURE_UNCONFIRMED",
+    "full_complete_cause": "UNOBSERVED_NOT_RECONSTRUCTED",
+    "outer_global_closure_and_exact_owned_cleanup": "ROOT_RECORDED_PASS",
+    "new_metadata_must_not_backfill_old_record": true
+  },
+  "source_analysis": "operation captures the original exception only in RAM, then replaces failure/stage if close raises. Session capture/finish progress, typed backend-tuple presence, process/reader/invalid state and actual close subcomparison outcomes are not retained before that replacement. This is a proven source observability gap, not a diagnosis of the historical root cause.",
+  "bounded_change": [
+    "Persist a tiny fixed progress record before/after Session constructor, capture, finish, verdict and close. Keep only phase enum, completed booleans and sanitized exception classification. No arbitrary dictionaries from probes or exception.__dict__.",
+    "Freeze original capture/finish/verdict failure stage+allowlisted code BEFORE entering close finally. Preserve it as original_operation_failure. Record close failure separately; the effective STOP can remain closure-unconfirmed when required, but cannot erase the earlier observation.",
+    "Expose safe local Session state only: process_created, backend_tuple_present, capture_completed, finish_completed, process_exit_class RUNNING/EXITED_ZERO/EXITED_NONZERO/SIGNAL_OR_OTHER/UNAVAILABLE, stdout_reader_finished, stderr_reader_finished, output_invalid. Never export PID/xid/backend_start/queue contents/stderr/statement/token/credentials.",
+    "Add fixed close subcomparison flags: process_exit_confirmed, backend_tuple_available, backend_absence_query_attempted, backend_absence_confirmed, readers_finished. Unknown/malformed/local inspection exceptions become fixed unavailable/unconfirmed flags; metadata never manufactures closure.",
+    "Error classifier accepts only existing source HeldFailure literal codes from a frozen set, or fixed classes for queue.Empty, TimeoutExpired, OSError/ValueError, KeyboardInterrupt and unknown exceptions. Never retain exception text/arguments, raw response or SQL.",
+    "A failure in recording evidence or the CLOSE-stage event must not skip Session.close. Use nested finally/best-effort fixed recording as needed solely to preserve existing connection cleanup attempts. Mark evidence incomplete and STOP after cleanup; do not continue cases.",
+    "All prior negative acceptance, exact diagnostics/markers, process wait/kill policy, statement/lock/idle timeouts, queue/stream caps, full-state/native observers and no-later-cases behavior stay unchanged. No relaxed close, authentication repair, capture retry or longer timeout."
+  ],
+  "focused_environment_free_regressions": [
+    "Actual Session reader/process mocks: capture queue-empty, malformed tuple, constructor failure, finish wait failure, incomplete reader/output invalid and trailing-output failure. Each preserves only safe fixed phases/states.",
+    "Original capture/finish failure plus close failure keeps BOTH failures and first stage. Valid native denial plus close failure still STOP; metadata never passes a facet.",
+    "All successful capture/finish/close paths retain expected fixed Boolean observations and prior verdict unchanged.",
+    "Close observer nonzero/throw/malformed response keeps absent=false/unconfirmed and blocks guard/fingerprint/later behavioral observers; no PID/xid/raw backend tuple retained.",
+    "Evidence save/CLOSE stage failure still attempts actual mocked close; incomplete evidence produces STOP.",
+    "Unknown exception code/value/URI/password/SQL/row/handle canaries absent from every retained record and exported summary. Expected native-diagnostic sanitizer unchanged.",
+    "Preserve21d/8044 and test source before edit; rerun applicable31 mocks under new paths plus focused new regressions/source AST and actual source/packet-loader bindings. Independent review before new external/literal packet."
+  ],
+  "limits": {
+    "all_new_runtime": "NOT_RUN",
+    "Posture": "D",
+    "historical_timeout_auth_process_cause_inferred": false,
+    "whole94_451_owner_or_production_promotion": false,
+    "SQL_or_factory_edits": false,
+    "Root_Git_Docker_DB_SQL_actions": false
+  },
+  "plain_english": "Write down which small step failed before trying to close the test connection. If closing also fails, keep both notes. Do not guess why the old run stopped, and do not loosen the rules to make a test pass."
+}

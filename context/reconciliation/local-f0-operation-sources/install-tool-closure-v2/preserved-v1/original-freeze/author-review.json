@@ -1,0 +1,109 @@
+{
+  "schema": "workinants.install-controls-source-author-review.v1",
+  "recorded_at_utc": "2026-11-18T22:21:42.112149+00:00",
+  "author": "review_track_ports",
+  "status": "SOURCE_ONLY_FROZEN_PENDING_INDEPENDENT_REVIEW",
+  "source_plan_sha256": "e0f1939afca4be39d8ae9c7405c69e2df409de87659c040ae1e8f6902284654a",
+  "source_plan_preservation_manifest_sha256": "04b10e3243f8b3c5504bf28aeb97933029106630d73b3f91900914b58fdf5bbe",
+  "source_files_sha256": {
+    "scripts/install_control_protocol.py": "6c1474dc12a603b07346fff014c8ab8bd15dec5be0b972ec1d504342115ba48f",
+    "scripts/prepare-install-control-rehearsal.py": "7393440be4014cba1ca51f17406df655164a69269403c21ae5ee97c757ab3fdf",
+    "scripts/check-install-control-rehearsal.py": "745da0d6245239759a231f03bba5b6f53fe9be683fae2569bdcac11597065900",
+    "scripts/sql-review/run-install-control-rehearsal.py": "913f9c7e9cf2bafeb89161f5d19f26617b4d79006dc1bde2b7067a2659c3f69e",
+    "scripts/sql-review/install-controls-coordinator.md": "44a13565a5199269cf951a0be4314b4a42bcf352e45f677116a4bf625584fb93"
+  },
+  "prepared_files_sha256": {
+    "canonical/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "division_failure/20261117000100_f0_local_initial/migration.sql": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c",
+    "late_function_grant/20261117000100_f0_local_initial/migration.sql": "bb41107428c6a2868abe402c28d14554cfb073113f5687f806b395366189a61f",
+    "bootstrap.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+    "finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+    "authority-observe.sql": "b5791265492feb42a4e68b5538d41f33c1b3a77518e8b62f48ce3852b7f4b3e5",
+    "inactive-observe.sql": "3c81794dce2ef746695500f7539313f27fefd0590f12275deb8f471aef8bb92f",
+    "fresh-observe.sql": "674f92c95bbb627ba74abbc91dea0067ffd7cb25a01f1537487a21f354c09138",
+    "inventory.sql": "4364890304d7c112b69c1e25d20a6ccbbf99bf7b32c44183403bb216a5c7f453",
+    "ledger-observe.sql": "42ac58118727dbdc03c54e5ad6fb3cbedb3187f2ff2063eac4258336f0dfbb3c",
+    "rearm.sql": "40a2f1a0b2472a16af7b6b5544e330486b296c2265dba726c6264fd190f6b94b",
+    "README.md": "91255e819a337c0d3a234a2377d567f82cac44c1505fd9114ab70eae98f1013b",
+    "fixtures.json": "cc1df316958da8b542e0ef25035e47232077302313865444ac35abbe305fb89f"
+  },
+  "fixtures_sha256": "cc1df316958da8b542e0ef25035e47232077302313865444ac35abbe305fb89f",
+  "content_sha256": "02b1a742e968de25e5713f20ef4abb69d250fa5fc40bf1fb998fd39e29968a75",
+  "source_inputs": 24,
+  "sql_parse_statement_counts": {
+    "canonical/20261117000100_f0_local_initial/migration.sql": 1125,
+    "division_failure/20261117000100_f0_local_initial/migration.sql": 1126,
+    "late_function_grant/20261117000100_f0_local_initial/migration.sql": 1125,
+    "bootstrap.sql": 30,
+    "finalize.sql": 5,
+    "authority-observe.sql": 1,
+    "inactive-observe.sql": 1,
+    "fresh-observe.sql": 1,
+    "inventory.sql": 1,
+    "ledger-observe.sql": 9,
+    "rearm.sql": 3
+  },
+  "total_sql_statements_parsed": 3427,
+  "offline_checks": {
+    "methods": 33,
+    "seconds": 12.656,
+    "exit_code": 0,
+    "result": "PASS",
+    "all13_generated_bytes_reproduce": true,
+    "four_python_sources_ast_parse": true,
+    "earlier_draft_failure": "Collector added to context-helper map; initial24-method suite then passed, followed by31/32 expanded suites. Report preparation first lacked PYTHONPATH for pglast; environment corrected without source change."
+  },
+  "preserved_source_identities": {
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+    "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+    "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f",
+    "scripts/sql-review/migration_server_diagnostics.py": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+    "scripts/sql-review/prisma_ledger_proof.py": "1cb05b1d82b67580671cccf5f9289fbc481fef2d77532b049658912428604b21"
+  },
+  "variants": {
+    "canonical": {
+      "path": "canonical/20261117000100_f0_local_initial/migration.sql",
+      "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "state": "NOT_RUN",
+      "derivation": "UNCHANGED_CANONICAL"
+    },
+    "division_failure": {
+      "path": "division_failure/20261117000100_f0_local_initial/migration.sql",
+      "sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c",
+      "state": "NOT_RUN",
+      "derivation": "ONE_IMMUTABLE_INJECTED_22012_BEFORE_RESET_ROLE"
+    },
+    "late_function_grant": {
+      "path": "late_function_grant/20261117000100_f0_local_initial/migration.sql",
+      "sha256": "bb41107428c6a2868abe402c28d14554cfb073113f5687f806b395366189a61f",
+      "state": "NOT_RUN",
+      "derivation": "ONE_EXACT_EXISTING_GRANT_MOVED_AFTER_ITS_OWNER_TRANSFER"
+    }
+  },
+  "source_assessment": [
+    "Unchanged33fe accepts all3 explicitly pinned SQL derivations;4 fresh seven-file histories reproduce and actual cached loader admits them.",
+    "One exact helper EXECUTE grant is moved after NOINHERIT owner transfer; native42501 expected but NOT_RUN.",
+    "New22012/42501 counter parser requires actual owned-server primary and measured25P02/NULL, never historical/P3018 inference.",
+    "Wrong-grantor source-bound P0001; separate original cleanup; NULL-verifier/startup controls; activation after closed success and verified cleanup only.",
+    "Recovery waits for independent exact proof, resolves faulty history then stages separate canonical bytes; failed row/checksum retained and genuine no-op/DDL fingerprints checked."
+  ],
+  "review_needed": [
+    "Independent review of5 new sources and13 artifacts.",
+    "New outer operation/fullpacket/Git/literal resources/secret/cleanup review before runtime.",
+    "Full native ACL/ledger expectation for recovered22012 masking still pending; finite coordinator does not qualify that criterion."
+  ],
+  "limits": {
+    "posture": "D",
+    "all_database_controls": "NOT_RUN",
+    "full_native_acl_and_ledger": "PENDING_OUTER_OPERATOR",
+    "whole94_or451_promoted": false,
+    "old196c_reinterpreted": false,
+    "canonical_or_root_history_edited": false,
+    "existing_guard_or_SQL_policy_edited": false,
+    "database_contacted": false,
+    "Docker_or_network_executed": false,
+    "Git_mutated": false
+  },
+  "plain_english": "Three toy setup recipes are ready for another person to check. Tests used pretend processes. No database game has run."
+}

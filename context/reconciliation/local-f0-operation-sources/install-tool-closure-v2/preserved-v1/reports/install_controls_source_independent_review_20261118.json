@@ -1,0 +1,184 @@
+{
+  "schema": "workinants.install-controls-independent-source-review.v1",
+  "recorded_at": "2026-11-18T22:34:14.389247+00:00",
+  "reviewer": "/root/restricted_controls_operator",
+  "author": "/root/review_track_ports",
+  "decision": "FINDING_REQUIRES_BOUNDED_SOURCE_CORRECTION_BEFORE_SOURCE_APPROVAL",
+  "author_review_sha256": "51bf67c012e518e5ee36f2eb88d8b5a1a7acf9596442a892875146cd3ad2274f",
+  "source_files_sha256": {
+    "scripts/install_control_protocol.py": "6c1474dc12a603b07346fff014c8ab8bd15dec5be0b972ec1d504342115ba48f",
+    "scripts/prepare-install-control-rehearsal.py": "7393440be4014cba1ca51f17406df655164a69269403c21ae5ee97c757ab3fdf",
+    "scripts/check-install-control-rehearsal.py": "745da0d6245239759a231f03bba5b6f53fe9be683fae2569bdcac11597065900",
+    "scripts/sql-review/run-install-control-rehearsal.py": "913f9c7e9cf2bafeb89161f5d19f26617b4d79006dc1bde2b7067a2659c3f69e",
+    "scripts/sql-review/install-controls-coordinator.md": "44a13565a5199269cf951a0be4314b4a42bcf352e45f677116a4bf625584fb93"
+  },
+  "prepared_files_sha256": {
+    "canonical/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "division_failure/20261117000100_f0_local_initial/migration.sql": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c",
+    "late_function_grant/20261117000100_f0_local_initial/migration.sql": "bb41107428c6a2868abe402c28d14554cfb073113f5687f806b395366189a61f",
+    "bootstrap.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+    "finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+    "authority-observe.sql": "b5791265492feb42a4e68b5538d41f33c1b3a77518e8b62f48ce3852b7f4b3e5",
+    "inactive-observe.sql": "3c81794dce2ef746695500f7539313f27fefd0590f12275deb8f471aef8bb92f",
+    "fresh-observe.sql": "674f92c95bbb627ba74abbc91dea0067ffd7cb25a01f1537487a21f354c09138",
+    "inventory.sql": "4364890304d7c112b69c1e25d20a6ccbbf99bf7b32c44183403bb216a5c7f453",
+    "ledger-observe.sql": "42ac58118727dbdc03c54e5ad6fb3cbedb3187f2ff2063eac4258336f0dfbb3c",
+    "rearm.sql": "40a2f1a0b2472a16af7b6b5544e330486b296c2265dba726c6264fd190f6b94b",
+    "README.md": "91255e819a337c0d3a234a2377d567f82cac44c1505fd9114ab70eae98f1013b",
+    "fixtures.json": "cc1df316958da8b542e0ef25035e47232077302313865444ac35abbe305fb89f"
+  },
+  "fixtures_sha256": "cc1df316958da8b542e0ef25035e47232077302313865444ac35abbe305fb89f",
+  "content_sha256": "02b1a742e968de25e5713f20ef4abb69d250fa5fc40bf1fb998fd39e29968a75",
+  "source_inputs_sha256": {
+    "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+    "context/reconciliation/local-f0-assertions.json": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558",
+    "context/reconciliation/local-f0-tooling/prisma-tools-closure.json": "610e36e4006e9680d0e6a036486f302a18ecce9593699125b4173f5914acb88b",
+    "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+    "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+    "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+    "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+    "scripts/check-install-control-rehearsal.py": "745da0d6245239759a231f03bba5b6f53fe9be683fae2569bdcac11597065900",
+    "scripts/install_control_protocol.py": "6c1474dc12a603b07346fff014c8ab8bd15dec5be0b972ec1d504342115ba48f",
+    "scripts/prepare-install-control-rehearsal.py": "7393440be4014cba1ca51f17406df655164a69269403c21ae5ee97c757ab3fdf",
+    "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+    "scripts/sql-review/collect_native_catalog.sql": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+    "scripts/sql-review/collect_prisma_ledger.sql": "6dfa02fa375da4a126b996fc547dfff063c61b41c854db6b07ea62f52d63286b",
+    "scripts/sql-review/install-controls-coordinator.md": "44a13565a5199269cf951a0be4314b4a42bcf352e45f677116a4bf625584fb93",
+    "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+    "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+    "scripts/sql-review/prisma_ledger_proof.py": "1cb05b1d82b67580671cccf5f9289fbc481fef2d77532b049658912428604b21",
+    "scripts/sql-review/rehearsal-diagnostics.py": "c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e",
+    "scripts/sql-review/run-context-control-rehearsal.py": "5ec53d01d7c5b19bea0a584ef9f5b4e6742d9509c21ac7e2250b9bdd62511f33",
+    "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e",
+    "scripts/sql-review/run-install-control-rehearsal.py": "913f9c7e9cf2bafeb89161f5d19f26617b4d79006dc1bde2b7067a2659c3f69e",
+    "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f"
+  },
+  "all5_sources_13_artifacts_24_inputs_verified": true,
+  "preserved_freeze_manifest_sha256": "f45467d03ea3ac7119a6d9eeacbb8b95e732ffa689c9b862e020b83fa03b6818",
+  "all_preserved_freeze_files_verified": 19,
+  "findings": [
+    {
+      "id": "INSTALL-SOURCE-01",
+      "priority": 1,
+      "title": "Bind every immutable history tool closure to the source-pinned10300 map before helper compilation",
+      "source_file": "scripts/sql-review/run-install-control-rehearsal.py",
+      "source_sha256": "913f9c7e9cf2bafeb89161f5d19f26617b4d79006dc1bde2b7067a2659c3f69e",
+      "lines": [
+        108,
+        129,
+        131,
+        136
+      ],
+      "observed_source_gap": "load_inputs hashes/reproduces every seven-file history but never compares manifest.tools.files_sha256 to cached context/reconciliation/local-f0-tooling/prisma-tools-closure.json. Unchanged HOST/33fe validates only six required tool names plus hash shape; a rehashed caller-selected tool map survives source/history reproduction.",
+      "demonstrated": "The actual frozen loader accepted four physically regenerated/rehashed histories with10300->10299 tools. A separate same-count probe changed schema-engine SHA in canonical only while the other three histories remained unchanged; actual loader also admitted that inconsistent map. All24 source inputs and original Root files stayed unchanged; every process/network boundary was forbidden.",
+      "impact": "Breaks the requested exact tool-closure/source-admission contract before project helpers compile. This does not claim runtime execution, arbitrary-code exploitation or bypass of an independently correct future outer operator.",
+      "bounded_required_change": "Before first compiled(...) call, decode the cached pinned tooling closure, validate exact expected structure/count and require each admitted manifest tools.files_sha256 to equal its tools_files_sha256 map exactly. Keep version/engine pins. Add actual-loader reduced-map, same-count changed-critical-hash and cross-target inconsistency regressions with fully rehashed seven-file histories; require rejection before first helper compile/process.",
+      "expected_correct_control": "Unmodified real cached loader still reproduces all13 artifacts/four histories; all current33 tests remain meaningful."
+    }
+  ],
+  "focused_environment_free_probes": [
+    {
+      "path": "install_tool_closure_independent_probe_20261118.json",
+      "sha256": "bad899da69018146358653e7cd290c0ed3f0bc752d77c61a6c44496d070f9d0b",
+      "actual_result": {
+        "probe": "REHASHED_REDUCED_NESTED_TOOL_CLOSURE_BEFORE_PROJECT_COMPILE",
+        "source_tool_count": {
+          "canonical": 10300,
+          "division_failure": 10300,
+          "late_function_grant": 10300,
+          "division_recovery": 10300
+        },
+        "modified_tool_count": {
+          "canonical": 10299,
+          "division_failure": 10299,
+          "late_function_grant": 10299,
+          "division_recovery": 10299
+        },
+        "actual_frozen_loader_admitted": true,
+        "rejection_code": null,
+        "Root_files_modified": false,
+        "runtime_database_Git_network_actions": false,
+        "coordinator_sha256": "913f9c7e9cf2bafeb89161f5d19f26617b4d79006dc1bde2b7067a2659c3f69e",
+        "expected_source_tool_closure_count": 10300
+      }
+    },
+    {
+      "path": "install_tool_value_independent_probe_20261118.json",
+      "sha256": "91ec390177d1f64028e07a63922d666d2b0f4dd976a7c4e3c8f69bae8782f190",
+      "actual_result": {
+        "probe": "SAME_COUNT_CRITICAL_SCHEMA_ENGINE_HASH_CHANGED_ONLY_ONE_TARGET",
+        "nested_tool_entries": 10300,
+        "actual_frozen_loader_admitted": true,
+        "rejection_code": null,
+        "other_three_histories_unchanged": true,
+        "source_pinned_tool_closure_unchanged": true,
+        "Root_files_modified": false,
+        "runtime_database_Git_network_actions": false,
+        "coordinator_sha256": "913f9c7e9cf2bafeb89161f5d19f26617b4d79006dc1bde2b7067a2659c3f69e"
+      }
+    }
+  ],
+  "offline_evidence": {
+    "author_suite": {
+      "methods": 33,
+      "seconds": 12.656,
+      "exit_code": 0,
+      "result": "PASS",
+      "all13_generated_bytes_reproduce": true,
+      "four_python_sources_ast_parse": true,
+      "earlier_draft_failure": "Collector added to context-helper map; initial24-method suite then passed, followed by31/32 expanded suites. Report preparation first lacked PYTHONPATH for pglast; environment corrected without source change."
+    },
+    "Root_independent_suite": {
+      "tests": 33,
+      "PASS": true,
+      "seconds": 9.935,
+      "provenance": "Parent Root task completion message; not rerun by this reviewer"
+    },
+    "whole33_gratuitous_rerun": false,
+    "new_review_probes": 2,
+    "new_review_probes_process_Docker_database_Git_network": "ALL_FORBIDDEN",
+    "three_immutable_SQL_derivations_independently_recomputed_byte_exact": true,
+    "all4_python_sources_AST_parse": true
+  },
+  "remaining_reviewed_source_assessment": [
+    "No other confirmed blocker found in remaining frozen source after full review.",
+    "Canonical5ae is byte-identical; division inserts exactly1/0 before final reset/commit; late variant only relocates original EXECUTE grant after matching ownership transfer. Original42501/history7b7/worker32ACL remain exact.",
+    "Closed nine-module and24 source-byte graph, all13 prepared artifacts and seven-file histories are hashed before project helper compilation; the one exception to exact admission is the nested tool-map finding above. Cached transitive helpers/generator/history bytes are reused without source fallback.",
+    "Actual only-migrator provisioning, NULL-verifier+four rejected startups, source-bound wrong-original-grantor P0001 and unchanged authority checks, successful closed install + independently observed original-grantor cleanup gates precede activation. Cleanup after a failed install never permits activation.",
+    "The new server parser returns fixed typed counts only and distinguishes exact22012/function42501 from generic errors; secondary25P02 with actualNULL logs is separately observed, not inferred from196c. P3018 is claimed only from bounded actual CLI codes.",
+    "Failed private ledger proof guards heap ownership/builtin columns before projection; failed immutable row/source checksum and zero application relations/functions/types/enums/current clients are required. Independent proof hash/run/CID/source/reviewer decision precedes standard resolve; original fault history retained and canonical retry/rearm/no-op ordering preserves applied checksums.",
+    "Global all-database/role/tag closure occurs in process finally handling before verdict/state observations. Outer run finally separately attempts original-grantor finalization/global closure even when evidence I/O fails; fixed failure metadata and safe count/hash evidence retain no passwords/raw diagnostics/statements.",
+    "Full native ACL/schema/oracle and recovered22012 private-ledger expectation remain explicitly pending a separately reviewed outer operator; source counters/schema fingerprints never qualify those criteria."
+  ],
+  "primary_source_verification": [
+    {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/aclchk.c",
+      "lines": "286-318,2593-2595,2683-2685",
+      "supports": "No privilege yields aclcheck_error; insufficient grant options with some privilege yields warning; function denial uses insufficient_privilege state. Expected late-transfer branch is source inference, NOT_RUN."
+    },
+    {
+      "url": "https://www.postgresql.org/docs/17/sql-grant.html",
+      "lines": "170-176",
+      "supports": "Documents outright no-privilege failure versus partial-grant warnings and grantor-role behavior."
+    }
+  ],
+  "limits": {
+    "posture": "D",
+    "source_approval": "WITHHELD_PENDING_INSTALL_SOURCE_01",
+    "outer_operator_source_review": "NOT_PERFORMED",
+    "literal_runtime_or_full_native_approval": false,
+    "all_install_runtime_cases": "NOT_RUN",
+    "old196c_complete_cause": "NOT_REINTERPRETED",
+    "whole94_451_owner_or_production_promotion": false
+  },
+  "reviewer_actions": {
+    "repository_source_edits": false,
+    "Git_actions": false,
+    "Docker_database_SQL_execution": false,
+    "primary_documentation_read_only_web_lookup": true,
+    "TASK_only_probe_and_review_files": true
+  },
+  "plain_english": "The new test recipes keep the old rules safe, but they still accept a changed tool list. That list must match the saved list exactly before the runner loads helpers. No real database test ran."
+}

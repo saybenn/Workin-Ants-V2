@@ -1,0 +1,71 @@
+{
+  "schema": "workinants.shared-outer-finally-save-failure-independent-probe.v1",
+  "actual_source_mains": [
+    {
+      "source_file": "local_f0_owner_read_operation_steps.py",
+      "source_sha256": "635014dbc206a174c1e00060351081d81636c396e7f13f078e0ae4c30205a62e",
+      "branch": "FINALLY_FINALIZATION",
+      "actual_frozen_main_cleanup_attempted": false,
+      "escaped_exception_class": "OSError",
+      "finalization_attempted": true,
+      "secret_scan_attempted": false,
+      "safe_failure_stage_retained": true
+    },
+    {
+      "source_file": "local_f0_owner_read_operation_steps.py",
+      "source_sha256": "635014dbc206a174c1e00060351081d81636c396e7f13f078e0ae4c30205a62e",
+      "branch": "SANITIZATION",
+      "actual_frozen_main_cleanup_attempted": false,
+      "escaped_exception_class": "OSError",
+      "finalization_attempted": true,
+      "secret_scan_attempted": true,
+      "safe_failure_stage_retained": true
+    },
+    {
+      "source_file": "local_f0_lease_revoke_operation_steps_snapshot_v3.py",
+      "source_sha256": "5b0ec9d7c844ec86da4c5ed0cfc7d8b0839bbbf7bc962355b08b2e8a21c02022",
+      "branch": "FINALLY_FINALIZATION",
+      "actual_frozen_main_cleanup_attempted": false,
+      "escaped_exception_class": "OSError",
+      "finalization_attempted": true,
+      "secret_scan_attempted": false,
+      "safe_failure_stage_retained": true
+    },
+    {
+      "source_file": "local_f0_lease_revoke_operation_steps_snapshot_v3.py",
+      "source_sha256": "5b0ec9d7c844ec86da4c5ed0cfc7d8b0839bbbf7bc962355b08b2e8a21c02022",
+      "branch": "SANITIZATION",
+      "actual_frozen_main_cleanup_attempted": false,
+      "escaped_exception_class": "OSError",
+      "finalization_attempted": true,
+      "secret_scan_attempted": true,
+      "safe_failure_stage_retained": true
+    },
+    {
+      "source_file": "local_f0_restore_operation_steps_closure_v3.py",
+      "source_sha256": "43777294b46b6e12f8ae631524e1cd0b4662d591d194760e16ad7d5c1da2d328",
+      "branch": "FINALLY_FINALIZATION",
+      "actual_frozen_main_cleanup_attempted": false,
+      "escaped_exception_class": "OSError",
+      "finalization_attempted": true,
+      "secret_scan_attempted": false,
+      "safe_failure_stage_retained": true
+    },
+    {
+      "source_file": "local_f0_restore_operation_steps_closure_v3.py",
+      "source_sha256": "43777294b46b6e12f8ae631524e1cd0b4662d591d194760e16ad7d5c1da2d328",
+      "branch": "SANITIZATION",
+      "actual_frozen_main_cleanup_attempted": false,
+      "escaped_exception_class": "OSError",
+      "finalization_attempted": true,
+      "secret_scan_attempted": true,
+      "safe_failure_stage_retained": true
+    }
+  ],
+  "confirmed_shared_scope": 3,
+  "mocked_paths": 6,
+  "source_SQL_Git_Docker_database_network_actions": false,
+  "all_operation_boundaries": "MOCKED_OR_FORBIDDEN",
+  "historical_cleanup_inference": "NONE_NO_PRIOR_RUNTIME_IO_ERROR_CLAIMED",
+  "finding": "Bare save() in finalization/secret-scan exception handlers can escape finally before cleanup(). Independent best-effort persistence must not block subsequent cleanup attempts."
+}

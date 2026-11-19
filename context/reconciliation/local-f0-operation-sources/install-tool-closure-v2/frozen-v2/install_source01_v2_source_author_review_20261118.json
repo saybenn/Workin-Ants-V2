@@ -1,0 +1,102 @@
+{
+  "schema": "workinants.install-source01-v2-source-author-review.v1",
+  "recorded_at_utc": "2026-11-18T22:45:11.399641+00:00",
+  "author": "review_track_ports",
+  "status": "SOURCE_ONLY_FROZEN_PENDING_RESTRICTED_INDEPENDENT_REVIEW_VIA_ROOT",
+  "finding": "INSTALL-SOURCE-01",
+  "original_independent_review_sha256": "3b15586bf6e7b966f914fb0e35a5c57eda5155541b2f698af786fdafa87981cf",
+  "source_files_sha256": {
+    "scripts/install_control_protocol_v2.py": "6c1474dc12a603b07346fff014c8ab8bd15dec5be0b972ec1d504342115ba48f",
+    "scripts/prepare-install-control-rehearsal-v2.py": "307fb1aab002fcae97aca465bce6abb9afe5c6ad552dab2511a54f82afacbea9",
+    "scripts/check-install-control-rehearsal-v2.py": "52713b357a2a35809f9799251e87f41ba9b653ae735b81cc97dd7aa3a8f2effc",
+    "scripts/sql-review/run-install-control-rehearsal-v2.py": "973e89417e204aef113fddddaee39d5161ab3c7620fc2b43e2043eaeea033fac",
+    "scripts/sql-review/install-controls-coordinator-v2.md": "57955987668f88126acc232906638282be852eba06b403385fc6b9a3bb298964"
+  },
+  "prepared_files_sha256": {
+    "canonical/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "division_failure/20261117000100_f0_local_initial/migration.sql": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c",
+    "late_function_grant/20261117000100_f0_local_initial/migration.sql": "bb41107428c6a2868abe402c28d14554cfb073113f5687f806b395366189a61f",
+    "bootstrap.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+    "finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+    "authority-observe.sql": "b5791265492feb42a4e68b5538d41f33c1b3a77518e8b62f48ce3852b7f4b3e5",
+    "inactive-observe.sql": "3c81794dce2ef746695500f7539313f27fefd0590f12275deb8f471aef8bb92f",
+    "fresh-observe.sql": "674f92c95bbb627ba74abbc91dea0067ffd7cb25a01f1537487a21f354c09138",
+    "inventory.sql": "4364890304d7c112b69c1e25d20a6ccbbf99bf7b32c44183403bb216a5c7f453",
+    "ledger-observe.sql": "42ac58118727dbdc03c54e5ad6fb3cbedb3187f2ff2063eac4258336f0dfbb3c",
+    "rearm.sql": "40a2f1a0b2472a16af7b6b5544e330486b296c2265dba726c6264fd190f6b94b",
+    "README.md": "91255e819a337c0d3a234a2377d567f82cac44c1505fd9114ab70eae98f1013b",
+    "fixtures.json": "5ca39feda50e48e5359d8b77c5eac3b314f2f1837848e244786e00e5389a35fe"
+  },
+  "fixtures_sha256": "5ca39feda50e48e5359d8b77c5eac3b314f2f1837848e244786e00e5389a35fe",
+  "content_sha256": "1d308068e257ccc6aa413afcfe162e0c135f32aad6095007d8759478ba66b1e4",
+  "source_inputs": 24,
+  "source_tool_closure": {
+    "path": "context/reconciliation/local-f0-tooling/prisma-tools-closure.json",
+    "sha256": "610e36e4006e9680d0e6a036486f302a18ecce9593699125b4173f5914acb88b",
+    "file_count": 10300
+  },
+  "offline_checks": {
+    "methods": 39,
+    "seconds": 40.823,
+    "exit_code": 0,
+    "result": "PASS",
+    "four_python_sources_ast_parse": true,
+    "all13_artifacts_reproduce": true,
+    "all12_nonfixture_artifacts_byte_identical_to_v1": true,
+    "generated_SQL": "11 files/3427 parsed statements in unchanged inherited check"
+  },
+  "bounded_correction": [
+    "Cached actual source-pinned closure JSON610e36 is an explicit packet dependency and required by both source hashes and declared tool_closure_source metadata. Its typed file_count and actual map length must be10300.",
+    "Every one of4 cached nested manifests must have a dictionary tools.files_sha256 exactly equal to that cached actual source map before the first compiled() project helper call.",
+    "All four malformed manifests/provenance/archives are genuinely regenerated and rehashed with unchanged33fe; reduced10299 maps and same-count schema-engine substitutions reject before helper compilation.",
+    "Each one-target/cross-history discrepancy including division_recovery rejects before compilation; unknown-path canary rejected with fixed code/no echo; missing/rebound explicit closure dependency refuses before compilation.",
+    "All protocol/other runtime functions are AST-identical after versioned filename substitutions. Existing host/Node/33fe/42501 proof/ledger adapter/canonicalSQL/Root history/SQL recipe are unchanged."
+  ],
+  "regression_count_detail": {
+    "original_methods": 33,
+    "new_methods": 6,
+    "cross_target_subcases": 4,
+    "explicit_dependency_subcases": 3,
+    "actual_valid10300_loader": "PASS",
+    "helper_compile_on_rejected_tool_maps": false
+  },
+  "preservation": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install-source01-before-v2-tool-closure-20261118",
+    "manifest_sha256": "90c4f88ac4d5366a04a236307e350b55055a0da5ddc8050c0694a7819d8f7d3b",
+    "files": 42,
+    "original5_13_author_and_peer_reports_unchanged": true,
+    "original_freeze_f454_recursive_copy": true
+  },
+  "initial_derivation": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install_source01_v2_initial_derivation_20261118.json",
+    "sha256": "14ac40dcb3bd616167f6b969f951ea9449a85915d64e10b67adb1e76d157a08a"
+  },
+  "final_derivation": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install_source01_v2_final_derivation_20261118.json",
+    "sha256": "dfad6b21883420411ad1d797dcd22c6fcdee97efb2e7b21bd701a3c9574d00aa"
+  },
+  "protected_unchanged_source_identities": {
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+    "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+    "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f",
+    "scripts/sql-review/migration_server_diagnostics.py": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+    "scripts/sql-review/prisma_ledger_proof.py": "1cb05b1d82b67580671cccf5f9289fbc481fef2d77532b049658912428604b21",
+    "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+    "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+    "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd"
+  },
+  "review_routing": "Root will route the bounded correction to restricted_controls_operator when available; author has not triggered the busy reviewer.",
+  "limits": {
+    "posture": "D",
+    "all_INSTALL_runtime": "NOT_RUN",
+    "independent_source_approval": "PENDING",
+    "full_native_ACL_and_recovered22012_ledger_expectation": "PENDING_OUTER_OPERATOR",
+    "outer_source_literal_and_actual_execution": "NOT_APPROVED",
+    "whole94_or451_promoted": false,
+    "database_Docker_network_or_Git_actions": false,
+    "old_source_or_packet_overwritten": false,
+    "other_INSTALL_logic_expanded": false
+  },
+  "plain_english": "The tool list must match the saved10300-item list exactly. Smaller lists and changed tools are refused before any project helper runs. Only pretend processes were tested."
+}

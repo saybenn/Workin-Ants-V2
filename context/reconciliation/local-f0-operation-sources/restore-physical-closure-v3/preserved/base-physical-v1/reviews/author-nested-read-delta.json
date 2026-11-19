@@ -1,0 +1,32 @@
+{
+  "format": "workinants.restore-source-author-delta.v1",
+  "author": "/root/review_track_ports",
+  "finding": "Independent reviewer found a second-read gap for nested migration manifests after initial admission.",
+  "preservation": {
+    "directory": "restore-before-nested-manifest-read-fix-20261118",
+    "manifest_sha256": "3a56a3d992586db641db81100b0e7a2a9bc25a6871dc6dfc9e2867ad5e14d9f1",
+    "previous_four_sources_and_author_report_preserved": true
+  },
+  "current_source_files_sha256": {
+    "execute_local_f0_restore_20261117.py": "ad60d95c8921180cdc495835408c3a30adfc583786f2b45ecd5217adad60bd86",
+    "local_f0_restore_operation_steps.py": "a51e653bd979d15174a23f9ad04e85924132ec5a820b027e2551390bc89dce1a",
+    "prepare_local_f0_restore_plan.py": "efe9385c9acb868fbc1531c4e9e8f92514a4e39afe4351f1def467dd5a40ce45",
+    "check_local_f0_restore_operation.py": "df853bc7a9c35ae0129afecbcd13351e0158bacd0fe771e665c4c550d038df1e"
+  },
+  "correction": "read_target_manifest reads once, verifies manifest_sha256 and returns those exact bytes. Initial admission and tool-source checks use it. Tool provisioning validates before any Docker operation, then parses those bytes; migrate validates before any helper or process and passes the exact bytes to coordinate.",
+  "regression": "A second-read-only canary drift stops with fixed TARGET_PLAN_DRIFT before Docker, helper or coordinate; no raw value enters evidence.",
+  "author_mock_result": {"methods":31,"status":"PASS","elapsed_seconds":5.132},
+  "independent_review": {
+    "reviewer": "/root/catalog_v4_review",
+    "decision": "APPROVED_SOURCE_ONLY",
+    "path": "restore-physical-independent-source-review-final-20261118.json",
+    "sha256": "b4a71e7877cae5696821ff3369cf4d83521623a0175ca49b0db5c52d981435b1",
+    "mock_methods":31,
+    "proposal_methods":19,
+    "source_SQL_files_parsed":20,
+    "source_SQL_statements_parsed":80
+  },
+  "unchanged": {"core":true,"preparer":true,"all_25_nonproposal_artifacts":true,"canonical_application_SQL":true},
+  "runtime":"NOT_RUN",
+  "literal_plan_review":"REQUIRED_SEPARATELY"
+}

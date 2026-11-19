@@ -1,0 +1,83 @@
+{
+  "schema": "workinants.restore-runtime-closure-v3-source-author-review.v1",
+  "recorded_at_utc": "2026-11-18T22:32:49.218448+00:00",
+  "author": "review_track_ports",
+  "status": "FROZEN_SOURCE_ONLY_PENDING_INDEPENDENT_ROOT_REVIEW",
+  "new_sources_sha256": {
+    "execute_local_f0_restore_20261117_closure_v3.py": "ce8824f641e019117443751fcd5ce694f59db15ec92e749f220bba9695703a71",
+    "local_f0_restore_operation_steps_closure_v3.py": "43777294b46b6e12f8ae631524e1cd0b4662d591d194760e16ad7d5c1da2d328",
+    "prepare_local_f0_restore_plan_closure_v3.py": "1b47a3c0df4582992ce58240d5c370f2488add34f59c113fde443246eab0469d",
+    "check_local_f0_restore_operation_closure_v3.py": "3efefa122847f5f2d505678f4c2c888e250e8a9917654926f9ec77a38be4637e",
+    "pin_local_f0_restore_plan_20261118_closure_v3.py": "fcb59a54b3d61321c1d0b206ac480e02047f9203bee70c95d313687a7b0f969d"
+  },
+  "base_image_v2_sources_sha256": {
+    "execute_local_f0_restore_20261117_image_v2.py": "2a1aa6f41a0a6ef99c758249a9cade3f8b308b363170ba0a6bc7a1f53f2e2569",
+    "local_f0_restore_operation_steps_image_v2.py": "26a50040c2a6c1220d4bba93136a7fa3fcbed607db746eab282ad046d6d8a4f8",
+    "prepare_local_f0_restore_plan_image_v2.py": "9f9e66537e95e9f4c27ab2afb090c0305ef462350e272a3284f15821e7d3b405",
+    "check_local_f0_restore_operation_image_v2.py": "28d05b6d1ef201460e4ca70b903496da892668ad1e05739b4a261a8567ab89c9",
+    "pin_local_f0_restore_plan_20261118_image_v2.py": "ee0d5cfc76d89905d111f8419b84304d809fa79f3355845b6a0d0b2af21dcf1c"
+  },
+  "runtime_helpers_sha256": {
+    "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e",
+    "scripts/sql-review/rehearsal-diagnostics.py": "c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e",
+    "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f",
+    "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+    "scripts/sql-review/run-worker-control-rehearsal.py": "84b7268b4ef0f2d529927a267297981cec01a5166658f571c84c41e046bd893d"
+  },
+  "helper_map_field": "restore_runtime_helpers_sha256",
+  "source_namespace": "context/reconciliation/local-f0-operation-sources/restore-physical-closure-v3",
+  "source_validation_path": "context/reconciliation/local-f0-restore-closure-v3-source-validation.json",
+  "preserved_base": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore-image-v2-before-runtime-closure-v3-20261118",
+    "manifest_sha256": "ecf3bb06f4381eaef3c79ccad9176509cb4316d2e35f17e4d8cd130a04ce9fba"
+  },
+  "held_image_v2_literal_sha256": "b31f8e4e3c9b105faef1cd71ff8c4a59316ccd86426cff26442bf71892783734",
+  "held_image_v2_host_output_absent": true,
+  "proposal_sha256": "91834ed47f63820db5bb4cc16d77056577f7831f57eeed923198b630af15aaca",
+  "proposal_content_sha256": "2752ff8019c7d2c59a029e0595e5c42de6cc3e0c16d3ce18dffa75b1be70c1f1",
+  "unchanged_source_pin_count": 67,
+  "unchanged_nonproposal_recipe_files": 25,
+  "independent_review_required": "Root must review this new closure delta before archive/commit/pin/fresh literal review. Author does not approve own source.",
+  "offline_checks": {
+    "command": "PYTHONPATH=TASK/offline-python PYTHONUTF8=1 python -B check_local_f0_restore_operation_closure_v3.py",
+    "methods": 39,
+    "seconds": 51.542,
+    "exit_code": 0,
+    "result": "PASS",
+    "initial_37_methods": "PASS49.269s before two added preparation/pin-map checks",
+    "five_sources_ast_parse": "PASS",
+    "core_executable_functions_identical_after_filename_substitution": true,
+    "steps_changed_executable_functions_only": [
+      "read_pinned",
+      "verify_restore_packet"
+    ]
+  },
+  "focused_regressions": [
+    "Real newly generated pending manifest; real current source inputs copied byte-for-byte plus all5 new source snapshot bytes; actual full verify_restore_packet/native generation/16-module source reproduction/Worker loader. Only outer Git/status/common boundary is replaced; subprocess/socket/process calls are refused globally.",
+    "Original Image V2 verifier source reproduces the exact missing-worker KeyError with the helper omitted from its actual packet map. This is source-only, not a database failure.",
+    "Missing/unknown declared dependency map, missing full-packet helper pin and drifted throwing/canary helper all stop before builtins.compile is called; canary absent from report.",
+    "Generic read_pinned missing pin rejects before Path.resolve or read_bytes.",
+    "Preparer drifted Worker refuses before history helper compilation or any fresh source-plan output.",
+    "Mid-preparation Worker drift refuses rather than emitting a mismatched held helper map/inventory.",
+    "Pin helper FROZEN map equals exact current four sources and helper closed map matches preparer/runtime."
+  ],
+  "source_changes": [
+    "Preparer explicitly declares/pins the unchanged five runtime helpers and includes every one in the full source inventory. Worker84b726 is an executable dependency, not a SQL recipe change.",
+    "Runtime prehashes this closed map against full packet and current bytes before any catalog/helper compiler can execute. read_pinned verifies pin membership/type before filesystem resolution/read, then hashes and returns the same bytes.",
+    "Pin helper declares the same exact five hashes, enforces inclusion/current bytes and requires a separate SOURCE_APPROVED runtime-closure review; archive/validation namespace and filenames are fresh.",
+    "All remaining executable methods, physical backup/restore/isolation/credentials/Identity generation/currentness/finalization/cleanup and imagea074 behavior are unchanged."
+  ],
+  "limits": {
+    "posture": "D",
+    "all_restore_runtime": "NOT_RUN",
+    "privacy_gate": "P0F_PRIVACY_RESTORE_GENERATION_PORT",
+    "whole_restore_case_qualified": false,
+    "database_contacted": false,
+    "Docker_network_or_real_process_executed": false,
+    "Git_mutated": false,
+    "old_source_or_held_literal_changed": false,
+    "fresh_literal_review_required": true,
+    "initial_root_source_verifier_helper_error_reinterpreted_as_restore_runtime_failure": false
+  },
+  "plain_english": "The recipe forgot to list one tool. V3 lists it and checks its label before reading or running it. Pretend-process tests passed. No real restore has run."
+}

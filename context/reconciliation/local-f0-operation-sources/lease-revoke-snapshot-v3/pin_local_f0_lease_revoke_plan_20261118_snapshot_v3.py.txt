@@ -1,0 +1,46 @@
+"""Pin a held lease/revocation plan to current committed bytes; never execute it."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+SOURCE_ROOT='context/reconciliation/local-f0-operation-sources/lease-revoke-snapshot-v3'
+FILES=('execute_local_f0_lease_revoke_20261118_snapshot_v3.py','local_f0_lease_revoke_operation_steps_snapshot_v3.py','prepare_local_f0_lease_revoke_plan_snapshot_v3.py','check_local_f0_lease_revoke_operation_snapshot_v3.py','pin_local_f0_lease_revoke_plan_20261118_snapshot_v3.py')
+VALIDATION='context/reconciliation/local-f0-lease-revoke-snapshot-v3-source-validation.json'
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def need(value,code):
+    if not value:raise ValueError(code)
+def git(*args):return subprocess.check_output(['git','-c','core.longpaths=true',*args],cwd=ROOT)
+def pin(path):
+    path=path.resolve();need(path.is_relative_to(TASK) and not path.is_relative_to(ROOT),'EXTERNAL_MANIFEST_REQUIRED');raw=path.read_bytes();value=json.loads(raw)
+    need(value['purpose']=='LOCAL_F0_LEASE_REVOKE_REHEARSAL' and value['review_status']=='PENDING_OPERATIONAL_REVIEW','HELD_PLAN_REQUIRED')
+    need(value['lease_revoke']['fixtures_sha256']=='fe59a9867093f1cbab01741fa7d4f1fd727090e410374e663bbbd0796903c7e5','REVIEWED_FIXTURE_REQUIRED')
+    files=dict(value['packet_files_sha256']);need(sha(''.join(p+'\0'+files[p]+'\n' for p in sorted(files)).encode())==value['prepared_source_files_aggregate_sha256'],'PREPARED_SOURCE_INVENTORY_DRIFT')
+    need(set(value['operator_sources_sha256'])==set(FILES),'EXACT_FIVE_OPERATOR_SOURCES')
+    for name in FILES:
+        actual=(TASK/name).read_bytes();relative=SOURCE_ROOT+'/'+name+'.txt';snapshot=(ROOT/relative).read_bytes()
+        need(actual==snapshot and sha(actual)==value['operator_sources_sha256'][name],'LIVE_COMMITTED_SNAPSHOT_DRIFT');files[relative]=sha(snapshot)
+    validation=json.loads((ROOT/VALIDATION).read_bytes())
+    need(validation['independent_image_correction_review']['decision']=='SOURCE_APPROVED','IMAGE_CORRECTION_REVIEW_REQUIRED')
+    need(validation['independent_snapshot_correction_review']['decision']=='SOURCE_APPROVED','SNAPSHOT_CORRECTION_REVIEW_REQUIRED')
+    for relative,digest in validation['archive_files_sha256'].items():
+        need(sha((ROOT/relative).read_bytes())==digest,'IMAGE_V2_ARCHIVE_DRIFT');files[relative]=digest
+    files[VALIDATION]=sha((ROOT/VALIDATION).read_bytes())
+    commit=git('rev-parse','HEAD').decode().strip();tree=git('rev-parse','HEAD^{tree}').decode().strip()
+    need(re.fullmatch('[0-9a-f]{40}',commit) and re.fullmatch('[0-9a-f]{40}',tree),'COMMIT_TREE_REQUIRED')
+    for relative,digest in files.items():
+        p=Path(relative);need(not p.is_absolute() and '\\' not in relative and all(part not in ('','.','..') for part in relative.split('/')),'TRACKED_SOURCE_PATH')
+        need(sha((ROOT/p).read_bytes())==digest==sha(git('show',commit+':'+relative)),'COMMITTED_SOURCE_DRIFT')
+    need(git('rev-parse','HEAD').decode().strip()==commit,'HEAD_CHANGED_DURING_PIN')
+    with path.with_name('operation-manifest-before-source-pin.json').open('xb') as output:output.write(raw)
+    value.update(source_commit=commit,source_tree=tree,packet_files_sha256=dict(sorted(files.items())),packet_sha256=sha(''.join(p+'\0'+files[p]+'\n' for p in sorted(files)).encode()))
+    encoded=(json.dumps(value,indent=2)+'\n').encode();path.write_bytes(encoded)
+    return {'source_commit':commit,'source_tree':tree,'packet_sha256':value['packet_sha256'],'manifest_sha256':sha(encoded),'packet_files':len(files),'runtime_approved':False,'review_status':value['review_status']}
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('manifest',type=Path);args=parser.parse_args(argv)
+    try:print(json.dumps(pin(args.manifest)));return 0
+    except BaseException:print(json.dumps({'status':'HELD','code':'SOURCE_PIN_REFUSED','raw_output_discarded':True}));return 1
+if __name__=='__main__':raise SystemExit(main())
