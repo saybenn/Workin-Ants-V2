@@ -1,0 +1,154 @@
+RESTORE_SECRET_TMPFS_TOKEN = 'WA_RESTORE_SECRET_TMPFS_V2_OK'
+RESTORE_SECRET_TMPFS_SCRIPT = r'''set -f
+export LC_ALL=C
+count=0
+while IFS=' ' read -r source target filesystem options dump pass extra; do
+  [ "$target" = /run/wa-secrets ] || continue
+  count=$((count+1))
+  [ -n "$source" ] && [ "$filesystem" = tmpfs ] && [ -z "$extra" ] || exit 21
+  case "$options" in ''|,*|*,|*,,*) exit 22;; esac
+  seen_rw=0; seen_noexec=0; seen_nosuid=0; seen_nodev=0
+  saved_ifs=$IFS; IFS=,; set -- $options; IFS=$saved_ifs
+  for option do
+    case "$option" in
+      rw) seen_rw=$((seen_rw+1));;
+      noexec) seen_noexec=$((seen_noexec+1));;
+      nosuid) seen_nosuid=$((seen_nosuid+1));;
+      nodev) seen_nodev=$((seen_nodev+1));;
+      ro|exec|suid|dev) exit 23;;
+    esac
+  done
+  [ "$seen_rw" -eq 1 ] && [ "$seen_noexec" -eq 1 ] && [ "$seen_nosuid" -eq 1 ] && [ "$seen_nodev" -eq 1 ] || exit 24
+done < /proc/mounts
+[ "$count" -eq 1 ] || exit 25
+[ "$(stat -c '%F:%a:%u:%g' -- /run/wa-secrets)" = 'directory:700:0:0' ] || exit 26
+printf '%s\n' 'WA_RESTORE_SECRET_TMPFS_V2_OK'
+'''
+
+
+def verify_running_restore_secret_tmpfs(name, kind, identity):
+    report['stage'] = 'RESTORE_RUNNING_SECRET_TMPFS'
+    safe_kind = kind if kind in ('source', 'target') else 'UNADMITTED'
+    record = {'kind': safe_kind, 'phase': 'RUNNING_KERNEL_TMPFS',
+              'owned_identity': False, 'attempted': False, 'command_returned': False,
+              'integer_exit_zero': False, 'fixed_token': False,
+              'stderr_empty': False, 'confirmed': False}
+    report.setdefault('restore_resource_kernel_checks', []).append(record)
+    save()
+    expected = {'source': SOURCE, 'target': RESTORED}
+    record['owned_identity'] = (type(kind) is str and kind in expected
+        and name == expected[kind] and name in RESOURCE_CONTAINERS
+        and name in created_containers and created_containers[name] == identity
+        and type(identity) is str and re.fullmatch('[0-9a-f]{64}', identity) is not None)
+    save()
+    need(record['owned_identity'], 'RESTORE_TMPFS_OWNED_CID_REQUIRED')
+    record['attempted'] = True
+    save()
+    try:
+        result = docker(['exec', '-i', identity, 'sh', '-ceu', RESTORE_SECRET_TMPFS_SCRIPT], timeout=30)
+        code = getattr(result, 'returncode', None)
+        stdout = getattr(result, 'stdout', None)
+        stderr = getattr(result, 'stderr', None)
+        record.update(command_returned=True, integer_exit_zero=type(code) is int and code == 0,
+                      fixed_token=type(stdout) is str and stdout == RESTORE_SECRET_TMPFS_TOKEN + '\n',
+                      stderr_empty=type(stderr) is str and stderr == '')
+        record['confirmed'] = all(record[key] is True for key in
+            ('owned_identity', 'attempted', 'command_returned', 'integer_exit_zero', 'fixed_token', 'stderr_empty'))
+    except BaseException:
+        record['confirmed'] = False
+    finally:
+        save()
+    need(record['confirmed'], 'RESTORE_SECRET_TMPFS_KERNEL_UNCONFIRMED')
+
+
+def inspect_restore(name, kind, running=True):
+    report['stage'] = 'RESTORE_RESOURCE_RUNNING_INSPECTION' if running is True else 'RESTORE_RESOURCE_NOT_RUNNING_INSPECTION'
+    safe_kind = kind if kind in ('source', 'staging', 'target') else 'UNADMITTED'
+    record = {'kind': safe_kind, 'phase': 'RUNNING' if running is True else 'NOT_RUNNING',
+              'comparisons': {}, 'mount_counts': {'data': 0, 'bind': 0, 'tmpfs_api': 0},
+              'kernel_required': running is True and kind in ('source', 'target'), 'confirmed': False}
+    report.setdefault('restore_resource_inspection_checks', []).append(record)
+    save()
+
+    def check(key, condition, code):
+        record['comparisons'][key] = condition is True
+        save()
+        need(record['comparisons'][key], code)
+
+    names = {'source': SOURCE, 'staging': STAGING, 'target': RESTORED}
+    check('closed_profile', type(kind) is str and kind in names and name == names[kind]
+          and name in RESOURCE_CONTAINERS and type(running) is bool, 'RESTORE_RESOURCE_PROFILE')
+    value = inspect_container(name)
+    check('container_shape', type(value) is dict and type(value.get('Config')) is dict
+          and type(value.get('HostConfig')) is dict and type(value.get('State')) is dict
+          and type(value.get('NetworkSettings')) is dict and type(value.get('Mounts')) is list,
+          'RESTORE_CONTAINER_SHAPE')
+    labels = value['Config'].get('Labels')
+    check('created_identity', name in created_containers and type(value.get('Id')) is str
+          and re.fullmatch('[0-9a-f]{64}', value['Id']) is not None
+          and value['Id'] == created_containers[name] and value.get('Name') == '/' + name
+          and type(labels) is dict and owned(labels), 'RESTORE_CREATED_CONTAINER_IDENTITY')
+    host = value['HostConfig']
+    required = {'NetworkMode', 'PortBindings', 'Privileged', 'PidMode', 'IpcMode', 'Devices', 'CapAdd', 'Links'}
+    check('isolation', required <= set(host) and value['Config'].get('Image') == IMAGE
+          and value.get('Image') == report['image']['image_id'] and value.get('Platform') == 'linux'
+          and value['State'].get('Running') is running and host['NetworkMode'] == 'none'
+          and host['PortBindings'] in (None, {}) and host['Privileged'] is False
+          and host['PidMode'] == '' and host['IpcMode'] in ('', 'private')
+          and not host['Devices'] and not host['CapAdd'] and host['Links'] in (None, []),
+          'RESTORE_CONTAINER_ISOLATION')
+    ports = value['NetworkSettings'].get('Ports')
+    check('no_published_ports', ports is None or type(ports) is dict and all(item is None for item in ports.values()),
+          'RESTORE_NO_PUBLISHED_PORTS')
+    volume = TARGETS[0]['volume'] if kind == 'source' else RESTORED + '-data'
+    expected_bind = str(PRIVATE / 'ok-bootstrap-password') if kind == 'source' else str(ARCHIVE)
+    windows = PureWindowsPath(expected_bind)
+    desktop = '/run/desktop/mnt/host/' + windows.drive[0].lower() + '/' + '/'.join(windows.parts[1:])
+    mounts = value['Mounts']
+    base_count = 1 if kind == 'target' else 2
+    check('bounded_mount_list', base_count <= len(mounts) <= base_count + (kind != 'staging'), 'RESTORE_MOUNT_SET')
+    for mount in mounts:
+        check('mount_row_shape', type(mount) is dict and {'Type', 'Destination', 'RW'} <= set(mount),
+              'RESTORE_MOUNT_ROW_SHAPE')
+        if mount['Type'] == 'volume':
+            check('data_mount', mount.get('Name') == volume and mount['Destination'] == DATA_ROOT
+                  and mount['RW'] is True, 'RESTORE_DATA_MOUNT')
+            record['mount_counts']['data'] += 1
+        elif mount['Type'] == 'bind':
+            check('private_bind', kind in ('source', 'staging') and mount.get('Source') in (expected_bind, desktop)
+                  and mount['RW'] is False and mount['Destination'] ==
+                  ('/run/bootstrap-password' if kind == 'source' else '/run/restore01-base.tar'),
+                  'RESTORE_EXACT_PRIVATE_BIND')
+            record['mount_counts']['bind'] += 1
+        elif mount['Type'] == 'tmpfs':
+            check('optional_tmpfs_api', kind != 'staging' and mount['Destination'] == '/run/wa-secrets'
+                  and mount['RW'] is True, 'RESTORE_TMPFS_MOUNT')
+            record['mount_counts']['tmpfs_api'] += 1
+        else:
+            check('known_mount_type', False, 'RESTORE_EXTRA_MOUNT')
+        save()
+    counts = record['mount_counts']
+    check('logical_mount_set', counts['data'] == 1 and counts['bind'] == (kind != 'target')
+          and (counts['tmpfs_api'] == 0 if kind == 'staging' else counts['tmpfs_api'] in (0, 1)),
+          'RESTORE_MOUNT_SET')
+    tmpfs = host.get('Tmpfs')
+    if kind == 'staging':
+        check('no_staging_tmpfs', tmpfs is None or type(tmpfs) is dict and not tmpfs, 'RESTORE_TMPFS_SET')
+    else:
+        check('host_tmpfs_key', type(tmpfs) is dict and set(tmpfs) == {'/run/wa-secrets'}, 'RESTORE_TMPFS_SET')
+        options = tmpfs['/run/wa-secrets']
+        tokens = options.split(',') if type(options) is str else []
+        check('exact_tmpfs_options', len(tokens) == len(set(tokens)) == 5 and set(tokens) in
+              ({'rw', 'nosuid', 'noexec', 'nodev', 'mode=0700'}, {'rw', 'nosuid', 'noexec', 'nodev', 'mode=700'}),
+              'RESTORE_TMPFS_PRIVATE_OPTIONS')
+    observed = inspect_volume(volume)
+    check('volume_identity', type(observed) is dict and observed.get('Name') == volume
+          and observed.get('CreatedAt') == created_volumes[volume]
+          and type(observed.get('Labels')) is dict and owned(observed['Labels'])
+          and observed.get('Driver') == 'local' and not observed.get('Options')
+          and observed.get('Scope') == 'local', 'RESTORE_OWNED_VOLUME_IDENTITY')
+    if running and kind != 'staging':
+        verify_running_restore_secret_tmpfs(name, kind, value['Id'])
+    record['confirmed'] = True
+    save()
+    return value

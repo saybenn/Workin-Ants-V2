@@ -1,0 +1,14 @@
+{
+  "schema": "workinants.native-resource-set-v2-author-harness-correction.v1",
+  "recorded_at_utc": "2026-11-19T22:33:36.788810+00:00",
+  "initial_source_sha256": "883a9955f67de89c93c3ec12fd480799a525565a6dffc58fb467bcb67f342277",
+  "initial_outcome": {
+    "tests": 27,
+    "PASS": 4,
+    "errors": 23,
+    "seconds": 0.574
+  },
+  "cause": "The common composed methods explicitly iterate install/lease/restore/owner as well as native, while the initial adapter provided only native in its test inventory. KeyError occurs before those test fixtures initialize. This is author-only test harness wiring, not a new operational source defect.",
+  "correction": "Retain the original frozen four family profiles and substitute the new Native five for native; keep original scenario assertions and all owning code unchanged.",
+  "production_five_changed": false
+}

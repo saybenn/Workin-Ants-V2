@@ -1,0 +1,89 @@
+{
+  "schema": "workinants.install-independent-watch-v2-source-plan.v1",
+  "recorded_at_utc": "2026-11-19T22:31:18.803348+00:00",
+  "author": "/root/catalog_v4_review",
+  "status": "PROPOSED_SOURCE_PLAN_ONLY_NO_IMPLEMENTATION_OR_RETRY",
+  "basis": {
+    "original_watch_source_sha256": "c2736ecd0224bdfc33bf5393de8acbea060eb6817f10b127de2401763fd7a026",
+    "original_watch_source_addendum_sha256": "0bba2927b9734b49c96d67e5a471edc158cc70498daaf02c945e866018cd8aec",
+    "actual_save_source_sha256": "5c71ead1bbb7ced7d45a36f258cc271f9a8c19275f94bc55875d3526c0c02b87",
+    "experiment_source_sha256": "14340231da1d8870774f8fcdbd104e377d791e0ad841fc093b3d63f811892486",
+    "experiment_result_sha256": "5bc6dd5f6c26904d8df9231d3a74855d150253927e50b897734f1d243db905b7",
+    "first_expectation_failure_sha256": "889bf3ebb135cb086e26215fa46d6c8b24db3f9c1e7e3c0e4db9b10640ffde05"
+  },
+  "observed_mechanism": {
+    "ordinary_held_reader": "Exact save Path.replace line69 raises PermissionError/allowlisted WinError5; target unchanged and failure sticky.",
+    "share_delete_held_reader": "Same failure with actual CreateFileW GENERIC_READ, FILE_SHARE_READ|WRITE|DELETE. This is not a successful remedy in this environment.",
+    "closed_reader": "Exact save succeeds; initial evidence state complete.",
+    "later_scratch_save_after_ordinary_reader_closed": "Succeeds while sticky failure/incomplete state remains.",
+    "actual_INSTALL_failure": "Full cause unobserved. No actual failing phase or class recovered; scratch reproduction only.",
+    "correction_to_experiment_plain_english": "result-v2.json retained an inherited generic phrase saying a reader that allows the swap avoids it; the actual shared-handle control did not avoid it. Only the closed-handle control succeeded; this plan supersedes that phrase, never the actual case observations."
+  },
+  "preferred_versioned_delivery_plan": {
+    "goal": "Avoid reading mutable files while actual writer can replace them, retaining independent review and strict IO failure stop.",
+    "preserve_first": "Preserve all original watch sources, stopped records and actual INSTALL5/packet before any future versioned source edits.",
+    "coordinator_change_requires_Root_ACK_and_independent_review": [
+      "After verified rollback proof is complete, write fixed canonical immutable proof once.",
+      "Finish current review_hold record plus INDEPENDENT_ROLLBACK_REVIEW_REQUIRED result save before publishing any ready signal.",
+      "Publish NEW fixed immutable independent-review-ready.json only after those saves completed. It binds exact schema/run/source/tree/packet/CID/proof SHA and closed child-result snapshot SHA; no arbitrary paths, credentials, or raw outputs.",
+      "Begin unchanged240-second monotonic review wait only once ready publication is complete; do not mutate referenced evidence during wait. On timeout stop and cleanup as before. No extension/retry or alternative decision accepted."
+    ],
+    "watcher_change": [
+      "While operation runs, poll only existence of fixed fresh immutable ready file. Do not open outer run-evidence.json or mutable child-results file during writing.",
+      "After valid bounded duplicate-free canonical ready signal, establish conservative local220-second budget and read only exact referenced closed immutable/snapshot evidence. Verify full actual evidence contract before approval, with all handles closed before any approval write.",
+      "Keep seven-field approval schema and reviewer allowlist unchanged. No preapproval. Invalid, partial, oversized, IO-unconfirmed, missing, late or wrong-identity evidence produces no approval and informs Root.",
+      "Use Root actual executor completion notification to stop watch. Open final mutable reports only after writer exited; never use concurrent outer polling as an execution-status channel.",
+      "If no coordinator/parent-pause handshake is approved, keep future watch/run held. FILE_SHARE_DELETE alone is not accepted as a fix."
+    ],
+    "tests": [
+      "Actual unchanged save scratch comparison under held and closed handles, retaining failed control.",
+      "Versioned writer/watcher test ensures no mutable file read before immutable ready publication; ready save failure yields no ready/approval.",
+      "Wrong-run/source/CID/hash, duplicate/nonfinite/malformed JSON, partial IO, oversize, timeout and all source-contract mutations deny approval.",
+      "Retained actual source trace proves mutable evidence quiescent during review and all file handles closed before approval/recovery.",
+      "Actual controlled reader/writer overlap on Windows demonstrates new protocol cannot reproduce concurrent-target replace collision; no Docker/SQL required.",
+      "No runtime rehearsal, new resource, approval artifact at actual paths, or SQL executed by tests."
+    ]
+  },
+  "minimal_save_IO_metadata_proposal": {
+    "status": "PLAN_ONLY_DO_NOT_EDIT_INSTALL5",
+    "fixed_phase_enum": [
+      "TEMP_OPEN",
+      "SERIALIZE_REDACT",
+      "TEMP_WRITE",
+      "TEMP_FLUSH",
+      "TEMP_FSYNC",
+      "ATOMIC_REPLACE"
+    ],
+    "fixed_exception_class_enum": [
+      "PermissionError",
+      "FileNotFoundError",
+      "OSError",
+      "TypeError",
+      "ValueError",
+      "UnicodeError",
+      "OTHER"
+    ],
+    "allowlisted_winerror": [
+      5,
+      32,
+      33
+    ],
+    "capture": "First failure only, fixed phase/class/allowlisted winerror; no exception string, traceback, arbitrary path/body/raw handle or credentials.",
+    "persistence": "Mark evidence incomplete, preserve first STOP and re-raise original; no automatic retry. Later best-effort save may retain fixed metadata but never clear failure. If disk remains unavailable, final fixed safe stdout summary may carry only same allowlisted metadata.",
+    "focused_tests": [
+      "Inject each IO phase failure and verify fixed metadata only.",
+      "Unexpected exception classes map OTHER; unlisted numeric OS codes withheld.",
+      "Every existing finally/closure/finalizer/cleanup still progresses under persistent IO; no later behavior or PASS.",
+      "Persistent metadata export failure retains nonzero exit and first failure, no arbitrary raw content."
+    ]
+  },
+  "limits": {
+    "no_actual_cause_claim": true,
+    "no_current_source_changes": true,
+    "no_approval_or_runtime_retry": true,
+    "no_policy_SQL_role_permission_change": true,
+    "Root_sole_executor": true,
+    "posture": "D"
+  },
+  "plain_english": "The watcher should wait for a finished review ticket instead of opening a page while the test is still replacing it. A small fixed error note would tell us which save step failed, without exposing secret text. These are plans for review, not changes or a new test run."
+}

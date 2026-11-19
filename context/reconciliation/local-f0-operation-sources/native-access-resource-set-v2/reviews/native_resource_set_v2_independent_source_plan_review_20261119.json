@@ -1,0 +1,152 @@
+{
+  "schema": "workinants.native-resource-set-v2-independent-source-plan-review.v1",
+  "recorded_at_utc": "2026-11-19T22:24:47.844434+00:00",
+  "reviewer": "/root/review_track_ports",
+  "plan_author": "/root",
+  "reviewer_authorship_limit": "Reviewer did not author the Root resource-set correction plan or Root reproduction. Reviewer contributed to prior SafetySQL tooling lineage. This decision concerns the proposed narrow wiring correction; it does not substitute for separate independent review of the new five sources after authorship.",
+  "decision": "SOURCE_PLAN_APPROVED_REQUEST_ROOT_IMPLEMENTATION_ACK",
+  "implementation_or_runtime_approval": false,
+  "plan": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\native_resource_set_v2_source_correction_plan_20261119.json",
+    "sha256": "9acbf4fa194dd659e8eb5b17952d2bca8fbeed166cfb5f371b7a0c145b2288ea"
+  },
+  "reviewed_reproduction": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\nativebd4d_safety_resource_global_source_probe_v2_20261119.json",
+    "sha256": "269fcf2f5affce05b2d7b1edebcff05e10999c5c5238973665d5e2a927e5d2d1"
+  },
+  "verified_baseline": {
+    "five_current_files": {
+      "execute_local_f0_native_access_20261119_safety_sql_v1.py": "82ff221e2b740ffeac248474c84bfab80253c34e3234a6a2cf584e6162397574",
+      "local_f0_native_access_operation_steps_safety_sql_v1.py": "991210f073adecb1ca0b9dda208f56fba218feb56ab3d6c18db16b437ad8072a",
+      "prepare_local_f0_native_access_plan_safety_sql_v1.py": "3276f27248c81fcb128c0f3f9654a97e398e54dd4007f92e0da2cb8aca49ca18",
+      "check_native_access_operation_safety_sql_v1.py": "415baef53ea13d12273b4879aadffe9683d0eb42d5c32e4a62d6b49e0f81843d",
+      "pin_native_access_plan_20261119_safety_sql_v1.py": "173da2a5a166f67beba5c0d38cfa1a15d57dff6b5f5fb868c26cb0cf4dab85c9"
+    },
+    "all_five_match": true,
+    "archived_files": 30,
+    "all_archive_hashes_match": true,
+    "current_validation_sha256": "c3dd246042aaec551c7502c3dd613e18ac41f0b694bbc14cf9cb9b056ae58acc",
+    "stopped_inventory_sha256": "7f26073fb97e9eea904951adae3d4a191be57cf08394646ab322d89276121f5d",
+    "independent_cleanup_sha256": "739091804218ac561e3a89044b30642920ca2b59f7f1838c8c20b9496ebf1985"
+  },
+  "confirmed_source_facts": [
+    {
+      "file": "execute_local_f0_native_access_20261119_safety_sql_v1.py",
+      "line": 38,
+      "fact": "TARGETS is initialized from the manifest, but no RESOURCE_CONTAINERS assignment occurs anywhere in the entire Core or loaded Steps."
+    },
+    {
+      "file": "execute_local_f0_native_access_20261119_safety_sql_v1.py",
+      "line": 351,
+      "fact": "_required_safety_sql evaluates owned target membership in RESOURCE_CONTAINERS before dispatch; this raises NameError for the actual owned target because the module never initializes that global."
+    },
+    {
+      "file": "execute_local_f0_native_access_20261119_safety_sql_v1.py",
+      "line": 497,
+      "fact": "The exact hash-checked Steps loader executes in Core globals. Whole top-level initialization therefore reproduces the production module namespace, unlike function-only extraction with caller-supplied globals."
+    },
+    {
+      "file": "local_f0_native_access_operation_steps_safety_sql_v1.py",
+      "line": 221,
+      "fact": "verify_catalog_packet already requires one ok target, exact run-derived native container/data-volume names and exact migration target inventory before operational calls."
+    }
+  ],
+  "independent_environment_free_reproduction": {
+    "whole_actual_core_and_exact_source_loader_initialized": true,
+    "dormant_main": true,
+    "actual_source_or_existing_manifest_mutated": false,
+    "mocked_after_initialization": [
+      "command",
+      "save",
+      "event",
+      "best_effort_save",
+      "best_effort_event"
+    ],
+    "real_subprocess_run_Popen_check_output_and_socket_connect_forbidden": true,
+    "forbidden_external_attempts": 0,
+    "old_cases": [
+      {
+        "case": "DIRECT_CLOSURE",
+        "exception": "NameError",
+        "missing_name": "RESOURCE_CONTAINERS",
+        "command_calls": 0
+      },
+      {
+        "case": "QUERY_FINALLY",
+        "exception": "NameError",
+        "missing_name": "RESOURCE_CONTAINERS",
+        "command_calls": 1
+      },
+      {
+        "case": "FINALIZER",
+        "exception": "NameError",
+        "missing_name": "RESOURCE_CONTAINERS",
+        "command_calls": 0
+      }
+    ],
+    "hypothetical_tuple_only_control": "Set only an in-memory tuple of initialized TARGETS names. No source file implementation was authored.",
+    "control_selectors_in_exact_order": [
+      "GLOBAL_BACKENDS",
+      "FINALIZATION_BACKENDS",
+      "ORIGINAL_GRANTOR_FINALIZATION",
+      "FINALIZATION_RESULT"
+    ],
+    "control_preserves_exact_fixed_sql_postgres_role_and_captured_64hex_CID": true,
+    "unknown_target_even_if_CID_captured_refused_before_command": true,
+    "malformed_CID_refused_before_command": true,
+    "shared_GLOBAL_BACKENDS_and_FINALIZATION_BACKENDS_SQL": "Identical by design. Dispatch oracle uses declared call order and compares exact SQL; it does not assume distinct SQL text."
+  },
+  "permitted_after_Root_ACK": {
+    "new_files_only": [
+      "execute_local_f0_native_access_20261119_resource_set_v2.py",
+      "local_f0_native_access_operation_steps_resource_set_v2.py",
+      "prepare_local_f0_native_access_plan_resource_set_v2.py",
+      "check_native_access_operation_resource_set_v2.py",
+      "pin_native_access_plan_20261119_resource_set_v2.py"
+    ],
+    "new_archive": "context/reconciliation/local-f0-operation-sources/native-access-resource-set-v2",
+    "new_validation": "context/reconciliation/local-f0-native-access-resource-set-v2-source-validation.json",
+    "Core_semantic_delta": "Initialize RESOURCE_CONTAINERS=tuple(target['name'] for target in TARGETS) immediately after TARGETS initialization. Keep existing fixed owned-CID membership, postgres role, source, typing, zero-client and finalization gates unchanged.",
+    "Steps_Prep_Pin_delta": "Only declared namespace, new file/snapshot/archive/validation/fingerprint bindings and mandatory new-review gate. No old file edits or inherited old-byte approval.",
+    "additional_variable": "RESOURCE_VOLUMES is not required by the affected common helper; do not add unrelated executable state.",
+    "no_contract_or_SQL_changes": [
+      "approved common helpers/classes",
+      "all fixed SQL selectors",
+      "normal SQL transport",
+      "sanitizer",
+      "finalizer",
+      "cleanup",
+      "main",
+      "native packet8044",
+      "coordinator6e741",
+      "canonical application5ae",
+      "32 worker ACL rows"
+    ]
+  },
+  "required_post_authoring_review": [
+    "Actual complete new Core top-level plus exact Steps loader with a real isolated prepared manifest, without injecting RESOURCE_CONTAINERS from test code; no external process, network, Docker or DB execution.",
+    "Remove only the new declaration and prove the regression detects the missing global in the same full namespace.",
+    "Exercise direct closure, query-finally and real original-grantor finalizer composition through command-only mocks, including exact shared SQL ordering.",
+    "Verify unknown name/captured foreign CID, malformed CID, dirty/active/malformed/unknown observations, persistence errors and original STOP preservation keep strict no-REVOKE and no-later-behavior boundaries.",
+    "Run applicable prior66, accepted common composed checks, complete source graph verifier, actual pinner, source/tool/history inventory checks and physical five snapshots. Pending-review negative tests must inject isolated PENDING metadata rather than depend on eventual live approved bytes.",
+    "Prove exact AST/text delta after declared namespace transforms; freeze new five and reports, obtain a separate independent source review, then Root publication/current-and-committed pin plus fresh literal approval. No identical blind retry."
+  ],
+  "historical_limits": [
+    "Original bd4 exception unretained; proven source defect is consistent with retained closure/finalization failures, not a recovered original traceback.",
+    "Earlier Native495976 closure defect remains historically unobserved and is not attributed to this new wiring defect.",
+    "Provider setup query exited0 before closure failed; whole provider step/install/access not qualified; all unexercised assertions stay NOT_RUN."
+  ],
+  "findings": [],
+  "limits": {
+    "Posture": "D",
+    "new_runtime": "NOT_RUN",
+    "old_stopped_exception_recovered": false,
+    "earlier495976_cause_attributed": false,
+    "old_five_archive30_and_literals_preserved": true,
+    "all_unexercised_assertions": "NOT_RUN",
+    "no_status_reclassification": true,
+    "no_Git_Docker_DB_SQL_network_credential_operation": true,
+    "new_task_report_only": true
+  },
+  "plain_english": "The safety code asks for a list that was never made. Making that exact list fixes the offline example without weakening the locks. Build new copies, test them, and have another reviewer check them before running."
+}

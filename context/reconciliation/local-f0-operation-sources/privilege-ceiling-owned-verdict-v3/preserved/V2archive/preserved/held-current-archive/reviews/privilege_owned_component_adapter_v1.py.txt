@@ -1,0 +1,112 @@
+def admit_privilege_ceiling_sources():
+    """The complete actual source inventory is read before first compile."""
+    global PRIVILEGE_FIXTURES
+    cfg=MANIFEST.get('privilege_ceiling')
+    need(type(cfg)is dict and set(cfg)=={'fixtures_sha256','content_sha256','coordinator_sha256','external_files_sha256'},'PRIVILEGE_CEILING_CONFIGURATION_FIELDS')
+    need(cfg['fixtures_sha256']==PRIVILEGE_FIXTURES_SHA and cfg['content_sha256']==PRIVILEGE_CONTENT_SHA and cfg['coordinator_sha256']==PRIVILEGE_COORDINATOR_SHA,'EXACT_PRIVILEGE_CEILING_PACKET')
+    pins=MANIFEST.get('packet_files_sha256');need(type(pins)is dict and bool(pins)and all(type(v)is str and re.fullmatch('[0-9a-f]{64}',v)for v in pins.values()),'PRIVILEGE_CEILING_FULL_SOURCE_MAP_REQUIRED')
+    external=cfg['external_files_sha256'];need(type(external)is dict and set(external)==set(EXTERNAL_FILES)and all(type(v)is str and re.fullmatch('[0-9a-f]{64}',v)for v in external.values()),'PRIVILEGE_CEILING_EXTERNAL_SOURCE_SET')
+    fixed=set(HELPER_FILES)|set(IMAGE_FILES)|{PRIVILEGE_PEER,IMAGE_PEER,OWNED_VALIDATION,PRIVILEGE_PACKET+'/fixtures.json',GENERATOR,'review-output/native-catalog/source-pins.json','review-output/native-table-denials-v2/packet.json'}|{OWNED_ARCHIVE+'/'+n+'.txt'for n in EXTERNAL_FILES}
+    need(fixed<=set(pins),'PRIVILEGE_CEILING_REQUIRED_SOURCE_MISSING')
+    admitted={name:read_pinned(name)for name in pins}
+    for name,wanted in IMAGE_FILES.items():need(hashlib.sha256(admitted[name]).hexdigest()==wanted,'IMAGE_PROOF_SOURCE_PACKET_REQUIRED')
+    need(hashlib.sha256(admitted[IMAGE_PEER]).hexdigest()==IMAGE_PEER_SHA,'IMAGE_PROOF_INDEPENDENT_REVIEW_REQUIRED')
+    for name,wanted in external.items():
+        raw=(TASK/name).read_bytes();need(hashlib.sha256(raw).hexdigest()==wanted and raw==admitted[OWNED_ARCHIVE+'/'+name+'.txt'],'PRIVILEGE_CEILING_COMMITTED_EXTERNAL_SNAPSHOT_REQUIRED')
+    owned=unique_json(admitted[OWNED_VALIDATION]);need(owned['schema']=='workinants.privilege-ceiling-owned-operator-source-validation.v1'and owned['operator_sources_sha256']==external,'PRIVILEGE_CEILING_OWNED_VALIDATION_BINDING')
+    archive=owned['archive_files_sha256'];need(type(archive)is dict and all(n.startswith(OWNED_ARCHIVE+'/')and pins.get(n)==v for n,v in archive.items()),'PRIVILEGE_CEILING_OWNED_ARCHIVE_ADMISSION')
+    actual={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest()for p in(ROOT/OWNED_ARCHIVE).rglob('*')if p.is_file()};need(actual==archive,'PRIVILEGE_CEILING_OWNED_ARCHIVE_TREE')
+    raw=admitted[PRIVILEGE_PACKET+'/fixtures.json'];need(hashlib.sha256(raw).hexdigest()==PRIVILEGE_FIXTURES_SHA,'PRIVILEGE_CEILING_FIXTURE_DRIFT');fixtures=unique_json(raw)
+    need(fixtures['schema']=='workinants.privilege-ceiling-fixtures.v1'and fixtures['status']=='NOT_RUN'and fixtures['database_posture']=='D'and len(fixtures['cases'])==200 and len(fixtures['source_definers'])==16 and len(fixtures['control_links'])==5 and len(fixtures['issuer_umbrella_links'])==40,'PRIVILEGE_CEILING_FINITE_SOURCE_SCOPE')
+    need(digest({k:fixtures[k]for k in('source_files_sha256','prepared_files_sha256')})==PRIVILEGE_CONTENT_SHA and len(fixtures['prepared_files_sha256'])==200,'PRIVILEGE_CEILING_CONTENT_AGGREGATE')
+    for n,v in fixtures['source_files_sha256'].items():need(pins.get(n)==v and n in admitted,'PRIVILEGE_CEILING_SOURCE_NOT_IN_PACKET')
+    for n,v in fixtures['prepared_files_sha256'].items():need(pins.get(PRIVILEGE_PACKET+'/'+n)==v and PRIVILEGE_PACKET+'/'+n in admitted,'PRIVILEGE_CEILING_SQL_NOT_IN_PACKET')
+    native_raw=admitted['review-output/native-table-denials-v2/packet.json'];need(hashlib.sha256(native_raw).hexdigest()=='8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69','PRIVILEGE_NATIVE_PACKET_BINDING')
+    native=unique_json(native_raw);need(len(native['cases'])==40 and len(native['files_sha256'])==83,'PRIVILEGE_NATIVE_FINITE_SOURCE')
+    for n,v in native['source_inputs_sha256'].items():need(pins.get(n)==v and n in admitted,'PRIVILEGE_NATIVE_INPUT_MISSING')
+    native_blobs={}
+    for n,v in native['files_sha256'].items():
+        path='review-output/native-table-denials-v2/'+n;need(pins.get(path)==v and path in admitted,'PRIVILEGE_NATIVE_SQL_MISSING');native_blobs[n]=admitted[path]
+    catalog=unique_json(admitted['review-output/native-catalog/source-pins.json']);need(type(catalog)is dict and len(catalog)==16 and all(pins.get(n)==v and n in admitted for n,v in catalog.items()),'PRIVILEGE_CEILING_CLOSED_CATALOG_IMPORTS_REQUIRED')
+    need(hashlib.sha256(admitted[PRIVILEGE_COORDINATOR]).hexdigest()==PRIVILEGE_COORDINATOR_SHA and hashlib.sha256(admitted[PRIVILEGE_PEER]).hexdigest()==PRIVILEGE_PEER_SHA,'PRIVILEGE_CEILING_INDEPENDENT_SOURCE_REVIEW_REQUIRED')
+    PRIVILEGE_FIXTURES=fixtures;PRIVILEGE_NATIVE.update(packet=native,blobs=native_blobs,preinstall_observed=False,postinstall_observed=False)
+    return admitted
+
+
+def verify_privilege_ceiling_packet():
+    need(re.fullmatch('[0-9a-f]{40}',COMMIT)and re.fullmatch('[0-9a-f]{40}',TREE)and re.fullmatch('[0-9a-f]{64}',PACKET),'PRIVILEGE_CEILING_SOURCE_NOT_PINNED');need(uuid.UUID(RUN_ID).version==4,'PRIVILEGE_CEILING_FRESH_UUID4')
+    admit_privilege_ceiling_sources();verify_catalog_packet()
+    for name in HELPER_FILES:load_reviewed_helper(name)
+    native=load_reviewed_helper('scripts/sql-review/run-native-table-denials-v3.py')
+    need(hashlib.sha256(read_pinned('scripts/sql-review/run-native-table-denials-v3.py')).hexdigest()=='6e74115cc7a77e626c4379c5a5744efdede1257d04b206fc339e62a23fd49cd3'and all(n in MANIFEST['packet_files_sha256']for n in native['MODULES']),'PRIVILEGE_NATIVE_MODULE_GRAPH')
+    PRIVILEGE_NATIVE['module']=native
+    SAFE_FILES.update({'provider-preinstall-proof.json','privilege-ceiling-native-attestation.json','privilege-ceiling-run-plan.json','privilege-ceiling-component-result.json','privilege-ceiling-native-final.json'})
+    report['steps']['PRIVILEGE-CEILING-REVIEW']='PASS_SOURCE_ADMISSION_ONLY';report['privilege_ceiling']={'selected_assertions':'NOT_RUN','whole_selected94_or451':'NOT_PROMOTED','owner_api_policy_qualified':False};save()
+
+
+def verify_privilege_result(value,plan,raw):
+    allowed={'schema','status','database_posture','current_stage','current_case','current','operations','results','authentication','native_controls','facets','selected_cases','selected_controls','source_assertion_links','cleanup_required','subsequent_cases_stopped','evidence_complete','limits','run_id','source_commit','source_tree','operation_packet_sha256','reviewed_privilege_content_sha256','run_plan_sha256','source_packet_unchanged_after','definer_metadata','role_metadata','issuer_protocols','global_client_boundaries','provider_roles','effective_hba_selections','current_auth_role','authentication_comparison','fingerprint_order_control','failure'}
+    need(type(value)is dict and set(value)<=allowed,'PRIVILEGE_CEILING_COMPONENT_RESULT_FIELDS')
+    expected={'schema':'workinants.privilege-ceiling-evidence.v1','run_id':RUN_ID,'source_commit':COMMIT,'source_tree':TREE,'operation_packet_sha256':PACKET,'reviewed_privilege_content_sha256':PRIVILEGE_CONTENT_SHA,'run_plan_sha256':hashlib.sha256(raw).hexdigest(),'database_posture':'D'}
+    exact({k:value.get(k)for k in expected},expected,'PRIVILEGE_CEILING_COMPONENT_EXACT_SOURCE_RUN_CID_PLAN')
+    need(value.get('status')=='PASS_PREPARED_PRIVILEGE_CEILINGS_ONLY_CASES_NOT_RUN'and value.get('evidence_complete')is True and value.get('source_packet_unchanged_after')is True and value.get('subsequent_cases_stopped')is False and value.get('facets')==[],'PRIVILEGE_CEILING_COMPONENT_NOT_QUALIFIED')
+    cases={row['name']:row for row in PRIVILEGE_FIXTURES['cases']};results=value.get('results');need(type(results)is list and len(results)==200 and len({r.get('name')for r in results if type(r)is dict})==200,'PRIVILEGE_CEILING_EXACT200_RESULT_SET')
+    for row in results:
+        need(type(row)is dict and set(row)=={'name','source_case_id','assertion_id','status','closed_before_observers','complete_state_unchanged','diagnostic','whole_case_promoted'}and row['name']in cases,'PRIVILEGE_CEILING_FINITE_RESULT_FIELDS');case=cases[row['name']]
+        exact({k:row[k]for k in('source_case_id','assertion_id')},{k:case[k]for k in('source_case_id','assertion_id')},'PRIVILEGE_CEILING_ASSERTION_LINK')
+        diagnostic=row['diagnostic'];need(type(diagnostic)is dict and set(diagnostic)=={'matched','sqlstate','kind','gate','object','source_position_verified','source_frame_verified','selected_column_or_verb_isolation_claimed'}and diagnostic['matched']is True and diagnostic['kind']==case['diagnostic']['kind']and diagnostic['sqlstate']==('P0001'if case['diagnostic']['kind']=='IMMUTABLE_GRANT'else'42501')and diagnostic['selected_column_or_verb_isolation_claimed']is False and all(type(diagnostic[k])is bool for k in('source_position_verified','source_frame_verified')),'PRIVILEGE_CEILING_EXACT_DIAGNOSTIC_REQUIRED')
+        need(row['status']=='PASS_FINITE_PRIVILEGE_CONTRAST_ONLY'and row['closed_before_observers']is True and row['complete_state_unchanged']is True and row['whole_case_promoted']is False,'PRIVILEGE_CEILING_FINITE_RESULT_CONTRACT')
+    definitions=value.get('definer_metadata');need(type(definitions)is list and len(definitions)==16 and {r.get('function')for r in definitions if type(r)is dict}=={r['identity']for r in PRIVILEGE_FIXTURES['source_definers']}and all(type(r)is dict and set(r)=={'function','owner_body_definer_path_match'}and r['owner_body_definer_path_match']is True for r in definitions),'PRIVILEGE_CEILING_EXACT16_DEFINERS')
+    controls=value.get('native_controls');need(type(controls)is list and len(controls)==40 and {r.get('case_id')for r in controls if type(r)is dict}=={r['id']for r in PRIVILEGE_NATIVE['packet']['cases']}and all(type(r)is dict and set(r)=={'case_id','status','rolled_back','all100_guards_restored','native205_unchanged'}and r['status']=='NATIVE_FIXTURE_VALIDITY_ONLY_NO_OWNER_OR_CASE_QUALIFICATION'and all(r[k]is True for k in('rolled_back','all100_guards_restored','native205_unchanged'))for r in controls),'PRIVILEGE_CEILING_EXACT40_VALIDITY')
+    protocols=value.get('issuer_protocols');wanted=['ISSUER-LEGITIMATE-PERSON-ISSUE-OWN-READ-BOUND-SCALARS','ISSUER-LEGITIMATE-FIRST-ONE-WAY-REVOKE','ISSUER-STORED-SERVICE-GRANT-CANNOT-SELF-ATTEST-REVOKED-IDENTITY']
+    need(type(protocols)is list and len(protocols)==3 and [r.get('name')for r in protocols if type(r)is dict]==wanted and all(type(r)is dict and set(r)=={'name','status','same_run_and_actual_logins','all_operation_backends_closed_before_observation','complete_state_verified','whole_case_promoted'}and r['status']=='PASS_FINITE_ISSUER_PROTOCOL_ONLY'and all(r[k]is True for k in('same_run_and_actual_logins','all_operation_backends_closed_before_observation','complete_state_verified'))and r['whole_case_promoted']is False for r in protocols),'PRIVILEGE_CEILING_EXACT3_ISSUER_PROTOCOLS')
+    operations=value.get('operations');need(type(operations)is list and len(operations)==244 and all(type(r)is dict and r.get('closed_before_observers')is True for r in operations),'PRIVILEGE_CEILING_COMPLETE_OPERATION_CLOSURE')
+    boundaries=value.get('global_client_boundaries');need(type(boundaries)is list and boundaries and all(type(r)is dict and set(r)=={'stage','attempted','confirmed'}and type(r['stage'])is str and r['attempted']is True and r['confirmed']is True for r in boundaries),'PRIVILEGE_CEILING_GLOBAL_CLIENT_BOUNDARIES')
+    need(type(value.get('authentication'))is list and len(value['authentication'])==9,'PRIVILEGE_CEILING_NINE_AUTH_CONTROLS');exact(value.get('selected_controls'),PRIVILEGE_FIXTURES['control_links'],'PRIVILEGE_CEILING_SOURCE_CONTROLS_NOT_PROMOTED')
+    return {'schema':'workinants.privilege-ceiling-component-summary.v1','status':value['status'],'completed_negative_contrasts':200,'definer_metadata':16,'native_validity_controls':40,'issuer_protocols':3,'component_report_sha256':digest(value),'selected_assertions':'NOT_PROMOTED_PENDING_EVIDENCE_REVIEW'}
+
+
+def privilege_ceiling_experiment():
+    name=TARGETS[0]['name'];inspect_owner(name);need(name in finalized,'PRIVILEGE_CEILING_ORIGINAL_GRANTOR_FINALIZATION_REQUIRED');closed_backends(name,'PRIVILEGE_CEILING_PRE_COMPONENT')
+    need(report['catalog_comparison']['status']=='PASS'and report['catalog_comparison']['check_counts']=={'PASS':29089}and report['ledger_comparison']['status']=='PASS'and len(report['ledger_comparison']['checks'])==22 and all(r['status']=='PASS'for r in report['ledger_comparison']['checks'])and report['steps']['CATALOG-ORACLE']=='PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE','PRIVILEGE_CEILING_FULL_NATIVE_ORACLE_LEDGER_PASS_REQUIRED')
+    need(PRIVILEGE_NATIVE.get('preinstall_observed')is True and PRIVILEGE_NATIVE.get('postinstall_observed')is True,'PRIVILEGE_CEILING_PROVIDER_SEQUENCE_PROOF_REQUIRED')
+    native=PRIVILEGE_NATIVE['module'];native_packet_sha='8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69'
+    provider={'schema':'workinants.native-deny-provider-preinstall.v1','run_id':RUN_ID,'container_id':created_containers[name],'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':native_packet_sha,'application_sql_sha256':APPLICATION_SHA,'roles':native['provider_flags'](),'all_nine_schema_usage_sentinels_before_install':True,'canonical_install_removed_all_nine':True,'genuine_prisma_one_applied_migration':True,'original_grantor_finalized':True,'local_simulation_only':True,'hosted_parity_claimed':False};proof_ref=write_safe('provider-preinstall-proof.json',provider)
+    nested={'schema':'workinants.native-deny-run.v1','scope':'FINITE_NATIVE_DENIAL_FACETS_ONLY','run_id':RUN_ID,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':native_packet_sha,'source_modules_sha256':{p:MANIFEST['packet_files_sha256'][p]for p in native['MODULES']},'target_manifest':unique_json(read_target_manifest(MANIFEST['migration_targets']['ok'])),'immutable_container_id':created_containers[name],'native_snapshot':{'path':str(OUT/'native-before.json'),'sha256':hashlib.sha256((OUT/'native-before.json').read_bytes()).hexdigest()},'native_comparison':{'path':str(OUT/'catalog-comparison.json'),'sha256':hashlib.sha256((OUT/'catalog-comparison.json').read_bytes()).hexdigest()},'provider_preinstall_proof':{'path':str(OUT/'provider-preinstall-proof.json'),'sha256':proof_ref['artifact_sha256']},'selected_case_ids':PRIVILEGE_NATIVE['packet']['selected_case_ids']}
+    attestation={'schema':'workinants.privilege-ceiling-native-attestation.v1','run_id':RUN_ID,'container_id':created_containers[name],'source_commit':COMMIT,'source_tree':TREE,'operation_packet_sha256':PACKET,'native_sql_packet_sha256':native_packet_sha,'application_sql_sha256':APPLICATION_SHA,'source_expected_sha256':EXPECTED_SHA,'native_snapshot_sha256':report['qualified_native_snapshot_sha256'],'native_comparison_file_sha256':nested['native_comparison']['sha256'],'genuine_prisma_one_applied_migration':True,'original_grantor_finalized':True,'native_expression_oracle_and_private_ledger_pass':True,'all_other_client_backends_absent':True,'provider_preinstall_source_proven':True,'posture':'D','whole_case_promotion':False};attestation_ref=write_safe('privilege-ceiling-native-attestation.json',attestation)
+    plan={'schema':'workinants.privilege-ceiling-run.v1','scope':'FINITE_EXISTING_PRIVILEGE_CEILINGS_ONLY','run_id':RUN_ID,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'packet_files_sha256':MANIFEST['packet_files_sha256'],'fixtures_sha256':PRIVILEGE_FIXTURES_SHA,'content_sha256':PRIVILEGE_CONTENT_SHA,'native_plan':nested,'prerequisite_attestation':{'path':str(OUT/'privilege-ceiling-native-attestation.json'),'sha256':attestation_ref['artifact_sha256']}}
+    write_safe('privilege-ceiling-run-plan.json',plan);plan_raw=(OUT/'privilege-ceiling-run-plan.json').read_bytes();module=load_reviewed_helper(PRIVILEGE_COORDINATOR);failure=None;raw=None;exit_code=None
+    report['privilege_ceiling'].update(component_closure_attempted=False,component_closure_confirmed=False)
+    try:
+        try:exit_code=module['main'](['--execute-reviewed-privilege-ceilings','--run-plan',str(OUT/'privilege-ceiling-run-plan.json'),'--evidence-directory',str(OUT/'privilege-ceiling-component')])
+        except BaseException:
+            failure=Stop('PRIVILEGE_CEILING_COMPONENT_UNEXPECTED_STOP_EVIDENCE_RETAINED');remember_failure('PRIVILEGE_CEILING_COMPONENT',failure.code)
+        finally:
+            fixed=OUT/'privilege-ceiling-component/privilege-ceiling-results.json';reference={'artifact':'privilege-ceiling-component/privilege-ceiling-results.json','present':None,'read_status':'UNAVAILABLE'};report['privilege_ceiling']['component_report_reference']=reference
+            try:
+                import stat
+                try:metadata=fixed.lstat()
+                except FileNotFoundError:reference.update(present=False,read_status='ABSENT');raise Stop('PRIVILEGE_CEILING_COMPONENT_REFERENCE_ABSENT')from None
+                reference['present']=True;size=metadata.st_size;limit=16*1024*1024
+                need(type(metadata.st_mode)is int and stat.S_ISREG(metadata.st_mode)and type(size)is int and size>=0,'PRIVILEGE_CEILING_COMPONENT_REFERENCE_SHAPE')
+                if size>limit:reference['read_status']='OVERSIZED';raise Stop('PRIVILEGE_CEILING_COMPONENT_REFERENCE_LIMIT')
+                with fixed.open('rb')as stream:raw=stream.read(limit+1)
+                need(type(raw)is bytes,'PRIVILEGE_CEILING_COMPONENT_REFERENCE_SHAPE')
+                if len(raw)>limit:reference['read_status']='OVERSIZED';raise Stop('PRIVILEGE_CEILING_COMPONENT_REFERENCE_LIMIT')
+                reference.update(read_status='RETAINED',artifact_sha256=hashlib.sha256(raw).hexdigest(),bytes=len(raw))
+            except BaseException:
+                remember_failure('PRIVILEGE_CEILING_COMPONENT_REFERENCE','PRIVILEGE_CEILING_COMPONENT_REFERENCE_UNCONFIRMED')
+                if failure is None:failure=Stop('PRIVILEGE_CEILING_COMPONENT_REFERENCE_UNCONFIRMED')
+    finally:
+        report['privilege_ceiling']['component_closure_attempted']=True
+        try:closed_backends(name,'PRIVILEGE_CEILING_POST_COMPONENT');report['privilege_ceiling']['component_closure_confirmed']=True
+        except BaseException:
+            remember_failure('PRIVILEGE_CEILING_COMPONENT_CLOSURE','PRIVILEGE_CEILING_COMPONENT_GLOBAL_CLOSURE_UNCONFIRMED')
+            if failure is None:failure=Stop('PRIVILEGE_CEILING_COMPONENT_GLOBAL_CLOSURE_UNCONFIRMED')
+        finally:
+            if not persist_best_effort('PRIVILEGE_CEILING_COMPONENT_FINALLY')and failure is None:failure=Stop('PRIVILEGE_CEILING_COMPONENT_EVIDENCE_UNCONFIRMED')
+    if failure is not None:raise failure
+    need(type(exit_code)is int and exit_code==0,'PRIVILEGE_CEILING_COMPONENT_NOT_QUALIFIED');value=unique_json(raw);summary=verify_privilege_result(value,plan,plan_raw)
+    write_safe('privilege-ceiling-component-result.json',summary);report['privilege_ceiling']['component_report_sha256']=summary['component_report_sha256'];save()
+    after=collect_native(name,'PRIVILEGE_CEILING_FINAL_NATIVE','privilege-ceiling-native-final.json');need(digest(after)==report['qualified_native_snapshot_sha256'],'PRIVILEGE_CEILING_NATIVE_CHANGED')
+    report['steps']['PRIVILEGE-CEILING-COMPONENT']='PASS_FINITE_PREPARED_SQL_ONLY';report['privilege_ceiling'].update(completed_negative_contrasts=200,definer_metadata=16,native_validity_controls=40,issuer_protocols=3,selected_assertions='NOT_PROMOTED_PENDING_EVIDENCE_REVIEW');save()

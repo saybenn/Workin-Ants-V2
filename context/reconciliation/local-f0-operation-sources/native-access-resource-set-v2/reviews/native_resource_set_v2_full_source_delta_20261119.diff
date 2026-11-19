@@ -1,0 +1,310 @@
+--- execute_local_f0_native_access_20261119_safety_sql_v1.py
++++ execute_local_f0_native_access_20261119_resource_set_v2.py
+@@ -36,6 +36,7 @@
+ ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker')
+ LEAVES=('wa_private_helper_owner','wa_customer_verifier','wa_track_verifier')
+ TARGETS=MANIFEST['targets']
++RESOURCE_CONTAINERS=tuple(target['name'] for target in TARGETS)
+ report={'run_id':RUN_ID,'approved_commit':COMMIT,'approved_tree':TREE,'approved_packet_sha256':PACKET,
+         'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'IN_PROGRESS','stage':'ENTRY','evidence_complete':True,'persistence_failure':False,'output_complete':True,
+         'steps':{name:'NOT_RUN' for name in ('CATALOG-SETUP','CATALOG-AUTH','CATALOG-TOOLS','CATALOG-INSTALL','NATIVE-PROVIDER-PREINSTALL','NATIVE-PROVIDER-POSTINSTALL','NATIVE-ACCESS-ATTESTATION','NATIVE-ACCESS-FACETS','CATALOG-ACL-COMPAT','CATALOG-TEXT-COMPAT','CATALOG-NATIVE','CATALOG-ORACLE','CATALOG-LEDGER','CATALOG-COMPARE','CATALOG-SANITIZED_EXPORT','CATALOG-CLEANUP')},'events':[],'targets':{},'unexpected':[],
+@@ -494,7 +495,7 @@
+     report['steps']['CATALOG-CLEANUP']='PASS'
+ 
+ # Load only the exact independently reviewed operational steps snapshot.
+-STEPS=TASK/'local_f0_native_access_operation_steps_safety_sql_v1.py'
++STEPS=TASK/'local_f0_native_access_operation_steps_resource_set_v2.py'
+ STEPS_RAW=STEPS.read_bytes()
+ need(hashlib.sha256(STEPS_RAW).hexdigest()==MANIFEST['steps_sha256'],'OPERATION_STEPS_SOURCE_MISMATCH')
+ exec(compile(STEPS_RAW,str(STEPS),'exec'),globals())
+--- local_f0_native_access_operation_steps_safety_sql_v1.py
++++ local_f0_native_access_operation_steps_resource_set_v2.py
+@@ -13,7 +13,7 @@
+ 
+ def verify_common_packet():
+     need(MANIFEST['review_status']=='APPROVED_LOCAL_F0_NATIVE_ACCESS_ATTEMPT','OPERATION_NOT_REVIEWED')
+-    validation=unique_json(read_pinned('context/reconciliation/local-f0-native-access-safety-sql-v1-source-validation.json'))
++    validation=unique_json(read_pinned('context/reconciliation/local-f0-native-access-resource-set-v2-source-validation.json'))
+     review=validation.get('independent_safety_sql_review')
+     need(type(review) is dict and review.get('decision')=='SOURCE_APPROVED','SAFETY_SQL_REVIEW_REQUIRED')
+     need(MANIFEST['wrapper_sha256']==hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'WRAPPER_SOURCE_MISMATCH')
+@@ -650,9 +650,9 @@
+ SAFE_FILES.update(('provider-preinstall-proof.json','native-deny-run-plan.json','native-access-attestation.json'))
+ 
+ 
+-OPERATOR_SOURCE_ROOT='context/reconciliation/local-f0-operation-sources/native-access-safety-sql-v1'
+-OPERATOR_VALIDATION='context/reconciliation/local-f0-native-access-safety-sql-v1-source-validation.json'
+-OPERATOR_FILES=('execute_local_f0_native_access_20261119_safety_sql_v1.py', 'local_f0_native_access_operation_steps_safety_sql_v1.py', 'prepare_local_f0_native_access_plan_safety_sql_v1.py', 'check_native_access_operation_safety_sql_v1.py', 'pin_native_access_plan_20261119_safety_sql_v1.py')
++OPERATOR_SOURCE_ROOT='context/reconciliation/local-f0-operation-sources/native-access-resource-set-v2'
++OPERATOR_VALIDATION='context/reconciliation/local-f0-native-access-resource-set-v2-source-validation.json'
++OPERATOR_FILES=('execute_local_f0_native_access_20261119_resource_set_v2.py', 'local_f0_native_access_operation_steps_resource_set_v2.py', 'prepare_local_f0_native_access_plan_resource_set_v2.py', 'check_native_access_operation_resource_set_v2.py', 'pin_native_access_plan_20261119_resource_set_v2.py')
+ 
+ def admit_native_operation_sources():
+     pins=MANIFEST['packet_files_sha256']
+--- prepare_local_f0_native_access_plan_safety_sql_v1.py
++++ prepare_local_f0_native_access_plan_resource_set_v2.py
+@@ -24,9 +24,9 @@
+ DENY_PACKET_SHA='8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69'
+ DOCUMENT='scripts/sql-review/native-table-denials-session-observation-v3.md'
+ DOCUMENT_SHA='b62791ecc1edc8966b57b9edc0863eaa47fee57c568612bfb10c0f7a7ec55d40'
+-OPERATOR_SOURCE_ROOT='context/reconciliation/local-f0-operation-sources/native-access-safety-sql-v1'
+-OPERATOR_VALIDATION='context/reconciliation/local-f0-native-access-safety-sql-v1-source-validation.json'
+-OPERATOR_FILES=('execute_local_f0_native_access_20261119_safety_sql_v1.py', 'local_f0_native_access_operation_steps_safety_sql_v1.py', 'prepare_local_f0_native_access_plan_safety_sql_v1.py', 'check_native_access_operation_safety_sql_v1.py', 'pin_native_access_plan_20261119_safety_sql_v1.py')
++OPERATOR_SOURCE_ROOT='context/reconciliation/local-f0-operation-sources/native-access-resource-set-v2'
++OPERATOR_VALIDATION='context/reconciliation/local-f0-native-access-resource-set-v2-source-validation.json'
++OPERATOR_FILES=('execute_local_f0_native_access_20261119_resource_set_v2.py', 'local_f0_native_access_operation_steps_resource_set_v2.py', 'prepare_local_f0_native_access_plan_resource_set_v2.py', 'check_native_access_operation_resource_set_v2.py', 'pin_native_access_plan_20261119_resource_set_v2.py')
+ sha=lambda raw:hashlib.sha256(raw).hexdigest()
+ 
+ class HeldFailure(Exception):
+--- check_native_access_operation_safety_sql_v1.py
++++ check_native_access_operation_resource_set_v2.py
+@@ -24,11 +24,12 @@
+ import time
+ import uuid
+ import shutil
++import sys
+ from unittest.mock import patch, Mock
+ 
+ TASK=Path(__file__).resolve().parent
+ SOURCE=TASK/'workinants-correction-pass'
+-STEPS=TASK/'local_f0_native_access_operation_steps_safety_sql_v1.py'
++STEPS=TASK/'local_f0_native_access_operation_steps_resource_set_v2.py'
+ RUN='719dffcb-a5f9-4a93-bffe-7faf83f7a914'
+ NAME='wa-p0c-719dffcb-native'
+ CID='1'*64
+@@ -45,9 +46,9 @@
+         cls.baseline=json.loads((TASK/'local-f0-catalog-v4-plan-8fa680ed/operation-manifest.json').read_text())
+         deny=json.loads((SOURCE/'review-output/native-table-denials-v2/packet.json').read_text())
+         paths=sorted(set(paths)|set(cls.baseline['packet_files_sha256'])|set(deny['source_inputs_sha256'])|{'scripts/sql-review/run-native-table-denials-v3.py','scripts/sql-review/test_run_native_table_denials_v3.py','scripts/sql-review/native-table-denials-session-observation-v3.md','review-output/native-table-denials-v2/packet.json'}|{'review-output/native-table-denials-v2/'+name for name in deny['files_sha256']})
+-        validation=json.loads((SOURCE/'context/reconciliation/local-f0-native-access-safety-sql-v1-source-validation.json').read_bytes())
+-        paths=sorted(set(paths)|{'context/reconciliation/local-f0-native-access-safety-sql-v1-source-validation.json'}|set(validation['snapshot_files_sha256']))
+-        for name in ('execute_local_f0_native_access_20261119_safety_sql_v1.py','local_f0_native_access_operation_steps_safety_sql_v1.py','prepare_local_f0_native_access_plan_safety_sql_v1.py','check_native_access_operation_safety_sql_v1.py','pin_native_access_plan_20261119_safety_sql_v1.py'):(Path(cls.temp.name)/name).write_bytes((TASK/name).read_bytes())
++        validation=json.loads((SOURCE/'context/reconciliation/local-f0-native-access-resource-set-v2-source-validation.json').read_bytes())
++        paths=sorted(set(paths)|{'context/reconciliation/local-f0-native-access-resource-set-v2-source-validation.json'}|set(validation['snapshot_files_sha256']))
++        for name in ('execute_local_f0_native_access_20261119_resource_set_v2.py','local_f0_native_access_operation_steps_resource_set_v2.py','prepare_local_f0_native_access_plan_resource_set_v2.py','check_native_access_operation_resource_set_v2.py','pin_native_access_plan_20261119_resource_set_v2.py'):(Path(cls.temp.name)/name).write_bytes((TASK/name).read_bytes())
+         for relative in paths:
+             target=cls.root/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((SOURCE/relative).read_bytes())
+         pins={n:hashlib.sha256((cls.root/n).read_bytes()).hexdigest() for n in generator['REQUIRED_FILES']}
+@@ -76,15 +77,15 @@
+         self.stack.enter_context(patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN')))
+         self.case=tempfile.TemporaryDirectory(prefix='case-',dir=self.temp.name);self.addCleanup(self.case.cleanup)
+         out=Path(self.case.name)/'out';out.mkdir()
+-        ns={'__name__':'catalog_steps_test','__file__':str(TASK/'execute_local_f0_native_access_20261119_safety_sql_v1.py'),'Path':Path,'hashlib':hashlib,'json':json,'re':re,'subprocess':subprocess,'datetime':datetime,'ROOT':self.root,'OUT':out,'DB':'wa_p0c_rehearsal','RUN_ID':RUN,'COMMIT':'a'*40,'TREE':'b'*40,'PACKET':'c'*64,'CONNECTION_TAG':'wa-first-'+RUN,'created_containers':{NAME:CID},'bootstrap_attempted':set(),'finalization_attempted':set(),'finalized':set()}
++        ns={'__name__':'catalog_steps_test','__file__':str(TASK/'execute_local_f0_native_access_20261119_resource_set_v2.py'),'Path':Path,'hashlib':hashlib,'json':json,'re':re,'subprocess':subprocess,'datetime':datetime,'ROOT':self.root,'OUT':out,'DB':'wa_p0c_rehearsal','RUN_ID':RUN,'COMMIT':'a'*40,'TREE':'b'*40,'PACKET':'c'*64,'CONNECTION_TAG':'wa-first-'+RUN,'created_containers':{NAME:CID},'bootstrap_attempted':set(),'finalization_attempted':set(),'finalized':set()}
+         exec("class Stop(Exception):\n def __init__(self,code,details=None):\n  self.code=code; self.details=details or {}; self.stage=report.get('stage','ENTRY'); super().__init__(code)\ndef need(value,code,details=None):\n if not value: raise Stop(code,details)\n",ns)
+         exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),ns)
+-        core_tree=ast.parse((TASK/'execute_local_f0_native_access_20261119_safety_sql_v1.py').read_bytes())
++        core_tree=ast.parse((TASK/'execute_local_f0_native_access_20261119_resource_set_v2.py').read_bytes())
+         safe_helpers={'mark_evidence_incomplete','evidence_is_complete','confirmed_path_absent','best_effort_save','record_failure','best_effort_event','finish_report'}
+         common_nodes=ast.parse((TASK/'common_safety_sql_v1_helpers.py.txt').read_bytes()).body
+         safe_helpers|={node.name for node in common_nodes if isinstance(node,(ast.FunctionDef,ast.ClassDef))}
+         selected=[node for node in core_tree.body if isinstance(node,(ast.FunctionDef,ast.ClassDef)) and node.name in safe_helpers or isinstance(node,ast.Import) and any(alias.asname=='_required_safety_stat' for alias in node.names) or isinstance(node,ast.Assign) and all(isinstance(t,ast.Name) and t.id.startswith('_SAFETY_') for t in node.targets)]
+-        exec(compile(ast.Module(body=selected,type_ignores=[]),str(TASK/'execute_local_f0_native_access_20261119_safety_sql_v1.py'),'exec'),ns)
++        exec(compile(ast.Module(body=selected,type_ignores=[]),str(TASK/'execute_local_f0_native_access_20261119_resource_set_v2.py'),'exec'),ns)
+         ns.update(RESOURCE_CONTAINERS=(NAME,),LEAVES=('wa_private_helper_owner','wa_customer_verifier','wa_track_verifier'))
+         ns['EVIDENCE_FAILED']=False
+         self.ns=ns;self.actions=[];self.saved=[]
+@@ -506,13 +507,13 @@
+     def test_preparer_is_import_help_only_until_explicit_source_action(self):
+         output=io.StringIO()
+         with redirect_stdout(output),redirect_stderr(output):
+-            module=runpy.run_path(str(TASK/'prepare_local_f0_native_access_plan_safety_sql_v1.py'))
++            module=runpy.run_path(str(TASK/'prepare_local_f0_native_access_plan_resource_set_v2.py'))
+             with self.assertRaises(SystemExit) as error:module['main'](['--help'])
+         self.assertEqual(error.exception.code,0)
+         self.assertNotIn('subprocess',module);self.assertNotIn('runpy',module);self.assertNotIn('socket',module)
+ 
+     def test_preparer_builds_only_pending_fresh_external_history_with_same_sql(self):
+-        module=runpy.run_path(str(TASK/'prepare_local_f0_native_access_plan_safety_sql_v1.py'))
++        module=runpy.run_path(str(TASK/'prepare_local_f0_native_access_plan_resource_set_v2.py'))
+         root_before={str(p.relative_to(self.root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in self.root.rglob('*') if p.is_file()}
+         run='d4efb1a7-3333-4444-8888-123456789abc';plan,master,files=module['prepare'](self.root,Path(self.temp.name),deepcopy(self.baseline),run)
+         self.assertFalse(plan.exists());self.assertFalse(Path(master['evidence_directory']).exists())
+@@ -527,7 +528,7 @@
+             self.assertEqual(len(archive.getmembers()),7);self.assertTrue(all(m.isfile() and m.mode==0o644 for m in archive.getmembers()))
+ 
+     def test_preparer_refuses_drifted_helper_before_compile_and_existing_output(self):
+-        module=runpy.run_path(str(TASK/'prepare_local_f0_native_access_plan_safety_sql_v1.py'));original=Path.read_bytes
++        module=runpy.run_path(str(TASK/'prepare_local_f0_native_access_plan_resource_set_v2.py'));original=Path.read_bytes
+         def changed(path):return ('print('+repr(CANARY)+');raise SystemExit').encode() if path==self.root/module['HISTORY_HELPER'] else original(path)
+         output=io.StringIO()
+         with patch.object(Path,'read_bytes',changed),redirect_stdout(output),self.assertRaises(module['HeldFailure']) as found:module['prepare'](self.root,Path(self.temp.name),deepcopy(self.baseline),'d4efb1a7-3333-4444-8888-123456789abc')
+@@ -538,7 +539,7 @@
+ 
+ 
+     def test_native_access_core_preserves_all_resource_and_secret_operations_except_stronger_finalization(self):
+-        old=ast.parse((TASK/'safety-sql-before-author-20261119/execute_local_f0_native_access_v5_20261118.py').read_bytes());new=ast.parse((TASK/'execute_local_f0_native_access_20261119_safety_sql_v1.py').read_bytes());before={x.name:ast.dump(x,include_attributes=False) for x in old.body if isinstance(x,ast.FunctionDef)};after={x.name:ast.dump(x,include_attributes=False) for x in new.body if isinstance(x,ast.FunctionDef)}
++        old=ast.parse((TASK/'safety-sql-before-author-20261119/execute_local_f0_native_access_v5_20261118.py').read_bytes());new=ast.parse((TASK/'execute_local_f0_native_access_20261119_resource_set_v2.py').read_bytes());before={x.name:ast.dump(x,include_attributes=False) for x in old.body if isinstance(x,ast.FunctionDef)};after={x.name:ast.dump(x,include_attributes=False) for x in new.body if isinstance(x,ast.FunctionDef)}
+         self.assertEqual({key for key in before if before[key]!=after[key]},{'finalize'})
+         for name in ('create_resources','secret_scan','preflight','ensure_image','secure_private_directory','sql','observe','psql_args','cleanup','save','event'):self.assertEqual(before[name],after[name])
+ 
+@@ -572,7 +573,7 @@
+ 
+ 
+ def boundary_namespace():
+-    path=TASK/'execute_local_f0_native_access_20261119_safety_sql_v1.py'
++    path=TASK/'execute_local_f0_native_access_20261119_resource_set_v2.py'
+     tree=ast.parse(path.read_bytes())
+     pure=[node for node in tree.body if isinstance(node,(ast.Import,ast.ImportFrom,ast.FunctionDef,ast.ClassDef))]
+     value={'__name__':'_offline_native_v5_core','__file__':str(path)}
+@@ -722,7 +723,7 @@
+         self.assertIn('absence',events);self.assertFalse(n['report']['host_secret_cleanup']['private_directory_absent']);self.assertFalse(n['report'].get('cleanup_actions_confirmed',False))
+ 
+     def prepared_actual(self):
+-        module=runpy.run_path(str(TASK/'prepare_local_f0_native_access_plan_safety_sql_v1.py'));baseline=json.loads((TASK/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json').read_bytes())
++        module=runpy.run_path(str(TASK/'prepare_local_f0_native_access_plan_resource_set_v2.py'));baseline=json.loads((TASK/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json').read_bytes())
+         plan,manifest,files=module['prepare'](SOURCE,TASK,baseline,str(uuid.uuid4()))
+         self.assertFalse(plan.exists());plan.mkdir()
+         for name,raw in files.items():
+@@ -764,8 +765,128 @@
+ 
+     def test_seven_common_helpers_equal_Root_approved_Track_template(self):
+         get=lambda p:{node.name:ast.dump(node,include_attributes=False)for node in ast.parse(p.read_bytes()).body if isinstance(node,ast.FunctionDef)}
+-        old=get(TASK/'execute_local_f0_lease_revoke_20261118_finally_v4.py');new=get(TASK/'execute_local_f0_native_access_20261119_safety_sql_v1.py')
++        old=get(TASK/'execute_local_f0_lease_revoke_20261118_finally_v4.py');new=get(TASK/'execute_local_f0_native_access_20261119_resource_set_v2.py')
+         for name in ('mark_evidence_incomplete','evidence_is_complete','confirmed_path_absent','best_effort_save','record_failure','best_effort_event','finish_report','save','event'):self.assertEqual(old[name],new[name])
+ 
+ 
++
++class NativeResourceSetV2InitializationTests(unittest.TestCase):
++    """Real full namespace; RESOURCE_CONTAINERS is never injected by these tests."""
++    @classmethod
++    def setUpClass(cls):
++        module=runpy.run_path(str(TASK/'prepare_local_f0_native_access_plan_resource_set_v2.py'))
++        baseline=json.loads((TASK/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json').read_bytes())
++        cls.plan,cls.manifest,files=module['prepare'](SOURCE,TASK,baseline,str(uuid.uuid4()))
++        cls.plan.mkdir(exist_ok=False)
++        for name,raw in files.items():
++            path=cls.plan/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
++        cls.core=TASK/'execute_local_f0_native_access_20261119_resource_set_v2.py'
++        cls.raw=cls.core.read_bytes()
++
++    @classmethod
++    def tearDownClass(cls):
++        assert cls.plan.resolve().parent==TASK.resolve() and cls.plan.name.startswith('local-f0-native-access-plan-') and not cls.plan.is_relative_to(SOURCE)
++        shutil.rmtree(cls.plan)
++
++    def setUp(self):
++        self.stack=ExitStack();self.addCleanup(self.stack.close)
++        for name in ('run','Popen','call','check_call','check_output'):
++            self.stack.enter_context(patch.object(subprocess,name,side_effect=AssertionError('UNMOCKED_PROCESS_FORBIDDEN')))
++        for owner,name in ((socket,'create_connection'),(socket.socket,'connect')):
++            self.stack.enter_context(patch.object(owner,name,side_effect=AssertionError('NETWORK_FORBIDDEN')))
++        self.stack.enter_context(patch.object(sys,'argv',[str(self.core),str(self.plan/'operation-manifest.json')]))
++
++    def initialized(self,raw=None):
++        n={'__name__':'_actual_native_resource_set_v2_initialization','__file__':str(self.core)}
++        exec(compile(self.raw if raw is None else raw,str(self.core),'exec'),n)
++        name=n['TARGETS'][0]['name']
++        n['created_containers'][name]=CID;n['report']['targets'][name]={'finalization':'NOT_RUN'}
++        n['save']=lambda:None;n['event']=lambda *a,**k:None
++        return n,name
++
++    def transport(self,n,sequence,overrides=None):
++        calls=[];overrides=overrides or {}
++        def command(args,input=None,timeout=None):
++            self.assertLess(len(calls),len(sequence));selector=sequence[len(calls)]
++            self.assertEqual(args.count('-U'),1);self.assertEqual(args[args.index('-U')+1],'postgres');self.assertIn(CID,args)
++            self.assertEqual(timeout,180 if selector=='NORMAL' else 120)
++            self.assertEqual(input,'SELECT 1;' if selector=='NORMAL' else n['_required_safety_text'](selector));calls.append(selector)
++            value={'migrator':0,'other_client_backends':0} if selector in ('GLOBAL_BACKENDS','FINALIZATION_BACKENDS') else {'grantor':'postgres','auth':'scram-sha-256:postgres','remaining_memberships':0,'leaf_create':{k:False for k in n['LEAVES']},'active_install_connections':0} if selector=='FINALIZATION_RESULT' else None
++            output='' if value is None else json.dumps(value)+'\n'
++            result=overrides.get(selector,SimpleNamespace(returncode=0,stdout=output,stderr=''))
++            if isinstance(result,BaseException):raise result
++            return result
++        n['command']=command;return calls
++
++    def test_actual_full_Core_loader_initializes_exact_owned_resource_tuple(self):
++        n,name=self.initialized()
++        self.assertEqual(n['RESOURCE_CONTAINERS'],tuple(target['name'] for target in n['TARGETS']))
++        self.assertEqual(n['RESOURCE_CONTAINERS'],(name,));self.assertNotIn('RESOURCE_VOLUMES',n)
++        self.assertEqual(Path(n['run_catalog_query'].__code__.co_filename),TASK/'local_f0_native_access_operation_steps_resource_set_v2.py')
++        self.assertEqual(Path(n['_required_safety_sql'].__code__.co_filename),self.core)
++
++    def test_removing_only_declaration_reproduces_all_three_old_missing_global_paths(self):
++        needle=b"RESOURCE_CONTAINERS=tuple(target['name'] for target in TARGETS)\n"
++        self.assertEqual(self.raw.count(needle),1);mutant=self.raw.replace(needle,b'')
++        for action in ('direct','query','finalize'):
++            with self.subTest(action=action):
++                n,name=self.initialized(mutant);calls=[]
++                n['command']=lambda *a,**k:(calls.append(True) or SimpleNamespace(returncode=0,stdout='',stderr=''))
++                self.assertNotIn('RESOURCE_CONTAINERS',n)
++                with self.assertRaises(NameError) as caught:
++                    if action=='direct':n['closed_backends'](name,'OFFLINE_RESOURCE_SET')
++                    elif action=='query':n['run_catalog_query'](name,'SELECT 1;','OFFLINE_RESOURCE_SET')
++                    else:n['finalize'](name)
++                self.assertEqual(caught.exception.name,'RESOURCE_CONTAINERS');self.assertEqual(len(calls),int(action=='query'))
++
++    def test_exact_fixed_direct_closure_query_finally_and_original_finalizer_dispatch(self):
++        n,name=self.initialized();sequence=['GLOBAL_BACKENDS','NORMAL','GLOBAL_BACKENDS','FINALIZATION_BACKENDS','ORIGINAL_GRANTOR_FINALIZATION','FINALIZATION_RESULT'];calls=self.transport(n,sequence)
++        self.assertTrue(n['closed_backends'](name,'OFFLINE_DIRECT')['all_other_client_backends_absent'])
++        self.assertEqual(n['run_catalog_query'](name,'SELECT 1;','OFFLINE_QUERY').returncode,0)
++        n['finalize'](name);self.assertIn(name,n['finalized']);self.assertEqual(calls,sequence)
++        self.assertEqual(n['_required_safety_text']('GLOBAL_BACKENDS'),n['_required_safety_text']('FINALIZATION_BACKENDS'))
++
++    def test_unknown_name_even_captured_and_malformed_CID_reject_before_transport(self):
++        for mode in ('unknown','malformed'):
++            with self.subTest(mode=mode):
++                n,name=self.initialized();target='wa-p0c-unknown-native' if mode=='unknown' else name;n['created_containers'][target]=CID if mode=='unknown' else 'bad-CID'
++                n['command']=Mock(side_effect=AssertionError('UNOWNED_DISPATCH'))
++                with self.assertRaises(n['Stop']) as caught:n['_required_safety_sql'](target,'GLOBAL_BACKENDS')
++                self.assertEqual(caught.exception.code,'REQUIRED_SAFETY_OWNED_TARGET');n['command'].assert_not_called()
++
++    def test_active_or_malformed_pre_finalizer_observation_never_revokes(self):
++        invalid=[{'migrator':1,'other_client_backends':0},{'migrator':0,'other_client_backends':True},{'migrator':0.0,'other_client_backends':0},{'migrator':0,'other_client_backends':None},{'migrator':-1,'other_client_backends':0},{'migrator':0,'other_client_backends':0,'unexpected':CANARY},[],None]
++        for value in invalid:
++            with self.subTest(value_type=type(value).__name__):
++                n,name=self.initialized();calls=self.transport(n,['FINALIZATION_BACKENDS'],{'FINALIZATION_BACKENDS':SimpleNamespace(returncode=0,stdout=json.dumps(value)+'\n',stderr='')})
++                with self.assertRaises(n['Stop']):n['finalize'](name)
++                self.assertEqual(calls,['FINALIZATION_BACKENDS']);self.assertNotIn(name,n['finalized']);self.assertNotIn(CANARY,json.dumps(n['report']))
++
++    def test_query_failure_closes_and_preserves_original_Stop(self):
++        n,name=self.initialized();error=n['Stop']('OFFLINE_PRIMARY_QUERY_STOP');calls=self.transport(n,['NORMAL','GLOBAL_BACKENDS'],{'NORMAL':error})
++        with self.assertRaises(n['Stop']) as caught:n['run_catalog_query'](name,'SELECT 1;','OFFLINE_QUERY_FAILURE')
++        self.assertEqual(caught.exception.code,'CATALOG_QUERY_PROCESS_UNCONFIRMED');self.assertEqual(calls,['NORMAL','GLOBAL_BACKENDS'])
++        self.assertEqual(n['report']['primary_failure']['code'],'CATALOG_QUERY_PROCESS_UNCONFIRMED')
++
++    def test_persistent_writer_failure_still_dispatches_closure_and_finalizer_but_cannot_qualify(self):
++        n,name=self.initialized();n['save']=Mock(side_effect=OSError(CANARY));calls=self.transport(n,['GLOBAL_BACKENDS','FINALIZATION_BACKENDS','ORIGINAL_GRANTOR_FINALIZATION','FINALIZATION_RESULT'])
++        with self.assertRaises(n['Stop']):n['closed_backends'](name,'OFFLINE_WRITER_FAILURE')
++        with self.assertRaises(n['Stop']):n['finalize'](name)
++        self.assertEqual(calls,['GLOBAL_BACKENDS','FINALIZATION_BACKENDS','ORIGINAL_GRANTOR_FINALIZATION','FINALIZATION_RESULT'])
++        self.assertFalse(n['evidence_is_complete']());self.assertNotEqual(n['report']['targets'][name]['finalization'],'PASS');self.assertNotIn(CANARY,json.dumps(n['report']))
++
++    def test_pending_review_is_isolated_and_refused_before_any_process(self):
++        n,name=self.initialized();temporary=tempfile.TemporaryDirectory(prefix='resource-v2-pending-',dir=TASK);self.addCleanup(temporary.cleanup);root=Path(temporary.name)
++        relative=n['OPERATOR_VALIDATION'];path=root/relative;path.parent.mkdir(parents=True);raw=b'{"independent_safety_sql_review":{"decision":"PENDING_ROOT_AND_INDEPENDENT_REVIEW"}}';path.write_bytes(raw)
++        n['ROOT']=root;n['MANIFEST']['packet_files_sha256'][relative]=hashlib.sha256(raw).hexdigest();n['MANIFEST']['review_status']='APPROVED_LOCAL_F0_NATIVE_ACCESS_ATTEMPT';n['command']=Mock(side_effect=AssertionError('PROCESS_BEFORE_PENDING_REVIEW_REFUSAL'))
++        with self.assertRaises(n['Stop']) as caught:n['verify_common_packet']()
++        self.assertEqual(caught.exception.code,'SAFETY_SQL_REVIEW_REQUIRED');n['command'].assert_not_called()
++
++    def test_actual_whole_verifier_preloads_graph_catalog16_and_exact_five_snapshots(self):
++        n,name=self.initialized();n['verify_common_packet']=Mock();output=io.StringIO()
++        with redirect_stdout(output),redirect_stderr(output):n['verify_packet']()
++        n['verify_common_packet'].assert_called_once();self.assertEqual(output.getvalue(),'');self.assertEqual(n['report']['catalog_preparation']['closed_source_files'],16)
++        self.assertEqual(len(n['MANIFEST']['operator_sources_sha256']),5);self.assertEqual(len(n['NATIVE_ACCESS']['packet']['cases']),40);self.assertEqual(n['NATIVE_ACCESS']['module']['MODULES'],n['NATIVE_MODULES'])
++        self.assertFalse(Path(self.manifest['evidence_directory']).exists());self.assertEqual(self.manifest['source_commit'],'TO_BE_PINNED')
++
+ if __name__=='__main__':unittest.main(verbosity=2)
+--- pin_native_access_plan_20261119_safety_sql_v1.py
++++ pin_native_access_plan_20261119_resource_set_v2.py
+@@ -2,8 +2,8 @@
+ from pathlib import Path
+ import argparse,hashlib,json,subprocess
+ TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+-SOURCE_ROOT='context/reconciliation/local-f0-operation-sources/native-access-safety-sql-v1'
+-SOURCE_FILES={name:name+'.txt' for name in ('execute_local_f0_native_access_20261119_safety_sql_v1.py','local_f0_native_access_operation_steps_safety_sql_v1.py','prepare_local_f0_native_access_plan_safety_sql_v1.py','check_native_access_operation_safety_sql_v1.py','pin_native_access_plan_20261119_safety_sql_v1.py')}
++SOURCE_ROOT='context/reconciliation/local-f0-operation-sources/native-access-resource-set-v2'
++SOURCE_FILES={name:name+'.txt' for name in ('execute_local_f0_native_access_20261119_resource_set_v2.py','local_f0_native_access_operation_steps_resource_set_v2.py','prepare_local_f0_native_access_plan_resource_set_v2.py','check_native_access_operation_resource_set_v2.py','pin_native_access_plan_20261119_resource_set_v2.py')}
+ def main():
+     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('manifest',type=Path);args=parser.parse_args()
+     path=args.manifest.resolve();assert path.is_relative_to(TASK) and not path.is_relative_to(ROOT)
+@@ -16,7 +16,7 @@
+     assert hashlib.sha256(''.join(p+'\0'+files[p]+'\n' for p in sorted(files)).encode()).hexdigest()==v['prepared_source_files_aggregate_sha256']
+     for external,snapshot in SOURCE_FILES.items():
+         relative=SOURCE_ROOT+'/'+snapshot;assert relative in files and sha(TASK/external)==files[relative]==sha(ROOT/relative)
+-    review='context/reconciliation/local-f0-native-access-safety-sql-v1-source-validation.json';assert review in files and files[review]==sha(ROOT/review)
++    review='context/reconciliation/local-f0-native-access-resource-set-v2-source-validation.json';assert review in files and files[review]==sha(ROOT/review)
+     assert json.loads((ROOT/review).read_bytes())['independent_safety_sql_review']['decision']=='SOURCE_APPROVED'
+     assert set(v['operator_sources_sha256'])==set(SOURCE_FILES)
+     for relative,digest in files.items():assert sha(ROOT/relative)==digest,relative

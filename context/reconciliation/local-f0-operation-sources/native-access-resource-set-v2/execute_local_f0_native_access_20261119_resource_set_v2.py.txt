@@ -1,0 +1,502 @@
+"""Reviewed genuine local F0 migration/ledger attempt under standing authority.
+
+Never exports unrestricted command output, SQL bodies, passwords or handles.
+Only exact run-owned resources can be removed. Only one reviewed initial migration and source-bound catalog/temp-oracle observations are prepared.
+"""
+from pathlib import Path
+import datetime
+import hashlib
+import json
+import os
+import re
+import secrets
+import subprocess
+import sys
+import time
+import uuid
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+MANIFEST_PATH=Path(sys.argv[1]).resolve()
+MANIFEST=json.loads(MANIFEST_PATH.read_text(encoding='utf8'))
+OUT=Path(MANIFEST['evidence_directory']).resolve()
+assert OUT.is_relative_to(TASK) and OUT!=TASK and not OUT.is_relative_to(ROOT)
+assert MANIFEST['purpose']=='LOCAL_F0_NATIVE_ACCESS_REHEARSAL'
+PRIVATE=OUT/'private'
+COMMIT=MANIFEST['source_commit']
+TREE=MANIFEST['source_tree']
+PACKET=MANIFEST['packet_sha256']
+IMAGE='docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1'
+CONFIG='sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d'
+DB='wa_p0c_rehearsal'
+LABEL='p0c-local-f0'
+RUN_ID=MANIFEST['run_id']
+assert str(uuid.UUID(RUN_ID))==RUN_ID
+CONNECTION_TAG='wa-first-'+RUN_ID
+ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker')
+LEAVES=('wa_private_helper_owner','wa_customer_verifier','wa_track_verifier')
+TARGETS=MANIFEST['targets']
+RESOURCE_CONTAINERS=tuple(target['name'] for target in TARGETS)
+report={'run_id':RUN_ID,'approved_commit':COMMIT,'approved_tree':TREE,'approved_packet_sha256':PACKET,
+        'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'IN_PROGRESS','stage':'ENTRY','evidence_complete':True,'persistence_failure':False,'output_complete':True,
+        'steps':{name:'NOT_RUN' for name in ('CATALOG-SETUP','CATALOG-AUTH','CATALOG-TOOLS','CATALOG-INSTALL','NATIVE-PROVIDER-PREINSTALL','NATIVE-PROVIDER-POSTINSTALL','NATIVE-ACCESS-ATTESTATION','NATIVE-ACCESS-FACETS','CATALOG-ACL-COMPAT','CATALOG-TEXT-COMPAT','CATALOG-NATIVE','CATALOG-ORACLE','CATALOG-LEDGER','CATALOG-COMPARE','CATALOG-SANITIZED_EXPORT','CATALOG-CLEANUP')},'events':[],'targets':{},'unexpected':[],
+        'cleanup':{},'limits':{'posture':'D','451_register':'NOT_PROMOTED','94_selection':'NOT_PROMOTED','hosted_changes':False,'migration_adoption':False,'worker_loop':False,'production_readiness':False}}
+report['authorization']={'scope':'STANDING_LOCAL_F0_NATIVE_ACCESS_REHEARSAL','packet_identity':'source_commit_tree_and_packet_sha256_fields','no_retry_on_unexpected':True}
+EVIDENCE_FAILED=False
+passwords={};secret_paths=[];all_secrets=[];created_containers={};created_volumes={};attempted_containers=set();attempted_volumes=set();bootstrap_attempted=set();bootstrapped=set();finalization_attempted=set();finalized=set()
+
+class Stop(Exception):
+    def __init__(self,code,details=None):self.code=code;self.details=details or {};self.stage=report.get('stage','ENTRY');super().__init__(code)
+
+def need(ok,code,details=None):
+    if not ok:raise Stop(code,details)
+
+def save():
+    try:
+        temp=OUT/'run-evidence.json.tmp'
+        with temp.open('w',encoding='utf8',newline='\n') as f:
+            text=json.dumps(report,indent=2)+'\n'
+            for secret in all_secrets:text=text.replace(secret,'[REDACTED]')
+            f.write(text);f.flush();os.fsync(f.fileno())
+        temp.replace(OUT/'run-evidence.json')
+    except BaseException:
+        mark_evidence_incomplete();raise
+
+
+
+
+
+def mark_evidence_incomplete(code='EVIDENCE_WRITE_UNCONFIRMED'):
+    global EVIDENCE_FAILED
+    EVIDENCE_FAILED=True
+    try:
+        report['evidence_complete']=False
+        report['persistence_failure']=True
+        report['status']='STOPPED_ATTEMPT_PRESERVED'
+        report.pop('qualified_native_snapshot_sha256',None)
+        safe={'stage':'EVIDENCE','code':code if code in ('EVIDENCE_WRITE_UNCONFIRMED','EVIDENCE_EVENT_UNCONFIRMED','EVIDENCE_OUTPUT_UNCONFIRMED') else 'EVIDENCE_WRITE_UNCONFIRMED'}
+        if safe not in report['unexpected']:report['unexpected'].append(safe)
+    except BaseException:pass
+
+def evidence_is_complete():
+    try:return not EVIDENCE_FAILED and report.get('evidence_complete',True) is True
+    except BaseException:return False
+
+def confirmed_path_absent(path):
+    try:path.lstat();return False
+    except FileNotFoundError:return True
+
+def best_effort_save():
+    try:save();return True
+    except BaseException:mark_evidence_incomplete();return False
+
+def record_failure(stage,code,primary=False):
+    try:
+        safe={'stage':stage,'code':code}
+        report['unexpected'].append(safe);report['status']='STOPPED_ATTEMPT_PRESERVED'
+        report.pop('qualified_native_snapshot_sha256',None)
+        if primary:report['primary_failure']=safe
+        else:report.setdefault('primary_failure',safe)
+    except BaseException:mark_evidence_incomplete()
+    return best_effort_save()
+
+def best_effort_event(stage,status,**safe):
+    try:event(stage,status,**safe);return True
+    except BaseException:mark_evidence_incomplete('EVIDENCE_EVENT_UNCONFIRMED');return False
+
+def finish_report(success_status):
+    def acceptable():
+        return evidence_is_complete() and not report['unexpected'] and report['status']==success_status
+    if not acceptable():report['status']='STOPPED_ATTEMPT_PRESERVED';report.pop('qualified_native_snapshot_sha256',None)
+    report['finished_at']=datetime.datetime.now(datetime.timezone.utc).isoformat()
+    best_effort_save()
+    if not acceptable():report['status']='STOPPED_ATTEMPT_PRESERVED';report.pop('qualified_native_snapshot_sha256',None)
+    try:
+        print(json.dumps({'status':report['status'],'evidence_complete':evidence_is_complete(),'persistence_failure':report.get('persistence_failure',False),'evidence':str(OUT/'run-evidence.json')}),flush=True)
+    except BaseException:
+        mark_evidence_incomplete('EVIDENCE_OUTPUT_UNCONFIRMED');best_effort_save()
+    return 0 if acceptable() else 1
+
+def event(stage,status,**safe):
+    try:
+        report['stage']=stage;report['events'].append({'stage':stage,'status':status,**safe});save()
+        print(json.dumps({'stage':stage,'status':status,**safe}),flush=True)
+    except BaseException:
+        mark_evidence_incomplete('EVIDENCE_EVENT_UNCONFIRMED');raise
+
+def command(args,input=None,timeout=60):
+    return subprocess.run(args,input=input,capture_output=True,text=True,encoding='utf8',errors='strict',timeout=timeout,cwd=ROOT)
+
+def docker(args,input=None,timeout=60):return command(['docker','--context','desktop-linux',*args],input,timeout)
+
+def json_ok(result,code):
+    need(result.returncode==0,code,{'exit_code':result.returncode})
+    return json.loads(result.stdout)
+
+def inventory():
+    containers=docker(['container','ls','-a','--format','{{.Names}}'])
+    volumes=docker(['volume','ls','--format','{{.Name}}'])
+    need(containers.returncode==0 and volumes.returncode==0,'RESOURCE_INVENTORY_FAILED')
+    return set(containers.stdout.splitlines()),set(volumes.stdout.splitlines())
+
+def owned(value):return value.get('workinants.rehearsal')==LABEL and value.get('workinants.rehearsal.run')==RUN_ID
+
+def inspect_container(name):
+    r=docker(['container','inspect',name]);return json.loads(r.stdout)[0] if r.returncode==0 else None
+
+def inspect_volume(name):
+    r=docker(['volume','inspect',name]);return json.loads(r.stdout)[0] if r.returncode==0 else None
+
+def safe_error(stderr):
+    found=[]
+    for line in stderr.splitlines():
+        m=re.fullmatch(r'(?:psql:(?:<stdin>|-):([0-9]+): )?(?:ERROR|FATAL):\s+([0-9A-Z]{5}):\s+(.*)',line)
+        if not m:continue
+        state=m[2];message=m[3];diagnostic='UNLISTED';obj=None
+        known={'division by zero':'DIVISION_BY_ZERO','foreign Customer principal':'CUSTOMER_PRINCIPAL_GUARD','missing durable default-Free intent':'CUSTOMER_DEFAULT_FREE_GUARD','cleanup requires original bootstrap grantor':'WRONG_FINALIZATION_GRANTOR','temporary installation membership remains':'TEMPORARY_MEMBERSHIP_REMAINS','temporary function creation authority remains':'TEMPORARY_CREATE_REMAINS'}
+        if message in known:diagnostic=known[message]
+        found.append({'sqlstate':state,'diagnostic':diagnostic,'source_line':int(m[1]) if m[1] else None,**({'object':obj} if obj else {})})
+    return found
+
+def psql_args(target,role):
+    return ['docker','--context','desktop-linux','exec','-i','-e','PGPASSFILE=/run/wa-secrets/pgpass','-e','PGAPPNAME='+CONNECTION_TAG,created_containers[target],'psql','-X','-w','-qAt','-v','ON_ERROR_STOP=1','-v','VERBOSITY=verbose','-v','SHOW_CONTEXT=never','-h','127.0.0.1','-p','5432','-U',role,'-d',DB]
+
+def sql(target,role,text,kind,timeout=120,expected_error=None,installation=False):
+    report['stage']=kind;save()
+    args=psql_args(target,role)
+    if installation:
+        args+=['-c',"SELECT jsonb_build_object('session_user',session_user,'current_user',current_user,'system_user',system_user,'database',current_database());",'-f','-']
+    result=command(args,text,timeout)
+    details={'target':target,'role':role,'operation':kind,'exit_code':result.returncode,'errors':safe_error(result.stderr),'client_exited':True}
+    if kind!='CREDENTIAL_PROVISION':details['input_sha256']=hashlib.sha256(text.encode()).hexdigest()
+    if installation and result.stdout.splitlines():
+        try:
+            identity=json.loads(result.stdout.splitlines()[0])
+            if set(identity)=={'session_user','current_user','system_user','database'}:details['actual_install_connection']=identity
+        except json.JSONDecodeError:pass
+    report['events'].append(details);save()
+    if expected_error:
+        need(result.returncode==3 and len(details['errors'])==1 and details['errors'][0]['sqlstate']==expected_error and details['errors'][0]['diagnostic']=='DIVISION_BY_ZERO','EXPECTED_INSTALL_FAILURE_NOT_PROVEN',details)
+    else:need(result.returncode==0,'SQL_OPERATION_FAILED',details)
+    return result.stdout.strip(),details
+
+def observe(target,text,kind):
+    stdout,details=sql(target,'postgres',text,kind)
+    return json.loads(stdout)
+
+def secure_private_directory():
+    PRIVATE.mkdir()
+    ps="""$ErrorActionPreference='Stop'
+$privateTarget=[System.IO.Path]::GetFullPath($args[0])
+$sid=[System.Security.Principal.WindowsIdentity]::GetCurrent().User
+$acl=[System.Security.AccessControl.DirectorySecurity]::new()
+$acl.SetOwner($sid)
+$acl.SetAccessRuleProtection($true,$false)
+$rule=[System.Security.AccessControl.FileSystemAccessRule]::new($sid,'FullControl','ContainerInherit,ObjectInherit','None','Allow')
+$acl.AddAccessRule($rule)
+[System.IO.Directory]::SetAccessControl($privateTarget,$acl)
+$actual=[System.IO.Directory]::GetAccessControl($privateTarget)
+$rules=$actual.GetAccessRules($true,$true,[System.Security.Principal.SecurityIdentifier])
+if ($rules.Count -ne 1 -or $rules[0].IdentityReference.Value -ne $sid.Value -or -not $actual.AreAccessRulesProtected -or $actual.GetOwner([System.Security.Principal.SecurityIdentifier]).Value -ne $sid.Value) { throw 'Owner-only ACL verification failed' }
+Write-Output 'OWNER_ONLY_VERIFIED'
+"""
+    # No secret is passed through this command. The only argument is a fixed
+    # test-owned directory; the inherited DACL protects later-created files.
+    helper=OUT/'set-private-acl.ps1';helper.write_text(ps,encoding='utf8',newline='\n')
+    result=command(['powershell.exe','-NoProfile','-NonInteractive','-File',str(helper),str(PRIVATE)])
+    need(result.returncode==0 and result.stdout.strip()=='OWNER_ONLY_VERIFIED','OWNER_ONLY_ACL_FAILED')
+    report['credential_handling']={'host_private_directory_owner_only_acl_verified':True,'real_credentials_in_argv_env_or_evidence':False,'container_pgpass':'root_owned_0600_tmpfs','independent_per_role_per_target':True};save()
+
+def preflight():
+    context=json_ok(docker(['context','inspect','desktop-linux']),'CONTEXT_FAILED')[0]
+    need(context['Endpoints']['docker']['Host']=='npipe:////./pipe/dockerDesktopLinuxEngine','NONLOCAL_DOCKER_ENDPOINT')
+    server=json_ok(docker(['version','--format','{{json .Server}}']),'DOCKER_SERVER_FAILED')
+    need(server['Os']=='linux' and server['Arch']=='amd64','DOCKER_SERVER_PLATFORM_MISMATCH')
+    containers,volumes=inventory()
+    presence={t['name']:t['name'] in containers for t in TARGETS}|{t['volume']:t['volume'] in volumes for t in TARGETS}
+    report['local_preflight']={'endpoint':context['Endpoints']['docker']['Host'],'server_version':server['Version'],'server_os':server['Os'],'server_arch':server['Arch'],'initial_resource_presence':presence,'unrelated_containers_untouched':len(containers),'unrelated_volumes_untouched':len(volumes)}
+    need(not any(presence.values()),'RESOURCE_NAME_CONFLICT',{'presence':presence})
+    event('LOCAL_PREFLIGHT','PASS',all_created_names_absent=True,expected_resource_names=2*len(TARGETS))
+
+def ensure_image():
+    image=docker(['image','inspect',IMAGE])
+    pulled=False;cached_at_entry=image.returncode==0
+    if image.returncode:
+        event('PINNED_IMAGE_PULL','STARTED',reference=IMAGE)
+        pull=docker(['pull','--platform','linux/amd64',IMAGE],timeout=900)
+        need(pull.returncode==0,'PINNED_IMAGE_PULL_FAILED',{'exit_code':pull.returncode})
+        pulled=True;image=docker(['image','inspect',IMAGE])
+    value=json_ok(image,'PINNED_IMAGE_INSPECTION_FAILED')[0]
+    need(value['Os']=='linux' and value['Architecture']=='amd64','PINNED_IMAGE_PLATFORM_MISMATCH')
+    need(any(d.endswith('@'+IMAGE.split('@')[1]) for d in value['RepoDigests']),'PINNED_IMAGE_DIGEST_MISSING')
+    raw=docker(['buildx','imagetools','inspect','--raw',IMAGE],timeout=90)
+    need(raw.returncode==0,'PINNED_MANIFEST_READ_FAILED')
+    # buildx may append one CLI newline. Require the actual content hash to
+    # equal the approved immutable manifest, then inspect its config descriptor.
+    candidates=[raw.stdout.encode(),raw.stdout.removesuffix('\n').encode()]
+    need(any(hashlib.sha256(b).hexdigest()==IMAGE.split('@sha256:')[1] for b in candidates),'PINNED_MANIFEST_CONTENT_HASH_MISMATCH')
+    manifest=json.loads(raw.stdout)
+    need(manifest['config']['digest']==CONFIG,'PINNED_IMAGE_CONFIG_MISMATCH')
+    pgversion=next((e.split('=',1)[1] for e in value['Config']['Env'] if e.startswith('PG_VERSION=')),None)
+    need(pgversion and pgversion.startswith('17.11'),'PINNED_IMAGE_VERSION_MISMATCH')
+    report['image']={'reference':IMAGE,'image_id':value['Id'],'manifest_descriptor':value.get('Descriptor'),'config_digest':manifest['config']['digest'],'manifest_content_hash_verified':True,'repo_digests':value['RepoDigests'],'os':value['Os'],'architecture':value['Architecture'],'pg_version':pgversion,'pulled_this_run':pulled,'retained_image_reused':cached_at_entry,'removed':False}
+    event('PINNED_IMAGE','PASS',pulled=pulled,image_id=value['Id'])
+
+def create_resources():
+    secure_private_directory()
+    for target in TARGETS:
+        name=target['name'];volume=target['volume'];passwords[name]={role:secrets.token_hex(32) for role in ROLES};all_secrets.extend(passwords[name].values())
+        secret=PRIVATE/(target['kind']+'-bootstrap-password');secret_paths.append(secret)
+        with secret.open('x',encoding='utf8',newline='\n') as f:f.write(passwords[name]['postgres']+'\n')
+        # Assert absence immediately before each creation as well as globally.
+        containers,volumes=inventory();need(name not in containers and volume not in volumes,'LATE_RESOURCE_NAME_CONFLICT')
+        attempted_volumes.add(volume)
+        r=docker(['volume','create','--label','workinants.rehearsal='+LABEL,'--label','workinants.rehearsal.run='+RUN_ID,volume])
+        need(r.returncode==0,'VOLUME_CREATE_FAILED')
+        v=inspect_volume(volume);need(v is not None and owned(v.get('Labels') or {}),'VOLUME_OWNERSHIP_UNCONFIRMED');created_volumes[volume]=v['CreatedAt'];save()
+        args=['container','create','--name',name,'--label','workinants.rehearsal='+LABEL,'--label','workinants.rehearsal.run='+RUN_ID,'--network','none','--platform','linux/amd64','--mount','type=volume,src='+volume+',dst=/var/lib/postgresql/data','--mount','type=bind,src='+str(secret)+',dst=/run/bootstrap-password,readonly','--tmpfs','/run/wa-secrets:rw,nosuid,noexec,nodev,mode=0700','-e','POSTGRES_DB='+DB,'-e','POSTGRES_PASSWORD_FILE=/run/bootstrap-password','-e','POSTGRES_HOST_AUTH_METHOD=scram-sha-256','-e','POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256',IMAGE,'postgres','-c','password_encryption=scram-sha-256','-c','log_statement=none','-c','log_min_error_statement=panic','-c','log_error_verbosity=terse','-c','log_line_prefix=WA_F0_DIAG|%e|%u|%d|','-c','lc_messages=C','-c','log_min_messages=warning']
+        attempted_containers.add(name);r=docker(args);need(r.returncode==0,'CONTAINER_CREATE_FAILED')
+        value=inspect_container(name);need(value is not None and owned(value['Config']['Labels']),'CONTAINER_OWNERSHIP_UNCONFIRMED');created_containers[name]=value['Id']
+        need(value['Config']['Image']==IMAGE and value['Image']==report['image']['image_id'] and value['HostConfig']['NetworkMode']=='none' and not value['HostConfig'].get('PortBindings'),'CONTAINER_ISOLATION_MISMATCH')
+        mounts=[{'type':m['Type'],'destination':m['Destination'],'rw':m['RW'],**({'volume':m['Name']} if m['Type']=='volume' else {})} for m in value['Mounts']]
+        need(any(m['type']=='volume' and m['volume']==volume and m['destination']=='/var/lib/postgresql/data' for m in mounts),'WRONG_DATA_VOLUME')
+        need(any(m['type']=='bind' and m['destination']=='/run/bootstrap-password' and not m['rw'] for m in mounts),'WRONG_SECRET_MOUNT')
+        need('/run/wa-secrets' in value['HostConfig']['Tmpfs'],'PRIVATE_TMPFS_MISSING')
+        report['targets'][name]={'container_id':value['Id'],'volume':volume,'volume_created_at':v['CreatedAt'],'labels':value['Config']['Labels'],'network_mode':'none','published_ports':False,'mounts':mounts,'tmpfs':value['HostConfig']['Tmpfs'],'bootstrap':'NOT_RUN','application':'NOT_RUN','finalization':'NOT_RUN'};save()
+        need(docker(['container','start',created_containers[name]]).returncode==0,'CONTAINER_START_FAILED')
+        ready=False
+        for _ in range(60):
+            if docker(['exec',created_containers[name],'pg_isready','-h','127.0.0.1','-p','5432','-U','postgres','-d',DB]).returncode==0:ready=True;break
+            time.sleep(1)
+        need(ready,'DATABASE_READINESS_TIMEOUT')
+        pgpass=''.join('127.0.0.1:5432:'+DB+':'+role+':'+password+'\n' for role,password in passwords[name].items())
+        r=docker(['exec','-i',created_containers[name],'sh','-ceu','umask 077; cat > /run/wa-secrets/pgpass; chmod 600 /run/wa-secrets/pgpass; stat -c "%a:%u:%g" /run/wa-secrets/pgpass'],input=pgpass)
+        need(r.returncode==0 and r.stdout.strip()=='600:0:0','PRIVATE_PGPASS_PERMISSION_FAILED')
+        event('RESOURCE_READY','PASS',target=name,pgpass_owner_mode='600:0:0')
+    report['steps']['CATALOG-SETUP']='PASS';save()
+
+import stat as _required_safety_stat
+
+# The Owner family retains its separately reviewed persistence API unchanged.
+_SAFETY_IO_PROFILE='COMMON'
+def _required_safety_evidence_complete():
+    if _SAFETY_IO_PROFILE=='OWNER':return report.get('evidence_complete',True) is True and report.get('output_complete',True) is True
+    return _SAFETY_IO_PROFILE=='COMMON' and evidence_is_complete()
+def _required_safety_save():
+    need(_SAFETY_IO_PROFILE in ('COMMON','OWNER'),'REQUIRED_SAFETY_IO_PROFILE')
+    return persist_best_effort('REQUIRED_SAFETY_RECORD') if _SAFETY_IO_PROFILE=='OWNER' else best_effort_save()
+def _required_safety_event(stage,status,**safe):
+    return event_best_effort(stage,status,**safe) if _SAFETY_IO_PROFILE=='OWNER' else best_effort_event(stage,status,**safe)
+def _required_safety_failure(stage,code,primary=False):
+    if _SAFETY_IO_PROFILE=='OWNER':
+        if primary:report['primary_failure']={'stage':stage,'code':code}
+        remember_failure(stage,code);return persist_best_effort('REQUIRED_SAFETY_FAILURE_RECORD')
+    return record_failure(stage,code,primary=primary)
+def _required_safety_first_exception(error):
+    if isinstance(error,Stop):_required_safety_failure(error.stage,error.code,primary='primary_failure' not in report)
+
+# Same-file required safety commands only; normal sql()/observe() stay fail-fast.
+_SAFETY_SQL_PROFILE='STANDARD'
+_SAFETY_SQL_RECIPES={'FINALIZATION_BACKENDS': "SELECT jsonb_build_object('migrator',(SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND usename='wa_migrator'),'other_client_backends',(SELECT count(*) FROM pg_stat_activity WHERE backend_type='client backend' AND pid<>pg_backend_pid()));", 'FINALIZATION_RESULT': "SELECT jsonb_build_object('grantor',session_user,'auth',system_user,'remaining_memberships',(SELECT count(*) FROM pg_auth_members WHERE member='wa_schema_owner'::regrole AND roleid IN ('wa_private_helper_owner'::regrole,'wa_customer_verifier'::regrole,'wa_track_verifier'::regrole)),'leaf_create',jsonb_build_object('wa_private_helper_owner',has_schema_privilege('wa_private_helper_owner','platform_private','CREATE'),'wa_customer_verifier',has_schema_privilege('wa_customer_verifier','platform_private','CREATE'),'wa_track_verifier',has_schema_privilege('wa_track_verifier','platform_private','CREATE')),'active_install_connections',(SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND usename='wa_migrator'));", 'GLOBAL_BACKENDS': "SELECT jsonb_build_object('migrator',(SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND usename='wa_migrator'),'other_client_backends',(SELECT count(*) FROM pg_stat_activity WHERE backend_type='client backend' AND pid<>pg_backend_pid()));", 'INSTALL_BOOTSTRAP_ELIGIBILITY': "SELECT jsonb_build_object('source_roles',(SELECT count(*) FROM pg_roles WHERE rolname IN ('wa_schema_owner','wa_private_helper_owner','wa_customer_verifier','wa_track_verifier')),'login',session_user,'auth',system_user);", 'INSTALL_ORIGINAL_CLEANUP_RESULT': "SELECT jsonb_build_object('temporary_memberships',(SELECT count(*) FROM pg_auth_members WHERE member='wa_schema_owner'::regrole AND roleid IN ('wa_private_helper_owner'::regrole,'wa_customer_verifier'::regrole,'wa_track_verifier'::regrole)),'leaf_create',has_schema_privilege('wa_private_helper_owner','platform_private','CREATE') OR has_schema_privilege('wa_customer_verifier','platform_private','CREATE') OR has_schema_privilege('wa_track_verifier','platform_private','CREATE'),'auth',system_user,'grantor',session_user);"}
+_SAFETY_SQL_LABELS={'GLOBAL_BACKENDS':'REQUIRED_GLOBAL_BACKEND_CLOSURE','FINALIZATION_BACKENDS':'PRE_FINALIZATION_CONNECTION_OBSERVER','FINALIZATION_RESULT':'FINALIZATION_OBSERVER','INSTALL_BOOTSTRAP_ELIGIBILITY':'INSTALL_BOOTSTRAP_ELIGIBILITY','INSTALL_ORIGINAL_CLEANUP_RESULT':'INSTALL_INDEPENDENT_ORIGINAL_CLEANUP','ORIGINAL_GRANTOR_FINALIZATION':'ORIGINAL_GRANTOR_FINALIZATION'}
+_SAFETY_FINALIZER='review-output/foundation-bootstrap-finalize.review.sql'
+_SAFETY_FINALIZER_SHA='afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98'
+
+
+def _required_safety_barrier():
+    need(_required_safety_evidence_complete(),'REQUIRED_SAFETY_EVIDENCE_UNCONFIRMED')
+
+
+def _required_safety_text(selector):
+    allowed={'GLOBAL_BACKENDS','FINALIZATION_BACKENDS','FINALIZATION_RESULT','ORIGINAL_GRANTOR_FINALIZATION'}
+    if _SAFETY_SQL_PROFILE=='INSTALL':allowed|={'INSTALL_BOOTSTRAP_ELIGIBILITY','INSTALL_ORIGINAL_CLEANUP_RESULT'}
+    need(_SAFETY_SQL_PROFILE in ('STANDARD','INSTALL') and selector in allowed,'REQUIRED_SAFETY_SELECTOR_NOT_ADMITTED')
+    if selector!='ORIGINAL_GRANTOR_FINALIZATION':return _SAFETY_SQL_RECIPES[selector]
+    try:
+        raw_path=ROOT/_SAFETY_FINALIZER;metadata=raw_path.lstat()
+        need(_required_safety_stat.S_ISREG(metadata.st_mode) and not raw_path.is_symlink(),'REQUIRED_FINALIZER_SOURCE_UNCONFIRMED')
+        raw=read_pinned(_SAFETY_FINALIZER)
+    except BaseException:raise Stop('REQUIRED_FINALIZER_SOURCE_UNCONFIRMED') from None
+    need(type(raw) is bytes and hashlib.sha256(raw).hexdigest()==_SAFETY_FINALIZER_SHA,'REQUIRED_FINALIZER_SOURCE_UNCONFIRMED')
+    try:return raw.decode('utf8')
+    except UnicodeError:raise Stop('REQUIRED_FINALIZER_SOURCE_UNCONFIRMED') from None
+
+
+def _required_safety_decode(raw,selector):
+    need(type(raw) is str,'REQUIRED_SAFETY_RESPONSE_UNCONFIRMED')
+    try:bounded=len(raw.encode('utf8'))<=65536
+    except UnicodeError:bounded=False
+    need(bounded,'REQUIRED_SAFETY_RESPONSE_UNCONFIRMED')
+    def pairs(items):
+        row={}
+        for key,value in items:
+            need(key not in row,'REQUIRED_SAFETY_RESPONSE_UNCONFIRMED');row[key]=value
+        return row
+    def bad_constant(_):raise Stop('REQUIRED_SAFETY_RESPONSE_UNCONFIRMED')
+    try:value=json.loads(raw,object_pairs_hook=pairs,parse_constant=bad_constant)
+    except BaseException:raise Stop('REQUIRED_SAFETY_RESPONSE_UNCONFIRMED') from None
+    need(type(value) is dict,'REQUIRED_SAFETY_RESPONSE_UNCONFIRMED')
+    if selector in ('GLOBAL_BACKENDS','FINALIZATION_BACKENDS'):
+        need(set(value)=={'migrator','other_client_backends'} and all(type(value[k]) is int and value[k]>=0 for k in value),'REQUIRED_SAFETY_RESPONSE_UNCONFIRMED')
+    elif selector=='FINALIZATION_RESULT':
+        need(set(value)=={'grantor','auth','remaining_memberships','leaf_create','active_install_connections'} and value['grantor']=='postgres' and value['auth']=='scram-sha-256:postgres' and type(value['leaf_create']) is dict and set(value['leaf_create'])==set(LEAVES) and all(type(v) is bool for v in value['leaf_create'].values()) and all(type(value[k]) is int and value[k]>=0 for k in ('remaining_memberships','active_install_connections')),'REQUIRED_SAFETY_RESPONSE_UNCONFIRMED')
+    elif selector=='INSTALL_BOOTSTRAP_ELIGIBILITY':
+        need(set(value)=={'source_roles','login','auth'} and type(value['source_roles']) is int and value['source_roles']>=0 and value['login']=='postgres' and value['auth']=='scram-sha-256:postgres','REQUIRED_SAFETY_RESPONSE_UNCONFIRMED')
+    elif selector=='INSTALL_ORIGINAL_CLEANUP_RESULT':
+        need(set(value)=={'temporary_memberships','leaf_create','auth','grantor'} and type(value['temporary_memberships']) is int and value['temporary_memberships']>=0 and type(value['leaf_create']) is bool and value['auth']=='scram-sha-256:postgres' and value['grantor']=='postgres','REQUIRED_SAFETY_RESPONSE_UNCONFIRMED')
+    return value
+
+
+def _required_safety_sql(target,selector):
+    need(type(selector) is str and selector in _SAFETY_SQL_LABELS,'REQUIRED_SAFETY_SELECTOR_NOT_ADMITTED')
+    need(type(target) is str and target in created_containers and target in RESOURCE_CONTAINERS and type(created_containers[target]) is str and re.fullmatch('[0-9a-f]{64}',created_containers[target]),'REQUIRED_SAFETY_OWNED_TARGET')
+    report['stage']=_SAFETY_SQL_LABELS[selector]
+    text=_required_safety_text(selector)
+    args=psql_args(target,'postgres')
+    need(type(args) is list and args.count('-U')==1 and args[args.index('-U')+1]=='postgres' and created_containers[target] in args,'REQUIRED_SAFETY_POSTGRES_TRANSPORT')
+    stage=_SAFETY_SQL_LABELS[selector];report['stage']=stage;_required_safety_save();_required_safety_event('REQUIRED_SAFETY_SQL','ATTEMPTED',target=target,operation=selector);report['stage']=stage
+    details={'target':target,'role':'postgres','operation':stage,'input_sha256':hashlib.sha256(text.encode()).hexdigest(),'client_exited':False,'exit_code':None,'response_fields_valid':False}
+    try:
+        result=command(args,text,120)
+        code=getattr(result,'returncode',None);stdout=getattr(result,'stdout',None);stderr=getattr(result,'stderr',None)
+        details['client_exited']=type(code) is int and 0<=code<=255;details['exit_code']=code if details['client_exited'] else None
+        need(details['client_exited'] and code==0 and type(stdout) is str and type(stderr) is str and stderr=='','REQUIRED_SAFETY_COMMAND_UNCONFIRMED')
+        if selector=='ORIGINAL_GRANTOR_FINALIZATION':
+            need(stdout.strip()=='','REQUIRED_SAFETY_RESPONSE_UNCONFIRMED');value=None
+        else:value=_required_safety_decode(stdout,selector)
+        details['response_fields_valid']=True;return value
+    finally:
+        report.setdefault('events',[]).append(details);_required_safety_save()
+
+
+def _required_zero_backends(name,stage):
+    proof={'stage':stage,'scope':'ALL_DATABASES_ALL_ROLES_ALL_TAGS','observation_completed':False,'counts_valid':False,'migrator_zero':False,'other_clients_zero':False,'all_other_client_backends_absent':False};failure=None
+    try:
+        value=_required_safety_sql(name,'GLOBAL_BACKENDS');proof.update(observation_completed=True,counts_valid=True,migrator_zero=value['migrator']==0,other_clients_zero=value['other_client_backends']==0,all_other_client_backends_absent=value['migrator']==value['other_client_backends']==0)
+    except BaseException as error:failure=error
+    finally:report.setdefault('backend_closures',[]).append(proof);_required_safety_save()
+    if failure is not None:raise failure
+    need(proof['all_other_client_backends_absent'],'CATALOG_BACKEND_CLOSURE_UNCONFIRMED');return proof
+
+
+def closed_backends(name,stage):
+    value=_required_zero_backends(name,stage);_required_safety_barrier();return value
+
+
+class _RequiredSafetyBoundary:
+    """Run the fixed safety action and preserve an already-pending exception."""
+    def __init__(self,action,target,stage=None):
+        need(action in ('CLOSE','FINALIZE'),'REQUIRED_SAFETY_BOUNDARY_ACTION');self.action=action;self.target=target;self.stage=stage
+    def __enter__(self):return self
+    def __exit__(self,kind,original,traceback):
+        if original is not None:_required_safety_first_exception(original)
+        try:
+            if self.action=='CLOSE':closed_backends(self.target,self.stage)
+            else:finalize(self.target)
+        except BaseException:
+            _required_safety_failure('REQUIRED_SAFETY_COMPOSITION','REQUIRED_SAFETY_ACTION_UNCONFIRMED')
+            if original is None:raise
+        return False
+
+
+def finalize(name):
+    if name in finalization_attempted:return
+    finalization_attempted.add(name)
+    active=_required_safety_sql(name,'FINALIZATION_BACKENDS')
+    valid_active=(type(active) is dict and set(active)=={'migrator','other_client_backends'} and all(type(active[key]) is int and active[key]>=0 for key in ('migrator','other_client_backends')))
+    if valid_active:report['targets'][name]['connections_before_finalization']=active;_required_safety_save()
+    need(valid_active and all(active[key]==0 for key in ('migrator','other_client_backends')),'FINALIZATION_BLOCKED_ACTIVE_OPERATION',{'target':name})
+    first=None;observation=None
+    try:_required_safety_sql(name,'ORIGINAL_GRANTOR_FINALIZATION')
+    except BaseException as error:first=error;_required_safety_first_exception(error)
+    finally:
+        try:observation=_required_safety_sql(name,'FINALIZATION_RESULT')
+        except BaseException:
+            _required_safety_failure('FINALIZATION_POST_OBSERVER','FINALIZATION_POST_OBSERVER_UNCONFIRMED')
+            if first is None:raise
+    valid_observation=(type(observation) is dict and set(observation)=={'grantor','auth','remaining_memberships','leaf_create','active_install_connections'} and observation['grantor']=='postgres' and observation['auth']=='scram-sha-256:postgres' and type(observation['leaf_create']) is dict and set(observation['leaf_create'])==set(LEAVES) and all(type(value) is bool for value in observation['leaf_create'].values()) and all(type(observation[key]) is int and observation[key]>=0 for key in ('remaining_memberships','active_install_connections')))
+    if valid_observation:
+        report['targets'][name]['finalization_observation']=observation;report['targets'][name]['finalization_observation_status']='OBSERVED_NOT_QUALIFIED';_required_safety_save()
+    if first is not None:
+        report['targets'][name]['finalization']='UNCONFIRMED';_required_safety_save();raise first
+    need(valid_observation and observation['grantor']=='postgres' and observation['auth']=='scram-sha-256:postgres' and observation['remaining_memberships']==0 and observation['active_install_connections']==0 and not any(observation['leaf_create'].values()),'FINALIZATION_VERIFICATION_FAILED',{'target':name})
+    finalized.add(name);report['targets'][name]['finalization']='PASS';_required_safety_event('FINALIZATION','PASS',target=name)
+    if not _required_safety_evidence_complete():report['targets'][name]['finalization']='OBSERVED_CLEANUP_EVIDENCE_INCOMPLETE';_required_safety_save()
+    _required_safety_barrier()
+
+
+def secret_scan():
+    scanned=0
+    for path in OUT.rglob('*'):
+        if not path.is_file() or PRIVATE in path.parents:continue
+        text=path.read_text(encoding='utf8');scanned+=1
+        for value in all_secrets:
+            need(value not in text,'SECRET_EVIDENCE_SCAN_FAILED',{'file':str(path.relative_to(OUT))})
+    report['sanitization']={'files_scanned':scanned,'actual_password_values_found':False,'unrestricted_subprocess_output_persisted':False,'raw_context_handles_persisted':False,'coordinator_evidence_uses_reviewed_allowlist':True};save()
+
+def cleanup():
+    errors=[]
+    def attempt(label,target,action):
+        try:action()
+        except BaseException as exc:
+            item={'stage':'CLEANUP','target':target,'code':exc.code if isinstance(exc,Stop) else label}
+            errors.append(item);report['cleanup'][target]={'status':'BLOCKED','failure':item['code']};best_effort_save()
+    def container_cleanup(name):
+        value=inspect_container(name)
+        if name not in created_containers:
+            if value is None or not owned(value['Config']['Labels']):return
+            created_containers[name]=value['Id']
+        if value is None:
+            report['cleanup'][name]={'status':'ABSENT_AT_CLEANUP'};best_effort_save();return
+        identity=created_containers[name]
+        need(value.get('Name')=='/'+name and value['Id']==identity and owned(value['Config']['Labels']),'CLEANUP_CONTAINER_OWNERSHIP_MISMATCH',{'target':name})
+        need(docker(['container','rm','-f',identity]).returncode==0,'EXACT_CONTAINER_REMOVAL_FAILED',{'target':name})
+        report['cleanup'][name]={'removed':True,'verified_id':identity,'name_and_both_labels_verified':True};best_effort_save()
+    def volume_cleanup(name):
+        value=inspect_volume(name)
+        if name not in created_volumes:
+            if value is None or not owned(value.get('Labels') or {}):return
+            created_volumes[name]=value['CreatedAt']
+        if value is None:
+            report['cleanup'][name]={'status':'ABSENT_AT_CLEANUP'};best_effort_save();return
+        need(value.get('Name')==name and value['CreatedAt']==created_volumes[name] and owned(value.get('Labels') or {}),'CLEANUP_VOLUME_OWNERSHIP_MISMATCH',{'target':name})
+        need(docker(['volume','rm',name]).returncode==0,'EXACT_VOLUME_REMOVAL_FAILED',{'target':name})
+        report['cleanup'][name]={'removed':True,'name_labels_creation_identity_verified':True};best_effort_save()
+    try:
+        for name in sorted(attempted_containers):attempt('CONTAINER_CLEANUP_FAILED',name,lambda name=name:container_cleanup(name))
+        for name in sorted(attempted_volumes):attempt('VOLUME_CLEANUP_FAILED',name,lambda name=name:volume_cleanup(name))
+    finally:
+        deleted=[]
+        for path in secret_paths:
+            def delete_secret(path=path):
+                private_resolved=PRIVATE.resolve()
+                need(private_resolved==OUT.resolve()/'private' and private_resolved.is_relative_to(TASK.resolve()) and not private_resolved.is_relative_to(ROOT.resolve()),'SECRET_CLEANUP_DIRECTORY_MISMATCH')
+                need(path.resolve().parent==private_resolved and path.name in ('ok-bootstrap-password','fail-bootstrap-password'),'SECRET_CLEANUP_PATH_MISMATCH')
+                if not confirmed_path_absent(path):path.unlink()
+                deleted.append(path.name)
+            attempt('SECRET_FILE_REMOVAL_FAILED',path.name,delete_secret)
+        attempt('PRIVATE_DIRECTORY_REMOVAL_FAILED','private_directory',lambda: None if confirmed_path_absent(PRIVATE) else PRIVATE.rmdir())
+        report['host_secret_cleanup']={'deleted':deleted,'private_directory_absent':False}
+        try:report['host_secret_cleanup']['private_directory_absent']=confirmed_path_absent(PRIVATE)
+        except BaseException:errors.append({'stage':'CLEANUP','code':'PRIVATE_ABSENCE_OBSERVATION_FAILED'})
+        best_effort_save()
+    report['cleanup_summary']={'resource_absence_observation_completed':False,'resource_presence_after':None,'private_directory_absent':False}
+    try:
+        containers,volumes=inventory()
+        presence={name:name in containers for name in (target['name'] for target in TARGETS)}|{name:name in volumes for name in (target['volume'] for target in TARGETS)}
+        report['cleanup_summary']={'resource_absence_observation_completed':True,'resource_presence_after':presence,'test_owned_secret_files_deleted':report['host_secret_cleanup']['deleted'],'private_directory_absent':report['host_secret_cleanup']['private_directory_absent'],'image_removed':False,'unrelated_resources_changed':False}
+        need(not any(presence.values()),'RESOURCE_ABSENCE_NOT_CONFIRMED')
+    except BaseException as exc:
+        errors.append({'stage':'CLEANUP','code':exc.code if isinstance(exc,Stop) else 'CLEANUP_ABSENCE_OBSERVATION_FAILED'})
+    if errors or not evidence_is_complete():
+        report['unexpected'].extend(errors);best_effort_save();raise Stop('CONTROLLED_CLEANUP_INCOMPLETE')
+    if not best_effort_event('CONTROLLED_CLEANUP','PASS',all_created_names_absent=True,expected_resource_names=2*len(TARGETS),test_secret_files_absent=True):raise Stop('CLEANUP_EVIDENCE_UNCONFIRMED')
+    report['cleanup_actions_confirmed']=True
+    report['steps']['CATALOG-CLEANUP']='PASS'
+
+# Load only the exact independently reviewed operational steps snapshot.
+STEPS=TASK/'local_f0_native_access_operation_steps_resource_set_v2.py'
+STEPS_RAW=STEPS.read_bytes()
+need(hashlib.sha256(STEPS_RAW).hexdigest()==MANIFEST['steps_sha256'],'OPERATION_STEPS_SOURCE_MISMATCH')
+exec(compile(STEPS_RAW,str(STEPS),'exec'),globals())
+if __name__=='__main__':raise SystemExit(main())

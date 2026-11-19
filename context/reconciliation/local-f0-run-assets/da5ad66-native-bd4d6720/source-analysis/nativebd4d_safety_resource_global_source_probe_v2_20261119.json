@@ -1,0 +1,52 @@
+{
+  "schema": "workinants.nativebd4d-source-global-offline-reproduction.v1",
+  "recorded_at_utc": "2026-11-19T22:11:37.942312+00:00",
+  "source_core_sha256": "82ff221e2b740ffeac248474c84bfab80253c34e3234a6a2cf584e6162397574",
+  "source_steps_sha256": "991210f073adecb1ca0b9dda208f56fba218feb56ab3d6c18db16b437ad8072a",
+  "actual_initialization": "Entire exact Core with exact Steps via unchanged source loader; __name__ dormant, real process APIs forbidden, only command/persistence boundary mocked afterward",
+  "old_source_reproductions": [
+    {
+      "action": "DIRECT_REQUIRED_CLOSURE",
+      "initialized_namespace_lacks_required_global": true,
+      "exception_class": "NameError",
+      "missing_name_exact_allowlisted_RESOURCE_CONTAINERS": true,
+      "mocked_transport_calls": 0,
+      "required_safety_query_dispatched": false
+    },
+    {
+      "action": "ACTUAL_CATALOG_QUERY_COMPOSITION",
+      "initialized_namespace_lacks_required_global": true,
+      "exception_class": "NameError",
+      "missing_name_exact_allowlisted_RESOURCE_CONTAINERS": true,
+      "mocked_transport_calls": 1,
+      "required_safety_query_dispatched": false
+    },
+    {
+      "action": "ACTUAL_FINALIZER",
+      "initialized_namespace_lacks_required_global": true,
+      "exception_class": "NameError",
+      "missing_name_exact_allowlisted_RESOURCE_CONTAINERS": true,
+      "mocked_transport_calls": 0,
+      "required_safety_query_dispatched": false
+    }
+  ],
+  "hypothetical_in_memory_declaration_only_control": {
+    "status": "PASS_MOCKED_FIXED_CLOSURE_AND_FINALIZATION",
+    "required_selectors": [
+      "GLOBAL_BACKENDS",
+      "FINALIZATION_BACKENDS",
+      "ORIGINAL_GRANTOR_FINALIZATION",
+      "FINALIZATION_RESULT"
+    ],
+    "files_changed": false,
+    "new_operational_source_authored": false
+  },
+  "actual_historical_exception": "Not retained; proven initialized-source defect is consistent with observed provider closure/finalizer stops, complete historical exception cause remains unobserved",
+  "Docker_DB_SQL_Git_network": "NOT_RUN_ALL_BOUNDARIES_MOCKED",
+  "forbidden_process_attempts": 0,
+  "status": "PASS_PROVEN_SOURCE_MISSING_GLOBAL_AND_NARROW_MOCKED_CONTROL",
+  "initial_probe_harness_interruption": {
+    "source_sha256": "01b35e89b76f60b33d6c492688c99a2bab05c9c4ce66b25017c844809c6371ab",
+    "cause": "Probe wrongly required unique text across GLOBAL_BACKENDS and FINALIZATION_BACKENDS, which intentionally share identical SQL; corrected only mock selector dispatch ordering. Old three NameError reproductions completed before control assertion; no runtime/source file edited."
+  }
+}

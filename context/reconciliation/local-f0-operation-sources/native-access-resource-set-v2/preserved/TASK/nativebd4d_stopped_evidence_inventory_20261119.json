@@ -1,0 +1,82 @@
+{
+  "schema": "workinants.nativebd4d-stopped-evidence-and-source-hold.v1",
+  "recorded_at_utc": "2026-11-19T22:14:08.559126+00:00",
+  "status": "STOPPED_CLEANED_SOURCE_REPAIR_REQUIRED_NO_IDENTICAL_RETRY",
+  "run_id": "bd4d6720-94e2-478c-a9f5-b7da5bef8cb1",
+  "source_commit": "da5ad66cfc2bcb8aa64a453d10e29baeedb74a65",
+  "source_tree": "6c28cd218487cac448805dee8a407f78056a0e22",
+  "packet_sha256": "9a70cf55c66096a212cce1740a1e41c2af11f8d4f1d2dc7678a6589ef6968f1d",
+  "raw_evidence_sha256": "7ce3652c80dae09df6bbbf7cfd08c6e4578e5a8c1db86b0802664fdf93afea1a",
+  "actual_primary_failure": {
+    "stage": "PROVIDER_ROLE_SIMULATION",
+    "code": "UNEXPECTED_NATIVE_ACCESS_WRAPPER_FAILURE"
+  },
+  "all_actual_unexpected": [
+    {
+      "stage": "REQUIRED_SAFETY_COMPOSITION",
+      "code": "REQUIRED_SAFETY_ACTION_UNCONFIRMED"
+    },
+    {
+      "stage": "PROVIDER_ROLE_SIMULATION",
+      "code": "UNEXPECTED_NATIVE_ACCESS_WRAPPER_FAILURE"
+    },
+    {
+      "stage": "FINALLY_FINALIZATION",
+      "code": "FINALIZATION_UNCONFIRMED"
+    }
+  ],
+  "actual_steps": {
+    "CATALOG-SETUP": "PASS",
+    "CATALOG-AUTH": "PASS",
+    "CATALOG-TOOLS": "PASS",
+    "CATALOG-INSTALL": "NOT_RUN",
+    "NATIVE-PROVIDER-PREINSTALL": "NOT_RUN",
+    "NATIVE-PROVIDER-POSTINSTALL": "NOT_RUN",
+    "NATIVE-ACCESS-ATTESTATION": "NOT_RUN",
+    "NATIVE-ACCESS-FACETS": "NOT_RUN",
+    "CATALOG-ACL-COMPAT": "NOT_RUN",
+    "CATALOG-TEXT-COMPAT": "NOT_RUN",
+    "CATALOG-NATIVE": "NOT_RUN",
+    "CATALOG-ORACLE": "NOT_RUN",
+    "CATALOG-LEDGER": "NOT_RUN",
+    "CATALOG-COMPARE": "NOT_RUN",
+    "CATALOG-SANITIZED_EXPORT": "PASS",
+    "CATALOG-CLEANUP": "PASS"
+  },
+  "actual_catalog_operation_metadata": [
+    {
+      "stage": "PROVIDER_ROLE_SIMULATION",
+      "input_sha256": "42b59ad2960aea933e1d72ff4707fcaae75eb7299e856ebbb9ea0097a8ed5156",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    }
+  ],
+  "actual_backend_closure_observations": [
+    {
+      "stage": "PROVIDER_ROLE_SIMULATION",
+      "scope": "ALL_DATABASES_ALL_ROLES_ALL_TAGS",
+      "observation_completed": false,
+      "counts_valid": false,
+      "migrator_zero": false,
+      "other_clients_zero": false,
+      "all_other_client_backends_absent": false
+    }
+  ],
+  "finalization": "UNCONFIRMED_NO_OBSERVED_ORIGINAL_GRANTOR_QUERY_COMPLETION; isolated database removed in exactcleanup",
+  "actual_evidence_files_sha256": {
+    "run-evidence.json": "7ce3652c80dae09df6bbbf7cfd08c6e4578e5a8c1db86b0802664fdf93afea1a",
+    "set-private-acl.ps1": "d5ef58e51c12b4371601557f027a44e9ca206b81444724f8aab65365bf9c057f",
+    "authentication-ok/authentication-results-ok.json": "9c528c348b5ff3e05563f9d966a87075d4b2c45773a30281ec32cc63db0b53c6"
+  },
+  "independent_cleanup_sha256": "739091804218ac561e3a89044b30642920ca2b59f7f1838c8c20b9496ebf1985",
+  "offline_initialized_source_reproduction_sha256": "269fcf2f5affce05b2d7b1edebcff05e10999c5c5238973665d5e2a927e5d2d1",
+  "proven_source_defect": "Native Core references RESOURCE_CONTAINERS in _required_safety_sql but never initializes it; three actual initialized-function mocked reproductions raise the exact missing global. In-memory tuple declaration permits unchanged fixed closure/finalizer mock selectors.",
+  "historical_cause_limit": "Original Python exception not retained. Proven source defect is consistent with retained provider-query closure and finalizer failures; complete historical exception cause remains unobserved. Successful catalog operation metadata does not qualify its incomplete provider step.",
+  "hold_scope": "Old exact Native SafetySQLV1 five and completed bd4 literal never rerun. New versioned five with initialized resource set, real initialized-entry regression, separate review, full packet publication/pin and fresh literal required. Existing unrelated INSTALL plan remains eligible.",
+  "qualification_totals_unchanged": true,
+  "unexercised_install_native_provider_auth_and_all_access_facets": "NOT_RUN",
+  "Posture": "D"
+}

@@ -1,0 +1,215 @@
+{
+  "schema": "workinants.install7923-catalog-stopped-watch-review.v1",
+  "recorded_at_utc": "2026-11-19T22:24:42.203235+00:00",
+  "reviewer": "/root/catalog_v4_review",
+  "decision": "STOP_RECOGNIZED_WATCH_EXITED_NO_RECOVERY_APPROVAL",
+  "run_id": "7923a7e6-c227-414d-b91b-3804517e5d02",
+  "source_commit": "da5ad66cfc2bcb8aa64a453d10e29baeedb74a65",
+  "source_tree": "6c28cd218487cac448805dee8a407f78056a0e22",
+  "packet_sha256": "c5030a16d9f7a008466d2b6323d894511c8e646915a0736fe1bee4adeb382c52",
+  "approved_manifest_sha256": "70a1415f1cbe86ce1403b883124c7b4613bde341139649fd0a2ec717d8a5277a",
+  "raw_safe_report": {
+    "original_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-install-controls-20261119-7923a7e6\\run-evidence.json",
+    "preserved_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install7923-catalog-stopped-watch-review-20261119\\raw-safe-run-evidence.json",
+    "sha256": "11a711247181560764a68ad0983e15d14dfaad131f659fdb1bc141dd25b52cb8",
+    "byte_identical": true
+  },
+  "prelaunch_chain_sha256": {
+    "install7923_catalog_reviewer_prelaunch_readiness_20261119.json": "303a3566c9608bcd2cd864fbe20d67ff2651e0be9c7996ab8e7883b2a8ee5f06",
+    "install7923_root_reviewer_watch_arming_20261119.json": "0615693d398736992b5e4d45ce8db49e51b151af2c9bc124824e5ca28f61d040",
+    "install7923_catalog_armed_watch_ack_20261119.json": "4276efc4c6665fea62e0da1a55cf555c7f8df61a19f6e667d94906cb4b78920f",
+    "install7923_literal_independent_watch_closure_addendum_20261119.json": "e5ea04f95613635f5c87fab46d8b810506621919baba142708588ba36ec63933",
+    "install7923_root_literal_approval_receipt_20261119.json": "99c16a4642649b15a77bfade0464cfaa6ebe0ab8699c7ce73d84ce267c4715e5"
+  },
+  "watch": {
+    "session_id": 89623,
+    "exit_code": 0,
+    "poll_seconds": 1,
+    "initial_observations": [
+      "ACTIVE_DISK_ONLY",
+      "WAITING_FOR_LAUNCH"
+    ],
+    "final_observation": "OUTER_STOPPED_NO_APPROVAL_BY_WATCH",
+    "hold_observed": false,
+    "approval_created": false,
+    "fixed_child_paths_at_final_review": {
+      "install-controls-results.json": {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-install-controls-20261119-7923a7e6\\install-controls\\install-controls-results.json",
+        "exists": false
+      },
+      "rollback-proof-for-review.json": {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-install-controls-20261119-7923a7e6\\install-controls\\rollback-proof-for-review.json",
+        "exists": false
+      },
+      "independent-recovery-approval.json": {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-install-controls-20261119-7923a7e6\\install-controls\\independent-recovery-approval.json",
+        "exists": false
+      }
+    },
+    "source_preservation": "Watch executed ephemeral python -B stdin; exact source recovery is pending. This report does not claim reconstructed code is original source."
+  },
+  "actual_executor": {
+    "session_id": 2838,
+    "exit_code": 1,
+    "exit_code_source": "Root completion notification",
+    "status": "STOPPED_ATTEMPT_PRESERVED",
+    "stage": "STOP",
+    "evidence_complete": false,
+    "persistence_failure": true,
+    "primary_failure": {
+      "stage": "FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE",
+      "code": "UNEXPECTED_INSTALL_WRAPPER_FAILURE"
+    },
+    "unexpected": [
+      {
+        "stage": "EVIDENCE",
+        "code": "EVIDENCE_WRITE_UNCONFIRMED"
+      },
+      {
+        "stage": "FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE",
+        "code": "UNEXPECTED_INSTALL_WRAPPER_FAILURE"
+      },
+      {
+        "stage": "EVIDENCE",
+        "code": "EVIDENCE_EVENT_UNCONFIRMED"
+      },
+      {
+        "stage": "CLEANUP",
+        "code": "CLEANUP_UNCONFIRMED"
+      }
+    ],
+    "steps": {
+      "CATALOG-SETUP": "PASS",
+      "CATALOG-AUTH": "NOT_RUN",
+      "CATALOG-TOOLS": "NOT_RUN",
+      "CATALOG-INSTALL": "NOT_RUN",
+      "INSTALL-COORDINATOR": "NOT_RUN",
+      "INSTALL-CANONICAL-NATIVE": "NOT_RUN",
+      "INSTALL-RECOVERED-NATIVE": "NOT_RUN",
+      "CATALOG-ACL-COMPAT": "NOT_RUN",
+      "CATALOG-TEXT-COMPAT": "NOT_RUN",
+      "CATALOG-NATIVE": "NOT_RUN",
+      "CATALOG-ORACLE": "NOT_RUN",
+      "CATALOG-LEDGER": "NOT_RUN",
+      "CATALOG-COMPARE": "NOT_RUN",
+      "CATALOG-SANITIZED_EXPORT": "NOT_RUN",
+      "CATALOG-CLEANUP": "NOT_RUN"
+    },
+    "baseline_sql_events": [
+      {
+        "target": "wa-p0c-7923a7e6-install-good",
+        "role": "postgres",
+        "operation": "FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "8911407eca3dbf5b6fc08d63ea6d07163c10070e649112081ee14bef283f7b3f"
+      },
+      {
+        "target": "wa-p0c-7923a7e6-install-division",
+        "role": "postgres",
+        "operation": "FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "8911407eca3dbf5b6fc08d63ea6d07163c10070e649112081ee14bef283f7b3f"
+      },
+      {
+        "target": "wa-p0c-7923a7e6-install-order",
+        "role": "postgres",
+        "operation": "FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "8911407eca3dbf5b6fc08d63ea6d07163c10070e649112081ee14bef283f7b3f"
+      }
+    ]
+  },
+  "cleanup_evidence": {
+    "scope": "Existing sanitized executor record only; no Docker/secret inspection by reviewer",
+    "reported_actions": {
+      "wa-p0c-7923a7e6-install-division": {
+        "removed": true,
+        "verified_id": "fbbf2e530dcd14239e65ea51300fd709a2ecd40f7fb8bfd3e72fe5086855839c",
+        "name_and_both_labels_verified": true
+      },
+      "wa-p0c-7923a7e6-install-good": {
+        "removed": true,
+        "verified_id": "c53b72bc40a46d949888c817bb5eb42cada5b3907dcf2df8733f5f56a3350fc6",
+        "name_and_both_labels_verified": true
+      },
+      "wa-p0c-7923a7e6-install-order": {
+        "removed": true,
+        "verified_id": "2bb49ed5584217cd1bebe580f11c7eb5adc034267e5a545055a6e280d77bf1f6",
+        "name_and_both_labels_verified": true
+      },
+      "wa-p0c-7923a7e6-install-division-data": {
+        "removed": true,
+        "name_labels_creation_identity_verified": true
+      },
+      "wa-p0c-7923a7e6-install-good-data": {
+        "removed": true,
+        "name_labels_creation_identity_verified": true
+      },
+      "wa-p0c-7923a7e6-install-order-data": {
+        "removed": true,
+        "name_labels_creation_identity_verified": true
+      }
+    },
+    "reported_summary": {
+      "resource_absence_observation_completed": true,
+      "resource_presence_after": {
+        "wa-p0c-7923a7e6-install-good": false,
+        "wa-p0c-7923a7e6-install-division": false,
+        "wa-p0c-7923a7e6-install-order": false,
+        "wa-p0c-7923a7e6-install-good-data": false,
+        "wa-p0c-7923a7e6-install-division-data": false,
+        "wa-p0c-7923a7e6-install-order-data": false
+      },
+      "test_owned_secret_files_deleted": [
+        "canonical-bootstrap-password",
+        "division_failure-bootstrap-password",
+        "late_function_grant-bootstrap-password",
+        "install-role-passwords.json"
+      ],
+      "private_directory_absent": true,
+      "image_removed": false,
+      "unrelated_resources_changed": false
+    },
+    "reported_host_secret_cleanup": {
+      "deleted": [
+        "canonical-bootstrap-password",
+        "division_failure-bootstrap-password",
+        "late_function_grant-bootstrap-password",
+        "install-role-passwords.json"
+      ],
+      "private_directory_absent": true
+    },
+    "reported_sanitization": {
+      "files_scanned": 3,
+      "actual_password_values_found": false,
+      "unrestricted_subprocess_output_persisted": false,
+      "raw_context_handles_persisted": false,
+      "coordinator_evidence_uses_reviewed_allowlist": true
+    },
+    "overall_cleanup_not_promoted": "CLEANUP_UNCONFIRMED and CATALOG-CLEANUP NOT_RUN retained. Root independently checking actual absence.",
+    "missing_cleanup_clue": "All six exact resources are reported removed and absent, all four test-owned secret files deleted and private directory absent; no particular remaining resource identified in this safe record."
+  },
+  "source_preservation_reported": {
+    "packet_unchanged_after_run": true,
+    "tool_source_data_unchanged_after_run": true,
+    "external_input_archives_and_fresh_history_unchanged_after_run": true,
+    "external_sources_unchanged_after_run": true,
+    "all_source_and_external_inputs_preserved_after_run": true
+  },
+  "limits": {
+    "complete_failure_cause": "UNOBSERVED; no original exception class, failing filesystem operation, or Windows sharing violation retained.",
+    "no_actual_rollback_proof": true,
+    "auth_install_coordinator_rollback_recovery": "NOT_RUN in this stopped record; actual baseline SQL calls are preserved separately as exercised.",
+    "no_recovery_approval": true,
+    "no_Docker_DB_Git_network_credentials_cleanup_or_retry_by_reviewer": true,
+    "no_new_runtime_qualification": true,
+    "posture": "D"
+  },
+  "plain_english": "The test stopped before the review ticket arrived. I closed the watcher and did not approve recovery. The saved log says the test boxes and secret files were removed, but its cleanup warning stays in the record until the separate cleanup check is reviewed."
+}

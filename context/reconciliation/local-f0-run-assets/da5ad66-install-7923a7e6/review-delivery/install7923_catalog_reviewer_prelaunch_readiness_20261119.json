@@ -1,0 +1,102 @@
+{
+  "schema": "workinants.install7923-catalog-reviewer-prelaunch-readiness.v1",
+  "reviewer": "/root/catalog_v4_review",
+  "recorded_at_utc": "2026-11-19T21:54:47.588367+00:00",
+  "status": "READY_FOR_EXPLICIT_ROOT_ARMING_NOT_ARMED_NO_ACTUAL_APPROVAL",
+  "read13_review_delivered": {
+    "path": "TASK/remaining_app_read13_independent_v2_plan_review_catalog_20261119.json",
+    "sha256": "dcf065da6658b1f71d1521dec2448d549864e0d7513a8e6174ad1db89c725bea"
+  },
+  "delivery_protocol": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install7923_independent_review_delivery_lifecycle_20261119.json",
+    "sha256": "d05576d981337560bb3530a50006ff151df02284c881c87ecc5062f69a9109b6"
+  },
+  "manifest": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-install-controls-plan-7923a7e6\\operation-manifest.json",
+    "sha256": "d1be054dfdb8e9a0ff5a775113d919848643bce14d547140e7847e10c007b303",
+    "run_id": "7923a7e6-c227-414d-b91b-3804517e5d02",
+    "commit": "da5ad66cfc2bcb8aa64a453d10e29baeedb74a65",
+    "tree": "6c28cd218487cac448805dee8a407f78056a0e22",
+    "packet_sha256": "c5030a16d9f7a008466d2b6323d894511c8e646915a0736fe1bee4adeb382c52",
+    "all126_current_source_files_match": true,
+    "review_status": "PENDING_OPERATIONAL_REVIEW"
+  },
+  "review_source_hashes": {
+    "outer_core": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\execute_local_f0_install_controls_20261119_safety_sql_v1.py",
+      "sha256": "5c71ead1bbb7ced7d45a36f258cc271f9a8c19275f94bc55875d3526c0c02b87"
+    },
+    "outer_steps": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_install_controls_operation_steps_safety_sql_v1.py",
+      "sha256": "d56aee699dba89eb6fc94be38a7d8419f9b437e1e5c1c0ad142a3595af451f3f"
+    },
+    "coordinator": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\scripts\\sql-review\\run-install-control-rehearsal-v2.py",
+      "sha256": "973e89417e204aef113fddddaee39d5161ab3c7620fc2b43e2043eaeea033fac"
+    },
+    "protocol": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\scripts\\install_control_protocol_v2.py",
+      "sha256": "6c1474dc12a603b07346fff014c8ab8bd15dec5be0b972ec1d504342115ba48f"
+    },
+    "contract": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\scripts\\sql-review\\install-controls-coordinator-v2.md",
+      "sha256": "57955987668f88126acc232906638282be852eba06b403385fc6b9a3bb298964"
+    }
+  },
+  "watch_paths": {
+    "results": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-install-controls-20261119-7923a7e6\\install-controls\\install-controls-results.json",
+    "rollback": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-install-controls-20261119-7923a7e6\\install-controls\\rollback-proof-for-review.json",
+    "approval": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-install-controls-20261119-7923a7e6\\install-controls\\independent-recovery-approval.json",
+    "child_plan": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-install-controls-20261119-7923a7e6\\install-coordinator-run-plan.json",
+    "outer_result": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-install-controls-20261119-7923a7e6\\run-evidence.json"
+  },
+  "reviewer_allowlist_actual_source_verified": true,
+  "start_rule": "Only explicit Root arming selects this reviewer and starts a watch for this exact run. No watch or approval has started. Root launch must remain nonblocking/pollable; Root notifies on launch and stage as available.",
+  "hold_rule": "Disk-only atomic results stage INDEPENDENT_ROLLBACK_REVIEW_REQUIRED plus matching division_failure.review_hold.proof_sha256 and canonical rollback-proof bytes.240-second monotonic lifetime begins after stage/proof publication. No automatic/prepared approval.",
+  "actual_review_required": [
+    "Read bounded regular non-symlink actual result/proof/child-plan and outer identity records from this run; hashes/run/source/tree/packet/CID must match exact manifest and current admitted source. Do not read credential bundles/raw logs/handles.",
+    "Proof schema and every fixed field exact; proof canonical JSON plus newline SHA must match bytes and review_hold. Cross-check its zero inventory against actual targets.division_failure.inventory, not merely proof hardcoded zeros.",
+    "Actual deployment is a closed nonzero genuine failure on fault source dd088; exact failed CLI run/CID/source and available target attestation; original postgres finalization and zero temporary memberships/leaf CREATE; global closure for every completed operation. Runtime credentials remain inactive, no premature recovery/activation.",
+    "Recompute protocol.failure_verdict from actual CLI, native all-object inventory and failed-row observations plus before/after sanitized server counts. Require exactly one new22012; no unrelated42501/other/malformed/forbidden rows. Exact25P02+NULL masking branch or predeclared no-secondary+NONEMPTY branch only. P3018 only if actually recorded.",
+    "Failed ledger: one unique row; expected migration-name hash; checksum_sha256 is SHA256(fault source-SHA text), finishedfalse/rolled_backfalse/steps0, retained immutable hash and actual safe logs-state. Match raw actual row to proof and failure verdict.",
+    "Inventory relations/functions/types/enums/other_clients all exact nonnegative integers0, including all pg_class kinds. Full native29089/oracle/complete-ledger comparison is pending after recovery and is not claimed at this hold.",
+    "If complete independent actual proof supports only standard resolve rolled back, construct exact seven-field approval and atomically publish via temporary sibling file only inside this exact hold directory. Hash the canonical actual proof, reviewer remains /root/catalog_v4_review. No injected state, no Root-as-reviewer substitution.",
+    "Insufficient evidence/time, drift, malformed marker or late hold: publish no approval, notify Root and let existing timeout/controlled cleanup stop. No retry, permission repair, SQL/Docker action or cleanup by reviewer."
+  ],
+  "future_approval_fields": [
+    "schema",
+    "decision",
+    "run_id",
+    "container_id",
+    "source_sql_sha256",
+    "proof_sha256",
+    "reviewer"
+  ],
+  "future_approval_identity": {
+    "schema": "workinants.install-independent-rollback-review.v1",
+    "decision": "APPROVED_STANDARD_RESOLVE_ROLLED_BACK",
+    "run_id": "7923a7e6-c227-414d-b91b-3804517e5d02",
+    "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c",
+    "container_id": "ONLY_FROM_VERIFIED_ACTUAL_CREATED_TARGET",
+    "proof_sha256": "ONLY_FROM_VERIFIED_CANONICAL_ACTUAL_PROOF",
+    "reviewer": "/root/catalog_v4_review"
+  },
+  "initial_filesystem_absence": {
+    "results": true,
+    "rollback": true,
+    "approval": true,
+    "child_plan": true,
+    "outer_result": true
+  },
+  "limits": {
+    "actual_proof_reviewed": false,
+    "actual_recovery_approved": false,
+    "approval_file_created": false,
+    "Docker_database_SQL_Git_network_called": false,
+    "pinned_source_manifest_or_repository_changed": false,
+    "only_new_exclusive_TASK_readiness_report_written": true,
+    "posture": "D",
+    "runtime_results": "NOT_RUN_UNTIL_ACTUAL_EVIDENCE"
+  },
+  "plain_english": "I know where to watch for the real rollback ticket. I have not started watching or approved a retry. Root must arm the watch before starting the run."
+}

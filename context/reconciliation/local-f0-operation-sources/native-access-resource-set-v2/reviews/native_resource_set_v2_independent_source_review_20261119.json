@@ -1,0 +1,106 @@
+{
+  "schema": "workinants.native-resource-set-v2-independent-source-review.v1",
+  "recorded_at_utc": "2026-11-19T23:23:59.928564+00:00",
+  "reviewer": "Independent agent /root/privilege_mount_v2_review; not the new Native source author or plan author",
+  "decision": "SOURCE_APPROVED",
+  "scope": "EXACT_NATIVE_RESOURCE_SET_V2_FIVE_AND_RECURSIVE76_SOURCE_ONLY",
+  "freeze_sha256": "8e4ea8295acf3bd02b5c044f3f7dfdd09c27a85e76c20448ffdcdb49ec9e49c3",
+  "plan_sha256": "9acbf4fa194dd659e8eb5b17952d2bca8fbeed166cfb5f371b7a0c145b2288ea",
+  "independent_plan_review_sha256": "4d6eb1ee1f606b30d6ccd3793af2d9ea3d24563033712fc006bf6ed49f62b85d",
+  "author_post_archive_closure_sha256": "c839c4777bddc4747f9e5dadaaf74b84cd401da4f2e8d19c9f3b72d3d4bb1314",
+  "operator_sources_sha256": {
+    "execute_local_f0_native_access_20261119_resource_set_v2.py": "c39d23d8d401cee5c35dea8b76cb572ff2e63ea50849d7515663d509fd3c0353",
+    "local_f0_native_access_operation_steps_resource_set_v2.py": "3978b638fb4b449a6782128367899f87e00ba458de44ea9216ffa653d8d8ec73",
+    "prepare_local_f0_native_access_plan_resource_set_v2.py": "efddad2e8988cf26327b7d2757c333bb0236f0c343841331a661c3b700ce4f66",
+    "check_native_access_operation_resource_set_v2.py": "01ea54e7af601c419a28219e7f88b67466586f7b2bdd797d798ba934a84cd58f",
+    "pin_native_access_plan_20261119_resource_set_v2.py": "07be7655dd5627141602b7f605048acb687cea2ec1cf6b13460e9361440e408b"
+  },
+  "source_archive_files_verified": 76,
+  "findings": [],
+  "closure": {
+    "proven_source_defect": "The exact old complete Core/Steps namespace lacks RESOURCE_CONTAINERS. Required owned-target membership evaluates that missing name before SQL dispatch, raising NameError in direct closure/finalization and after the normal query in its finally closure.",
+    "bounded_correction": "The exact new Core differs only by namespace strings and RESOURCE_CONTAINERS=tuple(target['name'] for target in TARGETS), immediately afterTARGETS initialization. Steps, preparer and pinner are exact namespace transforms. The tuple is initialized in the actual module globals before any loaded Steps/main/safety call.",
+    "actual_whole_namespace_regression": "Nine new tests execute the complete actual Core and its exact hash-checked Steps loader. They do not inject RESOURCE_CONTAINERS. Removing only the added assignment reproduces the missing-name error in all three source paths; restoring it yields the intended fixed selector sequence.",
+    "selector_order": [
+      "GLOBAL_BACKENDS",
+      "NORMAL_QUERY",
+      "GLOBAL_BACKENDS",
+      "FINALIZATION_BACKENDS",
+      "ORIGINAL_GRANTOR_FINALIZATION",
+      "FINALIZATION_RESULT"
+    ],
+    "owned_admission": "Exact initialized run-derived target tuple plus already-captured64-hexCID is required. Even a captured unknown name and a malformed CID reject before transport. No arbitrary selector/SQL/role or foreign resource becomes admitted.",
+    "finalization_controls": "Active or malformed pre-finalizer counts prevent revoke. Original finalizer SQL and strict typed/post-auth authority observations are unchanged. Persistent evidence failure still permits required closure/finalizer transport but cannot yield a qualified PASS.",
+    "full_graph": "Actual complete verifier includes common gate, tools10300, history7, catalog16, packet40/83 and all five physical snapshots. Current and synthetic committed blobs are matched; pending/missing/drifted/badcommitted inputs refuse before pin or runtime. Synthetic review decisions exist only in isolated mock metadata; live PENDING validation remains untouched.",
+    "legacy_composition_limit": "The27 command-only composition tests exercise actual function bytes across the unchanged matrix with test fixture globals. They alone cannot establish top-level initialization. The additional nine actual-Core tests and six full-graph/pinner tests supply that missing regression evidence."
+  },
+  "independent_checks": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\native-resource-set-v2-independent-checks-20261119\\checks.json",
+    "sha256": "4d9dd9f7d44c65a8839384c304a7f5edce922365313bc435cf1887b98f5af204",
+    "actual_unique_test_methods": 108,
+    "owning75_detail": "Prior66 classes retain identical AST after namespace; nine new actual initialization methods added.",
+    "suites": [
+      {
+        "file": "check_native_access_operation_resource_set_v2.py",
+        "source_sha256": "01ea54e7af601c419a28219e7f88b67466586f7b2bdd797d798ba934a84cd58f",
+        "tests": 75,
+        "seconds": 51.5,
+        "unittest_seconds": 49.779,
+        "exit_code": 0,
+        "status": "PASS",
+        "output_sha256": "06a52c1f1c53233d4c24028edd8c372bb239734d2386ec40b88ea586528ab514"
+      },
+      {
+        "file": "check_native_resource_set_v2_composed_20261119.py",
+        "source_sha256": "5259fef4eaf05373d26b8e4f134c1a280c65ad23e65b04aa1d7b012aa09eb278",
+        "tests": 27,
+        "seconds": 11.359,
+        "unittest_seconds": 10.717,
+        "exit_code": 0,
+        "status": "PASS",
+        "output_sha256": "fb5d3440ef5f0e3875b7543c67a6c7f6271a168b09de021bd4da8add4f911620"
+      },
+      {
+        "file": "check_native_resource_set_v2_full_graph_pinner_20261119.py",
+        "source_sha256": "d2239f906c2b2e2b4fc95925bcc6b4d59e6d17b782be447f279f65ca3516f17a",
+        "tests": 6,
+        "seconds": 16.172,
+        "unittest_seconds": 15.578,
+        "exit_code": 0,
+        "status": "PASS",
+        "output_sha256": "465aa7a047d224572e60de18c950b21a2977324f3d9c8aeee2443fef20902854"
+      }
+    ],
+    "execution": "Sequential75+27+6, allPASS; author repeated final2 are not added to this count."
+  },
+  "scope_and_preservation": {
+    "all13_common_function_class_AST_exact": true,
+    "ordinary_SQL_observer_transport_finalizer_cleanup_provider_logic_and_main_unchanged": true,
+    "old55_current_and_preserved_copies_verified": true,
+    "old_five_archive30_validation_and_bd4_inputs_reports_cleanup_preserved": true,
+    "native_packet_sha256": "8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69",
+    "native_coordinator_sha256": "6e74115cc7a77e626c4379c5a5744efdede1257d04b206fc339e62a23fd49cd3",
+    "canonical_SQL_migration_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "worker_ACL_source_sha256": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "original_finalizer_sha256": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+    "reviewer_modified_no_existing_source_repository_Git_or_approval_metadata": true
+  },
+  "historical_truth": [
+    "The originalbd4 exception was not retained. The missing-global defect is proven source analysis consistent with the observed stop; this review does not recover the original traceback or establish its complete runtime cause.",
+    "Earlier Native495976 closure failure remains a distinct historical event with unobserved complete cause; it is not attributed to this later wiring defect.",
+    "Provider setup query exit0 does not promote the whole provider step, authentication, installation or access cases. All unexercised assertions remainNOT_RUN.",
+    "Author initial composition fixture omitted four historical profiles and failed withKeyError; its preserved mock correction changes only the test inventory, not the operational five. Historical results are not relabeled."
+  ],
+  "limits": {
+    "runtime": "NOT_RUN",
+    "Posture": "D",
+    "actual_Git_Docker_database_SQL_network_credentials_resources": false,
+    "actual_operational_literal_prepared_or_approved": false,
+    "current_commit_blob_pin_executed_by_reviewer": false,
+    "selected_assertion_or_register_status_changes": false,
+    "whole94_451_or_production_qualification": false,
+    "source_approval_is_not_future_literal_approval": true
+  },
+  "next_step": "Root may archive the exact source review, complete applicable Root checks, publish/pin a fresh source packet and obtain separate operational literal review before a disposable Native attempt. Keep old holds, evidence and unexercised case statuses unchanged.",
+  "plain_english": "The runner now makes its allowed-box list before checking a box. Removing that one line makes the old pretend failure return; keeping it lets the safety checks work. All108 offline tests pass. A real local attempt still needs its own exact run review."
+}

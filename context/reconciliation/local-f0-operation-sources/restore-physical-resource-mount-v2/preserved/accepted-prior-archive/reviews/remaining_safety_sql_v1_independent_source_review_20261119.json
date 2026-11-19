@@ -1,0 +1,720 @@
+{
+  "schema": "workinants.remaining-safety-sql-four-families-independent-source-review.v1",
+  "reviewer": "/root/install_outer_review",
+  "recorded_at_utc": "2026-11-19T03:46:03.323817+00:00",
+  "decision": "SOURCE_APPROVED_EXACT_FOUR_FAMILIES_ONLY",
+  "findings": [],
+  "task_root": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f",
+  "repository_root": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass",
+  "all_twenty_sources_sha256": {
+    "check_local_f0_install_controls_operation_safety_sql_v1.py": "01f485846d752077415de795b163ad197a912eb23667c6944600e0199a49de64",
+    "execute_local_f0_install_controls_20261119_safety_sql_v1.py": "5c71ead1bbb7ced7d45a36f258cc271f9a8c19275f94bc55875d3526c0c02b87",
+    "local_f0_install_controls_operation_steps_safety_sql_v1.py": "d56aee699dba89eb6fc94be38a7d8419f9b437e1e5c1c0ad142a3595af451f3f",
+    "pin_local_f0_install_controls_plan_20261119_safety_sql_v1.py": "3bc39a1efc3ae27e7c5a8fefd83a53fa6b067e4132f981d8cf56fb6eab77d2ca",
+    "prepare_local_f0_install_controls_plan_safety_sql_v1.py": "22caf5e6dc0c722b0c4e5ddb5887f32adcaa4e3d433b0bf552a5507429af0435",
+    "check_local_f0_lease_revoke_operation_safety_sql_v1.py": "66301cd989e8db2365974706d4d7c1b71f539ab6565a20d3fa9d5d3c3272e682",
+    "execute_local_f0_lease_revoke_20261119_safety_sql_v1.py": "0ec8a5ceb39787d272731cf276b6e5eaa062cbd6202e60065ae5b967b86adb81",
+    "local_f0_lease_revoke_operation_steps_safety_sql_v1.py": "8676f6082c254d4ec1a7de6b079d5ab5b8b7bc7ec0348334a4eb4b03d3e43e7f",
+    "pin_local_f0_lease_revoke_plan_20261119_safety_sql_v1.py": "b0d5a5546baaba82473e3cb0c6ec448ac2b76574f8632ca67dbe51b056dc399a",
+    "prepare_local_f0_lease_revoke_plan_safety_sql_v1.py": "67077bf6fd7c9bb33652787ce4150294cff67cd13fa0fc20d6f5bf5978087bec",
+    "check_native_access_operation_safety_sql_v1.py": "415baef53ea13d12273b4879aadffe9683d0eb42d5c32e4a62d6b49e0f81843d",
+    "execute_local_f0_native_access_20261119_safety_sql_v1.py": "82ff221e2b740ffeac248474c84bfab80253c34e3234a6a2cf584e6162397574",
+    "local_f0_native_access_operation_steps_safety_sql_v1.py": "991210f073adecb1ca0b9dda208f56fba218feb56ab3d6c18db16b437ad8072a",
+    "pin_native_access_plan_20261119_safety_sql_v1.py": "173da2a5a166f67beba5c0d38cfa1a15d57dff6b5f5fb868c26cb0cf4dab85c9",
+    "prepare_local_f0_native_access_plan_safety_sql_v1.py": "3276f27248c81fcb128c0f3f9654a97e398e54dd4007f92e0da2cb8aca49ca18",
+    "check_local_f0_restore_operation_safety_sql_v1.py": "085f756f7ffa3f8567381ebdceb1e01efa963e74f0a35f242767d73a46daaf9c",
+    "execute_local_f0_restore_20261119_safety_sql_v1.py": "8041399106d33d4687f1f357709c7b657f2e55adb29e588822896c941b1b8a81",
+    "local_f0_restore_operation_steps_safety_sql_v1.py": "2a55669c8a589599c5549f2826a9aba4b2c99f3df2cc593fcab6d7517ab38508",
+    "pin_local_f0_restore_plan_20261119_safety_sql_v1.py": "ceb85b4b84c061d9aaabc9753a501317f7e3020ca2375bb1383002fa5439ed30",
+    "prepare_local_f0_restore_plan_safety_sql_v1.py": "eca3dbd63b87a89583345f0e04ed3c4656a7653558a5fb855d29dde8439747d9"
+  },
+  "families": {
+    "install": {
+      "five_sha256": {
+        "check_local_f0_install_controls_operation_safety_sql_v1.py": "01f485846d752077415de795b163ad197a912eb23667c6944600e0199a49de64",
+        "execute_local_f0_install_controls_20261119_safety_sql_v1.py": "5c71ead1bbb7ced7d45a36f258cc271f9a8c19275f94bc55875d3526c0c02b87",
+        "local_f0_install_controls_operation_steps_safety_sql_v1.py": "d56aee699dba89eb6fc94be38a7d8419f9b437e1e5c1c0ad142a3595af451f3f",
+        "pin_local_f0_install_controls_plan_20261119_safety_sql_v1.py": "3bc39a1efc3ae27e7c5a8fefd83a53fa6b067e4132f981d8cf56fb6eab77d2ca",
+        "prepare_local_f0_install_controls_plan_safety_sql_v1.py": "22caf5e6dc0c722b0c4e5ddb5887f32adcaa4e3d433b0bf552a5507429af0435"
+      },
+      "archive_file_count": 12,
+      "validation_sha256": "a8b6a62d5eb8b663fffb616ec779cd1ca2d79efdd3fec2a921307e01d8b8544a",
+      "independent_safety_gate_still_pending": true,
+      "common_function_class_AST_exact": true,
+      "private_SAFETY_constants_match_closed_profile": true,
+      "io_profile": "COMMON",
+      "sql_profile": "INSTALL",
+      "Steps_no_closure_shadow": true,
+      "ordinary_AST_unchanged": {
+        "sql": true,
+        "observe": true,
+        "psql_args": true,
+        "cleanup": true
+      },
+      "main_AST_unchanged": true,
+      "INSTALL_eligibility_AST_exact": true,
+      "runtime_and_pinner_approval_gates_present": true,
+      "old_five_sources_preserved": true,
+      "decision": "SOURCE_APPROVED",
+      "approval_scope": "Exact five current/frozen bytes only; fresh published checkpoint and fresh operational literal still required.",
+      "owning_suite": {
+        "tests": 34,
+        "seconds": 25.296,
+        "outcome": "PASS",
+        "actual_full_whole_verifier_and_five_physical_snapshots_included": true,
+        "actual_whole_verifier_selector": "Tests.test_actual_full_verifier_real_four_seven_histories_and_five_snapshots"
+      }
+    },
+    "lease": {
+      "five_sha256": {
+        "check_local_f0_lease_revoke_operation_safety_sql_v1.py": "66301cd989e8db2365974706d4d7c1b71f539ab6565a20d3fa9d5d3c3272e682",
+        "execute_local_f0_lease_revoke_20261119_safety_sql_v1.py": "0ec8a5ceb39787d272731cf276b6e5eaa062cbd6202e60065ae5b967b86adb81",
+        "local_f0_lease_revoke_operation_steps_safety_sql_v1.py": "8676f6082c254d4ec1a7de6b079d5ab5b8b7bc7ec0348334a4eb4b03d3e43e7f",
+        "pin_local_f0_lease_revoke_plan_20261119_safety_sql_v1.py": "b0d5a5546baaba82473e3cb0c6ec448ac2b76574f8632ca67dbe51b056dc399a",
+        "prepare_local_f0_lease_revoke_plan_safety_sql_v1.py": "67077bf6fd7c9bb33652787ce4150294cff67cd13fa0fc20d6f5bf5978087bec"
+      },
+      "archive_file_count": 21,
+      "validation_sha256": "7db3735e4390161ec54a420c047bf99ea59be53047822a0a4b4d83af70ffec55",
+      "independent_safety_gate_still_pending": true,
+      "common_function_class_AST_exact": true,
+      "private_SAFETY_constants_match_closed_profile": true,
+      "io_profile": "COMMON",
+      "sql_profile": "STANDARD",
+      "Steps_no_closure_shadow": true,
+      "ordinary_AST_unchanged": {
+        "sql": true,
+        "observe": true,
+        "psql_args": true,
+        "cleanup": true
+      },
+      "main_AST_unchanged": true,
+      "runtime_and_pinner_approval_gates_present": true,
+      "old_five_sources_preserved": true,
+      "decision": "SOURCE_APPROVED",
+      "approval_scope": "Exact five current/frozen bytes only; fresh published checkpoint and fresh operational literal still required.",
+      "owning_suite": {
+        "tests": 60,
+        "seconds": 14.156,
+        "outcome": "PASS",
+        "actual_full_whole_verifier_and_five_physical_snapshots_included": true,
+        "actual_whole_verifier_selector": "Tests.test_actual_full_verify_packet_real_pending_inventory_and_physical_new_five_snapshots"
+      }
+    },
+    "native": {
+      "five_sha256": {
+        "check_native_access_operation_safety_sql_v1.py": "415baef53ea13d12273b4879aadffe9683d0eb42d5c32e4a62d6b49e0f81843d",
+        "execute_local_f0_native_access_20261119_safety_sql_v1.py": "82ff221e2b740ffeac248474c84bfab80253c34e3234a6a2cf584e6162397574",
+        "local_f0_native_access_operation_steps_safety_sql_v1.py": "991210f073adecb1ca0b9dda208f56fba218feb56ab3d6c18db16b437ad8072a",
+        "pin_native_access_plan_20261119_safety_sql_v1.py": "173da2a5a166f67beba5c0d38cfa1a15d57dff6b5f5fb868c26cb0cf4dab85c9",
+        "prepare_local_f0_native_access_plan_safety_sql_v1.py": "3276f27248c81fcb128c0f3f9654a97e398e54dd4007f92e0da2cb8aca49ca18"
+      },
+      "archive_file_count": 25,
+      "validation_sha256": "eca6588de59aa3540cd634121a7be0f60e718b3466a2748e96f5253926160990",
+      "independent_safety_gate_still_pending": true,
+      "common_function_class_AST_exact": true,
+      "private_SAFETY_constants_match_closed_profile": true,
+      "io_profile": "COMMON",
+      "sql_profile": "STANDARD",
+      "Steps_no_closure_shadow": true,
+      "ordinary_AST_unchanged": {
+        "sql": true,
+        "observe": true,
+        "psql_args": true,
+        "cleanup": true
+      },
+      "main_AST_unchanged": true,
+      "runtime_and_pinner_approval_gates_present": true,
+      "old_five_sources_preserved": true,
+      "decision": "SOURCE_APPROVED",
+      "approval_scope": "Exact five current/frozen bytes only; fresh published checkpoint and fresh operational literal still required.",
+      "owning_suite": {
+        "tests": 66,
+        "seconds": 61.937,
+        "outcome": "PASS",
+        "actual_full_whole_verifier_and_five_physical_snapshots_included": true,
+        "actual_whole_verifier_selector": "NativeV5BoundaryTests.test_actual_full_verifier_uses_all_real_Root_inputs_and_physical_five_snapshots"
+      }
+    },
+    "restore": {
+      "five_sha256": {
+        "check_local_f0_restore_operation_safety_sql_v1.py": "085f756f7ffa3f8567381ebdceb1e01efa963e74f0a35f242767d73a46daaf9c",
+        "execute_local_f0_restore_20261119_safety_sql_v1.py": "8041399106d33d4687f1f357709c7b657f2e55adb29e588822896c941b1b8a81",
+        "local_f0_restore_operation_steps_safety_sql_v1.py": "2a55669c8a589599c5549f2826a9aba4b2c99f3df2cc593fcab6d7517ab38508",
+        "pin_local_f0_restore_plan_20261119_safety_sql_v1.py": "ceb85b4b84c061d9aaabc9753a501317f7e3020ca2375bb1383002fa5439ed30",
+        "prepare_local_f0_restore_plan_safety_sql_v1.py": "eca3dbd63b87a89583345f0e04ed3c4656a7653558a5fb855d29dde8439747d9"
+      },
+      "archive_file_count": 22,
+      "validation_sha256": "14abb4bcae58b99dc306cce6e271a28a2904854b7008f6ed2deb298dd1349809",
+      "independent_safety_gate_still_pending": true,
+      "common_function_class_AST_exact": true,
+      "private_SAFETY_constants_match_closed_profile": true,
+      "io_profile": "COMMON",
+      "sql_profile": "STANDARD",
+      "Steps_no_closure_shadow": true,
+      "ordinary_AST_unchanged": {
+        "sql": true,
+        "observe": true,
+        "psql_args": true,
+        "cleanup": true
+      },
+      "main_AST_unchanged": true,
+      "runtime_and_pinner_approval_gates_present": true,
+      "old_five_sources_preserved": true,
+      "decision": "SOURCE_APPROVED",
+      "approval_scope": "Exact five current/frozen bytes only; fresh published checkpoint and fresh operational literal still required.",
+      "owning_suite": {
+        "tests": 64,
+        "seconds": 24.875,
+        "outcome": "PASS",
+        "actual_full_whole_verifier_and_five_physical_snapshots_included": true,
+        "actual_whole_verifier_selector": "RuntimeClosureTests.test_actual_full_verifier_with_real_prepared_pending_manifest_and_snapshots"
+      }
+    }
+  },
+  "evidence": {
+    "author_report": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\remaining_safety_sql_v1_families_source_author_review_20261119.json",
+      "sha256": "6fa63cde4f9a91f3c0cb96030b3c28f915db85c780eefa98568dc77a66b372c8"
+    },
+    "freeze_manifest": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\remaining-safety-sql-v1-author-freeze-20261119\\freeze-manifest.json",
+      "sha256": "5f622a3946c121d207897e256314dc9e82c723d8d801f48c43a5a362c32f3cfb"
+    },
+    "independent_static_probe": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\remaining_safety_sql_v1_independent_static_probe_20261119.json",
+      "sha256": "08d6f601464d3aacac1f569149db0d4760065812e1cc9326b6f76f9e3caf804e"
+    },
+    "independent_initial_offline_probe": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\remaining_safety_sql_v1_independent_offline_probe_20261119.json",
+      "sha256": "5aab2c979461a2768e4c60eff08b430538f91e63e62519fa02f211b7cd4baa52",
+      "status": "FAIL_PRESERVED: 250 passed; INSTALL checker118 raised runpy builtins-context AttributeError after correct production comparator result"
+    },
+    "independent_install_script_context_recheck": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\remaining_safety_sql_v1_independent_install_context_recheck_20261119.json",
+      "sha256": "dd85928e49d28343fb2f30115a34bb3cef767c777c33ddbba696d06439eca0a2",
+      "status": "PASS_34",
+      "source_or_test_bytes_changed": false
+    },
+    "actual_composed_check": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\check_derived_safety_sql_v1_composed_20261119.py",
+      "sha256": "a8b8f22a2733987b62c72abe9fe6315f3ce504fb6cb56c79b35b31e16cc3d11a"
+    },
+    "accepted_common_template": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\common_safety_sql_v1_helpers.py.txt",
+      "sha256": "a3cf85cfd4802d9eb293fc957672b1ba7f842e49b6b15985cd81be6cbe1ee537",
+      "independent_review_sha256": "99009f9a2f29f52db3815b113810dc00f2ad24a3370479105b21091227432d01"
+    },
+    "accepted_install_eligibility_sha256": "7118431c80fc5954ba314f1ed3634d5f3398dc2b35749dff5360ee52162052e7",
+    "author_post_metadata_whole_verifiers": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\remaining_safety_sql_v1_final_whole_source_verification_20261119.json",
+      "sha256": "581ebe5065b16b7f6bd1bc26d237ae6b661f4f9be6be488cc24e07adc3abf846",
+      "qualification": "AUTHOR_ONLY_SEPARATE_FROM_INDEPENDENT_OWNING_CHECKS"
+    },
+    "old_preservation_manifest_sha256": "b7d77506ccf6b35301e6ed90e24a25507559092709a7e7e77cb876a85879ee12"
+  },
+  "independent_checks": {
+    "owning_unique_tests_passed_after_script_context_recheck": 224,
+    "actual_embedded_composed_tests_passed": 27,
+    "unique_passing_tests_total": 251,
+    "no_template_injection": true,
+    "actual_composed_seconds": 14.11,
+    "prior_context_error_explanation": "The first review harness used runpy, which sets __builtins__ to a dict. Checker118 explicitly inspects a module attribute on that interpreter-provided global after it successfully receives the exact expected adapter. The unchanged checker passed all34 with script-equivalent builtins module context. The initial FAIL probe is retained and is not described as a passing run.",
+    "common_template_function_class_AST_exact_all_four": true,
+    "closed_profile_constants_exact_all_four": true,
+    "Steps_cannot_shadow_safety_closure": true,
+    "ordinary_sql_observe_psql_args_cleanup_and_main_AST_unchanged_all_four": true,
+    "all_four_real_whole_verifiers_and_five_physical_snapshots_ran": true,
+    "whole_source_input_detail": "Each actual owning test freshly prepares a real pending manifest, clones the complete current real inventory, verifies closed catalog16 and seven-file source history bindings (four histories for INSTALL), then executes its actual family whole verifier and physical source snapshots. Only the common read-only Git/review boundary is mocked.",
+    "restore_physical_five_detail": "The inherited external interface has a four-file EXTERNAL_FILES/FROZEN map; the current pinner separately binds its own physical fifth source at line113 and the archive/current committed packet includes it. The complete actual whole-verifier test passed.",
+    "pending_safety_review_rejected_before_command": true,
+    "all_three_install_targets_eligibility_and_closure_passed": true,
+    "typed_active_or_unknown_backend_counts_block_REVOKE": true,
+    "realistic_raw_path_alias_to_other_approved_bytes_rejected": true,
+    "original_primary_STOP_preserved": true,
+    "later_finalizer_post_or_nested_closure_failures_secondary": true,
+    "validated_clean_or_dirty_poststate_retained_OBSERVED_NOT_QUALIFIED_on_first_failure": true,
+    "malformed_poststate_discarded": true,
+    "persistent_IO_does_not_skip_eligible_pre_REVOKE_post_or_global_closure": true,
+    "incomplete_IO_blocks_normal_continuation_and_PASS": true,
+    "bounded_component_reference_return_throw_read_stat_save_oversize_controls_passed": true,
+    "cleanup_secret_scan_owned_CID_volume_private_absence_and_source_postchecks_passed": true,
+    "real_process_network_and_actual_ROOT_write_audit_refusals": []
+  },
+  "source_line_evidence": {
+    "check_local_f0_install_controls_operation_safety_sql_v1.py": {
+      "definitions": {},
+      "approval_and_raw_source_gate_lines": {}
+    },
+    "execute_local_f0_install_controls_20261119_safety_sql_v1.py": {
+      "definitions": {
+        "_required_safety_first_exception": {
+          "start": 302,
+          "end": 303
+        },
+        "_required_safety_barrier": {
+          "start": 313,
+          "end": 314
+        },
+        "_required_safety_text": {
+          "start": 317,
+          "end": 329
+        },
+        "_required_safety_decode": {
+          "start": 332,
+          "end": 354
+        },
+        "_required_safety_sql": {
+          "start": 357,
+          "end": 376
+        },
+        "_required_zero_backends": {
+          "start": 379,
+          "end": 386
+        },
+        "closed_backends": {
+          "start": 389,
+          "end": 390
+        },
+        "_RequiredSafetyBoundary": {
+          "start": 393,
+          "end": 406
+        },
+        "finalize": {
+          "start": 409,
+          "end": 432
+        }
+      },
+      "approval_and_raw_source_gate_lines": {
+        "323": "raw_path=ROOT/_SAFETY_FINALIZER;metadata=raw_path.lstat()",
+        "324": "need(_required_safety_stat.S_ISREG(metadata.st_mode) and not raw_path.is_symlink(),'REQUIRED_FINALIZER_SOURCE_UNCONFIRMED')"
+      }
+    },
+    "local_f0_install_controls_operation_steps_safety_sql_v1.py": {
+      "definitions": {
+        "verify_common_packet": {
+          "start": 20,
+          "end": 59
+        },
+        "run_catalog_query": {
+          "start": 399,
+          "end": 416
+        },
+        "verify_packet": {
+          "start": 572,
+          "end": 614
+        },
+        "install_coordinator_experiment": {
+          "start": 686,
+          "end": 732
+        },
+        "ensure_original_cleanup": {
+          "start": 736,
+          "end": 750
+        },
+        "compare_with_install_ledger": {
+          "start": 774,
+          "end": 781
+        },
+        "main": {
+          "start": 847,
+          "end": 877
+        }
+      },
+      "approval_and_raw_source_gate_lines": {
+        "23": "review=validation.get('independent_safety_sql_review')",
+        "24": "need(type(review) is dict and review.get('decision')=='SOURCE_APPROVED','SAFETY_SQL_REVIEW_REQUIRED')"
+      }
+    },
+    "pin_local_f0_install_controls_plan_20261119_safety_sql_v1.py": {
+      "definitions": {
+        "pin": {
+          "start": 13,
+          "end": 27
+        },
+        "main": {
+          "start": 28,
+          "end": 31
+        }
+      },
+      "approval_and_raw_source_gate_lines": {
+        "21": "need(validation['independent_safety_sql_review']['decision']=='SOURCE_APPROVED','SAFETY_SQL_REVIEW_REQUIRED')"
+      }
+    },
+    "prepare_local_f0_install_controls_plan_safety_sql_v1.py": {
+      "definitions": {
+        "main": {
+          "start": 68,
+          "end": 73
+        }
+      },
+      "approval_and_raw_source_gate_lines": {}
+    },
+    "check_local_f0_lease_revoke_operation_safety_sql_v1.py": {
+      "definitions": {},
+      "approval_and_raw_source_gate_lines": {}
+    },
+    "execute_local_f0_lease_revoke_20261119_safety_sql_v1.py": {
+      "definitions": {
+        "_required_safety_first_exception": {
+          "start": 302,
+          "end": 303
+        },
+        "_required_safety_barrier": {
+          "start": 313,
+          "end": 314
+        },
+        "_required_safety_text": {
+          "start": 317,
+          "end": 329
+        },
+        "_required_safety_decode": {
+          "start": 332,
+          "end": 354
+        },
+        "_required_safety_sql": {
+          "start": 357,
+          "end": 376
+        },
+        "_required_zero_backends": {
+          "start": 379,
+          "end": 386
+        },
+        "closed_backends": {
+          "start": 389,
+          "end": 390
+        },
+        "_RequiredSafetyBoundary": {
+          "start": 393,
+          "end": 406
+        },
+        "finalize": {
+          "start": 409,
+          "end": 432
+        }
+      },
+      "approval_and_raw_source_gate_lines": {
+        "323": "raw_path=ROOT/_SAFETY_FINALIZER;metadata=raw_path.lstat()",
+        "324": "need(_required_safety_stat.S_ISREG(metadata.st_mode) and not raw_path.is_symlink(),'REQUIRED_FINALIZER_SOURCE_UNCONFIRMED')"
+      }
+    },
+    "local_f0_lease_revoke_operation_steps_safety_sql_v1.py": {
+      "definitions": {
+        "verify_common_packet": {
+          "start": 20,
+          "end": 58
+        },
+        "run_catalog_query": {
+          "start": 441,
+          "end": 458
+        },
+        "catalog_experiment": {
+          "start": 568,
+          "end": 637
+        },
+        "auth_control": {
+          "start": 725,
+          "end": 768
+        },
+        "verify_packet": {
+          "start": 807,
+          "end": 840
+        },
+        "lease_experiment": {
+          "start": 895,
+          "end": 946
+        },
+        "main": {
+          "start": 950,
+          "end": 990
+        }
+      },
+      "approval_and_raw_source_gate_lines": {
+        "23": "review=validation.get('independent_safety_sql_review')",
+        "24": "need(type(review) is dict and review.get('decision')=='SOURCE_APPROVED','SAFETY_SQL_REVIEW_REQUIRED')"
+      }
+    },
+    "pin_local_f0_lease_revoke_plan_20261119_safety_sql_v1.py": {
+      "definitions": {
+        "pin": {
+          "start": 17,
+          "end": 44
+        },
+        "main": {
+          "start": 45,
+          "end": 48
+        }
+      },
+      "approval_and_raw_source_gate_lines": {
+        "31": "need(validation['independent_safety_sql_review']['decision']=='SOURCE_APPROVED','SAFETY_SQL_REVIEW_REQUIRED')"
+      }
+    },
+    "prepare_local_f0_lease_revoke_plan_safety_sql_v1.py": {
+      "definitions": {
+        "main": {
+          "start": 86,
+          "end": 97
+        }
+      },
+      "approval_and_raw_source_gate_lines": {}
+    },
+    "check_native_access_operation_safety_sql_v1.py": {
+      "definitions": {},
+      "approval_and_raw_source_gate_lines": {}
+    },
+    "execute_local_f0_native_access_20261119_safety_sql_v1.py": {
+      "definitions": {
+        "_required_safety_first_exception": {
+          "start": 294,
+          "end": 295
+        },
+        "_required_safety_barrier": {
+          "start": 305,
+          "end": 306
+        },
+        "_required_safety_text": {
+          "start": 309,
+          "end": 321
+        },
+        "_required_safety_decode": {
+          "start": 324,
+          "end": 346
+        },
+        "_required_safety_sql": {
+          "start": 349,
+          "end": 368
+        },
+        "_required_zero_backends": {
+          "start": 371,
+          "end": 378
+        },
+        "closed_backends": {
+          "start": 381,
+          "end": 382
+        },
+        "_RequiredSafetyBoundary": {
+          "start": 385,
+          "end": 398
+        },
+        "finalize": {
+          "start": 401,
+          "end": 424
+        }
+      },
+      "approval_and_raw_source_gate_lines": {
+        "315": "raw_path=ROOT/_SAFETY_FINALIZER;metadata=raw_path.lstat()",
+        "316": "need(_required_safety_stat.S_ISREG(metadata.st_mode) and not raw_path.is_symlink(),'REQUIRED_FINALIZER_SOURCE_UNCONFIRMED')"
+      }
+    },
+    "local_f0_native_access_operation_steps_safety_sql_v1.py": {
+      "definitions": {
+        "verify_common_packet": {
+          "start": 14,
+          "end": 52
+        },
+        "run_catalog_query": {
+          "start": 437,
+          "end": 454
+        },
+        "catalog_experiment": {
+          "start": 564,
+          "end": 634
+        },
+        "verify_packet": {
+          "start": 687,
+          "end": 711
+        },
+        "provider_authentication": {
+          "start": 726,
+          "end": 746
+        },
+        "native_access_experiment": {
+          "start": 806,
+          "end": 840
+        },
+        "main": {
+          "start": 860,
+          "end": 900
+        }
+      },
+      "approval_and_raw_source_gate_lines": {
+        "17": "review=validation.get('independent_safety_sql_review')",
+        "18": "need(type(review) is dict and review.get('decision')=='SOURCE_APPROVED','SAFETY_SQL_REVIEW_REQUIRED')"
+      }
+    },
+    "pin_native_access_plan_20261119_safety_sql_v1.py": {
+      "definitions": {
+        "main": {
+          "start": 7,
+          "end": 30
+        }
+      },
+      "approval_and_raw_source_gate_lines": {
+        "20": "assert json.loads((ROOT/review).read_bytes())['independent_safety_sql_review']['decision']=='SOURCE_APPROVED'"
+      }
+    },
+    "prepare_local_f0_native_access_plan_safety_sql_v1.py": {
+      "definitions": {
+        "main": {
+          "start": 102,
+          "end": 116
+        }
+      },
+      "approval_and_raw_source_gate_lines": {}
+    },
+    "check_local_f0_restore_operation_safety_sql_v1.py": {
+      "definitions": {},
+      "approval_and_raw_source_gate_lines": {}
+    },
+    "execute_local_f0_restore_20261119_safety_sql_v1.py": {
+      "definitions": {
+        "_required_safety_first_exception": {
+          "start": 302,
+          "end": 303
+        },
+        "_required_safety_barrier": {
+          "start": 313,
+          "end": 314
+        },
+        "_required_safety_text": {
+          "start": 317,
+          "end": 329
+        },
+        "_required_safety_decode": {
+          "start": 332,
+          "end": 354
+        },
+        "_required_safety_sql": {
+          "start": 357,
+          "end": 376
+        },
+        "_required_zero_backends": {
+          "start": 379,
+          "end": 386
+        },
+        "closed_backends": {
+          "start": 389,
+          "end": 390
+        },
+        "_RequiredSafetyBoundary": {
+          "start": 393,
+          "end": 406
+        },
+        "finalize": {
+          "start": 409,
+          "end": 432
+        }
+      },
+      "approval_and_raw_source_gate_lines": {
+        "323": "raw_path=ROOT/_SAFETY_FINALIZER;metadata=raw_path.lstat()",
+        "324": "need(_required_safety_stat.S_ISREG(metadata.st_mode) and not raw_path.is_symlink(),'REQUIRED_FINALIZER_SOURCE_UNCONFIRMED')"
+      }
+    },
+    "local_f0_restore_operation_steps_safety_sql_v1.py": {
+      "definitions": {
+        "verify_common_packet": {
+          "start": 20,
+          "end": 58
+        },
+        "run_catalog_query": {
+          "start": 438,
+          "end": 455
+        },
+        "catalog_experiment": {
+          "start": 565,
+          "end": 634
+        },
+        "auth_control": {
+          "start": 964,
+          "end": 1007
+        },
+        "main": {
+          "start": 1270,
+          "end": 1310
+        }
+      },
+      "approval_and_raw_source_gate_lines": {
+        "23": "review=validation.get('independent_safety_sql_review')",
+        "24": "need(type(review) is dict and review.get('decision')=='SOURCE_APPROVED','SAFETY_SQL_REVIEW_REQUIRED')"
+      }
+    },
+    "pin_local_f0_restore_plan_20261119_safety_sql_v1.py": {
+      "definitions": {
+        "validate_filesystem": {
+          "start": 71,
+          "end": 137
+        },
+        "pin": {
+          "start": 138,
+          "end": 154
+        },
+        "main": {
+          "start": 155,
+          "end": 159
+        }
+      },
+      "approval_and_raw_source_gate_lines": {
+        "105": "need(validation['independent_safety_sql_review']['decision']=='SOURCE_APPROVED','SAFETY_SQL_REVIEW_REQUIRED')"
+      }
+    },
+    "prepare_local_f0_restore_plan_safety_sql_v1.py": {
+      "definitions": {
+        "main": {
+          "start": 131,
+          "end": 138
+        }
+      },
+      "approval_and_raw_source_gate_lines": {}
+    }
+  },
+  "safety_review_conclusions": [
+    "Each selected SQL executor remains postgres-only against its owned captured CID and the closed profile selector. Exact source recipes, roles, grants, timeouts and image constants are preserved. Ordinary SQL remains fail-fast.",
+    "The accepted a3cf helper raw fixed-path lstat regular/nonlink gate runs before resolving read_pinned and exact approved SHA admission. Precondition counts use strict validated JSON; active clients block finalizer execution.",
+    "Real actual Core plus Steps composition uses the embedded accepted helper. Persistent evidence IO failures cannot suppress eligible closure/finalizer command attempts, and sticky evidence failure prevents later normal work and PASS.",
+    "INSTALL retains the child-owned bootstrap/install/finalizer/reviewer/resolve responsibilities and accepted eligibility logic. No new activation, blanket bootstrap, or automatic recovery approval is introduced.",
+    "Independent review found no new source scope issue in these frozen four family derivations. This conclusion is source-qualified and does not predict Docker mount/resource behavior."
+  ],
+  "old_five_per_family_rehashed_unchanged": {
+    "install": {
+      "check_local_f0_install_controls_operation.py": "48abe26d12afc1a60e8419ae78bfe05c68a0962fc5b1282212a99cd51d041855",
+      "execute_local_f0_install_controls_20261118.py": "3903217fdf13f15f45cb0fa67e8cf5adc9c1fcd860c193ebdb67b72641629238",
+      "local_f0_install_controls_operation_steps.py": "92ce6385902b829226a085837087a0bb0084922ce3303aa2010d6db3ad787328",
+      "pin_local_f0_install_controls_plan_20261118.py": "a734208eae5e083fdd8d6737034768cbad5211e48c6b75b7dde58fe94d2e53da",
+      "prepare_local_f0_install_controls_plan.py": "c5a5ff7523358afdefcd46a11da8c988e9edf952ebfa2325fe71d03062ced553"
+    },
+    "lease": {
+      "check_local_f0_lease_revoke_operation_auth_v5.py": "3770e76674855935143a24486f781b12f49107f47f10b4231d6ede5ceb58aebc",
+      "execute_local_f0_lease_revoke_20261118_auth_v5.py": "a76e594950ce102377621be39b59194a9753222761954243a20adac0a7712d42",
+      "local_f0_lease_revoke_operation_steps_auth_v5.py": "84b9dcb3293ab3714ffaebf2591a6bc14d2069a7632c68c220299593cf594e3a",
+      "pin_local_f0_lease_revoke_plan_20261118_auth_v5.py": "d5eb600d758a095fdb8a36c2c7f06ecedcc355f387cc71c0b54dc2f6fadc4ec3",
+      "prepare_local_f0_lease_revoke_plan_auth_v5.py": "5d211470645d44d36d0e23baba4535371f2da1b194f5e04124c945f1f3a26f1f"
+    },
+    "native": {
+      "check_native_access_v5_operation.py": "011d9f0257b6680fa6d1b57fe6317bc88329487d4bfaca4d3dc11f9b90ac5d40",
+      "execute_local_f0_native_access_v5_20261118.py": "72b600be0bad3c67beda4e1febf9c60feda6df4d125ad3810f377cb4f496562f",
+      "local_f0_native_access_v5_operation_steps.py": "d815cf21217be9792c8e77962d11d16448f6dc52c6fe74604d52bb1ba6943a09",
+      "pin_native_access_v5_plan_20261118.py": "20102c703f3902f282ff35c0308f528924a847d84c856c125216158b583328bd",
+      "prepare_local_f0_native_access_v5_plan.py": "992dfd20f70f11afdb9a5aa21bff7896331ca7c2e0f6e0bd63a64981bb78dd7f"
+    },
+    "restore": {
+      "check_local_f0_restore_operation_auth_v5.py": "3c11c62e77e65707340e832ed85899104efaf3d4042c6d9dad30308b8cb2344c",
+      "execute_local_f0_restore_20261117_auth_v5.py": "02e7db3dfc2dd8c60e02a753599e6fd6970ad607b63b6e5605cbce95f8122853",
+      "local_f0_restore_operation_steps_auth_v5.py": "cf1def90032da64dca80e7b3670d1eb807d484504cd6720d03d9a5c9f78a767f",
+      "pin_local_f0_restore_plan_20261118_auth_v5.py": "01ce08f1e0740b71d1a44d36e6e8f4d2ed2bba56dcc68111a9225a9709cfba06",
+      "prepare_local_f0_restore_plan_auth_v5.py": "77afa8a9062bc8c2b4ab7f357deadc69fa58d9a5e5cb7b9b3210edba2080423a"
+    }
+  },
+  "all_twenty_rehashed_after_tests": true,
+  "limits": {
+    "runtime": "NOT_RUN_BY_REVIEWER",
+    "real_Docker_DB_SQL_network_Git": "FORBIDDEN_NOT_RUN",
+    "source_and_metadata_mutations": false,
+    "only_review_probe_JSON_written_under_TASK": true,
+    "all_four_validation_review_gates_at_inspection": "PENDING; reviewer did not modify them",
+    "old_four_literals": "HELD_UNAPPROVED_UNCHANGED",
+    "source_approval_does_not_approve_fresh_operational_literal": true,
+    "whole94_451_or_assertion_status_promotions": false,
+    "historical_runtime_or_cleanup_cause_inferred": false,
+    "Owner44ac_actual_mount_STOP": "Parent reported; no causal inference or operational approval is made here"
+  },
+  "plain_english": "The four new instruction sets match the reviewed safety rules. In pretend runs, cleanup still happens when saving the notes breaks, and the first problem stays the first problem. These exact files pass source review. They still need their own fresh real-run plans reviewed before use."
+}

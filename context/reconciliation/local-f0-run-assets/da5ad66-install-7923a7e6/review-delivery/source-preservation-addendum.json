@@ -1,0 +1,75 @@
+{
+  "schema": "workinants.install7923-original-watch-source-preservation.v1",
+  "recorded_at_utc": "2026-11-19T22:27:20.967633+00:00",
+  "reviewer": "/root/catalog_v4_review",
+  "source_recovered_exactly_from_own_tool_call": {
+    "rollout_path": "C:\\Users\\elijr\\.codex\\sessions\\2026\\11\\18\\rollout-2026-11-18T00-22-23-01a1ed1b-2b26-7510-85f6-aa1a98b01348.jsonl",
+    "rollout_line": 6637,
+    "call_id": "call_b77e5cf81ed84db4aeb85b2e5f4f81bf",
+    "tool_input_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install7923-catalog-stopped-watch-review-20261119\\original-watch-tool-input.js",
+    "tool_input_sha256": "851411a90956be9e013f47b36d563408ae496c07c3f633386aefb92df388a7b0",
+    "decoded_stdin_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install7923-catalog-stopped-watch-review-20261119\\original-watch-stdin.py",
+    "decoded_stdin_sha256": "c2736ecd0224bdfc33bf5393de8acbea060eb6817f10b127de2401763fd7a026",
+    "method": "JSON decode exact cmd string from preserved tool input, extract PowerShell literal heredoc. No reconstruction."
+  },
+  "file_read_path": {
+    "outer_read_lines": [
+      29,
+      30
+    ],
+    "fixed_outer": "local-f0-install-controls-20261119-7923a7e6/run-evidence.json",
+    "poll_seconds": 1,
+    "open_line": 8,
+    "operation": "with path.open('rb') as file: raw=file.read(cap+1)",
+    "cap_bytes": 16777216,
+    "handle_lifetime": "Only the synchronous bounded read within the with block; context exits before len checks/JSON parse/loop sleep. No retained handle or deliberate sleep inside block.",
+    "read_sharing_hypothesis": "Possible Windows target replacement interference requires scratch reproduction; actual exception class/operation unretained, no claim it caused this stop."
+  },
+  "canonicalization_source_check": {
+    "line": 24,
+    "ast_suffix_codepoints": [
+      10
+    ],
+    "correct_newline_suffix": true,
+    "correction": "An initial message to Root mistook nested transcript escaping for a literal backslash+n defect. AST verification disproved that impression; Root was immediately notified. No source defect or actual effect is claimed. An attempted addendum assertion failed before writing any addendum."
+  },
+  "original_watch_outputs": [
+    {
+      "rollout_line": 6639,
+      "timestamp": "2026-11-19T22:14:47.120Z",
+      "call_id": "call_b77e5cf81ed84db4aeb85b2e5f4f81bf",
+      "output": [
+        {
+          "type": "input_text",
+          "text": "Script completed\nWall time 10.2 seconds\nOutput:\n"
+        },
+        {
+          "type": "input_text",
+          "text": "{\"chunk_id\":\"3c253d\",\"wall_time_seconds\":10.0049759,\"session_id\":89623,\"original_token_count\":50,\"output\":\"{\\\"watch\\\": \\\"ACTIVE_DISK_ONLY\\\", \\\"run_id\\\": \\\"7923a7e6-c227-414d-b91b-3804517e5d02\\\", \\\"poll_seconds\\\": 1, \\\"overall_watch_budget_seconds\\\": 1800, \\\"approval_written\\\": false}\\r\\n{\\\"watch\\\": \\\"WAITING_FOR_LAUNCH\\\"}\\r\\n\"}"
+        }
+      ]
+    },
+    {
+      "rollout_line": 6761,
+      "timestamp": "2026-11-19T22:19:55.628Z",
+      "call_id": "call_8cb7f04087504bcaa36f823f7df50ab8",
+      "output": [
+        {
+          "type": "input_text",
+          "text": "Script completed\nWall time 1.5 seconds\nOutput:\n"
+        },
+        {
+          "type": "input_text",
+          "text": "{\"chunk_id\":\"b25fed\",\"wall_time_seconds\":0.0000312,\"exit_code\":0,\"original_token_count\":13,\"output\":\"{\\\"watch\\\": \\\"OUTER_STOPPED_NO_APPROVAL_BY_WATCH\\\"}\\r\\n\"}"
+        },
+        {
+          "type": "input_text",
+          "text": "{\"chunk_id\":\"179004\",\"wall_time_seconds\":1.2627792,\"exit_code\":0,\"original_token_count\":1079,\"output\":\"actual_fixed_paths {\\\"install-controls-results.json\\\": false, \\\"rollback-proof-for-review.json\\\": false, \\\"independent-recovery-approval.json\\\": false}\\r\\nsafe_outer_files ['run-evidence.json', 'set-private-acl.ps1']\\r\\nouter_sha256 11a711247181560764a68ad0983e15d14dfaad131f659fdb1bc141dd25b52cb8\\r\\nouter_keys ['run_id', 'approved_commit', 'approved_tree', 'approved_packet_sha256', 'started_at', 'status', 'stage', 'steps', 'events', 'targets', 'unexpected', 'cleanup', 'limits', 'authorization', 'evidence_complete', 'persistence_failure', 'source_verification', 'run_manifest', 'run_manifest_sha256', 'catalog_preparation', 'install', 'local_preflight', 'image', 'credential_handling', 'primary_failure', 'sanitization', 'host_secret_cleanup', 'cleanup_summary', 'packet_unchanged_after_run', 'tool_source_data_unchanged_after_run', 'external_input_archives_and_fresh_history_unchanged_after_run', 'external_sources_unchanged_after_run', 'all_source_and_external_inputs_preserved_after_run', 'finished_at']\\r\\nstate {\\r\\n  \\\"status\\\": \\\"STOPPED_ATTEMPT_PRESERVED\\\",\\r\\n  \\\"stage\\\": \\\"STOP\\\",\\r\\n  \\\"evidence_complete\\\": false,\\r\\n  \\\"persistence_failure\\\": true,\\r\\n  \\\"output_failure\\\": null,\\r\\n  \\\"cleanup_actions_confirmed\\\": null,\\r\\n  \\\"source_packet_unchanged_after\\\": null,\\r\\n  \\\"source_commit\\\": null,\\r\\n  \\\"source_tree\\\": null,\\r\\n  \\\"packet_sha256\\\": null,\\r\\n  \\\"primary_failure\\\": {\\r\\n    \\\"stage\\\": \\\"FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE\\\",\\r\\n    \\\"code\\\": \\\"UNEXPECTED_INSTALL_WRAPPER_FAILURE\\\"\\r\\n  }\\r\\n}\\r\\nsteps {'CATALOG-SETUP': 'PASS', 'CATALOG-AUTH': 'NOT_RUN', 'CATALOG-TOOLS': 'NOT_RUN', 'CATALOG-INSTALL': 'NOT_RUN', 'INSTALL-COORDINATOR': 'NOT_RUN', 'INSTALL-CANONICAL-NATIVE': 'NOT_RUN', 'INSTALL-RECOVERED-NATIVE': 'NOT_RUN', 'CATALOG-ACL-COMPAT': 'NOT_RUN', 'CATALOG-TEXT-COMPAT': 'NOT_RUN', 'CATALOG-NATIVE': 'NOT_RUN', 'CATALOG-ORACLE': 'NOT_RUN', 'CATALOG-LEDGER': 'NOT_RUN', 'CATALOG-COMPARE': 'NOT_RUN', 'CATALOG-SANITIZED_EXPORT': 'NOT_RUN', 'CATALOG-CLEANUP': 'NOT_RUN'}\\r\\nunexpected [{'stage': 'EVIDENCE', 'code': 'EVIDENCE_WRITE_UNCONFIRMED'}, {'stage': 'FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE', 'code': 'UNEXPECTED_INSTALL_WRAPPER_FAILURE'}, {'stage': 'EVIDENCE', 'code': 'EVIDENCE_EVENT_UNCONFIRMED'}, {'stage': 'CLEANUP', 'code': 'CLEANUP_UNCONFIRMED'}]\\r\\ncleanup {\\r\\n  \\\"wa-p0c-7923a7e6-install-division\\\": {\\r\\n    \\\"removed\\\": true,\\r\\n    \\\"verified_id\\\": \\\"fbbf2e530dcd14239e65ea51300fd709a2ecd40f7fb8bfd3e72fe5086855839c\\\",\\r\\n    \\\"name_and_both_labels_verified\\\": true\\r\\n  },\\r\\n  \\\"wa-p0c-7923a7e6-install-good\\\": {\\r\\n    \\\"removed\\\": true,\\r\\n    \\\"verified_id\\\": \\\"c53b72bc40a46d949888c817bb5eb42cada5b3907dcf2df8733f5f56a3350fc6\\\",\\r\\n    \\\"name_and_both_labels_verified\\\": true\\r\\n  },\\r\\n  \\\"wa-p0c-7923a7e6-install-order\\\": {\\r\\n    \\\"removed\\\": true,\\r\\n    \\\"verified_id\\\": \\\"2bb49ed5584217cd1bebe580f11c7eb5adc034267e5a545055a6e280d77bf1f6\\\",\\r\\n    \\\"name_and_both_labels_verified\\\": true\\r\\n  },\\r\\n  \\\"wa-p0c-7923a7e6-install-division-data\\\": {\\r\\n    \\\"removed\\\": true,\\r\\n    \\\"name_labels_creation_identity_verified\\\": true\\r\\n  },\\r\\n  \\\"wa-p0c-7923a7e6-install-good-data\\\": {\\r\\n    \\\"removed\\\": true,\\r\\n    \\\"name_labels_creation_identity_verified\\\": true\\r\\n  },\\r\\n  \\\"wa-p0c-7923a7e6-install-order-data\\\": {\\r\\n    \\\"removed\\\": true,\\r\\n    \\\"name_labels_creation_identity_verified\\\": true\\r\\n  }\\r\\n}\\r\\nlast_event_stages [{'stage': 'SOURCE_VERIFICATION', 'status': 'PASS', 'code': None, 'error_type': None, 'target': None}, {'stage': 'LOCAL_PREFLIGHT', 'status': 'PASS', 'code': None, 'error_type': None, 'target': None}, {'stage': 'PINNED_IMAGE', 'status': 'PASS', 'code': None, 'error_type': None, 'target': None}, {'stage': 'RESOURCE_READY', 'status': 'PASS', 'code': None, 'error_type': None, 'target': 'wa-p0c-7923a7e6-install-good'}, {'stage': 'RESOURCE_READY', 'status': 'PASS', 'code': None, 'error_type': None, 'target': 'wa-p0c-7923a7e6-install-division'}, {'stage': 'RESOURCE_READY', 'status': 'PASS', 'code': None, 'error_type': None, 'target': 'wa-p0c-7923a7e6-install-order'}, {'stage': None, 'status': None, 'code': None, 'error_type': None, 'target': 'wa-p0c-7923a7e6-install-good'}, {'stage': None, 'status': None, 'code': None, 'error_type': None, 'target': 'wa-p0c-7923a7e6-install-division'}, {'stage': None, 'status': None, 'code': None, 'error_type': None, 'target': 'wa-p0c-7923a7e6-install-order'}, {'stage': 'STOP', 'status': 'NO_LATER_STEPS', 'code': None, 'error_type': None, 'target': None}]\\r\\n\"}"
+        }
+      ]
+    }
+  ],
+  "supplements_review_sha256": "423faf69a1ef63ce4da7b3838189c891e225d4701a49764a53c7e6275c4745a7",
+  "scope": "TASK-only preservation/read-only source analysis; no Docker/SQL/Git/network/credentials/cleanup/retry.",
+  "plain_english": "The watcher briefly opened the saved log each second and shut the file before checking it. We must test whether Windows could block a save during that brief open. The ticket newline is correct."
+}

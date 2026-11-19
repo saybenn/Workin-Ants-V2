@@ -1,0 +1,89 @@
+{
+  "schema": "workinants.install7923-independent-operational-watch-closure-addendum.v1",
+  "reviewer": "/root/install_outer_review",
+  "recorded_at_utc": "2026-11-19T22:16:28.969536+00:00",
+  "decision": "APPROVED_LOCAL_F0_INSTALL_OWNED_ATTEMPT",
+  "closes_only": "INSTALL-LITERAL-REVIEW-DELIVERY-01 in exact d78 conditional literal review; all exact source/packet/scope/stopping/cleanup qualifications remain version-bound.",
+  "literal": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-install-controls-plan-7923a7e6\\operation-manifest.json",
+    "pending_sha256": "d1be054dfdb8e9a0ff5a775113d919848643bce14d547140e7847e10c007b303",
+    "run_id": "7923a7e6-c227-414d-b91b-3804517e5d02",
+    "review_status_at_review": "PENDING_OPERATIONAL_REVIEW",
+    "reviewer_changed": false
+  },
+  "source_commit": "da5ad66cfc2bcb8aa64a453d10e29baeedb74a65",
+  "source_tree": "6c28cd218487cac448805dee8a407f78056a0e22",
+  "packet_sha256": "c5030a16d9f7a008466d2b6323d894511c8e646915a0736fe1bee4adeb382c52",
+  "packet_files": 126,
+  "evidence": {
+    "prior_conditional_literal_review": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install7923_literal_independent_review_20261119.json",
+      "sha256": "d78e7f715342e63fb9f83d18ca14222740d9689ee4d286aa66688a83eb08d2d3"
+    },
+    "Root_arming": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install7923_root_reviewer_watch_arming_20261119.json",
+      "sha256": "0615693d398736992b5e4d45ce8db49e51b151af2c9bc124824e5ca28f61d040"
+    },
+    "Catalog_readiness": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install7923_catalog_reviewer_prelaunch_readiness_20261119.json",
+      "sha256": "303a3566c9608bcd2cd864fbe20d67ff2651e0be9c7996ab8e7883b2a8ee5f06"
+    },
+    "Catalog_active_armed_watch_ACK": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install7923_catalog_armed_watch_ack_20261119.json",
+      "sha256": "4276efc4c6665fea62e0da1a55cf555c7f8df61a19f6e667d94906cb4b78920f"
+    }
+  },
+  "prior_full_packet_proofs": {
+    "Root_actual_current_committed_sha256": "cc8f1cf881e68ab7fa248beb0ab39f1a06ddd577517f881133076e42bd8cdd69",
+    "Root_actual_readonly_live_preflight_sha256": "f68dfd8c77686494f9187984e5565f12dd7aca6fe94cc31a16c1b66a60092928",
+    "new_addendum_all126_current_and_aggregate_rehash": "PASS"
+  },
+  "delivery_condition_now_closed": {
+    "assigned_allowed_distinct_reviewer": "/root/catalog_v4_review",
+    "Root_explicit_arming": true,
+    "Catalog_read_source_and_actual_review_protocol": true,
+    "Catalog_actual_active_watch_ACK": true,
+    "pollable_session": {
+      "session_id": 89623,
+      "state": "ACTIVE",
+      "initial_output": "ACTIVE_DISK_ONLY and WAITING_FOR_LAUNCH",
+      "poll_seconds": 1,
+      "overall_prelaunch_and_run_watch_budget_seconds": 1800,
+      "actual_review_hold_budget_seconds": 240,
+      "conservative_local_deadline": "Previous poll monotonic time+220 seconds once matching canonical actual proof/hold marker first observed."
+    },
+    "exact_watch_paths": {
+      "results": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-install-controls-20261119-7923a7e6\\install-controls\\install-controls-results.json",
+      "rollback": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-install-controls-20261119-7923a7e6\\install-controls\\rollback-proof-for-review.json",
+      "approval": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-install-controls-20261119-7923a7e6\\install-controls\\independent-recovery-approval.json",
+      "child_plan": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-install-controls-20261119-7923a7e6\\install-coordinator-run-plan.json",
+      "outer_result": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-install-controls-20261119-7923a7e6\\run-evidence.json"
+    },
+    "hold_signal": "Atomic child results INDEPENDENT_ROLLBACK_REVIEW_REQUIRED plus matching actual canonical rollback proof SHA; disk signal, not stdout.",
+    "target_lifetime": "Pinned coordinator waits240 monotonic seconds without outer cleanup; Catalog uses conservative previous-poll+220 deadline. Expiry or rejected/insufficient proof yields no approval and controlled failure/cleanup.",
+    "Root_launch_monitoring": "Root launch remains pollable and Catalog stays available, with exact launch/hold messages to the assigned reviewer."
+  },
+  "mandatory_execution_conditions": [
+    "Root alone may now change only review_status of this exact pending literal to APPROVED_LOCAL_F0_INSTALL_OWNED_ATTEMPT, preserving original bytes and receipt with resulting hash. No source, packet, target or scope alteration is approved.",
+    "Root must perform fresh read-only preflight and the unchanged wrapper must repeat current+committed source, exact local endpoint/platform/name/OUT/private absence, full pinned a074 image identity, owned CIDs/runlabels/volumeCreatedAt/mount/isolation checks. Prior auxiliary proof is not a bypass.",
+    "The acknowledged Catalog watch must remain active for this exact run. If it terminates or cannot cover the hold before launch, restore the operational hold and rearm rather than treating this addendum as a substitute for a live reviewer.",
+    "Only actual emitted rollback proof/results/child-plan/outer identity evidence may support the later separate seven-field Catalog approval. Validate genuine closed fault-source CLI, actual native zero inventory and failed ledger immutable/checksum, original-grantor cleanup/global closure, actual22012/25P02NULL-or-NONEMPTY diagnostic branch and exact source/run/CID/checkpoint/packet/proofhash. Full native qualification follows recovery and is not claimed at the hold.",
+    "No approval artifact is prepared now. Only Catalog, after actual independent review, may atomically publish exact APPROVED_STANDARD_RESOLVE_ROLLED_BACK under its own allowed identity before deadline. No automatic approval, Root-as-reviewer, relabeled reviewer, fabricated result, permission repair or retry.",
+    "On any uncertainty or deadline failure, publish no actual approval and preserve the unchanged source stop/finalizer/closure/secret scan/exact owned cleanup/absence/source preservation path. This operational approval cannot be reused as actual recovery approval."
+  ],
+  "actual_recovery_approval": {
+    "decision": "NOT_APPROVED_NO_ACTUAL_ROLLBACK_EVIDENCE_YET",
+    "approval_artifact_absent": true,
+    "rollback_proof_absent": true,
+    "OUT_absent": true,
+    "created_by_this_review": false
+  },
+  "limits": {
+    "Git_Docker_DB_SQL_network_or_runtime": "NOT_RUN_BY_REVIEWER",
+    "source_metadata_literal_or_status_changes": false,
+    "only_this_exclusive_TASK_JSON_written": true,
+    "new_Restore_or_Native_correction_approval": false,
+    "whole94_451_promoted": false
+  },
+  "plain_english": "The named reviewer is now watching the right files, so this exact INSTALL run plan is approved. The reviewer still has to read the real failed-install ticket before approving a retry. No retry ticket has been approved yet."
+}

@@ -1,0 +1,54 @@
+"""Actual derived-family composition, command-only mocks, no template injection."""
+import ast,copy,hashlib,inspect,io,json,runpy,stat,subprocess,tempfile,textwrap,types,unittest
+from pathlib import Path
+from contextlib import redirect_stdout
+from unittest.mock import patch
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+BASE=runpy.run_path(str(TASK/'check_common_safety_sql_v1_composed_20261119.py'));COMMON=BASE['SafetySQLTests'];World=BASE['World'];Raw=BASE['Raw'];CANARY=BASE['CANARY']
+PRESERVED=TASK;PRES={'families_sha256':{family:{new:'' for new in cfg['filename_mapping'].values()} for family,cfg in json.loads((TASK/'safety_sql_v1_derivation_inventory_20261119.json').read_bytes())['families'].items()}}
+PRES['families_sha256']['native']={'execute_local_f0_native_access_20261119_resource_set_v2.py': '', 'local_f0_native_access_operation_steps_resource_set_v2.py': '', 'prepare_local_f0_native_access_plan_resource_set_v2.py': '', 'check_native_access_operation_resource_set_v2.py': '', 'pin_native_access_plan_20261119_resource_set_v2.py': ''}
+def safe_literal_assignment(node):
+    if not isinstance(node,ast.Assign) or not all(isinstance(target,ast.Name) for target in node.targets):return False
+    try:ast.literal_eval(node.value);return True
+    except (ValueError,TypeError):return False
+source=textwrap.dedent(inspect.getsource(COMMON.fixture))
+source=source.replace("isinstance(x,(ast.Import,ast.ImportFrom,ast.FunctionDef,ast.ClassDef))","isinstance(x,(ast.Import,ast.ImportFrom,ast.FunctionDef,ast.ClassDef)) or safe_literal_assignment(x)")
+start=source.index("n['OPERATOR_FILES']=(core,);helper=");end=source.index('world=World(n)',start)
+source=source[:start]+"n['OPERATOR_FILES']=(core,);\n    "+source[end:]
+exec(compile(source,str(Path(__file__)),'exec'),globals())
+class DerivedSafetySQLCompositionTests(unittest.TestCase):
+    setUp=COMMON.setUp;fixture=fixture;writes_fail=COMMON.writes_fail;selectors=COMMON.selectors;safe=COMMON.safe
+    def test_all_real_family_safety_functions_are_embedded_and_steps_do_not_shadow(self):
+        for family in PRES['families_sha256']:
+            n,w,p,*_=self.fixture(family);names=PRES['families_sha256'][family];core=next(x for x in names if x.startswith('execute_'));steps=next(x for x in names if x.startswith('local_f0_'))
+            for key in ('finalize','closed_backends','_required_safety_sql','_required_zero_backends','sql','observe'):self.assertEqual(Path(n[key].__code__.co_filename),TASK/core)
+            self.assertNotIn('closed_backends',{x.name for x in ast.parse((TASK/steps).read_bytes()).body if isinstance(x,ast.FunctionDef)})
+    def test_catalog_postwrite_failure_preserves_error_and_closes_all_profiles(self):
+        for family in PRES['families_sha256']:
+            n,w,p,*_=self.fixture(family);self.writes_fail(n,w,mode='post')
+            with self.assertRaises(OSError),redirect_stdout(io.StringIO()):n['run_catalog_query']('first','SELECT 1;','ORDINARY_CATALOG_QUERY')
+            self.assertEqual(self.selectors(w),['NORMAL','GLOBAL_BACKENDS']);self.assertFalse(n['_required_safety_evidence_complete']());self.safe(n)
+    def test_all_actual_runtime_gates_reject_pending_new_family_review_before_command(self):
+        inventory=json.loads((TASK/'safety_sql_v1_derivation_inventory_20261119.json').read_bytes())['families']
+        inventory['native']['new_validation']='context/reconciliation/local-f0-native-access-resource-set-v2-source-validation.json'
+        for family,cfg in inventory.items():
+            n,w,p,*_=self.fixture(family);relative=cfg['new_validation'];path=n['ROOT']/relative;path.parent.mkdir(parents=True,exist_ok=True);raw=b'{"independent_safety_sql_review":{"decision":"PENDING_ROOT_AND_INDEPENDENT_REVIEW"}}';path.write_bytes(raw)
+            n['MANIFEST']['packet_files_sha256'][relative]=hashlib.sha256(raw).hexdigest()
+            with self.assertRaises(n['Stop']) as refused:n['verify_common_packet']()
+            self.assertEqual(refused.exception.code,'SAFETY_SQL_REVIEW_REQUIRED');self.assertEqual(w.trace,[])
+    def test_realistic_same_approved_bytes_alias_blocks_revoke_in_each_actual_family(self):
+        original_resolve=Path.resolve;original_lstat=Path.lstat;original_link=Path.is_symlink
+        for family in PRES['families_sha256']:
+            n,w,p,*_=self.fixture(family);target=p.parent/'same-approved-finalizer.sql';target.write_bytes(p.read_bytes())
+            def resolve(path,*args,**kwargs):return target if path==p else original_resolve(path,*args,**kwargs)
+            def lstat(path,*args,**kwargs):return types.SimpleNamespace(st_mode=stat.S_IFLNK|0o777) if path==p else original_lstat(path,*args,**kwargs)
+            def link(path):return path==p or original_link(path)
+            with patch.object(Path,'resolve',resolve),patch.object(Path,'lstat',lstat),patch.object(Path,'is_symlink',link),self.assertRaises(n['Stop']) as error,redirect_stdout(io.StringIO()):n['finalize']('first')
+            self.assertEqual(error.exception.code,'REQUIRED_FINALIZER_SOURCE_UNCONFIRMED');self.assertEqual(self.selectors(w),['FINALIZATION_BACKENDS','FINALIZATION_RESULT']);self.assertNotIn('first',n['finalized']);self.safe(n)
+selected=[key for key in COMMON.__dict__ if key.startswith('test_') and key not in ('test_old_real_composition_is_detected_without_stubbing_sql_observe_or_finalizer','test_realistic_raw_alias_to_same_approved_bytes_is_rejected_before_finalizer_command','test_all_frozen30_and_install_extra2_stay_exact')]
+for key in selected:
+    source=textwrap.dedent(inspect.getsource(getattr(COMMON,key)))
+    source=source.replace("n['record_failure'](error.exception.stage,error.exception.code,primary=True)","n['_required_safety_first_exception'](error.exception)")
+    scope={};exec(compile(source,str(Path(__file__)),'exec'),globals(),scope);setattr(DerivedSafetySQLCompositionTests,key,scope[key])
+del COMMON
+if __name__=='__main__':unittest.main(verbosity=2)

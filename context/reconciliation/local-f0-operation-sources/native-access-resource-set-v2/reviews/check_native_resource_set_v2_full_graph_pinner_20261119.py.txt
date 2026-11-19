@@ -1,0 +1,90 @@
+"""Actual new pinner/full source graph with synthetic approved metadata and Git only mocked.
+No Git, Docker, DB, network or credential operation is executed.
+"""
+from pathlib import Path
+from copy import deepcopy
+from contextlib import ExitStack,redirect_stdout,redirect_stderr
+from unittest.mock import patch,Mock
+from types import SimpleNamespace
+import hashlib,io,json,runpy,shutil,socket,subprocess,sys,tempfile,unittest,uuid
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+aggregate=lambda files:sha(''.join(p+'\0'+files[p]+'\n' for p in sorted(files)).encode())
+CORE='execute_local_f0_native_access_20261119_resource_set_v2.py'
+PREP='prepare_local_f0_native_access_plan_resource_set_v2.py'
+PIN='pin_native_access_plan_20261119_resource_set_v2.py'
+REVIEW='context/reconciliation/local-f0-native-access-resource-set-v2-source-validation.json'
+CANARY='DO_NOT_EXPORT_SYNTHETIC_SECRET_VALUE'
+
+class ResourceSetV2FullGraphPinTests(unittest.TestCase):
+    def setUp(self):
+        self.stack=ExitStack();self.addCleanup(self.stack.close)
+        for name in ('run','Popen','call','check_call','check_output'):
+            self.stack.enter_context(patch.object(subprocess,name,side_effect=AssertionError('REAL_PROCESS_FORBIDDEN')))
+        for owner,name in ((socket,'create_connection'),(socket.socket,'connect')):
+            self.stack.enter_context(patch.object(owner,name,side_effect=AssertionError('NETWORK_FORBIDDEN')))
+
+    def prepared(self):
+        ns=runpy.run_path(str(TASK/PREP));baseline=json.loads((TASK/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json').read_bytes())
+        plan,manifest,files=ns['prepare'](ROOT,TASK,baseline,str(uuid.uuid4()));plan.mkdir(exist_ok=False)
+        for name,raw in files.items():
+            path=plan/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
+        def cleanup():
+            self.assertEqual(plan.resolve().parent,TASK.resolve());self.assertTrue(plan.name.startswith('local-f0-native-access-plan-'));self.assertFalse(plan.is_relative_to(ROOT));shutil.rmtree(plan)
+        self.addCleanup(cleanup);return plan,manifest
+
+    def pinner_case(self,mode):
+        plan,value=self.prepared();temporary=tempfile.TemporaryDirectory(prefix='native-resource-v2-pin-root-',dir=TASK);self.addCleanup(temporary.cleanup);root=Path(temporary.name)
+        for relative in value['packet_files_sha256']:
+            dest=root/relative;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes((ROOT/relative).read_bytes())
+        pinner=runpy.run_path(str(TASK/PIN));pinner['main'].__globals__['ROOT']=root
+        self.assertEqual(json.loads((root/REVIEW).read_bytes())['independent_safety_sql_review']['decision'],'PENDING_ROOT_AND_INDEPENDENT_REVIEW')
+        if mode!='PENDING':
+            review=json.loads((root/REVIEW).read_bytes());review['independent_safety_sql_review']={'decision':'SOURCE_APPROVED','scope':'SYNTHETIC_OFFLINE_TEST_ONLY_NOT_A_REAL_REVIEW'}
+            (root/REVIEW).write_bytes((json.dumps(review,indent=2)+'\n').encode());value['packet_files_sha256'][REVIEW]=sha((root/REVIEW).read_bytes())
+        snapshot=pinner['SOURCE_ROOT']+'/'+next(iter(pinner['SOURCE_FILES'].values()))
+        if mode=='MISSING_SNAPSHOT':value['packet_files_sha256'].pop(snapshot)
+        if mode=='BAD_CURRENT_SNAPSHOT':(root/snapshot).write_text(CANARY)
+        value['prepared_source_files_aggregate_sha256']=aggregate(value['packet_files_sha256']);path=plan/'operation-manifest.json';raw=(json.dumps(value,indent=2)+'\n').encode();path.write_bytes(raw);calls=[]
+        def git(args,**kwargs):
+            self.assertEqual(args[:3],['git','-c','core.longpaths=true']);self.assertEqual(kwargs['cwd'],root);tail=args[3:];calls.append(tail[0])
+            if tail==['rev-parse','HEAD']:return ('a'*40+'\n').encode()
+            if tail==['rev-parse','HEAD^{tree}']:return ('b'*40+'\n').encode()
+            self.assertEqual(tail[0],'show');self.assertTrue(tail[1].startswith('a'*40+':'))
+            return CANARY.encode() if mode=='BAD_COMMITTED_BLOB' else (root/tail[1].split(':',1)[1]).read_bytes()
+        output=io.StringIO();refused=False
+        with patch.object(subprocess,'check_output',side_effect=git),patch.object(sys,'argv',[PIN,str(path)]),redirect_stdout(output),redirect_stderr(output):
+            try:pinner['main']()
+            except AssertionError:refused=True
+        if mode=='VALID_PIN':
+            result=json.loads(path.read_bytes());self.assertFalse(refused);self.assertEqual(result['source_commit'],'a'*40);self.assertEqual(result['source_tree'],'b'*40);self.assertEqual(result['review_status'],'PENDING_OPERATIONAL_REVIEW');self.assertEqual(result['packet_sha256'],aggregate(result['packet_files_sha256']));self.assertEqual((plan/'operation-manifest-before-source-pin.json').read_bytes(),raw)
+        else:
+            self.assertTrue(refused);self.assertEqual(path.read_bytes(),raw);self.assertFalse((plan/'operation-manifest-before-source-pin.json').exists())
+        if mode in ('PENDING','MISSING_SNAPSHOT','BAD_CURRENT_SNAPSHOT'):self.assertEqual(calls,[])
+        self.assertNotIn(CANARY,output.getvalue());self.assertFalse(Path(value['evidence_directory']).exists())
+
+    def test_actual_pinner_preserves_pending_gate_before_Git(self):self.pinner_case('PENDING')
+    def test_actual_pinner_binds_every_current_and_synthetic_committed_blob(self):self.pinner_case('VALID_PIN')
+    def test_actual_pinner_missing_physical_snapshot_refuses_before_Git(self):self.pinner_case('MISSING_SNAPSHOT')
+    def test_actual_pinner_drifted_physical_snapshot_refuses_before_Git(self):self.pinner_case('BAD_CURRENT_SNAPSHOT')
+    def test_actual_pinner_bad_committed_blob_never_writes_pinned_literal(self):self.pinner_case('BAD_COMMITTED_BLOB')
+
+    def test_actual_entire_verifier_including_common_tools10300_history7_catalog16(self):
+        plan,value=self.prepared();n={'__name__':'_native_resource_v2_actual_full_graph','__file__':str(TASK/CORE)}
+        with patch.object(sys,'argv',[CORE,str(plan/'operation-manifest.json')]):exec(compile((TASK/CORE).read_bytes(),str(TASK/CORE),'exec'),n)
+        review=json.loads((ROOT/REVIEW).read_bytes());review['independent_safety_sql_review']={'decision':'SOURCE_APPROVED','scope':'SYNTHETIC_OFFLINE_TEST_ONLY_NOT_A_REAL_REVIEW'};synthetic=(json.dumps(review,indent=2)+'\n').encode()
+        n['MANIFEST']['packet_files_sha256'][REVIEW]=sha(synthetic);n['MANIFEST'].update(source_commit='a'*40,source_tree='b'*40,review_status='APPROVED_LOCAL_F0_NATIVE_ACCESS_ATTEMPT');n.update(COMMIT='a'*40,TREE='b'*40,PACKET=aggregate(n['MANIFEST']['packet_files_sha256']));n['MANIFEST']['packet_sha256']=n['PACKET'];n['save']=lambda:None;n['event']=lambda *a,**k:None
+        actual_read=Path.read_bytes;calls=[]
+        def read(path):return synthetic if path==ROOT/REVIEW else actual_read(path)
+        def command(args,input=None,timeout=None):
+            self.assertEqual(args[:3],['git','-c','core.longpaths=true']);self.assertIn(args[3:],(['rev-parse','HEAD'],['rev-parse','HEAD^{tree}']));calls.append(args[3:]);return SimpleNamespace(returncode=0,stdout=('a'*40 if args[-1]=='HEAD' else 'b'*40)+'\n',stderr='')
+        def committed(args,**kwargs):
+            self.assertEqual(args[:4],['git','-c','core.longpaths=true','show']);self.assertTrue(args[4].startswith('a'*40+':'));self.assertEqual(kwargs['cwd'],ROOT);calls.append(['show']);return SimpleNamespace(returncode=0,stdout=read(ROOT/args[4].split(':',1)[1]),stderr=b'')
+        n['command']=command;output=io.StringIO()
+        with patch.object(Path,'read_bytes',read),patch.object(subprocess,'run',side_effect=committed),redirect_stdout(output),redirect_stderr(output):n['verify_packet']()
+        self.assertEqual(output.getvalue(),'');self.assertEqual(n['report']['source_verification']['file_count'],len(n['MANIFEST']['packet_files_sha256']));self.assertEqual(n['report']['catalog_preparation']['closed_source_files'],16)
+        self.assertEqual(len(n['MANIFEST']['operator_sources_sha256']),5);self.assertEqual(len(n['MANIFEST']['migration_targets']['ok']['source_files_sha256']),7)
+        target=json.loads(Path(n['MANIFEST']['migration_targets']['ok']['manifest_path']).read_bytes());self.assertEqual(len(target['tools']['files_sha256']),10300)
+        self.assertEqual(n['NATIVE_ACCESS']['packet']['selected_count'],40);self.assertEqual(len(n['NATIVE_ACCESS']['packet']['files_sha256']),83);self.assertEqual(len(calls),2+len(n['MANIFEST']['packet_files_sha256']));self.assertFalse(Path(value['evidence_directory']).exists())
+
+if __name__=='__main__':unittest.main(verbosity=2)
