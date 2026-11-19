@@ -1,0 +1,36 @@
+{
+  "recorded_at": "2026-11-18T23:55:13.984162+00:00",
+  "reviewer": "/root",
+  "decision": "SOURCE_APPROVED_REQUIRES_CORRECTED_OUTER_WRAPPER_AND_FRESH_LITERAL_REVIEW",
+  "source_files_sha256": {
+    "scripts/sql-review/run-native-table-denials-v3.py": "6e74115cc7a77e626c4379c5a5744efdede1257d04b206fc339e62a23fd49cd3",
+    "scripts/sql-review/test_run_native_table_denials_v3.py": "56742be994a9966714a7f8e16859cbce7c6da9506b38b086cd627339f4da595f",
+    "scripts/sql-review/native-table-denials-session-observation-v3.md": "b62791ecc1edc8966b57b9edc0863eaa47fee57c568612bfb10c0f7a7ec55d40"
+  },
+  "actual_checks": {
+    "initial_frozen_cbb_version": {
+      "tests": 48,
+      "seconds": 37.27,
+      "exit_code": 0
+    },
+    "final_focused_Session_tests": {
+      "tests": 18,
+      "seconds": 1.531,
+      "exit_code": 0
+    },
+    "qualification": "Final49 whole suite not falsely claimed. All prior48 test ASTs/helpers unchanged; final observer-completeness delta is separately preserved and focused18 rerun."
+  },
+  "manual_review": "All Session, operation, metadata classifier/export and main changes read. First failure is retained before separate close failure; fixed enum/boolean/null observations expose no tuple values, raw streams, SQL or handles. Partial constructor process is reaped under existing policy. Every operation/CLOSE write failure still attempts close, latches incomplete and stops; failed postfailure observation also latches incomplete. Real exact backend absence remains required; waits, termination policy, timeouts, output caps and native verdict unchanged. Unknown exception text/args/code cannot escape fixed classifier.",
+  "AST_proof": "Native verdict sanitizer, unexpected diagnostic sanitizer, SQL/header/fixture/resource/auth/native-state methods unchanged. Only Coordinator.operation differs; Session/metadata/main changes limited to described observation and cleanup/persistence behavior.",
+  "SQL_packet_sha256": "8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69",
+  "historical_record": "e47ecfcc00064e22f2731c6a1e24ddc64df672690c2eabbb821d45c3aa5a6bdf",
+  "historical_limit": "Original260-facet run complete closure/transport cause remains unobserved; no backfilled values or fault attribution.",
+  "limits": {
+    "posture": "D",
+    "new_runtime": "NOT_RUN",
+    "external_NativeV4_shared_finally_blocker": "MUST_REPLACE_WITH_REVIEWED_COMMON_FINALLY_BEFORE_EXECUTION",
+    "whole94_or451_promoted": false,
+    "roles_SQL_worker32ACL_unchanged": true,
+    "no_real_Docker_database_network_process_in_mocks": true
+  }
+}

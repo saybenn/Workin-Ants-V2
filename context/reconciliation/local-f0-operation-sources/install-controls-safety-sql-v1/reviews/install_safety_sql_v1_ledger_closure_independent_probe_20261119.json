@@ -1,0 +1,47 @@
+{
+  "schema": "workinants.install-ledger-v2-independent-closure-pure-probe.v1",
+  "reviewer": "/root/install_outer_review",
+  "recorded_at_utc": "2026-11-19T21:09:44.773142+00:00",
+  "helpers_sha256": {
+    "scripts/sql-review/install_ledger_proof_v2.py": "00fb5603e8507b1206437223cd427c6c0ad59d9df80696e6c9728864c93e996e",
+    "scripts/sql-review/test_install_ledger_proof_v2.py": "ca214a78c4f07c9d35c3a387bfd14249a23d1234a975a64d408150ae8660c044"
+  },
+  "pure_suite": {
+    "tests": 14,
+    "seconds": 0.343,
+    "outcome": "PASS",
+    "test_output": "test_complete_schema_acl_and_every_typed_metadata_flag_are_compared (independent_install_ledger_closure.Tests.test_complete_schema_acl_and_every_typed_metadata_flag_are_compared) ... ok\ntest_failed_cli_binding_and_returned_hash_maps_cannot_be_rebound (independent_install_ledger_closure.Tests.test_failed_cli_binding_and_returned_hash_maps_cannot_be_rebound) ... ok\ntest_failed_row_cannot_be_dropped_or_rewritten_or_duplicated (independent_install_ledger_closure.Tests.test_failed_row_cannot_be_dropped_or_rewritten_or_duplicated) ... ok\ntest_fixed_source_body_or_tool_metadata_drift_refuses_before_comparison (independent_install_ledger_closure.Tests.test_fixed_source_body_or_tool_metadata_drift_refuses_before_comparison) ... ok\ntest_independent_review_hash_and_reviewer_are_mandatory (independent_install_ledger_closure.Tests.test_independent_review_hash_and_reviewer_are_mandatory) ... ok\ntest_parser_module_performs_no_io_or_process_calls_after_binding (independent_install_ledger_closure.Tests.test_parser_module_performs_no_io_or_process_calls_after_binding) ... ok\ntest_permission_failure_cannot_stand_in_for_division (independent_install_ledger_closure.Tests.test_permission_failure_cannot_stand_in_for_division) ... ok\ntest_primary_and_secondary_error_chain_is_rebuilt_not_asserted (independent_install_ledger_closure.Tests.test_primary_and_secondary_error_chain_is_rebuilt_not_asserted) ... ok\ntest_proof_cannot_move_to_a_different_actual_outer_target_or_source (independent_install_ledger_closure.Tests.test_proof_cannot_move_to_a_different_actual_outer_target_or_source) ... ok\ntest_read_only_collector_catalog_envelope_cannot_drift (independent_install_ledger_closure.Tests.test_read_only_collector_catalog_envelope_cannot_drift) ... ok\ntest_retained_22012_masked_null_path_has_two_exact_rows_and_independent_review (independent_install_ledger_closure.Tests.test_retained_22012_masked_null_path_has_two_exact_rows_and_independent_review) ... ok\ntest_retained_failed_immutable_identity_and_recovered_actual_cli_are_required (independent_install_ledger_closure.Tests.test_retained_failed_immutable_identity_and_recovered_actual_cli_are_required) ... ok\ntest_retained_nonempty_engine_persistence_is_separate_predeclared_branch (independent_install_ledger_closure.Tests.test_retained_nonempty_engine_persistence_is_separate_predeclared_branch) ... ok\ntest_schema_ast_matches_original_immutable_source_and_canonical_metadata (independent_install_ledger_closure.Tests.test_schema_ast_matches_original_immutable_source_and_canonical_metadata) ... ok\n\n----------------------------------------------------------------------\nRan 14 tests in 0.347s\n\nOK\n"
+  },
+  "independent_mutation_matrix": {
+    "every_schema_relation_column_constraint_index_table_ACL_leaf_rejected": {
+      "count": 197,
+      "paths_sha256": "a6d3c109154964c53fb69609c39a28c89a970205b6e810421a5e903a3f021e73"
+    },
+    "all_seven_independent_approval_fields_rejected": [
+      "schema",
+      "proof_sha256",
+      "decision",
+      "reviewer",
+      "container_id",
+      "source_sql_sha256",
+      "run_id"
+    ],
+    "fake_P3018": "REJECTED",
+    "failed_checksum_rewritten_to_canonical": "REJECTED",
+    "failed_row_dropped": "REJECTED",
+    "failed_row_duplicate": "REJECTED",
+    "rollback_autoapproved": "REJECTED",
+    "forged_schema_expectation": "REJECTED",
+    "valid_masked_chain": {
+      "primary_sqlstate": "22012",
+      "classification": "SERVER_PRIMARY_WITH_SECONDARY_25P02_NULL_LOGS",
+      "P3018_claimed": false,
+      "expected_rows": 2,
+      "comparison": "PASS"
+    }
+  },
+  "audit_refusals": [],
+  "actual_process_DB_SQL_network_Git": "FORBIDDEN_NOT_RUN",
+  "ROOT_source_metadata_changes": false,
+  "status": "PASS"
+}

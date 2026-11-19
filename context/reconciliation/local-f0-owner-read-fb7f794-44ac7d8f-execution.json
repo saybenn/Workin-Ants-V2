@@ -1,0 +1,101 @@
+{
+  "schema": "workinants.local-f0-owner-prestart-stop.v1",
+  "recorded_at_utc": "2026-11-19T20:57:08.065898+00:00",
+  "status": "STOPPED_PRESTART_RESOURCE_VALIDATION_CLEANED",
+  "run_id": "44ac7d8f-bee6-46ee-bb60-9bb7bb0c5cce",
+  "source_commit": "fb7f794c4ffee4fa3cc7346acb8376aa419a9ec7",
+  "source_tree": "5d6511fae522a3fa25e2f68c66951acd08fe06e8",
+  "packet_sha256": "51276afd4a203f38816e5fe1e2bb35f0ec37684ea668e80c38513b099a2b86b0",
+  "source_files": 607,
+  "approved_manifest_sha256": "285ec575c949677ec855a9de3b98cf351b83ea229db4b95d43593057f010e235",
+  "raw_report_sha256": "431974385be89aede305c950348e8a20816d6a9326a263f8bc0c57561daccace",
+  "observed": {
+    "source_admission": "PASS_607_CURRENT_AND_COMMITTED_FILES",
+    "exact_endpoint_server_names": "PASS",
+    "pinned_image": "PASS_REUSED_NOT_PULLED_MANIFEST_ID_WITH_SEPARATE_CONFIG_PROOF",
+    "run_owned_volume_and_container": "CREATED_AND_REMOVED_IDENTITY_VERIFIED",
+    "prestart_data_and_bootstrap_mounts": [
+      {
+        "type": "volume",
+        "destination": "/var/lib/postgresql/data",
+        "rw": true,
+        "volume": "wa-p0c-44ac7d8f-ownerreads-data"
+      },
+      {
+        "type": "bind",
+        "destination": "/run/bootstrap-password",
+        "rw": false
+      }
+    ],
+    "configured_tmpfs": {
+      "/run/wa-secrets": "rw,nosuid,noexec,nodev,mode=0700"
+    },
+    "container_start": "NOT_REACHED_BY_EXACT_SOURCE_CONTROL_FLOW",
+    "physical_tmpfs_observation": "NOT_RUN",
+    "bootstrap_authentication_install_behavior": "NOT_RUN",
+    "Owner121": "NOT_RUN"
+  },
+  "raw_failure_preserved": {
+    "stage": "PINNED_IMAGE",
+    "code": "OWNER_READ_EXACT_MOUNT_SET"
+  },
+  "derived_failure_origin": {
+    "function": "inspect_owner(name,running=False)",
+    "source_file": "local_f0_owner_read_operation_steps_safety_sql_v1.py",
+    "line": 672,
+    "stage_label_limit": "Raw stage PINNED_IMAGE is stale at resource validation; the preceding image event is PASS. Raw report is unchanged.",
+    "proved_predicate_mismatch": "Source requires Mounts logical labels bootstrap,data,secret. Actual retained list is exactly bootstrap,data; exact tmpfs configuration is present in HostConfig. This proves the rejected three-entry predicate; no running mount is inferred."
+  },
+  "cleanup": {
+    "wrapper": "PASS",
+    "independent_proof": {
+      "path": "context/reconciliation/local-f0-run-assets/fb7f794-owner-44ac7d8f/owner44ac_independent_cleanup_20261119.json",
+      "sha256": "a57d21e832e8655e0bda8ba53047310f55e96e8a01d9a7a6067e6f586cc6f6c7"
+    },
+    "both_exact_names_absent": true,
+    "private_directory_and_exact_secret_absent": true,
+    "pinned_image_retained": true,
+    "unrelated_resources_changed": false
+  },
+  "sanitization": {
+    "files_scanned": 2,
+    "actual_password_values_found": false,
+    "unrestricted_subprocess_output_persisted": false,
+    "raw_context_handles_persisted": false,
+    "coordinator_evidence_uses_reviewed_allowlist": true
+  },
+  "preservation": {
+    "packet_unchanged_after_run": true,
+    "tool_source_data_unchanged_after_run": true,
+    "external_sources_unchanged_after_run": true,
+    "external_inputs_unchanged_after_run": true
+  },
+  "auxiliary_preflight_stop": {
+    "status": "PRESERVED_EXACT_VOLUME_DIAGNOSTIC_COMPARATOR_MISMATCH_NO_RESOURCE_CREATION",
+    "corrected_read_only_proof_sha256": "59b03a8f40829135790cc41bf80f325d8cb9a94d61c08584d73c016fa9393ed3"
+  },
+  "assets_sha256": {
+    "context/reconciliation/local-f0-run-assets/fb7f794-owner-44ac7d8f/fresh-history-manifest.json": "d41a07ab85ac933d83f19cdb682392b0554f297c9a2f0ff67c1478621c998969",
+    "context/reconciliation/local-f0-run-assets/fb7f794-owner-44ac7d8f/migration-manifest.json": "45d10ec2f07c4b86cec953ab24bbb7021819aee066f727e895e90d561b267a77",
+    "context/reconciliation/local-f0-run-assets/fb7f794-owner-44ac7d8f/operation-manifest-before-source-pin.json": "cb246fcb899b90d36c390a48ede2c201616669e3d3db7519de99db78f1d890a9",
+    "context/reconciliation/local-f0-run-assets/fb7f794-owner-44ac7d8f/operation-manifest-reviewed.json": "285ec575c949677ec855a9de3b98cf351b83ea229db4b95d43593057f010e235",
+    "context/reconciliation/local-f0-run-assets/fb7f794-owner-44ac7d8f/operation-manifest-source-pinned-pending.json": "dbee824df88f9b45e26b147de16e3d184ada6f4d4d38ab8a8ccd996ef426207c",
+    "context/reconciliation/local-f0-run-assets/fb7f794-owner-44ac7d8f/owner-validation-before-actual-resource-hold.json": "57c8e8dbb6624c71fc5146c200e82c23056f5b1874f8c46cd82424677d2b877e",
+    "context/reconciliation/local-f0-run-assets/fb7f794-owner-44ac7d8f/owner44ac_independent_cleanup_20261119.json": "a57d21e832e8655e0bda8ba53047310f55e96e8a01d9a7a6067e6f586cc6f6c7",
+    "context/reconciliation/local-f0-run-assets/fb7f794-owner-44ac7d8f/owner44ac_literal_root_approval_receipt_20261119.json": "45a8f9c8f073b348b27dddb3731d1aec5d9418c1a420849260abb1acf850b064",
+    "context/reconciliation/local-f0-run-assets/fb7f794-owner-44ac7d8f/owner44ac_live_preflight_20261119.json": "7d1f53b22278e60080eedb56be1be6c9780fa542b32b980e7bd34866f6902d1a",
+    "context/reconciliation/local-f0-run-assets/fb7f794-owner-44ac7d8f/owner44ac_live_preflight_v2_20261119.json": "59b03a8f40829135790cc41bf80f325d8cb9a94d61c08584d73c016fa9393ed3",
+    "context/reconciliation/local-f0-run-assets/fb7f794-owner-44ac7d8f/owner44ac_volume_rendering_probe_20261119.json": "0e887628923eb53638216282487b15942963471f4e5e356370231bbe697bec56",
+    "context/reconciliation/local-f0-run-assets/fb7f794-owner-44ac7d8f/owner_safety_sql_v1_literal_44ac7d8f_independent_review_20261119.json": "c5ccafb3ae9085c67f145ae530f0bcab12b32fd644f2baf1d6d5b54af1669fd9",
+    "context/reconciliation/local-f0-run-assets/fb7f794-owner-44ac7d8f/restore-validation-before-related-resource-hold.json": "14abb4bcae58b99dc306cce6e271a28a2904854b7008f6ed2deb298dd1349809",
+    "context/reconciliation/local-f0-run-assets/fb7f794-owner-44ac7d8f/run-evidence.json": "431974385be89aede305c950348e8a20816d6a9326a263f8bc0c57561daccace"
+  },
+  "next": "NEW_OWNER_RESOURCE_MOUNT_V2_SOURCE_REVIEW_OFFLINE_CHECKS_PUBLISH_FRESH_LITERAL_ONLY_NO_IDENTICAL_RETRY",
+  "limits": {
+    "posture": "D",
+    "qualification_status_promoted": false,
+    "all_unexercised_database_runtime": "NOT_RUN",
+    "SQL_roles_permissions_history_changed": false,
+    "hosted_contact_or_adoption": false
+  }
+}

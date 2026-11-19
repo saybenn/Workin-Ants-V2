@@ -1,0 +1,141 @@
+{
+  "schema": "workinants.independent-owner-safety-sql-literal-review.v1",
+  "reviewer": "/root/install_outer_review",
+  "recorded_at_utc": "2026-11-19T03:33:00.386440+00:00",
+  "decision": "APPROVED_LOCAL_F0_OWNER_READ_ATTEMPT",
+  "scope": "ONE_EXACT_FRESH_OWNER_SAFETY_SQL_V1_LOCAL_ATTEMPT_ONLY; ALL_RUNTIME_STILL_NOT_RUN_AT_REVIEW",
+  "manifest": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-owner-read-plan-44ac7d8f\\operation-manifest.json",
+    "reviewed_pending_sha256": "dbee824df88f9b45e26b147de16e3d184ada6f4d4d38ab8a8ccd996ef426207c",
+    "review_status_at_review": "PENDING_OPERATIONAL_REVIEW",
+    "reviewer_did_not_modify": true
+  },
+  "run_id": "44ac7d8f-bee6-46ee-bb60-9bb7bb0c5cce",
+  "source_commit": "fb7f794c4ffee4fa3cc7346acb8376aa419a9ec7",
+  "source_tree": "5d6511fae522a3fa25e2f68c66951acd08fe06e8",
+  "packet_sha256": "51276afd4a203f38816e5fe1e2bb35f0ec37684ea668e80c38513b099a2b86b0",
+  "current_source_file_count": 607,
+  "operator_sources_sha256": {
+    "execute_local_f0_owner_read_20261119_safety_sql_v1.py": "7d3dd946a950003ad93b9f58a152532d0332846e290d45753bb013da70dc594d",
+    "local_f0_owner_read_operation_steps_safety_sql_v1.py": "85fe0992743806757cef39fac2a24d3b08166d741d60993209b1c5b033e4d935",
+    "prepare_local_f0_owner_read_plan_safety_sql_v1.py": "21cdf556fde8adb92ecdfa8cbbb27ade7bc26281506af17679d10bbcbaba58d3",
+    "check_local_f0_owner_read_operation_safety_sql_v1.py": "8425fb5f58cae333c40c85541321518871abcd33d6cf437f9d449f16d01c74ec",
+    "pin_local_f0_owner_read_plan_20261119_safety_sql_v1.py": "9dee0e646338b155c6a8805271b69b8b02e8932a1e7e57824002b9537ca6c6cc"
+  },
+  "approved_source_validation_sha256": "57c8e8dbb6624c71fc5146c200e82c23056f5b1874f8c46cd82424677d2b877e",
+  "approved_owner_archive_files": 17,
+  "source_reviews": {
+    "independent": "58a5a8c6eab9b586b7b1cbd78760d953cf219293f0faeb17532d75af5af985f8",
+    "Root": "4829caff75e1dbe12c97aa83134e833f18711d60c55a1f7fe1b29e015399e0fd",
+    "common_independent": "99009f9a2f29f52db3815b113810dc00f2ad24a3370479105b21091227432d01",
+    "common_Root": "322044efdf4fdac96636c2275c1cbf6f1c038839b76378bb1525f9d4a9c67ae0"
+  },
+  "findings": [],
+  "exact_resource_and_secret_scope": {
+    "containers": [
+      "wa-p0c-44ac7d8f-ownerreads"
+    ],
+    "volumes": [
+      "wa-p0c-44ac7d8f-ownerreads-data"
+    ],
+    "both_required_labels": {
+      "workinants.rehearsal": "p0c-local-f0",
+      "workinants.rehearsal.run": "44ac7d8f-bee6-46ee-bb60-9bb7bb0c5cce"
+    },
+    "image": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "database": "wa_p0c_rehearsal",
+    "network": "none",
+    "published_ports": [],
+    "extra_mounts_or_privileged_or_host_namespaces": false,
+    "OUT": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-owner-read-44ac7d8f",
+    "private_directory": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-owner-read-44ac7d8f\\private",
+    "bootstrap_host_file": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-owner-read-44ac7d8f\\private\\ok-bootstrap-password",
+    "credential_protection": "Actual owner-only host DACL and root0600 tmpfs/private pgpass; role SCRAM+wrong-password controls and original grantor remain required. No credentials exist at review."
+  },
+  "prepared_history_and_tools": {
+    "nested_manifest_sha256": "45d10ec2f07c4b86cec953ab24bbb7021819aee066f727e895e90d561b267a77",
+    "source_archive_sha256": "71cb5701cff206043f1e3133efe313f258cbd70a42b33e0f1fee472d5b756519",
+    "snapshot_exact_files": 7,
+    "canonical_migration_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "history_helper_sha256": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+    "root_historical_manifest_preserved": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+    "tool_archive_sha256": "481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb",
+    "tool_source_closure_count": 10300,
+    "tool_versions": {
+      "Node": "v24.22.1",
+      "Prisma": "7.10.1",
+      "engine_commit": "d1b3f377ca835d73fd50954a5e22128b9ebdd6b8"
+    },
+    "no_duplicate_raw_structure_or_history_rewrite": true
+  },
+  "source_literal_checks": {
+    "607_current_pins_and_packet_aggregate": "PASS",
+    "actual_read_only_pinner_validate": {
+      "status": "PASS",
+      "seconds": 1.172,
+      "input": "exact preserved unpinned manifest read supplied in memory only"
+    },
+    "pin_transform": "Only source_commit/source_tree/packet_sha256/packet_files_sha256/pin_helper_sha256 differ from the exact preserved unpinned input; prepared607 inventory equals final607 packet.",
+    "actual_full_source_verifier": {
+      "status": "PASS",
+      "seconds": 5.109,
+      "source_files": 607,
+      "physical_operator_snapshots": 5,
+      "catalog_sources": 16,
+      "helpers": 7,
+      "protocols": 121,
+      "mocked_boundary": "Only Git reads from Root committed607-file proof; in-memory review_status for pure validation plus save/event capture. No literal metadata written.",
+      "mocked_Git_read_calls": 609
+    },
+    "committed_Git_evidence_limit": "Root performed actual read-only committed607-file pinner verification on the supplied published commit/tree. Reviewer independently checked every current byte and full verifier, supplying only Git reads from that Root proof/matching bytes. Reviewer ran no Git commands.",
+    "approved_operator_archive_and_review_graph": "PASS17 entries/currentfive/source/Common/Image reviews exact; no old FinallyV2 approval reused for SafetySQL.",
+    "literal_OUT_and_private_still_absent": "PASS",
+    "source_safety_tests_reused": "Exact source unchanged since independent49+23 PASS; no unrelated broad rerun."
+  },
+  "live_preflight_evidence": {
+    "provider": "Root read-only live probe, independently read/bound here; reviewer did not contact Docker",
+    "path": "owner44ac_live_preflight_v2_20261119.json",
+    "sha256": "59b03a8f40829135790cc41bf80f325d8cb9a94d61c08584d73c016fa9393ed3",
+    "status": "PASS_READ_ONLY_PREFLIGHT",
+    "endpoint": "npipe:////./pipe/dockerDesktopLinuxEngine",
+    "server": {
+      "Os": "linux",
+      "Arch": "amd64",
+      "Version": "29.6.2"
+    },
+    "exact_container_and_volume_absence": true,
+    "OUT_and_private_absence": true,
+    "exact_known_diagnostic_required": "No absence inferred from exit1 alone.",
+    "preserved_initial_comparator_stop": {
+      "path": "owner44ac_live_preflight_20261119.json",
+      "sha256": "7d1f53b22278e60080eedb56be1be6c9780fa542b32b980e7bd34866f6902d1a",
+      "interpretation": "Observed auxiliary comparator mismatch/unconfirmed absence; not a resource conflict, actual run failure or historical cleanup failure."
+    },
+    "rendering_probe": {
+      "path": "owner44ac_volume_rendering_probe_20261119.json",
+      "sha256": "0e887628923eb53638216282487b15942963471f4e5e356370231bbe697bec56",
+      "result": "Exact empty-array stdout plus allowlisted get<exact-name>:no-such-volume form matched."
+    },
+    "v2_limit": "Only auxiliary volume diagnostic comparator/output path changed; approved operator unchanged. Full image proof was not claimed by auxiliary probe."
+  },
+  "permitted_attempt_sequence": "Reviewed wrapper repeats current source/commit/tree/607 packet, live local endpoint/Linux amd64/exact name absence and a074 rawmanifest/config/repository/platform image proof before creating one owned target. Protected setup/auth/tools, canonical genuine migration and original-grantor finalization precede full source-native/catalog29089/oracle416/private-ledger22 checks. Then only exact121 Owner read protocols,4 scoped Consent read-fixture INSERTs and one finite worker claim run. Final native comparison/required closure, secret scan, exact cleanup and preservation follow.",
+  "mandatory_stopping_and_cleanup": "Any unexpected result stops the attempt and later behavior. All eligible source-pinned original-grantor finalizers and global closure still progress despite evidence IO; typed active/unknown clients or unavailable source block REVOKE. Preserve original first STOP, retain bounded child reference, and never turn incomplete IO into PASS. Delete only exact captured CID/name/bothlabels and exact volume/name/CreatedAt, the exact private bootstrap file and empty private directory; independently confirm absence and preserve image/unrelated resources/all source bytes.",
+  "Root_next_action": "Root alone may preserve these reviewed pending bytes, record this exact decision, and change only review_status to APPROVED_LOCAL_F0_OWNER_READ_ATTEMPT with the approved resulting manifest hash retained. Any other source/target/scope change requires fresh review. Execute only the unchanged reviewed entrypoint with PYTHONUTF8=1, pinned offline PYTHONPATH and task test temp environment; its live preflight remains mandatory.",
+  "limits": {
+    "reviewer_Docker_DB_SQL_network_Git_actions": false,
+    "source_or_literal_or_validation_edits_by_reviewer": false,
+    "actual_resources_credentials_or_runtime_created_by_reviewer": false,
+    "runtime_at_review": "NOT_RUN",
+    "standing_authority_scope": "Local F0 only; Root sole executor",
+    "actual_recovery_or_OTHER_family_approval": false,
+    "owner_API_business_writes_or_121assertions_promoted": false,
+    "whole94_451_or_production_or_hosted": "NOT_PROMOTED",
+    "posture": "D",
+    "Brain_final_acceptance": "PENDING"
+  },
+  "independent_probe": {
+    "path": "owner_safety_sql_v1_literal_44ac7d8f_independent_probe_20261119.json",
+    "sha256": "e046e5ac176c2a97525bc12d8ae09b2df0e13e939bd34d33f6096f302b6901a7"
+  },
+  "plain_english": "The exact practice-run plan and files match the reviewed code. Root has checked that the two named toy boxes are empty. The runner must check again before starting, stop on a surprise, and clean up only its own things. No database work has run in this review."
+}

@@ -1,0 +1,61 @@
+{
+  "recorded_at": "2026-11-19T01:23:12.965800+00:00",
+  "reviewer": "/root",
+  "decision": "SOURCE_APPROVED_FRESH_COMMITTED_SOURCE_AND_LITERAL_REQUIRED",
+  "source_files_sha256": {
+    "execute_local_f0_native_access_v5_20261118.py": "72b600be0bad3c67beda4e1febf9c60feda6df4d125ad3810f377cb4f496562f",
+    "local_f0_native_access_v5_operation_steps.py": "d815cf21217be9792c8e77962d11d16448f6dc52c6fe74604d52bb1ba6943a09",
+    "prepare_local_f0_native_access_v5_plan.py": "992dfd20f70f11afdb9a5aa21bff7896331ca7c2e0f6e0bd63a64981bb78dd7f",
+    "check_native_access_v5_operation.py": "011d9f0257b6680fa6d1b57fe6317bc88329487d4bfaca4d3dc11f9b90ac5d40",
+    "pin_native_access_v5_plan_20261118.py": "20102c703f3902f282ff35c0308f528924a847d84c856c125216158b583328bd"
+  },
+  "independent_actual_checks": {
+    "new_boundary_tests": 14,
+    "seconds": 15.594,
+    "exit_code": 0,
+    "all_process_and_network": "MOCKED_OR_FORBIDDEN",
+    "real_whole_source_verifier_with_physical_five_snapshots": "PASS",
+    "missing_historical_unpinned_helper_before_compile": "PASS",
+    "main_and_inner_cleanup_fault_matrix": "PASS"
+  },
+  "AST_proof": {
+    "execute_local_f0_native_access_v5_20261118.py": {
+      "changed": [
+        "cleanup",
+        "event",
+        "save"
+      ],
+      "added": [
+        "best_effort_event",
+        "best_effort_save",
+        "confirmed_path_absent",
+        "evidence_is_complete",
+        "finish_report",
+        "mark_evidence_incomplete",
+        "record_failure"
+      ],
+      "all_other_function_and_class_AST_equal": true
+    },
+    "local_f0_native_access_v5_operation_steps.py": {
+      "changed": [
+        "main",
+        "read_pinned",
+        "verify_packet"
+      ],
+      "added": [
+        "admit_native_operation_sources",
+        "verify_external_input_preservation"
+      ],
+      "all_other_function_and_class_AST_equal": true
+    }
+  },
+  "seven_helpers_and_save_event_AST_equal_reviewed_TrackV4": true,
+  "manual_review": "Read cleanup/main, full-source admission, read_pinned, external preservation and complete pinner. Initial/final/report/output uncertainty stays sticky and nonzero; original STOP primary; finalizers/scan/cleanup/each preservation independently run. Inner exact-CID/name/both-label/volume CreatedAt/path-bound cleanup preserves foreign refusal and strict FileNotFound-only absence. Admission checks current full map/closed archives/five physical sources before catalog/helper compilation. Source/parser/library assumptions remain pinned; command environment must expose existing offline pglast7.21. No SQL, image, native result, provider, ACL, wait, timeout or finite-scope changes.",
+  "limits": {
+    "posture": "D",
+    "all_new_runtime": "NOT_RUN",
+    "whole94_or451_promoted": false,
+    "original_495976_closure_cause": "UNOBSERVED_NOT_BACKFILLED",
+    "fresh_commit_fullpacket_literal_required": true
+  }
+}

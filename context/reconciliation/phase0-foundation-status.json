@@ -264,7 +264,7 @@
     "restore_runtime_closure_review": "context/reconciliation/local-f0-restore-closure-v3-source-validation.json",
     "native_session_observation_review": "context/reconciliation/local-f0-native-session-observation-v3-source-validation.json",
     "install_tool_closure_review": "context/reconciliation/local-f0-install-tool-closure-v2-source-validation.json",
-    "outer_io_source_hold": "OWNER_NEW_SAFETY_SQL_SOURCE_APPROVED_FRESH_LITERAL_PENDING_OTHER_FOUR_FAMILIES_PENDING",
+    "outer_io_source_hold": "LEASE_NATIVE_INSTALL_EXACT_SOURCE_APPROVED_FRESH_LITERALS_REQUIRED_OWNER_AND_RESTORE_RESOURCE_HOLDS_SCOPED",
     "lease_finally_safety_review": "context/reconciliation/local-f0-lease-revoke-finally-v4-source-validation.json",
     "restore_finally_safety_review": "context/reconciliation/local-f0-restore-finally-v4-source-validation.json",
     "restore_latest_attempt": "context/reconciliation/local-f0-restore-3ee9788-2ba6b43e-execution.json",
@@ -279,7 +279,41 @@
     "safety_sql_hold": "context/reconciliation/local-f0-safety-sql-composition-hold-20261119.json",
     "common_safety_sql_template_review": "context/reconciliation/local-f0-common-safety-sql-v1-source-validation.json",
     "finite_privilege_source_review": "context/reconciliation/privilege-ceiling-control-source-validation.json",
-    "owner_safety_sql_source_review": "context/reconciliation/local-f0-owner-read-safety-sql-v1-source-validation.json"
+    "owner_safety_sql_source_review": "context/reconciliation/local-f0-owner-read-safety-sql-v1-source-validation.json",
+    "owner_resource_hold": "context/reconciliation/local-f0-owner-resource-mount-hold-20261119.json",
+    "latest_owner_attempt": "context/reconciliation/local-f0-owner-read-fb7f794-44ac7d8f-execution.json",
+    "safety_sql_family_source_decisions": {
+      "lease": {
+        "path": "context/reconciliation/local-f0-lease-revoke-safety-sql-v1-source-validation.json",
+        "sha256": "e04d50bb9dc12e6067123f7af4b9c9d21e2c21ca15ad756e5758e2d5d3eb457b",
+        "archive_files": 26,
+        "execution": "FRESH_PUBLISHED_PIN_AND_LITERAL_REQUIRED"
+      },
+      "native": {
+        "path": "context/reconciliation/local-f0-native-access-safety-sql-v1-source-validation.json",
+        "sha256": "c3dd246042aaec551c7502c3dd613e18ac41f0b694bbc14cf9cb9b056ae58acc",
+        "archive_files": 30,
+        "execution": "FRESH_PUBLISHED_PIN_AND_LITERAL_REQUIRED"
+      },
+      "install": {
+        "path": "context/reconciliation/local-f0-install-controls-safety-sql-v1-source-validation.json",
+        "sha256": "30d4ef724f4a11132f0df04a9c9a29f41de5873cc56f2ceff96e70125080232d",
+        "archive_files": 22,
+        "execution": "FRESH_PUBLISHED_PIN_AND_LITERAL_REQUIRED"
+      },
+      "restore": {
+        "path": "context/reconciliation/local-f0-restore-safety-sql-v1-source-validation.json",
+        "sha256": "4b59e5c73e1eb3f59f482fed4b63220d5407a122574bdb2c5a0ce61eda629b7d",
+        "archive_files": 27,
+        "execution": "HELD_RELATED_RESOURCE_QUESTION"
+      }
+    },
+    "current_owner_operator": {
+      "path": "context/reconciliation/local-f0-owner-read-resource-mount-v2-source-validation.json",
+      "sha256": "3f98020c74944b7c8c6705ec16239498cde03513dac6fa435a43263281ffac0b",
+      "source_version": "resource-mount-v2"
+    },
+    "owner_resource_hold_scope": "OLD_OWNER_SAFETYSQL_LITERAL_AND_RELATED_RESTORE_ONLY_NEW_OWNER_MOUNTV2_SOURCE_APPROVED_FRESH_LITERAL_REQUIRED"
   },
   "migrations_seed_reset_or_provisioning_scope": "Historical hosted/canonical adoption gate; false does not describe the separately scoped authorized disposable-local execution evidence.",
   "database_access_mode_scope": "Historical read-only hosted observation provenance; current local execution is separately scoped below."

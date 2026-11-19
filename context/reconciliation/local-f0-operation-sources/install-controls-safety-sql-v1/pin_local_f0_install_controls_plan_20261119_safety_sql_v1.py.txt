@@ -1,0 +1,32 @@
+"""Pin only a held INSTALL literal to committed source bytes; never execute it."""
+import argparse,hashlib,json,re,subprocess
+from pathlib import Path
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+SOURCE_ROOT='context/reconciliation/local-f0-operation-sources/install-controls-safety-sql-v1'
+VALIDATION='context/reconciliation/local-f0-install-controls-safety-sql-v1-source-validation.json'
+FILES=('execute_local_f0_install_controls_20261119_safety_sql_v1.py','local_f0_install_controls_operation_steps_safety_sql_v1.py','prepare_local_f0_install_controls_plan_safety_sql_v1.py','check_local_f0_install_controls_operation_safety_sql_v1.py','pin_local_f0_install_controls_plan_20261119_safety_sql_v1.py')
+def need(ok,code):
+    if not ok:raise ValueError(code)
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def aggregate(files):return sha(''.join(p+'\0'+h+'\n' for p,h in sorted(files.items())).encode())
+def git(*args):return subprocess.check_output(['git','-c','core.longpaths=true',*args],cwd=ROOT)
+def pin(path):
+    path=Path(path).resolve();need(path.is_relative_to(TASK) and not path.is_relative_to(ROOT) and path!=TASK,'HELD_EXTERNAL_LITERAL_REQUIRED');raw=path.read_bytes();value=json.loads(raw)
+    need(value['purpose']=='LOCAL_F0_INSTALL_CONTROLS_REHEARSAL' and value['review_status']=='PENDING_OPERATIONAL_REVIEW','HELD_INSTALL_PLAN_REQUIRED');files=value['prepared_source_file_inventory_sha256'];need(type(files) is dict and files==value['packet_files_sha256'] and aggregate(files)==value['prepared_source_files_aggregate_sha256'],'PREPARED_SOURCE_PACKET_REQUIRED');files=dict(files)
+    need(set(value['operator_sources_sha256'])==set(FILES),'CLOSED_FIVE_INSTALL_SOURCES')
+    for name in FILES:
+        source=(TASK/name).read_bytes();snapshot=SOURCE_ROOT+'/'+name+'.txt';need(source==(ROOT/snapshot).read_bytes() and sha(source)==value['operator_sources_sha256'][name],'EXACT_REVIEWED_OPERATOR_SNAPSHOT');files[snapshot]=sha(source)
+    need(value['wrapper_sha256']==value['operator_sources_sha256'][FILES[0]] and value['steps_sha256']==value['operator_sources_sha256'][FILES[1]],'ENTRYPOINT_HASHES')
+    validation_raw=(ROOT/VALIDATION).read_bytes();validation=json.loads(validation_raw);need(validation['schema']=='workinants.install-owned-source-validation.v1' and validation['all_five_sources_sha256']==value['operator_sources_sha256'] and validation['independent_source_review']['decision']=='SOURCE_APPROVED' and validation['independent_ledger_source_review']['decision']=='SOURCE_APPROVED','INDEPENDENT_INSTALL_AND_LEDGER_SOURCE_REVIEW_REQUIRED')
+    need(validation['independent_safety_sql_review']['decision']=='SOURCE_APPROVED','SAFETY_SQL_REVIEW_REQUIRED')
+    archive=validation['archive_files_sha256'];need(type(archive) is dict and all(p.startswith(SOURCE_ROOT+'/') for p in archive),'EXCLUSIVE_SOURCE_ARCHIVE_REQUIRED');actual={p.relative_to(ROOT).as_posix():sha(p.read_bytes()) for p in (ROOT/SOURCE_ROOT).rglob('*') if p.is_file()};need(actual==archive,'EXACT_SOURCE_ARCHIVE_CLOSURE');files.update(archive);files[VALIDATION]=sha(validation_raw)
+    for relative,digest in files.items():need(type(relative) is str and not Path(relative).is_absolute() and chr(92) not in relative and ':' not in relative and all(x not in ('','.','..') for x in relative.split('/')) and type(digest) is str and re.fullmatch('[0-9a-f]{64}',digest) and sha((ROOT/relative).read_bytes())==digest,'CURRENT_SOURCE_DRIFT')
+    commit=git('rev-parse','HEAD').decode().strip();tree=git('rev-parse','HEAD^{tree}').decode().strip();need(re.fullmatch('[0-9a-f]{40}',commit) and re.fullmatch('[0-9a-f]{40}',tree),'COMMIT_TREE_REQUIRED')
+    for relative,digest in files.items():need(sha(git('show',commit+':'+relative))==digest,'COMMITTED_SOURCE_DRIFT')
+    need(git('rev-parse','HEAD').decode().strip()==commit,'HEAD_CHANGED_DURING_PIN');path.with_name('operation-manifest-before-source-pin.json').open('xb').write(raw)
+    value.update(source_commit=commit,source_tree=tree,packet_files_sha256=dict(sorted(files.items())),packet_sha256=aggregate(files));path.write_text(json.dumps(value,sort_keys=True,indent=2)+'\n',encoding='utf8');return {'status':'PINNED_STILL_HELD','manifest_sha256':sha(path.read_bytes()),'files':len(files),'source_commit':commit,'source_tree':tree,'packet_sha256':value['packet_sha256']}
+def main(argv=None):
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--pin-held-manifest',type=Path);a=p.parse_args(argv)
+    if a.pin_held_manifest is None:return 1
+    print(json.dumps(pin(a.pin_held_manifest)));return 0
+if __name__=='__main__':raise SystemExit(main())

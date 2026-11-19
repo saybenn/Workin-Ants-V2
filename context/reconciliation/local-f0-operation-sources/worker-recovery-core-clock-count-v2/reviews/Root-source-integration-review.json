@@ -1,0 +1,40 @@
+{
+  "schema": "workinants.worker21-root-source-integration-review.v1",
+  "recorded_at_utc": "2026-11-19T21:25:56.682159+00:00",
+  "reviewer": "root",
+  "author": "catalog_v4_review",
+  "decision": "SOURCE_APPROVED_FINITE_WORKER21_ONLY_NO_OUTER_OR_RUNTIME",
+  "source_files_sha256": {
+    "scripts/check-worker-recovery-control-coordinator.py": "bf45f657d6d8f8fac0cd4c4c215ea81d8d3048f8013fb98d749336b432660f5f",
+    "scripts/check-worker-recovery-control-rehearsal.py": "80d2b65cd4d7b58201ff91c51f7c176e41a66c2ba66c423cfbbcfe35c5dc650e",
+    "scripts/prepare-worker-recovery-control-rehearsal.py": "12be4f09f860160e5fdc6f623ad255f409c2be406ef3f575cd1a4c537f2daf29",
+    "scripts/sql-review/run-worker-recovery-control-rehearsal.py": "a9a8bc39f21a7e2455cb2e3e6064fcd4aa3e84e101c45bb225922da3775ecb27",
+    "scripts/worker_recovery_control_protocol.py": "0c6411a24f844d4c91e07d8f842c5b5179ef701a4b34d42d1460309d16ca9161"
+  },
+  "all100_current_source_hashes_verified": true,
+  "independent_review_sha256": "4729d158220339afd1417cdbc5c1e14afb3980843c8e321635b687c260b79da5",
+  "Root_actual_checks": [
+    {
+      "suite": "pure protocol/generator/SQL parse/reproduction",
+      "tests": 14,
+      "seconds": 0.375,
+      "status": "PASS"
+    },
+    {
+      "suite": "actual deadline slow/late/timeout/preaction/bounded sleep/legitimate and count type regressions",
+      "tests": 8,
+      "seconds": 8.733,
+      "status": "PASS"
+    }
+  ],
+  "reviewed_delta": "Dedicated actual-clock observer timeout min5/remaining, postresponse and same once-set deadline preaction checks, clipped sleeps; exact integer native/finite/count/ACL shapes before compile. Read exact concurrent_reclaim/clock_value source, full100 map and prior independent static SQL/codec/guard findings.",
+  "limits": {
+    "all21_runtime": "NOT_RUN",
+    "whole94_or451": "NOT_PROMOTED",
+    "SQL40_221statements_unchanged": true,
+    "no_permission_codec_port_or_guard_expansion": true,
+    "owned_operator_and_published_source_and_literal_review_still_required": true,
+    "posture": "D"
+  },
+  "findings": []
+}

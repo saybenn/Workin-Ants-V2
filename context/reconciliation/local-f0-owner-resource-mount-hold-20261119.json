@@ -1,0 +1,27 @@
+{
+  "schema": "workinants.owner-resource-mount-source-hold.v1",
+  "recorded_at_utc": "2026-11-19T20:57:08.189201+00:00",
+  "status": "CURRENT_OWNER_RESOURCE_EXECUTION_HELD_NEW_VERSION_REQUIRED",
+  "execution_record": {
+    "path": "context/reconciliation/local-f0-owner-read-fb7f794-44ac7d8f-execution.json",
+    "sha256": "c27436c0dd79302c5031f3a3ace0a47d828030a5453ce13e23cefba0affedd21"
+  },
+  "source_analysis": "Observed prestart two-entry Mounts and exact HostConfig.Tmpfs make Owner three-entry predicate false; old mocks synthesized a third API tmpfs entry and did not detect it.",
+  "new_plan": {
+    "path": "owner_resource_mount_v2_source_plan_20261119.json",
+    "sha256": "7b9fa625958973c5d6a4db5ea05afcfd20c2149220ab331d9b0085c68df0ac92",
+    "independent_review_sha256": "57169379194ddce270b9db37836c8acffe6880b7ac52415fa6134aff85512d3e"
+  },
+  "related_restore_question": {
+    "source": "local_f0_restore_operation_steps_safety_sql_v1.py",
+    "line": 883,
+    "status": "UNEXECUTED_ANALOGOUS_TMPFS_ENTRY_REQUIREMENT_HELD_PENDING_RESOURCE_CONTRACT_REVIEW",
+    "not_a_runtime_Restore_failure": true
+  },
+  "bounded_past_safety_reviews": "Common/Owner/remaining4 SafetySQL composition passes stay version-qualified; this new resource question is not closed by them.",
+  "new_Privilege_copy": "PRESERVED_HELD_FOR_REVIEWED_MOUNT_V2_BASIS",
+  "old_literals": "44ac_AND_FCEF_FOUR_NEVER_RETRIED",
+  "qualification_counts_unchanged": true,
+  "runtime_beyond_prestart_resource_setup": "NOT_RUN",
+  "posture": "D"
+}

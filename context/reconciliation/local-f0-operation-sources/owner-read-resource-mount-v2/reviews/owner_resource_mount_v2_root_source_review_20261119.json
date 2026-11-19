@@ -1,0 +1,59 @@
+{
+  "schema": "workinants.owner-resource-mount-v2-root-source-review.v1",
+  "reviewer": "root",
+  "author": "restricted_controls_operator",
+  "recorded_at_utc": "2026-11-19T21:20:48.399976+00:00",
+  "decision": "SOURCE_APPROVED_EXACT_NEW_OWNER_RESOURCE_MOUNT_FIVE_ONLY",
+  "freeze_sha256": "37aad82e6591dc3f6f29514a3e920d258c9184070d35258c836cde896f2f29e0",
+  "operator_sources_sha256": {
+    "execute_local_f0_owner_read_20261119_resource_mount_v2.py": "b73dd1d9ecfec97edc9433e93cd4328298abe8af2e98cd24f943450ec6c24fb4",
+    "local_f0_owner_read_operation_steps_resource_mount_v2.py": "85ac46ef87bfbd944b18fcc672e7543ab58917edcf3b27710047467c12f7313f",
+    "prepare_local_f0_owner_read_plan_resource_mount_v2.py": "f3a81036574407c7fba91f1b22e29322cdb1464e53afbfc5057c12cbbb71bb1c",
+    "check_local_f0_owner_read_operation_resource_mount_v2.py": "1e35b2e9d9423af23b2c5d0f64dc0435c96c44719d3aac1db797e39de165c254",
+    "pin_local_f0_owner_read_plan_20261119_resource_mount_v2.py": "dcebd187aa643f39d0f2ed97286a3a1b3d0385fe7874581d4efbaf90a77ab3ad"
+  },
+  "initial42_archive_verified": true,
+  "initial_PENDING_validation_sha256": "e19dfc0d5e8bcd269750715aa7693e8b235f1c60a9a7da357027fec34b7fa77c",
+  "independent_peer_sha256": "c893926f6e9bbb42e247296ec8b3b5ce6418f60b79ba8a6b764c2c39bb4603ee",
+  "Root_actual_checks": [
+    {
+      "suite": "actual owning/source/pinner/resource57",
+      "tests": 57,
+      "seconds": 54.487,
+      "status": "PASS"
+    },
+    {
+      "suite": "actual embedded common safety composition23",
+      "tests": 23,
+      "seconds": 5.246,
+      "status": "PASS"
+    }
+  ],
+  "static_checks": {
+    "Core_Prep_Pin_fulltext_only_exact_namespace_renames": true,
+    "Steps_only_inspector_plus_fixed_helper_and2constants": true,
+    "common_function_class_AST_exact": true,
+    "Core_create_resources_and_cleanup_main_SQL_transport_unchanged": true,
+    "old_mounts3_oracle_mutant_detected_by_actual2_fixture": true,
+    "all42_current_and_frozen_hashes_verified": true
+  },
+  "assessed": [
+    "Retains created CID/name/image/platform/running state/network/ports/namespace/device/capability/labels and exact volume CreatedAt gates; exactly one data and readonly bootstrap bind, optional single matching tmpfs API row and no extra/duplicate mounts.",
+    "Always requires exact one-key HostConfig.Tmpfs and exact5-token option multiset, no duplicates/contradictions; mode700 or0700 only.",
+    "Actual created-CID fixed read-only sh -ceu probe reads only /proc/mounts and GNUstat for literal /run/wa-secrets. Requires one tmpfs, exact required kernel flags and directory:700:0:0, fixed token/empty stderr/integer0/30second command. No mount/chmod/SQL/config/role action.",
+    "Fixed script disables globbing, uses read-only shell parsing and no arbitrary argument/path interpolation; raw proc/stat/output/exception strings are not retained.",
+    "Probe follows unchanged start call and precedes readiness and pgpass. Real create_resources command-only tests cover order and failure preventing credentials; original error/IO and exact cleanup progression remain enforced.",
+    "Safe fixed resource phase/shape/comparison/count outcomes are retained before assertions. Source admission/pinner/current five/archive/helper graph and explicit isolated review-gate negatives remain intact."
+  ],
+  "limits": {
+    "runtime_kernel_script": "NOT_RUN",
+    "database_and_Owner121": "NOT_RUN",
+    "fresh_published_commit_tree_full_packet_and_independent_literal_required": true,
+    "old44ac_and_fcef_literals": "NEVER_RETRY",
+    "oldOwner_and_relatedRestore_holds": "PRESERVED",
+    "Privilege_rebase_requires_own_source_review": true,
+    "no_SQL_role_permission_history_change": true,
+    "posture": "D"
+  },
+  "findings": []
+}
