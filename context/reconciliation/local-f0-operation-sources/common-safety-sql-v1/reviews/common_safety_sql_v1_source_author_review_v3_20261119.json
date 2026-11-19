@@ -1,0 +1,36 @@
+{
+  "Root_ACK": "Raw fixed-path lstat/is_symlink and regular-file gate before read_pinned; exact approved regular-file success preserved. No25 until thirdRoot+peerACK.",
+  "added_stdlib_import": "stat as _required_safety_stat",
+  "before_fix_preservation_manifest_sha256": "79022c90215b968650652ca2b79b57f3e76664de1e38d8a3527e2130cc6a2d07",
+  "bounded_AST_changed_definitions": [
+    "_required_safety_text"
+  ],
+  "checks": {
+    "exit_code": 0,
+    "new_methods": 2,
+    "prior24": "PASS; primary preservation, safe poststate retention, all5 profiles actual owning main/cleanup with command-only mocks remain.",
+    "realistic_alias_model": "Rawpath link metadata and p.resolve\u2192another in-ROOT regular file with identical approved bytes. New guard rejects before dispatch; restoring only second-freeze source-text admission admits that same alias and dispatches, so the regression detects deletion of the new guard.",
+    "regular_missing_nonregular": "Exact regular approved bytes accepted; missing path/directory rejected with no command.",
+    "seconds": 14.386,
+    "tests": 26
+  },
+  "correction": "Check the hardcoded ROOT/finalizer raw path with lstat: only regular non-symlink files may proceed to unchanged same-byte read_pinned + SHAafd admission. Missing/nonregular/link refuses before finalizer dispatch; no path parameter or normalization fallback.",
+  "limits": {
+    "actual_link_creation": "NOT_ATTEMPTED_IN_THIS_AUTHOR_SUITE; realistic filesystem projection only, no claim of OS symlink capability.",
+    "current30_INSTALLextra2_all4heldplans_actualreports": "UNCHANGED",
+    "new25": "NOT_CREATED_UNTIL_COMMON_ACK",
+    "posture": "D",
+    "runtime": "NOT_RUN",
+    "self_approval": false
+  },
+  "recorded_at_utc": "2026-11-19T02:54:14.033574+00:00",
+  "second_candidate_author_sha256": "01200c460b98f35198d0e9b9a290e89b67ae2b506a284a33e08708c112f9a061",
+  "second_independent_review_sha256": "a3ae25f50e2c4e7f848738d1e9d72d391bb6a3b290b79eabcac9730e40374e42",
+  "source_files_sha256": {
+    "check_common_safety_sql_v1_composed_20261119.py": "2735ba4caa78df885f27535ec4b0b5f3058ca5aa8e7e8c34b951dc4e0906f7c4",
+    "common_safety_sql_v1_helpers.py.txt": "a3cf85cfd4802d9eb293fc957672b1ba7f842e49b6b15985cd81be6cbe1ee537",
+    "common_safety_sql_v1_install_eligibility.py.txt": "7118431c80fc5954ba314f1ed3634d5f3398dc2b35749dff5360ee52162052e7",
+    "common_safety_sql_v1_recipe_origins_20261119.json": "92d4eb01d78febbfdb13352aa08139471f0c0e8511f71dffdb4365ae7e388d99"
+  },
+  "status": "THIRD_COMMON_FREEZE_PENDING_ROOT_AND_INDEPENDENT_REVIEW"
+}

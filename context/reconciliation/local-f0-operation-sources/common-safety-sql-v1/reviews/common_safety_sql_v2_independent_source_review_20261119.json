@@ -1,0 +1,145 @@
+{
+  "schema": "workinants.independent-common-safety-sql-source-review.v2",
+  "reviewer": "/root/install_outer_review",
+  "author": "/root/review_track_ports",
+  "recorded_at_utc": "2026-11-19T02:53:02.572485+00:00",
+  "decision": "SOURCE_APPROVAL_WITHHELD",
+  "scope": "SECOND_FREEZE_954_COMMON_TEMPLATE_ONLY; NO_DERIVED_FAMILY_OR_RUNTIME_APPROVAL",
+  "source_files_sha256": {
+    "check_common_safety_sql_v1_composed_20261119.py": "af1e9437ab864ed9f266196255edc2e031005e23cecb03da78cfed899af5aea3",
+    "common_safety_sql_v1_helpers.py.txt": "954e957a3656dc443ba91e71d08744fd9c28f7396fd0172f8a0081520bc9cf92",
+    "common_safety_sql_v1_install_eligibility.py.txt": "7118431c80fc5954ba314f1ed3634d5f3398dc2b35749dff5360ee52162052e7",
+    "common_safety_sql_v1_recipe_origins_20261119.json": "0153c3d70b57dfa1387ad25cc3ab5878c80b97c5950ec6d984ad24ed59bb12ca"
+  },
+  "author_report_sha256": "01200c460b98f35198d0e9b9a290e89b67ae2b506a284a33e08708c112f9a061",
+  "closed_prior_findings": [
+    {
+      "prior_review_sha256": "839c783d0658107e50b9e1038c925bcd1e633dd7ff5a4ad1b921ada376ef6887",
+      "prior_ordinary_exit3_probe_sha256": "9c65b562c91dd25a6dc6fb16826cc588f91ad7d0067249af84c2d60e5fab9320",
+      "finding": "SAFETY_SQL_SECONDARY_FINALIZER_OVERWRITES_PRIMARY",
+      "status": "CLOSED_FOR_EXACT_SECOND_FREEZE",
+      "evidence": "All5 profiles preserve already-recorded original main primary through later finalizer/source/postobserver/nested failures; valid clean/dirty poststate retained as OBSERVED_NOT_QUALIFIED and command/source failure stays UNCONFIRMED and absent from finalized."
+    },
+    {
+      "prior_probe_sha256": "8f63d715ef4ea5c372203e9ef4dd72ed05e32bf9783912367b3f57c2c49916d9",
+      "finding": "INSTALL_OUTER_PERSISTENT_IO_BLOCKS_SAFETY_SQL",
+      "status": "CLOSED_IN_COMMON_TEMPLATE_ONLY",
+      "evidence": "Independent actual command-only matrix across3 CIDs and5 profiles executes every required finalizer/postobserver/global observer despite persistent IO, preserves original primary and stays non-PASS. Original frozen INSTALL7 remains held until a separately reviewed derived family exists."
+    }
+  ],
+  "findings": [
+    {
+      "id": "REQUIRED_FINALIZER_RAW_SYMLINK_GATE_MISSING",
+      "priority": "P2",
+      "status": "REPRODUCED_EXPLICIT_FILESYSTEM_ALIAS_MODEL",
+      "title": "Raw finalizer path can be a symlink alias because validation only inspects the resolved target",
+      "requirement": "Root-ACK607eb plan strict gate explicitly requires symlinked/nonregular/unadmitted finalizer source to block finalizer dispatch. Root separately confirmed raw-path refusal is required.",
+      "source_evidence": [
+        {
+          "file": "common_safety_sql_v1_helpers.py.txt",
+          "line": 31,
+          "through": 40,
+          "detail": "original finalizer text delegates directly to read_pinned without raw path lstat/is_symlink regular-file gate"
+        },
+        {
+          "file": "local_f0_install_controls_operation_steps.py",
+          "line": 153,
+          "through": 162,
+          "detail": "inherited read_pinned resolves the source path before testing is_file/is_symlink, so it checks the regular target rather than the original symlink path"
+        },
+        {
+          "file": "check_common_safety_sql_v1_composed_20261119.py",
+          "line": 117,
+          "through": 126,
+          "detail": "existing symlink test patches the resolved finalizer path predicate and does not model a raw link resolving to another approved in-root regular file"
+        }
+      ],
+      "actual_in_alias_model": "Raw path lstat/is_symlink project as symlink; resolve yields different in-root regular file with exact afd6 approved bytes. Raw metadata receives zero checks, finalizer dispatch occurs and cleanup can qualify.",
+      "independent_probe": {
+        "path": "common_safety_sql_v2_independent_alias_projection_probe_20261119.json",
+        "sha256": "1e2f66c45666d8af4dc6bc084174e0cdb2350290b2416fe2cb9a7026d69f65f3",
+        "raw_lstat_checks": 0,
+        "raw_is_symlink_checks": 0,
+        "raw_resolve_calls": 1,
+        "actual_mocked_finalizer_commands": 1,
+        "finalizer_qualified_in_model": true
+      },
+      "limits": "Actual Windows symlink creation was refused by platform privilege winerror1314; real-link runtime is not claimed. This source-gate finding uses an explicit realistic metadata/resolution projection. Exact executed SQL bytes remain pinned; no arbitrary SQL or historical unsafe cleanup is claimed.",
+      "required_next": "Before delegating to resolving read_pinned, enforce raw fixed finalizer path symlink/nonregular refusal and add realistic alias projection plus missing/nonregular/regular success controls. Preserve current second freeze."
+    }
+  ],
+  "checks": {
+    "bounded_AST_changed_definitions": [
+      "_required_safety_first_exception",
+      "finalize"
+    ],
+    "source_recipe_and_origin_graph_unchanged": true,
+    "focused_methods": 13,
+    "focused_passed": 13,
+    "focused_seconds": 12.734,
+    "independent_all5_actual_composed_3CID_matrix": [
+      {
+        "profile": "lease",
+        "actual_finalizer_commands": 3,
+        "actual_postobserver_commands": 3,
+        "actual_global_observer_commands": 3,
+        "original_primary_preserved": true,
+        "sticky_IO_nonPASS": true,
+        "original_8f63_composition_gap_closed": true
+      },
+      {
+        "profile": "restore",
+        "actual_finalizer_commands": 3,
+        "actual_postobserver_commands": 3,
+        "actual_global_observer_commands": 3,
+        "original_primary_preserved": true,
+        "sticky_IO_nonPASS": true,
+        "original_8f63_composition_gap_closed": true
+      },
+      {
+        "profile": "native",
+        "actual_finalizer_commands": 3,
+        "actual_postobserver_commands": 3,
+        "actual_global_observer_commands": 3,
+        "original_primary_preserved": true,
+        "sticky_IO_nonPASS": true,
+        "original_8f63_composition_gap_closed": true
+      },
+      {
+        "profile": "owner",
+        "actual_finalizer_commands": 3,
+        "actual_postobserver_commands": 3,
+        "actual_global_observer_commands": 3,
+        "original_primary_preserved": true,
+        "sticky_IO_nonPASS": true,
+        "original_8f63_composition_gap_closed": true
+      },
+      {
+        "profile": "install",
+        "actual_finalizer_commands": 3,
+        "actual_postobserver_commands": 3,
+        "actual_global_observer_commands": 6,
+        "original_primary_preserved": true,
+        "sticky_IO_nonPASS": true,
+        "original_8f63_composition_gap_closed": true
+      }
+    ],
+    "prior_reviews_preserved": true,
+    "process_network_audit_attempts": 0
+  },
+  "artifacts_sha256": {
+    "common_safety_sql_v2_independent_bounded_probe_20261119.json": "ad7947a426c5411e26469b68037acee2c0350c15af185b9c6147482bb441ba21",
+    "common_safety_sql_v2_independent_alias_projection_probe_20261119.json": "1e2f66c45666d8af4dc6bc084174e0cdb2350290b2416fe2cb9a7026d69f65f3",
+    "common_safety_sql_v2_independent_real_symlink_probe_20261119.json": "b01d95c48bd3266a96712149309c4c84444855d524244d1e45b5f5876fcd7d81"
+  },
+  "limits": {
+    "runtime": "NOT_RUN",
+    "Docker_DB_SQL_network_Git": "FORBIDDEN_NOT_USED",
+    "source_edits": false,
+    "new25_approval": false,
+    "all_current30_and_INSTALLextra2_preserved": true,
+    "posture": "D",
+    "whole94or451": "NOT_PROMOTED"
+  },
+  "plain_english": "The first-error label and safety jobs now work correctly. One file rule still needs fixing: check whether the original file is a shortcut before following the shortcut to another file."
+}

@@ -1,0 +1,5 @@
+-- Fresh actual authenticated role connection; no context handle/bind or fixture bypass. Stop/close on unexpected output.
+BEGIN;
+SET LOCAL search_path=pg_catalog;
+INSERT INTO "app"."auth_provider_accounts"("id","user_id","security_profile_id","provider_type","provider_user_id","provider_account_id","email","email_verified_at","status","linked_at","last_used_at","revoked_at","created_at","updated_at","revision","mutation_transaction_id") VALUES ('a1fc15e5-8658-5c91-8a52-118e450c3b41'::pg_catalog.uuid,'e2abf164-e83b-55dc-b398-486d0008a19e'::pg_catalog.uuid,NULL::pg_catalog.uuid,'email_password'::app.auth_provider_type,NULL::pg_catalog.text,NULL::pg_catalog.text,NULL::pg_catalog.text,NULL::pg_catalog.timestamptz,'active'::app.auth_credential_status,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,NULL::pg_catalog.timestamptz,NULL::pg_catalog.timestamptz,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,'0'::pg_catalog.int8,'native-acl-setup-transaction'::pg_catalog.text);
+ROLLBACK;

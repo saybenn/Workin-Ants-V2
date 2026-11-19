@@ -1,0 +1,26 @@
+{
+  "schema": "workinants.independent-common-safety-resolved-alias-probe.v1",
+  "reviewer": "/root/install_outer_review",
+  "recorded_at_utc": "2026-11-19T02:52:17.436935+00:00",
+  "source_helper_sha256": "954e957a3656dc443ba91e71d08744fd9c28f7396fd0172f8a0081520bc9cf92",
+  "raw_path_projection": "lstat symlink + is_symlink true; resolve yields different regular target inside same fixture root with exact approved finalizer bytes",
+  "only_mocks": "command boundary and raw-path filesystem link metadata/resolution; no sql/observe/finalize/closure mocks",
+  "lookups": {
+    "raw_lstat": 0,
+    "raw_is_symlink": 0,
+    "raw_resolve": 1
+  },
+  "selectors": [
+    "FINALIZATION_BACKENDS",
+    "ORIGINAL_GRANTOR_FINALIZATION",
+    "FINALIZATION_RESULT"
+  ],
+  "outcome": "RETURNED",
+  "finalizer_admitted": true,
+  "cleanup_qualified": true,
+  "conclusion": "SOURCE_GATE_GAP_REPRODUCED_IN_EXPLICIT_ALIAS_MODEL",
+  "real_Windows_link_setup": "UNAVAILABLE_winerror1314; no actual-link runtime claim",
+  "runtime": "NOT_RUN",
+  "process_network_Git": "FORBIDDEN",
+  "source_mutations": false
+}

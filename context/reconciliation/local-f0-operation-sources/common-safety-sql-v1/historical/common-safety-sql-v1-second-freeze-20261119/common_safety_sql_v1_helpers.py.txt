@@ -1,0 +1,143 @@
+# The Owner family retains its separately reviewed persistence API unchanged.
+_SAFETY_IO_PROFILE='COMMON'
+def _required_safety_evidence_complete():
+    if _SAFETY_IO_PROFILE=='OWNER':return report.get('evidence_complete',True) is True and report.get('output_complete',True) is True
+    return _SAFETY_IO_PROFILE=='COMMON' and evidence_is_complete()
+def _required_safety_save():
+    need(_SAFETY_IO_PROFILE in ('COMMON','OWNER'),'REQUIRED_SAFETY_IO_PROFILE')
+    return persist_best_effort('REQUIRED_SAFETY_RECORD') if _SAFETY_IO_PROFILE=='OWNER' else best_effort_save()
+def _required_safety_event(stage,status,**safe):
+    return event_best_effort(stage,status,**safe) if _SAFETY_IO_PROFILE=='OWNER' else best_effort_event(stage,status,**safe)
+def _required_safety_failure(stage,code,primary=False):
+    if _SAFETY_IO_PROFILE=='OWNER':
+        if primary:report['primary_failure']={'stage':stage,'code':code}
+        remember_failure(stage,code);return persist_best_effort('REQUIRED_SAFETY_FAILURE_RECORD')
+    return record_failure(stage,code,primary=primary)
+def _required_safety_first_exception(error):
+    if isinstance(error,Stop):_required_safety_failure(error.stage,error.code,primary='primary_failure' not in report)
+
+# Same-file required safety commands only; normal sql()/observe() stay fail-fast.
+_SAFETY_SQL_PROFILE='STANDARD'
+_SAFETY_SQL_RECIPES={'FINALIZATION_BACKENDS': "SELECT jsonb_build_object('migrator',(SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND usename='wa_migrator'),'other_client_backends',(SELECT count(*) FROM pg_stat_activity WHERE backend_type='client backend' AND pid<>pg_backend_pid()));", 'FINALIZATION_RESULT': "SELECT jsonb_build_object('grantor',session_user,'auth',system_user,'remaining_memberships',(SELECT count(*) FROM pg_auth_members WHERE member='wa_schema_owner'::regrole AND roleid IN ('wa_private_helper_owner'::regrole,'wa_customer_verifier'::regrole,'wa_track_verifier'::regrole)),'leaf_create',jsonb_build_object('wa_private_helper_owner',has_schema_privilege('wa_private_helper_owner','platform_private','CREATE'),'wa_customer_verifier',has_schema_privilege('wa_customer_verifier','platform_private','CREATE'),'wa_track_verifier',has_schema_privilege('wa_track_verifier','platform_private','CREATE')),'active_install_connections',(SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND usename='wa_migrator'));", 'GLOBAL_BACKENDS': "SELECT jsonb_build_object('migrator',(SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND usename='wa_migrator'),'other_client_backends',(SELECT count(*) FROM pg_stat_activity WHERE backend_type='client backend' AND pid<>pg_backend_pid()));", 'INSTALL_BOOTSTRAP_ELIGIBILITY': "SELECT jsonb_build_object('source_roles',(SELECT count(*) FROM pg_roles WHERE rolname IN ('wa_schema_owner','wa_private_helper_owner','wa_customer_verifier','wa_track_verifier')),'login',session_user,'auth',system_user);", 'INSTALL_ORIGINAL_CLEANUP_RESULT': "SELECT jsonb_build_object('temporary_memberships',(SELECT count(*) FROM pg_auth_members WHERE member='wa_schema_owner'::regrole AND roleid IN ('wa_private_helper_owner'::regrole,'wa_customer_verifier'::regrole,'wa_track_verifier'::regrole)),'leaf_create',has_schema_privilege('wa_private_helper_owner','platform_private','CREATE') OR has_schema_privilege('wa_customer_verifier','platform_private','CREATE') OR has_schema_privilege('wa_track_verifier','platform_private','CREATE'),'auth',system_user,'grantor',session_user);"}
+_SAFETY_SQL_LABELS={'GLOBAL_BACKENDS':'REQUIRED_GLOBAL_BACKEND_CLOSURE','FINALIZATION_BACKENDS':'PRE_FINALIZATION_CONNECTION_OBSERVER','FINALIZATION_RESULT':'FINALIZATION_OBSERVER','INSTALL_BOOTSTRAP_ELIGIBILITY':'INSTALL_BOOTSTRAP_ELIGIBILITY','INSTALL_ORIGINAL_CLEANUP_RESULT':'INSTALL_INDEPENDENT_ORIGINAL_CLEANUP','ORIGINAL_GRANTOR_FINALIZATION':'ORIGINAL_GRANTOR_FINALIZATION'}
+_SAFETY_FINALIZER='review-output/foundation-bootstrap-finalize.review.sql'
+_SAFETY_FINALIZER_SHA='afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98'
+
+
+def _required_safety_barrier():
+    need(_required_safety_evidence_complete(),'REQUIRED_SAFETY_EVIDENCE_UNCONFIRMED')
+
+
+def _required_safety_text(selector):
+    allowed={'GLOBAL_BACKENDS','FINALIZATION_BACKENDS','FINALIZATION_RESULT','ORIGINAL_GRANTOR_FINALIZATION'}
+    if _SAFETY_SQL_PROFILE=='INSTALL':allowed|={'INSTALL_BOOTSTRAP_ELIGIBILITY','INSTALL_ORIGINAL_CLEANUP_RESULT'}
+    need(_SAFETY_SQL_PROFILE in ('STANDARD','INSTALL') and selector in allowed,'REQUIRED_SAFETY_SELECTOR_NOT_ADMITTED')
+    if selector!='ORIGINAL_GRANTOR_FINALIZATION':return _SAFETY_SQL_RECIPES[selector]
+    try:raw=read_pinned(_SAFETY_FINALIZER)
+    except BaseException:raise Stop('REQUIRED_FINALIZER_SOURCE_UNCONFIRMED') from None
+    need(type(raw) is bytes and hashlib.sha256(raw).hexdigest()==_SAFETY_FINALIZER_SHA,'REQUIRED_FINALIZER_SOURCE_UNCONFIRMED')
+    try:return raw.decode('utf8')
+    except UnicodeError:raise Stop('REQUIRED_FINALIZER_SOURCE_UNCONFIRMED') from None
+
+
+def _required_safety_decode(raw,selector):
+    need(type(raw) is str,'REQUIRED_SAFETY_RESPONSE_UNCONFIRMED')
+    try:bounded=len(raw.encode('utf8'))<=65536
+    except UnicodeError:bounded=False
+    need(bounded,'REQUIRED_SAFETY_RESPONSE_UNCONFIRMED')
+    def pairs(items):
+        row={}
+        for key,value in items:
+            need(key not in row,'REQUIRED_SAFETY_RESPONSE_UNCONFIRMED');row[key]=value
+        return row
+    def bad_constant(_):raise Stop('REQUIRED_SAFETY_RESPONSE_UNCONFIRMED')
+    try:value=json.loads(raw,object_pairs_hook=pairs,parse_constant=bad_constant)
+    except BaseException:raise Stop('REQUIRED_SAFETY_RESPONSE_UNCONFIRMED') from None
+    need(type(value) is dict,'REQUIRED_SAFETY_RESPONSE_UNCONFIRMED')
+    if selector in ('GLOBAL_BACKENDS','FINALIZATION_BACKENDS'):
+        need(set(value)=={'migrator','other_client_backends'} and all(type(value[k]) is int and value[k]>=0 for k in value),'REQUIRED_SAFETY_RESPONSE_UNCONFIRMED')
+    elif selector=='FINALIZATION_RESULT':
+        need(set(value)=={'grantor','auth','remaining_memberships','leaf_create','active_install_connections'} and value['grantor']=='postgres' and value['auth']=='scram-sha-256:postgres' and type(value['leaf_create']) is dict and set(value['leaf_create'])==set(LEAVES) and all(type(v) is bool for v in value['leaf_create'].values()) and all(type(value[k]) is int and value[k]>=0 for k in ('remaining_memberships','active_install_connections')),'REQUIRED_SAFETY_RESPONSE_UNCONFIRMED')
+    elif selector=='INSTALL_BOOTSTRAP_ELIGIBILITY':
+        need(set(value)=={'source_roles','login','auth'} and type(value['source_roles']) is int and value['source_roles']>=0 and value['login']=='postgres' and value['auth']=='scram-sha-256:postgres','REQUIRED_SAFETY_RESPONSE_UNCONFIRMED')
+    elif selector=='INSTALL_ORIGINAL_CLEANUP_RESULT':
+        need(set(value)=={'temporary_memberships','leaf_create','auth','grantor'} and type(value['temporary_memberships']) is int and value['temporary_memberships']>=0 and type(value['leaf_create']) is bool and value['auth']=='scram-sha-256:postgres' and value['grantor']=='postgres','REQUIRED_SAFETY_RESPONSE_UNCONFIRMED')
+    return value
+
+
+def _required_safety_sql(target,selector):
+    need(type(selector) is str and selector in _SAFETY_SQL_LABELS,'REQUIRED_SAFETY_SELECTOR_NOT_ADMITTED')
+    need(type(target) is str and target in created_containers and target in RESOURCE_CONTAINERS and type(created_containers[target]) is str and re.fullmatch('[0-9a-f]{64}',created_containers[target]),'REQUIRED_SAFETY_OWNED_TARGET')
+    report['stage']=_SAFETY_SQL_LABELS[selector]
+    text=_required_safety_text(selector)
+    args=psql_args(target,'postgres')
+    need(type(args) is list and args.count('-U')==1 and args[args.index('-U')+1]=='postgres' and created_containers[target] in args,'REQUIRED_SAFETY_POSTGRES_TRANSPORT')
+    stage=_SAFETY_SQL_LABELS[selector];report['stage']=stage;_required_safety_save();_required_safety_event('REQUIRED_SAFETY_SQL','ATTEMPTED',target=target,operation=selector);report['stage']=stage
+    details={'target':target,'role':'postgres','operation':stage,'input_sha256':hashlib.sha256(text.encode()).hexdigest(),'client_exited':False,'exit_code':None,'response_fields_valid':False}
+    try:
+        result=command(args,text,120)
+        code=getattr(result,'returncode',None);stdout=getattr(result,'stdout',None);stderr=getattr(result,'stderr',None)
+        details['client_exited']=type(code) is int and 0<=code<=255;details['exit_code']=code if details['client_exited'] else None
+        need(details['client_exited'] and code==0 and type(stdout) is str and type(stderr) is str and stderr=='','REQUIRED_SAFETY_COMMAND_UNCONFIRMED')
+        if selector=='ORIGINAL_GRANTOR_FINALIZATION':
+            need(stdout.strip()=='','REQUIRED_SAFETY_RESPONSE_UNCONFIRMED');value=None
+        else:value=_required_safety_decode(stdout,selector)
+        details['response_fields_valid']=True;return value
+    finally:
+        report.setdefault('events',[]).append(details);_required_safety_save()
+
+
+def _required_zero_backends(name,stage):
+    proof={'stage':stage,'scope':'ALL_DATABASES_ALL_ROLES_ALL_TAGS','observation_completed':False,'counts_valid':False,'migrator_zero':False,'other_clients_zero':False,'all_other_client_backends_absent':False};failure=None
+    try:
+        value=_required_safety_sql(name,'GLOBAL_BACKENDS');proof.update(observation_completed=True,counts_valid=True,migrator_zero=value['migrator']==0,other_clients_zero=value['other_client_backends']==0,all_other_client_backends_absent=value['migrator']==value['other_client_backends']==0)
+    except BaseException as error:failure=error
+    finally:report.setdefault('backend_closures',[]).append(proof);_required_safety_save()
+    if failure is not None:raise failure
+    need(proof['all_other_client_backends_absent'],'CATALOG_BACKEND_CLOSURE_UNCONFIRMED');return proof
+
+
+def closed_backends(name,stage):
+    value=_required_zero_backends(name,stage);_required_safety_barrier();return value
+
+
+class _RequiredSafetyBoundary:
+    """Run the fixed safety action and preserve an already-pending exception."""
+    def __init__(self,action,target,stage=None):
+        need(action in ('CLOSE','FINALIZE'),'REQUIRED_SAFETY_BOUNDARY_ACTION');self.action=action;self.target=target;self.stage=stage
+    def __enter__(self):return self
+    def __exit__(self,kind,original,traceback):
+        if original is not None:_required_safety_first_exception(original)
+        try:
+            if self.action=='CLOSE':closed_backends(self.target,self.stage)
+            else:finalize(self.target)
+        except BaseException:
+            _required_safety_failure('REQUIRED_SAFETY_COMPOSITION','REQUIRED_SAFETY_ACTION_UNCONFIRMED')
+            if original is None:raise
+        return False
+
+
+def finalize(name):
+    if name in finalization_attempted:return
+    finalization_attempted.add(name)
+    active=_required_safety_sql(name,'FINALIZATION_BACKENDS')
+    valid_active=(type(active) is dict and set(active)=={'migrator','other_client_backends'} and all(type(active[key]) is int and active[key]>=0 for key in ('migrator','other_client_backends')))
+    if valid_active:report['targets'][name]['connections_before_finalization']=active;_required_safety_save()
+    need(valid_active and all(active[key]==0 for key in ('migrator','other_client_backends')),'FINALIZATION_BLOCKED_ACTIVE_OPERATION',{'target':name})
+    first=None;observation=None
+    try:_required_safety_sql(name,'ORIGINAL_GRANTOR_FINALIZATION')
+    except BaseException as error:first=error;_required_safety_first_exception(error)
+    finally:
+        try:observation=_required_safety_sql(name,'FINALIZATION_RESULT')
+        except BaseException:
+            _required_safety_failure('FINALIZATION_POST_OBSERVER','FINALIZATION_POST_OBSERVER_UNCONFIRMED')
+            if first is None:raise
+    valid_observation=(type(observation) is dict and set(observation)=={'grantor','auth','remaining_memberships','leaf_create','active_install_connections'} and observation['grantor']=='postgres' and observation['auth']=='scram-sha-256:postgres' and type(observation['leaf_create']) is dict and set(observation['leaf_create'])==set(LEAVES) and all(type(value) is bool for value in observation['leaf_create'].values()) and all(type(observation[key]) is int and observation[key]>=0 for key in ('remaining_memberships','active_install_connections')))
+    if valid_observation:
+        report['targets'][name]['finalization_observation']=observation;report['targets'][name]['finalization_observation_status']='OBSERVED_NOT_QUALIFIED';_required_safety_save()
+    if first is not None:
+        report['targets'][name]['finalization']='UNCONFIRMED';_required_safety_save();raise first
+    need(valid_observation and observation['grantor']=='postgres' and observation['auth']=='scram-sha-256:postgres' and observation['remaining_memberships']==0 and observation['active_install_connections']==0 and not any(observation['leaf_create'].values()),'FINALIZATION_VERIFICATION_FAILED',{'target':name})
+    finalized.add(name);report['targets'][name]['finalization']='PASS';_required_safety_event('FINALIZATION','PASS',target=name)
+    if not _required_safety_evidence_complete():report['targets'][name]['finalization']='OBSERVED_CLEANUP_EVIDENCE_INCOMPLETE';_required_safety_save()
+    _required_safety_barrier()

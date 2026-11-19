@@ -1,0 +1,1 @@
+BEGIN; SET LOCAL ROLE wa_schema_owner; ROLLBACK;

@@ -1,0 +1,15 @@
+def ensure_original_cleanup(name):
+    attempted=INSTALL.setdefault('cleanup_observation_attempted',set())
+    if name in attempted:return
+    attempted.add(name)
+    state=_required_safety_sql(name,'INSTALL_BOOTSTRAP_ELIGIBILITY')
+    need(type(state) is dict and set(state)=={'source_roles','login','auth'} and type(state['source_roles']) is int and state['source_roles'] in (0,4) and state['login']=='postgres' and state['auth']=='scram-sha-256:postgres','INSTALL_BOOTSTRAP_FINALIZATION_ELIGIBILITY_UNCONFIRMED')
+    if state['source_roles']==0:
+        finalization_attempted.add(name);report['targets'][name]['finalization']='NOT_APPLICABLE_OBSERVED_NO_SOURCE_ROLES';_required_safety_save();_required_safety_barrier();return
+    _required_zero_backends(name,'INSTALL_PRE_FINALIZATION')
+    if 'qualified_result' in INSTALL:
+        proof=_required_safety_sql(name,'INSTALL_ORIGINAL_CLEANUP_RESULT')
+        exact(proof,{'temporary_memberships':0,'leaf_create':False,'auth':'scram-sha-256:postgres','grantor':'postgres'},'INSTALL_ORIGINAL_CLEANUP_NOT_EXACT');finalization_attempted.add(name);finalized.add(name);report['targets'][name]['finalization']='PASS_INDEPENDENT_OBSERVED_COORDINATOR_FINALIZATION';_required_safety_save()
+        if not _required_safety_evidence_complete():report['targets'][name]['finalization']='OBSERVED_CLEANUP_EVIDENCE_INCOMPLETE';_required_safety_save()
+        _required_safety_barrier()
+    else:finalize(name)

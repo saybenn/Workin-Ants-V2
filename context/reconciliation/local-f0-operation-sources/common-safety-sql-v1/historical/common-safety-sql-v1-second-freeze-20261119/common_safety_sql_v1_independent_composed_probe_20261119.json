@@ -1,0 +1,116 @@
+{
+  "schema": "workinants.independent-common-safety-sql-v1-probe.v1",
+  "reviewer": "/root/install_outer_review",
+  "recorded_at_utc": "2026-11-19T02:41:50.562749+00:00",
+  "source_files_sha256": {
+    "check_common_safety_sql_v1_composed_20261119.py": "ed312e598dc907648f828e67b71265b8d902bc24e4280aa64112ef1b974cc909",
+    "common_safety_sql_v1_helpers.py.txt": "b8292f4e5462a0f62d56b951ce9f0ffbe129145d3bbf324267dea0ebfea6476c",
+    "common_safety_sql_v1_install_eligibility.py.txt": "7118431c80fc5954ba314f1ed3634d5f3398dc2b35749dff5360ee52162052e7",
+    "common_safety_sql_v1_recipe_origins_20261119.json": "8fbde0782ba7f64c22070dd7309cf7d968289a8651203e7a1600bd9b2db93e93"
+  },
+  "author_suite": {
+    "tests": 20,
+    "passed": true,
+    "seconds": 11.422,
+    "failures": 0,
+    "errors": 0,
+    "output": "test_absent_mixed_foreign_role_eligibility_never_revokes (independent_common_safety_review.SafetySQLTests.test_absent_mixed_foreign_role_eligibility_never_revokes) ... ok\ntest_actual_owning_mains_only_command_mock_still_finalize_and_remove_all_owned_resources (independent_common_safety_review.SafetySQLTests.test_actual_owning_mains_only_command_mock_still_finalize_and_remove_all_owned_resources) ... ok\ntest_all_frozen30_and_install_extra2_stay_exact (independent_common_safety_review.SafetySQLTests.test_all_frozen30_and_install_extra2_stay_exact) ... ok\ntest_clean_success_all_profiles_and_no_io_error_permits_normal_continuation (independent_common_safety_review.SafetySQLTests.test_clean_success_all_profiles_and_no_io_error_permits_normal_continuation) ... ok\ntest_first_command_stop_survives_post_observer_stop (independent_common_safety_review.SafetySQLTests.test_first_command_stop_survives_post_observer_stop) ... ok\ntest_global_closure_real_sql_still_runs_then_public_barrier_blocks_normal_continuation (independent_common_safety_review.SafetySQLTests.test_global_closure_real_sql_still_runs_then_public_barrier_blocks_normal_continuation) ... ok\ntest_independent_child_cleanup_observation_uses_no_duplicate_revoke_under_io (independent_common_safety_review.SafetySQLTests.test_independent_child_cleanup_observation_uses_no_duplicate_revoke_under_io) ... ok\ntest_invalid_or_active_precondition_never_dispatches_original_finalizer (independent_common_safety_review.SafetySQLTests.test_invalid_or_active_precondition_never_dispatches_original_finalizer) ... ok\ntest_missing_drifted_unadmitted_or_symlink_source_blocks_finalizer_and_still_observes_post (independent_common_safety_review.SafetySQLTests.test_missing_drifted_unadmitted_or_symlink_source_blocks_finalizer_and_still_observes_post) ... ok\ntest_nonzero_unknown_or_malformed_command_response_blocks_revoke (independent_common_safety_review.SafetySQLTests.test_nonzero_unknown_or_malformed_command_response_blocks_revoke) ... ok\ntest_normal_sql_and_observe_are_unchanged_and_still_stop_before_command (independent_common_safety_review.SafetySQLTests.test_normal_sql_and_observe_are_unchanged_and_still_stop_before_command) ... ok\ntest_old_real_composition_is_detected_without_stubbing_sql_observe_or_finalizer (independent_common_safety_review.SafetySQLTests.test_old_real_composition_is_detected_without_stubbing_sql_observe_or_finalizer) ... ok\ntest_original_operation_stop_survives_nested_closure_persistence_error (independent_common_safety_review.SafetySQLTests.test_original_operation_stop_survives_nested_closure_persistence_error) ... ok\ntest_owner_original_stop_is_preserved_before_its_distinct_failure_bookkeeping (independent_common_safety_review.SafetySQLTests.test_owner_original_stop_is_preserved_before_its_distinct_failure_bookkeeping) ... ok\ntest_post_observer_strict_identity_shape_and_authority_never_get_promoted (independent_common_safety_review.SafetySQLTests.test_post_observer_strict_identity_shape_and_authority_never_get_promoted) ... ok\ntest_pre_post_write_and_event_failure_each_preserve_actual_safety_order (independent_common_safety_review.SafetySQLTests.test_pre_post_write_and_event_failure_each_preserve_actual_safety_order) ... ok\ntest_real_finalizers_all_five_profiles_execute_pre_revoke_post_under_persistent_io (independent_common_safety_review.SafetySQLTests.test_real_finalizers_all_five_profiles_execute_pre_revoke_post_under_persistent_io) ... ok\ntest_real_install_eligibility_all_three_targets_can_finalize_despite_io (independent_common_safety_review.SafetySQLTests.test_real_install_eligibility_all_three_targets_can_finalize_despite_io) ... ok\ntest_source_recipe_preservation_and_foreign_profile_target_selector_are_closed (independent_common_safety_review.SafetySQLTests.test_source_recipe_preservation_and_foreign_profile_target_selector_are_closed) ... ok\ntest_timeout_and_command_stop_preserve_first_failure_and_never_qualify_cleanup (independent_common_safety_review.SafetySQLTests.test_timeout_and_command_stop_preserve_first_failure_and_never_qualify_cleanup) ... ok\n\n----------------------------------------------------------------------\nRan 20 tests in 11.422s\n\nOK\n"
+  },
+  "independent_first_primary_secondary_finalizer_failure": [
+    {
+      "profile": "lease",
+      "primary_before": {
+        "stage": "ORIGINAL_OPERATION",
+        "code": "ORIGINAL_OPERATION_STOP"
+      },
+      "primary_after": {
+        "stage": "ORIGINAL_GRANTOR_FINALIZATION",
+        "code": "FIRST_FIXED_COMMAND_STOP"
+      },
+      "raised_fixed_code": "FIRST_FIXED_COMMAND_STOP",
+      "selectors": [
+        "FINALIZATION_BACKENDS",
+        "ORIGINAL_GRANTOR_FINALIZATION",
+        "FINALIZATION_RESULT"
+      ],
+      "original_primary_preserved": false
+    },
+    {
+      "profile": "restore",
+      "primary_before": {
+        "stage": "ORIGINAL_OPERATION",
+        "code": "ORIGINAL_OPERATION_STOP"
+      },
+      "primary_after": {
+        "stage": "ORIGINAL_GRANTOR_FINALIZATION",
+        "code": "FIRST_FIXED_COMMAND_STOP"
+      },
+      "raised_fixed_code": "FIRST_FIXED_COMMAND_STOP",
+      "selectors": [
+        "FINALIZATION_BACKENDS",
+        "ORIGINAL_GRANTOR_FINALIZATION",
+        "FINALIZATION_RESULT"
+      ],
+      "original_primary_preserved": false
+    },
+    {
+      "profile": "native",
+      "primary_before": {
+        "stage": "ORIGINAL_OPERATION",
+        "code": "ORIGINAL_OPERATION_STOP"
+      },
+      "primary_after": {
+        "stage": "ORIGINAL_GRANTOR_FINALIZATION",
+        "code": "FIRST_FIXED_COMMAND_STOP"
+      },
+      "raised_fixed_code": "FIRST_FIXED_COMMAND_STOP",
+      "selectors": [
+        "FINALIZATION_BACKENDS",
+        "ORIGINAL_GRANTOR_FINALIZATION",
+        "FINALIZATION_RESULT"
+      ],
+      "original_primary_preserved": false
+    },
+    {
+      "profile": "owner",
+      "primary_before": {
+        "stage": "ORIGINAL_OPERATION",
+        "code": "ORIGINAL_OPERATION_STOP"
+      },
+      "primary_after": {
+        "stage": "ORIGINAL_GRANTOR_FINALIZATION",
+        "code": "FIRST_FIXED_COMMAND_STOP"
+      },
+      "raised_fixed_code": "FIRST_FIXED_COMMAND_STOP",
+      "selectors": [
+        "FINALIZATION_BACKENDS",
+        "ORIGINAL_GRANTOR_FINALIZATION",
+        "FINALIZATION_RESULT"
+      ],
+      "original_primary_preserved": false
+    },
+    {
+      "profile": "install",
+      "primary_before": {
+        "stage": "ORIGINAL_OPERATION",
+        "code": "ORIGINAL_OPERATION_STOP"
+      },
+      "primary_after": {
+        "stage": "ORIGINAL_GRANTOR_FINALIZATION",
+        "code": "FIRST_FIXED_COMMAND_STOP"
+      },
+      "raised_fixed_code": "FIRST_FIXED_COMMAND_STOP",
+      "selectors": [
+        "FINALIZATION_BACKENDS",
+        "ORIGINAL_GRANTOR_FINALIZATION",
+        "FINALIZATION_RESULT"
+      ],
+      "original_primary_preserved": false
+    }
+  ],
+  "audit_refusals": [],
+  "runtime": "NOT_RUN",
+  "process_network_Git": "FORBIDDEN",
+  "source_mutations": false,
+  "status": "FINDING_REPRODUCED"
+}

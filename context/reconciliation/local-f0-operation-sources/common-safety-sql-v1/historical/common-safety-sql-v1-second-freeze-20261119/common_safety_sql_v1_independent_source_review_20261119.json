@@ -1,0 +1,103 @@
+{
+  "schema": "workinants.independent-common-safety-sql-source-review.v1",
+  "reviewer": "/root/install_outer_review",
+  "author": "/root/review_track_ports",
+  "recorded_at_utc": "2026-11-19T02:43:39.949829+00:00",
+  "decision": "SOURCE_APPROVAL_WITHHELD",
+  "scope": "FOUR_FROZEN_COMMON_SAFETY_SQL_V1_TEMPLATE_AND_COMPOSED_TEST_SOURCES; NOT_DERIVED_FAMILIES_OR_RUNTIME",
+  "source_files_sha256": {
+    "check_common_safety_sql_v1_composed_20261119.py": "ed312e598dc907648f828e67b71265b8d902bc24e4280aa64112ef1b974cc909",
+    "common_safety_sql_v1_helpers.py.txt": "b8292f4e5462a0f62d56b951ce9f0ffbe129145d3bbf324267dea0ebfea6476c",
+    "common_safety_sql_v1_install_eligibility.py.txt": "7118431c80fc5954ba314f1ed3634d5f3398dc2b35749dff5360ee52162052e7",
+    "common_safety_sql_v1_recipe_origins_20261119.json": "8fbde0782ba7f64c22070dd7309cf7d968289a8651203e7a1600bd9b2db93e93"
+  },
+  "author_report_sha256": "22c44c1285bdb8305f2f563e74f0e6367e63f9e2509573ec497e69ebfcf29446",
+  "approved_plan_sha256": "607eb22341ed9b47a39caae66ab44cd199ef0202946c1b0f18e8cab74ddf2a87",
+  "findings": [
+    {
+      "id": "SAFETY_SQL_SECONDARY_FINALIZER_OVERWRITES_PRIMARY",
+      "priority": "P1",
+      "status": "INDEPENDENTLY_REPRODUCED_ALL_FIVE_PROFILES",
+      "title": "A later finalizer failure overwrites the already-recorded original operation STOP",
+      "trigger": "An ordinary owning operation has already recorded primary_failure ORIGINAL_OPERATION_STOP. Its finally executes the required source-pinned finalizer; that command returns typed integer3 or raises a fixed Stop.",
+      "actual": "finalize catches its Stop and invokes _required_safety_first_exception, which forces primary=True. Both COMMON record_failure and OWNER direct assignment replace the original primary with the secondary finalizer failure. With typed integer3 the resulting primary is REQUIRED_SAFETY_COMMAND_UNCONFIRMED at ORIGINAL_GRANTOR_FINALIZATION, in every profile. The original may remain among unexpected entries but is no longer the primary failure.",
+      "required": "Record secondary safety failures without replacing an earlier meaningful original primary. Preserve the first exception inside nested boundaries and an original primary already captured by main, including later finalizer/source/observer failures. Continue the required postobserver and all other eligible targets; retain non-PASS failure.",
+      "source_evidence": [
+        {
+          "file": "common_safety_sql_v1_helpers.py.txt",
+          "line": 11,
+          "through": 17,
+          "detail": "primary=True causes direct OWNER primary assignment or COMMON record_failure overwrite for every encountered Stop"
+        },
+        {
+          "file": "common_safety_sql_v1_helpers.py.txt",
+          "line": 128,
+          "through": 135,
+          "detail": "finalizer failure invokes first-exception recording even when an earlier main failure is already recorded; postobserver does correctly continue"
+        },
+        {
+          "file": "check_common_safety_sql_v1_composed_20261119.py",
+          "line": 148,
+          "through": 163,
+          "detail": "current tests separately cover first finalizer Stop/postobserver Stop and original main Stop/successful finalizers, omitting their combination"
+        },
+        {
+          "file": "check_common_safety_sql_v1_composed_20261119.py",
+          "line": 195,
+          "through": 200,
+          "detail": "Owner original Stop test has successful finalizer commands, leaving secondary-failure overwrite unexercised"
+        }
+      ],
+      "independent_evidence": {
+        "ordinary_nonzero_finalizer_probe": "common_safety_sql_v1_independent_nonzero_finalizer_probe_20261119.json",
+        "sha256": "9c65b562c91dd25a6dc6fb16826cc588f91ad7d0067249af84c2d60e5fab9320",
+        "profiles": [
+          "lease",
+          "restore",
+          "native",
+          "owner",
+          "install"
+        ],
+        "mock_boundary": "actual helper/finalize/SQL/parser bodies; only command boundary returns a nonzero result",
+        "all_original_primaries_overwritten": true,
+        "pre_finalizer_post_sequence_preserved": true,
+        "invalid_finalizer_never_qualified": true,
+        "private_canary_exported": false
+      }
+    }
+  ],
+  "positive_checks": {
+    "independent_author_suite": {
+      "tests": 20,
+      "passed": 20,
+      "seconds": 11.422,
+      "failures": 0,
+      "errors": 0
+    },
+    "original_persistent_IO_defect": "Closed in the common template: actual eligibility/global closure/preobserver/finalizer/postobserver cross the command boundary despite persistent report IO on all3 targets/all5 profiles; final status stays incomplete/nonzero.",
+    "strict_gates": "Active or malformed preconditions block REVOKE; exact source pin and postgres/owned CID selector gates retained; duplicate/nonfinite/typed-false/float/unknown response cases refuse qualification.",
+    "normal_sql_observe": "Not redefined by helper; inherited fail-fast behavior remains.",
+    "exact_original_query_recipes": {
+      "current_callers_independently_AST_checked": 17,
+      "selector_SQL_texts": 5,
+      "all_SHA_matches": true
+    },
+    "scope_and_limits": "No arbitrary SQL/role/install/expected-error argument added. Original120-second timeout and same-byte original finalizer pin retained. All frozen30 + INSTALLextra2 preservation tests pass.",
+    "no_source_fixes_authored": true
+  },
+  "probe_artifacts_sha256": {
+    "common_safety_sql_v1_independent_composed_probe_20261119.json": "44e7bb706ea9d947e5d36db876dca65a4bafaa3472e56018c4491906d5424b1f",
+    "common_safety_sql_v1_independent_nonzero_finalizer_probe_20261119.json": "9c65b562c91dd25a6dc6fb16826cc588f91ad7d0067249af84c2d60e5fab9320"
+  },
+  "required_next": "Author a bounded correction, preserve this freeze and reports, add command-only real composition tests for prior main primary plus secondary finalizer/source/postobserver failures across all5 profiles, then freeze and independently review before deriving25 new family sources.",
+  "limits": {
+    "runtime": "NOT_RUN",
+    "Docker_DB_SQL_network_Git": "FORBIDDEN_NOT_USED",
+    "historical_cleanup_failures_inferred": false,
+    "all_old_reports_and_sources_preserved": true,
+    "whole94_451_promoted": false,
+    "posture": "D",
+    "source_approval_of_derived25": false
+  },
+  "plain_english": "The safety jobs now keep working when the notebook breaks. But if a safety job also fails, it writes over the first problem label. Keep the first problem and record the safety problem beside it."
+}

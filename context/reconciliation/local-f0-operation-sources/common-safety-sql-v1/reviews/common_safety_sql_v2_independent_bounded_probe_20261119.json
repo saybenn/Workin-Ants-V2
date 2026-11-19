@@ -1,0 +1,92 @@
+{
+  "schema": "workinants.independent-common-safety-sql-v2-bounded-probe.v1",
+  "reviewer": "/root/install_outer_review",
+  "recorded_at_utc": "2026-11-19T02:50:32.043910+00:00",
+  "source_files_sha256": {
+    "check_common_safety_sql_v1_composed_20261119.py": "af1e9437ab864ed9f266196255edc2e031005e23cecb03da78cfed899af5aea3",
+    "common_safety_sql_v1_helpers.py.txt": "954e957a3656dc443ba91e71d08744fd9c28f7396fd0172f8a0081520bc9cf92",
+    "common_safety_sql_v1_install_eligibility.py.txt": "7118431c80fc5954ba314f1ed3634d5f3398dc2b35749dff5360ee52162052e7",
+    "common_safety_sql_v1_recipe_origins_20261119.json": "0153c3d70b57dfa1387ad25cc3ab5878c80b97c5950ec6d984ad24ed59bb12ca"
+  },
+  "changed_helper_definitions": [
+    "_required_safety_first_exception",
+    "finalize"
+  ],
+  "selector_recipe_and_origin_graph_unchanged": true,
+  "prior839c_and9c65_reports_preserved": true,
+  "focused_suite": {
+    "tests": 13,
+    "passed": true,
+    "seconds": 12.734,
+    "failures": 0,
+    "errors": 0,
+    "names": [
+      "test_existing_original_primary_survives_later_finalizer_and_post_failures_all_profiles",
+      "test_ordinary_finalizer_exit3_retains_clean_or_dirty_safe_poststate_as_unqualified_all_profiles",
+      "test_source_failure_retains_only_validated_post_and_preserves_recorded_primary_all_profiles",
+      "test_existing_primary_survives_nested_closure_failure_all_profiles",
+      "test_real_finalizers_all_five_profiles_execute_pre_revoke_post_under_persistent_io",
+      "test_real_install_eligibility_all_three_targets_can_finalize_despite_io",
+      "test_invalid_or_active_precondition_never_dispatches_original_finalizer",
+      "test_normal_sql_and_observe_are_unchanged_and_still_stop_before_command",
+      "test_missing_drifted_unadmitted_or_symlink_source_blocks_finalizer_and_still_observes_post",
+      "test_first_command_stop_survives_post_observer_stop",
+      "test_owner_original_stop_is_preserved_before_its_distinct_failure_bookkeeping",
+      "test_post_observer_strict_identity_shape_and_authority_never_get_promoted",
+      "test_all_frozen30_and_install_extra2_stay_exact"
+    ],
+    "output": "test_existing_original_primary_survives_later_finalizer_and_post_failures_all_profiles (independent_common_safety_review_v2.SafetySQLTests.test_existing_original_primary_survives_later_finalizer_and_post_failures_all_profiles) ... ok\ntest_ordinary_finalizer_exit3_retains_clean_or_dirty_safe_poststate_as_unqualified_all_profiles (independent_common_safety_review_v2.SafetySQLTests.test_ordinary_finalizer_exit3_retains_clean_or_dirty_safe_poststate_as_unqualified_all_profiles) ... ok\ntest_source_failure_retains_only_validated_post_and_preserves_recorded_primary_all_profiles (independent_common_safety_review_v2.SafetySQLTests.test_source_failure_retains_only_validated_post_and_preserves_recorded_primary_all_profiles) ... ok\ntest_existing_primary_survives_nested_closure_failure_all_profiles (independent_common_safety_review_v2.SafetySQLTests.test_existing_primary_survives_nested_closure_failure_all_profiles) ... ok\ntest_real_finalizers_all_five_profiles_execute_pre_revoke_post_under_persistent_io (independent_common_safety_review_v2.SafetySQLTests.test_real_finalizers_all_five_profiles_execute_pre_revoke_post_under_persistent_io) ... ok\ntest_real_install_eligibility_all_three_targets_can_finalize_despite_io (independent_common_safety_review_v2.SafetySQLTests.test_real_install_eligibility_all_three_targets_can_finalize_despite_io) ... ok\ntest_invalid_or_active_precondition_never_dispatches_original_finalizer (independent_common_safety_review_v2.SafetySQLTests.test_invalid_or_active_precondition_never_dispatches_original_finalizer) ... ok\ntest_normal_sql_and_observe_are_unchanged_and_still_stop_before_command (independent_common_safety_review_v2.SafetySQLTests.test_normal_sql_and_observe_are_unchanged_and_still_stop_before_command) ... ok\ntest_missing_drifted_unadmitted_or_symlink_source_blocks_finalizer_and_still_observes_post (independent_common_safety_review_v2.SafetySQLTests.test_missing_drifted_unadmitted_or_symlink_source_blocks_finalizer_and_still_observes_post) ... ok\ntest_first_command_stop_survives_post_observer_stop (independent_common_safety_review_v2.SafetySQLTests.test_first_command_stop_survives_post_observer_stop) ... ok\ntest_owner_original_stop_is_preserved_before_its_distinct_failure_bookkeeping (independent_common_safety_review_v2.SafetySQLTests.test_owner_original_stop_is_preserved_before_its_distinct_failure_bookkeeping) ... ok\ntest_post_observer_strict_identity_shape_and_authority_never_get_promoted (independent_common_safety_review_v2.SafetySQLTests.test_post_observer_strict_identity_shape_and_authority_never_get_promoted) ... ok\ntest_all_frozen30_and_install_extra2_stay_exact (independent_common_safety_review_v2.SafetySQLTests.test_all_frozen30_and_install_extra2_stay_exact) ... ok\n\n----------------------------------------------------------------------\nRan 13 tests in 12.735s\n\nOK\n"
+  },
+  "independent_actual_composition_all_three_CIDs_all_five_profiles": [
+    {
+      "profile": "lease",
+      "actual_finalizer_commands": 3,
+      "actual_postobserver_commands": 3,
+      "actual_global_observer_commands": 3,
+      "original_primary_preserved": true,
+      "sticky_IO_nonPASS": true,
+      "original_8f63_composition_gap_closed": true
+    },
+    {
+      "profile": "restore",
+      "actual_finalizer_commands": 3,
+      "actual_postobserver_commands": 3,
+      "actual_global_observer_commands": 3,
+      "original_primary_preserved": true,
+      "sticky_IO_nonPASS": true,
+      "original_8f63_composition_gap_closed": true
+    },
+    {
+      "profile": "native",
+      "actual_finalizer_commands": 3,
+      "actual_postobserver_commands": 3,
+      "actual_global_observer_commands": 3,
+      "original_primary_preserved": true,
+      "sticky_IO_nonPASS": true,
+      "original_8f63_composition_gap_closed": true
+    },
+    {
+      "profile": "owner",
+      "actual_finalizer_commands": 3,
+      "actual_postobserver_commands": 3,
+      "actual_global_observer_commands": 3,
+      "original_primary_preserved": true,
+      "sticky_IO_nonPASS": true,
+      "original_8f63_composition_gap_closed": true
+    },
+    {
+      "profile": "install",
+      "actual_finalizer_commands": 3,
+      "actual_postobserver_commands": 3,
+      "actual_global_observer_commands": 6,
+      "original_primary_preserved": true,
+      "sticky_IO_nonPASS": true,
+      "original_8f63_composition_gap_closed": true
+    }
+  ],
+  "audit_refusals": [],
+  "runtime": "NOT_RUN",
+  "process_network_Git": "FORBIDDEN",
+  "source_mutations": false,
+  "status": "PASS"
+}

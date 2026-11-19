@@ -1,0 +1,43 @@
+{
+  "before_fix_preservation_manifest_sha256": "f6d114652b5ae3740834b7f8609a16c65a1eccea36f7d810206fb9e486a12651",
+  "bounded_AST_changed_definitions": [
+    "_required_safety_first_exception",
+    "finalize"
+  ],
+  "checks": {
+    "exit_code": 0,
+    "mock_boundary": "Only actual command/process transport, FS report IO and event output. Real safety SQL/finalizer/eligibility/closure/normalSQL/owning main/cleanup functions execute.",
+    "new_methods": 4,
+    "new_profile_vectors": "All5 profiles: existing original primary+later finalizer Stop/postobserver error; actual exit3+clean or dirty valid post-state; source failure+valid/malformed post-state; nested closure failure.",
+    "original20_checks": "PASS",
+    "seconds": 15.211,
+    "tests": 24
+  },
+  "confirmed_probe_sha256": "44e7bb706ea9d947e5d36db876dca65a4bafaa3472e56018c4491906d5424b1f",
+  "corrections": {
+    "post_observation": "Apply unchanged strict post-state identity/schema/type predicate and retain safe fields with OBSERVED_NOT_QUALIFIED before rethrowing the first command/source failure. Such finalization is marked UNCONFIRMED and never added to finalized. Malformed poststate is not retained.",
+    "primary": "Record a first safety Stop as primary only if no primary is already present. Every later Stop is appended through the actual profile API as secondary. An already-recorded original main failure remains exact.",
+    "unchanged": "No selector, query text, role, source/current-CID gate, command timeout, IO adapter, transport, recipe, normalSQL behavior or existing cleanup implementation changed."
+  },
+  "first_candidate_author_review_sha256": "22c44c1285bdb8305f2f563e74f0e6367e63f9e2509573ec497e69ebfcf29446",
+  "first_immutable_independent_review": {
+    "path": "common_safety_sql_v1_independent_source_review_20261119.json",
+    "sha256": "839c783d0658107e50b9e1038c925bcd1e633dd7ff5a4ad1b921ada376ef6887"
+  },
+  "limits": {
+    "current30_INSTALLextra2_held_literals_actual_reports_unchanged": true,
+    "new25_sources": "NOT_CREATED_PENDING_SECOND_COMMON_REVIEW",
+    "no_Git_DB_Docker_network": true,
+    "posture": "D",
+    "runtime": "NOT_RUN",
+    "self_approval": false
+  },
+  "recorded_at_utc": "2026-11-19T02:47:05.602138+00:00",
+  "source_files_sha256": {
+    "check_common_safety_sql_v1_composed_20261119.py": "af1e9437ab864ed9f266196255edc2e031005e23cecb03da78cfed899af5aea3",
+    "common_safety_sql_v1_helpers.py.txt": "954e957a3656dc443ba91e71d08744fd9c28f7396fd0172f8a0081520bc9cf92",
+    "common_safety_sql_v1_install_eligibility.py.txt": "7118431c80fc5954ba314f1ed3634d5f3398dc2b35749dff5360ee52162052e7",
+    "common_safety_sql_v1_recipe_origins_20261119.json": "0153c3d70b57dfa1387ad25cc3ab5878c80b97c5950ec6d984ad24ed59bb12ca"
+  },
+  "status": "SECOND_COMMON_FREEZE_PENDING_ROOT_AND_INDEPENDENT_REVIEW"
+}
