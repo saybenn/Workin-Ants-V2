@@ -1,0 +1,176 @@
+{
+  "schema": "workinants.independent-install-owned-outer-source-review.v1",
+  "reviewer": "/root/install_outer_review",
+  "author": "/root/review_track_ports",
+  "recorded_at_utc": "2026-11-19T02:13:22.481202+00:00",
+  "decision": "SOURCE_APPROVAL_WITHHELD",
+  "scope": "ALL_SEVEN_FROZEN_OWNED_INSTALL_V2_SOURCE_FILES; NO_RUNTIME_APPROVAL",
+  "freeze_manifest": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install-v2-owned-outer-frozen-20261119\\freeze-manifest.json",
+    "sha256": "ffbf4659519129b7c2367143e4f84ad5e0fa16303661ce317914371824a1268d"
+  },
+  "author_report": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install-v2-owned-outer-frozen-20261119\\install_v2_owned_outer_source_author_review_20261119.json",
+    "sha256": "dae5466e2d69a45332b5517c89027369c07d8046f3a2440070fd7f95885bd0ea"
+  },
+  "source_files_sha256": {
+    "check_local_f0_install_controls_operation.py": "48abe26d12afc1a60e8419ae78bfe05c68a0962fc5b1282212a99cd51d041855",
+    "execute_local_f0_install_controls_20261118.py": "3903217fdf13f15f45cb0fa67e8cf5adc9c1fcd860c193ebdb67b72641629238",
+    "local_f0_install_controls_operation_steps.py": "92ce6385902b829226a085837087a0bb0084922ce3303aa2010d6db3ad787328",
+    "pin_local_f0_install_controls_plan_20261118.py": "a734208eae5e083fdd8d6737034768cbad5211e48c6b75b7dde58fe94d2e53da",
+    "prepare_local_f0_install_controls_plan.py": "c5a5ff7523358afdefcd46a11da8c988e9edf952ebfa2325fe71d03062ced553",
+    "workinants-correction-pass/scripts/sql-review/install_ledger_proof_v2.py": "00fb5603e8507b1206437223cd427c6c0ad59d9df80696e6c9728864c93e996e",
+    "workinants-correction-pass/scripts/sql-review/test_install_ledger_proof_v2.py": "ca214a78c4f07c9d35c3a387bfd14249a23d1234a975a64d408150ae8660c044"
+  },
+  "applicable_benchmark": {
+    "standing_authority": "context/reconciliation/directives/local-f0-standing-authority-2026-11-17.md",
+    "plan": "install_v2_owned_outer_source_plan_20261118.json",
+    "skill": "C:/Users/elijr/.agents/skills/review/SKILL.md",
+    "posture": "D",
+    "root_sole_Git_and_runtime_executor": true,
+    "independent_actual_rollback_review_still_required": true
+  },
+  "findings": [
+    {
+      "id": "INSTALL_OUTER_PERSISTENT_IO_BLOCKS_SAFETY_SQL",
+      "priority": "P1",
+      "status": "REPRODUCED_SOURCE_BLOCKER",
+      "title": "Persistent evidence IO prevents required backend observers and original-grantor finalization",
+      "trigger": "The coordinator has returned or thrown and report save now consistently raises an IO exception. The outer invokes the actual closed_backends and ensure_original_cleanup functions.",
+      "actual": "Both safety paths enter observe -> sql. sql calls raw save before command, so all three required CID observations and all three bootstrap-eligibility observations make zero mocked query calls. Eligibility cannot establish source-role state, and no original-grantor finalizer SQL is attempted. The main finally then continues resource cleanup.",
+      "expected": "Evidence failure must remain sticky and non-PASS while all applicable safety SQL observations and eligible original-grantor finalizers can still progress independently of report IO. Typed nonzero/invalid active-client observations must continue to prohibit REVOKE; preserve the original operation STOP and do not resume later behavior.",
+      "evidence": [
+        {
+          "file": "execute_local_f0_install_controls_20261118.py",
+          "line": 180,
+          "through": 185,
+          "detail": "sql performs save before the external SQL command"
+        },
+        {
+          "file": "execute_local_f0_install_controls_20261118.py",
+          "line": 285,
+          "through": 297,
+          "detail": "actual finalizer also has ordinary observe/sql and intermediate raw save dependencies"
+        },
+        {
+          "file": "local_f0_install_controls_operation_steps.py",
+          "line": 392,
+          "through": 405,
+          "detail": "actual global closure observes through sql and then requires another raw save"
+        },
+        {
+          "file": "local_f0_install_controls_operation_steps.py",
+          "line": 711,
+          "through": 728,
+          "detail": "eligibility observation reaches raw-save-gated sql before finalization can be selected"
+        },
+        {
+          "file": "local_f0_install_controls_operation_steps.py",
+          "line": 697,
+          "through": 705,
+          "detail": "coordinator finally invokes every target closure, but invocation does not imply an SQL observation progressed"
+        },
+        {
+          "file": "local_f0_install_controls_operation_steps.py",
+          "line": 837,
+          "through": 843,
+          "detail": "main invokes eligibility cleanup in finally and proceeds to secret/resource cleanup after its failure"
+        },
+        {
+          "file": "check_local_f0_install_controls_operation.py",
+          "line": 71,
+          "through": 76,
+          "detail": "coordinator closure tests replace closed_backends with a successful mock"
+        },
+        {
+          "file": "check_local_f0_install_controls_operation.py",
+          "line": 159,
+          "through": 161,
+          "detail": "persistent-IO main tests replace ensure_original_cleanup, hiding the actual SQL composition"
+        }
+      ],
+      "independent_probe": {
+        "path": "install_v2_owned_outer_independent_persistent_io_probe_20261119.json",
+        "sha256": "8f63d715ef4ea5c372203e9ef4dd72ed05e32bf9783912367b3f57c2c49916d9",
+        "actual_functions": "unchanged closed_backends/ensure_original_cleanup/observe/sql/finalize",
+        "mocks": "save always raises; external command capture only",
+        "targets": 3,
+        "closure_query_calls": 0,
+        "eligibility_query_calls": 0,
+        "finalizer_sql_attempted": false,
+        "raw_canary_retained": false
+      },
+      "broader_family_limit": "The same raw-save dependency is inherited from common families, as also observed by Root. This finding proves a source fault path; it does not claim any historical cleanup failed. Historical cleanup PASS evidence remains unchanged."
+    }
+  ],
+  "checks": {
+    "freeze_manifest_full_sha256_match": true,
+    "frozen_seven_sources_match_author_and_initial_current_sources": true,
+    "all_seven_compile": true,
+    "outer_suite": {
+      "tests_run": 34,
+      "passed_initially": 33,
+      "initial_errors": 1,
+      "seconds": 58.781,
+      "initial_error": "Reviewer exec runner supplied __builtins__ as dict; import-restoration assertion expected normal script module builtins. No product failure in that error.",
+      "corrected_targeted_rerun": {
+        "tests": 1,
+        "passed": 1,
+        "normal_script_module_builtins": true
+      },
+      "unique_test_methods_successfully_checked": 34,
+      "important_passed_methods": [
+        "test_actual_full_verifier_real_four_seven_histories_and_five_snapshots",
+        "test_emitted_actual_run_plan_is_admitted_by_frozen_coordinator_loader",
+        "test_reduced_or_changed_all_four_tool_maps_stop_before_first_compile",
+        "test_recovery_only_tool_map_discrepancy_stops_before_any_helper",
+        "test_reference_read_stat_save_failure_or_oversize_never_skips_global_closure",
+        "test_cleanup_foreign_identity_is_not_deleted_despite_failed_bookkeeping"
+      ]
+    },
+    "pure_ledger_suite": {
+      "tests": 14,
+      "passed": 14,
+      "seconds": 0.953,
+      "includes": "retained 22012 failed row and canonical applied row; exact old schema/ACL; review identity and failure chain; source and typed metadata rejection; pure no-IO checks"
+    },
+    "preserved_eight_fixed_source_boundaries": true,
+    "literal_observer_queries_parse_SELECT_only": {
+      "count": 4,
+      "steps_lines": [
+        717,
+        395,
+        632,
+        726
+      ]
+    },
+    "static_source_review": {
+      "admission_and_reproduction": "four immutable7-file histories; physical five operator snapshots;10300 source-pinned tooling maps before helper compile; full16 native sources and6 generated assets",
+      "activation": "outer provisions candidates only; child973e controls bootstrap/migrator/runtime gates and actual independent review before standard resolve",
+      "new_ledger": "source-bound exact8column/index/privateACL rules preserve the old1cb schema AST and include retained failed history; no concrete new ledger blocker found in reviewed scope",
+      "native_composition": "unchanged comparator code receives source-admitted ledger import; full runtime native behavior remains unexecuted",
+      "cleanup": "exact IDs/names/both labels and volume CreatedAt, exact4private files, independent absence and non-PASS IO handling inspected; safety SQL composition blocker above remains"
+    },
+    "independent_audit_hook_process_or_network_attempts": 0
+  },
+  "probe_artifacts_sha256": {
+    "install_v2_owned_outer_independent_offline_probe_20261119.json": "bc9536a278bc75f9a7b7f75653c1588102a39f17436bf838e15324495b281273",
+    "install_v2_owned_outer_independent_supplemental_probe_20261119.json": "f4f11ed82213f9963773b852b03dd4c6c741035844e6ded69853cf40ed9fc5bd",
+    "install_v2_owned_outer_independent_persistent_io_probe_20261119.json": "8f63d715ef4ea5c372203e9ef4dd72ed05e32bf9783912367b3f57c2c49916d9"
+  },
+  "required_next": "Root retains all exact sources and reports; author a bounded source correction, freeze it, and obtain new independent review with actual observer/eligibility/finalizer bodies under persistent IO. Keep all execution held until source and fresh exact literal reviews complete.",
+  "limits": {
+    "Docker": "NOT_RUN",
+    "DB_and_SQL_execution": "NOT_RUN",
+    "network": "FORBIDDEN_NOT_USED",
+    "Git_commands_or_mutations": "FORBIDDEN_NOT_USED",
+    "source_fixes_or_unrelated_edits": false,
+    "runtime_qualification": "NOT_CLAIMED",
+    "actual_recovery_review_or_approval": "NOT_CREATED",
+    "whole94_or451_promotion": false,
+    "hosted_contact": false,
+    "historical_proofs_overwritten": false,
+    "posture": "D"
+  },
+  "plain_english": "The safety code tries to write its notebook before checking and locking the toy databases. If the notebook breaks, those safety jobs never start. Tests with pretend safety jobs miss this. Keep the run held until real safety jobs work even when writing fails."
+}

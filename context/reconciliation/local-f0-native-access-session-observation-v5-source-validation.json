@@ -1,7 +1,7 @@
 {
   "schema": "workinants.native-access-operation-source-validation.v1",
   "recorded_at": "2026-11-19T01:17:28.108303+00:00",
-  "status": "SOURCE_INDEPENDENTLY_REVIEWED_OFFLINE_PASS_FRESH_COMMIT_AND_LITERAL_REQUIRED",
+  "status": "EXECUTION_HELD_ADDITIONAL_SAFETY_SQL_COMPOSITION_FINDING",
   "source_version": "session-observation-v5",
   "external_files_sha256": {
     "execute_local_f0_native_access_v5_20261118.py": "72b600be0bad3c67beda4e1febf9c60feda6df4d125ad3810f377cb4f496562f",
@@ -441,5 +441,11 @@
     "path": "context/reconciliation/local-f0-operation-sources/native-access-session-observation-v5/reviews/independent-root-source-review.json",
     "sha256": "ee706f5845e63bbe318be84ad3205dab9f0924a810b206bfcd28760b82c350ef",
     "reviewer": "/root"
+  },
+  "execution_hold": {
+    "record": "context/reconciliation/local-f0-safety-sql-composition-hold-20261119.json",
+    "reason": "Persistent evidence IO can prevent actual required safety SQL through nested sql/observe helpers. Prior bounded source approvals do not close this composition finding.",
+    "fresh_runtime": "NOT_RUN",
+    "corrected_source_review_required": true
   }
 }

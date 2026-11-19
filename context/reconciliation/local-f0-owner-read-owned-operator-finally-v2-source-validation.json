@@ -1,7 +1,7 @@
 {
   "schema": "workinants.owner-read-owned-operator-source-validation.v1",
   "source_version": "finally-v2-bounded-reference-r1",
-  "status": "SOURCE_INDEPENDENTLY_REVIEWED_OFFLINE_PASS_FRESH_COMMITTED_SOURCE_AND_LITERAL_REQUIRED",
+  "status": "EXECUTION_HELD_ADDITIONAL_SAFETY_SQL_COMPOSITION_FINDING",
   "author": "/root/catalog_v4_review",
   "operator_sources_sha256": {
     "execute_local_f0_owner_read_20261118_finally_v2.py": "c29375d9a8476bf54725443ead8b7f4d78a07b94498bd8095e84082783719d58",
@@ -183,5 +183,11 @@
       "independent_common_finally_focused": 20,
       "final_reference_focused": 12
     }
+  },
+  "execution_hold": {
+    "record": "context/reconciliation/local-f0-safety-sql-composition-hold-20261119.json",
+    "reason": "Persistent evidence IO can prevent actual required safety SQL through nested sql/observe helpers. Prior bounded source approvals do not close this composition finding.",
+    "fresh_runtime": "NOT_RUN",
+    "corrected_source_review_required": true
   }
 }

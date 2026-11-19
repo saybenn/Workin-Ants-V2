@@ -1,0 +1,64 @@
+{
+  "recorded_at": "2026-11-19T02:17:15.717393+00:00",
+  "status": "SOURCE_PROVEN_COMMON_SAFETY_SQL_COMPOSITION_HOLD_NO_NEW_RUNTIME",
+  "source_commit": "fcef623c3a895a3be5f63f2c40d0dde23f9203da",
+  "source_tree": "6c3ff0f381d14addb8db635100074a184e5df819",
+  "finding": "Raw save() before actual sql command causes persistent evidence IO failure to prevent safety eligibility/closure/original-grantor finalization SQL. Outer finally-loop tests that replace finalizer/sql/observe do not close the actual composition.",
+  "independent_proof_sha256": "8f63d715ef4ea5c372203e9ef4dd72ed05e32bf9783912367b3f57c2c49916d9",
+  "independent_review_sha256": "441fdc43b76cdceb33b9d41e489826a488ac7fb12650c591ba9ac87fe26a5aa7",
+  "affected": [
+    "local-f0-native-access-session-observation-v5-source-validation.json",
+    "local-f0-owner-read-owned-operator-finally-v2-source-validation.json",
+    "local-f0-lease-revoke-auth-v5-source-validation.json",
+    "local-f0-restore-auth-v5-source-validation.json",
+    "UNREVIEWED_INSTALL_OWNED_OUTER",
+    "PROVISIONAL_SIXREAD_OWNED_OUTER"
+  ],
+  "held_exact_plans": {
+    "30faf824-0a3c-4d49-afcd-e7f07cd275f3": {
+      "manifest_sha256": "bfd6d0e04f92f8262f46516dee3edc8711435e01630e99aeafcaf0de02fc3ba0",
+      "packet_sha256": "836c00903a91132b5ac3e03a2afd2d5a9a2b81b99c1febd2a14e9725c027530c",
+      "review_status": "PENDING_OPERATIONAL_REVIEW",
+      "evidence_directory_absent": true,
+      "executed": false
+    },
+    "05480968-b3cd-454a-bcc0-9db48d7f5196": {
+      "manifest_sha256": "72535b751a7aca44505771a54d695a392d60acafac3cc180e245781cfbe249c6",
+      "packet_sha256": "d758244f22aa0f544d649ea528bc14f3343b29f04610bbcc27b4b5cbb6cfd8c6",
+      "review_status": "PENDING_OPERATIONAL_REVIEW",
+      "evidence_directory_absent": true,
+      "executed": false
+    },
+    "54a5a3d7-b382-44e2-a843-c3533b530511": {
+      "manifest_sha256": "55f1c4032a3880aad03e3b403c2b9397264e362601c2de85ea48d0789911153e",
+      "packet_sha256": "baf5ca80decc5f54ff607068c9d1a8cb5bd7452adf6483975611dd79757c1bc6",
+      "review_status": "PENDING_OPERATIONAL_REVIEW",
+      "evidence_directory_absent": true,
+      "executed": false
+    },
+    "31bf248c-576c-44e8-9e35-99b14d108169": {
+      "manifest_sha256": "4dbf1e5ffa90a62e6ae96598c151b904a4926a3a3482a8af908161c17e38bcea",
+      "packet_sha256": "bb1293de7e0d165b843c4b8d9b1d638d13e70ffb770488288c2d37576df4c0d6",
+      "review_status": "PENDING_OPERATIONAL_REVIEW",
+      "evidence_directory_absent": true,
+      "executed": false
+    }
+  },
+  "preserved_files_sha256": {
+    "context/reconciliation/local-f0-operation-sources/safety-sql-composition-hold-20261119/install_v2_owned_outer_independent_source_review_20261119.json": "441fdc43b76cdceb33b9d41e489826a488ac7fb12650c591ba9ac87fe26a5aa7",
+    "context/reconciliation/local-f0-operation-sources/safety-sql-composition-hold-20261119/install_v2_owned_outer_independent_persistent_io_probe_20261119.json": "8f63d715ef4ea5c372203e9ef4dd72ed05e32bf9783912367b3f57c2c49916d9",
+    "context/reconciliation/local-f0-operation-sources/safety-sql-composition-hold-20261119/before-hold-local-f0-native-access-session-observation-v5-source-validation.json": "eb87975bf24171a6e3141e69c87c84913b7fdc4f15c64afbf26092d3ca1415ce",
+    "context/reconciliation/local-f0-operation-sources/safety-sql-composition-hold-20261119/before-hold-local-f0-owner-read-owned-operator-finally-v2-source-validation.json": "f33b03ca933d84e7d2580c96f29454558a0b1d5c2bd5d9f31c544e6b77f1601e",
+    "context/reconciliation/local-f0-operation-sources/safety-sql-composition-hold-20261119/before-hold-local-f0-lease-revoke-auth-v5-source-validation.json": "c97108f1673eb44291fbe63328d31d47ebe161f2ead8f877db8fde0f7910146f",
+    "context/reconciliation/local-f0-operation-sources/safety-sql-composition-hold-20261119/before-hold-local-f0-restore-auth-v5-source-validation.json": "1875765d487a320fea84634554a90b3ab37a8587dd9017f88715b75d5be02ffa"
+  },
+  "required_correction": "Keep ordinary behavior fail-closed; make only required safety SQL bookkeeping independent of write/event failures. Retain typed zero-client/source/role guards before REVOKE, original STOP, sticky incomplete/nonzero, no later behavior, other target finalizers/cleanup/source preservation. Test real helper composition through mocked command only.",
+  "historical_limits": "No previous actual finalizer or cleanup failure is claimed. Previous observed PASS outcomes remain immutable. Original auth/Native stop causes are not backfilled.",
+  "limits": {
+    "posture": "D",
+    "new_resources_created": false,
+    "database_contacted": false,
+    "hosted_contact_or_adoption": false,
+    "existing211PASS_evidence_changed": false
+  }
+}

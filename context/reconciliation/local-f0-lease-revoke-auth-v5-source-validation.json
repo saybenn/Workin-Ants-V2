@@ -189,5 +189,11 @@
     }
   },
   "source_root": "context/reconciliation/local-f0-operation-sources/lease-revoke-auth-v5",
-  "status": "SOURCE_INDEPENDENTLY_REVIEWED_OFFLINE_PASS_FRESH_LITERAL_REQUIRED"
+  "status": "EXECUTION_HELD_ADDITIONAL_SAFETY_SQL_COMPOSITION_FINDING",
+  "execution_hold": {
+    "record": "context/reconciliation/local-f0-safety-sql-composition-hold-20261119.json",
+    "reason": "Persistent evidence IO can prevent actual required safety SQL through nested sql/observe helpers. Prior bounded source approvals do not close this composition finding.",
+    "fresh_runtime": "NOT_RUN",
+    "corrected_source_review_required": true
+  }
 }
