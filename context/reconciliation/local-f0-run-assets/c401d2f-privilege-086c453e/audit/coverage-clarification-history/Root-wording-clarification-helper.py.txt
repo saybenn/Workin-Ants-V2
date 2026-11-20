@@ -1,0 +1,16 @@
+"""Correct new normalized coverage wording; preserve prior normalization/raw bytes."""
+from pathlib import Path
+import datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+rp=R/'context/reconciliation/local-f0-privilege-c401d2f-086c453e-execution.json';rb=rp.read_bytes();assert sha(rb)=='fe5adf8b985bb4166c621d33fd8bcc315fa4564bb8405b3928fd107ddeba2327';r=json.loads(rb)
+A=R/'context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e';fp=A/'audit/observed-prefix-origin-reconciliation.json';fb=fp.read_bytes();f=json.loads(fb)
+assert f['completed_negative_protocols']==34 and f['current_unqualified_case']=='CREATE-wa_app_runtime-app'and'166'in f['unexecuted']
+copies={'normalization-before-coverage-wording-clarification.json':rb,'facts-before-coverage-wording-clarification.json':fb,'Root-wording-clarification-helper.py.txt':Path(__file__).read_bytes()}
+for n,b in copies.items():put(A/'audit/coverage-clarification-history'/n,b);r['assets_sha256'][(A/'audit/coverage-clarification-history'/n).relative_to(R).as_posix()]=sha(b)
+f['unexecuted']='165 subsequent negative protocols and the third service issuer protocol NOT_RUN. The current CREATE protocol was attempted, returned42501, and remains UNQUALIFIED because exact intended diagnostic was not proven; it is not an unexecuted SQL body.34 earlier finite contrasts completed. No assertion/wholecase promotion.'
+f['coverage_counts']={'qualified_negative_protocols':34,'attempted_but_unqualified_negative_protocols':1,'unexecuted_negative_protocols':165,'total_prepared_negative_protocols':200}
+fp.write_bytes(enc(f));r['facts']=f;r['assets_sha256'][fp.relative_to(R).as_posix()]=sha(fp.read_bytes());r['normalization_clarification']={'recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'prior_record_sha256':sha(rb),'reason':'Correct166unrun wording to1attemptedunqualified+165unexecuted; all raw historical evidence/source/failure/cleanup unchanged.'};rp.write_bytes(enc(r))
+receipt={'record':rp.relative_to(R).as_posix(),'record_sha256':sha(rp.read_bytes()),'asset_count':len(r['assets_sha256']),'assets_sha256':r['assets_sha256'],'raw_evidence_unchanged':True,'no_runtime_or_Git_mutation':True,'Posture':'D'};out=T/'c401_privilege_086c_final_preserved_inventory_20261120.json';put(out,enc(receipt));print(json.dumps({'record_sha256':receipt['record_sha256'],'assets':receipt['asset_count'],'inventory_sha256':sha(out.read_bytes())}))

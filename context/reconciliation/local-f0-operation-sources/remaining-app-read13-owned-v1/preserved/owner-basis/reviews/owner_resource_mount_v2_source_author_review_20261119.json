@@ -1,0 +1,174 @@
+{
+  "schema": "workinants.owner-resource-mount-v2-source-author-review.v1",
+  "author": "restricted_controls_operator",
+  "recorded_at_utc": "2026-11-19T21:06:38.272637+00:00",
+  "decision": "SOURCE_PREPARED_PENDING_ROOT_AND_INDEPENDENT_REVIEW",
+  "approved_plan_sha256": "7b9fa625958973c5d6a4db5ea05afcfd20c2149220ab331d9b0085c68df0ac92",
+  "independent_plan_review_sha256": "57169379194ddce270b9db37836c8acffe6880b7ac52415fa6134aff85512d3e",
+  "operator_sources_sha256": {
+    "execute_local_f0_owner_read_20261119_resource_mount_v2.py": "b73dd1d9ecfec97edc9433e93cd4328298abe8af2e98cd24f943450ec6c24fb4",
+    "local_f0_owner_read_operation_steps_resource_mount_v2.py": "85ac46ef87bfbd944b18fcc672e7543ab58917edcf3b27710047467c12f7313f",
+    "prepare_local_f0_owner_read_plan_resource_mount_v2.py": "f3a81036574407c7fba91f1b22e29322cdb1464e53afbfc5057c12cbbb71bb1c",
+    "check_local_f0_owner_read_operation_resource_mount_v2.py": "1e35b2e9d9423af23b2c5d0f64dc0435c96c44719d3aac1db797e39de165c254",
+    "pin_local_f0_owner_read_plan_20261119_resource_mount_v2.py": "dcebd187aa643f39d0f2ed97286a3a1b3d0385fe7874581d4efbaf90a77ab3ad"
+  },
+  "composed_test_sha256": {
+    "check_owner_resource_mount_v2_safety_composed_20261119.py": "33f383b3d1270748ca4db4dfecaa7b45061012b609ca81870d34b49b6e891e5c"
+  },
+  "AST_delta_after_exact_filename_and_source_root_renames": {
+    "execute_local_f0_owner_read_20261119_resource_mount_v2.py": {
+      "changed": [],
+      "added": [],
+      "removed": [],
+      "full_text_exact_after_namespace_renames": true
+    },
+    "local_f0_owner_read_operation_steps_resource_mount_v2.py": {
+      "changed": [
+        "inspect_owner"
+      ],
+      "added": [
+        "verify_running_secret_tmpfs"
+      ],
+      "removed": [],
+      "full_text_exact_after_namespace_renames": false
+    },
+    "prepare_local_f0_owner_read_plan_resource_mount_v2.py": {
+      "changed": [],
+      "added": [],
+      "removed": [],
+      "full_text_exact_after_namespace_renames": true
+    },
+    "check_local_f0_owner_read_operation_resource_mount_v2.py": {
+      "changed": [
+        "OwnerOperationTests"
+      ],
+      "added": [],
+      "removed": [],
+      "full_text_exact_after_namespace_renames": false
+    },
+    "pin_local_f0_owner_read_plan_20261119_resource_mount_v2.py": {
+      "changed": [],
+      "added": [],
+      "removed": [],
+      "full_text_exact_after_namespace_renames": true
+    }
+  },
+  "common_safety_AST_exact": [
+    "_required_safety_evidence_complete",
+    "_required_safety_save",
+    "_required_safety_event",
+    "_required_safety_failure",
+    "_required_safety_first_exception",
+    "_required_safety_barrier",
+    "_required_safety_text",
+    "_required_safety_decode",
+    "_required_safety_sql",
+    "_required_zero_backends",
+    "closed_backends",
+    "_RequiredSafetyBoundary",
+    "finalize"
+  ],
+  "ordinary_SQL_transport_Core_create_resources_cleanup_main_unchanged": true,
+  "preservation": {
+    "immutable_top55": {
+      "check_local_f0_install_controls_operation.py": "48abe26d12afc1a60e8419ae78bfe05c68a0962fc5b1282212a99cd51d041855",
+      "check_local_f0_install_controls_operation_safety_sql_v1.py": "01f485846d752077415de795b163ad197a912eb23667c6944600e0199a49de64",
+      "check_local_f0_lease_revoke_operation_auth_v5.py": "3770e76674855935143a24486f781b12f49107f47f10b4231d6ede5ceb58aebc",
+      "check_local_f0_lease_revoke_operation_safety_sql_v1.py": "66301cd989e8db2365974706d4d7c1b71f539ab6565a20d3fa9d5d3c3272e682",
+      "check_local_f0_owner_read_operation_finally_v2.py": "153ffdf9736c0a2a3903f97ccd43d5d44e3fa4958b4b4de5b3bf32bc4f05e23e",
+      "check_local_f0_owner_read_operation_safety_sql_v1.py": "8425fb5f58cae333c40c85541321518871abcd33d6cf437f9d449f16d01c74ec",
+      "check_local_f0_privilege_ceiling_safety_sql_v1_operation.py": "b883840a55b6cbc1855eb0c49d13a41a0e8f5e18e650159493c4e07a3a417de7",
+      "check_local_f0_restore_operation_auth_v5.py": "3c11c62e77e65707340e832ed85899104efaf3d4042c6d9dad30308b8cb2344c",
+      "check_local_f0_restore_operation_safety_sql_v1.py": "085f756f7ffa3f8567381ebdceb1e01efa963e74f0a35f242767d73a46daaf9c",
+      "check_native_access_operation_safety_sql_v1.py": "415baef53ea13d12273b4879aadffe9683d0eb42d5c32e4a62d6b49e0f81843d",
+      "check_native_access_v5_operation.py": "011d9f0257b6680fa6d1b57fe6317bc88329487d4bfaca4d3dc11f9b90ac5d40",
+      "execute_local_f0_install_controls_20261118.py": "3903217fdf13f15f45cb0fa67e8cf5adc9c1fcd860c193ebdb67b72641629238",
+      "execute_local_f0_install_controls_20261119_safety_sql_v1.py": "5c71ead1bbb7ced7d45a36f258cc271f9a8c19275f94bc55875d3526c0c02b87",
+      "execute_local_f0_lease_revoke_20261118_auth_v5.py": "a76e594950ce102377621be39b59194a9753222761954243a20adac0a7712d42",
+      "execute_local_f0_lease_revoke_20261119_safety_sql_v1.py": "0ec8a5ceb39787d272731cf276b6e5eaa062cbd6202e60065ae5b967b86adb81",
+      "execute_local_f0_native_access_20261119_safety_sql_v1.py": "82ff221e2b740ffeac248474c84bfab80253c34e3234a6a2cf584e6162397574",
+      "execute_local_f0_native_access_v5_20261118.py": "72b600be0bad3c67beda4e1febf9c60feda6df4d125ad3810f377cb4f496562f",
+      "execute_local_f0_owner_read_20261118_finally_v2.py": "c29375d9a8476bf54725443ead8b7f4d78a07b94498bd8095e84082783719d58",
+      "execute_local_f0_owner_read_20261119_safety_sql_v1.py": "7d3dd946a950003ad93b9f58a152532d0332846e290d45753bb013da70dc594d",
+      "execute_local_f0_privilege_ceiling_safety_sql_v1_20261119.py": "0296ac18ce59f9b267bfd48fa0729aa2644c1408277e50b2b176580fdfebc549",
+      "execute_local_f0_restore_20261117_auth_v5.py": "02e7db3dfc2dd8c60e02a753599e6fd6970ad607b63b6e5605cbce95f8122853",
+      "execute_local_f0_restore_20261119_safety_sql_v1.py": "8041399106d33d4687f1f357709c7b657f2e55adb29e588822896c941b1b8a81",
+      "local_f0_install_controls_operation_steps.py": "92ce6385902b829226a085837087a0bb0084922ce3303aa2010d6db3ad787328",
+      "local_f0_install_controls_operation_steps_safety_sql_v1.py": "d56aee699dba89eb6fc94be38a7d8419f9b437e1e5c1c0ad142a3595af451f3f",
+      "local_f0_lease_revoke_operation_steps_auth_v5.py": "84b9dcb3293ab3714ffaebf2591a6bc14d2069a7632c68c220299593cf594e3a",
+      "local_f0_lease_revoke_operation_steps_safety_sql_v1.py": "8676f6082c254d4ec1a7de6b079d5ab5b8b7bc7ec0348334a4eb4b03d3e43e7f",
+      "local_f0_native_access_operation_steps_safety_sql_v1.py": "991210f073adecb1ca0b9dda208f56fba218feb56ab3d6c18db16b437ad8072a",
+      "local_f0_native_access_v5_operation_steps.py": "d815cf21217be9792c8e77962d11d16448f6dc52c6fe74604d52bb1ba6943a09",
+      "local_f0_owner_read_operation_steps_finally_v2.py": "c8df99d852767bdbf20f1559cb91b277ef8ed6540ef6b22a52db2265de29601d",
+      "local_f0_owner_read_operation_steps_safety_sql_v1.py": "85fe0992743806757cef39fac2a24d3b08166d741d60993209b1c5b033e4d935",
+      "local_f0_privilege_ceiling_safety_sql_v1_operation_steps.py": "70607528c52744c9da3488e1303f2621be4b0ad3b63ab878fe8986cab0fec4d2",
+      "local_f0_restore_operation_steps_auth_v5.py": "cf1def90032da64dca80e7b3670d1eb807d484504cd6720d03d9a5c9f78a767f",
+      "local_f0_restore_operation_steps_safety_sql_v1.py": "2a55669c8a589599c5549f2826a9aba4b2c99f3df2cc593fcab6d7517ab38508",
+      "pin_local_f0_install_controls_plan_20261118.py": "a734208eae5e083fdd8d6737034768cbad5211e48c6b75b7dde58fe94d2e53da",
+      "pin_local_f0_install_controls_plan_20261119_safety_sql_v1.py": "3bc39a1efc3ae27e7c5a8fefd83a53fa6b067e4132f981d8cf56fb6eab77d2ca",
+      "pin_local_f0_lease_revoke_plan_20261118_auth_v5.py": "d5eb600d758a095fdb8a36c2c7f06ecedcc355f387cc71c0b54dc2f6fadc4ec3",
+      "pin_local_f0_lease_revoke_plan_20261119_safety_sql_v1.py": "b0d5a5546baaba82473e3cb0c6ec448ac2b76574f8632ca67dbe51b056dc399a",
+      "pin_local_f0_owner_read_plan_20261118_finally_v2.py": "fd2134bd6c4e951fa9fd2d8f48ffdbfe72deff577c9cdc9acd9e7c0cde6682bd",
+      "pin_local_f0_owner_read_plan_20261119_safety_sql_v1.py": "9dee0e646338b155c6a8805271b69b8b02e8932a1e7e57824002b9537ca6c6cc",
+      "pin_local_f0_privilege_ceiling_safety_sql_v1_plan_20261119.py": "708834ff8b12c3c5ed8ec19405aadeda2592d97437acdcc4a9dd265afc104e42",
+      "pin_local_f0_restore_plan_20261118_auth_v5.py": "01ce08f1e0740b71d1a44d36e6e8f4d2ed2bba56dcc68111a9225a9709cfba06",
+      "pin_local_f0_restore_plan_20261119_safety_sql_v1.py": "ceb85b4b84c061d9aaabc9753a501317f7e3020ca2375bb1383002fa5439ed30",
+      "pin_native_access_plan_20261119_safety_sql_v1.py": "173da2a5a166f67beba5c0d38cfa1a15d57dff6b5f5fb868c26cb0cf4dab85c9",
+      "pin_native_access_v5_plan_20261118.py": "20102c703f3902f282ff35c0308f528924a847d84c856c125216158b583328bd",
+      "prepare_local_f0_install_controls_plan.py": "c5a5ff7523358afdefcd46a11da8c988e9edf952ebfa2325fe71d03062ced553",
+      "prepare_local_f0_install_controls_plan_safety_sql_v1.py": "22caf5e6dc0c722b0c4e5ddb5887f32adcaa4e3d433b0bf552a5507429af0435",
+      "prepare_local_f0_lease_revoke_plan_auth_v5.py": "5d211470645d44d36d0e23baba4535371f2da1b194f5e04124c945f1f3a26f1f",
+      "prepare_local_f0_lease_revoke_plan_safety_sql_v1.py": "67077bf6fd7c9bb33652787ce4150294cff67cd13fa0fc20d6f5bf5978087bec",
+      "prepare_local_f0_native_access_plan_safety_sql_v1.py": "3276f27248c81fcb128c0f3f9654a97e398e54dd4007f92e0da2cb8aca49ca18",
+      "prepare_local_f0_native_access_v5_plan.py": "992dfd20f70f11afdb9a5aa21bff7896331ca7c2e0f6e0bd63a64981bb78dd7f",
+      "prepare_local_f0_owner_read_plan_finally_v2.py": "fd1cc9461e08ca611468c2b56b1e28228eea2bffbed3913d1301c7a48cf567d9",
+      "prepare_local_f0_owner_read_plan_safety_sql_v1.py": "21cdf556fde8adb92ecdfa8cbbb27ade7bc26281506af17679d10bbcbaba58d3",
+      "prepare_local_f0_privilege_ceiling_safety_sql_v1_plan.py": "1305aaedfea6bd3e58d34d2596933515267ed100d78b039baf72093dd691691e",
+      "prepare_local_f0_restore_plan_auth_v5.py": "77afa8a9062bc8c2b4ab7f357deadc69fa58d9a5e5cb7b9b3210edba2080423a",
+      "prepare_local_f0_restore_plan_safety_sql_v1.py": "eca3dbd63b87a89583345f0e04ed3c4656a7653558a5fb855d29dde8439747d9"
+    },
+    "all55_match": true,
+    "old_owner5_and_archive17_preserved": true,
+    "privilege_7_plus_202_and_plan448_unchanged": true,
+    "Owner121_source67_SQL140_unchanged": true,
+    "worker_ACL_rows": 32,
+    "before_author_manifest_sha256": "927b14eb6abf7594d8ecbda9803eb99c45c8ceb0408e68676395d8a621cbb85c"
+  },
+  "checks": [
+    {
+      "command": "python -B check_local_f0_owner_read_operation_resource_mount_v2.py -v",
+      "tests": 57,
+      "passed": 57,
+      "seconds": 53.589,
+      "status": "PASS",
+      "actual_source_verifier": "real pending inputs/current Root inventory/catalog16/helpers7/physicalfive/121 reconstructed; only common Git/review gate mocked",
+      "pinner": "actual current physical files+sevenhistory+10300tools and synthetic committed blobs; isolated explicit PENDING gate; no actual Git"
+    },
+    {
+      "command": "python -B check_owner_resource_mount_v2_safety_composed_20261119.py -v",
+      "tests": 23,
+      "passed": 23,
+      "seconds": 5.656,
+      "status": "PASS",
+      "composition": "actual new Core/Steps functions; common template not injected; SQL/observer/finalizer/main/cleanup not stubbed; command-only transport mocks"
+    }
+  ],
+  "resource_closure_evidence": [
+    "Observed two-entry default Mounts+exact HostConfig.Tmpfs prestart passes without exec; replacing only inspect_owner with old frozen function reproduces OWNER_READ_EXACT_MOUNT_SET.",
+    "Running check uses fixed owned CID and exact sh -ceu script/30seconds; strict int0/fixedtoken/newline/empty stderr required.",
+    "Fixed readonly proc+stat script checks one literal target/tmpfs/rw/noexec/nosuid/nodev/no conflicting flags plus directory700uid0gid0; no mount/chmod/SQL/config change.",
+    "Actual Core.create_resources ordering through command-only mocks: prestart inspect -> start -> running kernel proof -> readiness -> pgpass. Failure stops readiness/pgpass; real cleanup progresses under persistent evidence I/O.",
+    "Safe fixed phase/count/comparison metadata precedes assertions; unknown output, credentials/handles and arbitrary exception text are absent.",
+    "Missing/duplicate/unknown API mounts, wrong HostConfig multiset/mode, kernel fs/options/count/type/uid/gid, malformed output/exit types/timeout/transport/canary all reject."
+  ],
+  "limits": {
+    "runtime": "NOT_RUN",
+    "real_kernel_or_shell_probe_execution": "NOT_RUN; emitted fixed script is source-reviewed and process-mocked, not a shell/runtime qualification",
+    "Docker_DB_SQL_network_Git": "FORBIDDEN_NOT_USED",
+    "fresh_operational_literal_or_resources": "NOT_CREATED; only temporary source-only mock preparation files were generated and cleaned",
+    "old44ac_cause": "Only retained prestart predicate proven; no running kernel result or historical auth/install/behavior invented",
+    "source_approval": "PENDING; no author self approval",
+    "posture": "D",
+    "whole94_451_or_owner_API_or_production": "NOT_PROMOTED"
+  }
+}

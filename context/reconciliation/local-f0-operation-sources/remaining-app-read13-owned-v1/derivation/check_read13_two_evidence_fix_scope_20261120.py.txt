@@ -1,0 +1,23 @@
+"""Read-only AST and byte-scope proof; no project code or process calls."""
+from pathlib import Path
+import ast,hashlib,json
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass';OLD=TASK/'read13-before-two-evidence-fixes-Root-preserved-20261120'
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def functions(raw):
+ values={}
+ def scan(body,prefix=''):
+  for item in body:
+   if isinstance(item,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef)):
+    name=prefix+item.name
+    if isinstance(item,(ast.FunctionDef,ast.AsyncFunctionDef)):values[name]=sha(ast.dump(item,include_attributes=False).encode())
+    scan(item.body,name+'.')
+ scan(ast.parse(raw).body);return values
+def main():
+ rows={}
+ for relative in('scripts/remaining_app_read13_protocol.py','scripts/sql-review/run-remaining-app-read13-rehearsal.py','local_f0_remaining_app_read13_owned_v1_operation_steps.py','prepare_local_f0_remaining_app_read13_owned_v1_plan.py','pin_local_f0_remaining_app_read13_owned_v1_plan_20261120.py'):
+  external='/'not in relative;base='TASK'if external else'ROOT';before=(OLD/base/relative).read_bytes();after=((TASK if external else ROOT)/relative).read_bytes();b=functions(before);a=functions(after)
+  rows[relative]={'old_sha256':sha(before),'new_sha256':sha(after),'changed_functions':[name for name in b if name in a and b[name]!=a[name]],'removed_functions':sorted(set(b)-set(a)),'added_functions':sorted(set(a)-set(b)),'unchanged_functions':sum(name in a and b[name]==a[name]for name in b)}
+ pin='pin_local_f0_remaining_app_read13_owned_v1_plan_20261120.py';new_coordinator=sha((ROOT/'scripts/sql-review/run-remaining-app-read13-rehearsal.py').read_bytes());normalized=(TASK/pin).read_text().replace(new_coordinator,'5d6baaef489bfaefb97e1585cbeeb37709c207c02544580725f01abc6ea868da').encode()
+ record={'schema':'workinants.read13-two-evidence-fix-static-scope.v2','function_deltas':rows,'pinner_functions_AST_exact_after_only_coordinator_hash_literal_normalization':functions(normalized)==functions((OLD/'TASK'/pin).read_bytes()),'core_byte_exact':(TASK/'execute_local_f0_remaining_app_read13_owned_v1_20261120.py').read_bytes()==(OLD/'TASK/execute_local_f0_remaining_app_read13_owned_v1_20261120.py').read_bytes(),'SQL_artifact_changes':[p.name for p in(ROOT/'review-output/remaining-app-read13-rehearsal').glob('*.sql')if p.read_bytes()!=(OLD/'ROOT/review-output/remaining-app-read13-rehearsal'/p.name).read_bytes()],'database_execution':False}
+ path=TASK/'read13_two_evidence_fix_static_scope_v2_20261120.json';assert not path.exists();raw=(json.dumps(record,indent=2)+'\n').encode();path.write_bytes(raw);print(json.dumps({'sha256':sha(raw),**record}))
+if __name__=='__main__':main()

@@ -1,0 +1,4 @@
+SELECT jsonb_build_object('read13_marker','TrackSubscription/revision'::text,'position','BEFORE'::text);
+SELECT jsonb_build_object('model','TrackSubscription','ids',coalesce(jsonb_agg(observed.id::text ORDER BY observed.id::text COLLATE "C"),'[]'::jsonb)) FROM (SELECT id,user_id,plan_id,track,customer_profile_id,candidate_profile_id,professional_profile_id,status,provider,provider_customer_id,provider_subscription_id,provider_price_id,current_period_start,current_period_end,trial_ends_at,cancelled_at,ended_at,created_at,updated_at,revision,mutation_transaction_id FROM app.track_subscriptions WHERE id IN ('5a94c817-7047-529a-a0d5-41d9e526f263'::uuid,'70761172-491c-5fce-9983-e5a61cdf3579'::uuid)) observed;
+SET CONSTRAINTS ALL IMMEDIATE;
+SELECT jsonb_build_object('read13_marker','TrackSubscription/revision'::text,'position','AFTER'::text);

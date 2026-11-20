@@ -1,0 +1,284 @@
+"""Derive only new Read13 owned sources. Pure filesystem preparation, never runtime."""
+from pathlib import Path
+import ast
+import hashlib
+import json
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+OLD=('execute_local_f0_scoped_reads_owned_resource_v1_20261119.py','local_f0_scoped_reads_owned_resource_v1_operation_steps.py','prepare_local_f0_scoped_reads_owned_resource_v1_plan.py','check_local_f0_scoped_reads_owned_resource_v1_operation.py','pin_local_f0_scoped_reads_owned_resource_v1_plan_20261119.py')
+NEW=('execute_local_f0_remaining_app_read13_owned_v1_20261120.py','local_f0_remaining_app_read13_owned_v1_operation_steps.py','prepare_local_f0_remaining_app_read13_owned_v1_plan.py','check_local_f0_remaining_app_read13_owned_v1_operation.py','pin_local_f0_remaining_app_read13_owned_v1_plan_20261120.py')
+BASE_SHA=('d35491a05064d58c05ec7437b16668554394854f0e7b3d7ee2675fbb963b64ec','6cdbffd04fa950663ba94f40503b2d987284b57ff6ea0a8619f4a3c9eaa5bb71','009f41028bea52513e1050efce4662b3de9167818e1f95a1fffb4830e5e49ab0','6d69f6df83eee156605766d82683a29a5890b7436bac4428d890c28cca3b9aa9','9f644efc10b9e5e68756d51e38c744e06404ac84fc0c4e36386c82c608c33bdd')
+PACKET='review-output/remaining-app-read13-rehearsal'
+CHILD='scripts/sql-review/run-remaining-app-read13-rehearsal.py'
+PROTOCOL='scripts/remaining_app_read13_protocol.py'
+CHILD_VALIDATION='context/reconciliation/local-f0-remaining-app-read13-source-validation.json'
+OWNED_VALIDATION='context/reconciliation/local-f0-remaining-app-read13-owned-v1-source-validation.json'
+OWNED_ARCHIVE='context/reconciliation/local-f0-operation-sources/remaining-app-read13-owned-v1'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+
+def replace_function(text,name,body):
+ node=next(n for n in ast.parse(text).body if isinstance(n,(ast.FunctionDef,ast.ClassDef)) and n.name==name)
+ lines=text.splitlines(keepends=True);lines[node.lineno-1:node.end_lineno]=[body.rstrip()+'\n'];return ''.join(lines)
+
+def set_constant(text,name,value):
+ tree=ast.parse(text);matches=[n for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id==name for t in n.targets)]
+ assert len(matches)==1,(name,len(matches));node=matches[0];literal='{'+','.join(repr(v)for v in sorted(value))+'}'if type(value)is set else repr(value);lines=text.splitlines(keepends=True);lines[node.lineno-1:node.end_lineno]=[name+'='+literal+'\n'];return ''.join(lines)
+
+def renamed(text):
+ for before,after in zip(OLD,NEW):text=text.replace(before,after)
+ for before,after in (
+  ('scripts/sql-review/run-scoped-read-companion-rehearsal.py',CHILD),
+  ('scripts/scoped_read_companion_protocol.py',PROTOCOL),
+  ('review-output/scoped-read-companion-rehearsal',PACKET),
+  ('workinants.scoped-read-companion-owned-resource-v1-source-validation.v1','workinants.remaining-app-read13-owned-v1-source-validation.v1'),
+  ('workinants.scoped-read-companion','workinants.remaining-app-read13'),
+  ('LOCAL_F0_SCOPED_READ_COMPANION_OWNED_RESOURCE_V1','LOCAL_F0_REMAINING_APP_READ13_OWNED_V1'),
+  ('scoped-read-companion-owned-resource-v1','remaining-app-read13-owned-v1'),
+  ('scoped-read-companion-owned-resource','remaining-app-read13-owned'),
+  ('local-f0-scoped-reads-resource-v1-plan-','local-f0-remaining-app-read13-owned-v1-plan-'),
+  ('local-f0-scoped-reads-resource-v1-','local-f0-remaining-app-read13-owned-v1-'),
+  ('SCOPED_READ','READ13'),('SCOPED-READ','READ13'),('scoped_read','read13'),
+  ('scoped-read','read13'),('scopedreads','read13')):text=text.replace(before,after)
+ return text
+
+ADMIT=r'''
+def admit_read13_sources():
+    """All data/source/review/history/tool/physical bytes precede compilation."""
+    global SCOPED_FIXTURES
+    cfg=MANIFEST.get('read13');need(type(cfg)is dict and set(cfg)=={'fixtures_sha256','content_sha256','coordinator_sha256','external_files_sha256'},'READ13_CONFIGURATION_FIELDS')
+    exact({k:cfg[k]for k in('fixtures_sha256','content_sha256','coordinator_sha256')},{'fixtures_sha256':SCOPED_FIXTURES_SHA,'content_sha256':SCOPED_CONTENT_SHA,'coordinator_sha256':SCOPED_COORDINATOR_SHA},'EXACT_READ13_PACKET')
+    pins=MANIFEST.get('packet_files_sha256');need(type(pins)is dict and bool(pins)and all(type(v)is str and re.fullmatch('[0-9a-f]{64}',v)for v in pins.values()),'READ13_FULL_SOURCE_MAP_REQUIRED')
+    fixed=set(HELPER_FILES)|set(IMAGE_FILES)|{SCOPED_PEER,IMAGE_PEER,OWNED_VALIDATION,CHILD_VALIDATION,BASIS_OWNER_VALIDATION,BASIS_SIX_VALIDATION,TOOLS_CLOSURE,SCOPED_PACKET+'/fixtures.json',GENERATOR,RECIPE_GENERATOR,'review-output/native-catalog/source-pins.json'}|{OWNED_ARCHIVE+'/'+name+'.txt'for name in EXTERNAL_FILES}
+    need(fixed<=set(pins),'READ13_REQUIRED_SOURCE_MISSING')
+    admitted={name:read_pinned(name)for name in pins}
+    for name,wanted in {**SCOPED_HELPER_SHA,**IMAGE_FILES,SCOPED_PEER:SCOPED_PEER_SHA,IMAGE_PEER:IMAGE_PEER_SHA,BASIS_OWNER_VALIDATION:BASIS_OWNER_VALIDATION_SHA,BASIS_SIX_VALIDATION:BASIS_SIX_VALIDATION_SHA}.items():need(pins.get(name)==wanted,'READ13_REVIEWED_SOURCE_REQUIRED')
+    for basis,count in((BASIS_OWNER_VALIDATION,45),(BASIS_SIX_VALIDATION,10)):
+        record=unique_json(admitted[basis]);archive=record['archive_files_sha256'];need(type(archive)is dict and len(archive)==count,'READ13_BASIS_ARCHIVE_COUNT')
+        need(all(pins.get(name)==wanted and name in admitted for name,wanted in archive.items()),'READ13_BASIS_ARCHIVE_ADMISSION')
+        if basis==BASIS_SIX_VALIDATION:
+            sources=record['source_files_sha256'];need(type(sources)is dict and len(sources)==100 and all(pins.get(name)==wanted and name in admitted for name,wanted in sources.items()),'READ13_BASE_100_SOURCES')
+        else:
+            for name,wanted in record['operator_sources_sha256'].items():
+                snapshot='context/reconciliation/local-f0-operation-sources/owner-read-resource-mount-v2/'+name+'.txt'
+                need(archive.get(snapshot)==wanted and pins.get(snapshot)==wanted and snapshot in admitted,'READ13_ACCEPTED_OWNER_BASIS_DRIFT')
+    external=cfg['external_files_sha256'];need(type(external)is dict and set(external)==set(EXTERNAL_FILES),'READ13_EXTERNAL_SOURCE_SET')
+    for name,wanted in external.items():
+        physical=TASK/name;metadata=physical.lstat();need(stat.S_ISREG(metadata.st_mode)and not physical.is_symlink(),'READ13_PHYSICAL_SOURCE_NOT_REGULAR')
+        raw=physical.read_bytes();need(type(wanted)is str and re.fullmatch('[0-9a-f]{64}',wanted)and hashlib.sha256(raw).hexdigest()==wanted and raw==admitted[OWNED_ARCHIVE+'/'+name+'.txt'],'READ13_COMMITTED_PHYSICAL_FIVE')
+    owned=unique_json(admitted[OWNED_VALIDATION]);need(owned['schema']=='workinants.remaining-app-read13-owned-v1-source-validation.v1'and owned['operator_sources_sha256']==external,'READ13_OWNED_VALIDATION_BINDING')
+    for key in('independent_owned_resource_review','independent_safety_sql_review'):
+        review=owned.get(key);need(type(review)is dict and review.get('decision')=='SOURCE_APPROVED','READ13_OWNED_SOURCE_REVIEW_PENDING')
+        need(review.get('operator_sources_sha256')==external and pins.get(review.get('path'))==review.get('sha256')and review.get('path')in admitted,'READ13_OWNED_REVIEW_SOURCE_BINDING')
+    archive=owned['archive_files_sha256'];need(type(archive)is dict and all(name.startswith(OWNED_ARCHIVE+'/')and pins.get(name)==wanted for name,wanted in archive.items()),'READ13_OWNED_ARCHIVE_ADMISSION')
+    actual={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest()for p in(ROOT/OWNED_ARCHIVE).rglob('*')if p.is_file()}
+    need(actual==archive and not any(p.is_symlink()for p in(ROOT/OWNED_ARCHIVE).rglob('*')),'READ13_CLOSED_OWNED_ARCHIVE')
+    child=unique_json(admitted[CHILD_VALIDATION]);review=child.get('independent_source_review',{})
+    need(review.get('decision')=='SOURCE_APPROVED'and pins.get(review.get('path'))==review.get('sha256')and review.get('path')in admitted,'READ13_CHILD_SOURCE_REVIEW_PENDING')
+    for mapping in(child['source_files_sha256'],child['archive_files_sha256']):need(all(pins.get(path)==wanted and path in admitted for path,wanted in mapping.items()),'READ13_CHILD_FULL_SOURCE_ADMISSION')
+    fixtures=unique_json(admitted[SCOPED_PACKET+'/fixtures.json']);need(hashlib.sha256(admitted[SCOPED_PACKET+'/fixtures.json']).hexdigest()==SCOPED_FIXTURES_SHA,'READ13_FIXTURE_SHA')
+    need(fixtures['schema']=='workinants.remaining-app-read13-fixtures.v1'and fixtures['status']=='NOT_RUN'and fixtures['database_posture']=='D'and fixtures['database_contacted']is False and fixtures['sql_executed']is False and len(fixtures['cases'])==82 and Counter(c['kind']for c in fixtures['cases'])=={'read':79,'binder-denial':3},'READ13_FINITE_SOURCE_SCOPE')
+    need(fixtures['fixture_run_id']==RUN_ID and len(fixtures['fixture_plan']['fixture_rows'])==48 and len(fixtures['fixture_plan']['verified_direct_FK_links'])==78 and len(fixtures['fixture_plan']['trigger_setup_allowlist'])==15,'READ13_FROZEN_RUN_GRAPH')
+    need(digest({k:fixtures[k]for k in('source_files_sha256','prepared_files_sha256')})==SCOPED_CONTENT_SHA and len(fixtures['worker_acl_ceiling_rows'])==32,'READ13_CLOSED_SOURCE_CONTENT')
+    for path,wanted in fixtures['source_files_sha256'].items():need(pins.get(path)==wanted and path in admitted,'READ13_SOURCE_NOT_IN_PACKET')
+    for path,wanted in fixtures['prepared_files_sha256'].items():need(pins.get(SCOPED_PACKET+'/'+path)==wanted and SCOPED_PACKET+'/'+path in admitted,'READ13_ARTIFACT_NOT_IN_PACKET')
+    catalog=unique_json(admitted['review-output/native-catalog/source-pins.json']);need(type(catalog)is dict and len(catalog)==16 and all(pins.get(path)==wanted for path,wanted in catalog.items()),'READ13_CATALOG16_REQUIRED')
+    SCOPED_STATE['admitted']=admitted;SCOPED_FIXTURES=fixtures
+    validate_owned_source_snapshot();validate_owned_tool_archive();return admitted
+'''
+
+VERIFY=r'''
+def verify_read13_packet():
+    need(type(COMMIT)is str and re.fullmatch('[0-9a-f]{40}',COMMIT)and type(TREE)is str and re.fullmatch('[0-9a-f]{40}',TREE)and type(PACKET)is str and re.fullmatch('[0-9a-f]{64}',PACKET),'READ13_SOURCE_NOT_PINNED')
+    need(uuid.UUID(RUN_ID).version==4,'READ13_FRESH_UUID4')
+    admitted=admit_read13_sources();verify_catalog_packet()
+    # Only cached hash-admitted code executes, after Common/Git/native-source admission.
+    protocol=load_reviewed_helper(PROTOCOL_FILE);ordinary=builtins.__import__
+    def imported(name,globals=None,locals=None,fromlist=(),level=0):
+        if name=='remaining_app_read13_protocol'and level==0:
+            module=types.ModuleType(name);module.__dict__.update(protocol);return module
+        need(level==0 and name in('argparse','copy','json','pathlib'),'READ13_GENERATOR_IMPORT_CLOSURE')
+        return ordinary(name,globals,locals,fromlist,level)
+    namespace={'__name__':'_verified_read13_recipe','__file__':str(ROOT/RECIPE_GENERATOR),'__builtins__':{**vars(builtins),'__import__':imported}}
+    output=io.StringIO()
+    with contextlib.redirect_stdout(output),contextlib.redirect_stderr(output):
+        exec(compile(admitted[RECIPE_GENERATOR],str(ROOT/RECIPE_GENERATOR),'exec'),namespace);files,fixtures=namespace['build'](ROOT,RUN_ID)
+    need(not output.getvalue(),'READ13_GENERATOR_OUTPUT_REFUSED')
+    for path,text in files.items():need(admitted.get(SCOPED_PACKET+'/'+path)==text.encode(),'READ13_EXACT_SOURCE_REPRODUCTION')
+    for path in MANIFEST['packet_files_sha256']:read_pinned(path)
+    for path in HELPER_FILES:load_reviewed_helper(path)
+    SAFE_FILES.update({'read13-native-attestation.json','read13-run-plan.json','read13-component-result.json','post-state-before.json','post-state-after.json'}|{'post-'+path for path in tuple(SAFE_FILES)})
+    report['steps']['READ13-REVIEW']='PASS_SOURCE_ADMISSION_ONLY';report['read13']={'selected_assertions':'NOT_RUN','whole_selected94_or451':'NOT_PROMOTED','owner_api_policy_qualified':False};save()
+'''
+
+VALIDATE=r'''
+def validate_read13_component(value,plan,native_sha):
+    keys={'schema','status','current_stage','current_case','run_id','container_id','source_commit','source_tree','packet_sha256','reviewed_packet_sha256','reviewed_content_sha256','selected_controls','results','operations','authentication','unexpected','subsequent_cases_stopped','cleanup_required','fixture_owner_bypass_restored','evidence_complete','database_posture','limits','effective_hba_selections','current_auth_role','authentication_comparison','baseline','source_packet_unchanged_after','sanitization'}
+    need(type(value)is dict and set(value)==keys,'READ13_COMPONENT_EXACT_FIELDS')
+    wanted={'schema':'workinants.remaining-app-read13-evidence.v1','status':'PASS_FINITE_REMAINING13_APP_SELECT_SQL_SUBSET_ONLY','current_stage':'COMPLETE','current_case':None,'run_id':RUN_ID,'container_id':created_containers[TARGETS[0]['name']],'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'reviewed_packet_sha256':SCOPED_FIXTURES_SHA,'reviewed_content_sha256':SCOPED_CONTENT_SHA,'unexpected':[],'subsequent_cases_stopped':False,'cleanup_required':True,'fixture_owner_bypass_restored':True,'evidence_complete':True,'database_posture':'D','limits':SCOPED_FIXTURES['scope_limits'],'source_packet_unchanged_after':True,'selected_controls':[{'id':x,'status':'NOT_RUN'}for x in SCOPED_FIXTURES['selected_control_ids']],'sanitization':{'context_secrets_hashes_or_backend_handles_retained':False,'raw_stderr_statement_bodies_retained':False},'current_auth_role':'wa_worker','authentication_comparison':{key:True for key in('json_parsed','object','fields','string_fields','login','scram_identity','database','client_loopback','server_loopback')}}
+    for key,item in wanted.items():exact(value[key],item,'READ13_COMPONENT_TYPED_HEADER')
+    roles=list(ROLES)
+    expected_auth=[{'role':role,'transport':'TCP_127.0.0.1_5432','correct_password':'PASS_SCRAM','wrong_password':'PASS_REJECTED','wrong_password_exit_code':2}for role in roles]
+    exact(value['authentication'],expected_auth,'READ13_ACTUAL_SCRAM_CONTROLS')
+    hba=value['effective_hba_selections'];need(type(hba)is list and len(hba)==12,'READ13_HBA_TWELVE')
+    for row,(address,role)in zip(hba,((address,role)for address in('127.0.0.1','::1')for role in roles)):
+        need(type(row)is dict and set(row)=={'role','address','rule_number','method'}and row['role']==role and row['address']==address and row['method']=='scram-sha-256'and type(row['rule_number'])is int and row['rule_number']>0,'READ13_HBA_TYPED_SELECTION')
+    baseline=value['baseline'];need(type(baseline)is dict and set(baseline)=={'tables','sha256'}and digest(baseline['tables'])==baseline['sha256']and set(baseline['tables'])==set(SCOPED_FIXTURES['setup_expected_counts']),'READ13_COMPLETE42_BASELINE')
+    for table,count in SCOPED_FIXTURES['setup_expected_counts'].items():
+        row=baseline['tables'][table];wanted_count=10 if table=='platform.database_action_grant'else count
+        need(type(row)is dict and set(row)=={'count','rows_sha256'}and type(row['count'])is int and row['count']==wanted_count and type(row['rows_sha256'])is str and re.fullmatch('[0-9a-f]{64}',row['rows_sha256']),'READ13_TYPED_BASELINE_COUNTS')
+    results=value['results'];need(type(results)is list and len(results)==82,'READ13_EXACT82_RESULTS')
+    grant_count=10
+    for row,case in zip(results,SCOPED_FIXTURES['cases']):
+        common={'case':case['name'],'claim':case['claim'],'actual_login':'wa_app_runtime','operation_closed_before_observers':True,'global_closure_confirmed':True,'all100_guards_restored':True,'tables_observed':42,'all_business_tables_unchanged':True,'status':'PASS'}
+        for key,item in common.items():exact(row.get(key),item,'READ13_TYPED_CASE_FIELDS')
+        for key in('before_complete_state_sha256','complete_state_sha256'):need(type(row.get(key))is str and re.fullmatch('[0-9a-f]{64}',row[key]),'READ13_STATE_HASH_SHAPE')
+        for key,count,hash_key in(('before_tables',grant_count,'before_complete_state_sha256'),('after_tables',grant_count+(case['grant']is not None),'complete_state_sha256')):
+            state=row.get(key);need(type(state)is dict and set(state)==set(baseline['tables'])and digest(state)==row[hash_key],'READ13_COMPLETE42_SOURCE_LINK')
+            for table,item in state.items():
+                need(type(item)is dict and set(item)=={'count','rows_sha256'}and type(item['count'])is int and type(item['rows_sha256'])is str and re.fullmatch('[0-9a-f]{64}',item['rows_sha256']),'READ13_TYPED42_STATE')
+                if table=='platform.database_action_grant':need(item['count']==count,'READ13_EXACT_GRANT_COUNT_CONTINUITY')
+                else:exact(item,baseline['tables'][table],'READ13_ALL_BUSINESS_ROWS_UNCHANGED')
+        if case['grant']is not None:grant_count+=1
+        if case['kind']=='read':
+            need(set(row)==set(common)|{'before_tables','after_tables','before_complete_state_sha256','complete_state_sha256','intended_stage','exact_rowsets','observed_records','guard_diagnostic'},'READ13_READ_RESULT_FIELDS')
+            exact({key:row[key]for key in('intended_stage','exact_rowsets','observed_records','guard_diagnostic')},{'intended_stage':'SELECT','exact_rowsets':True,'observed_records':case['expected_records'],'guard_diagnostic':None},'READ13_ACTUAL_SOURCE_ROWSETS')
+        else:
+            need(set(row)==set(common)|{'before_tables','after_tables','before_complete_state_sha256','complete_state_sha256','intended_stage','selected_reads_executed','guard_diagnostic'},'READ13_BIND_RESULT_FIELDS')
+            need(row['intended_stage']=='BIND_CURRENTNESS_RECHECK'and row['selected_reads_executed']is False and row['claim']is None,'READ13_BIND_STAGE_ONLY')
+            diagnostic=row['guard_diagnostic'];need(type(diagnostic)is dict and set(diagnostic)=={'matched','sqlstate','source_frame_verified','source_body_sha256','source_body_line','classification'}and diagnostic['matched']is True and diagnostic['sqlstate']=='42501'and diagnostic['source_frame_verified']is True and diagnostic['classification']=='EXPECTED_BINDER_SOURCE_GUARD','READ13_BIND_SOURCE_DIAGNOSTIC')
+            application=read_pinned('review-output/foundation-application.review.sql').decode();body=re.search(r'CREATE FUNCTION platform_private\.bind_request_context\(secret text\).*?AS\s+(\$[a-z_0-9]*\$)(.*?)\1;',application,re.S)[2];line=next(i for i,text in enumerate(body.split('\n'),1)if "RAISE EXCEPTION 'invalid, stale or unsupported context'"in text)
+            need(diagnostic['source_body_sha256']==hashlib.sha256(body.encode()).hexdigest()and type(diagnostic['source_body_line'])is int and diagnostic['source_body_line']==line,'READ13_BIND_SOURCE_FRAME')
+    operations=value['operations'];need(type(operations)is list and operations and all(type(row)is dict for row in operations),'READ13_OPERATION_RECORDS')
+    native_stages={'PRE_SETUP_NATIVE','RESTORED_FULL_NATIVE','BEFORE_FIRST_SELECTED_READ','FINAL_FULL_NATIVE_PARITY','FINALLY_FULL_NATIVE_IDENTITY'}
+    proof_keys={'all100_user_trigger_identities_match','internal312_identities_unchanged','exact15_only_flags_eligible','source_function_owner_acl_dependencies_unchanged'}
+    schemas={
+      'GLOBAL_BACKEND_CLOSURE':{'scope','observation_completed','all_other_clients_absent'},
+      'EXACT15_RESTORE_ELIGIBILITY':proof_keys,'ALL100_GUARDS_RESTORED':proof_keys,
+      'ACTUAL_TRANSACTION':{'case','actual_login','same_tuple_verified','issuer_committed','operation_closed','global_closure_confirmed','read_stage_reached','commit_acknowledged','exit_code','acknowledged','stderr_present','stdout_records'},
+      'SEPARATE_ISSUER_COMMIT':{'issuer_committed','created_at_return_verified','operation_closed'},
+      'EXACT21_GRANT_RETENTION':{'instances','all21_expected_fields_match','issuer_owned','unexpired_required'},
+      'FIXTURE_GROUP_COMMITTED':{'name','rows','same_actual_group_xid','application_write_claim'},
+      'EXACT48_SOURCE_COHERENCE':{'all_static_values_and78_fk_links_match','actual_pg_storage_digests_match','synthetic_usage_source_window_sum_limit_match','adapter_or_write_qualification'},
+      'ACTUAL_SERVER_EXPIRY':{'clock_observed_expired','monotonic_budget_seconds','late_response_accepted'},
+      'SEPARATE_REVOKE_COMMIT_BEFORE_ACTION':{'issuer_closed','same_app_transaction_remains_bound'}}
+    for row in operations:
+        stage=row.get('stage');need(type(stage)is str,'READ13_OPERATION_STAGE')
+        if stage in native_stages:
+            need(set(row)=={'stage','full_native_identity_match','native_sha256'}and row['full_native_identity_match']is True and row['native_sha256']==native_sha,'READ13_SAME_TARGET_NATIVE_OPERATION');continue
+        need(stage in schemas and set(row)==schemas[stage]|{'stage'},'READ13_CLOSED_OPERATION_FIELDS')
+        if stage in('EXACT15_RESTORE_ELIGIBILITY','ALL100_GUARDS_RESTORED'):need(all(row[k]is True for k in proof_keys),'READ13_EXACT_TRIGGER_IDENTITIES')
+        elif stage=='EXACT21_GRANT_RETENTION':need(type(row['instances'])is int and 1<=row['instances']<=79 and row['all21_expected_fields_match']is True and row['issuer_owned']is True and type(row['unexpired_required'])is bool,'READ13_TYPED21_RETENTION')
+        elif stage=='EXACT48_SOURCE_COHERENCE':need(row['all_static_values_and78_fk_links_match']is True and row['actual_pg_storage_digests_match']is True and row['synthetic_usage_source_window_sum_limit_match']is True and row['adapter_or_write_qualification']is False,'READ13_SOURCE_COHERENCE_SCOPE')
+        elif stage=='ACTUAL_SERVER_EXPIRY':need(row['clock_observed_expired']is True and type(row['monotonic_budget_seconds'])is int and row['monotonic_budget_seconds']==45 and row['late_response_accepted']is False,'READ13_ACTUAL_BOUNDED_EXPIRY')
+        elif stage=='SEPARATE_REVOKE_COMMIT_BEFORE_ACTION':need(row['issuer_closed']is True and row['same_app_transaction_remains_bound']is True,'READ13_SEPARATE_REVOKE')
+        elif stage=='FIXTURE_GROUP_COMMITTED':
+            group=next((g for g in SCOPED_FIXTURES['setup_groups']if g['name']==row['name']),None);need(group is not None and type(row['rows'])is int and row['rows']==len(group['row_ids'])and row['same_actual_group_xid']is True and row['application_write_claim']is False,'READ13_SOURCE_GROUP_OPERATION')
+    transactions=[row for row in operations if row.get('stage')=='ACTUAL_TRANSACTION'];need(len(transactions)==99,'READ13_EXACT17_SETUP82_READ_TRANSACTIONS')
+    expected_names=['DISABLE_EXACT15']+[g['name']for g in SCOPED_FIXTURES['setup_groups']]+['RESTORE_EXACT15']+[c['name']for c in SCOPED_FIXTURES['cases']]
+    exact([row['case']for row in transactions],expected_names,'READ13_ACTUAL_TRANSACTION_ORDER')
+    for row in transactions:
+        need(set(row)=={'stage','case','actual_login','same_tuple_verified','issuer_committed','operation_closed','global_closure_confirmed','read_stage_reached','commit_acknowledged','exit_code','acknowledged','stderr_present','stdout_records'},'READ13_TRANSACTION_CLOSED_FIELDS')
+        need(row['same_tuple_verified']is True and row['operation_closed']is True and row['global_closure_confirmed']is True and type(row['exit_code'])is int and type(row['acknowledged'])is bool and type(row['stderr_present'])is bool and type(row['stdout_records'])is int and row['stdout_records']>=0,'READ13_TRANSACTION_TYPED_CLOSURE')
+        case=next((c for c in SCOPED_FIXTURES['cases']if c['name']==row['case']),None);group=next((g for g in SCOPED_FIXTURES['setup_groups']if g['name']==row['case']),None)
+        if case is not None:
+            denied=case['kind']=='binder-denial';need(row['actual_login']=='wa_app_runtime'and row['issuer_committed']is(case['grant']is not None)and row['commit_acknowledged']is False and row['read_stage_reached']is(not denied)and row['exit_code']==(3 if denied else 0)and row['acknowledged']is(not denied)and row['stderr_present']is denied and row['stdout_records']==(0 if denied else len(case['expected_records'])),'READ13_CASE_ACTUAL_TERMINAL')
+        else:
+            need(row['case']in('DISABLE_EXACT15','RESTORE_EXACT15')or group is not None,'READ13_REGISTERED_SETUP_TRANSACTION');login=group['login']if group else'postgres'
+            need(row['actual_login']==login and row['issuer_committed']is(login=='wa_app_runtime')and row['read_stage_reached']is False and row['commit_acknowledged']is True and row['exit_code']==0 and row['acknowledged']is True and row['stderr_present']is False and row['stdout_records']==(2 if group else 0),'READ13_SETUP_ACTUAL_COMMIT')
+    issuers=[row for row in operations if row.get('stage')=='SEPARATE_ISSUER_COMMIT'];need(len(issuers)==79 and all(set(row)=={'stage','issuer_committed','created_at_return_verified','operation_closed'}and all(row[k]is True for k in('issuer_committed','created_at_return_verified','operation_closed'))for row in issuers),'READ13_79_SEPARATE_ISSUER_COMMITS')
+    globals_seen=[row for row in operations if row.get('stage')=='GLOBAL_BACKEND_CLOSURE'];need(globals_seen and all(set(row)=={'stage','scope','observation_completed','all_other_clients_absent'}and row['scope']=='ALL_DATABASES_ALL_CLIENT_ROLES_EXCEPT_THIS_OBSERVER'and row['observation_completed']is True and row['all_other_clients_absent']is True for row in globals_seen),'READ13_GLOBAL_ALL_CLIENT_PROOFS')
+    guards=[row for row in operations if row.get('stage')=='ALL100_GUARDS_RESTORED'];need(len(guards)>=85 and all(all(row.get(k)is True for k in('all100_user_trigger_identities_match','internal312_identities_unchanged','exact15_only_flags_eligible','source_function_owner_acl_dependencies_unchanged'))for row in guards),'READ13_RESTORED100_ALL_BEHAVIOR')
+    need(sum(row.get('stage')=='ACTUAL_SERVER_EXPIRY'for row in operations)==1 and sum(row.get('stage')=='SEPARATE_REVOKE_COMMIT_BEFORE_ACTION'for row in operations)==1,'READ13_EXACT_CURRENTNESS_WITNESSES')
+    need(any(row.get('stage')=='FINAL_FULL_NATIVE_PARITY'and row.get('native_sha256')==native_sha for row in operations),'READ13_FINAL_SAME_NATIVE')
+'''
+
+INVENTORY=r'''
+def source_inventory(current,packet,external):
+ six=decoded(source(SIX_VALIDATION,SIX_VALIDATION_SHA));owner=decoded(source(OWNER_VALIDATION,OWNER_VALIDATION_SHA))
+ need(len(mapping(six['source_files_sha256']))==100 and len(mapping(six['archive_files_sha256']))==10 and six['independent_source_review']['decision']=='SOURCE_APPROVED','ACCEPTED_BASE_SIX100')
+ need(len(mapping(owner['archive_files_sha256']))==45 and owner['independent_safety_sql_review']['decision']=='SOURCE_APPROVED','ACCEPTED_OWNER45')
+ archive_tree(SIX_ARCHIVE,six['archive_files_sha256']);archive_tree(OWNER_ARCHIVE,owner['archive_files_sha256'])
+ child_raw=source(CHILD_VALIDATION);child=decoded(child_raw);owned_raw=source(OWNED_VALIDATION);owned=decoded(owned_raw)
+ need(child['schema']=='workinants.remaining-app-read13-source-validation.v1'and child['fixture_sha256']==FIXTURES_SHA and child['content_sha256']==CONTENT_SHA and child['independent_source_review']['decision']in('PENDING','SOURCE_APPROVED'),'EXACT_NEW_CHILD_SOURCE_METADATA')
+ need(owned['schema']=='workinants.remaining-app-read13-owned-v1-source-validation.v1'and owned['operator_sources_sha256']==external,'EXACT_NEW_OWNED_SOURCE_METADATA')
+ for gate in('independent_owned_resource_review','independent_safety_sql_review'):need(owned[gate]['decision']in('PENDING','SOURCE_APPROVED'),'NEW_REVIEW_GATE_REQUIRED')
+ expected=dict(current)
+ def add(name,wanted):
+  relative(name);need(name not in expected or expected[name]==wanted,'SOURCE_BINDING_CONFLICT');source(name,wanted);expected[name]=wanted
+ for record in(six['source_files_sha256'],six['archive_files_sha256'],owner['archive_files_sha256'],child['source_files_sha256'],child['archive_files_sha256'],owned['archive_files_sha256'],CHILD_HELPERS,IMAGE_FILES):
+  for name,wanted in mapping(record).items():add(name,wanted)
+ for name,wanted in((SIX_VALIDATION,SIX_VALIDATION_SHA),(OWNER_VALIDATION,OWNER_VALIDATION_SHA),(CHILD_VALIDATION,sha(child_raw)),(OWNED_VALIDATION,sha(owned_raw)),(FIXTURES,FIXTURES_SHA),(PEER,PEER_SHA),(TOOL_CLOSURE,TOOL_CLOSURE_SHA),IMAGE_PROOF_REVIEW):add(name,wanted)
+ archive_tree(CHILD_ARCHIVE,child['archive_files_sha256']);archive_tree(OWNED_ARCHIVE,owned['archive_files_sha256'])
+ for name,wanted in external.items():need(expected.get(OWNED_ARCHIVE+'/'+name+'.txt')==wanted and not(TASK/name).is_symlink()and sha((TASK/name).read_bytes())==wanted,'PHYSICAL_FIVE_REQUIRED')
+ for name,wanted in mapping(packet['source_files_sha256']).items():need(expected.get(name)==wanted,'READ13_SOURCE_NOT_ADMITTED')
+ for name,wanted in mapping(packet['prepared_files_sha256']).items():need(expected.get('review-output/remaining-app-read13-rehearsal/'+name)==wanted,'READ13_ARTIFACT_NOT_ADMITTED')
+ catalog=decoded(source('review-output/native-catalog/source-pins.json'));need(len(mapping(catalog))==16,'CATALOG16_REQUIRED')
+ for name,wanted in catalog.items():need(expected.get(name)==wanted,'CATALOG_SOURCE_NOT_ADMITTED')
+ return dict(sorted(expected.items()))
+'''
+
+PIN_BASIS=r'''
+def validate_basis(blobs,files,owned,five):
+ need(files.get(SIX_VALIDATION)==SIX_VALIDATION_SHA and files.get(OWNER_VALIDATION)==OWNER_VALIDATION_SHA and files.get(TOOL_CLOSURE)==TOOL_CLOSURE_SHA,'ACCEPTED_BASIS_AND_TOOLS')
+ six=decoded(blobs[SIX_VALIDATION]);owner=decoded(blobs[OWNER_VALIDATION]);child=decoded(blobs[CHILD_VALIDATION])
+ need(len(mapping(six['source_files_sha256']))==100 and len(mapping(six['archive_files_sha256']))==10 and six['independent_source_review']['decision']=='SOURCE_APPROVED','ACCEPTED_BASE_SIX100')
+ need(len(mapping(owner['archive_files_sha256']))==45 and owner['independent_safety_sql_review']['decision']=='SOURCE_APPROVED','ACCEPTED_OWNER45')
+ need(child['schema']=='workinants.remaining-app-read13-source-validation.v1'and child['fixture_sha256']==FIXTURES_SHA and child['content_sha256']==CONTENT_SHA,'CHILD_SOURCE_METADATA_BINDING')
+ for root,record in((SIX_ARCHIVE,six),(OWNER_ARCHIVE,owner),(CHILD_ARCHIVE,child)):
+  closed_tree(root,record['archive_files_sha256'])
+ for record in(six['source_files_sha256'],six['archive_files_sha256'],owner['archive_files_sha256'],child['source_files_sha256'],child['archive_files_sha256'],CHILD_HELPERS):need(all(files.get(name)==wanted and name in blobs for name,wanted in mapping(record).items()),'EXACT_TRANSITIVE_SOURCE_ADMISSION')
+ review=child['independent_source_review'];need(review['decision']=='SOURCE_APPROVED'and files.get(review.get('path'))==review.get('sha256')and review.get('path')in blobs,'INDEPENDENT_CHILD_CODE_REVIEW_REQUIRED')
+ for gate in('independent_owned_resource_review','independent_safety_sql_review'):
+  review=owned[gate];need(review['decision']=='SOURCE_APPROVED'and review['operator_sources_sha256']==five and files.get(review.get('path'))==review.get('sha256')and review.get('path')in blobs,'INDEPENDENT_EXACT_NEW_FIVE_REVIEW_REQUIRED')
+'''
+
+def build():
+ for name,h in zip(OLD,BASE_SHA):assert sha((TASK/name).read_bytes())==h,name
+ packet_raw=(ROOT/PACKET/'fixtures.json').read_bytes();packet=json.loads(packet_raw)
+ data=[renamed((TASK/name).read_text(encoding='utf8')) for name in OLD]
+ core,steps,prep,checks,pin=data
+ core=core.replace("'prepared_protocols':71","'prepared_protocols':82")
+ core=core.replace('--execute-reviewed-read13s','--execute-reviewed-remaining-app-read13-owned').replace('args.execute_reviewed_read13s','args.execute_reviewed_remaining_app_read13_owned')
+ helpers=(CHILD,PROTOCOL,'scripts/sql-review/run-scoped-read-companion-rehearsal.py','scripts/scoped_read_companion_protocol.py','scripts/sql-review/run-context-control-rehearsal.py','scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/sql-review/run-local-f0-migrate.py','scripts/prepare-local-f0-history.py')
+ constants={'SCOPED_PACKET':PACKET,'SCOPED_FIXTURES_SHA':sha(packet_raw),'SCOPED_CONTENT_SHA':packet['source_only_packet_sha256'],'SCOPED_COORDINATOR':CHILD,'SCOPED_COORDINATOR_SHA':sha((ROOT/CHILD).read_bytes()),
+  'SCOPED_PEER':'context/reconciliation/local-f0-operation-sources/remaining-app-read13-source-v1/read13_concrete_v5_independent_key_plan_delta_review_final_20261120.json','SCOPED_PEER_SHA':'fe46adf4d272984694d5d5d54a2e224e2d4530841b1cb50401535d8ba4248553',
+  'OWNED_ARCHIVE':OWNED_ARCHIVE,'OWNED_VALIDATION':OWNED_VALIDATION,'EXTERNAL_FILES':NEW,'HELPER_FILES':helpers,
+  'BASIS_SIX_VALIDATION':'context/reconciliation/local-f0-scoped-read-companion-source-validation.json','BASIS_SIX_VALIDATION_SHA':'6c4cb8155864984d12ae8985b66fea4402ca7329501d8b818975caa09e7db6dd',
+  'SCOPED_HELPER_SHA':{name:sha((ROOT/name).read_bytes())for name in helpers}}
+ for name,value in constants.items():steps=set_constant(steps,name,value)
+ steps+='\nCHILD_VALIDATION='+repr(CHILD_VALIDATION)+'\nRECIPE_GENERATOR='+repr('scripts/prepare-remaining-app-read13-rehearsal.py')+'\nPROTOCOL_FILE='+repr(PROTOCOL)+'\n'
+ for name,body in [('admit_read13_sources',ADMIT),('verify_read13_packet',VERIFY),('validate_scoped_component',VALIDATE.replace('validate_read13_component','validate_scoped_component'))]:steps=replace_function(steps,name,body)
+ steps=steps.replace("'schema':'workinants.remaining-app-read13-run.v1','scope':'REVIEWED_SELECTED94_READ13_COMPANION_SQL_SUBSET_ONLY'","'schema':'workinants.remaining-app-read13-run.v1','scope':'REVIEWED_REMAINING13_APP_SELECT_ONLY'")
+ # The unchanged V4 native/Prisma/readonly proof, SafetySQL, secret and cleanup bodies remain.
+ steps=steps.replace("'completed_protocols':71,'operations':586","'completed_protocols':82,'operations':len(value['operations'])").replace('completed_protocols=71','completed_protocols=82')
+ steps=steps.replace("SCOPED_FIXTURES['expected_counts']","SCOPED_FIXTURES['setup_expected_counts']").replace("wanted=71 if table=='platform.database_action_grant'else count","wanted=79 if table=='platform.database_action_grant'else count").replace("{'users':2,'coherent':True}","{'rows':48,'all_source_values_match':True,'usage_source_window_sum_limit_match':True}")
+ steps=steps.replace("COMPONENT_ARTIFACT='read13-component/read13-results.json'","COMPONENT_ARTIFACT='read13-component/remaining-app-read13-results.json'")
+ steps=set_constant(steps,'COMPONENT_ARTIFACT','read13-component/remaining-app-read13-results.json')
+ # Derive pure preparation/read-only Git pinning without a runtime import of
+ # another operator. Its accepted methods remain copied source, not aliases.
+ for name,value in {'FIXTURES':PACKET+'/fixtures.json','FIXTURES_SHA':sha(packet_raw),'CONTENT_SHA':packet['source_only_packet_sha256'],
+  'PEER':constants['SCOPED_PEER'],'PEER_SHA':constants['SCOPED_PEER_SHA'],'EXTERNAL_FILES':NEW,'OWNED_ARCHIVE':OWNED_ARCHIVE,'OWNED_VALIDATION':OWNED_VALIDATION,
+  'SIX_VALIDATION':constants['BASIS_SIX_VALIDATION'],'SIX_VALIDATION_SHA':constants['BASIS_SIX_VALIDATION_SHA'],'SIX_ARCHIVE':'context/reconciliation/local-f0-operation-sources/scoped-read-companion-source-v1','CHILD_HELPERS':constants['SCOPED_HELPER_SHA']}.items():prep=set_constant(prep,name,value)
+ appended='\nCHILD_VALIDATION='+repr(CHILD_VALIDATION)+'\nCHILD_ARCHIVE='+repr('context/reconciliation/local-f0-operation-sources/remaining-app-read13-source-v1')+'\n'
+ prep=prep.replace("\nif __name__=='__main__':",appended+"\nif __name__=='__main__':")
+ prep=replace_function(prep,'source_inventory',INVENTORY)
+ prep=prep.replace("len(packet['cases'])==len(packet['grants'])==71","len(packet['cases'])==82").replace("run=str(uuid.uuid4()) if run_id is None else run_id;","run=packet['fixture_run_id'] if run_id is None else run_id;need(run==packet['fixture_run_id'],'FROZEN_FIXTURE_RUN_REQUIRED');")
+ prep=prep.replace("Only the unchanged71 prepared read13 protocols using16 synthetic existing-row fixture facts and exact eight owner-commit enable flags; no owner-write/API/publisher/worker qualification.","Only82 finite Read13 protocols on48 synthetic rows and78 FK links; exact15 setup-only O-D-O exceptions, all100 guards restored before SELECT; at most13 SQL SELECT links, no owner-write/API/worker qualification.")
+ for name,value in {'FIXTURES':PACKET+'/fixtures.json','FIXTURES_SHA':sha(packet_raw),'CONTENT_SHA':packet['source_only_packet_sha256'],'FILES':NEW,'ARCHIVE':OWNED_ARCHIVE,'VALIDATION':OWNED_VALIDATION,
+  'SIX_VALIDATION':constants['BASIS_SIX_VALIDATION'],'SIX_VALIDATION_SHA':constants['BASIS_SIX_VALIDATION_SHA'],'SIX_ARCHIVE':'context/reconciliation/local-f0-operation-sources/scoped-read-companion-source-v1',
+  'HELPERS':set(helpers),'CHILD_HELPERS':constants['SCOPED_HELPER_SHA'],'REVIEWS':{constants['SCOPED_PEER']:constants['SCOPED_PEER_SHA'],'context/reconciliation/local-f0-operation-sources/owner-read-resource-mount-v2/reviews/image-proof-independent-source.json':'b628b6d98ad22ea7def4dd7a51264025c50bde116451ae516f3e52f55ba9542a'}}.items():pin=set_constant(pin,name,value)
+ pin=pin.replace("\nif __name__=='__main__':",appended+"\nif __name__=='__main__':")
+ pin=replace_function(pin,'validate_basis',PIN_BASIS)
+ pin=pin.replace("len(packet['cases'])==len(packet['grants'])==71 and len(packet['source_files_sha256'])==23 and len(packet['prepared_files_sha256'])==76","len(packet['cases'])==82 and packet['fixture_run_id']==run")
+ pin=pin.replace("=='4160760bb319e4389182ed5cfcb6c0fae028480bd3d6d418be0130e8156a0f15'","=="+repr(constants['SCOPED_COORDINATOR_SHA']))
+ pin=pin.replace("{FIXTURES,VALIDATION,SIX_VALIDATION","{FIXTURES,VALIDATION,CHILD_VALIDATION,SIX_VALIDATION")
+ # Resource, image, allIO safety and real Core creation tests are copied intact.
+ tree=ast.parse(checks);old_class=next(n for n in tree.body if isinstance(n,ast.ClassDef)and n.name=='OwnerOperationTests')
+ checks='\n'.join(checks.splitlines()[:old_class.end_lineno])+'\n'+(TASK/'read13_owned_entry_checks_template_20261120.py.txt').read_text(encoding='utf8')+'\n\nif __name__==\'__main__\':unittest.main()\n'
+ outputs={NEW[0]:core,NEW[1]:steps,NEW[2]:prep,NEW[3]:checks,NEW[4]:pin}
+ for name,text in outputs.items():ast.parse(text,filename=name);path=TASK/name;path.write_text(text,encoding='utf8',newline='\n')
+ return outputs
+
+if __name__=='__main__':
+ result=build();print(json.dumps({'status':'SOURCE_DRAFT_NOT_RUN','files_sha256':{k:sha(v.encode())for k,v in result.items()},'database_contacted':False}))

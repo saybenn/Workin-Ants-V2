@@ -1,0 +1,36 @@
+{
+  "schema": "workinants.read13-independent-tiny-probes.v1",
+  "reviewer": "/root/restricted_controls_operator",
+  "seconds": 1.312,
+  "source_hashes": {
+    "child": "5d6baaef489bfaefb97e1585cbeeb37709c207c02544580725f01abc6ea868da",
+    "owned_steps": "15efbd24dd2e3f9585a3b728083d086dc25b304e8f52519122ae4be519cb2b78"
+  },
+  "results": {
+    "business_throw_retains_prior_bind_ACK": {
+      "confirmed": true,
+      "body_response_received": false,
+      "retained_acknowledged": true,
+      "retained_stdout_records": 0,
+      "retained_stderr_present": false,
+      "read_stage_attempted": true,
+      "operation_closed": true,
+      "global_closure_confirmed": true,
+      "results": 0,
+      "scope": "OBSERVABILITY_DEFECT_ONLY_NO_SUCCESS_PROMOTION",
+      "boundary": "actual CTX Session stdin.write, all subprocess/network boundaries mocked"
+    },
+    "closed_reference_stale_hash_after_mtime_preserved_rewrite": {
+      "confirmed": true,
+      "reader_status": "CLOSED_BOUNDED_BYTES",
+      "reader_value_is_original": true,
+      "retained_hash_matches_current_file": false,
+      "same_size": true,
+      "mtime_preserved": true,
+      "scope": "EVIDENCE_REFERENCE_INTEGRITY_DEFECT; parent returned-vs-read comparison can still match original RAM value; source does not recheck after read-only proof/cleanup"
+    }
+  },
+  "source_or_gate_edits": false,
+  "all_process_network_database_boundaries_mocked": true,
+  "actual_runtime_qualification": false
+}

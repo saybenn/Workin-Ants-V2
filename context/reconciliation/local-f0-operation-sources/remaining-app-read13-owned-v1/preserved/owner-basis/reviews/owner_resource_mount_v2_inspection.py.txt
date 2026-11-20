@@ -1,0 +1,82 @@
+OWNER_SECRET_TMPFS_TOKEN='WA_OWNER_SECRET_TMPFS_V2_OK'
+OWNER_SECRET_TMPFS_SCRIPT=r'''set -f
+export LC_ALL=C
+count=0
+while IFS=' ' read -r source target filesystem options dump pass extra; do
+  [ "$target" = /run/wa-secrets ] || continue
+  count=$((count+1))
+  [ -n "$source" ] && [ "$filesystem" = tmpfs ] && [ -z "$extra" ] || exit 21
+  case "$options" in ''|,*|*,|*,,*) exit 22;; esac
+  seen_rw=0; seen_noexec=0; seen_nosuid=0; seen_nodev=0
+  saved_ifs=$IFS; IFS=,; set -- $options; IFS=$saved_ifs
+  for option do
+    case "$option" in
+      rw) seen_rw=$((seen_rw+1));;
+      noexec) seen_noexec=$((seen_noexec+1));;
+      nosuid) seen_nosuid=$((seen_nosuid+1));;
+      nodev) seen_nodev=$((seen_nodev+1));;
+      ro|exec|suid|dev) exit 23;;
+    esac
+  done
+  [ "$seen_rw" -eq 1 ] && [ "$seen_noexec" -eq 1 ] && [ "$seen_nosuid" -eq 1 ] && [ "$seen_nodev" -eq 1 ] || exit 24
+done < /proc/mounts
+[ "$count" -eq 1 ] || exit 25
+[ "$(stat -c '%F:%a:%u:%g' -- /run/wa-secrets)" = 'directory:700:0:0' ] || exit 26
+printf '%s\n' 'WA_OWNER_SECRET_TMPFS_V2_OK'
+'''
+
+
+def verify_running_secret_tmpfs(name,identity):
+    report['stage']='OWNER_READ_RUNNING_SECRET_TMPFS'
+    record={'phase':'RUNNING_KERNEL_TMPFS','owned_identity':False,'attempted':False,'command_returned':False,'integer_exit_zero':False,'fixed_token':False,'stderr_empty':False,'confirmed':False}
+    report.setdefault('resource_kernel_checks',[]).append(record);save()
+    record['owned_identity']=name in RESOURCE_CONTAINERS and name in created_containers and created_containers[name]==identity and type(identity)is str and re.fullmatch('[0-9a-f]{64}',identity)is not None
+    save();need(record['owned_identity'],'OWNER_READ_TMPFS_OWNED_CID_REQUIRED')
+    record['attempted']=True;save()
+    try:
+        result=docker(['exec','-i',identity,'sh','-ceu',OWNER_SECRET_TMPFS_SCRIPT],timeout=30)
+        code=getattr(result,'returncode',None);stdout=getattr(result,'stdout',None);stderr=getattr(result,'stderr',None)
+        record.update(command_returned=True,integer_exit_zero=type(code)is int and code==0,fixed_token=type(stdout)is str and stdout==OWNER_SECRET_TMPFS_TOKEN+'\n',stderr_empty=type(stderr)is str and stderr=='')
+        record['confirmed']=all(record[key]is True for key in('owned_identity','attempted','command_returned','integer_exit_zero','fixed_token','stderr_empty'))
+    except BaseException:
+        record['confirmed']=False
+    finally:save()
+    need(record['confirmed'],'OWNER_READ_SECRET_TMPFS_KERNEL_UNCONFIRMED')
+
+
+def inspect_owner(name,running=True):
+    report['stage']='OWNER_READ_RESOURCE_RUNNING_INSPECTION'if running else'OWNER_READ_RESOURCE_PRESTART_INSPECTION'
+    record={'phase':'RUNNING'if running else'PRESTART','comparisons':{},'mount_counts':{'data':0,'bootstrap':0,'tmpfs_api':0},'kernel_required':running is True,'confirmed':False}
+    report.setdefault('resource_inspection_checks',[]).append(record);save()
+    def check(key,condition,code):
+        record['comparisons'][key]=condition is True;save();need(record['comparisons'][key],code)
+    check('single_resource',name==TARGETS[0]['name']and type(running)is bool,'OWNER_READ_SINGLE_RESOURCE')
+    value=inspect_container(name)
+    check('container_shape',type(value)is dict and type(value.get('Config'))is dict and type(value.get('HostConfig'))is dict and type(value.get('State'))is dict and type(value.get('NetworkSettings'))is dict and type(value.get('Mounts'))is list,'OWNER_READ_CONTAINER_SHAPE')
+    check('created_identity',value.get('Id')==created_containers[name]and value.get('Name')=='/'+name and owned(value['Config'].get('Labels')or{}),'OWNER_READ_CREATED_CONTAINER_IDENTITY')
+    host=value['HostConfig'];required={'NetworkMode','PortBindings','Privileged','PidMode','IpcMode','Devices','CapAdd','Tmpfs','Links'}
+    check('isolation',required<=set(host)and value['Config'].get('Image')==IMAGE and value.get('Image')==report['image']['image_id']and value.get('Platform')=='linux'and value['State'].get('Running')is running and host['NetworkMode']=='none'and host['PortBindings']in(None,{})and host['Privileged']is False and host['PidMode']==''and host['IpcMode']in('','private')and not host['Devices']and not host['CapAdd']and not host['Links'],'OWNER_READ_CONTAINER_ISOLATION')
+    ports=value['NetworkSettings'].get('Ports')
+    check('no_published_ports',ports is None or type(ports)is dict and all(item is None for item in ports.values()),'OWNER_READ_NO_PUBLISHED_PORTS')
+    volume=TARGETS[0]['volume'];expected=str(PRIVATE/'ok-bootstrap-password');windows=PureWindowsPath(expected);desktop='/run/desktop/mnt/host/'+windows.drive[0].lower()+'/'+'/'.join(windows.parts[1:])
+    mounts=value['Mounts'];check('bounded_mount_list',2<=len(mounts)<=3,'OWNER_READ_EXACT_MOUNT_SET')
+    for mount in mounts:
+        check('mount_row_shape',type(mount)is dict and {'Type','Destination','RW'}<=set(mount),'OWNER_READ_MOUNT_ROW_SHAPE')
+        if mount['Type']=='volume':
+            check('data_mount',mount.get('Name')==volume and mount['Destination']=='/var/lib/postgresql/data'and mount['RW']is True,'OWNER_READ_EXACT_DATA_MOUNT');record['mount_counts']['data']+=1
+        elif mount['Type']=='bind':
+            check('bootstrap_mount',mount.get('Source')in(expected,desktop)and mount['Destination']=='/run/bootstrap-password'and mount['RW']is False,'OWNER_READ_EXACT_BOOTSTRAP_BIND');record['mount_counts']['bootstrap']+=1
+        elif mount['Type']=='tmpfs':
+            check('optional_tmpfs_api_mount',mount['Destination']=='/run/wa-secrets'and mount['RW']is True,'OWNER_READ_EXACT_SECRET_TMPFS');record['mount_counts']['tmpfs_api']+=1
+        else:check('known_mount_type',False,'OWNER_READ_EXTRA_MOUNT')
+        save()
+    counts=record['mount_counts'];check('logical_mount_set',counts['data']==1 and counts['bootstrap']==1 and counts['tmpfs_api']in(0,1),'OWNER_READ_EXACT_MOUNT_SET')
+    check('host_tmpfs_key',type(host['Tmpfs'])is dict and set(host['Tmpfs'])=={'/run/wa-secrets'},'OWNER_READ_EXACT_TMPFS_CONFIGURATION')
+    options=host['Tmpfs']['/run/wa-secrets'];tokens=options.split(',')if type(options)is str else[]
+    check('exact_tmpfs_options',len(tokens)==5 and len(set(tokens))==5 and set(tokens)in({'rw','nosuid','noexec','nodev','mode=0700'},{'rw','nosuid','noexec','nodev','mode=700'}),'OWNER_READ_PRIVATE_TMPFS_OPTIONS')
+    disk=inspect_volume(volume)
+    check('volume_identity',type(disk)is dict and disk.get('Name')==volume and disk.get('CreatedAt')==created_volumes[volume]and owned(disk.get('Labels')or{})and disk.get('Driver')=='local'and not disk.get('Options')and disk.get('Scope')=='local','OWNER_READ_EXACT_VOLUME_IDENTITY')
+    if running:verify_running_secret_tmpfs(name,value['Id'])
+    record['confirmed']=True;save()
+    event('OWNER_READ_RESOURCE_IDENTITY','PASS',target=name,actual_image_id=report['image']['image_id'],exact_mounts_and_private_namespaces=True)
+    return value

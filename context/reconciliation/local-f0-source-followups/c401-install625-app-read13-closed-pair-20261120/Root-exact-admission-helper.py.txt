@@ -1,0 +1,52 @@
+"""Curate only reviewed source/accepted evidence; preserve unreviewed drafts."""
+from pathlib import Path
+import datetime,hashlib,io,json,re,subprocess,sys
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';P='c401d2f2503dee08ad5913fb6cf1fa944c5f3e5a';FOLLOW='context/reconciliation/local-f0-source-followups/c401-install625-app-read13-closed-pair-20261120';ADMISSION='context/reconciliation/local-f0-c401-install625-app-read13-admission-20261120.json';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+def git(*a):return subprocess.check_output(['git','-c','core.longpaths=true',*a],cwd=R)
+assert git('rev-parse','HEAD').decode().strip()==P and not git('diff','--cached','--name-only').strip()
+if '--stage'in sys.argv:
+ rec=json.loads((R/ADMISSION).read_bytes());files={**rec['admitted_files_sha256'],ADMISSION:sha((R/ADMISSION).read_bytes())}
+ for n,h in files.items():assert sha((R/n).read_bytes())==h
+ path=T/'c401_install625_app_read13_exact_stage_paths_20261120.nul';put(path,('\0'.join(sorted(files))+'\0').encode());git('add','--pathspec-from-file='+str(path),'--pathspec-file-nul')
+ staged=set(git('diff','--cached','--name-only','-z').decode().split('\0'))-{''};assert staged.issubset(files)
+ raw=subprocess.check_output(['git','-c','core.longpaths=true','cat-file','--batch'],cwd=R,input=''.join(':'+n+'\n'for n in sorted(files)).encode());stream=io.BytesIO(raw)
+ for n in sorted(files):
+  h=stream.readline().decode().split();assert len(h)==3 and h[1]=='blob';b=stream.read(int(h[2]));assert stream.read(1)==b'\n'and sha(b)==files[n]
+ assert not stream.read()
+ for n in set(files)-staged:assert sha(git('show',P+':'+n))==files[n]
+ proof={'schema':'workinants.c401-install625-app-read13-exact-staged-byte-proof.v1','parent':P,'files_sha256':files,'admitted_files':len(files),'staged_changes':len(staged),'same_parent':len(files)-len(staged),'all_current_staged_blobs_match':True,'unfinished_WIP_staged':False,'Posture':'D'};out=T/'c401_install625_app_read13_exact_staged_byte_proof_20261120.json';put(out,enc(proof));print(json.dumps({'admitted_files':len(files),'staged_changes':len(staged),'proof_sha256':sha(out.read_bytes())}));raise SystemExit(0)
+files={};families={}
+for family,name,wanted in [('INSTALL656','install_4b35_actual656_final_committable_inventory_20261120.json','7c87fcafa5a54aea34c9b8eb266f1e8b3ec3d9796632adf2657574094bf7c7e4'),('AppV2','app571_guard_observation_v2_source_approved_committable_inventory_20261120.json','71cd491d628334da78b8a2bec290499fd81b346018b9320ca8df771e133a6cfc'),('Read13','read13_two_evidence_fix_source_approved_committable_inventory_20261120.json','df2be5f486c1b5761bd836b4c194f8b9fa772a2dde592beadb7fe99965f50bf5'),('Progress','c401_closed_pair_install625_app_read13_progress_inventory_20261120.json','06ebde8655ab4c766bd153e1fcad3ddcacb603c4ba39506bf38e465a4cc75f90')]:
+ b=(T/name).read_bytes();assert sha(b)==wanted;v=json.loads(b);m=v['files_sha256'];assert not set(files).intersection(m);files.update(m);families[family]={'inventory':name,'sha256':wanted,'files':len(m)}
+for name,wanted in [('c401_privilege_086c_final_preserved_inventory_20261120.json','4aab7a1ba217daef72cfa495e0ec56ac3d7d8ce41c025305cfd3a7273d86a9b8'),('c401_restore_c5ac_stopped_attempt_preserved_inventory_20261120.json','f34e7825ee759b1125b5e14b97018783ea2952d07e48fdd5aaf8eb882a3d75ef')]:
+ b=(T/name).read_bytes();assert sha(b)==wanted;v=json.loads(b);assert not set(files).intersection(v['assets_sha256']);files.update(v['assets_sha256']);files[v['record']]=v['record_sha256']
+copies={'previous-publication-full-proof.json':'closed_four_six621_publication_full_commit_verification_20261120.json','INSTALL-actual656-final-inventory.json':'install_4b35_actual656_final_committable_inventory_20261120.json','AppV2-reviewed-final-inventory.json':'app571_guard_observation_v2_source_approved_committable_inventory_20261120.json','AppV2-actual-pure-prepare-validate.json':'app571_v2_actual_approved_prepare_validate_20261120.json','Read13-reviewed-final-inventory.json':'read13_two_evidence_fix_source_approved_committable_inventory_20261120.json','Read13-actual-pure-prepare-validate.json':'read13_actual_approved_prepare_validate_20261120.json','Root-progress-update-helper.py.txt':'record_c401_closed_pair_install625_reviewed_app_read13_progress_20261120.py','Root-exact-admission-helper.py.txt':Path(__file__).name,'PENDING-V7-actual-source-audit.json':'privilege_v6_086c_independent_actual_source_audit_20261120.json','PENDING-V7-source-plan.json':'privilege_v7_create_projection_observation_source_plan_20261120.json','PENDING-V7-Root-implementation-ACK.json':'privilege_v7_CREATE_projection_Root_bounded_implementation_ACK_20261120.json','PENDING-V5-actual-source-audit-plan.json':'restore_c5ac1418_independent_audit_and_bounded_source_proposal_final_20261120.json','PENDING-V5-Root-implementation-ACK.json':'restore_preflight_v5_Root_exclusive_bounded_implementation_ACK_20261120.json','PENDING-Worker-independent-audit-proposal-bundle.json':'worker_b42_independent_audit_proposal_bundle_20261120.json','PENDING-Worker-exact17-proposal.json':'worker_b42_independent_assertion_mapping_proposal_20261120.json','PENDING-Worker-Root-adapter-ACK.json':'worker_b42_Root_exact17_pure_adapter_implementation_ACK_20261120.json','repository-context-check.log.txt':'c401_closed_pair_install625_app_read13_context_check_20261120.log'}
+context=(T/copies['repository-context-check.log.txt']).read_bytes();assert b'Structural checks PASSED'in context
+for n,source in copies.items():b=(T/source).read_bytes();put(R/FOLLOW/n,b);files[FOLLOW+'/'+n]=sha(b)
+assert git('remote','get-url','--push','origin').decode().strip()in('https://github.com/saybenn/Workin-Ants-V2.git','https://github.com/saybenn/Workin-Ants-V2')
+pres=[]
+for label,path,expected in [('original_windows',Path(r'C:\Users\elijr\source\WorkinAnts-Checkpoint010'),'8917e2035622017eccd14c99ad7fd2b55740163f'),('original_onedrive',Path(r'C:\Users\elijr\OneDrive\Desktop\Coding\Personal Projects\workin-ants-v2'),None)]:
+ def g(*a):return subprocess.check_output(['git','-c','core.longpaths=true',*a],cwd=path).decode().strip()
+ head=g('rev-parse','HEAD');status=g('status','--porcelain=v1','--untracked-files=no');branch=g('branch','--show-current')
+ if expected:assert head==expected and status==''
+ else:assert branch=='main'and status=='D context/project-overview-v3.md'
+ pres.append({'checkout':label,'path':str(path),'HEAD':head,'branch':branch,'tracked_status':status,'no_checkout_mutation_by_this_task':True})
+n=FOLLOW+'/original-checkouts-preserved.json';put(R/n,enc({'recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'checkouts':pres}));files[n]=sha((R/n).read_bytes())
+patterns=(rb'\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})\b',rb'\b(?:sk|rk)_live_[A-Za-z0-9]{20,}\b',rb'\bxox[baprs]-[A-Za-z0-9-]{25,}\b',rb'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----\r?\n(?:[A-Za-z0-9+/=]{40,}\r?\n){2,}');sizes={};count_json=0
+for n,h in files.items():
+ p=R/n;assert p.is_file()and not p.is_symlink()and not{'private','.env','.pgpass'}.intersection(p.parts);b=p.read_bytes();assert sha(b)==h and len(b)<50*1024*1024 and b'\0'not in b;txt=b.decode('utf-8-sig');sizes[n]=len(b)
+ if n.endswith('.json'):
+  def pairs(rows):
+   v={}
+   for k,x in rows:assert k not in v;v[k]=x
+   return v
+  json.loads(txt,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(ValueError('NONFINITE_JSON')));count_json+=1
+ assert not any(re.search(p,b)for p in patterns),('HIGH_CONFIDENCE_SECRET_PATTERN',n)
+assert sha((R/'vercel.json').read_bytes())=='81a4eed381a1ebdb732441b2aa90c1933824338a9822859ead828bfdbabdc02f'and json.loads((R/'vercel.json').read_bytes())['git']['deploymentEnabled']['codex/p0c-candidate-corrections-2026-10-31']is False
+common=Path(git('rev-parse','--git-common-dir').decode().strip());common=common if common.is_absolute()else(R/common).resolve();assert not[p for p in(common/'hooks').iterdir()if p.is_file()and not p.name.endswith('.sample')];hooks=subprocess.run(['git','config','--get','core.hooksPath'],cwd=R,capture_output=True);assert hooks.returncode==1 and not hooks.stdout;assert not git('ls-tree','-r','--name-only','HEAD','--','.github/workflows').strip()
+check={'schema':'workinants.c401-install625-app-read13-outgoing-check.v1','status':'PASS','files':len(files),'strict_JSON_files':count_json,'bytes':sum(sizes.values()),'largest_bytes':max(sizes.values()),'UTF8_NUL_free':True,'high_confidence_secret_pattern_findings':False,'Vercel_branch_deployment_disabled':True,'active_hooks_or_GitHub_workflows':False,'unfinished_V7_V5_Worker_code_admitted':False,'all_actual_resources_cleaned':True,'Posture':'D'};n=FOLLOW+'/outgoing-content-check.json';put(R/n,enc(check));files[n]=sha((R/n).read_bytes())
+rows=[x for x in git('status','--porcelain=v1','-z','--untracked-files=all').decode().split('\0')if x];excluded=sorted(x[3:]for x in rows if x[3:]not in files);changed=set(git('diff','--name-only','-z').decode().split('\0'))-{''}
+rec={'schema':'workinants.c401-install625-app-read13-checkpoint-admission.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'parent':P,'admitted_files_sha256':dict(sorted(files.items())),'source_families':families,'actual_evidence':'Bothc401attemptsclosedandindependentlycleaned. V6 34complete+1attemptedunqualified+165unexecuted; Restoreprebackupstopnotphysicalrestore. Rawhistoricalreportsunchanged.','qualification':'625PASS31PARTIAL339NOT_RUN32DEPENDENCY_BLOCKED7UNRESOLVED_SOURCE0acceptedFAILED;94cases5PASS78PARTIAL11NOT_RUN; only5INSTALLchangesinreal656build.','preserved_unstaged_paths':excluded,'reviewed_tracked_changes':sorted(changed.intersection(files)),'excluded_tracked_WIP':sorted(changed-set(files)),'normal_authenticated_fast_forward_only':True,'Posture':'D','continue_after_checkpoint':True};put(R/ADMISSION,enc(rec));out=T/'c401_install625_app_read13_admission_prepared_20261120.json';put(out,enc({'admission':ADMISSION,'sha256':sha((R/ADMISSION).read_bytes()),'files_excluding_admission':len(files),'preserved_unstaged_paths':len(excluded),'no_Git_mutation':True,'Posture':'D'}));print(out.read_text())

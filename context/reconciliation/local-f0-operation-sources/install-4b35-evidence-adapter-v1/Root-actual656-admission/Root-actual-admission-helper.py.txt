@@ -1,0 +1,27 @@
+"""Record verified real656 build and integrated13; refresh final source inventory."""
+from pathlib import Path
+import datetime,hashlib,json,re
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';W=T/'install-4b35-Root-real656-build-20261120';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+proofb=(W/'actual-build-proof.json').read_bytes();proof=json.loads(proofb);assert proof['status']=='PASS_ACTUAL_UNMOCKED656_BUILDER_EXACT5_ADMISSION'and proof['known_exit_code']==0 and proof['only5_assertion_status_changes']is True
+for n,h in [('local-f0-assertion-evidence.json',proof['ledger_sha256']),('local-f0-qualification-status.json',proof['actual_status_sha256'])]:assert sha((R/'context/reconciliation'/n).read_bytes())==h
+log=(W/'Root-status13-regression.log').read_bytes();txt=log.decode('utf-8-sig');assert re.search(r'Ran 13 tests in [0-9.]+s',txt)and re.search(r'\bOK\s*$',txt)and not re.search('FAILED|ERROR:|FAIL:',txt)
+vp=R/'context/reconciliation/local-f0-install-evidence-adapter-v1-source-validation.json';vb=vp.read_bytes();assert sha(vb)=='98a943a894ffb1658eea87bd888395e04b32b5f1e3dd06788d714e54bd1168d5';v=json.loads(vb);assert v['independent_source_review']['decision']==v['Root_source_review']['decision']=='SOURCE_APPROVED'
+for n,h in {**v['source_files_sha256'],**v['archive_files_sha256']}.items():assert sha((R/n).read_bytes())==h
+A=R/'context/reconciliation/local-f0-operation-sources/install-4b35-evidence-adapter-v1';D=A/'Root-actual656-admission'
+copies={'validation-before-actual-admission.json':vb,'actual-build-proof.json':proofb,'actual-builder-stdout-summary.json':(W/'actual-builder-stdout-summary.json').read_bytes(),'actual-build-helper.py.txt':(T/'admit_install5_and_run_actual656_builder_20261120.py').read_bytes(),'integrated13-regression.log':log,'check-local-f0-status.py.txt':(R/'scripts/check-local-f0-status.py').read_bytes(),'Root-actual-admission-helper.py.txt':Path(__file__).read_bytes()}
+for n,b in copies.items():put(D/n,b)
+actual={'schema':'workinants.install4b35-actual656-Root-admission.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS_EXACT5_ADMITTED_AFTER_REAL656_AND_INTEGRATED13','actual_build_sha256':sha(proofb),'actual_builder_seconds':proof['seconds'],'ledger_sha256':proof['ledger_sha256'],'status_sha256':proof['actual_status_sha256'],'assertion_status_counts':proof['actual_assertion_status_counts'],'case_status_counts':proof['actual_case_status_counts'],'exact_changes':'Two priorPARTIAL-to-PASS with complete priorrows/source history preserved; two newPASS; one newPARTIAL;12 priorPASSrows unchangedcorroboration;3appendedrows/656total.','whole_case_aggregation':'P0C-INSTALL-01 becomes fifthwholePASS through unchanged all-mandatoryaggregation; INSTALL02missingfailureprecleanupactivation staysPARTIAL. No94/451/ownerAPI/production/readinesspromotion.','integrated_regression':{'known_session':61210,'known_exit':0,'tests':13,'seconds':235.543,'log_sha256':sha(log),'scope':'Legacytamper/dispatcher tests withnewclosed5 dispatcher boundary isolated; actual fullCLI above usedrealallreaders/no mocks. Partialnegative retargetedfromnowqualified control.intended_failure tostillPARTIALmissingphasevector; migrationlegacydispatch7→5 becausetwo source-qualifiedupgrades. Otherlegacysemanticsunchanged.'},'Posture':'D'}
+put(D/'actual-admission.json',enc(actual))
+v['status']='SOURCE_APPROVED_AND_EXACT5_ADMITTED_AFTER_ACTUAL_UNMOCKED656_BUILD'
+v['at_source_review_Root_current_ledger_status_unchanged']=v.pop('Root_current_ledger_status_unchanged')
+v['at_source_review_runtime_or_live_ledger_status_authorized']=v.pop('runtime_or_live_ledger_status_authorized')
+v['actual_Root_admission']={'path':(D/'actual-admission.json').relative_to(R).as_posix(),'sha256':sha((D/'actual-admission.json').read_bytes()),'only5_changes':True,'assertion_status_counts':proof['actual_assertion_status_counts'],'case_status_counts':proof['actual_case_status_counts']}
+v['source_files_sha256']['scripts/check-local-f0-status.py']=sha((R/'scripts/check-local-f0-status.py').read_bytes())
+v['archive_files_sha256']={p.relative_to(R).as_posix():sha(p.read_bytes())for p in A.rglob('*')if p.is_file()};vp.write_bytes(enc(v))
+ip=T/'install_4b35_source_approved_committable_inventory_20261120.json';old=json.loads(ip.read_bytes());files={**old['files_sha256'],**v['archive_files_sha256'],**v['source_files_sha256'],vp.relative_to(R).as_posix():sha(vp.read_bytes())}
+for n in ('local-f0-assertion-evidence.json','local-f0-qualification-status.json'):
+ p=R/'context/reconciliation'/n;files[p.relative_to(R).as_posix()]=sha(p.read_bytes())
+out=T/'install_4b35_actual656_final_committable_inventory_20261120.json';put(out,enc({'schema':'workinants.install4b35-actual656-final-inventory.v1','files_sha256':dict(sorted(files.items())),'files':len(files),'source_validation_sha256':sha(vp.read_bytes()),'actual_admission_sha256':sha((D/'actual-admission.json').read_bytes()),'Posture':'D'}));print(json.dumps({'inventory_sha256':sha(out.read_bytes()),'files':len(files),'validation_sha256':sha(vp.read_bytes()),'actual_admission_sha256':sha((D/'actual-admission.json').read_bytes())}))

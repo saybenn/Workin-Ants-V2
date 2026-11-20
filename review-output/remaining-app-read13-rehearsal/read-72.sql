@@ -1,0 +1,4 @@
+SELECT jsonb_build_object('read13_marker','TrackUsageCounter/revision'::text,'position','BEFORE'::text);
+SELECT jsonb_build_object('model','TrackUsageCounter','ids',coalesce(jsonb_agg(observed.id::text ORDER BY observed.id::text COLLATE "C"),'[]'::jsonb)) FROM (SELECT id,user_id,subscription_id,entitlement_grant_id,entitlement_id,track,period,customer_profile_id,candidate_profile_id,professional_profile_id,period_start,period_end,used_quantity,limit_quantity,updated_at,created_at,revision,source_revision,mutation_transaction_id FROM app.track_usage_counters WHERE id IN ('b2a95874-8081-5866-ba84-75e17fc93603'::uuid,'abc9be9d-f433-5668-937a-43c5bd190e58'::uuid)) observed;
+SET CONSTRAINTS ALL IMMEDIATE;
+SELECT jsonb_build_object('read13_marker','TrackUsageCounter/revision'::text,'position','AFTER'::text);

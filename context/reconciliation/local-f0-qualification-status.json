@@ -4,16 +4,16 @@
   "Brain_acceptance": "PENDING",
   "counts_are_obligations_not_experiments": true,
   "assertion_status_counts": {
-    "PASS": 621,
-    "PARTIAL": 32,
+    "PASS": 625,
+    "PARTIAL": 31,
     "FAILED": 0,
     "DEPENDENCY_BLOCKED": 32,
-    "NOT_RUN": 342,
+    "NOT_RUN": 339,
     "UNRESOLVED_SOURCE": 7
   },
   "case_status_counts": {
-    "PASS": 4,
-    "PARTIAL": 79,
+    "PASS": 5,
+    "PARTIAL": 78,
     "FAILED": 0,
     "DEPENDENCY_BLOCKED": 0,
     "NOT_RUN": 11
@@ -147,6 +147,17 @@
       "manual_whole_case_promotions": 0,
       "case_aggregation": "UNCHANGED_ALL_MANDATORY_ASSERTIONS_RULE",
       "posture": "D"
+    },
+    {
+      "run_id": "4b35e08b-3ecb-4ae6-9574-565bcdd51c1f",
+      "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+      "purpose": "EXACT_INSTALL17_FINITE_LINKS_12_CORROBORATIONS_5_CHANGES",
+      "new_PASS": 2,
+      "upgraded_PARTIAL_to_PASS": 2,
+      "new_PARTIAL": 1,
+      "existing_PASS_corroborated_keep_provenance": 12,
+      "whole_case_promoted": false,
+      "missing_failed_precleanup_activation_phase": "NOT_RUN"
     }
   ],
   "cases": [
@@ -15604,7 +15615,7 @@
     },
     {
       "id": "P0C-INSTALL-01",
-      "status": "PARTIAL",
+      "status": "PASS",
       "assertions": [
         {
           "id": "control.empty_deploy",
@@ -15693,29 +15704,70 @@
         {
           "id": "vector.INSTALL-CLEANUP.positive",
           "mandatory": true,
-          "status": "PARTIAL",
+          "status": "PASS",
           "dependency_ids": [],
           "evidence": {
             "case_id": "P0C-INSTALL-01",
             "assertion_id": "vector.INSTALL-CLEANUP.positive",
-            "status": "PARTIAL",
+            "status": "PASS",
             "expected_assertion_sha256": "890d97d5a62a67e70125ba2254f9de20decac3358fd4eabbaa1c944aa5a61a73",
-            "source_commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
-            "source_tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
-            "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+            "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+            "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+            "packet_sha256": "4d98713bb4b9810cea2be5c1fbf4139979b4476222fc7f0bdfad9b10bde64393",
             "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
-            "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
-            "evidence_path": "context/reconciliation/local-f0-migration-6b8910d-execution.json",
-            "evidence_sha256": "e657bd4de3c288acbd86faa7ae9514f59e76566e1bba170a6ef19f7770c91158",
-            "json_pointer": "/operator_raw_safe_report/targets/wa-p0c-196c3d8a-migrate-ok/finalization_observation",
-            "qualification_scope": "Successful actual restricted installation and separate original-grantor zero-membership/leaf-CREATE checks observed. Credentials were provisioned for preflight before verification; the registered activation hold itself was not exercised."
+            "run_id": "4b35e08b-3ecb-4ae6-9574-565bcdd51c1f",
+            "evidence_path": "context/reconciliation/local-f0-install-5f189aa-4b35e08b-qualified-evidence.json",
+            "evidence_sha256": "08f81059dfc828007cbf69ae08b224a6cbd82196800e30650058d128e83d8e39",
+            "json_pointer": "/claims/4",
+            "qualification_scope": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+            "missing_required_piece": null,
+            "previous_evidence": {
+              "case_id": "P0C-INSTALL-01",
+              "assertion_id": "vector.INSTALL-CLEANUP.positive",
+              "status": "PARTIAL",
+              "expected_assertion_sha256": "890d97d5a62a67e70125ba2254f9de20decac3358fd4eabbaa1c944aa5a61a73",
+              "source_commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
+              "source_tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
+              "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+              "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+              "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+              "evidence_path": "context/reconciliation/local-f0-migration-6b8910d-execution.json",
+              "evidence_sha256": "e657bd4de3c288acbd86faa7ae9514f59e76566e1bba170a6ef19f7770c91158",
+              "json_pointer": "/operator_raw_safe_report/targets/wa-p0c-196c3d8a-migrate-ok/finalization_observation",
+              "qualification_scope": "Successful actual restricted installation and separate original-grantor zero-membership/leaf-CREATE checks observed. Credentials were provisioned for preflight before verification; the registered activation hold itself was not exercised."
+            },
+            "previous_evidence_sha256": "4e133f5f13c530f056688ef527688fa0f93636851827fb77ed560fe760572006",
+            "previous_evidence_preserved_at": {
+              "path": "context/reconciliation/local-f0-operation-sources/install-4b35-evidence-adapter-v1/prior653-ledger.json",
+              "sha256": "ef0fbf8b5dc0344b5a60c857e8067c03b047d9634102263768c83ba3f8b3e1e3",
+              "json_pointer": "/assertions/21"
+            }
           }
         },
         {
           "id": "vector.INSTALL-CLEANUP.adversarial",
           "mandatory": true,
-          "status": "NOT_RUN",
-          "dependency_ids": []
+          "status": "PASS",
+          "dependency_ids": [],
+          "evidence": {
+            "case_id": "P0C-INSTALL-01",
+            "assertion_id": "vector.INSTALL-CLEANUP.adversarial",
+            "status": "PASS",
+            "expected_assertion_sha256": "fed82f44a002d06e3615dcb59fbc29d3a3d89241075750439527184c789e4bb8",
+            "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+            "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+            "packet_sha256": "4d98713bb4b9810cea2be5c1fbf4139979b4476222fc7f0bdfad9b10bde64393",
+            "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+            "run_id": "4b35e08b-3ecb-4ae6-9574-565bcdd51c1f",
+            "evidence_path": "context/reconciliation/local-f0-install-5f189aa-4b35e08b-qualified-evidence.json",
+            "evidence_sha256": "08f81059dfc828007cbf69ae08b224a6cbd82196800e30650058d128e83d8e39",
+            "json_pointer": "/claims/5",
+            "qualification_scope": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+            "missing_required_piece": null,
+            "previous_evidence": null,
+            "previous_evidence_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "previous_evidence_preserved_at": null
+          }
         },
         {
           "id": "vector.FUNCTION-ACL-AUTHORITY.positive",
@@ -15742,8 +15794,27 @@
         {
           "id": "vector.FUNCTION-ACL-AUTHORITY.adversarial",
           "mandatory": true,
-          "status": "NOT_RUN",
-          "dependency_ids": []
+          "status": "PASS",
+          "dependency_ids": [],
+          "evidence": {
+            "case_id": "P0C-INSTALL-01",
+            "assertion_id": "vector.FUNCTION-ACL-AUTHORITY.adversarial",
+            "status": "PASS",
+            "expected_assertion_sha256": "9526e82d14062db50b08b7dcf8843f8e0b935df9fa3b80ffc82d6ddc81f6365e",
+            "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+            "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+            "packet_sha256": "4d98713bb4b9810cea2be5c1fbf4139979b4476222fc7f0bdfad9b10bde64393",
+            "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+            "run_id": "4b35e08b-3ecb-4ae6-9574-565bcdd51c1f",
+            "evidence_path": "context/reconciliation/local-f0-install-5f189aa-4b35e08b-qualified-evidence.json",
+            "evidence_sha256": "08f81059dfc828007cbf69ae08b224a6cbd82196800e30650058d128e83d8e39",
+            "json_pointer": "/claims/7",
+            "qualification_scope": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+            "missing_required_piece": null,
+            "previous_evidence": null,
+            "previous_evidence_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "previous_evidence_preserved_at": null
+          }
         }
       ]
     },
@@ -15754,22 +15825,44 @@
         {
           "id": "control.intended_failure",
           "mandatory": true,
-          "status": "PARTIAL",
+          "status": "PASS",
           "dependency_ids": [],
           "evidence": {
             "case_id": "P0C-INSTALL-02",
             "assertion_id": "control.intended_failure",
-            "status": "PARTIAL",
+            "status": "PASS",
             "expected_assertion_sha256": "2ed1d709c1543392e59b9de65fd63df6aa57c440c45c800d67f23601aedd2245",
-            "source_commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
-            "source_tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
-            "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+            "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+            "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+            "packet_sha256": "4d98713bb4b9810cea2be5c1fbf4139979b4476222fc7f0bdfad9b10bde64393",
             "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
-            "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
-            "evidence_path": "context/reconciliation/local-f0-migration-6b8910d-execution.json",
-            "evidence_sha256": "e657bd4de3c288acbd86faa7ae9514f59e76566e1bba170a6ef19f7770c91158",
-            "json_pointer": "/operator_raw_safe_report/targets/wa-p0c-196c3d8a-migrate-fail/failure_diagnostic_proof",
-            "qualification_scope": "Planned temporary SET-membership fault produced actual source-guard42501 plus secondary25P02/NULL masked persistence. The registered criterion excludes permission failures; a separate failing SQL-history variant remains unexercised. No expected-text/hash change."
+            "run_id": "4b35e08b-3ecb-4ae6-9574-565bcdd51c1f",
+            "evidence_path": "context/reconciliation/local-f0-install-5f189aa-4b35e08b-qualified-evidence.json",
+            "evidence_sha256": "08f81059dfc828007cbf69ae08b224a6cbd82196800e30650058d128e83d8e39",
+            "json_pointer": "/claims/8",
+            "qualification_scope": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+            "missing_required_piece": null,
+            "previous_evidence": {
+              "case_id": "P0C-INSTALL-02",
+              "assertion_id": "control.intended_failure",
+              "status": "PARTIAL",
+              "expected_assertion_sha256": "2ed1d709c1543392e59b9de65fd63df6aa57c440c45c800d67f23601aedd2245",
+              "source_commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
+              "source_tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
+              "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+              "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+              "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+              "evidence_path": "context/reconciliation/local-f0-migration-6b8910d-execution.json",
+              "evidence_sha256": "e657bd4de3c288acbd86faa7ae9514f59e76566e1bba170a6ef19f7770c91158",
+              "json_pointer": "/operator_raw_safe_report/targets/wa-p0c-196c3d8a-migrate-fail/failure_diagnostic_proof",
+              "qualification_scope": "Planned temporary SET-membership fault produced actual source-guard42501 plus secondary25P02/NULL masked persistence. The registered criterion excludes permission failures; a separate failing SQL-history variant remains unexercised. No expected-text/hash change."
+            },
+            "previous_evidence_sha256": "cb3d37b772fc0809e8b4a2875890b08a4fc96a3c65d900ddf6185de887832e48",
+            "previous_evidence_preserved_at": {
+              "path": "context/reconciliation/local-f0-operation-sources/install-4b35-evidence-adapter-v1/prior653-ledger.json",
+              "sha256": "ef0fbf8b5dc0344b5a60c857e8067c03b047d9634102263768c83ba3f8b3e1e3",
+              "json_pointer": "/assertions/22"
+            }
           }
         },
         {
@@ -15880,8 +15973,27 @@
         {
           "id": "vector.FUNCTION-ACL-FAILURE-CLEANUP.adversarial",
           "mandatory": true,
-          "status": "NOT_RUN",
-          "dependency_ids": []
+          "status": "PARTIAL",
+          "dependency_ids": [],
+          "evidence": {
+            "case_id": "P0C-INSTALL-02",
+            "assertion_id": "vector.FUNCTION-ACL-FAILURE-CLEANUP.adversarial",
+            "status": "PARTIAL",
+            "expected_assertion_sha256": "34db5106a123525087e33083c3917fb0cf0065d6c20f3d2060b2e8de5e8c60e9",
+            "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+            "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+            "packet_sha256": "4d98713bb4b9810cea2be5c1fbf4139979b4476222fc7f0bdfad9b10bde64393",
+            "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+            "run_id": "4b35e08b-3ecb-4ae6-9574-565bcdd51c1f",
+            "evidence_path": "context/reconciliation/local-f0-install-5f189aa-4b35e08b-qualified-evidence.json",
+            "evidence_sha256": "08f81059dfc828007cbf69ae08b224a6cbd82196800e30650058d128e83d8e39",
+            "json_pointer": "/claims/14",
+            "qualification_scope": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+            "missing_required_piece": "Specific activation-gate attempt after failed deploy and before finalization/cleanup verification was NOT_RUN; preinstall and postcleanup denials do not invent that phase.",
+            "previous_evidence": null,
+            "previous_evidence_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "previous_evidence_preserved_at": null
+          }
         }
       ]
     },

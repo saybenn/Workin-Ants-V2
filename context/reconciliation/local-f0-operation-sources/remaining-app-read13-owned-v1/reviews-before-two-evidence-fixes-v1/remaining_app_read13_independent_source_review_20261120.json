@@ -1,0 +1,135 @@
+{
+  "schema": "workinants.remaining-app-read13-independent-source-review.v1",
+  "recorded_at_utc": "2026-11-20T10:00:47.826390+00:00",
+  "reviewer": "/root/restricted_controls_operator",
+  "decision": "SOURCE_HOLD_TWO_BOUNDED_FINDINGS",
+  "reviewed_delivery_sha256": "245001f5ccc57d66eabf0a92f5d27fda744ae5b4b65e580e13d103bdec658746",
+  "author_report_sha256": "0ada4e244ace20ea3e6f996e4f149b861297a3d7456404a997fb8966e0a02f45",
+  "lineage_disclosure": {
+    "new_Read13_implementation_author": "/root/review_track_ports",
+    "reviewer_did_not_author_new_child_or_owned_implementation": true,
+    "reviewer_prior_involvement": [
+      "Earlier high-level Read13 plan and concrete V5 Key-only plan review fe46adf4.",
+      "Owner ResourceMountV2 source correction is a reviewer-authored inherited input, already independently accepted by Root488725cd and peer c893926f. This review does not self-reapprove that basis."
+    ],
+    "scope": "New Read13 protocol/generator/coordinator/checks/doc and new five owned integration/admission/evidence paths."
+  },
+  "exact_source_files_sha256": {
+    "scripts/check-remaining-app-read13-coordinator.py": "708a86a46eb5cd8f3c7082040b9a7be7ae8f933dc3db8626d947e8a033d8eb43",
+    "scripts/check-remaining-app-read13-rehearsal.py": "b8270da9f6933f9b1ace817d2f10825ffcba942fba1c380bdf20d9c3b602cbe8",
+    "scripts/prepare-remaining-app-read13-rehearsal.py": "6c583c9d2435fbea0f57b4bcd70a05234c6ad5995493f8ecdd160ce9ebf97499",
+    "scripts/remaining_app_read13_protocol.py": "6816251220764cb95e65c05db7154305e9775c5f8d279abc54f8d7150cd92c0a",
+    "scripts/sql-review/REMAINING-APP-READ13-REHEARSAL.md": "41955925e8bc1b31a2e9da9b4540a593a2db348dcfb8476f9a6962f2cf86b28b",
+    "scripts/sql-review/run-remaining-app-read13-rehearsal.py": "5d6baaef489bfaefb97e1585cbeeb37709c207c02544580725f01abc6ea868da",
+    "execute_local_f0_remaining_app_read13_owned_v1_20261120.py": "37bd25e444ffe8cd57eaf9dff332f85d1addd5a4c3232c2d09850840a61c58e2",
+    "local_f0_remaining_app_read13_owned_v1_operation_steps.py": "15efbd24dd2e3f9585a3b728083d086dc25b304e8f52519122ae4be519cb2b78",
+    "prepare_local_f0_remaining_app_read13_owned_v1_plan.py": "d107cf1fe22253d3b7eee13aa3ef6c77e589538229a3885bb557a4580aec0134",
+    "check_local_f0_remaining_app_read13_owned_v1_operation.py": "2e7b758da2a81a64d89b9eb8104c32aad003f6ac3b1fdc24764c9114da0ccff9",
+    "pin_local_f0_remaining_app_read13_owned_v1_plan_20261120.py": "9f85b87e995a1148dffbd18a47fd58769ff2993ee396d23b0ca67947aab530f9"
+  },
+  "immutable_graph": {
+    "new_Root_files_verified_entry_and_exit": 335,
+    "external_five_verified_entry_and_exit": 5,
+    "child_archive_files": 100,
+    "owned_archive_files": 124,
+    "source_inputs_independently_hashed": 62,
+    "prepared_leaves_independently_hashed": 102,
+    "artifacts_including_fixture": 103,
+    "SQL_leaves_independently_parsed": 101,
+    "SQL_statements_independently_parsed": 529,
+    "fixture_materialization_equals_exact_approved90be_plan": true,
+    "fixture_rows": 48,
+    "nonnull_FK_links": 78,
+    "setup_bypass_triggers": 15,
+    "worker_ACL_rows": 32,
+    "source_and_review_gate_edits": false
+  },
+  "reviewed_preserved_contracts": [
+    "Exact15 source-hashed setup exceptions:12 owner_commit,2 usage_adapter_gate and1 TrackSubscriptionEvent enrollment_commit. Deferred flush precedes setup COMMIT; all100 user and312 internal trigger identities are required before behavioral reads.",
+    "Only13 app SELECT assertion ceilings across82 protocols/79 separately committed issuer grants; no write/owner API/worker/enrollment/usage adapter/SH006/SH056 or full-case qualification.",
+    "Source-derived full role-visible columns, A/B row targets, independent privileged coherence observers, root source_generation versus child revision/fence, exact ConsentPresentation prerequisites, scheduler own target, and explicit rebind currentness controls remain consistent with the reviewed concrete plan.",
+    "All current/admitted source, exact external physical five/.py.txt snapshots, Owner/Six historical data-only basis, catalog16, fresh7 source members and pinned10300 tooling are required before project helper/resource phases. No old Owner operator occurs in the executable helper allowlist.",
+    "Actual child/native envelopes bind source/run/CID; one genuine install/original-grantor finalization/native29089/oracle416/ledger22 is required before child, with separate read-only after. Historical native data is OFFLINE_MOCK only.",
+    "Global all-client closure and source identity gate restoration; unknown clients/source drift prohibit restoration. Common IO-safe independent finalizer/scan/cleanup/postchecks and exact owned identity boundaries remain in the reviewed source."
+  ],
+  "findings": [
+    {
+      "id": "READ13-OBSERVATION-01",
+      "priority": "P2",
+      "required": true,
+      "file": "scripts/sql-review/run-remaining-app-read13-rehearsal.py",
+      "sha256": "5d6baaef489bfaefb97e1585cbeeb37709c207c02544580725f01abc6ea868da",
+      "line": 218,
+      "related_lines": [
+        235,
+        246
+      ],
+      "title": "Clear per-call observations before every stage and retain whether that response arrived",
+      "actual_probe": "Actual frozen CTX Session stdin.write throws on BUSINESS after successful SAME_XID and bind. transaction raises, all modeled operation/issuer backends close, independent global closure confirms zero, and no result is promoted. Yet its ACTUAL_TRANSACTION row reports acknowledged=True,stdout_records=0,stderr_present=False from the previous bind; no BUSINESS response was returned.",
+      "impact": "Misleading stopped-run evidence; this probe did not demonstrate false successful qualification or failed closure. These fields cannot distinguish an unreceived business response from an observed empty acknowledged response.",
+      "smallest_fix": [
+        "Use fresh named response slots or a reset/result-received latch before EACH SAME_XID/BIND/control-rebind/BUSINESS attempt, with strict tuple/scalar typing before projection.",
+        "Persist one closed source-derived phase/response schema before original rethrow or verdict. Unknown/unreceived/malformed flags and counts must be null/fixed UNAVAILABLE rather than prior values. Never retain raw rows/stderr/SQL/credentials/handles.",
+        "Preserve the original first safe failure before any later close/global/receipt-write failure can reorder it, with sticky IO incompleteness. Continue independent close/global/restoration/cleanup; no later case or relaxed verdict.",
+        "Update only the exact parent observation schema needed for that new producer, preserving all82/79/99 transaction/count/diagnostic and native gates."
+      ],
+      "required_regressions": [
+        "Actual CTX process-write failure after a valid bind produces BUSINESS response_received=False and no stale ACK/count/error flags; original error remains primary with simultaneous close or receipt IO failure.",
+        "Returned binder denial, clean read, setup COMMIT, malformed/unreceived result, unexpected exit and revoked/expired rebind remain strict; no later case or observer before closure.",
+        "Restore only the old response-variable reuse and require the new regression to fail. Existing complete-state, trigger restoration, secret exclusion and IO tests remain applicable."
+      ]
+    },
+    {
+      "id": "READ13-REFERENCE-02",
+      "priority": "P1",
+      "required": true,
+      "file": "local_f0_remaining_app_read13_owned_v1_operation_steps.py",
+      "sha256": "15efbd24dd2e3f9585a3b728083d086dc25b304e8f52519122ae4be519cb2b78",
+      "line": 998,
+      "related_lines": [
+        1006,
+        1008,
+        887,
+        1096,
+        1116
+      ],
+      "title": "Bind retained evidence to fresh closed bytes through the final PASS boundary",
+      "actual_probe": "The actual bounded_component_reference accepts a same-size rewrite performed immediately after its read() while restoring original mtime. It returns original JSON and records original SHA/CLOSED_BOUNDED_BYTES, while the kept file has different bytes/hash. The original child RAM return can still equal the original parsed JSON.",
+      "impact": "Confirmed stale retained-reference hash. Static callers perform no fresh component-byte hash check after read-only observations or cleanup. The probe does not claim an actual database/runtime PASS or altered domain result; it shows an otherwise successful path lacks a final retained-file integrity barrier.",
+      "smallest_fix": [
+        "Retain bounded regular/single-link/symlink/typed-size checks, and use independently closed reads with fresh byte/hash agreement. Compare common identity/size/mtime across path/handle; compare ctime stability within each representation to preserve legitimate Windows stat/fstat differences.",
+        "Capture the original artifact hash/length, then re-read and compare against it before/after later observer qualification and again after cleanup/source postchecks before final PASS. Do not overwrite the original reference hash to bless a late replacement.",
+        "Any read/stat/growth/replacement/write/persistence uncertainty must retain a fixed unconfirmed marker, stop qualification, preserve first failure, and still progress all eligible finalizers/cleanup. No SQL, permissions, fixture or timeout changes."
+      ],
+      "required_regressions": [
+        "Normal and mtime-restored same-size mutation during first read, between closed reads, after child validation/read-only proof and during cleanup must reject with evidence/closure preserved and no final PASS.",
+        "Valid atomic replacement plus stable per-representation Windows ctime remains accepted; metadata/size/bool/link/symlink/oversized/bounded-read/duplicate/nonfinite/canary cases remain strict.",
+        "Use actual child-produced evidence through real parent validator/entry with process boundaries mocked; restore only the old reader or omit the final integrity barrier and require the corresponding tripwire to fail."
+      ]
+    }
+  ],
+  "excluded_issue": {
+    "OUT_before_source_verifier": "Not a finding. Root clarified and the inherited author derivation explicitly declares fresh OUT plus INITIAL_EVIDENCE before whole-Core source admission. Pure preparer/pinner rejection must leave runtime OUT absent; ordinary helper/resource phases still require source gates. No reorder is requested for this preserved failure-evidence behavior."
+  },
+  "independent_checks": {
+    "tiny_actual_API_probes": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\read13_independent_tiny_probes_20261120.json",
+      "sha256": "844f38d8af6d579684293bea6479eba3e9a5ea0a21b1040acc6a4d83914e5041",
+      "seconds": 1.312,
+      "confirmed_reproductions": 2,
+      "all_process_network_database_boundaries_mocked": true
+    },
+    "static_graph_and_parser": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\read13_independent_static_graph_20261120.json",
+      "sha256": "f416f7de16e0b0886461f2167e1d7a2fd3874a235a5cea2b5a03b3d21dfec921",
+      "seconds": 0.656
+    },
+    "author_suites": "33 child and48 owned author methods are recorded, not relabeled independent results. No heavy independent suite ran while RootV6actual9374 was active.",
+    "no_additional_confirmed_source_blocker": "The completed static review found no further confirmed blocker; this is a HOLD, not source approval or runtime approval."
+  },
+  "next_gate": "Root preservation and bounded correction ACK, new/versioned immutable source closure, separate nonauthor review of corrected code, then Root metadata closure/publication/fresh pin/literal/live preflight. All current source review gates remain PENDING.",
+  "runtime": "NOT_RUN_BY_REVIEWER",
+  "Posture": "D",
+  "no_Git_Docker_database_SQL_network_or_Root_source_writes": true,
+  "plain_english": "The reader can say yes for the previous step when the next step never answered. Its saved paper can also change after it was checked. Both need fixing before another run."
+}

@@ -1,0 +1,80 @@
+{
+  "schema": "workinants.read13-two-evidence-fixes-Root-bounded-ACK.v1",
+  "recorded_at_utc": "2026-11-20T10:02:51.936064+00:00",
+  "decision": "AUTHORIZE_BOUNDED_UNPUBLISHED_READ13_EVIDENCE_CORRECTION_ONLY",
+  "Root": "/root",
+  "independent_HOLD_sha256": "787c216f2b579a005fc4a57aaa951297e393390a5f74adf30a4e998f08a960cc",
+  "independent_actual_API_probe_sha256": "844f38d8af6d579684293bea6479eba3e9a5ea0a21b1040acc6a4d83914e5041",
+  "frozen_delivery_sha256": "245001f5ccc57d66eabf0a92f5d27fda744ae5b4b65e580e13d103bdec658746",
+  "preservation": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\read13-before-two-evidence-fixes-Root-preserved-20261120\\preservation.json",
+  "preservation_sha256": "0f1a6e426225d3a23d436ed81d36fffa5067bde2914fa979cab9bc7ab18a3f5a",
+  "assigned_fix_author": "/root/catalog_v4_review",
+  "required_same_independent_reviewer": "/root/restricted_controls_operator",
+  "scope": [
+    {
+      "id": "READ13-OBSERVATION-01",
+      "priority": "P2",
+      "required": true,
+      "file": "scripts/sql-review/run-remaining-app-read13-rehearsal.py",
+      "sha256": "5d6baaef489bfaefb97e1585cbeeb37709c207c02544580725f01abc6ea868da",
+      "line": 218,
+      "related_lines": [
+        235,
+        246
+      ],
+      "title": "Clear per-call observations before every stage and retain whether that response arrived",
+      "actual_probe": "Actual frozen CTX Session stdin.write throws on BUSINESS after successful SAME_XID and bind. transaction raises, all modeled operation/issuer backends close, independent global closure confirms zero, and no result is promoted. Yet its ACTUAL_TRANSACTION row reports acknowledged=True,stdout_records=0,stderr_present=False from the previous bind; no BUSINESS response was returned.",
+      "impact": "Misleading stopped-run evidence; this probe did not demonstrate false successful qualification or failed closure. These fields cannot distinguish an unreceived business response from an observed empty acknowledged response.",
+      "smallest_fix": [
+        "Use fresh named response slots or a reset/result-received latch before EACH SAME_XID/BIND/control-rebind/BUSINESS attempt, with strict tuple/scalar typing before projection.",
+        "Persist one closed source-derived phase/response schema before original rethrow or verdict. Unknown/unreceived/malformed flags and counts must be null/fixed UNAVAILABLE rather than prior values. Never retain raw rows/stderr/SQL/credentials/handles.",
+        "Preserve the original first safe failure before any later close/global/receipt-write failure can reorder it, with sticky IO incompleteness. Continue independent close/global/restoration/cleanup; no later case or relaxed verdict.",
+        "Update only the exact parent observation schema needed for that new producer, preserving all82/79/99 transaction/count/diagnostic and native gates."
+      ],
+      "required_regressions": [
+        "Actual CTX process-write failure after a valid bind produces BUSINESS response_received=False and no stale ACK/count/error flags; original error remains primary with simultaneous close or receipt IO failure.",
+        "Returned binder denial, clean read, setup COMMIT, malformed/unreceived result, unexpected exit and revoked/expired rebind remain strict; no later case or observer before closure.",
+        "Restore only the old response-variable reuse and require the new regression to fail. Existing complete-state, trigger restoration, secret exclusion and IO tests remain applicable."
+      ]
+    },
+    {
+      "id": "READ13-REFERENCE-02",
+      "priority": "P1",
+      "required": true,
+      "file": "local_f0_remaining_app_read13_owned_v1_operation_steps.py",
+      "sha256": "15efbd24dd2e3f9585a3b728083d086dc25b304e8f52519122ae4be519cb2b78",
+      "line": 998,
+      "related_lines": [
+        1006,
+        1008,
+        887,
+        1096,
+        1116
+      ],
+      "title": "Bind retained evidence to fresh closed bytes through the final PASS boundary",
+      "actual_probe": "The actual bounded_component_reference accepts a same-size rewrite performed immediately after its read() while restoring original mtime. It returns original JSON and records original SHA/CLOSED_BOUNDED_BYTES, while the kept file has different bytes/hash. The original child RAM return can still equal the original parsed JSON.",
+      "impact": "Confirmed stale retained-reference hash. Static callers perform no fresh component-byte hash check after read-only observations or cleanup. The probe does not claim an actual database/runtime PASS or altered domain result; it shows an otherwise successful path lacks a final retained-file integrity barrier.",
+      "smallest_fix": [
+        "Retain bounded regular/single-link/symlink/typed-size checks, and use independently closed reads with fresh byte/hash agreement. Compare common identity/size/mtime across path/handle; compare ctime stability within each representation to preserve legitimate Windows stat/fstat differences.",
+        "Capture the original artifact hash/length, then re-read and compare against it before/after later observer qualification and again after cleanup/source postchecks before final PASS. Do not overwrite the original reference hash to bless a late replacement.",
+        "Any read/stat/growth/replacement/write/persistence uncertainty must retain a fixed unconfirmed marker, stop qualification, preserve first failure, and still progress all eligible finalizers/cleanup. No SQL, permissions, fixture or timeout changes."
+      ],
+      "required_regressions": [
+        "Normal and mtime-restored same-size mutation during first read, between closed reads, after child validation/read-only proof and during cleanup must reject with evidence/closure preserved and no final PASS.",
+        "Valid atomic replacement plus stable per-representation Windows ctime remains accepted; metadata/size/bool/link/symlink/oversized/bounded-read/duplicate/nonfinite/canary cases remain strict.",
+        "Use actual child-produced evidence through real parent validator/entry with process boundaries mocked; restore only the old reader or omit the final integrity barrier and require the corresponding tripwire to fail."
+      ]
+    }
+  ],
+  "Root_clarifications": [
+    "Existing new Read13 namespace may be corrected because it is unpublished/unapproved; preserve all335/external5 and every failed check/HOLD. Do not edit any old Owner/Six/Common/Worker/App/Privilege/Restore source or frozen history.",
+    "OBSERVATION: fresh per-call named slots/response-received and strict tuple types. Unreceived/malformed ACK/count/error flags are null or fixedUNAVAILABLE, not prior bind values/observedfalse. Persist only bounded source-derived safe outcomes before primary rethrow/verdict; firstsafeprimary precedes secondaryIO/close failures; stickyIO and safetyclosure/restoration remain. Narrow producer+consumer observation schema changes only; no looser success verdict/count/82scenario/79grant/99transaction/native/state/diagnostic requirements.",
+    "REFERENCE: closed bounded reads with common path/handle identity-size-mtime checks and ctime stability within representations, fresh bytes/hash reread; preserve originally admitted SHA/length. Add actual fresh barriers around later readonly qualification and aftercleanup/sourcepostchecks BEFOREfinalPASS. Anyuncertainty keeps fixed failure/incomplete status and all eligiblecleanup; never overwriteoriginalhash to blessreplacement. Boundedinflightintegrity, not perpetualatomicity.",
+    "Main OUT+initialevidence-before-sourceverifier remains accepted; do not reorder solelyfor noOUT. Sourcegates still precede any helpercompile/resource/process, and purepreparer/pinnerPENDING gate hasnoOUT.",
+    "All SQL/103artifacts business content,48row identities/recipes,78FK/15exactsetup-only bypasses,32workerACL/canonical/history/roles/13SELECTceilings/contextcurrentness/timeouts/mounts stay unchanged. Regenerate only affected source fingerprints/closed inventories/validation metadata; allsourcegates PENDING until same-reviewer closure then Root.",
+    "RootactualV6 session9374 isactive; implementation/staticwork and tinyprocess-forbidden probes allowed. HEAVY checks deferred untilRoot actualV6/Restore timing cleared. No Docker/DB/network/Git/Rootstatus/progress edits or resources.",
+    "Required tests are exact peer regressions including actual CTX throw-afterbind with secondaryIO, actual producer\u2192parent, in-flight/mtime-restored/midreadonly/cleanupmutation, validWindowsctime, oldresponse-only/oldreader-only/omittedfinalbarrier trips, stopping/closure/restoration/secretexclusion/strictcaps. Preserve all priorfailures; no mockfactory substitutions at protected production boundaries."
+  ],
+  "runtime_or_assertion_admission": "NOT_AUTHORIZED_BY_THIS_SOURCE_ACK",
+  "Posture": "D"
+}

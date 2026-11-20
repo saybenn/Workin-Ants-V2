@@ -1,0 +1,212 @@
+"""Author TASK-only INSTALL adapter; no live Root mutations."""
+from pathlib import Path
+import hashlib,json,shutil
+
+T=Path(__file__).resolve().parent
+R=T/'workinants-correction-pass'
+D=T/'install-4b35-evidence-adapter-v1-draft-20261120'
+F=D/'future-root'
+A='context/reconciliation/local-f0-operation-sources/install-4b35-evidence-adapter-v1'
+DER='context/reconciliation/local-f0-install-5f189aa-4b35e08b-qualified-evidence.json'
+sh=lambda b:hashlib.sha256(b).hexdigest()
+def load(p):return json.loads(p.read_bytes())
+def write(path,text):
+    path.parent.mkdir(parents=True,exist_ok=True)
+    with path.open('x',encoding='utf8',newline='\n')as f:f.write(text)
+def emit(path,value):write(path,json.dumps(value,indent=2,allow_nan=False)+'\n')
+receipt=load(T/'install-4b35-closed-evidence-audit-20261120/audit-receipt.json')
+pins=receipt['source_inputs'].copy()
+assert len(pins)==433
+for name,h in pins.items():
+    raw=(R/name).read_bytes();assert sh(raw)==h
+    out=F/name;out.parent.mkdir(parents=True,exist_ok=True);out.write_bytes(raw)
+archive={
+ 'independent-actual-audit.json':T/'install_4b35_independent_closed_evidence_audit_20261120.json',
+ 'exact17-mapping-proposal.json':T/'install_4b35_exact_assertion_mapping_proposal_20261120.json',
+ 'Root-bounded-adapter-ACK.json':T/'install_4b35_Root_bounded_mapping_adapter_ACK_20261120.json',
+ 'audit-proposal-bundle.json':T/'install-4b35-closed-evidence-audit-20261120/frozen-audit-proposal-bundle.json',
+ 'accepted653-rebase-supplement.json':T/'install-4b35-closed-evidence-audit-20261120/accepted653-rebase-supplement.json',
+ 'review-history.json':T/'install-4b35-closed-evidence-audit-20261120/review-history.json',
+ 'initial-audit-source-index-assumption.py.txt':T/'install-4b35-closed-evidence-audit-20261120/initial-source-index-assumption.py',
+ 'independent-audit-source.py.txt':T/'audit_install_4b35_closed_and_propose_mapping_20261120.py',
+ 'prior647-ledger.json':T/'install-4b35-closed-evidence-audit-20261120/local-f0-assertion-evidence.base647.json',
+ 'prior653-ledger.json':R/'context/reconciliation/local-f0-assertion-evidence.json',
+ 'prior621-status.json':R/'context/reconciliation/local-f0-qualification-status.json',
+ 'adapter-source-plan.json':D/'source-plan.json',
+}
+audit_pins={}
+for name,source in archive.items():
+    raw=source.read_bytes();path=A+'/'+name;out=F/path;out.parent.mkdir(parents=True,exist_ok=True);out.write_bytes(raw);pins[path]=audit_pins[path]=sh(raw)
+proposal=load(archive['exact17-mapping-proposal.json'])
+prior=load(archive['prior653-ledger.json'])
+assert len(prior['assertions'])==653 and sh(archive['prior653-ledger.json'].read_bytes())=='ef0fbf8b5dc0344b5a60c857e8067c03b047d9634102263768c83ba3f8b3e1e3'
+claims=[]
+for index,row in enumerate(proposal['rows']):
+    claims.append({
+      'case_id':row['case_id'],'assertion_id':row['assertion_id'],'status':row['proposed_status'],
+      'expected_assertion_sha256':row['expected_assertion_sha256'],
+      'complete_source_assertion_sha256':row['complete_source_assertion_sha256'],
+      'action':row['proposed_action'],'evidence_pieces':row['evidence_pieces'],
+      'scope_ceiling':row['scope_ceiling'],'missing_required_piece':row['missing_required_piece'],
+      'prior_evidence':row['previous_evidence'],
+      'prior_evidence_sha256':sh(json.dumps(row['previous_evidence'],sort_keys=True,separators=(',',':'),allow_nan=False).encode()),
+      'mapping':{'path':A+'/exact17-mapping-proposal.json','sha256':audit_pins[A+'/exact17-mapping-proposal.json'],'json_pointer':'/rows/'+str(index)},
+    })
+derived={
+ 'schema':'workinants.install4b35-derived-qualified-evidence.v1',
+ 'derivation':'EXPLICIT_DERIVED_WRAPPER_NOT_RAW_RUNTIME_EVIDENCE',
+ 'actual_result':'DERIVED_REVIEWED_INSTALL17_FINITE_ASSERTIONS_ONLY',
+ 'run_id':proposal['run_id'],'source_commit':proposal['source_commit'],'source_tree':proposal['source_tree'],'packet_sha256':proposal['packet_sha256'],
+ 'source_record':{**proposal['source_record'],'packet_alias_from':'operation_packet_sha256'},
+ 'independent_audit_files_sha256':audit_pins,
+ 'preserved_prior_ledger':{'path':A+'/prior653-ledger.json','sha256':audit_pins[A+'/prior653-ledger.json'],'rows':653},
+ 'claims':claims,
+ 'limits':{'Posture':'D','whole_case_promoted':False,'generic_vector_claimed':False,'maximum_claims':17,'ledger_changes':5,'existing_PASS_provenance_kept':12,'upgrades_preserve_full_prior_PARTIAL':2,'new_PASS':2,'new_PARTIAL':1,'failure_precleanup_activation_phase':'NOT_RUN'},
+}
+emit(F/DER,derived);pins[DER]=sh((F/DER).read_bytes())
+closed={(x['case_id'],x['assertion_id']):i for i,x in enumerate(claims)}
+changes=tuple(k for k,i in closed.items()if claims[i]['action']!='CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE')
+assert len(closed)==17 and len(changes)==5
+source=(T/'audit_install_4b35_closed_and_propose_mapping_20261120.py').read_text()
+lines=source.splitlines()
+six=(R/'scripts/local_f0_scoped_read_evidence.py').read_text().splitlines()
+helpers='\n'.join(six[440:475])+'\n'
+reader='\n'.join(six[478:514])+'\n'
+identity='''def identity(value,packet='packet_sha256'):
+    same([value['run_id'],value['source_commit'],value['source_tree'],value[packet]],[RUN,COMMIT,TREE,PACKET],'RUN_SOURCE_TREE_PACKET')
+
+'''
+pointer='\n'.join(lines[27:34])+'\n'
+semantic='\n'.join(lines[35:68])+'\n'
+body='\n'.join(lines[81:150])
+body=body.replace(" for name,h in m['operator_sources_sha256'].items():need(sha((T/name).read_bytes())==h,'PHYSICAL_FIVE_MATCH')", " for name,h in m['operator_sources_sha256'].items():need(any(n.endswith('/'+name+'.txt')and sha(blobs[n])==h for n in m['packet_files_sha256']),'CLOSED_ARCHIVED_FIVE_MATCH')")
+body=body.replace("record['known_executor_exit']['exit_code']==record['known_watcher_exit']['exit_code']==0", "type(record['known_executor_exit']['exit_code'])is int and type(record['known_watcher_exit']['exit_code'])is int and record['known_executor_exit']['exit_code']==record['known_watcher_exit']['exit_code']==0")
+body=body.replace("retained[1]['steps']==1", "type(retained[1]['steps'])is int and retained[1]['steps']==1")
+# Native identity is independently bound by PINS and comparator snapshot hash.
+# Avoid a second opaque golden digest hiding which semantic check rejected a mutant.
+body=body.replace("need(raw_sha[kind]==('a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6'if kind=='canonical'else'91b6a849f368759f783df1247dcbf89ecc06b1e302220f7c23bf6f2a13049ae9'),'EXACT_RAW_NATIVE_IDENTITY')", "need(type(native)is dict,'NATIVE_SNAPSHOT_OBJECT')")
+body=body.replace("need(comparison['status']=='PASS'and comparison['findings']==[],'SOURCE_NATIVE_PASS')", "need(comparison['status']=='PASS'and comparison['findings']==[]and comparison['database_contacted_by_comparator']is False and comparison['native_snapshot_sha256']==raw_sha[kind],'SOURCE_NATIVE_PASS')")
+body=body.replace(" for name,h in m['operator_sources_sha256'].items()", " for name,h in m['operator_sources_sha256'].items()")
+body='\n'.join(' '+line for line in body.split('\n'))
+check='''def check_bundle(blobs):
+  cache={}
+  def j(name):
+    raw=blobs[name]
+    if name not in cache:cache[name]=doc(raw)
+    return cache[name]
+  def a(name):return j(B+'/'+name)
+'''+body+'\n'+'''
+  # Exact run-owned target identities, isolation and source-known sanitized fields.
+  cids=('2cb1913a2fc83b133f925964125b125334d329616787d39aaff5052e59a8823e','75304b130a5b995a6443bdd8fee77d0687020e3df81f27cf13d1a788090bc542','96f27107ce32bf9ce99e4f9ea0f0b2aa87df196e4616a5e5316b37d212a2ce19')
+  names=('wa-p0c-4b35e08b-install-good','wa-p0c-4b35e08b-install-division','wa-p0c-4b35e08b-install-order')
+  same(sorted(r['targets']),sorted(names),'EXACT_THREE_TARGET_NAMES')
+  for kind,name,cid in zip(VARIANTS,names,cids):
+    target=r['targets'][name]
+    same([target['container_id'],target['volume'],target['labels'],target['network_mode'],target['published_ports']],[cid,name+'-data',{'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':RUN},'none',False],'EXACT_TARGET_CID_ISOLATION')
+    same(target['tmpfs'],{'/run/wa-secrets':'rw,nosuid,noexec,nodev,mode=0700'},'EXACT_PRIVATE_TMPFS')
+    same(sorted(target['mounts'],key=lambda x:x['type']),[{'type':'bind','destination':'/run/bootstrap-password','rw':False},{'type':'volume','destination':'/var/lib/postgresql/data','rw':True,'volume':name+'-data'}],'EXACT_STORAGE_SECRET_MOUNTS')
+    same(c['targets'][kind]['settings'],dict.fromkeys(('terse','locale','prefix','version','passwords','no_statements','no_error_statements'),True),'SAFE_LOGGING_SETTINGS')
+    same(c['targets'][kind]['authority'],{'leaf_create':False,'temporary_memberships':0,'exact_temporary_options':True,'permanent_migrator_edge':True},'FINAL_AUTHORITY_BOUNDARY')
+  need(proof['container_id']==cids[1],'SEALED_PROOF_SAME_DIVISION_CID')
+  same(c['targets']['canonical']['finite_result'],{'success_cleanup_and_runtime_activation':'PASS_FINITE_PROTOCOL','genuine_second_deploy':'PASS_UNCHANGED_PRIVATE_LEDGER','full_schema_and_acl_parity':'PENDING_OUTER_OPERATOR_FULL_NATIVE_COMPARISON'},'SOURCE_GATED_CANONICAL_COMPLETION')
+  same(div['recovery_result'],{'standard_resolve':'PASS_AFTER_INDEPENDENT_REVIEW','failed_row_retained_unchanged':True,'canonical_retry_and_noop':'PASS_FINITE_PROTOCOL','full_schema_and_acl_parity':'PENDING_OUTER_OPERATOR_FULL_NATIVE_COMPARISON'},'SOURCE_GATED_RECOVERY_COMPLETION')
+  for prefix,kind in [('canonical-','canonical'),('recovered-','division_failure')]:
+    native=a('evidence/'+prefix+'native-before.json');comparison=a('evidence/'+prefix+'catalog-comparison.json');oracle=a('evidence/'+prefix+'oracle-results.json')
+    need(comparison['source_expected_sha256']==oracle['source_expected_sha256']==sha(canonical(j('review-output/native-catalog/expected.json')).encode()),'NATIVE_ORACLE_SAME_EXPECTED_SOURCE')
+    parent=r['install']['native'][kind]
+    same([parent['native_sha256'],parent['full_comparison'],parent['catalog_check_counts'],parent['oracle_expressions']],[sha(canonical(native).encode()),'PASS',comparison['check_counts'],416],'PARENT_FULL_NATIVE_BINDING')
+    same(parent['ledger_checks'],a('evidence/'+prefix+'ledger-comparison.json')['checks'],'PARENT_PRIVATE_LEDGER_BINDING')
+  return True
+
+'''
+validation='''def validate_bundle(blobs):
+    need(type(blobs)is dict and set(blobs)==set(PINS),'EXACT_CLOSED_GRAPH')
+    need(all(type(v)is bytes and sha(v)==PINS[n]for n,v in blobs.items()),'CAPTURED_HASHES')
+    check_bundle(blobs)
+    derived=doc(blobs[DERIVED]);identity(derived)
+    same(sorted(derived),sorted(('schema','derivation','actual_result','run_id','source_commit','source_tree','packet_sha256','source_record','independent_audit_files_sha256','preserved_prior_ledger','claims','limits')),'DERIVED_FIELDS')
+    same([derived['schema'],derived['derivation'],derived['actual_result']],['workinants.install4b35-derived-qualified-evidence.v1','EXPLICIT_DERIVED_WRAPPER_NOT_RAW_RUNTIME_EVIDENCE','DERIVED_REVIEWED_INSTALL17_FINITE_ASSERTIONS_ONLY'],'DERIVED_KIND')
+    same(derived['source_record'],{'path':REC,'sha256':PINS[REC],'packet_alias_from':'operation_packet_sha256'},'RAW_RECORD_ALIAS')
+    same(derived['independent_audit_files_sha256'],AUDIT_PINS,'EXACT_AUDIT_GRAPH')
+    audit=doc(blobs[ARCHIVE+'/independent-actual-audit.json']);proposal=doc(blobs[ARCHIVE+'/exact17-mapping-proposal.json']);ack=doc(blobs[ARCHIVE+'/Root-bounded-adapter-ACK.json'])
+    need(audit['decision']=='ACTUAL_FINITE_INSTALL_EVIDENCE_SUPPORTED_WITH_ONE_PHASE_SCOPE_LIMIT'and audit['captured_unique_files']==433,'INDEPENDENT_AUDIT')
+    need(ack['decision']=='AUTHORIZE_TASK_ONLY_PURE_ADAPTER_DRAFT_PENDING_SEPARATE_SOURCE_REVIEW'and ack['independent_actual_audit_sha256']==AUDIT_PINS[ARCHIVE+'/independent-actual-audit.json']and ack['mapping_proposal_sha256']==AUDIT_PINS[ARCHIVE+'/exact17-mapping-proposal.json'],'ROOT_BOUNDED_ACK')
+    identity(proposal)
+    prior=doc(blobs[ARCHIVE+'/prior653-ledger.json']);base=doc(blobs[ARCHIVE+'/prior647-ledger.json'])
+    need(len(prior['assertions'])==653 and len(base['assertions'])==647,'PRESERVED_653_647')
+    same(prior['assertions'][:647],base['assertions'],'PRIOR647_ROWS_UNCHANGED')
+    same(prior['executions'][:len(base['executions'])],base['executions'],'PRIOR_EXECUTIONS_UNCHANGED')
+    same(derived['preserved_prior_ledger'],{'path':ARCHIVE+'/prior653-ledger.json','sha256':AUDIT_PINS[ARCHIVE+'/prior653-ledger.json'],'rows':653},'PRESERVED_PRIOR_LEDGER')
+    inventory=doc(blobs['context/reconciliation/local-f0-assertions.json']);fixture=doc(blobs['review-output/install-control-rehearsal-v4/fixtures.json'])
+    priorrows={(x['case_id'],x['assertion_id']):x for x in prior['assertions']}
+    need(len(priorrows)==653 and len(derived['claims'])==len(proposal['rows'])==17,'EXACT17_CLAIMS')
+    counts={}
+    for index,(claim,row)in enumerate(zip(derived['claims'],proposal['rows'])):
+      key=(row['case_id'],row['assertion_id']);need(key in CLOSED_CLAIMS and CLOSED_CLAIMS[key]==index,'EXACT_CLAIM_ORDER')
+      case=next(x for x in inventory['cases']if x['id']==key[0]);item=next(x for x in case['assertions']if x['id']==key[1])
+      need(item['mandatory_for_case']is True and item['availability']=='AVAILABLE','ACTUAL_AVAILABLE_REQUIREMENT')
+      same([row['expected_assertion'],row['expected_assertion_sha256'],row['complete_source_assertion_sha256']],[item['expected_assertion'],sha(item['expected_assertion'].encode()),sha(canonical(item).encode())],'EXACT_COMPLETE_REQUIREMENT')
+      if key[0].startswith('P0C-INSTALL'):
+        definition=row['source_packet_definition'];same(pointer(fixture,definition['json_pointer']),item,'PACKET_ASSERTION_SAME_INVENTORY')
+      previous=priorrows.get(key);same(previous,row['previous_evidence'],'OLD_PROVENANCE_MATCH')
+      status=CLAIM_STATUSES[key];need(row['proposed_status']==status,'CLOSED_STATUS_CEILING')
+      action=row['proposed_action'];counts[action]=counts.get(action,0)+1
+      if key not in LEDGER_CHANGES:need(previous is not None and previous['status']=='PASS'and action=='CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE','KEEP12_OLD_PASS')
+      elif previous is not None:need(previous['status']=='PARTIAL'and status=='PASS'and action=='PROPOSE_PARTIAL_TO_PASS_WITH_PRIOR_PROVENANCE_RETAINED','ONLY_TWO_PRIOR_PARTIAL_UPGRADES')
+      for piece in row['evidence_pieces']:
+        need(piece['path']in PINS and piece['sha256']==PINS[piece['path']],'FIXED_EVIDENCE_PIECE')
+        pointer(doc(blobs[piece['path']]),piece['json_pointer'])
+      if status=='PARTIAL':need(type(row['missing_required_piece'])is str and row['missing_required_piece']==MISSING_PHASE,'UNEXERCISED_PHASE_STAYS_PARTIAL')
+      else:need(row['missing_required_piece']is None,'NO_UNOBSERVED_PASS_PIECE')
+      same(claim,{'case_id':key[0],'assertion_id':key[1],'status':status,'expected_assertion_sha256':row['expected_assertion_sha256'],'complete_source_assertion_sha256':row['complete_source_assertion_sha256'],'action':action,'evidence_pieces':row['evidence_pieces'],'scope_ceiling':row['scope_ceiling'],'missing_required_piece':row['missing_required_piece'],'prior_evidence':previous,'prior_evidence_sha256':sha(canonical(previous).encode()),'mapping':{'path':ARCHIVE+'/exact17-mapping-proposal.json','sha256':AUDIT_PINS[ARCHIVE+'/exact17-mapping-proposal.json'],'json_pointer':'/rows/'+str(index)}},'EXACT_DERIVED_CLAIM_AND_PRIOR_PROVENANCE')
+    same(counts,{'CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE':12,'PROPOSE_PARTIAL_TO_PASS_WITH_PRIOR_PROVENANCE_RETAINED':2,'PROPOSE_NEW_PASS_AFTER_ROOT_ACK':2,'PROPOSE_NEW_PARTIAL_WITH_EXPLICIT_MISSING_PHASE':1},'EXACT_ACTION_CEILING')
+    same(derived['limits'],{'Posture':'D','whole_case_promoted':False,'generic_vector_claimed':False,'maximum_claims':17,'ledger_changes':5,'existing_PASS_provenance_kept':12,'upgrades_preserve_full_prior_PARTIAL':2,'new_PASS':2,'new_PARTIAL':1,'failure_precleanup_activation_phase':'NOT_RUN'},'EXACT_SCOPE_LIMITS')
+    return canonical(derived)
+
+'''
+batch='\n'.join(six[623:679])+'\n'
+batch=batch.replace('frozenset(CLOSED_CLAIMS)','frozenset(LEDGER_CHANGES)')
+batch=batch.replace("and status=='PASS'", "")
+batch=batch.replace("need(key not in self.__seen,'DUPLICATE_CLAIM')", "need(status==CLAIM_STATUSES[key],'CLOSED_STATUS_CEILING')\n            need(key not in self.__seen,'DUPLICATE_CLAIM')")
+batch=batch.replace("key=(case_id,assertion_id);need(key in CLOSED_CLAIMS,'UNSUPPORTED_CLAIM')", "key=(case_id,assertion_id);need(key in CLOSED_CLAIMS,'UNSUPPORTED_CLAIM');need(status==CLAIM_STATUSES[key],'CLOSED_STATUS_CEILING')")
+batch=batch.replace('SCOPED_READ_EVIDENCE_REJECTED','INSTALL_EVIDENCE_REJECTED')
+const='''"""Pure closed INSTALL4b35 evidence qualification; no runtime/SQL/project execution.
+
+Retained metadata is evidence for the exact17 reviewed links only. Twelve existing
+PASS rows keep their original provenance. Builder admission changes exactly5 rows,
+including one explicitly PARTIAL failed/precleanup activation-phase requirement.
+Reads prove bounded in-flight integrity plus a final unchanged-byte barrier; no
+perpetual or cross-file atomic snapshot claim is made.
+"""
+import ast,hashlib,json,math,os,re,stat
+from pathlib import Path
+from types import MappingProxyType
+'''
+const+='\n'.join(lines[4:9]).replace(';checks=0','')+'\n'
+const+=f'ARCHIVE={A!r}\nDERIVED={DER!r}\nPINS={pins!r}\nAUDIT_PINS={audit_pins!r}\nCLOSED_CLAIMS={closed!r}\nLEDGER_CHANGES={changes!r}\nCLAIM_STATUSES={ {k:claims[i]["status"]for k,i in closed.items()}!r}\n'
+const+='MISSING_PHASE='+repr(next(x['missing_required_piece']for x in claims if x['status']=='PARTIAL'))+'\n\n'
+code=const+helpers+'sha=sh\n\n'+identity+pointer+semantic+reader+check+validation+batch
+write(F/'scripts/local_f0_install_evidence.py',code)
+# Additive builder draft only; unchanged legacy branches and aggregation.
+builder=(R/'scripts/prepare-local-f0-status.py').read_text()
+original_builder_sha=sh((R/'scripts/prepare-local-f0-status.py').read_bytes())
+builder=builder.replace("ROOT=Path(__file__).resolve().parents[1]", "from local_f0_install_evidence import prepare_batch as prepare_install_batch, EvidenceFailure as InstallEvidenceFailure\nROOT=Path(__file__).resolve().parents[1]")
+builder=builder.replace('EVIDENCE_RECORDS={','EVIDENCE_RECORDS={\n    '+repr(DER)+':('+repr(pins[DER])+',\'DERIVED_REVIEWED_INSTALL17_FINITE_ASSERTIONS_ONLY\'),')
+builder=builder.replace('    scoped_read_batch=None',"    install_batch=None\n    if any(row.get('evidence_path')=="+repr(DER)+" for row in ledger['assertions']):\n        try:install_batch=prepare_install_batch(ROOT)\n        except InstallEvidenceFailure as error:raise AssertionError(str(error)) from None\n    scoped_read_batch=None")
+builder=builder.replace("                elif row['evidence_path']=='context/reconciliation/local-f0-six-read", "                elif row['evidence_path']=="+repr(DER)+":\n                    try:install_batch.validate_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer)\n                    except InstallEvidenceFailure as error:raise AssertionError(str(error)) from None\n                elif row['evidence_path']=='context/reconciliation/local-f0-six-read")
+builder=builder.replace("    return {'scope':'ACTUAL_ASSERTION", "    if install_batch is not None:\n        try:install_batch.verify_unchanged();install_batch.require_finalized()\n        except InstallEvidenceFailure as error:raise AssertionError(str(error)) from None\n    return {'scope':'ACTUAL_ASSERTION")
+write(F/'scripts/prepare-local-f0-status.py',builder)
+# Proposed ledger lives in TASK only, deliberately outside the future-root target.
+candidate=json.loads(json.dumps(prior));lookup={(x['case_id'],x['assertion_id']):i for i,x in enumerate(candidate['assertions'])}
+delta=[]
+for key in changes:
+    index=closed[key];claim=claims[index]
+    row={'case_id':key[0],'assertion_id':key[1],'status':claim['status'],'expected_assertion_sha256':claim['expected_assertion_sha256'],'source_commit':derived['source_commit'],'source_tree':derived['source_tree'],'packet_sha256':derived['packet_sha256'],'application_sql_sha256':'5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad','run_id':derived['run_id'],'evidence_path':DER,'evidence_sha256':pins[DER],'json_pointer':'/claims/'+str(index),'qualification_scope':claim['scope_ceiling'],'missing_required_piece':claim['missing_required_piece'],'previous_evidence':claim['prior_evidence'],'previous_evidence_sha256':claim['prior_evidence_sha256'],'previous_evidence_preserved_at':{'path':A+'/prior653-ledger.json','sha256':audit_pins[A+'/prior653-ledger.json'],'json_pointer':'/assertions/'+str(lookup[key])}if key in lookup else None}
+    if key in lookup:candidate['assertions'][lookup[key]]=row
+    else:candidate['assertions'].append(row)
+    delta.append(row)
+candidate['executions'].append({'run_id':derived['run_id'],'source_commit':derived['source_commit'],'purpose':'EXACT_INSTALL17_FINITE_LINKS_12_CORROBORATIONS_5_CHANGES','new_PASS':2,'upgraded_PARTIAL_to_PASS':2,'new_PARTIAL':1,'existing_PASS_corroborated_keep_provenance':12,'whole_case_promoted':False,'missing_failed_precleanup_activation_phase':'NOT_RUN'})
+assert len(candidate['assertions'])==656
+emit(D/'proposed-ledger.base653-to656.json',candidate);emit(D/'proposed-five-row-delta.json',delta)
+emit(D/'draft-construction-receipt.json',{'Root_builder_before_sha256':original_builder_sha,'Root_ledger_before_sha256':sh(archive['prior653-ledger.json'].read_bytes()),'Root_status_before_sha256':sh(archive['prior621-status.json'].read_bytes()),'closed_graph_files':len(pins),'closed_graph_bytes':sum((F/n).stat().st_size for n in pins),'derived_sha256':pins[DER],'future_root_source_sha256':sh(code.encode()),'future_root_builder_sha256':sh(builder.encode()),'actual_root_writes':False,'actual_status_build':'NOT_RUN_ROOT_AFTER_SOURCE_REVIEW_ONLY','source_review':'PENDING'})
+print(json.dumps({'graph_files':len(pins),'source_sha256':sh(code.encode()),'builder_sha256':sh(builder.encode()),'derived_sha256':pins[DER]}))

@@ -1,3 +1,19 @@
+## Local F0 continuation — accepted625 and reviewed next packets (2026-11-20)
+
+The actual unmocked656-row builder and13 integrated regressions passed. Coverage is625PASS/31PARTIAL/339NOT_RUN/32DEPENDENCY_BLOCKED/7UNRESOLVED_SOURCE/0acceptedFAILED across1034assertions;94cases are5PASS/78PARTIAL/11NOT_RUN. P0C-INSTALL-01 becomes the fifth wholePASS through unchanged all-mandatory aggregation. The exact five INSTALL changes preserve old provenance: twoPARTIAL-to-PASS, two newPASS, one newPARTIAL. Missing failed-install/precleanup activation timing stays unproved andPARTIAL; twelve oldPASS rows remain unchangedcorroborations.
+
+Two actualc401d2f2503dee08ad5913fb6cf1fa944c5f3e5a/tree13aabf5061aaeac34462da38cf4e5110ee119c54 attempts stopped and are independentlycleaned. PrivilegeV6 completed34contrasts includingDELETE, then attemptedCREATEapp with exit3/ACKfalse/emptyoutput/42501-only; exact intended diagnostic was not proven. Its originalVERDICT is distinct from final native/global labels. The current CREATE is attempted-unqualified;165laternegativebodies/thirdissuer remainNOT_RUN. Actual message/LINE/caret/frame/fullcause were notretained; separate source analysis proves an eight-CREATE projection defect consistent with the stop. RestoreV4Fix3 reached backup preflight after setup, but its successful query was followed by a failed value assertion. Its17values/failedfield/fullcause remainunknown. PostgreSQL17 source separately proves the incompatible off-mode/empty-display expectation; V5 will require disabled display plus a raw empty configured reset value and safe16field comparisons. Physicalbackup/staging/restoredtarget/generation remainNOT_RUN. All7proposed resource names/private/archive are absent, onlyeach source1C1V wascreated, imagekept.
+
+New AppV2 and Read13 source corrections are independentlyapproved and Rootclosed, with actual pure prepare/full filesystem validation240/667PASS. Both runtime remainsNOT_RUN pending normalpublication, exactcommitted sourcepin, independentliteral and freshlivepreflight. Read13same-reviewer closed stale-response evidence and final-byte integrity findings; all101SQL/529statements/48rows78FK15declaredsetupbypasses and82/79/99caps remainunchanged. PrivilegeV7, RestorePreflightV5 and Worker evidence-reader drafts stay unreviewed/PENDING and are excluded from this reviewed checkpoint. Canonical5ae/June/A-D/32workerACL/1034requirements/451register remain unchanged.
+
+Next: publish reviewed sources and closed evidence after checks, then continue local qualification and source/review/actual loops. PostureD, all laterphase/hosted/adoption/production boundaries and Brainfinalacceptance remain. A checkpoint does not finish the standing assignment.
+
+Plain English: Four installation checks now have stronger proof, and one more full test box is checked. Two other attempts stopped; their clues and cleanup are saved. The next two test tools passed review but still need fresh real tests. Unfinished work stays unfinished.
+
+Current detailed evidence: `context/reconciliation/local-f0-c401-closed-pair-install625-app-read13-progress-20261120.json`, SHA-256 `10c3ce84c735700622589b26eea3e1237a70ebf606d10a560770a73f9133ba22`. Earlier sections remain version-qualified history.
+
+---
+
 ## Local F0 continuation — four closed attempts and six admitted reads (2026-11-20)
 
 Source5f189aa6262bd5ecbffda0940e404038993fce05/treefd736f36633b28267602759c0da0d368bd625ef6 completed finite Six71, Worker21 and INSTALL protocols; App stopped at its first effect-wrong-root case. All four attempts and176sanitized assets are preserved, with independent exact resource/private cleanup and retained pinned image. No runtime is active. The App original SQLSTATE/diagnostic/full cause remains unobserved; source analysis proves an earlier command BEFORE-guard oracle and a separate parent stopped-origin masking defect. Its new correction remains under source review.

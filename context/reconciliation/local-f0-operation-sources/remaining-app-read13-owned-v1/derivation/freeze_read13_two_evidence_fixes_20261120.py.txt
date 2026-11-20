@@ -1,0 +1,53 @@
+"""Seal the reviewed-scope Read13 corrections for separate nonauthor review."""
+from pathlib import Path
+import ast,hashlib,json,runpy,sys
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass';sys.path[:0]=[str(TASK/'offline-python'),str(ROOT/'scripts')]
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def encoded(value):return(json.dumps(value,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def load(path):return json.loads(path.read_bytes())
+def mapping(folder):return{p.relative_to(ROOT).as_posix():sha(p.read_bytes())for p in sorted(folder.rglob('*'))if p.is_file()}
+def save_new(path,raw):
+ assert not path.exists(),str(path);path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
+def main():
+ refresh=runpy.run_path(str(TASK/'refresh_read13_two_evidence_fixes_20261120.py'));refresh['refresh']();generator=runpy.run_path(str(ROOT/'scripts/prepare-remaining-app-read13-rehearsal.py'));files,packet=generator['build']();five=refresh['FIVE'];child_archive=refresh['CHILD_ARCHIVE'];owned_archive=refresh['OWNED_ARCHIVE'];old=refresh['PRESERVED']
+ current={**{name:sha((ROOT/name).read_bytes())for name in generator['NEW']},**{name:sha((TASK/name).read_bytes())for name in five}}
+ records=[]
+ for argument in sys.argv[1:]:
+  path=TASK/argument;record=load(path);assert record['entry_source_sha256']==record['exit_source_sha256']and record['source_preserved']is True
+  # A child-only suite is bound to the exact six child code/doc inputs; a
+  # later parent-only reference/test adjustment does not change that code.
+  checked=generator['NEW']if record['mode']=='child'else current
+  assert all(record['entry_source_sha256'][name]==current[name]for name in checked)
+  assert record['result']=='PASS'and record['run']==record['methods']and record['failures']==record['errors']==record.get('skipped',0)==0
+  assert sha(Path(record['log_path']).read_bytes())==record['log_sha256'];records.append({'path':path.name,'sha256':sha(path.read_bytes()),'mode':record['mode'],'methods':record['methods'],'seconds':record['seconds'],'log_sha256':record['log_sha256'],'source_scope':'exact_child_six; parent-only later changes separately tested'if record['mode']=='child'else'exact_current_eleven'})
+ assert {record['mode']for record in records}>={'source','child','owned'},'Final source/child/owned receipts required'
+ assert len(files)==103 and all((ROOT/'review-output/remaining-app-read13-rehearsal'/name).read_bytes()==text.encode()for name,text in files.items())
+ assert all((old/'ROOT/review-output/remaining-app-read13-rehearsal'/name).read_bytes()==text.encode()for name,text in files.items()if name!='fixtures.json')
+ before_packet=load(old/'ROOT/review-output/remaining-app-read13-rehearsal/fixtures.json');ignored={'source_files_sha256','source_only_packet_sha256'};assert{k:v for k,v in packet.items()if k not in ignored}=={k:v for k,v in before_packet.items()if k not in ignored}
+ from pglast import parse_sql
+ assert sum(name.endswith('.sql')for name in files)==101;assert sum(len(parse_sql(text))for name,text in files.items()if name.endswith('.sql'))==529
+ for name in generator['NEW']:
+  if name.endswith('.py'):ast.parse((ROOT/name).read_bytes())
+ for name in five:ast.parse((TASK/name).read_bytes())
+ unchanged_source={name:wanted for name,wanted in before_packet['source_files_sha256'].items()if name not in generator['NEW']};assert all(sha((ROOT/name).read_bytes())==wanted for name,wanted in unchanged_source.items())
+ assert sha((ROOT/'review-output/foundation-application.review.sql').read_bytes())=='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+ # Retain failed and earlier bounded checks too, without upgrading their scope
+ # or claiming their superseded source hashes test the final frozen version.
+ for source in sorted(TASK.glob('read13_two_evidence_fix_*.json'))+sorted(TASK.glob('read13_two_evidence_fix_*.log')):
+  target=owned_archive/'two-evidence-fix-check-history'/source.name
+  if target.exists():assert target.read_bytes()==source.read_bytes()
+  else:save_new(target,source.read_bytes())
+ for source in(Path(__file__),TASK/'run_read13_two_evidence_fix_checks_20261120.py',TASK/'check_read13_two_evidence_fix_scope_20261120.py'):
+  target=owned_archive/'derivation'/(source.name+'.txt');save_new(target,source.read_bytes())
+ report={'schema':'workinants.read13-two-evidence-fix-author-report.v1','decision':'BOUNDED_SOURCE_CORRECTIONS_FROZEN_PENDING_SAME_INDEPENDENT_REVIEW','author':'/root/catalog_v4_review','original_implementation_author':'/root/review_track_ports','Root_ACK_sha256':'bfa9e647751b25b6e681780af7863a77a0fac944b269a567e4fe6e1fc5dac616','prior_independent_HOLD_sha256':'787c216f2b579a005fc4a57aaa951297e393390a5f74adf30a4e998f08a960cc','original_actual_probe_sha256':'844f38d8af6d579684293bea6479eba3e9a5ea0a21b1040acc6a4d83914e5041','original_preservation344_sha256':'0f1a6e426225d3a23d436ed81d36fffa5067bde2914fa979cab9bc7ab18a3f5a','required_reviewer':'/root/restricted_controls_operator','current_eleven_sha256':current,'fixture_sha256':sha(files['fixtures.json'].encode()),'content_sha256':packet['source_only_packet_sha256'],'offline_checks_final_version':records,'all103_artifacts_reproduced':True,'other102_artifacts_byte_exact':True,'SQL_leaves':101,'SQL_statements':529,'original_packet_semantics_exact_except_source_fingerprints':True,'unchanged_other_source_inputs':len(unchanged_source),'finite_caps':packet['finite_caps'],'corrections':['Fresh named response slots and explicit received/typed exit availability, null unknown ACK/error/count scalars, safe first-primary latch before later IO or safety failures.','Strict producer-consumer observation schema for the same82 protocols79 grants99 transactions.','Two independently closed bounded retained-file reads with descriptor/path identity, common mtime and per-representation ctime stability plus fresh byte/hash agreement.','Original SHA/length retained through pre/post read-only proof and postcleanup/source preservation final PASS barriers; uncertainty stops while safety/cleanup progresses.'],'limits':['No database, Docker, SQL, network, Git, resource or credential invocation by this author task.','All actual runtime protocols and thirteen possible SELECT links remain NOT_RUN.','No SQL/fixture business bytes, permissions, owner APIs, codecs, usage adapters, worker paths, timeouts, mounts or cleanup boundaries changed.','Integrity is proven only for the bounded observed file-read/finalization window, not perpetual filesystem atomicity.','Prior failures, actual probes and original held335+external5 are preserved; earlier source-version green results are not current-version authority.'],'source_review_gates':'PENDING','actual_runtime':'NOT_RUN','database_posture':'D','execution_authority':False,'plain_english':'Each step gets a fresh answer. A changed saved report cannot become a passing report, and cleanup still gets done.'}
+ report.update(check_counts_are_version_qualified_and_not_additive=True,focused14_overlap_child_and_owned=True,static_scope_proof_sha256='e294bade87b651c3914d215579a87fbdce04564a81bd869a7be92f6d7c350831',preserved_first_final_owned_attempt={'methods':56,'PASS':55,'ERROR':1,'receipt_sha256':'626b0a746832b1ce447cc653a4f8c91b56b9215111d3ad9cc7f7441ee6ebdafe','observed_error':'EXACT_COORDINATOR_SOURCE stale inline pinner literal; corrected fingerprint only','preservation_sha256':'fc6ce19333b33ff61753d00fc549b3d98e1514b235276633d51cec6c75625c40','replacement_final_owned_methods':56})
+ raw=encoded(report);report_path=TASK/'read13_two_evidence_fix_frozen_author_report_20261120.json';save_new(report_path,raw);save_new(owned_archive/'two-evidence-fix-frozen-author-report.json',raw)
+ for kind,folder,name in(('child',child_archive,'local-f0-remaining-app-read13-source-validation.json'),('owned',owned_archive,'local-f0-remaining-app-read13-owned-v1-source-validation.json')):
+  path=ROOT/'context/reconciliation'/name;record=load(path);record.update(status='BOUNDED_EVIDENCE_FIX_FROZEN_RUNTIME_NOT_RUN_REQUIRES_SAME_INDEPENDENT_REVIEW',author_state='FROZEN_NOT_SELF_APPROVED',author_report_sha256=sha(raw),archive_files_sha256=mapping(folder),offline_checks=records,execution_authority=False)
+  assert all(value['decision']=='PENDING'for key,value in record.items()if key.startswith('independent_')and type(value)is dict);path.write_bytes(encoded(record))
+ proposed={name:sha((ROOT/name).read_bytes())for name in generator['NEW']}
+ for folder in(ROOT/'review-output/remaining-app-read13-rehearsal',child_archive,owned_archive):proposed.update(mapping(folder))
+ for name in('local-f0-remaining-app-read13-source-validation.json','local-f0-remaining-app-read13-owned-v1-source-validation.json'):path=ROOT/'context/reconciliation'/name;proposed[path.relative_to(ROOT).as_posix()]=sha(path.read_bytes())
+ delivery={'schema':'workinants.read13-two-evidence-fix-frozen-delivery.v1','decision':'FROZEN_SOURCE_ONLY_PENDING_SAME_INDEPENDENT_REVIEW','author_report_path':str(report_path),'author_report_sha256':sha(raw),'Root_files_sha256':dict(sorted(proposed.items())),'external_five_sha256':{name:current[name]for name in five},'source_inputs':len(packet['source_files_sha256']),'artifacts':103,'child_archive_files':len(mapping(child_archive)),'owned_archive_files':len(mapping(owned_archive)),'source_review_gates':'PENDING','actual_runtime':'NOT_RUN','execution_authority':False}
+ path=TASK/'read13_two_evidence_fix_frozen_delivery_20261120.json';body=encoded(delivery);save_new(path,body);print(json.dumps({'delivery':str(path),'sha256':sha(body),'author_report_sha256':sha(raw),'Root_files':len(proposed),'external_five_sha256':delivery['external_five_sha256']}))
+if __name__=='__main__':main()

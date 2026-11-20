@@ -1,0 +1,193 @@
+"""Independent closed INSTALL audit/proposal only. No project code execution or Root writes."""
+import ast,collections,datetime,hashlib,json,math,re,time
+from pathlib import Path
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';D=T/'install-4b35-closed-evidence-audit-20261120'
+B='context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b'
+REC='context/reconciliation/local-f0-install-5f189aa-4b35e08b-execution.json'
+RUN='4b35e08b-3ecb-4ae6-9574-565bcdd51c1f';COMMIT='5f189aa6262bd5ecbffda0940e404038993fce05';TREE='fd736f36633b28267602759c0da0d368bd625ef6';PACKET='4d98713bb4b9810cea2be5c1fbf4139979b4476222fc7f0bdfad9b10bde64393'
+APP='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad';FAULT='dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c';LATE='bb41107428c6a2868abe402c28d14554cfb073113f5687f806b395366189a61f'
+ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker');VARIANTS=('canonical','division_failure','late_function_grant');checks=0
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def canonical(value):return json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False)
+def need(value,code):
+ global checks
+ checks+=1
+ if not value:raise AssertionError(code)
+def same(a,b,code):need(canonical(a)==canonical(b),code)
+def doc(raw):
+ def pairs(items):
+  value={}
+  for k,v in items:need(k not in value,'DUPLICATE_JSON');value[k]=v
+  return value
+ return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(AssertionError('NONFINITE_JSON')))
+def emit(path,value):
+ with path.open('x',encoding='utf8',newline='\n')as stream:json.dump(value,stream,indent=2,allow_nan=False);stream.write('\n')
+ return sha(path.read_bytes())
+def identity(v,packet='packet_sha256'):
+ same([v['run_id'],v['source_commit'],v['source_tree'],v[packet]],[RUN,COMMIT,TREE,PACKET],'RUN_SOURCE_TREE_PACKET')
+def pointer(value,text):
+ need(type(text)is str and text.startswith('/'),'POINTER')
+ for part in text[1:].split('/'):
+  part=part.replace('~1','/').replace('~0','~')
+  if type(value)is list:need(part.isdigit()and str(int(part))==part,'POINTER_INDEX');value=value[int(part)]
+  else:value=value[part]
+ return value
+
+def semantic_view(native,expected):
+ """Independently derive this exact source's 78 RESTRICT FK x four triggers."""
+ wanted={};empty=sha(b'');fk_count=0
+ for table,info in expected['tables'].items():
+  for source in info['constraints']:
+   if source['kind']!='FOREIGN':
+    need(not(source['kind']in('PRIMARY','UNIQUE')and source['deferrable']),'NO_OTHER_INTERNAL_TRIGGER_SOURCE');continue
+   fk_count+=1;need(source['delete_action']==source['update_action']=='r'and source['deferrable']is False and source['initially_deferred']is False,'EXACT_RESTRICT_FK_SOURCE')
+   candidates=[x for x in native['constraints']if x['table_name']==table and x['kind']=='f'and x['columns']==source['columns']and x['references']==source['references']and x['referenced_columns']==source['referenced_columns']and (source['name']is None or x['name']==source['name'])]
+   need(len(candidates)==1,'SOURCE_FK_IDENTITY');actual=candidates[0]
+   for field in('delete_action','update_action','deferrable','initially_deferred','match'):same(actual[field],source[field],'SOURCE_FK_PROPERTY')
+   need(type(actual['name'])is str and actual['name'].endswith('_fkey')and len(actual['name'].encode())<=63,'SOURCE_GENERATED_CONSTRAINT_NAME')
+   reference=source['references'];index=actual['referenced_unique_index'];ref_info=expected['tables'][reference]
+   source_indexes=[x for x in ref_info['constraint_indexes']if x['unique']is True and x['columns']==source['referenced_columns']]
+   native_indexes=[x for x in native['indexes']if x['object']==index and x['table_name']==reference and x['unique']is True and [k['column']for k in x['keys']]==source['referenced_columns']]
+   explicit=expected['explicit_indexes'].get(index)
+   source_index_match=any(x['constraint_name']is None or index==reference.split('.')[0]+'.'+x['constraint_name']for x in source_indexes)or(type(explicit)is dict and explicit['table']==reference and explicit['unique']is True and [x['IndexElem']['name']for x in explicit['keys_ast']]==source['referenced_columns'])
+   need(len(native_indexes)==1 and source_index_match,'SOURCE_REFERENCED_INDEX')
+   for target,other,function,bits,prefix in [(table,reference,'RI_FKey_check_ins',5,'c'),(table,reference,'RI_FKey_check_upd',17,'c'),(reference,table,'RI_FKey_restrict_del',9,'a'),(reference,table,'RI_FKey_restrict_upd',17,'a')]:
+    row={'table_name':target,'constraint_table':table,'constraint_name':actual['name'],'function':'pg_catalog.'+function,'function_identity':'pg_catalog.'+function+'()','function_release_builtin':True,'type_bits':bits,'enabled':'O','constraint':True,'deferrable':False,'initially_deferred':False,'argument_count':0,'arguments_sha256':empty,'when_sha256':None,'has_constraint_relation':True,'referenced_table':other,'has_constraint_index':True,'constraint_index':index,'dependencies':[{'class':'constraint','object':table+'/'+actual['name'],'direction':'trigger_to','object_subid':0,'dependency_type':'i','referenced_subid':0}],'internal':True}
+    key=(table,actual['name'],target,'pg_catalog.'+function,bits);need(key not in wanted,'UNIQUE_SOURCE_TRIGGER');wanted[key]=(row,prefix)
+ need(fk_count==78 and len(wanted)==312,'SOURCE312_INTERNAL_IDENTITIES')
+ internal={};external={};names={};seen=set()
+ for row in native['triggers']:
+  need(type(row)is dict and len(row)==21 and type(row['internal'])is bool,'TRIGGER21_FIELDS');keyname=(row['table_name'],row['name']);need(keyname not in seen,'UNIQUE_TRIGGER_NAME');seen.add(keyname)
+  if row['internal']is False:
+   key=row['table_name']+'/'+row['name'];need(key in expected['triggers']and key not in external,'SOURCE100_EXTERNAL_IDENTITIES');need(row['enabled']=='O','EXTERNAL_RESTORED');external[key]=row;continue
+  key=(row['constraint_table'],row['constraint_name'],row['table_name'],row['function'],row['type_bits']);need(key in wanted and key not in internal,'EXACT_SOURCE_INTERNAL_IDENTITY');source,prefix=wanted[key]
+  need(re.fullmatch('RI_ConstraintTrigger_'+prefix+'_[0-9]+',row['name'])is not None,'ONLY_GENERATED_INTERNAL_NAME')
+  clean={k:v for k,v in row.items()if k!='name'};same(clean,source,'ALL20_INTERNAL_NONNAME_FIELDS');internal[key]=clean;names[key]=row['name']
+ need(set(internal)==set(wanted)and set(external)==set(expected['triggers'])and len(external)==100 and len(native['triggers'])==412,'COMPLETE312_100_TRIGGER_SET')
+ view={'format':'workinants.install-source-semantic-native-view.v1','nontrigger_sections':{k:v for k,v in native.items()if k!='triggers'},'external_triggers':external,'internal_triggers':[[list(k),internal[k]]for k in sorted(internal)]}
+ need(len(view['nontrigger_sections'])==26,'OTHER26_NATIVE_SECTIONS');return view,names
+
+def main():
+ started=time.perf_counter();pres=doc((D/'input-preservation.json').read_bytes());pins=pres['closed_input_hashes'];need(len(pins)==433,'SOURCE370_PLUS62_AND_RECORD')
+ blobs={}
+ for name,h in pins.items():
+  need(type(name)is str and not Path(name).is_absolute()and '\\'not in name and ':'not in name and all(x not in('','.','..')for x in name.split('/')),'SAFE_RELATIVE_CLOSED_PATH')
+  path=R/name;need(not path.is_symlink()and path.resolve().is_relative_to(R.resolve()),'REGULAR_CONFINED_SOURCE');raw=path.read_bytes();need(sha(raw)==h,'EXACT_PINNED_BYTES');blobs[name]=raw
+ cache={}
+ def j(name):
+  raw=blobs[name]
+  if raw not in cache:cache[raw]=doc(raw)
+  return cache[raw]
+ def a(name):return j(B+'/'+name)
+ record=j(REC);identity(record,'operation_packet_sha256');need(sha(blobs[REC])=='d6dd830478302d34772f618b4f9e62f23db586180cb7c1e868b1abc3a9d22861','EXACT_NORMALIZED_RECORD')
+ m=a('manifest/operation-manifest.json');identity(m);need(len(m['packet_files_sha256'])==370 and len(record['assets_sha256'])==62,'370_62');need(sha(''.join(n+'\0'+m['packet_files_sha256'][n]+'\n'for n in sorted(m['packet_files_sha256'])).encode())==PACKET,'AGGREGATE_PACKET')
+ need(sha(blobs[B+'/manifest/operation-manifest.json'])=='6874c050f98c0419bba9e76a28a2db0bf7c0046ba55361006e28bdd4990f2abc','APPROVED_MANIFEST');need(m['review_status'].startswith('APPROVED_'),'LITERAL_APPROVAL')
+ own_path='context/reconciliation/local-f0-install-controls-owned-parity-v4-source-validation.json';own=j(own_path)
+ same(own['all_five_sources_sha256'],m['operator_sources_sha256'],'CURRENT_OWNING_FIVE_BINDING')
+ for gate in('independent_source_review','independent_safety_sql_review','independent_ledger_source_review','independent_review_publication_source_review','Root_source_review'):
+  g=own[gate];need(g['decision']=='SOURCE_APPROVED'and sha(blobs[g['path']])==g['sha256'],'SOURCE_GATES')
+ for name,h in m['operator_sources_sha256'].items():need(sha((T/name).read_bytes())==h,'PHYSICAL_FIVE_MATCH')
+ f=j(m['install']['fixtures']);need(sha(blobs[m['install']['fixtures']])==m['install']['fixtures_sha256']=='d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a','EXACT_FIXTURES')
+ need(len(f['source_files_sha256'])==30 and len(f['prepared_files_sha256'])==12,'30_SOURCE12_ARTIFACTS');same(f['selected_control_ids'],['P0C-INSTALL-01','P0C-INSTALL-02'],'SELECTED_INSTALL_SCOPE')
+ for name,h in f['source_files_sha256'].items():need(m['packet_files_sha256'].get(name)==h,'GENERATOR_SOURCE_ADMISSION')
+ root='review-output/install-control-rehearsal-v4';migration='20261117000100_f0_local_initial';sql=blobs['review-output/foundation-application.review.sql'];need(sha(sql)==APP,'CANONICAL_SQL5AE')
+ tail=b'RESET ROLE;\nCOMMIT;\n';grant=b'GRANT EXECUTE ON FUNCTION platform_private.bind_request_context(text) TO wa_app_runtime,wa_worker;\n\n';transfer=b'ALTER FUNCTION platform_private.bind_request_context(text) OWNER TO wa_private_helper_owner;\n\n';need(sql.endswith(tail)and sql.count(grant)==sql.count(transfer)==1,'ONE_EXACT_LAYOUT')
+ variants={'canonical':sql,'division_failure':sql[:-len(tail)]+b'SELECT 1/0;\n'+tail,'late_function_grant':sql.replace(grant,b'',1).replace(transfer,transfer+grant,1)}
+ for kind,body in variants.items():need(blobs[root+'/'+kind+'/'+migration+'/migration.sql']==body and f['variants'][kind]['sha256']==sha(body),'EXACT_VARIANT_SOURCE_REPRODUCTION')
+ for name,h in f['prepared_files_sha256'].items():need(sha(blobs[root+'/'+name])==h,'ALL12_PREPARED_ARTIFACTS')
+ need(sha(variants['division_failure'])==FAULT and sha(variants['late_function_grant'])==LATE,'EXACT_INJECTED_HASHES')
+ coordinator=blobs['scripts/sql-review/run-install-control-rehearsal-v4.py'];ctree=ast.parse(coordinator);locators={n.name:{'path':'scripts/sql-review/run-install-control-rehearsal-v4.py','sha256':sha(coordinator),'line':n.lineno,'end_line':n.end_lineno}for n in ast.walk(ctree)if isinstance(n,ast.FunctionDef)and n.name in('successful_install','failure','recovery','activation_attempt','activate','finalize','wrong_finalizer')}
+ failure_node=next(n for n in ast.walk(ctree)if isinstance(n,ast.FunctionDef)and n.name=='failure');failure_text=ast.get_source_segment(coordinator.decode(),failure_node);need(failure_text.index('finally:self.finalize(variant)')<failure_text.rindex('self.activation_attempt(variant,False)'),'FAILURE_POST_FINALIZATION_ACTIVATION_LIMIT_PROVEN')
+ r=a('evidence/run-evidence.json');c=a('evidence/install-controls/install-controls-results.json');identity(c);same([r['run_id'],r['approved_commit'],r['approved_tree'],r['approved_packet_sha256']],[RUN,COMMIT,TREE,PACKET],'RAW_WRAPPER_IDENTITY')
+ need(r['status']=='PASS_FINITE_INSTALL_PROTOCOLS_AND_NATIVE_SUBSET_ONLY'and r['evidence_complete']is True and r['persistence_failure']is False and r['unexpected']==[],'WRAPPER_COMPLETE');need(c['status']=='PASS_FINITE_INSTALL_PROTOCOLS_PENDING_FULL_NATIVE_COMPARISON'and c['current_stage']=='AUTH_WA_WORKER'and c['subsequent_cases_stopped']is False,'SOURCE_KNOWN_CHILD_COMPLETION_NOT_REWRITTEN')
+ need(record['known_executor_exit']['exit_code']==record['known_watcher_exit']['exit_code']==0,'KNOWN_CLOSED_EXITS');same(sorted(c['targets']),sorted(VARIANTS),'THREE_TARGETS')
+ closure_counts={};inactive={'flags_exact':True,'runtime_roles':4,'all_null_verifiers':True};cleanup={'original_grantor':'postgres','temporary_memberships':0,'leaf_create':False,'other_clients':0}
+ finalizer=blobs[root+'/finalize.sql'].decode();body=re.search(r'DO (\$cleanup\$)(.*?)\1;',finalizer,re.S)[2];need(sha(body.encode())=='a2f98b8da7497155f9c60bff2e1798a46b27395378b0986ee7115c3adecda2dd','ORIGINAL_GRANTOR_SOURCE_BODY')
+ need([i for i,line in enumerate(body.split('\n'),1)if "RAISE EXCEPTION 'cleanup requires original bootstrap grantor'"in line]==[6],'ORIGINAL_GRANTOR_SOURCE_GUARD_LINE')
+ for kind,target in c['targets'].items():
+  closures={k:v for k,v in target.items()if k.startswith('closure_')};closure_counts[kind]=len(closures)
+  for value in closures.values():same(value,{'scope':'ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES','observation_completed':True,'all_other_clients_absent':True},'CHILD_GLOBAL_CLOSURE')
+  same(target['original_cleanup'],cleanup,'ALL3_ORIGINAL_GRANTOR_ZERO');same(target['BEFORE_INSTALL_RUNTIME_INACTIVE'],inactive,'FOUR_NULL_BEFORE_INSTALL')
+  same(target['activation_gate_held'],{'permit':False,'database_password_sql_executed':False},'ACTIVATION_GATE_HELD_NO_SQL')
+  for role in ROLES:
+   want={'role':role,'correct_password':'PASS_SCRAM','wrong_password':'PASS_REJECTED','actual_connection_closed':True}if kind!='late_function_grant'or role in ROLES[:2]else{'role':role,'correct_password':'PASS_REJECTED_INACTIVE','wrong_password':'NOT_RUN','actual_connection_closed':True}
+   same(target['auth_'+role],want,'ACTUAL_ROLE_PASSWORD_CONTROLS')
+  if kind!='late_function_grant':same(target['activation_gate_allowed'],{'permit':True,'database_password_sql_executed':False},'GATED_ACTIVATION_ALLOWED');same(target['AFTER_VERIFIED_CLEANUP_STILL_INACTIVE'],inactive,'NULL_AFTER_CLEANUP_BEFORE_ACTIVATION')
+  if kind!='canonical':same(target['FAILED_INSTALL_REMAINS_INACTIVE'],inactive,'FAILED_NULL_RUNTIME')
+ same(closure_counts,{'canonical':29,'division_failure':32,'late_function_grant':22},'83_RETAINED_CHILD_CLOSURE_RECORDS')
+ need(len(r['backend_closures'])==24,'PARENT24_CLOSURES')
+ for row in r['backend_closures']:need(row['scope']=='ALL_DATABASES_ALL_ROLES_ALL_TAGS'and all(row[k]is True for k in('observation_completed','counts_valid','migrator_zero','other_clients_zero','all_other_client_backends_absent')),'PARENT_GLOBAL_ZERO')
+ same(c['targets']['canonical']['wrong_grantor'],{'matched':True,'sqlstate':'P0001','source_body_sha256':sha(body.encode()),'source_line':6,'raw_output_discarded':True},'WRONG_GRANTOR_EXACT_DIAGNOSTIC')
+ proof=a('evidence/install-controls/rollback-proof-for-review.json');identity(proof);need(sha(blobs[B+'/evidence/install-controls/rollback-proof-for-review.json'])=='3a33a7a3e808e4029f74ac2f1eafccfffb422d392a90c39b5ab7665c03537070','SEALED_ROLLBACK_PROOF')
+ sealed=a('evidence/install-controls/independent-review-child-snapshot.json');sealed_div=sealed['targets']['division_failure'];same(proof['application_inventory'],dict.fromkeys(('enums','types','functions','relations','other_clients'),0),'DIVISION_ZERO_ALL_APP_OBJECTS_AT_HOLD');same(sealed_div['inventory'],proof['application_inventory'],'CLOSED_CHILD_INITIAL_ROLLBACK');same(sealed_div['original_cleanup'],cleanup,'SEALED_CLEANUP')
+ for kind,initial in [('division_failure',sealed_div),('late_function_grant',c['targets']['late_function_grant'])]:
+  verdict=initial['failure_verdict'];before=initial['server_before']['counts'];after=initial['server_after']['counts'];need(all(type(x)is int and x>=0 for x in [*before.values(),*after.values()]),'STRICT_SERVER_COUNTS');delta={k:after[k]-before[k]for k in before}
+  wanted={'registered':2,'division_22012':1 if kind=='division_failure'else 0,'function_42501':1 if kind=='late_function_grant'else 0,'secondary_25p02':1,'other_migrator_error':0,'malformed':0,'forbidden_body':0};same(delta,wanted,'EXACT_PRIMARY_AND_SECONDARY_DELTA');same(verdict['delta'],wanted,'VERDICT_BOUND_ACTUAL_COUNTS')
+  need(verdict['primary_sqlstate']==('22012'if kind=='division_failure'else'42501')and verdict['P3018_claimed']is False and verdict['actual_database_failure_observed']is True and verdict['rollback_observed']is True and verdict['recovery_approved']is False and verdict['classification']=='SERVER_PRIMARY_WITH_SECONDARY_25P02_NULL_LOGS','EXACT_INTENDED_DATABASE_FAILURE')
+  rows=initial['ledger']['rows'];need(len(rows)==1,'ONE_FAILED_ROW');row=rows[0];same([row['steps'],row['finished'],row['rolled_back'],row['logs_state']],[0,False,False,'NULL'],'FAILED_ROW_STATE');need(row['checksum_sha256']==sha((FAULT if kind=='division_failure'else LATE).encode())and row['immutable_sha256']==verdict['failed_row_immutable_sha256'],'FAILED_HISTORY_CHECKSUM')
+  same(initial['inventory'],dict.fromkeys(('enums','types','functions','relations','other_clients'),0),'ALL_APPLICATION_OBJECTS_ROLLBACK')
+ div=c['targets']['division_failure'];same(div['failure_verdict'],proof['failure'],'FINAL_RETAINS_INITIAL_FAILURE');approval=a('evidence/install-controls/independent-recovery-approval.json');need(sha(blobs[B+'/evidence/install-controls/independent-recovery-approval.json'])=='684f202b963cee9a802bc0afea14343b2d7314638bcc90d0f0cf36cb0f92ca42','EXACT_ACTUAL_APPROVAL')
+ same(approval,div['independent_recovery_review'],'APPROVAL_ACTUALLY_CONSUMED');same(approval,{'schema':'workinants.install-independent-rollback-review.v1','decision':'APPROVED_STANDARD_RESOLVE_ROLLED_BACK','run_id':RUN,'container_id':proof['container_id'],'source_sql_sha256':FAULT,'proof_sha256':sha(blobs[B+'/evidence/install-controls/rollback-proof-for-review.json']),'reviewer':'/root/catalog_v4_review'},'DISTINCT_REVIEW_IDENTITY')
+ receipt=a('Catalog-explicit-actual-approval-receipt.json');watch=a('actual-READY-watch-stdout.json');review=a('Catalog-actual-sealed-evidence-review.json');same(receipt['approval'],approval,'EXPLICIT_APPROVAL_RECEIPT');need(receipt['original_deadline_monotonic']==watch['actual_watch_stdout_parsed']['review_deadline_monotonic']==review['original_review_deadline_monotonic']==185784.187 and math.isfinite(receipt['remaining_seconds_after_publication'])and 62<receipt['remaining_seconds_after_publication']<63 and watch['actual_watch_stdout_parsed']['local_review_budget_seconds']==220,'ORIGINAL_UNEXTENDED_REVIEW_DEADLINE')
+ failed0=proof['failed_ledger'];retained=div['ledger']['rows'];need(len(retained)==2 and div['ledger']['ids_unique']is True,'TWO_DISTINCT_RETAINED_ROWS');same(retained[0],{**failed0,'rolled_back':True},'ONLY_ALLOWED_ROLLEDBACK_MARK');need(retained[1]['checksum_sha256']==sha(APP.encode())and retained[1]['steps']==1 and retained[1]['finished']is True and retained[1]['rolled_back']is False and retained[1]['logs_state']=='NULL','RECOVERED_VALID_CANONICAL_ROW')
+ for kind,key in [('canonical','cli_canonical_deploy'),('division_failure','cli_division_recovery_deploy')]:
+  target=c['targets'][kind];cli=target[key];need(type(cli['exit_code'])is int and cli['exit_code']==0 and cli['operation']=='deploy'and cli['no_pending_message_observed']is True and cli['source_sql_sha256']==APP and cli['run_id']==RUN,'GENUINE_RECORDED_NOOP');need(target['schema_fingerprint']['raw_dump_retained']is False,'SAFE_DUMP_HASH_ONLY')
+ same(c['targets']['canonical']['schema_fingerprint'],div['schema_fingerprint'],'RECOVERED_SCHEMA_FINGERPRINT_EQUALS_CANONICAL');need(div['cli_division_failure_resolve-rolled-back']['operation']=='resolve-rolled-back'and div['cli_division_failure_resolve-rolled-back']['exit_code']==0,'STANDARD_RESOLVE')
+ expected=j('review-output/native-catalog/expected.json')['expected'];views={};names={};raw_sha={}
+ for kind,prefix,count,ledger_count in [('canonical','canonical-',29089,22),('division_failure','recovered-',29090,23)]:
+  native=a('evidence/'+prefix+'native-before.json');raw_sha[kind]=sha(canonical(native).encode());need(raw_sha[kind]==('a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6'if kind=='canonical'else'91b6a849f368759f783df1247dcbf89ecc06b1e302220f7c23bf6f2a13049ae9'),'EXACT_RAW_NATIVE_IDENTITY')
+  for suffix in('native-after-oracle.json','native-after-ledger.json'):same(a('evidence/'+prefix+suffix),native,'PER_TARGET_FULL_NATIVE_ROLLBACK_PARITY')
+  comparison=a('evidence/'+prefix+'catalog-comparison.json');same(comparison['check_counts'],{'PASS':count},'TYPED_SOURCE_NATIVE_COUNTS');need(comparison['status']=='PASS'and comparison['findings']==[],'SOURCE_NATIVE_PASS')
+  ledger=a('evidence/'+prefix+'ledger-comparison.json');need(ledger['status']=='PASS'and len(ledger['checks'])==ledger_count and all(x['status']=='PASS'and x['expected_sha256']==x['actual_sha256']for x in ledger['checks']),'PRIVATE_LEDGER_FULL_COMPARISON')
+  oracle=a('evidence/'+prefix+'oracle-results.json');need(type(oracle['expression_count'])is int and oracle['expression_count']==len(oracle['expressions'])==416,'ORACLE416_EACH')
+  views[kind],names[kind]=semantic_view(native,expected)
+ same(views['canonical'],views['division_failure'],'ALL26_SECTIONS100_EXTERNAL_AND20_FIELDS_PARITY');need(raw_sha['canonical']!=raw_sha['division_failure'],'RAW_SNAPSHOTS_RETAIN_DISTINCTION')
+ same(sha(canonical(views['canonical']).encode()),'534d6edf382bf324664d272e66e28e16d3da79ab9411693c722bec9bff4aae06','INDEPENDENT_RECOMPUTED_SEMANTIC_SHA');need(sum(names['canonical'][k]!=names['division_failure'][k]for k in names['canonical'])==312,'ONLY312_INTERNAL_NAMES_DIFFER')
+ parity=a('evidence/install-semantic-parity.json');same(parity,r['install']['semantic_parity'],'PARENT_PARITY_ARTIFACT_BINDING');need(sha(blobs[B+'/evidence/install-semantic-parity.json'])=='79736c166f527a15931a19de28a6c87b005e878adbae01448fab5d7e45eb39d8','PARITY_FILE_SHA');same(parity['semantic_view_sha256'],{k:sha(canonical(v).encode())for k,v in views.items()},'PARITY_SEMANTIC_HASHES')
+ need(r['install']['full_native']=='PASS_CANONICAL_AND_RECOVERED_SOURCE_BOUND_NATIVE_ONLY'and all(x['full_native_pending']is True for x in r['install']['finite_result'].values()),'NORMALIZED_PARENT_FULFILLS_RAW_PENDING_NATIVE')
+ clean=a('independent-cleanup.json');identity(clean);need(clean['status']=='PASS_INDEPENDENT_PHYSICAL_CLEANUP'and clean['private_directory_absent']is True and clean['pinned_image_retained']is True and len(clean['exact_name_observations'])==6 and all(v['absent_exact_known_diagnostic']is True for v in clean['exact_name_observations'].values()),'INDEPENDENT6_RESOURCE_PRIVATE_CLEANUP')
+ need(all(v is False for v in r['cleanup_summary']['resource_presence_after'].values())and r['cleanup_summary']['private_directory_absent']is True and r['cleanup_summary']['image_removed']is False and r['cleanup_summary']['unrelated_resources_changed']is False,'EXACT_CLEANUP')
+ for key in('packet_unchanged_after_run','tool_source_data_unchanged_after_run','external_input_archives_and_fresh_history_unchanged_after_run','external_sources_unchanged_after_run','all_source_and_external_inputs_preserved_after_run'):need(r[key]is True,'SOURCE_PRESERVED')
+ # Exact assertion proposal; every pointer resolves against the captured closed bytes.
+ inventory=j('context/reconciliation/local-f0-assertions.json');need(sha(blobs['context/reconciliation/local-f0-assertions.json'])=='7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558','UNCHANGED1034_INVENTORY')
+ ledger0=doc((D/'local-f0-assertion-evidence.base647.json').read_bytes());oldrows={(x['case_id'],x['assertion_id']):x for x in ledger0['assertions']};need(len(oldrows)==647,'VERSION_QUALIFIED_BASE647')
+ child=B+'/evidence/install-controls/install-controls-results.json';parent=B+'/evidence/run-evidence.json';rollback=B+'/evidence/install-controls/rollback-proof-for-review.json'
+ def ref(path,text,why):pointer(j(path),text);return {'path':path,'sha256':pins[path],'json_pointer':text,'required_piece':why}
+ shared=[ref(parent,'/install/full_native','Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved.'),ref(B+'/independent-cleanup.json','/exact_name_observations','Independent six exact created resources absent and private secrets removed.')]
+ pieces={
+ ('P0C-INSTALL-01','control.empty_deploy'):[ref(child,'/targets/canonical/finite_result','Source-gated actual canonical first installation completion from the empty prebootstrap baseline.'),ref(child,'/targets/canonical/ledger','One genuine applied canonical-checksum finished step1 row.')],
+ ('P0C-INSTALL-01','control.private_ledger'):[ref(parent,'/install/native/canonical/ledger_checks','Full22 private-ledger metadata/checksum/history checks.')],
+ ('P0C-INSTALL-01','control.second_deploy'):[ref(child,'/targets/canonical/cli_canonical_deploy','Final recorded genuine deploy is no-pending second deploy; earlier CLI labels are overwritten.'),ref(child,'/targets/canonical/finite_result','Completion requires unchanged first/second ledger and schema hashes in frozen source.')],
+ ('P0C-INSTALL-01','control.success_cleanup'):[ref(child,'/targets/canonical/original_cleanup','Separate postgres original grantor after install closure; zero temporary memberships/leafCREATE/all other clients.')],
+ ('P0C-INSTALL-01','vector.INSTALL-CLEANUP.positive'):[ref(child,'/targets/canonical/original_cleanup','Original grantor cleanup after committed canonical source.'),ref(child,'/targets/canonical/BEFORE_INSTALL_RUNTIME_INACTIVE','Four actual NULL verifiers before install.'),ref(child,'/targets/canonical/AFTER_VERIFIED_CLEANUP_STILL_INACTIVE','Four NULL verifiers after cleanup, before controlled activation.'),ref(child,'/targets/canonical/activation_gate_held','Pure gate denied activation without password SQL before cleanup; completed source path asserts exact phase.')],
+ ('P0C-INSTALL-01','vector.INSTALL-CLEANUP.adversarial'):[ref(rollback,'/application_inventory','Division variant zero all app objects before recovery.'),ref(child,'/targets/late_function_grant/inventory','Late function-grant failed target zero objects.'),ref(child,'/targets/late_function_grant/original_cleanup','Original grantor cleanup after failed application transaction.'),ref(child,'/targets/canonical/wrong_grantor','Actual migrator finalization denied at exact source P0001/body/line6 while canonical install authority still temporary; failure-target wrong-finalizer attempt not claimed.')],
+ ('P0C-INSTALL-01','vector.FUNCTION-ACL-AUTHORITY.positive'):[ref(parent,'/install/native/canonical','Source-bound full canonical function owners/ACL/leaf flags; source order is grant+revoke before ownership transfer.'),ref(child,'/targets/canonical/original_cleanup','Postcommit original-grantor removal of all temporary authority.')],
+ ('P0C-INSTALL-01','vector.FUNCTION-ACL-AUTHORITY.adversarial'):[ref(child,'/targets/late_function_grant/failure_verdict','One exact existing bind_request_context EXECUTE grant moved after its leaf owner transfer; actual function-specific42501 plus secondary25P02, no P3018 claim.'),ref(child,'/targets/late_function_grant/inventory','Application rollback complete; no successful commit of the faulty variant claimed.')],
+ ('P0C-INSTALL-02','control.intended_failure'):[ref(rollback,'/failure','Actual22012 intentional SQL division failure separated from permission/connection/parser errors by exact server delta and immutable SQL hash.'),ref(B+'/evidence/recovered-install-failure-proof.json','/failed_cli','Genuine Prisma failed attempt; CLI primary masking retained as observed, not P3018 invented.')],
+ ('P0C-INSTALL-02','control.failed_ledger'):[ref(rollback,'/failed_ledger','Unfinished zero-step failed faulty checksum row remains at rollback.'),ref(child,'/targets/division_failure/ledger','Same immutable row retained with only allowed rolled_back mark, plus one canonical applied row after reviewed recovery.')],
+ ('P0C-INSTALL-02','control.failed_cleanup'):[ref(child,'/targets/division_failure/original_cleanup','Original grantor after failed connection exits.'),ref(child,'/targets/late_function_grant/original_cleanup','Second independent failed branch original cleanup/all clients zero.')],
+ ('P0C-INSTALL-02','control.recovery'):[ref(B+'/Catalog-explicit-actual-approval-receipt.json','/approval','Distinct actual sealed Catalog approval under original unextended220-second deadline.'),ref(child,'/targets/division_failure/cli_division_failure_resolve-rolled-back','Pinned standard resolve for failed immutable history on sameCID.'),ref(child,'/targets/division_failure/recovery_result','Canonical retry and genuine second no-op, failure row retained.'),ref(parent,'/install/native/division_failure','Recovered full29090 native/416oracle/23private-ledger checks.')],
+ ('P0C-INSTALL-02','control.immutable_applied_history'):[ref(B+'/evidence/recovered-install-failure-proof.json','/retained_ledger','Failed checksum kept; only standard rolled-back marking allowed, separately reviewed immutable canonical history applied.'),ref(parent,'/all_source_and_external_inputs_preserved_after_run','No applied canonical checksum/source rewrite or direct ledger manipulation; source only permits guarded deploy/resolve.')],
+ ('P0C-INSTALL-02','vector.FUNCTION-ACL-FAILURE-CLEANUP.positive'):[ref(rollback,'/original_grantor_finalized','Original grantor finalized after application rollback.'),ref(child,'/targets/canonical/original_cleanup','Original grantor also finalized after successful commit.'),ref(child,'/targets/late_function_grant/inventory','Late application failure leaves no app objects.')],
+ ('P0C-INSTALL-02','vector.FUNCTION-ACL-FAILURE-CLEANUP.adversarial'):[ref(child,'/targets/late_function_grant/failure_verdict','After-function setup/before-COMMIT failure actually reached intended guard.'),ref(child,'/targets/late_function_grant/activation_gate_held','Gate was held before install and again after failed-install cleanup; no distinct postfailure/precleanup attempt was exercised.'),ref(child,'/targets/late_function_grant/FAILED_INSTALL_REMAINS_INACTIVE','Failed target remains NULL-verifier/inactive; four candidate startups rejected.')],
+ ('P0C-CATALOG-01','control.all_acl_levels'):[ref(parent,'/install/native/canonical','Full schema/table/column/function/type/default/private-ledger source comparison on canonical target.'),ref(parent,'/install/native/division_failure','Recovered source comparison includes retained failed private ledger.')],
+ ('P0C-CATALOG-01','control.visibility'):[ref(B+'/evidence/install-semantic-parity.json','/counts','Only312 source-validated internal trigger.name differences omitted, all20 other fields/100external/26sections exact; raw snapshots remain distinct.')]
+ }
+ rows=[]
+ for (cid,aid),refs in pieces.items():
+  case=next(x for x in inventory['cases']if x['id']==cid);item=next(x for x in case['assertions']if x['id']==aid);previous=oldrows.get((cid,aid));status='PARTIAL'if aid=='vector.FUNCTION-ACL-FAILURE-CLEANUP.adversarial'else'PASS'
+  if previous and previous['status']=='PASS':action='CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE'
+  elif previous and previous['status']=='PARTIAL'and status=='PASS':action='PROPOSE_PARTIAL_TO_PASS_WITH_PRIOR_PROVENANCE_RETAINED'
+  elif status=='PASS':action='PROPOSE_NEW_PASS_AFTER_ROOT_ACK'
+  else:action='PROPOSE_NEW_PARTIAL_WITH_EXPLICIT_MISSING_PHASE'
+  rows.append({'case_id':cid,'assertion_id':aid,'mandatory_for_case':item['mandatory_for_case'],'expected_assertion':item['expected_assertion'],'vector_expected':item.get('vector_expected'),'expected_assertion_sha256':sha(item['expected_assertion'].encode()),'complete_source_assertion_sha256':sha(canonical(item).encode()),'source_packet_definition':{'path':m['install']['fixtures'],'sha256':m['install']['fixtures_sha256'],'json_pointer':'/source_assertions/'+cid+'/assertions/'+str(next(i for i,a0 in enumerate(f['source_assertions'][cid]['assertions'])if a0['id']==aid))}if cid.startswith('P0C-INSTALL')else{'path':'context/reconciliation/local-f0-assertions.json','sha256':pins['context/reconciliation/local-f0-assertions.json']},'proposed_status':status,'proposed_action':action,'previous_evidence':previous,'evidence_pieces':refs+shared,'scope_ceiling':'Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.','missing_required_piece':'Specific activation-gate attempt after failed deploy and before finalization/cleanup verification was NOT_RUN; preinstall and postcleanup denials do not invent that phase.'if status=='PARTIAL'else None})
+ need(len(rows)==17,'EXACT17_LINK_PROPOSALS');actions=collections.Counter(x['proposed_action']for x in rows);same(dict(actions),{'CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE':12,'PROPOSE_PARTIAL_TO_PASS_WITH_PRIOR_PROVENANCE_RETAINED':2,'PROPOSE_NEW_PASS_AFTER_ROOT_ACK':2,'PROPOSE_NEW_PARTIAL_WITH_EXPLICIT_MISSING_PHASE':1},'EXACT_BOUNDED_ACTION_COUNTS')
+ for name,raw in blobs.items():need((R/name).read_bytes()==raw,'FINAL_CURRENT433_BYTES_UNCHANGED')
+ audit={'schema':'workinants.install4b35-independent-closed-evidence-audit.v1','recorded_at_UTC':datetime.datetime.now(datetime.timezone.utc).isoformat(),'reviewer':'/root/privilege_mount_v2_review','authorship_disclosure':'No authorship of current Restricted INSTALLOwnedParityV4/child. Earlier Restore/INSTALL work was independent review; Worker correction and metadata adapters authored separately. This task audits data and proposes mappings only.','decision':'ACTUAL_FINITE_INSTALL_EVIDENCE_SUPPORTED_WITH_ONE_PHASE_SCOPE_LIMIT','source_record':{'path':REC,'sha256':pins[REC]},'run_id':RUN,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'verified_sources':370,'verified_assets':62,'captured_unique_files':433,'physical_owning_sources':5,'actual_checks':checks,'seconds':round(time.perf_counter()-started,3),'observed':{'known_parent_and_watcher_exit':0,'runtime_active_auth_correct_and_wrong_password_roles':14,'late_failed_runtime_inactive_candidate_rejections':4,'original_cleanup_targets':3,'retained_child_closure_keys':closure_counts,'retained_parent_closure_records':24,'independent_review_original_deadline':185784.187,'actual_approval_remaining_seconds':receipt['remaining_seconds_after_publication'],'canonical_native_checks':29089,'recovered_native_checks':29090,'oracle_each':416,'private_ledger_checks':[22,23],'source_FKs':78,'internal_triggers':312,'external_triggers':100,'all_other_internal_fields_checked':20,'other_native_sections_checked':26,'raw_native_hashes':raw_sha,'independently_recomputed_semantic_sha256':sha(canonical(views['canonical']).encode()),'cleanup':'PASS_INDEPENDENT6_RESOURCE_PRIVATE_CLEANUP'},'source_method_locators':locators,'scope_limit_findings':[{'id':'INSTALL-MAP-PRE-CLEANUP-ACTIVATION-PHASE','assertion':'P0C-INSTALL-02/vector.FUNCTION-ACL-FAILURE-CLEANUP.adversarial','classification':'PARTIAL_COVERAGE_NOT_RUNTIME_FAILURE','observed':'Preinstall gate refusal, intended late failure, original cleanup, failed-state gate refusal and NULL/candidate startup rejection.','unobserved':'A gate attempt specifically after failure and before independent cleanup verification.','source':locators['failure']}],'raw_history_limits':['Child current_stage AUTH_WA_WORKER and outer-native PENDING labels preserved as raw completion history; parent full_native/native artifacts separately fulfil the outer proof.','Repeated CLI/ledger/authority/closure dictionary labels are overwritten by later observations; no missing first-call receipts or intermediate values invented. Completion markers are source-gated and bounded to exact reviewed code.','No P3018 observed or claimed; primary22012/42501 and secondary25P02/NULLlogs are actual server evidence.','The semantic parity view excludes only validated generated internal trigger names; both full raw native snapshots remain distinct.'],'prohibited_actions':'No Git/DB/Docker/SQL/network or Root source/ledger/status changes; no parser implementation before Root mapping ACK.','Posture':'D'}
+ audit_path=T/'install_4b35_independent_closed_evidence_audit_20261120.json';audit_sha=emit(audit_path,audit)
+ proposal={'schema':'workinants.install4b35-exact-assertion-mapping-proposal.v1','status':'PROPOSED_PENDING_ROOT_BOUNDED_MAPPING_ACK_NO_IMPLEMENTATION','audit':{'path':str(audit_path),'sha256':audit_sha},'source_record':audit['source_record'],'run_id':RUN,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'base_ledger':{'path':str(D/'local-f0-assertion-evidence.base647.json'),'sha256':'3c13e345ba907d5944bb12806ad7abeb5a6d673cac00bc8e3c769e19bb04c047','rows':647},'base_status_sha256':'87f3737ff002bc73833d5a3f5e31601a11c97f412e54d3f85b1e7be7cc10d64d','Root_Six_rebase_rule':'Root may legitimately advance to653/621 via separate approved Six integration. Rebase only these disjoint INSTALL/CATALOG actions onto actual accepted shared ledger; preserve all Six rows and all existing PASS provenance. Never restore647 or write any Root ledger/status from this audit.','actions':dict(actions),'rows':rows,'implementation_ceiling_after_ACK':'Only two new PASS, two existing PARTIAL-to-PASS upgrades with complete old evidence retained as history, and one new explicitly PARTIAL row; twelve old PASS remain unchanged corroborations. Root may narrow this proposal.','whole_case_or_generic_vector_promotion':False,'case_aggregation':'NOT_RUN; only unchanged all-mandatory aggregation after separately reviewed parser and actual Root build may derive case statuses.','further_unexercised_claims':'NOT_RUN; no unrelated bootstrap/Customer/RLS/owner/API/worker links inferred from catalog metadata or setup.','parser_implementation':'NOT_STARTED_REQUIRES_ROOT_BOUNDED_ACK','Posture':'D','plain_english':'The toy installations and planned failures have useful proof. Most checks already passed before. Four checks may now earn PASS, while one failure test still misses a particular timing step and stays PARTIAL. The project scoreboard has not been changed by this audit.'}
+ proposal_path=T/'install_4b35_exact_assertion_mapping_proposal_20261120.json';proposal_sha=emit(proposal_path,proposal)
+ emit(D/'audit-receipt.json',{'audit_sha256':audit_sha,'proposal_sha256':proposal_sha,'source_sha256':sha(Path(__file__).read_bytes()),'source_inputs':pins,'checks':checks,'seconds':audit['seconds'],'Root_files_written':False,'parser_implementation':False})
+ print(json.dumps({'audit':str(audit_path),'audit_sha256':audit_sha,'proposal':str(proposal_path),'proposal_sha256':proposal_sha,'actions':dict(actions),'checks':checks,'seconds':audit['seconds']}))
+
+if __name__=='__main__':main()

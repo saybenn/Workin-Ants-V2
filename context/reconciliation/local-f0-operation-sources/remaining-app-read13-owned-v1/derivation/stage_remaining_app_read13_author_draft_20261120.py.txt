@@ -1,0 +1,73 @@
+"""Refresh only the new, unreviewed Read13 source/data namespace. No runtime."""
+from pathlib import Path
+import hashlib
+import importlib.util
+import json
+import runpy
+import sys
+
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+sys.path.insert(0,str(ROOT/'scripts'))
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+def encoded(value):return (json.dumps(value,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def copy(source,target):
+ target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(source.read_bytes())
+def mapping(folder):return {p.relative_to(ROOT).as_posix():sha(p.read_bytes())for p in sorted(folder.rglob('*'))if p.is_file()}
+
+def stage():
+ generator=runpy.run_path(str(ROOT/'scripts/prepare-remaining-app-read13-rehearsal.py'));files,packet=generator['build']()
+ output=ROOT/'review-output/remaining-app-read13-rehearsal';output.mkdir(exist_ok=True)
+ actual={p.name for p in output.iterdir()};assert not actual-set(files),'Unexpected new namespace member'
+ for name,text in files.items():(output/name).write_text(text,encoding='utf8',newline='\n')
+ builder=runpy.run_path(str(TASK/'build_remaining_app_read13_owned_v1_sources_20261120.py'));sources=builder['build']()
+ child_archive=ROOT/'context/reconciliation/local-f0-operation-sources/remaining-app-read13-source-v1'
+ owned_archive=ROOT/'context/reconciliation/local-f0-operation-sources/remaining-app-read13-owned-v1';owned_archive.mkdir(exist_ok=True)
+ for name in generator['NEW']:
+  source=ROOT/name;copy(source,child_archive/(source.name+'.txt'))
+ # All preimplementation Read13 plans and preservation manifests are data only.
+ preservation=TASK/'read13-source-before-implementation-20261120'
+ for source in preservation.rglob('*'):
+  if source.is_file():
+   relative=source.relative_to(preservation);target=child_archive/'preserved-before-implementation'/relative
+   if target.suffix=='.py':target=target.with_suffix('.py.txt')
+   copy(source,target)
+ bases=(('owner','context/reconciliation/local-f0-owner-read-resource-mount-v2-source-validation.json','context/reconciliation/local-f0-operation-sources/owner-read-resource-mount-v2'),
+        ('sixread','context/reconciliation/local-f0-scoped-read-companion-source-validation.json','context/reconciliation/local-f0-operation-sources/scoped-read-companion-source-v1'))
+ for label,record_path,archive_path in bases:
+  record=json.loads((ROOT/record_path).read_bytes());copy(ROOT/record_path,owned_archive/'reviews'/('accepted-'+label+'-validation.json'))
+  for name,h in record['archive_files_sha256'].items():
+   assert sha((ROOT/name).read_bytes())==h
+   copy(ROOT/name,owned_archive/'preserved'/(label+'-basis')/name[len(archive_path)+1:])
+ image='context/reconciliation/local-f0-operation-sources/owner-read-resource-mount-v2/reviews/image-proof-independent-source.json'
+ copy(ROOT/image,owned_archive/'reviews/image-proof-independent-source.json')
+ offline_source=ROOT/'context/reconciliation/local-f0-run-assets/1110fa4-native-4c894dba/evidence'
+ offline_hashes={'native-before.json':'e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8','oracle-evidence.json':'c3e91a70099256f5edbce4678193c7d228bdcbbc7cd60c2c711887b773011bc3','ledger-registration.json':'edaab72f5fd237bbde8176d918a9b884a0638804e26ea65ddc50936efa1338a8','ledger-evidence.json':'34609aa8bfaf969f8350bad3af085330082cc7f4b1e6c3d26cd3456f1c9848f3'}
+ offline_hashes['catalog-comparison.json']='34d94ba869e1dc969bec09d70d2c74430e9d3af5f9d93bc39dcff67e9a983c0e'
+ for name,wanted in offline_hashes.items():
+  assert sha((offline_source/name).read_bytes())==wanted
+  copy(offline_source/name,owned_archive/'offline-only-mock-data'/name)
+ (owned_archive/'offline-only-mock-data/README.md').write_text('OFFLINE MOCK DATA ONLY\n\nThese five hash-pinned closed observations from the historical 1110fa4 Native run exercise real source comparators and the child admission contract in offline tests. They never attest this new Read13 run, its database, its container, or any runtime assertion. The actual operator must obtain fresh same-run observations before the child.\n',encoding='utf8',newline='\n')
+ for name,text in sources.items():copy(TASK/name,owned_archive/(name+'.txt'))
+ copy(TASK/'build_remaining_app_read13_owned_v1_sources_20261120.py',owned_archive/'derivation/build_remaining_app_read13_owned_v1_sources_20261120.py.txt')
+ copy(TASK/'read13_owned_entry_checks_template_20261120.py.txt',owned_archive/'derivation/read13_owned_entry_checks_template_20261120.py.txt')
+ copy(TASK/'stage_remaining_app_read13_author_draft_20261120.py',owned_archive/'derivation/stage_remaining_app_read13_author_draft_20261120.py.txt')
+ author={'schema':'workinants.remaining-app-read13-author-draft-state.v1','status':'DRAFT_SOURCE_ONLY_REVIEW_PENDING','runtime':'NOT_RUN','database_contacted':False,'database_posture':'D',
+  'implementation_ACK_sha256':'465b368e5c7f68e91eaa7686a429464b52f0a4e9dd29006e49f32abacdef0154','fixture_run_id':packet['fixture_run_id'],
+  'limits':packet['finite_caps'],'initial_source_parser_checks':{'methods':16,'result':'PASS_PRE_FINAL_DRAFT_ONLY','seconds':.933,'not_final_frozen_source_authority':True},
+  'remaining_offline_work':['Actual CTX Session/process projection tests and bounded fault matrix','Actual new owned main/whole-source/pinner composition and 5-snapshot checks','Final source and artifact reproduction plus 1424 protected current-input preservation'],
+  'independent_source_approval':'PENDING','execution_authority':False}
+ (child_archive/'author-draft-state.json').write_bytes(encoded(author))
+ child_sources={**packet['source_files_sha256'],**{('review-output/remaining-app-read13-rehearsal/'+name):sha(text.encode())for name,text in files.items()}}
+ child={'schema':'workinants.remaining-app-read13-source-validation.v1','status':'SOURCE_DRAFT_NOT_RUN','posture':'D','runtime_status':'NOT_RUN',
+  'fixture_sha256':sha(files['fixtures.json'].encode()),'content_sha256':packet['source_only_packet_sha256'],'source_files_sha256':dict(sorted(child_sources.items())),
+  'archive_files_sha256':mapping(child_archive),'finite_caps':packet['finite_caps'],'independent_source_review':{'decision':'PENDING'},'author_state':'DRAFT_NOT_FROZEN'}
+ (ROOT/'context/reconciliation/local-f0-remaining-app-read13-source-validation.json').write_bytes(encoded(child))
+ owned={'schema':'workinants.remaining-app-read13-owned-v1-source-validation.v1','status':'SOURCE_DRAFT_NOT_RUN','posture':'D','runtime_status':'NOT_RUN',
+  'operator_sources_sha256':{name:sha((TASK/name).read_bytes())for name in builder['NEW']},'archive_files_sha256':mapping(owned_archive),
+  'independent_owned_resource_review':{'decision':'PENDING'},'independent_safety_sql_review':{'decision':'PENDING'},'author_state':'DRAFT_NOT_FROZEN',
+  'basis_version_limits':['The prior Owner/Six/CommonSafetySQL approvals cover their original bytes only.','The new Read13 composition has no code approval or runtime authority.']}
+ (ROOT/'context/reconciliation/local-f0-remaining-app-read13-owned-v1-source-validation.json').write_bytes(encoded(owned))
+ result={'schema':'workinants.remaining-app-read13-staged-draft.v1','status':'DRAFT_NOT_RUN','new_child_sources':len(generator['NEW']),'source_inputs':len(packet['source_files_sha256']),'artifacts':len(files),'child_archive_files':len(child['archive_files_sha256']),'owned_archive_files':len(owned['archive_files_sha256']),'owned_five_sha256':owned['operator_sources_sha256'],'all_source_review_gates':'PENDING','database_contacted':False}
+ (TASK/'read13_staged_author_draft_20261120.json').write_bytes(encoded(result));return result
+
+if __name__=='__main__':print(json.dumps(stage()))

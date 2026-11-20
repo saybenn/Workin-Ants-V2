@@ -1,0 +1,218 @@
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def canonical(value):return json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)
+def digest(value):return sha(canonical(value).encode())
+
+class Read13SourceEntryTests(unittest.TestCase):
+ setUp=OwnerOperationTests.setUp
+ def preparation(self):
+  return runpy.run_path(str(TASK/'prepare_local_f0_remaining_app_read13_owned_v1_plan.py'))
+ def real_inventory(self):
+  prep=self.preparation();packet=prep['decoded'](prep['source'](prep['FIXTURES'],prep['FIXTURES_SHA']));baseline=json.loads(BASELINE.read_bytes());five={name:sha((TASK/name).read_bytes())for name in prep['EXTERNAL_FILES']}
+  return prep,packet,five,prep['source_inventory'](baseline['packet_files_sha256'],packet,five)
+ def test_real_preparer_inventory_with_all_current165_child_sources_artifacts(self):
+  prep,packet,five,inventory=self.real_inventory();self.assertEqual(len(packet['cases']),82);self.assertEqual(len(five),5)
+  for name,wanted in packet['source_files_sha256'].items():self.assertEqual(inventory[name],wanted)
+  for name,wanted in packet['prepared_files_sha256'].items():self.assertEqual(inventory['review-output/remaining-app-read13-rehearsal/'+name],wanted)
+  self.assertIn('review-output/remaining-app-read13-rehearsal/README.md',inventory)
+  self.assertEqual(len(json.loads(prep['source'](prep['CHILD_VALIDATION']))['source_files_sha256']),len(packet['source_files_sha256'])+len(packet['prepared_files_sha256'])+1)
+ def test_actual_core_initialize_has_own_resource_set_without_injected_global(self):
+  core=runpy.run_path(str(CORE));run='550e8400-e29b-41d4-a716-446655440000';name='wa-p0c-'+run[:8]+'-read13';path=self.directory/'manifest.json';path.write_text(json.dumps({'purpose':'LOCAL_F0_REMAINING_APP_READ13_OWNED_V1_REHEARSAL','run_id':run,'evidence_directory':str(self.directory/'out'),'source_commit':'a'*40,'source_tree':'b'*40,'packet_sha256':'c'*64,'targets':[{'name':name,'volume':name+'-data','kind':'ok'}]}))
+  core['initialize'](path);g=core['initialize'].__globals__;self.assertEqual(g['RESOURCE_CONTAINERS'],(name,));self.assertEqual(g['RESOURCE_VOLUMES'],(name+'-data',));self.assertEqual(g['report']['read13']['prepared_protocols'],82)
+ def test_old_basis_common_helpers_and_ordinary_sql_are_unchanged(self):
+  import ast
+  before=ast.parse((TASK/'execute_local_f0_scoped_reads_owned_resource_v1_20261119.py').read_bytes());after=ast.parse(CORE.read_bytes())
+  b={node.name:node for node in before.body if isinstance(node,(ast.FunctionDef,ast.ClassDef))};a={node.name:node for node in after.body if isinstance(node,(ast.FunctionDef,ast.ClassDef))}
+  for name in b:
+   if not(name.startswith('_required_safety')or name=='_RequiredSafetyBoundary'or name in('sql','observe','psql_args','finalize','cleanup','save','event','command')):continue
+   left=ast.dump(b[name],include_attributes=False).replace('scoped_reads_owned_resource_v1','remaining_app_read13_owned_v1').replace('scoped_read','read13').replace('scoped-read','read13').replace('SCOPED_READ','READ13').replace('scopedreads','read13')
+   right=ast.dump(a[name],include_attributes=False)
+   self.assertEqual(left,right,name)
+ def test_all_five_current_physical_snapshots_match_pending_metadata(self):
+  prep,packet,five,inventory=self.real_inventory();owned=json.loads(prep['source'](prep['OWNED_VALIDATION']));self.assertEqual(owned['operator_sources_sha256'],five)
+  for name,wanted in five.items():self.assertEqual(prep['source'](prep['OWNED_ARCHIVE']+'/'+name+'.txt',wanted),(TASK/name).read_bytes())
+  self.assertIn(owned['independent_owned_resource_review']['decision'],('PENDING','SOURCE_APPROVED'));self.assertIn(owned['independent_safety_sql_review']['decision'],('PENDING','SOURCE_APPROVED'))
+ def pending_gate(self):
+  prep,packet,five,inventory=self.real_inventory();clone=self.directory/'pending-fixture-root';clone.mkdir();inventory=dict(inventory)
+  for name in inventory:
+   target=clone/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((ROOT/name).read_bytes())
+  pending=json.loads((clone/prep['OWNED_VALIDATION']).read_bytes())
+  for gate in('independent_owned_resource_review','independent_safety_sql_review'):pending[gate]={'decision':'PENDING'}
+  pending_raw=(json.dumps(pending,indent=2)+'\n').encode();(clone/prep['OWNED_VALIDATION']).write_bytes(pending_raw);inventory[prep['OWNED_VALIDATION']]=sha(pending_raw)
+  n=self.n;n.update(ROOT=clone,COMMIT='a'*40,TREE='b'*40,PACKET=sha(''.join(k+'\0'+inventory[k]+'\n'for k in sorted(inventory)).encode()),RUN_ID=packet['fixture_run_id'])
+  n['MANIFEST']={'review_status':'APPROVED_LOCAL_F0_REMAINING_APP_READ13_OWNED_V1_ATTEMPT','packet_files_sha256':inventory,'read13':{'fixtures_sha256':prep['FIXTURES_SHA'],'content_sha256':prep['CONTENT_SHA'],'coordinator_sha256':packet['source_files_sha256']['scripts/sql-review/run-remaining-app-read13-rehearsal.py'],'external_files_sha256':five}}
+  return n
+ def test_real_pending_owned_gate_precedes_common_or_project_compilation(self):
+  n=self.pending_gate();n['verify_catalog_packet']=Mock(side_effect=AssertionError('NO_COMMON_PROJECT_COMPILE'));n['load_reviewed_helper']=Mock(side_effect=AssertionError('NO_PROJECT_COMPILE'))
+  with self.assertRaises(n['Stop'])as failure:n['verify_read13_packet']()
+  self.assertEqual(failure.exception.code,'READ13_OWNED_SOURCE_REVIEW_PENDING');n['verify_catalog_packet'].assert_not_called();n['load_reviewed_helper'].assert_not_called()
+ def test_missing_readme_or_changed_runtime_helper_stops_before_compile(self):
+  n=self.pending_gate();actual=Path.read_bytes
+  for relative in('review-output/remaining-app-read13-rehearsal/README.md','scripts/sql-review/run-context-control-rehearsal.py'):
+   def changed(path,relative=relative):
+    if path==n['ROOT']/relative:raise OSError(CANARY)
+    return actual(path)
+   n['verify_catalog_packet']=Mock(side_effect=AssertionError('NO_PROJECT_COMPILE'))
+   with patch.object(Path,'read_bytes',changed),self.assertRaises(BaseException):n['verify_read13_packet']()
+   n['verify_catalog_packet'].assert_not_called();self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_all_owner_basis_five_and_review_bytes_are_admitted_before_helpers(self):
+  n=self.pending_gate();record=json.loads((n['ROOT']/n['BASIS_OWNER_VALIDATION']).read_bytes());actual=Path.read_bytes
+  paths=[n['BASIS_OWNER_VALIDATION']]+[p for p in record['archive_files_sha256']if '/reviews/'in p or p.rsplit('/',1)[-1]in{name+'.txt'for name in record['operator_sources_sha256']}]
+  self.assertGreaterEqual(len(paths),8)
+  for relative in paths:
+   for missing in(False,True):
+    def changed(path,relative=relative,missing=missing):
+     if path==n['ROOT']/relative:
+      if missing:raise FileNotFoundError(CANARY)
+      return b'CHANGED_CLOSED_SOURCE_CANARY'
+     return actual(path)
+    n['verify_catalog_packet']=Mock(side_effect=AssertionError('NO_PROJECT_COMPILE'));n['load_reviewed_helper']=Mock(side_effect=AssertionError('NO_HELPER_EXECUTION'))
+    with patch.object(Path,'read_bytes',changed),self.assertRaises(BaseException):n['verify_read13_packet']()
+    n['verify_catalog_packet'].assert_not_called();n['load_reviewed_helper'].assert_not_called();self.assertNotIn(CANARY,json.dumps(n['report']))
+  import ast
+  source=STEPS.read_text();tree=ast.parse(source);admit=ast.get_source_segment(source,next(v for v in tree.body if isinstance(v,ast.FunctionDef)and v.name=='admit_read13_sources'))
+  self.assertNotIn('(TASK/name).read_bytes()',admit)
+  self.assertIn("snapshot='context/reconciliation/local-f0-operation-sources/owner-read-resource-mount-v2/'",admit)
+  self.assertFalse(any('owner_read'in name for name in n['HELPER_FILES']))
+  self.assertEqual(set(n['EXTERNAL_FILES']),set(n['MANIFEST']['read13']['external_files_sha256']))
+ def test_readonly_after_proof_retains_unchanged_full_real_comparators(self):
+  import ast
+  old=(TASK/'local_f0_scoped_reads_owned_resource_v1_operation_steps.py').read_text();new=STEPS.read_text();left=ast.parse(old);right=ast.parse(new)
+  for name in('catalog_experiment','readonly_post_proof','qualify_native_counts'):
+   before=ast.get_source_segment(old,next(n for n in left.body if isinstance(n,ast.FunctionDef)and n.name==name));after=ast.get_source_segment(new,next(n for n in right.body if isinstance(n,ast.FunctionDef)and n.name==name))
+   before=before.replace('scoped_read','read13').replace('SCOPED_READ','READ13').replace('SCOPED-READ','READ13').replace('scoped-read','read13')
+   self.assertEqual(ast.dump(ast.parse(before),include_attributes=False),ast.dump(ast.parse(after),include_attributes=False),name)
+  self.assertIn("tools['compare_native_catalog'].compare_manifest",new);self.assertIn("tools['prisma_ledger_proof'].compare_proof",new);self.assertIn("tools['catalog_expression_oracle'].validate_evidence",new)
+ def test_real_native_counter_guard_rejects_boolean_float_incomplete(self):
+  n=self.n;checks=[{'field':'x','status':'PASS','expected_sha256':'a'*64,'actual_sha256':'a'*64}for _ in range(22)];ledger={'status':'PASS','checks':checks};oracle={str(i):'a'*64 for i in range(416)};result={'expression_count':416,'server_version_num':170011}
+  n['qualify_native_counts']({'status':'PASS','check_counts':{'PASS':29089},'findings':[]},ledger,oracle,result)
+  for count in(True,29089.0,29088):
+   with self.assertRaises(n['Stop']):n['qualify_native_counts']({'status':'PASS','check_counts':{'PASS':count},'findings':[]},ledger,oracle,result)
+ def test_parent_reference_exception_still_runs_real_global_safety_before_parse(self):
+  # Production source order is independently inspected; resource/finalizer
+  # behavior is exercised by the copied actual-Core command-boundary matrix.
+  import ast
+  source=STEPS.read_text();node=next(n for n in ast.parse(source).body if isinstance(n,ast.FunctionDef)and n.name=='read13_experiment');text=ast.get_source_segment(source,node)
+  final=next(n for n in ast.walk(node)if isinstance(n,ast.Try)and n.finalbody);calls=[n for n in ast.walk(ast.Module(body=final.finalbody,type_ignores=[]))if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)]
+  closed=next(n for n in calls if n.func.id=='closed_backends');read=next(n for n in calls if n.func.id=='bounded_component_reference');self.assertLess(closed.lineno,read.lineno);self.assertIn('persist_best_effort',text)
+ def test_child_actual_evidence_filename_equals_parent_closed_reference(self):
+  child=runpy.run_path(str(ROOT/'scripts/sql-review/run-remaining-app-read13-rehearsal.py'));packet=json.loads((ROOT/'review-output/remaining-app-read13-rehearsal/fixtures.json').read_bytes());plan={'run_id':packet['fixture_run_id'],'immutable_container_id':CID,'source_commit':'a'*40,'source_tree':'b'*40,'packet_sha256':'c'*64,'reviewed_packet_sha256':self.n['SCOPED_FIXTURES_SHA'],'reviewed_content_sha256':packet['source_only_packet_sha256']}
+  evidence=child['Evidence'](self.directory/'read13-component',plan,packet)
+  self.assertEqual(evidence.path.relative_to(self.directory).as_posix(),self.n['COMPONENT_ARTIFACT'])
+  reference={'artifact':self.n['COMPONENT_ARTIFACT'],'present':None,'read_status':'UNAVAILABLE'};value=self.n['bounded_component_reference'](evidence.path,reference)
+  self.assertEqual(value,evidence.value);self.assertEqual(reference['read_status'],'CLOSED_BOUNDED_BYTES')
+
+class Read13ColdEntryTests(unittest.TestCase):
+ setUp=OwnerOperationTests.setUp
+ preparation=Read13SourceEntryTests.preparation
+ real_inventory=Read13SourceEntryTests.real_inventory
+ def clone_world(self):
+  prep,packet,five,inventory=self.real_inventory();task=self.directory/'cold-task';root=task/'workinants-correction-pass';root.mkdir(parents=True)
+  for name in inventory:
+   target=root/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((ROOT/name).read_bytes())
+  for name in five:(task/name).write_bytes((TASK/name).read_bytes())
+  baseline=json.loads(BASELINE.read_bytes())
+  for name,wanted in baseline['catalog']['tool_source_files_sha256'].items():
+   raw=(ROOT/name).read_bytes();self.assertEqual(sha(raw),wanted);target=root/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
+  # These are explicit offline approval fixtures, never modifications to the
+  # real Root records or authority for any actual source/runtime.
+  child_path=prep['CHILD_VALIDATION'];owned_path=prep['OWNED_VALIDATION'];child=json.loads((root/child_path).read_bytes());owned=json.loads((root/owned_path).read_bytes())
+  review_raw=(json.dumps({'schema':'workinants.offline-only-mock-source-review.v1','decision':'SOURCE_APPROVED','actual_runtime_authority':False,'operator_sources_sha256':five},indent=2)+'\n').encode()
+  for record,folder,gate in((child,prep['CHILD_ARCHIVE'],'independent_source_review'),(owned,prep['OWNED_ARCHIVE'],'independent_owned_resource_review')):
+   relative=folder+'/reviews/offline-only-mock-source-review.json';target=root/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(review_raw)
+   record[gate]={'decision':'SOURCE_APPROVED','path':relative,'sha256':sha(review_raw),'operator_sources_sha256':five}
+   if record is owned:record['independent_safety_sql_review']=deepcopy(record[gate])
+   record['archive_files_sha256']={p.relative_to(root).as_posix():sha(p.read_bytes())for p in(root/folder).rglob('*')if p.is_file()}
+  (root/child_path).write_text(json.dumps(child,indent=2)+'\n',encoding='utf8');(root/owned_path).write_text(json.dumps(owned,indent=2)+'\n',encoding='utf8')
+  archive=task/'tools.tar.gz';shutil.copyfile(baseline['tool_archive'],archive);baseline['tool_archive']=str(archive)
+  old=baseline['migration_targets']['ok'];nested=task/'baseline-nested.json';nested.write_bytes(Path(old['manifest_path']).read_bytes());old['manifest_path']=str(nested);self.assertEqual(sha(nested.read_bytes()),old['manifest_sha256'])
+  path=task/'offline-only-reviewed-baseline.json';raw=(json.dumps(baseline,indent=2)+'\n').encode();path.write_bytes(raw)
+  prepared=runpy.run_path(str(task/'prepare_local_f0_remaining_app_read13_owned_v1_plan.py'))
+  result=prepared['prepare'](path,sha(raw));self.assertEqual(result['status'],'SOURCE_PREPARED_NOT_EXECUTED');manifest=Path(result['operation_manifest'])
+  return task,root,packet,five,manifest
+ def git_process(self,root,args,**kwargs):
+  self.assertEqual(args[0],'git');raw=b''
+  if args[-2:]==['rev-parse','HEAD']:raw=('a'*40+'\n').encode()
+  elif args[-2:]==['rev-parse','HEAD^{tree}']:raw=('b'*40+'\n').encode()
+  elif args[-2:]==['cat-file','--batch']:
+   for request in kwargs['input'].decode().splitlines():
+    commit,name=request.split(':',1);self.assertEqual(commit,'a'*40);body=(root/name).read_bytes();raw+=('c'*40+' blob '+str(len(body))+'\n').encode()+body+b'\n'
+  elif args[-2]=='show':
+   commit,name=args[-1].split(':',1);self.assertEqual(commit,'a'*40);raw=(root/name).read_bytes()
+  else:raise AssertionError('UNDECLARED_READ_ONLY_GIT_BOUNDARY')
+  return types.SimpleNamespace(returncode=0,stdout=raw.decode()if kwargs.get('text')else raw,stderr=''if kwargs.get('text')else b'')
+ def test_real_prepare_pinner_and_cold_Core_common_catalog_recipe_order(self):
+  task,root,packet,five,path=self.clone_world();pinner=runpy.run_path(str(task/'pin_local_f0_remaining_app_read13_owned_v1_plan_20261120.py'))
+  with patch.object(subprocess,'run',side_effect=lambda args,**kwargs:self.git_process(root,args,**kwargs)):pin=pinner['pin'](path)
+  self.assertEqual(pin['status'],'SOURCE_PINNED_PENDING_OPERATIONAL_REVIEW');master=json.loads(path.read_bytes());self.assertEqual(master['review_status'],'PENDING_OPERATIONAL_REVIEW')
+  # The only approved flag below is in this isolated mock literal. No real
+  # source review, live plan or runtime approval is altered.
+  master['review_status']='APPROVED_LOCAL_F0_REMAINING_APP_READ13_OWNED_V1_ATTEMPT';path.write_text(json.dumps(master,indent=2)+'\n',encoding='utf8')
+  core=runpy.run_path(str(task/'execute_local_f0_remaining_app_read13_owned_v1_20261120.py'));g=core['launch'].__globals__;calls=[]
+  def process(args,**kwargs):
+   if args[0]=='git':calls.append('GIT');return self.git_process(root,args,**kwargs)
+   if args[0]=='docker':calls.append('FIRST_PHYSICAL_BOUNDARY');raise g['Stop']('OFFLINE_FIRST_PHYSICAL_BOUNDARY_STOP')
+   raise AssertionError('UNDECLARED_PROCESS_BOUNDARY')
+  with patch.object(subprocess,'run',side_effect=process),redirect_stdout(io.StringIO()):code=core['launch'](['--execute-reviewed-remaining-app-read13-owned','--manifest',str(path)])
+  self.assertEqual(code,1);self.assertIn('FIRST_PHYSICAL_BOUNDARY',calls);self.assertEqual(g['report']['steps']['READ13-REVIEW'],'PASS_SOURCE_ADMISSION_ONLY',g['report']['unexpected']);self.assertEqual(g['report']['catalog_preparation']['status'],'SOURCE_REPRODUCED_NOT_RUN')
+  self.assertEqual(g['created_containers'],{});self.assertEqual(g['created_volumes'],{});self.assertEqual(g['report']['source_verification']['file_count'],len(master['packet_files_sha256']))
+  # No helper/import cache is cleared between the actual Common/catalog
+  # admission and the actual new generator reproduction in this one entry.
+  self.assertEqual(g['SCOPED_FIXTURES']['fixture_run_id'],packet['fixture_run_id']);self.assertTrue((path.parent/'operation-manifest-before-source-pin.json').is_file())
+  # Continue the real child admission contract using explicitly OFFLINE old
+  # metadata. All new run/source/CID envelopes below are synthetic test data.
+  proof=g['OUT']/'offline-only-child-admission';proof.mkdir();folder=root/'context/reconciliation/local-f0-operation-sources/remaining-app-read13-owned-v1/offline-only-mock-data'
+  native_raw=(folder/'native-before.json').read_bytes();comparison_raw=(folder/'catalog-comparison.json').read_bytes()
+  self.assertEqual(sha(native_raw),'e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8');self.assertEqual(sha(comparison_raw),'34d94ba869e1dc969bec09d70d2c74430e9d3af5f9d93bc39dcff67e9a983c0e')
+  native=json.loads(native_raw);(proof/'native.json').write_bytes(native_raw);(proof/'comparison.json').write_bytes(comparison_raw)
+  attestation={'schema':'workinants.remaining-app-read13-native-attestation.v1','run_id':master['run_id'],'container_id':CID,'source_commit':master['source_commit'],'source_tree':master['source_tree'],'packet_sha256':master['packet_sha256'],'collector_sha256':master['packet_files_sha256']['scripts/sql-review/collect_native_catalog.sql'],'source_expected_sha256':g['EXPECTED_SHA'],'native_snapshot_sha256':digest(native),'native_comparison_file_sha256':sha(comparison_raw),'original_grantor_finalized':True,'operation_backends_absent':True,'comparison_status':'PASS'}
+  attestation_raw=(canonical(attestation)+'\n').encode();(proof/'attestation.json').write_bytes(attestation_raw)
+  plan={'schema':'workinants.remaining-app-read13-run.v1','scope':'REVIEWED_REMAINING13_APP_SELECT_ONLY','run_id':master['run_id'],'source_commit':master['source_commit'],'source_tree':master['source_tree'],'packet_sha256':master['packet_sha256'],'packet_files_sha256':master['packet_files_sha256'],'reviewed_packet_sha256':g['SCOPED_FIXTURES_SHA'],'reviewed_content_sha256':g['SCOPED_CONTENT_SHA'],'target_manifest':json.loads(g['read_target_manifest'](master['migration_targets']['ok'])),'immutable_container_id':CID,'native_snapshot':{'path':str(proof/'native.json'),'sha256':sha(native_raw)},'native_comparison':{'path':str(proof/'comparison.json'),'sha256':sha(comparison_raw)},'native_attestation':{'path':str(proof/'attestation.json'),'sha256':sha(attestation_raw)},'scenario_names':[row['name']for row in packet['cases']]}
+  child=g['HELPERS']['scripts/sql-review/run-remaining-app-read13-rehearsal.py'];admitted=child['load_inputs'](plan)
+  self.assertEqual(admitted[0],packet);self.assertEqual(admitted[1],native);self.assertEqual(admitted[2]['target']['container_name'],master['targets'][0]['name']);self.assertEqual(admitted[3]['FINITE'],packet['finite_caps']);self.assertEqual(set(admitted[6]),{name for name in packet['prepared_files_sha256']if name.endswith('.sql')})
+  changed=deepcopy(attestation);changed['operation_backends_absent']=False;raw=(canonical(changed)+'\n').encode();(proof/'attestation.json').write_bytes(raw);bad=deepcopy(plan);bad['native_attestation']['sha256']=sha(raw)
+  with patch.dict(child['load_inputs'].__globals__,compiled=Mock(side_effect=AssertionError('NO_CHILD_COMPILE_AFTER_BAD_ATTESTATION'))),self.assertRaises(child['HeldFailure'])as error:child['load_inputs'](bad)
+  self.assertEqual(error.exception.code,'SAME_SOURCE_RUN_CID_NATIVE_ATTESTATION')
+
+class Read13RealQualifierTests(unittest.TestCase):
+ setUp=OwnerOperationTests.setUp
+ def test_actual_source_qualifiers_on_closed_offline_native_data_and_semantic_mutants(self):
+  # The data are immutable old observations, never this packet's fresh run.
+  # No comparator, oracle, ledger validator or proof dictionary is replaced.
+  folder=ROOT/'context/reconciliation/local-f0-operation-sources/remaining-app-read13-owned-v1/offline-only-mock-data'
+  hashes={'native-before.json':'e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8','oracle-evidence.json':'c3e91a70099256f5edbce4678193c7d228bdcbbc7cd60c2c711887b773011bc3','ledger-registration.json':'edaab72f5fd237bbde8176d918a9b884a0638804e26ea65ddc50936efa1338a8','ledger-evidence.json':'34609aa8bfaf969f8350bad3af085330082cc7f4b1e6c3d26cd3456f1c9848f3'}
+  data={}
+  for name,wanted in hashes.items():
+   raw=(folder/name).read_bytes();self.assertEqual(sha(raw),wanted);data[name]=json.loads(raw)
+  generator=runpy.run_path(str(ROOT/'scripts/prepare-native-catalog-review.py'));pins=json.loads((ROOT/'review-output/native-catalog/source-pins.json').read_bytes());tools=generator['load_catalog_tools'](ROOT,pins)
+  manifest=tools['catalog_manifest'].build_manifest(ROOT,pins);native=data['native-before.json'];oracle=data['oracle-evidence.json'];registration=data['ledger-registration.json'];evidence=data['ledger-evidence.json']
+  registry=tools['catalog_expression_oracle'].validate_evidence(manifest,native,oracle,database='wa_p0c_rehearsal',grantor='postgres',root=ROOT)
+  ledger=tools['prisma_ledger_proof'].compare_proof(registration,evidence,native,bootstrap_grantor='postgres',source_expected_sha256=manifest['expected_sha256'],root=ROOT)
+  public=generator['public_registration'](manifest,tools['catalog_manifest'])
+  def compare(value,oracle=oracle,evidence=evidence):return tools['compare_native_catalog'].compare_manifest(manifest,value,bootstrap_grantor='postgres',bootstrap_superuser=True,public_schema_owner='pg_database_owner',public_acl_registration=public['full_acl'],ledger_registration=registration,ledger_evidence=evidence,expression_oracle_evidence=oracle,oracle_database='wa_p0c_rehearsal',root=ROOT)
+  result=compare(native);self.assertEqual(result['status'],'PASS');self.assertEqual(dict(result['check_counts']),{'PASS':29089});self.assertEqual(len(registry),416);self.assertEqual(ledger['status'],'PASS');self.assertEqual(len(ledger['checks']),22)
+  self.n['qualify_native_counts'](result,ledger,registry,oracle['results'])
+  changed=deepcopy(native);changed['relations'][0]['owner']='wa_app_runtime';self.assertEqual(compare(changed)['status'],'FAIL')
+  changed=deepcopy(oracle);changed['connection_closed_before_observation']=False
+  with self.assertRaises(Exception):tools['catalog_expression_oracle'].validate_evidence(manifest,native,changed,database='wa_p0c_rehearsal',grantor='postgres',root=ROOT)
+  changed=deepcopy(evidence);changed['observation']['history'][0]['steps']=0
+  self.assertEqual(tools['prisma_ledger_proof'].compare_proof(registration,changed,native,bootstrap_grantor='postgres',source_expected_sha256=manifest['expected_sha256'],root=ROOT)['status'],'FAIL')
+
+class Read13ActualChildParentTests(unittest.TestCase):
+ setUp=OwnerOperationTests.setUp
+ def test_real_CTX_process_projection_child_result_passes_actual_parent_validator(self):
+  child_checks=runpy.run_path(str(ROOT/'scripts/check-remaining-app-read13-coordinator.py'));test=child_checks['CoordinatorTests']('test_real_ctx_session_full_source_fixture_then82_finite_protocols');test.setUpClass();test.setUp()
+  try:
+   coordinator,evidence=test.actual();coordinator.execute();child_checks['M']['finish_component'](coordinator,evidence,coordinator.plan)
+   self.assertEqual(evidence.value['status'],'PASS_FINITE_REMAINING13_APP_SELECT_SQL_SUBSET_ONLY');self.assertFalse(evidence.failed)
+   n=self.n;name=coordinator.target['target']['container_name'];plan=coordinator.plan
+   n.update(RUN_ID=plan['run_id'],COMMIT=plan['source_commit'],TREE=plan['source_tree'],PACKET=plan['packet_sha256'],ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker'),TARGETS=[{'name':name,'kind':'ok'}],created_containers={name:plan['immutable_container_id']},MANIFEST={'packet_files_sha256':plan['packet_files_sha256']},SCOPED_FIXTURES=test.packet)
+   native_sha=digest(test.native);n['validate_scoped_component'](evidence.value,plan,native_sha)
+   for mutate in('count-type','missing-result','unknown-field','closure-false'):
+    changed=deepcopy(evidence.value)
+    if mutate=='count-type':changed['baseline']['tables']['app.users']['count']=2.0
+    elif mutate=='missing-result':changed['results'].pop()
+    elif mutate=='unknown-field':changed['arbitrary']=CANARY
+    else:next(row for row in changed['operations']if row['stage']=='GLOBAL_BACKEND_CLOSURE')['all_other_clients_absent']=False
+    with self.assertRaises(n['Stop']):n['validate_scoped_component'](changed,plan,native_sha)
+   self.assertNotIn(CANARY,json.dumps(n['report']));self.assertTrue(all(model.closed for model in test.vm.models))
+  finally:test.doCleanups()

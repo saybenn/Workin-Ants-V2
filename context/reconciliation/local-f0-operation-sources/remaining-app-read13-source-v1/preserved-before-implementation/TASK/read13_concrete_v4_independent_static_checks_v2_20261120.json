@@ -1,0 +1,185 @@
+{
+  "schema": "workinants.read13-concrete-static-review-checks.v1",
+  "recorded_at_utc": "2026-11-20T06:48:57.624591+00:00",
+  "plan_sha256": "17f80ae2671bdc37f97d71e16421caf3b29a9bcb632e5b93512bb7c52947d9cb",
+  "scope": "Independent static source/JSON/PGLAST checks only; no database/process transport/code imported or executed.",
+  "checks": [
+    {
+      "name": "exact_reviewed_plan_hash",
+      "pass": true
+    },
+    {
+      "name": "all_declared_source_hashes_current",
+      "pass": true,
+      "detail": 38
+    },
+    {
+      "name": "pure_PGLAST_full_source_parse",
+      "pass": true,
+      "detail": 1125
+    },
+    {
+      "name": "all_source_spans_hash_exact",
+      "pass": true,
+      "detail": 226
+    },
+    {
+      "name": "all100_restoration_definitions_source_exact",
+      "pass": true,
+      "detail": 100
+    },
+    {
+      "name": "all100_restoration_body_hashes_source_exact",
+      "pass": true
+    },
+    {
+      "name": "exact15_unique_trigger_bypasses",
+      "pass": true
+    },
+    {
+      "name": "all15_source_definition_owner_body_definer_exact",
+      "pass": true
+    },
+    {
+      "name": "48_rows_24_labels_21_physical_tables_two_sides",
+      "pass": true,
+      "detail": {
+        "physical_tables": 21,
+        "labels_per_side": 24
+      }
+    },
+    {
+      "name": "unique_all48_id_values",
+      "pass": true
+    },
+    {
+      "name": "all_required_columns_present_or_default",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "all78_nonnull_FKs_exact_same_side",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "plan78_FK_map_equals_independent_source_map",
+      "pass": true
+    },
+    {
+      "name": "full54_trigger_23_deferred_inventory",
+      "pass": true,
+      "detail": {
+        "all": 54,
+        "deferred": 23
+      }
+    },
+    {
+      "name": "retained10_deferred_exact_no_extra_bypasses",
+      "pass": true,
+      "detail": [
+        "app.customer_profile_lifecycle_event/exact_customer_history",
+        "app.customer_profiles/customer_atomic",
+        "app.customer_profiles/owner_commit",
+        "app.track_entitlement_grants/enrollment_commit",
+        "app.track_subscriptions/enrollment_commit",
+        "platform.owner_mutation_evidence/exact_evidence_source",
+        "platform.owner_mutation_evidence/infrastructure_commit",
+        "platform.runtime_effect_receipt/effect_fence",
+        "platform.runtime_outbox_message/exact_customer_message",
+        "platform.runtime_outbox_message/infrastructure_commit"
+      ]
+    },
+    {
+      "name": "all57_CHECK_identities_and_expression_hashes_exact",
+      "pass": true
+    },
+    {
+      "name": "all_literal_enum_values_registered",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "all13_registered_VISIBLE_SELECT_fields_columns_exact",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "all26_selected_row_field_caps_exact_complete_unique",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "all_selected_nonnull_revision_tokens_present",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "82_unique_recipe_IDs_26_positive",
+      "pass": true
+    },
+    {
+      "name": "10_setup_contexts_unique",
+      "pass": true
+    },
+    {
+      "name": "all36_contexts_field_tokens_registered",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "all_prerequisite_read_caps_complete",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "six_declared_Consent_relationship_tokens_only",
+      "pass": true
+    },
+    {
+      "name": "69_read_grants_plus10_setup_equals79",
+      "pass": true
+    },
+    {
+      "name": "both_exact_Consent_text_hash_render_bindings",
+      "pass": true
+    },
+    {
+      "name": "both_synthetic_Track_profile_value_effect_bindings",
+      "pass": true
+    },
+    {
+      "name": "confirmed_plan_key_defect_both_G2_bodies",
+      "pass": true,
+      "detail": [
+        {
+          "side": "A",
+          "key": "read13/4bcb3830-762d-4a64-b4ad-85cb497f20f8/A/customer-provision/v1",
+          "length": 67,
+          "pattern_matches": false,
+          "body_and_command_key_equal": true
+        },
+        {
+          "side": "B",
+          "key": "read13/4bcb3830-762d-4a64-b4ad-85cb497f20f8/B/customer-provision/v1",
+          "length": 67,
+          "pattern_matches": false,
+          "body_and_command_key_equal": true
+        }
+      ]
+    },
+    {
+      "name": "frozen_plan_source_unchanged_after_review",
+      "pass": true
+    }
+  ],
+  "passed": 30,
+  "failed": 0,
+  "limits": "No SQL predicate/database evaluation or runtime PASS; dynamic clock/digest/trigger behavior remains NOT_RUN.",
+  "initial_reviewer_harness_history": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\read13_concrete_v4_independent_static_checks_20261120.json",
+    "sha256": "65ab916638f7acd2d01212541f0886fb7170fbc97592c9c8c2f8fc5254910d4d",
+    "correction": "Initial reviewer assumed24 physical tables rather than24 labels, and treated expected.enums rows as lists rather than labels maps. Both were reviewer-only errors; original bytes preserved. No reviewed source/plan changed.",
+    "optional_full_JSONSchema_validation": "NOT_RUN: jsonschema is not installed in offline-python; no package install/network fallback attempted. Exact source Key regex and canonical helper branch independently establish the finding."
+  }
+}

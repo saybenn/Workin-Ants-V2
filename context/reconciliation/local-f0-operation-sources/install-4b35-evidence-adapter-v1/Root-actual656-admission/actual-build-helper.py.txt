@@ -1,0 +1,38 @@
+"""Root stages exactly five reviewed assertion changes and runs real full CLI."""
+from pathlib import Path
+import datetime,hashlib,json,subprocess,sys,time
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+W=T/'install-4b35-Root-real656-build-20261120';assert not W.exists();W.mkdir()
+lp=R/'context/reconciliation/local-f0-assertion-evidence.json';sp=R/'context/reconciliation/local-f0-qualification-status.json';lb=lp.read_bytes();sb=sp.read_bytes();assert sha(lb)=='ef0fbf8b5dc0344b5a60c857e8067c03b047d9634102263768c83ba3f8b3e1e3'and sha(sb)=='80982361712e4ac3417edbc544b58df32dd6cb3bb88f3b172b93231fe5b02ac8'
+for n,b in [('before653-ledger.json',lb),('before621-status.json',sb),('before-checker.py.txt',(R/'scripts/check-local-f0-status.py').read_bytes())]:put(W/n,b)
+gate=json.loads((R/'context/reconciliation/local-f0-install-evidence-adapter-v1-source-validation.json').read_bytes());assert gate['independent_source_review']['decision']==gate['Root_source_review']['decision']=='SOURCE_APPROVED'and gate['independent_source_review']['sha256']=='9d6dfa9b1d834048871333d259b78811aa1c7188d090bdb4ad6acaa5e966f770'
+assert sha((R/'scripts/prepare-local-f0-status.py').read_bytes())=='c99712e7836f65dd8c4ad97b73d9f1e5e29f64abc8e52af4040acec26289d80a'
+candidate=(T/'install-4b35-evidence-adapter-v1-draft-20261120/proposed-ledger.base653-to656.json').read_bytes();assert sha(candidate)=='50ea0011abb0f30730a5c4f3ff7f3dd56a13b664378ec7254646835b042c4d61';old=json.loads(lb);new=json.loads(candidate);before=json.loads(sb)
+proposal=json.loads((T/'install_4b35_exact_assertion_mapping_proposal_20261120.json').read_bytes());rows=[r for r in proposal['rows']if r['proposed_action']!='CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE'];expected={(r['case_id'],r['assertion_id']):r['proposed_status']for r in rows};assert len(expected)==5
+om={(r['case_id'],r['assertion_id']):r for r in old['assertions']};nm={(r['case_id'],r['assertion_id']):r for r in new['assertions']};assert len(om)==653 and len(nm)==len(new['assertions'])==656 and set(om).issubset(nm)
+assert {k for k in om if om[k]!=nm[k]}=={k for k in expected if k in om}and len({k for k in expected if k in om})==2 and len(set(nm)-set(om))==3
+for k,r in om.items():
+ if k not in expected:assert nm[k]==r
+for k,status in expected.items():assert nm[k]['status']==status
+assert new['executions'][:len(old['executions'])]==old['executions']and len(new['executions'])==len(old['executions'])+1
+lp.write_bytes(candidate);start=time.monotonic();command=[sys.executable,'-B','scripts/prepare-local-f0-status.py'];proof={'schema':'workinants.install4b35-Root-actual656-build.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'actual_command':command,'no_factory_parser_or_source_mocking':True,'candidate656_sha256':sha(candidate),'expected5_claim_keys':sorted(expected),'old648?':'Old653 preserved except exacttwo full-history PARTIAL upgrades; three rows appended, oldexecutions preserved.','Posture':'D'};ok=False
+try:
+ result=subprocess.run(command,cwd=R,capture_output=True,text=True,encoding='utf8',errors='strict',timeout=1200,shell=False);proof.update(known_exit_code=result.returncode,seconds=round(time.monotonic()-start,3),stderr_present=bool(result.stderr),unrestricted_stderr_retained=False);assert result.returncode==0
+ ab=sp.read_bytes();actual=json.loads(ab);stdout=json.loads(result.stdout)
+ for k in stdout:assert stdout[k]==actual[k]
+ of={(c['id'],a['id']):a['status']for c in before['cases']for a in c['assertions']};nf={(c['id'],a['id']):a['status']for c in actual['cases']for a in c['assertions']}
+ assert set(of)==set(nf)and {k for k in of if of[k]!=nf[k]}==set(expected)and all(nf[k]==v for k,v in expected.items())
+ assert actual['selected_cases']==94 and sum(actual['assertion_status_counts'].values())==1034 and lp.read_bytes()==candidate
+ want=dict(before['assertion_status_counts'])
+ for k,s in expected.items():want[of[k]]-=1;want[s]+=1
+ assert actual['assertion_status_counts']==want
+ proof.update(status='PASS_ACTUAL_UNMOCKED656_BUILDER_EXACT5_ADMISSION',actual_assertion_status_counts=actual['assertion_status_counts'],actual_case_status_counts=actual['case_status_counts'],actual_status_sha256=sha(ab),ledger_sha256=sha(candidate),only5_assertion_status_changes=True,old653_provenance_preserved_except_two_explicit_upgrades=True)
+ put(W/'actual-derived-status.json',ab);put(W/'actual-builder-stdout-summary.json',enc(stdout));ok=True
+except Exception:
+ proof.update(status='HELD_ACTUAL656_BUILD_UNVERIFIED_OLD653_LEDGER_STATUS_RESTORED',seconds=round(time.monotonic()-start,3))
+ if sp.exists():put(W/'rejected-status-observed-bytes.json.txt',sp.read_bytes())
+ lp.write_bytes(lb);sp.write_bytes(sb)
+put(W/'actual-build-proof.json',enc(proof));print(json.dumps({k:v for k,v in proof.items()if k in('status','known_exit_code','seconds','actual_assertion_status_counts','actual_case_status_counts','actual_status_sha256','ledger_sha256','Posture')}),flush=True);raise SystemExit(0 if ok else 1)

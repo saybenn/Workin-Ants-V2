@@ -1,0 +1,179 @@
+{
+  "schema": "workinants.app571-guard-observation-v2-independent-code-review.v1",
+  "recorded_at_utc": "2026-11-20T09:47:33.377969+00:00",
+  "reviewer": "/root/catalog_v4_review",
+  "decision": "SOURCE_APPROVED_APP571_GUARD_OBSERVATION_V2_BOUNDED_DELTA",
+  "findings": [],
+  "lineage_disclosure": "I authored the historical App child/owned and Fix2 implementations. I did not author this new GuardObservationV2 implementation or its plan/oracle audit. This is independent review of its new delta/composition, not independent reapproval of my unchanged historical source.",
+  "delivery_sha256": "966dfdee10960166a0cebccf06889709eb0b8308a6d51fa6f9d4f962a02da1ff",
+  "author_report_sha256": "469d7bbad5afc05dc6b96cd47782e118b042b65ace0e0a91d35ac27fe5ac2f69",
+  "inventory_sha256": "b80611d549b888cf0dd838d21e4c9d462506d4621c2442def4c7d96fc44e01cc",
+  "source_files_sha256": {
+    "scripts/app_write_two_guard_observation_v2_protocol.py": "c260f47a194f8b29f15032154ecf8827b00757255b4903c3d29c892fe57ed49b",
+    "scripts/prepare-app-write-two-guard-observation-v2.py": "11050f0aca2368e2919e42db349513a50a6c9199c78c5f863516415b98f6312f",
+    "scripts/check-app-write-two-guard-observation-v2.py": "6c8a539c5e75903f82abaac024e354f6e2f5da2aa1914b135323b207aa011b75",
+    "scripts/check-app-write-two-guard-observation-v2-coordinator.py": "0b0ecadcb2c67139a4f279d1747d4d3e5ae9146deec3bdfa52ddfdd638b3a596",
+    "scripts/sql-review/run-app-write-two-guard-observation-v2.py": "7654ac952a63bf4ca75230f58657fce9c080ba9364cd2dd848762770ce7fb1df",
+    "execute_local_f0_app_write_two_guard_observation_v2_20261120.py": "9a38e0a429a0905ea8be96ed427a738b6671d6debf7b43cac85f612857b90609",
+    "local_f0_app_write_two_guard_observation_v2_operation_steps.py": "0f4a06fb9b414440e8a10b73f490896d45484042d470a67d1c0f5bf61be80eb0",
+    "prepare_local_f0_app_write_two_guard_observation_v2_plan.py": "8d15259367dacbb4906757595536b074e2c225fc84e22fdb2470b598ff5aee83",
+    "check_local_f0_app_write_two_guard_observation_v2_operation.py": "fd857a3c6d73323bdbb4f87be96845b3f92d6bf7c612f5e492a9a45bf7a9cbf2",
+    "pin_local_f0_app_write_two_guard_observation_v2_plan_20261120.py": "f81b58eae6c40c5e475efa5c3d170864038e8ce152991c7d7421d51f458fbee2"
+  },
+  "closed_inventory": {
+    "new_Root127": true,
+    "live_new10": true,
+    "child_archive21": true,
+    "owned_archive75": true,
+    "original_App408_manifest_and_current_saved_copies": true,
+    "old_SQL22_and129_statements": true,
+    "grant_templates_worker32_claims_and_caps_unchanged": true
+  },
+  "oracle_review": {
+    "changed_only_case": "effect-wrong-root",
+    "first_top_level_DML": "platform.runtime_command_receipt INSERT",
+    "first_guard": "platform_private.command_state_guard() BEFORE trigger",
+    "sqlstate": "P0001",
+    "diagnostic": "command action/root does not match protected scope",
+    "source_body_sha256": "01c6a19be31eb4a29e8ca0e676b0b4d5314291a0196e895e7ebee10e36f658c8",
+    "source_body_line": 7,
+    "other13_oracles_unchanged": true,
+    "primary_mechanism_basis": "Root ACK25708 includes the PG17 primary fact that WITH CHECK follows BEFORE triggers; canonical source and exact emitted SQL independently re-read here. No network read or runtime was performed in this review.",
+    "historical_actual571_SQLSTATE_ACK_records_exit_complete_cause": "UNOBSERVED"
+  },
+  "independent_checks": [
+    {
+      "log": "app571_v2_independent_source14_20261120.log",
+      "sha256": "55fcc1b98adbb942394e0f3914491f5dc36bba36dcfe426d7ced0f965f524b54",
+      "tests": 14,
+      "passed": 14,
+      "seconds": 0.62,
+      "process_database_network_boundaries": "MOCKED_ONLY"
+    },
+    {
+      "log": "app571_v2_independent_child9_20261120.log",
+      "sha256": "60186ab9b5bfd48d260cc9a9ff87914639a2492912e4271440dbc6f1b9e09e5e",
+      "tests": 9,
+      "passed": 9,
+      "seconds": 31.974,
+      "process_database_network_boundaries": "MOCKED_ONLY"
+    },
+    {
+      "log": "app571_v2_independent_owned6_20261120.log",
+      "sha256": "3c6202f3e83d4127db06cb605f82688919da7e4455f6d0f5f45f292a1dfe8248",
+      "tests": 6,
+      "passed": 6,
+      "seconds": 166.281,
+      "process_database_network_boundaries": "MOCKED_ONLY"
+    }
+  ],
+  "total_focused_methods": 29,
+  "static_AST_deltas": [
+    {
+      "new": "scripts/app_write_two_guard_observation_v2_protocol.py",
+      "changed_existing_definitions": [
+        "diagnostic",
+        "verdict"
+      ],
+      "added_definitions": [
+        "operation_outcome",
+        "validate_operation_outcome"
+      ]
+    },
+    {
+      "new": "scripts/prepare-app-write-two-guard-observation-v2.py",
+      "changed_existing_definitions": [
+        "build"
+      ],
+      "added_definitions": []
+    },
+    {
+      "new": "scripts/sql-review/run-app-write-two-guard-observation-v2.py",
+      "changed_existing_definitions": [
+        "coordinator_type",
+        "safe_code"
+      ],
+      "added_definitions": []
+    },
+    {
+      "new": "execute_local_f0_app_write_two_guard_observation_v2_20261120.py",
+      "changed_existing_definitions": [],
+      "added_definitions": []
+    },
+    {
+      "new": "local_f0_app_write_two_guard_observation_v2_operation_steps.py",
+      "changed_existing_definitions": [
+        "admit_app_write_two_sources",
+        "app_write_two_experiment",
+        "load_reviewed_helper",
+        "main",
+        "validate_app_result"
+      ],
+      "added_definitions": [
+        "app_expected_outcome",
+        "app_stopped_collections",
+        "app_stopped_origin"
+      ]
+    },
+    {
+      "new": "prepare_local_f0_app_write_two_guard_observation_v2_plan.py",
+      "changed_existing_definitions": [
+        "prepare"
+      ],
+      "added_definitions": []
+    },
+    {
+      "new": "pin_local_f0_app_write_two_guard_observation_v2_plan_20261120.py",
+      "changed_existing_definitions": [
+        "validate"
+      ],
+      "added_definitions": []
+    }
+  ],
+  "reviewed_contracts": [
+    "Fresh per-stage response slots distinguish NOT_STARTED/SAME_XID/BIND_MARKER/BIND/BUSINESS. Fourteen fixed fields retain only typed availability, known0..3 exit/OTHER, bounded record count, marker/sequence comparisons, exact allowlisted source diagnostic and closure flags. No arbitrary raw response/SQL/stderr/credential/handle enters them.",
+    "Operation outcome is saved after connection/global closure and before verdict/rethrow. Malformed/unreceived response cannot recycle earlier bind ACK. The first actual operation failure is latched before later receipt IO; IO remains sticky and stops later cases.",
+    "Parent independently closes before reading the bounded coherent component reference. A stopped document is admitted only under exact27 ordinary or exact11 sanitizer schema with closed type/source/run/CID/stage/case/code rules. Minimal schema explicitly reports missing child CID/source fields rather than inventing them. Origin is a failure only and no after-qualification runs.",
+    "Strict27-field successful output/current_caseNone, exact14cases/15grants/221operations/32complete42states/69global/44retention/12source/13work traces, actual binding, chronology and limits remain required. Fix2 closed-reader/hash/final integrity barriers, source gate, actual one-Prisma native/oracle/ledger composition, finalizer and owned cleanup remain intact."
+  ],
+  "author_tests_version_qualification": "Final source14 and child31 are actual recorded PASS. Author fullowned25 was23PASS/1FAIL/1ERROR at earlier check bindings, followed by final affected2PASS; no final full25 rerun is claimed by this review. Independent29 focused methods above are separately recorded.",
+  "held_plan_actual_pinner_gate": {
+    "manifest_sha256": "0f3107b64d55e49c6b6c27b51d63d34dd4c3b174072dd7291fbf183e54a60b61",
+    "refusal": "OWNED_SOURCE_REVIEW_PENDING",
+    "bytes_unchanged": true,
+    "OUT_absent": true,
+    "process_Git_network_boundaries_forbidden": true
+  },
+  "live_gates_unmodified": {
+    "context/reconciliation/local-f0-app-write-two-guard-observation-v2-source-validation.json": {
+      "sha256": "6a413abab0117b285b0ea77eda8052e7675d9ee9dd1fab1cee24ca31e7819265",
+      "source_reviews": {
+        "author": "PENDING",
+        "offline": "PENDING",
+        "independent": "PENDING",
+        "Root": "PENDING"
+      }
+    },
+    "context/reconciliation/local-f0-app-write-two-guard-observation-v2-owned-source-validation.json": {
+      "sha256": "9c936e881b884193ba170f68a99b37e1cf4095ef8500393298ce7e0ab6dd3b31",
+      "source_reviews": {
+        "author": "PENDING",
+        "offline": "PENDING",
+        "independent": "PENDING",
+        "Root": "PENDING"
+      }
+    }
+  },
+  "limits": {
+    "runtime": "NOT_RUN",
+    "maximum_later_assertion_claims": 2,
+    "other28writes": false,
+    "owner_API_or_effect_result_link_guard_claim": false,
+    "worker_loop": false,
+    "wholecase94_451_promotion": false,
+    "actual_original571_complete_cause": "UNOBSERVED",
+    "no_Git_Docker_DB_SQL_network_resources_or_Root_progress_status_changes": true,
+    "Posture": "D"
+  },
+  "plain_english": "The checker now looks for the first real guard and keeps safe clues before it stops. The focused pretend-database checks passed. Nobody got new powers, and a new real run still needs its own review."
+}

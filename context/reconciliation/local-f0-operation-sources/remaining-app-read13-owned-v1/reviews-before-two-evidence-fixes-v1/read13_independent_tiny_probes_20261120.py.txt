@@ -1,0 +1,49 @@
+"""Reviewer-only actual-method probes; no real process/network/database boundary."""
+from pathlib import Path
+import hashlib,json,os,runpy,sys,tempfile,time
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sys.path[:0]=[str(T/'offline-python'),str(R/'scripts')]
+H=lambda b:hashlib.sha256(b).hexdigest();results={};started=time.monotonic()
+# Actual real CTX Session, with only its modeled stdin OS boundary throwing.
+checks=runpy.run_path(str(R/'scripts/check-remaining-app-read13-coordinator.py'))
+test=checks['CoordinatorTests']('test_real_ctx_session_full_source_fixture_then82_finite_protocols');test.setUpClass();test.setUp()
+try:
+ c,e=test.actual();case=next(x for x in test.packet['cases']if x['name']=='RuntimeEffectReceipt/positive/A');e.value.update(current_stage='FINITE_READ13_PROTOCOL',current_case=case['name']);ordinary=checks['OLD']['Input'].write;attempted=False
+ def write(stream,text):
+  global attempted
+  if 'SELECT 987654321;'in text:attempted=True;raise OSError('REVIEW_ONLY_BODY_WRITE_FAILURE_CANARY')
+  return ordinary(stream,text)
+ with patch.object(checks['OLD']['Input'],'write',write):
+  try:c.transaction(case['name'],'wa_app_runtime','SELECT 987654321;',test.packet['grants'][case['grant']])
+  except OSError:pass
+  else:raise AssertionError('EXPECTED_OS_BOUNDARY_THROW')
+ row=next(x for x in e.value['operations']if x['stage']=='ACTUAL_TRANSACTION')
+ assert attempted and row['operation_closed']is True and row['global_closure_confirmed']is True and row['read_stage_reached']is True
+ assert row['acknowledged']is True and row['stdout_records']==0 and row['stderr_present']is False
+ assert e.value['results']==[] and all(x.closed for x in test.vm.models)
+ results['business_throw_retains_prior_bind_ACK']={'confirmed':True,'body_response_received':False,'retained_acknowledged':row['acknowledged'],'retained_stdout_records':row['stdout_records'],'retained_stderr_present':row['stderr_present'],'read_stage_attempted':row['read_stage_reached'],'operation_closed':row['operation_closed'],'global_closure_confirmed':row['global_closure_confirmed'],'results':0,'scope':'OBSERVABILITY_DEFECT_ONLY_NO_SUCCESS_PROMOTION','boundary':'actual CTX Session stdin.write, all subprocess/network boundaries mocked'}
+finally:test.doCleanups()
+# Actual parent reader. The rewrite occurs after read(), preserving byte size
+# and mtime. It alters ctime, which this reader does not check or re-read.
+core=runpy.run_path(str(T/'execute_local_f0_remaining_app_read13_owned_v1_20261120.py'));n=core['launch'].__globals__;exec(compile((T/'local_f0_remaining_app_read13_owned_v1_operation_steps.py').read_bytes(),'READ13_CURRENT_STEPS_FOR_PURE_READER','exec'),n);n['report']={'stage':'REVIEW_ONLY_REFERENCE'}
+with tempfile.TemporaryDirectory(prefix='read13-review-reference-',dir=T)as directory:
+ fixed=Path(directory)/'remaining-app-read13-results.json';before=b'{"safe":1}\n';after=b'{"safe":2}\n';fixed.write_bytes(before);meta=fixed.stat();opened=Path.open;rewritten=False
+ class Stream:
+  def __init__(self,s):self.s=s
+  def __enter__(self):return self
+  def __exit__(self,*args):self.s.close()
+  def fileno(self):return self.s.fileno()
+  def read(self,count):
+   global rewritten
+   raw=self.s.read(count)
+   with opened(fixed,'wb')as output:output.write(after)
+   os.utime(fixed,ns=(meta.st_atime_ns,meta.st_mtime_ns));rewritten=True;return raw
+ def read(path,*args,**kwargs):
+  stream=opened(path,*args,**kwargs)
+  return Stream(stream)if path==fixed and args and args[0]=='rb'else stream
+ reference={}
+ with patch.object(Path,'open',read):value=n['bounded_component_reference'](fixed,reference)
+ assert rewritten and value=={'safe':1} and fixed.read_bytes()==after and reference['sha256']==H(before)and H(fixed.read_bytes())!=reference['sha256']
+ results['closed_reference_stale_hash_after_mtime_preserved_rewrite']={'confirmed':True,'reader_status':reference['read_status'],'reader_value_is_original':True,'retained_hash_matches_current_file':False,'same_size':len(before)==len(after),'mtime_preserved':fixed.stat().st_mtime_ns==meta.st_mtime_ns,'scope':'EVIDENCE_REFERENCE_INTEGRITY_DEFECT; parent returned-vs-read comparison can still match original RAM value; source does not recheck after read-only proof/cleanup'}
+v={'schema':'workinants.read13-independent-tiny-probes.v1','reviewer':'/root/restricted_controls_operator','seconds':round(time.monotonic()-started,3),'source_hashes':{'child':H((R/'scripts/sql-review/run-remaining-app-read13-rehearsal.py').read_bytes()),'owned_steps':H((T/'local_f0_remaining_app_read13_owned_v1_operation_steps.py').read_bytes())},'results':results,'source_or_gate_edits':False,'all_process_network_database_boundaries_mocked':True,'actual_runtime_qualification':False}
+b=(json.dumps(v,indent=2)+'\n').encode();p=T/'read13_independent_tiny_probes_20261120.json';assert not p.exists();p.write_bytes(b);print(json.dumps({'sha256':H(b),'seconds':v['seconds'],'results':results}))

@@ -1,0 +1,466 @@
+{
+  "schema": "workinants.read13-v2-independent-plan-review.catalog.v1",
+  "reviewer": "/root/catalog_v4_review",
+  "recorded_at_utc": "2026-11-19T21:52:22.763895+00:00",
+  "decision": "PLAN_SOURCE_APPROVED_GENERATION_CLARIFICATION_CLOSED",
+  "scope": "Only Read13 V2 source plan. Root ACK, source implementation/fixture review and eventual exact runtime literal/evidence remain separate. Reviewer is not author of this plan. Write30 is not independently reviewed by its author.",
+  "plan": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\remaining_app_read13_source_plan_v2_20261119.json",
+    "sha256": "f7f3028c7f0dfed45ff0cb7b8c672b31cd8623e4d32d9a774762d36a269d2007"
+  },
+  "lineage": {
+    "original_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\remaining_app_read13_source_plan_20261119.json",
+    "original_sha256": "a6fee9761c9276109d14104084ec896a1b2746c6a28bc9b92d2ff9008326874e",
+    "peer_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\remaining_app_read13_independent_plan_review_20261119.json",
+    "peer_sha256": "5a0a5ebb0562689ce1fdcae027cfe0160e1342d53308714a4a8f7a0e336febf1",
+    "finding": "READ13-GENERATION-01",
+    "closure": "CLOSED_IN_PLAN_ONLY"
+  },
+  "verified": {
+    "all13_exact_audit_ids_texts_statuses_dependencies": true,
+    "all13_exactACL_fields_database_columns_nativeGRANT_policy_revision_args": true,
+    "all13_action_purpose_SQL_routes": true,
+    "all25_inspected_source_hashes_current_match": true,
+    "six_versioned_models": [
+      "RuntimeEffectReceipt",
+      "RuntimeReservation",
+      "RuntimeWorkItem",
+      "TrackEntitlementGrant",
+      "TrackSubscription",
+      "TrackUsageCounter"
+    ],
+    "eight_direct_root_negative_models": [
+      "ConsentDisposition",
+      "RuntimeReservation",
+      "RuntimeWorkItem",
+      "TrackEntitlementGrant",
+      "TrackSubscription",
+      "TrackSubscriptionEvent",
+      "TrackUsageCounter",
+      "TrackUsageEvent"
+    ],
+    "all82_arithmetic_and13_link_ceiling_unchanged": true,
+    "generation_values_distinct": true,
+    "committed_fixture_preimages_preclude_write_predecessor_shortcut": true,
+    "no_parentFK_or_principal_RLS_predicate_invented": true,
+    "fixture_result_route_questions_retained_without_new_dependencies": true,
+    "source_SQL_roles_ACL_and_runtime_unmodified": true
+  },
+  "policy_rule": {
+    "source_path": "review-output/foundation-application.review.sql",
+    "source_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "row_allowed_definition_sha256": "dffdace6e606752e92d185fd6ca2959f86e9c788e2dd916eaa1a3a0ad20c17c4",
+    "line": 2411,
+    "own_token": "Every non-NULL selected row revision requires that row Model/key/revision/actual-version token.",
+    "root_generation": "Only non-NULL revision AND selected model==grant target kind AND selected key==grant target ID compares grant source_generation to authorized_revision.",
+    "Effect_child": "Effect own fence token is independent of Customer root revision/source_generation. Customer prerequisite SELECT enforces its own token/root equality; child-only Effect SELECT does not invent that check.",
+    "security_generation": "Identity principal/service generation remains a separate bound-grant requirement."
+  },
+  "pure_source_condition_vectors": [
+    {
+      "model": "RuntimeEffectReceipt",
+      "target": "CustomerProfile",
+      "revision": 0,
+      "own_token": 0,
+      "source_generation": 7,
+      "expected": true
+    },
+    {
+      "model": "RuntimeEffectReceipt",
+      "target": "CustomerProfile",
+      "revision": 0,
+      "own_token": 7,
+      "source_generation": 7,
+      "expected": false
+    },
+    {
+      "model": "CustomerProfile",
+      "target": "CustomerProfile",
+      "revision": 7,
+      "own_token": 7,
+      "source_generation": 7,
+      "expected": true
+    },
+    {
+      "model": "CustomerProfile",
+      "target": "CustomerProfile",
+      "revision": 7,
+      "own_token": 0,
+      "source_generation": 7,
+      "expected": false
+    },
+    {
+      "model": "CustomerProfile",
+      "target": "CustomerProfile",
+      "revision": 7,
+      "own_token": 7,
+      "source_generation": 0,
+      "expected": false
+    },
+    {
+      "model": "RuntimeEffectReceipt",
+      "target": "CustomerProfile",
+      "revision": 0,
+      "own_token": 0,
+      "source_generation": 0,
+      "expected": true
+    },
+    {
+      "model": "TrackEntitlementGrant",
+      "target": "TrackEntitlementGrant",
+      "revision": 2,
+      "own_token": 2,
+      "source_generation": 2,
+      "expected": true
+    },
+    {
+      "model": "TrackEntitlementGrant",
+      "target": "TrackEntitlementGrant",
+      "revision": 2,
+      "own_token": 1,
+      "source_generation": 2,
+      "expected": false
+    },
+    {
+      "model": "TrackEntitlementGrant",
+      "target": "TrackEntitlementGrant",
+      "revision": 2,
+      "own_token": 2,
+      "source_generation": 1,
+      "expected": false
+    },
+    {
+      "model": "TrackUsageCounter",
+      "target": "TrackUsageCounter",
+      "revision": 2,
+      "own_token": 2,
+      "source_generation": 2,
+      "expected": true
+    },
+    {
+      "model": "TrackUsageCounter",
+      "target": "TrackUsageCounter",
+      "revision": 2,
+      "own_token": 1,
+      "source_generation": 2,
+      "expected": false
+    },
+    {
+      "model": "TrackUsageCounter",
+      "target": "TrackUsageCounter",
+      "revision": 2,
+      "own_token": 2,
+      "source_generation": 1,
+      "expected": false
+    },
+    {
+      "model": "RuntimeReservation",
+      "target": "RuntimeReservation",
+      "revision": 2,
+      "own_token": 2,
+      "source_generation": 2,
+      "expected": true
+    },
+    {
+      "model": "RuntimeReservation",
+      "target": "RuntimeReservation",
+      "revision": 2,
+      "own_token": 1,
+      "source_generation": 2,
+      "expected": false
+    },
+    {
+      "model": "RuntimeReservation",
+      "target": "RuntimeReservation",
+      "revision": 2,
+      "own_token": 2,
+      "source_generation": 1,
+      "expected": false
+    },
+    {
+      "model": "RuntimeWorkItem",
+      "target": "RuntimeWorkItem",
+      "revision": 2,
+      "own_token": 2,
+      "source_generation": 2,
+      "expected": true
+    },
+    {
+      "model": "RuntimeWorkItem",
+      "target": "RuntimeWorkItem",
+      "revision": 2,
+      "own_token": 1,
+      "source_generation": 2,
+      "expected": false
+    },
+    {
+      "model": "RuntimeWorkItem",
+      "target": "RuntimeWorkItem",
+      "revision": 2,
+      "own_token": 2,
+      "source_generation": 1,
+      "expected": false
+    },
+    {
+      "model": "TrackSubscription",
+      "target": "TrackSubscription",
+      "revision": 2,
+      "own_token": 2,
+      "source_generation": 2,
+      "expected": true
+    },
+    {
+      "model": "TrackSubscription",
+      "target": "TrackSubscription",
+      "revision": 2,
+      "own_token": 1,
+      "source_generation": 2,
+      "expected": false
+    },
+    {
+      "model": "TrackSubscription",
+      "target": "TrackSubscription",
+      "revision": 2,
+      "own_token": 2,
+      "source_generation": 1,
+      "expected": false
+    }
+  ],
+  "exact13_checks": [
+    {
+      "case_id": "P0C-TABLE-ConsentDisposition-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "full_source_assertion_sha256": "8350c24e493d6caa98ae97416a43c86a7d90df664a8688e370777770ea9a8c45",
+      "fields": 9,
+      "fields_columns_GRANT_policy_templates_all_match": true,
+      "revision_column": null,
+      "direct_root": true,
+      "route_SQL_line": 2402,
+      "policy_SQL_line": 3505
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfileLifecycleEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "full_source_assertion_sha256": "9f38cf8a8e765a4e6953679929d3ff19cf6c8b1cf931f2d7d64fad5a8962fc33",
+      "fields": 10,
+      "fields_columns_GRANT_policy_templates_all_match": true,
+      "revision_column": null,
+      "direct_root": false,
+      "route_SQL_line": 2393,
+      "policy_SQL_line": 3585
+    },
+    {
+      "case_id": "P0C-TABLE-OwnerMutationEvidence-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "full_source_assertion_sha256": "3330e2467599e3634cd3ede37458c030175d198c382f53c0c1e88c17e9c5d20e",
+      "fields": 15,
+      "fields_columns_GRANT_policy_templates_all_match": true,
+      "revision_column": null,
+      "direct_root": false,
+      "route_SQL_line": 2393,
+      "policy_SQL_line": 3577
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "full_source_assertion_sha256": "3330e2467599e3634cd3ede37458c030175d198c382f53c0c1e88c17e9c5d20e",
+      "fields": 14,
+      "fields_columns_GRANT_policy_templates_all_match": true,
+      "revision_column": null,
+      "direct_root": false,
+      "route_SQL_line": 2393,
+      "policy_SQL_line": 3509
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeEffectReceipt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "full_source_assertion_sha256": "3330e2467599e3634cd3ede37458c030175d198c382f53c0c1e88c17e9c5d20e",
+      "fields": 15,
+      "fields_columns_GRANT_policy_templates_all_match": true,
+      "revision_column": "fence",
+      "direct_root": false,
+      "route_SQL_line": 2393,
+      "policy_SQL_line": 3529
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "full_source_assertion_sha256": "3330e2467599e3634cd3ede37458c030175d198c382f53c0c1e88c17e9c5d20e",
+      "fields": 21,
+      "fields_columns_GRANT_policy_templates_all_match": true,
+      "revision_column": null,
+      "direct_root": false,
+      "route_SQL_line": 2393,
+      "policy_SQL_line": 3521
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "full_source_assertion_sha256": "b9aab0589cae70aa8ac3beab759234b75aae1e9b157a211ecbb64c7dfd617d81",
+      "fields": 13,
+      "fields_columns_GRANT_policy_templates_all_match": true,
+      "revision_column": "fence",
+      "direct_root": true,
+      "route_SQL_line": 2407,
+      "policy_SQL_line": 3565
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeWorkItem-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "full_source_assertion_sha256": "c35f81f22043199b971c910b708aa581dc4779cb6492e59e6ae268c5b9482ffc",
+      "fields": 13,
+      "fields_columns_GRANT_policy_templates_all_match": true,
+      "revision_column": "fence",
+      "direct_root": true,
+      "route_SQL_line": 2406,
+      "policy_SQL_line": 3537
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementGrant-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "full_source_assertion_sha256": "43f32da6c476f7dbbfb2cf324edaf321d3edf6a4a799970a7e9f617385bd958c",
+      "fields": 25,
+      "fields_columns_GRANT_policy_templates_all_match": true,
+      "revision_column": "revision",
+      "direct_root": true,
+      "route_SQL_line": 2309,
+      "policy_SQL_line": 3471
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscription-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "full_source_assertion_sha256": "0438ae318c360852060840da4e0a432855ca640d65f3b297a59a92c76ff84de4",
+      "fields": 21,
+      "fields_columns_GRANT_policy_templates_all_match": true,
+      "revision_column": "revision",
+      "direct_root": true,
+      "route_SQL_line": 2288,
+      "policy_SQL_line": 3461
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscriptionEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "full_source_assertion_sha256": "bdd26d9da1f0d522dcc3c910467a8a4a6cfa32a8317167292ae5ed4db2abb9fb",
+      "fields": 12,
+      "fields_columns_GRANT_policy_templates_all_match": true,
+      "revision_column": null,
+      "direct_root": true,
+      "route_SQL_line": 2372,
+      "policy_SQL_line": 3491
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageCounter-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "full_source_assertion_sha256": "99c75a1e678081d179ecfd1d5a62a28b0357bc3b7b4f56d24d59ea0c672ff661",
+      "fields": 19,
+      "fields_columns_GRANT_policy_templates_all_match": true,
+      "revision_column": "revision",
+      "direct_root": true,
+      "route_SQL_line": 2351,
+      "policy_SQL_line": 3485
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "full_source_assertion_sha256": "661ff7f0134ad7b7998951f4fd1b7650b5af6d3f7478a64cb8fb2015a15f733a",
+      "fields": 24,
+      "fields_columns_GRANT_policy_templates_all_match": true,
+      "revision_column": null,
+      "direct_root": true,
+      "route_SQL_line": 2330,
+      "policy_SQL_line": 3481
+    }
+  ],
+  "scenario_counts": {
+    "two_reciprocal_positive_scopes_per_model": 26,
+    "no_bound_context_zero_rows_per_model": 13,
+    "one_required_SELECT_field_removed_zero_rows_per_model": 13,
+    "unregistered_purpose_zero_rows_per_model": 13,
+    "wrong_revision_token_zero_rows_for_six_revision_or_fence_policies": 6,
+    "wrong_exact_root_zero_rows_for_eight_direct_target_models": 8,
+    "shared_context_controls_stale_Identity_generation_revoked_grant_expired_existing_grant": 3
+  },
+  "future_fixture_gates": [
+    {
+      "id": "READ13-FIXTURE-USAGE",
+      "limit": "No Candidate usage-period/reconciliation/result adapter or its blocked source obligation is qualified by a synthetic SELECT fixture. Preserve all remaining physical/FK/CHECK/native/owner identities; missing fixture implementation remains planned work, not a new dependency.",
+      "question": "Both TrackUsageEvent and TrackUsageCounter have an always-raising usage_adapter_gate for writes. An exact synthetic row-read fixture must explicitly account for these existing trigger identities in the separately reviewed setup/restore manifest, or name an already legitimate source. The plan does not yet authorize this fixture bypass.",
+      "source_line": 5044,
+      "source_path": "review-output/foundation-application.review.sql"
+    },
+    {
+      "id": "READ13-FIXTURE-RESERVATION",
+      "limit": "The internal runtime.reservation.v1 SQL route exists and can support a bounded row SELECT. It is not SH-056 reserve/commit/release qualification or permission to invent a capacity/result codec.",
+      "question": "Bind a concrete source-reviewed registered owner plus resourceKind/resourceKey/command tuple before freeze; replacing Native placeholder owner text alone does not establish domain capacity ownership."
+    },
+    {
+      "id": "READ13-FIXTURE-EFFECT",
+      "limit": "Pending row visibility never proves committed effect/result semantics.",
+      "question": "Specify the existing non-null registered result_schema_id even for the pending effect fixture; nullable result_hash/committed_at are not a new no-result codec."
+    },
+    {
+      "id": "READ13-FIXTURE-RESTORATION",
+      "question": "Any future synthetic setup bypass must name exact original canonical trigger identities and reason before source freeze; mark restoration before open, close setup and flush deferred work before exact re-enable and independent full native/100-trigger parity.",
+      "limit": "Usage adapter gates are not authorized to be disabled by this plan. No INSERT/UPDATE/usage-owner result or business-source qualification derives from a fixture bypass; no unspecified guard, role or permission change."
+    }
+  ],
+  "JSON_delta_paths": [
+    "/actual_read_design/capabilities",
+    "/execution_authorized",
+    "/finite_scenarios_proposed/revision_negative_limit",
+    "/future_offline_checks_required_not_run_now",
+    "/generation_binding_clarification",
+    "/implementation_authorized",
+    "/plain_english",
+    "/planned_cases/0/generation_binding",
+    "/planned_cases/1/generation_binding",
+    "/planned_cases/10/generation_binding",
+    "/planned_cases/11/generation_binding",
+    "/planned_cases/12/generation_binding",
+    "/planned_cases/2/generation_binding",
+    "/planned_cases/3/generation_binding",
+    "/planned_cases/4/coherence",
+    "/planned_cases/4/generation_binding",
+    "/planned_cases/4/relationship_caps",
+    "/planned_cases/5/generation_binding",
+    "/planned_cases/6/generation_binding",
+    "/planned_cases/7/generation_binding",
+    "/planned_cases/8/generation_binding",
+    "/planned_cases/9/generation_binding",
+    "/planned_generation_regression_vectors_not_executed",
+    "/preservation",
+    "/recorded_at_utc",
+    "/retained_fixture_prerequisites_pending_source_freeze",
+    "/revision_lineage",
+    "/schema",
+    "/source_questions_not_new_dependencies",
+    "/status"
+  ],
+  "findings": [],
+  "limits": {
+    "runtime": "NOT_RUN",
+    "posture": "D",
+    "implementation_or_execution_approved": false,
+    "usage_adapter_gate_bypass_approved": false,
+    "new_fixture_hashes_or_source_packet_approved": false,
+    "ownerFacts_entitlement_usage_result_capacity_or_write_qualified": false,
+    "repository_pinned_source_status_Git_Docker_database_network_mutated": false,
+    "actual_owner7293_or_INSTALL_result_approved": false,
+    "heavy_tests_or_processes_run": false,
+    "only_new_exclusive_TASK_report_written": true
+  },
+  "plain_english": "The parent and child now use their own version keys correctly. The thirteen reading checks still need a separately reviewed script and real evidence; nothing ran or passed in a database."
+}

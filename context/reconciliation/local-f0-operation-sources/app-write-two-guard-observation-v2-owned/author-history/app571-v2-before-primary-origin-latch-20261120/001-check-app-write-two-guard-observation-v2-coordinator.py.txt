@@ -1,0 +1,547 @@
+"""Projection-aware actual coordinator/CTX Session process mocks; no Postgres claims."""
+from contextlib import redirect_stdout
+from copy import deepcopy
+from datetime import datetime,timedelta,timezone
+import ast as python_ast
+import importlib.util
+import inspect
+import io
+import json
+from pathlib import Path
+import queue
+import re
+import runpy
+import socket
+import subprocess
+import sys
+import tempfile
+import textwrap
+import types
+import unittest
+import uuid
+from unittest.mock import patch,Mock
+from pglast import ast,parse_sql
+from pglast.stream import RawStream
+ROOT=Path(__file__).resolve().parents[1];TASK=ROOT.parent;sys.path.insert(0,str(ROOT/'scripts'))
+import app_write_two_guard_observation_v2_protocol as P
+M=runpy.run_path(str(ROOT/'scripts/sql-review/run-app-write-two-guard-observation-v2.py'))
+spec=importlib.util.spec_from_file_location('app_write_two_generator',ROOT/'scripts/prepare-app-write-two-guard-observation-v2.py');G=importlib.util.module_from_spec(spec);spec.loader.exec_module(G)
+CANARY='PRIVATE_PASSWORD_CONTEXT_HANDLE_RAW_STDERR_CANARY';CID='a'*64
+# Exact method from held ad3a24aa... source, used only as a regression mutant.
+HELD_ALLOWED_METHOD_SHA='4d9499dd3bf8e0d6263aadbe0b201fd997a12d4d5549dd7abb8db261111d4ecd'
+HELD_ALLOWED_METHOD=" def allowed(self,session,table,row,verb,fields=None):\n  v=self.values(session);model=self.by_table[table];key=row['id'];caps=v['allowed_fields'];root=self.packet['ids']['CustomerProfile'] if v['target_kind']=='CustomerProfile' else self.packet['ids']['work']\n  owner='customer_buyer_profile' if v['target_kind']=='CustomerProfile' else 'platform_integration_owner';action='SH-004.v1' if v['target_kind']=='CustomerProfile' else 'runtime.schedule_work.v1';purpose='provision' if v['target_kind']=='CustomerProfile' else 'work.schedule'\n  if (v['owner_module_id'],v['action'],v['purpose'])!=(owner,action,purpose):return False\n  if model==v['target_kind'] and key!=v['target_id']:return False\n  acl=next((r for r in self.acl if(r['role'],r['model'],r['operation'])==('wa_app_runtime',model,verb)),None)\n  if acl is None:return False\n  fields=fields if fields is not None else ['@row'] if verb=='UPDATE' else acl['fields']\n  if any(model+'/'+key+'/'+verb+'/'+f not in caps for f in fields):return False\n  revision=row.get('revision',row.get('fence')) if verb=='SELECT' or model=='CustomerProfile' else None\n  if revision is not None and model+'/'+key+'/revision/'+str(revision) not in caps:return False\n  return v['source_generation']==revision if revision is not None and model==v['target_kind'] else True\n"
+class SqlFailure(Exception):
+ def __init__(self,state,message,function=None):self.state,self.message,self.function=state,message,function
+class Transport:
+ def __init__(self,packet):
+  self.packet=packet;self.events=[];self.models=[];self.sequence=0;self.now=0.;self.clock_origin=datetime(2026,11,19,12,tzinfo=timezone.utc);self.rows={t:{} for t in packet['setup_expected_counts']};self.disabled=set();self.coordinator=None;self.fail_case=None;self.expire_case=None;self.mutate_native=None;self.other_clients=0;self.close_failure=False;self.effect_wrong_result=False;self.work_noop=False;self.issued={};self.io_after_fixture=False;self.persistence_active=False;self.lost_fixture_ack=False;self.extra_after_fixture=False
+  self.application=(ROOT/M['APPLICATION']).read_text();self.acl=json.loads((ROOT/'context/reconciliation/foundation-sql-draft-access.json').read_bytes());self.by_table={r['object']:k for k,r in packet['models'].items()}
+  assert P.sha(self.application.encode())==P.APPLICATION_SHA,'CANONICAL_POLICY_SOURCE_REQUIRED';self.policies={}
+  for statement in parse_sql(self.application):
+   policy=statement.stmt
+   if not isinstance(policy,ast.CreatePolicyStmt) or not any(role.rolename=='wa_app_runtime' for role in policy.roles):continue
+   expression=policy.with_check if policy.cmd_name=='insert' else policy.qual
+   if isinstance(expression,ast.FuncCall) and expression.funcname[-1].sval=='row_allowed':
+    key=(self.table(policy.table),policy.cmd_name.upper());assert key not in self.policies,'DUPLICATE_APP_POLICY';self.policies[key]=expression
+  self.baseline_sql=G.build()[0];self.expire_after_case=None
+ def timestamp(self,delta=0):return (self.clock_origin+timedelta(seconds=self.now+delta)).isoformat()
+ def project_observer(self,text,name,facts):
+  # Derive output keys and scalar expressions from the actual SQL projection.
+  # Unsupported relation/predicate or aggregate mutations fail closed. Facts
+  # come from modeled stored rows, never packet.case.expected_records.
+  baseline=parse_sql(self.baseline_sql[name])[0].stmt;actual=parse_sql(text)[0].stmt;projection=actual.targetList[0].val;expected=baseline.targetList[0].val
+  original=actual.targetList;actual.targetList=baseline.targetList
+  assert RawStream()(actual)==RawStream()(baseline),'UNREGISTERED_OBSERVER_RELATION_OR_PREDICATE'
+  actual.targetList=original;assert isinstance(projection,ast.FuncCall) and projection.funcname[-1].sval=='jsonb_build_object','UNREGISTERED_OBSERVER_PROJECTION'
+  source={RawStream()(expected.args[i+1]):facts[self.expression(expected.args[i])] for i in range(0,len(expected.args),2)}
+  def value(node):
+   key=RawStream()(node)
+   if key in source:return source[key]
+   if isinstance(node,ast.A_Const):return self.expression(node)
+   if isinstance(node,ast.A_Expr):
+    left,right=value(node.lexpr),value(node.rexpr);op=node.name[0].sval
+    if op=='+':return left+right
+    if op=='=':return left==right
+   raise AssertionError('UNREGISTERED_OBSERVER_EXPRESSION')
+  return {self.expression(projection.args[i]):value(projection.args[i+1]) for i in range(0,len(projection.args),2)}
+ def table(self,node):return node.schemaname+'.'+node.relname
+ def view(self,session,table):
+  rows=deepcopy(self.rows[table])
+  if session:rows.update(deepcopy(session.pending.get(table,{})))
+  return rows
+ def values(self,session):return {k:self.expression(parse_sql('SELECT '+v)[0].stmt.targetList[0].val,session) for k,v in session.bound['values'].items()}
+ def visible(self,session,table,row):
+  if session is None or session.role!='wa_app_runtime':return True
+  return self.allowed(session,table,row,'SELECT')
+ def allowed(self,session,table,row,verb,fields=None):
+  v=self.values(session);model=self.by_table[table];key=row['id'];caps=v['allowed_fields'];root=self.packet['ids']['CustomerProfile'] if v['target_kind']=='CustomerProfile' else self.packet['ids']['work']
+  owner='customer_buyer_profile' if v['target_kind']=='CustomerProfile' else 'platform_integration_owner';action='SH-004.v1' if v['target_kind']=='CustomerProfile' else 'runtime.schedule_work.v1';purpose='provision' if v['target_kind']=='CustomerProfile' else 'work.schedule'
+  if (v['owner_module_id'],v['action'],v['purpose'])!=(owner,action,purpose):return False
+  if model==v['target_kind'] and key!=v['target_id']:return False
+  policy=self.policies.get((table,verb))
+  if policy is None:return False
+  assert len(policy.args)==7 and self.expression(policy.args[1])==model and self.expression(policy.args[3])==verb,'CANONICAL_POLICY_ARGUMENTS'
+  fields=fields if fields is not None else self.expression(policy.args[4],session,row)
+  if any(model+'/'+key+'/'+verb+'/'+f not in caps for f in fields):return False
+  # Use this actual policy's row_revision argument. Customer INSERT passes
+  # NULL; SELECT passes revision. INSERT/revision remains a field cap above.
+  revision=self.expression(policy.args[5],session,row)
+  if revision is not None and model+'/'+key+'/revision/'+str(revision) not in caps:return False
+  return v['source_generation']==revision if revision is not None and model==v['target_kind'] else True
+ def expression(self,node,session=None,row=None,ctes=None):
+  if node is None:return None
+  if isinstance(node,ast.A_Const):return None if node.isnull else node.val.sval if isinstance(node.val,ast.String) else node.val.ival if isinstance(node.val,ast.Integer) else node.val.boolval if isinstance(node.val,ast.Boolean) else float(node.val.fval)
+  if isinstance(node,ast.TypeCast):
+   value=self.expression(node.arg,session,row,ctes);names=[x.sval for x in node.typeName.names]
+   if value is not None and names[-1] in ('jsonb','json'):return json.loads(value)
+   if value is not None and names[-1]=='interval':return float(value.split()[0])*(.001 if 'millisecond' in value else 1)
+   return value
+  if isinstance(node,ast.A_ArrayExpr):return [self.expression(x,session,row,ctes) for x in node.elements]
+  if isinstance(node,ast.ColumnRef):return (row or {})[node.fields[-1].sval]
+  if isinstance(node,ast.NullTest):return (self.expression(node.arg,session,row,ctes) is None)==(node.nulltesttype.name=='IS_NULL')
+  if isinstance(node,ast.BoolExpr):
+   vals=[self.expression(x,session,row,ctes) for x in node.args];return not vals[0] if node.boolop.name=='NOT_EXPR' else all(vals) if node.boolop.name=='AND_EXPR' else any(vals)
+  if isinstance(node,ast.A_Expr):
+   a=self.expression(node.lexpr,session,row,ctes);b=self.expression(node.rexpr,session,row,ctes);op=node.name[0].sval
+   if node.kind.name=='AEXPR_NOT_DISTINCT':return a==b
+   if op=='=':return a==b
+   if op=='+':
+    return (datetime.fromisoformat(a)+timedelta(seconds=b)).isoformat() if isinstance(a,str) and isinstance(b,float) else a+b
+   if op=='-':return a-b
+   if op=='>':return a>b
+   if op=='>=':return a>=b
+   if op=='<=':return a<=b
+   if op=='<':return a<b
+   if op=='||':return str(a)+str(b)
+   raise AssertionError('UNREGISTERED_EXPRESSION_OPERATOR')
+  if isinstance(node,ast.SubLink):return self.select(node.subselect,session,ctes)
+  if isinstance(node,ast.FuncCall):
+   name=node.funcname[-1].sval
+   if name=='count':return len((row or {}).get('_aggregate',[]))
+   if name=='bool_and':return all(self.expression(node.args[0],session,r,ctes) for r in (row or {}).get('_aggregate',[])) if (row or {}).get('_aggregate') else None
+   args=[self.expression(x,session,row,ctes) for x in (node.args or ())]
+   if name=='jsonb_build_object':return dict(zip(args[::2],args[1::2]))
+   if name=='current_setting':return session.lease if args[0]=='wa.lease_secret' else session.fence
+   if name=='clock_timestamp':return self.now
+   if name=='pg_current_xact_id':return session.backend['xid']
+   if name=='decode':return bytes.fromhex(args[0])
+   if name=='sha256':return bytes.fromhex(P.sha(args[0].encode() if isinstance(args[0],str) else args[0]))
+   if name=='encode':return args[0].hex()
+   if name=='convert_to':return P.canonical(args[0]).encode() if isinstance(args[0],dict) else args[0].encode()
+   if name=='worker_lease_valid':return self.lease_valid(session,args[0])
+   if name=='worker_effect_matches':return self.effect_matches(session,args[0],args[1],args[2])
+   raise AssertionError('UNREGISTERED_FUNCTION_'+name)
+  if isinstance(node,ast.CoalesceExpr):return next((x for a in node.args if (x:=self.expression(a,session,row,ctes)) is not None),None)
+  raise AssertionError('UNREGISTERED_EXPRESSION_'+type(node).__name__)
+
+ def select(self,node,session,ctes=None):
+  ctes=dict(ctes or {})
+  if node.withClause:
+   for cte in node.withClause.ctes:ctes[cte.ctename]=self.statement(cte.ctequery,session)
+  rows=[{}]
+  if node.fromClause:
+   relation=node.fromClause[0]
+   if relation.relname in ctes:rows=ctes[relation.relname]
+   else:
+    table=self.table(relation);rows=[r for r in self.view(session,table).values() if self.visible(session,table,r)]
+   rows=[r for r in rows if node.whereClause is None or self.expression(node.whereClause,session,r,ctes)]
+  expr=node.targetList[0].val;aggregate='count(' in RawStream()(expr) or 'bool_and(' in RawStream()(expr)
+  if aggregate:return self.expression(expr,session,{'_aggregate':rows},ctes)
+  return self.expression(expr,session,rows[0],ctes) if rows else None
+ def statement(self,node,session):
+  if isinstance(node,ast.InsertStmt):
+   table=self.table(node.relation);select=node.selectStmt;records=[]
+   if select.valuesLists:records=[{col.name:self.expression(val,session) for col,val in zip(node.cols,select.valuesLists[0])}]
+   else:
+    relation=select.fromClause[0];source=self.table(relation)
+    for row in self.view(session,source).values():
+     if not self.visible(session,source,row) or select.whereClause and not self.expression(select.whereClause,session,row):continue
+     records.append({col.name:self.expression(val.val,session,row) for col,val in zip(node.cols,select.targetList)})
+   for values in records:
+    values['mutation_transaction_id']=session.backend['xid'];key=values['id'];values.setdefault('created_at',self.now)
+    if table=='platform.database_action_grant':values['created_at']=self.timestamp(.001);self.issued[key]=values
+    if table=='platform.runtime_work_item':values.update(lease_token_hash=None,lease_expires_at=None,effect_receipt_id=None,next_attempt_at=None)
+    if session.role=='wa_app_runtime':
+     if table=='platform.runtime_command_receipt':
+      guard=re.search(r'CREATE FUNCTION platform_private.command_state_guard\(\).*?AS \$wa\$(.*?)\$wa\$;',self.application,re.S)[1]
+      helper=re.search(r'CREATE FUNCTION platform_private.command_context_allows\(.*?AS \$wa\$(.*?)\$wa\$;',self.application,re.S)[1]
+      assert 'command_context_allows(NEW.owner_module_id,NEW.operation,NEW.subject_scope)' in guard and "RETURN operation_name=g.action AND subject_scope=g.target_kind||':'||g.target_id;" in helper,'CANONICAL_COMMAND_SCOPE_PREDICATE'
+      assert 'CREATE TRIGGER command_state BEFORE INSERT OR UPDATE ON platform.runtime_command_receipt' in self.application,'CANONICAL_BEFORE_COMMAND_TRIGGER'
+      v=self.values(session)
+      if (values['owner_module_id'],values['operation'],values['subject_scope'])!=(v['owner_module_id'],v['action'],v['target_kind']+':'+v['target_id']) and not self.view(session,'platform.runtime_reservation'):
+       raise SqlFailure('P0001','command action/root does not match protected scope','command_state_guard')
+     if table=='app.customer_profiles' and self.values(session)['principal_user_id']!=values['user_id']:raise SqlFailure('42501','foreign Customer principal','guard_customerprofile')
+     if not self.allowed(session,table,values,'INSERT'):raise SqlFailure('42501','new row violates row-level security policy for table "'+table.split('.')[1]+'"')
+     if node.returningList and not self.visible(session,table,values):raise SqlFailure('42501','mock RETURNING SELECT policy rejected')
+    if key in self.view(session,table):raise SqlFailure('23505','mock duplicate key')
+    session.pending.setdefault(table,{})[key]=values
+   if table=='platform.database_action_grant':return {'created_at':records[0]['created_at']}
+   return records if node.returningList else []
+  if isinstance(node,ast.UpdateStmt):
+   table=self.table(node.relation);changed=[]
+   for key,row in self.view(session,table).items():
+    if not self.visible(session,table,row) or not self.allowed(session,table,row,'UPDATE') or node.whereClause and not self.expression(node.whereClause,session,row):continue
+    updates={target.name:self.expression(target.val,session,row) for target in node.targetList}
+    if table!='platform.runtime_work_item' or set(updates)!={'next_attempt_at'}:raise AssertionError('UNDECLARED_APP_UPDATE')
+    # The Work BEFORE UPDATE guard checks changed fields and OLD.fence,
+    # separately from the policy's NULL revision and SELECT intersection.
+    v=self.values(session);revision='RuntimeWorkItem/'+key+'/revision/'+str(row['fence'])
+    if not self.allowed(session,table,row,'UPDATE',['nextAttemptAt']) or revision not in v['allowed_fields'] or v['source_generation']!=row['fence']:raise SqlFailure('42501','field or CAS scope denied','guard_runtimeworkitem')
+    if not self.work_noop:row.update(updates)
+    row['mutation_transaction_id']=session.backend['xid'];session.pending.setdefault(table,{})[key]=row;changed.append(row)
+   return changed
+  if isinstance(node,ast.SelectStmt):return self.select(node,session)
+  raise AssertionError('UNDECLARED_STATEMENT_'+type(node).__name__)
+ def diagnostic(self,error):
+  value='ERROR:  '+error.state+': '+error.message+'\n'
+  if error.function:
+   signature='secret text' if error.function=='bind_request_context' else '';body=re.search(r'CREATE FUNCTION platform_private\.'+error.function+r'\('+signature+r'\).*?AS\s+(\$[a-z_0-9]*\$)(.*?)\1;',self.application,re.S)[2];line=next(i for i,x in enumerate(body.split('\n'),1) if 'RAISE EXCEPTION '+P.quote(error.message) in x)
+   return value+'CONTEXT:  PL/pgSQL function platform_private.'+error.function+'('+('text' if signature else '')+') line '+str(line)+' at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:3911\n'
+  return value+'LOCATION:  ExecWithCheckOptions, execMain.c:2231\n'
+ def commit(self,session):
+  fixture=bool(session.pending.get('app.users'))
+  customers=session.pending.get('app.customer_profiles',{})
+  for customer in customers.values():
+   key=customer['id'];q=[v for v in self.view(session,'platform.runtime_command_receipt').values() if v['subject_scope']=='CustomerProfile:'+key];h=[v for v in self.view(session,'app.customer_profile_lifecycle_event').values() if v['customer_profile_id']==key];e=[v for v in self.view(session,'platform.owner_mutation_evidence').values() if v['aggregate_id']==key];o=[v for v in self.view(session,'platform.runtime_outbox_message').values() if v['aggregate_id']==key]
+   if not(session.flushed and len(q)==len(h)==len(e)==1 and len(o)==2 and {v['name'] for v in o}=={'customer.lifecycle_changed.v1','assignDefaultFreeTrack.v1'} and h[0]['actor_user_id']==customer['user_id'] and all(v['mutation_transaction_id']==customer['mutation_transaction_id'] for v in q+h+e+o)):raise SqlFailure('P0001','mock incomplete deferred Customer proof')
+  for table,rows in session.pending.items():self.rows[table].update(deepcopy(rows))
+  session.pending={};session.active=False;self.events.append(('COMMIT',session.role,session.backend['pid'],session.backend['xid']))
+  if session.role=='wa_app_runtime' and self.coordinator.evidence.value['current_case']==self.expire_after_case:self.expire_case=self.expire_after_case
+  if fixture and self.io_after_fixture:self.persistence_active=True
+  if fixture and self.extra_after_fixture:self.other_clients=1
+ def model(self,role,c):
+  self.coordinator=c;self.sequence+=1;sequence=self.sequence;vm=self
+  class Model:
+   def __init__(self):self.closed=False;self.role=role;self.active=False;self.bound=None;self.pending={};self.flushed=False;self.process=types.SimpleNamespace(returncode=None)
+   def begin(self,isolation):self.active=True;self.isolation=isolation
+   def capture(self):
+    if not hasattr(self,'backend'):self.backend={'login':role,'current_user':role,'database':'wa_p0c_rehearsal','isolation':self.isolation,'pid':str(5000+sequence),'xid':str(20000+sequence),'started':vm.timestamp(),'clock':vm.timestamp()}
+    return deepcopy(self.backend)
+   def call(self,text):
+    vm.events.append(('SQL',role,text));rows=[]
+    if text.startswith('SELECT pg_current_xact_id()'):return ['t'],True,''
+    try:
+     if text.startswith('SELECT platform_private.bind_request_context('):
+      secret=re.search(r"\('([^']+)'\)",text)[1];self.bound=next(value for value in c.instances.values() if value['secret']==secret);values=vm.values(self)
+      assert not any(s.role=='wa_context_issuer' and not s.closed for s in vm.models),'ISSUER_CONNECTION_MUST_EXIT_BEFORE_BIND'
+      if values['security_generation']!=0:raise SqlFailure('42501','invalid, stale or unsupported context','bind_request_context')
+      return [],True,''
+     if vm.fail_case==c.evidence.value['current_case'] and text.startswith("SELECT 'WA_AW2_BEFORE_"):raise SqlFailure('P0001',CANARY)
+     for raw in parse_sql(text):
+      node=raw.stmt
+      if isinstance(node,ast.TransactionStmt):
+       if node.kind.name=='TRANS_STMT_COMMIT':vm.commit(self)
+       else:self.pending={};self.active=False
+       continue
+      if isinstance(node,ast.ConstraintsSetStmt):self.flushed=True;continue
+      if isinstance(node,ast.AlterTableStmt):
+       table=vm.table(node.relation);assert table in P.FIXTURE_TABLES and 'owner_commit' in RawStream()(node)
+       if 'DISABLE' in RawStream()(node):vm.disabled.add(table)
+       else:vm.disabled.discard(table)
+       continue
+      result=vm.statement(node,self)
+      if isinstance(node,ast.SelectStmt) and result is not None:rows.append(json.dumps(result) if isinstance(result,(dict,list)) else str(result))
+      if isinstance(node,ast.InsertStmt) and node.returningList:rows.append(json.dumps(result))
+     return rows,True,''
+    except SqlFailure as error:self.pending={};self.active=False;self.process.returncode=3;return rows,False,vm.diagnostic(error)
+   def close(self):
+    self.closed=True;self.pending={};self.active=False
+    if self.process.returncode is None:self.process.returncode=0
+    return self.process.returncode
+  result=Model();self.models.append(result);return result
+ def popen(self,args,**kwargs):
+  frame=inspect.currentframe().f_back
+  while frame and not(type(frame.f_locals.get('self')).__name__=='Session' and hasattr(frame.f_locals['self'],'coordinator')):frame=frame.f_back
+  assert frame is not None,'REAL_CTX_SESSION_REQUIRED';c=frame.f_locals['self'].coordinator;return Process(self,args[args.index('-U')+1],c)
+ def raw(self,args,**kwargs):
+  text=kwargs.get('input','');frame=inspect.currentframe().f_back
+  while frame:
+   candidate=frame.f_locals.get('self')
+   if candidate is not None and type(candidate).__name__=='Coordinator' and hasattr(candidate,'instances'):self.coordinator=candidate;break
+   frame=frame.f_back
+  c=self.coordinator
+  if '-U' not in args:
+   target=c.target['target'];image=target['image'];image_id=image.split('@')[1]
+   if args[3:5]==['context','inspect']:value={'Name':'desktop-linux','Endpoints':{'docker':{'Host':'npipe:////./pipe/dockerDesktopLinuxEngine'}}}
+   elif args[3:5]==['volume','inspect']:value={'Name':target['volume_name'],'Driver':'local','Options':{},'Scope':'local','Labels':target['labels']}
+   elif args[3:5]==['image','inspect']:value={'Id':image_id,'Os':'linux','Architecture':'amd64','RepoDigests':[image]}
+   elif args[3]=='inspect':value={'Id':CID,'Name':'/'+target['container_name'],'Config':{'Image':image,'Labels':target['labels']},'Image':image_id,'Platform':'linux','State':{'Running':True},'HostConfig':{'NetworkMode':'none','PortBindings':{},'Privileged':False,'PidMode':'','IpcMode':'private','Devices':[],'CapAdd':[],'Tmpfs':{'/run/wa-secrets':'rw,nosuid,noexec,nodev,mode=0700'}},'NetworkSettings':{'Ports':{'5432/tcp':None}},'Mounts':[{'Type':'volume','Name':target['volume_name'],'Destination':'/var/lib/postgresql/data','RW':True},{'Type':'bind','Source':target['bootstrap_secret_host_path'],'Destination':'/run/bootstrap-password','RW':False}]}
+   else:raise AssertionError('UNDECLARED_DOCKER_BOUNDARY')
+   return types.SimpleNamespace(returncode=0,stdout=json.dumps([value]),stderr='')
+  role=args[args.index('-U')+1]
+  if 'PGPASSWORD' in args:return types.SimpleNamespace(returncode=2,stdout='',stderr='FATAL:  password authentication failed for user "'+role+'"\n')
+  if 'pg_hba_file_rules' in text:return types.SimpleNamespace(returncode=0,stdout=json.dumps([{'rule_number':i+1,'type':'host','database':['all'],'user_name':['all'],'address':address,'netmask':mask,'auth_method':'scram-sha-256','error':None} for i,(address,mask) in enumerate([('127.0.0.1','255.255.255.255'),('::1','ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff')])]),stderr='')
+  if 'FROM pg_authid' in text:return types.SimpleNamespace(returncode=0,stdout=json.dumps(dict.fromkeys(('postgres','wa_migrator','wa_app_runtime','wa_worker','wa_context_issuer','wa_identity_service_authority'),True)),stderr='')
+  if "'auth',system_user" in text:return types.SimpleNamespace(returncode=0,stdout=json.dumps({'login':role,'auth':'scram-sha-256:'+role,'database':'wa_p0c_rehearsal','client':'127.0.0.1','server':'127.0.0.1'}),stderr='')
+  if text.startswith('SELECT count(*) FROM pg_stat_activity WHERE pid='):
+   pid=re.search(r'pid=([0-9]+)',text)[1];value=sum(not m.closed and getattr(m,'backend',{}).get('pid')==pid for m in self.models)
+   if self.close_failure and "usename='wa_app_runtime'" in text:value+=1
+   return types.SimpleNamespace(returncode=0,stdout=str(value),stderr='')
+  if "'other_clients'" in text:value={'other_clients':sum(not m.closed for m in self.models)+self.other_clients}
+  elif "'issuer_owned'" in text:
+   ids=re.findall(r" FROM platform.database_action_grant g WHERE g.id='([^']+)'",text);rows=[self.rows['platform.database_action_grant'][key] for key in ids];exact=True
+   for key in ids:
+    instance=next(v for v in c.instances.values() if v['id']==key);actual=self.rows['platform.database_action_grant'][key];expected={k:self.expression(parse_sql('SELECT '+v)[0].stmt.targetList[0].val) for k,v in instance['values'].items()};exact=exact and all(expected[k]==actual[k] and text.count('g.'+k+' IS NOT DISTINCT FROM (')==len(ids) for k in expected)
+   value={'count':len(rows),'exact':bool(exact),'issuer_owned':all(v['issuer_service']=='wa_context_issuer' for v in rows),'unrevoked':all(v['revoked_at'] is None for v in rows),'unexpired':c.evidence.value['current_case']!=self.expire_case and all(datetime.fromisoformat(v['expires_at'])>self.clock_origin+timedelta(seconds=self.now) for v in rows)}
+  elif text==c.text('complete-state-observe.sql'):
+   assert not any(not m.closed for m in self.models),'OBSERVER_BEFORE_CONNECTION_CLOSURE';value={t:{'count':len(rows),'rows_sha256':P.digest(sorted(rows.values(),key=P.canonical))} for t,rows in self.rows.items()}
+  elif 'workinants.native-catalog.v1' in text:
+   value=deepcopy(c.native)
+   for row in value['triggers']:
+    if row['table_name'] in self.disabled and row['name']=='owner_commit':row['enabled']='D'
+   if self.mutate_native:self.mutate_native(value)
+  elif text==c.text('user-coherence-observe.sql'):
+   users=list(self.rows['app.users'].values());security=list(self.rows['app.user_security_profiles'].values());value={'users':len(users),'coherent':len(users)==len(security)==2 and all(any(s['user_id']==u['id'] and s['security_generation']==s['revision']==u['revision']==u['privacy_generation']==0 for s in security) for u in users)}
+  elif text==c.text('source-customer-observe.sql'):
+   key=self.packet['ids']['CustomerProfile'];row=self.rows['app.customer_profiles'].get(key);q=[x for x in self.rows['platform.runtime_command_receipt'].values() if x['subject_scope']=='CustomerProfile:'+key];h=list(self.rows['app.customer_profile_lifecycle_event'].values());e=list(self.rows['platform.owner_mutation_evidence'].values());o=list(self.rows['platform.runtime_outbox_message'].values());value={'customer':int(row is not None),'command':len(q),'history':len(h),'evidence':len(e),'outbox':len(o),'track_enrollments':len(self.rows['app.track_enrollment_receipt']),'coherent':bool(row and len(q)==len(h)==len(e)==1 and len(o)==2 and all(v['mutation_transaction_id']==row['mutation_transaction_id'] for v in q+h+e+o))}
+  elif text==c.text('effect-coherence-observe.sql'):
+   effects=list(self.rows['platform.runtime_effect_receipt'].values());q=self.rows['platform.runtime_command_receipt'].get(self.packet['ids']['RuntimeCommandReceipt']);coherent=bool(q and len(effects)==1 and all(e[k]==q[k] for e in effects for k in ('owner_module_id','operation','subject_scope','fingerprint','source_revision','result_schema_id','mutation_transaction_id')) and all(e['command_receipt_id']==q['id'] and e['semantic_effect_key']==q['semantic_key'] and e['result_hash']==q['result_digest'] and e['fence']==0 and e['state']==q['state']=='committed' and e['committed_at']>=q['created_at'] for e in effects));value={'effects':len(effects),'actual_sh004_result_and_source_match':coherent and not self.effect_wrong_result}
+  elif text==c.text('work-coherence-observe.sql'):
+   rows=list(self.rows['platform.runtime_work_item'].values());value={'work':len(rows),'pending_zero_fence_attempt_null_lease_effect':len(rows)==1 and all(w['state']=='pending' and w['fence']==w['attempt_count']==0 and w['lease_token_hash'] is w['lease_expires_at'] is w['effect_receipt_id'] is None and w['outbox_message_id']==self.packet['ids']['free'] for w in rows),'not_before_null':len(rows)==1 and all(w['next_attempt_at'] is None for w in rows),'not_before_future':len(rows)==1 and all(w['next_attempt_at'] is not None and self.now<w['next_attempt_at']<=self.now+120 for w in rows),'identity_sha256':P.digest([{k:v for k,v in w.items() if k not in ('next_attempt_at','mutation_transaction_id')} for w in rows])}
+  elif "'same_actual_app_transaction'" in text:
+   rows=[v for t,data in self.rows.items() if t not in ('app.users','app.user_security_profiles','platform.database_action_grant') for v in data.values()];xid=re.search(r"bool_and\(mutation_transaction_id='([^']+)'",text)[1];value={'count':len(rows),'same_actual_app_transaction':all(v['mutation_transaction_id']==xid for v in rows)}
+  elif text.startswith('SELECT count(*)=1 AND coalesce(bool_and(mutation_transaction_id='):
+   xid=re.search(r"mutation_transaction_id='([^']+)'",text)[1];rows=list(self.rows['platform.runtime_work_item'].values());return types.SimpleNamespace(returncode=0,stdout='t' if len(rows)==1 and rows[0]['mutation_transaction_id']==xid else 'f',stderr='')
+  elif text.startswith('SELECT current_setting(') or text.startswith('SELECT NOT EXISTS('):return types.SimpleNamespace(returncode=0,stdout='t',stderr='')
+  else:raise AssertionError('UNDECLARED_RAW_PROCESS_BOUNDARY')
+  for name in ('complete-state-observe.sql','user-coherence-observe.sql','source-customer-observe.sql','effect-coherence-observe.sql','work-coherence-observe.sql'):
+   if text==c.text(name):value=self.project_observer(text,name,value);break
+  self.events.append(('OBSERVE',text));return types.SimpleNamespace(returncode=0,stdout=json.dumps(value),stderr='')
+
+class Pipe:
+ def __init__(self):self.q=queue.Queue()
+ def emit(self,value):self.q.put(value)
+ def readline(self,n=-1):return self.q.get()
+ def read(self,n=-1):return self.q.get()
+ def end(self):self.q.put('')
+class Input:
+ def __init__(self,process):self.process=process;self.text=''
+ def write(self,text):self.text+=text
+ def flush(self):text=self.text;self.text='';self.process.execute(text)
+ def close(self):self.flush()
+class Process:
+ def __init__(self,vm,role,c):self.vm=vm;self.model=vm.model(role,c);self.returncode=None;self.stdout=Pipe();self.stderr=Pipe();self.stdin=Input(self);self.ended=False
+ def poll(self):return self.returncode
+ def wait(self,timeout=None):
+  if self.returncode is None:raise subprocess.TimeoutExpired('MOCK_UNENDED',timeout)
+  return self.returncode
+ def finish(self,code):
+  if not self.ended:self.ended=True;self.returncode=code;self.model.closed=True;self.stdout.end();self.stderr.end()
+ def terminate(self):self.finish(0)
+ def kill(self):self.finish(0)
+ def execute(self,text):
+  if '\\q' in text:self.model.close();self.finish(self.model.process.returncode);return
+  found=re.search(r"\nSELECT '(WA_CTX01_ACK\|[0-9a-f]+)';\n$",text);assert found,'ACTUAL_SESSION_ACK_SQL';sql=text[:found.start()];rows=[];ack=True;errors=''
+  if sql.startswith('BEGIN ISOLATION LEVEL '):self.model.begin(re.search(r'BEGIN ISOLATION LEVEL ([A-Z ]+);',sql)[1].lower())
+  elif "'login',session_user" in sql and 'pg_backend_pid()::text' in sql:rows=['WA_CTX01_TUPLE|'+json.dumps(self.model.capture())]
+  else:rows,ack,errors=self.model.call(sql)
+  if self.vm.lost_fixture_ack and 'DISABLE TRIGGER owner_commit' in sql:self.vm.lost_fixture_ack=False;ack=False;self.model.process.returncode=1
+  for row in rows:self.stdout.emit(row+'\n')
+  if errors:self.stderr.emit(errors)
+  if ack:self.stdout.emit(found[1]+'\n')
+  else:self.finish(self.model.process.returncode)
+
+class CoordinatorTests(unittest.TestCase):
+ @classmethod
+ def setUpClass(cls):cls.files,cls.packet=G.build()
+ def setUp(self):
+  for name in ('run','Popen','call','check_call','check_output'):
+   guard=patch.object(subprocess,name,side_effect=AssertionError('UNMOCKED_PROCESS_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+  guard=patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+  self.temp=tempfile.TemporaryDirectory(prefix='app-write-two-offline-',dir=TASK);self.addCleanup(self.temp.cleanup);self.directory=Path(self.temp.name);self.packetdir=self.directory/'packet';self.packetdir.mkdir()
+  for name,text in self.files.items():(self.packetdir/name).write_text(text,encoding='utf8',newline='\n')
+  guard=patch.dict(M['coordinate'].__globals__,PACKET=self.packetdir);guard.start();self.addCleanup(guard.stop)
+  self.context=M['compiled']((ROOT/M['CONTEXT']).read_bytes(),M['CONTEXT']);self.context['load_helpers']({p:(ROOT/p).read_bytes() for p in M['HELPERS']});self.base=M['compiled']((ROOT/M['BASE']).read_bytes(),M['BASE'])
+  self.native={'format':'workinants.native-catalog.v1','server_version_num':170011,'read_only':True,'collected_as':'postgres','collector_is_superuser':True,'functions':[{'object':'synthetic.mock.function()','body_sha256':'e'*64}],'triggers':[{'table_name':t,'name':'owner_commit','enabled':'O','internal':False,'definition_sha256':'c'*64} for t in P.FIXTURE_TABLES]+[{'table_name':'app.users','name':'physical_guard','enabled':'O','internal':False}]}
+  self.vm=Transport(self.packet);guard=patch.object(subprocess,'run',side_effect=self.vm.raw);guard.start();self.addCleanup(guard.stop);guard=patch.object(subprocess,'Popen',side_effect=self.vm.popen);guard.start();self.addCleanup(guard.stop)
+ def admitted_plan(self):
+  pins={p:P.sha((ROOT/p).read_bytes()) for p in self.packet['source_files_sha256']}
+  for name,text in self.files.items():pins['review-output/app-write-two-guard-observation-v2/'+name]=P.sha(text.encode())
+  plan={'schema':'workinants.app-write-two-run.v1','scope':'REVIEWED_SELECTED94_TWO_APP_WRITE_CRITERIA_ONLY','run_id':'550e8400-e29b-41d4-a716-446655440000','source_commit':'b'*40,'source_tree':'c'*40,'packet_files_sha256':pins,'packet_sha256':P.sha(''.join(k+'\0'+pins[k]+'\n' for k in sorted(pins)).encode()),'reviewed_packet_sha256':P.sha(self.files['fixtures.json'].encode()),'reviewed_content_sha256':self.packet['source_only_packet_sha256'],'immutable_container_id':CID,'scenario_names':list(P.CASE_NAMES)}
+  history=self.context['HOST']['preparation'];plan['target_manifest']={'schema':'workinants.local-f0-run.v1','run_id':plan['run_id'],'purpose':'LOCAL_F0_MIGRATION_REHEARSAL','target':{'container_name':'wa-p0c-offline-app-write-two','volume_name':'wa-p0c-offline-app-write-two-data','database':'wa_p0c_rehearsal','image':history['IMAGE'],'network':'none','labels':{'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':plan['run_id']},'bootstrap_secret_host_path':str(self.directory/'bootstrap-password')},'source':{'integrated_sql_sha256':P.APPLICATION_SHA,'foundation_schema_sha256':'f'*64,'runtime_files_sha256':{p:'a'*64 for p in history['RUNTIME_FILES']}},'migration':{'id':'20261117000100_f0_local_initial','history':history['HISTORY']},'tools':{'node_version':'v24.22.1','prisma_version':'7.10.1','engine_commit':'d1b3f377ca835d73fd50954a5e22128b9ebdd6b8','files_sha256':{p:'a'*64 for p in ('node/bin/node','schema-engine','node_modules/prisma/build/index.js','node_modules/prisma/build/cli.js','node_modules/prisma/config.js','node_modules/prisma/package.json')}}}
+  comparison={'format':'workinants.catalog-comparison.v1','status':'PASS','source_expected_sha256':M['EXPECTED_CATALOG'],'native_snapshot_sha256':P.digest(self.native),'findings':[],'check_counts':{'PASS':29089}}
+  for name,value in [('native_snapshot',self.native),('native_comparison',comparison)]:
+   path=self.directory/(name+'.json');path.write_text(json.dumps(value));plan[name]={'path':str(path),'sha256':P.sha(path.read_bytes())}
+  attestation={'schema':'workinants.app-write-two-native-attestation.v1','run_id':plan['run_id'],'container_id':CID,'source_commit':plan['source_commit'],'source_tree':plan['source_tree'],'packet_sha256':plan['packet_sha256'],'collector_sha256':pins[M['COLLECTOR']],'source_expected_sha256':M['EXPECTED_CATALOG'],'native_snapshot_sha256':P.digest(self.native),'native_comparison_file_sha256':plan['native_comparison']['sha256'],'original_grantor_finalized':True,'operation_backends_absent':True,'comparison_status':'PASS'};path=self.directory/'attestation.json';path.write_text(json.dumps(attestation));plan['native_attestation']={'path':str(path),'sha256':P.sha(path.read_bytes())};return plan
+ def redirect(self,relative):return self.packetdir/relative.split('/')[-1] if relative.startswith('review-output/app-write-two-guard-observation-v2/') else ROOT/relative
+ def run_actual(self):
+  plan=self.admitted_plan()
+  with patch.dict(M['coordinate'].__globals__,source_path=self.redirect):value=M['coordinate'](plan,self.directory/('actual-component-evidence-'+str(uuid.uuid4())))
+  self.value=value;return value
+ def test_whole_real_loader_and_real_CTX_sessions_full14_pipeline(self):
+  value=self.run_actual();self.assertEqual(value['status'],'PASS_FINITE_TWO_APP_WRITE_CRITERIA_ONLY',value['unexpected']);self.assertEqual(len(value['results']),14);self.assertEqual(len([r for r in value['results'] if r['claim']]),2);self.assertEqual(len(self.vm.rows['platform.database_action_grant']),15);self.assertTrue(value['fixture_owner_bypass_restored']);self.assertTrue(all(s.closed for s in self.vm.models));self.assertNotIn(CANARY,json.dumps(value));self.assertEqual(len(self.vm.rows['platform.runtime_effect_receipt']),1);self.assertEqual(len(self.vm.rows['platform.runtime_work_item']),1)
+  for name,count in [('customer-existing-complete-revision-read',1),('customer-existing-missing-revision-read',0)]:
+   result=next(row for row in value['results'] if row['case']==name);self.assertEqual(result['read_counts'],{'existing_customer':count});self.assertIsNone(result['claim']);self.assertIsNone(result['source_guard'])
+   operation=next(row for row in value['operations'] if row['stage']=='RESTRICTED_APP_TRANSACTION' and row['case']==name);self.assertTrue(operation['read_stage_reached']);self.assertFalse(operation['write_stage_reached']);self.assertTrue(operation['operation_closed']);self.assertEqual(operation['exit_code'],0)
+   states=[row['tables'] for row in value['operations'] if row['stage']=='COMPLETE42_STATE' and row['case']==name];self.assertEqual(len(states),2);self.assertTrue(all(states[0][table]==states[1][table] for table in states[0] if table!='platform.database_action_grant'));self.assertEqual(states[0]['app.customer_profiles']['count'],1);self.assertEqual(states[0]['platform.runtime_work_item']['count'],0)
+  # Only the original source write tuple can attest its seven committed rows.
+  self.assertEqual(sum(row.get('source_effect_group_same_actual_app_xid') is True for row in value['operations']),1)
+ def test_first_actual_command_insert_before_policy_guard_and_old_oracle_tripwire(self):
+  case=self.packet['cases'][0];base=self.packet['grants']['effect'];grant=self.packet['grants'][case['grant']]
+  self.assertEqual({k:v for k,v in grant.items() if k not in ('target_id','template_id')},{k:v for k,v in base.items() if k not in ('target_id','template_id')})
+  first=next(n.stmt for n in parse_sql(self.files[case['sql']]) if isinstance(n.stmt,ast.InsertStmt));self.assertEqual(self.vm.table(first.relation),'platform.runtime_command_receipt')
+  vm,session,_,_,_,_=self.projection_model();values=session.bound['values'];values['target_id']=P.quote(grant['target_id'])
+  with self.assertRaises(SqlFailure) as caught:vm.statement(first,session)
+  error=caught.exception;self.assertEqual((error.state,error.message,error.function),('P0001','command action/root does not match protected scope','command_state_guard'))
+  text=vm.diagnostic(error);proof=P.verdict(case,3,[P.marker(case['name'],'BEFORE')],False,text,vm.application)['source_guard'];self.assertEqual(proof['source_body_sha256'],P.COMMAND_GUARD_BODY_SHA);self.assertEqual(proof['source_body_line'],7)
+  bad=deepcopy(case);bad['diagnostic']={'sqlstate':'42501','message':'new row violates row-level security policy for table "customer_profiles"','function':None}
+  with self.assertRaisesRegex(P.HeldFailure,'INTENDED_SOURCE_GUARD_REQUIRED'):P.verdict(bad,3,[P.marker(case['name'],'BEFORE')],False,text,vm.application)
+  for altered in (text.replace('P0001','42501'),text.replace('command_state_guard()','guard_customerprofile()'),text.replace('line 7 ','line 8 '),text.replace('pl_exec.c:3911','pl_exec.c,3911'),text+'ERROR:  P0001: '+CANARY+'\n',text.replace('scope','scope '+CANARY),text.replace('ERROR:','ERROR:\x00')):
+   self.assertFalse(P.diagnostic(case['diagnostic'],altered,vm.application)['matched']);self.assertNotIn(CANARY,P.canonical(P.diagnostic(case['diagnostic'],altered,vm.application)))
+ def test_fresh_stage_receipts_throw_malformed_and_no_stale_bind_ack(self):
+  compiled=M['compiled']
+  for fault in ('throw','none','bad_rows','bad_ack','bad_errors'):
+   def loader(raw,relative):
+    namespace=compiled(raw,relative)
+    if relative==M['CONTEXT']:
+     original=namespace['Session'].call
+     def call(session,text):
+      if session.role=='wa_app_runtime' and text.startswith("SELECT 'WA_AW2_BEFORE_EFFECT_WRONG_ROOT'"):
+       if fault=='throw':raise RuntimeError(CANARY)
+       return None if fault=='none' else (CANARY,True,'') if fault=='bad_rows' else ([],1,'') if fault=='bad_ack' else ([],True,{'secret':CANARY})
+      return original(session,text)
+     namespace['Session'].call=call
+    return namespace
+   with self.subTest(fault=fault),patch.dict(M['coordinate'].__globals__,compiled=loader):
+    value=self.run_actual();self.assertEqual(value['results'],[]);self.assertTrue(value['subsequent_cases_stopped']);self.assertNotIn(CANARY,P.canonical(value))
+    row=next(r for r in value['operations'] if r['stage']=='RESTRICTED_APP_TRANSACTION');v=row['operation_outcome'];P.validate_operation_outcome(v)
+    self.assertEqual(v['observed_stage'],'BUSINESS');self.assertEqual(v['response_received'],fault!='throw');self.assertFalse(v['response_shape_valid']);self.assertIsNone(v['acknowledged']);self.assertIsNone(v['record_count']);self.assertTrue(v['operation_closed']);self.assertTrue(v['global_closure_confirmed']);self.assertEqual(len(self.vm.rows['platform.database_action_grant']),1)
+   # Each run uses a fresh model and fixture directory; completed mocked state
+   # must never be recycled into the next run.
+   self.vm=Transport(self.packet);self.vm.raw_guard=patch.object(subprocess,'run',side_effect=self.vm.raw);self.vm.raw_guard.start();self.addCleanup(self.vm.raw_guard.stop);guard=patch.object(subprocess,'Popen',side_effect=self.vm.popen);guard.start();self.addCleanup(guard.stop)
+ def test_fixed_outcome_failure_does_not_qualify_or_retain_raw_diagnostic(self):
+  case=self.packet['cases'][0];application=self.vm.application
+  for code in (True,255,-1,None):
+   v=P.operation_outcome(case,'BUSINESS',True,([CANARY],False,'ERROR:  P0001: '+CANARY),True,code,True,True,application);P.validate_operation_outcome(v);self.assertEqual(v['client_exit_class'],'OTHER');self.assertIsNone(v['client_exit']);self.assertFalse(v['diagnostic']['matched']);self.assertNotIn(CANARY,P.canonical(v))
+ def test_old_mock_restoration_misses_actual_first_guard(self):
+  raw=(ROOT/'scripts/check-app-write-two-control-coordinator.py').read_bytes();self.assertEqual(P.sha(raw),'66e5f78cb22bedfeb6eb6c95b5c502291b0c732080d93e91256aee78e09d57eb')
+  old=next(n for n in python_ast.walk(python_ast.parse(raw)) if isinstance(n,python_ast.FunctionDef) and n.name=='statement');scope=dict(globals());exec(compile(python_ast.Module(body=[old],type_ignores=[]),'HISTORICAL_MOCK_RESTORATION_ONLY','exec'),scope)
+  vm,session,_,_,_,_=self.projection_model();case=self.packet['cases'][0];session.bound['values']['target_id']=P.quote(self.packet['grants'][case['grant']]['target_id']);first=next(n.stmt for n in parse_sql(self.files[case['sql']]) if isinstance(n.stmt,ast.InsertStmt))
+  with self.assertRaises(SqlFailure):vm.statement(first,session)
+  restored=types.MethodType(scope['statement'],vm)
+  with self.assertRaises(AssertionError):
+   with self.assertRaises(SqlFailure):restored(first,session)
+ def test_receipt_save_IO_is_sticky_after_actual_process_close_and_before_verdict(self):
+  original=Path.open;active=False
+  def opened(path,*args,**kwargs):
+   nonlocal active
+   c=self.vm.coordinator
+   if c is not None:
+    rows=[r for r in c.evidence.value['operations'] if r['stage']=='RESTRICTED_APP_TRANSACTION']
+    if rows and rows[-1]['operation_outcome']['observed_stage']=='BUSINESS' and rows[-1]['operation_outcome']['response_received']:active=True
+   if active and path.name=='app-write-two-results.json.tmp':raise OSError(CANARY)
+   return original(path,*args,**kwargs)
+  with patch.object(Path,'open',opened):value=self.run_actual()
+  self.assertTrue(active);self.assertFalse(value['evidence_complete']);self.assertEqual(value['results'],[]);self.assertTrue(value['subsequent_cases_stopped']);self.assertEqual(value['unexpected'][0]['code'],'SANITIZED_EVIDENCE_WRITE_UNCONFIRMED');self.assertTrue(all(s.closed for s in self.vm.models));self.assertNotIn(CANARY,P.canonical(value))
+  row=next(r for r in value['operations'] if r['stage']=='RESTRICTED_APP_TRANSACTION');v=row['operation_outcome'];self.assertTrue(v['operation_closed']);self.assertTrue(v['global_closure_confirmed']);self.assertFalse(v['acknowledged']);self.assertTrue(v['diagnostic']['matched']);self.assertNotIn('verdict',row)
+ def projection_model(self,kind=Transport):
+  """Permission-model unit only; no issuer, COMMIT or business proof."""
+  vm=kind(self.packet);model=vm.model('wa_app_runtime',types.SimpleNamespace(instances={}));model.begin('read committed');model.capture();grant=deepcopy(self.packet['grants']['effect']);token='CustomerProfile/'+self.packet['ids']['CustomerProfile']+'/revision/0';grant['allowed_fields'].remove(token)
+  values={key:P.quote(grant[key]) for key in ('owner_module_id','action','purpose','target_kind','target_id','principal_user_id')};values['source_generation']='0';values['allowed_fields']='ARRAY['+','.join(P.quote(f) for f in grant['allowed_fields'])+']::text[]';model.bound={'values':values}
+  insert=next(raw.stmt for raw in parse_sql(self.files['genuine-sh004-effect-insert.sql']) if isinstance(raw.stmt,ast.InsertStmt) and vm.table(raw.stmt.relation)=='app.customer_profiles');read=parse_sql(self.files['customer-existing-complete-revision-read.sql'])[1].stmt
+  return vm,model,grant,insert,read,token
+ def test_actual_policy_projection_and_restored_old_method_tripwire(self):
+  vm,model,grant,insert,read,token=self.projection_model();self.assertFalse(insert.returningList)
+  null=vm.policies[('app.customer_profiles','INSERT')].args[5];revision=vm.policies[('app.customer_profiles','SELECT')].args[5];self.assertEqual(RawStream()(null),'CAST(NULL AS text)');self.assertEqual(RawStream()(revision),'CAST(revision AS text)');self.assertIn('CustomerProfile/'+self.packet['ids']['CustomerProfile']+'/INSERT/revision',grant['allowed_fields'])
+  vm.statement(insert,model);self.assertEqual(len(model.pending['app.customer_profiles']),1);self.assertEqual(vm.select(read,model),{'existing_customer':0})
+  full=sorted(grant['allowed_fields']+[token]);model.bound['values']['allowed_fields']='ARRAY['+','.join(P.quote(f) for f in full)+']::text[]';self.assertEqual(vm.select(read,model),{'existing_customer':1});model.close();self.assertEqual(vm.rows['app.customer_profiles'],{})
+  self.assertEqual(P.sha(HELD_ALLOWED_METHOD.encode()),HELD_ALLOWED_METHOD_SHA);tree=python_ast.parse(textwrap.dedent(HELD_ALLOWED_METHOD));self.assertEqual(len(tree.body),1);self.assertEqual(tree.body[0].name,'allowed');namespace={'P':P};exec(compile(tree,'_held_APPWRITE2_01_method','exec'),namespace);old=type('HeldWrongProjectionTransport',(Transport,),{'allowed':namespace['allowed']});bad,session,_,statement,_,_=self.projection_model(old)
+  with self.assertRaises(SqlFailure) as error:bad.statement(statement,session)
+  self.assertEqual(error.exception.state,'42501');session.close();self.assertEqual(bad.rows['app.customer_profiles'],{})
+ def test_paired_positive_read_requires_actual_existing_target(self):
+  name='customer-existing-complete-revision-read.sql';old='WHERE id='+P.quote(self.packet['ids']['CustomerProfile']);self.assertIn(old,self.files[name]);self.mutate_sql(name,self.files[name].replace(old,'WHERE id='+P.quote(self.packet['ids']['wrong-root'])));value=self.run_actual();self.assertEqual(len(value['results']),P.CASE_NAMES.index(name[:-4]));self.assertEqual(value['unexpected'][0]['code'],'EXACT_STAGE_AND_RECORD_SEQUENCE');self.assertEqual(len(self.vm.rows['app.customer_profiles']),1);self.assertEqual(self.vm.rows['platform.runtime_work_item'],{})
+ def test_missing_revision_read_actual_projection_cannot_return_positive(self):
+  name='customer-existing-missing-revision-read.sql';self.mutate_sql(name,self.files[name].replace('count(*)','count(*)+1'));value=self.run_actual();self.assertEqual(len(value['results']),P.CASE_NAMES.index(name[:-4]));self.assertEqual(value['unexpected'][0]['code'],'EXACT_STAGE_AND_RECORD_SEQUENCE');self.assertEqual(self.vm.rows['platform.runtime_work_item'],{})
+ def test_just_used_support_grant_expiring_after_read_stops_before_observers(self):
+  name='customer-existing-missing-revision-read';self.vm.expire_after_case=name;value=self.run_actual();self.assertEqual(len(value['results']),P.CASE_NAMES.index(name));self.assertEqual(value['unexpected'][0]['code'],'IMMUTABLE_21_FIELD_ISSUER_RETENTION');self.assertTrue(all(s.closed for s in self.vm.models));self.assertEqual(self.vm.rows['platform.runtime_work_item'],{})
+ def test_unexpected_failure_keeps_completed_prefix_and_stops(self):
+  self.vm.fail_case='work-wrong-root';value=self.run_actual();self.assertEqual(len(value['results']),P.CASE_NAMES.index('work-wrong-root'),value['unexpected']);self.assertTrue(value['subsequent_cases_stopped']);self.assertTrue(all(s.closed for s in self.vm.models));self.assertNotIn(CANARY,json.dumps(value));self.assertFalse(any('WA_AW2_BEFORE_WORK_WRONG_PURPOSE' in e[2] for e in self.vm.events if e[0]=='SQL'))
+ def test_projection_mutation_changes_actual_outputs_and_rejects(self):
+  name='genuine-sh004-effect-insert.sql';self.mutate_sql(name,self.files[name].replace("'inserted',count(*)","'inserted',count(*)+1"));value=self.run_actual();self.assertEqual(len(value['results']),P.CASE_NAMES.index('genuine-sh004-effect-insert'));self.assertEqual(value['unexpected'][0]['code'],'EXACT_STAGE_AND_RECORD_SEQUENCE')
+ def test_actual_source_filter_returning_zero_cannot_qualify_effect_insert(self):
+  name='genuine-sh004-effect-insert.sql';old="FROM platform.runtime_command_receipt WHERE id="+P.quote(self.packet['ids']['RuntimeCommandReceipt']);new="FROM platform.runtime_command_receipt WHERE id="+P.quote(self.packet['ids']['wrong-root']);self.assertIn(old,self.files[name]);self.mutate_sql(name,self.files[name].replace(old,new));value=self.run_actual();self.assertEqual(len(value['results']),P.CASE_NAMES.index('genuine-sh004-effect-insert'));self.assertEqual(len(self.vm.rows['platform.runtime_effect_receipt']),0);self.assertEqual(value['unexpected'][0]['code'],'EXACT_STAGE_AND_RECORD_SEQUENCE')
+ def test_supplied_result_coherence_rejects_without_invented_SQL_guard(self):
+  self.vm.effect_wrong_result=True;value=self.run_actual();self.assertEqual(len(value['results']),P.CASE_NAMES.index('genuine-sh004-effect-insert'));self.assertEqual(value['unexpected'][0]['code'],'SUPPLIED_ACTUAL_SH004_EFFECT_COHERENCE');self.assertEqual(len(self.vm.rows['platform.runtime_effect_receipt']),1)
+ def test_actual_observer_projection_key_and_boolean_mutants_reject(self):
+  name='effect-coherence-observe.sql';self.mutate_sql(name,self.files[name].replace("'actual_sh004_result_and_source_match'","'unexpected_projection_key'"));value=self.run_actual();self.assertEqual(len(value['results']),P.CASE_NAMES.index('genuine-sh004-effect-insert'));self.assertEqual(value['unexpected'][0]['code'],'SUPPLIED_ACTUAL_SH004_EFFECT_COHERENCE')
+ def test_actual_observer_predicate_mutant_is_not_copied_from_expected(self):
+  name='effect-coherence-observe.sql';self.mutate_sql(name,self.files[name].replace("WHERE e.id=","WHERE e.command_receipt_id="));value=self.run_actual();self.assertEqual(len(value['results']),P.CASE_NAMES.index('genuine-sh004-effect-insert'));self.assertTrue(value['unexpected']);self.assertNotIn(CANARY,json.dumps(value))
+ def test_noop_notbefore_is_not_a_positive_update(self):
+  self.vm.work_noop=True;value=self.run_actual();self.assertLess(len(value['results']),14);self.assertTrue(value['unexpected']);self.assertEqual(self.vm.rows['platform.runtime_work_item'][self.packet['ids']['work']]['next_attempt_at'],None)
+ def test_expired_just_used_grant_stops_zero_row_negative(self):
+  self.vm.expire_case='work-wrong-root';value=self.run_actual();self.assertEqual(len(value['results']),P.CASE_NAMES.index('work-wrong-root'));self.assertEqual(value['unexpected'][0]['code'],'IMMUTABLE_21_FIELD_ISSUER_RETENTION')
+ def test_actual_close_unconfirmed_blocks_observations_and_later_cases(self):
+  self.vm.close_failure=True;value=self.run_actual();self.assertFalse(value['results']);self.assertTrue(value['unexpected']);self.assertNotIn(CANARY,json.dumps(value))
+ def mutate_sql(self,name,text):
+  self.files=deepcopy(self.files);self.packet=deepcopy(self.packet);self.files[name]=text;self.packet['prepared_files_sha256'][name]=P.sha(text.encode());self.packet['source_only_packet_sha256']=P.digest({k:self.packet[k] for k in ('source_files_sha256','prepared_files_sha256')});self.files['fixtures.json']=json.dumps(self.packet,indent=2)+'\n';self.vm.packet=self.packet
+  for file,raw in self.files.items():(self.packetdir/file).write_text(raw,encoding='utf8',newline='\n')
+ def test_intended_diagnostics_only_no_generic_codes_or_suffixes(self):
+  application=(ROOT/M['APPLICATION']).read_text()
+  for case in self.packet['cases']:
+   if case['diagnostic'] is None:continue
+   spec=case['diagnostic'];error=SqlFailure(spec['sqlstate'],spec['message'],spec['function']);text=self.vm.diagnostic(error);rows=[json.dumps(x) if type(x) is dict else x for x in case['expected_records']];self.assertEqual(P.verdict(case,3,rows,False,text,application)['status'],'PASS_FINITE_APP_WRITE_PROTOCOL_ONLY')
+   for bad in ('ERROR:  P0001: unrelated\n','ERROR:  42501: unrelated\n',text+CANARY):
+    with self.assertRaises(P.HeldFailure):P.verdict(case,3,rows,False,bad,application)
+ def test_count_types_markers_malformed_and_secret_outputs_reject(self):
+  case=next(c for c in self.packet['cases'] if c['name']=='genuine-sh004-effect-insert');application=(ROOT/M['APPLICATION']).read_text()
+  for middle in ('{"inserted":true}','{"inserted":1.0}','{"inserted":-1}','{"inserted":1,"inserted":1}','{"inserted":NaN}',CANARY,'{}'):
+   with self.assertRaises(P.HeldFailure) as error:P.verdict(case,0,[P.marker(case['name'],'BEFORE'),middle,P.marker(case['name'],'AFTER')],True,'',application)
+   self.assertNotIn(CANARY,str(error.exception))
+ def test_real_loader_closed_import_graph_and_target_validator(self):
+  plan=self.admitted_plan()
+  with patch.dict(M['load_inputs'].__globals__,source_path=self.redirect),patch.object(Path,'read_text',side_effect=AssertionError('UNVERIFIED_REREAD')):packet,*_=M['load_inputs'](plan)
+  self.assertEqual(packet['source_only_packet_sha256'],self.packet['source_only_packet_sha256']);self.assertFalse(self.vm.models)
+ def test_missing_helper_historical_path_and_source_drift_reject_before_compile(self):
+  for old,new in [(M['HELPERS'][1],None),(M['HELPERS'][1],'historical/old-helper.py')]:
+   plan=self.admitted_plan();value=plan['packet_files_sha256'].pop(old)
+   if new:plan['packet_files_sha256'][new]=value
+   plan['packet_sha256']=P.sha(''.join(k+'\0'+v+'\n' for k,v in sorted(plan['packet_files_sha256'].items())).encode());compile_=Mock(side_effect=AssertionError('PRE_ADMISSION_COMPILE'))
+   with patch.dict(M['load_inputs'].__globals__,source_path=self.redirect,compiled=compile_),self.assertRaises(M['HeldFailure']):M['load_inputs'](plan)
+   compile_.assert_not_called()
+ def test_second_fixture_read_drift_rejects_no_echo(self):
+  plan=self.admitted_plan();path=self.packetdir/'fixtures.json';read=Path.read_bytes;count={'n':0};compile_=Mock(side_effect=AssertionError('PRE_ADMISSION_COMPILE'))
+  def drifting(p):
+   if p==path:
+    count['n']+=1
+    if count['n']==2:return CANARY.encode()
+   return read(p)
+  with patch.dict(M['load_inputs'].__globals__,source_path=self.redirect,compiled=compile_),patch.object(Path,'read_bytes',drifting),self.assertRaises(M['HeldFailure']) as error:M['load_inputs'](plan)
+  compile_.assert_not_called();self.assertNotIn(CANARY,str(error.exception))
+ def test_typed_native_count_and_forged_CID_reject_before_compile(self):
+  for bad in (29089.0,True,False,-1,None,'29089'):
+   plan=self.admitted_plan();path=Path(plan['native_comparison']['path']);value=json.loads(path.read_bytes());value['check_counts']['PASS']=bad;path.write_text(json.dumps(value));plan['native_comparison']['sha256']=P.sha(path.read_bytes());compile_=Mock(side_effect=AssertionError('PRE_ADMISSION_COMPILE'))
+   with patch.dict(M['load_inputs'].__globals__,source_path=self.redirect,compiled=compile_),self.assertRaises(M['HeldFailure']) as error:M['load_inputs'](plan)
+   self.assertEqual(error.exception.code,'NATIVE_EXACT_INTEGER_COMPARISON_COUNT');compile_.assert_not_called()
+  plan=self.admitted_plan();path=Path(plan['native_attestation']['path']);value=json.loads(path.read_bytes());value['container_id']='f'*64;path.write_text(json.dumps(value));plan['native_attestation']['sha256']=P.sha(path.read_bytes())
+  with patch.dict(M['load_inputs'].__globals__,source_path=self.redirect),self.assertRaises(M['HeldFailure']):M['load_inputs'](plan)
+ def disabled_fixture(self):
+  name='independent-user-fixtures.sql';text=self.files[name]
+  for table in P.FIXTURE_TABLES:text=text.replace('ALTER TABLE '+table+' ENABLE TRIGGER owner_commit;','')
+  self.mutate_sql(name,text)
+ def test_committed_open_lost_ack_closes_then_identity_gate_exact_two_restore(self):
+  self.disabled_fixture();self.vm.lost_fixture_ack=True;value=self.run_actual();self.assertFalse(value['results']);self.assertTrue(value['fixture_owner_bypass_restored']);self.assertEqual(self.vm.disabled,set());self.assertEqual(len(self.vm.rows['app.users']),2);self.assertTrue(all(s.closed for s in self.vm.models))
+  stages=[o['stage'] for o in value['operations']];self.assertLess(stages.index('PRE_RESTORATION_EXACT_TWO_IDENTITY'),stages.index('FINALLY_EXACT_TWO_FIXTURE_RESTORE'));self.assertTrue(value['subsequent_cases_stopped'])
+ def test_persistent_IO_real_commit_observe_SQL_global_and_restore_still_progress(self):
+  self.disabled_fixture();self.vm.io_after_fixture=True;original=Path.open
+  def fault(path,*args,**kwargs):
+   if self.vm.persistence_active and path.name=='app-write-two-results.json.tmp':raise OSError(CANARY)
+   return original(path,*args,**kwargs)
+  with patch.object(Path,'open',fault):value=self.run_actual()
+  self.assertFalse(value['results']);self.assertFalse(value['evidence_complete']);self.assertTrue(value['subsequent_cases_stopped']);self.assertEqual(value['unexpected'][0]['code'],'SANITIZED_EVIDENCE_WRITE_UNCONFIRMED');self.assertTrue(value['fixture_owner_bypass_restored']);self.assertEqual(self.vm.disabled,set());self.assertTrue(all(s.closed for s in self.vm.models));self.assertNotIn(CANARY,json.dumps(value))
+ def test_unknown_native_identity_blocks_ALTER_and_later_behavior(self):
+  self.disabled_fixture();self.vm.mutate_native=lambda document:document['functions'][0].update(body_sha256='f'*64) if self.vm.disabled else None;value=self.run_actual();self.assertFalse(value['results']);self.assertFalse(value['fixture_owner_bypass_restored']);self.assertEqual(self.vm.disabled,set(P.FIXTURE_TABLES));self.assertFalse(any(o['stage']=='FINALLY_EXACT_TWO_FIXTURE_RESTORE' for o in value['operations']))
+ def test_unknown_global_client_blocks_restore(self):
+  self.disabled_fixture();self.vm.extra_after_fixture=True;value=self.run_actual();self.assertFalse(value['results']);self.assertFalse(value['fixture_owner_bypass_restored']);self.assertEqual(self.vm.disabled,set(P.FIXTURE_TABLES));self.assertFalse(any(o['stage']=='FINALLY_EXACT_TWO_FIXTURE_RESTORE' for o in value['operations']))
+ def typed_packet_mutant(self,mutator,expected):
+  self.packet=deepcopy(self.packet);mutator(self.packet);self.files=deepcopy(self.files);self.files['fixtures.json']=json.dumps(self.packet,indent=2)+'\n';(self.packetdir/'fixtures.json').write_text(self.files['fixtures.json'],encoding='utf8',newline='\n');plan=self.admitted_plan();compile_=Mock(side_effect=AssertionError('PRE_ADMISSION_COMPILE'))
+  with patch.dict(M['load_inputs'].__globals__,source_path=self.redirect,compiled=compile_),self.assertRaises(M['HeldFailure']) as error:M['load_inputs'](plan)
+  self.assertEqual(error.exception.code,expected);compile_.assert_not_called()
+ def test_typed_finite_and_expected42_counts_reject_before_process(self):
+  for name in ('case_count','business_claims','genuine_customer_groups','scheduled_work','grant_instances_max','simultaneous_app_sessions_max'):
+   for bad in (True,1.0,-1,None,'1'):
+    self.packet=deepcopy(type(self).packet);self.typed_packet_mutant(lambda p,n=name,v=bad:p['finite_caps'].__setitem__(n,v),'EXACT_TYPED_FINITE_CAPS')
+  for name in ('setup_expected_counts','committed_expected_counts','scheduled_expected_counts'):
+   for bad in (False,0.0,-1,None,'0'):
+    self.packet=deepcopy(type(self).packet);self.typed_packet_mutant(lambda p,n=name,v=bad:p[n].__setitem__('app.users',v),'EXACT_TYPED_COMPLETE42_COUNTS')
+  self.assertFalse(self.vm.models)
+if __name__=='__main__':unittest.main(verbosity=2)

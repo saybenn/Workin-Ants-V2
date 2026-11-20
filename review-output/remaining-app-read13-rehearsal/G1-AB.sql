@@ -1,0 +1,8 @@
+SELECT jsonb_build_object('read13_marker','G1-AB'::text,'position','BEFORE'::text);
+INSERT INTO app.users (avatar_url,bio,city,country,display_name,email,handle,id,is_public,privacy_erased_at,privacy_erasure_status,privacy_generation,revision,state,updated_at) VALUES (NULL,NULL,NULL,NULL,'Read13 fixture A','read13-a@example.invalid',NULL,'69cd9608-d6ac-5008-8f3f-b8e93b909590',false,NULL,NULL,0,0,NULL,clock_timestamp());
+INSERT INTO app.user_security_profiles (id,last_sensitive_action_at,last_step_up_at,lock_reason,locked_until,phone_last_changed_at,phone_number_encrypted,phone_number_hash,phone_verified_at,revision,security_generation,updated_at,user_id) VALUES ('530402e1-1f1f-550f-9f4f-740f9ece17c6',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,clock_timestamp(),'69cd9608-d6ac-5008-8f3f-b8e93b909590');
+INSERT INTO app.users (avatar_url,bio,city,country,display_name,email,handle,id,is_public,privacy_erased_at,privacy_erasure_status,privacy_generation,revision,state,updated_at) VALUES (NULL,NULL,NULL,NULL,'Read13 fixture B','read13-b@example.invalid',NULL,'d74b5d30-94cf-5a35-9c5e-1247e02b13e9',false,NULL,NULL,0,0,NULL,clock_timestamp());
+INSERT INTO app.user_security_profiles (id,last_sensitive_action_at,last_step_up_at,lock_reason,locked_until,phone_last_changed_at,phone_number_encrypted,phone_number_hash,phone_verified_at,revision,security_generation,updated_at,user_id) VALUES ('e53842a9-917b-575e-9fce-5beab646beb2',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,clock_timestamp(),'d74b5d30-94cf-5a35-9c5e-1247e02b13e9');
+SET CONSTRAINTS ALL IMMEDIATE;
+SELECT jsonb_build_object('read13_marker','G1-AB'::text,'position','AFTER'::text);
+COMMIT;

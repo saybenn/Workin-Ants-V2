@@ -1,0 +1,34 @@
+"""Preserve recovery preflight stop without claiming physical backup/restore."""
+from pathlib import Path
+import datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+mp=T/'local-f0-restore-plan-c5ac1418/operation-manifest.json';mb=mp.read_bytes();assert sha(mb)=='989ba4e50cf343388b6ed46488428cecea4fae9a933d5ea74442005b03195e65';m=json.loads(mb);out=Path(m['evidence_directory']);assert out==T/'local-f0-restore-c5ac1418'and not(out/'private').exists()
+rb=(out/'run-evidence.json').read_bytes();assert sha(rb)=='f38cf5e54af60b51204dc3bdce6187712c384080ee4730e12ac515b612c0e3d0';r=json.loads(rb)
+assert r['status']=='STOPPED_ATTEMPT_PRESERVED'and r['finished_at']and r['evidence_complete']is True and r['persistence_failure']is False and r['unexpected']==[{'stage':'RESTORE_BACKUP_PREFLIGHT','code':'RESTORE_BACKUP_PREFLIGHT'}]
+assert r['approved_commit']==m['source_commit']=='c401d2f2503dee08ad5913fb6cf1fa944c5f3e5a'and r['approved_tree']==m['source_tree']=='13aabf5061aaeac34462da38cf4e5110ee119c54'
+preserved={k:v for k,v in r.items()if k.endswith('_unchanged_after_run')};assert len(preserved)==4 and all(v is True for v in preserved.values())and r['all_source_and_external_inputs_preserved_after_run']is True
+assert 'backup_preflight'not in r['restore']
+clean=T/'restore_v4_c401_c5ac1418_independent_cleanup_20261120.json';cleanb=clean.read_bytes();assert sha(cleanb)=='e0834dfe8573f11e93db7d36498c6f28d54b153e179be38f42ed1adbe1b7b4b1'and json.loads(cleanb)['status']=='PASS_INDEPENDENT_PHYSICAL_CLEANUP'
+A=R/'context/reconciliation/local-f0-run-assets/c401d2f-restore-c5ac1418';assert not A.exists();copies={}
+for p in out.rglob('*'):
+ if not p.is_file():continue
+ rel=p.relative_to(out);assert'private'not in rel.parts and not p.is_symlink()and(p.suffix=='.json'or rel.as_posix()=='set-private-acl.ps1');target=A/'evidence'/rel
+ if p.suffix=='.ps1':target=target.with_name(target.name+'.txt')
+ copies[target]=p.read_bytes()
+for p in mp.parent.iterdir():
+ if p.is_file()and p.suffix=='.json':copies[A/'manifest'/p.name]=p.read_bytes()
+for kind,b in m['migration_targets'].items():
+ raw=Path(b['manifest_path']).read_bytes();assert sha(raw)==b['manifest_sha256'];copies[A/'manifest'/('migration-'+kind+'.json')]=raw
+for n,s in {'independent-cleanup.json':clean.name,'independent-literal-review.json':'restore_bound_v4_fix3_c5ac1418_independent_operational_literal_review_20261120.json','Root-literal-approval.json':'c401_RestoreV4Fix3_Root_literal_approval_receipt_20261120.json','Root-cleanup-helper.py.txt':'verify_c401_restore_c5ac1418_completed_cleanup_20261120.py'}.items():copies[A/n]=(T/s).read_bytes()
+facts={'schema':'workinants.restore-c5ac-prebackup-stop-reconciliation.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'observed':'Fresh source installation/authentication6/originalgrantorfinalization/nativecatalog baseline and reviewed fixture preparation reached backup_preflight. Stop RESTORE_BACKUP_PREFLIGHT; evidence complete/persistencefalse. No physical backup, staging, restoredtarget or generation proof executed.','original_failure_boundary':'Source backup_preflight(value) assertion after successful SQL query; query exited0/client_exitedtrue/noSQLSTATE/unexpectedstderrfalse and globalzero confirmed per independent retained-evidence audit inprogress. Actual17field object/16individualcomparisons/systemIDvalidity were not retained; failedfield/fullcause UNOBSERVED. Do not invent configuration defect or repair setting.','known_source_semantics':'New singleterminalCOMMIT/customGUC source correction exercised through successful closed fixture commit receipts; this is not wholeCustomer/owner/API/physicalrestore qualification. Historical980a cause remainsseparate/unknown.','cleanup':'Only source1C1V createdthenremoved. All5 exact3C2Vproposed names/private/archive independently absent; staged/restored resources notcreated; cachedimage retained.','raw_history':'Raw status/steps/primaryfailure andsourcepreservation flags retained byteexact; no aggregatepromotion.','next':'Independent actualaudit andbounded safe perfieldcomparison observability plan, separate source review/offline checks/newpublication/pin/literal/freshattempt; no identical retry/no permission or setting changes toforcepass.','Posture':'D'}
+copies[A/'audit/observed-prebackup-stop.json']=enc(facts);copies[A/'audit/Root-preservation-helper.py.txt']=Path(__file__).read_bytes()
+for p,b in copies.items():
+ assert len(b)<50*1024*1024 and b'\0'not in b;b.decode('utf-8-sig')
+ if p.suffix=='.json':json.loads(b)
+ put(p,b)
+assets={p.relative_to(R).as_posix():sha(b)for p,b in copies.items()}
+record={'schema':'workinants.local-f0-c401-restore-version-qualified-stopped-execution-record.v1','recorded_at_utc':facts['recorded_at_utc'],'run_id':m['run_id'],'source_commit':m['source_commit'],'source_tree':m['source_tree'],'operation_packet_sha256':m['packet_sha256'],'operation_manifest_sha256':sha(mb),'known_executor_exit':{'session':29229,'exit_code':1},'started_at_utc':r['started_at'],'finished_at_utc':r['finished_at'],'actual_wrapper_status':r['status'],'actual_steps':r['steps'],'raw_evidence_sha256':sha(rb),'raw_reports_unchanged':True,'independent_cleanup_sha256':sha(cleanb),'facts':facts,'assets_sha256':assets,'source_preservation':preserved,'qualification_status':'STOPPED_PREBACKUP_PRESERVED_NO_PHYSICAL_RESTORE_OR_ASSERTION_PROMOTION','Posture':'D'}
+p=R/'context/reconciliation/local-f0-restore-c401d2f-c5ac1418-execution.json';put(p,enc(record));receipt={'record':p.relative_to(R).as_posix(),'record_sha256':sha(p.read_bytes()),'asset_count':len(assets),'assets_sha256':assets,'no_runtime_or_Git_mutation':True,'Posture':'D'};q=T/'c401_restore_c5ac_stopped_attempt_preserved_inventory_20261120.json';put(q,enc(receipt));print(json.dumps({'record_sha256':receipt['record_sha256'],'assets':len(assets),'inventory_sha256':sha(q.read_bytes())}))

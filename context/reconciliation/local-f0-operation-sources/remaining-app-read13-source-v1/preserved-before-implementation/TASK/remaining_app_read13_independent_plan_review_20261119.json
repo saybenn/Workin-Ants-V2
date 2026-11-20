@@ -1,0 +1,263 @@
+{
+  "accepted_scope_and_semantics": {
+    "82_scenarios_arithmetic_correct": true,
+    "SH003_ownerfacts_SH005_entitlement_SH006_usage_SH044_result_SH056_capacity_not_invented": true,
+    "User_Candidate_Professional_Customer_owner_identities_not_interchanged": true,
+    "actual_owner_context_routes_present": true,
+    "all13_action_purpose_target_SQL_routes_present": true,
+    "all13_complete_physical_SELECT_column_grants_match": true,
+    "all13_exact_SELECT_policy_fields_match_registered_ACL": true,
+    "child_scope_does_not_invent_parent_FK_or_principal_ownership_RLS": true,
+    "claim_ceiling13_exact_app_SELECT_links_only_all_NOT_RUN": true,
+    "fixture_setup_does_not_qualify_INSERT_UPDATE_worker_or_prerequisite_positive_assertions": true,
+    "frozen32_dependency_rows_and7_source_questions_unchanged": true,
+    "reciprocal_A_B_broad_query_and_private_full_value_checks_meaningful": true,
+    "root_runtime_is_shared_mechanism_not_new_Module": true,
+    "root_source_currentness_and_grant_revocation_expiry_distinguished": true,
+    "six_revision_or_fence_policies_and_eight_direct_root_negative_models_correct": true,
+    "trusted_subject_and_parent_correspondence_must_be_independently_observed": true
+  },
+  "audit_sha256": "6f5b0cd1bc1a8b8da3ad6f4da7591f8c1f344146d930f54704e1895506c9e98a",
+  "blocking_clarifications": [
+    {
+      "dependency_reclassification": false,
+      "future_regression": "A source-only policy/fixture model with distinct actual parent revision and child effect fence must accept exact independent tokens and reject either wrong token; direct-root revision negatives remain unchanged.",
+      "id": "READ13-GENERATION-01",
+      "location": "actual_read_design.capabilities and RuntimeEffectReceipt relationship/root generation guidance",
+      "problem": "The general plan wording says root source_generation equals the selected revision/fence for all six versioned policies. RuntimeEffectReceipt uses SH-004/CustomerProfile as its root, so the effect is a child. Its revision token is its actual fence, while the grant source generation must track the actual Customer root when selected; these values need not be equal. The proposed pending-effect/profile fence0 example masks this distinction.",
+      "required_plan_resolution": "State the direct-target condition explicitly. RuntimeEffectReceipt/<effect>/revision/<fence> is independent of CustomerProfile/<profile>/revision/<profile revision>; derive grant source_generation from the actual target root. Do not change SQL/policy, manufacture a revision or treat a stale child token as a parent/currentness assertion.",
+      "source_line": 2411,
+      "source_path": "review-output/foundation-application.review.sql",
+      "source_rule": "row_allowed always requires a selected versioned row own Model/id/revision token. It compares g.source_generation to authorized_revision only if g.target_kind=model_name AND g.target_id=row_key."
+    }
+  ],
+  "checks": {
+    "SELECT_fields_and_columns_compared_completely": true,
+    "all_dependency_id_lists_remain_empty": true,
+    "all_planned_cases_NOT_RUN": true,
+    "app_role_cases": 13,
+    "assertion_expected_texts_match_current_immutable_source": true,
+    "kind": "Read-only local source/hash/ACL/policy/contract/routing analysis; no SQL executed"
+  },
+  "decision": "CHANGES_REQUESTED_ONE_ROOT_VS_CHILD_GENERATION_CLARIFICATION",
+  "exact13_missing_positive_links_match_audit": true,
+  "future_source_freeze_questions_not_new_dependencies": [
+    {
+      "id": "READ13-FIXTURE-USAGE",
+      "limit": "No Candidate usage-period/reconciliation/result adapter or its blocked source obligation is qualified by a synthetic SELECT fixture. Preserve all remaining physical/FK/CHECK/native/owner identities; missing fixture implementation remains planned work, not a new dependency.",
+      "question": "Both TrackUsageEvent and TrackUsageCounter have an always-raising usage_adapter_gate for writes. An exact synthetic row-read fixture must explicitly account for these existing trigger identities in the separately reviewed setup/restore manifest, or name an already legitimate source. The plan does not yet authorize this fixture bypass.",
+      "source_line": 5044,
+      "source_path": "review-output/foundation-application.review.sql"
+    },
+    {
+      "id": "READ13-FIXTURE-RESERVATION",
+      "limit": "The internal runtime.reservation.v1 SQL route exists and can support a bounded row SELECT. It is not SH-056 reserve/commit/release qualification or permission to invent a capacity/result codec.",
+      "question": "Bind a concrete source-reviewed registered owner plus resourceKind/resourceKey/command tuple before freeze; replacing Native placeholder owner text alone does not establish domain capacity ownership."
+    },
+    {
+      "id": "READ13-FIXTURE-EFFECT",
+      "limit": "Pending row visibility never proves committed effect/result semantics.",
+      "question": "Specify the existing non-null registered result_schema_id even for the pending effect fixture; nullable result_hash/committed_at are not a new no-result codec."
+    }
+  ],
+  "limits": {
+    "Docker_database_network_or_Git_mutation": false,
+    "Root_ACK_separate_and_held_until_generation_guidance_resolved": true,
+    "actual_owner_mount_v2_work_out_of_scope": true,
+    "implementation_ack": false,
+    "posture": "D",
+    "runtime": "NOT_RUN",
+    "source_SQL_schema_role_policy_code_or_status_mutated": false
+  },
+  "plain_english": "The thirteen reading tests use the right doors and field keys. One instruction mixes up the parent row number with a child row number. Keep those two numbers separate before building the tests.",
+  "plan_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\remaining_app_read13_source_plan_20261119.json",
+  "plan_sha256": "a6fee9761c9276109d14104084ec896a1b2746c6a28bc9b92d2ff9008326874e",
+  "policy_and_grant_checks": [
+    {
+      "ACL_policy_and_complete_projection_columns_match": true,
+      "field_count": 9,
+      "model": "ConsentDisposition",
+      "route": {
+        "action": "recordConsentDisposition.v1",
+        "purpose": "consent.record_disposition",
+        "target": "own A/B disposition",
+        "target_kind": "ConsentDisposition"
+      },
+      "row_revision_argument": "NULL"
+    },
+    {
+      "ACL_policy_and_complete_projection_columns_match": true,
+      "field_count": 10,
+      "model": "CustomerProfileLifecycleEvent",
+      "route": {
+        "action": "SH-004.v1",
+        "purpose": "resolve",
+        "target": "own A/B parent profile",
+        "target_kind": "CustomerProfile"
+      },
+      "row_revision_argument": "NULL"
+    },
+    {
+      "ACL_policy_and_complete_projection_columns_match": true,
+      "field_count": 15,
+      "model": "OwnerMutationEvidence",
+      "route": {
+        "action": "SH-004.v1",
+        "purpose": "resolve",
+        "target": "A/B evidence's Customer parent",
+        "target_kind": "CustomerProfile"
+      },
+      "row_revision_argument": "NULL"
+    },
+    {
+      "ACL_policy_and_complete_projection_columns_match": true,
+      "field_count": 14,
+      "model": "RuntimeCommandReceipt",
+      "route": {
+        "action": "SH-004.v1",
+        "purpose": "resolve",
+        "target": "A/B receipt's Customer parent",
+        "target_kind": "CustomerProfile"
+      },
+      "row_revision_argument": "NULL"
+    },
+    {
+      "ACL_policy_and_complete_projection_columns_match": true,
+      "field_count": 15,
+      "model": "RuntimeEffectReceipt",
+      "route": {
+        "action": "SH-004.v1",
+        "purpose": "resolve",
+        "target": "A/B source Customer",
+        "target_kind": "CustomerProfile"
+      },
+      "row_revision_argument": "\"fence\""
+    },
+    {
+      "ACL_policy_and_complete_projection_columns_match": true,
+      "field_count": 21,
+      "model": "RuntimeOutboxMessage",
+      "route": {
+        "action": "SH-004.v1",
+        "purpose": "resolve",
+        "target": "A/B source Customer",
+        "target_kind": "CustomerProfile"
+      },
+      "row_revision_argument": "NULL"
+    },
+    {
+      "ACL_policy_and_complete_projection_columns_match": true,
+      "field_count": 13,
+      "model": "RuntimeReservation",
+      "route": {
+        "action": "runtime.reservation.v1",
+        "purpose": "reservation",
+        "target": "A/B reservation itself",
+        "target_kind": "RuntimeReservation"
+      },
+      "row_revision_argument": "\"fence\""
+    },
+    {
+      "ACL_policy_and_complete_projection_columns_match": true,
+      "field_count": 13,
+      "model": "RuntimeWorkItem",
+      "route": {
+        "action": "runtime.schedule_work.v1",
+        "purpose": "work.schedule",
+        "target": "A/B pending work item itself",
+        "target_kind": "RuntimeWorkItem"
+      },
+      "row_revision_argument": "\"fence\""
+    },
+    {
+      "ACL_policy_and_complete_projection_columns_match": true,
+      "field_count": 25,
+      "model": "TrackEntitlementGrant",
+      "route": {
+        "action": "SH-003.v1",
+        "purpose": "owner:queryOwnerFacts",
+        "target": "A/B exact grant",
+        "target_kind": "TrackEntitlementGrant"
+      },
+      "row_revision_argument": "\"revision\""
+    },
+    {
+      "ACL_policy_and_complete_projection_columns_match": true,
+      "field_count": 21,
+      "model": "TrackSubscription",
+      "route": {
+        "action": "SH-003.v1",
+        "purpose": "owner:queryOwnerFacts",
+        "target": "A/B exact subscription",
+        "target_kind": "TrackSubscription"
+      },
+      "row_revision_argument": "\"revision\""
+    },
+    {
+      "ACL_policy_and_complete_projection_columns_match": true,
+      "field_count": 12,
+      "model": "TrackSubscriptionEvent",
+      "route": {
+        "action": "SH-003.v1",
+        "purpose": "owner:queryOwnerFacts",
+        "target": "A/B exact event",
+        "target_kind": "TrackSubscriptionEvent"
+      },
+      "row_revision_argument": "NULL"
+    },
+    {
+      "ACL_policy_and_complete_projection_columns_match": true,
+      "field_count": 19,
+      "model": "TrackUsageCounter",
+      "route": {
+        "action": "SH-003.v1",
+        "purpose": "owner:queryOwnerFacts",
+        "target": "A/B exact counter",
+        "target_kind": "TrackUsageCounter"
+      },
+      "row_revision_argument": "\"revision\""
+    },
+    {
+      "ACL_policy_and_complete_projection_columns_match": true,
+      "field_count": 24,
+      "model": "TrackUsageEvent",
+      "route": {
+        "action": "SH-003.v1",
+        "purpose": "owner:queryOwnerFacts",
+        "target": "A/B exact usage event",
+        "target_kind": "TrackUsageEvent"
+      },
+      "row_revision_argument": "NULL"
+    }
+  ],
+  "reviewer": "/root/review_track_ports",
+  "schema": "workinants.remaining-app-read13-independent-plan-review.v1",
+  "source_files_sha256": {
+    "context/architecture.md": "308869aecd19249ac56ca9886dec816afb64d7241de0dbde64ff545cb007ca44",
+    "context/build-plan.md": "6dddb6b5584bb47251d9794158c65520b04e82ed7c4061334e96e0b9064cdb87",
+    "context/clusters/identity, authority, & consent/Consent & Disclosure Module/consent-disclosure-implementation-plan.md": "c89880cf98e7b41470687b7be805a9a24fe9cf4802fe212980d5fbfdf07935f8",
+    "context/clusters/identity, authority, & consent/Consent & Disclosure Module/consent-disclosure-module-architecture.md": "6675a6cbe9c10f48d07c6933c6a0f72fe7b7ffeafee24186749cba3b99d3784b",
+    "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-implementation-plan.md": "1264589c05d92a40746ebf71de3b04368ce511755f538dc58e7bc3e80ede0853",
+    "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-module-architecture.md": "9c9c86fc035b151c31060269a69342d80f729cebdcdd090747b2681de9ca7f3b",
+    "context/clusters/identity, authority, & consent/Identity & Access module/identity-access-module-architecture.md": "a99147effb732761118bb4959bfee4810239a88359660f68cea434e7f4609e52",
+    "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-implementation-plan.md": "2b2281b86b3521023c25bee656dffbefd64a5cda34e1a45c9289f9fd175b8e29",
+    "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md": "9af7a7c3142fba550c13727f0143f9612b180d4ab6fd96975846d562d4ec17d5",
+    "context/clusters/identity, authority, & consent/identity-authority-consent-architecture.md": "99a8e63720d2a4dd93645453638d00fadaa9dca60f9a79ad93805b548b72a6bf",
+    "context/clusters/identity, authority, & consent/identity-authority-consent-build-plan.md": "c0efa3ed8c817779411cea0d3feb0db8aa74a28a4bc20c6f238cfdebce023246",
+    "context/context-map.md": "91ae472067d5336f0b0bf6d73c4a9e86b235df85aa2634adec74e93bf6f0ad6d",
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "context/reconciliation/foundation-sql-scope-policy.json": "a1c56896b12e15e03eb04bef6d5c9254692cdc3918167e024e54006b6fa38b1b",
+    "context/reconciliation/local-f0-assertions.json": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558",
+    "context/shared/contracts/SH-003.md": "493a3524f33224cfd774192535789ad95cb04c56e1e0e15a11ae5e067c7bf1b2",
+    "context/shared/contracts/SH-004.md": "114d4269db29edf0946d01fa2f9ac21769b22244aca940fe8270445ddd33d1bd",
+    "context/shared/contracts/SH-005.md": "6f94d9689bc68816696a9c0f3e0c580ed7e40c1d5dd49c7166fbb9b047b99c19",
+    "context/shared/contracts/SH-006.md": "03a0d200d623ec421fb3611bc102e08768094ff28e88718fd89489fb92fbc401",
+    "context/shared/contracts/SH-044.md": "25ec251bb07bc39958c8e1a7d174197856a4dc9e7f0ac9ed7a2fbf5d2a4fe6ad",
+    "context/shared/contracts/SH-046.md": "2b29a053816ea57aab3b73e5bbcebc056f566f410d8258a071f958ab267fd49d",
+    "context/shared/contracts/SH-056.md": "4ecd1b0f3edbb3a7cb2f606c25df03c08eafceed29ee98481dad43c18a97db68",
+    "context/workflows/WF-01.md": "d4aed154df1f762ae10e70b77d6ba5a5a744a492cc419f19e56aab8b1a4d3f5a",
+    "context/workflows/WF-02.md": "1cf6d5e54cdc48e35ee4b8af7923f8cc091c87a15f3cda05026d194bf5e91142",
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad"
+  },
+  "source_hashes_all_current_match": true
+}

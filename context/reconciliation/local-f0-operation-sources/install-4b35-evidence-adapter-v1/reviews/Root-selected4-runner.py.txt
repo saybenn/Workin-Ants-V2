@@ -1,0 +1,26 @@
+"""Nonauthor Root code review + selected real closed-graph boundary regressions."""
+from pathlib import Path
+import ast,datetime,hashlib,io,json,runpy,sys,time,unittest
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+dp=T/'install_4b35_evidence_adapter_v1_frozen_author_delivery_20261120.json';db=dp.read_bytes();assert sha(db)=='90e47a21978a0ec2a5123bac65f8b641fd04276eb30c37e76cfdbf952bee87fe';d=json.loads(db);F=Path(d['future_root']);assert F.is_relative_to(T)
+for n,h in d['source_files_sha256'].items():assert sha((F/n).read_bytes())==h
+source=F/'scripts/local_f0_install_evidence.py';tree=ast.parse(source.read_bytes());imports=[]
+for n in tree.body:
+ if isinstance(n,ast.Import):imports.extend(a.name for a in n.names)
+ elif isinstance(n,ast.ImportFrom):imports.append(n.module)
+assert set(imports)=={'ast','hashlib','json','math','os','re','stat','pathlib','types'}
+needles={'exec','eval','compile','__import__','system','Popen','run','check_output','socket','requests','urlopen'}
+assert not [n for n in ast.walk(tree)if isinstance(n,ast.Call)and ((isinstance(n.func,ast.Name)and n.func.id in needles)or(isinstance(n.func,ast.Attribute)and n.func.attr in needles))]
+assert sha((R/'context/reconciliation/local-f0-assertion-evidence.json').read_bytes())=='ef0fbf8b5dc0344b5a60c857e8067c03b047d9634102263768c83ba3f8b3e1e3'
+def audit(event,args):
+ if event in('subprocess.Popen','os.system','os.posix_spawn','os.posix_spawnp')or event.startswith('socket.'):raise AssertionError('ROOT_REVIEW_PROCESS_NETWORK_FORBIDDEN')
+sys.addaudithook(audit);sys.path.insert(0,str(F/'scripts'));ns=runpy.run_path(str(F/'scripts/check-local-f0-install-evidence.py'));C=ns['InstallEvidenceTests']
+methods=['test_01_exact17_requirements_and_preserved653_provenance','test_11_actual_factory_final_read_race_and_only_old_reader_tripwire','test_13_actual_private_dispatcher_partial_ceiling_and_no_output_on_drift','test_14_pure_boundaries_exact_read_graph_and_source_scope'];suite=unittest.TestSuite(C(name)for name in methods);stream=io.StringIO();start=time.monotonic();result=unittest.TextTestRunner(stream=stream,verbosity=2).run(suite);seconds=round(time.monotonic()-start,3)
+log=T/'install_adapter_Root_independent_selected4_20261120.log'
+with log.open('x',encoding='utf8')as f:f.write(stream.getvalue())
+for n,h in d['source_files_sha256'].items():assert sha((F/n).read_bytes())==h
+assert sha((R/'context/reconciliation/local-f0-assertion-evidence.json').read_bytes())=='ef0fbf8b5dc0344b5a60c857e8067c03b047d9634102263768c83ba3f8b3e1e3'
+v={'schema':'workinants.install4b35-Root-independent-selected4-source-checks.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS'if result.wasSuccessful()else'FAILED','reviewer':'/root','nonauthor':True,'methods':methods,'tests':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'seconds':seconds,'log_sha256':sha(log.read_bytes()),'source_files_sha256':d['source_files_sha256'],'only_stdlib_imports_no_code_execution_or_process_network':True,'actual_private_factory_and_CLI_final_byte_barriers_exercised':True,'Root653_ledger_unchanged':True,'real_Root_full_builder':'NOT_RUN','Posture':'D'}
+out=T/'install_adapter_Root_independent_selected4_20261120.json'
+with out.open('x',encoding='utf8')as f:json.dump(v,f,indent=2,allow_nan=False);f.write('\n')
+print(json.dumps({'receipt_sha256':sha(out.read_bytes()),**v}),flush=True);raise SystemExit(0 if result.wasSuccessful() else 1)
