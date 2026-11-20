@@ -1,0 +1,43 @@
+"""Real prepared-map/source-loader/pinner checks after Root metadata closure."""
+from pathlib import Path
+import datetime, hashlib, io, json, os, runpy, sys, time, unittest
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+validation = R / 'context/reconciliation/local-f0-privilege-ceiling-owned-person-subject-v5-source-validation.json'
+assert sha(validation) == 'dd50c0afa2df3fb10fc41bc8d2fc14bbdef66cc37bc4c11f23f3a13cc3701780'
+value = json.loads(validation.read_bytes())
+assert value['independent_safety_sql_review']['decision'] == 'SOURCE_APPROVED'
+five = value['operator_sources_sha256']
+for name,wanted in five.items():
+    assert sha(T / name) == wanted
+path = T / 'check_privilege_person_subject_v5_closure_20261119.py'
+before = sha(path)
+os.chdir(R)
+sys.path.insert(0,str(R / 'scripts'))
+namespace = runpy.run_path(str(path))
+test = namespace['PrivilegePersonSubjectV5ClosureTests']
+names = (
+    'test_actual_prepare_map_has_all202_generated_bytes_and_same_source_digests',
+    'test_real_unchanged_load_inputs_accepts_only_the_actual_prepare_map',
+    'test_real_initialized_complete_entry_reaches_only_first_resource_boundary',
+    'test_isolated_pending_gate_precedes_new_pure_project_compilation',
+    'test_real_pinner_refuses_missing_current_and_committed_README_without_mutation',
+)
+stream = io.StringIO()
+start = time.monotonic()
+result = unittest.TextTestRunner(stream=stream,verbosity=2).run(unittest.TestSuite(test(name) for name in names))
+elapsed = round(time.monotonic()-start,3)
+assert sha(path) == before and sha(validation) == 'dd50c0afa2df3fb10fc41bc8d2fc14bbdef66cc37bc4c11f23f3a13cc3701780'
+for name,wanted in five.items():
+    assert sha(T / name) == wanted
+log = T / 'privilege_person_subject_v5_approved_metadata_Root_checks_20261120.log'
+with log.open('xb') as handle:
+    handle.write(stream.getvalue().encode())
+proof = {'schema':'workinants.privilege-person-subject-v5-approved-metadata-phase-checks.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS' if result.wasSuccessful() else 'FAILED_OFFLINE_CHECK','methods':result.testsRun,'elapsed_seconds':elapsed,'validation_sha256':sha(validation),'five_sha256':five,'harness_entry_exit_sha256':before,'log_sha256':sha(log),'scope':'Real actual prepared inventory, unmodified verified source loader/entry boundary/current+committed pinner. Only isolated cloned review metadata projected PENDING for refusal. All process/Docker/database/network boundaries mocked/forbidden.','live_source_or_gates_changed':False,'runtime':'NOT_RUN','Posture':'D'}
+p = T / 'privilege_person_subject_v5_approved_metadata_Root_checks_20261120.json'
+with p.open('xb') as handle:
+    handle.write((json.dumps(proof,indent=2)+'\n').encode())
+print(json.dumps({'record_sha256':sha(p),**proof}))
+print(stream.getvalue())
+raise SystemExit(0 if result.wasSuccessful() else 1)

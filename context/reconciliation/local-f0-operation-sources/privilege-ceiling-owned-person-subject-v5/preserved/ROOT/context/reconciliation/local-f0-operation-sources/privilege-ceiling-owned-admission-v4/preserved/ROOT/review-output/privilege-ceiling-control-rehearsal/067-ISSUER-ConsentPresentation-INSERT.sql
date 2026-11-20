@@ -1,0 +1,5 @@
+-- Fresh actual authenticated role connection; no context handle/bind or fixture bypass. Stop/close on unexpected output.
+BEGIN;
+SET LOCAL search_path=pg_catalog;
+INSERT INTO "app"."consent_presentation"("id","content_revision_id","user_id","action_owner","action","render_version","rendered_text","rendered_hash","context_owner","context_kind","context_id","created_at","mutation_transaction_id") VALUES ('47fa88b1-37d7-5b39-b193-0c905afa8171'::pg_catalog.uuid,'2da448e0-0389-5f59-a9ec-baf3e429c909'::pg_catalog.uuid,'92148209-85bf-5420-b6ed-59655eb15467'::pg_catalog.uuid,'native-acl-fc5905575c0b037cc3d9bae3'::pg_catalog.text,'native-acl-e66fc98b56b8f82afc37f59d'::pg_catalog.text,'native-acl-26ca96eab7761ad5a87ba0b8'::pg_catalog.text,'synthetic local ACL fact; not legal approval or rendered acceptance'::pg_catalog.text,encode(sha256(convert_to('synthetic local ACL fact; not legal approval or rendered acceptance','UTF8')),'hex'),'native-acl-044842076678b704a0ac1203'::pg_catalog.text,'native-acl-09deeaff906fe03301ce493c'::pg_catalog.text,NULL::pg_catalog.text,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,'native-acl-setup-transaction'::pg_catalog.text);
+ROLLBACK;

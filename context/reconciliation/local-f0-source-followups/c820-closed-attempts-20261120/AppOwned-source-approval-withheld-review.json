@@ -1,0 +1,487 @@
+{
+  "schema": "workinants.app-write-two-owned-resource-v1.independent-source-review.v1",
+  "recorded_at_utc": "2026-11-20T05:16:19.438709+00:00",
+  "reviewer": "/root/install_outer_review",
+  "decision": "SOURCE_APPROVAL_WITHHELD",
+  "approval_scope": "No new AppWrite2OwnedResourceV1 source approval or runtime/literal authority. Exact five are held as one composed source group until the three findings are closed in a new frozen version.",
+  "independence": {
+    "reviewed_five_authored_by": "/root/catalog_v4_review",
+    "reviewer_authored_these_five": false,
+    "inherited_lineage": "Reviewer previously authored accepted Owner/common SafetySQL inputs and SixRead owned family, and independently reviewed the AppOwned plan. Those unchanged accepted inputs are lineage only; this report does not independently reapprove its own old code.",
+    "review_mode": "Frozen private clone; no live Native615 source dependency or mutable INSTALL OUT reads; all real process/network events forbidden or externally mocked."
+  },
+  "source_bindings": {
+    "operator_sources_sha256": {
+      "execute_local_f0_app_write_two_owned_resource_v1_20261119.py": "4b675aafbe270a4117b2406450369863c34c77c4850ba8b88d2fe47109c27f13",
+      "local_f0_app_write_two_owned_resource_v1_operation_steps.py": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+      "prepare_local_f0_app_write_two_owned_resource_v1_plan.py": "c0582abf5f19a9f0f59a078283f524682699970fd6d4c4175a5a7b123e6e065c",
+      "check_local_f0_app_write_two_owned_resource_v1_operation.py": "d2e7456a8b887acfc40b1ed94cde04e5413f352e5dc132bbaf311d7e89148752",
+      "pin_local_f0_app_write_two_owned_resource_v1_plan_20261119.py": "070731825d46b584d4ba1ef8652669538599922afdc2c5ee19cd9a1a66c7ad8e"
+    },
+    "delivery_sha256": "c84a24148a4bbc1c8681d763658db68f2da8eda121895e9a01d34922891d911c",
+    "author_report_sha256": "6254578affef90d00c484058544d4784db764d1b746474299b4ea3a0834671dc",
+    "physical_freeze_manifest": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app-write-two-owned-resource-v1-author-freeze-20261119\\freeze-manifest.json",
+      "sha256": "776d417903cab098cc5c55bf1370e7da88d9c5630f718be2121a9a0b39dec389",
+      "snapshots_verified": 376
+    },
+    "live_validation": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\context\\reconciliation\\local-f0-app-write-two-owned-resource-v1-source-validation.json",
+      "sha256": "b91c6a456eef467c4d4047c08acd613e3d9d0e32836263b67e566a3cfc7e6e61",
+      "source_reviews": {
+        "author": "PENDING",
+        "offline": "PENDING",
+        "independent": "PENDING",
+        "Root": "PENDING"
+      },
+      "archive_files": 57,
+      "exact_archive_tree_and_hashes_verified": true
+    },
+    "approved_plan_sha256": "edbcaa3e206064e6066eb722dae8ab262a64abe72644d5c8ae62dd88b7dbd3ae",
+    "prior_independent_plan_review_sha256": "7812198d4712c7dc5b5f27f4e6373205a7399a1047a4e297056a2155a111c1b0",
+    "supporting_review_artifacts_sha256": {
+      "app_write_two_owned_resource_v1_frozen_source_plan_20261119.json": "c84a24148a4bbc1c8681d763658db68f2da8eda121895e9a01d34922891d911c",
+      "app_write_two_owned_resource_v1_source_author_review_20261119.json": "6254578affef90d00c484058544d4784db764d1b746474299b4ea3a0834671dc",
+      "app-write-two-owned-resource-v1-source-plan-20261119.json": "edbcaa3e206064e6066eb722dae8ab262a64abe72644d5c8ae62dd88b7dbd3ae",
+      "app_write_two_owned_resource_v1_independent_plan_review_20261119.json": "7812198d4712c7dc5b5f27f4e6373205a7399a1047a4e297056a2155a111c1b0",
+      "app_owned_independent_frozen_probe_20261119.json": "8922bc1009d632cf5bbe1bf1525ecb146f38c1593c06419356dc3d234dd7138a",
+      "app_owned_independent_frozen_probe_v2_20261119.json": "e2ec10e440699df1bfbab895949879ae46b0d94c8e27f48ad3bf7a1bf1c5e54c",
+      "app_owned_independent_frozen_review_probe_20261119.py": "d94bc4d82400a15bb03e45fd6e2969e6c9535275da12c20c2512b59748e3186a",
+      "app_owned_independent_frozen_review_probe_v2_20261119.py": "47b45ea6e036617d6962f2e9368cc7b6415b3617f27c45fdbfda5d28f077131c",
+      "app_owned_independent_selected_checks_20261119.py": "8aad3c23a2267c60841dcb9759e542347d1b39cb3b0657cc14f5f0394884a5e6",
+      "app_owned_independent_selected_checks_20261119.json": "6b372c0b91e8148f4ec3f43a172130193d97d51ee14cf810686542ec20261a77"
+    }
+  },
+  "findings": [
+    {
+      "id": "APP-OWNED-REFERENCE-MUTATION-01",
+      "priority": "P1",
+      "decision": "SOURCE_APPROVAL_WITHHELD",
+      "title": "Changed same-size child artifact can retain an obsolete hash and still produce outer PASS",
+      "evidence": [
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+          "line": 934,
+          "function": "app_read_closed_reference",
+          "detail": "The bounded reference reader checks identity/link/size but does not compare modification metadata or fstat again after read."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+          "line": 945,
+          "function": "app_read_closed_reference",
+          "detail": "Initial handle identity is checked; raw bytes are then read."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+          "line": 948,
+          "function": "app_read_closed_reference",
+          "detail": "Final lstat comparison accepts same inode/link/size despite changed contents/mtime."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+          "line": 981,
+          "function": "app_write_two_experiment",
+          "detail": "Returned object matches the captured original bytes even when the retained disk artifact has changed."
+        }
+      ],
+      "actual_counterexample": {
+        "method": "Actual frozen CLI initialize/launch, actual catalog/child coordinate/frozen CTXSession, external processes mocked. Only the real child reference file read is wrapped to rewrite the actual produced status PASS to equal-length FAIL on the same file after reading its original bytes. No child return object or evidence proof is fabricated.",
+        "result": "exit0; PASS_LOCAL_APP_WRITE_TWO_SQL_SUBSET_ONLY; child file on disk says FAIL_FINITE_TWO_APP_WRITE_CRITERIA_ONLY; recorded reference hash does not match retained child file",
+        "producer_original_sha256": "ecb2524bd698464cfc4c5efe623f5f62f7161d5cad04b3a5f2c46a76e4d298c2",
+        "disk_corrupt_sha256": "3eaff7403320faa4a9156acb541e63f6f0d676b216bc266f2908cbb298c1c079",
+        "wrapper_report_sha256": "b8cf3250fde6319d2891ee2a44459771c4d31081ff53146b96378f6bf3a7035b",
+        "additional_actual_method_probe": "A real same-inode/same-length known0\u2192known1 rewrite with forced mtime change is also admitted as RETAINED with obsolete hash."
+      },
+      "impact": "The required closed-artifact integrity and evidence-preservation gate can report PASS after a concurrent mutation during the read. This is a source-only modeled counterexample, not an observed database or operating attempt failure.",
+      "bounded_correction_requirement": "In a new reviewed version, reject in-place mutation during bounded read using coherent pre/open/post-handle and post-path regular/singlelink/identity/size/version metadata checks (including st_mtime_ns or a stronger applicable immutable-reader contract). Preserve first failure, fixed sanitized markers, unconditional closure/cleanup and no retry. Add this actual full-producer rewrite regression; restoring the old reader must admit the mutant."
+    },
+    {
+      "id": "APP-OWNED-STATE-CONTINUITY-02",
+      "priority": "P2",
+      "decision": "SOURCE_APPROVAL_WITHHELD",
+      "title": "Complete-state pairs are not linked across sequential case boundaries",
+      "evidence": [
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+          "line": 875,
+          "function": "app_trace",
+          "detail": "Each next case begins with a full state snapshot after the preceding case, retention and native observations."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+          "line": 908,
+          "function": "validate_app_result",
+          "detail": "Snapshots are validated individually and grouped by case."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+          "line": 929,
+          "function": "validate_app_result",
+          "detail": "Each before/after pair and its result hashes are validated locally; no equality ties the previous after snapshot to the next before snapshot."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+          "line": 924,
+          "function": "validate_app_result",
+          "detail": "The genuine scheduling pair is similarly validated locally."
+        }
+      ],
+      "actual_counterexample": {
+        "method": "Deep-copy the complete real producer output. For both COMPLETE42_STATE records of effect-wrong-purpose (operation indexes26 and33), change only app.users.rows_sha256 to e*64, keep its actual count2, then recompute those state hashes and both corresponding result hash links.",
+        "result": "Actual validate_app_result ADMITTED the mutant although previous case-after and next case-before retain the original users hash and no approved transition writes users.",
+        "retained_mutant_sha256": "25259f9f7825268f553231d665f1512232cccc386d31353621ab7b1a70bb1cd2",
+        "original_users_sha256": "281a1831034c902601e3f4fea23980971bec63a5725ed1996f48a2afd119420e",
+        "mutated_users_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "impact": "Self-consistent within-case assertions can hide an unrelated data jump between cases and therefore do not establish the required continuous complete42 preservation chain.",
+      "bounded_correction_requirement": "Enforce complete-state continuity at all approved no-write boundaries: post-fixture\u2192first-case-before, each case-after\u2192next-case-before, and the boundaries around the explicit genuine scheduling pair. Retain allowed changes only inside the existing fixture, case and schedule transition pairs; do not alter SQL, child source, roles, expected counts or business claims. Add the recomputed nonempty-users mutant and restored-old-validator control."
+    },
+    {
+      "id": "APP-OWNED-TOP-SCHEMA-03",
+      "priority": "P2",
+      "decision": "SOURCE_APPROVAL_WITHHELD",
+      "title": "Missing required current_case is treated as an explicit terminal null",
+      "evidence": [
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+          "line": 895,
+          "function": "validate_app_result",
+          "detail": "value.get(current_case) is None is true for an absent field as well as explicit null."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+          "line": 982,
+          "function": "app_write_two_experiment",
+          "detail": "The complete producer allowed-field set is declared."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+          "line": 983,
+          "function": "app_write_two_experiment",
+          "detail": "Only subset membership is checked, so omission is admitted."
+        }
+      ],
+      "actual_counterexample": {
+        "method": "Deep-copy the actual complete producer object and remove only current_case; preserve every remaining operation/result/identity/hash.",
+        "result": "Actual validate_app_result ADMITTED it; the caller subset check also admits the reduced keyset.",
+        "retained_mutant_sha256": "85db3079428bc909fafe3894931fc5ee7352cde22d3f6e3fd93de47441961f80"
+      },
+      "impact": "The promised exact typed complete-child schema is not enforced; an omitted required field is silently represented as a valid terminal null.",
+      "bounded_correction_requirement": "Require the exact complete producer keyset and explicit presence/null type of current_case, preserving the existing schema and all closed field allowlists. Add actual-producer missing/extra/invalid field regressions without broadening the schema."
+    }
+  ],
+  "independent_actual_checks": {
+    "full_CLI_baseline": {
+      "probe": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app_owned_independent_frozen_probe_20261119.json",
+      "sha256": "8922bc1009d632cf5bbe1bf1525ecb146f38c1593c06419356dc3d234dd7138a",
+      "seconds": 51.625,
+      "exit_code": 0,
+      "status": "PASS_LOCAL_APP_WRITE_TWO_SQL_SUBSET_ONLY",
+      "qualification": "Offline process model only; baseline full CLI passed."
+    },
+    "full_CLI_reference_mutation": {
+      "probe": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app_owned_independent_frozen_probe_v2_20261119.json",
+      "sha256": "e2ec10e440699df1bfbab895949879ae46b0d94c8e27f48ad3bf7a1bf1c5e54c",
+      "seconds": 51.39000000001397,
+      "result": {
+        "exit_code": 0,
+        "status": "PASS_LOCAL_APP_WRITE_TWO_SQL_SUBSET_ONLY",
+        "one_deploy": 1,
+        "native_checks": {
+          "PASS": 29089
+        },
+        "results": 14,
+        "operations": 221,
+        "complete42_states": 32,
+        "after_readonly": {
+          "native_checks": 29089,
+          "oracle_expression_hashes": 416,
+          "private_ledger_checks": 22,
+          "full42_data_unchanged": true,
+          "same_first_install": true,
+          "second_install_attempted": false
+        },
+        "cleanup_actions_confirmed": true,
+        "private_absent": true
+      },
+      "counterexample_outcomes": [
+        {
+          "probe": "actual_full_wrapper_after_same_length_in_place_child_file_corruption",
+          "outcome": "ADMITTED_AS_PASS",
+          "wrapper_status": "PASS_LOCAL_APP_WRITE_TWO_SQL_SUBSET_ONLY",
+          "child_disk_status": "FAIL_FINITE_TWO_APP_WRITE_CRITERIA_ONLY",
+          "recorded_reference_sha256_matches_disk": false,
+          "original_producer_sha256": "ecb2524bd698464cfc4c5efe623f5f62f7161d5cad04b3a5f2c46a76e4d298c2",
+          "corrupt_disk_sha256": "3eaff7403320faa4a9156acb541e63f6f0d676b216bc266f2908cbb298c1c079"
+        },
+        {
+          "probe": "actual_producer_missing_required_current_case",
+          "outcome": "ADMITTED"
+        },
+        {
+          "probe": "actual_producer_unrelated_table_hash_discontinuity_between_cases",
+          "outcome": "ADMITTED"
+        },
+        {
+          "probe": "same_length_same_inode_reference_changed_during_read",
+          "outcome": "ADMITTED",
+          "mtime_changed": true,
+          "retained_sha256_matches_disk": false,
+          "read_status": "RETAINED"
+        },
+        {
+          "probe": "raw_source_alias_to_different_in_root_approved_same_bytes",
+          "outcome": "ADMITTED"
+        }
+      ]
+    },
+    "selected_source_and_IO_methods": {
+      "record": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app_owned_independent_selected_checks_20261119.json",
+      "sha256": "6b372c0b91e8148f4ec3f43a172130193d97d51ee14cf810686542ec20261a77",
+      "tests": [
+        {
+          "method": "<run_path>.SourceTests.test_actual_initialize_raw_five_full_verifier_and_real_catalog_reproduction",
+          "seconds": 23.172,
+          "status": "PASS"
+        },
+        {
+          "method": "<run_path>.SourceTests.test_live_pending_source_metadata_rejects_before_source_import",
+          "seconds": 12.235,
+          "status": "PASS"
+        },
+        {
+          "method": "<run_path>.SourceTests.test_actual_missing_helper_and_historical_graph_reject_before_compile_or_process",
+          "seconds": 31.0,
+          "status": "PASS"
+        },
+        {
+          "method": "<run_path>.SourceTests.test_actual_pinner_rejects_committed_blob_drift_without_writing_pin",
+          "seconds": 11.328,
+          "status": "PASS"
+        },
+        {
+          "method": "<run_path>.SourceTests.test_actual_initialize_rejects_duplicate_nonfinite_and_oversized_json",
+          "seconds": 7.312,
+          "status": "PASS"
+        },
+        {
+          "method": "<run_path>.ComposedTests.test_actual_parent_component_finally_global_sql_survives_persistent_io_and_blocks_after",
+          "seconds": 44.891,
+          "status": "PASS"
+        }
+      ],
+      "tests_run": 6,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 139.375,
+      "status": "PASS"
+    },
+    "complete_actual_child_producer": {
+      "operations": 221,
+      "results": 14,
+      "snapshots": 32,
+      "stage_counts": {
+        "ACTUAL_SH004_SOURCE_EFFECT_COHERENCE": 12,
+        "ALL_GUARDS_UNCHANGED_AFTER_PROTOCOL": 14,
+        "COMPLETE42_STATE": 32,
+        "FINALLY_FULL_NATIVE_PARITY": 1,
+        "FINAL_FULL_NATIVE_PARITY": 1,
+        "GENUINE_APP_SCHEDULE_PREREQUISITE": 1,
+        "GLOBAL_BACKEND_CLOSURE": 69,
+        "IMMUTABLE_ISSUER_RETENTION": 44,
+        "PENDING_WORK_CONTROL": 13,
+        "POST_FIXTURE_ALL_GUARDS_RESTORED": 1,
+        "PRE_FIXTURE_FULL_NATIVE": 1,
+        "RESOURCE_PREFLIGHT": 1,
+        "RESTRICTED_APP_TRANSACTION": 15,
+        "SEPARATE_ISSUER_COMMIT": 15,
+        "SYNTHETIC_USER_PREREQUISITES_ONLY": 1
+      },
+      "six_auth_roles": 6,
+      "effective_HBA_selections": 12
+    },
+    "first_install_and_separate_after": "Actual unchanged catalog/registration/native/oracle/ledger Python comparators and real child CTXSession ran against boundary-model responses; native strict integer29089, oracle416 identity-hash expression records and Boolean prereqs, ledger22, same RAM first-install/CID and one genuine modeled deploy. Separate readonly after had no second catalog_experiment/deploy and matched terminal42. This is not runtime attestation.",
+    "persistent_IO_observation": "The independently repeated actual whole CLI persistent parent-evidence-IO vector passed: required global SQL continued, public closure evidence remained unconfirmed, no after-proof, STOPPED evidence-incomplete first failure preserved, all modeled sessions/resources/private cleanup confirmed.",
+    "not_repeated": "Author19/400.976s is author-only prior evidence. Independent review ran two bounded full CLI probe compositions plus six selected methods, not the entire author suite.",
+    "core_AST_baseline": {
+      "accepted_Owner_core_sha256": "b73dd1d9ecfec97edc9433e93cd4328298abe8af2e98cd24f943450ec6c24fb4",
+      "identical_function_or_class_count": 38,
+      "changed_only": [
+        "initialize",
+        "launch"
+      ],
+      "identical_declarations": [
+        "Stop",
+        "_RequiredSafetyBoundary",
+        "_required_safety_barrier",
+        "_required_safety_decode",
+        "_required_safety_event",
+        "_required_safety_evidence_complete",
+        "_required_safety_failure",
+        "_required_safety_first_exception",
+        "_required_safety_save",
+        "_required_safety_sql",
+        "_required_safety_text",
+        "_required_zero_backends",
+        "cleanup",
+        "closed_backends",
+        "command",
+        "create_resources",
+        "docker",
+        "emit_best_effort",
+        "ensure_image",
+        "event",
+        "event_best_effort",
+        "finalize",
+        "inspect_container",
+        "inspect_volume",
+        "inventory",
+        "json_ok",
+        "need",
+        "observe",
+        "owned",
+        "persist_best_effort",
+        "preflight",
+        "psql_args",
+        "remember_failure",
+        "safe_error",
+        "save",
+        "secret_scan",
+        "secure_private_directory",
+        "sql"
+      ],
+      "meaning": "Accepted create_resources/SQL/observer/finalizer/common safety/cleanup APIs unchanged; initialize and launch reviewed as new composition changes."
+    },
+    "admission_source_line_evidence": [
+      {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+        "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+        "line": 220,
+        "function": "verify_catalog_packet",
+        "detail": "Full actual packet/current+modeled committed sources, source recomposition and tools are checked before helper compilation."
+      },
+      {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+        "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+        "line": 711,
+        "function": "inspect_owner",
+        "detail": "Own immutable CID, exact data/bootstrap mounts, HostConfig tmpfs request and fixed runtime kernel proof remain scoped."
+      },
+      {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+        "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+        "line": 749,
+        "function": "load_reviewed_helper",
+        "detail": "Eight closed helper selectors use admitted source bytes; no fabricated factory/global proof injection."
+      },
+      {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+        "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+        "line": 799,
+        "function": "source_review_gate",
+        "detail": "Mandatory four source approvals are required; independent real-PENDING test rejected."
+      },
+      {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+        "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+        "line": 802,
+        "function": "admit_app_write_two_sources",
+        "detail": "Actual child validation36389, five/59/24/archive159, own physical five/archive57/source maps/fixtures/caps/catalog are checked before compilation."
+      },
+      {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+        "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+        "line": 953,
+        "function": "app_write_two_experiment",
+        "detail": "Finalized original grantor and independent global closure precede child."
+      },
+      {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+        "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+        "line": 965,
+        "function": "app_write_two_experiment",
+        "detail": "Independent parent global finally is before reference/validation/after observer despite throw/IO."
+      },
+      {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+        "sha256": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+        "line": 990,
+        "function": "app_after_proofs",
+        "detail": "Separate readonly measurements use same first registration/CID/native/oracle/ledger with immutable terminal42 hashes."
+      }
+    ]
+  },
+  "retained_counterexample_artifacts": {
+    "directory": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app-owned-independent-private-review-v2-20261119\\proof",
+    "files_sha256": {
+      "actual-child-on-disk-after-reference-read.json": "3eaff7403320faa4a9156acb541e63f6f0d676b216bc266f2908cbb298c1c079",
+      "actual-producer-original-child.json": "ecb2524bd698464cfc4c5efe623f5f62f7161d5cad04b3a5f2c46a76e4d298c2",
+      "actual-wrapper-report-after-corruption.json": "b8cf3250fde6319d2891ee2a44459771c4d31081ff53146b96378f6bf3a7035b",
+      "missing-current-case.json": "85db3079428bc909fafe3894931fc5ee7352cde22d3f6e3fd93de47441961f80",
+      "nonempty-user-hash-discontinuity.json": "25259f9f7825268f553231d665f1512232cccc386d31353621ab7b1a70bb1cd2"
+    },
+    "all_hashes_independently_rechecked": true
+  },
+  "probe_metadata_qualification": "In V2 probe JSON, legacy source_result_sha256 is the post-rewrite disk digest, while source_result_path names the retained original. The explicit original_source_result_sha256 and proof_files_sha256 fields are authoritative and independently verified here; no immutable probe bytes were overwritten.",
+  "nonblocking_inherited_observation": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\pin_local_f0_app_write_two_owned_resource_v1_plan_20261119.py",
+    "sha256": "070731825d46b584d4ba1ef8652669538599922afdc2c5ee19cd9a1a66c7ad8e",
+    "line": 46,
+    "observation": "read_source resolves before testing is_symlink; a projected raw alias resolving to another in-ROOT file containing identical approved bytes is admitted by this helper.",
+    "qualification": "Inherited accepted Owner helper; probe establishes raw-path policy behavior only, not unapproved code execution or a full current+committed bypass. Not added as a fourth blocking finding; broader raw-path policy changes require separate Root scope."
+  },
+  "fixture_lineage_and_limits": {
+    "historical_catalog_source": "Hash-verified completed Git-preserved Owner7293 evidence, explicitly HISTORICAL_OFFLINE_MOCK_ONLY; exact seven source hashes are bound in V2 probe.",
+    "historical_fixture_projection": {
+      "scope": "HISTORICAL_OFFLINE_MOCK_ONLY_NOT_RUNTIME_ATTESTATION",
+      "baseline_original_sha256": "92cca48f0e8e24c35f1de5fe2b635a229adf2731376a5e91cd33c91071d51be5",
+      "baseline_only_path_fields_rebound": true,
+      "historical_Owner_assets_sha256": {
+        "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/native-before.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+        "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/ledger-observation.json": "5a3d33491366fb9587bcc4a167efa4e38bda170b7b3291c022f28676dbdd94b3",
+        "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/oracle-preflight.json": "e64b96e2f73e7a6d369d61c09301dc7c986c08bcd1cf95af06c6ab9756bcbe66",
+        "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/oracle-results.json": "d7f91fb358b73d3f36acde73ec730c41259009c1e0f06931ded2a7d44510f995",
+        "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/oracle-closure.json": "89067a06862e197fd49f3aed1e3f18bfc93d6a6c2035f9cdfc85a57036257ab9",
+        "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/acl-preflight.json": "b1dffe67c99d83c46073c8db1f5e14bbda1b5dc0ed053be56d56a67a6018f3c8",
+        "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/text-preflight.json": "176676da1274c55ec6f8800089b61d1c5249c44ed52b3ecfbcf2c8edf6a3cda1"
+      },
+      "destination_label_only": "b9703d7-native-catalog-23bd8979 expected by authored checker; copied verified Owner7293 bytes",
+      "private_source_approval_and_operational_projection": "Only authored Fixture private mirror; live four gates unchanged"
+    },
+    "private_approval_projection": "Only authored Fixture private mirrored source metadata and operation approval were projected; live four gates remain PENDING. Modeled commit b*40/tree c*40 is not a real published revision.",
+    "tool_archive_sha256": "481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb",
+    "tool_archive_bytes": 113900903,
+    "real_OS_Docker_Git_DB_SQL_network_execution": false,
+    "source_gate_progress_or_repo_changes": false,
+    "mutable_INSTALL_OUT_or_actual_private_credentials_read": false,
+    "all_actual_AppOwned_runtime_cases_and_assertions": "NOT_RUN_BY_REVIEWER",
+    "runtime_or_literal_approval": false,
+    "Posture": "D",
+    "no_other_28_writes_or_worker_API_claim": "No change or status promotion."
+  },
+  "post_review_preservation": {
+    "frozen_snapshots": {
+      "count": 376,
+      "all_sha256_match": true
+    },
+    "current_operator_five_sha256_match": true,
+    "current_archive57_exact_and_sha256_match": true,
+    "live_validation_sha256": "b91c6a456eef467c4d4047c08acd613e3d9d0e32836263b67e566a3cfc7e6e61",
+    "four_live_gates": "PENDING",
+    "old_accepted_child_SQL_and_archived_history": "Preserved via exact frozen snapshot bindings; no source edits.",
+    "reviewer_writes": "Exclusive TASK probe scripts/JSON and isolated private mocked clones only."
+  },
+  "required_next_step": "Root may scope minimal fixes/new freeze preserving this exact held history; independent re-review must close all three findings before any source gate or fresh literal/runtime decision. Reviewer made no code fixes or gate changes.",
+  "plain_english": "The practice checker missed three problems: a report file changed while it read it, data jumped between steps, and a required box was missing. Keep this version on hold until those checks are fixed."
+}

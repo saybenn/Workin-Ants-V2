@@ -1,0 +1,40 @@
+"""Actual Root status rebuild, only after timing-sensitive Worker has exited."""
+from pathlib import Path
+import argparse, datetime, hashlib, json, os, runpy, socket, subprocess, sys, time
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+args = argparse.ArgumentParser()
+args.add_argument('--worker-known-exited', action='store_true')
+assert args.parse_args().worker_known_exited
+assert sha(T / 'native388_Root_source_integration_receipt_20261119.json') == 'eddeef99365470e43ebd475964d4afaa31f6495b04eeac8181311c3904aafba3'
+receipt = json.loads((T / 'native388_Root_source_integration_receipt_20261119.json').read_bytes())
+for name, wanted in receipt['source_and_ledger_sha256'].items():
+    assert sha(R / name) == wanted
+status_path = R / 'context/reconciliation/local-f0-qualification-status.json'
+before_sha = sha(status_path)
+assert before_sha == '95f048b55581f2e237309580df1bef9598ef566bf8f09f7c3c15e567fa338526'
+started = datetime.datetime.now(datetime.timezone.utc).isoformat()
+start = time.monotonic()
+os.chdir(R)
+sys.path.insert(0, str(R / 'scripts'))
+calls = []
+def forbidden(*_args, **_kwargs):
+    calls.append('FORBIDDEN_PROCESS_OR_SOCKET_BOUNDARY')
+    raise AssertionError('OFFLINE_STATUS_BUILD_PROCESS_OR_NETWORK_REFUSED')
+subprocess.run = subprocess.check_output = subprocess.Popen = forbidden
+socket.socket = socket.create_connection = forbidden
+runpy.run_path(str(R / 'scripts/prepare-local-f0-status.py'), run_name='__main__')
+elapsed = round(time.monotonic() - start, 3)
+status = json.loads(status_path.read_bytes())
+assert status['assertion_status_counts'] == {'PASS':615, 'PARTIAL':32, 'FAILED':0, 'DEPENDENCY_BLOCKED':32, 'NOT_RUN':348, 'UNRESOLVED_SOURCE':7}
+assert status['case_status_counts'] == {'PASS':4, 'PARTIAL':73, 'FAILED':0, 'DEPENDENCY_BLOCKED':0, 'NOT_RUN':17}
+assert sha(status_path) == '1fb50a9dcfff198ae8f61aef1afc83bdf6866d9da92263a330e31c9d7d157e1a'
+assert calls == []
+for name, wanted in receipt['source_and_ledger_sha256'].items():
+    assert sha(R / name) == wanted
+proof = {'schema':'workinants.native388-actual-root-unmocked-status-build.v1', 'started_at_utc':started, 'finished_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(), 'status':'PASS_ACTUAL_ROOT_STATUS_REBUILT', 'seconds':elapsed, 'before_status_sha256':before_sha, 'actual_status_sha256':sha(status_path), 'assertion_status_counts':status['assertion_status_counts'], 'case_status_counts':status['case_status_counts'], 'source_and_ledger_sha256':receipt['source_and_ledger_sha256'], 'all_legacy_and_native_validators_real_unmocked':True, 'source_packet_and_observations_not_rewritten':True, 'process_Docker_database_SQL_network_boundary_calls':len(calls), 'historical_original_failure_causes':'UNOBSERVED', 'whole94_or451_promoted':False, 'Brain_acceptance':'PENDING', 'Posture':'D'}
+p = T / 'native388_actual_Root_unmocked_status_build_20261119.json'
+with p.open('xb') as handle:
+    handle.write((json.dumps(proof, indent=2) + '\n').encode())
+print(json.dumps({'proof_sha256':sha(p), 'status':proof['status'], 'seconds':elapsed, 'assertion_status_counts':status['assertion_status_counts']}))

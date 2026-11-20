@@ -1,0 +1,173 @@
+{
+  "schema": "workinants.privilege-ceiling-owned-safety-source-plan.v1",
+  "recorded_at_utc": "2026-11-19T02:59:52Z",
+  "status": "SOURCE_PLAN_ONLY_PENDING_ROOT_ACK_AND_DERIVED_OWNER_SAFETY_ACCEPTANCE",
+  "author": "/root/restricted_controls_operator",
+  "authority": "Root bounded source-plan assignment. Root remains sole Git writer and actual resource/runtime executor.",
+  "runtime": "NOT_RUN",
+  "posture": "D",
+  "implementation_authorized_by_this_plan": false,
+  "execution_authorized_by_this_plan": false,
+  "existing_sources_may_change": false,
+  "approved_privilege_packet": {
+    "freeze_path": "privilege_ceiling_frozen_source_plan_20261119.json",
+    "freeze_sha256": "2a37e7c46ba2ecd4b2aafb56b011c83399c3bfbee212cec6f1195d87f124e3b4",
+    "independent_review_path": "privilege_ceiling_independent_root_source_review_20261119.json",
+    "independent_review_sha256": "41f6ad5a4abf7b6e7cc085d6ff545192fb4587272f7baa87dc7e18dd823e2f4a",
+    "decision": "SOURCE_APPROVED_BOUNDED_FINITE_PACKET_ONLY_OWNED_OPERATOR_STILL_REQUIRED",
+    "source_files_sha256": {
+      "context/reconciliation/privilege-ceiling-approved-source-plan.json": "3298704adfe2110a4a333945c37de4432e851e918598dfc966e665473aa7e066",
+      "scripts/privilege_ceiling_control_protocol.py": "faf980151efec719fc54963fc0630c056cba50c40f3f1eb7e7d1f0c7fc18f921",
+      "scripts/prepare-privilege-ceiling-control-rehearsal.py": "05263b8611d099795f0887054d6c07a02044adec48474ec1c9ba6872b1daf981",
+      "scripts/sql-review/run-privilege-ceiling-control-rehearsal.py": "80ca5e62a6a89891e73ecb7afc0e134c3c5b75ed81d0f3adc01ba7c718d03d3f",
+      "scripts/sql-review/test_privilege_ceiling_control_protocol.py": "ace30fd0fa750de6c1574ffdf26a6a5f5a88330460020196d64999e253fb77d8",
+      "scripts/sql-review/test_run_privilege_ceiling_control_rehearsal.py": "34a8d2983c05c42d5228d13403438e645db5c7d4d933a9276cbaa125fc565fcd",
+      "scripts/sql-review/PRIVILEGE-CEILING-CONTROL-REHEARSAL.md": "26cffbb7c0f13c9cfc013ba9ec4d8f83c5d753196cc5aed38369558382533a43"
+    },
+    "fixtures_path": "review-output/privilege-ceiling-control-rehearsal/fixtures.json",
+    "fixtures_sha256": "4ebe8b6cd7b85ff5ad8dbb79d431bb7001cf16dea72e3920138be4b5f2855e68",
+    "content_sha256": "643232e4d068892b49e49122b7ce3b909bd86caa9e770aa923d7df00def1ec32",
+    "artifacts": 202,
+    "all_7_sources_and_202_artifacts_rehashed_before_plan": "MATCH",
+    "source_or_artifact_changes_permitted": false,
+    "runtime_outcomes": "NOT_RUN"
+  },
+  "mandatory_source_basis_gate": {
+    "common_template_only": {
+      "helper_path": "common_safety_sql_v1_helpers.py.txt",
+      "helper_sha256": "a3cf85cfd4802d9eb293fc957672b1ba7f842e49b6b15985cd81be6cbe1ee537",
+      "peer_review_path": "common_safety_sql_v3_independent_source_review_20261119.json",
+      "peer_review_sha256": "99009f9a2f29f52db3815b113810dc00f2ad24a3370479105b21091227432d01",
+      "root_review_path": "common_safety_sql_v1_root_source_review_20261119.json",
+      "scope": "Exact third-freeze common template; approval does not extend to any derived family or runtime."
+    },
+    "derived_owner_safety_sql_v1": {
+      "status": "AWAITING_OWN_FROZEN_SOURCE_AND_INDEPENDENT_REVIEW",
+      "acceptance_required_before_privilege_implementation": true,
+      "required_inputs": "Exact accepted five external files, complete physical source archive, source-validation and independent_safety_sql_review gate, shared image review, actual composed main/cleanup/finalizer review and full real pure source-verifier evidence.",
+      "binding": "Record and verify the eventual accepted Owner SafetySQL family hashes in the implementation derivation. No unreviewed evolving file or old historical label may select executable code.",
+      "held_old_Owner_Finally_or_unsafely_composed_runner_may_be_used": false
+    },
+    "implementation_sequence": "Root ACK of this plan; accepted derived Owner SafetySQL source; new privilege-only derivation; actual whole-source/mocked safety tests; separate independent source review; source publication/pinning by Root; fresh independent literal review; Root-only execution decision."
+  },
+  "proposed_new_files_only": {
+    "external_files": [
+      "execute_local_f0_privilege_ceiling_safety_sql_v1_20261119.py",
+      "local_f0_privilege_ceiling_safety_sql_v1_operation_steps.py",
+      "prepare_local_f0_privilege_ceiling_safety_sql_v1_plan.py",
+      "check_local_f0_privilege_ceiling_safety_sql_v1_operation.py",
+      "pin_local_f0_privilege_ceiling_safety_sql_v1_plan_20261119.py"
+    ],
+    "new_root_archive": "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1",
+    "new_root_validation": "context/reconciliation/local-f0-privilege-ceiling-owned-safety-sql-v1-source-validation.json",
+    "archival_code_format": ".py.txt; inert data; exact source bytes and full recursive hash maps.",
+    "archive_contents": "Five new external snapshots, approved privilege seven-source/202-artifact maps, privilege independent41f review, accepted Owner SafetySQL/source lineage and common third-freeze peer/root records, image/source/history/tool provenance and focused author/peer reports. Preserve every old family and report unchanged.",
+    "new_files_created_now": "Only this source-plan JSON; no runner, archive, manifest, snapshot, evidence or private directory is created during this planning task."
+  },
+  "proposed_literal_identity_only_not_runtime_observed": {
+    "run_id": "977bd344-1230-4d2f-b325-0ee59f5679da",
+    "container": "wa-p0c-977bd344-privilege",
+    "volume": "wa-p0c-977bd344-privilege-data",
+    "plan_directory": "TASK/local-f0-privilege-ceiling-plan-977bd344",
+    "evidence_directory": "TASK/local-f0-privilege-ceiling-977bd344",
+    "private_directory": "TASK/local-f0-privilege-ceiling-977bd344/private",
+    "only_host_secret_file": "TASK/local-f0-privilege-ceiling-977bd344/private/ok-bootstrap-password",
+    "targets": 1,
+    "target_kind": "ok",
+    "labels": {
+      "workinants.rehearsal": "p0c-local-f0",
+      "workinants.rehearsal.run": "977bd344-1230-4d2f-b325-0ee59f5679da"
+    },
+    "absence_or_conflict_checks": "NOT_RUN. Pure preparation and later runtime must require fresh directories and absence of both exact resource names; a conflict stops without adoption/removal. A replacement identity requires a new pure literal and independent review.",
+    "source_commit": "TO_BE_PINNED",
+    "source_tree": "TO_BE_PINNED",
+    "operation_packet_sha256": "TO_BE_PINNED",
+    "review_status": "PENDING_OPERATIONAL_REVIEW"
+  },
+  "image_storage_credentials": {
+    "image_reference": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "oci_config_digest": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_identity_source": "scripts/sql-review/local_image_identity.py",
+    "image_identity_source_sha256": "a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604",
+    "policy": "Use retained image only after exact reviewed manifest/descriptor/config/platform/version proof, then bind actual observed store image Id to the created container Image. Never assume image Id equals OCI config digest. No pull fallback, image prune or image removal in this runner.",
+    "endpoint": "Exact local desktop-linux npipe context, Linux/amd64 server; stop on mismatch.",
+    "database": "wa_p0c_rehearsal",
+    "isolation": "network none; no published ports; default private PID/IPC; no privileged mode, Docker socket, host namespaces, devices or extra mounts.",
+    "mounts": "Only exact run-created PGDATA volume; read-only exact private bootstrap file; root-owned0700 /run/wa-secrets tmpfs with pgpass0600.",
+    "credential_policy": "Accepted Owner machinery's owner-only Windows directory DACL verified before creation; independent synthetic passwords per role generated only during a future approved run. Passwords in RAM/stdin/private files only, never argv/env/evidence. Delete only exact test-owned host secret file and then confirmed-empty private directory; uncertain lstat absence stays unconfirmed.",
+    "bootstrap_logins": ["postgres", "wa_migrator", "wa_context_issuer", "wa_identity_service_authority", "wa_app_runtime", "wa_worker"],
+    "provider_simulation_logins": ["anon", "authenticated", "service_role"],
+    "no_NOLOGIN_role_password_attempts": true,
+    "logging": "Loopback TCP initialized SCRAM; password_encryption=scram-sha-256; statement logging none; error-statement logging panic; reviewed fixed safe diagnostic prefix and lc_messages=C unchanged."
+  },
+  "source_install_and_native_gate": {
+    "current_and_committed_full_packet": "Verify actual HEAD/tree and every complete inventory file against committed Git bytes, aggregate SHA256(sorted path+NUL+hash+LF), exact five external hashes and corresponding five physical archived snapshots. Required membership/hash admission precedes any filesystem source read/compile; no fallback helper path.",
+    "closed_compilation": "Same cached prehashed bytes for all admitted modules: privilege inputs/200SQL, Native83SQL/module closure, catalog16, image helper, history helper, runtime guard and helper graphs. Prehash the entire required closure before first project compile or any process. Archive folder/filename/source-validation/pinner mappings must agree exactly.",
+    "source_history": "Fresh derived seven-file synthetic initial-history snapshot and source archive from unchanged canonical application5ae, candidate Prisma schema and source/runtime inputs. Preserve original Windows checkout, original migration history, old evidence and unfinished work. Do not write or adopt history in the original checkout.",
+    "canonical_application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "worker_access_source_sha256": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "worker_acl_rows": 32,
+    "tools": "Same closed10300-file Linux Prisma/tool inventory; exact archive481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb and every member/path/hash before execution; source/runtime versions unchanged.",
+    "provider_preinstall": "Exactly three local synthetic provider logins and reviewed all-nine schema-USAGE sentinels before canonical installation; canonical install must remove all nine. Complete nine-login effective HBA, verifier, actual SCRAM method, correct/wrong-password and identity/database/loopback controls; failures stop before behavioral testing.",
+    "installation": "One genuine guarded Prisma initial deployment using the canonical integrated application SQL. Do not separately apply raw structure SQL; do not invent P3018 or repair permissions. Require exactly one applied migration and original-grantor finalization after installation-client exit.",
+    "finalization": "Accepted Owner SafetySQL applicability and exact source finalizer policy; required pre-observer with strict typed zero all-client counts, exact regular/nonlink raw finalizer path and approved afd6 bytes, original postgres SCRAM command, then independent strict post-observer. No source alias/hash fallback, active/malformed precondition REVOKE or SQL retry. Finalization command/source failure remains STOP even if post-state is clean; validated clean/dirty post-state is OBSERVED_NOT_QUALIFIED. Record zero temporary memberships and all three leaf CREATE=false before native/behavioral qualification.",
+    "full_native_prerequisite": "Exact actual full comparator29089 checks,416-expression rollback oracle and22 private-ledger checks, all complete PASS at the same target/source/run. Validate exact counts, statuses, source/native hashes and zero findings. No metadata attestation substitutes for actual comparators. Strict global all-client closure at each boundary and unchanged post-oracle catalog required before any privilege fixtures."
+  },
+  "coordinator_admission_and_order": {
+    "exact_cli": "python -B scripts/sql-review/run-privilege-ceiling-control-rehearsal.py --execute-reviewed-privilege-ceilings --run-plan <fresh-external-json> --evidence-directory <fresh-external-directory>",
+    "transport_source": "Unchanged approved privilege coordinator80ca5e62; Native SessionV3 6e74115cc7a77e626c4379c5a5744efdede1257d04b206fc339e62a23fd49cd3; CTX5ec53d01d7c5b19bea0a584ef9f5b4e6742d9509c21ac7e2250b9bdd62511f33.",
+    "three_digest_roles": "Outer operation_packet_sha256 binds complete committed inventory. Privilege fixtures SHA4ebe and content643 bind the finite packet. Native nested packet_sha256 remains8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69. Never interchange these aggregates or select an old executable packet from historical labels.",
+    "attestation_schema": "workinants.privilege-ceiling-native-attestation.v1",
+    "attestation_required_exact_fields": ["schema", "run_id", "container_id", "source_commit", "source_tree", "operation_packet_sha256", "native_sql_packet_sha256", "application_sql_sha256", "source_expected_sha256", "native_snapshot_sha256", "native_comparison_file_sha256", "genuine_prisma_one_applied_migration", "original_grantor_finalized", "native_expression_oracle_and_private_ledger_pass", "all_other_client_backends_absent", "provider_preinstall_source_proven", "posture", "whole_case_promotion"],
+    "attestation_binding": "Exact actual same-run immutable CID, source/tree/full operation aggregate, full actual Native snapshot and PASS-comparison asset hash, canonical5ae, expected Native3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433, Native8044, genuine one-migration/oracle/ledger/source-provider proofs, original finalized grantor, zero clients, D and whole_case_promotion=false. Exact field sets/types and same-target migration manifest/tool closure required.",
+    "coordinator_implementation_unchanged": true,
+    "declared_order": [
+      "Repeat resource/authentication/finalization/full native checks; verify all42 application/private tables initially empty.",
+      "Exact Native205 fixture setup and40 rollback-only validity controls; observe exact100 trigger/function/body/state restoration; do not invoke Native960 facets.",
+      "Sixteen source definer metadata checks and owner/leaf/permanent-membership metadata, with stated limits.",
+      "Actual issuer-owned person grant INSERT/own SELECT/foreign hiding/separate COMMIT before four same-application bound scalar calls under two caller paths; close application before revocation.",
+      "Twenty forbidden grant-column updates and unrevoked-NULL guard; positive first one-way revoke; repeat-revoke and actual unrevoke guards.",
+      "Thirty-four runtime escalation, four helper and four private Identity native object-gate contrasts.",
+      "Actual fresh worker tuple/issuer stored-and-committed service grant; exact source currentness rejection against independently witnessed known-revoked Identity fixture.",
+      "One hundred seventeen issuer business DML and eighteen provider schema-reachability contrasts; exact200 set/verdict required.",
+      "Final unchanged100 guards,42-table original fingerprint plus complete21-column/exact-count private checks for only at-most-two acknowledged new grants, full Native parity and source/tool/archive preservation."
+    ],
+    "bounded_component_evidence_reference": "Assign fixed partial-reference status before lstat/open; regular nonlink exact expected path, typed nonnegative stat size<=16MiB, bounded read16MiB+1, cached same bytes for digest and verdict, fixed ABSENT/UNAVAILABLE/OVERSIZED status on failure. No second arbitrary read; reference I/O cannot bypass required outer global closure.",
+    "result_contract": "Require exact approved evidence schema and source/run identity, status PASS_PREPARED_PRIVILEGE_CEILINGS_ONLY_CASES_NOT_RUN, evidence_complete=true, exactly200 unique named typed negative verdicts,16 exact definer metadata matches,40 validity controls,3 named issuer protocols, all closure/state/coherence and source unchanged flags; validate only approved fixed fields/booleans/counts/hashes. A process exit0 or generic status alone never passes."
+  },
+  "claims_and_limits": {
+    "existing_assertion_scope": "Exactly original5 control links plus40 issuer umbrella links; no new register IDs, capability, permission, function or schema semantics.",
+    "negative_counts": {"issuer_business_DML":117,"runtime_escalation":34,"provider_schema_reachability":18,"immutable_grant_columns":20,"private_Identity_native_object_gates":4,"helper_calls":4,"immutable_guard_contrasts":3,"total":200},
+    "separate_counts_not_whole_cases": "16 metadata comparisons;3 issuer protocols;40 fixture validity controls;205 setup facts. These are different evidence kinds and must not be added into selected-case completion counts.",
+    "positive_issuer_exception": "Legitimate grant INSERT/own SELECT/one-way revoke are positive controls, never forbidden business-write contrasts; generic DatabaseActionGrant business-write umbrella stays unresolved/unpromoted.",
+    "partial_gates": "Provider schema failures do not isolate function EXECUTE. Private INSERTs prove only earlier native object gates. Native table/column diagnostics do not necessarily isolate the chosen verb/column. No owner write/API qualification derives from fixture bypasses or Native validity.",
+    "not_claimed": ["direct NOLOGIN startup guard/null verifier proof", "function-body secrecy", "shadow-object resistance", "hosted provider parity", "production Identity adapter", "worker enrollment loop", "Native960 replay", "full94/451 qualification", "migration adoption", "hosted changes", "production readiness"],
+    "all_unexercised_cases": "NOT_RUN; no source-only status or prior different-target outcome promotes runtime evidence."
+  },
+  "required_safety_and_cleanup_semantics": [
+    "Preserve original first STOP across component/reference/required-safety failures. Nested finally unconditionally attempts all-client closure across all databases/roles/tags, including return, throw, malformed verdict and reference/stat/read/save errors. No later data/native observer or contrast when operation/global closure is uncertain.",
+    "Required safety commands use exact accepted same-file closed selectors/owned CID/postgres transport and existing120second boundary. Normal sql/observe remain fail-fast on I/O. No arbitrary SQL/role parameter, permissive ignore_io or timeout relaxation.",
+    "Best-effort persistence/events remain sticky incomplete/nonzero and cannot prevent eligible finalizer pre/command/post attempts. A public evidence barrier prevents ordinary continuation; command failure cannot be converted to PASS by diagnostic metadata or clean post-state.",
+    "Outer finally independently attempts each applicable original-grantor finalization, secret scan, exact owned container/volume cleanup, exact secret/empty-directory cleanup and preservation checks despite persistent write/event/final-output failure. Initial durable evidence must precede resources; final save/stdout failure forbids PASS.",
+    "Resource deletion requires actual run-created CID plus exact name/both labels, actual bound image and recorded inspected identity; volume requires exact name/both labels/CreatedAt. Reinspect before removal, refuse foreign/replaced/unowned identity; a failed container deletion or report write does not skip independent volume/secret/absence attempts when ownership and dependency conditions permit them.",
+    "Independently verify exact container and volume names absent afterward; only FileNotFoundError proves private path absence. Unknown/permission/error remains unconfirmed and non-PASS. Retain pinned image, source snapshots, historical evidence, unrelated resources and all sanitized partial reports. No prune, shared deletion, hosted cleanup or automatic behavioral retry."
+  ],
+  "required_environment_free_closure_tests_before_source_freeze": [
+    "Actual full verify_packet/loader with real pure-prepared complete inventory, real Root inputs, physical five snapshots, fixed source root and actual cached helper graph; mock only outer Git/common process boundary. Forbid every real process/network/database API. Missing, unknown, unpinned, drifted, aliased, wrong-folder, stale-source/history/tool/coordinator/SQL snapshots reject before first project compile/process.",
+    "Exact current/committed full aggregate, privilege fixtures/content and Native8044 dual binding; wrong source/tree/run/CID/native snapshot/PASS-comparison/provider proof/attestation field type or digest rejects before coordinator launch. Same cached bytes compiled/hashed/verdict-read once.",
+    "Image Descriptor/store Id/config distinction, wrong platform/digest/version/created-container Image/mounts/names/labels stop. Source/provider preinstall proof and all nine correct+wrong auth controls gate installation/behavior. No Docker operations during mocks.",
+    "Actual owning main and required pre-finalizer-post composition under transient/persistent report/save/event/close-event/final-output failure; original STOP exact, typed false/float/negative/unknown backend counts or auth rejects; required source-finalizer raw symlink/nonregular/drift refuses command while eligible safe post-observer still attempts; no finalizer retry or error-to-PASS.",
+    "Invoke the real frozen privilege loader and actual Native Session-backed coordinator with every process mocked. Preserve the independently reviewed15+20 suite applicability; adapter-specific tests must validate emitted exact CLI, full actual source/native attestation and strict typed200/16/40/3 result contract rather than a canned success blob.",
+    "Component return/throw/nonzero/malformed/partial evidence, reference lstat/open/read-growth/16MiB cap/hash/save failure always attempt global closure. Different-tag/non-migrator/other-database client and throwing/malformed closure prevent later native/data observation or packet. Partial evidence remains fixed, bounded and sanitized.",
+    "Actual inner cleanup matrix: container inspect/delete failure, volume inspect/delete failure, label/CID/CreatedAt replacement, secret lstat/remove failure, every report write failing, final output failure. All independently eligible later cleanup/absence/preservation operations attempted; foreign resources refused; strict unconfirmed status/nonzero preserved.",
+    "Fresh directory/resource conflicts reject without adoption/removal; owner-only credential handling and secret-exclusion checks cover raw passwords, URI/row/exception/SQL/handle/PID/xid canaries. No arbitrary raw output persisted.",
+    "Canonical5ae, Native83/8044,32 worker ACL rows, all frozen privilege7+202 and historical archives remain byte-identical. Full recursive new archive closure and independently reviewed safety family/hash gates present in actual pure preparation and pin helper.",
+    "Separate peer review must inspect full family semantics, all required finally composition call sites and exact full-source CPU admission before Root source publication and independent literal review. No test/source plan creates runtime authority."
+  ],
+  "planning_actions_actually_completed": [
+    "Read source instructions, privilege peer41f and common third-freeze peer990/root records; inspected existing machinery as historical reference only.",
+    "Rehashed all7 frozen privilege sources and202 artifacts: zero mismatches. Read same10300-file tool-closure metadata and exact pinned-image/source identifiers.",
+    "Created this new source-plan JSON only, using read-only shell file inspection/hashing and a direct file patch. No Python/test subprocess, implementation, Docker/database/SQL/network/Git, credentials or resource operation was performed."
+  ],
+  "plain_english": "This is only a building plan. The checked test instructions stay untouched. A new runner will need its own review, use one empty test box, check its locks, run only the listed tests, and clean up only its own box. Nothing has run yet."
+}

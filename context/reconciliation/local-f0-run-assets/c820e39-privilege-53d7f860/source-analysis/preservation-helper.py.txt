@@ -1,0 +1,83 @@
+"""Preserve closed sanitized privilege attempt; no runtime or Git mutation."""
+from pathlib import Path
+import datetime, hashlib, json, subprocess
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+HEAD = 'c820e39622843d9fc3b565cee6578a340970fba2'
+TREE = 'c004c3488cba127833d4a5052853c67d7d50c98f'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+def encoded(value):
+    return (json.dumps(value, indent=2, allow_nan=False) + '\n').encode()
+def put(path, content):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('xb') as handle:
+        handle.write(content)
+assert subprocess.check_output(['git', '-c', 'core.longpaths=true', 'rev-parse', 'HEAD'], cwd=R).decode().strip() == HEAD
+plan_path = T / 'local-f0-privilege-ceiling-plan-53d7f860/operation-manifest.json'
+assert sha(plan_path) == '2eaf81bff7cbbd6734e5feca5983cc5d426afb6ca9feddde3fd305f7b24b26fd'
+m = json.loads(plan_path.read_bytes())
+out = Path(m['evidence_directory'])
+assert out == T / 'local-f0-privilege-ceiling-53d7f860' and not (out / 'private').exists()
+assert sha(out / 'run-evidence.json') == '9e930e526c9bb08b30a8d4cdd9946bece30884451e1b9ce83dc7fc68d33163ab'
+raw = json.loads((out / 'run-evidence.json').read_bytes())
+assert raw['status'] == 'STOPPED_ATTEMPT_PRESERVED' and raw['finished_at']
+assert raw['approved_commit'] == HEAD and raw['approved_tree'] == TREE
+child_path = out / 'privilege-ceiling-component/privilege-ceiling-results.json'
+assert sha(child_path) == 'c0a75b456a5f122e9bb1d100ba06d59990774d34b31aa76c5a85f76ee9d8f9fe'
+child = json.loads(child_path.read_bytes())
+assert child['results'] == [] and child['facets'] == [] and len(child['operations']) == 42
+assert child['current']['caller_path_comparisons'] == [False]
+assert child['current']['original_operation_failure']['code'] == 'SAME_APP_TUPLE_REQUIRED'
+assert child['current']['global_client_closure_confirmed'] is True
+assert child['current']['all_100_trigger_functions_restored'] is True
+cleanup = T / 'privilege_c820_53d7f860_independent_cleanup_20261119.json'
+assert sha(cleanup) == '0a5571a7b254cef8173a9fc5b931efafaba7c2fbeb919d1de1b91ce321feeda6'
+assert json.loads(cleanup.read_bytes())['status'] == 'PASS_INDEPENDENT_PHYSICAL_CLEANUP'
+asset = R / 'context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860'
+assert not asset.exists()
+copies = {}
+for source in out.rglob('*'):
+    if not source.is_file():
+        continue
+    relative = source.relative_to(out)
+    assert 'private' not in relative.parts
+    assert source.suffix == '.json' or relative.as_posix() == 'set-private-acl.ps1'
+    destination = asset / 'evidence' / relative
+    if source.suffix == '.ps1':
+        destination = destination.with_name(destination.name + '.txt')
+    copies[destination] = source.read_bytes()
+for source in plan_path.parent.iterdir():
+    if source.is_file() and source.suffix == '.json':
+        copies[asset / 'manifest' / source.name] = source.read_bytes()
+for kind, target in m['migration_targets'].items():
+    source = Path(target['manifest_path'])
+    assert sha(source) == target['manifest_sha256']
+    copies[asset / 'manifest' / ('migration-' + kind + '.json')] = source.read_bytes()
+for label, name in [('independent-cleanup.json', cleanup.name), ('independent-literal-review.json', 'privilege_v4_53d7f860_independent_operational_literal_review_20261119.json'), ('Root-literal-approval-receipt.json', 'privilege_v4_53d7f860_root_literal_approval_receipt_20261119.json'), ('Root-independent-cleanup-helper.py.txt', 'verify_c820_priv53d7_completed_cleanup_20261119.py')]:
+    copies[asset / label] = (T / name).read_bytes()
+analysis = {
+    'schema': 'workinants.priv53d7-bounded-source-analysis.v1', 'recorded_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    'observed': {'child_failure': child['failure'], 'current_case': child['current_case'], 'original_operation_failure': child['current']['original_operation_failure'], 'first_caller_path_comparison': False, 'issuer_COMMIT_acknowledged': True, 'own_grant_visible': True, 'foreign_grant_hidden': True, 'all_actors_closed_before_observers': True, 'all_100_guards_restored': True, 'behavioral_results': 0, 'negative_cases_run': 0},
+    'proven_source_defect': 'person_binding expects context_subject(principal) true for customer_buyer_profile. Canonical context_subject returns true only for consent_disclosure. The test VM omits this owner restriction.',
+    'canonical_source': {'path': 'review-output/foundation-application.review.sql', 'sha256': sha(R / 'review-output/foundation-application.review.sql'), 'context_subject_line': 2471, 'context_subject_owner_line': 2440},
+    'coordinator': {'path': 'scripts/sql-review/run-privilege-ceiling-control-rehearsal.py', 'sha256': sha(R / 'scripts/sql-review/run-privilege-ceiling-control-rehearsal.py'), 'expression_line': 444, 'verdict_line': 449},
+    'actual_failed_comparison_values': 'NOT_RETAINED', 'complete_original_cause': 'UNOBSERVED', 'source_defect_consistent_with_stop': True,
+    'proposed_bounded_correction': 'Use existing context_subject_owner with exact principal and owner; keep Consent-only context_subject behavior. Retain fixed Boolean parsing/shape/ACK/error-empty and allowed/owner_subject/same_tuple outcomes before assertion. Model both helpers from canonical semantics and add old-helper restoration plus unrelated-owner/principal/tuple/malformed/secret regressions.',
+    'execution_retry': 'HELD_PENDING_CORRECTION_SEPARATE_REVIEW_OFFLINE_VALIDATION_PUBLICATION_PIN_AND_LITERAL', 'Posture': 'D',
+}
+copies[asset / 'source-analysis/person-binding-oracle-source-analysis.json'] = encoded(analysis)
+copies[asset / 'source-analysis/preservation-helper.py.txt'] = Path(__file__).read_bytes()
+for destination, content in copies.items():
+    assert len(content) < 50 * 1024 * 1024
+    content.decode('utf8')
+    if destination.suffix == '.json':
+        json.loads(content)
+    put(destination, content)
+assets = {p.relative_to(R).as_posix(): sha(p) for p in copies}
+record = {'schema': 'workinants.local-f0-c820-version-qualified-stopped-execution-record.v1', 'recorded_at_utc': analysis['recorded_at_utc'], 'run_id': m['run_id'], 'source_commit': HEAD, 'source_tree': TREE, 'operation_packet_sha256': m['packet_sha256'], 'operation_manifest_sha256': sha(plan_path), 'started_at_utc': raw['started_at'], 'finished_at_utc': raw['finished_at'], 'actual_wrapper_status': raw['status'], 'actual_steps': raw['steps'], 'raw_evidence_sha256': sha(out / 'run-evidence.json'), 'raw_child_sha256': sha(child_path), 'raw_reports_unchanged': True, 'independent_cleanup_sha256': sha(cleanup), 'facts': analysis, 'assets_sha256': assets, 'source_preservation': {key: value for key, value in raw.items() if key.endswith('_unchanged_after_run') or key == 'all_source_and_external_inputs_preserved_after_run'}, 'limits': {'new_assertion_qualification': 'NONE_FROM_STOPPED_COMPONENT', 'prepared_negative_cases200': 'NOT_RUN', '451_and_whole94': 'NOT_PROMOTED', 'Posture': 'D'}}
+p = R / 'context/reconciliation/local-f0-privilege-c820e39-53d7f860-execution.json'
+put(p, encoded(record))
+receipt = {'schema': 'workinants.c820-priv53d7-closed-attempt-preserved.v1', 'record': p.relative_to(R).as_posix(), 'record_sha256': sha(p), 'asset_count': len(assets), 'assets_sha256': assets, 'runtime_or_Git_mutated': False, 'Posture': 'D'}
+p = T / 'c820_priv53d7_stopped_attempt_preserved_inventory_20261119.json'
+put(p, encoded(receipt))
+print(json.dumps({'inventory_sha256': sha(p), 'record': receipt['record'], 'record_sha256': receipt['record_sha256'], 'asset_count': len(assets)}))

@@ -1,0 +1,89 @@
+{
+  "schema": "workinants.privilege-person-subject-independent-observation-source-analysis.v1",
+  "recorded_at_utc": "2026-11-20T04:28:54.590692+00:00",
+  "closed_record_sha256": "33714c3bff6bcd648945cd2655c63d006c3444c5fd99768d7f53e02af11a7009",
+  "closed_raw_sha256": "9e930e526c9bb08b30a8d4cdd9946bece30884451e1b9ce83dc7fc68d33163ab",
+  "closed_child_sha256": "c0a75b456a5f122e9bb1d100ba06d59990774d34b31aa76c5a85f76ee9d8f9fe",
+  "actual_observation": {
+    "wrapper_status": "STOPPED_ATTEMPT_PRESERVED",
+    "child_failure": {
+      "stage": "SOURCE_QUALIFIED_NATIVE_CATALOG",
+      "code": "INTERACTIVE_OUTPUT_UNCONFIRMED"
+    },
+    "case": "ISSUER-LEGITIMATE-PERSON-ISSUE-OWN-READ-BOUND-SCALARS",
+    "operations": 42,
+    "negative_results": 0,
+    "native_validity_controls": 40,
+    "definer_observations": 16,
+    "completed_issuer_protocols": 0,
+    "first_aggregate_caller_comparison": false,
+    "original_operation_failure": {
+      "phase": "FINISH",
+      "classification": "SOURCE_HELD_FAILURE",
+      "code": "SAME_APP_TUPLE_REQUIRED"
+    },
+    "issuer_COMMIT_acknowledged": true,
+    "own_grant_visible": true,
+    "foreign_grant_hidden": true,
+    "actors_closed_before_observers": true,
+    "global_client_closure_confirmed": true,
+    "full_native_checks": {
+      "PASS": 29089
+    },
+    "oracle": "PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE",
+    "ledger_checks": 22,
+    "Root_independent_physical_cleanup_sha256": "0a5571a7b254cef8173a9fc5b931efafaba7c2fbeb919d1de1b91ce321feeda6"
+  },
+  "source_proven": {
+    "canonical_application_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "functions": {
+      "context_subject": {
+        "body_sha256": "70229db282cd828ca6f765d39b14c2f20403df57f1c073ced579c355d40d49ff",
+        "line": 2471,
+        "bound_grant_currentness_required": true,
+        "owner_contract": "Consent-only consent_disclosure"
+      },
+      "context_subject_owner": {
+        "body_sha256": "08294b51becd7884f56449afd697e484ce9eea7afafd203804d3dce55d57b1d2",
+        "line": 2440,
+        "bound_grant_currentness_required": true,
+        "owner_contract": "exact supplied source_owner"
+      }
+    },
+    "bad_old_oracle": "person_binding used Consent-only context_subject(principal) for a Customer-owned grant while requiring subject=True.",
+    "mock_defect": "Old subprocess World.context_subject omitted the required Consent owner restriction.",
+    "smallest_correction": "Call existing context_subject_owner(principal, exact Customer template owner), retain same backend/transaction, two binds, issuer COMMIT and two paths; fixed Boolean comparisons before assertion."
+  },
+  "not_observed_or_inferred_as_actual": {
+    "original_raw_probe_values": "NOT_RETAINED",
+    "complete_original_cause": "UNOBSERVED",
+    "actual_specific_false_scalar": "UNOBSERVED",
+    "old_Runtime_row_values_reconstructed": false
+  },
+  "current_source_disjointness": [
+    {
+      "manifest": "local-f0-install-controls-plan-b778f794",
+      "packet_files": 167,
+      "proposed_changed_existing_overlap": []
+    },
+    {
+      "manifest": "local-f0-lease-revoke-plan-a560e05b",
+      "packet_files": 167,
+      "proposed_changed_existing_overlap": []
+    },
+    {
+      "manifest": "local-f0-restore-plan-980a38cb",
+      "packet_files": 253,
+      "proposed_changed_existing_overlap": []
+    },
+    {
+      "manifest": "local-f0-worker-recovery-plan-6282f5ad",
+      "packet_files": 408,
+      "proposed_changed_existing_overlap": []
+    }
+  ],
+  "historical_evidence_and_old_AdmissionV4_unchanged": true,
+  "tests": "HELD_DURING_WORKER_TIMING_RUN",
+  "runtime": "NOT_RUN_FOR_CORRECTION",
+  "Posture": "D"
+}

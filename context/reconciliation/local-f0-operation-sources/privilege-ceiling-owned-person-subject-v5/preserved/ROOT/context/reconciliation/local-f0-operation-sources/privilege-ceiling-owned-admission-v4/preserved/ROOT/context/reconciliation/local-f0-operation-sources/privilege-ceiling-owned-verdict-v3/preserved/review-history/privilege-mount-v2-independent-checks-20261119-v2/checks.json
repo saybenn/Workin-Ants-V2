@@ -1,0 +1,115 @@
+{
+  "schema": "workinants.privilege-owned-resource-mount-v2-independent-source-checks.v1",
+  "recorded_at_utc": "2026-11-19T21:53:40.523866+00:00",
+  "source_freeze_sha256": "0bf164666e6c463da4f18dd5a57738d6b621dcf409f46bd761de4007f8d69e5a",
+  "operator_sources_sha256": {
+    "execute_local_f0_privilege_ceiling_resource_mount_v2_20261119.py": "f17526d007fbb122df354f7239bd83c60d5392be1d410262fdf017558e937b1e",
+    "local_f0_privilege_ceiling_resource_mount_v2_operation_steps.py": "73641f264ce9880380e7c7426d6faf199bccb1aef83034a31837a4b48e304227",
+    "prepare_local_f0_privilege_ceiling_resource_mount_v2_plan.py": "6335ea8394759d8cfe7881f42fbe36c5244349c7b7242552636bacf23cf773e7",
+    "check_local_f0_privilege_ceiling_resource_mount_v2_operation.py": "9feddb5f779e63c889b5745a61cdc5df313eda630dd45cb4dde3adffec09675a",
+    "pin_local_f0_privilege_ceiling_resource_mount_v2_plan_20261119.py": "4ca1b08b40cb586119f1122e8cbb2c810ddbdc4afe55059fff1149f3aa79133c"
+  },
+  "archived_files_verified": 155,
+  "old_to_new_namespace_AST_delta": {
+    "execute_local_f0_privilege_ceiling_resource_mount_v2_20261119.py": {
+      "text_equal_after_namespace": true,
+      "changed": [],
+      "added": [],
+      "removed": []
+    },
+    "local_f0_privilege_ceiling_resource_mount_v2_operation_steps.py": {
+      "text_equal_after_namespace": false,
+      "changed": [
+        "inspect_owner"
+      ],
+      "added": [
+        "verify_running_secret_tmpfs"
+      ],
+      "removed": []
+    },
+    "prepare_local_f0_privilege_ceiling_resource_mount_v2_plan.py": {
+      "text_equal_after_namespace": false,
+      "changed": [
+        "prepare"
+      ],
+      "added": [],
+      "removed": []
+    },
+    "check_local_f0_privilege_ceiling_resource_mount_v2_operation.py": {
+      "text_equal_after_namespace": false,
+      "changed": [
+        "PrivilegeOperationTests"
+      ],
+      "added": [],
+      "removed": []
+    },
+    "pin_local_f0_privilege_ceiling_resource_mount_v2_plan_20261119.py": {
+      "text_equal_after_namespace": true,
+      "changed": [],
+      "added": [],
+      "removed": []
+    }
+  },
+  "accepted_owner_source_and_archive_verified": true,
+  "accepted_owner13_safety_functions_identical": [
+    "_required_safety_evidence_complete",
+    "_required_safety_save",
+    "_required_safety_event",
+    "_required_safety_failure",
+    "_required_safety_first_exception",
+    "_required_safety_barrier",
+    "_required_safety_text",
+    "_required_safety_decode",
+    "_required_safety_sql",
+    "_required_zero_backends",
+    "closed_backends",
+    "_RequiredSafetyBoundary",
+    "finalize"
+  ],
+  "accepted_owner_resource_functions_and_fixed_kernel_script_identical_after_identifiers": true,
+  "finite_privilege_sources": 7,
+  "finite_privilege_artifacts": 202,
+  "finite_packet_unchanged": true,
+  "canonical_and_acl_unchanged": {
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea"
+  },
+  "suites": [
+    {
+      "file": "check_local_f0_privilege_ceiling_resource_mount_v2_operation.py",
+      "source_sha256": "9feddb5f779e63c889b5745a61cdc5df313eda630dd45cb4dde3adffec09675a",
+      "tests": 57,
+      "seconds": 115.078,
+      "unittest_seconds": 113.969,
+      "exit_code": 0,
+      "status": "PASS",
+      "output_sha256": "73ff4ed0288b77963741f3a883ea32bb7481b4825c5566ed64791122c18a491f"
+    },
+    {
+      "file": "check_privilege_owned_resource_mount_v2_safety_composed_20261119.py",
+      "source_sha256": "fabfc2f88fa196b6360ffb6e2e72dd6aebd42260ba2c4ff37bc57334bb674499",
+      "tests": 24,
+      "seconds": 11.188,
+      "unittest_seconds": 10.054,
+      "exit_code": 0,
+      "status": "PASS",
+      "output_sha256": "0ef964bb5569f46931b7ce4ca860faf658bd2233eeea055f686a0bfac4651e65"
+    },
+    {
+      "file": "check_privilege_owned_resource_mount_v2_adapter_20261119.py",
+      "source_sha256": "3651c25ec34b83fa6a216f37e44d780c91ccec524650d5ff3cf20a68d4670d6a",
+      "tests": 2,
+      "seconds": 49.203,
+      "unittest_seconds": 48.204,
+      "exit_code": 0,
+      "status": "PASS",
+      "output_sha256": "fc5a43b3356e20b0af74f7dd8c84c1ddcff8249b542e44466febe80e79debe5a"
+    }
+  ],
+  "unique_test_methods": 83,
+  "runtime": "NOT_RUN",
+  "actual_Docker_database_network_credentials_resources": false,
+  "source_and_repository_mutations": false,
+  "limits": "Mocked composition and source qualification only; genuine PostgreSQL/kernel/resource results require a separately reviewed exact literal attempt."
+}

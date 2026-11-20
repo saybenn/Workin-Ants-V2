@@ -1,0 +1,99 @@
+"""TASK-only clone/data preparation. Original source/status/33 assets never change."""
+from pathlib import Path
+from copy import deepcopy
+import datetime,difflib,hashlib,json,pprint,shutil
+D=Path(__file__).resolve().parent;T=D.parent;R=T/'workinants-correction-pass';F=D/'future-root'
+A='context/reconciliation/local-f0-operation-sources/native-1110-4c894-evidence-adapter-v1'
+B='context/reconciliation/local-f0-run-assets/1110fa4-native-4c894dba'
+RECORD='context/reconciliation/local-f0-native-1110fa4-4c894dba-execution.json'
+DERIVED='context/reconciliation/local-f0-native-1110fa4-4c894dba-qualified-evidence.json'
+INVENTORY='context/reconciliation/local-f0-assertions.json';SQL='review-output/foundation-application.review.sql';ACCESS='context/reconciliation/foundation-sql-draft-access.json'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+def raw(path,wanted=None):
+    value=path.read_bytes()
+    if wanted:assert sha(value)==wanted,str(path)
+    return value
+def encoded(value):return(json.dumps(value,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def write(relative,value):
+    path=F/relative;path.parent.mkdir(parents=True,exist_ok=True)
+    with path.open('xb')as out:out.write(value)
+    return sha(value)
+# The current qualification JSON is excluded at every depth and never read.
+def ignored(directory,names):
+    return {name for name in names if name in {'.git','node_modules','.next','__pycache__','.venv','local-f0-qualification-status.json'}}
+assert not F.exists();shutil.copytree(R,F,ignore=ignored)
+assert not(F/'context/reconciliation/local-f0-qualification-status.json').exists()
+before=raw(R/'context/reconciliation/local-f0-assertion-evidence.json','bf24c70872204981b7ed910ad75e61a8a674d18431e64496a2f794d1d4b35ca1');ledger=json.loads(before);assert len(ledger['assertions'])==259
+assert before==raw(T/'owner-lease-da5-evidence-adapter-v1-draft-20261119/future-root/context/reconciliation/local-f0-assertion-evidence.json')
+record=json.loads(raw(R/RECORD,'051967fdccf01ffddcbab671962472583f2672dcda38c77e0e8c14f498eab46a'));assert len(record['assets_sha256'])==33
+for relative,wanted in record['assets_sha256'].items():raw(R/relative,wanted)
+manifest=json.loads(raw(R/B/'manifest/operation-manifest.json',record['operation_manifest_sha256']))
+assert len(manifest['packet_files_sha256'])==260
+for relative,wanted in manifest['packet_files_sha256'].items():raw(R/relative,wanted)
+child=json.loads(raw(R/B/'evidence/native-denials/native-denial-results.json',record['closed_component_sha256']));wrapper=json.loads(raw(R/B/'evidence/run-evidence.json',record['raw_evidence_sha256']));native=json.loads(raw(R/B/'evidence/native-before.json'))
+audit_inputs={
+ 'independent-audit.json':('native_1110_4c894_closed_evidence_independent_audit_20261119.json','9aa08dc7d26a89a108436eedaa0ecdc5139e74ba99c3a8d58e9ff77417b15649'),
+ 'exact520-proposal.json':('native_1110_4c894_exact_assertion_link_proposals_20261119.json','0dac36bbcbe7088a35e35044afb3a41b261d3d6b2dca4ace7fcc6f1a93f56468'),
+ 'binding-supplement.json':('native_1110_4c894_closed_evidence_binding_supplement_20261119.json','83fd14252d4d2c588deedc5f81d5cd1a4ef9e94349babaf37af6d1de6ae6f14e')}
+audits={A+'/'+name:write(A+'/'+name,raw(T/original,wanted))for name,(original,wanted)in audit_inputs.items()}
+for name in ('audit_closed_native_4c894_20261119.py','audit_closed_native_4c894_binding_supplement_20261119.py'):
+    write(A+'/audit-source/'+name+'.txt',raw(T/name))
+write(A+'/preserved/assertion-evidence.before259.json',before)
+inventory=json.loads(raw(R/INVENTORY,'7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558'))
+items={(case['id'],item['id']):item for case in inventory['cases']for item in case['assertions']}
+proposal=json.loads(raw(T/audit_inputs['exact520-proposal.json'][0],audit_inputs['exact520-proposal.json'][1]));rows=proposal['rows'];assert len(rows)==520
+assert not any('source_business_write'in row['assertion_id']for row in rows)
+contracts={'schema':'workinants.native-1110-audited-finite-source-contract.v1',
+ 'provenance':'Exact closed actual observations, independently audited against immutable source. Not simulated results or a database factory.',
+ 'audit_sha256':audit_inputs['independent-audit.json'][1],
+ 'source_ordered_operation_statements':[dict(name=op['name'],role=op['role'],source_sql_sha256=op['source_sql_sha256'])for op in child['operations']],
+ 'native_fixture42_projection':child['native_fact_projection'],
+ 'exact100_guard_identities':[row for row in native['triggers']if row['internal']is False],
+ 'closed_finished_context':{'current_stage':child['current_stage'],'current_case':child['current_case'],'current_probe':child['current_probe']},
+ 'source_oracle416_expressions':json.loads(raw(R/B/'evidence/oracle-evidence.json'))['results']['expressions']}
+contract_path=A+'/audited-finite-source-contract.json';contract_sha=write(contract_path,encoded(contracts))
+claims=[]
+for index,row in enumerate(rows):
+    key=(row['case_id'],row['assertion_id']);item=items[key]
+    assert row['proposed_status']=='PASS'and row['whole_case_promoted']is False
+    claims.append({'case_id':key[0],'assertion_id':key[1],'status':'PASS','expected_assertion_sha256':row['expected_assertion_sha256'],
+      'complete_source_assertion_sha256':sha(json.dumps(item,sort_keys=True,separators=(',',':'),allow_nan=False).encode()),
+      'independent_mapping':{'path':A+'/exact520-proposal.json','sha256':audits[A+'/exact520-proposal.json'],'json_pointer':'/rows/'+str(index)},
+      'component':{'path':row['child_asset_path'],'sha256':row['child_sha256'],'facet_json_pointer':row['facet_json_pointer'],'operation_json_pointer':row['operation_json_pointer'],'native_control_json_pointer':row['native_control_json_pointer']},
+      'observed_gate':row['observed_native_gate'],'qualification_scope':'EXACT_GENERIC_NATIVE_DENIAL_FACET_ONLY','whole_case_promoted':False})
+derived={'schema':'workinants.derived-native-reviewed-assertion-evidence.v1','derivation':'EXPLICIT_DERIVED_WRAPPER_NOT_RAW_RUNTIME_EVIDENCE',
+ 'run_id':record['run_id'],'source_commit':record['source_commit'],'source_tree':record['source_tree'],'packet_sha256':record['operation_packet_sha256'],
+ 'actual_result':'DERIVED_REVIEWED_NATIVE520_DENIAL_ASSERTIONS_ONLY','source_record':{'path':RECORD,'sha256':'051967fdccf01ffddcbab671962472583f2672dcda38c77e0e8c14f498eab46a','actual_result':record['actual_result'],'packet_alias_from':'operation_packet_sha256'},
+ 'independent_audit_files_sha256':audits,'finite_source_contract':{'path':contract_path,'sha256':contract_sha},'claims':claims,
+ 'limits':{'Posture':'D','whole_case_promoted':False,'RLS48_or_blocked4_qualified':False,'source_business_write_qualified':False,'owner_or_hosted_or_production_claim':False,'old0a29_stop_cause':'UNOBSERVED'}}
+derived_sha=write(DERIVED,encoded(derived))
+old=deepcopy(ledger);existing={(r['case_id'],r['assertion_id']):r for r in ledger['assertions']};decisions=[]
+for index,claim in enumerate(claims):
+    key=(claim['case_id'],claim['assertion_id'])
+    if key in existing:
+        assert existing[key]['status']=='PASS';action='RETAIN_PRIOR_PASS_CORROBORATION_ONLY'
+    else:
+        ledger['assertions'].append({'case_id':key[0],'assertion_id':key[1],'status':'PASS','expected_assertion_sha256':claim['expected_assertion_sha256'],
+         'source_commit':record['source_commit'],'source_tree':record['source_tree'],'packet_sha256':record['operation_packet_sha256'],'application_sql_sha256':'5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad',
+         'run_id':record['run_id'],'evidence_path':DERIVED,'evidence_sha256':derived_sha,'json_pointer':'/claims/'+str(index),
+         'qualification_scope':'Exact audited native '+claim['observed_gate']+' denial only; no isolated-column, owner/business-write, RLS-empty, vector or whole-case claim.'});action='APPEND_NEW_PASS'
+    decisions.append({'case_id':key[0],'assertion_id':key[1],'action':action})
+assert len(ledger['assertions'])==647 and ledger['assertions'][:259]==old['assertions']
+assert sum(v['action']=='APPEND_NEW_PASS'for v in decisions)==388
+ledger['executions'].append({'run_id':record['run_id'],'source_commit':record['source_commit'],'purpose':'INDEPENDENTLY_AUDITED_NATIVE520_GENERIC_DENIAL_ASSERTIONS_ONLY','source_execution_record_sha256':derived['source_record']['sha256'],'derived_evidence_record':DERIVED,'derived_evidence_sha256':derived_sha,'new_unique_PASS_links':388,'prior_PASS_corroborations_preserved':132,'source_business_write_RLS_or_vector_links_added':0,'manual_whole_case_promotions':0,'case_aggregation':'UNCHANGED_ALL_MANDATORY_ASSERTIONS_RULE','posture':'D'})
+lp=F/'context/reconciliation/local-f0-assertion-evidence.json';lp.write_bytes(encoded(ledger))
+pins={**manifest['packet_files_sha256'],**record['assets_sha256'],RECORD:derived['source_record']['sha256'],INVENTORY:'7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558',SQL:'5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad',ACCESS:'f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea',DERIVED:derived_sha}
+pins.update({p.relative_to(F).as_posix():sha(raw(p))for p in(F/A).rglob('*')if p.is_file()})
+constants={'ARCHIVE':A,'ASSET_BASE':B,'RECORD':RECORD,'DERIVED':DERIVED,'PINS':pins,'AUDIT_PINS':audits,'CONTRACT':contract_path,'INVENTORY':INVENTORY,'SQL':SQL,'ACCESS':ACCESS,'RUN':record['run_id'],'COMMIT':record['source_commit'],'TREE':record['source_tree'],'OP':record['operation_packet_sha256'],'FINITE':'8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69','SQL_SHA':pins[SQL],'CID':child['resource']['container_id'],'CLOSED_CLAIMS':{(c['case_id'],c['assertion_id']):i for i,c in enumerate(claims)}}
+with(D/'constants.py.txt').open('x',encoding='utf8',newline='\n')as out:
+    for name,value in constants.items():out.write(name+' = '+pprint.pformat(value,width=130,sort_dicts=True)+'\n\n')
+oldbuilder=(F/'scripts/prepare-local-f0-status.py').read_text(encoding='utf8');newbuilder=oldbuilder
+needle='from local_f0_owner_lease_evidence import validate_claim as validate_owner_lease_claim, EvidenceFailure as OwnerLeaseEvidenceFailure\n';assert newbuilder.count(needle)==1
+newbuilder=newbuilder.replace(needle,needle+'from local_f0_native_complete_evidence import validate_claim as validate_native_complete_claim, EvidenceFailure as NativeCompleteEvidenceFailure\n')
+newbuilder=newbuilder.replace('EVIDENCE_RECORDS={\n','EVIDENCE_RECORDS={\n    '+repr(DERIVED)+':('+repr(derived_sha)+','+repr(derived['actual_result'])+'),\n')
+needle="                elif row['evidence_path'] in (\n";assert newbuilder.count(needle)==1
+newbuilder=newbuilder.replace(needle,"                elif row['evidence_path']=="+repr(DERIVED)+":\n                    try:validate_native_complete_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer)\n                    except NativeCompleteEvidenceFailure as error:raise AssertionError(str(error)) from None\n"+needle)
+(F/'scripts/prepare-local-f0-status.py').write_text(newbuilder,encoding='utf8',newline='\n')
+with(D/'prepare-local-f0-status.py.patch').open('x',encoding='utf8',newline='\n')as out:out.write(''.join(difflib.unified_diff(oldbuilder.splitlines(True),newbuilder.splitlines(True),fromfile='a/scripts/prepare-local-f0-status.py',tofile='b/scripts/prepare-local-f0-status.py')))
+with(D/'data-preparation.json').open('x',encoding='utf8',newline='\n')as out:json.dump({'derived_record_sha256':derived_sha,'ledger_before_sha256':sha(before),'ledger_after_sha256':sha(lp.read_bytes()),'old_rows':259,'new_rows':388,'corroborations':132,'closed_claims':520,'native_source_business_write_excluded':True,'qualification_JSON_original_not_read_or_copied':True,'source_plan_sha256':sha(raw(D/'source-plan.json')),'original_root_builder_sha256':sha(raw(R/'scripts/prepare-local-f0-status.py')),'original_legacy_checker_sha256':sha(raw(R/'scripts/check-local-f0-status.py')),'decisions':decisions},out,indent=2);out.write('\n')
+print(json.dumps({'future_root':str(F),'derived_sha256':derived_sha,'pins':len(pins),'closed520':len(claims),'appended388':len(ledger['assertions'])-259,'old259_preserved':True}),flush=True)

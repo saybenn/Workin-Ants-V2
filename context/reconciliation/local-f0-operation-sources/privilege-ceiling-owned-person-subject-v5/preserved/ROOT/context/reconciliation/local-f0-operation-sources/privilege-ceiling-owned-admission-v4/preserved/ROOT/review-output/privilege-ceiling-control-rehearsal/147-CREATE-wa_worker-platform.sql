@@ -1,0 +1,1 @@
+BEGIN; SET LOCAL lock_timeout='1s'; SET LOCAL statement_timeout='5s'; CREATE TABLE platform.wa_priv___WA_RUN8___probe(id integer); ROLLBACK;

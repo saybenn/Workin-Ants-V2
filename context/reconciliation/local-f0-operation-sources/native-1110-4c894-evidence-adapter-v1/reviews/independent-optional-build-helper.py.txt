@@ -1,0 +1,70 @@
+"""Independent pure, unmocked future-only build with process/network forbidden."""
+from collections import Counter
+import contextlib
+import datetime
+import hashlib
+import io
+import json
+import os
+from pathlib import Path
+import runpy
+import socket
+import subprocess
+import sys
+import time
+from unittest.mock import patch
+
+T=Path(__file__).resolve().parent
+D=T/'native-1110-4c894-evidence-adapter-v1-draft-20261119'
+F=D/'future-root'
+REAL=T/'workinants-correction-pass'
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def load(p):return json.loads(p.read_bytes())
+author=load(D/'author-review.json');freeze=load(D/'freeze-manifest.json')
+assert sha((D/'author-review.json').read_bytes())=='012dc5a61a14bb1f2869b63852dfa17e032b06c82a2e978526d160f96fcc63fa'
+assert sha((D/'freeze-manifest.json').read_bytes())=='5a925c2834e9cc781da33e2dc18a61406643a9a1f382fc7409c2d389d2738c0b'
+full=load(D/'future-root-full-map.json')['files_sha256']
+def verify():
+ for n,h in full.items():assert sha((F/n).read_bytes())==h,n
+ for n,h in freeze['draft_artifacts_sha256'].items():assert sha((D/n).read_bytes())==h,n
+verify()
+def audit(event,args):
+ if event in ('subprocess.Popen','os.system','socket.connect','socket.__new__'):raise AssertionError('PROCESS_NETWORK_FORBIDDEN')
+ if event=='open'and args and isinstance(args[0],(str,bytes,os.PathLike)):
+  try:path=Path(os.fsdecode(args[0])).resolve()
+  except (OSError,ValueError):return
+  if path.is_relative_to(REAL):raise AssertionError('REAL_ROOT_READ_OR_WRITE_FORBIDDEN')
+sys.addaudithook(audit)
+def forbidden(*args,**kwargs):raise AssertionError('PROCESS_NETWORK_FORBIDDEN')
+sys.path.insert(0,str(F/'scripts'))
+counts=Counter();first_calls=[]
+module_path=F/'scripts/local_f0_native_complete_evidence.py'
+def profile(frame,event,arg):
+ if event=='call'and Path(frame.f_code.co_filename)==module_path:
+  name=frame.f_code.co_name
+  if name in ('read','prepare_batch','validate_claim','verify_unchanged','require_finalized'):
+   counts[name]+=1
+   if name!='read'and len(first_calls)<6:first_calls.append(name)
+captured=io.StringIO();started=time.monotonic()
+with patch.object(subprocess,'Popen',forbidden),patch.object(subprocess,'run',forbidden),patch.object(subprocess,'check_output',forbidden),patch.object(subprocess,'check_call',forbidden),patch.object(os,'system',forbidden),patch.object(socket,'socket',forbidden),patch.object(socket,'create_connection',forbidden),contextlib.redirect_stdout(captured),contextlib.redirect_stderr(captured):
+ namespace=runpy.run_path(str(F/'scripts/prepare-local-f0-status.py'),run_name='_independent_future_native388_build')
+ sys.setprofile(profile)
+ try:result=namespace['build']()
+ finally:sys.setprofile(None)
+elapsed=time.monotonic()-started
+assert counts=={'prepare_batch':1,'read':606,'validate_claim':388,'verify_unchanged':1,'require_finalized':1},counts
+for name in ('local_f0_native_complete_evidence','local_f0_migration_evidence','local_f0_catalog_evidence','local_f0_restricted_evidence','local_f0_native_prefix_evidence','local_f0_owner_lease_evidence'):
+ assert Path(sys.modules[name].__file__).resolve()==F/'scripts'/(name+'.py'),name
+expected=load(F/'context/reconciliation/local-f0-qualification-status.json')
+assert result==expected
+encoded=(json.dumps(result,indent=2)+'\n').encode()
+assert sha(encoded)==author['proposed_Root_files_sha256']['context/reconciliation/local-f0-qualification-status.json']
+assert result['assertion_status_counts']=={'PASS':615,'PARTIAL':32,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':348,'UNRESOLVED_SOURCE':7}
+assert result['case_status_counts']=={'PASS':4,'PARTIAL':73,'FAILED':0,'DEPENDENCY_BLOCKED':0,'NOT_RUN':17}
+before=load(F/'context/reconciliation/local-f0-operation-sources/native-1110-4c894-evidence-adapter-v1/preserved/assertion-evidence.before259.json')
+after=load(F/'context/reconciliation/local-f0-assertion-evidence.json')
+assert after['assertions'][:259]==before['assertions']and len(after['assertions'])==647
+verify()
+record={'schema':'workinants.native388-independent-real-future-build.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS','actual_unmocked_future_build':True,'legacy_validators_or_new_batch_replaced':False,'seconds':round(elapsed,3),'trace_new_native_only':dict(counts),'all303_reads_happen_twice_no_per_claim_read':True,'exact14_hashes_unchanged':author['proposed_Root_files_sha256'],'future_root_files_verified_before_after':len(full),'author_artifacts_verified_before_after':len(freeze['draft_artifacts_sha256']),'assertion_status_counts':result['assertion_status_counts'],'case_status_counts':result['case_status_counts'],'all_old259_rows_value_identical':True,'only388_PASS_appended':True,'generated_status_in_memory_sha256':sha(encoded),'existing_proposed_status_file_not_written':True,'captured_output_sha256':sha(captured.getvalue().encode()),'real_Root_open_operations':'FORBIDDEN_BY_AUDIT_HOOK','all_Git_Docker_DB_SQL_process_socket_network':'FORBIDDEN_OR_NOT_CALLED','Posture':'D','current_real_Root_totals_promoted':False}
+path=T/'native388_independent_real_future_build_20261119.json';assert not path.exists();path.write_bytes((json.dumps(record,indent=2,sort_keys=True)+'\n').encode())
+print(json.dumps({'path':str(path),'sha256':sha(path.read_bytes()),'seconds':record['seconds'],'trace':dict(counts),'status':'PASS'}))

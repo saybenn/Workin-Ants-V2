@@ -1,0 +1,36 @@
+"""TASK-only offline runner; never targets original Root qualification JSON."""
+from pathlib import Path
+from contextlib import ExitStack
+import datetime,hashlib,importlib.util,json,runpy,socket,subprocess,sys,time,unittest
+from unittest.mock import patch
+D=Path(__file__).resolve().parent;F=D/'future-root';R=D.parent/'workinants-correction-pass';MODE=sys.argv[1]
+sys.path.insert(0,str(F/'scripts'));sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+def save(name,value):
+    with(D/name).open('x',encoding='utf8',newline='\n')as f:json.dump(value,f,indent=2,ensure_ascii=False);f.write('\n')
+def guards(stack):
+    for name in('run','Popen','call','check_call','check_output'):stack.enter_context(patch.object(subprocess,name,side_effect=AssertionError('NO_ACTUAL_PROCESS')))
+    stack.enter_context(patch.object(socket,'create_connection',side_effect=AssertionError('NO_NETWORK')));stack.enter_context(patch.object(socket.socket,'connect',side_effect=AssertionError('NO_NETWORK')))
+started=time.perf_counter()
+if MODE in ('focused','legacy'):
+    filename='check-local-f0-native-complete-evidence.py'if MODE=='focused'else'check-local-f0-status.py'
+    p=F/'scripts'/filename;spec=importlib.util.spec_from_file_location('_native_adapter_'+MODE,p);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    with ExitStack()as stack:
+        guards(stack)
+        with(D/('author-'+MODE+'-final.txt')).open('x',encoding='utf8',newline='\n')as log:
+            result=unittest.TextTestRunner(stream=log,verbosity=2).run(unittest.defaultTestLoader.loadTestsFromModule(module))
+    elapsed=round(time.perf_counter()-started,3)
+    report={'schema':'workinants.native-complete-adapter-author-offline-checks.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'suite':MODE,'tests_run':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'skipped':len(result.skipped),'seconds':elapsed,'status':'PASS'if result.wasSuccessful()else'FAIL','actual_process_SQL_Docker_database_Git_or_network':False,'original_Root_mutated':False,'new_adapter_real_data520_and303_snapshot_barriers':MODE=='focused','only_new520_dispatch_boundary_isolated':MODE=='legacy','files_sha256':{x:sha(F/x)for x in('scripts/local_f0_native_complete_evidence.py','scripts/check-local-f0-native-complete-evidence.py','scripts/prepare-local-f0-status.py','scripts/check-local-f0-status.py')}}
+    save('author-'+MODE+'-final.json',report);print(json.dumps(report,indent=2));raise SystemExit(0 if result.wasSuccessful()else 1)
+elif MODE=='status-build':
+    namespace=runpy.run_path(str(F/'scripts/prepare-local-f0-status.py'));build=namespace['build'];assert build.__globals__['ROOT']==F
+    with ExitStack()as stack:
+        guards(stack);result=build()
+    elapsed=round(time.perf_counter()-started,3)
+    expected=dict(PASS=615,PARTIAL=32,FAILED=0,DEPENDENCY_BLOCKED=32,NOT_RUN=348,UNRESOLVED_SOURCE=7)
+    assert result['assertion_status_counts']==expected
+    p=F/'context/reconciliation/local-f0-qualification-status.json';assert not p.exists()
+    with p.open('x',encoding='utf8',newline='\n')as out:json.dump(result,out,indent=2,ensure_ascii=False);out.write('\n')
+    before=json.loads((F/'context/reconciliation/local-f0-operation-sources/native-1110-4c894-evidence-adapter-v1/preserved/assertion-evidence.before259.json').read_bytes());old={(r['case_id'],r['assertion_id']):r for r in before['assertions']};after=json.loads((F/'context/reconciliation/local-f0-assertion-evidence.json').read_bytes());assert after['assertions'][:259]==before['assertions']
+    delta={'schema':'workinants.native-complete-adapter-derived-status-delta.v1','actual_unmocked_future_root_build':True,'seconds':elapsed,'assertion_status_counts':result['assertion_status_counts'],'case_status_counts':result['case_status_counts'],'actual_complete_case_ids':[c['id']for c in result['cases']if c['status']=='PASS'],'all_existing259_rows_value_identical':True,'new_PASS_rows':len(after['assertions'])-len(before['assertions']),'whole_case_flags_assigned_manually':False,'old132_prior_PASS_retained':True,'source_business_write_or_RLS_or_blocked_or_vector_links_added':False,'generated_status_sha256':sha(p),'Brain_acceptance':result['Brain_acceptance'],'Posture':result['database_posture'],'original_qualification_JSON_read_or_written':False,'legacy_validators_isolated_or_replaced':False,'all_process_SQL_Docker_database_Git_network_calls':0}
+    save('actual-status-delta.json',delta);print(json.dumps(delta,indent=2))
+else:raise SystemExit('Unknown bounded offline mode')

@@ -1,0 +1,45 @@
+def privilege_generated_artifact_closure(blobs, validation, fixtures, root, *, reproduce=True):
+    """Pure complete generated-byte proof; never constructs runtime authority."""
+    import contextlib
+    need(type(reproduce) is bool,'PRIVILEGE_GENERATED_PHASE_SHAPE')
+    prefix='review-output/privilege-ceiling-control-rehearsal/'
+    coordinator='scripts/sql-review/run-privilege-ceiling-control-rehearsal.py'
+    need(type(blobs) is dict and type(validation) is dict and type(fixtures) is dict,'PRIVILEGE_GENERATED_CLOSURE_SHAPE')
+    packet=validation.get('privilege_packet')
+    need(type(packet) is dict,'PRIVILEGE_GENERATED_ARTIFACT_MAP_REQUIRED')
+    expected=packet.get('artifacts_sha256')
+    need(type(expected) is dict and len(expected)==202,'PRIVILEGE_EXACT202_ARTIFACT_MAP_REQUIRED')
+    for relative,wanted in expected.items():
+        need(type(relative) is str and relative.startswith(prefix),'PRIVILEGE_GENERATED_ARTIFACT_PATH')
+        tail=relative[len(prefix):]
+        need(tail and tail not in ('.','..') and all(c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.-' for c in tail),'PRIVILEGE_GENERATED_ARTIFACT_PATH')
+        need(type(wanted) is str and len(wanted)==64 and all(c in '0123456789abcdef' for c in wanted),'PRIVILEGE_GENERATED_ARTIFACT_HASH')
+        need(relative in blobs and type(blobs[relative]) is bytes and hashlib.sha256(blobs[relative]).hexdigest()==wanted,'PRIVILEGE_GENERATED_ARTIFACT_NOT_ADMITTED')
+    need(prefix+'fixtures.json' in blobs and hashlib.sha256(blobs[prefix+'fixtures.json']).hexdigest()=='4ebe8b6cd7b85ff5ad8dbb79d431bb7001cf16dea72e3920138be4b5f2855e68','PRIVILEGE_GENERATED_FIXTURE_IDENTITY')
+    inputs=fixtures.get('source_files_sha256')
+    need(type(inputs) is dict and inputs,'PRIVILEGE_GENERATED_SOURCE_MAP_REQUIRED')
+    for relative,wanted in inputs.items():
+        need(relative in blobs and type(blobs[relative]) is bytes and hashlib.sha256(blobs[relative]).hexdigest()==wanted,'PRIVILEGE_GENERATED_INPUT_NOT_ADMITTED')
+    need(coordinator in blobs and hashlib.sha256(blobs[coordinator]).hexdigest()=='80ca5e62a6a89891e73ecb7afc0e134c3c5b75ed81d0f3adc01ba7c718d03d3f','PRIVILEGE_GENERATED_COORDINATOR_IDENTITY')
+    # Private constant-only precheck: never a runtime qualification or bypass.
+    if reproduce is False:return None
+    namespace={'__file__':str(root/coordinator),'__name__':'_verified_privilege_generated_closure'}
+    output=io.StringIO()
+    try:
+        with contextlib.redirect_stdout(output),contextlib.redirect_stderr(output):
+            exec(compile(blobs[coordinator],str(root/coordinator),'exec'),namespace)
+            generator=namespace['compile_closed'](blobs,namespace['GENERATOR'],{})
+            generated,reproduced=generator['generate'](root)
+    except BaseException:
+        need(False,'PRIVILEGE_GENERATED_CLOSED_REPRODUCTION_REFUSED')
+    need(not output.getvalue(),'PRIVILEGE_GENERATED_OUTPUT_REFUSED')
+    canonical=lambda value:json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)
+    need(canonical(reproduced)==canonical(fixtures),'PRIVILEGE_GENERATED_FIXTURE_MISMATCH')
+    need(type(generated) is dict and len(generated)==202 and all(type(name) is str and name and name not in ('.','..') and all(c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.-' for c in name) and type(raw) is bytes for name,raw in generated.items()),'PRIVILEGE_GENERATED_FILE_SET_SHAPE')
+    actual={prefix+name:hashlib.sha256(raw).hexdigest() for name,raw in generated.items()}
+    need(actual==expected,'PRIVILEGE_EXACT_GENERATED_ARTIFACT_MAP')
+    need(all(prefix+name in blobs and blobs[prefix+name]==raw for name,raw in generated.items()),'PRIVILEGE_EXACT_GENERATED_BYTES_REQUIRED')
+    need(all((root/relative).read_bytes()==blobs[relative] for relative in expected),'PRIVILEGE_GENERATED_ARTIFACT_CURRENT_DRIFT')
+    return {'status':'PASS_EXACT_SOURCE_REPRODUCTION_ONLY','generated_artifacts':202,'fixture_object_identical':True,'all_generated_bytes_admitted':True,'artifact_map_sha256':hashlib.sha256(canonical(expected).encode()).hexdigest()}
+
+

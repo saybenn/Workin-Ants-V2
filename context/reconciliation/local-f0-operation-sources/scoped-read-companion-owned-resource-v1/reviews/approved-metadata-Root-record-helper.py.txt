@@ -1,0 +1,42 @@
+"""Archive completed focused checks without changing reviewed operator code."""
+from pathlib import Path
+import datetime, hashlib, json
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+p = R / 'context/reconciliation/local-f0-scoped-read-companion-owned-resource-v1-source-validation.json'
+assert sha(p) == '5ce18c3026e69b476a2faa8f4f1d2d4bda7d0d670fea2ee4f420b19a4b425159'
+value = json.loads(p.read_bytes())
+prefix = value['source_root']
+assert len(value['archive_files_sha256']) == 112
+for name, expected in value['archive_files_sha256'].items():
+    assert sha(R / name) == expected
+for name, expected in value['operator_sources_sha256'].items():
+    assert sha(T / name) == expected
+check = T / 'six_read_owned_v1_approved_metadata_Root_checks_20261119.json'
+assert sha(check) == '58fb7cc00f9b40384c50a77cb6c59fb19ea6e545893c382790d70dbecac16049'
+proof = json.loads(check.read_bytes())
+assert proof['status'] == 'PASS' and proof['methods'] == 4
+assert proof['validation_sha256'] == sha(p) and proof['five_sha256'] == value['operator_sources_sha256']
+log = T / 'six_read_owned_v1_approved_metadata_Root_checks_20261119.log'
+assert sha(log) == proof['log_sha256']
+inputs = {
+    'approved-metadata-Root-checks.json': check,
+    'approved-metadata-Root-checks.log.txt': log,
+    'approved-metadata-Root-check-harness.py.txt': T / 'check_six_read_owned_v1_approved_metadata_phase_20261119.py',
+    'approved-metadata-Root-record-helper.py.txt': Path(__file__),
+}
+for name, source in inputs.items():
+    relative = prefix + '/reviews/' + name
+    target = R / relative
+    assert not target.exists()
+    with target.open('xb') as handle:
+        handle.write(source.read_bytes())
+    value['archive_files_sha256'][relative] = sha(target)
+value['Root_approved_metadata_phase_checks'] = {'status': 'PASS', 'methods': 4, 'path': prefix + '/reviews/approved-metadata-Root-checks.json', 'sha256': sha(check), 'limits': 'All Docker/database/network boundaries mocked or forbidden; operational review and fresh publication pin still required.'}
+p.write_bytes((json.dumps(value, indent=2, allow_nan=False) + '\n').encode())
+receipt = {'schema': 'workinants.six-read-approved-metadata-checks-archived.v1', 'recorded_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'validation_sha256': sha(p), 'archive_files': len(value['archive_files_sha256']), 'code_unchanged': True, 'checks_sha256': sha(check), 'runtime': 'NOT_RUN', 'Posture': 'D'}
+out = T / 'six_read_owned_v1_final_source_metadata_receipt_20261119.json'
+with out.open('xb') as handle:
+    handle.write((json.dumps(receipt, indent=2) + '\n').encode())
+print(json.dumps({'receipt_sha256': sha(out), **receipt}))

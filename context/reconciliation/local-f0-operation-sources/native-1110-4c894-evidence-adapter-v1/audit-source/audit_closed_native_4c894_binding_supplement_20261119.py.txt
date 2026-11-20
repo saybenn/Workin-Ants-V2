@@ -1,0 +1,84 @@
+"""Additional closed-evidence attestation/entrypoint binding checks, data only."""
+import datetime
+import json
+from pathlib import Path
+import audit_closed_native_4c894_20261119 as a
+
+T,R,O = a.T,a.R,a.O
+m = a.load(a.M,a.MANIFEST)
+r = a.load(O/'run-evidence.json',a.RAW)
+c = a.load(O/'native-denials/native-denial-results.json',a.CHILD)
+p = a.load(R/m['native_access']['packet'],a.PACKET)
+att = a.load(O/'native-access-attestation.json',r['native_access_attestation']['artifact_sha256'])
+planraw = (O/'native-deny-run-plan.json').read_bytes()
+plan = a.unique(planraw)
+providerraw = (O/'provider-preinstall-proof.json').read_bytes()
+provider = a.unique(providerraw)
+target = r['targets']['wa-p0c-4c894dba-native']
+cid = target['container_id']
+for v in (att,plan,provider):
+    a.need(v['run_id'] == a.RUN and v['source_commit'] == a.COMMIT and v['source_tree'] == a.TREE,'identity_chain')
+a.need(c['run_plan_sha256'] == att['coordinator_plan_sha256'] == a.sha(planraw),'coordinator_plan_hash')
+a.need(att['provider_proof_sha256'] == a.sha(providerraw),'provider_proof_hash')
+a.need(att['deny_packet_sha256'] == plan['packet_sha256'] == provider['packet_sha256'] == a.PACKET,'finite_packet_chain')
+a.need(att['coordinator_sha256'] == m['native_access']['coordinator_sha256'],'coordinator_hash')
+a.need(att['container_id'] == plan['immutable_container_id'] == provider['container_id'] == cid,'immutable_cid_chain')
+a.need(provider['application_sql_sha256'] == a.SQL and att['operation_packet_sha256'] == a.OP,'operation_source_chain')
+a.need(att['original_grantor_finalized'] is True and att['all_other_client_backends_absent'] is True and att['whole_case_promotion'] is False,'attestation_limits')
+a.need(provider['schema'] == 'workinants.native-deny-provider-preinstall.v1' and all(provider[k] is True for k in ('all_nine_schema_usage_sentinels_before_install','canonical_install_removed_all_nine','genuine_prisma_one_applied_migration','original_grantor_finalized','local_simulation_only')) and provider['hosted_parity_claimed'] is False,'provider_attestation_flags')
+a.need(provider['roles'] == r['provider_observations'][0]['roles'] == r['provider_observations'][1]['roles'] == c['provider_roles'],'provider_role_identity')
+a.need(plan['selected_case_ids'] == p['selected_case_ids'] == [v['id'] for v in c['selected_cases']],'selected_case_chain')
+nested = a.load(Path(m['migration_targets']['ok']['manifest_path']),m['migration_targets']['ok']['manifest_sha256'])
+a.need(plan['target_manifest'] == nested,'actual_target_manifest')
+for rel,h in plan['source_modules_sha256'].items():
+    a.need(m['packet_files_sha256'][rel] == h,'module_in_operation_packet')
+    a.hashed(R/rel,h)
+for key, artifact in (('native_snapshot','native-before.json'),('native_comparison','catalog-comparison.json'),('provider_preinstall_proof','provider-preinstall-proof.json')):
+    a.need(Path(plan[key]['path']) == O/artifact,'exact_artifact_path')
+    a.hashed(O/artifact,plan[key]['sha256'])
+native = a.load(O/'native-before.json')
+a.need(att['native_snapshot_sha256'] == a.digest(native) == r['qualified_native_snapshot_sha256'],'native_snapshot_chain')
+a.need(att['native_snapshot_file_sha256'] == a.sha((O/'native-before.json').read_bytes()) and att['comparison_file_sha256'] == a.sha((O/'catalog-comparison.json').read_bytes()),'native_file_chain')
+auth = a.load(O/'authentication-ok/authentication-results-ok.json')
+a.need(auth['scope'] == 'AUTH_PREFLIGHT_ONLY' and auth['status'] == 'PASS_PREFLIGHT_ONLY' and auth['current_stage'] == 'COMPLETE' and auth['failure'] is None and auth['subsequent_cases_stopped'] is False and auth['target'] == 'wa-p0c-4c894dba-native','first_auth_scope')
+a.need({v['role'] for v in auth['authentication']} == {'postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker'} and len(auth['authentication']) == 6,'first_six_role_set')
+for v in auth['authentication']:
+    a.need(v['correct_password'] == 'PASS_SCRAM' and v['wrong_password'] == 'PASS_REJECTED' and type(v['wrong_password_exit_code']) is int and v['wrong_password_exit_code'] == 2 and v['transport'] == 'TCP_127.0.0.1_5432','first_six_scram')
+a.need(a.alltrue(auth['authentication_comparison']) and a.alltrue(c['authentication_comparisons']),'authentication_comparisons')
+a.need(len(auth['effective_hba_selections']) == 12 and all(v['method'] == 'scram-sha-256' and v['address'] in ('127.0.0.1','::1') for v in auth['effective_hba_selections']),'scram_hba_selection')
+for op in r['catalog_operations']:
+    a.need(type(op['exit_code']) is int and op['exit_code'] == 0 and op['client_exited'] is True and op['unexpected_stderr'] is False and op['sqlstates'] == [] and op['raw_output_discarded'] is True,'catalog_process_closure')
+a.need(len(r['catalog_operations']) == 11,'catalog_operation_count')
+a.need(c['fingerprint_order_control']['read_only'] is True and c['fingerprint_order_control']['collected_as'] == 'postgres' and c['fingerprint_order_control']['server_version_num'] == 170011 and c['fingerprint_order_control']['known_name_count'] == 42 and c['fingerprint_order_control']['c_order_matches_source'] is True and type(c['fingerprint_order_control']['default_order_matches_source']) is bool,'source_name_order_control')
+expected_catalog_ops = {'native-fact-setup'}
+last = None
+for case in p['cases']:
+    expected_catalog_ops.add('native-control-'+case['model'])
+    runnable = [v for v in case['probes'] if v['preparation'] != 'BLOCKED']
+    last = runnable[-1]
+    expected_catalog_ops.add('deny-'+case['model']+'-'+last['role']+'-'+last['verb'])
+actual_catalog_ops = {v['name'] for v in c['operations'] if v.get('native_catalog_unchanged') is True}
+a.need(actual_catalog_ops == expected_catalog_ops and len(actual_catalog_ops) == 81,'all_case_boundary_native_parity')
+for op in c['operations']:
+    a.need(op.get('all_native_facts_unchanged') is True or op['name'] == 'native-fact-setup','all_postsetup_fact_flags')
+    a.need(op['session_after_finish'] == op['session_before_close'],'finish_before_close_identity')
+    for phase in ('session_after_constructor','session_after_capture'):
+        v=op[phase]
+        a.need(v['process_created'] is True and v['finish_completed'] is False and v['process_exit_confirmed'] is False and v['output_invalid'] is False and v['process_exit_class'] == 'RUNNING','session_progression')
+    a.need(op['session_after_constructor']['backend_tuple_present'] is False and op['session_after_capture']['backend_tuple_present'] is True and op['session_after_capture']['capture_completed'] is True,'tuple_capture_progression')
+    v=op['session_before_close']
+    a.need(v['backend_absence_query_attempted'] is False and v['backend_absence_confirmed'] is False and v['finish_completed'] is True,'closure_before_observer_progression')
+for key in ('NATIVE_FACET_SETUP','AFTER_NATIVE_DENIAL_COORDINATOR'):
+    pass
+a.need(any(v['stage']=='BEFORE_NATIVE_DENIAL_COORDINATOR' for v in r['backend_closures']) and any(v['stage']=='AFTER_NATIVE_DENIAL_COORDINATOR' for v in r['backend_closures']),'outer_child_global_brackets')
+cleanup = a.load(T/'native_1110_independent_cleanup_20261119.json','e0156611278eb083a75322e1ec0e881e0a503bf14d5b4f5d65617f88c6d0fe47')
+a.need(cleanup['manifest_sha256']==a.MANIFEST and cleanup['run_evidence_sha256']==a.RAW and cleanup['source_commit']==a.COMMIT and cleanup['source_tree']==a.TREE and cleanup['packet_sha256']==a.OP and cleanup['no_resource_mutation_or_SQL'] is True,'independent_cleanup_identity')
+prior = a.load(a.PRE); current = a.load(a.POST); reqs={(x['id'],v['id']):v for x in a.load(a.INVENTORY)['cases'] for v in x['assertions']}
+for baseline in (prior,current):
+    for row in baseline['assertions']:
+        k=(row['case_id'],row['assertion_id'])
+        a.need(row['expected_assertion_sha256'] == a.sha(reqs[k]['expected_assertion'].encode()),'baseline_requirement_digest')
+output={'schema':'workinants.closed-native-evidence-binding-supplement.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'decision':'PASS_ADDITIONAL_ATTESTATION_AND_CLOSURE_BINDINGS','audit_path':'native_1110_4c894_closed_evidence_independent_audit_20261119.json','audit_sha256':'9aa08dc7d26a89a108436eedaa0ecdc5139e74ba99c3a8d58e9ff77417b15649','proposed_map_sha256':'0dac36bbcbe7088a35e35044afb3a41b261d3d6b2dca4ace7fcc6f1a93f56468','checks':dict(a.CHECKS),'confirmed':{'exact_closed_runplan_attestation_provider_source_immutableCID_chain':True,'catalog_parity_after_setup_before_after_every_case':81,'actual_sessions_closed_and_reader_complete_before_observers':998,'all_original_six_and_three_provider_scram_controls':True,'eleven_closed_catalog_operations_no_unexpected_stderr':True,'outer_global_backend_observations_before_after_child':True,'both_ledger_baselines_requirement_digests_current':True},'mapping_changes':False,'limits':'Additional data-only evidence checks; no source self-reapproval, runtime, status or ledger mutation. Complete historical stopped causes remain UNOBSERVED.'}
+out=T/'native_1110_4c894_closed_evidence_binding_supplement_20261119.json'
+a.need(not out.exists(),'immutable_destination');out.write_bytes((json.dumps(output,sort_keys=True,indent=2)+'\n').encode())
+print(json.dumps({'path':str(out),'sha256':a.sha(out.read_bytes()),'checks':dict(a.CHECKS)}))

@@ -1,0 +1,70 @@
+"""Preserve closed Restore outcome without inferring commit/rollback qualification."""
+from pathlib import Path
+import datetime, hashlib, json
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+def encoded(value):
+    return (json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+def put(path,raw):
+    path.parent.mkdir(parents=True,exist_ok=True)
+    with path.open('xb') as handle:
+        handle.write(raw)
+plan_path = T / 'local-f0-restore-plan-980a38cb/operation-manifest.json'
+assert sha(plan_path) == 'f10a79edcb1efa03b499c5509e4544296785df0e6008b4e3624edc19722f9ed1'
+m = json.loads(plan_path.read_bytes())
+out = Path(m['evidence_directory'])
+assert out == T / 'local-f0-restore-980a38cb' and not (out / 'private').exists()
+assert sha(out / 'run-evidence.json') == '334c78715aca97d5d0d9a260a5867944fb45e495313d436233f054c4d7b2e156'
+raw = json.loads((out / 'run-evidence.json').read_bytes())
+assert raw['status'] == 'STOPPED_ATTEMPT_PRESERVED' and raw['finished_at']
+assert raw['approved_commit'] == m['source_commit'] == 'c820e39622843d9fc3b565cee6578a340970fba2'
+assert raw['approved_tree'] == m['source_tree'] == 'c004c3488cba127833d4a5052853c67d7d50c98f'
+bound = raw['restore']['bound_operations']
+assert len(bound) == 1 and bound[0]['grant_template'] == 'source_customer'
+b = bound[0]
+assert b['outcome']['exit_code'] == 0 and b['outcome']['acknowledgement'] is True
+assert b['outcome']['marker_order_matches'] is True and b['outcome']['diagnostic']['redaction'] == 'NO_SINGLE_EXACT_HEADER'
+assert b['operation_closed'] is True and b['closure_confirmed'] is True and b['matched'] is False
+cleanup = T / 'restore_c820_980a38cb_independent_cleanup_20261119.json'
+assert sha(cleanup) == '8b1a24d0e28c59f3280fbc199be63ba91c7ca770146d8f717b52e5884ef2f364'
+assert json.loads(cleanup.read_bytes())['status'] == 'PASS_INDEPENDENT_PHYSICAL_CLEANUP'
+facts = {'schema':'workinants.restore980a-normalized-closed-facts.v1', 'recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(), 'actual_origin':'RESTORE_BOUND_SOURCE_CUSTOMER/RESTORE_BOUND_OPERATION_NOT_COMMITTED', 'actual_positive_outcome':b['outcome'], 'same_xid_comparison':b['same_xid'], 'same_xid_code_None_is_pre_finish_not_an_actual_exit':True, 'issuer_operations':raw['restore']['issuer_operations'], 'closure_confirmed':b['closure_confirmed'], 'complete_expected_Customer_state':'NOT_OBSERVED_AFTER_UNQUALIFIED_OPERATION', 'positive_commit_or_rollback_qualified':False, 'complete_original_cause':'UNOBSERVED_UNLISTED_STDERR_DISCARDED', 'source_analysis':'Pinned source_customer has0BEGIN and1terminalCOMMIT; current no-BEGIN branch appends anotherCOMMIT. Constructed positive tail has2COMMIT. Proven source defect consistent with exit0/ACK/marker and non-error unlisted stderr; actual warning contents were not retained.', 'old3b8_complete_original_cause':'UNOBSERVED_NOT_RETROSPECTIVELY_EXPLAINED', 'backup_restore_parity_authority_rotation':'NOT_RUN', 'all_five_names_and_private_archive_directory_absent':True, 'pinned_image_retained':True, 'Posture':'D'}
+asset = R / 'context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb'
+assert not asset.exists()
+copies = {}
+for source in out.rglob('*'):
+    if not source.is_file():
+        continue
+    relative = source.relative_to(out)
+    assert 'private' not in relative.parts
+    assert source.suffix == '.json' or relative.as_posix() == 'set-private-acl.ps1'
+    destination = asset / 'evidence' / relative
+    if source.suffix == '.ps1':
+        destination = destination.with_name(destination.name+'.txt')
+    copies[destination] = source.read_bytes()
+for source in plan_path.parent.iterdir():
+    if source.is_file() and source.suffix == '.json':
+        copies[asset / 'manifest' / source.name] = source.read_bytes()
+for kind,target in m['migration_targets'].items():
+    source = Path(target['manifest_path'])
+    assert sha(source) == target['manifest_sha256']
+    copies[asset / 'manifest' / ('migration-'+kind+'.json')] = source.read_bytes()
+for label,name in [('independent-cleanup.json',cleanup.name),('independent-literal-review.json','restore980a38cb_independent_operational_literal_review_20261119.json'),('Root-literal-approval-receipt.json','restore_980a38cb_root_literal_approval_receipt_20261119.json'),('Root-cleanup-helper.py.txt','verify_c820_restore980a_completed_cleanup_20261119.py'),('source-analysis/commit-boundary-source-correction-plan.json','restore980a_commit_boundary_source_correction_plan_20261119.json')]:
+    copies[asset / label] = (T / name).read_bytes()
+copies[asset / 'source-analysis/normalized-closed-facts.json'] = encoded(facts)
+copies[asset / 'source-analysis/preservation-helper.py.txt'] = Path(__file__).read_bytes()
+for destination,content in copies.items():
+    assert len(content) < 50*1024*1024
+    content.decode('utf8')
+    if destination.suffix == '.json':
+        json.loads(content)
+    put(destination,content)
+assets = {p.relative_to(R).as_posix():sha(p) for p in copies}
+record = {'schema':'workinants.local-f0-c820-restore-version-qualified-stopped-execution-record.v1', 'recorded_at_utc':facts['recorded_at_utc'], 'run_id':m['run_id'], 'source_commit':m['source_commit'], 'source_tree':m['source_tree'], 'operation_packet_sha256':m['packet_sha256'], 'operation_manifest_sha256':sha(plan_path), 'started_at_utc':raw['started_at'], 'finished_at_utc':raw['finished_at'], 'actual_wrapper_status':raw['status'], 'actual_steps':raw['steps'], 'raw_evidence_sha256':sha(out / 'run-evidence.json'), 'raw_report_unchanged':True, 'independent_cleanup_sha256':sha(cleanup), 'facts':facts, 'assets_sha256':assets, 'source_preservation':{k:v for k,v in raw.items() if k.endswith('_unchanged_after_run') or k=='all_source_and_external_inputs_preserved_after_run'}, 'limits':{'new_assertion_qualification':False,'whole_RESTORE01_or94_or451_promoted':False,'Posture':'D'}}
+p = R / 'context/reconciliation/local-f0-restore-c820e39-980a38cb-execution.json'
+put(p,encoded(record))
+receipt = {'schema':'workinants.c820-restore980a-stopped-attempt-preserved.v1','record':p.relative_to(R).as_posix(),'record_sha256':sha(p),'asset_count':len(assets),'assets_sha256':assets,'runtime_or_Git_mutation':False,'Posture':'D'}
+p = T / 'c820_restore980a_stopped_attempt_preserved_inventory_20261119.json'
+put(p,encoded(receipt))
+print(json.dumps({'inventory_sha256':sha(p),'record':receipt['record'],'record_sha256':receipt['record_sha256'],'asset_count':len(assets)}))

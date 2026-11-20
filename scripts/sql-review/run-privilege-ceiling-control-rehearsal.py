@@ -60,6 +60,25 @@ def unique_json(raw):
     return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(Held('NONFINITE_JSON')))
 
 
+def person_binding_comparison(rows,ack,errors):
+    """Return only fixed Boolean checks; raw scalar rows never enter evidence."""
+    checks={'acknowledged':ack is True,'stderr_empty':type(errors)is str and errors=='','rows_list':type(rows)is list,'one_row':False,'row_text_bounded':False,'json_parsed':False,'object':False,'exact_fields':False,'boolean_fields':False,'allowed':False,'owner_subject':False,'same_tuple':False}
+    if type(rows)is not list:return checks
+    checks['one_row']=len(rows)==1
+    if not checks['one_row']or type(rows[0])is not str:return checks
+    try:checks['row_text_bounded']=len(rows[0].encode('utf8'))<=4096
+    except UnicodeError:return checks
+    if not checks['row_text_bounded']:return checks
+    try:value=unique_json(rows[0])
+    except Exception:return checks
+    checks['json_parsed']=True;checks['object']=type(value)is dict
+    if not checks['object']:return checks
+    checks['exact_fields']=set(value)=={'allowed','subject','same_tuple'}
+    checks['boolean_fields']=checks['exact_fields']and all(type(value[k])is bool for k in('allowed','subject','same_tuple'))
+    checks['allowed']=value.get('allowed')is True;checks['owner_subject']=value.get('subject')is True;checks['same_tuple']=value.get('same_tuple')is True
+    return checks
+
+
 def source_path(name):
     need(type(name)is str and not Path(name).is_absolute()and'\\'not in name and':'not in name and all(part not in('','.','..')for part in name.split('/')),'SOURCE_PATH')
     path=(ROOT/name).resolve();need(path.is_relative_to(ROOT.resolve()),'SOURCE_PATH_ESCAPE');return path
@@ -441,13 +460,15 @@ def runner_type(native,ctx,protocol):
             def behavior(app,actors,record):
                 instance=self.issue(template,app.backend,actors,record);self.person=instance
                 bind='SELECT platform_private.bind_request_context('+quote(instance['secret'])+');'
-                expression="SELECT jsonb_build_object('allowed',platform_private.context_allows("+','.join(quote(template[key])for key in('owner_module_id','action','target_kind','target_id','purpose'))+"),'subject',platform_private.context_subject("+quote(template['principal_user_id'])+"::uuid),'same_tuple',pg_backend_pid()="+app.backend['pid']+' AND pg_current_xact_id()::text='+quote(app.backend['xid'])+');'
+                expression="SELECT jsonb_build_object('allowed',platform_private.context_allows("+','.join(quote(template[key])for key in('owner_module_id','action','target_kind','target_id','purpose'))+"),'subject',platform_private.context_subject_owner("+quote(template['principal_user_id'])+"::uuid,"+quote(template['owner_module_id'])+"),'same_tuple',pg_backend_pid()="+app.backend['pid']+' AND pg_current_xact_id()::text='+quote(app.backend['xid'])+');'
                 outcomes=[]
                 for path in ('pg_catalog','public,app,platform,platform_private,pg_catalog'):
                     rows,ack,errors=app.call('SET LOCAL search_path='+path+';\n'+bind+'\n'+bind+'\n'+expression)
-                    if errors:self.unexpected_metadata(errors,record)
-                    good=ack is True and errors==''and len(rows)==1 and canonical(unique_json(rows[0]))==canonical({'allowed':True,'subject':True,'same_tuple':True})
-                    outcomes.append(bool(good));record['caller_path_comparisons']=list(outcomes);need(self.persist(),'EVIDENCE_INCOMPLETE');need(good,'SAME_APP_TUPLE_REQUIRED')
+                    checks=person_binding_comparison(rows,ack,errors);good=all(value is True for value in checks.values())
+                    outcomes.append(good);record['caller_path_comparisons']=list(outcomes);record.setdefault('caller_path_comparison_outcomes',[]).append(checks)
+                    need(self.persist(),'EVIDENCE_INCOMPLETE')
+                    if type(errors)is str and errors:self.unexpected_metadata(errors,record)
+                    need(good,'SAME_APP_TUPLE_REQUIRED')
                 rows,ack,errors=app.call('ROLLBACK;');need(ack is True and rows==[]and errors=='','INTERACTIVE_OUTPUT_UNCONFIRMED')
                 record['same_app_tuple_and_separate_issuer_COMMIT']=True
             self.interactive_case('ISSUER-LEGITIMATE-PERSON-ISSUE-OWN-READ-BOUND-SCALARS','wa_app_runtime',behavior)

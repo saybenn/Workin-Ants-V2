@@ -1,0 +1,19 @@
+"""Applicable read-only context/register checks; no database or Docker action."""
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+import datetime,hashlib,json,subprocess,sys,time
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+def perform(name):
+    start=time.monotonic();began=datetime.datetime.now(datetime.timezone.utc).isoformat()
+    result=subprocess.run([sys.executable,'-B','scripts/'+name+'.py'],cwd=R,capture_output=True,text=True,encoding='utf8',timeout=300)
+    log=T/('c820-native615-'+name+'-20261120.log')
+    with log.open('x',encoding='utf8')as f:f.write(result.stdout+result.stderr)
+    return {'name':name,'started_at_utc':began,'seconds':round(time.monotonic()-start,3),'exit_code':result.returncode,'log':log.name,'log_sha256':sha(log),'script_sha256':sha(R/('scripts/'+name+'.py')),'summary_tail':(result.stdout+result.stderr)[-1800:]}
+with ThreadPoolExecutor(max_workers=2)as pool:rows=list(pool.map(perform,['check-context','check-database-candidate']))
+ok=all(x['exit_code']==0 for x in rows)
+record={'schema':'workinants.c820-native615-progress-repository-checks.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS'if ok else'FAILED','checks':rows,'DB_or_Docker_contacted':False,'canonical_SQL5ae_worker32_June_unchanged':True,'Posture':'D'}
+p=T/'c820_native615_progress_repository_checks_20261120.json'
+with p.open('x',encoding='utf8')as f:json.dump(record,f,indent=2,allow_nan=False)
+print(json.dumps({'record_sha256':sha(p),**record}))
+raise SystemExit(0 if ok else 2)

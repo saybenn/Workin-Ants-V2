@@ -1,0 +1,32 @@
+{
+  "schema": "workinants.worker-owned-v1-independent-literal-review-timing-and-lineage.v1",
+  "decision": "SOURCE_APPROVED_OPERATIONAL_LITERAL",
+  "bound_reports_and_history_sha256": {
+    "worker_6282f5ad_independent_operational_literal_review_20261119.json": "6c0d17f98af1b3fe3991edec71f144d99b14b018f24493d0da31c7e56f4e14e6",
+    "worker_6282f5ad_independent_literal_audit_20261119.py": "29261d0c3df73dad0419ca86ea1aa204d6d975d70244f0ffe5524a4c8764a957",
+    "worker_6282f5ad_independent_literal_audit_20261119.first.py.txt": "fd85321a03bc5c014e40db7be716a2239ba160d24474e48771f0e56e4b3ebf78",
+    "worker_6282f5ad_independent_literal_audit_harness_history_20261119.json": "f9946055a7dfc96101fd97766a9914ad2ccc58c565b3589f0a4f6374398294e2"
+  },
+  "pending_literal_sha256": "a7669a5478361def22e892419d8c0f926f3045c6411bdf56586ef39b2167c162",
+  "operating_prerequisites": {
+    "fresh_endpoint_platform_image_resource_absence_preflight_by_Root": true,
+    "no_concurrent_heavy_offline_validation_during_actual_attempt": true,
+    "finite_overall_expiry_budget_seconds": 150,
+    "near_expiry_window_seconds": 15,
+    "clock_process_timeout_seconds": "min(5, remaining)",
+    "poll_sleep_max_seconds": 0.1,
+    "late_true_observation_does_not_restart_any_deadline": true,
+    "old_holder_must_bind_before_actual_expiry": true,
+    "genuine_checkpoint_required_before_any_clock": true,
+    "stop_attempt_without_repair_or_extension_on_missed_deadline": true
+  },
+  "working_tree_preservation": {
+    "entries_before_and_after": 20,
+    "all408_current_and_committed_source_pins_exact": true,
+    "unrelated_work_not_modified_or_reset": true
+  },
+  "history": "First reviewer probe incorrectly expected an admitted live historical Owner validation path. Exact preserved Owner validation was present and bound by hash. Reviewer-only script corrected; original script and failure note preserved; no operational source or literal change.",
+  "approval_metadata_toggled": false,
+  "runtime_executed": false,
+  "Posture": "D"
+}

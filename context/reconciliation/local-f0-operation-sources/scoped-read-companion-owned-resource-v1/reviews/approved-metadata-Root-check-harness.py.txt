@@ -1,0 +1,70 @@
+"""Four focused checks against approved metadata; all process boundaries mocked."""
+from pathlib import Path
+import datetime
+import hashlib
+import io
+import json
+import runpy
+import sys
+import time
+import unittest
+
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+validation_path = R / 'context/reconciliation/local-f0-scoped-read-companion-owned-resource-v1-source-validation.json'
+validation_sha = sha(validation_path)
+assert validation_sha == '5ce18c3026e69b476a2faa8f4f1d2d4bda7d0d670fea2ee4f420b19a4b425159'
+value = json.loads(validation_path.read_bytes())
+assert value['independent_owned_resource_review']['decision'] == 'SOURCE_APPROVED'
+assert value['independent_safety_sql_review']['decision'] == 'SOURCE_APPROVED'
+sources = {name: sha(T / name) for name in value['operator_sources_sha256']}
+assert sources == value['operator_sources_sha256']
+privilege = json.loads((T / 'local-f0-privilege-ceiling-plan-53d7f860/operation-manifest.json').read_bytes())
+for path, digest in privilege['packet_files_sha256'].items():
+    assert sha(R / path) == digest
+preparer_name = 'check_sixread_owned_resource_v1_preparer_pinner_20261119.py'
+admission_name = 'check_sixread_owned_resource_v1_source_admission_20261119.py'
+harness_hashes = {name: sha(T / name) for name in (preparer_name, admission_name)}
+preparer = runpy.run_path(str(T / preparer_name))
+admission = runpy.run_path(str(T / admission_name))
+Base = preparer['PreparerPinnerTests']
+
+class ExplicitPendingPhase(Base):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        path = cls.fixture['ROOT'] / cls.prep['OWNED_VALIDATION']
+        assert cls.fixture['ROOT'] != R and cls.fixture['TASK'] != T
+        record = json.loads(path.read_bytes())
+        for gate in ('independent_safety_sql_review', 'independent_owned_resource_review'):
+            record[gate] = {'decision': 'PENDING', 'offline_phase_fixture': True}
+        record['status'] = 'OFFLINE_PHASE_FIXTURE_PENDING_ONLY'
+        path.write_bytes(preparer['encoded'](record))
+
+suite = unittest.TestSuite([
+    admission['AdmissionTests']('test_01_actual_complete_verifier_current_committed_catalog16_helpers7_and_source7'),
+    Base('test_06_clone_only_approved_preparation_and_missing_actual_CTX_helper_reject'),
+    Base('test_09_real_pinner_full_current_committed_packet_stays_operational_pending'),
+    ExplicitPendingPhase('test_02_real_preparation_with_pending_gates_and_pinner_rejects_before_git'),
+])
+sys.addaudithook(preparer['audit'])
+stream = io.StringIO()
+start = time.monotonic()
+result = unittest.TextTestRunner(stream=stream, verbosity=2).run(suite)
+elapsed = round(time.monotonic() - start, 3)
+assert sha(validation_path) == validation_sha
+assert all(sha(T / name) == digest for name, digest in sources.items())
+assert all(sha(T / name) == digest for name, digest in harness_hashes.items())
+for path, digest in privilege['packet_files_sha256'].items():
+    assert sha(R / path) == digest
+log = T / 'six_read_owned_v1_approved_metadata_Root_checks_20261119.log'
+with log.open('x', encoding='utf-8') as handle:
+    handle.write(stream.getvalue())
+record = {'schema': 'workinants.six-read-owned-approved-metadata-phase-checks.v1', 'recorded_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'status': 'PASS' if result.wasSuccessful() else 'FAILED', 'methods': result.testsRun, 'elapsed_seconds': elapsed, 'validation_sha256': validation_sha, 'five_sha256': sources, 'harnesses_at_entry_and_exit_sha256': harness_hashes, 'log_sha256': sha(log), 'scope': 'Actual complete verifier and pinner against current approved metadata; only isolated cloned validation projected PENDING for phase refusal; no live gate/code change.', 'Priv53d7_906_unchanged': True, 'Docker_DB_SQL_network': 'FORBIDDEN_OR_MOCKED', 'Posture': 'D'}
+path = T / 'six_read_owned_v1_approved_metadata_Root_checks_20261119.json'
+with path.open('xb') as handle:
+    handle.write((json.dumps(record, indent=2, allow_nan=False) + '\n').encode())
+print(json.dumps({'record_sha256': sha(path), **record}))
+print(stream.getvalue()[-1600:])
+raise SystemExit(0 if result.wasSuccessful() else 2)

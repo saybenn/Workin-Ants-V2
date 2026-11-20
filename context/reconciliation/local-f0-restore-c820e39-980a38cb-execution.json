@@ -1,0 +1,151 @@
+{
+  "schema": "workinants.local-f0-c820-restore-version-qualified-stopped-execution-record.v1",
+  "recorded_at_utc": "2026-11-20T04:47:07.821636+00:00",
+  "run_id": "980a38cb-ec8e-4006-a3e3-60e7b6717492",
+  "source_commit": "c820e39622843d9fc3b565cee6578a340970fba2",
+  "source_tree": "c004c3488cba127833d4a5052853c67d7d50c98f",
+  "operation_packet_sha256": "57d44431f86cf30eb2436b26c362362e8d7e220a16bc4788c41a2ef97d658388",
+  "operation_manifest_sha256": "f10a79edcb1efa03b499c5509e4544296785df0e6008b4e3624edc19722f9ed1",
+  "started_at_utc": "2026-11-20T04:37:41.770707+00:00",
+  "finished_at_utc": "2026-11-20T04:41:15.796676+00:00",
+  "actual_wrapper_status": "STOPPED_ATTEMPT_PRESERVED",
+  "actual_steps": {
+    "CATALOG-SETUP": "PASS",
+    "CATALOG-AUTH": "PASS",
+    "CATALOG-TOOLS": "PASS",
+    "CATALOG-INSTALL": "PASS",
+    "CATALOG-ACL-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+    "CATALOG-TEXT-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+    "CATALOG-NATIVE": "PASS_OBSERVED_NOT_QUALIFIED",
+    "CATALOG-ORACLE": "PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE",
+    "CATALOG-LEDGER": "PASS_SOURCE_BOUND_NATIVE_SUBSET",
+    "CATALOG-COMPARE": "PASS_SOURCE_BOUND_NATIVE_CATALOG_ONLY",
+    "CATALOG-SANITIZED_EXPORT": "NOT_RUN",
+    "CATALOG-CLEANUP": "PASS",
+    "RESTORE-REVIEW": "NOT_RUN",
+    "RESTORE-SOURCE": "NOT_RUN",
+    "RESTORE-QUIESCENCE": "NOT_RUN",
+    "RESTORE-BACKUP": "NOT_RUN",
+    "RESTORE-VERIFY": "NOT_RUN",
+    "RESTORE-STAGE": "NOT_RUN",
+    "RESTORE-PARITY": "NOT_RUN",
+    "RESTORE-CREDENTIALS": "NOT_RUN",
+    "RESTORE-IDENTITY": "NOT_RUN",
+    "RESTORE-DIAGNOSTICS": "NOT_RUN",
+    "RESTORE-REQUARANTINE": "NOT_RUN",
+    "RESTORE-CLEANUP": "PASS_EXACT_OWNED_RESOURCE_AND_ARCHIVE_ABSENCE"
+  },
+  "raw_evidence_sha256": "334c78715aca97d5d0d9a260a5867944fb45e495313d436233f054c4d7b2e156",
+  "raw_report_unchanged": true,
+  "independent_cleanup_sha256": "8b1a24d0e28c59f3280fbc199be63ba91c7ca770146d8f717b52e5884ef2f364",
+  "facts": {
+    "schema": "workinants.restore980a-normalized-closed-facts.v1",
+    "recorded_at_utc": "2026-11-20T04:47:07.821636+00:00",
+    "actual_origin": "RESTORE_BOUND_SOURCE_CUSTOMER/RESTORE_BOUND_OPERATION_NOT_COMMITTED",
+    "actual_positive_outcome": {
+      "exit_code": 0,
+      "acknowledgement": true,
+      "fields_typed": true,
+      "output_bounded": true,
+      "line_count": 1,
+      "expected_count": 1,
+      "marker_presence": [
+        true
+      ],
+      "marker_order_matches": true,
+      "json_shape_matches": null,
+      "json_matches": null,
+      "diagnostic": {
+        "classification": "UNEXPECTED_NOT_GUARD_PROOF",
+        "redaction": "NO_SINGLE_EXACT_HEADER",
+        "single_header": false,
+        "sqlstate": null,
+        "source_binding_confirmed": false,
+        "source_metadata": null
+      }
+    },
+    "same_xid_comparison": {
+      "exit_code": null,
+      "acknowledgement": true,
+      "fields_typed": false,
+      "output_bounded": true,
+      "line_count": 1,
+      "expected_count": 1,
+      "marker_presence": [
+        true
+      ],
+      "marker_order_matches": true,
+      "json_shape_matches": null,
+      "json_matches": null,
+      "diagnostic": {
+        "classification": "UNEXPECTED_NOT_GUARD_PROOF",
+        "redaction": "EMPTY",
+        "single_header": false,
+        "sqlstate": null,
+        "source_binding_confirmed": true,
+        "source_metadata": null
+      }
+    },
+    "same_xid_code_None_is_pre_finish_not_an_actual_exit": true,
+    "issuer_operations": [
+      {
+        "issuer_login": "wa_context_issuer",
+        "target_login": "wa_app_runtime",
+        "commit_acknowledged": true,
+        "operation_closed": true,
+        "all_21_claims_verified": true
+      }
+    ],
+    "closure_confirmed": true,
+    "complete_expected_Customer_state": "NOT_OBSERVED_AFTER_UNQUALIFIED_OPERATION",
+    "positive_commit_or_rollback_qualified": false,
+    "complete_original_cause": "UNOBSERVED_UNLISTED_STDERR_DISCARDED",
+    "source_analysis": "Pinned source_customer has0BEGIN and1terminalCOMMIT; current no-BEGIN branch appends anotherCOMMIT. Constructed positive tail has2COMMIT. Proven source defect consistent with exit0/ACK/marker and non-error unlisted stderr; actual warning contents were not retained.",
+    "old3b8_complete_original_cause": "UNOBSERVED_NOT_RETROSPECTIVELY_EXPLAINED",
+    "backup_restore_parity_authority_rotation": "NOT_RUN",
+    "all_five_names_and_private_archive_directory_absent": true,
+    "pinned_image_retained": true,
+    "Posture": "D"
+  },
+  "assets_sha256": {
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/evidence/acl-preflight.json": "b1dffe67c99d83c46073c8db1f5e14bbda1b5dc0ed053be56d56a67a6018f3c8",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/evidence/catalog-comparison.json": "34d94ba869e1dc969bec09d70d2c74430e9d3af5f9d93bc39dcff67e9a983c0e",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/evidence/ledger-evidence.json": "2135ea364073032ae3fd7e483a652fa9ea8c769e8c023e8b95516e9d175e41e3",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/evidence/ledger-observation.json": "5a3d33491366fb9587bcc4a167efa4e38bda170b7b3291c022f28676dbdd94b3",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/evidence/ledger-registration.json": "d18e0ecf7ae37d353157f205b9173b79ee0130d5737f030f7030f09c19e6db37",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/evidence/native-after-ledger.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/evidence/native-after-oracle.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/evidence/native-before.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/evidence/oracle-closure.json": "89067a06862e197fd49f3aed1e3f18bfc93d6a6c2035f9cdfc85a57036257ab9",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/evidence/oracle-evidence.json": "c3e91a70099256f5edbce4678193c7d228bdcbbc7cd60c2c711887b773011bc3",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/evidence/oracle-preflight.json": "e64b96e2f73e7a6d369d61c09301dc7c986c08bcd1cf95af06c6ab9756bcbe66",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/evidence/oracle-results.json": "d7f91fb358b73d3f36acde73ec730c41259009c1e0f06931ded2a7d44510f995",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/evidence/run-evidence.json": "334c78715aca97d5d0d9a260a5867944fb45e495313d436233f054c4d7b2e156",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/evidence/set-private-acl.ps1.txt": "d5ef58e51c12b4371601557f027a44e9ca206b81444724f8aab65365bf9c057f",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/evidence/text-preflight.json": "176676da1274c55ec6f8800089b61d1c5249c44ed52b3ecfbcf2c8edf6a3cda1",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/manifest/ok-migration-manifest.json": "c7244f6a79c8d93c341785d74abe20dd426f98410eb5db3e8c31c6360b9c959e",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/manifest/operation-manifest-before-operational-review.json": "16c16a7309f73770a593b6dd57413223497895f11dc682dacaff42211d6a7d54",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/manifest/operation-manifest-before-source-pin.json": "69f79ee3a9bd3d6a45253988813dbbbbb2432e1a698e3d5903a3687c97decfa6",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/manifest/operation-manifest.json": "f10a79edcb1efa03b499c5509e4544296785df0e6008b4e3624edc19722f9ed1",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/manifest/migration-ok.json": "c7244f6a79c8d93c341785d74abe20dd426f98410eb5db3e8c31c6360b9c959e",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/independent-cleanup.json": "8b1a24d0e28c59f3280fbc199be63ba91c7ca770146d8f717b52e5884ef2f364",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/independent-literal-review.json": "4d3b317b3c6a11be8790881dde92e7585a097988f9f9f3d9dcbba6ede8b6f07d",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/Root-literal-approval-receipt.json": "f57c32323fc6dadd804217576abed53d0d94e8bf5767620722664cbe4053124f",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/Root-cleanup-helper.py.txt": "cec902e16ec6368a58262993a91da1dc5021d430835e05f7a6bf17b88f4c7657",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/source-analysis/commit-boundary-source-correction-plan.json": "0206011e81e463dab2cb365ac3b20753a34fbf19e01fd728da409abfaafcabd4",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/source-analysis/normalized-closed-facts.json": "18a8c1b552c4a33943ba0ea8bda18a1270a7b5d3e147fbc37fb687fcf7b849c6",
+    "context/reconciliation/local-f0-run-assets/c820e39-restore-980a38cb/source-analysis/preservation-helper.py.txt": "a81946d3c4c2707bb0381e2d4420899cd9f46d762f88359a8955bc9850804c13"
+  },
+  "source_preservation": {
+    "packet_unchanged_after_run": true,
+    "tool_source_data_unchanged_after_run": true,
+    "external_input_archives_and_fresh_history_unchanged_after_run": true,
+    "external_sources_unchanged_after_run": true,
+    "all_source_and_external_inputs_preserved_after_run": true
+  },
+  "limits": {
+    "new_assertion_qualification": false,
+    "whole_RESTORE01_or94_or451_promoted": false,
+    "Posture": "D"
+  }
+}

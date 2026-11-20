@@ -1,0 +1,61 @@
+"""Freeze exact TASK future-root proposal after all required offline checks."""
+from pathlib import Path
+import ast,datetime,difflib,hashlib,json
+D=Path(__file__).resolve().parent;T=D.parent;R=T/'workinants-correction-pass';F=D/'future-root'
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+load=lambda p:json.loads(p.read_bytes())
+focused=load(D/'author-focused-final.json');legacy=load(D/'author-legacy-final.json');delta=load(D/'actual-status-delta.json');data=load(D/'data-preparation.json');harness_repeat=load(D/'author-focused-harness-repeat.json')
+assert focused['status']==legacy['status']=='PASS'and focused['tests_run']==17 and legacy['tests_run']==13
+assert delta['actual_unmocked_future_root_build']is True and delta['legacy_validators_isolated_or_replaced']is False
+assert sha(R/'context/reconciliation/local-f0-assertion-evidence.json')=='bf24c70872204981b7ed910ad75e61a8a674d18431e64496a2f794d1d4b35ca1'
+assert sha(R/'scripts/prepare-local-f0-status.py')==data['original_root_builder_sha256']and sha(R/'scripts/check-local-f0-status.py')==data['original_legacy_checker_sha256']
+assert sha(R/'context/reconciliation/local-f0-native-1110fa4-4c894dba-execution.json')=='051967fdccf01ffddcbab671962472583f2672dcda38c77e0e8c14f498eab46a'
+record=load(R/'context/reconciliation/local-f0-native-1110fa4-4c894dba-execution.json');assert len(record['assets_sha256'])==33
+for relative,wanted in record['assets_sha256'].items():assert sha(R/relative)==wanted
+old_review=load(T/'owner-lease-da5-evidence-adapter-v1-draft-20261119/author-review.json')
+for relative,wanted in old_review['proposed_root_files_sha256'].items():assert sha(R/relative)==wanted
+archive='context/reconciliation/local-f0-operation-sources/native-1110-4c894-evidence-adapter-v1'
+assert sha(F/archive/'preserved/assertion-evidence.before259.json')=='bf24c70872204981b7ed910ad75e61a8a674d18431e64496a2f794d1d4b35ca1'
+assert sha(R/'context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/preserved/assertion-evidence.before.json')=='052207497a484b64a16cd8069a51e25e38ab82f516807c853f41c3737057fc44'
+for name in('scripts/prepare-local-f0-status.py','scripts/check-local-f0-status.py'):
+    old=(R/name).read_text(encoding='utf8');new=(F/name).read_text(encoding='utf8');patch=''.join(difflib.unified_diff(old.splitlines(True),new.splitlines(True),fromfile='a/'+name,tofile='b/'+name))
+    (D/(Path(name).name+'.final.patch')).write_text(patch,encoding='utf8',newline='\n')
+    ast.parse(new,filename=name)
+changed=['scripts/local_f0_native_complete_evidence.py','scripts/check-local-f0-native-complete-evidence.py','scripts/prepare-local-f0-status.py','scripts/check-local-f0-status.py','context/reconciliation/local-f0-native-1110fa4-4c894dba-qualified-evidence.json','context/reconciliation/local-f0-assertion-evidence.json','context/reconciliation/local-f0-qualification-status.json']
+changed+=sorted(p.relative_to(F).as_posix()for p in(F/archive).rglob('*')if p.is_file())
+proposed={name:sha(F/name)for name in changed};assert len(proposed)==14
+for relative,wanted in focused['files_sha256'].items():
+    if relative=='scripts/check-local-f0-native-complete-evidence.py':
+        assert sha(D/'history/focused-check-before-repeatability.py.txt')==wanted==harness_repeat['preserved_original_focused_file_sha256']
+        assert sha(F/relative)==harness_repeat['current_focused_file_sha256']and harness_repeat['status']=='PASS'
+    else:assert sha(F/relative)==wanted
+for relative,wanted in legacy['files_sha256'].items():assert sha(F/relative)==wanted
+future={p.relative_to(F).as_posix():sha(p)for p in sorted(F.rglob('*'))if p.is_file()}
+with(D/'future-root-full-map.json').open('x',encoding='utf8',newline='\n')as f:json.dump({'schema':'workinants.native-complete-adapter-future-root-exact-map.v1','files_sha256':future,'qualification_JSON_is_proposed_future_only':True,'original_qualification_JSON_never_read_or_written':True},f,indent=2);f.write('\n')
+report={
+ 'schema':'workinants.native-complete-adapter-author-review.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+ 'decision':'TASK_ONLY_AUTHOR_DRAFT_FROZEN_PENDING_SEPARATE_TRACK_AND_ROOT_CODE_REVIEW',
+ 'author':'/root/privilege_mount_v2_review','author_lineage':'Author of this qualifier/integration draft; not independent approval. Independent Native closed-evidence audits are exact inputs. Root remains sole Git/runtime operator.',
+ 'source_plan':{'path':'source-plan.json','sha256':sha(D/'source-plan.json')},'Root_approved_batch_addendum':{'path':'source-plan-batch-addendum.json','sha256':sha(D/'source-plan-batch-addendum.json')},
+ 'proposed_Root_files_sha256':proposed,'future_Root_full_map_sha256':sha(D/'future-root-full-map.json'),'future_Root_files':len(future),
+ 'frozen_evidence':{'raw_record_sha256':'051967fdccf01ffddcbab671962472583f2672dcda38c77e0e8c14f498eab46a','raw_wrapper_sha256':'c1a58ec24326cd9e885da9d7db358866d89d105def6a3b604d37668a60f50067','closed_component_sha256':'9ee4130e9ae7cc8cf90deec9c48fbb0a1d00c13fd3e067082d12ddda4e419e1e','source_commit':'1110fa461c663ff3050ac54b6d9507e1e789b6b4','source_tree':'6a3b962d2618af8962165883e1129800dabcb632','operation_packet_sha256':'6b8debbdffa54d182a956d1b663472e22ba633a5eb257ab1ddeea8b6ca9a3be2','finite_packet_sha256':'8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69','raw_record_and33_asset_bytes_unchanged':True,'asset_tree_not_appended':True},
+ 'scope':{'closed_claims':520,'provider_generic_denials':480,'other_direct_verb_denials':40,'new_PASS_rows_appended':388,'all_old259_rows_value_identical':True,'old132_PASS_rows_retain_old_evidence':True,'source_business_write_aggregate_links':0,'RLS48_or_blocked4_or_vectors_or_positive_or_PARTIAL_links':0,'manual_whole_case_flags':0,'all956_runnable_statements_and998_operations_are_prerequisites_not_998_claims':True},
+ 'qualified_record':'Clearly DERIVED wrapper, never a rewritten raw record; standard packet_sha256 aliases original operation_packet_sha256 explicitly. Fixed520 /claims/index pointers bind exact independent proposal, full requirement snapshots and observed native diagnostic/control/statement/privilege pointers. No module/record hash cycle.',
+ 'pure_snapshot_protocol':'Constructor reads/hash-checks303 closed buffers once and validates semantics using only captured bytes. Private MappingProxyType byte buffers and immutable canonical execution string; no returned mutable proof. Exact expected388 keys must be seen. Every build executes fresh full303 byte/hash reread plus require_finalized before return/status write. Incomplete/no-op/omitted final verification fails; no mtime cache. Standalone always fresh admission and final reread. Currentness claim is limited to reviewed snapshot plus final unchanged barrier.',
+ 'semantic_checks':'Complete non-stopped source/run/CID/manifest260/sourceSQL5ae/ACL32/inventory7fff/33assets/audits/attestation/provider/SCRAM-HBA/originalgrantor/native29089-int/oracle416/ledger22/998 ordered statement+role+session closure/all956 SQL hashes/all908 exact42501 SCHEMA480+TABLE428 and independent ACL projection/42tables205 fingerprints/all100 guard identities/40 rollback-only controls/full source preservation/independent physical cleanup. Source-designed FINISHED/last case+probe retained; no null schema invented.',
+ 'offline_checks':{'focused':focused,'focused_harness_repeatability_correction':harness_repeat,'legacy_status13':legacy,'actual_unmocked_future_build':delta,'unique_test_methods':30,'large_unrelated_SQL_suites_repeated':False},
+ 'author_history':[
+  {'step':'initial per-claim smoke','result':'Actual closed data passed, but fresh303 admission cost5.528/5.995/5.119s per claim. Root explicitly approved bounded snapshot+final-byte-barrier design recorded in addendum.'},
+  {'step':'initial focused methods','result':'17/17 PASS236.510s. Closed resource/baseline/ledger/session/fingerprint checks were tightened; final17/17 PASS separately recorded, not counted as extra unique methods.'},
+  {'step':'first future build','result':'Stopped safely in unchanged legacy Restricted parser; no status written. Private clone intentionally omitted node_modules and lacked two fixed package JSONs required by unchanged legacy TOOL_PACKAGES. Exact pinned two JSONs were copied from existing Root into clone, preserving hashes; no validator or original file changed. Correction recorded in clone-tool-package-correction.json.'},
+  {'step':'final full future build','result':'All legacy validators and new Native batch real/unmocked; actual derived results and time in actual-status-delta.json. Process/socket boundaries forbidden. No original current qualification JSON read or written.'}
+  ,{'step':'focused test repeatability','result':'One fault-injection test originally assumed no previously generated status. It now runs exact builder bytes in a fresh minimal private root, leaving existing proposed status untouched. Only that test function changed; preserved f23c source and final bc383 source are recorded, and changed method PASS1/1 in5.852s. No runtime code change and no extra unique method count.'}
+ ],
+ 'preservation':{'all17_original_OwnerLease_integration_files_unchanged':True,'before238_ledger_sha256':'052207497a484b64a16cd8069a51e25e38ab82f516807c853f41c3737057fc44','before259_ledger_sha256':'bf24c70872204981b7ed910ad75e61a8a674d18431e64496a2f794d1d4b35ca1','original_Root_builder_checker_ledger_record_SQL_ACL_requirements_unchanged':True,'other_WIP_original_sources_edited':False},
+ 'review_and_integration_sequence':['Separate Track and Root review of exact14 proposed files, final patches, all303 input admission/batch barrier semantics and test evidence.','If approved, Root rechecks current Root builder/checker/ledger and frozen inputs before bounded installation; preserve any newer work.','Install reviewed source/metadata and append-only ledger normally. Re-run actual Root builder/required checks to generate current qualification JSON; future generated status is a proposal, never copied as raw runtime evidence.','Root alone controls Git publication. This draft authorizes no database retry, resource, hosted change, migration adoption or production activation.'],
+ 'limits':{'original_Root_edits':0,'Git_Docker_SQL_database_socket_network_resources_or_credentials':0,'unrelated_750_501_75_runs':0,'all_unexercised_database_runtime':'NOT_RUN','original0a29_complete_stop_cause':'UNOBSERVED','isolated_column_or_owner_business_or_hosted_or_production_claim':False,'Posture':'D','Brain_acceptance':'PENDING'},
+ 'plain_english':'The draft checks520 exact denial receipts and adds388 missing rows. It keeps every old row and rereads every required file before returning results. It ran only offline checks; the real repository and database stayed untouched.'}
+with(D/'author-review.json').open('x',encoding='utf8',newline='\n')as f:json.dump(report,f,indent=2,ensure_ascii=False);f.write('\n')
+files={p.relative_to(D).as_posix():sha(p)for p in sorted(D.rglob('*'))if p.is_file()and not p.is_relative_to(F)}
+with(D/'freeze-manifest.json').open('x',encoding='utf8',newline='\n')as f:json.dump({'schema':'workinants.native-complete-adapter-author-freeze.v1','decision':report['decision'],'draft_artifacts_sha256':files,'future_Root_full_map_sha256':sha(D/'future-root-full-map.json'),'proposed_Root_files_sha256':proposed,'Root_unchanged':True},f,indent=2);f.write('\n')
+print(json.dumps({'author_review_sha256':sha(D/'author-review.json'),'freeze_manifest_sha256':sha(D/'freeze-manifest.json'),'proposed_files':len(proposed),'future_Root_files':len(future),'qualifier_sha256':sha(F/'scripts/local_f0_native_complete_evidence.py'),'actual_status_counts':delta['assertion_status_counts'],'actual_case_counts':delta['case_status_counts'],'decision':report['decision']},indent=2),flush=True)

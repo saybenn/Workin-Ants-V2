@@ -1,0 +1,5 @@
+-- Fresh actual authenticated role connection; no context handle/bind or fixture bypass. Stop/close on unexpected output.
+BEGIN;
+SET LOCAL search_path=pg_catalog;
+INSERT INTO "app"."consent_content_revision"("id","type","version","locale","jurisdiction_scope","content_text","content_hash","review_state","legal_approval_ref","effective_from","effective_until","created_at","mutation_transaction_id") VALUES ('d640544f-9c62-5098-b760-5c8b0ed7dd64'::pg_catalog.uuid,'terms'::app.consent_type,'native-acl-67dcd56c90f48ff1f24da2f2'::pg_catalog.text,'native-acl-5b04f12493cc23835b38c1a3'::pg_catalog.text,'native-acl-8bf7db35d7ef8e82dd402a1b'::pg_catalog.text,'synthetic local ACL fact; not legal approval or rendered acceptance'::pg_catalog.text,encode(sha256(convert_to('synthetic local ACL fact; not legal approval or rendered acceptance','UTF8')),'hex'),'draft'::app.review_policy_state,NULL::pg_catalog.text,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,NULL::pg_catalog.timestamptz,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,'native-acl-setup-transaction'::pg_catalog.text);
+ROLLBACK;

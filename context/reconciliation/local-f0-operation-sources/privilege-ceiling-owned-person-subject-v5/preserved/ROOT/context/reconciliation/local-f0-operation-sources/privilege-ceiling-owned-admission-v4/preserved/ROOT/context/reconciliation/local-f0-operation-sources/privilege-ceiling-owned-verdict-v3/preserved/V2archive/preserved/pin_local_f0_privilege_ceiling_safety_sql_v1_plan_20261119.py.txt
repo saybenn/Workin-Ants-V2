@@ -1,0 +1,117 @@
+"""Pin source metadata using read-only Git; leave execution review PENDING.
+
+This helper never launches Docker, database, network, or project code. Every
+current+committed inventory and five live snapshots must match before writing
+only this external manifest and its exclusive pre-pin preservation copy.
+"""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+import tarfile
+import uuid
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+ARCHIVE='context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1'
+VALIDATION='context/reconciliation/local-f0-privilege-ceiling-owned-safety-sql-v1-source-validation.json'
+FILES=('execute_local_f0_privilege_ceiling_safety_sql_v1_20261119.py','local_f0_privilege_ceiling_safety_sql_v1_operation_steps.py','prepare_local_f0_privilege_ceiling_safety_sql_v1_plan.py','check_local_f0_privilege_ceiling_safety_sql_v1_operation.py','pin_local_f0_privilege_ceiling_safety_sql_v1_plan_20261119.py')
+FIXTURES='review-output/privilege-ceiling-control-rehearsal/fixtures.json'
+FIXTURES_SHA='4ebe8b6cd7b85ff5ad8dbb79d431bb7001cf16dea72e3920138be4b5f2855e68'
+CONTENT_SHA='643232e4d068892b49e49122b7ce3b909bd86caa9e770aa923d7df00def1ec32'
+IMAGE='docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1'
+IMAGE_FILES={'scripts/sql-review/local_image_identity.py':'a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604','scripts/sql-review/test_local_image_identity.py':'0edae319a544aaaa8ed112e2ec477fe7ac428b58a7970ca8cd0e33ff006abe93','scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json':'996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1'}
+REVIEWS={'context/reconciliation/local-f0-operation-sources/privilege-ceiling-source-v1/reviews/privilege_ceiling_independent_root_source_review_20261119.json':'41f6ad5a4abf7b6e7cc085d6ff545192fb4587272f7baa87dc7e18dd823e2f4a',ARCHIVE+'/reviews/image-proof-independent-source.json':'b628b6d98ad22ea7def4dd7a51264025c50bde116451ae516f3e52f55ba9542a'}
+APPLICATION='prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql'
+APPLICATION_SHA='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+SOURCE_FILES={APPLICATION,'prisma/foundation/migrations/migration_lock.toml','prisma/review/foundation-candidate.prisma','prisma.local-f0.config.mjs','scripts/sql-review/local-f0-migrate-guard.mjs','scripts/sql-review/local-f0-migrate-runner.mjs','prisma/foundation/history-manifest.json'}
+HELPERS=set(('scripts/sql-review/run-privilege-ceiling-control-rehearsal.py','scripts/sql-review/run-native-table-denials-v3.py','scripts/privilege_ceiling_control_protocol.py','scripts/sql-review/run-context-control-rehearsal.py','scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/sql-review/run-local-f0-migrate.py','scripts/prepare-local-f0-history.py'))
+
+class Held(Exception):pass
+def need(value,code):
+ if not value:raise Held(code)
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def encoded(value):return (json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+def aggregate(files):return sha(''.join(path+'\0'+files[path]+'\n' for path in sorted(files)).encode())
+def decoded(raw):
+ def pairs(items):
+  value={}
+  for key,item in items:need(key not in value,'DUPLICATE_JSON_KEY');value[key]=item
+  return value
+ return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in ()).throw(Held('NONFINITE_JSON')))
+def relative(name):
+ need(type(name) is str and name and not Path(name).is_absolute() and ':' not in name and '\\' not in name and not any(ord(x)<32 for x in name) and all(x not in ('','.','..') for x in name.split('/')),'SAFE_RELATIVE_SOURCE_PATH');return name
+def read_source(name,wanted):
+ relative(name);path=(ROOT/name).resolve();need(path.is_relative_to(ROOT.resolve()) and not path.is_symlink(),'SOURCE_PATH_ESCAPE');raw=path.read_bytes();need(sha(raw)==wanted,'CURRENT_SOURCE_HASH_MISMATCH');return raw
+def external(value,parent=None):
+ path=Path(value).resolve();need(path.is_relative_to(TASK.resolve()) and path!=TASK.resolve() and not path.is_relative_to(ROOT.resolve()),'EXTERNAL_TASK_PATH_REQUIRED')
+ if parent is not None:need(path.is_relative_to(parent),'PLAN_INPUT_PATH_ESCAPE')
+ return path
+def mapping(value):
+ need(type(value) is dict and bool(value) and all(type(wanted) is str and re.fullmatch('[0-9a-f]{64}',wanted) for wanted in value.values()),'SOURCE_HASH_MAP_REQUIRED')
+ for name in value:relative(name)
+ return value
+def validate(path):
+ path=external(path);need(path.name=='operation-manifest.json','EXACT_MANIFEST_NAME');raw=path.read_bytes();value=decoded(raw)
+ need(value.get('purpose')=='LOCAL_F0_PRIVILEGE_CEILING_REHEARSAL' and value.get('review_status')=='PENDING_OPERATIONAL_REVIEW' and value.get('status')=='SOURCE_PREPARED_NOT_EXECUTED','PENDING_SOURCE_PLAN_REQUIRED')
+ need(value['source_commit']==value['source_tree']==value['packet_sha256']=='TO_BE_PINNED' and value['packet_files_sha256']=={},'UNPINNED_SOURCE_REQUIRED')
+ run=value['run_id'];need(type(run) is str and str(uuid.UUID(run))==run and uuid.UUID(run).version==4,'FRESH_UUID4')
+ out=external(value['evidence_directory']);need(not out.exists(),'FRESH_EVIDENCE_DIRECTORY');container_name='wa-p0c-'+run[:8]+'-privilege'
+ need(value['targets']==[{'name':container_name,'volume':container_name+'-data','kind':'ok'}] and set(value['migration_targets'])=={'ok'} and value['image']==IMAGE and value['database']=='wa_p0c_rehearsal' and value['run_label']=='p0c-local-f0','EXACT_SINGLE_LOCAL_TARGET')
+ cfg=value['privilege_ceiling'];need(type(cfg) is dict and set(cfg)=={'fixtures_sha256','content_sha256','coordinator_sha256','external_files_sha256'} and cfg['fixtures_sha256']==FIXTURES_SHA and cfg['content_sha256']==CONTENT_SHA,'EXACT_REVIEWED_PRIVILEGE_PACKET')
+ files=mapping(value['prepared_source_file_inventory_sha256']);blobs={name:read_source(name,wanted) for name,wanted in files.items()}
+ need(HELPERS|set(IMAGE_FILES)|set(REVIEWS)|{FIXTURES,VALIDATION,'scripts/prepare-native-catalog-review.py','review-output/native-catalog/source-pins.json'}|{ARCHIVE+'/'+name+'.txt' for name in FILES}<=set(files),'RUNTIME_CLOSURE_MISSING')
+ for name,wanted in {**IMAGE_FILES,**REVIEWS}.items():need(files.get(name)==wanted,'REVIEWED_IMAGE_OR_SOURCE_PROOF_REQUIRED')
+ five=mapping(cfg['external_files_sha256']);need(set(five)==set(FILES),'EXACT_FIVE_OPERATOR_SOURCES')
+ for name,wanted in five.items():need(sha((TASK/name).read_bytes())==wanted and blobs[ARCHIVE+'/'+name+'.txt']==(TASK/name).read_bytes(),'LIVE_AND_ARCHIVED_SOURCE_DIFFER')
+ owned=decoded(blobs[VALIDATION]);need(owned['independent_safety_sql_review']['decision']=='SOURCE_APPROVED','SAFETY_SQL_REVIEW_REQUIRED');need(owned['schema']=='workinants.privilege-ceiling-owned-operator-source-validation.v1' and owned['operator_sources_sha256']==five,'OWNED_OPERATOR_VALIDATION_BINDING')
+ archive_pins=mapping(owned['archive_files_sha256']);need(all(name.startswith(ARCHIVE+'/') and files.get(name)==wanted for name,wanted in archive_pins.items()),'EXACT_OWNED_ARCHIVE_ADMISSION')
+ actual_archive={p.relative_to(ROOT).as_posix():sha(p.read_bytes()) for p in (ROOT/ARCHIVE).rglob('*') if p.is_file()};need(actual_archive==archive_pins,'EXACT_OWNED_ARCHIVE_TREE')
+ need(value['wrapper_sha256']==five[FILES[0]] and value['steps_sha256']==five[FILES[1]],'WRAPPER_STEPS_BINDING')
+ packet=decoded(blobs[FIXTURES]);need(sha(blobs[FIXTURES])==FIXTURES_SHA and packet['status']=='NOT_RUN' and packet['database_posture']=='D' and len(packet['cases'])==200,'FINITE_SOURCE_PACKET')
+ need(cfg['coordinator_sha256']=='80ca5e62a6a89891e73ecb7afc0e134c3c5b75ed81d0f3adc01ba7c718d03d3f'=='80ca5e62a6a89891e73ecb7afc0e134c3c5b75ed81d0f3adc01ba7c718d03d3f','EXACT_COORDINATOR_SOURCE')
+ for name,wanted in mapping(packet['source_files_sha256']).items():need(files.get(name)==wanted,'PRIVILEGE_SOURCE_NOT_ADMITTED')
+ for name,wanted in packet['prepared_files_sha256'].items():need(files.get('review-output/privilege-ceiling-control-rehearsal/'+relative(name))==wanted,'PRIVILEGE_SQL_NOT_ADMITTED')
+ catalog=decoded(blobs['review-output/native-catalog/source-pins.json']);need(len(catalog)==16 and all(files.get(name)==wanted for name,wanted in mapping(catalog).items()),'CLOSED_CATALOG_IMPORTS')
+ plan=value['migration_targets']['ok'];parent=path.parent;nested_path=external(plan['manifest_path'],parent);snapshot=external(plan['source_snapshot'],parent);archive=external(plan['source_archive'],parent)
+ need(nested_path==parent/'ok-migration-manifest.json' and snapshot==parent/'source-ok' and archive==parent/'source-ok.tar.gz','EXACT_PLAN_INPUT_PATHS')
+ nested_raw=nested_path.read_bytes();need(sha(nested_raw)==plan['manifest_sha256'],'NESTED_MANIFEST_HASH');nested=decoded(nested_raw)
+ need(nested['run_id']==run and nested['target']=={'container_name':container_name,'volume_name':container_name+'-data','database':'wa_p0c_rehearsal','image':IMAGE,'network':'none','labels':{'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':run},'bootstrap_secret_host_path':str(out/'private/ok-bootstrap-password')},'EXACT_NESTED_TARGET')
+ wanted=mapping(plan['source_files_sha256']);need(set(wanted)==SOURCE_FILES and not any(p.is_symlink() for p in snapshot.rglob('*')),'EXACT_SEVEN_SOURCE_FILES')
+ snapshot_blobs={p.relative_to(snapshot).as_posix():p.read_bytes() for p in snapshot.rglob('*') if p.is_file()};actual={name:sha(raw) for name,raw in snapshot_blobs.items()};need(actual==wanted and sha(archive.read_bytes())==plan['source_archive_sha256'],'FRESH_SOURCE_INPUT_DRIFT')
+ seen=set()
+ with tarfile.open(archive,'r:gz') as tar:
+  for member in tar:
+   relative(member.name);need(member.isfile() and member.name in wanted and member.name not in seen,'SAFE_SOURCE_ARCHIVE');need(sha(tar.extractfile(member).read())==wanted[member.name],'SOURCE_ARCHIVE_HASH');seen.add(member.name)
+ need(seen==SOURCE_FILES and wanted[APPLICATION]==APPLICATION_SHA,'EXACT_CANONICAL_SOURCE_ARCHIVE')
+ for name in SOURCE_FILES-{'prisma/foundation/history-manifest.json'}:need(files.get(name)==wanted[name],'CURRENT_CANONICAL_SNAPSHOT_BINDING')
+ history=decoded(snapshot_blobs['prisma/foundation/history-manifest.json']);need(history['run_id']==run and history['run_manifest_sha256']==sha(nested_raw) and history['database_contacted'] is False and history['ledger_created_or_modified'] is False and history['source_sql_sha256']==APPLICATION_SHA,'FRESH_HISTORY_BINDING')
+ closure=decoded(blobs['context/reconciliation/local-f0-tooling/prisma-tools-closure.json']);need(nested['tools']['files_sha256']==closure['tools_files_sha256'] and len(closure['tools_files_sha256'])==10300 and value['tool_archive_sha256']==closure['archive_sha256'] and sha(external(value['tool_archive']).read_bytes())==closure['archive_sha256'],'EXACT_TOOLS_CLOSURE')
+ return path,raw,value,files
+
+def git_read(*args,input=None):
+ need(args in (('rev-parse','HEAD'),('rev-parse','HEAD^{tree}'),('cat-file','--batch')),'READ_ONLY_GIT_ALLOWLIST')
+ result=subprocess.run(['git','--no-optional-locks','-c','core.longpaths=true',*args],input=input,cwd=ROOT,capture_output=True,timeout=60,shell=False)
+ need(type(result.returncode) is int and result.returncode==0,'READ_ONLY_GIT_FAILED');return result.stdout
+
+def pin(path):
+ path,raw,value,files=validate(path);commit=git_read('rev-parse','HEAD').decode('ascii').strip();tree=git_read('rev-parse','HEAD^{tree}').decode('ascii').strip();need(re.fullmatch('[0-9a-f]{40}',commit) and re.fullmatch('[0-9a-f]{40}',tree),'COMMIT_TREE_HASHES')
+ requests=''.join(commit+':'+name+'\n' for name in files).encode();blobs=git_read('cat-file','--batch',input=requests);offset=0
+ for name,wanted in files.items():
+  end=blobs.index(b'\n',offset);header=blobs[offset:end].split();need(len(header)==3 and header[1]==b'blob','COMMITTED_SOURCE_BLOB_REQUIRED');length=int(header[2]);start=end+1;body=blobs[start:start+length];need(len(body)==length and sha(body)==wanted,'COMMITTED_SOURCE_HASH_MISMATCH');offset=start+length;need(blobs[offset:offset+1]==b'\n','COMMITTED_BLOB_FRAME');offset+=1
+ need(offset==len(blobs) and git_read('rev-parse','HEAD').decode('ascii').strip()==commit,'HEAD_OR_BLOB_STREAM_CHANGED')
+ _,again,_,again_files=validate(path);need(again==raw and again_files==files,'SOURCE_CHANGED_DURING_PIN')
+ before=path.with_name('operation-manifest-before-source-pin.json');temp=path.with_name('operation-manifest-source-pin.tmp');need(not before.exists() and not temp.exists(),'FRESH_PIN_PRESERVATION')
+ value.update(source_commit=commit,source_tree=tree,packet_files_sha256=dict(sorted(files.items())),packet_sha256=aggregate(files),pin_helper_sha256=sha(Path(__file__).read_bytes()))
+ with before.open('xb') as handle:handle.write(raw)
+ with temp.open('xb') as handle:handle.write(encoded(value))
+ temp.replace(path)
+ return {'status':'SOURCE_PINNED_PENDING_OPERATIONAL_REVIEW','source_commit':commit,'source_tree':tree,'packet_sha256':value['packet_sha256'],'packet_files':len(files),'manifest_sha256':sha(path.read_bytes()),'review_status':value['review_status'],'runtime_approved':False,'database_contacted':False,'git_mutated':False}
+
+def main(argv=None):
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('manifest',type=Path);args=parser.parse_args(argv)
+ try:print(json.dumps(pin(args.manifest)));return 0
+ except BaseException as error:print(json.dumps({'status':'HELD','code':str(error) if isinstance(error,Held) else 'PRIVILEGE_SOURCE_PIN_REFUSED','raw_error_discarded':True,'runtime_approved':False}));return 1
+if __name__=='__main__':raise SystemExit(main())

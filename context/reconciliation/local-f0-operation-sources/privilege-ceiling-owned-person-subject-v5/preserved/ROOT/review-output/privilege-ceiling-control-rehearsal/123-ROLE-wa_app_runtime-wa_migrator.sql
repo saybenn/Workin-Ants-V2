@@ -1,0 +1,1 @@
+BEGIN; SET LOCAL ROLE wa_migrator; ROLLBACK;

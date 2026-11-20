@@ -1,0 +1,89 @@
+
+class ScopedOwnedGateTests(unittest.TestCase):
+ def setUp(self):
+  self.temp=tempfile.TemporaryDirectory(prefix='sixread-owned-gates-',dir=TASK);self.addCleanup(self.temp.cleanup);self.directory=Path(self.temp.name)
+  self.n=namespace();self.n.update(COMMIT='b'*40,TREE='c'*40,OUT=self.directory,PRIVATE=self.directory/'private',ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker'))
+  archive=ROOT/self.n['OWNED_ARCHIVE'];raw=(archive/'reviews/six_read_owned_resource_v1_child_composed_trace_v1_20261119.json').read_bytes()
+  self.assertEqual(sha(raw),'de3a807a052c5a22fd9f55e502e174976fd8d4891121ccef388736290702c1b1');self.value=json.loads(raw)
+  self.n.update(PACKET=self.value['packet_sha256'],SCOPED_FIXTURES=fixture_packet())
+  self.native_sha=next(x['native_sha256']for x in self.value['operations']if 'native_sha256'in x);self.plan={}
+  for method in('run','Popen','call','check_call','check_output'):
+   item=patch.object(subprocess,method,side_effect=AssertionError('UNMODELED_PROCESS_FORBIDDEN'));item.start();self.addCleanup(item.stop)
+ def gate(self,value=None):return self.n['validate_scoped_component'](self.value if value is None else value,self.plan,self.native_sha)
+ def test_actual_trace_all71_586_closed_schemas_pass_exact_gate(self):
+  self.assertIs(self.gate(),self.value)
+  prefix=[x for x in self.value['operations']if x['stage']=='IMMUTABLE_ISSUER_RETENTION'and x['unexpired_required']is False]
+  self.assertEqual([x['instances']for x in prefix],list(range(1,72)));self.assertTrue(all(x['current_unexpired_match']is None for x in prefix))
+ def test_top_unknown_keys_boolean_float_identity_and_whole_case_labels_reject(self):
+  for key,bad in(('extra',CANARY),('status','PASS'),('run_id','f'*36),('container_id','f'*64),('source_commit','f'*40),('packet_sha256','f'*64),('evidence_complete',1),('fixture_owner_bypass_restored',1),('subsequent_cases_stopped',0),('current_case','prefix'),('sanitization',{'context_secrets_or_hashes_found':False,'raw_stderr_statement_bodies_or_handles_retained':False,'raw':CANARY})):
+   with self.subTest(key=key):
+    value=deepcopy(self.value);value[key]=bad
+    with self.assertRaises(self.n['Stop']):self.gate(value)
+ def test_typed_case_counts_marker_order_coverage_and_source_diagnostics_reject(self):
+  mutations=[lambda v:v['results'][0]['counts'].update(root=True),lambda v:v['results'][0]['counts'].update(root=1.0),lambda v:v['results'][0].update(tables_observed=42.0),lambda v:v['results'][0].update(issued_grants=True),lambda v:v['results'][0].update(actual_login='postgres'),lambda v:v['results'][0]['stage_markers'].update(after=1),lambda v:v['results'].reverse(),lambda v:v['results'].pop(),lambda v:v['results'][0].update(noop=True),lambda v:next(x for x in v['results']if x['diagnostic'])['diagnostic'].update(sqlstate='22012'),lambda v:next(x for x in v['results']if x['diagnostic'])['diagnostic'].update(source_body_line=7.0)]
+  for index,mutation in enumerate(mutations):
+   with self.subTest(index=index):
+    value=deepcopy(self.value);mutation(value)
+    with self.assertRaises(self.n['Stop']):self.gate(value)
+ def test_every_operation_field_type_order_and_retention_ceiling_is_closed(self):
+  mutations=[lambda v:v['operations'].append(v['operations'][-1]),lambda v:v['operations'].pop(),lambda v:v['operations'][12].update(terminal_exit=False),lambda v:v['operations'][13].update(created_at_return_verified=1),lambda v:v['operations'][14].update(instances=True),lambda v:v['operations'][16].update(current_unexpired_match=False),lambda v:v['operations'][18].update(instances=0),lambda v:v['operations'][18].update(unexpired_required=True),lambda v:v['operations'][18].update(current_unexpired_match=True),lambda v:v['operations'][0].update(other_clients_zero=1),lambda v:v['operations'][4].update(owner_and_physical_enabled=False),lambda v:v['operations'][12].update(extra=CANARY),lambda v:v['operations'][12].update(case='whole-case')]
+  for index,mutation in enumerate(mutations):
+   with self.subTest(index=index):
+    value=deepcopy(self.value);mutation(value)
+    with self.assertRaises(self.n['Stop']):self.gate(value)
+ def test_auth_baseline_and_sanitization_are_typed_and_complete(self):
+  for mutation in(lambda v:v['authentication'][0].update(wrong_password_exit_code=2.0),lambda v:v['authentication'].reverse(),lambda v:v['effective_hba_selections'][0].update(rule_number=True),lambda v:v['authentication_comparison'].update(login=1),lambda v:v['baseline']['tables'][next(iter(v['baseline']['tables']))].update(count=True),lambda v:v['baseline'].update(sha256='0'*64)):
+   value=deepcopy(self.value);mutation(value)
+   with self.assertRaises(self.n['Stop']):self.gate(value)
+ def test_source_principalB_and_other_existing_root_positive_controls_preserved(self):
+  cases=self.n['SCOPED_FIXTURES']['cases'];self.gate()
+  selected=[(c,r)for c,r in zip(cases,self.value['results'])if 'principal-b'in c['name']or 'other-existing-root'in c['name']or 'principalB'in c['name']]
+  self.assertTrue(selected)
+  for case,row in selected:self.assertEqual(row['counts'],case['expected'])
+ def test_closed_reference_reads_same_bounded_bytes_and_rejects_duplicate_nonfinite(self):
+  fixed=self.directory/'component.json';fixed.write_text(json.dumps(self.value));reference={'present':None,'read_status':'UNAVAILABLE'}
+  self.assertEqual(self.n['bounded_component_reference'](fixed,reference),self.value);self.assertEqual(reference['read_status'],'CLOSED_BOUNDED_BYTES');self.assertEqual(reference['sha256'],sha(fixed.read_bytes()))
+  for raw in(b'{"a":1,"a":2}',b'{"a":NaN}',b'[]\nMALFORMED'):
+   fixed.write_bytes(raw);reference={'present':None,'read_status':'UNAVAILABLE'}
+   with self.assertRaises(self.n['Stop']):self.n['bounded_component_reference'](fixed,reference)
+   self.assertEqual(reference['read_status'],'UNAVAILABLE_OR_REJECTED')
+ def test_reference_absent_nonregular_symlink_hardlink_typed_size_and_oversize_reject(self):
+  fixed=self.directory/'reference';reference={}
+  with self.assertRaises(self.n['Stop']):self.n['bounded_component_reference'](fixed,reference)
+  self.assertEqual(reference,{'present':False,'read_status':'ABSENT'})
+  fixed.mkdir()
+  with self.assertRaises(self.n['Stop']):self.n['bounded_component_reference'](fixed,{})
+  fixed.rmdir();fixed.write_bytes(b'{}');original=Path.lstat
+  metadata=original(fixed)
+  for changes in({'st_nlink':2},{'st_size':True},{'st_size':-1},{'st_size':16*1024*1024+1},{'st_mode':0o120777}):
+   fields={name:getattr(metadata,name)for name in('st_dev','st_ino','st_size','st_mode','st_mtime_ns','st_nlink')};fields.update(changes)
+   with patch.object(Path,'lstat',return_value=types.SimpleNamespace(**fields)),patch.object(Path,'open',side_effect=AssertionError('NO_REJECTED_REFERENCE_OPEN')),self.assertRaises(self.n['Stop']):self.n['bounded_component_reference'](fixed,{})
+ def test_reference_growth_read_stat_and_identity_faults_discard_canaries(self):
+  fixed=self.directory/'reference';fixed.write_bytes(b'{}');original=Path.open;metadata=fixed.lstat()
+  class Stream:
+   def __enter__(self):return self
+   def __exit__(self,*args):return False
+   def fileno(self):return 91
+   def read(self,size):self.limit=size;return b'{}'+CANARY.encode()
+  stream=Stream()
+  with patch.object(Path,'open',return_value=stream),patch('os.fstat',return_value=metadata),self.assertRaises(self.n['Stop']):self.n['bounded_component_reference'](fixed,{})
+  self.assertEqual(stream.limit,16*1024*1024+1)
+  for method in('open','lstat'):
+   reference={}
+   with patch.object(Path,method,side_effect=OSError(CANARY)),self.assertRaises(self.n['Stop']):self.n['bounded_component_reference'](fixed,reference)
+   self.assertNotIn(CANARY,json.dumps(reference))
+ def test_native29089_ledger22_oracle416_counters_reject_boolean_and_float(self):
+  comparison={'status':'PASS','check_counts':{'PASS':29089},'findings':[]};ledger={'status':'PASS','checks':[{'field':str(i),'status':'PASS','expected_sha256':'a'*64,'actual_sha256':'a'*64}for i in range(22)]};registry={i:'a'*64 for i in range(416)};results={'expression_count':416,'server_version_num':170011}
+  self.n['qualify_native_counts'](comparison,ledger,registry,results)
+  for bad in(True,29089.0,29088):
+   changed=deepcopy(comparison);changed['check_counts']['PASS']=bad
+   with self.assertRaises(self.n['Stop']):self.n['qualify_native_counts'](changed,ledger,registry,results)
+  for bad in(True,416.0,415):
+   changed={**results,'expression_count':bad}
+   with self.assertRaises(self.n['Stop']):self.n['qualify_native_counts'](comparison,ledger,registry,changed)
+  for changed in({'status':'PASS','checks':ledger['checks'][:-1]},{'status':'PASS','checks':ledger['checks']+[ledger['checks'][0]]}):
+   with self.assertRaises(self.n['Stop']):self.n['qualify_native_counts'](comparison,changed,registry,results)
+
+if __name__=='__main__':
+ forbid_actual_runtime()
+ unittest.main()

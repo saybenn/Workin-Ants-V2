@@ -1,0 +1,77 @@
+"""Close two source gates after separate review; no operational permission."""
+from pathlib import Path
+import datetime
+import hashlib
+import json
+
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+validation_path = R / 'context/reconciliation/local-f0-scoped-read-companion-owned-resource-v1-source-validation.json'
+assert sha(validation_path) == 'a5eda74928625f91141b896097d06cbe3ff8f16549bd57fe1a2013b3c2086313'
+original = validation_path.read_bytes()
+value = json.loads(original)
+peer_path = T / 'six_read_owned_resource_v1_independent_source_review_20261119.json'
+checks_path = T / 'six_read_owned_resource_v1_independent_offline_checks_20261119.json'
+assert sha(peer_path) == '91f426c7cfbeedffee7c7eba173fb734ca82e09140e491b55d83938f34d0b4bc'
+assert sha(checks_path) == 'd411c124fe2fd283eea8dd92e674124b7e3da055dfa9d5b844efd9f3730daba3'
+peer = json.loads(peer_path.read_bytes())
+assert peer['decision'] == 'SOURCE_APPROVED' and peer['findings'] == []
+assert peer['operator_sources_sha256'] == value['operator_sources_sha256']
+assert len(value['archive_files_sha256']) == 107
+for path, digest in value['archive_files_sha256'].items():
+    assert sha(R / path) == digest
+for name, digest in value['operator_sources_sha256'].items():
+    assert sha(T / name) == digest
+prefix = value['source_root']
+actual = {p.relative_to(R).as_posix() for p in (R / prefix).rglob('*') if p.is_file()}
+assert actual == set(value['archive_files_sha256'])
+pending_privilege = json.loads((T / 'local-f0-privilege-ceiling-plan-53d7f860/operation-manifest.json').read_bytes())
+changed = {validation_path.relative_to(R).as_posix()}
+assert not changed.intersection(pending_privilege['packet_files_sha256'])
+for path, digest in pending_privilege['packet_files_sha256'].items():
+    assert sha(R / path) == digest
+backup = T / 'six_read_owned_resource_v1_validation_before_Root_review_20261119.json'
+with backup.open('xb') as handle:
+    handle.write(original)
+root_review = {
+    'schema': 'workinants.six-read-owned-resource-v1-root-source-review.v1',
+    'recorded_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    'decision': 'SOURCE_APPROVED', 'reviewer': '/root',
+    'independent_review_sha256': sha(peer_path),
+    'independent_90_method_checks_sha256': sha(checks_path),
+    'current_five_and_closed107_archive_verified': True,
+    'scope': 'Accepted six-read child71 only, one genuine install and read-only after proof, actual71/586 source trace, required closure and evidence failure barriers.',
+    'limits': {'runtime': 'NOT_RUN', 'publication_current_committed_pin_fresh_literal_required': True, 'Posture': 'D'},
+}
+files = {
+    prefix + '/reviews/independent-owned-source-review.json': peer_path.read_bytes(),
+    prefix + '/reviews/independent-offline-checks.json': checks_path.read_bytes(),
+    prefix + '/reviews/validation-before-Root-review.json': original,
+    prefix + '/reviews/Root-owned-source-review.json': (json.dumps(root_review, indent=2, allow_nan=False) + '\n').encode(),
+    prefix + '/reviews/Root-source-metadata-helper.py.txt': Path(__file__).read_bytes(),
+}
+for path in files:
+    assert not (R / path).exists() and path not in pending_privilege['packet_files_sha256']
+for path, raw in files.items():
+    target = R / path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with target.open('xb') as handle:
+        handle.write(raw)
+    value['archive_files_sha256'][path] = sha(target)
+peer_reference = {'decision': 'SOURCE_APPROVED', 'path': prefix + '/reviews/independent-owned-source-review.json', 'sha256': sha(peer_path), 'reviewer': '/root/review_track_ports'}
+assert value['independent_owned_resource_review']['decision'] == 'PENDING'
+assert value['independent_safety_sql_review']['decision'] == 'PENDING'
+value['independent_owned_resource_review'] = dict(peer_reference)
+value['independent_safety_sql_review'] = dict(peer_reference)
+value['status'] = 'SOURCE_APPROVED_OWNED_RESOURCE_V1_FRESH_PUBLICATION_PIN_AND_LITERAL_REQUIRED'
+value['Root_source_review'] = {'decision': 'SOURCE_APPROVED', 'path': prefix + '/reviews/Root-owned-source-review.json', 'sha256': sha(R / (prefix + '/reviews/Root-owned-source-review.json'))}
+value['Root_approved_metadata_phase_checks'] = 'PENDING_FOCUSED_OFFLINE_CHECKS_ONLY_NO_RUNTIME'
+validation_path.write_bytes((json.dumps(value, indent=2, allow_nan=False) + '\n').encode())
+for path, digest in pending_privilege['packet_files_sha256'].items():
+    assert sha(R / path) == digest
+receipt = {'schema': 'workinants.six-read-owned-source-metadata-root-approval-receipt.v1', 'recorded_at_utc': root_review['recorded_at_utc'], 'validation_sha256': sha(validation_path), 'archive_files': len(value['archive_files_sha256']), 'five_unchanged': True, 'Priv53d7_906_unchanged': True, 'runtime': 'NOT_RUN', 'post_metadata_focused_checks': 'PENDING', 'Posture': 'D'}
+path = T / 'six_read_owned_resource_v1_Root_source_metadata_receipt_20261119.json'
+with path.open('xb') as handle:
+    handle.write((json.dumps(receipt, indent=2) + '\n').encode())
+print(json.dumps({'receipt_sha256': sha(path), **receipt}))

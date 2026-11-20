@@ -1,0 +1,249 @@
+# Exact finite SixRead ownership/admission layer. Original SQL and helpers remain pinned.
+import stat
+from collections import Counter
+
+SCOPED_STATE={}
+BASIS_OWNER_VALIDATION='context/reconciliation/local-f0-owner-read-resource-mount-v2-source-validation.json'
+BASIS_OWNER_VALIDATION_SHA='3f98020c74944b7c8c6705ec16239498cde03513dac6fa435a43263281ffac0b'
+BASIS_SIX_VALIDATION='context/reconciliation/local-f0-scoped-read-companion-source-validation.json'
+BASIS_SIX_VALIDATION_SHA='6c4cb8155864984d12ae8985b66fea4402ca7329501d8b818975caa09e7db6dd'
+TOOLS_CLOSURE='context/reconciliation/local-f0-tooling/prisma-tools-closure.json'
+TOOLS_CLOSURE_SHA='610e36e4006e9680d0e6a036486f302a18ecce9593699125b4173f5914acb88b'
+TOOLS_ARCHIVE_SHA='481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb'
+COMPONENT_ARTIFACT='scoped-read-component/scoped-read-companion-results.json'
+SCOPED_HELPER_SHA={
+ 'scripts/sql-review/run-scoped-read-companion-rehearsal.py':'4160760bb319e4389182ed5cfcb6c0fae028480bd3d6d418be0130e8156a0f15',
+ 'scripts/scoped_read_companion_protocol.py':'514327052c085a87348bfafc895baa321e631b32746090ca6ebe18652f10488f',
+ 'scripts/sql-review/run-context-control-rehearsal.py':'5ec53d01d7c5b19bea0a584ef9f5b4e6742d9509c21ac7e2250b9bdd62511f33',
+ 'scripts/sql-review/run-first-rehearsal.py':'279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e',
+ 'scripts/sql-review/run-local-f0-migrate.py':'4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f',
+ 'scripts/sql-review/rehearsal-diagnostics.py':'c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e',
+ 'scripts/prepare-local-f0-history.py':'33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8'}
+
+
+def read_pinned(relative):
+    need(type(relative)is str and relative and not relative.startswith('/')and ':'not in relative and '\\'not in relative and all(x not in('','.','..')for x in relative.split('/')),'UNSAFE_CATALOG_PACKET_PATH')
+    raw_path=ROOT/relative;metadata=raw_path.lstat()
+    need(stat.S_ISREG(metadata.st_mode)and not raw_path.is_symlink(),'CATALOG_PACKET_NOT_REGULAR')
+    path=raw_path.resolve();need(path.is_relative_to(ROOT.resolve()),'CATALOG_PACKET_PATH_ESCAPE')
+    raw=path.read_bytes();need(hashlib.sha256(raw).hexdigest()==MANIFEST['packet_files_sha256'][relative],'CATALOG_PACKET_SOURCE_DRIFT')
+    cached=SCOPED_STATE.get('admitted',{}).get(relative)
+    if cached is not None:need(raw==cached,'SCOPED_SECOND_READ_DRIFT');return cached
+    return raw
+
+def admit_scoped_read_sources():
+    """Close all current source/provenance/physical/history/tool bytes before helper compile."""
+    global SCOPED_FIXTURES
+    cfg=MANIFEST.get('scoped_read');need(type(cfg)is dict and set(cfg)=={'fixtures_sha256','content_sha256','coordinator_sha256','external_files_sha256'},'SCOPED_READ_CONFIGURATION_FIELDS')
+    exact({k:cfg[k]for k in('fixtures_sha256','content_sha256','coordinator_sha256')},{'fixtures_sha256':SCOPED_FIXTURES_SHA,'content_sha256':SCOPED_CONTENT_SHA,'coordinator_sha256':SCOPED_COORDINATOR_SHA},'EXACT_SCOPED_READ_PACKET')
+    pins=MANIFEST.get('packet_files_sha256');need(type(pins)is dict and bool(pins)and all(type(v)is str and re.fullmatch('[0-9a-f]{64}',v)for v in pins.values()),'SCOPED_READ_FULL_SOURCE_MAP_REQUIRED')
+    need(not any('app-write-two' in name or 'app_write_two' in name for name in pins),'UNRELATED_APPWRITE_SOURCE_NOT_ADMITTED')
+    fixed=set(HELPER_FILES)|set(IMAGE_FILES)|{SCOPED_PEER,IMAGE_PEER,OWNED_VALIDATION,BASIS_OWNER_VALIDATION,BASIS_SIX_VALIDATION,TOOLS_CLOSURE,SCOPED_PACKET+'/fixtures.json',GENERATOR,'review-output/native-catalog/source-pins.json'}|{OWNED_ARCHIVE+'/'+name+'.txt'for name in EXTERNAL_FILES}
+    need(fixed<=set(pins),'SCOPED_READ_REQUIRED_SOURCE_MISSING')
+    admitted={name:read_pinned(name)for name in pins}
+    for name,wanted in {**SCOPED_HELPER_SHA,**IMAGE_FILES,SCOPED_PEER:SCOPED_PEER_SHA,IMAGE_PEER:IMAGE_PEER_SHA,BASIS_OWNER_VALIDATION:BASIS_OWNER_VALIDATION_SHA,BASIS_SIX_VALIDATION:BASIS_SIX_VALIDATION_SHA}.items():need(pins.get(name)==wanted,'SCOPED_REVIEWED_SOURCE_REQUIRED')
+    for basis,count in((BASIS_OWNER_VALIDATION,45),(BASIS_SIX_VALIDATION,10)):
+        record=unique_json(admitted[basis]);archive=record['archive_files_sha256'];need(type(archive)is dict and len(archive)==count,'SCOPED_BASIS_ARCHIVE_COUNT')
+        need(all(pins.get(name)==wanted and name in admitted for name,wanted in archive.items()),'SCOPED_BASIS_ARCHIVE_ADMISSION')
+        if basis==BASIS_SIX_VALIDATION:
+            sources=record['source_files_sha256'];need(type(sources)is dict and len(sources)==100 and all(pins.get(name)==wanted and name in admitted for name,wanted in sources.items()),'SCOPED_REVIEWED_FULL100_REQUIRED')
+        else:
+            for name,wanted in record['operator_sources_sha256'].items():need(hashlib.sha256((TASK/name).read_bytes()).hexdigest()==wanted,'SCOPED_ACCEPTED_OWNER_BASIS_DRIFT')
+    external=cfg['external_files_sha256'];need(type(external)is dict and set(external)==set(EXTERNAL_FILES),'SCOPED_READ_EXTERNAL_SOURCE_SET')
+    for name,wanted in external.items():
+        physical=TASK/name;metadata=physical.lstat();need(stat.S_ISREG(metadata.st_mode)and not physical.is_symlink(),'SCOPED_READ_PHYSICAL_SOURCE_NOT_REGULAR')
+        raw=physical.read_bytes();need(type(wanted)is str and re.fullmatch('[0-9a-f]{64}',wanted)and hashlib.sha256(raw).hexdigest()==wanted and raw==admitted[OWNED_ARCHIVE+'/'+name+'.txt'],'SCOPED_READ_COMMITTED_PHYSICAL_FIVE')
+    owned=unique_json(admitted[OWNED_VALIDATION]);need(owned['schema']=='workinants.scoped-read-companion-owned-resource-v1-source-validation.v1'and owned['operator_sources_sha256']==external,'SCOPED_READ_OWNED_VALIDATION_BINDING')
+    for key in('independent_owned_resource_review','independent_safety_sql_review'):
+        review=owned.get(key);need(type(review)is dict and review.get('decision')=='SOURCE_APPROVED','SCOPED_READ_SOURCE_REVIEW_PENDING')
+        need(review.get('operator_sources_sha256')==external and pins.get(review.get('path'))==review.get('sha256')and review.get('path')in admitted,'SCOPED_READ_REVIEW_SOURCE_BINDING')
+    archive=owned['archive_files_sha256'];need(type(archive)is dict and all(name.startswith(OWNED_ARCHIVE+'/')and pins.get(name)==wanted for name,wanted in archive.items()),'SCOPED_READ_OWNED_ARCHIVE_ADMISSION')
+    actual={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest()for p in(ROOT/OWNED_ARCHIVE).rglob('*')if p.is_file()}
+    need(actual==archive and not any(p.is_symlink()for p in(ROOT/OWNED_ARCHIVE).rglob('*')),'SCOPED_READ_CLOSED_OWNED_ARCHIVE')
+    fixtures=unique_json(admitted[SCOPED_PACKET+'/fixtures.json'])
+    need(hashlib.sha256(admitted[SCOPED_PACKET+'/fixtures.json']).hexdigest()==SCOPED_FIXTURES_SHA,'SCOPED_READ_FIXTURE_SHA')
+    need(fixtures['schema']=='workinants.scoped-read-companion-fixtures.v1'and fixtures['status']=='NOT_RUN'and fixtures['database_posture']=='D'and fixtures['database_contacted']is False and fixtures['sql_executed']is False and len(fixtures['cases'])==71 and Counter(c['kind']for c in fixtures['cases'])=={'read':65,'binder-denial':6},'SCOPED_READ_FINITE_SOURCE_SCOPE')
+    need(digest({k:fixtures[k]for k in('source_files_sha256','prepared_files_sha256')})==SCOPED_CONTENT_SHA and len(fixtures['source_files_sha256'])==23 and len(fixtures['prepared_files_sha256'])==76 and len(fixtures['worker_acl_ceiling_rows'])==32,'SCOPED_READ_CLOSED_23_SOURCES_76_SQL_77_ARTIFACTS')
+    for name,wanted in fixtures['source_files_sha256'].items():need(pins.get(name)==wanted and name in admitted,'SCOPED_READ_SOURCE_NOT_IN_PACKET')
+    for name,wanted in fixtures['prepared_files_sha256'].items():need(pins.get(SCOPED_PACKET+'/'+name)==wanted and SCOPED_PACKET+'/'+name in admitted,'SCOPED_READ_SQL_NOT_IN_PACKET')
+    catalog=unique_json(admitted['review-output/native-catalog/source-pins.json']);need(type(catalog)is dict and len(catalog)==16 and all(pins.get(name)==wanted for name,wanted in catalog.items()),'SCOPED_READ_CATALOG16_REQUIRED')
+    SCOPED_STATE['admitted']=admitted;SCOPED_FIXTURES=fixtures
+    validate_owned_source_snapshot()
+    validate_owned_tool_archive()
+    return admitted
+
+def verify_scoped_read_packet():
+    need(type(COMMIT)is str and re.fullmatch('[0-9a-f]{40}',COMMIT)and type(TREE)is str and re.fullmatch('[0-9a-f]{40}',TREE)and type(PACKET)is str and re.fullmatch('[0-9a-f]{64}',PACKET),'SCOPED_READ_SOURCE_NOT_PINNED')
+    need(uuid.UUID(RUN_ID).version==4,'SCOPED_READ_FRESH_UUID4')
+    admit_scoped_read_sources();verify_catalog_packet()
+    for name in HELPER_FILES:load_reviewed_helper(name)
+    SAFE_FILES.update({'scoped-read-native-attestation.json','scoped-read-run-plan.json','scoped-read-component-result.json','post-state-before.json','post-state-after.json'}|{'post-'+name for name in tuple(SAFE_FILES)})
+    report['steps']['SCOPED-READ-REVIEW']='PASS_SOURCE_ADMISSION_ONLY';report['scoped_read']={'selected_assertions':'NOT_RUN','whole_selected94_or451':'NOT_PROMOTED','owner_api_policy_qualified':False};save()
+
+def scoped_read_experiment():
+    name=TARGETS[0]['name'];inspect_owner(name);need(name in finalized,'SCOPED_READ_ORIGINAL_GRANTOR_REQUIRED');closed_backends(name,'SCOPED_READ_PRE_COMPONENT')
+    first=SCOPED_STATE['first_install'];native_path=OUT/'native-before.json';comparison_path=OUT/'catalog-comparison.json'
+    need(first['run_id']==RUN_ID and first['container_id']==created_containers[name]and first['source_commit']==COMMIT and first['source_tree']==TREE and first['packet_sha256']==PACKET,'SCOPED_READ_FRESH_RAM_INSTALL_REQUIRED')
+    need(canonical(unique_json(native_path.read_bytes()))==canonical(first['native'])and canonical(unique_json(comparison_path.read_bytes()))==canonical(first['comparison']),'SCOPED_READ_FIRST_PROOF_FILE_DRIFT')
+    attestation={'schema':'workinants.scoped-read-companion-native-attestation.v1','run_id':RUN_ID,'container_id':created_containers[name],'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'collector_sha256':MANIFEST['packet_files_sha256']['scripts/sql-review/collect_native_catalog.sql'],'source_expected_sha256':EXPECTED_SHA,'native_snapshot_sha256':digest(first['native']),'native_comparison_file_sha256':hashlib.sha256(comparison_path.read_bytes()).hexdigest(),'original_grantor_finalized':True,'operation_backends_absent':True,'comparison_status':'PASS'}
+    write_safe('scoped-read-native-attestation.json',attestation)
+    plan={'schema':'workinants.scoped-read-companion-run.v1','scope':'REVIEWED_SELECTED94_SCOPED_READ_COMPANION_SQL_SUBSET_ONLY','run_id':RUN_ID,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'packet_files_sha256':MANIFEST['packet_files_sha256'],'reviewed_packet_sha256':SCOPED_FIXTURES_SHA,'reviewed_content_sha256':SCOPED_CONTENT_SHA,'target_manifest':unique_json(read_target_manifest(MANIFEST['migration_targets']['ok'])),'immutable_container_id':created_containers[name],'native_snapshot':{'path':str(native_path),'sha256':hashlib.sha256(native_path.read_bytes()).hexdigest()},'native_comparison':{'path':str(comparison_path),'sha256':hashlib.sha256(comparison_path.read_bytes()).hexdigest()},'native_attestation':{'path':str(OUT/'scoped-read-native-attestation.json'),'sha256':hashlib.sha256((OUT/'scoped-read-native-attestation.json').read_bytes()).hexdigest()},'scenario_names':[row['name']for row in SCOPED_FIXTURES['cases']]}
+    write_safe('scoped-read-run-plan.json',plan);module=load_reviewed_helper(SCOPED_COORDINATOR)
+    fixed=OUT/COMPONENT_ARTIFACT;reference={'artifact':COMPONENT_ARTIFACT,'present':None,'read_status':'UNAVAILABLE'};details=report['scoped_read'];details['component_report_reference']=reference;details.update(component_closure_attempted=False,component_closure_confirmed=False)
+    failure=None;returned=None;value=None
+    try:
+        try:returned=module['coordinate'](plan,OUT/'scoped-read-component')
+        except BaseException:
+            failure=Stop('SCOPED_READ_COMPONENT_UNEXPECTED_STOP_EVIDENCE_RETAINED');remember_failure(failure.stage,failure.code)
+    finally:
+        # Safety command is independent of every child/parent evidence writer.
+        details['component_closure_attempted']=True
+        try:closed_backends(name,'SCOPED_READ_COMPONENT_FINALLY_GLOBAL_CLOSURE');details['component_closure_confirmed']=True
+        except BaseException as error:
+            if failure is None:failure=error;_required_safety_first_exception(error)
+        try:value=bounded_component_reference(fixed,reference)
+        except BaseException as error:
+            if failure is None:failure=error;_required_safety_first_exception(error)
+        persist_best_effort('SCOPED_READ_COMPONENT_REFERENCE_RECORD')
+    if failure is not None:raise failure
+    _required_safety_barrier()
+    need(details['component_closure_confirmed']is True,'SCOPED_READ_PARENT_CLOSURE_REQUIRED')
+    need(type(returned)is dict and canonical(returned)==canonical(value),'SCOPED_READ_RETURN_REFERENCE_MISMATCH')
+    validate_scoped_component(value,plan,digest(first['native']))
+    summary={'schema':'workinants.scoped-read-companion-component-summary.v1','status':value['status'],'completed_protocols':71,'operations':586,'component_report_sha256':digest(value),'selected_assertions':'NOT_PROMOTED_PENDING_EVIDENCE_REVIEW'}
+    write_safe('scoped-read-component-result.json',summary);details['component_report_sha256']=summary['component_report_sha256'];save()
+    readonly_post_proof(name,value)
+    report['steps']['SCOPED-READ-COMPONENT']='PASS_FINITE_PREPARED_SQL_ONLY';details.update(completed_protocols=71,selected_assertions='NOT_PROMOTED_PENDING_EVIDENCE_REVIEW');save()
+
+def validate_owned_source_snapshot():
+    need(set(MANIFEST['migration_targets'])=={'ok'},'SCOPED_EXACT_ONE_SOURCE_TARGET')
+    plan=MANIFEST['migration_targets']['ok'];raw=read_target_manifest(plan);nested=unique_json(raw)
+    expected={'prisma/foundation/migrations/'+MIGRATION+'/migration.sql','prisma/foundation/migrations/migration_lock.toml','prisma/review/foundation-candidate.prisma','prisma.local-f0.config.mjs','scripts/sql-review/local-f0-migrate-guard.mjs','scripts/sql-review/local-f0-migrate-runner.mjs','prisma/foundation/history-manifest.json'}
+    pins=plan['source_files_sha256'];need(type(pins)is dict and set(pins)==expected,'SCOPED_EXACT_SEVEN_SOURCE_MEMBERS')
+    snapshot=Path(plan['source_snapshot']);need(not snapshot.is_symlink(),'SCOPED_SOURCE_SNAPSHOT_LINK')
+    current={}
+    for path in snapshot.rglob('*'):
+        need(not path.is_symlink(),'SCOPED_SOURCE_MEMBER_LINK')
+        if path.is_file():current[path.relative_to(snapshot).as_posix()]=hashlib.sha256(path.read_bytes()).hexdigest()
+    exact(current,pins,'SCOPED_SOURCE_SNAPSHOT_DRIFT')
+    for name in expected-{'prisma/foundation/history-manifest.json'}:need(pins[name]==MANIFEST['packet_files_sha256'][name],'SCOPED_SOURCE_CURRENT_BYTE_BINDING')
+    need(nested['run_id']==RUN_ID and nested['target']['container_name']==TARGETS[0]['name']and nested['target']['volume_name']==TARGETS[0]['volume']and nested['target']['bootstrap_secret_host_path']==str(PRIVATE/'ok-bootstrap-password'),'SCOPED_SOURCE_TARGET_IDENTITY')
+    history=unique_json((snapshot/'prisma/foundation/history-manifest.json').read_bytes())
+    need(history['run_id']==RUN_ID and history['run_manifest_sha256']==hashlib.sha256(raw).hexdigest()and history['source_sql_sha256']==APPLICATION_SHA and history['database_contacted']is False and history['ledger_created_or_modified']is False,'SCOPED_SOURCE_FRESH_HISTORY')
+    content=Path(plan['source_archive']).read_bytes();need(hashlib.sha256(content).hexdigest()==plan['source_archive_sha256'],'SCOPED_SOURCE_ARCHIVE_SHA')
+    seen=set()
+    with tarfile.open(fileobj=io.BytesIO(content),mode='r:gz')as archive:
+        for member in archive:
+            need(member.isfile()and member.name in expected and member.name not in seen,'SCOPED_SOURCE_ARCHIVE_MEMBERS')
+            need(hashlib.sha256(archive.extractfile(member).read()).hexdigest()==pins[member.name],'SCOPED_SOURCE_ARCHIVE_BYTES');seen.add(member.name)
+    need(seen==expected,'SCOPED_SOURCE_EXACT_ARCHIVE7')
+
+def validate_owned_tool_archive():
+    closure=unique_json(read_pinned(TOOLS_CLOSURE))
+    need(MANIFEST['packet_files_sha256'][TOOLS_CLOSURE]==TOOLS_CLOSURE_SHA,'SCOPED_TOOL_SOURCE_BINDING')
+    raw=Path(MANIFEST['tool_archive']).read_bytes()
+    need(len(raw)==113900903 and hashlib.sha256(raw).hexdigest()==MANIFEST['tool_archive_sha256']==closure['archive_sha256']==TOOLS_ARCHIVE_SHA,'SCOPED_TOOL_ARCHIVE_IDENTITY')
+    expected=closure['tools_files_sha256'];need(type(expected)is dict and len(expected)==10300,'SCOPED_TOOL_MEMBER_COUNT')
+    nested=unique_json(read_target_manifest(MANIFEST['migration_targets']['ok']))
+    exact(nested['tools']['files_sha256'],expected,'SCOPED_NESTED_TOOL_BINDING')
+    seen=set()
+    with tarfile.open(fileobj=io.BytesIO(raw),mode='r:gz') as archive:
+        for member in archive:
+            name=member.name
+            need(type(name)is str and not name.startswith('/') and ':'not in name and '\\'not in name and all(p not in('','.','..')for p in name.split('/'))and member.isfile()and name not in seen and name in expected,'SCOPED_TOOL_SAFE_MEMBER')
+            content=archive.extractfile(member).read();need(hashlib.sha256(content).hexdigest()==expected[name],'SCOPED_TOOL_MEMBER_SHA');seen.add(name)
+    need(seen==set(expected),'SCOPED_TOOL_EXACT_MEMBERS')
+    SCOPED_STATE['tools_verified_before_compile']=True
+
+def qualify_native_counts(comparison,ledger,oracle_registry,oracle_results):
+    need(type(comparison)is dict and comparison.get('status')=='PASS'and type(comparison.get('check_counts'))is dict and set(comparison['check_counts'])=={'PASS'}and type(comparison['check_counts']['PASS'])is int and comparison['check_counts']['PASS']==29089 and comparison.get('findings')==[],'SCOPED_NATIVE_EXACT29089_REQUIRED')
+    need(type(ledger)is dict and set(ledger)=={'status','checks'}and ledger['status']=='PASS'and type(ledger['checks'])is list and len(ledger['checks'])==22 and all(type(row)is dict and set(row)=={'field','status','expected_sha256','actual_sha256'}and row['status']=='PASS'and type(row['expected_sha256'])is str and re.fullmatch('[0-9a-f]{64}',row['expected_sha256'])and row['expected_sha256']==row['actual_sha256']for row in ledger['checks']),'SCOPED_LEDGER_EXACT22_REQUIRED')
+    # The frozen oracle returns 416 identity->hash entries; its preflight is Boolean.
+    need(type(oracle_registry)is dict and len(oracle_registry)==416 and type(oracle_results.get('expression_count'))is int and oracle_results['expression_count']==416 and type(oracle_results.get('server_version_num'))is int and oracle_results['server_version_num']==170011,'SCOPED_ORACLE_EXACT416_REQUIRED')
+
+def scoped_state_observation(name,baseline,final_sha):
+    closed_backends(name,'SCOPED_READ_PARENT_STATE_CLOSURE')
+    value=observe(name,read_pinned(SCOPED_PACKET+'/complete-state-observe.sql').decode(),'SCOPED_READ_PARENT_COMPLETE42')
+    need(type(value)is dict and set(value)==set(SCOPED_FIXTURES['expected_counts'])and len(value)==42,'SCOPED_PARENT_EXACT42')
+    for table,count in SCOPED_FIXTURES['expected_counts'].items():
+        row=value[table];wanted=71 if table=='platform.database_action_grant'else count
+        need(type(row)is dict and set(row)=={'count','rows_sha256'}and type(row['count'])is int and row['count']==wanted and type(row['rows_sha256'])is str and re.fullmatch('[0-9a-f]{64}',row['rows_sha256']),'SCOPED_PARENT_TYPED42')
+        if table!='platform.database_action_grant':exact(row,baseline[table],'SCOPED_PARENT_NON_GRANT_DATA_CHANGED')
+    exact(digest(value),final_sha,'SCOPED_PARENT_CHILD_FINAL_STATE_MISMATCH')
+    coherence=observe(name,read_pinned(SCOPED_PACKET+'/fixture-coherence-observe.sql').decode(),'SCOPED_READ_PARENT_FIXTURE_COHERENCE')
+    exact(coherence,{'users':2,'coherent':True},'SCOPED_PARENT_FIXTURE_COHERENCE')
+    return value
+
+def readonly_post_proof(name,child):
+    """Fresh observations from first-install RAM evidence; never deploy/register again."""
+    first=SCOPED_STATE['first_install'];need(first['run_id']==RUN_ID and first['container_id']==created_containers[name]and first['source_commit']==COMMIT and first['source_tree']==TREE and first['packet_sha256']==PACKET,'SCOPED_POST_FIRST_INSTALL_RAM_BINDING')
+    baseline=child['baseline']['tables'];final_sha=child['results'][-1]['complete_state_sha256'];before=scoped_state_observation(name,baseline,final_sha);write_safe('post-state-before.json',before)
+    tools=CATALOG['tools'];manifest=CATALOG['expected'];native=collect_native(name,'SCOPED_POST_NATIVE_BEFORE_ORACLE','post-native-before.json');exact(digest(native),digest(first['native']),'SCOPED_POST_NATIVE_CHANGED')
+    query=run_catalog_query(name,CATALOG['oracle_sql'],'SCOPED_POST_EXPRESSION_ORACLE');parts=oracle_records(query.stdout,prefix='post-');successful_query(query)
+    need(len(parts)==3 and all(type(x)is bool and x is True for x in parts[0]['outcomes'].values()),'SCOPED_POST_ORACLE_BOOLEAN_PREFLIGHT')
+    second=collect_native(name,'SCOPED_POST_NATIVE_AFTER_ORACLE','post-native-after-oracle.json');exact(digest(second),digest(native),'SCOPED_POST_ORACLE_CHANGED_NATIVE')
+    oracle={'format':'workinants.reviewed-expression-oracle-evidence.v1','database':DB,'oracle_sql_sha256':hashlib.sha256(CATALOG['oracle_sql'].encode()).hexdigest(),'preflight':parts[0],'results':parts[1],'closure':parts[2],'connection_closed_before_observation':True,'pre_oracle_catalog_sha256':digest(native),'post_rollback_catalog_sha256':digest(second)}
+    registry=tools['catalog_expression_oracle'].validate_evidence(manifest,native,oracle,database=DB,grantor='postgres',root=ROOT);write_safe('post-oracle-evidence.json',oracle)
+    result=run_catalog_query(name,read_pinned('scripts/sql-review/collect_prisma_ledger.sql').decode(),'SCOPED_POST_PRISMA_LEDGER_NATIVE');parsed=records(result.stdout);value=parsed[0]if len(parsed)==1 else None
+    need(type(value)is dict and set(value)==set(tools['prisma_ledger_proof'].schema_expectation())|{'format','server_version_num','database','read_only','isolation','collected_as','session_user','collector_is_superuser','history','history_ids_unique'},'SCOPED_POST_LEDGER_FIELDS')
+    spec=tools['prisma_ledger_proof'].schema_expectation();shapes={key:' '.join(rows[0])for key,rows in spec.items()if type(rows)is list and rows};shapes.update({'column_acl':'column '+ACL_FIELDS,'history':'name_sha256 checksum_sha256 checksum_format_valid id_is_uuid_v4 started finished rolled_back time_order_valid steps logs_state'})
+    row_shapes(value,shapes);filter_metadata(value);write_safe('post-ledger-observation.json',value);successful_query(result)
+    third=collect_native(name,'SCOPED_POST_NATIVE_AFTER_LEDGER','post-native-after-ledger.json');exact(digest(third),digest(native),'SCOPED_POST_LEDGER_CHANGED_NATIVE')
+    evidence={'format':'workinants.prisma-ledger-evidence.v1','registration_sha256':digest(first['registration']),'collector_sql_sha256':MANIFEST['packet_files_sha256']['scripts/sql-review/collect_prisma_ledger.sql'],'run_id':RUN_ID,'target_attestation_sha256':first['installed']['attestation_sha256'],'native_catalog_before_sha256':digest(second),'native_catalog_after_sha256':digest(third),'observation':value};write_safe('post-ledger-evidence.json',evidence)
+    ledger=tools['prisma_ledger_proof'].compare_proof(first['registration'],evidence,native,bootstrap_grantor='postgres',source_expected_sha256=EXPECTED_SHA,root=ROOT)
+    comparison=tools['compare_native_catalog'].compare_manifest(manifest,native,bootstrap_grantor='postgres',bootstrap_superuser=True,public_schema_owner='pg_database_owner',public_acl_registration=CATALOG['public']['full_acl'],ledger_registration=first['registration'],ledger_evidence=evidence,expression_oracle_evidence=oracle,oracle_database=DB,root=ROOT)
+    qualify_native_counts(comparison,ledger,registry,parts[1]);write_safe('post-catalog-comparison.json',comparison)
+    after=scoped_state_observation(name,baseline,final_sha);exact(after,before,'SCOPED_POST_OBSERVERS_CHANGED_DATA');write_safe('post-state-after.json',after)
+    report['scoped_read']['post_proof']={'status':'PASS_READ_ONLY_SOURCE_BOUND_SUBSET','same_first_install_registration_sha256':digest(first['registration']),'same_installer_attestation_sha256':first['installed']['attestation_sha256'],'native_sha256':digest(native),'native_checks':29089,'oracle_expressions':416,'ledger_checks':22,'independent_tables':42,'before_state_sha256':digest(before),'after_state_sha256':digest(after),'child_final_state_sha256':final_sha,'second_deploy':False};save()
+
+def bounded_component_reference(fixed,reference):
+    """Only one closed, regular, single-link byte sequence enters JSON parsing."""
+    limit=16*1024*1024
+    try:
+        metadata=fixed.lstat();reference['present']=True
+        need(type(metadata.st_mode)is int and stat.S_ISREG(metadata.st_mode)and not fixed.is_symlink()and type(metadata.st_nlink)is int and metadata.st_nlink==1 and type(metadata.st_size)is int and 0<=metadata.st_size<=limit,'SCOPED_REFERENCE_SHAPE_OR_LIMIT')
+        with fixed.open('rb')as stream:
+            opened=os.fstat(stream.fileno());need((opened.st_dev,opened.st_ino,opened.st_size,opened.st_mtime_ns)==(metadata.st_dev,metadata.st_ino,metadata.st_size,metadata.st_mtime_ns)and stat.S_ISREG(opened.st_mode)and opened.st_nlink==1,'SCOPED_REFERENCE_OPEN_IDENTITY')
+            raw=stream.read(limit+1);after=os.fstat(stream.fileno())
+            need(type(raw)is bytes and len(raw)==metadata.st_size and len(raw)<=limit and (after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns,after.st_nlink)==(opened.st_dev,opened.st_ino,opened.st_size,opened.st_mtime_ns,1),'SCOPED_REFERENCE_GROWTH_OR_IDENTITY')
+        closed=fixed.lstat();need(not fixed.is_symlink()and (closed.st_dev,closed.st_ino,closed.st_size,closed.st_mtime_ns,closed.st_nlink)==(after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns,1),'SCOPED_REFERENCE_CLOSED_IDENTITY')
+        reference.update(read_status='CLOSED_BOUNDED_BYTES',bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+        return unique_json(raw)
+    except FileNotFoundError:reference.update(present=False,read_status='ABSENT');raise Stop('SCOPED_COMPONENT_REFERENCE_ABSENT')from None
+    except BaseException:
+        reference['read_status']='UNAVAILABLE_OR_REJECTED';raise Stop('SCOPED_COMPONENT_REFERENCE_UNCONFIRMED')from None
+
+def validate_scoped_component(value,plan,native_sha):
+    keys={'schema','status','current_stage','current_case','run_id','container_id','source_commit','source_tree','packet_sha256','reviewed_packet_sha256','reviewed_content_sha256','selected_controls','results','operations','authentication','unexpected','subsequent_cases_stopped','cleanup_required','fixture_owner_bypass_restored','evidence_complete','database_posture','limits','effective_hba_selections','current_auth_role','authentication_comparison','baseline','source_packet_unchanged_after','sanitization'}
+    need(type(value)is dict and set(value)==keys,'SCOPED_COMPONENT_EXACT_FIELDS')
+    wanted={'schema':'workinants.scoped-read-companion-evidence.v1','status':'PASS_FINITE_SCOPED_READ_COMPANION_SQL_SUBSET_ONLY','current_stage':'COMPLETE','current_case':None,'run_id':RUN_ID,'container_id':created_containers[TARGETS[0]['name']],'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'reviewed_packet_sha256':SCOPED_FIXTURES_SHA,'reviewed_content_sha256':SCOPED_CONTENT_SHA,'unexpected':[],'subsequent_cases_stopped':False,'cleanup_required':True,'fixture_owner_bypass_restored':True,'evidence_complete':True,'database_posture':'D','limits':SCOPED_FIXTURES['scope_limits'],'source_packet_unchanged_after':True,'selected_controls':[{'id':x,'status':'NOT_RUN'}for x in SCOPED_FIXTURES['selected_control_ids']],'sanitization':{'context_secrets_or_hashes_found':False,'raw_stderr_statement_bodies_or_handles_retained':False},'current_auth_role':'wa_worker','authentication_comparison':{key:True for key in('json_parsed','object','fields','string_fields','login','scram_identity','database','client_loopback','server_loopback')}}
+    exact({k:value[k]for k in wanted},wanted,'SCOPED_COMPONENT_IDENTITY_AND_COMPLETION')
+    roles=list(ROLES);auth=value['authentication'];need(type(auth)is list and len(auth)==6,'SCOPED_AUTH_SIX')
+    for row,role in zip(auth,roles):exact(row,{'role':role,'transport':'TCP_127.0.0.1_5432','correct_password':'PASS_SCRAM','wrong_password':'PASS_REJECTED','wrong_password_exit_code':2},'SCOPED_AUTH_ROLE_CONTROLS')
+    hba=value['effective_hba_selections'];need(type(hba)is list and len(hba)==12,'SCOPED_HBA_TWELVE')
+    for row,(address,role)in zip(hba,((address,role)for address in('127.0.0.1','::1')for role in roles)):
+        need(type(row)is dict and set(row)=={'role','address','rule_number','method'}and row['role']==role and row['address']==address and row['method']=='scram-sha-256'and type(row['rule_number'])is int and row['rule_number']>0,'SCOPED_HBA_TYPED_SELECTION')
+    baseline=value['baseline'];need(type(baseline)is dict and set(baseline)=={'tables','sha256'}and type(baseline['tables'])is dict and set(baseline['tables'])==set(SCOPED_FIXTURES['expected_counts'])and len(baseline['tables'])==42 and digest(baseline['tables'])==baseline['sha256'],'SCOPED_BASELINE42_DIGEST')
+    for table,count in SCOPED_FIXTURES['expected_counts'].items():
+        row=baseline['tables'][table];need(type(row)is dict and set(row)=={'count','rows_sha256'}and type(row['count'])is int and row['count']==count and type(row['rows_sha256'])is str and re.fullmatch('[0-9a-f]{64}',row['rows_sha256']),'SCOPED_BASELINE_TYPED42')
+    results=value['results'];need(type(results)is list and len(results)==71,'SCOPED_EXACT71_RESULTS')
+    for index,(row,case)in enumerate(zip(results,SCOPED_FIXTURES['cases']),1):
+        fields={'case','case_id','assertion_id','actual_login','operation_closed_before_observers','tables_observed','complete_state_sha256','issued_grants','status','diagnostic','query_stage_reached','counts'}|({'stage_markers'}if case['kind']=='read'else set())
+        need(type(row)is dict and set(row)==fields and type(row['tables_observed'])is int and row['tables_observed']==42 and type(row['issued_grants'])is int and row['issued_grants']==index and type(row['complete_state_sha256'])is str and re.fullmatch('[0-9a-f]{64}',row['complete_state_sha256']),'SCOPED_TYPED_CASE_FIELDS')
+        expected={'case':case['name'],'case_id':case['case_id'],'assertion_id':case['assertion_id'],'actual_login':'wa_app_runtime','operation_closed_before_observers':True,'status':'PASS_FINITE_SCOPED_READ_ONLY','query_stage_reached':case['kind']=='read','counts':case['expected']if case['kind']=='read'else None,'diagnostic':None}
+        if case['kind']=='read':expected['stage_markers']={'before':True,'after':True};need(type(row['counts'])is dict and all(type(x)is int and x>=0 for x in row['counts'].values()),'SCOPED_TYPED_READ_COUNTS')
+        else:
+            expected['diagnostic']={'matched':True,'sqlstate':'42501','classification':'EXACT_PRINCIPAL_CURRENTNESS_BINDER_GUARD','source_body_sha256':'9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009','source_body_line':7,'native_location':'exec_stmt_raise@pl_exec.c'}
+        exact({k:row[k]for k in expected},expected,'SCOPED_CASE_SOURCE_VERDICT')
+    # Exact sequence and field values, confirmed against the actual frozen coordinator.
+    global_row={'stage':'GLOBAL_BACKEND_CLOSURE','other_clients_zero':True};trigger={'stage':'EXACT_EIGHT_TRIGGER_RESTORATION','owner_and_physical_enabled':True}
+    def native(stage):return{'stage':stage,'native_catalog_match':True,'native_sha256':native_sha}
+    expected_ops=[global_row,global_row,native('PRE_FIXTURE_NATIVE_PARITY'),global_row,trigger,global_row,{'stage':'SYNTHETIC_EXISTING_ROWS_ONLY','actual_login':'postgres','commit_acknowledged':True,'operation_closed':True},global_row,trigger,global_row,native('POST_FIXTURE_NATIVE_PARITY'),global_row]
+    for index,case in enumerate(SCOPED_FIXTURES['cases'],1):
+        bound={'stage':'BOUND_OPERATION','case':case['name'],'actual_login':'wa_app_runtime','issuer_committed':True,'same_tuple_verified':True,'bind_stage_marker':True,'query_stage_reached':case['kind']=='read','operation_closed':True,'terminal_exit':0 if case['kind']=='read'else 3,'result_validated':True}
+        issuer={'stage':'SEPARATE_ISSUER_COMMIT','issuer_committed':True,'created_at_return_verified':True,'commit_acknowledged':True,'operation_closed':True}
+        current={'stage':'IMMUTABLE_ISSUER_RETENTION','instances':1,'all_21_fields_match':True,'issuer_owned':True,'unrevoked':True,'unexpired_required':True,'current_unexpired_match':True};prefix={**current,'instances':index,'unexpired_required':False,'current_unexpired_match':None}
+        expected_ops.extend([bound,issuer,current,global_row,current,global_row,prefix,trigger])
+    expected_ops.extend([global_row,native('FINAL_NATIVE_PARITY'),global_row,trigger,global_row,native('FINALLY_FULL_NATIVE_PARITY')])
+    need(type(value['operations'])is list and len(value['operations'])==586,'SCOPED_EXACT586_OPERATIONS');exact(value['operations'],expected_ops,'SCOPED_EXACT_OPERATION_ORDER_AND_TYPES')
+    return value

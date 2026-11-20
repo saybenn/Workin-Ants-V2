@@ -153,7 +153,9 @@ class World(LEGACY['World']):
             if name=='context_allows':
                 grant=self.bound(process);return grant is not None and[grant[key]for key in('owner_module_id','action','target_kind','target_id','purpose')]==args
             if name=='context_subject':
-                grant=self.bound(process);return grant is not None and grant['principal_user_id']==args[0]
+                grant=self.bound(process);return grant is not None and grant['principal_user_id']==args[0]and grant['owner_module_id']=='consent_disclosure'
+            if name=='context_subject_owner':
+                grant=self.bound(process);return grant is not None and grant['principal_user_id']==args[0]and grant['owner_module_id']==args[1]
         raise AssertionError('UNMODELED_SQL_EXPRESSION')
 
     def bound(self,process):
@@ -477,6 +479,73 @@ class PrivilegeCoordinatorTests(unittest.TestCase):
         output=io.StringIO()
         with patch.object(Path,'read_bytes',side_effect=AssertionError('SOURCE_READ_FORBIDDEN')),redirect_stdout(output),self.assertRaises(SystemExit)as stopped:M['main'](['--help'])
         self.assertEqual(stopped.exception.code,0)
+
+    def test_person_comparison_fixed_boolean_shapes_and_secret_exclusion(self):
+        valid={'allowed':True,'subject':True,'same_tuple':True};function=M['person_binding_comparison'];good=function([json.dumps(valid)],True,'')
+        self.assertTrue(all(good.values()));self.assertTrue(all(type(x)is bool for x in good.values()))
+        cases=[([],True,''),([json.dumps(valid),CANARY],True,''),([CANARY],True,''),([json.dumps({'allowed':True,'subject':{'secret':CANARY},'same_tuple':True})],True,''),([json.dumps({**valid,'unlisted':CANARY})],True,''),(['null'],True,''),(['[]'],True,''),(['{"allowed":true,"allowed":true,"subject":true,"same_tuple":true}'],True,''),(['{"allowed":NaN,"subject":true,"same_tuple":true}'],True,''),([CANARY*500],True,''),([json.dumps(valid)],1,''),([json.dumps(valid)],True,CANARY),([json.dumps(valid)],True,None),((json.dumps(valid),),True,'')]
+        for field in valid:
+            for bad in(False,1,None,CANARY):cases.append(([json.dumps({**valid,field:bad})],True,''))
+        for rows,ack,errors in cases:
+            result=function(rows,ack,errors);self.assertEqual(set(result),set(good));self.assertTrue(all(type(x)is bool for x in result.values()));self.assertFalse(all(result.values()));self.assertNotIn(CANARY,json.dumps(result))
+
+    def test_subject_helpers_model_the_actual_owner_and_bound_tuple_semantics(self):
+        world=World();principal=PACKET['person_grant']['principal_user_id'];process=types.SimpleNamespace(role='wa_app_runtime',pid='40404',xid='101',context='a'*64)
+        grant={'token_hash':process.context,'database_login_role':process.role,'backend_pid':int(process.pid),'transaction_id':process.xid,'revoked_at':None,'expires_at':(datetime.datetime.fromisoformat(world.now())+datetime.timedelta(seconds=60)).isoformat(),'principal_user_id':principal,'owner_module_id':'customer_buyer_profile'};world.new_grants={'synthetic':grant}
+        def value(name,who,owner=None):
+            sql='SELECT platform_private.'+name+'('+M['quote'](who)+'::uuid'+(''if owner is None else ','+M['quote'](owner))+');';return world.expr(parse_sql(sql)[0].stmt.targetList[0].val,process)
+        self.assertFalse(value('context_subject',principal));self.assertTrue(value('context_subject_owner',principal,'customer_buyer_profile'));self.assertFalse(value('context_subject_owner',principal,'consent_disclosure'));self.assertFalse(value('context_subject_owner','00000000-0000-4000-8000-000000000001','customer_buyer_profile'))
+        grant['owner_module_id']='consent_disclosure';self.assertTrue(value('context_subject',principal));self.assertTrue(value('context_subject_owner',principal,'consent_disclosure'));grant['owner_module_id']='customer_buyer_profile'
+        for field,bad in(('backend_pid',1),('transaction_id','1'),('database_login_role','wa_worker'),('revoked_at',world.now()),('expires_at','2000-01-01T00:00:00+00:00'),('token_hash','b'*64)):
+            old=grant[field];grant[field]=bad;self.assertFalse(value('context_subject_owner',principal,'customer_buyer_profile'));grant[field]=old
+        process.context='c'*64;self.assertFalse(value('context_subject_owner',principal,'customer_buyer_profile'))
+
+    def oracle_mutation(self,replacement,failed):
+        # An intentional direct oracle-source mutant. The normal complete
+        # pipeline still uses the real loader/factory with unchanged byte pins.
+        raw=(ROOT/M['SELF']).read_text();needle=next(line for line in raw.splitlines()if line.startswith('                expression='));self.assertNotEqual(needle,replacement);module={'__name__':'_person_oracle_mutant','__file__':str(ROOT/M['SELF'])};exec(compile(raw.replace(needle,replacement),str(ROOT/M['SELF']),'exec'),module)
+        def action(r):r.setup_facts();r.person_binding();self.fail('oracle mutant unexpectedly qualified')
+        with patch.dict(globals(),M=module):failure,data,world,_,_=self.exercise(action=action)
+        self.assertIsNotNone(failure);self.assertEqual(data['results'],[]);self.assertEqual(world.negative_count,0);self.assertTrue(all(p.poll()is not None for p in world.processes));record=data['operations'][-1];self.assertTrue(record['closed_before_observers']);self.assertTrue(record['global_client_closure_confirmed']);self.assertFalse(record['caller_path_comparisons'][0]);checks=record['caller_path_comparison_outcomes'][0];self.assertIs(checks[failed],False);self.assertEqual(set(checks),set(M['person_binding_comparison']([],False,'')));self.assertTrue(all(type(v)is bool for v in checks.values()))
+
+    def test_restoring_old_Consent_only_subject_oracle_is_detected(self):
+        line=next(line for line in(ROOT/M['SELF']).read_text().splitlines()if line.startswith('                expression='))
+        old=line.replace('context_subject_owner(', 'context_subject(').replace('::uuid,"+quote(template[\'owner_module_id\'])+"','::uuid')
+        self.oracle_mutation(old,'owner_subject')
+
+    def test_wrong_principal_or_owner_argument_stops_subject_qualification(self):
+        line=next(line for line in(ROOT/M['SELF']).read_text().splitlines()if line.startswith('                expression='))
+        replacements=[line.replace('context_subject_owner("+quote(template[\'principal_user_id\'])+"','context_subject_owner(\'00000000-0000-4000-8000-000000000001\''),line.replace('::uuid,"+quote(template[\'owner_module_id\'])+"','::uuid,\'consent_disclosure\'')]
+        for replacement in replacements:
+            with self.subTest(replacement=replacement):self.oracle_mutation(replacement,'owner_subject')
+
+    def test_wrong_scalar_tuple_projection_is_detected_and_closed(self):
+        line=next(line for line in(ROOT/M['SELF']).read_text().splitlines()if line.startswith('                expression='))
+        self.oracle_mutation(line.replace("'same_tuple',pg_backend_pid()=","'same_tuple',0="),'same_tuple')
+
+    def test_person_scalar_failure_evidence_IO_stops_and_closes(self):
+        memory=MemoryEvidence();save=memory.save
+        def writer():
+            if memory.value.get('current',{}).get('caller_path_comparison_outcomes'):raise OSError(CANARY)
+            save()
+        memory.save=writer
+        def action(r):r.setup_facts();r.person_binding()
+        failure,data,world,_,_=self.exercise(action=action,evidence=memory);self.assertIsNotNone(failure);self.assertFalse(data['evidence_complete']);self.assertEqual(data['results'],[]);self.assertEqual(world.negative_count,0);self.assertTrue(all(p.poll()is not None for p in world.processes));self.assertTrue(data['global_client_boundaries'][-1]['attempted'])
+
+    def test_actual_bad_scalar_rows_retain_fixed_comparisons_and_close_before_observers(self):
+        original=World.execute
+        for mode in('malformed','extra_secret_field','non_boolean','secret_error'):
+            def execute(world,process,text):
+                rows,error=original(world,process,text)
+                if process.role=='wa_app_runtime'and'context_subject_owner('in text:
+                    if mode=='malformed':rows=[CANARY]
+                    elif mode=='extra_secret_field':rows=[json.dumps({'allowed':True,'subject':True,'same_tuple':True,'unlisted':{'uri':CANARY}})]
+                    elif mode=='non_boolean':rows=[json.dumps({'allowed':True,'subject':1,'same_tuple':True})]
+                    else:error='ERROR:  XX000: '+CANARY+'\nDETAIL: '+CANARY+'\n'
+                return rows,error
+            def action(r):r.setup_facts();r.person_binding();self.fail('bad probe unexpectedly qualified')
+            with self.subTest(mode=mode),patch.object(World,'execute',execute):failure,data,world,_,_=self.exercise(action=action)
+            self.assertIsNotNone(failure);self.assertEqual(data['results'],[]);self.assertEqual(world.negative_count,0);self.assertTrue(all(p.poll()is not None for p in world.processes));record=data['operations'][-1];self.assertTrue(record['closed_before_observers']);self.assertTrue(record['global_client_closure_confirmed']);checks=record['caller_path_comparison_outcomes'][0];self.assertFalse(all(checks.values()));self.assertTrue(all(type(v)is bool for v in checks.values()));self.assertNotIn(CANARY,json.dumps(data))
 
     def test_main_malformed_plan_retains_sanitized_stop_without_runtime(self):
         with tempfile.TemporaryDirectory(prefix='privilege-main-',dir=TASK)as temporary:

@@ -1,0 +1,308 @@
+{
+  "schema": "workinants.six-read-owned-child-offline-trace-schema.v1",
+  "source_only_mock": true,
+  "runtime_qualification_claimed": false,
+  "trace_sha256": "de3a807a052c5a22fd9f55e502e174976fd8d4891121ccef388736290702c1b1",
+  "top_fields": {
+    "schema": "str",
+    "status": "str",
+    "current_stage": "str",
+    "current_case": "NoneType",
+    "run_id": "str",
+    "container_id": "str",
+    "source_commit": "str",
+    "source_tree": "str",
+    "packet_sha256": "str",
+    "reviewed_packet_sha256": "str",
+    "reviewed_content_sha256": "str",
+    "selected_controls": "list",
+    "results": "list",
+    "operations": "list",
+    "authentication": "list",
+    "unexpected": "list",
+    "subsequent_cases_stopped": "bool",
+    "cleanup_required": "bool",
+    "fixture_owner_bypass_restored": "bool",
+    "evidence_complete": "bool",
+    "database_posture": "str",
+    "limits": "list",
+    "effective_hba_selections": "list",
+    "current_auth_role": "str",
+    "authentication_comparison": "dict",
+    "baseline": "dict",
+    "source_packet_unchanged_after": "bool",
+    "sanitization": "dict"
+  },
+  "operation_fields": {
+    "GLOBAL_BACKEND_CLOSURE": {
+      "stage,other_clients_zero": {
+        "stage": "str",
+        "other_clients_zero": "bool"
+      }
+    },
+    "PRE_FIXTURE_NATIVE_PARITY": {
+      "stage,native_catalog_match,native_sha256": {
+        "stage": "str",
+        "native_catalog_match": "bool",
+        "native_sha256": "str"
+      }
+    },
+    "EXACT_EIGHT_TRIGGER_RESTORATION": {
+      "stage,owner_and_physical_enabled": {
+        "stage": "str",
+        "owner_and_physical_enabled": "bool"
+      }
+    },
+    "SYNTHETIC_EXISTING_ROWS_ONLY": {
+      "stage,actual_login,commit_acknowledged,operation_closed": {
+        "stage": "str",
+        "actual_login": "str",
+        "commit_acknowledged": "bool",
+        "operation_closed": "bool"
+      }
+    },
+    "POST_FIXTURE_NATIVE_PARITY": {
+      "stage,native_catalog_match,native_sha256": {
+        "stage": "str",
+        "native_catalog_match": "bool",
+        "native_sha256": "str"
+      }
+    },
+    "BOUND_OPERATION": {
+      "stage,case,actual_login,issuer_committed,same_tuple_verified,bind_stage_marker,query_stage_reached,operation_closed,terminal_exit,result_validated": {
+        "stage": "str",
+        "case": "str",
+        "actual_login": "str",
+        "issuer_committed": "bool",
+        "same_tuple_verified": "bool",
+        "bind_stage_marker": "bool",
+        "query_stage_reached": "bool",
+        "operation_closed": "bool",
+        "terminal_exit": "int",
+        "result_validated": "bool"
+      }
+    },
+    "SEPARATE_ISSUER_COMMIT": {
+      "stage,issuer_committed,commit_acknowledged,created_at_return_verified,operation_closed": {
+        "stage": "str",
+        "issuer_committed": "bool",
+        "commit_acknowledged": "bool",
+        "created_at_return_verified": "bool",
+        "operation_closed": "bool"
+      }
+    },
+    "IMMUTABLE_ISSUER_RETENTION": {
+      "stage,instances,all_21_fields_match,issuer_owned,unrevoked,unexpired_required,current_unexpired_match": {
+        "stage": "str",
+        "instances": "int",
+        "all_21_fields_match": "bool",
+        "issuer_owned": "bool",
+        "unrevoked": "bool",
+        "unexpired_required": "bool",
+        "current_unexpired_match": "NoneType"
+      }
+    },
+    "FINAL_NATIVE_PARITY": {
+      "stage,native_catalog_match,native_sha256": {
+        "stage": "str",
+        "native_catalog_match": "bool",
+        "native_sha256": "str"
+      }
+    },
+    "FINALLY_FULL_NATIVE_PARITY": {
+      "stage,native_catalog_match,native_sha256": {
+        "stage": "str",
+        "native_catalog_match": "bool",
+        "native_sha256": "str"
+      }
+    }
+  },
+  "result_fields": {
+    "read": {
+      "case,case_id,assertion_id,actual_login,operation_closed_before_observers,tables_observed,complete_state_sha256,issued_grants,status,diagnostic,query_stage_reached,counts,stage_markers": {
+        "case": "str",
+        "case_id": "str",
+        "assertion_id": "str",
+        "actual_login": "str",
+        "operation_closed_before_observers": "bool",
+        "tables_observed": "int",
+        "complete_state_sha256": "str",
+        "issued_grants": "int",
+        "status": "str",
+        "diagnostic": "NoneType",
+        "query_stage_reached": "bool",
+        "counts": "dict",
+        "stage_markers": "dict"
+      }
+    },
+    "binder-denial": {
+      "case,case_id,assertion_id,actual_login,operation_closed_before_observers,tables_observed,complete_state_sha256,issued_grants,status,diagnostic,query_stage_reached,counts": {
+        "case": "str",
+        "case_id": "str",
+        "assertion_id": "str",
+        "actual_login": "str",
+        "operation_closed_before_observers": "bool",
+        "tables_observed": "int",
+        "complete_state_sha256": "str",
+        "issued_grants": "int",
+        "status": "str",
+        "diagnostic": "dict",
+        "query_stage_reached": "bool",
+        "counts": "NoneType"
+      }
+    }
+  },
+  "prefix12": [
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "PRE_FIXTURE_NATIVE_PARITY",
+      "native_catalog_match": true,
+      "native_sha256": "32cccea7830554baadc295f53c42f404af43d0b5d98fd1a4f11d30cae7c7d588"
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "SYNTHETIC_EXISTING_ROWS_ONLY",
+      "actual_login": "postgres",
+      "commit_acknowledged": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "POST_FIXTURE_NATIVE_PARITY",
+      "native_catalog_match": true,
+      "native_sha256": "32cccea7830554baadc295f53c42f404af43d0b5d98fd1a4f11d30cae7c7d588"
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    }
+  ],
+  "first_group8": [
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateattempt-positive-root",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    }
+  ],
+  "suffix6": [
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "FINAL_NATIVE_PARITY",
+      "native_catalog_match": true,
+      "native_sha256": "32cccea7830554baadc295f53c42f404af43d0b5d98fd1a4f11d30cae7c7d588"
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "FINALLY_FULL_NATIVE_PARITY",
+      "native_catalog_match": true,
+      "native_sha256": "32cccea7830554baadc295f53c42f404af43d0b5d98fd1a4f11d30cae7c7d588"
+    }
+  ],
+  "authentication_fields": {
+    "role": "str",
+    "transport": "str",
+    "correct_password": "str",
+    "wrong_password": "str",
+    "wrong_password_exit_code": "int"
+  },
+  "sanitization": {
+    "context_secrets_or_hashes_found": false,
+    "raw_stderr_statement_bodies_or_handles_retained": false
+  }
+}

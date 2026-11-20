@@ -1,0 +1,235 @@
+{
+  "Root_implementation_ACK_sha256": "0fb6d5970309f66837b877e0b4c2c76e1b376ec2f41a00cd82b29b287a55091f",
+  "actual_full_mock_composition": {
+    "happy": {
+      "cleanup_confirmed": true,
+      "exit_code": 0,
+      "global_operations": 152,
+      "ledger_boundaries": 2,
+      "mocked_operation_processes": 143,
+      "native_boundaries": 10,
+      "one_deploy": true,
+      "oracle_boundaries": 2,
+      "real_child_operations": 586,
+      "real_child_protocols": 71,
+      "separate_read_only_after_proof": true,
+      "trigger_operations": 74
+    },
+    "harness_sha256_at_entry": "267c2b5300f403b903a69d561ad463dcebecbd18d19100ee6d9c7e03e0c9c61d",
+    "harness_unchanged_at_exit": true,
+    "persistent_after_child_save_fault": {
+      "cleanup_confirmed": true,
+      "evidence_complete": false,
+      "exit_code": 1,
+      "public_component_closure_confirmed": false,
+      "typed_global_zero_observed": true,
+      "verdict_or_postproof_called": false
+    },
+    "transient_after_confirmed_closure_reference_write_fault": {
+      "cleanup_confirmed": true,
+      "evidence_complete": false,
+      "exit_code": 1,
+      "public_component_closure_confirmed": true,
+      "verdict_or_postproof_called": false
+    }
+  },
+  "author_review": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\six_read_owned_resource_v1_source_author_review_20261119.json",
+    "sha256": "8ba59c595288be9e8892ed73c096cd25d51041c8c02438dcdea5e9e2965104cf"
+  },
+  "authorship_disclosure": {
+    "details": "Reviewer authored earlier shared SafetySQL/outer-runner and CTX helper lineage. The new five and unchanged SixRead child were authored by others; this decision reviews their new integration and exact accepted-basis reuse, not independent reapproval of the inherited source.",
+    "inherited_shared_helpers_authored_by_reviewer": true,
+    "new_five_authored_by_reviewer": false,
+    "sixread_coordinator_authored_by_reviewer": false
+  },
+  "decision": "SOURCE_APPROVED",
+  "delivery": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\six_read_owned_resource_v1_frozen_source_plan_20261119.json",
+    "sha256": "f1976bb2b5c7589627cb5603452e367c3020f70753a63f3fb03e0606ecb56bd8"
+  },
+  "findings": [],
+  "freeze_manifest": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\six-read-owned-resource-v1-author-freeze-20261119\\freeze-manifest.json",
+    "sha256": "2de82d9dea17f22f4698f006b8f9cd854b17e2b74534a9c3cea8cd0dba032acd"
+  },
+  "historical_control_qualification": "The earlier in-flight-harness probe and failed writer-oracle expectations are preserved history only. Independent tests loaded the exact frozen 267c2b53 harness with entry/end hashing. Historical Owner7293 sanitized native/oracle/ledger metadata was used only as hash-verified OFFLINE MOCK DATA; no fresh runtime attestation or actual assertion evidence was learned from it.",
+  "independent_checks": {
+    "additional_suites": {
+      "all_PASS": true,
+      "methods": 41,
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\six_read_owned_resource_v1_independent_offline_checks_20261119.json",
+      "sha256": "d411c124fe2fd283eea8dd92e674124b7e3da055dfa9d5b844efd9f3730daba3",
+      "suites": [
+        {
+          "harness_sha256_at_entry": "a2ae340c2a7563ad3a1be64971292a11d21e79279c8555110c4f6d92a5d4e13c",
+          "harness_unchanged_at_exit": true,
+          "methods": 23,
+          "seconds": 5.422,
+          "suite": "safety"
+        },
+        {
+          "harness_sha256_at_entry": "968981e0dd51c96d77a6f976390d7a91bf7e32c82680e542c40ff27b5b708477",
+          "harness_unchanged_at_exit": true,
+          "methods": 5,
+          "seconds": 46.938,
+          "suite": "admission"
+        },
+        {
+          "harness_sha256_at_entry": "a41f7b7b360e60fb34e3aecef4ff71f174db318e6f5fd30774f40d881775701c",
+          "harness_unchanged_at_exit": true,
+          "methods": 10,
+          "seconds": 55.968,
+          "suite": "preparer_pinner"
+        },
+        {
+          "harness_sha256_at_entry": "267c2b5300f403b903a69d561ad463dcebecbd18d19100ee6d9c7e03e0c9c61d",
+          "harness_unchanged_at_exit": true,
+          "methods": 3,
+          "seconds": 467.11,
+          "suite": "full_cli"
+        }
+      ]
+    },
+    "method_count_is_not_SQL_coverage": true,
+    "owning_suite": {
+      "PASS": 49,
+      "evidence": "Independent direct tool execution session38893 exit0; every process/network boundary mocked or forbidden.",
+      "methods": 49,
+      "path": "check_local_f0_scoped_reads_owned_resource_v1_operation.py",
+      "seconds": 15.813,
+      "sha256": "6d69f6df83eee156605766d82683a29a5890b7436bac4428d890c28cca3b9aa9"
+    },
+    "source_five_unchanged_after_all_checks": true,
+    "total_method_executions": 90
+  },
+  "independent_plan_review_sha256": "2281b4a1c25385842173c23b7cd1f341ca27424b1c5ed80d2a2dc1675d12f577",
+  "inherited_core_AST": {
+    "changed_functions_only": [
+      "initialize",
+      "launch"
+    ],
+    "identical_functions_and_classes": [
+      "Stop",
+      "need",
+      "save",
+      "remember_failure",
+      "persist_best_effort",
+      "emit_best_effort",
+      "event_best_effort",
+      "event",
+      "command",
+      "docker",
+      "json_ok",
+      "inventory",
+      "owned",
+      "inspect_container",
+      "inspect_volume",
+      "safe_error",
+      "psql_args",
+      "sql",
+      "observe",
+      "secure_private_directory",
+      "preflight",
+      "ensure_image",
+      "create_resources",
+      "_required_safety_evidence_complete",
+      "_required_safety_save",
+      "_required_safety_event",
+      "_required_safety_failure",
+      "_required_safety_first_exception",
+      "_required_safety_barrier",
+      "_required_safety_text",
+      "_required_safety_decode",
+      "_required_safety_sql",
+      "_required_zero_backends",
+      "closed_backends",
+      "_RequiredSafetyBoundary",
+      "finalize",
+      "secret_scan",
+      "cleanup"
+    ],
+    "ordinary_sql_observe_safety_finalizer_cleanup_persistence_unchanged": true
+  },
+  "limits": {
+    "Posture": "D",
+    "Root_review_metadata_publication_and_current_committed_packet_pin_required": true,
+    "all_six_assertions_and71_actual_runtime": "NOT_RUN",
+    "fresh_operational_literal_required": true,
+    "no_Native960_Priv200_WorkerLoop_Read13_AppWrite_or_whole94_451_promotion": true,
+    "no_new_SQL_policy_role_permission_owner_codec_or_adapter": true,
+    "no_source_gate_metadata_Git_Docker_DB_SQL_network_or_runtime_mutation": true,
+    "temporary_cloned_test_source_data_only": true
+  },
+  "operator_sources_sha256": {
+    "check_local_f0_scoped_reads_owned_resource_v1_operation.py": "6d69f6df83eee156605766d82683a29a5890b7436bac4428d890c28cca3b9aa9",
+    "execute_local_f0_scoped_reads_owned_resource_v1_20261119.py": "d35491a05064d58c05ec7437b16668554394854f0e7b3d7ee2675fbb963b64ec",
+    "local_f0_scoped_reads_owned_resource_v1_operation_steps.py": "6cdbffd04fa950663ba94f40503b2d987284b57ff6ea0a8619f4a3c9eaa5bb71",
+    "pin_local_f0_scoped_reads_owned_resource_v1_plan_20261119.py": "9f644efc10b9e5e68756d51e38c744e06404ac84fc0c4e36386c82c608c33bdd",
+    "prepare_local_f0_scoped_reads_owned_resource_v1_plan.py": "009f41028bea52513e1050efce4662b3de9167818e1f95a1fffb4830e5e49ab0"
+  },
+  "pending_validation": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\context\\reconciliation\\local-f0-scoped-read-companion-owned-resource-v1-source-validation.json",
+    "sha256": "a5eda74928625f91141b896097d06cbe3ff8f16549bd57fe1a2013b3c2086313"
+  },
+  "plain_english": "The new reader passed pretend practice runs, including broken record writing and cleanup. It still needs a separately reviewed fresh plan before a real practice database can run.",
+  "plan": {
+    "path": "six-read-owned-resource-v1-source-plan-v2-20261119.json",
+    "sha256": "451316095be5ac6a32dcfdbfa947b217155d92714178d058a2a494b388155037"
+  },
+  "recorded_at_utc": "2026-11-20T03:40:17.599782+00:00",
+  "reviewed_boundaries": [
+    {
+      "assessment": "Admits full current bytes, accepted source100/archive10 plus Owner provenance, seven closed helpers, physical five/snapshots, version-specific independent reviews, catalog16/assets, image3, canonical seven-file history and exact 10300 tool archive before project helper compilation. Common committed-blob/HEAD/tree admission precedes actual factory/helper loads.",
+      "source": "local_f0_scoped_reads_owned_resource_v1_operation_steps.py:788"
+    },
+    {
+      "assessment": "Actual initialize/CLI loader derives the sole scopedreads C/V identity. No injected resource global or old scoped_readss prototype; only exact source-hashed Steps is loaded.",
+      "source": "execute_local_f0_scoped_reads_owned_resource_v1_20261119.py:21"
+    },
+    {
+      "assessment": "One genuine guarded Prisma deploy precedes original-grantor finalization and full native29089/oracle416/ledger22 qualification. The exact run/source/tree/packet/CID installer attestation and registration are retained in private RAM.",
+      "source": "local_f0_scoped_reads_owned_resource_v1_operation_steps.py:567"
+    },
+    {
+      "assessment": "Fresh exact 15-field run-plan and 13-field attestation bind the approved child and immutable owned CID. Mandatory all-database/role/tag safety closure is attempted in finally before bounded reference parsing or verdict/postproof, including return/throw/write uncertainty. Evidence barrier prevents typed zero-client SQL alone from falsely confirming public closure after writer failure.",
+      "source": "local_f0_scoped_reads_owned_resource_v1_operation_steps.py:837"
+    },
+    {
+      "assessment": "Reference is fixed-path, regular, non-symlink, single-link and <=16MiB, opened/fstat-bounded and rechecked after close. Hash, duplicate/nonfinite-free parse and returned-dictionary equality all use those same closed bytes; no arbitrary helper result serialization.",
+      "source": "local_f0_scoped_reads_owned_resource_v1_operation_steps.py:987"
+    },
+    {
+      "assessment": "Closed source-derived schema checks all 71 ordered finite results (65 reads/6 exact binder guards), 586 exact operations, typed read counts, current/prefix retention witnesses, six SCRAM/HBA controls, no unknown/extra stages, complete42 state and source-preservation/sanitization. Selected assertions remain NOT_RUN until actual evidence audit.",
+      "source": "local_f0_scoped_reads_owned_resource_v1_operation_steps.py:1004"
+    },
+    {
+      "assessment": "Distinct read-only postproof reuses the same private first-install registration and CID; it does not call catalog_experiment or deploy again. Source-bound native/oracle/ledger are recomputed and both independent final42 snapshots equal child final digest and all non-grant baseline hashes.",
+      "source": "local_f0_scoped_reads_owned_resource_v1_operation_steps.py:965"
+    },
+    {
+      "assessment": "Exact inherited SafetySQL command path runs required global/eligibility/finalization queries despite evidence-write uncertainty. Typed active/unobserved/unknown-client proof blocks revoke; first failure remains primary. Ordinary behavior remains fail-fast. Every eligible finalizer, secret scan, exact owned resource/private cleanup and preservation check remains independently attempted.",
+      "source": "execute_local_f0_scoped_reads_owned_resource_v1_20261119.py:325"
+    }
+  ],
+  "reviewer": "/root/review_track_ports",
+  "schema": "workinants.sixread-owned-resource-v1-independent-source-review.v1",
+  "scope": "Exact new five-file SixReadOwnedResourceV1 source and owning integration only; no operational literal/runtime/assertion approval.",
+  "verified_source_graph": {
+    "accepted_child_archive_files": 10,
+    "accepted_child_source_files": 100,
+    "accepted_owner_archive_files": 45,
+    "actual_current_and_committed_checks_exercised_with_Git_transport_mock_only": true,
+    "authorized_historical_AppWrite_exceptions_not_read_or_admitted": 28,
+    "exception_intersection_actual_child100": 0,
+    "fresh_exact_source7_and_tools10300_bytes_checked_before_helper_compile": true,
+    "frozen147_current_and_preserved_match": true,
+    "historical250_snapshot_bytes_match": true,
+    "historical_current_non_AppWrite_bindings_match": 222,
+    "new_closed_archive_files": 107,
+    "new_live_validation_and_review_gates_remain_PENDING": true,
+    "physical_five_and_snapshots_match": true,
+    "physical_source_five_bind_closed_snapshots_and_version_specific_review_gates": true,
+    "source_graph_admission_before_project_compile": true
+  }
+}

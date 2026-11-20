@@ -1,0 +1,35 @@
+"""Bounded legacy status-check count/new520-dispatch adaptation in future-root."""
+from pathlib import Path
+import difflib
+D=Path(__file__).resolve().parent;F=D/'future-root';R=D.parent/'workinants-correction-pass'
+p=F/'scripts/check-local-f0-status.py';old=(R/'scripts/check-local-f0-status.py').read_text(encoding='utf8');assert p.read_text(encoding='utf8')==old
+new=old.replace("{'PASS':227,'PARTIAL':32,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':736,'UNRESOLVED_SOURCE':7}","{'PASS':615,'PARTIAL':32,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':348,'UNRESOLVED_SOURCE':7}")
+new=new.replace("result['assertion_status_counts']['PASS'],227","result['assertion_status_counts']['PASS'],615")
+needle='        new_boundary.start();self.addCleanup(new_boundary.stop)\n';assert new.count(needle)==1
+new=new.replace(needle,needle+'''        # Only the new closed520 dispatcher is isolated here. Its independent
+        # real-data/byte-barrier/semantic-mutation suite remains mandatory.
+        from local_f0_native_complete_evidence import CLOSED_CLAIMS as NATIVE520
+        derived=json.loads((ROOT/'context/reconciliation/local-f0-native-1110fa4-4c894dba-qualified-evidence.json').read_bytes())
+        ledger=json.loads((ROOT/'context/reconciliation/local-f0-assertion-evidence.json').read_text())
+        expected={(row['case_id'],row['assertion_id']) for row in ledger['assertions'] if row['evidence_path']=='context/reconciliation/local-f0-native-1110fa4-4c894dba-qualified-evidence.json'}
+        self.assertEqual(len(expected),388)
+        self.native_complete_calls=[];test=self
+        class ClosedNativeBoundary:
+            def __init__(self):self.seen=set();self.finalized=False
+            def validate_claim(self,case,assertion,status,execution,root,json_pointer=None):
+                key=(case,assertion);test.assertIn(key,expected);test.assertIn(key,NATIVE520);test.assertEqual(status,'PASS')
+                test.assertEqual(json_pointer,'/claims/'+str(NATIVE520[key]));test.assertEqual(execution,derived)
+                self.seen.add(key);test.native_complete_calls.append(key);return True
+            def verify_unchanged(self):test.assertEqual(self.seen,expected);self.finalized=True;return True
+            def require_finalized(self):test.assertTrue(self.finalized);return True
+        def complete_boundary(root):test.assertEqual(root,ROOT);return ClosedNativeBoundary()
+        boundary520=patch.dict(build.__globals__,prepare_native_complete_batch=complete_boundary)
+        boundary520.start();self.addCleanup(boundary520.stop)
+''')
+needle='        self.assertEqual(len(self.owner_lease_calls),21)\n';assert new.count(needle)==1
+new=new.replace(needle,needle+'        self.assertEqual(len(self.native_complete_calls),388)\n')
+needle="'local-f0-lease-da5ad66-a560e05b-qualified-evidence.json'):raise RuntimeError('UNVERIFIED_SECOND_READ')";assert new.count(needle)==1
+new=new.replace(needle,"'local-f0-lease-da5ad66-a560e05b-qualified-evidence.json','local-f0-native-1110fa4-4c894dba-qualified-evidence.json'):raise RuntimeError('UNVERIFIED_SECOND_READ')")
+p.write_text(new,encoding='utf8',newline='\n')
+with(D/'check-local-f0-status.py.patch').open('x',encoding='utf8',newline='\n')as out:out.write(''.join(difflib.unified_diff(old.splitlines(True),new.splitlines(True),fromfile='a/scripts/check-local-f0-status.py',tofile='b/scripts/check-local-f0-status.py')))
+print('Future-only legacy checker adapted. Existing13 checks retained; new388-call boundary isolated only here.')

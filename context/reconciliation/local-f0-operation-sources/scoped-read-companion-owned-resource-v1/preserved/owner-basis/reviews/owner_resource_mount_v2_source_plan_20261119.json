@@ -1,0 +1,54 @@
+{
+  "schema":"workinants.owner-resource-mount-v2-bounded-source-plan.v1",
+  "author":"root",
+  "status":"PROPOSED_FOR_INDEPENDENT_PLAN_REVIEW_BEFORE_NEW_FIVE_IMPLEMENTATION",
+  "posture":"D",
+  "runtime":"NOT_RUN",
+  "authority":"Standing local F0 correction/review/execution authority; source correction only at this planning step.",
+  "failed_attempt":{
+    "run_id":"44ac7d8f-bee6-46ee-bb60-9bb7bb0c5cce",
+    "source_commit":"fb7f794c4ffee4fa3cc7346acb8376aa419a9ec7",
+    "source_tree":"5d6511fae522a3fa25e2f68c66951acd08fe06e8",
+    "packet_sha256":"51276afd4a203f38816e5fe1e2bb35f0ec37684ea668e80c38513b099a2b86b0",
+    "run_evidence_sha256":"431974385be89aede305c950348e8a20816d6a9326a263f8bc0c57561daccace",
+    "failure":"OWNER_READ_EXACT_MOUNT_SET in inspect_owner(name,running=False), Steps672, before container start",
+    "retained_mounts":[{"type":"volume","destination":"/var/lib/postgresql/data","rw":true,"volume":"wa-p0c-44ac7d8f-ownerreads-data"},{"type":"bind","destination":"/run/bootstrap-password","rw":false}],
+    "retained_HostConfig_Tmpfs":{"/run/wa-secrets":"rw,nosuid,noexec,nodev,mode=0700"},
+    "diagnosis":"The source requires a third tmpfs entry in Mounts even at the prestart check. Retained exact safe metadata has the correct data/bind entries and tmpfs configuration in HostConfig, so the three-entry predicate is proven false. No running kernel mount observation was exercised or inferred.",
+    "bootstrap_auth_install_behavior":"NOT_RUN",
+    "independent_cleanup_sha256":"a57d21e832e8655e0bda8ba53047310f55e96e8a01d9a7a6067e6f586cc6f6c7"
+  },
+  "preserve":{
+    "old_Owner_SafetySQL_five":"Exact frozen7d3dd946/85fe0992/21cdf556/8425fb5f/9dee0e64 and archive17; never edit these files.",
+    "all_old_literals":"Historical only; no retry of44ac or fcef plans.",
+    "privilege_draft":"Preserved hold8704f585/f391fa90; no execution or silent fix of held drafts.",
+    "all_SQL_generators_fixtures_guards_ACLs_history":"Canonical5ae,32workerACL, Owner121/source67+140SQL and coordinator8b55, A-D, original-grantor and common SafetySQL functions unchanged.",
+    "original_checkouts_and_newer_work":"Preserve original Windows/OneDrive and every unfinished draft."
+  },
+  "new_only":{
+    "five_names":["execute_local_f0_owner_read_20261119_resource_mount_v2.py","local_f0_owner_read_operation_steps_resource_mount_v2.py","prepare_local_f0_owner_read_plan_resource_mount_v2.py","check_local_f0_owner_read_operation_resource_mount_v2.py","pin_local_f0_owner_read_plan_20261119_resource_mount_v2.py"],
+    "Root_archive":"context/reconciliation/local-f0-operation-sources/owner-read-resource-mount-v2",
+    "Root_validation":"context/reconciliation/local-f0-owner-read-resource-mount-v2-source-validation.json",
+    "basis":"Exact accepted Owner SafetySQL5; old approval is historical for the failed resource predicate; common/persistence/finalization review remains version-qualified.",
+    "actual_new_resources_credentials_or_run_manifest":"NOT_CREATED_BY_SOURCE_IMPLEMENTATION"
+  },
+  "bounded_correction":{
+    "prestart":"Retain exact created CID/name/image/platform/state/network/ports/namespace/device/capability/labels and volume CreatedAt gates. Require exactly one correct RW data mount and one exact readonly bootstrap bind. Allow zero or one matching tmpfs entry in Mounts; if present validate its exact destination/RW, reject duplicates/unknown/extra mounts. HostConfig.Tmpfs must always have exactly the one reviewed /run/wa-secrets key and exact fixed option tokens rw,nosuid,noexec,nodev,mode=0700 (mode=700 equivalent only). No source/resource configuration change.",
+    "running":"After the unchanged container start and identity checks, before pgpass or later credential writes, execute one fixed read-only in-container filesystem check through the owned immutable CID. Read /proc/mounts with shell builtins; require exactly one /run/wa-secrets entry, fstype tmpfs, required rw/noexec/nosuid/nodev options. Existing stat tool must independently show directory700:0:0. No mount command, permission change, arbitrary path, package/tool installation, SQL or secret output.",
+    "fixed_probe_contract":"Fixed sh -ceu script, fixed /proc/mounts and /run/wa-secrets paths, bounded30second command, integer exit0, exact one allowlisted success token and empty stderr. Any timeout/nonzero/malformed/extra output stops; all raw output discarded. Record only comparison booleans and phase/count classifications before assertions.",
+    "placement":"Prefer bounded changes only to Steps.inspect_owner and one same-file fixed filesystem helper/constant. Existing create_resources calls inspect_owner before and after start, so preserve Core.create_resources AST and exact Docker create flags. If implementation needs a different placement, explain before broadening.",
+    "stage_and_evidence":"Set fixed resource-inspection phase before checks so future failures identify the real origin. Retain minimal fixed comparison outcomes, no raw mount dictionaries/source paths/proc output/stat strings/credentials/SQL/exception strings.",
+    "safety":"Keep actual embedded a3cf common helper functions/classes, original ordinary sql/observe/transport/cleanup/main and all original finalizer/source/active-backend gates unchanged. Sticky report failure still forbids behavior and does not skip eligible cleanup."
+  },
+  "mandatory_offline_checks":[
+    "Regression from actual observed two Mounts+HostConfig: prestart succeeds without any exec/probe. Restore old inspect_owner and the same fixture fails EXACT_MOUNT_SET; no manufactured third entry in default mock.",
+    "Running accepts only exact fixed kernel proof and exact data/bind/HostConfig. Every process boundary mocked; actual inspect_owner/real helper invoked, not replaced.",
+    "Missing/extra/duplicate/malformed mounts, foreign bind/CID/image/labels/volumeCreatedAt, absent/extra/wrong HostConfig options, contradictory flags, wrong destination/RW/type reject.",
+    "Kernel observer non-tmpfs, wrong mode/uid/gid, missing rw/noexec/nosuid/nodev, duplicate/missing target, nonzero/timeout/malformed/extra output/stderr/canary reject before credential writes; no raw outputs retained.",
+    "Exercise actual Core.create_resources or owning main through command-only mocks to prove kernel check follows start and precedes pgpass and any application/bootstrap behavior. Failure stops later work and real exact cleanup progresses under persistent IO.",
+    "All existing owning checks applicable to new version, explicit isolated synthetic PENDING gate fixtures independent of current review phase, actual full source verifier/five snapshots/catalog16/helpers7/121 and pinner current/committed source closure.",
+    "Frozen common AST/SQL/role/timeout recipes and ordinary sql/observe/psql_args/create_resources/cleanup/main unchanged; old5/other20/all approved SQL packets and32ACL byte preservation.",
+    "Full recursive new archive+validation fingerprints, source-only author freeze and separate independent review before publication/pinning/fresh literal review. No database/target startup during source pass."
+  ],
+  "limits":"No policy/permission/owner/SQL recipe/worker-loop expansion, no provider activation or hosted contact. Keep prior authentication/install/behavior NOT_RUN. New actual kernel proof remains NOT_RUN until a separately reviewed fresh local attempt."
+}

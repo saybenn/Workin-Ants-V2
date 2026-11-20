@@ -1,0 +1,63 @@
+"""Exact reviewed publication inventory; do not stage, commit or contact GitHub."""
+from pathlib import Path
+import datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+def encoded(v):return(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,raw):
+    p.parent.mkdir(parents=True,exist_ok=True)
+    with p.open('xb')as f:f.write(raw)
+files={};origins={}
+specs=[
+ ('native388_integrated_committable_inventory_20261119.json','dde00d5028dbe62536ffa1e6a707b005a20344ac2f1eaf1774d46d5a834471fe','files_sha256'),
+ ('privilege_person_subject_v5_approved_committable_inventory_20261120.json','49678a1f53820fc63cb20a70f2bd75c0f9fe482a41b35ad9fddf81b52de08e6b','files_sha256'),
+ ('c820_priv53d7_stopped_attempt_preserved_inventory_20261119.json','5999672fd394320c80ad8cbe15d303bd3849b50c523cff2151783b9a0f2e2aae','assets_sha256'),
+ ('c820_worker6282_stopped_attempt_preserved_inventory_20261119.json','cd9a26aed1c3375950e729a9867f6407a1766a77dc59153fcb6902f3080e20de','assets_sha256'),
+ ('c820_restore980a_stopped_attempt_preserved_inventory_20261119.json','7895ae62eded54c08a515f8653d11ac52986ca469251037294a256e298c94b05','assets_sha256'),
+ ('c820_installb778_stopped_attempt_preserved_inventory_20261120.json','e3fc4a5cde35a606734d220bce2008756bd59f1b5ae8f965e9bde16e58820159','assets_sha256'),
+ ('c820_native615_progress_checkpoint_inventory_20261120.json','423626723efedaf40a20eddafd4c9fa0c3ba8a1a22a90ae1c3d7f9cea2901739','files_sha256'),
+]
+def merge(entries):
+    for name,wanted in entries.items():
+        assert name not in files or files[name]==wanted
+        assert sha(R/name)==wanted
+        files[name]=wanted
+for name,wanted,key in specs:
+    p=T/name;assert sha(p)==wanted;v=json.loads(p.read_bytes());merge(v[key]);origins[name]=wanted
+    if 'record'in v:merge({v['record']:v['record_sha256']})
+six='context/reconciliation/local-f0-scoped-read-companion-owned-resource-v1-source-validation.json'
+assert sha(R/six)=='58d728cb15ec8ca6ffaad2533cd3c3e71ac4e113b52d0e3ff3aeb32efd67b931'
+v=json.loads((R/six).read_bytes());assert len(v['archive_files_sha256'])==116
+merge(v['archive_files_sha256']);merge({six:sha(R/six)})
+prefix='context/reconciliation/local-f0-source-followups/c820-closed-attempts-20261120'
+docs={
+ 'repository-checks.json':T/'c820_native615_progress_repository_checks_20261120.json',
+ 'repository-context-check.log.txt':T/'c820-native615-check-context-20261120.log',
+ 'repository-candidate-check.log.txt':T/'c820-native615-check-database-candidate-20261120.log',
+ 'repository-check-helper.py.txt':T/'check_c820_native615_progress_repository_20261120.py',
+ 'Root-publication-inventory-helper.py.txt':Path(__file__),
+ 'Worker-guard-observation-source-plan.json':T/'worker_6282_guard_observation_v2_source_correction_plan_20261119.json',
+ 'Worker-guard-observation-source-probe.json':T/'worker_6282_guard_observation_v2_independent_source_probe_20261119.json',
+ 'Worker-Root-plan-review-ACK.json':T/'worker_6282_guard_observation_v2_Root_plan_review_ACK_20261119.json',
+ 'Restore-commit-boundary-source-plan.json':T/'restore980a_commit_boundary_source_correction_plan_20261119.json',
+ 'Restore-independent-plan-review.json':T/'restore980a_commit_boundary_v4_independent_plan_review_20261119.json',
+ 'Restore-Root-implementation-ACK.json':T/'restore980a_bound_evidence_v4_Root_implementation_ACK_20261119.json',
+ 'INSTALL-semantic-parity-source-plan.json':T/'install_owned_parity_v4_bounded_source_correction_plan_20261120.json',
+ 'INSTALL-independent-closed-name-difference-probe.json':T/'install_b778f794_closed_generated_RI_name_parity_independent_probe_20261120.json',
+ 'INSTALL-Root-plan-review-ACK.json':T/'install_owned_parity_v4_Root_plan_review_ACK_20261120.json',
+ 'AppOwned-source-approval-withheld-review.json':T/'app_write_two_owned_resource_v1_independent_source_review_20261119.json',
+ 'AppOwned-independent-counterexample-proof.json':T/'app_owned_independent_frozen_probe_v2_20261119.json',
+ 'Read13-partial-source-recipe-notes.json':T/'read13_concrete_fixture_partial_source_notes_20261119.json',
+}
+assert sha(docs['repository-checks.json'])=='1b45ad73fa1863442c51e933fbfde81512b3798157284e9a4f0057b19831e39b'
+assert json.loads(docs['repository-checks.json'].read_bytes())['status']=='PASS'
+for relative,source in docs.items():
+    path=R/prefix/relative;put(path,source.read_bytes());merge({path.relative_to(R).as_posix():sha(path)})
+board=R/'context/reconciliation/local-f0-qualification-board.json'
+assert sha(board)=='17038f8b73fe25c6cfff508be436d51635c957da143b7a82d4d2e18472202a97'
+for name in files:
+    assert '\\'not in name and ':'not in name and not any(x in ('','.','..')for x in name.split('/'))
+    assert name.startswith(('context/','scripts/'))
+record={'schema':'workinants.c820-native615-reviewed-publication-inventory.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'base_commit':'c820e39622843d9fc3b565cee6578a340970fba2','base_tree':'c004c3488cba127833d4a5052853c67d7d50c98f','files_sha256':dict(sorted(files.items())),'origin_inventory_sha256':origins,'files':len(files),'scope':'Reviewed Native615 qualifier+derived status, source-approved PrivilegePersonV5/Six, all four closed sanitized c820 attempts, current progress and source-only followup decisions. Unapproved Worker/App/INSTALL code remains WIP.','no_active_runtime':True,'runtime_or_Git_or_network_mutation':False,'Posture':'D'}
+p=T/'c820_native615_reviewed_publication_inventory_20261120.json';put(p,encoded(record))
+print(json.dumps({'inventory_sha256':sha(p),'files':len(files),'bytes':sum((R/n).stat().st_size for n in files),'largest_bytes':max((R/n).stat().st_size for n in files)}))

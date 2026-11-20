@@ -1,0 +1,62 @@
+"""Archive reviewed pure adapter and actual Root checks; no runtime or Git action."""
+from pathlib import Path
+import datetime, hashlib, json
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+D = T / 'native-1110-4c894-evidence-adapter-v1-draft-20261119'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+def put(path,raw):
+    path.parent.mkdir(parents=True,exist_ok=True)
+    with path.open('xb') as handle:
+        handle.write(raw)
+def encoded(value):
+    return (json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+checks = T / 'native388_actual_Root_status_checker_20261119.json'
+build = T / 'native388_actual_Root_unmocked_status_build_20261119.json'
+assert sha(checks) == '337427c8dbe658af67f2b847dabc8ac28a018c3d4e20ffe183fa471425000c68'
+assert sha(build) == 'f2127d63ef867b40a9a533a9503de2b4148c719a873d4031865fda4f586bd325'
+assert json.loads(checks.read_bytes())['exit_code'] == 0
+author = json.loads((D / 'author-review.json').read_bytes())
+assert sha(D / 'author-review.json') == '012dc5a61a14bb1f2869b63852dfa17e032b06c82a2e978526d160f96fcc63fa'
+for relative,wanted in author['proposed_Root_files_sha256'].items():
+    if relative != 'context/reconciliation/local-f0-qualification-status.json':
+        assert sha(R / relative) == wanted
+prefix = 'context/reconciliation/local-f0-operation-sources/native-1110-4c894-evidence-adapter-v1'
+sources = {
+    'reviews/Root-integrated-actual-build.json':build,
+    'reviews/Root-integrated-checks.json':checks,
+    'reviews/Root-integrated-checks.log.txt':T / 'native388_actual_Root_status_checker_20261119.log',
+    'reviews/Root-actual-build-helper.py.txt':T / 'build_native388_actual_root_status_20261119.py',
+    'reviews/Root-build-report-format-oracle-finalizer.py.txt':T / 'finalize_native388_actual_build_metadata_20261119.py',
+    'reviews/Root-integration-receipt.json':T / 'native388_Root_source_integration_receipt_20261119.json',
+    'reviews/Root-record-validation-helper.py.txt':Path(__file__),
+    'reviews/independent-optional-build-intentionally-stopped.json':T / 'native388_optional_independent_build_intentionally_stopped_20261119.json',
+    'reviews/independent-optional-build-helper.py.txt':T / 'review_native388_independent_real_build_20261119.py',
+}
+freeze = json.loads((D / 'freeze-manifest.json').read_bytes())
+for name,wanted in freeze['draft_artifacts_sha256'].items():
+    assert sha(D / name) == wanted
+    if name == 'author-review.json':
+        continue
+    destination = 'author-validation/' + (name+'.txt' if name.endswith('.py') else name)
+    sources[destination] = D / name
+install = json.loads((T / 'local-f0-install-controls-plan-b778f794/operation-manifest.json').read_bytes())
+for relative,source in sources.items():
+    target = R / prefix / relative
+    assert not target.exists() and target.relative_to(R).as_posix() not in install['packet_files_sha256']
+    put(target,source.read_bytes())
+archive = {p.relative_to(R).as_posix():sha(p) for p in (R / prefix).rglob('*') if p.is_file()}
+status_path = R / 'context/reconciliation/local-f0-qualification-status.json'
+assert sha(status_path) == '87f3737ff002bc73833d5a3f5e31601a11c97f412e54d3f85b1e7be7cc10d64d'
+status = json.loads(status_path.read_bytes())
+validation = {'schema':'workinants.native388-integrated-assertion-evidence-adapter-source-validation.v1', 'recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(), 'status':'SOURCE_APPROVED_INTEGRATED_REAL_UNMOCKED_BUILD_AND13_CHECKS_PASS', 'source_root':prefix, 'reviewed_proposed_Root_files_sha256':author['proposed_Root_files_sha256'], 'actual_files_sha256':{p:sha(R / p) for p in author['proposed_Root_files_sha256']}, 'archive_files_sha256':archive, 'independent_source_review':{'decision':'SOURCE_APPROVED','path':prefix+'/reviews/independent-source-review.json','sha256':'24fbfdf1c08fe6f728cb5791b3460f644b2c2919eb0621dac76c36ef6ab40c88'}, 'Root_source_review':{'decision':'SOURCE_APPROVED','path':prefix+'/reviews/Root-source-review.json','sha256':sha(R / prefix / 'reviews/Root-source-review.json')}, 'actual_build':{'path':prefix+'/reviews/Root-integrated-actual-build.json','sha256':sha(build),'all_validators_real':True,'full_JSON_equal_to_reviewed_proposal':True,'byte_serialization_difference':'Actual repository entrypoint default ASCII escaping versus author helper literal UTF8; complete parsed value equal; actual Root file kept.'}, 'actual_checks':{'path':prefix+'/reviews/Root-integrated-checks.json','sha256':sha(checks),'methods':13,'seconds':387.926,'focused_independent_native_methods':17}, 'actual_assertion_counts':status['assertion_status_counts'],'actual_case_counts':status['case_status_counts'],'new_PASS_rows':388,'all_prior259_rows_and_execution_values_preserved':True,'prior132_native_PASS_provenance_preserved':True,'source_snapshot_inputs':303,'final_full_byte_reread_and_independent_finalized_guard':True,'canonical_SQL_and_worker32_unchanged':True,'limits':{'new_source_business_write_or_RLS48_or_blocked4_or_positive_vector_links':0,'isolated_column_or_business_owner_or_hosted_or_production_claim':False,'whole94_or451_promoted':False,'old_stop_complete_causes':'UNOBSERVED','Brain_acceptance':'PENDING','Posture':'D'}}
+p = R / 'context/reconciliation/local-f0-native388-evidence-adapter-v1-source-validation.json'
+assert p.relative_to(R).as_posix() not in install['packet_files_sha256']
+put(p,encoded(validation))
+inventory = dict(validation['actual_files_sha256'])
+inventory.update(archive)
+inventory[p.relative_to(R).as_posix()] = sha(p)
+receipt = {'schema':'workinants.native388-integrated-committable-inventory.v1','recorded_at_utc':validation['recorded_at_utc'],'files_sha256':inventory,'validation_sha256':sha(p),'actual_status_sha256':sha(status_path),'assertion_counts':status['assertion_status_counts'],'case_counts':status['case_status_counts'],'unrelated_WIP_preserved':True,'Git_runtime_or_network_mutations':False,'Posture':'D'}
+p = T / 'native388_integrated_committable_inventory_20261119.json'
+put(p,encoded(receipt))
+print(json.dumps({'inventory_sha256':sha(p),'files':len(inventory),'validation_sha256':receipt['validation_sha256'],'archive_files':len(archive)}))

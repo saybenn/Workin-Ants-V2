@@ -1,0 +1,27 @@
+"""Stage only NEW unfrozen V3 snapshots/data; no runtime or Git."""
+from pathlib import Path
+import hashlib,json,runpy
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';c=runpy.run_path(str(T/'build_privilege_owned_verdict_v3_20261119.py'));sha=lambda b:hashlib.sha256(b).hexdigest()
+def stage():
+ d=R/c['ARCHIVE'];d.mkdir(exist_ok=True)
+ for n in c['NEW']:(d/(n+'.txt')).write_bytes((T/n).read_bytes())
+ p=T/'privilege-owned-verdict-v3-before-author-20261119';pres=json.loads((p/'manifest.json').read_bytes())
+ for n,h in pres['files_sha256'].items():
+  raw=(p/n).read_bytes();assert sha(raw)==h;dest=d/'preserved'/n;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw)
+ (d/'preserved/manifest.json').write_bytes((p/'manifest.json').read_bytes())
+ lexical=T/'privilege-verdict-v3-before-lexical-space-20261119'
+ for src in lexical.rglob('*'):
+  if src.is_file():
+   dest=d/'preserved/initial-lexical-candidate'/src.relative_to(lexical);dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(src.read_bytes())
+ reviews=d/'reviews';reviews.mkdir(exist_ok=True)
+ for n in('privilege_owned_verdict_v3_source_correction_plan_20261119.json','root_privilege_v3_and_read13_v2_plan_ack_20261119.json','privilege_mount_v2_independent_source_review_20261119.json','privilege_mount_v2_independent_verdict_probe_20261119.json','build_privilege_owned_verdict_v3_20261119.py','stage_privilege_owned_verdict_v3_20261119.py','check_privilege_owned_verdict_v3_regressions_20261119.py','check_privilege_owned_verdict_v3_adapter_20261119.py','check_privilege_owned_verdict_v3_safety_composed_20261119.py','privilege_owned_verdict_v3_source_author_review_20261119.json'):
+  if(T/n).is_file():(reviews/(n+'.txt'if n.endswith('.py')else n)).write_bytes((T/n).read_bytes())
+ (reviews/'image-proof-independent-source.json').write_bytes((R/'context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/reviews/image-proof-independent-source.json').read_bytes())
+ maps={x.relative_to(R).as_posix():sha(x.read_bytes())for x in d.rglob('*')if x.is_file()}
+ frozen=json.loads((T/'privilege_ceiling_frozen_source_plan_20261119.json').read_bytes())
+ for n,h in {**frozen['source_files_sha256'],**frozen['artifacts_sha256']}.items():assert sha((R/n).read_bytes())==h
+ value={'schema':'workinants.privilege-ceiling-owned-operator-source-validation.v1','status':'VERDICT_V3_SOURCE_PREPARED_INDEPENDENT_REVIEW_REQUIRED','source_version':'privilege-ceiling-owned-verdict-v3','operator_sources_sha256':{n:sha((T/n).read_bytes())for n in c['NEW']},'archive_files_sha256':maps,'independent_safety_sql_review':{'decision':'PENDING_ROOT_AND_INDEPENDENT_REVIEW','scope':'NEW_PRIVILEGE_VERDICT_V3_FIVE_REQUIRE_SEPARATE_REVIEW'},'base_source_version':{'freeze_sha256':'0bf164666e6c463da4f18dd5a57738d6b621dcf409f46bd761de4007f8d69e5a','peer_review_sha256':'a6db0839417b762ddeeb255a8248545985ead639830a12b608b0f9eecd78d5d5','decision':'V2_HELD_TWO_ADMISSION_FINDINGS_NO_RUNTIME'},'approved_plan_sha256':'88e3f912ca8238a1b73e4c3c28f4703fd11d5b7f0f4690bf8ef7175f5ce153e1','root_ACK_sha256':'16fb7d50d06e060ba8be605a187d279e96cd997bfbb2468df3ce286c961a3374','preservation_manifest_sha256':sha((p/'manifest.json').read_bytes()),'privilege_packet':{'source_files_sha256':frozen['source_files_sha256'],'artifacts_sha256':frozen['artifacts_sha256'],'independent_review_sha256':'41f6ad5a4abf7b6e7cc085d6ff545192fb4587272f7baa87dc7e18dd823e2f4a'},'limits':{'runtime':'NOT_RUN','posture':'D','canonical_SQL_ACL_kernel_SafetySQL_mountconfig_cleanup_and_source7plus202_unchanged':True,'no_actual_Git_Docker_DB_network_credentials_resources':True,'V2_and_raw_offline_history_preserved':True}}
+ author=T/'privilege_owned_verdict_v3_source_author_review_20261119.json'
+ if author.is_file():value['author_source_review']={'path':(reviews/author.name).relative_to(R).as_posix(),'sha256':sha(author.read_bytes())};value['actual_offline_checks']=json.loads(author.read_bytes())['actual_offline_checks']
+ (R/c['VALIDATION']).write_text(json.dumps(value,indent=2)+'\n',encoding='utf8');print(json.dumps({'archive':len(maps),'validation_sha256':sha((R/c['VALIDATION']).read_bytes())}))
+if __name__=='__main__':stage()

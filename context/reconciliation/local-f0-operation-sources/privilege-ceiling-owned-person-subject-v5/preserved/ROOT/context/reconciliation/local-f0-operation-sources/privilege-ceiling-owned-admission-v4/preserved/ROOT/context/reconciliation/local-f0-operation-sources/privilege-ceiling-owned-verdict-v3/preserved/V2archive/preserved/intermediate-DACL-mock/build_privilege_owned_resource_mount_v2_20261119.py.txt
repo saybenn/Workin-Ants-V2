@@ -1,0 +1,77 @@
+"""Exclusive source derivation; no Git, network, runtime, credentials or resources."""
+from pathlib import Path
+import ast,hashlib,json,shutil
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+OLD=('execute_local_f0_privilege_ceiling_safety_sql_v1_20261119.py','local_f0_privilege_ceiling_safety_sql_v1_operation_steps.py','prepare_local_f0_privilege_ceiling_safety_sql_v1_plan.py','check_local_f0_privilege_ceiling_safety_sql_v1_operation.py','pin_local_f0_privilege_ceiling_safety_sql_v1_plan_20261119.py')
+NEW=('execute_local_f0_privilege_ceiling_resource_mount_v2_20261119.py','local_f0_privilege_ceiling_resource_mount_v2_operation_steps.py','prepare_local_f0_privilege_ceiling_resource_mount_v2_plan.py','check_local_f0_privilege_ceiling_resource_mount_v2_operation.py','pin_local_f0_privilege_ceiling_resource_mount_v2_plan_20261119.py')
+OWNER=('execute_local_f0_owner_read_20261119_resource_mount_v2.py','local_f0_owner_read_operation_steps_resource_mount_v2.py','prepare_local_f0_owner_read_plan_resource_mount_v2.py','check_local_f0_owner_read_operation_resource_mount_v2.py','pin_local_f0_owner_read_plan_20261119_resource_mount_v2.py')
+ARCHIVE='context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2'
+VALIDATION='context/reconciliation/local-f0-privilege-ceiling-owned-resource-mount-v2-source-validation.json'
+OWNER_VALIDATION='context/reconciliation/local-f0-owner-read-resource-mount-v2-source-validation.json'
+
+def rename(s):
+ for a,b in zip(OLD,NEW):s=s.replace(a,b)
+ return s.replace('privilege-ceiling-owned-safety-sql-v1','privilege-ceiling-owned-resource-mount-v2')
+
+def owner_rename(s):
+ for a,b in zip(OWNER,NEW):s=s.replace(a,b)
+ s=s.replace('local_f0_owner_read_operation_steps_safety_sql_v1.py',OLD[1])
+ return s.replace('OWNER_READ','PRIVILEGE_CEILING').replace('OWNER_SECRET','PRIVILEGE_SECRET').replace('OwnerOperationTests','PrivilegeOperationTests').replace('owner_read','privilege_ceiling')
+
+def segment(s,name):
+ n=next(n for n in ast.walk(ast.parse(s)) if isinstance(n,(ast.FunctionDef,ast.ClassDef)) and n.name==name)
+ return ast.get_source_segment(s,n)
+
+def replace_function(s,name,body):
+ n=next(n for n in ast.walk(ast.parse(s)) if isinstance(n,(ast.FunctionDef,ast.ClassDef)) and n.name==name)
+ lines=s.splitlines(keepends=True);indent=' '*n.col_offset
+ return ''.join(lines[:n.lineno-1])+indent+body.rstrip()+'\n'+''.join(lines[n.end_lineno:])
+
+def build():
+ assert sha((T/'privilege_ceiling_owned_safety_source_plan_20261119.json').read_bytes())=='44865cee7954c7204d77df58ea06f5d7e7cd0df089644ebb7eec908b6000a224'
+ hold=json.loads((T/'privilege_owned_draft_mount_hold_checkpoint_20261119.json').read_bytes())
+ for n,h in hold['source_files_sha256'].items():assert sha((T/n).read_bytes())==h,n
+ assert sha((R/'context/reconciliation/local-f0-privilege-ceiling-owned-safety-sql-v1-source-validation.json').read_bytes())==hold['source_validation_sha256']
+ raw=(R/OWNER_VALIDATION).read_bytes();assert sha(raw)=='3f98020c74944b7c8c6705ec16239498cde03513dac6fa435a43263281ffac0b'
+ accepted=json.loads(raw);assert accepted['independent_safety_sql_review']['decision']=='SOURCE_APPROVED'
+ for n,h in accepted['operator_sources_sha256'].items():assert sha((T/n).read_bytes())==h,n
+ for n,h in accepted['archive_files_sha256'].items():assert sha((R/n).read_bytes())==h,n
+ assert sha((T/'owner_resource_mount_v2_root_source_review_20261119.json').read_bytes())=='488725cd28fd6e9855078248220e4eb8b1e7cf033051c0208427a5f5e8f747d2'
+ assert sha((T/'owner_resource_mount_v2_independent_source_review_20261119.json').read_bytes())=='c893926f6e9bbb42e247296ec8b3b5ce6418f60b79ba8a6b764c2c39bb4603ee'
+ frozen=json.loads((T/'privilege_ceiling_frozen_source_plan_20261119.json').read_bytes())
+ for n,h in {**frozen['source_files_sha256'],**frozen['artifacts_sha256']}.items():assert sha((R/n).read_bytes())==h,n
+ # Preserve both the earlier41-file snapshot and the current corrected draft.
+ p=T/'privilege-owned-before-resource-mount-v2-rebase-20261119';p.mkdir(exist_ok=False)
+ shutil.copytree(T/'privilege-owned-before-owner-mount-v2-20261119',p/'historical41')
+ for n in OLD:(p/(n+'.txt')).write_bytes((T/n).read_bytes())
+ for n in ('privilege_owned_draft_mount_hold_checkpoint_20261119.json','privilege_ceiling_owned_safety_source_plan_20261119.json'):(p/n).write_bytes((T/n).read_bytes())
+ (p/'held-current-validation.json').write_bytes((R/'context/reconciliation/local-f0-privilege-ceiling-owned-safety-sql-v1-source-validation.json').read_bytes())
+ old_archive=R/'context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1';shutil.copytree(old_archive,p/'held-current-archive')
+ (p/'accepted-owner-resource-validation.json').write_bytes(raw)
+ (p/'frozen-privilege7-202-map.json').write_bytes((T/'privilege_ceiling_frozen_source_plan_20261119.json').read_bytes())
+ files={x.relative_to(p).as_posix():sha(x.read_bytes())for x in p.rglob('*')if x.is_file()}
+ (p/'manifest.json').write_text(json.dumps({'schema':'workinants.privilege-owned-resource-mount-v2-preservation.v1','files_sha256':files},indent=2)+'\n',encoding='utf8')
+ texts={b:rename((T/a).read_text())for a,b in zip(OLD,NEW)}
+ steps=texts[NEW[1]];owner=(T/OWNER[1]).read_text()
+ steps=replace_function(steps,'inspect_owner',owner_rename(segment(owner,'inspect_owner')))
+ inserts=[]
+ for node in ast.parse(owner).body:
+  if isinstance(node,ast.Assign) and any(isinstance(x,ast.Name)and x.id in('OWNER_SECRET_TMPFS_TOKEN','OWNER_SECRET_TMPFS_SCRIPT')for x in node.targets):inserts.append(owner_rename(ast.get_source_segment(owner,node)))
+ inserts.append(owner_rename(segment(owner,'verify_running_secret_tmpfs')))
+ steps+='\n\n'+'\n\n'.join(inserts)+'\n';texts[NEW[1]]=steps
+ # Correct only stale descriptive copied metadata: no executable SQL changes.
+ texts[NEW[2]]=texts[NEW[2]].replace('Only the exact121prepared privilege-ceiling protocols,4restricted Consent fixture inserts and1finiteworker claim; no owner-create/API/publisher qualification or enrollment/effects/workerloop.','Only the exact200 negative privilege contrasts,16 definer metadata checks,40 native fixture validity controls and3 issuer protocols; no whole-case/API/owner-write qualification, Native960 replay or worker enrollment loop.')
+ tests=texts[NEW[3]];ot=(T/OWNER[3]).read_text()
+ tests=replace_function(tests,'resource',owner_rename(segment(ot,'resource')))
+ names=('test_actual_two_mount_prestart_and_old_predicate_regression','test_optional_one_exact_tmpfs_API_row_and_mode_spelling','test_exact_host_tmpfs_multiset_rejects_missing_extra_duplicate_conflicting_tokens','test_API_mount_missing_duplicate_unknown_or_bad_tmpfs_row_rejects','kernel_model','test_real_kernel_helper_fixed_script_model_checks_fs_flags_directory_and_owner','test_kernel_probe_strict_output_exit_types_timeout_and_transport_are_sanitized','creation_world','test_actual_core_creation_order_kernel_before_pgpass_with_two_API_mounts','test_actual_core_kernel_failure_stops_credentials_and_cleanup_survives_persistent_IO')
+ additions='\n\n'+'\n\n'.join(' '+owner_rename(segment(ot,n))for n in names)+'\n'
+ tests=tests.replace("if __name__=='__main__':unittest.main(verbosity=2)",additions+"\nif __name__=='__main__':unittest.main(verbosity=2)")
+ # The old Privilege predicate mutant uses its real old error code.
+ texts[NEW[3]]=tests
+ for n,s in texts.items():
+  compile(s,str(T/n),'exec')
+  with(T/n).open('x',encoding='utf8',newline='\n')as f:f.write(s)
+ return {'sources':{n:sha((T/n).read_bytes())for n in NEW},'preservation_files':len(files),'preservation_sha256':sha((p/'manifest.json').read_bytes())}
+
+if __name__=='__main__':print(json.dumps(build(),indent=2))

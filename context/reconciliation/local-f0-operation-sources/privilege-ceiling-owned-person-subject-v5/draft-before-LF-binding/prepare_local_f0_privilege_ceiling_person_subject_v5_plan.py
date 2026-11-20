@@ -1,0 +1,156 @@
+"""Prepare NEW unpinned privilege-ceiling inputs. No process, network or database API.
+
+The shared image proof is pinned to its independently reviewed source.
+Commit/tree/full packet remain unpinned and execution remains PENDING.
+"""
+import argparse
+from copy import deepcopy
+import gzip
+import hashlib
+import io
+import json
+from pathlib import Path
+import tarfile
+import uuid
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+FIXTURES='review-output/privilege-ceiling-control-rehearsal/fixtures.json'
+FIXTURES_SHA='4ebe8b6cd7b85ff5ad8dbb79d431bb7001cf16dea72e3920138be4b5f2855e68'
+CONTENT_SHA='643232e4d068892b49e49122b7ce3b909bd86caa9e770aa923d7df00def1ec32'
+PEER='context/reconciliation/local-f0-operation-sources/privilege-ceiling-source-v1/reviews/privilege_ceiling_independent_root_source_review_20261119.json'
+PEER_SHA='41f6ad5a4abf7b6e7cc085d6ff545192fb4587272f7baa87dc7e18dd823e2f4a'
+IMAGE='docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1'
+MIGRATION='prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql'
+SQL='review-output/foundation-application.review.sql'
+SQL_SHA='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+SCHEMA='prisma/review/foundation-candidate.prisma'
+LOCK='prisma/foundation/migrations/migration_lock.toml'
+RUNTIME=('prisma.local-f0.config.mjs','scripts/sql-review/local-f0-migrate-guard.mjs','scripts/sql-review/local-f0-migrate-runner.mjs')
+HISTORY_HELPER='scripts/prepare-local-f0-history.py'
+HISTORY_SHA='33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8'
+EXTERNAL_FILES=('execute_local_f0_privilege_ceiling_person_subject_v5_20261119.py','local_f0_privilege_ceiling_person_subject_v5_operation_steps.py','prepare_local_f0_privilege_ceiling_person_subject_v5_plan.py','check_local_f0_privilege_ceiling_person_subject_v5_operation.py','pin_local_f0_privilege_ceiling_person_subject_v5_plan_20261119.py')
+OWNED_ARCHIVE='context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-person-subject-v5'
+OWNED_VALIDATION='context/reconciliation/local-f0-privilege-ceiling-owned-person-subject-v5-source-validation.json'
+IMAGE_PROOF_REVIEW=('context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-person-subject-v5/reviews/image-proof-independent-source.json','b628b6d98ad22ea7def4dd7a51264025c50bde116451ae516f3e52f55ba9542a')
+IMAGE_FILES={'scripts/sql-review/local_image_identity.py':'a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604','scripts/sql-review/test_local_image_identity.py':'0edae319a544aaaa8ed112e2ec477fe7ac428b58a7970ca8cd0e33ff006abe93','scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json':'996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1'}
+
+class Refused(Exception):pass
+def need(value,code):
+ if not value:raise Refused(code)
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def data(value):return (json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+
+def source(relative,wanted=None):
+ need(type(relative) is str and not Path(relative).is_absolute() and '\\' not in relative and ':' not in relative and all(x not in ('','.','..') for x in relative.split('/')),'SAFE_SOURCE_PATH')
+ path=(ROOT/relative).resolve();need(path.is_relative_to(ROOT.resolve()),'SOURCE_PATH_ESCAPE');raw=path.read_bytes()
+ if wanted is not None:need(sha(raw)==wanted,'SOURCE_FILE_DRIFT')
+ return raw
+
+def privilege_generated_artifact_closure(blobs, validation, fixtures, root, *, reproduce=True):
+    """Pure complete generated-byte proof; never constructs runtime authority."""
+    import contextlib
+    need(type(reproduce) is bool,'PRIVILEGE_GENERATED_PHASE_SHAPE')
+    prefix='review-output/privilege-ceiling-control-rehearsal/'
+    coordinator='scripts/sql-review/run-privilege-ceiling-control-rehearsal.py'
+    need(type(blobs) is dict and type(validation) is dict and type(fixtures) is dict,'PRIVILEGE_GENERATED_CLOSURE_SHAPE')
+    packet=validation.get('privilege_packet')
+    need(type(packet) is dict,'PRIVILEGE_GENERATED_ARTIFACT_MAP_REQUIRED')
+    expected=packet.get('artifacts_sha256')
+    need(type(expected) is dict and len(expected)==202,'PRIVILEGE_EXACT202_ARTIFACT_MAP_REQUIRED')
+    for relative,wanted in expected.items():
+        need(type(relative) is str and relative.startswith(prefix),'PRIVILEGE_GENERATED_ARTIFACT_PATH')
+        tail=relative[len(prefix):]
+        need(tail and tail not in ('.','..') and all(c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.-' for c in tail),'PRIVILEGE_GENERATED_ARTIFACT_PATH')
+        need(type(wanted) is str and len(wanted)==64 and all(c in '0123456789abcdef' for c in wanted),'PRIVILEGE_GENERATED_ARTIFACT_HASH')
+        need(relative in blobs and type(blobs[relative]) is bytes and hashlib.sha256(blobs[relative]).hexdigest()==wanted,'PRIVILEGE_GENERATED_ARTIFACT_NOT_ADMITTED')
+    need(prefix+'fixtures.json' in blobs and hashlib.sha256(blobs[prefix+'fixtures.json']).hexdigest()=='4ebe8b6cd7b85ff5ad8dbb79d431bb7001cf16dea72e3920138be4b5f2855e68','PRIVILEGE_GENERATED_FIXTURE_IDENTITY')
+    inputs=fixtures.get('source_files_sha256')
+    need(type(inputs) is dict and inputs,'PRIVILEGE_GENERATED_SOURCE_MAP_REQUIRED')
+    for relative,wanted in inputs.items():
+        need(relative in blobs and type(blobs[relative]) is bytes and hashlib.sha256(blobs[relative]).hexdigest()==wanted,'PRIVILEGE_GENERATED_INPUT_NOT_ADMITTED')
+    need(coordinator in blobs and hashlib.sha256(blobs[coordinator]).hexdigest()=='3e813dceb4cb9ade0aed1f8d28081d531901bdf0713556c9da4bf055323dbc7d','PRIVILEGE_GENERATED_COORDINATOR_IDENTITY')
+    # Private constant-only precheck: never a runtime qualification or bypass.
+    if reproduce is False:return None
+    namespace={'__file__':str(root/coordinator),'__name__':'_verified_privilege_generated_closure'}
+    output=io.StringIO()
+    try:
+        with contextlib.redirect_stdout(output),contextlib.redirect_stderr(output):
+            exec(compile(blobs[coordinator],str(root/coordinator),'exec'),namespace)
+            generator=namespace['compile_closed'](blobs,namespace['GENERATOR'],{})
+            generated,reproduced=generator['generate'](root)
+    except BaseException:
+        need(False,'PRIVILEGE_GENERATED_CLOSED_REPRODUCTION_REFUSED')
+    need(not output.getvalue(),'PRIVILEGE_GENERATED_OUTPUT_REFUSED')
+    canonical=lambda value:json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)
+    need(canonical(reproduced)==canonical(fixtures),'PRIVILEGE_GENERATED_FIXTURE_MISMATCH')
+    need(type(generated) is dict and len(generated)==202 and all(type(name) is str and name and name not in ('.','..') and all(c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.-' for c in name) and type(raw) is bytes for name,raw in generated.items()),'PRIVILEGE_GENERATED_FILE_SET_SHAPE')
+    actual={prefix+name:hashlib.sha256(raw).hexdigest() for name,raw in generated.items()}
+    need(actual==expected,'PRIVILEGE_EXACT_GENERATED_ARTIFACT_MAP')
+    need(all(prefix+name in blobs and blobs[prefix+name]==raw for name,raw in generated.items()),'PRIVILEGE_EXACT_GENERATED_BYTES_REQUIRED')
+    need(all((root/relative).read_bytes()==blobs[relative] for relative in expected),'PRIVILEGE_GENERATED_ARTIFACT_CURRENT_DRIFT')
+    return {'status':'PASS_EXACT_SOURCE_REPRODUCTION_ONLY','generated_artifacts':202,'fixture_object_identical':True,'all_generated_bytes_admitted':True,'artifact_map_sha256':hashlib.sha256(canonical(expected).encode()).hexdigest()}
+
+
+def prepare(baseline_path,baseline_sha,run_id=None):
+ need(IMAGE_PROOF_REVIEW is not None,'SHARED_IMAGE_PROOF_REVIEW_PENDING')
+ source(*IMAGE_PROOF_REVIEW)
+ for relative,wanted in IMAGE_FILES.items():source(relative,wanted)
+ path=Path(baseline_path).resolve();need(path.is_relative_to(TASK) and not path.is_relative_to(ROOT),'TASK_BASELINE_REQUIRED');raw=path.read_bytes();need(sha(raw)==baseline_sha,'REVIEWED_BASELINE_HASH');baseline=json.loads(raw)
+ need(baseline['purpose']=='LOCAL_F0_NATIVE_CATALOG_REHEARSAL' and baseline['review_status']=='APPROVED_LOCAL_F0_NATIVE_CATALOG_ATTEMPT' and baseline['image']==IMAGE and baseline['database']=='wa_p0c_rehearsal','REVIEWED_CATALOG_BASELINE')
+ current={name:source(name,wanted) for name,wanted in baseline['packet_files_sha256'].items()}
+ need(sha(''.join(k+'\0'+baseline['packet_files_sha256'][k]+'\n' for k in sorted(baseline['packet_files_sha256'])).encode())==baseline['packet_sha256'],'BASELINE_FULL_PACKET_AGGREGATE')
+ packet=json.loads(source(FIXTURES,FIXTURES_SHA));need(packet['status']=='NOT_RUN' and packet['source_only_packet_sha256']==CONTENT_SHA and len(packet['cases'])==200,'EXACT_PRIVILEGE_CEILING_PACKET')
+ source(PEER,PEER_SHA)
+ external={path:sha((TASK/path).read_bytes()) for path in EXTERNAL_FILES}
+ for path,wanted in external.items():source(OWNED_ARCHIVE+'/'+path+'.txt',wanted)
+ owned=json.loads(source(OWNED_VALIDATION));need(owned['schema']=='workinants.privilege-ceiling-owned-operator-source-validation.v1' and owned['operator_sources_sha256']==external,'OWNED_SOURCE_VALIDATION_BINDING')
+ artifacts=owned.get('privilege_packet',{}).get('artifacts_sha256')
+ need(type(artifacts) is dict and len(artifacts)==202,'PRIVILEGE_EXACT202_ARTIFACT_MAP_REQUIRED')
+ for name,wanted in artifacts.items():
+  need(type(name) is str and name.startswith('review-output/privilege-ceiling-control-rehearsal/') and name.rsplit('/',1)[-1] not in ('','.','..') and all(c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.-' for c in name.removeprefix('review-output/privilege-ceiling-control-rehearsal/')),'PRIVILEGE_GENERATED_ARTIFACT_PATH')
+  need(type(wanted) is str and len(wanted)==64 and all(c in '0123456789abcdef' for c in wanted),'PRIVILEGE_GENERATED_ARTIFACT_HASH')
+ inventory=set(current)|set(packet['source_files_sha256'])|{'scripts/sql-review/run-privilege-ceiling-control-rehearsal.py','scripts/sql-review/run-native-table-denials-v3.py'}|{FIXTURES,PEER,HISTORY_HELPER,IMAGE_PROOF_REVIEW[0]}|set(IMAGE_FILES)|{'review-output/privilege-ceiling-control-rehearsal/'+name for name in packet['prepared_files_sha256']}|{OWNED_ARCHIVE+'/'+name+'.txt' for name in EXTERNAL_FILES}
+ validation='context/reconciliation/privilege-ceiling-control-source-validation.json';record=json.loads(source(validation));inventory.add(validation);inventory.update(record['archive_files_sha256'])
+ need(all(name.startswith(OWNED_ARCHIVE+'/') for name in owned['archive_files_sha256']),'OWNED_VALIDATION_EXACT_ARCHIVE_ROOT');inventory.add(OWNED_VALIDATION);inventory.update(owned['archive_files_sha256']);inventory.update(artifacts)
+ for name,wanted in owned['archive_files_sha256'].items():source(name,wanted)
+ admitted={path:source(path) for path in sorted(inventory)}
+ prepared_inventory={path:sha(raw) for path,raw in admitted.items()}
+ for name,wanted in packet['source_files_sha256'].items():source(name,wanted)
+ for name,wanted in packet['prepared_files_sha256'].items():source('review-output/privilege-ceiling-control-rehearsal/'+name,wanted)
+ privilege_generated_artifact_closure(admitted,owned,packet,ROOT)
+ need(sha(source(MIGRATION))==sha(source(SQL))==SQL_SHA,'CANONICAL_SQL')
+ for artifact in baseline['catalog']['assets'].values():source(artifact['path'],artifact['sha256'])
+ run=str(uuid.uuid4()) if run_id is None else run_id;need(type(run) is str and str(uuid.UUID(run))==run and uuid.UUID(run).version==4,'FRESH_UUID4')
+ stem=run[:8];name='wa-p0c-'+stem+'-privilege';directory=TASK/('local-f0-privilege-ceiling-plan-'+stem);out=TASK/('local-f0-privilege-ceiling-'+stem);need(not directory.exists() and not out.exists(),'FRESH_PLAN_AND_EVIDENCE')
+ old=baseline['migration_targets']['ok'];nested_raw=Path(old['manifest_path']).read_bytes();need(sha(nested_raw)==old['manifest_sha256'],'BASELINE_NESTED_HASH');nested=json.loads(nested_raw)
+ nested['run_id']=run;nested['target'].update(container_name=name,volume_name=name+'-data',bootstrap_secret_host_path=str(out/'private/ok-bootstrap-password'));nested['target']['labels']={'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':run};nested['source']['runtime_files_sha256']={path:sha(source(path)) for path in RUNTIME}
+ need(nested['source']['integrated_sql_sha256']==SQL_SHA and nested['source']['foundation_schema_sha256']==sha(source(SCHEMA)),'CANONICAL_NESTED_SOURCE')
+ closure=json.loads(source('context/reconciliation/local-f0-tooling/prisma-tools-closure.json'));need(nested['tools']['files_sha256']==closure['tools_files_sha256'] and sha(Path(baseline['tool_archive']).read_bytes())==baseline['tool_archive_sha256']==closure['archive_sha256'],'TOOL_CLOSURE')
+ snapshot={path:source(path) for path in (MIGRATION,LOCK,SCHEMA,*RUNTIME)};nested_raw=data(nested);helper_raw=source(HISTORY_HELPER,HISTORY_SHA);helper={'__file__':str(ROOT/HISTORY_HELPER),'__name__':'_privilege_ceiling_reviewed_history'};exec(compile(helper_raw,str(ROOT/HISTORY_HELPER),'exec'),helper)
+ generated,history=helper['prepare_plan'](nested,nested_raw,snapshot[MIGRATION],snapshot[SCHEMA],{path:snapshot[path] for path in RUNTIME},SQL_SHA);need(set(generated)=={MIGRATION,LOCK} and all(generated[path]==snapshot[path] for path in generated),'EXACT_CANONICAL_HISTORY');snapshot['prisma/foundation/history-manifest.json']=data(history)
+ archive=io.BytesIO()
+ with gzip.GzipFile(fileobj=archive,mode='wb',mtime=0) as stream:
+  with tarfile.open(fileobj=stream,mode='w',format=tarfile.PAX_FORMAT) as tar:
+   for path,content in sorted(snapshot.items()):member=tarfile.TarInfo(path);member.size=len(content);member.mode=0o600;member.mtime=0;tar.addfile(member,io.BytesIO(content))
+ source_archive=archive.getvalue();master=deepcopy(baseline)
+ master.update(purpose='LOCAL_F0_PRIVILEGE_CEILING_REHEARSAL',run_id=run,source_commit='TO_BE_PINNED',source_tree='TO_BE_PINNED',packet_sha256='TO_BE_PINNED',packet_files_sha256={},evidence_directory=str(out),targets=[{'name':name,'volume':name+'-data','kind':'ok'}],review_status='PENDING_OPERATIONAL_REVIEW',status='SOURCE_PREPARED_NOT_EXECUTED',wrapper_sha256=external[EXTERNAL_FILES[0]],steps_sha256=external[EXTERNAL_FILES[1]])
+ master['migration_targets']={'ok':{'manifest_path':str(directory/'ok-migration-manifest.json'),'manifest_sha256':sha(nested_raw),'source_snapshot':str(directory/'source-ok'),'source_files_sha256':{path:sha(value) for path,value in snapshot.items()},'source_archive':str(directory/'source-ok.tar.gz'),'source_archive_sha256':sha(source_archive)}}
+ master['privilege_ceiling']={'fixtures_sha256':FIXTURES_SHA,'content_sha256':CONTENT_SHA,'coordinator_sha256':'3e813dceb4cb9ade0aed1f8d28081d531901bdf0713556c9da4bf055323dbc7d','external_files_sha256':external}
+ master['cleanup']='Only exact created oneCID/name/bothrunlabels andvolume/name/CreatedAt. Delete only exact test-owned private/ok-bootstrap-password and empty private directory. Independently confirm bothresource names absent; retain cached image and unrelated resources.'
+ master['storage']={'container':name,'volume':name+'-data','network':'none','ports':[],'mounts':'exactPGDATAvolume+readonlybootstrapbind+root0700secret-tmpfs','extra_mounts':False,'host_namespaces':False,'privileged':False}
+ master['allowed_catalog_operations']=['Fresh canonical Prisma installation and original-grantor finalization once; full native/oracle/ledger comparison before domain fixtures.','Only the exact200 negative privilege contrasts,16 definer metadata checks,40 native fixture validity controls and3 issuer protocols; no whole-case/API/owner-write qualification, Native960 replay or worker enrollment loop.']
+ master['prepared_source_file_inventory_sha256']=prepared_inventory;master['guarded_history_helper_sha256']=HISTORY_SHA;master['execution_hold']='Exact source commit/tree/full closed packet and external source/image proofs must be pinned and independently reviewed. This output cannot execute.'
+ # All checks and all bytes are prepared before creating only this new directory.
+ directory.mkdir(exist_ok=False);(directory/'ok-migration-manifest.json').write_bytes(nested_raw)
+ for path,content in snapshot.items():target=directory/'source-ok'/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+ (directory/'source-ok.tar.gz').write_bytes(source_archive);(directory/'operation-manifest.json').write_bytes(data(master))
+ return {'status':'SOURCE_PREPARED_NOT_EXECUTED','run_id':run,'operation_manifest':str(directory/'operation-manifest.json'),'manifest_sha256':sha(data(master)),'source_archive_sha256':sha(source_archive),'source_files':len(snapshot),'database_contacted':False,'resources_created':False}
+
+def main(argv=None):
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--prepare-plan',action='store_true');parser.add_argument('--baseline-manifest',type=Path);parser.add_argument('--baseline-sha256');parser.add_argument('--run-id');args=parser.parse_args(argv)
+ try:
+  need(args.prepare_plan and args.baseline_manifest and args.baseline_sha256,'EXPLICIT_REVIEWED_PREPARATION_REQUIRED');print(json.dumps(prepare(args.baseline_manifest,args.baseline_sha256,args.run_id)));return 0
+ except BaseException as error:print(json.dumps({'status':'HELD','code':str(error) if isinstance(error,Refused) else 'SOURCE_PREPARATION_REFUSED','raw_output_discarded':True}));return 1
+
+if __name__=='__main__':raise SystemExit(main())

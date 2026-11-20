@@ -1,0 +1,51 @@
+..FFFF..
+======================================================================
+FAIL: test_restoring_old_Consent_only_subject_oracle_is_detected (__main__.PrivilegeCoordinatorTests.test_restoring_old_Consent_only_subject_oracle_is_detected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal.py", line 514, in test_restoring_old_Consent_only_subject_oracle_is_detected
+    self.oracle_mutation(old,'owner_subject')
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal.py", line 506, in oracle_mutation
+    raw=(ROOT/M['SELF']).read_text();needle=next(line for line in raw.splitlines()if'                expression='in line);self.assertNotEqual(needle,replacement);module={'__name__':'_person_oracle_mutant','__file__':str(ROOT/M['SELF'])};exec(compile(raw.replace(needle,replacement),str(ROOT/M['SELF']),'exec'),module)
+                                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '                    expression="clock_timestamp()+interval \'300 seconds\'"if column==\'expires_at\'else\'clock_timestamp()\'if column==\'created_at\'else P.typed(values[column],spec)' == '                    expression="clock_timestamp()+interval \'300 seconds\'"if column==\'expires_at\'else\'clock_timestamp()\'if column==\'created_at\'else P.typed(values[column],spec)'
+
+======================================================================
+FAIL: test_wrong_principal_or_owner_argument_stops_subject_qualification (__main__.PrivilegeCoordinatorTests.test_wrong_principal_or_owner_argument_stops_subject_qualification) (replacement='                    expression="clock_timestamp()+interval \'300 seconds\'"if column==\'expires_at\'else\'clock_timestamp()\'if column==\'created_at\'else P.typed(values[column],spec)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal.py", line 520, in test_wrong_principal_or_owner_argument_stops_subject_qualification
+    with self.subTest(replacement=replacement):self.oracle_mutation(replacement,'owner_subject')
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal.py", line 506, in oracle_mutation
+    raw=(ROOT/M['SELF']).read_text();needle=next(line for line in raw.splitlines()if'                expression='in line);self.assertNotEqual(needle,replacement);module={'__name__':'_person_oracle_mutant','__file__':str(ROOT/M['SELF'])};exec(compile(raw.replace(needle,replacement),str(ROOT/M['SELF']),'exec'),module)
+                                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '                    expression="clock_timestamp()+interval \'300 seconds\'"if column==\'expires_at\'else\'clock_timestamp()\'if column==\'created_at\'else P.typed(values[column],spec)' == '                    expression="clock_timestamp()+interval \'300 seconds\'"if column==\'expires_at\'else\'clock_timestamp()\'if column==\'created_at\'else P.typed(values[column],spec)'
+
+======================================================================
+FAIL: test_wrong_principal_or_owner_argument_stops_subject_qualification (__main__.PrivilegeCoordinatorTests.test_wrong_principal_or_owner_argument_stops_subject_qualification) (replacement='                    expression="clock_timestamp()+interval \'300 seconds\'"if column==\'expires_at\'else\'clock_timestamp()\'if column==\'created_at\'else P.typed(values[column],spec)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal.py", line 520, in test_wrong_principal_or_owner_argument_stops_subject_qualification
+    with self.subTest(replacement=replacement):self.oracle_mutation(replacement,'owner_subject')
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal.py", line 506, in oracle_mutation
+    raw=(ROOT/M['SELF']).read_text();needle=next(line for line in raw.splitlines()if'                expression='in line);self.assertNotEqual(needle,replacement);module={'__name__':'_person_oracle_mutant','__file__':str(ROOT/M['SELF'])};exec(compile(raw.replace(needle,replacement),str(ROOT/M['SELF']),'exec'),module)
+                                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '                    expression="clock_timestamp()+interval \'300 seconds\'"if column==\'expires_at\'else\'clock_timestamp()\'if column==\'created_at\'else P.typed(values[column],spec)' == '                    expression="clock_timestamp()+interval \'300 seconds\'"if column==\'expires_at\'else\'clock_timestamp()\'if column==\'created_at\'else P.typed(values[column],spec)'
+
+======================================================================
+FAIL: test_wrong_scalar_tuple_projection_is_detected_and_closed (__main__.PrivilegeCoordinatorTests.test_wrong_scalar_tuple_projection_is_detected_and_closed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal.py", line 524, in test_wrong_scalar_tuple_projection_is_detected_and_closed
+    self.oracle_mutation(line.replace("'same_tuple',pg_backend_pid()=","'same_tuple',0="),'same_tuple')
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal.py", line 506, in oracle_mutation
+    raw=(ROOT/M['SELF']).read_text();needle=next(line for line in raw.splitlines()if'                expression='in line);self.assertNotEqual(needle,replacement);module={'__name__':'_person_oracle_mutant','__file__':str(ROOT/M['SELF'])};exec(compile(raw.replace(needle,replacement),str(ROOT/M['SELF']),'exec'),module)
+                                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '                    expression="clock_timestamp()+interval \'300 seconds\'"if column==\'expires_at\'else\'clock_timestamp()\'if column==\'created_at\'else P.typed(values[column],spec)' == '                    expression="clock_timestamp()+interval \'300 seconds\'"if column==\'expires_at\'else\'clock_timestamp()\'if column==\'created_at\'else P.typed(values[column],spec)'
+
+----------------------------------------------------------------------
+Ran 7 tests in 9.246s
+
+FAILED (failures=4)

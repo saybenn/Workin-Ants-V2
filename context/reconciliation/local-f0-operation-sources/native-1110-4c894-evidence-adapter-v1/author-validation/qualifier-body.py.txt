@@ -1,0 +1,406 @@
+NATIVE_DIGEST = 'a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6'
+PACKET_PATH = 'review-output/native-table-denials-v2/packet.json'
+MODEL_PATH = 'context/reconciliation/foundation-sql-draft-models.json'
+
+
+class EvidenceFailure(Exception):
+    """Fixed safe classification only; never arbitrary input or exceptions."""
+
+
+def need(value, code):
+    if not value:
+        raise EvidenceFailure('NATIVE_COMPLETE_' + code)
+
+
+def canonical(value):
+    return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False)
+
+
+def digest(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def same(actual, expected, code):
+    need(canonical(actual) == canonical(expected), code)
+
+
+def alltrue(value):
+    return type(value) is dict and bool(value) and all(type(k) is str and v is True for k, v in value.items())
+
+
+def zero(value):
+    return type(value) is int and value == 0
+
+
+def document(raw):
+    def pairs(items):
+        result = {}
+        for key, value in items:
+            need(key not in result, 'JSON_DUPLICATE_KEY')
+            result[key] = value
+        return result
+    def invalid(_):
+        raise EvidenceFailure('NATIVE_COMPLETE_JSON_NONFINITE')
+    return json.loads(raw, object_pairs_hook=pairs, parse_constant=invalid)
+
+
+def read(root, relative, wanted):
+    need(type(relative) is str and relative and ':' not in relative and '\\' not in relative
+         and not any(ord(c) < 32 for c in relative)
+         and all(part not in ('', '.', '..') for part in relative.split('/')), 'SAFE_PATH')
+    need(type(wanted) is str and re.fullmatch('[0-9a-f]{64}', wanted) is not None, 'PIN_TYPE')
+    path = root
+    for part in relative.split('/'):
+        path = path / part
+        need(not path.is_symlink(), 'SYMLINK')
+    need(path.resolve(strict=True).is_relative_to(root) and path.is_file(), 'SOURCE_PATH')
+    metadata = path.stat()
+    need(type(metadata.st_size) is int and 0 <= metadata.st_size <= 32 * 1024 * 1024, 'SOURCE_SIZE')
+    with path.open('rb') as stream:
+        raw = stream.read(32 * 1024 * 1024 + 1)
+    need(type(raw) is bytes and len(raw) <= 32 * 1024 * 1024 and digest(raw) == wanted, 'PIN_DRIFT')
+    return raw
+
+
+def pointer(value, text):
+    need(type(text) is str and text.startswith('/'), 'POINTER')
+    for key in text[1:].split('/'):
+        if type(value) is list:
+            need(re.fullmatch('0|[1-9][0-9]*', key) is not None and int(key) < len(value), 'POINTER')
+            value = value[int(key)]
+        else:
+            need(type(value) is dict and key in value, 'POINTER')
+            value = value[key]
+    return value
+
+
+def identity(value, packet_key=None):
+    same([value[k] for k in ('run_id', 'source_commit', 'source_tree')], [RUN, COMMIT, TREE], 'SOURCE_RUN')
+    if packet_key:
+        same(value[packet_key], OP, 'OPERATION_PACKET')
+
+
+def validate_wrapper(record, wrapper, child, manifest, native, auth, provider, attestation, runplan, cleanup, oracle, catalog, ledger, contract, blobs):
+    """Validate the closed original installation, source, authentication and cleanup."""
+    identity(record, 'operation_packet_sha256')
+    identity(manifest, 'packet_sha256')
+    identity(child)
+    same([wrapper[k] for k in ('run_id', 'approved_commit', 'approved_tree', 'approved_packet_sha256')], [RUN, COMMIT, TREE, OP], 'WRAPPER_IDENTITY')
+    need(record['actual_result'] == wrapper['status'] == 'PASS_LOCAL_NATIVE_ACCESS_SUBSET_ONLY', 'COMPLETE_WRAPPER')
+    need(wrapper['unexpected'] == [] and wrapper['persistence_failure'] is False
+         and all(wrapper[k] is True for k in ('evidence_complete','output_complete','cleanup_actions_confirmed','packet_unchanged_after_run','tool_source_data_unchanged_after_run','external_input_archives_and_fresh_history_unchanged_after_run','external_sources_unchanged_after_run','all_source_and_external_inputs_preserved_after_run')), 'WRAPPER_PRESERVATION')
+    need(all(type(v) is str and v.startswith('PASS') for v in wrapper['steps'].values()), 'WRAPPER_STEPS')
+    pins = manifest['packet_files_sha256']
+    need(len(pins) == 260 and digest(''.join(k + '\0' + pins[k] + '\n' for k in sorted(pins)).encode()) == OP, 'FULL260_PACKET')
+    same(wrapper['source_verification']['files_sha256'], pins, 'VERIFIED_SOURCE_MAP')
+    need(all(PINS.get(name) == wanted and digest(blobs[name]) == wanted for name, wanted in pins.items()), 'CURRENT_SOURCE')
+    need(digest(blobs['scripts/sql-review/run-native-table-denials-v3.py']) == '6e74115cc7a77e626c4379c5a5744efdede1257d04b206fc339e62a23fd49cd3', 'EXACT_COORDINATOR')
+    need(digest(canonical(native).encode()) == NATIVE_DIGEST, 'EXACT_NATIVE_SNAPSHOT')
+    guards = [row for row in native['triggers'] if row['internal'] is False]
+    need(len(guards) == 100 and all(row['enabled'] == 'O' for row in guards), 'FULL100_GUARDS')
+    same(guards, contract['exact100_guard_identities'], 'GUARD_IDENTITIES')
+    need(catalog['status'] == 'PASS' and catalog['findings'] == [] and type(catalog['check_counts']['PASS']) is int and catalog['check_counts'] == {'PASS':29089}
+         and catalog['native_snapshot_sha256'] == NATIVE_DIGEST, 'NATIVE29089')
+    same(wrapper['catalog_comparison'], catalog, 'CATALOG_COMPARISON')
+    need(wrapper['ledger_comparison']['status'] == 'PASS' and len(wrapper['ledger_comparison']['checks']) == 22
+         and len({row['field'] for row in wrapper['ledger_comparison']['checks']})==22
+         and all(set(row)=={'field','status','expected_sha256','actual_sha256'} and type(row['field'])is str and row['status'] == 'PASS'
+             and type(row['expected_sha256'])is str and re.fullmatch('[0-9a-f]{64}',row['expected_sha256'])is not None
+             and row['expected_sha256'] == row['actual_sha256'] for row in wrapper['ledger_comparison']['checks']), 'LEDGER22')
+    need(ledger['run_id'] == RUN and ledger['native_catalog_before_sha256'] == ledger['native_catalog_after_sha256'] == NATIVE_DIGEST, 'LEDGER_BINDING')
+    history = ledger['observation']['history']
+    need(len(history) == 1 and type(history[0]['steps']) is int and history[0]['steps'] == 1
+         and all(history[0][k] is True for k in ('started','finished','id_is_uuid_v4','time_order_valid','checksum_format_valid'))
+         and history[0]['rolled_back'] is False and history[0]['logs_state'] == 'NULL', 'GENUINE_LEDGER')
+    need(history[0]['checksum_sha256']==digest(SQL_SHA.encode())and history[0]['name_sha256']==digest(b'20261117000100_f0_local_initial'),'LEDGER_CANONICAL_MIGRATION')
+    need(oracle['connection_closed_before_observation'] is True and oracle['pre_oracle_catalog_sha256'] == oracle['post_rollback_catalog_sha256'] == NATIVE_DIGEST
+         and alltrue(oracle['preflight']['outcomes']) and oracle['closure']['all_oracle_tables_absent'] is True
+         and oracle['closure']['all_oracle_functions_absent'] is True, 'ORACLE_ROLLBACK_CLOSURE')
+    expressions = oracle['results']['expressions']
+    need(type(oracle['results']['expression_count']) is int and oracle['results']['expression_count'] == len(expressions) == 416, 'ORACLE416')
+    same(expressions, contract['source_oracle416_expressions'], 'SOURCE_ORACLE416')
+    target = wrapper['targets']['wa-p0c-4c894dba-native']
+    need(len(wrapper['targets']) == 1 and target['container_id'] == child['resource']['container_id'] == CID
+         and target['bootstrap'] == target['finalization'] == 'PASS' and target['network_mode'] == 'none' and target['published_ports'] is False, 'OWNED_CID')
+    same(child['resource'],dict(container_id=CID,container_name='wa-p0c-4c894dba-native',volume_name='wa-p0c-4c894dba-native-data',image=manifest['image'],network='none',published_ports=False,labels={'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':RUN}),'EXACT_OWNED_RESOURCE')
+    same(target['labels'],child['resource']['labels'],'TARGET_LABELS')
+    same(wrapper['public_baseline_verification'],dict(predeclared_owner_and_three_acl_rows_match=True,learned_post_install_baseline=False),'PUBLIC_BASELINE')
+    need(set(target['connections_before_finalization']) == {'migrator','other_client_backends'} and all(zero(v) for v in target['connections_before_finalization'].values()), 'FINALIZER_ABSENCE')
+    same(target['finalization_observation'], dict(grantor='postgres',auth='scram-sha-256:postgres',remaining_memberships=0,active_install_connections=0,
+         leaf_create=dict(wa_track_verifier=False,wa_customer_verifier=False,wa_private_helper_owner=False)), 'ORIGINAL_GRANTOR')
+    need(len(wrapper['migration_operations']) == 1 and wrapper['migration_operations'][0]['operation'] == 'deploy'
+         and zero(wrapper['migration_operations'][0]['exit_code']) and wrapper['migration_operations'][0]['source_sql_sha256'] == SQL_SHA
+         and wrapper['migration_operations'][0]['container_id'] == CID, 'ONE_CANONICAL_INSTALL')
+    need(len(wrapper['backend_closures']) == 14 and all(row['scope'] == 'ALL_DATABASES_ALL_ROLES_ALL_TAGS'
+         and all(row[k] is True for k in ('observation_completed','counts_valid','migrator_zero','other_clients_zero','all_other_client_backends_absent')) for row in wrapper['backend_closures']), 'GLOBAL_CLOSURES')
+    need({'BEFORE_NATIVE_DENIAL_COORDINATOR','AFTER_NATIVE_DENIAL_COORDINATOR'} <= {row['stage'] for row in wrapper['backend_closures']}, 'CHILD_BRACKETS')
+    need(len(wrapper['catalog_operations']) == 11 and all(zero(row['exit_code']) and row['client_exited'] is True
+         and row['unexpected_stderr'] is False and row['sqlstates'] == [] and row['raw_output_discarded'] is True for row in wrapper['catalog_operations']), 'CATALOG_CLIENTS')
+    six = ['postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker']
+    same(auth['authentication'], [dict(role=role,transport='TCP_127.0.0.1_5432',correct_password='PASS_SCRAM',wrong_password='PASS_REJECTED',wrong_password_exit_code=2) for role in six], 'FIRST_SIX_SCRAM')
+    need(auth['scope'] == 'AUTH_PREFLIGHT_ONLY' and auth['status'] == 'PASS_PREFLIGHT_ONLY' and auth['current_stage'] == 'COMPLETE'
+         and auth['failure'] is None and auth['subsequent_cases_stopped'] is False, 'AUTH_SCOPE')
+    same(auth['effective_hba_selections'], [dict(role=role,address=address,rule_number=number,method='scram-sha-256') for address,number in [('127.0.0.1',2),('::1',3)] for role in six], 'HBA_SCRAM')
+    auth_keys={'json_parsed','object','fields','string_fields','login','scram_identity','database','client_loopback','server_loopback'}
+    same(auth['authentication_comparison'],{key:True for key in auth_keys},'FIRST_AUTH_COMPARISONS')
+    same(child['authentication_comparisons'],{key:True for key in auth_keys},'CHILD_AUTH_COMPARISONS')
+    provider_names = ['anon','authenticated','service_role']
+    for entry, roles in ((child['authentication'], six+provider_names),(wrapper['provider_authentication'],provider_names)):
+        same(entry, [dict(role=role,correct_password='PASS_SCRAM',wrong_password_rejected=True,wrong_password_exit_code=2) for role in roles], 'NINE_SCRAM')
+    before, after = wrapper['provider_observations']
+    need(type(before['explicit_usage']) is int and type(before['effective_usage']) is int and before['explicit_usage'] == before['effective_usage'] == 9
+         and zero(after['explicit_usage']) and zero(after['effective_usage']), 'NINE_PROVIDER_REVOKES')
+    roles = [dict(name=role,login=True,inherit=False,superuser=False,createdb=False,createrole=False,replication=False,
+         bypassrls=role=='service_role',memberships=0,connect=True,create=False,temp=False) for role in provider_names]
+    for value in (before['roles'],after['roles'],provider['roles'],child['provider_roles']):same(value,roles,'PROVIDER_FLAGS')
+    for value in (provider,attestation,runplan):identity(value)
+    need(provider['container_id'] == attestation['container_id'] == runplan['immutable_container_id'] == CID
+         and provider['packet_sha256'] == attestation['deny_packet_sha256'] == runplan['packet_sha256'] == FINITE, 'ATTESTED_CID_PACKET')
+    need(provider['application_sql_sha256'] == SQL_SHA and all(provider[k] is True for k in ('all_nine_schema_usage_sentinels_before_install','canonical_install_removed_all_nine','genuine_prisma_one_applied_migration','original_grantor_finalized','local_simulation_only'))
+         and provider['hosted_parity_claimed'] is False, 'PROVIDER_ATTESTATION')
+    need(attestation['operation_packet_sha256'] == OP and attestation['original_grantor_finalized'] is True
+         and attestation['all_other_client_backends_absent'] is True and attestation['whole_case_promotion'] is False
+         and attestation['coordinator_sha256'] == manifest['native_access']['coordinator_sha256'], 'NATIVE_ATTESTATION')
+    need(attestation['native_snapshot_sha256'] == wrapper['qualified_native_snapshot_sha256'] == NATIVE_DIGEST
+         and attestation['native_snapshot_file_sha256'] == digest(blobs[ASSET_BASE+'/evidence/native-before.json'])
+         and attestation['comparison_file_sha256'] == digest(blobs[ASSET_BASE+'/evidence/catalog-comparison.json']), 'NATIVE_FILE_BINDING')
+    need(child['run_plan_sha256'] == attestation['coordinator_plan_sha256'] == digest(blobs[ASSET_BASE+'/evidence/native-deny-run-plan.json'])
+         and attestation['provider_proof_sha256'] == digest(blobs[ASSET_BASE+'/evidence/provider-preinstall-proof.json']), 'CLOSED_PLAN_BINDING')
+    same(runplan['target_manifest'], document(blobs[ASSET_BASE+'/manifest/ok-migration-manifest.json']), 'TARGET_MANIFEST')
+    need(all(pins.get(name) == wanted for name,wanted in runplan['source_modules_sha256'].items()), 'SOURCE_MODULES')
+    need(cleanup['status'] == 'PASS_INDEPENDENT_PHYSICAL_CLEANUP' and cleanup['run_id'] == RUN
+         and cleanup['run_evidence_sha256'] == PINS[ASSET_BASE+'/evidence/run-evidence.json']
+         and cleanup['manifest_sha256'] == PINS[ASSET_BASE+'/manifest/operation-manifest.json']
+         and cleanup['source_commit'] == COMMIT and cleanup['source_tree'] == TREE and cleanup['packet_sha256'] == OP
+         and cleanup['private_directory_absent'] is True and cleanup['pinned_image_retained'] is True
+         and all(row['absent_exact_known_diagnostic'] is True and row['raw_output_retained'] is False for row in cleanup['exact_name_observations'].values()), 'INDEPENDENT_CLEANUP')
+    summary = wrapper['cleanup_summary']
+    need(summary['resource_absence_observation_completed'] is True and summary['private_directory_absent'] is True
+         and all(v is False for v in summary['resource_presence_after'].values()) and summary['image_removed'] is False, 'CLEANUP_ABSENCE')
+    need(wrapper['sanitization']['actual_password_values_found'] is False and wrapper['sanitization']['unrestricted_subprocess_output_persisted'] is False
+         and wrapper['sanitization']['raw_context_handles_persisted'] is False and wrapper['credential_handling']['real_credentials_in_argv_env_or_evidence'] is False, 'SECRET_EXCLUSION')
+
+
+def validate_component(child, packet, native, models, contract, blobs):
+    """All998 ordered operations and956 runnable probes are prerequisites only."""
+    need(set(child)=={'schema','status','database_posture','current_stage','current_case','current_probe','current','operations','native_controls','facets','authentication','selected_cases','source_packet_sha256','cleanup_required','subsequent_cases_stopped','coverage_limit','run_id','source_commit','source_tree','run_plan_sha256','resource','current_auth_role','authentication_comparisons','provider_roles','fingerprint_order_comparisons','fingerprint_order_control','native_fact_projection'},'CHILD_FIELDS')
+    need(child['status'] == 'COMPLETED_PREPARED_FACETS_ONLY_CASES_STILL_NOT_RUN' and child['current_stage'] == 'FINISHED'
+         and child['database_posture'] == 'D' and child['subsequent_cases_stopped'] is False and child['source_packet_sha256'] == FINITE, 'COMPLETED_CHILD')
+    same({k:child[k] for k in ('current_stage','current_case','current_probe')}, contract['closed_finished_context'], 'SOURCE_FINISHED_CONTEXT')
+    same(child['current'], child['operations'][-1], 'LAST_SOURCE_OPERATION')
+    need(len(child['selected_cases']) == 40 and all(row['status'] == row['source_vectors_status'] == row['allow_case_status'] == 'NOT_RUN' for row in child['selected_cases']), 'NO_CASE_PROMOTION')
+    facts = child['native_fact_projection']
+    need(len(facts) == 42 and len({row['object'] for row in facts}) == 42 and all(type(row['row_count']) is int and row['row_count'] > 0 for row in facts)
+         and sum(row['row_count'] for row in facts) == 205, 'FULL42_205_DATA')
+    same(facts, contract['native_fixture42_projection'], 'AUDITED42_FINGERPRINT')
+    ops = child['operations']
+    need(len(ops) == 998 and len({op['name'] for op in ops}) == 998, 'FULL998_OPERATIONS')
+    same([dict(name=op['name'],role=op['role'],source_sql_sha256=op['source_sql_sha256']) for op in ops], contract['source_ordered_operation_statements'], 'SOURCE998_STATEMENTS_ROLES')
+    for op in ops:
+        need(set(op)<={'name','role','source_sql_sha256','closed_before_observers','evidence_complete','session_after_constructor','session_after_capture','actual_login_context_absent','exit_code','acknowledgement','session_after_finish','native_diagnostic','source_native_privilege_projection','exact_output_matches','session_before_close','session_after_close','all_100_trigger_functions_restored','fingerprint_checks','data_projection','all_native_facts_unchanged','native_catalog_unchanged','privilege_metadata_compared_to_source_native_pass'},'OPERATION_FIELDS')
+        need(op['closed_before_observers'] is True and op['evidence_complete'] is True and op['actual_login_context_absent'] is True
+             and op['all_100_trigger_functions_restored'] is True and alltrue(op['fingerprint_checks']), 'OPERATION_CLOSURE_GUARDS')
+        same(op['fingerprint_checks'],{key:True for key in ('list','exact_row_count','objects','fields','known_name_set','source_name_order','typed_bounded_counts','digest_shape')},'EXACT_FINGERPRINT_FLAGS')
+        same(op['data_projection'], facts, 'OPERATION_DATA_PRESERVED')
+        need(type(op['exit_code']) is int and op['exit_code'] in (0,3) and type(op['acknowledgement']) is bool, 'TYPED_EXIT_ACK')
+        closed = op['session_after_close']
+        session_keys={'process_created','backend_tuple_present','capture_completed','finish_completed','process_exit_class','process_exit_confirmed','stdout_reader_finished','stderr_reader_finished','readers_finished','output_invalid','backend_absence_query_attempted','backend_absence_confirmed'}
+        for phase in ('session_after_constructor','session_after_capture','session_after_finish','session_before_close','session_after_close'):
+            value=op[phase];need(type(value)is dict and set(value)==session_keys and type(value['process_exit_class'])is str
+                 and all(type(value[key])is bool for key in session_keys-{'process_exit_class'}),'CLOSED_SESSION_METADATA')
+        need(all(closed[k] is True for k in ('process_created','backend_tuple_present','capture_completed','finish_completed','process_exit_confirmed','readers_finished','stdout_reader_finished','stderr_reader_finished','backend_absence_query_attempted','backend_absence_confirmed'))
+             and closed['output_invalid'] is False and closed['process_exit_class'] == ('EXITED_ZERO' if op['exit_code']==0 else 'EXITED_NONZERO'), 'ACTUAL_SESSION_CLOSURE')
+        same(op['session_after_finish'],op['session_before_close'],'FINISH_BEFORE_CLOSE')
+        for phase in ('session_after_constructor','session_after_capture'):
+            value=op[phase]
+            need(value['process_created'] is True and value['finish_completed'] is False and value['process_exit_confirmed'] is False
+                 and value['output_invalid'] is False and value['process_exit_class']=='RUNNING', 'SESSION_PROGRESSION')
+        need(op['session_after_constructor']['backend_tuple_present'] is False and op['session_after_capture']['backend_tuple_present'] is True
+             and op['session_after_capture']['capture_completed'] is True and op['session_before_close']['backend_absence_query_attempted'] is False
+             and op['session_before_close']['backend_absence_confirmed'] is False, 'CAPTURE_CLOSE_ORDER')
+        need(not any(k in op for k in ('failure','original_failure','unexpected_diagnostic')), 'NO_UNEXPECTED_OPERATION')
+        need(op.get('all_native_facts_unchanged') is True or op['name']=='native-fact-setup', 'POSTSETUP_FACTS')
+    setup=ops[0]
+    need(setup['name']=='native-fact-setup' and setup['role']=='postgres' and setup['source_sql_sha256']==packet['files_sha256']['native-fact-setup.sql']
+         and zero(setup['exit_code']) and setup['acknowledgement'] is True and setup['exact_output_matches'] is True, 'FIXTURE_SETUP')
+    acls=native['nonowner_acl']
+    def allowed(role,kind,obj,priv,col=None):
+        return any(row['kind']==kind and row['object']==obj and row['privilege']==priv and row['grantee'] in (role,'PUBLIC')
+             and (row.get('column') is None if col is None else row.get('column') in (None,col)) for row in acls)
+    opmap={op['name']:op for op in ops};controls={row['case_id']:row for row in child['native_controls']}
+    need(len(child['facets'])==960 and len(controls)==len(child['native_controls'])==40, 'FINITE_FACETS_CONTROLS')
+    order=['native-fact-setup'];catalog_names={'native-fact-setup'};index=0;native_count=rls_count=blocked=0;gate_counts=Counter()
+    for case in packet['cases']:
+        name='native-control-'+case['model'];order.append(name);catalog_names.add(name);control=controls[case['id']];op=opmap[name]
+        same(control,dict(case_id=case['id'],status='NATIVE_CONSTRAINT_FIXTURE_VALIDITY_ONLY',insert_one=True,update_controls_one=len(case['native_update_control_columns']),delete_one=True,rollback_and_restoration_proven=True), 'ROLLBACK_NATIVE_CONTROL')
+        text=blobs['review-output/native-table-denials-v2/'+case['native_controls']].decode('utf8')
+        need('ROLLBACK;' in text and 'COMMIT;' not in text and op['role']=='postgres' and op['source_sql_sha256']==packet['files_sha256'][case['native_controls']]
+             and zero(op['exit_code']) and op['acknowledgement'] is True and op['exact_output_matches'] is True, 'ROLLBACK_ONLY_CONTROL_STATEMENT')
+        if case['issuer_ownership_controls']:
+            name='issuer-own-and-foreign';order.append(name);op=opmap[name]
+            need(op['role']=='wa_context_issuer' and op['source_sql_sha256']==digest(case['issuer_ownership_controls']['sql_text'].encode())
+                 and zero(op['exit_code']) and op['acknowledgement'] is True and op['exact_output_matches'] is True, 'ISSUER_OWN_FOREIGN')
+        last=None
+        for probe in case['probes']:
+            facet=child['facets'][index];index+=1
+            same([facet[k] for k in ('case_id','role','verb')],[case['id'],probe['role'],probe['verb']],'SOURCE_FACET_ORDER')
+            if facet['status']=='NOT_RUN':
+                need(set(facet)=={'case_id','role','verb','status','blocker'},'BLOCKED_FIELDS')
+                blocked+=1;need(probe['preparation']=='BLOCKED' and probe['preparation_blocker'] is not None and facet['blocker']==probe['preparation_blocker'],'BLOCKED_REMAINS_NOT_RUN');continue
+            need(digest(probe['sql_text'].encode())==probe['sql_sha256'],'ALL956_SQL_SOURCE_HASHES')
+            name='deny-'+case['model']+'-'+probe['role']+'-'+probe['verb'];last=name;order.append(name);op=opmap[name]
+            need(op['role']==probe['role'] and op['source_sql_sha256']==probe['sql_sha256'],'SOURCE_ROLE_STATEMENT')
+            same(facet['post_probe_observers'],dict(operation_backend_absent=True,all_100_trigger_functions_restored=True,all_205_native_facts_unchanged=True),'POST_PROBE_OBSERVERS')
+            need(facet['whole_case_promoted'] is False,'NO_FACET_PROMOTION')
+            if facet['status']=='PASS_OBSERVED_NATIVE_GATE_ONLY':
+                need(set(facet)=={'case_id','role','verb','status','facet','diagnostic','post_probe_observers','whole_case_promoted'}and facet['facet']=='NATIVE_SCHEMA_TABLE_OR_COLUMN_CEILING','NATIVE_FACET_FIELDS')
+                native_count+=1;role=probe['role'];verb=probe['verb'];model=models[case['model']];schema=case['table'].split('.')[0]
+                refs=[(model['fields'][pk],'SELECT') for pk in model['pk']] if verb in ('SELECT','UPDATE','DELETE')else[]
+                if verb=='SELECT' and probe['native_forbidden_column']:refs.append((probe['native_forbidden_column'],'SELECT'))
+                if verb=='INSERT':refs.extend((column,'INSERT')for column in model['fields'].values())
+                if verb=='UPDATE':refs.append((probe['native_forbidden_column'],'UPDATE'))
+                missing=sorted({column for column,permission in refs if not allowed(role,'TABLE',case['table'],permission,column)})
+                projection=dict(schema_usage=allowed(role,'SCHEMA',schema,'USAGE'),required_permission_missing=bool(missing)or(verb=='DELETE'and not allowed(role,'TABLE',case['table'],'DELETE')),missing_referenced_columns=missing)
+                same(op['source_native_privilege_projection'],projection,'INDEPENDENT_NATIVE_PRIVILEGES')
+                gate='TABLE'if projection['schema_usage']else'SCHEMA';gate_counts[gate]+=1
+                expected=dict(matched=True,sqlstate='42501',observed_gate=gate,native_location='aclcheck_error@aclchk.c',native_object=case['table']if gate=='TABLE'else schema,native_column=None,source_position_verified=gate=='SCHEMA',selected_column_isolation_claimed=False)
+                same(facet['diagnostic'],expected,'EXACT_NATIVE_DIAGNOSTIC');same(op['native_diagnostic'],expected,'OPERATION_DIAGNOSTIC')
+                need(projection['required_permission_missing'] is True and op['exit_code']==3 and op['acknowledgement'] is False,'NATIVE_DENIAL_EXIT')
+            else:
+                need(set(facet)=={'case_id','role','verb','status','facet','existing_row_count','restricted_count','post_probe_observers','whole_case_promoted'},'RLS_FIELDS')
+                rls_count+=1
+                need(facet['status']=='PASS_EXISTING_ROW_EMPTY_ONLY' and facet['facet'].startswith('RLS_') and type(facet['existing_row_count'])is int
+                     and facet['existing_row_count']==1 and zero(facet['restricted_count']) and zero(op['exit_code']) and op['acknowledgement'] is True and op['exact_output_matches'] is True,'RLS_EMPTY_ONLY_UNQUALIFIED')
+        catalog_names.add(last)
+    need(index==960 and native_count==908 and rls_count==48 and blocked==4 and gate_counts=={'SCHEMA':480,'TABLE':428},'EXACT_FINITE_COUNTS')
+    same(order,[op['name']for op in ops],'ALL998_SOURCE_ORDER')
+    need({op['name']for op in ops if op.get('native_catalog_unchanged')is True}==catalog_names and len(catalog_names)==81,'ALL81_CATALOG_BOUNDARIES')
+    same([row['id']for row in child['selected_cases']],packet['selected_case_ids'],'SELECTED40_SOURCE_CASES')
+
+
+def validate_links(derived, proposal, inventory, child):
+    need(len(derived['claims'])==len(proposal['rows'])==520,'CLOSED520')
+    items={(case['id'],item['id']):item for case in inventory['cases']for item in case['assertions']}
+    for index,(claim,row)in enumerate(zip(derived['claims'],proposal['rows'])):
+        key=(claim['case_id'],claim['assertion_id']);need(CLOSED_CLAIMS.get(key)==index and claim['status']=='PASS','CLOSED_CLAIM')
+        need('source_business_write'not in claim['assertion_id'] and claim['whole_case_promoted'] is False,'NO_AGGREGATE_OR_CASE_CLAIM')
+        same(claim['independent_mapping'],dict(path=ARCHIVE+'/exact520-proposal.json',sha256=AUDIT_PINS[ARCHIVE+'/exact520-proposal.json'],json_pointer='/rows/'+str(index)),'AUDITED_MAPPING_POINTER')
+        item=items[key]
+        need(digest(item['expected_assertion'].encode())==claim['expected_assertion_sha256']==row['expected_assertion_sha256']
+             and digest(canonical(item).encode())==claim['complete_source_assertion_sha256'],'COMPLETE_REQUIREMENT')
+        facet=pointer(child,claim['component']['facet_json_pointer']);op=pointer(child,claim['component']['operation_json_pointer']);control=pointer(child,claim['component']['native_control_json_pointer'])
+        need(facet['status']=='PASS_OBSERVED_NATIVE_GATE_ONLY' and facet['role']==item['role'] and facet['verb']==item['declared_operation']
+             and item['availability']=='CANDIDATE_LOCAL_DENIAL' and item['dependency_ids']==[] and item['expected_outcome']=='DENY_OR_AUTHORIZED_NONENUMERATING_FILTER','ONLY_EXACT_NATIVE_REQUIREMENT')
+        same([facet['case_id'],'denial.'+facet['role']+'.'+facet['verb'].lower()],list(key),'FACET_REQUIREMENT_IDENTITY')
+        same(claim['component'],dict(path=ASSET_BASE+'/evidence/native-denials/native-denial-results.json',sha256=PINS[ASSET_BASE+'/evidence/native-denials/native-denial-results.json'],facet_json_pointer=row['facet_json_pointer'],operation_json_pointer=row['operation_json_pointer'],native_control_json_pointer=row['native_control_json_pointer']),'EXACT_COMPONENT_POINTERS')
+        need(op['source_sql_sha256']==row['source_statement_sha256'] and digest(canonical(op['source_native_privilege_projection']).encode())==row['source_privilege_projection_sha256']
+             and facet['diagnostic']['observed_gate']==claim['observed_gate']==row['observed_native_gate'] and control['case_id']==key[0],'CLAIM_OBSERVATION_BINDING')
+
+
+def validate_bundle(blobs):
+    cache={}
+    def doc(name):
+        if name not in cache:cache[name]=document(blobs[name])
+        return cache[name]
+    derived=doc(DERIVED);identity(derived,'packet_sha256')
+    need(derived['actual_result']=='DERIVED_REVIEWED_NATIVE520_DENIAL_ASSERTIONS_ONLY'and derived['derivation']=='EXPLICIT_DERIVED_WRAPPER_NOT_RAW_RUNTIME_EVIDENCE','DERIVED_KIND')
+    audit=doc(ARCHIVE+'/independent-audit.json');supplement=doc(ARCHIVE+'/binding-supplement.json')
+    need(audit['decision']=='PASS_COMPLETED_FINITE_NATIVE_EVIDENCE_WITH_MAPPING_PROPOSALS_ONLY'
+         and supplement['decision']=='PASS_ADDITIONAL_ATTESTATION_AND_CLOSURE_BINDINGS'and supplement['mapping_changes']is False,'INDEPENDENT_AUDITS')
+    same(derived['independent_audit_files_sha256'],AUDIT_PINS,'AUDIT_PIN_SET')
+    same(derived['limits'],dict(Posture='D',whole_case_promoted=False,RLS48_or_blocked4_qualified=False,source_business_write_qualified=False,owner_or_hosted_or_production_claim=False,old0a29_stop_cause='UNOBSERVED'),'FINITE_LIMITS')
+    record=doc(RECORD);need(len(record['assets_sha256'])==33 and all(PINS.get(n)==h for n,h in record['assets_sha256'].items()),'IMMUTABLE33_ASSETS')
+    need(derived['source_record']['path']==RECORD and derived['source_record']['sha256']==PINS[RECORD]and derived['source_record']['packet_alias_from']=='operation_packet_sha256','RAW_RECORD_ALIAS')
+    packet=doc(PACKET_PATH);need(digest(blobs[PACKET_PATH])==FINITE and len(packet['cases'])==40,'FINITE_PACKET')
+    for name,wanted in packet['source_inputs_sha256'].items():need(PINS.get(name)==wanted,'FINITE_SOURCE_INPUT')
+    for name,wanted in packet['files_sha256'].items():need(PINS.get('review-output/native-table-denials-v2/'+name)==wanted,'FINITE_SQL_INPUT')
+    child=doc(ASSET_BASE+'/evidence/native-denials/native-denial-results.json');native=doc(ASSET_BASE+'/evidence/native-before.json');contract=doc(CONTRACT)
+    for suffix in ('native-after-oracle.json','native-after-ledger.json'):same(doc(ASSET_BASE+'/evidence/'+suffix),native,'FULL_NATIVE_PARITY')
+    validate_wrapper(record,doc(ASSET_BASE+'/evidence/run-evidence.json'),child,doc(ASSET_BASE+'/manifest/operation-manifest.json'),native,
+         doc(ASSET_BASE+'/evidence/authentication-ok/authentication-results-ok.json'),doc(ASSET_BASE+'/evidence/provider-preinstall-proof.json'),doc(ASSET_BASE+'/evidence/native-access-attestation.json'),doc(ASSET_BASE+'/evidence/native-deny-run-plan.json'),doc(ASSET_BASE+'/independent-cleanup.json'),doc(ASSET_BASE+'/evidence/oracle-evidence.json'),doc(ASSET_BASE+'/evidence/catalog-comparison.json'),doc(ASSET_BASE+'/evidence/ledger-evidence.json'),contract,blobs)
+    validate_component(child,packet,native,{row['model']:row for row in doc(MODEL_PATH)},contract,blobs)
+    validate_links(derived,doc(ARCHIVE+'/exact520-proposal.json'),doc(INVENTORY),child)
+    proposal=doc(ARCHIVE+'/exact520-proposal.json')
+    append_keys=frozenset((row['case_id'],row['assertion_id'])for row in proposal['rows']if row['proposed_action']=='PROPOSE_NEW_PASS_AFTER_REVIEWED_FAIL_CLOSED_PARSER')
+    need(len(append_keys)==388,'EXACT388_APPEND_SET')
+    return derived,append_keys
+
+
+def _admit(root):
+    return {name:read(root,name,wanted)for name,wanted in PINS.items()}
+
+
+def _fingerprint(blobs):
+    return digest(''.join(name+'\0'+digest(blobs[name])+'\n'for name in sorted(blobs)).encode())
+
+
+class QualificationBatch:
+    """Private closed-byte snapshot plus mandatory final full-byte barrier.
+
+    No open readers or mutable proof dictionary leaves this object. Builder
+    results remain provisional until verify_unchanged and require_finalized.
+    """
+    def __init__(self,root,all520=False,_single=None):
+        self.__root=Path(root).resolve(strict=True)
+        blobs=_admit(self.__root)
+        derived,append_keys=validate_bundle(blobs)
+        self.__execution=canonical(derived)
+        self.__fingerprint=_fingerprint(blobs)
+        self.__snapshot=MappingProxyType(blobs)
+        self.__expected=frozenset(CLOSED_CLAIMS)if all520 else append_keys
+        if _single is not None:
+            need(_single in CLOSED_CLAIMS,'UNSUPPORTED_CLAIM');self.__expected=frozenset((_single,))
+        self.__seen=set();self.__finalized=False;self.__failed=False
+
+    def validate_claim(self,case_id,assertion_id,status,execution,root=None,json_pointer=None):
+        try:
+            need(not self.__failed and not self.__finalized,'BATCH_CLOSED')
+            need(all(type(v)is str for v in(case_id,assertion_id,status))and status=='PASS','CLAIM_FIELDS')
+            key=(case_id,assertion_id);index=CLOSED_CLAIMS.get(key);need(index is not None,'UNSUPPORTED_CLAIM')
+            need(key in self.__expected,'BATCH_CLAIM_SCOPE')
+            need(json_pointer=='/claims/'+str(index),'CLAIM_POINTER')
+            if root is not None:need(Path(root).resolve(strict=True)==self.__root,'BATCH_ROOT')
+            need(canonical(execution)==self.__execution,'EXACT_DERIVED_RECORD')
+            self.__seen.add(key);return True
+        except EvidenceFailure:
+            self.__failed=True;raise
+        except Exception:
+            self.__failed=True;raise EvidenceFailure('NATIVE_COMPLETE_EVIDENCE_REJECTED')from None
+
+    def verify_unchanged(self):
+        try:
+            need(not self.__failed and not self.__finalized,'BATCH_CLOSED')
+            need(self.__seen==self.__expected,'INCOMPLETE_BATCH')
+            again=_admit(self.__root)
+            need(_fingerprint(again)==self.__fingerprint and all(again[name]==self.__snapshot[name]for name in PINS),'BATCH_DRIFT')
+            self.__finalized=True;self.__snapshot=None
+            return True
+        except EvidenceFailure:
+            self.__failed=True;raise
+        except Exception:
+            self.__failed=True;raise EvidenceFailure('NATIVE_COMPLETE_EVIDENCE_REJECTED')from None
+
+    def require_finalized(self):
+        need(not self.__failed and self.__finalized,'FINAL_BYTE_BARRIER_REQUIRED')
+        return True
+
+
+def prepare_batch(root,all520=False):
+    try:
+        need(type(all520)is bool,'BATCH_MODE')
+        return QualificationBatch(root,all520=all520)
+    except EvidenceFailure:raise
+    except Exception:raise EvidenceFailure('NATIVE_COMPLETE_EVIDENCE_REJECTED')from None
+
+
+def validate_claim(case_id,assertion_id,status,execution,root,json_pointer=None):
+    """Standalone calls always capture and finally recheck fresh whole evidence."""
+    try:
+        need(all(type(v)is str for v in(case_id,assertion_id,status))and status=='PASS','CLAIM_FIELDS')
+        key=(case_id,assertion_id);need(key in CLOSED_CLAIMS,'UNSUPPORTED_CLAIM')
+        need(json_pointer=='/claims/'+str(CLOSED_CLAIMS[key]),'CLAIM_POINTER')
+        batch=QualificationBatch(root,_single=key)
+        batch.validate_claim(case_id,assertion_id,status,execution,root,json_pointer=json_pointer)
+        batch.verify_unchanged();return batch.require_finalized()
+    except EvidenceFailure:raise
+    except Exception:raise EvidenceFailure('NATIVE_COMPLETE_EVIDENCE_REJECTED')from None

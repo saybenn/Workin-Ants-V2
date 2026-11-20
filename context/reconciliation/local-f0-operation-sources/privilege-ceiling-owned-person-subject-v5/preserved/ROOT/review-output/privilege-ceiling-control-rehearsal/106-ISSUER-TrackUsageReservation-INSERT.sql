@@ -1,0 +1,5 @@
+-- Fresh actual authenticated role connection; no context handle/bind or fixture bypass. Stop/close on unexpected output.
+BEGIN;
+SET LOCAL search_path=pg_catalog;
+INSERT INTO "app"."track_usage_reservation"("id","user_id","entitlement_id","period_start","period_end","quantity","semantic_key","reservation_id","accepted_source_owner","accepted_source_id","accepted_at","created_at","revision","mutation_transaction_id") VALUES ('20f6adb6-de11-5de9-955f-8d763f174a22'::pg_catalog.uuid,'56b17d64-3042-5f49-9d93-f4bb3cf2b8ee'::pg_catalog.uuid,'af6f8282-1305-5231-becf-c4d857810f62'::pg_catalog.uuid,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,'2026-11-18T00:00:00Z'::pg_catalog.timestamptz,'1'::pg_catalog.int4,'native-acl-687aa6bd5af40db02ab64ae2'::pg_catalog.text,'c9e71d89-df4e-5cf9-a553-72816a6a1c9e'::pg_catalog.uuid,'native-acl-0315e82b5ced53617eb392e1'::pg_catalog.text,NULL::pg_catalog.text,NULL::pg_catalog.timestamptz,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,'0'::pg_catalog.int8,'native-acl-setup-transaction'::pg_catalog.text);
+ROLLBACK;

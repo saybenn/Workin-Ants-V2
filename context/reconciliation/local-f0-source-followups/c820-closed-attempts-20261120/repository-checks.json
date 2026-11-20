@@ -1,0 +1,30 @@
+{
+  "schema": "workinants.c820-native615-progress-repository-checks.v1",
+  "recorded_at_utc": "2026-11-20T05:24:26.480595+00:00",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "check-context",
+      "started_at_utc": "2026-11-20T05:23:35.385575+00:00",
+      "seconds": 51.093,
+      "exit_code": 0,
+      "log": "c820-native615-check-context-20261120.log",
+      "log_sha256": "1e3dbbc062877ee446d9a6a2cb8928f24a020b21b65622a43ac8d3785f0af6d6",
+      "script_sha256": "8c92f9793ba1f913015172d87aa1ffb7bb8721cda71f0dd6b9628c73b6b5f0a7",
+      "summary_tail": "{\n  \"clusters\": 10,\n  \"modules\": 34,\n  \"cluster_documents\": 20,\n  \"module_documents\": 68,\n  \"handoffs\": 10,\n  \"shared_operations\": 132,\n  \"shared_statuses\": {\n    \"Confirmed\": 109,\n    \"Proposed ruling\": 23\n  },\n  \"prisma_models\": 177,\n  \"prisma_enums\": 207,\n  \"sql_migrations\": 1,\n  \"created_tables\": 53,\n  \"created_enums\": 31\n}\nWARNINGS: 124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay\nStructural checks PASSED; semantic readiness is a separate gate.\n"
+    },
+    {
+      "name": "check-database-candidate",
+      "started_at_utc": "2026-11-20T05:23:35.385575+00:00",
+      "seconds": 1.875,
+      "exit_code": 0,
+      "log": "c820-native615-check-database-candidate-20261120.log",
+      "log_sha256": "4967e7c603a7177e8600d72731c570bef790d9b3a367a1e5e89b851c7b899130",
+      "script_sha256": "b360599c9856f042f3a48209082a4116445c7e74840d819e923be4a0717b48f9",
+      "summary_tail": "{\n  \"status\": \"PASS\",\n  \"errors\": [],\n  \"existing_models\": 177,\n  \"candidate_models\": 214,\n  \"foundation_models\": 40,\n  \"compatibility_cases\": 12,\n  \"sql_requirements\": 18,\n  \"planned_tests_not_run\": 451,\n  \"scope\": \"Offline source/evidence/semantic checks; not database/RLS/worker/provider execution\"\n}\n"
+    }
+  ],
+  "DB_or_Docker_contacted": false,
+  "canonical_SQL5ae_worker32_June_unchanged": true,
+  "Posture": "D"
+}

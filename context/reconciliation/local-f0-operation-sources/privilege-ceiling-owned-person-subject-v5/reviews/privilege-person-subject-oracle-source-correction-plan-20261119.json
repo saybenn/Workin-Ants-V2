@@ -1,0 +1,36 @@
+{
+  "schema": "workinants.privilege-person-subject-oracle-correction-plan.v1",
+  "decision": "ROOT_BOUNDED_SOURCE_PLAN_IMPLEMENTATION_AUTHORIZED_SEPARATE_FINAL_REVIEW_REQUIRED",
+  "author": "/root",
+  "source_commit": "c820e39622843d9fc3b565cee6578a340970fba2",
+  "source_tree": "c004c3488cba127833d4a5052853c67d7d50c98f",
+  "closed_attempt": {
+    "run_id": "53d7f860-2128-4961-851e-9b749beeeedb",
+    "record_path": "context/reconciliation/local-f0-privilege-c820e39-53d7f860-execution.json",
+    "record_sha256": "33714c3bff6bcd648945cd2655c63d006c3444c5fd99768d7f53e02af11a7009",
+    "raw_sha256": "9e930e526c9bb08b30a8d4cdd9946bece30884451e1b9ce83dc7fc68d33163ab",
+    "child_sha256": "c0a75b456a5f122e9bb1d100ba06d59990774d34b31aa76c5a85f76ee9d8f9fe",
+    "cleanup_sha256": "0a5571a7b254cef8173a9fc5b931efafaba7c2fbeb919d1de1b91ce321feeda6",
+    "original_complete_cause": "UNOBSERVED",
+    "negative_results": 0
+  },
+  "proven_source_defect": "Customer person_binding expects the Consent-only context_subject(principal) to return true; the subprocess mock incorrectly ignores that owner restriction.",
+  "scope": [
+    "Replace only the Customer person-binding subject projection with existing context_subject_owner(principal, exact template owner_module_id). Preserve same backend/PID/xid, double bind, separate issuer COMMIT, both search paths and exact allowed/same_tuple expectations.",
+    "Persist a fixed allowlist of Boolean comparison outcomes before asserting: ACK, empty errors, one row, JSON parsed/object/exact fields/Boolean types and each required scalar. Discard raw row/output/dictionaries, credentials and handles. Reject malformed or unexpected values.",
+    "Model both context_subject and context_subject_owner using actual canonical source semantics in subprocess mocks. Add an old-helper restoration regression plus wrong principal/owner/context/tuple and malformed/error/secret tests, maintaining incremental stopping, closure-before-observation, complete-state and secret exclusion checks.",
+    "Regenerate affected child metadata and fingerprints from authoritative generator. Preserve all200 negative SQL bytes, fixture native205 data, exact100 guard restoration,16 definer contracts, original grantor, ACL32, application SQL and migration bytes.",
+    "If exact child hash admission changes require it, prepare a minimal new owned-operator revision derived from reviewed AdmissionV4; preserve old5/archive507 and every old attempt. New source gates stay PENDING until distinct reviewer plus Root close them. Freeze actual complete composition tests and preparer/pinner proof; no fake native proof or substituted production factories.",
+    "Focused offline mocks, source/parser/reproduction and affected source/context checks only. No Docker/database/Git/network by author or reviewer. Root alone performs publication, fresh literal pin and later runtime."
+  ],
+  "boundaries": {
+    "canonical_application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "worker_ACL_rows": 32,
+    "security_policy_or_permissions_change": false,
+    "owner_API_or_production_worker_loop": false,
+    "historical_raw_evidence_rewrite": false,
+    "other_WIP": "PRESERVE",
+    "all_unexercised_runtime": "NOT_RUN",
+    "Posture": "D"
+  }
+}

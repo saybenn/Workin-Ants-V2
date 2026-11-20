@@ -1,0 +1,37 @@
+"""Stage only NEW Privilege person-subject V5 metadata; no execution authority."""
+from pathlib import Path
+import hashlib,json,datetime
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';H=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest();A='context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-person-subject-v5';V='context/reconciliation/local-f0-privilege-ceiling-owned-person-subject-v5-source-validation.json';CHILD='context/reconciliation/privilege-ceiling-person-subject-source-validation.json';OLD='context/reconciliation/local-f0-privilege-ceiling-owned-admission-v4-source-validation.json';N=json.loads((T/'privilege_person_subject_v5_new_namespace_20261119.json').read_bytes());base=json.loads((R/OLD).read_bytes())
+def stage():
+ d=R/A;d.mkdir(exist_ok=True)
+ for n in N['new_sources_sha256']:(d/(n+'.txt')).write_bytes((T/n).read_bytes())
+ before=T/'privilege-person-subject-before-author-20261119';pres=json.loads((before/'preservation.json').read_bytes())
+ for n,h in pres['files_sha256'].items():
+  assert H(before/n)==h;dest=d/'preserved'/n;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes((before/n).read_bytes())
+ (d/'preserved/preservation.json').write_bytes((before/'preservation.json').read_bytes());review=d/'reviews';review.mkdir(exist_ok=True)
+ names=['privilege-person-subject-oracle-source-correction-plan-20261119.json','privilege_person_subject_v5_new_namespace_20261119.json','stage_privilege_person_subject_v5_source_20261119.py','privilege_person_subject_source_analysis_20261119.json','privilege_person_subject_v5_source_author_review_20261119.json','privilege_person_subject_v5_offline_checks_20261119.json','check_privilege_person_subject_v5_closure_20261119.py','privilege_person_subject_first_focused_20261119.log','privilege_person_subject_mutation_selector_final_20261119.log','privilege_person_subject_v5_source_boundary_20261119.json','privilege_person_subject_full_child_checks_20261119.log','privilege_person_subject_v5_first_actual_composition_20261119.log','privilege_person_subject_v5_full_closure_checks_20261119.log','privilege_person_subject_v5_full_owned_checks_20261119.log','privilege_person_subject_v5_verdict_checks_20261119.log','privilege_person_subject_v5_safety_checks_20261119.log','privilege_person_subject_extra_process_rows_final_20261119.log','check_privilege_person_subject_v5_verdict_regressions_20261119.py','check_privilege_person_subject_v5_safety_composed_20261119.py']
+ for n in names:
+  if(T/n).is_file():(review/(n+'.txt'if n.endswith('.py')else n)).write_bytes((T/n).read_bytes())
+ (review/'image-proof-independent-source.json').write_bytes((R/'context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-admission-v4/reviews/image-proof-independent-source.json').read_bytes())
+ history=T/'privilege-person-subject-before-mutation-selector-fix-20261119'
+ if history.is_dir():
+  for p in history.rglob('*'):
+   if p.is_file():
+    dest=d/'test-harness-history'/p.relative_to(history);dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(p.read_bytes())
+ lfhistory=T/'privilege-person-subject-before-LF-binding-20261119'
+ if lfhistory.is_dir():
+  for p in lfhistory.rglob('*'):
+   if p.is_file():
+    dest=d/'draft-before-LF-binding'/p.relative_to(lfhistory);dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(p.read_bytes())
+ current=d/'corrected-child';current.mkdir(exist_ok=True);source7={n:H(R/n)for n in base['privilege_packet']['source_files_sha256']}
+ for n in source7:
+  dest=current/(n+'.txt');dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes((R/n).read_bytes())
+ artifacts={n:H(R/n)for n in base['privilege_packet']['artifacts_sha256']};assert artifacts==base['privilege_packet']['artifacts_sha256']and len(artifacts)==202
+ mapping={p.relative_to(R).as_posix():H(p)for p in d.rglob('*')if p.is_file()};five={n:H(T/n)for n in N['new_sources_sha256']};child={'schema':'workinants.privilege-person-subject-source-validation.v1','status':'SOURCE_DRAFT_PENDING_OFFLINE_AND_SEPARATE_REVIEW','source7_sha256':source7,'artifacts202_sha256':artifacts,'coordinator_sha256':source7['scripts/sql-review/run-privilege-ceiling-control-rehearsal.py'],'fixture_sha256':H(R/'review-output/privilege-ceiling-control-rehearsal/fixtures.json'),'content_sha256':'643232e4d068892b49e49122b7ce3b909bd86caa9e770aa923d7df00def1ec32','review_gate':'Combined corrected child+ownedV5 independent_safety_sql_review remains PENDING in '+V,'runtime':'NOT_RUN','Posture':'D','canonical5ae_32ACL_all200SQL_native205_100guards_unchanged':True,'original53d7_complete_cause':'UNOBSERVED'}
+ if (T/'privilege_person_subject_v5_source_author_review_20261119.json').is_file():child['status']='AUTHOR142_OFFLINE_PASS_SEPARATE_REVIEW_REQUIRED';child['author_report_sha256']=H(T/'privilege_person_subject_v5_source_author_review_20261119.json')
+ (R/CHILD).write_text(json.dumps(child,indent=2)+'\n',encoding='utf8',newline='\n')
+ value={'schema':base['schema'],'status':'SOURCE_DRAFT_PENDING_OFFLINE_AND_SEPARATE_REVIEW','source_version':'privilege-ceiling-owned-person-subject-v5','operator_sources_sha256':five,'archive_files_sha256':mapping,'independent_safety_sql_review':{'decision':'PENDING_ROOT_AND_SEPARATE_REVIEW','scope':'CORRECTED_CHILD_AND_EXACT_NEW_V5_FIVE_NOT_YET_APPROVED'},'privilege_packet':{'source_files_sha256':source7,'artifacts_sha256':artifacts},'corrected_child_validation':{'path':CHILD,'sha256':H(R/CHILD)},'base_source_version':{'validation':OLD,'validation_sha256':H(R/OLD),'scope':'HISTORICAL_APPROVED_V4_INPUT_ONLY_NO_NEW_CHILD_APPROVAL'},'closed53d7_record':{'path':'context/reconciliation/local-f0-privilege-c820e39-53d7f860-execution.json','sha256':'33714c3bff6bcd648945cd2655c63d006c3444c5fd99768d7f53e02af11a7009','complete_cause':'UNOBSERVED'},'Root_plan_sha256':'715acc1ef5b29c917668323cd7995d14d589f1a043d8b71be922bb90cfba33c4','runtime':'NOT_RUN','Posture':'D'}
+ if (T/'privilege_person_subject_v5_source_author_review_20261119.json').is_file():
+  value['status']='AUTHOR142_OFFLINE_PASS_SEPARATE_REVIEW_REQUIRED';value['author_source_review']={'path':A+'/reviews/privilege_person_subject_v5_source_author_review_20261119.json','sha256':H(T/'privilege_person_subject_v5_source_author_review_20261119.json')};value['offline_author_checks']={'methods':142,'status':'PASS_SOURCE_MOCK_ONLY','path':A+'/reviews/privilege_person_subject_v5_offline_checks_20261119.json','sha256':H(T/'privilege_person_subject_v5_offline_checks_20261119.json')}
+ (R/V).write_text(json.dumps(value,indent=2)+'\n',encoding='utf8',newline='\n');print(json.dumps({'archive_files':len(mapping),'owned_validation_sha256':H(R/V),'child_validation_sha256':H(R/CHILD),'tests':'SOURCE_ONLY_OFFLINE_VALIDATION_IN_PROGRESS'}))
+if __name__=='__main__':stage()

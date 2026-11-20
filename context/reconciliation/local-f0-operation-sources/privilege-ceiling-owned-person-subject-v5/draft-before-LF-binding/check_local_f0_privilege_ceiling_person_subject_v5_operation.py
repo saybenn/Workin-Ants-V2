@@ -1,0 +1,571 @@
+"""Offline owned-operator mocks. Every process/network boundary is forbidden."""
+from contextlib import redirect_stdout
+from copy import deepcopy
+import hashlib
+import io
+import json
+from pathlib import Path
+import runpy
+import shutil
+import socket
+import subprocess
+import tempfile
+import types
+import unittest
+from unittest.mock import Mock,patch
+
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+CORE=TASK/'execute_local_f0_privilege_ceiling_person_subject_v5_20261119.py';STEPS=TASK/'local_f0_privilege_ceiling_person_subject_v5_operation_steps.py'
+BASELINE=TASK/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json'
+CID='a'*64;RUN='550e8400-e29b-41d4-a716-446655440000';NAME='wa-p0c-550e8400-privilege';VOLUME=NAME+'-data'
+MD='sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1';CD='sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d'
+CANARY='PRIVILEGE_CEILING_PRIVATE_PASSWORD_CONTEXT_OR_STDERR_CANARY'
+
+def namespace():
+ n=runpy.run_path(str(CORE))['launch'].__globals__;exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),n)
+ n.update(TASK=TASK,ROOT=ROOT,RUN_ID=RUN,DB='wa_p0c_rehearsal',LABEL='p0c-local-f0',IMAGE='docker.io/library/postgres:17.11@'+MD,CONFIG=CD,CONNECTION_TAG='wa-owner-mock',TARGETS=[{'name':NAME,'volume':VOLUME,'kind':'ok'}],RESOURCE_CONTAINERS=(NAME,),RESOURCE_VOLUMES=(VOLUME,),report={'stage':'TEST','events':[],'steps':{},'targets':{},'unexpected':[],'cleanup':{},'privilege_ceiling':{}},save=lambda:None,event=lambda *a,**k:None,created_containers={NAME:CID},created_volumes={VOLUME:'CREATED'},attempted_containers={NAME},attempted_volumes={VOLUME},bootstrap_attempted=set(),finalization_attempted=set(),finalized=set(),passwords={},secret_paths=[],all_secrets=[])
+ return n
+
+class PrivilegeOperationTests(unittest.TestCase):
+ def setUp(self):
+  for name in ('run','Popen','call','check_call','check_output'):
+   guard=patch.object(subprocess,name,side_effect=AssertionError('UNMOCKED_PROCESS_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+  guard=patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+  guard=patch.object(socket.socket,'connect',side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+  temp=tempfile.TemporaryDirectory(prefix='offline-owner-operator-',dir=TASK);self.addCleanup(temp.cleanup);self.directory=Path(temp.name);self.n=namespace();self.n.update(OUT=self.directory/'out',PRIVATE=self.directory/'out/private')
+ def image(self,kind='MANIFEST'):
+  return {'Id':MD if kind=='MANIFEST' else CD,'Os':'linux','Architecture':'amd64','RepoDigests':['postgres@'+MD],'Descriptor':{'digest':MD,'mediaType':'application/vnd.oci.image.manifest.v1+json','size':3628},'Config':{'Env':['PG_VERSION=17.11-1.pgdg13+1']}}
+ def image_docker(self,value,manifest=None):
+  calls=[];raw=(ROOT/'scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json').read_bytes() if manifest is None else manifest
+  def docker(args,input=None,timeout=60):
+   calls.append(args)
+   if args==['image','inspect',self.n['IMAGE']]:return types.SimpleNamespace(returncode=0,stdout=json.dumps([value]),stderr='')
+   if args==['buildx','imagetools','inspect','--raw',self.n['IMAGE']]:return types.SimpleNamespace(returncode=0,stdout=raw.decode(),stderr='')
+   raise AssertionError('UNREGISTERED_IMAGE_PROCESS')
+  self.n['docker']=docker;return calls
+ def resource(self,kind='MANIFEST'):
+  n=self.n;labels={'workinants.rehearsal':n['LABEL'],'workinants.rehearsal.run':RUN};value={'Id':CID,'Name':'/'+NAME,'Config':{'Image':n['IMAGE'],'Labels':labels},'Image':MD if kind=='MANIFEST' else CD,'Platform':'linux','State':{'Running':True},'HostConfig':{'NetworkMode':'none','PortBindings':{},'Privileged':False,'PidMode':'','IpcMode':'private','Devices':[],'CapAdd':[],'Links':None,'Tmpfs':{'/run/wa-secrets':'rw,nosuid,noexec,nodev,mode=0700'}},'NetworkSettings':{'Ports':{'5432/tcp':None}},'Mounts':[{'Type':'volume','Name':VOLUME,'Destination':'/var/lib/postgresql/data','RW':True},{'Type':'bind','Source':str(n['PRIVATE']/'ok-bootstrap-password'),'Destination':'/run/bootstrap-password','RW':False}]};volume={'Name':VOLUME,'CreatedAt':'CREATED','Labels':labels,'Driver':'local','Options':{},'Scope':'local'}
+  n['report']['image']={'image_id':value['Image']};n['inspect_container']=lambda name:value;n['inspect_volume']=lambda name:volume
+  def kernel(args,input=None,timeout=60):
+   self.assertEqual(args,['exec','-i',CID,'sh','-ceu',n['PRIVILEGE_SECRET_TMPFS_SCRIPT']]);self.assertEqual(timeout,30);self.assertIsNone(input)
+   return types.SimpleNamespace(returncode=0,stdout=n['PRIVILEGE_SECRET_TMPFS_TOKEN']+'\n',stderr='')
+  n['docker']=kernel;return value,volume
+ def test_import_and_help_do_not_read_helpers_or_launch_processes(self):
+  for file in (CORE,TASK/'prepare_local_f0_privilege_ceiling_person_subject_v5_plan.py',TASK/'pin_local_f0_privilege_ceiling_person_subject_v5_plan_20261119.py'):
+   module=runpy.run_path(str(file));entry=module.get('launch',module.get('main'))
+   with redirect_stdout(io.StringIO()),self.assertRaises(SystemExit) as found:entry(['--help'])
+   self.assertEqual(found.exception.code,0)
+   if 'pin_local_' not in file.name:
+    with redirect_stdout(io.StringIO()):self.assertEqual(entry([]),1)
+ def test_image_guard_admits_manifest_store_and_keeps_config_independent(self):
+  calls=self.image_docker(self.image());self.n['ensure_image']();self.assertEqual(self.n['report']['image']['image_id'],MD);self.assertEqual(self.n['report']['image']['config_digest'],CD);self.assertEqual(len(calls),2);self.assertFalse(any('pull' in c for c in calls))
+ def test_classic_config_store_id_also_requires_independent_manifest(self):
+  value=self.image('CONFIG');value.pop('Descriptor');self.image_docker(value);self.n['ensure_image']();self.assertEqual(self.n['report']['image']['image_store_identity'],'CONFIG')
+ def test_wrong_descriptor_platform_version_or_store_id_stops_without_creation(self):
+  for field,bad in [('Id','sha256:'+'f'*64),('Architecture','arm64'),('Os','windows'),('Descriptor',None),('Config',{'Env':['PG_VERSION=17.10']})]:
+   value=self.image();value[field]=bad;calls=self.image_docker(value)
+   with self.subTest(field=field),self.assertRaises(self.n['Stop']):self.n['ensure_image']()
+   self.assertEqual(len(calls),2)
+ def test_wrong_manifest_bytes_stop_and_no_raw_text_is_retained(self):
+  self.image_docker(self.image(),CANARY.encode())
+  with self.assertRaises(self.n['Stop']):self.n['ensure_image']()
+  self.assertNotIn(CANARY,json.dumps(self.n['report']))
+ def test_shared_image_module_is_compiled_from_same_hash_checked_bytes(self):
+  self.image_docker(self.image());actual=Path.read_bytes
+  def read(path):return CANARY.encode() if path==ROOT/'scripts/sql-review/local_image_identity.py' else actual(path)
+  with patch.object(Path,'read_bytes',read),self.assertRaisesRegex(self.n['Stop'],'IMAGE_IDENTITY_MODULE_DRIFT'):self.n['ensure_image']()
+  self.assertNotIn(CANARY,json.dumps(self.n['report']))
+ def test_exact_resource_accepts_actual_admitted_manifest_or_config_id(self):
+  for kind in ('MANIFEST','CONFIG'):
+   self.resource(kind);self.n['inspect_owner'](NAME)
+ def test_resource_rejects_foreign_id_mount_labels_ports_or_namespaces(self):
+  for change in ('id','name','image','volume','secret','extra','ports','privileged','pid','ipc','devices','created'):
+   value,volume=self.resource();bad=deepcopy(value);disk=deepcopy(volume)
+   if change=='id':bad['Id']='b'*64
+   elif change=='name':bad['Name']='/foreign'
+   elif change=='image':bad['Image']=CD
+   elif change=='volume':bad['Mounts'][0]['Name']='foreign'
+   elif change=='secret':bad['Mounts'][1]['RW']=True
+   elif change=='extra':bad['Mounts'].append({'Type':'bind','Source':'C:/outside','Destination':'/outside','RW':False})
+   elif change=='ports':bad['HostConfig']['PortBindings']={'5432/tcp':[{'HostPort':'5432'}]}
+   elif change=='privileged':bad['HostConfig']['Privileged']=True
+   elif change=='pid':bad['HostConfig']['PidMode']='host'
+   elif change=='ipc':bad['HostConfig']['IpcMode']='host'
+   elif change=='devices':bad['HostConfig']['Devices']=[{'PathOnHost':'/dev/sda'}]
+   else:disk['CreatedAt']='FOREIGN'
+   self.n['inspect_container']=lambda name,bad=bad:bad;self.n['inspect_volume']=lambda name,disk=disk:disk
+   with self.subTest(change=change),self.assertRaises(self.n['Stop']):self.n['inspect_owner'](NAME)
+ def test_nested_manifest_second_read_drift_stops_before_helper_or_tools(self):
+  raw=b'{"tools":{"files_sha256":{}}}';plan={'manifest_path':str(self.directory/'nested.json'),'manifest_sha256':hashlib.sha256(raw).hexdigest()};self.n['MANIFEST']={'migration_targets':{'ok':plan}};docker=Mock();helpers=Mock();self.n['docker']=docker;self.n['load_reviewed_helper']=helpers
+  with patch.object(Path,'read_bytes',side_effect=[raw,CANARY.encode()]):
+   self.assertEqual(self.n['read_target_manifest'](plan),raw)
+   with self.assertRaises(self.n['Stop']):self.n['migrate']({'kind':'ok','name':NAME},'deploy','TEST')
+  docker.assert_not_called();helpers.assert_not_called()
+ def test_transitive_module_drift_is_rejected_before_any_exec(self):
+  self.n['MANIFEST']={'packet_files_sha256':{name:'0'*64 for name in self.n['HELPER_FILES']}};out=io.StringIO()
+  with patch.object(Path,'read_bytes',return_value=CANARY.encode()),redirect_stdout(out),self.assertRaises(self.n['Stop']):self.n['load_reviewed_helper'](self.n['PRIVILEGE_COORDINATOR'])
+  self.assertNotIn(CANARY,out.getvalue())
+ def test_owner_packet_source_drift_stops_before_helpers(self):
+  self.n['COMMIT']='a'*40;self.n['TREE']='b'*40;self.n['PACKET']='c'*64;self.n['MANIFEST']={'packet_files_sha256':{}};self.n['verify_catalog_packet']=Mock(side_effect=AssertionError('NO_CATALOG_COMPILE'));self.n['read_pinned']=Mock(side_effect=AssertionError('NO_SOURCE_READ'))
+  with self.assertRaises(self.n['Stop']):self.n['verify_privilege_ceiling_packet']()
+  self.n['read_pinned'].assert_not_called();self.n['verify_catalog_packet'].assert_not_called()
+ def test_bootstrap_and_finalizer_keep_exact_pinned_sql_reads(self):
+  import ast
+  tree=ast.parse(STEPS.read_bytes());bootstrap=ast.get_source_segment(STEPS.read_text(),next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='bootstrap_all'))
+  self.assertIn("read_pinned('review-output/foundation-bootstrap.review.sql')",bootstrap);self.assertIn('source_authentication_preflight(name)',bootstrap)
+  tree=ast.parse(CORE.read_bytes());functions={node.name:node for node in tree.body if isinstance(node,ast.FunctionDef)}
+  finalize=functions['finalize'];calls=[node for node in ast.walk(finalize) if isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id=='_required_safety_sql']
+  self.assertEqual([node.args[1].value for node in calls],['FINALIZATION_BACKENDS','ORIGINAL_GRANTOR_FINALIZATION','FINALIZATION_RESULT'])
+  source=ast.get_source_segment(CORE.read_text(),functions['_required_safety_text']);self.assertIn('read_pinned(_SAFETY_FINALIZER)',source);self.assertEqual(self.n['_SAFETY_FINALIZER'],'review-output/foundation-bootstrap-finalize.review.sql');self.assertEqual(self.n['_SAFETY_FINALIZER_SHA'],hashlib.sha256((ROOT/self.n['_SAFETY_FINALIZER']).read_bytes()).hexdigest())
+ def test_no_restore_or_recovery_behavior_is_present(self):
+  import ast
+  functions={node.name for node in ast.parse(STEPS.read_bytes()).body if isinstance(node,ast.FunctionDef)};self.assertFalse(functions&{'backup_archive','stage_restore','rotate_credentials','identity_recovery','diagnostic_probes','restore_experiment'})
+ def test_pipeline_failure_stops_coordinator_and_still_attempts_cleanup(self):
+  n=self.n;events=[];n.update(OUT=self.directory/'fresh-out',MANIFEST={'review_status':'APPROVED_LOCAL_F0_PRIVILEGE_CEILING_ATTEMPT','privilege_ceiling':{'external_files_sha256':{}}})
+  for name in ('verify_privilege_ceiling_packet','preflight','ensure_image','create_resources','bootstrap_all','provision_migration_tools','provider_preinstall','privilege_ceiling_experiment','secret_scan','cleanup','verify_tool_data','verify_external_input_preservation'):n[name]=lambda name=name:events.append(name)
+  n['catalog_experiment']=lambda:(_ for _ in ()).throw(n['Stop']('MOCK_NATIVE_NOT_PASS'))
+  self.assertEqual(n['main'](),1);self.assertNotIn('privilege_ceiling_experiment',events);self.assertIn('cleanup',events);self.assertEqual(n['report']['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertNotIn('qualified_native_snapshot_sha256',n['report'])
+ def test_coordinator_unexpected_stop_retains_only_safe_failure_metadata(self):
+  n=self.n;events=[];n.update(OUT=self.directory/'fresh-out',MANIFEST={'review_status':'APPROVED_LOCAL_F0_PRIVILEGE_CEILING_ATTEMPT','privilege_ceiling':{'external_files_sha256':{}}})
+  for name in ('verify_privilege_ceiling_packet','preflight','ensure_image','create_resources','bootstrap_all','provision_migration_tools','provider_preinstall','catalog_experiment','secret_scan','cleanup','verify_tool_data','verify_external_input_preservation'):n[name]=lambda name=name:events.append(name)
+  n['privilege_ceiling_experiment']=lambda:(_ for _ in ()).throw(RuntimeError(CANARY));self.assertEqual(n['main'](),1);self.assertNotIn(CANARY,json.dumps(n['report']));self.assertIn('cleanup',events)
+ def component(self,status='PASS_PREPARED_PRIVILEGE_CEILINGS_ONLY_CASES_NOT_RUN',wrong_cid=False,extra=False):
+  n=self.n;n['OUT'].mkdir();native={'format':'workinants.native-catalog.v1'};(n['OUT']/'native-before.json').write_text(json.dumps(native));(n['OUT']/'catalog-comparison.json').write_text(json.dumps({'status':'PASS'}));fixture=json.loads((ROOT/'review-output/privilege-ceiling-control-rehearsal/fixtures.json').read_bytes());np=json.loads((ROOT/'review-output/native-table-denials-v2/packet.json').read_bytes());module=runpy.run_path(str(ROOT/'scripts/sql-review/run-native-table-denials-v3.py'))
+  n.update(COMMIT='b'*40,TREE='c'*40,PACKET='d'*64,PRIVILEGE_FIXTURES=fixture,finalized={NAME},inspect_owner=lambda *a,**k:None,closed_backends=lambda *a,**k:None,collect_native=lambda *a,**k:native,read_target_manifest=lambda p:b'{}')
+  n['PRIVILEGE_NATIVE'].update(module=module,packet=np,preinstall_observed=True,postinstall_observed=True)
+  n['report'].update(catalog_comparison={'status':'PASS','check_counts':{'PASS':29089}},ledger_comparison={'status':'PASS','checks':[{'status':'PASS'}for _ in range(22)]},qualified_native_snapshot_sha256=n['digest'](native));n['report']['steps']['CATALOG-ORACLE']='PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE'
+  n['MANIFEST']={'packet_files_sha256':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest()for p in module['MODULES']},'migration_targets':{'ok':{}},'privilege_ceiling':{}}
+  n['SAFE_FILES'].update({'provider-preinstall-proof.json','privilege-ceiling-native-attestation.json','privilege-ceiling-run-plan.json','privilege-ceiling-component-result.json','privilege-ceiling-native-final.json'})
+  plans=[]
+  def main(argv):
+   plan_path=Path(argv[argv.index('--run-plan')+1]);raw=plan_path.read_bytes();plan=json.loads(raw);evidence=Path(argv[argv.index('--evidence-directory')+1]);plans.append(plan)
+   results=[]
+   for c in fixture['cases']:
+    kind=c['diagnostic']['kind'];d={'matched':True,'sqlstate':'P0001'if kind=='IMMUTABLE_GRANT'else'42501','kind':kind,'gate':(None if kind=='IMMUTABLE_GRANT'else'ROLE'if kind=='SET_ROLE'else'SCHEMA_CREATE'if kind=='SCHEMA_CREATE'else'SCHEMA'),'object':('platform_private.grant_guard'if kind=='IMMUTABLE_GRANT'else c['diagnostic']['target_role']if kind=='SET_ROLE'else c['diagnostic']['schema']),'source_position_verified':False,'source_frame_verified':kind=='IMMUTABLE_GRANT','selected_column_or_verb_isolation_claimed':False}
+    results.append({'name':c['name'],'source_case_id':c['source_case_id'],'assertion_id':c['assertion_id'],'status':'PASS_FINITE_PRIVILEGE_CONTRAST_ONLY','closed_before_observers':True,'complete_state_unchanged':True,'diagnostic':d,'whole_case_promoted':False})
+   if status!='PASS_PREPARED_PRIVILEGE_CEILINGS_ONLY_CASES_NOT_RUN':results=results[:2]
+   value={'schema':'workinants.privilege-ceiling-evidence.v1','status':status,'run_id':RUN,'source_commit':n['COMMIT'],'source_tree':n['TREE'],'operation_packet_sha256':n['PACKET'],'reviewed_privilege_content_sha256':n['PRIVILEGE_CONTENT_SHA'],'run_plan_sha256':'0'*64 if wrong_cid else hashlib.sha256(raw).hexdigest(),'database_posture':'D','evidence_complete':True,'source_packet_unchanged_after':True,'subsequent_cases_stopped':False,'facets':[],'results':results,'selected_controls':fixture['control_links'],'authentication':[{'role':role,'correct_password':'PASS_SCRAM','wrong_password_rejected':True,'wrong_password_exit_code':2}for role in module['AUTH_ROLES']],'definer_metadata':[{'function':r['identity'],'owner_body_definer_path_match':True}for r in fixture['source_definers']],'native_controls':[{'case_id':r['id'],'status':'NATIVE_FIXTURE_VALIDITY_ONLY_NO_OWNER_OR_CASE_QUALIFICATION','rolled_back':True,'all100_guards_restored':True,'native205_unchanged':True}for r in np['cases']],'issuer_protocols':[{'name':name,'status':'PASS_FINITE_ISSUER_PROTOCOL_ONLY','same_run_and_actual_logins':True,'all_operation_backends_closed_before_observation':True,'complete_state_verified':True,'whole_case_promoted':False}for name in('ISSUER-LEGITIMATE-PERSON-ISSUE-OWN-READ-BOUND-SCALARS','ISSUER-LEGITIMATE-FIRST-ONE-WAY-REVOKE','ISSUER-STORED-SERVICE-GRANT-CANNOT-SELF-ATTEST-REVOKED-IDENTITY')],'selected_cases':[{'id':r['id'],'status':'NOT_RUN','source_vectors_status':'NOT_RUN','allow_case_status':'NOT_RUN'}for r in np['cases']],'operations':[{'name':name,'closed_before_observers':True}for name in([r['name']for r in fixture['cases']]+['native-fact-setup']+['native-control-'+r['model']for r in np['cases']]+['ISSUER-LEGITIMATE-PERSON-ISSUE-OWN-READ-BOUND-SCALARS','ISSUER-LEGITIMATE-FIRST-ONE-WAY-REVOKE','ISSUER-STORED-SERVICE-GRANT-CANNOT-SELF-ATTEST-REVOKED-IDENTITY'])],'global_client_boundaries':[{'stage':'MOCK_BOUNDARY','attempted':True,'confirmed':True}]}
+   if extra:value['untrusted_extra']=CANARY
+   evidence.mkdir();(evidence/'privilege-ceiling-results.json').write_text(json.dumps(value));return 0 if status=='PASS_PREPARED_PRIVILEGE_CEILINGS_ONLY_CASES_NOT_RUN'else 2
+  n['load_reviewed_helper']=lambda p:{'main':main};return plans
+ def test_component_plan_binds_same_source_run_CID_and_exact200_native_digest(self):
+  plans=self.component();self.n['privilege_ceiling_experiment']();self.assertEqual(len(plans),1);plan=plans[0];self.assertEqual((plan['run_id'],plan['native_plan']['immutable_container_id']),(RUN,CID));self.assertEqual(plan['packet_sha256'],self.n['PACKET']);self.assertEqual(plan['native_plan']['packet_sha256'],'8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69');self.assertEqual(self.n['report']['steps']['PRIVILEGE-CEILING-COMPONENT'],'PASS_FINITE_PREPARED_SQL_ONLY')
+  value=json.loads((self.n['OUT']/'privilege-ceiling-component-result.json').read_bytes());self.assertEqual((value['completed_negative_contrasts'],value['definer_metadata'],value['native_validity_controls'],value['issuer_protocols']),(200,16,40,3));self.assertNotIn(CANARY,json.dumps(value))
+ def test_wrong_component_CID_is_rejected_before_any_result_export(self):
+  self.component(wrong_cid=True)
+  with self.assertRaises(self.n['Stop']):self.n['privilege_ceiling_experiment']()
+  self.assertFalse((self.n['OUT']/'privilege-ceiling-component-result.json').exists());self.assertNotIn(CANARY,json.dumps(self.n['report']))
+ def test_unknown_component_fields_are_rejected_without_export(self):
+  self.component(extra=True)
+  with self.assertRaises(self.n['Stop']):self.n['privilege_ceiling_experiment']()
+  self.assertFalse((self.n['OUT']/'privilege-ceiling-component-result.json').exists());self.assertNotIn(CANARY,json.dumps(self.n['report']))
+ def test_partial_component_keeps_safe_reference_and_stops_without_native_final(self):
+  self.component(status='STOPPED_PARTIAL_EVIDENCE_PRESERVED');native=Mock(side_effect=AssertionError('NO_LATER_NATIVE_CASE'));self.n['collect_native']=native
+  with self.assertRaises(self.n['Stop']):self.n['privilege_ceiling_experiment']()
+  self.assertEqual(self.n['report']['privilege_ceiling']['component_report_reference']['read_status'],'RETAINED');self.assertEqual(self.n['report']['primary_failure']['code'],'PRIVILEGE_CEILING_COMPONENT_NOT_QUALIFIED');native.assert_not_called()
+ def test_mocked_full_outer_pipeline_finishes_only_with_source_and_cleanup_proofs(self):
+  n=self.n;events=[];file='scripts/sql-review/local_image_identity.py';wanted=hashlib.sha256((ROOT/file).read_bytes()).hexdigest();n.update(OUT=self.directory/'fresh-out',MANIFEST={'review_status':'APPROVED_LOCAL_F0_PRIVILEGE_CEILING_ATTEMPT','privilege_ceiling':{'external_files_sha256':{}}})
+  def verify():n['report']['source_verification']={'files_sha256':{file:wanted}};events.append('verify')
+  n['verify_privilege_ceiling_packet']=verify
+  for name in ('preflight','ensure_image','create_resources','bootstrap_all','provision_migration_tools','provider_preinstall','catalog_experiment','privilege_ceiling_experiment','secret_scan','cleanup','verify_tool_data','verify_external_input_preservation'):n[name]=lambda name=name:events.append(name)
+  n['cleanup']=lambda:(events.append('cleanup'),n['report'].__setitem__('cleanup_actions_confirmed',True))
+  self.assertEqual(n['main'](),0);self.assertEqual(n['report']['status'],'PASS_LOCAL_PRIVILEGE_CEILING_SQL_SUBSET_ONLY');self.assertLess(events.index('catalog_experiment'),events.index('privilege_ceiling_experiment'));self.assertLess(events.index('privilege_ceiling_experiment'),events.index('cleanup'));self.assertTrue(n['report']['packet_unchanged_after_run'])
+ def test_cleanup_deletes_only_exact_created_container_volume_and_testsecret(self):
+  n=self.n;n['OUT'].mkdir();n['PRIVATE'].mkdir();secret=n['PRIVATE']/'ok-bootstrap-password';secret.write_text(CANARY);n['secret_paths']=[secret];value,volume=self.resource();containers={NAME:value};volumes={VOLUME:volume};commands=[]
+  n['inspect_container']=lambda name:containers.get(name);n['inspect_volume']=lambda name:volumes.get(name);n['inventory']=lambda:(set(containers)|{'unrelated'},set(volumes)|{'unrelated-data'})
+  def docker(args,input=None,timeout=60):
+   commands.append(args)
+   if args==['container','rm','-f',CID]:containers.pop(NAME)
+   elif args==['volume','rm',VOLUME]:volumes.pop(VOLUME)
+   else:raise AssertionError('UNDECLARED_CLEANUP')
+   return types.SimpleNamespace(returncode=0,stdout='',stderr='')
+  n['docker']=docker;n['cleanup']();self.assertEqual(len(commands),2);self.assertFalse(n['PRIVATE'].exists());self.assertFalse(n['report']['cleanup_summary']['image_removed'])
+ def test_foreign_cleanup_identity_is_preserved_and_inventory_uncertainty_rejects(self):
+  n=self.n;n['OUT'].mkdir();n['PRIVATE'].mkdir();value,volume=self.resource();value['Id']='f'*64;n['docker']=Mock();n['inventory']=lambda:({NAME},{VOLUME})
+  with self.assertRaises(n['Stop']):n['cleanup']()
+  self.assertFalse(any(call.args[0][:2]==['container','rm'] for call in n['docker'].call_args_list));self.assertTrue(n['report']['unexpected'])
+ def test_plan_prepare_emits_only_new_unpinned_exact_seven_history_files(self):
+  module=runpy.run_path(str(TASK/'prepare_local_f0_privilege_ceiling_person_subject_v5_plan.py'));g=module['prepare'].__globals__;raw=BASELINE.read_bytes();base=self.directory/'baseline.json';base.write_bytes(raw)
+  for name in g['EXTERNAL_FILES']:(self.directory/name).write_bytes((TASK/name).read_bytes())
+  with patch.dict(g,TASK=self.directory):
+   result=g['prepare'](base,hashlib.sha256(raw).hexdigest(),RUN);manifest=json.loads(Path(result['operation_manifest']).read_bytes());self.assertEqual(manifest['review_status'],'PENDING_OPERATIONAL_REVIEW');self.assertEqual(manifest['source_commit'],manifest['source_tree']);self.assertEqual(manifest['source_commit'],'TO_BE_PINNED');self.assertEqual(manifest['packet_files_sha256'],{});self.assertEqual(result['source_files'],7)
+   self.assertEqual(manifest['targets'],[{'name':NAME,'volume':VOLUME,'kind':'ok'}]);self.assertTrue(set(g['IMAGE_FILES'])<=set(manifest['prepared_source_file_inventory_sha256']));self.assertNotIn('restore',manifest)
+   with self.assertRaises(g['Refused']):g['prepare'](base,hashlib.sha256(raw).hexdigest(),RUN)
+
+ def prepared(self):
+  module=runpy.run_path(str(TASK/'prepare_local_f0_privilege_ceiling_person_subject_v5_plan.py'));g=module['prepare'].__globals__;base=self.directory/'catalog-baseline.json';base.write_bytes(BASELINE.read_bytes())
+  for name in g['EXTERNAL_FILES']:(self.directory/name).write_bytes((TASK/name).read_bytes())
+  with patch.dict(g,TASK=self.directory):result=g['prepare'](base,hashlib.sha256(base.read_bytes()).hexdigest(),RUN)
+  path=Path(result['operation_manifest']);manifest=json.loads(path.read_bytes());self.pending_path=path;self.pending_manifest=manifest
+  return path,manifest
+ def real_verifier(self,manifest):
+  _,context=self.pin_module()
+  n=self.n;n['ROOT']=context['ROOT'];pins=manifest['prepared_source_file_inventory_sha256'];manifest=deepcopy(manifest);manifest.update(source_commit='a'*40,source_tree='b'*40,packet_files_sha256=dict(pins),packet_sha256=hashlib.sha256(''.join(k+'\0'+pins[k]+'\n' for k in sorted(pins)).encode()).hexdigest())
+  n.update(MANIFEST=manifest,COMMIT=manifest['source_commit'],TREE=manifest['source_tree'],PACKET=manifest['packet_sha256'],TARGETS=manifest['targets'],RUN_ID=manifest['run_id'],verify_common_packet=Mock())
+  return n
+ def test_actual_whole_verifier_real_prepared_inventory_and_all_five_snapshots(self):
+  path,manifest=self.prepared();n=self.real_verifier(manifest);original=path.read_bytes();output=io.StringIO()
+  # Only the common Git/review gate is mocked. All source admission, real
+  # catalog reconstruction, seven closed helper loads and API checks execute.
+  with redirect_stdout(output):n['verify_privilege_ceiling_packet']()
+  n['verify_common_packet'].assert_called_once();self.assertEqual(output.getvalue(),'');self.assertEqual(n['report']['catalog_preparation']['closed_source_files'],16);self.assertEqual(len(n['HELPERS']),8);self.assertTrue(all(n['HELPERS'][name] is not None for name in n['HELPER_FILES']));self.assertEqual(len(n['PRIVILEGE_FIXTURES']['cases']),200)
+  self.assertEqual(len(manifest['privilege_ceiling']['external_files_sha256']),5);self.assertEqual(path.read_bytes(),original);self.assertFalse(Path(manifest['evidence_directory']).exists());self.assertEqual(n['report']['steps']['PRIVILEGE-CEILING-REVIEW'],'PASS_SOURCE_ADMISSION_ONLY')
+ def test_missing_helper_source_or_catalog_import_rejects_before_any_compile(self):
+  _,manifest=self.prepared();source=manifest['prepared_source_file_inventory_sha256'];catalog=json.loads((ROOT/'review-output/native-catalog/source-pins.json').read_bytes())
+  for name in ('scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/run-native-table-denials-v3.py',next(iter(catalog))):
+   candidate=deepcopy(manifest);candidate['prepared_source_file_inventory_sha256'].pop(name);n=self.real_verifier(candidate)
+   with self.subTest(name=name),patch('builtins.compile',side_effect=AssertionError('UNADMITTED_COMPILE')),self.assertRaises(n['Stop']):n['verify_privilege_ceiling_packet']()
+   n['verify_common_packet'].assert_not_called();self.assertEqual(n['HELPERS'],{});self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_missing_or_historical_operator_snapshot_rejects_before_compile(self):
+  _,manifest=self.prepared();names=self.n['EXTERNAL_FILES'];prefix=self.n['OWNED_ARCHIVE']
+  for name in names:
+   candidate=deepcopy(manifest);pins=candidate['prepared_source_file_inventory_sha256'];key=prefix+'/'+name+'.txt';wanted=pins.pop(key);pins['context/reconciliation/local-f0-operation-sources/restore-physical-v1/'+name+'.txt']=wanted;n=self.real_verifier(candidate)
+   with self.subTest(name=name),patch('builtins.compile',side_effect=AssertionError('UNADMITTED_COMPILE')),self.assertRaises(n['Stop']):n['verify_privilege_ceiling_packet']()
+   n['verify_common_packet'].assert_not_called();self.assertEqual(n['HELPERS'],{})
+ def pin_module(self):
+  if hasattr(self,'_isolated_pin_module'):return self._isolated_pin_module
+  mod=runpy.run_path(str(TASK/'pin_local_f0_privilege_ceiling_person_subject_v5_plan_20261119.py'));g=mod['pin'].__globals__
+  # Actual author validation remains PENDING. Exercise the future reviewed pin
+  # branch only in an isolated filesystem clone with an explicit test marker.
+  clone=self.directory/'synthetic-future-reviewed-source';clone.mkdir()
+  pins=self.pending_manifest['prepared_source_file_inventory_sha256']
+  for name in pins:
+   destination=clone/name;destination.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/name,destination)
+  validation=clone/g['VALIDATION'];record=json.loads(validation.read_bytes());record['independent_safety_sql_review']={'decision':'SOURCE_APPROVED','scope':'OFFLINE_SYNTHETIC_TEST_FIXTURE_ONLY'};validation.write_text(json.dumps(record,indent=2)+'\n',encoding='utf8')
+  for relative in ('node_modules/@prisma/engines-version/package.json','node_modules/prisma/package.json'):
+   target=clone/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((ROOT/relative).read_bytes())
+  pins[g['VALIDATION']]=hashlib.sha256(validation.read_bytes()).hexdigest();self.pending_path.write_text(json.dumps(self.pending_manifest),encoding='utf8');g['ROOT']=clone
+  self._isolated_pin_module=(mod,g)
+  return mod,g
+ def test_pinner_validates_real_pending_files_before_readonly_git_pin(self):
+  path,manifest=self.prepared();mod,g=self.pin_module();original=path.read_bytes();pins=manifest['prepared_source_file_inventory_sha256'];calls=[]
+  def git(*args,input=None):
+   calls.append(args)
+   if args==('rev-parse','HEAD'):return ('a'*40+'\n').encode()
+   if args==('rev-parse','HEAD^{tree}'):return ('b'*40+'\n').encode()
+   self.assertEqual(args,('cat-file','--batch'));self.assertEqual(input,''.join('a'*40+':'+name+'\n' for name in pins).encode());parts=[]
+   for name in pins:
+    raw=(g['ROOT']/name).read_bytes();parts.extend([('f'*40+' blob '+str(len(raw))+'\n').encode(),raw,b'\n'])
+   return b''.join(parts)
+  g['git_read']=git;result=mod['pin'](path);value=json.loads(path.read_bytes());self.assertEqual(value['review_status'],'PENDING_OPERATIONAL_REVIEW');self.assertFalse(result['runtime_approved']);self.assertEqual(value['packet_files_sha256'],pins);self.assertEqual((path.parent/'operation-manifest-before-source-pin.json').read_bytes(),original);self.assertEqual(len(calls),4);self.assertFalse(Path(value['evidence_directory']).exists())
+ def test_pinner_missing_source_or_historical_snapshot_fails_before_git(self):
+  path,manifest=self.prepared();mod,g=self.pin_module();git=Mock(side_effect=AssertionError('NO_GIT_BEFORE_SOURCE_ADMISSION'));g['git_read']=git;original=path.read_bytes()
+  for name in ('scripts/sql-review/run-native-table-denials-v3.py',self.n['OWNED_ARCHIVE']+'/'+self.n['EXTERNAL_FILES'][-1]+'.txt'):
+   candidate=deepcopy(manifest);candidate['prepared_source_file_inventory_sha256'].pop(name);path.write_text(json.dumps(candidate))
+   with self.subTest(name=name),self.assertRaises(g['Held']):mod['pin'](path)
+   git.assert_not_called();self.assertFalse((path.parent/'operation-manifest-before-source-pin.json').exists())
+  path.write_bytes(original)
+ def test_pinner_mismatched_committed_blob_preserves_pending_literal(self):
+  path,manifest=self.prepared();mod,g=self.pin_module();original=path.read_bytes()
+  def git(*args,input=None):
+   if args==('rev-parse','HEAD'):return ('a'*40).encode()
+   if args==('rev-parse','HEAD^{tree}'):return ('b'*40).encode()
+   return ('f'*40+' blob '+str(len(CANARY))+'\n'+CANARY+'\n').encode()
+  g['git_read']=git
+  with self.assertRaisesRegex(g['Held'],'COMMITTED_SOURCE_HASH_MISMATCH'):mod['pin'](path)
+  self.assertEqual(path.read_bytes(),original);self.assertFalse((path.parent/'operation-manifest-before-source-pin.json').exists())
+
+ def test_pending_safety_review_blocks_real_pinner_and_runtime_before_any_command(self):
+  path,manifest=self.prepared();module,g=self.pin_module();validation=g['ROOT']/g['VALIDATION'];record=json.loads(validation.read_bytes());record['independent_safety_sql_review']={'decision':'PENDING_OFFLINE_FIXTURE_ONLY'};validation.write_text(json.dumps(record));self.pending_manifest['prepared_source_file_inventory_sha256'][g['VALIDATION']]=hashlib.sha256(validation.read_bytes()).hexdigest();path.write_text(json.dumps(self.pending_manifest));git=Mock(side_effect=AssertionError('NO_GIT_OR_RUNTIME'));g['git_read']=git
+  with self.assertRaisesRegex(g['Held'],'SAFETY_SQL_REVIEW_REQUIRED'):module['pin'](path)
+  git.assert_not_called();n=self.real_verifier(self.pending_manifest);n['ROOT']=g['ROOT'];n['MANIFEST']['review_status']='APPROVED_LOCAL_F0_PRIVILEGE_CEILING_ATTEMPT';n['command']=Mock(side_effect=AssertionError('NO_COMMAND_BEFORE_REVIEW'))
+  actual=namespace()['verify_common_packet'];n['verify_common_packet']=actual;actual.__globals__.update(n)
+  with self.assertRaises(n['Stop'])as stopped:actual()
+  self.assertEqual(stopped.exception.code,'SAFETY_SQL_REVIEW_REQUIRED');n['command'].assert_not_called()
+
+ def test_component_partial_malformed_and_throw_always_independently_close(self):
+  for mode in ('partial','malformed','throw'):
+   with self.subTest(mode=mode):
+    self.n=namespace();self.n.update(OUT=self.directory/mode,PRIVATE=self.directory/mode/'private');n=self.n;stages=[]
+    self.component(status='STOPPED_PARTIAL_EVIDENCE_PRESERVED' if mode=='partial' else 'PASS_PREPARED_PRIVILEGE_CEILINGS_ONLY_CASES_NOT_RUN',wrong_cid=mode=='malformed')
+    module=n['load_reviewed_helper'](n['PRIVILEGE_COORDINATOR']);original=module['main']
+    if mode=='throw':
+     def throwing(*args):original(*args);raise RuntimeError(CANARY)
+     n['load_reviewed_helper']=lambda path:{'main':throwing}
+    n['closed_backends']=lambda name,stage:stages.append(stage);native=Mock(side_effect=AssertionError('NO_NATIVE_AFTER_BAD_COMPONENT'));n['collect_native']=native
+    with self.assertRaises(n['Stop']):n['privilege_ceiling_experiment']()
+    self.assertEqual(stages,['PRIVILEGE_CEILING_PRE_COMPONENT','PRIVILEGE_CEILING_POST_COMPONENT']);self.assertTrue(n['report']['privilege_ceiling']['component_closure_confirmed']);self.assertTrue(n['report']['privilege_ceiling']['component_report_reference']['present']);native.assert_not_called();self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_component_reference_read_or_stat_failure_still_closes_before_stop(self):
+  for operation in ('read','stat'):
+   with self.subTest(operation=operation):
+    self.n=namespace();self.n.update(OUT=self.directory/operation,PRIVATE=self.directory/operation/'private');n=self.n;self.component();stages=[];n['closed_backends']=lambda name,stage:stages.append(stage);fixed=n['OUT']/'privilege-ceiling-component/privilege-ceiling-results.json';actual=getattr(Path,'open' if operation=='read' else 'lstat')
+    def broken(path,*a,**k):
+     if path==fixed and (operation=='stat' or a and a[0]=='rb'):raise OSError(CANARY)
+     return actual(path,*a,**k)
+    with patch.object(Path,'open' if operation=='read' else 'lstat',broken),self.assertRaises(n['Stop']):n['privilege_ceiling_experiment']()
+    ref=n['report']['privilege_ceiling']['component_report_reference'];self.assertEqual(ref['artifact'],'privilege-ceiling-component/privilege-ceiling-results.json');self.assertEqual(ref['read_status'],'UNAVAILABLE');self.assertIs(ref['present'],True if operation=='read' else None)
+    self.assertEqual(stages[-1],'PRIVILEGE_CEILING_POST_COMPONENT');self.assertTrue(n['report']['privilege_ceiling']['component_closure_confirmed']);self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_component_summary_write_failure_occurs_after_confirmed_closure(self):
+  self.component();n=self.n;stages=[];n['closed_backends']=lambda name,stage:stages.append(stage);original=n['write_safe']
+  def write(name,value):
+   if name=='privilege-ceiling-component-result.json':self.assertEqual(stages[-1],'PRIVILEGE_CEILING_POST_COMPONENT');raise OSError(CANARY)
+   return original(name,value)
+  n['write_safe']=write
+  with self.assertRaises(OSError):n['privilege_ceiling_experiment']()
+  self.assertTrue(n['report']['privilege_ceiling']['component_closure_confirmed']);self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_component_throw_plus_reference_and_persistence_failure_preserves_first_stop(self):
+  self.component();n=self.n;original=n['load_reviewed_helper'](n['PRIVILEGE_COORDINATOR'])['main'];stages=[];state={'child':False}
+  def call(*args):original(*args);state['child']=True;raise RuntimeError(CANARY)
+  n['load_reviewed_helper']=lambda path:{'main':call};n['closed_backends']=lambda name,stage:stages.append(stage)
+  def save():
+   if state['child']:raise OSError(CANARY)
+  n['save']=save;actual=Path.open
+  def read(path,*args,**kwargs):
+   if path==n['OUT']/'privilege-ceiling-component/privilege-ceiling-results.json' and args and args[0]=='rb':raise OSError(CANARY)
+   return actual(path,*args,**kwargs)
+  with patch.object(Path,'open',read),self.assertRaises(n['Stop']):n['privilege_ceiling_experiment']()
+  self.assertEqual(stages[-1],'PRIVILEGE_CEILING_POST_COMPONENT');self.assertEqual(n['report']['primary_failure']['code'],'PRIVILEGE_CEILING_COMPONENT_UNEXPECTED_STOP_EVIDENCE_RETAINED');self.assertFalse(n['report']['evidence_complete']);self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_different_tag_other_database_client_or_observer_failure_stops_before_verdict(self):
+  for mode in ('other-client','observer-error'):
+   with self.subTest(mode=mode):
+    self.n=namespace();self.n.update(OUT=self.directory/mode,PRIVATE=self.directory/mode/'private');n=self.n;closed=n['closed_backends'];self.component();n['closed_backends']=closed;queries=[]
+    def command(args,input=None,timeout=60):
+     queries.append(input);self.assertEqual(args[args.index('-U')+1],'postgres');self.assertIn(CID,args)
+     if len(queries)>1:
+      if mode=='observer-error':raise OSError(CANARY)
+      value={'migrator':0,'other_client_backends':1}
+     else:value={'migrator':0,'other_client_backends':0}
+     return types.SimpleNamespace(returncode=0,stdout=json.dumps(value),stderr='')
+    n['command']=command;native=Mock(side_effect=AssertionError('NO_NATIVE_ON_UNKNOWN_CLOSURE'));n['collect_native']=native
+    with self.assertRaises(n['Stop']):n['privilege_ceiling_experiment']()
+    self.assertTrue(n['report']['privilege_ceiling']['component_closure_attempted']);self.assertFalse(n['report']['privilege_ceiling']['component_closure_confirmed']);self.assertFalse((n['OUT']/'privilege-ceiling-component-result.json').exists());native.assert_not_called()
+    self.assertEqual(len(queries),2);self.assertTrue(all(query==n['_SAFETY_SQL_RECIPES']['GLOBAL_BACKENDS'] and 'application_name' not in query for query in queries));self.assertNotIn(CANARY,json.dumps(n['report']))
+ def setup_main(self):
+  n=self.n;events=[];file='scripts/sql-review/local_image_identity.py';wanted=hashlib.sha256((ROOT/file).read_bytes()).hexdigest();n.update(OUT=self.directory/'fresh-main',MANIFEST={'review_status':'APPROVED_LOCAL_F0_PRIVILEGE_CEILING_ATTEMPT','privilege_ceiling':{'external_files_sha256':{}}})
+  def verify():events.append('verify');n['report']['source_verification']={'files_sha256':{file:wanted}}
+  n['verify_privilege_ceiling_packet']=verify
+  for name in ('preflight','ensure_image','create_resources','bootstrap_all','provision_migration_tools','provider_preinstall','catalog_experiment','privilege_ceiling_experiment','verify_tool_data','verify_external_input_preservation'):n[name]=lambda name=name:events.append(name)
+  n['secret_scan']=lambda:events.append('scan')
+  def cleanup():events.append('cleanup');n['report']['cleanup_actions_confirmed']=True
+  n['cleanup']=cleanup;return n,events
+ def test_operational_stop_finalizer_and_persistent_save_failure_do_not_skip_finally(self):
+  n,events=self.setup_main();n['bootstrap_attempted']={NAME,'second-declared-target'};broken={'value':False}
+  def operation():broken['value']=True;raise n['Stop']('MOCK_ORIGINAL_OPERATION_STOP')
+  def save():
+   if broken['value']:raise OSError(CANARY)
+  def finalize(name):
+   events.append('finalize:'+name);n['finalization_attempted'].add(name)
+   if name==sorted(n['bootstrap_attempted'])[0]:raise OSError(CANARY)
+  n['privilege_ceiling_experiment']=operation;n['save']=save;n['finalize']=finalize
+  with redirect_stdout(io.StringIO()):self.assertEqual(n['main'](),1)
+  self.assertEqual([x for x in events if x.startswith('finalize:')],['finalize:'+x for x in sorted(n['bootstrap_attempted'])]);self.assertIn('scan',events);self.assertIn('cleanup',events);self.assertIn('verify_tool_data',events);self.assertIn('verify_external_input_preservation',events);self.assertFalse(n['report']['evidence_complete']);self.assertEqual(n['report']['primary_failure']['code'],'MOCK_ORIGINAL_OPERATION_STOP');self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_scan_and_persistent_save_failure_still_attempt_cleanup_and_each_postcheck(self):
+  n,events=self.setup_main();broken={'value':False}
+  def scan():events.append('scan');broken['value']=True;raise RuntimeError(CANARY)
+  def save():
+   if broken['value']:raise OSError(CANARY)
+  n['secret_scan']=scan;n['save']=save;n['verify_tool_data']=lambda:(events.append('verify_tool_data'),(_ for _ in ()).throw(RuntimeError(CANARY)))[1]
+  with redirect_stdout(io.StringIO()):self.assertEqual(n['main'](),1)
+  self.assertIn('cleanup',events);self.assertIn('verify_tool_data',events);self.assertIn('verify_external_input_preservation',events);self.assertFalse(n['report']['evidence_complete']);self.assertFalse(n['report']['tool_source_data_unchanged_after_run']);self.assertTrue(n['report']['external_inputs_unchanged_after_run']);self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_initial_evidence_failure_prevents_all_behavior_but_still_runs_finally(self):
+  n,events=self.setup_main();n['save']=Mock(side_effect=OSError(CANARY))
+  with redirect_stdout(io.StringIO()):self.assertEqual(n['main'](),1)
+  self.assertNotIn('verify',events);self.assertNotIn('preflight',events);self.assertNotIn('create_resources',events);self.assertIn('scan',events);self.assertIn('cleanup',events);self.assertIn('verify_external_input_preservation',events);self.assertFalse(n['report']['evidence_complete'])
+ def test_final_save_failure_cannot_return_or_emit_pass(self):
+  n,events=self.setup_main();output=io.StringIO()
+  def save():
+   if 'finished_at' in n['report']:raise OSError(CANARY)
+  n['save']=save
+  with redirect_stdout(output):self.assertEqual(n['main'](),1)
+  self.assertEqual(n['report']['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertFalse(n['report']['evidence_complete']);self.assertNotIn('PASS_LOCAL_PRIVILEGE_CEILING_SQL_SUBSET_ONLY',output.getvalue());self.assertNotIn(CANARY,output.getvalue())
+ def test_stop_event_stdout_failure_cannot_skip_cleanup_or_change_primary_failure(self):
+  n,events=self.setup_main();n['privilege_ceiling_experiment']=lambda:(_ for _ in ()).throw(n['Stop']('MOCK_ORIGINAL_OPERATION_STOP'))
+  with patch('builtins.print',side_effect=OSError(CANARY)):self.assertEqual(n['main'](),1)
+  self.assertIn('cleanup',events);self.assertIn('verify_external_input_preservation',events);self.assertEqual(n['report']['primary_failure']['code'],'MOCK_ORIGINAL_OPERATION_STOP');self.assertFalse(n['report']['output_complete']);self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_recovered_persistence_does_not_erase_sticky_evidence_failure(self):
+  n,events=self.setup_main();calls=[]
+  def save():
+   calls.append('save')
+   if len(calls)==1:raise OSError(CANARY)
+  n['save']=save
+  with redirect_stdout(io.StringIO()):self.assertEqual(n['main'](),1)
+  self.assertGreater(len(calls),1);self.assertFalse(n['report']['evidence_complete']);self.assertTrue(n['report']['persistence_failure']);self.assertEqual(n['report']['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertNotIn('preflight',events)
+ def test_cleanup_write_failure_after_removal_does_not_skip_volume_secret_or_absence(self):
+  n=self.n;n['OUT'].mkdir();n['PRIVATE'].mkdir();secret=n['PRIVATE']/'ok-bootstrap-password';secret.write_text(CANARY);n['secret_paths']=[secret];value,volume=self.resource();containers={NAME:value};volumes={VOLUME:volume};events=[];n['inspect_container']=lambda name:containers.get(name);n['inspect_volume']=lambda name:volumes.get(name)
+  def inventory():events.append('absence');return set(containers),set(volumes)
+  def docker(args,input=None,timeout=60):
+   events.append(tuple(args))
+   if args==['container','rm','-f',CID]:containers.pop(NAME)
+   elif args==['volume','rm',VOLUME]:volumes.pop(VOLUME)
+   else:raise AssertionError('UNDECLARED_RESOURCE_MUTATION')
+   return types.SimpleNamespace(returncode=0,stdout='',stderr='')
+  n['inventory']=inventory;n['docker']=docker;n['save']=Mock(side_effect=OSError(CANARY))
+  with redirect_stdout(io.StringIO()):n['cleanup']()
+  self.assertIn(('container','rm','-f',CID),events);self.assertIn(('volume','rm',VOLUME),events);self.assertIn('absence',events);self.assertFalse(secret.exists());self.assertFalse(n['PRIVATE'].exists());self.assertFalse(n['report']['evidence_complete']);self.assertEqual(n['report']['steps']['CATALOG-CLEANUP'],'UNCONFIRMED_EVIDENCE');self.assertTrue(n['report']['cleanup_actions_confirmed']);self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_cleanup_inspection_failure_and_bad_writer_still_attempt_remaining_owned_parts(self):
+  n=self.n;n['OUT'].mkdir();n['PRIVATE'].mkdir();secret=n['PRIVATE']/'ok-bootstrap-password';secret.write_text(CANARY);n['secret_paths']=[secret];_,volume=self.resource();events=[];n['inspect_container']=Mock(side_effect=OSError(CANARY));n['inspect_volume']=lambda name:volume;n['save']=Mock(side_effect=OSError(CANARY));n['inventory']=lambda:(events.append('absence') or {NAME},set())
+  def docker(args,input=None,timeout=60):events.append(tuple(args));return types.SimpleNamespace(returncode=0,stdout='',stderr='')
+  n['docker']=docker
+  with self.assertRaises(n['Stop']):n['cleanup']()
+  self.assertIn(('volume','rm',VOLUME),events);self.assertIn('absence',events);self.assertFalse(secret.exists());self.assertFalse(n['PRIVATE'].exists());self.assertFalse(n['report'].get('cleanup_actions_confirmed',False));self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_external_preservation_attempts_archives_and_snapshot_after_prior_failures(self):
+  n=self.n;root=self.directory/'inputs';root.mkdir();(root/'snapshot').mkdir();(root/'snapshot/a').write_bytes(b'a');tool=root/'tools';archive=root/'source';tool.write_bytes(b'tools');archive.write_bytes(b'source');n['MANIFEST']={'tool_archive':str(tool),'tool_archive_sha256':'0'*64,'migration_targets':{'ok':{'source_archive':str(archive),'source_archive_sha256':hashlib.sha256(b'source').hexdigest(),'source_snapshot':str(root/'snapshot'),'source_files_sha256':{'a':hashlib.sha256(b'a').hexdigest()}}}};n['read_target_manifest']=Mock(side_effect=OSError(CANARY));actual=Path.read_bytes;reads=[]
+  def read(path):reads.append(path);return actual(path)
+  with patch.object(Path,'read_bytes',read),self.assertRaises(n['Stop']):n['verify_external_input_preservation']()
+  n['read_target_manifest'].assert_called_once();self.assertIn(tool,reads);self.assertIn(archive,reads);self.assertIn(root/'snapshot/a',reads)
+
+ def test_unconfirmed_cleanup_return_cannot_pass_and_postchecks_still_run(self):
+  n,events=self.setup_main();n['cleanup']=lambda:events.append('cleanup-without-proof')
+  with redirect_stdout(io.StringIO()):self.assertEqual(n['main'](),1)
+  self.assertIn('verify_external_input_preservation',events);self.assertEqual(n['report']['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertFalse(n['report'].get('cleanup_actions_confirmed',False))
+
+ def reference_spy(self,growth=False):
+  self.component();n=self.n;fixed=n['OUT']/'privilege-ceiling-component/privilege-ceiling-results.json';actual=Path.open;reads=[]
+  class Reader:
+   def __init__(self,wrapped):self.wrapped=wrapped
+   def __enter__(self):return self
+   def __exit__(self,*args):self.wrapped.close()
+   def read(self,size=-1):reads.append(size);return self.wrapped.read(size)
+  def opened(path,*args,**kwargs):
+   if path==fixed and args and args[0]=='rb':return Reader(io.BytesIO(b'x'*(16*1024*1024+1)) if growth else actual(path,*args,**kwargs))
+   return actual(path,*args,**kwargs)
+  return n,fixed,reads,opened
+ def test_reference_requests_exact_bounded_read_and_retains_fixed_success_marker(self):
+  n,fixed,reads,opened=self.reference_spy()
+  with patch.object(Path,'open',opened):n['privilege_ceiling_experiment']()
+  self.assertEqual(reads,[16*1024*1024+1]);ref=n['report']['privilege_ceiling']['component_report_reference'];self.assertEqual(ref['read_status'],'RETAINED');self.assertIs(ref['present'],True);self.assertEqual(ref['bytes'],fixed.stat().st_size)
+ def test_reference_growth_is_bounded_rejected_and_marked_before_no_later_native(self):
+  n,fixed,reads,opened=self.reference_spy(growth=True);n['collect_native']=Mock(side_effect=AssertionError('NO_NATIVE_AFTER_REFERENCE_GROWTH'))
+  with patch.object(Path,'open',opened),self.assertRaises(n['Stop']):n['privilege_ceiling_experiment']()
+  self.assertEqual(reads,[16*1024*1024+1]);ref=n['report']['privilege_ceiling']['component_report_reference'];self.assertEqual(ref['read_status'],'OVERSIZED');self.assertIs(ref['present'],True);self.assertNotIn('artifact_sha256',ref);self.assertTrue(n['report']['privilege_ceiling']['component_closure_confirmed']);n['collect_native'].assert_not_called()
+ def test_reference_typed_size_and_oversize_reject_before_any_read(self):
+  import stat
+  for size in (-1,True,'1',None,16*1024*1024+1):
+   with self.subTest(size=size):
+    self.n=namespace();self.n.update(OUT=self.directory/('size-'+str(size)),PRIVATE=self.directory/('size-'+str(size))/'private');n,fixed,reads,opened=self.reference_spy();actual=Path.lstat
+    def metadata(path,*args,**kwargs):return types.SimpleNamespace(st_mode=stat.S_IFREG,st_size=size) if path==fixed else actual(path,*args,**kwargs)
+    with patch.object(Path,'lstat',metadata),patch.object(Path,'open',opened),self.assertRaises(n['Stop']):n['privilege_ceiling_experiment']()
+    self.assertEqual(reads,[]);ref=n['report']['privilege_ceiling']['component_report_reference'];self.assertEqual(ref['read_status'],'OVERSIZED' if type(size) is int and size>16*1024*1024 else 'UNAVAILABLE');self.assertTrue(n['report']['privilege_ceiling']['component_closure_confirmed']);self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_reference_absent_after_child_throw_retains_path_and_absent_marker(self):
+  self.component();n=self.n;n['load_reviewed_helper']=lambda path:{'main':lambda *args:(_ for _ in ()).throw(RuntimeError(CANARY))};n['collect_native']=Mock(side_effect=AssertionError('NO_NATIVE_AFTER_CHILD_STOP'))
+  with self.assertRaises(n['Stop']):n['privilege_ceiling_experiment']()
+  ref=n['report']['privilege_ceiling']['component_report_reference'];self.assertEqual(ref,{'artifact':'privilege-ceiling-component/privilege-ceiling-results.json','present':False,'read_status':'ABSENT'});self.assertTrue(n['report']['privilege_ceiling']['component_closure_confirmed']);self.assertEqual(n['report']['primary_failure']['code'],'PRIVILEGE_CEILING_COMPONENT_UNEXPECTED_STOP_EVIDENCE_RETAINED');n['collect_native'].assert_not_called();self.assertNotIn(CANARY,json.dumps(n['report']))
+
+
+
+ def test_actual_two_mount_prestart_and_old_predicate_regression(self):
+  import ast
+  value,_=self.resource();value['State']['Running']=False;n=self.n;n['docker']=Mock(side_effect=AssertionError('NO_PRESTART_EXEC'))
+  self.assertEqual(len(value['Mounts']),2);n['inspect_owner'](NAME,running=False);n['docker'].assert_not_called();self.assertTrue(n['report']['resource_inspection_checks'][-1]['confirmed'])
+  old=TASK/'local_f0_privilege_ceiling_safety_sql_v1_operation_steps.py';node=next(x for x in ast.parse(old.read_bytes()).body if isinstance(x,ast.FunctionDef)and x.name=='inspect_owner');exec(compile(ast.Module(body=[node],type_ignores=[]),str(old),'exec'),n)
+  with self.assertRaises(n['Stop'])as stopped:n['inspect_owner'](NAME,running=False)
+  self.assertEqual(stopped.exception.code,'PRIVILEGE_CEILING_EXACT_MOUNT_SET');n['docker'].assert_not_called()
+
+ def test_optional_one_exact_tmpfs_API_row_and_mode_spelling(self):
+  for mode in('mode=0700','mode=700'):
+   for optional in(False,True):
+    with self.subTest(mode=mode,optional=optional):
+     value,_=self.resource();value['HostConfig']['Tmpfs']['/run/wa-secrets']='rw,nosuid,noexec,nodev,'+mode
+     if optional:value['Mounts'].append({'Type':'tmpfs','Destination':'/run/wa-secrets','RW':True})
+     self.n['inspect_owner'](NAME);self.assertTrue(self.n['report']['resource_kernel_checks'][-1]['confirmed'])
+
+ def test_exact_host_tmpfs_multiset_rejects_missing_extra_duplicate_conflicting_tokens(self):
+  options=['','rw,nosuid,noexec,mode=0700','rw,nosuid,noexec,nodev,mode=0700,ro','rw,nosuid,noexec,nodev,mode=0700,exec','rw,nosuid,noexec,nodev,mode=0700,suid','rw,nosuid,noexec,nodev,mode=0700,dev','rw,nosuid,noexec,nodev,mode=0700,rw','rw,nosuid,noexec,nodev,mode=0700,mode=700','rw,nosuid,noexec,nodev,mode=700,','rw,nosuid,noexec,nodev,mode=0777',None,True]
+  for option in options:
+   with self.subTest(option=option):
+    value,_=self.resource();value['State']['Running']=False;value['HostConfig']['Tmpfs']['/run/wa-secrets']=option;command=Mock();self.n['docker']=command
+    with self.assertRaises(self.n['Stop']):self.n['inspect_owner'](NAME,running=False)
+    command.assert_not_called();self.assertFalse(self.n['report']['resource_inspection_checks'][-1]['confirmed'])
+  for change in('missing','extra','wrongkey'):
+   value,_=self.resource();value['State']['Running']=False
+   if change=='missing':value['HostConfig']['Tmpfs']={}
+   elif change=='extra':value['HostConfig']['Tmpfs']['/outside']='rw'
+   else:value['HostConfig']['Tmpfs']={'/outside':'rw,nosuid,noexec,nodev,mode=0700'}
+   with self.subTest(change=change),self.assertRaises(self.n['Stop']):self.n['inspect_owner'](NAME,running=False)
+
+ def test_API_mount_missing_duplicate_unknown_or_bad_tmpfs_row_rejects(self):
+  for change in('missing-data','missing-bind','duplicate-data','duplicate-bind','duplicate-tmpfs','wrong-tmpfs-target','readonly-tmpfs','unknown','malformed'):
+   value,_=self.resource();value['State']['Running']=False
+   if change=='missing-data':value['Mounts'].pop(0)
+   elif change=='missing-bind':value['Mounts'].pop()
+   elif change=='duplicate-data':value['Mounts'].append(deepcopy(value['Mounts'][0]))
+   elif change=='duplicate-bind':value['Mounts'].append(deepcopy(value['Mounts'][1]))
+   elif change=='duplicate-tmpfs':value['Mounts'] +=[{'Type':'tmpfs','Destination':'/run/wa-secrets','RW':True}]*2
+   elif change=='wrong-tmpfs-target':value['Mounts'].append({'Type':'tmpfs','Destination':'/outside','RW':True})
+   elif change=='readonly-tmpfs':value['Mounts'].append({'Type':'tmpfs','Destination':'/run/wa-secrets','RW':False})
+   elif change=='unknown':value['Mounts'].append({'Type':'nfs','Destination':'/run/wa-secrets','RW':True,'Source':CANARY})
+   else:value['Mounts'][0]=CANARY
+   with self.subTest(change=change),self.assertRaises(self.n['Stop']):self.n['inspect_owner'](NAME,running=False)
+   self.assertNotIn(CANARY,json.dumps(self.n['report']))
+
+ def kernel_model(self,args,input=None,timeout=60,entries=None,stat_value='directory:700:0:0'):
+  n=self.n;self.assertEqual(args,['exec','-i',CID,'sh','-ceu',n['PRIVILEGE_SECRET_TMPFS_SCRIPT']]);self.assertIsNone(input);self.assertEqual(timeout,30)
+  script=args[-1]
+  for fixed in('done < /proc/mounts','[ "$count" -eq 1 ]',"stat -c '%F:%a:%u:%g' -- /run/wa-secrets","'directory:700:0:0'",'ro|exec|suid|dev','set -f'):
+   self.assertIn(fixed,script)
+  for flag in('rw','noexec','nosuid','nodev'):self.assertIn('[ "$seen_'+flag+'" -eq 1 ]',script)
+  rows=entries if entries is not None else[{'target':'/run/wa-secrets','filesystem':'tmpfs','options':'rw,nosuid,nodev,noexec,relatime,size=65536k,mode=700'}]
+  selected=[r for r in rows if r['target']=='/run/wa-secrets'];good=len(selected)==1
+  if good:
+   row=selected[0];options=row['options'].split(',');good=row['filesystem']=='tmpfs'and all(options.count(flag)==1 for flag in('rw','noexec','nosuid','nodev'))and not any(flag in options for flag in('ro','exec','suid','dev'))and all(options)
+  good=good and stat_value=='directory:700:0:0'
+  return types.SimpleNamespace(returncode=0 if good else 24,stdout=n['PRIVILEGE_SECRET_TMPFS_TOKEN']+'\n'if good else'',stderr='')
+
+ def test_real_kernel_helper_fixed_script_model_checks_fs_flags_directory_and_owner(self):
+  self.resource();self.n['docker']=self.kernel_model;self.n['inspect_owner'](NAME)
+  cases=[([], 'directory:700:0:0'),([{'target':'/elsewhere','filesystem':'tmpfs','options':'rw,noexec,nosuid,nodev'}],'directory:700:0:0')]
+  for filesystem,options in[('ext4','rw,noexec,nosuid,nodev'),('tmpfs','rw,nosuid,nodev'),('tmpfs','rw,noexec,nodev'),('tmpfs','rw,noexec,nosuid'),('tmpfs','ro,noexec,nosuid,nodev'),('tmpfs','rw,noexec,nosuid,nodev,exec'),('tmpfs','rw,noexec,nosuid,nodev,suid'),('tmpfs','rw,noexec,nosuid,nodev,dev'),('tmpfs','rw,rw,noexec,nosuid,nodev')]:cases.append(([{'target':'/run/wa-secrets','filesystem':filesystem,'options':options}],'directory:700:0:0'))
+  cases.append(([{'target':'/run/wa-secrets','filesystem':'tmpfs','options':'rw,noexec,nosuid,nodev'}]*2,'directory:700:0:0'))
+  for state in('regular file:700:0:0','symbolic link:700:0:0','directory:777:0:0','directory:700:1:0','directory:700:0:1',CANARY):cases.append((None,state))
+  for index,(entries,state)in enumerate(cases):
+   with self.subTest(index=index):
+    self.n['docker']=lambda args,input=None,timeout=60,entries=entries,state=state:self.kernel_model(args,input,timeout,entries,state)
+    with self.assertRaises(self.n['Stop']):self.n['inspect_owner'](NAME)
+    self.assertFalse(self.n['report']['resource_kernel_checks'][-1]['confirmed']);self.assertNotIn(CANARY,json.dumps(self.n['report']))
+
+ def test_kernel_probe_strict_output_exit_types_timeout_and_transport_are_sanitized(self):
+  self.resource();n=self.n;token=n['PRIVILEGE_SECRET_TMPFS_TOKEN']+'\n'
+  bad=[types.SimpleNamespace(returncode=False,stdout=token,stderr=''),types.SimpleNamespace(returncode=True,stdout=token,stderr=''),types.SimpleNamespace(returncode=0.0,stdout=token,stderr=''),types.SimpleNamespace(returncode=3,stdout=token,stderr=''),types.SimpleNamespace(returncode=0,stdout=token+'\n',stderr=''),types.SimpleNamespace(returncode=0,stdout=token.rstrip(),stderr=''),types.SimpleNamespace(returncode=0,stdout=CANARY,stderr=''),types.SimpleNamespace(returncode=0,stdout=token,stderr=CANARY),types.SimpleNamespace(returncode=0,stdout=token.encode(),stderr=''),types.SimpleNamespace(returncode=0,stdout=token,stderr=None),subprocess.TimeoutExpired(CANARY,30,output=CANARY,stderr=CANARY),UnicodeError(CANARY),RuntimeError(CANARY)]
+  for item in bad:
+   with self.subTest(kind=type(item).__name__):
+    n['docker']=Mock(side_effect=item)if isinstance(item,BaseException)else Mock(return_value=item)
+    with self.assertRaises(n['Stop'])as stopped:n['inspect_owner'](NAME)
+    self.assertEqual(stopped.exception.code,'PRIVILEGE_CEILING_SECRET_TMPFS_KERNEL_UNCONFIRMED');self.assertNotIn(CANARY,json.dumps(n['report']));self.assertFalse(n['report']['resource_kernel_checks'][-1]['confirmed'])
+  n['docker']=Mock()
+  with self.assertRaises(n['Stop']):n['verify_running_secret_tmpfs'](NAME,'f'*64)
+  n['docker'].assert_not_called()
+
+ def creation_world(self,kernel_bad=False):
+  n=self.n;value,volume=self.resource();n['OUT'].mkdir();containers={};volumes={};trace=[];running=False
+  # All real APIs, including Docker and Windows ACL, terminate at this one
+  # command transport mock. Core creation/inspection/readiness/cleanup are real.
+  n=namespace();self.n=n;n.update(OUT=self.directory/'out',PRIVATE=self.directory/'out/private',RUN_ID=RUN,TARGETS=[{'name':NAME,'volume':VOLUME,'kind':'ok'}],RESOURCE_CONTAINERS=(NAME,),RESOURCE_VOLUMES=(VOLUME,),ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker'),created_containers={},created_volumes={},attempted_containers=set(),attempted_volumes=set(),passwords={},secret_paths=[],all_secrets=[],save=lambda:None,event=lambda *a,**k:None)
+  n['report']['image']={'image_id':value['Image']};value['State']['Running']=False
+  def command(args,input=None,timeout=60):
+   nonlocal running
+   if args[0]=='powershell.exe':trace.append('OWNER_DACL');return types.SimpleNamespace(returncode=0,stdout='PRIVILEGE_ONLY_VERIFIED\n',stderr='')
+   self.assertEqual(args[:3],['docker','--context','desktop-linux']);parts=args[3:];code=0;stdout=''
+   if parts==['container','ls','-a','--format','{{.Names}}']:stdout='\n'.join(containers)
+   elif parts==['volume','ls','--format','{{.Name}}']:stdout='\n'.join(volumes)
+   elif parts[:2]==['volume','create']:volumes[VOLUME]=deepcopy(volume);trace.append('CREATE_VOLUME')
+   elif parts[:2]==['container','create']:containers[NAME]=deepcopy(value);trace.append('CREATE_CONTAINER')
+   elif parts==['container','inspect',NAME]:
+    trace.append('INSPECT_RUNNING'if running else'INSPECT_PRESTART');stdout=json.dumps([containers[NAME]])if NAME in containers else'';code=0 if NAME in containers else 1
+   elif parts==['volume','inspect',VOLUME]:stdout=json.dumps([volumes[VOLUME]])if VOLUME in volumes else'';code=0 if VOLUME in volumes else 1
+   elif parts==['container','start',CID]:running=True;containers[NAME]['State']['Running']=True;trace.append('START')
+   elif parts==['exec','-i',CID,'sh','-ceu',n['PRIVILEGE_SECRET_TMPFS_SCRIPT']]:
+    trace.append('KERNEL_PROOF');self.assertEqual(timeout,30);self.assertIsNone(input);code=24 if kernel_bad else 0;stdout=''if kernel_bad else n['PRIVILEGE_SECRET_TMPFS_TOKEN']+'\n'
+   elif parts[:3]==['exec',CID,'pg_isready']:trace.append('READINESS')
+   elif parts[:5]==['exec','-i',CID,'sh','-ceu']and 'cat > /run/wa-secrets/pgpass'in parts[5]:trace.append('PGPASS');stdout='600:0:0\n'
+   elif parts==['container','rm','-f',CID]:containers.pop(NAME);trace.append('REMOVE_CONTAINER')
+   elif parts==['volume','rm',VOLUME]:volumes.pop(VOLUME);trace.append('REMOVE_VOLUME')
+   else:raise AssertionError('UNMODELED_COMMAND_BOUNDARY')
+   return types.SimpleNamespace(returncode=code,stdout=stdout,stderr='')
+  n['command']=command;return trace,containers,volumes
+
+ def test_actual_core_creation_order_kernel_before_pgpass_with_two_API_mounts(self):
+  trace,containers,volumes=self.creation_world();n=self.n
+  with patch.object(n['secrets'],'token_hex',side_effect=[CANARY+str(i)for i in range(6)]):n['create_resources']()
+  self.assertLess(trace.index('INSPECT_PRESTART'),trace.index('START'));self.assertLess(trace.index('START'),trace.index('KERNEL_PROOF'));self.assertLess(trace.index('KERNEL_PROOF'),trace.index('READINESS'));self.assertLess(trace.index('READINESS'),trace.index('PGPASS'));self.assertEqual(len(containers[NAME]['Mounts']),2)
+  n['cleanup']();self.assertFalse(containers);self.assertFalse(volumes);self.assertTrue(n['report']['cleanup_actions_confirmed']);self.assertNotIn(CANARY,json.dumps(n['report']))
+
+ def test_actual_core_kernel_failure_stops_credentials_and_cleanup_survives_persistent_IO(self):
+  trace,containers,volumes=self.creation_world(kernel_bad=True);n=self.n
+  def save():
+   if 'KERNEL_PROOF'in trace:raise OSError(CANARY)
+  n['save']=save
+  with patch.object(n['secrets'],'token_hex',side_effect=[CANARY+str(i)for i in range(6)]),self.assertRaises(BaseException):n['create_resources']()
+  self.assertNotIn('READINESS',trace);self.assertNotIn('PGPASS',trace)
+  n['cleanup']();self.assertIn('REMOVE_CONTAINER',trace);self.assertIn('REMOVE_VOLUME',trace);self.assertFalse(containers);self.assertFalse(volumes);self.assertFalse(n['report']['evidence_complete']);self.assertFalse(n['PRIVATE'].exists());self.assertNotIn(CANARY,json.dumps(n['report']))
+
+if __name__=='__main__':unittest.main(verbosity=2)

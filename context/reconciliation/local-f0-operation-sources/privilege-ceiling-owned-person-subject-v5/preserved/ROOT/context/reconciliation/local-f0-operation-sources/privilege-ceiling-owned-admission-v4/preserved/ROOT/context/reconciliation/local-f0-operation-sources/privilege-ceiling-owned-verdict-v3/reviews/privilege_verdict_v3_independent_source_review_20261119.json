@@ -1,0 +1,137 @@
+{
+  "schema": "workinants.privilege-owned-verdict-v3-independent-source-review.v1",
+  "recorded_at_utc": "2026-11-19T22:18:47.860685+00:00",
+  "reviewer": "independent agent /root/privilege_mount_v2_review; did not author or change the reviewed files",
+  "decision": "SOURCE_APPROVED",
+  "scope": "EXACT_PRIVILEGE_VERDICT_V3_FIVE_AND_RECURSIVE197_SOURCE_ONLY",
+  "source_freeze_sha256": "327cdc53d53fc55d7ab8b74f849cc554a1d20b2219fd77ba208a1c20a94fc341",
+  "bounded_plan_sha256": "88e3f912ca8238a1b73e4c3c28f4703fd11d5b7f0f4690bf8ef7175f5ce153e1",
+  "root_plan_ACK_sha256": "16fb7d50d06e060ba8be605a187d279e96cd997bfbb2468df3ce286c961a3374",
+  "operator_sources_sha256": {
+    "execute_local_f0_privilege_ceiling_verdict_v3_20261119.py": "2ac75900be965855834923840b4285775ebfb830122bcfd20cfb25caa37b5dca",
+    "local_f0_privilege_ceiling_verdict_v3_operation_steps.py": "445ff2114bc70785f68296ff07a371f61e1e1c814a364c7609f7187e538e2217",
+    "prepare_local_f0_privilege_ceiling_verdict_v3_plan.py": "8de3f71008effd963c46d3fb2ae2d552ef72d303cd4295e5de4f431a0938915f",
+    "check_local_f0_privilege_ceiling_verdict_v3_operation.py": "0d6c81bb2a7c28254604b5ba5075c1e3bb338a0e240fd98bbbfde4df16d307c9",
+    "pin_local_f0_privilege_ceiling_verdict_v3_plan_20261119.py": "8807bf42b4dc6bb0cbbea3eff625adc65443e2941b98cad90a5611d845a9b9e7"
+  },
+  "archive_files_verified": 197,
+  "prior_findings_closed": [
+    {
+      "id": "PRIV-MOUNT-V2-01",
+      "status": "CLOSED_AT_SOURCE_LEVEL_RUNTIME_NOT_RUN",
+      "evidence": "Actual old verifier admits the original unlisted/non-scalar pair and immutable-frame contradictions; exact new verifier rejects the same payloads. New same-file helper admits only finite per-case kind/gate/object pairs and typed flags. Immutable frame=True/position=False/object=platform_private.grant_guard/gate=null is mandatory; native frame=False and position BooleanFalse orTrue are retained. Earlier SCHEMA and permitted TABLE/COLUMN/FUNCTION gates remain finite and source-bound.",
+      "tests": "Six regression methods cover1089 valid tuple-position variants,6603 malformed variants and19854 source-known foreign pairs; actual unchanged coordinator also completes200/16/40/3 with244 closed operation records under process mocks."
+    },
+    {
+      "id": "PRIV-MOUNT-V2-02",
+      "status": "CLOSED_AT_SOURCE_LEVEL_RUNTIME_NOT_RUN",
+      "evidence": "Exact dict with onlyPASS and exact int29089 is required before proof writes/helper/component plan. The actual old function reaches the proof writer with29089.0; new function rejects float and12 other malformed/wrong count variants before any proof/helper/final native. Integer29089 proceeds."
+    }
+  ],
+  "plan_alignment": "PASS_BOUNDED_TWO_FINDINGS_ONLY",
+  "system_integrity": "PASS_UNCHANGED_CANONICAL_SQL_ACL_COORDINATOR_AND_FINITE_PACKET",
+  "source_readiness": "PASS_SOURCE_ONLY_FRESH_LITERAL_REVIEW_STILL_REQUIRED",
+  "new_findings": [],
+  "independent_offline_checks": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege-verdict-v3-independent-checks-20261119\\checks.json",
+    "sha256": "83b27e827e47ac16d213d67bf20c921cc5805d998fda607d4177f26b07b03e14",
+    "unique_test_methods": 89,
+    "suites": [
+      {
+        "file": "check_privilege_owned_verdict_v3_regressions_20261119.py",
+        "source_sha256": "85bd382c3691bcec7b5df93993d9e6a815c656b9a44601e3620ba8cd602c5b56",
+        "tests": 6,
+        "seconds": 1.969,
+        "unittest_seconds": 1.306,
+        "exit_code": 0,
+        "status": "PASS",
+        "output_sha256": "0c79f26382899d1f44ff369c7d2286cf401e31473f0a28731c55bbad16eebe67"
+      },
+      {
+        "file": "check_local_f0_privilege_ceiling_verdict_v3_operation.py",
+        "source_sha256": "0d6c81bb2a7c28254604b5ba5075c1e3bb338a0e240fd98bbbfde4df16d307c9",
+        "tests": 57,
+        "seconds": 82.234,
+        "unittest_seconds": 81.591,
+        "exit_code": 0,
+        "status": "PASS",
+        "output_sha256": "e03b059a8f0feb5789adc461b5bc131701e02c23285b2e004623dd3308e85991"
+      },
+      {
+        "file": "check_privilege_owned_verdict_v3_adapter_20261119.py",
+        "source_sha256": "360fb81988d5006451eea1cbc2fb0bf67ff270d69075e0e59c4536261c5017c3",
+        "tests": 2,
+        "seconds": 36.562,
+        "unittest_seconds": 35.601,
+        "exit_code": 0,
+        "status": "PASS",
+        "output_sha256": "6cd204ab804687fc900e15589028435242a38ced8f11921bfe111fc53df2183b"
+      },
+      {
+        "file": "check_privilege_owned_verdict_v3_safety_composed_20261119.py",
+        "source_sha256": "6346ab8948d5ad5e2079eb7422681774ac3533cf52ae01c448d23015b0d97055",
+        "tests": 24,
+        "seconds": 8.063,
+        "unittest_seconds": 6.974,
+        "exit_code": 0,
+        "status": "PASS",
+        "output_sha256": "eab193ecad1c1d8d0c8327d9145d92626902d5520ca9b7d4128f7a6b1e387dcf"
+      }
+    ],
+    "execution_order": "Sequential6+57+2+24; no parallel suite execution",
+    "author_counts_not_used_as_independent_evidence": true
+  },
+  "independent_protocol_crosscheck": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege_verdict_v3_independent_protocol_crosscheck_20261119.json",
+    "sha256": "82826798f30d54612fd654b176def992ec1c30dce834d50e2df2c5d71e73a57b",
+    "checks": {
+      "source_cases": 200,
+      "actual_protocol_valid_projections_admitted": 546,
+      "actual_protocol_unrelated_failures_rejected": 546,
+      "native_position_false_admitted": 543,
+      "immutable_frame_true_admitted": 3,
+      "all_transports_forbidden": true
+    },
+    "scope": "Actual frozen pure protocol parser independently produced546 valid projected diagnostics across all200 source contracts and546 unrelated-primary rejections; new helper admitted/rejected those actual projections. No raw diagnostics or SQL retained. These are source-level representative projections, not PostgreSQL runtime observations."
+  },
+  "source_scope_verified": {
+    "core_preparer_pinner_fulltext_namespace_only": true,
+    "Steps_changed_functions": [
+      "privilege_ceiling_experiment",
+      "verify_privilege_result"
+    ],
+    "Steps_added_function": "privilege_diagnostic_allowed",
+    "all_other_Steps_module_nodes_exact_after_namespace": true,
+    "accepted_kernel_resource_policy_creation_order_common13_main_finalizer_cleanup_SQL_preserved": true,
+    "new_canned_test_baseline_uses_legitimate_frozen_protocol_tuples": true,
+    "PENDING_review_blocks_runtime_and_real_pinner_before_commands": true,
+    "mock_approval_is_explicitly_isolated_test_clone_only": true,
+    "pinner_current_and_mock_committed_blob_closure_and_five_live_archive_binding_pass": true,
+    "actual_current_commit_Git_pin": "NOT_RUN_BY_REVIEWER"
+  },
+  "preservation": {
+    "V2_five_and_archive155_unchanged": true,
+    "before_author177_preservation_manifest_sha256": "caa5e246db0c121a82fca42e15cd3366bf4e5c4dd81819fad57903db6385e0a6",
+    "all177_preserved_bytes_verified": true,
+    "new197_archived_bytes_verified": true,
+    "V2_original_hold_and_raw_evidence_unchanged": true,
+    "source7_and_artifacts202_unchanged": true,
+    "coordinator_sha256": "80ca5e62a6a89891e73ecb7afc0e134c3c5b75ed81d0f3adc01ba7c718d03d3f",
+    "canonical_SQL_and_migration_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "worker_ACL_source_sha256": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "reviewer_changed_no_source_repository_Git_or_approval_metadata": true
+  },
+  "limits": {
+    "runtime": "NOT_RUN",
+    "physical_kernel_mount_proof": "NOT_RUN",
+    "actual_Docker_database_network_credentials_resources": false,
+    "whole_case_94_or451_promotion": false,
+    "selected_assertion_status_changes": false,
+    "Posture": "D",
+    "production_hosted_migration_adoption_or_later_phase_qualification": false,
+    "no_role_metadata_scope_expansion": true,
+    "source_approval_does_not_approve_a_future_literal_manifest": true
+  },
+  "next_step": "Root may archive this independent review and source approval, perform its own applicable checks, commit/pin a fresh exact packet and obtain independent operational literal review before an actual Privilege attempt. Retain all V2 holds/history and unexercised runtime states.",
+  "plain_english": "Both loose report checks are fixed in this new copy. The pretend runs and extra bad-answer checks pass. Keep the older copy and its history. A real local test still needs its own exact run review."
+}

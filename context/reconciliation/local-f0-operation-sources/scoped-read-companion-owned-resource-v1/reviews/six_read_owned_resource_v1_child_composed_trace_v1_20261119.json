@@ -1,0 +1,6075 @@
+{
+  "schema": "workinants.scoped-read-companion-evidence.v1",
+  "status": "PASS_FINITE_SCOPED_READ_COMPANION_SQL_SUBSET_ONLY",
+  "current_stage": "COMPLETE",
+  "current_case": null,
+  "run_id": "550e8400-e29b-41d4-a716-446655440000",
+  "container_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "source_tree": "cccccccccccccccccccccccccccccccccccccccc",
+  "packet_sha256": "6a91b36d4f91e0e54ad86b45e57b2aac2a8ce9053eece241711946efc8804799",
+  "reviewed_packet_sha256": "7f5bd6e713a1f0eaf330c2acf0267cd45aa2e8f47467e03d6f4c4c6dc754420c",
+  "reviewed_content_sha256": "99085dd68fb5ce8558460821f694bc4a8e11c2003cb4847c6be62b8850f16a16",
+  "selected_controls": [
+    {
+      "id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "P0C-TABLE-UserRole-ALLOW",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "P0C-TABLE-AuditEvent-ALLOW",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "status": "NOT_RUN"
+    }
+  ],
+  "results": [
+    {
+      "case": "agegateattempt-positive-root",
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "235e663b4647882904ecd765919f161b4b406e3d9f8ab88ffe9608b3bec56076",
+      "issued_grants": 1,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateattempt-wrong-purpose",
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "ece7647ce6ac93db7b653ad8a1b07c80d574e8ade3d0e98c9a351ed90d659747",
+      "issued_grants": 2,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateattempt-wrong-action",
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "ac2a20581b92370934e3f696c8a7a6df3f2965b2fb38bec844c2aa3dbbac85fd",
+      "issued_grants": 3,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateattempt-wrong-owner",
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "bbc8dc8a6ca0db5e3e6165c26ac6a3d2e000276418eba84d3efbb1f6e8da124d",
+      "issued_grants": 4,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateattempt-other-existing-root",
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "fe15b63d7469a0acf14754a57fc93ef003e17b7c244e332ec90712d3b85609a0",
+      "issued_grants": 5,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 1,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateattempt-missing-primary-field",
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "f46893eca95e67a8d9cff1e496ea1bdde50a5e3a677e2a5f38bfc75a5b07ba17",
+      "issued_grants": 6,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateattempt-missing-createdAt",
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "3ac580b639de6da41564e3443a2ceb273f4a61b4e2505c2731326c4688e67c0f",
+      "issued_grants": 7,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateattempt-missing-mutationTransactionId",
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "619b0d0dbed9c71b71dd5138c8dceb01b09a74a7435d616c26fc6d4c748ccb74",
+      "issued_grants": 8,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateattempt-cross-model-complete-caps",
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "2f95ae1dfa30b78bb1534f97826910c25cf38e39262bd64de2ca2769186364d5",
+      "issued_grants": 9,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "UserSecurityProfile_foreign": 0,
+        "UserSecurityProfile_root": 0,
+        "User_foreign": 0,
+        "User_root": 0,
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateattempt-principal-generation-mismatch",
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "bd9821547784271203bcb4f788363a6db8451843987255a3058d329acdcb0d4c",
+      "issued_grants": 10,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": {
+        "matched": true,
+        "sqlstate": "42501",
+        "classification": "EXACT_PRINCIPAL_CURRENTNESS_BINDER_GUARD",
+        "source_body_sha256": "9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009",
+        "source_body_line": 7,
+        "native_location": "exec_stmt_raise@pl_exec.c"
+      },
+      "query_stage_reached": false,
+      "counts": null
+    },
+    {
+      "case": "agegateattempt-principalB-current-control",
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "8992357ae694bd7c99768e2c5e5844a20b26075a55e454362e49a454664749de",
+      "issued_grants": 11,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateblock-positive-root",
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "3c4079e5bf499cbbec61ac4be47865dd86862f39e5cf8107eed1e9c0358bd074",
+      "issued_grants": 12,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateblock-wrong-purpose",
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "7ebfaf7bf9345cdb9d10b0cc8d632ebe0d927e01a8b455ba1470e05fda306547",
+      "issued_grants": 13,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateblock-wrong-action",
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "470554b529fc01f5fb35ca457199f69817f994208d0f19778ed1e4811f5020b5",
+      "issued_grants": 14,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateblock-wrong-owner",
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "b8c56b6b0d94416497661e47aeac1a1665b3030dc6bd25f152e1b246e03143e9",
+      "issued_grants": 15,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateblock-other-existing-root",
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "587ef20b4218529e57cd85909a097ef3b6b608908541a58773807b3b575250f2",
+      "issued_grants": 16,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 1,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateblock-missing-primary-field",
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "f0364a89dc02d6b915257e1f3e29d30a7ab32f7cf0f9f998badd8a1aa3a0d687",
+      "issued_grants": 17,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateblock-missing-createdAt",
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "3126ee4e0fbae744bc9de42a43a60445a5e05a1bd809ffc48d8648e69c70161c",
+      "issued_grants": 18,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateblock-missing-mutationTransactionId",
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "89979b985e014f67c6761d11181585102ad2a1ae338544dbc11b07edc7384e71",
+      "issued_grants": 19,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateblock-cross-model-complete-caps",
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "f8983cc0e6a2317f0e257f6be1a51e3560a07d1ade8f12764a2a07694f63ff51",
+      "issued_grants": 20,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "UserSecurityProfile_foreign": 0,
+        "UserSecurityProfile_root": 0,
+        "User_foreign": 0,
+        "User_root": 0,
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "agegateblock-principal-generation-mismatch",
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "8b6890ee30576c6293eff67fd424c97538dba818518a20b966637b03f4eb98d5",
+      "issued_grants": 21,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": {
+        "matched": true,
+        "sqlstate": "42501",
+        "classification": "EXACT_PRINCIPAL_CURRENTNESS_BINDER_GUARD",
+        "source_body_sha256": "9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009",
+        "source_body_line": 7,
+        "native_location": "exec_stmt_raise@pl_exec.c"
+      },
+      "query_stage_reached": false,
+      "counts": null
+    },
+    {
+      "case": "agegateblock-principalB-current-control",
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "c8859daad639ff360783dd84a3ea259dfa6ba38ccb03361028ecf6bba3bceb47",
+      "issued_grants": 22,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "accessauditlog-positive-root",
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "1de505f31b28c519f431e63f8636b7996e30aeb35f513f3620e9d07dca8fe74f",
+      "issued_grants": 23,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "accessauditlog-wrong-purpose",
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "9a95286785b6f07d1a76dfdb37facb4fd512f3e080d0c3b317739683980c4e1d",
+      "issued_grants": 24,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "accessauditlog-wrong-action",
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "ef5a7e5799117bdd4b5833078a640abe4e185299de4d6a95adb5e479925f8e9a",
+      "issued_grants": 25,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "accessauditlog-wrong-owner",
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "c59ac7d0d002f91814adb8f00adc3cf30d9cc00b0baa0eb331f8707a5d4b9538",
+      "issued_grants": 26,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "accessauditlog-other-existing-root",
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "8c1ecee4ddf89ab249b28fc10dce29b79f3116df5be448ac6a4195d20300823e",
+      "issued_grants": 27,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 1,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "accessauditlog-missing-primary-field",
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "b5834ccfd3351c6ddca9f9a66095f65c04938b2713dd4f5134d43e6af0818321",
+      "issued_grants": 28,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "accessauditlog-missing-createdAt",
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "1af3f5120f3c655649e300550cbe3e618d05d5ea8b7576f8ef3c4bd967352aa8",
+      "issued_grants": 29,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "accessauditlog-missing-mutationTransactionId",
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "de6af98b4588f3ab03bd21e87d98043d06f5127f47844a695a702007b75d4967",
+      "issued_grants": 30,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "accessauditlog-cross-model-complete-caps",
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "3cc392336a90a90d238b32a8a66d6717b09c89a6453099e36c302a38ef65dd1b",
+      "issued_grants": 31,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "UserSecurityProfile_foreign": 0,
+        "UserSecurityProfile_root": 0,
+        "User_foreign": 0,
+        "User_root": 0,
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "accessauditlog-principal-generation-mismatch",
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "a0ffac7410e8c5a13b6ea5061d683b89dfa713fa59625fa70cbff2d794a98526",
+      "issued_grants": 32,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": {
+        "matched": true,
+        "sqlstate": "42501",
+        "classification": "EXACT_PRINCIPAL_CURRENTNESS_BINDER_GUARD",
+        "source_body_sha256": "9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009",
+        "source_body_line": 7,
+        "native_location": "exec_stmt_raise@pl_exec.c"
+      },
+      "query_stage_reached": false,
+      "counts": null
+    },
+    {
+      "case": "accessauditlog-principalB-current-control",
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "cf8b3b131ee0a668d0bec2b57db39281a2b1967de038bffe2fabc24fb7499f75",
+      "issued_grants": 33,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "userrole-positive-root",
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "b1e3bb1a8bf5bc10bb154b084e216f6568c44f149a6d42bf849c345be325a55d",
+      "issued_grants": 34,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "userrole-wrong-purpose",
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "cf1f28ae4080cbe10280a5100db5293fef5eb5e024ba36582a501d2727811dea",
+      "issued_grants": 35,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "userrole-wrong-action",
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "e792822c7ae519d7ad5fc8301637052367987b6b108f9aab1e24b5a572636873",
+      "issued_grants": 36,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "userrole-wrong-owner",
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "d7dc136bc193be089bc08bff87ade762d778e771ec17e76803823e451432b7c1",
+      "issued_grants": 37,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "userrole-other-existing-root",
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "72de60820132293d9fe9fae8d7a88359b48d64d976ed1052fe377798e9a9ca3d",
+      "issued_grants": 38,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 1,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "userrole-missing-primary-field",
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "19ffd434f956f2d7cd7f9915935e91a0810ca4556a298d073c18eaa7504115ef",
+      "issued_grants": 39,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "userrole-missing-createdAt",
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "f0abd1935f28e873183aec6707d07764dabbf0ec312cc3ce21c5de9a993f41f6",
+      "issued_grants": 40,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "userrole-missing-mutationTransactionId",
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "e64e9be1856cf5408052999de16e0ad5ca557471292f3c9ddf5edd113921d011",
+      "issued_grants": 41,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "userrole-cross-model-complete-caps",
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "65a88af92a9f3673790b791880e67023540127177144b8092bb4f45ce24cb6a1",
+      "issued_grants": 42,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "UserSecurityProfile_foreign": 0,
+        "UserSecurityProfile_root": 0,
+        "User_foreign": 0,
+        "User_root": 0,
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "userrole-principal-generation-mismatch",
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "e88957ae82b2996bce76789b793d72809fc0e8778f4e02cf7d1cb967f8c166bd",
+      "issued_grants": 43,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": {
+        "matched": true,
+        "sqlstate": "42501",
+        "classification": "EXACT_PRINCIPAL_CURRENTNESS_BINDER_GUARD",
+        "source_body_sha256": "9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009",
+        "source_body_line": 7,
+        "native_location": "exec_stmt_raise@pl_exec.c"
+      },
+      "query_stage_reached": false,
+      "counts": null
+    },
+    {
+      "case": "userrole-principalB-current-control",
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "4a20087c786e995b9c4fa6c456efca94c38cf00be3268a98e79fcc23c02ec046",
+      "issued_grants": 44,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "userrole-missing-revision-capability",
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "1ddfbe58e0b4514eb69c1b00cb10f3a9f8b9426c8bcf27724bd42f7f75ce0cd5",
+      "issued_grants": 45,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "userrole-wrong-source-generation",
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "f9127a33eeeea96afbf6939942b1f61bf83b6e01704b2bc16d9f560a20c83325",
+      "issued_grants": 46,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "userrole-wrong-composite-target",
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "ccf98f08789e1ad0e2bd2bd728084dbc182186148786cb3b8c1edda36af47546",
+      "issued_grants": 47,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "auditevent-positive-root",
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "17d70ec272cf71cc4373e7caf7bdfbefb85cc3cc1b5525055ad73d5973704bd6",
+      "issued_grants": 48,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "auditevent-wrong-purpose",
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "fa6ac63a5cc03d582684eced22f92180d0d6790dfd9dcc931a5b17be772870dd",
+      "issued_grants": 49,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "auditevent-wrong-action",
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "f54326289630b16ec5b796218903f77cfd7c5aaa6395f6405c5f0b952d2cb3a2",
+      "issued_grants": 50,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "auditevent-wrong-owner",
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "32ac4addbd81bddd3cf23cf7b8c7db7a5e0fdad173dfccf5cebe7847e826abc3",
+      "issued_grants": 51,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "auditevent-other-existing-root",
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "8c9301401291cad298637bddf0a23b1df1606c944fc633f547f0f1cab3bdc9d7",
+      "issued_grants": 52,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 1,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "auditevent-missing-primary-field",
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "749f448bfb32d43432f6a48f4ebec13df79e90a8f00c053cc9d2a91e8419d645",
+      "issued_grants": 53,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "auditevent-missing-createdAt",
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "c149dcd096854c06d54510fbe78addd820bbdc4e3d8b0e947fba6328f679f57b",
+      "issued_grants": 54,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "auditevent-missing-mutationTransactionId",
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "97d51ed7407b18d13ff6943ebbe9bbf40f43c637520475692b76bb4d694cbac6",
+      "issued_grants": 55,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "auditevent-cross-model-complete-caps",
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "c7c9a167d5f7ce26b2be1ec5893a7dd20a055bfd01da3a92b72e02aeedc61f09",
+      "issued_grants": 56,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "UserSecurityProfile_foreign": 0,
+        "UserSecurityProfile_root": 0,
+        "User_foreign": 0,
+        "User_root": 0,
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "auditevent-principal-generation-mismatch",
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "9b88dca625343013003fb77441b5cfad1ce90f77303d0dd5e1eca146308c4a1e",
+      "issued_grants": 57,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": {
+        "matched": true,
+        "sqlstate": "42501",
+        "classification": "EXACT_PRINCIPAL_CURRENTNESS_BINDER_GUARD",
+        "source_body_sha256": "9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009",
+        "source_body_line": 7,
+        "native_location": "exec_stmt_raise@pl_exec.c"
+      },
+      "query_stage_reached": false,
+      "counts": null
+    },
+    {
+      "case": "auditevent-principalB-current-control",
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "ce342305cadcb090b9c7b9074bfd167615a1507fcee70d8bc55a39e472c51405",
+      "issued_grants": 58,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "authprovideraccount-positive-root",
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "3c2790b1835e1c7439da396e5e83d76b738ff89b8229b88f3f962e1f6d6c3731",
+      "issued_grants": 59,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "authprovideraccount-wrong-purpose",
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "def55e2a40306fa360f8fa11a8bc2def71ddf30fddffb7a7c855c0ebe9d8197b",
+      "issued_grants": 60,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "authprovideraccount-wrong-action",
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "985f89a1e92ce8c05f4fd4b38426e65537d712651925655c42e2ff64be075843",
+      "issued_grants": 61,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "authprovideraccount-wrong-owner",
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "039fc44b06d8260c0efcbd62f2c478c77369336de1e140446fbcee7b9fce5a5b",
+      "issued_grants": 62,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "authprovideraccount-other-existing-root",
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "6093a632e7e6f49c2794cde61bf2088fcb3a226b54be0f7b08f6ee38e1af6ddb",
+      "issued_grants": 63,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 1,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "authprovideraccount-missing-primary-field",
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "5df02d673e773ca2818d25d2eeaea4f3e2a09ece3a70691037bd7bb37d18b3ed",
+      "issued_grants": 64,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "authprovideraccount-missing-createdAt",
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "46f3b3ed1f9033ecf46ee9111c742722a4dc881c9fa24017b2fdc4862579ee85",
+      "issued_grants": 65,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "authprovideraccount-missing-mutationTransactionId",
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "1f419fee6a7b1173d077f4ff80c6824384f765bb7b59098e0d437653532a27e7",
+      "issued_grants": 66,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "authprovideraccount-cross-model-complete-caps",
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "1eb7db439cfcc4ea4b9353e28827c13d3e3acbe10834f82174c456f6edfc0570",
+      "issued_grants": 67,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "UserSecurityProfile_foreign": 0,
+        "UserSecurityProfile_root": 0,
+        "User_foreign": 0,
+        "User_root": 0,
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "authprovideraccount-principal-generation-mismatch",
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "cc3c4e6a483a3803292a998cac11d955b33e5e2df14586cc2ecb715578230f98",
+      "issued_grants": 68,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": {
+        "matched": true,
+        "sqlstate": "42501",
+        "classification": "EXACT_PRINCIPAL_CURRENTNESS_BINDER_GUARD",
+        "source_body_sha256": "9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009",
+        "source_body_line": 7,
+        "native_location": "exec_stmt_raise@pl_exec.c"
+      },
+      "query_stage_reached": false,
+      "counts": null
+    },
+    {
+      "case": "authprovideraccount-principalB-current-control",
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "0c88c3349c86e3e944cc5dd880d9b72a48d4a99265780f7336f5ad1fb49d5928",
+      "issued_grants": 69,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 1
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "authprovideraccount-missing-revision-capability",
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "5b0f57567ecd190253bc4b2c1d5d9e079ed65a2adc9c04c32455e48922817bc6",
+      "issued_grants": 70,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    },
+    {
+      "case": "authprovideraccount-wrong-source-generation",
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "actual_login": "wa_app_runtime",
+      "operation_closed_before_observers": true,
+      "tables_observed": 42,
+      "complete_state_sha256": "5d603ed57482a879dfec008954fff053c2a75ae30f165b1e2e6fb57c43140d08",
+      "issued_grants": 71,
+      "status": "PASS_FINITE_SCOPED_READ_ONLY",
+      "diagnostic": null,
+      "query_stage_reached": true,
+      "counts": {
+        "foreign": 0,
+        "root": 0
+      },
+      "stage_markers": {
+        "before": true,
+        "after": true
+      }
+    }
+  ],
+  "operations": [
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "PRE_FIXTURE_NATIVE_PARITY",
+      "native_catalog_match": true,
+      "native_sha256": "32cccea7830554baadc295f53c42f404af43d0b5d98fd1a4f11d30cae7c7d588"
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "SYNTHETIC_EXISTING_ROWS_ONLY",
+      "actual_login": "postgres",
+      "commit_acknowledged": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "POST_FIXTURE_NATIVE_PARITY",
+      "native_catalog_match": true,
+      "native_sha256": "32cccea7830554baadc295f53c42f404af43d0b5d98fd1a4f11d30cae7c7d588"
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateattempt-positive-root",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateattempt-wrong-purpose",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 2,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateattempt-wrong-action",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 3,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateattempt-wrong-owner",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 4,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateattempt-other-existing-root",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 5,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateattempt-missing-primary-field",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 6,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateattempt-missing-createdAt",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 7,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateattempt-missing-mutationTransactionId",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 8,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateattempt-cross-model-complete-caps",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 9,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateattempt-principal-generation-mismatch",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": false,
+      "operation_closed": true,
+      "terminal_exit": 3,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 10,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateattempt-principalB-current-control",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 11,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateblock-positive-root",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 12,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateblock-wrong-purpose",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 13,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateblock-wrong-action",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 14,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateblock-wrong-owner",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 15,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateblock-other-existing-root",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 16,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateblock-missing-primary-field",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 17,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateblock-missing-createdAt",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 18,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateblock-missing-mutationTransactionId",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 19,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateblock-cross-model-complete-caps",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 20,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateblock-principal-generation-mismatch",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": false,
+      "operation_closed": true,
+      "terminal_exit": 3,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 21,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "agegateblock-principalB-current-control",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 22,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "accessauditlog-positive-root",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 23,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "accessauditlog-wrong-purpose",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 24,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "accessauditlog-wrong-action",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 25,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "accessauditlog-wrong-owner",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 26,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "accessauditlog-other-existing-root",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 27,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "accessauditlog-missing-primary-field",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 28,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "accessauditlog-missing-createdAt",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 29,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "accessauditlog-missing-mutationTransactionId",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 30,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "accessauditlog-cross-model-complete-caps",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 31,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "accessauditlog-principal-generation-mismatch",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": false,
+      "operation_closed": true,
+      "terminal_exit": 3,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 32,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "accessauditlog-principalB-current-control",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 33,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "userrole-positive-root",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 34,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "userrole-wrong-purpose",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 35,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "userrole-wrong-action",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 36,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "userrole-wrong-owner",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 37,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "userrole-other-existing-root",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 38,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "userrole-missing-primary-field",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 39,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "userrole-missing-createdAt",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 40,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "userrole-missing-mutationTransactionId",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 41,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "userrole-cross-model-complete-caps",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 42,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "userrole-principal-generation-mismatch",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": false,
+      "operation_closed": true,
+      "terminal_exit": 3,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 43,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "userrole-principalB-current-control",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 44,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "userrole-missing-revision-capability",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 45,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "userrole-wrong-source-generation",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 46,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "userrole-wrong-composite-target",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 47,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "auditevent-positive-root",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 48,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "auditevent-wrong-purpose",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 49,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "auditevent-wrong-action",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 50,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "auditevent-wrong-owner",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 51,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "auditevent-other-existing-root",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 52,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "auditevent-missing-primary-field",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 53,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "auditevent-missing-createdAt",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 54,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "auditevent-missing-mutationTransactionId",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 55,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "auditevent-cross-model-complete-caps",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 56,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "auditevent-principal-generation-mismatch",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": false,
+      "operation_closed": true,
+      "terminal_exit": 3,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 57,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "auditevent-principalB-current-control",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 58,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "authprovideraccount-positive-root",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 59,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "authprovideraccount-wrong-purpose",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 60,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "authprovideraccount-wrong-action",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 61,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "authprovideraccount-wrong-owner",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 62,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "authprovideraccount-other-existing-root",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 63,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "authprovideraccount-missing-primary-field",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 64,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "authprovideraccount-missing-createdAt",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 65,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "authprovideraccount-missing-mutationTransactionId",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 66,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "authprovideraccount-cross-model-complete-caps",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 67,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "authprovideraccount-principal-generation-mismatch",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": false,
+      "operation_closed": true,
+      "terminal_exit": 3,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 68,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "authprovideraccount-principalB-current-control",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 69,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "authprovideraccount-missing-revision-capability",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 70,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "BOUND_OPERATION",
+      "case": "authprovideraccount-wrong-source-generation",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_marker": true,
+      "query_stage_reached": true,
+      "operation_closed": true,
+      "terminal_exit": 0,
+      "result_validated": true
+    },
+    {
+      "stage": "SEPARATE_ISSUER_COMMIT",
+      "issuer_committed": true,
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "operation_closed": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 1,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": true,
+      "current_unexpired_match": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "IMMUTABLE_ISSUER_RETENTION",
+      "instances": 71,
+      "all_21_fields_match": true,
+      "issuer_owned": true,
+      "unrevoked": true,
+      "unexpired_required": false,
+      "current_unexpired_match": null
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "FINAL_NATIVE_PARITY",
+      "native_catalog_match": true,
+      "native_sha256": "32cccea7830554baadc295f53c42f404af43d0b5d98fd1a4f11d30cae7c7d588"
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "EXACT_EIGHT_TRIGGER_RESTORATION",
+      "owner_and_physical_enabled": true
+    },
+    {
+      "stage": "GLOBAL_BACKEND_CLOSURE",
+      "other_clients_zero": true
+    },
+    {
+      "stage": "FINALLY_FULL_NATIVE_PARITY",
+      "native_catalog_match": true,
+      "native_sha256": "32cccea7830554baadc295f53c42f404af43d0b5d98fd1a4f11d30cae7c7d588"
+    }
+  ],
+  "authentication": [
+    {
+      "role": "postgres",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_migrator",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_context_issuer",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_identity_service_authority",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_app_runtime",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_worker",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    }
+  ],
+  "unexpected": [],
+  "subsequent_cases_stopped": false,
+  "cleanup_required": true,
+  "fixture_owner_bypass_restored": true,
+  "evidence_complete": true,
+  "database_posture": "D",
+  "limits": [
+    "Six exact local SQL SELECT criteria only; all runtime NOT_RUN until actual evidence and independent mapping.",
+    "Two rows per fixture table are privileged synthetic facts, never owner creation/API/upstream Identity authentication evidence.",
+    "Scope and principal generation are distinct: principalB current generation may legitimately read rootA; no row ownership or invented child-edge denial.",
+    "Only exact eight owner_commit bypass; physical/native/FK/RLS/ACL guards and 32 worker ACL rows unchanged.",
+    "No worker behavior, Track enrollment, command receipts, outbox, effects, service epoch, hosted changes or full-case promotion."
+  ],
+  "effective_hba_selections": [
+    {
+      "role": "postgres",
+      "address": "127.0.0.1",
+      "rule_number": 1,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_migrator",
+      "address": "127.0.0.1",
+      "rule_number": 1,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_context_issuer",
+      "address": "127.0.0.1",
+      "rule_number": 1,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_identity_service_authority",
+      "address": "127.0.0.1",
+      "rule_number": 1,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_app_runtime",
+      "address": "127.0.0.1",
+      "rule_number": 1,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_worker",
+      "address": "127.0.0.1",
+      "rule_number": 1,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "postgres",
+      "address": "::1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_migrator",
+      "address": "::1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_context_issuer",
+      "address": "::1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_identity_service_authority",
+      "address": "::1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_app_runtime",
+      "address": "::1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_worker",
+      "address": "::1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    }
+  ],
+  "current_auth_role": "wa_worker",
+  "authentication_comparison": {
+    "json_parsed": true,
+    "object": true,
+    "fields": true,
+    "string_fields": true,
+    "login": true,
+    "scram_identity": true,
+    "database": true,
+    "client_loopback": true,
+    "server_loopback": true
+  },
+  "baseline": {
+    "tables": {
+      "app.access_audit_logs": {
+        "count": 2,
+        "rows_sha256": "c46d689616eead0001381740bfe2a7d763acbdc6ffff472c630c6c015b2dc778"
+      },
+      "app.age_gate_attempts": {
+        "count": 2,
+        "rows_sha256": "ce14219859ddc3937bc1e09d375632111786e2ba8b339a3c7c9dfc839a4704d0"
+      },
+      "app.age_gate_blocks": {
+        "count": 2,
+        "rows_sha256": "d2568b006a0602eea65c980223d462a8a19f46f0d90cf770bd35280364609f8e"
+      },
+      "app.audit_events": {
+        "count": 2,
+        "rows_sha256": "3d26e4cc31e6dd7e31d5d7e8ccd9309a39c61afcfe577e9ec12b23af18c69bb5"
+      },
+      "app.auth_provider_accounts": {
+        "count": 2,
+        "rows_sha256": "e93a91b976dc9afd5a360d0e3ab49e44e5a18dffad90dccd3e1baed82b01ca4d"
+      },
+      "app.candidate_profiles": {
+        "count": 0,
+        "rows_sha256": "80bf7f3ebd01a8bdd10ac78ce0e338a8d6ad2756e639ab4c4879f906ba9b4466"
+      },
+      "app.consent_content_revision": {
+        "count": 0,
+        "rows_sha256": "9624936086d31a18e3eb09690c85d83146b9ca6a1e5cb8d4e502db90a2c14eab"
+      },
+      "app.consent_disposition": {
+        "count": 0,
+        "rows_sha256": "ba0bff9853171d6d0cacde67a010e9dd73c94f2cf87a232d8198cd84938ca3e3"
+      },
+      "app.consent_logs": {
+        "count": 0,
+        "rows_sha256": "9800bd005b880469455c611dd01c9b01fca68b601c2b06ab85fbd57cee9f2924"
+      },
+      "app.consent_presentation": {
+        "count": 0,
+        "rows_sha256": "d127c129833c152316434e2540256cebbaa230e45b6ce32708e82ee57a08805c"
+      },
+      "app.customer_profile_lifecycle_event": {
+        "count": 0,
+        "rows_sha256": "dea4374bd3204898fd906d8e36ed03a352139892869567e3bc309ee18252bc4b"
+      },
+      "app.customer_profiles": {
+        "count": 0,
+        "rows_sha256": "e3e00b4ebd1d9875ebb9736b09d57456c448676bd0c5cbe8a3e3d281bcea31a9"
+      },
+      "app.privacy_owner_receipt": {
+        "count": 0,
+        "rows_sha256": "933c4cb53405c1f9d0bc3dbc3ea9edbdb52f66547778989747425cd7a96c1694"
+      },
+      "app.privacy_requests": {
+        "count": 0,
+        "rows_sha256": "8af874c28e3339f50c04c1a10603b7d3fd2117ea918fff3a00d424e69e144651"
+      },
+      "app.privacy_restore_marker": {
+        "count": 0,
+        "rows_sha256": "a6c4994096f5d651705766549d4f51766ec6f5c77a62884e7ccbfd95e3ef41c9"
+      },
+      "app.privacy_target_instruction": {
+        "count": 0,
+        "rows_sha256": "5305c8e24a11719ec3ed46679082b333bbffd36576a07a929dbff95d46d6d4fd"
+      },
+      "app.professional_profiles": {
+        "count": 0,
+        "rows_sha256": "7ce486498ab15a141ea47b9e84afe1b30f4e1e2ae700ca28e25c7f198ab4e82a"
+      },
+      "app.track_base_selection": {
+        "count": 0,
+        "rows_sha256": "07b1b79960909f1528744157ffdf8913176a9b7b6cad6ea26041e6fbca4b3275"
+      },
+      "app.track_enrollment_receipt": {
+        "count": 0,
+        "rows_sha256": "eae1826438981a353d6920b03099b36f19db1f6c0ffec1a2072d5b17a0158d49"
+      },
+      "app.track_entitlement_definitions": {
+        "count": 0,
+        "rows_sha256": "436b33f2024950dd8bd90fb4039c3339b9c7e9af9c8fe5769398dad7d6e78bcd"
+      },
+      "app.track_entitlement_grants": {
+        "count": 0,
+        "rows_sha256": "3315ed04c1e68a444a77591058c1ff3efe50428a4eef8527f5ddc6eebcd3908c"
+      },
+      "app.track_plan_entitlements": {
+        "count": 0,
+        "rows_sha256": "3cb21fcc725ffc74aa76990eada0499c17f8a721124c1abefe8e883a0f389d05"
+      },
+      "app.track_plans": {
+        "count": 0,
+        "rows_sha256": "e04c6c610bfaeab50197a01131bd663ef13c24db1d434febfe9496c97f6ad2da"
+      },
+      "app.track_subscription_events": {
+        "count": 0,
+        "rows_sha256": "3c86f4f7a19c009f540a6692e6ce474603e38bedfa80904b0878b14c791b54ff"
+      },
+      "app.track_subscriptions": {
+        "count": 0,
+        "rows_sha256": "9d763ccbfd6a04e21f404bf2e491222963b65bff8cf9a86729936b855927d868"
+      },
+      "app.track_usage_counters": {
+        "count": 0,
+        "rows_sha256": "8e8de48ee04db5cb7d247ea90af0ee370a974d0f04cef7a44abdd6072aba3741"
+      },
+      "app.track_usage_events": {
+        "count": 0,
+        "rows_sha256": "2b849824218c62ce483b45c72c597ef37b96f74acb1c5c7ae27f1b35ba0e49ea"
+      },
+      "app.track_usage_reservation": {
+        "count": 0,
+        "rows_sha256": "57b2c40d173414c6b3cb00ddcb267324a937cc3ec2a7e5b2de03aacde6b2b1c8"
+      },
+      "app.user_roles": {
+        "count": 2,
+        "rows_sha256": "18fb2605344a651b19da034f2054a99ecf27ea7d099ab406b7597ca38d382302"
+      },
+      "app.user_security_profiles": {
+        "count": 2,
+        "rows_sha256": "e2dab94ee07a422007523a8fae60235b2c5a3ac8c6e35fc85a4cfc0bc3568641"
+      },
+      "app.users": {
+        "count": 2,
+        "rows_sha256": "79d5a335d51ee963f549873548c41fff86be773ab78dd0b3194f5ca3d634e659"
+      },
+      "platform.database_action_grant": {
+        "count": 0,
+        "rows_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "platform.owner_mutation_evidence": {
+        "count": 0,
+        "rows_sha256": "0c3347fb5b37c41e92dde6af7b94375487f41cd77c58ffcd4564e8436dc17596"
+      },
+      "platform.runtime_attempt": {
+        "count": 0,
+        "rows_sha256": "7d7d80ff6d40412a2b6f5e7abe29da379eb4978b35c32c98f8b948ac78e4f638"
+      },
+      "platform.runtime_command_receipt": {
+        "count": 0,
+        "rows_sha256": "40e54a2d488a12e220f5d6edf626f95f729563a747440ae45f84a8ae8a783dba"
+      },
+      "platform.runtime_effect_receipt": {
+        "count": 0,
+        "rows_sha256": "1afb891483b40a3e1dd0936c2913ec1512ab2d64cef364ed013d70751d73e83f"
+      },
+      "platform.runtime_inbox_receipt": {
+        "count": 0,
+        "rows_sha256": "3c0a47c92d30bb9ed0f9aee10e9d06931978b7c6f5ae5c16d42bad62db0fb69c"
+      },
+      "platform.runtime_outbox_message": {
+        "count": 0,
+        "rows_sha256": "abb5ae8b8de5499cc11ac6dc4a654dafc589687363a644a4e211d74e683273fb"
+      },
+      "platform.runtime_reservation": {
+        "count": 0,
+        "rows_sha256": "0142ba334101a7851bd8ec2954f355d89bbab8801e3a8891ebff502319d3853b"
+      },
+      "platform.runtime_work_item": {
+        "count": 0,
+        "rows_sha256": "50238cc39f42bd09b85776f2b5273e68d4f0aa3f2843934c533902adac774125"
+      },
+      "platform_private.identity_service_authorization": {
+        "count": 0,
+        "rows_sha256": "200e0654f0b80733c143de36caa5d99ea68cd82d2923cde63199634f4d67c18b"
+      },
+      "platform_private.identity_service_receipt": {
+        "count": 0,
+        "rows_sha256": "6cf3de1241e921eb7d0e5e759a9acbfd24b0ed2af68d1c907c42228be1e1d006"
+      }
+    },
+    "sha256": "643f36d8245436c266ca5f0549bbaf6513c53951d09a530721522a19339ab329"
+  },
+  "source_packet_unchanged_after": true,
+  "sanitization": {
+    "context_secrets_or_hashes_found": false,
+    "raw_stderr_statement_bodies_or_handles_retained": false
+  }
+}

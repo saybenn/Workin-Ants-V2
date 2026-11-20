@@ -1,0 +1,98 @@
+{
+  "schema": "workinants.privilege-person-subject-v5-source-author-review.v1",
+  "recorded_at_utc": "2026-11-20T04:54:59.272671+00:00",
+  "author": "/root/restricted_controls_operator",
+  "decision": "AUTHOR_PREPARED_NOT_INDEPENDENT_APPROVAL",
+  "Root_authorized_plan": {
+    "path": "privilege-person-subject-oracle-source-correction-plan-20261119.json",
+    "sha256": "715acc1ef5b29c917668323cd7995d14d589f1a043d8b71be922bb90cfba33c4"
+  },
+  "scope": "Correct only Customer person-binding helper oracle/mocks and fixed Boolean evidence; new V5 wrapper binding to changed child, no schema/ACL/permission/SQL-case semantics change.",
+  "source_correction": {
+    "coordinator": {
+      "path": "scripts/sql-review/run-privilege-ceiling-control-rehearsal.py",
+      "sha256": "016b122e950a0fad641a3e8a3b57ee25f581e03a7ce28bfb48a01d8ce8705e39"
+    },
+    "process_mock": {
+      "path": "scripts/sql-review/test_run_privilege_ceiling_control_rehearsal.py",
+      "sha256": "89c08b9b93e6326fc118c217e6cf60bb953fd69efc65161cbe5b9843c6498e55"
+    },
+    "doc": {
+      "path": "scripts/sql-review/PRIVILEGE-CEILING-CONTROL-REHEARSAL.md",
+      "sha256": "381815101a98b7313fd753adcb51fada3474485e9b66ce1b136b690ac492432d"
+    },
+    "pure_fixed_comparison_keys": [
+      "acknowledged",
+      "stderr_empty",
+      "rows_list",
+      "one_row",
+      "row_text_bounded",
+      "json_parsed",
+      "object",
+      "exact_fields",
+      "boolean_fields",
+      "allowed",
+      "owner_subject",
+      "same_tuple"
+    ],
+    "JSON_row_limit_bytes": 4096,
+    "all_other_child_AST_unchanged": true,
+    "preserved_same_PID_xid_two_binds_separate_issuer_COMMIT_two_paths": true
+  },
+  "new_owned5_sha256": {
+    "execute_local_f0_privilege_ceiling_person_subject_v5_20261119.py": "a2c6cbb3120c1b202411e2dd549d066b0080fdbc8a315633c2febf0a9bde7f8e",
+    "local_f0_privilege_ceiling_person_subject_v5_operation_steps.py": "9b4fea0ac8b628d3073eb87ea0c4dff27d68614bfddc4012af6432e9689f2f68",
+    "prepare_local_f0_privilege_ceiling_person_subject_v5_plan.py": "5736bdd401d143523ed7cb67f643b3b180844377f02c7920a881329f35afc3b7",
+    "check_local_f0_privilege_ceiling_person_subject_v5_operation.py": "7cdd3f5b96a9ee07345bdc5b4e62c662abaa4640a70f58be3098d52a085fb9ac",
+    "pin_local_f0_privilege_ceiling_person_subject_v5_plan_20261119.py": "4b2b2ba327d2504acdbca2e23dc030f3975a8064890d4d069cbe353dba0c94dd"
+  },
+  "new_owned_change": "Exact filename/archive/validation namespace + child SHA binding only; common13, resource-mount/kernel, finalizer, cleanup, strict V3 verdict and native29089 int gate unchanged.",
+  "source_boundary": {
+    "path": "privilege_person_subject_v5_source_boundary_20261119.json",
+    "sha256": "46b04588882676fddd995ebb5fb62587b1f870854fd77695affccb9913e6b212"
+  },
+  "source_analysis": {
+    "path": "privilege_person_subject_source_analysis_20261119.json",
+    "sha256": "6a92067a2a64d8e1984d9d18b70ca853709f815f9353c68a92d13498bb5f5b79",
+    "observed_negative_results": 0,
+    "observed_native_validity": 40,
+    "observed_definer_metadata": 16,
+    "observed_operations": 42,
+    "first_aggregate_false": true,
+    "historical_raw_probe_values": "NOT_RETAINED",
+    "complete_original_cause": "UNOBSERVED"
+  },
+  "offline_checks": {
+    "path": "privilege_person_subject_v5_offline_checks_20261119.json",
+    "sha256": "20df92017f0d6a599b6209f19905c9342fab0bfd9c6ae7e78494c20d876e8184",
+    "methods": 142,
+    "result": "PASS_SOURCE_MOCK_ONLY"
+  },
+  "preservation": {
+    "before_author_path": "privilege-person-subject-before-author-20261119/preservation.json",
+    "sha256": "f72134cbc44dfcae2ab1a23b1c9fe40fa64c5bc7b4af56fc3d3d9d19c017b40a",
+    "files": 759,
+    "old_AdmissionV4_five_archive507_unchanged": true,
+    "all202_bytes_including200_negativeSQL_unchanged": true,
+    "GEN_and_pure_protocol_unchanged": true,
+    "canonical_application_SHA256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "native_packet_sha256": "8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69",
+    "worker32ACL_unchanged": true,
+    "historic53_record_raw_child_all30assets_unchanged": true,
+    "No protectedNative303_AUDIT3_Worker408_Restore253_INSTALL167_or_other_WIP_modified": true
+  },
+  "new_metadata_paths": {
+    "owned_validation": "context/reconciliation/local-f0-privilege-ceiling-owned-person-subject-v5-source-validation.json",
+    "child_validation": "context/reconciliation/privilege-ceiling-person-subject-source-validation.json",
+    "archive": "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-person-subject-v5"
+  },
+  "approval_gate": "PENDING combined corrected-child + exact new V5 five separate reviewer and Root acceptance; historical prior41/25c reviews remain input history, not approval of this correction.",
+  "runtime": "NOT_RUN",
+  "Posture": "D",
+  "limits": [
+    "No outcome invented for historical scalar values or complete failure cause.",
+    "All executable schema/fixtures205/all100guards/worker32ACL/A-D/canonical5ae and200 SQL are preserved.",
+    "All142 outcomes are offline source/process simulations, not a new database outcome; future Root publication/pin/literal/run remains separate.",
+    "No native960 replay, owner API, production worker loop, hosted or migration-adoption expansion."
+  ]
+}

@@ -1,0 +1,40 @@
+"""Pure AST, byte preservation and exact immutable packet review; no processes."""
+from pathlib import Path
+import ast,hashlib,json
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+OLD=('execute_local_f0_privilege_ceiling_verdict_v3_20261119.py','local_f0_privilege_ceiling_verdict_v3_operation_steps.py','prepare_local_f0_privilege_ceiling_verdict_v3_plan.py','check_local_f0_privilege_ceiling_verdict_v3_operation.py','pin_local_f0_privilege_ceiling_verdict_v3_plan_20261119.py')
+NEW=tuple(x.replace('verdict_v3','admission_v4')for x in OLD)
+ALLOWED=(set(),{'verify_privilege_ceiling_packet','privilege_generated_artifact_closure'},{'prepare','privilege_generated_artifact_closure'},{'PrivilegeOperationTests.real_verifier','PrivilegeOperationTests.pin_module','PrivilegeOperationTests.test_actual_whole_verifier_real_prepared_inventory_and_all_five_snapshots'},{'validate'})
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+dump=lambda node:ast.dump(node,include_attributes=False)
+def functions(tree):
+ result={}
+ for node in tree.body:
+  if isinstance(node,ast.FunctionDef):result[node.name]=dump(node)
+  elif isinstance(node,ast.ClassDef):
+   for child in node.body:
+    if isinstance(child,ast.FunctionDef):result[node.name+'.'+child.name]=dump(child)
+ return result
+
+def verify():
+ mappings={**dict(zip(OLD,NEW)),'privilege-ceiling-owned-verdict-v3':'privilege-ceiling-owned-admission-v4'};records=[]
+ for old,new,allowed in zip(OLD,NEW,ALLOWED):
+  original=(TASK/old).read_text()
+  for a,b in mappings.items():original=original.replace(a,b)
+  left=ast.parse(original);right=ast.parse((TASK/new).read_bytes());lf=functions(left);rf=functions(right);changed=sorted(k for k in lf.keys()|rf.keys()if lf.get(k)!=rf.get(k));assert set(changed)==allowed,(new,changed)
+  def remove(tree):
+   for node in tree.body:
+    if isinstance(node,ast.ClassDef):node.body=[c for c in node.body if not(isinstance(c,ast.FunctionDef)and node.name+'.'+c.name in allowed)]
+   tree.body=[n for n in tree.body if not(isinstance(n,ast.FunctionDef)and n.name in allowed)];return tree
+  assert dump(remove(left))==dump(remove(right)),new
+  records.append({'old':old,'new':new,'sha256':sha((TASK/new).read_bytes()),'changed_functions_only':changed,'all_other_AST_equal_after_namespace_rewrite':True,'fulltext_namespace_only':original.encode()==(TASK/new).read_bytes()})
+ helper=dump(ast.parse((TASK/'privilege_admission_v4_generated_closure_helper.py.txt').read_bytes()).body[0]);assert helper==functions(ast.parse((TASK/NEW[1]).read_bytes()))['privilege_generated_artifact_closure']==functions(ast.parse((TASK/NEW[2]).read_bytes()))['privilege_generated_artifact_closure']
+ directory=TASK/'privilege-admission-v4-before-authoring-20261119';pres=json.loads((directory/'preservation.json').read_bytes())
+ for name,wanted in pres['files_sha256'].items():
+  assert sha((directory/name).read_bytes())==wanted,name
+  base,relative=name.split('/',1);assert sha(((ROOT if base=='ROOT'else TASK)/relative).read_bytes())==wanted,name
+ owned=json.loads((ROOT/'context/reconciliation/local-f0-privilege-ceiling-owned-verdict-v3-source-validation.json').read_bytes());artifacts=owned['privilege_packet']['artifacts_sha256'];assert len(artifacts)==202
+ for name,wanted in artifacts.items():assert sha((ROOT/name).read_bytes())==wanted,name
+ for name,wanted in owned['privilege_packet']['source_files_sha256'].items():assert sha((ROOT/name).read_bytes())==wanted,name
+ return {'status':'PASS_SOURCE_DERIVATION_ONLY_NOT_CODE_APPROVAL','source_changes':records,'shared_helper_AST_identical':True,'all437_original_live_and_preserved_bytes_exact':len(pres['files_sha256'])==437,'all7_privilege_source_and202_artifact_bytes_unchanged':True,'unchanged_existing_SQL_results_common13_and_Core':True,'old_fixture_content_digests_unchanged':True,'real_Git_Docker_DB_network':'NOT_USED'}
+if __name__=='__main__':print(json.dumps(verify(),indent=2))

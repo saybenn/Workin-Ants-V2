@@ -1,0 +1,85 @@
+"""Install the exact separately reviewed source/ledger; derive status freshly later."""
+from pathlib import Path
+import argparse, datetime, hashlib, json, subprocess
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+D = T / 'native-1110-4c894-evidence-adapter-v1-draft-20261119'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+def encoded(value):
+    return (json.dumps(value, indent=2, allow_nan=False) + '\n').encode()
+def put(path, raw):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('xb') as handle:
+        handle.write(raw)
+p = argparse.ArgumentParser()
+p.add_argument('--independent-review', required=True, type=Path)
+p.add_argument('--review-sha256', required=True)
+args = p.parse_args()
+assert args.independent_review.is_relative_to(T) and sha(args.independent_review) == args.review_sha256
+review = json.loads(args.independent_review.read_bytes())
+assert review['decision'] == 'SOURCE_APPROVED' and review['findings'] == []
+assert sha(D / 'author-review.json') == '012dc5a61a14bb1f2869b63852dfa17e032b06c82a2e978526d160f96fcc63fa'
+assert sha(D / 'freeze-manifest.json') == '5a925c2834e9cc781da33e2dc18a61406643a9a1f382fc7409c2d389d2738c0b'
+author = json.loads((D / 'author-review.json').read_bytes())
+files = author['proposed_Root_files_sha256']
+assert len(files) == 14 and files == review['proposed_Root_files_sha256']
+for name, wanted in files.items():
+    assert sha(D / 'future-root' / name) == wanted
+freeze = json.loads((D / 'freeze-manifest.json').read_bytes())
+for name, wanted in freeze['draft_artifacts_sha256'].items():
+    assert sha(D / name) == wanted
+base = {
+    'scripts/prepare-local-f0-status.py': '6d08aee64ce3023fc2e43cbfbe6965cb0d5342efee62ce02f599918ec2f50506',
+    'scripts/check-local-f0-status.py': '99f6765209b7914c2da739a9ab4d3ff003e062d55aef5469e1d4dbbde832382c',
+    'context/reconciliation/local-f0-assertion-evidence.json': 'bf24c70872204981b7ed910ad75e61a8a674d18431e64496a2f794d1d4b35ca1',
+    'context/reconciliation/local-f0-qualification-status.json': '95f048b55581f2e237309580df1bef9598ef566bf8f09f7c3c15e567fa338526',
+}
+assert subprocess.check_output(['git', '-c', 'core.longpaths=true', 'rev-parse', 'HEAD'], cwd=R).decode().strip() == 'c820e39622843d9fc3b565cee6578a340970fba2'
+for name, wanted in base.items():
+    assert sha(R / name) == wanted
+for name in set(files) - set(base):
+    assert not (R / name).exists()
+plans = ['local-f0-worker-recovery-plan-6282f5ad', 'local-f0-restore-plan-980a38cb', 'local-f0-install-controls-plan-b778f794']
+admitted = {}
+for folder in plans:
+    manifest = json.loads((T / folder / 'operation-manifest.json').read_bytes())
+    assert not set(files).intersection(manifest['packet_files_sha256'])
+    for name, wanted in manifest['packet_files_sha256'].items():
+        assert sha(R / name) == wanted
+        admitted[name] = wanted
+before = json.loads((R / 'context/reconciliation/local-f0-assertion-evidence.json').read_bytes())
+after = json.loads((D / 'future-root/context/reconciliation/local-f0-assertion-evidence.json').read_bytes())
+assert len(before['assertions']) == 259 and len(after['assertions']) == 647
+assert after['assertions'][:259] == before['assertions']
+assert type(before['executions']) is list and after['executions'][:len(before['executions'])] == before['executions']
+archive = 'context/reconciliation/local-f0-operation-sources/native-1110-4c894-evidence-adapter-v1'
+backup = T / 'native388_Root_before_integration_20261119'
+assert not backup.exists()
+for name in base:
+    put(backup / name, (R / name).read_bytes())
+status = 'context/reconciliation/local-f0-qualification-status.json'
+for name in files:
+    if name == status:
+        continue
+    path = R / name
+    if name in base:
+        path.write_bytes((D / 'future-root' / name).read_bytes())
+    else:
+        put(path, (D / 'future-root' / name).read_bytes())
+root_review = {'schema': 'workinants.native388-root-source-review.v1', 'recorded_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'decision': 'SOURCE_APPROVED', 'reviewer': '/root', 'independent_review_sha256': args.review_sha256, 'proposed_Root_files_sha256': files, 'reviewed': 'Full pure qualifier semantic functions875-1278, closed303 admission and no exposed mutable proof, exact388 keys, final full-byte reread plus independent finalized barrier, builder/checker final patches, focused17 adversarial methods and append-only259/132 limits.', 'findings': [], 'status_file_not_copied': True, 'actual_Root_unmocked_build': 'PENDING', 'scope': '388 newly mapped native denials only; no RLS48, blocked4, source_business_write aggregate, isolated-column, business-positive or whole-case promotion.', 'Posture': 'D'}
+copies = {
+    archive + '/reviews/independent-source-review.json': args.independent_review.read_bytes(),
+    archive + '/reviews/Root-source-review.json': encoded(root_review),
+    archive + '/reviews/Root-integration-helper.py.txt': Path(__file__).read_bytes(),
+    archive + '/reviews/author-review.json': (D / 'author-review.json').read_bytes(),
+    archive + '/reviews/author-freeze-manifest.json': (D / 'freeze-manifest.json').read_bytes(),
+}
+for name, raw in copies.items():
+    put(R / name, raw)
+for name, wanted in admitted.items():
+    assert sha(R / name) == wanted
+assert sha(R / status) == base[status]
+receipt = {'schema': 'workinants.native388-root-integration-source-receipt.v1', 'recorded_at_utc': root_review['recorded_at_utc'], 'installed_reviewed_files_excluding_status': 13, 'source_and_ledger_sha256': {name: sha(R / name) for name in files if name != status}, 'independent_review_sha256': args.review_sha256, 'all_old259_rows_unchanged': True, 'new_rows': 388, 'Worker408_Restore253_INSTALL167_disjoint_and_preserved': True, 'actual_Root_status': '227PASS_UNCHANGED_PENDING_FRESH_BUILD', 'Git_Docker_database_or_network_mutation': False, 'Posture': 'D'}
+out = T / 'native388_Root_source_integration_receipt_20261119.json'
+put(out, encoded(receipt))
+print(json.dumps({'receipt_sha256': sha(out), 'installed': 13, 'old_status_unchanged': True, 'fresh_real_build': 'REQUIRED'}))

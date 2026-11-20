@@ -1,0 +1,121 @@
+{
+  "schema": "workinants.local-f0-c820-version-qualified-stopped-execution-record.v1",
+  "recorded_at_utc": "2026-11-20T04:15:07.170891+00:00",
+  "run_id": "53d7f860-2128-4961-851e-9b749beeeedb",
+  "source_commit": "c820e39622843d9fc3b565cee6578a340970fba2",
+  "source_tree": "c004c3488cba127833d4a5052853c67d7d50c98f",
+  "operation_packet_sha256": "16988191012a1edc95886eab493d3e0f8bbfde549af4ddf8dbfe35a956161281",
+  "operation_manifest_sha256": "2eaf81bff7cbbd6734e5feca5983cc5d426afb6ca9feddde3fd305f7b24b26fd",
+  "started_at_utc": "2026-11-20T04:01:31.259892+00:00",
+  "finished_at_utc": "2026-11-20T04:08:40.181856+00:00",
+  "actual_wrapper_status": "STOPPED_ATTEMPT_PRESERVED",
+  "actual_steps": {
+    "CATALOG-SETUP": "PASS",
+    "CATALOG-AUTH": "PASS",
+    "CATALOG-TOOLS": "PASS",
+    "CATALOG-INSTALL": "PASS",
+    "CATALOG-ACL-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+    "CATALOG-TEXT-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+    "CATALOG-NATIVE": "PASS_OBSERVED_NOT_QUALIFIED",
+    "CATALOG-ORACLE": "PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE",
+    "CATALOG-LEDGER": "PASS_SOURCE_BOUND_NATIVE_SUBSET",
+    "CATALOG-COMPARE": "PASS_SOURCE_BOUND_NATIVE_CATALOG_ONLY",
+    "CATALOG-SANITIZED_EXPORT": "NOT_RUN",
+    "CATALOG-CLEANUP": "PASS",
+    "PRIVILEGE-CEILING-REVIEW": "PASS_SOURCE_ADMISSION_ONLY",
+    "PRIVILEGE-CEILING-COMPONENT": "NOT_RUN",
+    "NATIVE-PROVIDER-PREINSTALL": "PASS_LOCAL_SIMULATION_ONLY",
+    "NATIVE-PROVIDER-POSTINSTALL": "PASS_NINE_SOURCE_REVOKES_OBSERVED"
+  },
+  "raw_evidence_sha256": "9e930e526c9bb08b30a8d4cdd9946bece30884451e1b9ce83dc7fc68d33163ab",
+  "raw_child_sha256": "c0a75b456a5f122e9bb1d100ba06d59990774d34b31aa76c5a85f76ee9d8f9fe",
+  "raw_reports_unchanged": true,
+  "independent_cleanup_sha256": "0a5571a7b254cef8173a9fc5b931efafaba7c2fbeb919d1de1b91ce321feeda6",
+  "facts": {
+    "schema": "workinants.priv53d7-bounded-source-analysis.v1",
+    "recorded_at_utc": "2026-11-20T04:15:07.170891+00:00",
+    "observed": {
+      "child_failure": {
+        "stage": "SOURCE_QUALIFIED_NATIVE_CATALOG",
+        "code": "INTERACTIVE_OUTPUT_UNCONFIRMED"
+      },
+      "current_case": "ISSUER-LEGITIMATE-PERSON-ISSUE-OWN-READ-BOUND-SCALARS",
+      "original_operation_failure": {
+        "phase": "FINISH",
+        "classification": "SOURCE_HELD_FAILURE",
+        "code": "SAME_APP_TUPLE_REQUIRED"
+      },
+      "first_caller_path_comparison": false,
+      "issuer_COMMIT_acknowledged": true,
+      "own_grant_visible": true,
+      "foreign_grant_hidden": true,
+      "all_actors_closed_before_observers": true,
+      "all_100_guards_restored": true,
+      "behavioral_results": 0,
+      "negative_cases_run": 0
+    },
+    "proven_source_defect": "person_binding expects context_subject(principal) true for customer_buyer_profile. Canonical context_subject returns true only for consent_disclosure. The test VM omits this owner restriction.",
+    "canonical_source": {
+      "path": "review-output/foundation-application.review.sql",
+      "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "context_subject_line": 2471,
+      "context_subject_owner_line": 2440
+    },
+    "coordinator": {
+      "path": "scripts/sql-review/run-privilege-ceiling-control-rehearsal.py",
+      "sha256": "80ca5e62a6a89891e73ecb7afc0e134c3c5b75ed81d0f3adc01ba7c718d03d3f",
+      "expression_line": 444,
+      "verdict_line": 449
+    },
+    "actual_failed_comparison_values": "NOT_RETAINED",
+    "complete_original_cause": "UNOBSERVED",
+    "source_defect_consistent_with_stop": true,
+    "proposed_bounded_correction": "Use existing context_subject_owner with exact principal and owner; keep Consent-only context_subject behavior. Retain fixed Boolean parsing/shape/ACK/error-empty and allowed/owner_subject/same_tuple outcomes before assertion. Model both helpers from canonical semantics and add old-helper restoration plus unrelated-owner/principal/tuple/malformed/secret regressions.",
+    "execution_retry": "HELD_PENDING_CORRECTION_SEPARATE_REVIEW_OFFLINE_VALIDATION_PUBLICATION_PIN_AND_LITERAL",
+    "Posture": "D"
+  },
+  "assets_sha256": {
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/acl-preflight.json": "b1dffe67c99d83c46073c8db1f5e14bbda1b5dc0ed053be56d56a67a6018f3c8",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/catalog-comparison.json": "9107fb1c023f63c4cd5b2eb12eb1642fac0dca46c9f30324bcd0e3cdae76f2c2",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/ledger-evidence.json": "f1cb073aec8e753566a34c12fd04ab739fe55df06b85ff6965081976ebabc0ba",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/ledger-observation.json": "5a3d33491366fb9587bcc4a167efa4e38bda170b7b3291c022f28676dbdd94b3",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/ledger-registration.json": "0365edb6f29e74bb6ac8869f3a907c8c2bce781771340b3f9a9821e475723c97",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/native-after-ledger.json": "ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/native-after-oracle.json": "ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/native-before.json": "ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/oracle-closure.json": "89067a06862e197fd49f3aed1e3f18bfc93d6a6c2035f9cdfc85a57036257ab9",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/oracle-evidence.json": "bda360a485bcbca59d4eeef1e703fd74f7d902bbc7974c45039f4ed2358714ba",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/oracle-preflight.json": "e64b96e2f73e7a6d369d61c09301dc7c986c08bcd1cf95af06c6ab9756bcbe66",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/oracle-results.json": "d7f91fb358b73d3f36acde73ec730c41259009c1e0f06931ded2a7d44510f995",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/privilege-ceiling-native-attestation.json": "a41990a650730671d990a18c96e4cda0780ed7b21ba3f9678a669e7b76373258",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/privilege-ceiling-run-plan.json": "2e7f6ce8a346d10fbcade824b1eecccc3fbe65fb77c247cab0e7c87bccdb17e5",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/provider-preinstall-proof.json": "e6e35b510a06be0a8afa7ed5f166c66f783fa15b40e3c8ed4a23385afdb019bd",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/run-evidence.json": "9e930e526c9bb08b30a8d4cdd9946bece30884451e1b9ce83dc7fc68d33163ab",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/set-private-acl.ps1.txt": "802c8f04cf13b8ccd44a89c9458dd596f0ef3f2f29d8529efa7833a78ef31eb2",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/text-preflight.json": "176676da1274c55ec6f8800089b61d1c5249c44ed52b3ecfbcf2c8edf6a3cda1",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/privilege-ceiling-component/privilege-ceiling-results.json": "c0a75b456a5f122e9bb1d100ba06d59990774d34b31aa76c5a85f76ee9d8f9fe",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/manifest/ok-migration-manifest.json": "ff24f3f524ee6b26f41e9efb74402d900c0d850cafcad02cc28a6c3be15e7e15",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/manifest/operation-manifest-before-operational-review.json": "9c35ea7185629ed4ae04da31af3c213e0c57c5b991ce7dd0e1920753909754f8",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/manifest/operation-manifest-before-source-pin.json": "5666cb2f37823a37cc10b7a7f1ac416eee2292901ae02921db714c10239a4ef9",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/manifest/operation-manifest.json": "2eaf81bff7cbbd6734e5feca5983cc5d426afb6ca9feddde3fd305f7b24b26fd",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/manifest/migration-ok.json": "ff24f3f524ee6b26f41e9efb74402d900c0d850cafcad02cc28a6c3be15e7e15",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/independent-cleanup.json": "0a5571a7b254cef8173a9fc5b931efafaba7c2fbeb919d1de1b91ce321feeda6",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/independent-literal-review.json": "279b0d8da965e9e269f910308910e6a2fe7135a98c67089bf67719e66c1522f4",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/Root-literal-approval-receipt.json": "485aeb4977d9280588a6c0de500d0afe9583cda4159bffcf2a310e4b27ecb35e",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/Root-independent-cleanup-helper.py.txt": "3fe871d19996764cd6afd01cae68661a2dd69395918566f5bab47ec68ab535b8",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/source-analysis/person-binding-oracle-source-analysis.json": "3a24574626bf4fd9c0b05d38ac5a2c9591a4edb23624bcab45c5869113253528",
+    "context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/source-analysis/preservation-helper.py.txt": "ef74261583baa50d7b8c3d697840a500447ea103ccfe080c4b3dbe7cf11d314e"
+  },
+  "source_preservation": {
+    "packet_unchanged_after_run": true,
+    "tool_source_data_unchanged_after_run": true,
+    "external_sources_unchanged_after_run": true,
+    "external_inputs_unchanged_after_run": true
+  },
+  "limits": {
+    "new_assertion_qualification": "NONE_FROM_STOPPED_COMPONENT",
+    "prepared_negative_cases200": "NOT_RUN",
+    "451_and_whole94": "NOT_PROMOTED",
+    "Posture": "D"
+  }
+}

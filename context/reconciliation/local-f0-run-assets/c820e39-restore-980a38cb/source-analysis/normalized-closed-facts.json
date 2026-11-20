@@ -1,0 +1,69 @@
+{
+  "schema": "workinants.restore980a-normalized-closed-facts.v1",
+  "recorded_at_utc": "2026-11-20T04:47:07.821636+00:00",
+  "actual_origin": "RESTORE_BOUND_SOURCE_CUSTOMER/RESTORE_BOUND_OPERATION_NOT_COMMITTED",
+  "actual_positive_outcome": {
+    "exit_code": 0,
+    "acknowledgement": true,
+    "fields_typed": true,
+    "output_bounded": true,
+    "line_count": 1,
+    "expected_count": 1,
+    "marker_presence": [
+      true
+    ],
+    "marker_order_matches": true,
+    "json_shape_matches": null,
+    "json_matches": null,
+    "diagnostic": {
+      "classification": "UNEXPECTED_NOT_GUARD_PROOF",
+      "redaction": "NO_SINGLE_EXACT_HEADER",
+      "single_header": false,
+      "sqlstate": null,
+      "source_binding_confirmed": false,
+      "source_metadata": null
+    }
+  },
+  "same_xid_comparison": {
+    "exit_code": null,
+    "acknowledgement": true,
+    "fields_typed": false,
+    "output_bounded": true,
+    "line_count": 1,
+    "expected_count": 1,
+    "marker_presence": [
+      true
+    ],
+    "marker_order_matches": true,
+    "json_shape_matches": null,
+    "json_matches": null,
+    "diagnostic": {
+      "classification": "UNEXPECTED_NOT_GUARD_PROOF",
+      "redaction": "EMPTY",
+      "single_header": false,
+      "sqlstate": null,
+      "source_binding_confirmed": true,
+      "source_metadata": null
+    }
+  },
+  "same_xid_code_None_is_pre_finish_not_an_actual_exit": true,
+  "issuer_operations": [
+    {
+      "issuer_login": "wa_context_issuer",
+      "target_login": "wa_app_runtime",
+      "commit_acknowledged": true,
+      "operation_closed": true,
+      "all_21_claims_verified": true
+    }
+  ],
+  "closure_confirmed": true,
+  "complete_expected_Customer_state": "NOT_OBSERVED_AFTER_UNQUALIFIED_OPERATION",
+  "positive_commit_or_rollback_qualified": false,
+  "complete_original_cause": "UNOBSERVED_UNLISTED_STDERR_DISCARDED",
+  "source_analysis": "Pinned source_customer has0BEGIN and1terminalCOMMIT; current no-BEGIN branch appends anotherCOMMIT. Constructed positive tail has2COMMIT. Proven source defect consistent with exit0/ACK/marker and non-error unlisted stderr; actual warning contents were not retained.",
+  "old3b8_complete_original_cause": "UNOBSERVED_NOT_RETROSPECTIVELY_EXPLAINED",
+  "backup_restore_parity_authority_rotation": "NOT_RUN",
+  "all_five_names_and_private_archive_directory_absent": true,
+  "pinned_image_retained": true,
+  "Posture": "D"
+}

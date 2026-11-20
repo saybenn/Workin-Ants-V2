@@ -1,0 +1,50 @@
+"""Record the completed actual build after correcting a report-only byte oracle."""
+from pathlib import Path
+import datetime, hashlib, json
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+D = T / 'native-1110-4c894-evidence-adapter-v1-draft-20261119'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+receipt_path = T / 'native388_Root_source_integration_receipt_20261119.json'
+assert sha(receipt_path) == 'eddeef99365470e43ebd475964d4afaa31f6495b04eeac8181311c3904aafba3'
+receipt = json.loads(receipt_path.read_bytes())
+for name, wanted in receipt['source_and_ledger_sha256'].items():
+    assert sha(R / name) == wanted
+actual_path = R / 'context/reconciliation/local-f0-qualification-status.json'
+future_path = D / 'future-root/context/reconciliation/local-f0-qualification-status.json'
+a, f = actual_path.read_bytes(), future_path.read_bytes()
+assert hashlib.sha256(a).hexdigest() == '87f3737ff002bc73833d5a3f5e31601a11c97f412e54d3f85b1e7be7cc10d64d'
+assert sha(future_path) == '1fb50a9dcfff198ae8f61aef1afc83bdf6866d9da92263a330e31c9d7d157e1a'
+value = json.loads(a)
+assert value == json.loads(f)
+assert a == (json.dumps(value, indent=2) + '\n').encode()
+assert f == (json.dumps(value, indent=2, ensure_ascii=False) + '\n').encode()
+assert value['assertion_status_counts'] == {'PASS':615,'PARTIAL':32,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':348,'UNRESOLVED_SOURCE':7}
+assert value['case_status_counts'] == {'PASS':4,'PARTIAL':73,'FAILED':0,'DEPENDENCY_BLOCKED':0,'NOT_RUN':17}
+proof = {
+    'schema':'workinants.native388-actual-root-unmocked-status-build.v2',
+    'recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    'status':'PASS_ACTUAL_ROOT_STATUS_REBUILT',
+    'actual_build_tool_session':9945,
+    'actual_builder_entrypoint':'scripts/prepare-local-f0-status.py',
+    'execution_helper_sha256':sha(T / 'build_native388_actual_root_status_20261119.py'),
+    'actual_builder_completed_and_wrote_status_before_report_assertion':True,
+    'all_legacy_and_native_validators_real_unmocked':True,
+    'process_Docker_database_SQL_network_boundaries_forbidden':True,
+    'no_new_database_runtime_from_this_build':True,
+    'elapsed_seconds':'NOT_RETAINED_AFTER_POST_BUILD_METADATA_ASSERTION',
+    'actual_status_sha256':sha(actual_path),
+    'author_future_status_sha256':sha(future_path),
+    'whole_JSON_value_equal':True,
+    'canonical_JSON_sha256':hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False).encode()).hexdigest(),
+    'report_oracle_correction':'The initial post-build receipt expected the author future helper UTF8-literal serialization. The unchanged actual repository entrypoint uses default ensure_ascii=True. The two valid serializations differ by six bytes while their complete parsed JSON values match. Counts, qualifier, evidence and expectations were not changed. The initial receipt-wrapper assertion failed after the real build completed; no redundant full build was rerun.',
+    'source_and_ledger_sha256':receipt['source_and_ledger_sha256'],
+    'assertion_status_counts':value['assertion_status_counts'],
+    'case_status_counts':value['case_status_counts'],
+    'source_record_and33_raw_assets_unchanged':True,
+    'whole94_or451_promoted':False, 'Brain_acceptance':'PENDING', 'Posture':'D',
+}
+p = T / 'native388_actual_Root_unmocked_status_build_20261119.json'
+with p.open('xb') as handle:
+    handle.write((json.dumps(proof,indent=2)+'\n').encode())
+print(json.dumps({'proof_sha256':sha(p), 'actual_status_sha256':sha(actual_path), 'status':proof['status']}))

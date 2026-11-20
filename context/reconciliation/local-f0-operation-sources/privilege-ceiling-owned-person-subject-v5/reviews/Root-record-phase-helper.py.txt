@@ -1,0 +1,29 @@
+"""Archive completed approved-metadata checks and final committable source map."""
+from pathlib import Path
+import datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+def put(p,raw):
+    p.parent.mkdir(parents=True,exist_ok=True)
+    with p.open('xb')as f:f.write(raw)
+def encoded(v):return(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+p=R/'context/reconciliation/local-f0-privilege-ceiling-owned-person-subject-v5-source-validation.json'
+assert sha(p)=='dd50c0afa2df3fb10fc41bc8d2fc14bbdef66cc37bc4c11f23f3a13cc3701780'
+v=json.loads(p.read_bytes());prefix='context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-person-subject-v5'
+assert len(v['archive_files_sha256'])==811
+for name,wanted in v['archive_files_sha256'].items():assert sha(R/name)==wanted
+check=T/'privilege_person_subject_v5_approved_metadata_Root_checks_20261120.json'
+assert sha(check)=='f0782eb8cf26baa2be82a374cbcd275f786a6ab19f673ca6507b18f1a9558e16'
+proof=json.loads(check.read_bytes());assert proof['status']=='PASS'and proof['methods']==5
+sources={'approved-metadata-Root-checks.json':check,'approved-metadata-Root-checks.log.txt':T/'privilege_person_subject_v5_approved_metadata_Root_checks_20261120.log','approved-metadata-Root-check-helper.py.txt':T/'check_privilege_person_subject_v5_approved_metadata_phase_20261120.py','Root-record-phase-helper.py.txt':Path(__file__)}
+assert sha(sources['approved-metadata-Root-checks.log.txt'])==proof['log_sha256']
+for name,source in sources.items():
+    relative=prefix+'/reviews/'+name;put(R/relative,source.read_bytes());v['archive_files_sha256'][relative]=sha(R/relative)
+v['Root_approved_metadata_phase_checks']={'status':'PASS','methods':5,'seconds':125.516,'path':prefix+'/reviews/approved-metadata-Root-checks.json','sha256':sha(check),'runtime':'NOT_RUN'}
+p.write_bytes(encoded(v))
+delivery=json.loads((T/'privilege_person_subject_v5_frozen_author_delivery_20261119.json').read_bytes())
+files={name:sha(R/name)for name in delivery['Root_committable_files_sha256']}
+files.update(v['archive_files_sha256'])
+result={'schema':'workinants.privilege-person-subject-v5-approved-committable-inventory.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'files_sha256':files,'owned_validation_sha256':sha(p),'child_validation_sha256':sha(R/'context/reconciliation/privilege-ceiling-person-subject-source-validation.json'),'archive_files':len(v['archive_files_sha256']),'phase_checks5_PASS':sha(check),'code5_and_child3_unchanged':True,'source_status':'SOURCE_APPROVED_PUBLISH_PIN_LITERAL_REQUIRED','runtime':'NOT_RUN','Posture':'D'}
+out=T/'privilege_person_subject_v5_approved_committable_inventory_20261120.json';put(out,encoded(result))
+print(json.dumps({'inventory_sha256':sha(out),'files':len(files),'owned_validation_sha256':sha(p),'archive_files':len(v['archive_files_sha256'])}))

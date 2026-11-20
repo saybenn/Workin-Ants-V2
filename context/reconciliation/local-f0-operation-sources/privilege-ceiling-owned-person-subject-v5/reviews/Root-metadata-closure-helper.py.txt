@@ -1,0 +1,62 @@
+"""Close separately reviewed child/V5 source metadata; no operational approval."""
+from pathlib import Path
+import datetime, hashlib, json
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+def encoded(value):
+    return (json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+def put(path,raw):
+    path.parent.mkdir(parents=True,exist_ok=True)
+    with path.open('xb') as handle:
+        handle.write(raw)
+delivery_path = T / 'privilege_person_subject_v5_frozen_author_delivery_20261119.json'
+review_path = T / 'privilege_person_subject_v5_independent_combined_source_review_20261120.json'
+assert sha(delivery_path) == '950b955ef71ad8e44067f2af2a20dcd1938f3c92414f3c677799c0893f6abb22'
+assert sha(review_path) == '0e14647a99b7418731747982b0ab0e9b64eea7059206e839877ef496b828553c'
+d = json.loads(delivery_path.read_bytes())
+review = json.loads(review_path.read_bytes())
+assert review['decision'] == 'SOURCE_APPROVED' and review['findings'] == []
+assert review['proposed_Root_files_sha256'] == d['Root_committable_files_sha256']
+assert len(d['Root_committable_files_sha256']) == 811
+for name,wanted in d['Root_committable_files_sha256'].items():
+    assert sha(R / name) == wanted
+for name,wanted in d['new_owned5_sha256'].items():
+    assert sha(T / name) == wanted
+own_path = R / d['owned_source_validation']['path']
+child_path = R / d['corrected_child_validation']['path']
+own_before, child_before = own_path.read_bytes(), child_path.read_bytes()
+own, child = json.loads(own_before), json.loads(child_before)
+assert own['independent_safety_sql_review']['decision'] == 'PENDING_ROOT_AND_SEPARATE_REVIEW'
+assert len(own['archive_files_sha256']) == 806
+prefix = d['Root_archive']['path']
+root_review = {'schema':'workinants.privilege-person-subject-v5-Root-source-review.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'decision':'SOURCE_APPROVED','reviewer':'/root','independent_combined_review_sha256':sha(review_path),'delivery_sha256':sha(delivery_path),'reviewed':'Actual fixed12 Boolean projector and person_binding lines63-81/458-474, exact existing owner-aware helper/EXECUTE grants, distinct principal/owner/search paths/tuple and issuer COMMIT, unchanged200 SQL/202files and canonical5ae/ACL32, normalized five derivation and first-failure/IO/closure admission.','findings':[],'new_five_sha256':d['new_owned5_sha256'],'corrected_child_source_sha256':d['corrected_child_source_sha256'],'source_tests':'142_AUTHOR_AND12_SEPARATE_SELECTED_PASS','old53_scalar_values_and_complete_cause':'UNOBSERVED_NOT_INVENTED','runtime':'NOT_RUN','Posture':'D'}
+copies = {
+    prefix+'/reviews/independent-combined-source-review.json':review_path.read_bytes(),
+    prefix+'/reviews/Root-combined-source-review.json':encoded(root_review),
+    prefix+'/reviews/Root-metadata-closure-helper.py.txt':Path(__file__).read_bytes(),
+    prefix+'/reviews/validation-before-Root-source-approval.json':own_before,
+    prefix+'/reviews/child-validation-before-Root-source-approval.json':child_before,
+}
+for name,raw in copies.items():
+    assert not (R / name).exists()
+    put(R / name,raw)
+    own['archive_files_sha256'][name] = sha(R / name)
+peer_ref = {'decision':'SOURCE_APPROVED','path':prefix+'/reviews/independent-combined-source-review.json','sha256':sha(review_path),'scope':'CORRECTED_CHILD_AND_EXACT_NEW_V5_FIVE','reviewer':'/root/review_track_ports'}
+child['status'] = 'SOURCE_APPROVED_CORRECTED_PERSON_SUBJECT_CHILD_AND_OWNED_V5_RUNTIME_NOT_RUN'
+child['review_gate'] = {'decision':'SOURCE_APPROVED','combined_source_review':peer_ref,'Root_source_review':{'path':prefix+'/reviews/Root-combined-source-review.json','sha256':sha(R / prefix / 'reviews/Root-combined-source-review.json')}}
+child_path.write_bytes(encoded(child))
+own['status'] = 'SOURCE_APPROVED_PERSON_SUBJECT_V5_FRESH_PUBLICATION_PIN_LITERAL_REQUIRED'
+own['independent_safety_sql_review'] = peer_ref
+own['Root_source_review'] = {'decision':'SOURCE_APPROVED','path':prefix+'/reviews/Root-combined-source-review.json','sha256':sha(R / prefix / 'reviews/Root-combined-source-review.json')}
+own['corrected_child_validation'] = {'path':d['corrected_child_validation']['path'],'sha256':sha(child_path)}
+own['Root_approved_metadata_phase_checks'] = 'PENDING_FOCUSED_OFFLINE_PHASE_CHECKS_NO_RUNTIME'
+own_path.write_bytes(encoded(own))
+for name,wanted in d['new_owned5_sha256'].items():
+    assert sha(T / name) == wanted
+for name,wanted in d['corrected_child_source_sha256'].items():
+    assert sha(R / name) == wanted
+receipt = {'schema':'workinants.privilege-person-subject-v5-Root-source-metadata-closure.v1','recorded_at_utc':root_review['recorded_at_utc'],'owned_validation':own_path.relative_to(R).as_posix(),'owned_validation_sha256':sha(own_path),'child_validation':child_path.relative_to(R).as_posix(),'child_validation_sha256':sha(child_path),'archive_files':len(own['archive_files_sha256']),'independent_review_sha256':sha(review_path),'source_code5_and_child3_unchanged':True,'runtime':'NOT_RUN','focused_approved_metadata_phase_checks':'PENDING','Posture':'D'}
+p = T / 'privilege_person_subject_v5_Root_source_metadata_closure_receipt_20261120.json'
+put(p,encoded(receipt))
+print(json.dumps({'receipt_sha256':sha(p),**receipt}))

@@ -1,0 +1,43 @@
+{
+  "schema": "workinants.priv53d7-bounded-source-analysis.v1",
+  "recorded_at_utc": "2026-11-20T04:15:07.170891+00:00",
+  "observed": {
+    "child_failure": {
+      "stage": "SOURCE_QUALIFIED_NATIVE_CATALOG",
+      "code": "INTERACTIVE_OUTPUT_UNCONFIRMED"
+    },
+    "current_case": "ISSUER-LEGITIMATE-PERSON-ISSUE-OWN-READ-BOUND-SCALARS",
+    "original_operation_failure": {
+      "phase": "FINISH",
+      "classification": "SOURCE_HELD_FAILURE",
+      "code": "SAME_APP_TUPLE_REQUIRED"
+    },
+    "first_caller_path_comparison": false,
+    "issuer_COMMIT_acknowledged": true,
+    "own_grant_visible": true,
+    "foreign_grant_hidden": true,
+    "all_actors_closed_before_observers": true,
+    "all_100_guards_restored": true,
+    "behavioral_results": 0,
+    "negative_cases_run": 0
+  },
+  "proven_source_defect": "person_binding expects context_subject(principal) true for customer_buyer_profile. Canonical context_subject returns true only for consent_disclosure. The test VM omits this owner restriction.",
+  "canonical_source": {
+    "path": "review-output/foundation-application.review.sql",
+    "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "context_subject_line": 2471,
+    "context_subject_owner_line": 2440
+  },
+  "coordinator": {
+    "path": "scripts/sql-review/run-privilege-ceiling-control-rehearsal.py",
+    "sha256": "80ca5e62a6a89891e73ecb7afc0e134c3c5b75ed81d0f3adc01ba7c718d03d3f",
+    "expression_line": 444,
+    "verdict_line": 449
+  },
+  "actual_failed_comparison_values": "NOT_RETAINED",
+  "complete_original_cause": "UNOBSERVED",
+  "source_defect_consistent_with_stop": true,
+  "proposed_bounded_correction": "Use existing context_subject_owner with exact principal and owner; keep Consent-only context_subject behavior. Retain fixed Boolean parsing/shape/ACK/error-empty and allowed/owner_subject/same_tuple outcomes before assertion. Model both helpers from canonical semantics and add old-helper restoration plus unrelated-owner/principal/tuple/malformed/secret regressions.",
+  "execution_retry": "HELD_PENDING_CORRECTION_SEPARATE_REVIEW_OFFLINE_VALIDATION_PUBLICATION_PIN_AND_LITERAL",
+  "Posture": "D"
+}

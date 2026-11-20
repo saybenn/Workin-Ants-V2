@@ -1,0 +1,170 @@
+{
+  "finished_at_utc": "2026-11-20T03:38:45.214037+00:00",
+  "five_unchanged_after_all_checks": true,
+  "recorded_at_utc": "2026-11-20T03:29:09.785807+00:00",
+  "results": [
+    {
+      "captured_output_sha256": "f61f4e37839d0d4629e33175b722c36256da56bf539e6680fd88ae213778ef85",
+      "errors": 0,
+      "failures": 0,
+      "harness_path": "check_six_read_owned_resource_v1_safety_composed_20261119.py",
+      "harness_sha256_at_entry": "a2ae340c2a7563ad3a1be64971292a11d21e79279c8555110c4f6d92a5d4e13c",
+      "harness_unchanged_at_exit": true,
+      "methods": 23,
+      "seconds": 5.422,
+      "selected_methods": null,
+      "success": true,
+      "suite": "safety"
+    },
+    {
+      "captured_output_sha256": "6a157056124bf86162f156395c9a294137aa24030afa101fe85ff8accf71fa42",
+      "errors": 0,
+      "failures": 0,
+      "harness_path": "check_sixread_owned_resource_v1_source_admission_20261119.py",
+      "harness_sha256_at_entry": "968981e0dd51c96d77a6f976390d7a91bf7e32c82680e542c40ff27b5b708477",
+      "harness_unchanged_at_exit": true,
+      "methods": 5,
+      "seconds": 46.938,
+      "selected_methods": null,
+      "success": true,
+      "suite": "admission"
+    },
+    {
+      "captured_output_sha256": "5a2e2ff9e843036c6e4c433711a978ee59f0ef2e6196342549388c16a3d28f2f",
+      "errors": 0,
+      "failures": 0,
+      "harness_path": "check_sixread_owned_resource_v1_preparer_pinner_20261119.py",
+      "harness_sha256_at_entry": "a41f7b7b360e60fb34e3aecef4ff71f174db318e6f5fd30774f40d881775701c",
+      "harness_unchanged_at_exit": true,
+      "methods": 10,
+      "seconds": 55.968,
+      "selected_methods": null,
+      "success": true,
+      "suite": "preparer_pinner"
+    },
+    {
+      "captured_output_sha256": "968fc3cda46cb03bb173afeb02834ae67ecae46a083bbd15b8f10110b977e65a",
+      "errors": 0,
+      "failures": 0,
+      "harness_path": "check_sixread_owned_resource_v1_full_composed_20261119.py",
+      "harness_sha256_at_entry": "267c2b5300f403b903a69d561ad463dcebecbd18d19100ee6d9c7e03e0c9c61d",
+      "harness_unchanged_at_exit": true,
+      "methods": 3,
+      "observations": [
+        {
+          "actual_verdict_and_post_method_calls": [
+            "validate_scoped_component",
+            "readonly_post_proof"
+          ],
+          "cleanup_actions_confirmed": true,
+          "component_closure_confirmed": true,
+          "evidence_complete": true,
+          "exit_code": 0,
+          "grants": 71,
+          "kind": "LATEST_WHOLE_CLI_HAPPY_PREFIX_EXPIRY_ALLOWED",
+          "ledger_process_boundaries": 2,
+          "main_seconds": 130.23400000002584,
+          "native_process_boundaries": 10,
+          "operation_processes": 143,
+          "oracle_process_boundaries": 2,
+          "prisma_calls": [
+            "deploy"
+          ],
+          "runtime_qualification_claimed": false,
+          "source5_sha256": {
+            "check_local_f0_scoped_reads_owned_resource_v1_operation.py": "6d69f6df83eee156605766d82683a29a5890b7436bac4428d890c28cca3b9aa9",
+            "execute_local_f0_scoped_reads_owned_resource_v1_20261119.py": "d35491a05064d58c05ec7437b16668554394854f0e7b3d7ee2675fbb963b64ec",
+            "local_f0_scoped_reads_owned_resource_v1_operation_steps.py": "6cdbffd04fa950663ba94f40503b2d987284b57ff6ea0a8619f4a3c9eaa5bb71",
+            "pin_local_f0_scoped_reads_owned_resource_v1_plan_20261119.py": "9f644efc10b9e5e68756d51e38c744e06404ac84fc0c4e36386c82c608c33bdd",
+            "prepare_local_f0_scoped_reads_owned_resource_v1_plan.py": "009f41028bea52513e1050efce4662b3de9167818e1f95a1fffb4830e5e49ab0"
+          },
+          "source_only_mock": true,
+          "status": "PASS_LOCAL_SCOPED_READ_SQL_SUBSET_ONLY",
+          "writer_failures": 0,
+          "writer_fault_phases": []
+        },
+        {
+          "actual_verdict_and_post_method_calls": [],
+          "cleanup_actions_confirmed": true,
+          "component_closure_confirmed": false,
+          "evidence_complete": false,
+          "exit_code": 1,
+          "grants": 71,
+          "kind": "LATEST_WHOLE_CLI_AFTER_CHILD_PERSISTENT_PARENT_SAVE_FAILURE",
+          "ledger_process_boundaries": 1,
+          "main_seconds": 162.46900000001187,
+          "native_process_boundaries": 7,
+          "operation_processes": 143,
+          "oracle_process_boundaries": 1,
+          "prisma_calls": [
+            "deploy"
+          ],
+          "runtime_qualification_claimed": false,
+          "source5_sha256": {
+            "check_local_f0_scoped_reads_owned_resource_v1_operation.py": "6d69f6df83eee156605766d82683a29a5890b7436bac4428d890c28cca3b9aa9",
+            "execute_local_f0_scoped_reads_owned_resource_v1_20261119.py": "d35491a05064d58c05ec7437b16668554394854f0e7b3d7ee2675fbb963b64ec",
+            "local_f0_scoped_reads_owned_resource_v1_operation_steps.py": "6cdbffd04fa950663ba94f40503b2d987284b57ff6ea0a8619f4a3c9eaa5bb71",
+            "pin_local_f0_scoped_reads_owned_resource_v1_plan_20261119.py": "9f644efc10b9e5e68756d51e38c744e06404ac84fc0c4e36386c82c608c33bdd",
+            "prepare_local_f0_scoped_reads_owned_resource_v1_plan.py": "009f41028bea52513e1050efce4662b3de9167818e1f95a1fffb4830e5e49ab0"
+          },
+          "source_only_mock": true,
+          "status": "STOPPED_ATTEMPT_PRESERVED",
+          "writer_failures": 18,
+          "writer_fault_phases": [
+            "DURING_REQUIRED_PARENT_CLOSURE_RECORD"
+          ]
+        },
+        {
+          "actual_verdict_and_post_method_calls": [],
+          "cleanup_actions_confirmed": true,
+          "component_closure_confirmed": true,
+          "evidence_complete": false,
+          "exit_code": 1,
+          "grants": 71,
+          "kind": "LATEST_WHOLE_CLI_AFTER_CHILD_TRANSIENT_PARENT_SAVE_FAILURE",
+          "ledger_process_boundaries": 1,
+          "main_seconds": 109.75,
+          "native_process_boundaries": 7,
+          "operation_processes": 143,
+          "oracle_process_boundaries": 1,
+          "prisma_calls": [
+            "deploy"
+          ],
+          "runtime_qualification_claimed": false,
+          "source5_sha256": {
+            "check_local_f0_scoped_reads_owned_resource_v1_operation.py": "6d69f6df83eee156605766d82683a29a5890b7436bac4428d890c28cca3b9aa9",
+            "execute_local_f0_scoped_reads_owned_resource_v1_20261119.py": "d35491a05064d58c05ec7437b16668554394854f0e7b3d7ee2675fbb963b64ec",
+            "local_f0_scoped_reads_owned_resource_v1_operation_steps.py": "6cdbffd04fa950663ba94f40503b2d987284b57ff6ea0a8619f4a3c9eaa5bb71",
+            "pin_local_f0_scoped_reads_owned_resource_v1_plan_20261119.py": "9f644efc10b9e5e68756d51e38c744e06404ac84fc0c4e36386c82c608c33bdd",
+            "prepare_local_f0_scoped_reads_owned_resource_v1_plan.py": "009f41028bea52513e1050efce4662b3de9167818e1f95a1fffb4830e5e49ab0"
+          },
+          "source_only_mock": true,
+          "status": "STOPPED_ATTEMPT_PRESERVED",
+          "writer_failures": 1,
+          "writer_fault_phases": [
+            "AFTER_CONFIRMED_PARENT_CLOSURE_BEFORE_REFERENCE_PERSIST"
+          ]
+        }
+      ],
+      "seconds": 467.11,
+      "selected_methods": [
+        "test_actual_owned_CLI_source_install_native_child_post_and_cleanup",
+        "test_parent_writer_persistent_failure_after_real_child_still_closes_and_cleans",
+        "test_parent_writer_transient_failure_after_real_child_is_sticky_and_cleans"
+      ],
+      "success": true,
+      "suite": "full_cli"
+    }
+  ],
+  "runtime_qualification_claimed": false,
+  "schema": "workinants.sixread-owned-independent-offline-checks.v1",
+  "source_five_sha256": {
+    "check_local_f0_scoped_reads_owned_resource_v1_operation.py": "6d69f6df83eee156605766d82683a29a5890b7436bac4428d890c28cca3b9aa9",
+    "execute_local_f0_scoped_reads_owned_resource_v1_20261119.py": "d35491a05064d58c05ec7437b16668554394854f0e7b3d7ee2675fbb963b64ec",
+    "local_f0_scoped_reads_owned_resource_v1_operation_steps.py": "6cdbffd04fa950663ba94f40503b2d987284b57ff6ea0a8619f4a3c9eaa5bb71",
+    "pin_local_f0_scoped_reads_owned_resource_v1_plan_20261119.py": "9f644efc10b9e5e68756d51e38c744e06404ac84fc0c4e36386c82c608c33bdd",
+    "prepare_local_f0_scoped_reads_owned_resource_v1_plan.py": "009f41028bea52513e1050efce4662b3de9167818e1f95a1fffb4830e5e49ab0"
+  },
+  "source_only_mock": true,
+  "success": true
+}
