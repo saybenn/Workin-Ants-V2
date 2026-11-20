@@ -1,0 +1,476 @@
+{
+  "schema": "workinants.derived-reviewed-assertion-evidence.v1",
+  "derivation": "EXPLICIT_DERIVED_WRAPPER_NOT_A_RAW_RUNTIME_REPORT",
+  "raw_record_fields_invented": false,
+  "run_id": "a560e05b-7683-4780-9f59-a427b8f22edc",
+  "source_commit": "da5ad66cfc2bcb8aa64a453d10e29baeedb74a65",
+  "source_tree": "6c28cd218487cac448805dee8a407f78056a0e22",
+  "packet_sha256": "244bf11660a17697af91921f6d26e8c39fb3f4c98aaaaaa267e816d57c65302c",
+  "actual_result": "DERIVED_REVIEWED_LEASE8_FINITE_ASSERTIONS_ONLY",
+  "source_record": {
+    "path": "context/reconciliation/local-f0-lease-da5ad66-a560e05b-execution.json",
+    "sha256": "c9e01ae2c1e6aaf0e9d054ac5b689a09bbc65ac2d5ed65893d8f90374cc0edbd",
+    "raw_wrapper_status": "PASS_FINITE_LEASE_AND_APP_CURRENTNESS_ONLY_CASES_NOT_RUN",
+    "packet_field_in_raw_record": "operation_packet_sha256"
+  },
+  "independent_audit_artifacts_sha256": {
+    "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/owner-review.json": "dd26a616fbc996ff9242ba09d73f1701fa1e81e3a7048f4dcf3ed83c331a74ed",
+    "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/owner-approved-links.json": "e42686608d376f64e16ec1315d876af5c346820412b467e565d166d1610dd330",
+    "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/owner-checks.json": "600c698f73f2a80151ffef8a3338dc73a658cf5eae8888b8bea7d51025510d2e",
+    "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/owner-source-scope-findings.json": "94e471d89a37f50f3a36c3508fa2e53855e6b0104c7db46dda0c9387bdafa1ea",
+    "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/catalog-review.json": "06b726d92c93f677b0ff8f6c474ecae8725bfed5d9f82129dbf5a4332404743d",
+    "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/catalog-proposal.json": "c48230229e42eb91ec6a51392d80e10fffa4fd39d4b7bfcdc7b27f43c80102a3",
+    "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/catalog-evidence-checks.json": "b0eeb268da4a6cf4276a155902f9bf2e8981e768a69fa5d0b0fb8dae9665b3ad",
+    "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/catalog-audit-source.py.txt": "43996e8a33c10f5197164a548d5dfb411f988bdbdb2bd18eb228c900b30fae54",
+    "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/owner-audit-source.py.txt": "0b1e023bd5d8f55c936eead92e184a0f80d562d13515a1be0794ea4d1fb370f1",
+    "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/preserved/assertion-evidence.before.json": "052207497a484b64a16cd8069a51e25e38ab82f516807c853f41c3737057fc44"
+  },
+  "claim_counts": {
+    "PASS": 4,
+    "PARTIAL": 4
+  },
+  "claims": [
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "vector.LEASE-RENEW.positive",
+      "status": "PASS",
+      "expected_assertion_sha256": "94438b23f05d6a55e40384626926f4a0e0cf22281e1dd2ec77a43e177225c233",
+      "complete_source_assertion_sha256": "2a5b220c73b0008430abe875d01cc9762860e16a79d13211347060077b383e54",
+      "independent_mapping": {
+        "path": "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/catalog-proposal.json",
+        "sha256": "c48230229e42eb91ec6a51392d80e10fffa4fd39d4b7bfcdc7b27f43c80102a3",
+        "json_pointer": "/rows/20"
+      },
+      "component": {
+        "path": "context/reconciliation/local-f0-run-assets/da5ad66-lease-a560e05b/evidence/lease-revoke/lease-revoke-results.json",
+        "sha256": "a4cc2e14808ad6926fe687e441a02fb4a684446b40ad315b7e4d330889caa160"
+      },
+      "source_case_results": [
+        {
+          "source_case_name": "worker-claim",
+          "json_pointer": "/results/0"
+        },
+        {
+          "source_case_name": "worker-renew",
+          "json_pointer": "/results/1"
+        },
+        {
+          "source_case_name": "current-holder-renew",
+          "json_pointer": "/results/5"
+        }
+      ],
+      "source_operation_pointers": [
+        "/operations/53",
+        "/operations/110"
+      ],
+      "remaining_limits": [
+        "Renew-only selected vector at LOCAL SQL level; no attach/complete/recovery/business effect.",
+        "Actual expiry clock comparisons from later stages are overwritten, so not used to qualify this positive."
+      ],
+      "whole_case_promoted": false
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "vector.LEASE-RENEW.adversarial",
+      "status": "PARTIAL",
+      "expected_assertion_sha256": "2a61f21b0d4cbdbaa6933dbba3787f78a2019beb5674864ff2f95d2394372892",
+      "complete_source_assertion_sha256": "c40395d3f5dbeaea23c48c0e5af80eda944e88873269e2b67ca2a37ab3dcde8a",
+      "independent_mapping": {
+        "path": "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/catalog-proposal.json",
+        "sha256": "c48230229e42eb91ec6a51392d80e10fffa4fd39d4b7bfcdc7b27f43c80102a3",
+        "json_pointer": "/rows/21"
+      },
+      "component": {
+        "path": "context/reconciliation/local-f0-run-assets/da5ad66-lease-a560e05b/evidence/lease-revoke/lease-revoke-results.json",
+        "sha256": "a4cc2e14808ad6926fe687e441a02fb4a684446b40ad315b7e4d330889caa160"
+      },
+      "source_case_results": [
+        {
+          "source_case_name": "live-reclaim-denied",
+          "json_pointer": "/results/2"
+        },
+        {
+          "source_case_name": "expired-renew-denied",
+          "json_pointer": "/results/3"
+        },
+        {
+          "source_case_name": "concurrent-reclaim-stale-holder",
+          "json_pointer": "/results/4"
+        },
+        {
+          "source_case_name": "shorten-renew-denied",
+          "json_pointer": "/results/6"
+        },
+        {
+          "source_case_name": "copied-hash-renew-denied",
+          "json_pointer": "/results/7"
+        },
+        {
+          "source_case_name": "old-secret-renew-denied",
+          "json_pointer": "/results/8"
+        },
+        {
+          "source_case_name": "hash-change-denied",
+          "json_pointer": "/results/9"
+        },
+        {
+          "source_case_name": "attempt-only-denied",
+          "json_pointer": "/results/10"
+        }
+      ],
+      "source_operation_pointers": [
+        "/operations/69",
+        "/operations/85",
+        "/operations/89",
+        "/operations/90",
+        "/operations/92",
+        "/operations/93",
+        "/operations/126",
+        "/operations/141",
+        "/operations/156",
+        "/operations/171",
+        "/operations/186"
+      ],
+      "remaining_limits": [
+        "Actual wait_expired live/expired/poll/deadline values were saved only to current then overwritten; final artifact implies guarded source traversal but does not independently preserve those clock facts.",
+        "Do not qualify the full expiry/concurrent higher-fence/stale-holder-commit requirement from this artifact alone."
+      ],
+      "whole_case_promoted": false
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "control.lease_transitions",
+      "status": "PARTIAL",
+      "expected_assertion_sha256": "df9e9f2c60b682774fdd018332716e082e50412579b2df0db9d78c1b98a2b929",
+      "complete_source_assertion_sha256": "24a94f52d75792ebdeb4ff4a09d200b883c92ad3e77a08b093b9dfa7bfe73a3a",
+      "independent_mapping": {
+        "path": "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/catalog-proposal.json",
+        "sha256": "c48230229e42eb91ec6a51392d80e10fffa4fd39d4b7bfcdc7b27f43c80102a3",
+        "json_pointer": "/rows/22"
+      },
+      "component": {
+        "path": "context/reconciliation/local-f0-run-assets/da5ad66-lease-a560e05b/evidence/lease-revoke/lease-revoke-results.json",
+        "sha256": "a4cc2e14808ad6926fe687e441a02fb4a684446b40ad315b7e4d330889caa160"
+      },
+      "source_case_results": [
+        {
+          "source_case_name": "worker-claim",
+          "json_pointer": "/results/0"
+        },
+        {
+          "source_case_name": "worker-renew",
+          "json_pointer": "/results/1"
+        },
+        {
+          "source_case_name": "live-reclaim-denied",
+          "json_pointer": "/results/2"
+        },
+        {
+          "source_case_name": "expired-renew-denied",
+          "json_pointer": "/results/3"
+        },
+        {
+          "source_case_name": "concurrent-reclaim-stale-holder",
+          "json_pointer": "/results/4"
+        },
+        {
+          "source_case_name": "current-holder-renew",
+          "json_pointer": "/results/5"
+        },
+        {
+          "source_case_name": "shorten-renew-denied",
+          "json_pointer": "/results/6"
+        },
+        {
+          "source_case_name": "copied-hash-renew-denied",
+          "json_pointer": "/results/7"
+        },
+        {
+          "source_case_name": "old-secret-renew-denied",
+          "json_pointer": "/results/8"
+        },
+        {
+          "source_case_name": "hash-change-denied",
+          "json_pointer": "/results/9"
+        },
+        {
+          "source_case_name": "attempt-only-denied",
+          "json_pointer": "/results/10"
+        }
+      ],
+      "source_operation_pointers": [],
+      "remaining_limits": [
+        "This packet contains no effect/inbox attach, nonnull relink, complete, foreign receipt or committed-outcome recovery operation.",
+        "Full guard matrix and independently retained expiry-clock facts remain incomplete."
+      ],
+      "whole_case_promoted": false
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "control.concurrent_fence",
+      "status": "PARTIAL",
+      "expected_assertion_sha256": "62bbedc11d137fc78e0173ee84039a04db8c2e7f99fa4c1186c60d72868736f0",
+      "complete_source_assertion_sha256": "70fa72a0cb056b98f9e727b3642e2294bb23620e18fa92ed9458abfffb3995f8",
+      "independent_mapping": {
+        "path": "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/catalog-proposal.json",
+        "sha256": "c48230229e42eb91ec6a51392d80e10fffa4fd39d4b7bfcdc7b27f43c80102a3",
+        "json_pointer": "/rows/23"
+      },
+      "component": {
+        "path": "context/reconciliation/local-f0-run-assets/da5ad66-lease-a560e05b/evidence/lease-revoke/lease-revoke-results.json",
+        "sha256": "a4cc2e14808ad6926fe687e441a02fb4a684446b40ad315b7e4d330889caa160"
+      },
+      "source_case_results": [
+        {
+          "source_case_name": "expired-renew-denied",
+          "json_pointer": "/results/3"
+        },
+        {
+          "source_case_name": "concurrent-reclaim-stale-holder",
+          "json_pointer": "/results/4"
+        },
+        {
+          "source_case_name": "current-holder-renew",
+          "json_pointer": "/results/5"
+        }
+      ],
+      "source_operation_pointers": [
+        "/operations/87",
+        "/operations/89",
+        "/operations/90",
+        "/operations/91",
+        "/operations/92",
+        "/operations/93",
+        "/operations/94"
+      ],
+      "remaining_limits": [
+        "Exact recorded zero-row current-context attribution only; no full-current-holder/processing commit or full higher-fence qualification.",
+        "Live/expired clock-poll facts overwritten in final current; preserve that evidence limit."
+      ],
+      "whole_case_promoted": false
+    },
+    {
+      "case_id": "P0C-CTX-02",
+      "assertion_id": "control.revocation_schedule",
+      "status": "PARTIAL",
+      "expected_assertion_sha256": "18fc01dc3e8301f0a76a23b044c329daaf92cb599ed911d72387765ef33adc99",
+      "complete_source_assertion_sha256": "103c5f29a44a8781875e9e1735bb0c224279f30246799087c5f7cf8ec8b2bf54",
+      "independent_mapping": {
+        "path": "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/catalog-proposal.json",
+        "sha256": "c48230229e42eb91ec6a51392d80e10fffa4fd39d4b7bfcdc7b27f43c80102a3",
+        "json_pointer": "/rows/24"
+      },
+      "component": {
+        "path": "context/reconciliation/local-f0-run-assets/da5ad66-lease-a560e05b/evidence/lease-revoke/lease-revoke-results.json",
+        "sha256": "a4cc2e14808ad6926fe687e441a02fb4a684446b40ad315b7e4d330889caa160"
+      },
+      "source_case_results": [
+        {
+          "source_case_name": "app-issuer-revocation",
+          "json_pointer": "/results/11"
+        }
+      ],
+      "source_operation_pointers": [
+        "/operations/201"
+      ],
+      "remaining_limits": [
+        "This run proves application counterpart only. Worker counterpart exists in separately qualified f161 record; any combined PASS requires explicit dual-record validation and independent Root review, not replacing either immutable execution record."
+      ],
+      "whole_case_promoted": false
+    },
+    {
+      "case_id": "P0C-CTX-02",
+      "assertion_id": "control.independent_service_currentness",
+      "status": "PASS",
+      "expected_assertion_sha256": "985ce860c53025f783c7ac2a8454ffce82e95d806709baa1bf3fc4b2dd9b02e6",
+      "complete_source_assertion_sha256": "ca432c876f013c1ae4017d8afc8be09f01e82a21669788fabb10bc84f775f546",
+      "independent_mapping": {
+        "path": "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/catalog-proposal.json",
+        "sha256": "c48230229e42eb91ec6a51392d80e10fffa4fd39d4b7bfcdc7b27f43c80102a3",
+        "json_pointer": "/rows/25"
+      },
+      "component": {
+        "path": "context/reconciliation/local-f0-run-assets/da5ad66-lease-a560e05b/evidence/lease-revoke/lease-revoke-results.json",
+        "sha256": "a4cc2e14808ad6926fe687e441a02fb4a684446b40ad315b7e4d330889caa160"
+      },
+      "source_case_results": [
+        {
+          "source_case_name": "app-bound-before-rotate",
+          "json_pointer": "/results/12"
+        },
+        {
+          "source_case_name": "app-old-after-rotate",
+          "json_pointer": "/results/13"
+        },
+        {
+          "source_case_name": "app-fresh-after-rotate",
+          "json_pointer": "/results/14"
+        },
+        {
+          "source_case_name": "app-bound-before-revoke",
+          "json_pointer": "/results/15"
+        },
+        {
+          "source_case_name": "app-revoked-generation",
+          "json_pointer": "/results/16"
+        },
+        {
+          "source_case_name": "app-old-after-recover",
+          "json_pointer": "/results/17"
+        },
+        {
+          "source_case_name": "app-fresh-after-recover",
+          "json_pointer": "/results/18"
+        }
+      ],
+      "source_operation_pointers": [
+        "/operations/216",
+        "/operations/218",
+        "/operations/233",
+        "/operations/262",
+        "/operations/264",
+        "/operations/279",
+        "/operations/293",
+        "/operations/296",
+        "/operations/311"
+      ],
+      "remaining_limits": [
+        "LOCAL service-currentness SQL only with synthetic upstream authorization; no production Identity owner adapter/UserSecurityProfile mutation/Customer source-generation transition.",
+        "These exact criteria already have f161 PASS evidence; new run supplies bounded app-side corroboration without a new assertion count."
+      ],
+      "whole_case_promoted": false
+    },
+    {
+      "case_id": "P0C-CTX-02",
+      "assertion_id": "vector.SERVICE-REVOKE.positive",
+      "status": "PASS",
+      "expected_assertion_sha256": "3382cbcb1a73833062c4ae08e7f2a70af5c3b37252faf96132b7295ea3db240c",
+      "complete_source_assertion_sha256": "f0ff0d9c3bf0dca0f5f5fda9be8bba8b484c12dc0cb9b44afd278a9a1bd61f2b",
+      "independent_mapping": {
+        "path": "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/catalog-proposal.json",
+        "sha256": "c48230229e42eb91ec6a51392d80e10fffa4fd39d4b7bfcdc7b27f43c80102a3",
+        "json_pointer": "/rows/26"
+      },
+      "component": {
+        "path": "context/reconciliation/local-f0-run-assets/da5ad66-lease-a560e05b/evidence/lease-revoke/lease-revoke-results.json",
+        "sha256": "a4cc2e14808ad6926fe687e441a02fb4a684446b40ad315b7e4d330889caa160"
+      },
+      "source_case_results": [
+        {
+          "source_case_name": "app-bound-before-rotate",
+          "json_pointer": "/results/12"
+        },
+        {
+          "source_case_name": "app-old-after-rotate",
+          "json_pointer": "/results/13"
+        },
+        {
+          "source_case_name": "app-fresh-after-rotate",
+          "json_pointer": "/results/14"
+        },
+        {
+          "source_case_name": "app-bound-before-revoke",
+          "json_pointer": "/results/15"
+        },
+        {
+          "source_case_name": "app-revoked-generation",
+          "json_pointer": "/results/16"
+        },
+        {
+          "source_case_name": "app-old-after-recover",
+          "json_pointer": "/results/17"
+        },
+        {
+          "source_case_name": "app-fresh-after-recover",
+          "json_pointer": "/results/18"
+        }
+      ],
+      "source_operation_pointers": [
+        "/operations/216",
+        "/operations/218",
+        "/operations/233",
+        "/operations/262",
+        "/operations/264",
+        "/operations/279",
+        "/operations/293",
+        "/operations/296",
+        "/operations/311"
+      ],
+      "remaining_limits": [
+        "LOCAL service-currentness SQL only with synthetic upstream authorization; no production Identity owner adapter/UserSecurityProfile mutation/Customer source-generation transition.",
+        "These exact criteria already have f161 PASS evidence; new run supplies bounded app-side corroboration without a new assertion count."
+      ],
+      "whole_case_promoted": false
+    },
+    {
+      "case_id": "P0C-CTX-02",
+      "assertion_id": "vector.SERVICE-REVOKE.adversarial",
+      "status": "PASS",
+      "expected_assertion_sha256": "b4bb2406df14242a57c68a4edaa42f8141291e14e4c30a753b69b09d5e2dd6e5",
+      "complete_source_assertion_sha256": "d10566bf108ce5ad997253f10db9bd01ccf5507e18b6ae18b84a8f3989072c8c",
+      "independent_mapping": {
+        "path": "context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/catalog-proposal.json",
+        "sha256": "c48230229e42eb91ec6a51392d80e10fffa4fd39d4b7bfcdc7b27f43c80102a3",
+        "json_pointer": "/rows/27"
+      },
+      "component": {
+        "path": "context/reconciliation/local-f0-run-assets/da5ad66-lease-a560e05b/evidence/lease-revoke/lease-revoke-results.json",
+        "sha256": "a4cc2e14808ad6926fe687e441a02fb4a684446b40ad315b7e4d330889caa160"
+      },
+      "source_case_results": [
+        {
+          "source_case_name": "app-bound-before-rotate",
+          "json_pointer": "/results/12"
+        },
+        {
+          "source_case_name": "app-old-after-rotate",
+          "json_pointer": "/results/13"
+        },
+        {
+          "source_case_name": "app-fresh-after-rotate",
+          "json_pointer": "/results/14"
+        },
+        {
+          "source_case_name": "app-bound-before-revoke",
+          "json_pointer": "/results/15"
+        },
+        {
+          "source_case_name": "app-revoked-generation",
+          "json_pointer": "/results/16"
+        },
+        {
+          "source_case_name": "app-old-after-recover",
+          "json_pointer": "/results/17"
+        },
+        {
+          "source_case_name": "app-fresh-after-recover",
+          "json_pointer": "/results/18"
+        }
+      ],
+      "source_operation_pointers": [
+        "/operations/216",
+        "/operations/218",
+        "/operations/233",
+        "/operations/262",
+        "/operations/264",
+        "/operations/279",
+        "/operations/293",
+        "/operations/296",
+        "/operations/311"
+      ],
+      "remaining_limits": [
+        "LOCAL service-currentness SQL only with synthetic upstream authorization; no production Identity owner adapter/UserSecurityProfile mutation/Customer source-generation transition.",
+        "These exact criteria already have f161 PASS evidence; new run supplies bounded app-side corroboration without a new assertion count."
+      ],
+      "whole_case_promoted": false
+    }
+  ],
+  "limits": {
+    "Posture": "D",
+    "whole_case_or451_promotion": false,
+    "unlisted_runtime_outcomes_qualified": false,
+    "fixture_setup_writes_qualified": false,
+    "worker_plus_app_dual_record_revocation_combined": false,
+    "missing_clock_facts_invented": false
+  }
+}

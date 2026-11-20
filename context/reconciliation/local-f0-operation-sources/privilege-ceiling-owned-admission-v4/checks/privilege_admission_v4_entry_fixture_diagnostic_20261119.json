@@ -1,0 +1,46 @@
+{
+  "schema": "workinants.privilege-admission-v4-offline-entry-diagnostic.v1",
+  "failure": {
+    "stage": "SOURCE_VERIFICATION",
+    "code": "UNEXPECTED_PRIVILEGE_CEILING_WRAPPER_FAILURE"
+  },
+  "exception_frames": [
+    {
+      "file": "local_f0_privilege_ceiling_admission_v4_operation_steps.py",
+      "function": "<genexpr>",
+      "line": 43,
+      "exception_type": "GeneratorExit"
+    },
+    {
+      "file": "local_f0_privilege_ceiling_admission_v4_operation_steps.py",
+      "function": "verify_catalog_packet",
+      "line": 248,
+      "exception_type": "PreparationFailure"
+    },
+    {
+      "file": "local_f0_privilege_ceiling_admission_v4_operation_steps.py",
+      "function": "verify_privilege_ceiling_packet",
+      "line": 818,
+      "exception_type": "PreparationFailure"
+    },
+    {
+      "file": "local_f0_privilege_ceiling_admission_v4_operation_steps.py",
+      "function": "main",
+      "line": 959,
+      "exception_type": "PreparationFailure"
+    }
+  ],
+  "command_boundary_names": [
+    [
+      "container",
+      "ls",
+      "-a"
+    ],
+    [
+      "volume",
+      "ls",
+      "--format"
+    ]
+  ],
+  "raw_exception_text_retained": false
+}

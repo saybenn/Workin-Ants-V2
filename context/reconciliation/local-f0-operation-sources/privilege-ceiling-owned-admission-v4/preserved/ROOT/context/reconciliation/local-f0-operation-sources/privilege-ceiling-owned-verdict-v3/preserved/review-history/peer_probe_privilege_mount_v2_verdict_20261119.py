@@ -1,0 +1,40 @@
+"""Independent in-memory verdict probes. All process/network APIs forbidden."""
+from pathlib import Path
+from copy import deepcopy
+import datetime, hashlib, json, runpy
+
+TASK=Path(__file__).resolve().parent
+B=runpy.run_path(str(TASK/'check_local_f0_privilege_ceiling_resource_mount_v2_operation.py'))
+case=B['PrivilegeOperationTests']()
+case.setUp()
+observations=[]
+try:
+    case.component();n=case.n;n['privilege_ceiling_experiment']()
+    raw=(n['OUT']/'privilege-ceiling-run-plan.json').read_bytes();plan=json.loads(raw)
+    value=json.loads((n['OUT']/'privilege-ceiling-component/privilege-ceiling-results.json').read_bytes())
+    def inspect(label,change):
+        candidate=deepcopy(value);change(candidate)
+        try:n['verify_privilege_result'](candidate,plan,raw)
+        except n['Stop'] as error:accepted=False;code=error.code
+        else:accepted=True;code=None
+        observations.append({'probe':label,'accepted':accepted,'fixed_failure_code':code,'raw_candidate_retained':False})
+    inspect('unlisted_diagnostic_gate_and_object',lambda x:x['results'][0]['diagnostic'].update(gate='UNLISTED_GATE',object='UNLISTED_OBJECT'))
+    def immutable_frame(x):
+        row=next(row for row in x['results'] if row['diagnostic']['kind']=='IMMUTABLE_GRANT')
+        row['diagnostic']['source_frame_verified']=False
+    inspect('immutable_guard_matched_true_but_source_frame_false',immutable_frame)
+    inspect('diagnostic_gate_and_object_non_scalar',lambda x:x['results'][0]['diagnostic'].update(gate={'unexpected':True},object=['unexpected']))
+    inspect('nonboolean_source_position_control',lambda x:x['results'][0]['diagnostic'].update(source_position_verified=0))
+    inspect('wrong_native_case_promotion_control',lambda x:x['selected_cases'][0].update(status='PASS'))
+    inspect('invalid_role_metadata_ignored',lambda x:x.update(role_metadata={'four_owner_roles_NOLOGIN_NOINHERIT_nonprivileged':False}))
+    n['report']['catalog_comparison']['check_counts']['PASS']=29089.0
+    calls=[];n['write_safe']=lambda filename,value:(calls.append(filename),(_ for _ in ()).throw(n['Stop']('PEER_COMPONENT_REACHED_AFTER_COUNT')))[1]
+    try:n['privilege_ceiling_experiment']()
+    except n['Stop'] as error:code=error.code
+    else:code=None
+    observations.append({'probe':'floating_native_catalog_count_reaches_component','accepted_through_gate':bool(calls),'fixed_failure_code':code,'raw_candidate_retained':False})
+finally:case.doCleanups()
+record={'schema':'workinants.privilege-owned-resource-mount-v2-independent-verdict-probes.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'source_freeze_sha256':'0bf164666e6c463da4f18dd5a57738d6b621dcf409f46bd761de4007f8d69e5a','observations':observations,'actual_Docker_database_network_credentials_resources':False,'source_and_repository_mutations':False,'all_subprocess_and_socket_APIs_forbidden_by_fixture':True,'runtime':'NOT_RUN'}
+path=TASK/'privilege_mount_v2_independent_verdict_probe_20261119.json'
+with path.open('x',encoding='utf8',newline='\n') as stream:stream.write(json.dumps(record,indent=2)+'\n')
+print(json.dumps({'path':str(path),'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'observations':observations}))

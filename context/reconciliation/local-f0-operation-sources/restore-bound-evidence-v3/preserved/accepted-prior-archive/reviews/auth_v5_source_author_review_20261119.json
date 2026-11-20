@@ -1,0 +1,194 @@
+{
+  "AST_scope": {
+    "check_local_f0_lease_revoke_operation_auth_v5.py": {
+      "added_definitions": [
+        "AuthV5ProjectionTests"
+      ],
+      "changed_definitions": [],
+      "removed_definitions": []
+    },
+    "check_local_f0_restore_operation_auth_v5.py": {
+      "added_definitions": [
+        "AuthV5ProjectionTests"
+      ],
+      "changed_definitions": [
+        "RestoreOperationTests"
+      ],
+      "removed_definitions": []
+    },
+    "execute_local_f0_lease_revoke_20261118_auth_v5.py": {
+      "added_definitions": [],
+      "changed_definitions": [],
+      "removed_definitions": []
+    },
+    "execute_local_f0_restore_20261117_auth_v5.py": {
+      "added_definitions": [],
+      "changed_definitions": [],
+      "removed_definitions": []
+    },
+    "local_f0_lease_revoke_operation_steps_auth_v5.py": {
+      "added_definitions": [
+        "auth_denial_comparison"
+      ],
+      "changed_definitions": [
+        "auth_control"
+      ],
+      "removed_definitions": []
+    },
+    "local_f0_restore_operation_steps_auth_v5.py": {
+      "added_definitions": [
+        "auth_denial_comparison"
+      ],
+      "changed_definitions": [
+        "auth_control"
+      ],
+      "removed_definitions": []
+    },
+    "pin_local_f0_lease_revoke_plan_20261118_auth_v5.py": {
+      "added_definitions": [],
+      "changed_definitions": [
+        "pin"
+      ],
+      "removed_definitions": []
+    },
+    "pin_local_f0_restore_plan_20261118_auth_v5.py": {
+      "added_definitions": [],
+      "changed_definitions": [
+        "validate_filesystem"
+      ],
+      "removed_definitions": []
+    },
+    "prepare_local_f0_lease_revoke_plan_auth_v5.py": {
+      "added_definitions": [],
+      "changed_definitions": [],
+      "removed_definitions": []
+    },
+    "prepare_local_f0_restore_plan_auth_v5.py": {
+      "added_definitions": [],
+      "changed_definitions": [],
+      "removed_definitions": []
+    }
+  },
+  "checks": {
+    "inherited_actual_main_finally_cleanup_IO_matrices": "PASS",
+    "lease": {
+      "elapsed_seconds": 26.744,
+      "exit_code": 0,
+      "tests": 60
+    },
+    "new_auth_methods_per_family": 8,
+    "restore": {
+      "elapsed_seconds": 42.232,
+      "exit_code": 0,
+      "tests": 64
+    },
+    "whole_actual_source_verifiers": "PASS"
+  },
+  "comparison_schema": {
+    "booleans": [
+      "result_fields_typed",
+      "exit_two",
+      "stdout_empty",
+      "text_bounded",
+      "controls_absent",
+      "endpoint_exact",
+      "single_fatal",
+      "expected_primary",
+      "sqlstate_compatible",
+      "selected_file_warning_exact",
+      "line_count_exact",
+      "transport_exact"
+    ],
+    "fixed_basename_enum": [
+      "pgpass",
+      "wrong.pgpass",
+      "source-old.pgpass"
+    ],
+    "fixed_sqlstate_enum": [
+      "ABSENT_EXACT_PRIMARY",
+      "EXPECTED",
+      "MISMATCH",
+      "MALFORMED",
+      "UNOBSERVED"
+    ],
+    "retention_order": "Comparison dictionary recorded before RESTORE_AUTH_EXACT_DENIAL assertion; original negative verdict and finally global backend closure still mandatory.",
+    "shape": "Closed fixed-key dictionary of Boolean outcomes plus fixed SQLSTATE category enum and known password-file basename. Never retain raw stdout/stderr, exception strings, arbitrary role/file/path or token."
+  },
+  "derivation": {
+    "path": "auth_v5_final_source_derivation_20261119.json",
+    "sha256": "5a1b31951496cac51e07f72349d617f924585e9b1718e7c4d5382fdf4c725fa1"
+  },
+  "initial_offline_attempt": {
+    "detail": "The newly added Lease projection test namespace omitted existing CONNECTION_TAG; fixed only the new test namespace. No runtime code or admission criterion changed. Full suites then passed.",
+    "result": "TEST_FIXTURE_NAMESPACE_DEFECT"
+  },
+  "limits": {
+    "451": "NOT_PROMOTED",
+    "new_family_runtime": "NOT_RUN",
+    "no_Docker_DB_SQL_network_Git_mutations": true,
+    "no_old_source_actual_record_or_literal_changes": true,
+    "no_whole_restore_or_owner_contract_claim": true,
+    "posture": "D",
+    "privacy_gate": "P0F_PRIVACY_RESTORE_GENERATION_PORT",
+    "whole94": "NOT_PROMOTED"
+  },
+  "observed_vs_unknown": {
+    "exact_original_stderr_cause": "UNOBSERVED",
+    "lease_run": "ee4fdad7",
+    "not_run": "No genuine installation, tools, backup, staging or restored runtime operations executed in these attempts.",
+    "observed": "Correct postgres SCRAM identity passed and closed; wrong-password client exited2, exact parser rejected and closed. Original complete stderr was not retained. Original-grantor finalization and exact cleanup passed.",
+    "restore_run": "2ba6b43e-545e-4d15-97c5-a1381b17baca"
+  },
+  "plan": {
+    "ack_authority": "/root explicit source implementation ACK",
+    "path": "auth_v5_bounded_source_plan_20261119.json",
+    "sha256": "440be46c5cf60b3c018f43f340dffeafb576be601235a937b307c0160d758872"
+  },
+  "preservation": {
+    "files": 49,
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\auth-v5-before-author-20261119\\preservation-manifest.json",
+    "sha256": "56e9334d8cd60d75dce88d255ea1e0e02705f14f69d4581f0778f6b3010bb611"
+  },
+  "prior_boundaries_unchanged": {
+    "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "review-output/lease-revoke-control-rehearsal/fixtures.json": "fe59a9867093f1cbab01741fa7d4f1fd727090e410374e663bbbd0796903c7e5",
+    "review-output/restore-control-rehearsal/proposal.json": "91834ed47f63820db5bb4cc16d77056577f7831f57eeed923198b630af15aaca",
+    "scripts/sql-review/local_image_identity.py": "a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604",
+    "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e",
+    "scripts/sql-review/run-worker-control-rehearsal.py": "84b7268b4ef0f2d529927a267297981cec01a5166658f571c84c41e046bd893d"
+  },
+  "recorded_at_utc": "2026-11-19T01:42:50.912956+00:00",
+  "required_next": "Root independent source/offline review, committed closed snapshot packet, fresh exact pinned literal review before any execution. Author does not self-approve.",
+  "scope": "AUTH_V5_PINNED_LIBPQ_FILE_PASSWORD_REJECTION_ONLY_LEASE_AND_RESTORE",
+  "source_files_sha256": {
+    "check_local_f0_lease_revoke_operation_auth_v5.py": "3770e76674855935143a24486f781b12f49107f47f10b4231d6ede5ceb58aebc",
+    "check_local_f0_restore_operation_auth_v5.py": "3c11c62e77e65707340e832ed85899104efaf3d4042c6d9dad30308b8cb2344c",
+    "execute_local_f0_lease_revoke_20261118_auth_v5.py": "a76e594950ce102377621be39b59194a9753222761954243a20adac0a7712d42",
+    "execute_local_f0_restore_20261117_auth_v5.py": "02e7db3dfc2dd8c60e02a753599e6fd6970ad607b63b6e5605cbce95f8122853",
+    "local_f0_lease_revoke_operation_steps_auth_v5.py": "84b9dcb3293ab3714ffaebf2591a6bc14d2069a7632c68c220299593cf594e3a",
+    "local_f0_restore_operation_steps_auth_v5.py": "cf1def90032da64dca80e7b3670d1eb807d484504cd6720d03d9a5c9f78a767f",
+    "pin_local_f0_lease_revoke_plan_20261118_auth_v5.py": "d5eb600d758a095fdb8a36c2c7f06ecedcc355f387cc71c0b54dc2f6fadc4ec3",
+    "pin_local_f0_restore_plan_20261118_auth_v5.py": "01ce08f1e0740b71d1a44d36e6e8f4d2ed2bba56dcc68111a9225a9709cfba06",
+    "prepare_local_f0_lease_revoke_plan_auth_v5.py": "5d211470645d44d36d0e23baba4535371f2da1b194f5e04124c945f1f3a26f1f",
+    "prepare_local_f0_restore_plan_auth_v5.py": "77afa8a9062bc8c2b4ab7f357deadc69fa58d9a5e5cb7b9b3210edba2080423a"
+  },
+  "source_recipes": {
+    "lease": {
+      "all_source_and_artifact_pins_current": true,
+      "artifact_files": 35,
+      "content_sha256": "9107197cf9f1b84c07becb194da4e00c950bc9c69e674cc962704af860db0cbf",
+      "packet": "review-output/lease-revoke-control-rehearsal/fixtures.json",
+      "packet_sha256": "fe59a9867093f1cbab01741fa7d4f1fd727090e410374e663bbbd0796903c7e5",
+      "source_files": 24
+    },
+    "restore": {
+      "all_source_and_artifact_pins_current": true,
+      "artifact_files": 25,
+      "content_sha256": "2752ff8019c7d2c59a029e0595e5c42de6cc3e0c16d3ce18dffa75b1be70c1f1",
+      "packet": "review-output/restore-control-rehearsal/proposal.json",
+      "packet_sha256": "91834ed47f63820db5bb4cc16d77056577f7831f57eeed923198b630af15aaca",
+      "source_files": 67
+    }
+  },
+  "status": "FROZEN_SOURCE_CANDIDATE_PENDING_ROOT_INDEPENDENT_REVIEW"
+}

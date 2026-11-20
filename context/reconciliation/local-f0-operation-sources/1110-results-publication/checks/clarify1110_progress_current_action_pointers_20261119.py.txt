@@ -1,0 +1,48 @@
+"""Mark historical holds and refresh only current progress pointers."""
+from pathlib import Path
+import datetime
+import hashlib
+import json
+
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+source = T / '1110_results_reviewed_sources_progress_checkpoint_inventory_20261119.json'
+inventory = json.loads(source.read_bytes())
+relative = 'context/reconciliation/local-f0-qualification-board.json'
+path = R / relative
+assert sha(path) == inventory['files_sha256'][relative]
+raw = path.read_bytes()
+board = json.loads(raw)
+assert type(board['safety_sql_hold']) is str
+assert type(board['owner_resource_hold']) is dict
+assert type(board['current_owner_operator']) is dict
+board['current_owner_operator']['execution'] = 'COMPLETED_DA5_OWNER7293_FINITE_READ_SUBSET_REVIEWED_EVIDENCE_INTEGRATED_NO_WHOLE_OWNER_API'
+board['current_owner_operator']['assertion_integration'] = 'context/reconciliation/local-f0-owner-lease-evidence-adapter-v1-source-validation.json'
+board['native_access_source_review'] = 'context/reconciliation/local-f0-native-access-resource-set-v2-source-validation.json'
+board['native_access_correction'] = board['native_access_source_review']
+board['safety_sql_hold_historical_only'] = True
+board['safety_sql_hold_resolution'] = 'Standing local F0 authority and current reviewed source families supersede the historical blanket hold; each fresh runtime still requires exact published pin and independent literal.'
+board['owner_resource_hold']['historical_only'] = True
+board['owner_resource_hold']['resolution'] = 'Accepted OwnerMountV2 executed as Owner7293 with cleanup and reviewed evidence integration; do not select the held resource adapter.'
+decisions = board['safety_sql_family_source_decisions']
+decisions['lease']['execution'] = 'COMPLETED_FINITE19_LIMITED_EVIDENCE_INTEGRATED_CLOCK_AND_COMPOUND_CAPS_REMAIN'
+decisions['install']['execution'] = 'HISTORICAL7923_STOP_UNOBSERVED_WRITER_CAUSE_CURRENT_REVIEW_READY_V3_FIX2_SOURCE_APPROVED_RUNTIME_NOT_RUN'
+decisions['restore']['execution'] = 'HISTORICAL_VERSIONS_HELD_OR_STOPPED_CURRENT_BOUND_EVIDENCE_V3_HEADER_FIX2_SOURCE_APPROVED_RUNTIME_NOT_RUN'
+backup = T / '1110-board-before-current-pointer-clarification-20261119.json'
+with backup.open('xb') as handle:
+    handle.write(raw)
+path.write_bytes((json.dumps(board, indent=2, allow_nan=False) + '\n').encode())
+inventory['files_sha256'][relative] = sha(path)
+inventory['current_action_pointer_clarification'] = {
+    'recorded_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    'historical_hold_and_Owner_fresh_literal_labels_resolved': True,
+    'Native_current_source_review': 'resource-set-v2',
+    'raw_historical_evidence_modified': False,
+    'prior_inventory_sha256': sha(source),
+    'prior_inline_attempt': 'IN_MEMORY_SCHEMA_TYPE_REJECTION_BEFORE_ANY_WRITE',
+}
+output = T / '1110_results_reviewed_sources_progress_checkpoint_inventory_v2_20261119.json'
+with output.open('xb') as handle:
+    handle.write((json.dumps(inventory, indent=2, allow_nan=False) + '\n').encode())
+print(json.dumps({'inventory_sha256': sha(output), 'board_sha256': sha(path)}))

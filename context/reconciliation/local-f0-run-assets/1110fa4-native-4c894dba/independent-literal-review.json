@@ -1,0 +1,120 @@
+{
+  "schema": "workinants.native-resource-set-v2-exact-literal-independent-review.v1",
+  "recorded_at_utc": "2026-11-20T00:20:41.219564+00:00",
+  "reviewer": "/root/restricted_controls_operator",
+  "role": "Independent operational-literal reviewer; Track authored ResourceSetV2. No source/literal/Git/runtime modification by this reviewer.",
+  "decision": "APPROVED_LOCAL_F0_NATIVE_ACCESS_ATTEMPT",
+  "approval_scope": "EXACT_LITERAL_REVIEW_STATUS_CHANGE_ONLY_ONE_FRESH_BOUNDED_LOCAL_ATTEMPT",
+  "findings": [],
+  "literal": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-native-access-plan-4c894dba\\operation-manifest.json",
+    "pending_sha256": "113889b5b41c7b4e7d4f1924dc57254378f4a9763569bc523ce100a91b8c001b",
+    "run_id": "4c894dba-609e-4959-ad6c-d403dcab2280",
+    "source_commit": "1110fa461c663ff3050ac54b6d9507e1e789b6b4",
+    "source_tree": "6a3b962d2618af8962165883e1129800dabcb632",
+    "full_packet_files": 260,
+    "full_packet_sha256": "6b8debbdffa54d182a956d1b663472e22ba633a5eb257ab1ddeea8b6ca9a3be2"
+  },
+  "only_permitted_literal_mutation": {
+    "actor": "Root only",
+    "precondition": "Exact pending literal SHA above, same unchanged source/tree/current260/external5 and no conflicting exact resource names. Standard reviewed operator rechecks all gates before creation.",
+    "operation": "replace",
+    "json_pointer": "/review_status",
+    "from": "PENDING_OPERATIONAL_REVIEW",
+    "to": "APPROVED_LOCAL_F0_NATIVE_ACCESS_ATTEMPT",
+    "all_other_values_unchanged": true,
+    "Root_may_write_separate_exclusive_operational_review_record": true
+  },
+  "bound_sources": {
+    "validation_sha256": "e1b39bf92a9c9ff0021d117fd086a318b2ae5c8ebc9bd95e47757757c2c2c41b",
+    "source_archive_files": 83,
+    "peer_source_review_sha256": "eea3cfa4240253dadb96378cbbf0dbc0557e2f2a72e2358d22351a72190a024b",
+    "Root_approved_metadata_phase_recheck_sha256": "77ba706681fbee777f2553ce16d6af0604a5ce42ffdf4148e832d8ee966dcdd9",
+    "external5_sha256": {
+      "execute_local_f0_native_access_20261119_resource_set_v2.py": "c39d23d8d401cee5c35dea8b76cb572ff2e63ea50849d7515663d509fd3c0353",
+      "local_f0_native_access_operation_steps_resource_set_v2.py": "3978b638fb4b449a6782128367899f87e00ba458de44ea9216ffa653d8d8ec73",
+      "prepare_local_f0_native_access_plan_resource_set_v2.py": "efddad2e8988cf26327b7d2757c333bb0236f0c343841331a661c3b700ce4f66",
+      "check_native_access_operation_resource_set_v2.py": "01ea54e7af601c419a28219e7f88b67466586f7b2bdd797d798ba934a84cd58f",
+      "pin_native_access_plan_20261119_resource_set_v2.py": "07be7655dd5627141602b7f605048acb687cea2ec1cf6b13460e9361440e408b"
+    },
+    "coordinator_sha256": "6e74115cc7a77e626c4379c5a5744efdede1257d04b206fc339e62a23fd49cd3",
+    "finite_native_packet_sha256": "8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69"
+  },
+  "independent_checks": {
+    "filesystem_audit": {
+      "path": "native_4c894dba_literal_filesystem_audit_20261119.json",
+      "sha256": "27664e4bbe086e6e42264c7897dd9aafe13d34c8a86245b53550bf4b222f2dac"
+    },
+    "current260_and_aggregate": true,
+    "external5_match_committed_archived_snapshots_and_review": true,
+    "complete_current83_archive": true,
+    "native83_SQL_and_source_modules_admitted": true,
+    "closed_catalog16_and_correct_generator_source": true,
+    "pinner_delta_fields": [
+      "source_commit",
+      "source_tree",
+      "packet_sha256"
+    ],
+    "historical_baseline_does_not_select_executable_packet": true,
+    "nested_actual_run_manifest_and_snapshot7": true,
+    "history_exact_same_run_target_manifest_checksum_and_canonical5ae": true,
+    "source_archive7_headers_and_hashes": true,
+    "tools_archive481b_and_every10300_member_path_hash": true,
+    "distinct_full_operation_vs_finite8044_digests": true,
+    "native_evidence_and_private_path_absent": true,
+    "image_and_resource_spec_and_sourceCLI_consistent": true
+  },
+  "Git_and_live_evidence": {
+    "current_committed_attestation": {
+      "path": "checkpoint1110_three_current_committed_packets_20261119.json",
+      "sha256": "3b5861fca62f87da839420a540df1be074f1f611e27f610e014963e1b2ecd0d6"
+    },
+    "endpoint_and_names_preflight": {
+      "path": "checkpoint1110_three_packets_live_preflight_20261119.json",
+      "sha256": "eed3d77d91089a6b69c04cf903e83c7e892e879463e32ebc0532f0421f1589ff"
+    },
+    "evidence_method": "Reviewer independently rehashed current files/literal/aggregate and bound the exact Root-supplied committed-byte/HEAD/tree attestation. No Git/Docker invocation was authorized or made by reviewer. Live endpoint/name absence is Root supplied immutable preflight, not claimed newly observed by reviewer. Reviewed operator independently repeats these checks immediately before resource creation.",
+    "active_Privilege_OUT_or_other_mutable_active_reports_read": false
+  },
+  "owned_resources": {
+    "containers": [
+      "wa-p0c-4c894dba-native"
+    ],
+    "volumes": [
+      "wa-p0c-4c894dba-native-data"
+    ],
+    "target_count": 1,
+    "evidence_directory": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-native-access-20261118-4c894dba",
+    "private_directory": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-native-access-20261118-4c894dba\\private",
+    "host_secret_only": "ok-bootstrap-password",
+    "no_adoption_or_foreign_cleanup": true,
+    "network": "none",
+    "ports": [],
+    "image": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "cleanup": "Only exact created CID/name/both labels and matching volumeName/labels/CreatedAt; test-owned secret and empty private dir; independent absence, strict uncertainty STOP, retained image/unrelated resources/source/history."
+  },
+  "reviewed_runtime_order": [
+    "Source/current+committed260/external5/snapshots/83archive/7history/tool10300 and endpoint/name conflict gates before any creation. Actual whole Core initializes RESOURCE_CONTAINERS from TARGETS before required safety use; no injected-global workaround.",
+    "Exact source-approved single-C/V private DACL/isolation/bootstrap credential mounts and six-role SCRAM authentication. Three bounded provider simulations and all9 USAGE sentinels/auth controls before canonical once-only genuine Prisma install.",
+    "Installation connection exits before original postgres grantor finalizer; strict typed global all-client zero precondition, exact raw finalizer/source path and independent membership0/leafCREATEfalse postproof. Provider sentinels all removed afterward.",
+    "Full source-bound native29089/rollbackOracle416/privateLedger22 PASS before Native coordinator, same actual run/CID/source/native/comparison/finite8044 attestation and repeated authentication. No SQL or permission repair.",
+    "Exact40 Native fixture validity controls/83SQL, restored100 USER-trigger/function identities and205 complete native rows; only prepared facets. 960 facet slots:908 native gate-only+48 existing-row-empty-only and4 NOT_RUN. All40 selected cases/sourcevectors/allowcases remain NOT_RUN; no whole94/451 or owner success promotion.",
+    "Strict matching count/row contracts,998 required closed operations, all-other-client closure across databases/roles/tags after return/throw before result/native/data observations. Preserve original failure and sanitized partial evidence; no next behavioral case on unexpected result.",
+    "Independent eligible original-grantor finalization/secret scan/exact C/V/private cleanup/source+tool/archive preservation despite persistent evidence/event/output IO; incomplete evidence/closure/absence cannot return PASS."
+  ],
+  "source_review_validation_not_new_runtime_result": {
+    "independent_source108_mock_tests": "Historical source review bound by exact hashes, not rerun or relabeled as actual database evidence.",
+    "Root_metadata_phase6": "Exact current approved metadata recheck retained; isolated PENDING fixture correction changes no operational source.",
+    "no_runtime_test_executed_by_reviewer": true
+  },
+  "limits": {
+    "Posture": "D",
+    "production_hosted_migration_adoption_release_or_worker_loop": false,
+    "all_unexercised_database_cases_and_blocked_facets": "NOT_RUN",
+    "no_source_or_policy_permission_or_timeout_change": true,
+    "old_bd4_and_495976_failure_causes_not_reconstructed": true,
+    "Worker_owned_plan": "PENDING_NO_IMPLEMENTATION",
+    "fresh_approval_required_on_source_or_packet_or_literal_values_change": true
+  },
+  "plain_english": "This exact test-box plan matches the reviewed files and clean-up rules. Root may change only its approval flag and run this one bounded attempt. The review does not mean the database tests have passed."
+}

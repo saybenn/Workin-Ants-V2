@@ -1,0 +1,377 @@
+{
+  "schema": "workinants.privilege-owned-verdict-v3-bounded-source-correction-plan.v1",
+  "recorded_at_utc": "2026-11-19T21:56:58.598586+00:00",
+  "status": "PLAN_ONLY_PENDING_ROOT_ACK_NO_IMPLEMENTATION",
+  "authority": "Root bounded TASK-only plan assignment. Root remains sole Git/runtime/resource operator. The two complete findings were coordinated with the independent reviewer before this plan freeze.",
+  "implementation_authorized_by_this_plan": false,
+  "execution_authorized_by_this_plan": false,
+  "runtime": "NOT_RUN",
+  "posture": "D",
+  "finding_scope": {
+    "review": {
+      "path": "privilege_mount_v2_independent_source_review_20261119.json",
+      "sha256": "a6db0839417b762ddeeb255a8248545985ead639830a12b608b0f9eecd78d5d5",
+      "decision": "CHANGES_REQUESTED_SOURCE_ONLY_NO_RUNTIME"
+    },
+    "actual_function_probes": {
+      "path": "privilege_mount_v2_independent_verdict_probe_20261119.json",
+      "sha256": "03b597199bf7d9b701ca2a1c9e927c0bd538d11d6561762497d08d7fa23c0880",
+      "count": 7
+    },
+    "required_findings": [
+      "PRIV-MOUNT-V2-01",
+      "PRIV-MOUNT-V2-02"
+    ],
+    "not_separate_finding": {
+      "role_metadata": "The ignored role_metadata probe is retained for transparency but no separate requirement or security consequence was established beyond already-required full native and definer metadata qualification. It is not an execution blocker of its own.",
+      "older_held_draft": "The new five derive from a preserved held draft. No old hold, prior failure, runtime outcome or case status is cleared by these offline passes."
+    },
+    "historical_limits": "83 independent offline mocks passed for V2, but actual-function probes demonstrated two admission defects. V2 stays held. None of these probes executed Docker or a database or observed a runtime PostgreSQL guard failure."
+  },
+  "immutable_V2_baseline": {
+    "freeze": {
+      "path": "privilege_owned_resource_mount_v2_frozen_source_plan_20261119.json",
+      "sha256": "0bf164666e6c463da4f18dd5a57738d6b621dcf409f46bd761de4007f8d69e5a"
+    },
+    "operator_sources_sha256": {
+      "execute_local_f0_privilege_ceiling_resource_mount_v2_20261119.py": "f17526d007fbb122df354f7239bd83c60d5392be1d410262fdf017558e937b1e",
+      "local_f0_privilege_ceiling_resource_mount_v2_operation_steps.py": "73641f264ce9880380e7c7426d6faf199bccb1aef83034a31837a4b48e304227",
+      "prepare_local_f0_privilege_ceiling_resource_mount_v2_plan.py": "6335ea8394759d8cfe7881f42fbe36c5244349c7b7242552636bacf23cf773e7",
+      "check_local_f0_privilege_ceiling_resource_mount_v2_operation.py": "9feddb5f779e63c889b5745a61cdc5df313eda630dd45cb4dde3adffec09675a",
+      "pin_local_f0_privilege_ceiling_resource_mount_v2_plan_20261119.py": "4ca1b08b40cb586119f1122e8cbb2c810ddbdc4afe55059fff1149f3aa79133c"
+    },
+    "archive_files_sha256": {
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-validation.json": "3f98020c74944b7c8c6705ec16239498cde03513dac6fa435a43263281ffac0b",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/check_local_f0_privilege_ceiling_resource_mount_v2_operation.py.txt": "9feddb5f779e63c889b5745a61cdc5df313eda630dd45cb4dde3adffec09675a",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/execute_local_f0_privilege_ceiling_resource_mount_v2_20261119.py.txt": "f17526d007fbb122df354f7239bd83c60d5392be1d410262fdf017558e937b1e",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/local_f0_privilege_ceiling_resource_mount_v2_operation_steps.py.txt": "73641f264ce9880380e7c7426d6faf199bccb1aef83034a31837a4b48e304227",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/pin_local_f0_privilege_ceiling_resource_mount_v2_plan_20261119.py.txt": "4ca1b08b40cb586119f1122e8cbb2c810ddbdc4afe55059fff1149f3aa79133c",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/prepare_local_f0_privilege_ceiling_resource_mount_v2_plan.py.txt": "6335ea8394759d8cfe7881f42fbe36c5244349c7b7242552636bacf23cf773e7",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/check_local_f0_owner_read_operation_resource_mount_v2.py.txt": "1e35b2e9d9423af23b2c5d0f64dc0435c96c44719d3aac1db797e39de165c254",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/execute_local_f0_owner_read_20261119_resource_mount_v2.py.txt": "b73dd1d9ecfec97edc9433e93cd4328298abe8af2e98cd24f943450ec6c24fb4",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/local_f0_owner_read_operation_steps_resource_mount_v2.py.txt": "85ac46ef87bfbd944b18fcc672e7543ab58917edcf3b27710047467c12f7313f",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/pin_local_f0_owner_read_plan_20261119_resource_mount_v2.py.txt": "dcebd187aa643f39d0f2ed97286a3a1b3d0385fe7874581d4efbaf90a77ab3ad",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/prepare_local_f0_owner_read_plan_resource_mount_v2.py.txt": "f3a81036574407c7fba91f1b22e29322cdb1464e53afbfc5057c12cbbb71bb1c",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/accepted-owner-resource-validation.json": "3f98020c74944b7c8c6705ec16239498cde03513dac6fa435a43263281ffac0b",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/check_local_f0_privilege_ceiling_safety_sql_v1_operation.py.txt": "b883840a55b6cbc1855eb0c49d13a41a0e8f5e18e650159493c4e07a3a417de7",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/execute_local_f0_privilege_ceiling_safety_sql_v1_20261119.py.txt": "0296ac18ce59f9b267bfd48fa0729aa2644c1408277e50b2b176580fdfebc549",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/frozen-privilege7-202-map.json": "2a37e7c46ba2ecd4b2aafb56b011c83399c3bfbee212cec6f1195d87f124e3b4",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-validation.json": "f391fa90a9485f58bc4aa8e238e4cb19352bb62dc1dfd3c99641a858215cdc4f",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/local_f0_privilege_ceiling_safety_sql_v1_operation_steps.py.txt": "70607528c52744c9da3488e1303f2621be4b0ad3b63ab878fe8986cab0fec4d2",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/manifest.json": "83cac31573f787b28e794a5045a073e00c742ffb7b647f71b25eeb00a015175f",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/pin_local_f0_privilege_ceiling_safety_sql_v1_plan_20261119.py.txt": "708834ff8b12c3c5ed8ec19405aadeda2592d97437acdcc4a9dd265afc104e42",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/prepare_local_f0_privilege_ceiling_safety_sql_v1_plan.py.txt": "1305aaedfea6bd3e58d34d2596933515267ed100d78b039baf72093dd691691e",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/privilege_ceiling_owned_safety_source_plan_20261119.json": "44865cee7954c7204d77df58ea06f5d7e7cd0df089644ebb7eec908b6000a224",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/privilege_owned_draft_mount_hold_checkpoint_20261119.json": "e3378792c2d393f55f80a96db855eb710997aa14eeb6fdbdfee9bf72d2816854",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/reviews/audit_privilege_owned_resource_mount_v2_20261119.py.txt": "1338951cf3a9e8194912a1ae5397f10e519f368fb06aa70a8a5b49ca9e7e9c35",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/reviews/build_privilege_owned_resource_mount_v2_20261119.py.txt": "cfb441cc67f58423ba48ddf351b2b7c9f0ef9d77b0a267d169cbe6f028df5e75",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/reviews/check_privilege_owned_resource_mount_v2_adapter_20261119.py.txt": "3651c25ec34b83fa6a216f37e44d780c91ccec524650d5ff3cf20a68d4670d6a",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/reviews/check_privilege_owned_resource_mount_v2_safety_composed_20261119.py.txt": "fabfc2f88fa196b6360ffb6e2e72dd6aebd42260ba2c4ff37bc57334bb674499",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/reviews/image-proof-independent-source.json": "b628b6d98ad22ea7def4dd7a51264025c50bde116451ae516f3e52f55ba9542a",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/reviews/owner_resource_mount_v2_independent_source_review_20261119.json": "c893926f6e9bbb42e247296ec8b3b5ce6418f60b79ba8a6b764c2c39bb4603ee",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/reviews/owner_resource_mount_v2_root_source_review_20261119.json": "488725cd28fd6e9855078248220e4eb8b1e7cf033051c0208427a5f5e8f747d2",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/reviews/privilege_ceiling_independent_root_source_review_20261119.json": "41f6ad5a4abf7b6e7cc085d6ff545192fb4587272f7baa87dc7e18dd823e2f4a",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/reviews/privilege_ceiling_owned_safety_source_plan_20261119.json": "44865cee7954c7204d77df58ea06f5d7e7cd0df089644ebb7eec908b6000a224",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/reviews/privilege_owned_resource_mount_v2_source_author_review_20261119.json": "e741d00da973e2c0399a4052ddb641037eafd9e308524c2728efb3c389f35ba0",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/reviews/stage_privilege_owned_resource_mount_v2_20261119.py.txt": "a1ef2eab3de30646e2dac09870bcbae62d128a99ad2ec23c5d8747ca70e6d5f4",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/check_local_f0_owner_read_operation_safety_sql_v1.py.txt": "8425fb5f58cae333c40c85541321518871abcd33d6cf437f9d449f16d01c74ec",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/execute_local_f0_owner_read_20261119_safety_sql_v1.py.txt": "7d3dd946a950003ad93b9f58a152532d0332846e290d45753bb013da70dc594d",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/held-owner-entry-validation.json": "fdbdff93256756681a492aadc1774441f84e526300bb1b98b56bdd2934ad0d97",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/historical-reviewed-owner-validation.json": "57c8e8dbb6624c71fc5146c200e82c23056f5b1874f8c46cd82424677d2b877e",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/immutable-top-files.json": "e480c4d1057c33b070ee23130a398ce00a4394473a5d2ecbd26b3e405cad2cd9",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/local_f0_owner_read_operation_steps_safety_sql_v1.py.txt": "85fe0992743806757cef39fac2a24d3b08166d741d60993209b1c5b033e4d935",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/manifest.json": "927b14eb6abf7594d8ecbda9803eb99c45c8ceb0408e68676395d8a621cbb85c",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/pin_local_f0_owner_read_plan_20261119_safety_sql_v1.py.txt": "9dee0e646338b155c6a8805271b69b8b02e8932a1e7e57824002b9537ca6c6cc",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/prepare_local_f0_owner_read_plan_safety_sql_v1.py.txt": "21cdf556fde8adb92ecdfa8cbbb27ade7bc26281506af17679d10bbcbaba58d3",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/reviews/build_owner_resource_mount_v2_20261119.py.txt": "00629dbaf02587b9c50c213495d5956ff3d2e2917dd049bd4a56af09a7c2c494",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/reviews/check_owner_resource_mount_v2_safety_composed_20261119.py.txt": "33f383b3d1270748ca4db4dfecaa7b45061012b609ca81870d34b49b6e891e5c",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/reviews/image-proof-independent-source.json": "b628b6d98ad22ea7def4dd7a51264025c50bde116451ae516f3e52f55ba9542a",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/reviews/owner_resource_mount_v2_checks_additions.py.txt": "4c492123a7e9112bc1401004f81e239d6583604ecd4d02ade98a31a42a605705",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/reviews/owner_resource_mount_v2_independent_plan_review_20261119.json": "57169379194ddce270b9db37836c8acffe6880b7ac52415fa6134aff85512d3e",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/reviews/owner_resource_mount_v2_independent_source_review_20261119.json": "c893926f6e9bbb42e247296ec8b3b5ce6418f60b79ba8a6b764c2c39bb4603ee",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/reviews/owner_resource_mount_v2_inspection.py.txt": "0e991c3d6a96688543042430b69a443704cdd8146b0ddba8038a4de22f81d8ff",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/reviews/owner_resource_mount_v2_preservation_audit_20261119.json": "b8079924da39e7b91dc51ad5245ead6d9648a515533a6fcc85325feb9ae6bfa6",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/reviews/owner_resource_mount_v2_root_source_review_20261119.json": "488725cd28fd6e9855078248220e4eb8b1e7cf033051c0208427a5f5e8f747d2",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/reviews/owner_resource_mount_v2_source_author_review_20261119.json": "5716272c50487fc79977a83603239055067bfadbf5fe68aa7d71f01eb5baaa87",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/reviews/owner_resource_mount_v2_source_plan_20261119.json": "7b9fa625958973c5d6a4db5ea05afcfd20c2149220ab331d9b0085c68df0ac92",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/reviews/owner_safety_sql_v1_independent_source_review_20261119.json": "58a5a8c6eab9b586b7b1cbd78760d953cf219293f0faeb17532d75af5af985f8",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/reviews/owner_safety_sql_v1_root_source_review_20261119.json": "4829caff75e1dbe12c97aa83134e833f18711d60c55a1f7fe1b29e015399e0fd",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/reviews/validation-author-pending.json": "e19dfc0d5e8bcd269750715aa7693e8b235f1c60a9a7da357027fec34b7fa77c",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/check_local_f0_owner_read_operation_safety_sql_v1.py.txt": "8425fb5f58cae333c40c85541321518871abcd33d6cf437f9d449f16d01c74ec",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/execute_local_f0_owner_read_20261119_safety_sql_v1.py.txt": "7d3dd946a950003ad93b9f58a152532d0332846e290d45753bb013da70dc594d",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/local_f0_owner_read_operation_steps_safety_sql_v1.py.txt": "85fe0992743806757cef39fac2a24d3b08166d741d60993209b1c5b033e4d935",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/pin_local_f0_owner_read_plan_20261119_safety_sql_v1.py.txt": "9dee0e646338b155c6a8805271b69b8b02e8932a1e7e57824002b9537ca6c6cc",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/prepare_local_f0_owner_read_plan_safety_sql_v1.py.txt": "21cdf556fde8adb92ecdfa8cbbb27ade7bc26281506af17679d10bbcbaba58d3",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/reviews/check_owner_safety_sql_v1_composed_20261119.py": "65e26d13330e2edf1ed84539239b5ddcbb1e186657f4720bf6a5ba74adb2a49d",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/reviews/common_safety_sql_v1_helpers.py.txt": "a3cf85cfd4802d9eb293fc957672b1ba7f842e49b6b15985cd81be6cbe1ee537",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/reviews/common_safety_sql_v1_install_eligibility.py.txt": "7118431c80fc5954ba314f1ed3634d5f3398dc2b35749dff5360ee52162052e7",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/reviews/common_safety_sql_v1_recipe_origins_20261119.json": "92d4eb01d78febbfdb13352aa08139471f0c0e8511f71dffdb4365ae7e388d99",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/reviews/common_safety_sql_v1_root_source_review_20261119.json": "322044efdf4fdac96636c2275c1cbf6f1c038839b76378bb1525f9d4a9c67ae0",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/reviews/common_safety_sql_v3_independent_source_review_20261119.json": "99009f9a2f29f52db3815b113810dc00f2ad24a3370479105b21091227432d01",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/reviews/image-proof-independent-source.json": "b628b6d98ad22ea7def4dd7a51264025c50bde116451ae516f3e52f55ba9542a",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/reviews/owner_safety_sql_v1_independent_offline_probe_20261119.json": "e1fc2c27f264e2950485e1e4c72b85951342a12b39caa65ee9bac3f6fdab0a2f",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/reviews/owner_safety_sql_v1_independent_source_review_20261119.json": "58a5a8c6eab9b586b7b1cbd78760d953cf219293f0faeb17532d75af5af985f8",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/reviews/owner_safety_sql_v1_root_source_review_20261119.json": "4829caff75e1dbe12c97aa83134e833f18711d60c55a1f7fe1b29e015399e0fd",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/reviews/source-author-results.json": "19e7662091dc2edbb9533aeb9f68191c95b851afc20678e73c4ac2881e6f0db3",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/accepted-owner-archive/preserved/accepted-owner-archive/reviews/validation-author-pending.json": "59fbde6aa157d496ff60b07ac5922c3e7a49fead82fdff1d97fb4407067aecbd",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-validation.json": "57c8e8dbb6624c71fc5146c200e82c23056f5b1874f8c46cd82424677d2b877e",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/check_local_f0_privilege_ceiling_safety_sql_v1_operation.py.txt": "b883840a55b6cbc1855eb0c49d13a41a0e8f5e18e650159493c4e07a3a417de7",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/execute_local_f0_privilege_ceiling_safety_sql_v1_20261119.py.txt": "0296ac18ce59f9b267bfd48fa0729aa2644c1408277e50b2b176580fdfebc549",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/local_f0_privilege_ceiling_safety_sql_v1_operation_steps.py.txt": "70607528c52744c9da3488e1303f2621be4b0ad3b63ab878fe8986cab0fec4d2",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/pin_local_f0_privilege_ceiling_safety_sql_v1_plan_20261119.py.txt": "708834ff8b12c3c5ed8ec19405aadeda2592d97437acdcc4a9dd265afc104e42",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/prepare_local_f0_privilege_ceiling_safety_sql_v1_plan.py.txt": "1305aaedfea6bd3e58d34d2596933515267ed100d78b039baf72093dd691691e",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/manifest.json": "8704f5854d8bc2b30279eb82c331d3e326302dd43db9bae5349e10082d17cc17",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/intermediate-DACL-mock/build_privilege_owned_resource_mount_v2_20261119.py.txt": "ab6890e6404643986b54ac0bc682cb0894bfab2c964eb0a28cbaa56fa063d539",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/intermediate-DACL-mock/check_local_f0_privilege_ceiling_resource_mount_v2_operation.py.txt": "dc194661734dc420f3c0c7a5bcb1251bcc96eb826896a22eb11531a33b664204",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/intermediate-DACL-mock/check_privilege_owned_resource_mount_v2_adapter_20261119.py.txt": "3651c25ec34b83fa6a216f37e44d780c91ccec524650d5ff3cf20a68d4670d6a",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/intermediate-DACL-mock/check_privilege_owned_resource_mount_v2_safety_composed_20261119.py.txt": "b02b3727505f3aa08c78c2118de0ee2c010858c82ab78ba4f2972834ae17f27b",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/intermediate-DACL-mock/execute_local_f0_privilege_ceiling_resource_mount_v2_20261119.py.txt": "f17526d007fbb122df354f7239bd83c60d5392be1d410262fdf017558e937b1e",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/intermediate-DACL-mock/local_f0_privilege_ceiling_resource_mount_v2_operation_steps.py.txt": "73641f264ce9880380e7c7426d6faf199bccb1aef83034a31837a4b48e304227",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/intermediate-DACL-mock/manifest.json": "5aa90ef6fa9b430019019e152332d0d1ccac122d7f1be29137fd036b3ce1d45a",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/intermediate-DACL-mock/pin_local_f0_privilege_ceiling_resource_mount_v2_plan_20261119.py.txt": "4ca1b08b40cb586119f1122e8cbb2c810ddbdc4afe55059fff1149f3aa79133c",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/intermediate-DACL-mock/prepare_local_f0_privilege_ceiling_resource_mount_v2_plan.py.txt": "6335ea8394759d8cfe7881f42fbe36c5244349c7b7242552636bacf23cf773e7",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/intermediate-DACL-mock/source-validation.json": "a09d80c9ed6b361e86e3486a5fcb4c03be55c712592b6a29f831d037eb9efcfe",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/check_local_f0_owner_read_operation_safety_sql_v1.py.txt": "8425fb5f58cae333c40c85541321518871abcd33d6cf437f9d449f16d01c74ec",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/execute_local_f0_owner_read_20261119_safety_sql_v1.py.txt": "7d3dd946a950003ad93b9f58a152532d0332846e290d45753bb013da70dc594d",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/local_f0_owner_read_operation_steps_safety_sql_v1.py.txt": "85fe0992743806757cef39fac2a24d3b08166d741d60993209b1c5b033e4d935",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/pin_local_f0_owner_read_plan_20261119_safety_sql_v1.py.txt": "9dee0e646338b155c6a8805271b69b8b02e8932a1e7e57824002b9537ca6c6cc",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/prepare_local_f0_owner_read_plan_safety_sql_v1.py.txt": "21cdf556fde8adb92ecdfa8cbbb27ade7bc26281506af17679d10bbcbaba58d3",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/reviews/build_privilege_owned_safety_v1_20261119.py.txt": "2d71839c98c974c58125bd307f9f084bf693527ffb68cf50f44549b8bd2d5fef",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/reviews/image-proof-independent-source.json": "b628b6d98ad22ea7def4dd7a51264025c50bde116451ae516f3e52f55ba9542a",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/reviews/owner_safety_sql_v1_independent_source_review_20261119.json": "58a5a8c6eab9b586b7b1cbd78760d953cf219293f0faeb17532d75af5af985f8",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/reviews/owner_safety_sql_v1_root_source_review_20261119.json": "4829caff75e1dbe12c97aa83134e833f18711d60c55a1f7fe1b29e015399e0fd",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/reviews/privilege_ceiling_independent_root_source_review_20261119.json": "41f6ad5a4abf7b6e7cc085d6ff545192fb4587272f7baa87dc7e18dd823e2f4a",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/reviews/privilege_ceiling_owned_safety_source_plan_20261119.json": "44865cee7954c7204d77df58ea06f5d7e7cd0df089644ebb7eec908b6000a224",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/reviews/privilege_owned_component_adapter_v1.py.txt": "dfafcb55da60617b06ba8433df11d513d65b275052ea9beb4ed37a3262c623df",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/reviews/check_owner_safety_sql_v1_composed_20261119.py": "65e26d13330e2edf1ed84539239b5ddcbb1e186657f4720bf6a5ba74adb2a49d",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/reviews/common_safety_sql_v1_helpers.py.txt": "a3cf85cfd4802d9eb293fc957672b1ba7f842e49b6b15985cd81be6cbe1ee537",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/reviews/common_safety_sql_v1_install_eligibility.py.txt": "7118431c80fc5954ba314f1ed3634d5f3398dc2b35749dff5360ee52162052e7",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/reviews/common_safety_sql_v1_recipe_origins_20261119.json": "92d4eb01d78febbfdb13352aa08139471f0c0e8511f71dffdb4365ae7e388d99",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/reviews/common_safety_sql_v1_root_source_review_20261119.json": "322044efdf4fdac96636c2275c1cbf6f1c038839b76378bb1525f9d4a9c67ae0",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/reviews/common_safety_sql_v3_independent_source_review_20261119.json": "99009f9a2f29f52db3815b113810dc00f2ad24a3370479105b21091227432d01",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/reviews/image-proof-independent-source.json": "b628b6d98ad22ea7def4dd7a51264025c50bde116451ae516f3e52f55ba9542a",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/reviews/owner_safety_sql_v1_independent_offline_probe_20261119.json": "e1fc2c27f264e2950485e1e4c72b85951342a12b39caa65ee9bac3f6fdab0a2f",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/reviews/owner_safety_sql_v1_independent_source_review_20261119.json": "58a5a8c6eab9b586b7b1cbd78760d953cf219293f0faeb17532d75af5af985f8",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/reviews/owner_safety_sql_v1_root_source_review_20261119.json": "4829caff75e1dbe12c97aa83134e833f18711d60c55a1f7fe1b29e015399e0fd",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/reviews/source-author-results.json": "19e7662091dc2edbb9533aeb9f68191c95b851afc20678e73c4ac2881e6f0db3",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/held-current-archive/accepted-owner-archive/reviews/validation-author-pending.json": "59fbde6aa157d496ff60b07ac5922c3e7a49fead82fdff1d97fb4407067aecbd",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/TASK/adapt_privilege_owned_checks_v1_20261119.py": "9295bc23f82f14305a44045ff4036dde4aa5f71396711067e3aa188f21994caf",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/TASK/build_privilege_owned_safety_v1_20261119.py": "2d71839c98c974c58125bd307f9f084bf693527ffb68cf50f44549b8bd2d5fef",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/TASK/check_local_f0_privilege_ceiling_safety_sql_v1_operation.py": "12d462a3df2cc2952a56c9b92525615e723c9a91b8db057ce88afc32080fec42",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/TASK/check_privilege_owned_adapter_v1_20261119.py": "5dc737190e0047d92437a19de11507ce8a3181ccc87998e2b638bd380dc00338",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/TASK/execute_local_f0_privilege_ceiling_safety_sql_v1_20261119.py": "0296ac18ce59f9b267bfd48fa0729aa2644c1408277e50b2b176580fdfebc549",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/TASK/local_f0_privilege_ceiling_safety_sql_v1_operation_steps.py": "70607528c52744c9da3488e1303f2621be4b0ad3b63ab878fe8986cab0fec4d2",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/TASK/pin_local_f0_privilege_ceiling_safety_sql_v1_plan_20261119.py": "708834ff8b12c3c5ed8ec19405aadeda2592d97437acdcc4a9dd265afc104e42",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/TASK/prepare_local_f0_privilege_ceiling_safety_sql_v1_plan.py": "1305aaedfea6bd3e58d34d2596933515267ed100d78b039baf72093dd691691e",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/TASK/privilege_owned_component_adapter_v1.py.txt": "dfafcb55da60617b06ba8433df11d513d65b275052ea9beb4ed37a3262c623df",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/TASK/stage_privilege_owned_safety_v1_20261119.py": "ee70d58b50da86f0929c98a6fa25c1a9f799205f767c57940a3f66a6ae605bcf",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-privilege-ceiling-owned-safety-sql-v1-source-validation.json": "4299847b5eeaef35449af01a460a3725b82141d8aa6e25286806018bd7b18553",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-validation.json": "57c8e8dbb6624c71fc5146c200e82c23056f5b1874f8c46cd82424677d2b877e",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/check_local_f0_privilege_ceiling_safety_sql_v1_operation.py.txt": "12d462a3df2cc2952a56c9b92525615e723c9a91b8db057ce88afc32080fec42",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/execute_local_f0_privilege_ceiling_safety_sql_v1_20261119.py.txt": "0296ac18ce59f9b267bfd48fa0729aa2644c1408277e50b2b176580fdfebc549",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/local_f0_privilege_ceiling_safety_sql_v1_operation_steps.py.txt": "70607528c52744c9da3488e1303f2621be4b0ad3b63ab878fe8986cab0fec4d2",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/pin_local_f0_privilege_ceiling_safety_sql_v1_plan_20261119.py.txt": "708834ff8b12c3c5ed8ec19405aadeda2592d97437acdcc4a9dd265afc104e42",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/prepare_local_f0_privilege_ceiling_safety_sql_v1_plan.py.txt": "1305aaedfea6bd3e58d34d2596933515267ed100d78b039baf72093dd691691e",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/check_local_f0_owner_read_operation_safety_sql_v1.py.txt": "8425fb5f58cae333c40c85541321518871abcd33d6cf437f9d449f16d01c74ec",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/execute_local_f0_owner_read_20261119_safety_sql_v1.py.txt": "7d3dd946a950003ad93b9f58a152532d0332846e290d45753bb013da70dc594d",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/local_f0_owner_read_operation_steps_safety_sql_v1.py.txt": "85fe0992743806757cef39fac2a24d3b08166d741d60993209b1c5b033e4d935",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/pin_local_f0_owner_read_plan_20261119_safety_sql_v1.py.txt": "9dee0e646338b155c6a8805271b69b8b02e8932a1e7e57824002b9537ca6c6cc",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/prepare_local_f0_owner_read_plan_safety_sql_v1.py.txt": "21cdf556fde8adb92ecdfa8cbbb27ade7bc26281506af17679d10bbcbaba58d3",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/reviews/build_privilege_owned_safety_v1_20261119.py.txt": "2d71839c98c974c58125bd307f9f084bf693527ffb68cf50f44549b8bd2d5fef",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/reviews/image-proof-independent-source.json": "b628b6d98ad22ea7def4dd7a51264025c50bde116451ae516f3e52f55ba9542a",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/reviews/owner_safety_sql_v1_independent_source_review_20261119.json": "58a5a8c6eab9b586b7b1cbd78760d953cf219293f0faeb17532d75af5af985f8",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/reviews/owner_safety_sql_v1_root_source_review_20261119.json": "4829caff75e1dbe12c97aa83134e833f18711d60c55a1f7fe1b29e015399e0fd",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/reviews/privilege_ceiling_independent_root_source_review_20261119.json": "41f6ad5a4abf7b6e7cc085d6ff545192fb4587272f7baa87dc7e18dd823e2f4a",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/reviews/privilege_ceiling_owned_safety_source_plan_20261119.json": "44865cee7954c7204d77df58ea06f5d7e7cd0df089644ebb7eec908b6000a224",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/reviews/privilege_owned_component_adapter_v1.py.txt": "dfafcb55da60617b06ba8433df11d513d65b275052ea9beb4ed37a3262c623df",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/reviews/check_owner_safety_sql_v1_composed_20261119.py": "65e26d13330e2edf1ed84539239b5ddcbb1e186657f4720bf6a5ba74adb2a49d",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/reviews/common_safety_sql_v1_helpers.py.txt": "a3cf85cfd4802d9eb293fc957672b1ba7f842e49b6b15985cd81be6cbe1ee537",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/reviews/common_safety_sql_v1_install_eligibility.py.txt": "7118431c80fc5954ba314f1ed3634d5f3398dc2b35749dff5360ee52162052e7",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/reviews/common_safety_sql_v1_recipe_origins_20261119.json": "92d4eb01d78febbfdb13352aa08139471f0c0e8511f71dffdb4365ae7e388d99",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/reviews/common_safety_sql_v1_root_source_review_20261119.json": "322044efdf4fdac96636c2275c1cbf6f1c038839b76378bb1525f9d4a9c67ae0",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/reviews/common_safety_sql_v3_independent_source_review_20261119.json": "99009f9a2f29f52db3815b113810dc00f2ad24a3370479105b21091227432d01",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/reviews/image-proof-independent-source.json": "b628b6d98ad22ea7def4dd7a51264025c50bde116451ae516f3e52f55ba9542a",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/reviews/owner_safety_sql_v1_independent_offline_probe_20261119.json": "e1fc2c27f264e2950485e1e4c72b85951342a12b39caa65ee9bac3f6fdab0a2f",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/reviews/owner_safety_sql_v1_independent_source_review_20261119.json": "58a5a8c6eab9b586b7b1cbd78760d953cf219293f0faeb17532d75af5af985f8",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/reviews/owner_safety_sql_v1_root_source_review_20261119.json": "4829caff75e1dbe12c97aa83134e833f18711d60c55a1f7fe1b29e015399e0fd",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/reviews/source-author-results.json": "19e7662091dc2edbb9533aeb9f68191c95b851afc20678e73c4ac2881e6f0db3",
+      "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2/preserved/historical41/ROOT/context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-safety-sql-v1/accepted-owner-archive/reviews/validation-author-pending.json": "59fbde6aa157d496ff60b07ac5922c3e7a49fead82fdff1d97fb4407067aecbd"
+    },
+    "current_validation": {
+      "path": "context/reconciliation/local-f0-privilege-ceiling-owned-resource-mount-v2-source-validation.json",
+      "sha256": "b3167f9ef190dbc8cf41a8a8262266387be336149b4bb8f34d9afde67af2c9f6"
+    },
+    "source_author_review": {
+      "path": "privilege_owned_resource_mount_v2_source_author_review_20261119.json",
+      "sha256": "e741d00da973e2c0399a4052ddb641037eafd9e308524c2728efb3c389f35ba0"
+    },
+    "all5_and155_verified_unchanged": true,
+    "independent_raw_test_and_harness_history_sha256": {
+      "privilege-mount-v2-independent-checks-20261119-v2/checks.json": "2188b9c344bc1d3f833f59e029644d2b57f3983b03dec66bcc3d1329aa49e678",
+      "privilege-mount-v2-independent-checks-20261119-v2/check_local_f0_privilege_ceiling_resource_mount_v2_operation.py.test-output.txt": "73ff4ed0288b77963741f3a883ea32bb7481b4825c5566ed64791122c18a491f",
+      "privilege-mount-v2-independent-checks-20261119-v2/check_privilege_owned_resource_mount_v2_adapter_20261119.py.test-output.txt": "fc5a43b3356e20b0af74f7dd8c84c1ddcff8249b542e44466febe80e79debe5a",
+      "privilege-mount-v2-independent-checks-20261119-v2/check_privilege_owned_resource_mount_v2_safety_composed_20261119.py.test-output.txt": "0ef964bb5569f46931b7ce4ca860faf658bd2233eeea055f686a0bfac4651e65",
+      "peer_review_privilege_mount_v2_20261119.py": "1300a7daf410e125f338012bf3b13be80b3fb5de8a3abb4a108f76ca970ff969",
+      "peer_probe_privilege_mount_v2_verdict_20261119.py": "3df72ac2f50407495404733a0a8283c0b7ec907cbde4e0f2375089f1bb1c4bb8",
+      "freeze_privilege_mount_v2_peer_review_20261119.py": "8742f55a95147bca5a00c9058526cc1d44547ade59b95d2afa7179def8191503",
+      "peer_review_privilege_mount_v2_20261119_before_metadata_assertion_fix.py.txt": "ecb77648898fc59db4b2db326a6a176992b5c4a2f8126b0dd03a3c1444387182",
+      "peer_review_privilege_mount_v2_20261119_before_output_capture_fix.py.txt": "a6349f2a1711826dbbd582e1ca5fca006bc979b28d78b004898cbee1d7147e5a",
+      "peer_probe_privilege_mount_v2_verdict_20261119_before_exclusive_artifact_probe_fix.py.txt": "597b480e50d7c114eb272c48acc3b6d71bb7a1414b344990e66277316548956c"
+    },
+    "preservation_before_future_implementation": "Exclusively snapshot exact V2five/archive155/current held validation/freeze/author/peer/probe and all raw offline history listed here. Verify the full recursive map before deriving new files. Keep V2 and its reviews immutable; no history/status/runtime outcome is cleared."
+  },
+  "planned_new_namespace_only": {
+    "external_five": [
+      "execute_local_f0_privilege_ceiling_verdict_v3_20261119.py",
+      "local_f0_privilege_ceiling_verdict_v3_operation_steps.py",
+      "prepare_local_f0_privilege_ceiling_verdict_v3_plan.py",
+      "check_local_f0_privilege_ceiling_verdict_v3_operation.py",
+      "pin_local_f0_privilege_ceiling_verdict_v3_plan_20261119.py"
+    ],
+    "new_root_archive": "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-verdict-v3",
+    "new_root_validation": "context/reconciliation/local-f0-privilege-ceiling-owned-verdict-v3-source-validation.json",
+    "archive_code_format": ".py.txt inert source snapshots",
+    "archive_required": "Exact new5 and full original155/V2 source/review/raw test history, approved Owner ResourceMountV2 provenance, immutable privilege7+202 and focused author/independent evidence; full recursive hash maps. Final count is unknown until implementation, never invented.",
+    "future_literal": "No literal/run identity/resources prepared by this plan. After separate source approval and Root publication, a fresh commit/tree/full packet and independent literal review remain mandatory."
+  },
+  "bounded_executable_changes_if_Root_ACKs": {
+    "Core": "Exact V2 after declared namespace/source-root renames only. No creation/mount/DACL/auth/main/finalizer/safety/cleanup/function change.",
+    "Steps": "Only strengthen verify_privilege_result diagnostic admission and privilege_ceiling_experiment exact native count. A small same-file pure helper may derive per-case finite tuples; no new imported module, fallback source/helper path or runtime SQL. All other functions unchanged after namespace renames.",
+    "Preparer_and_pinner": "Only consistent new five filenames/source root/source-validation/namespace bindings. Same real full closed inventory/history/tool/physical-snapshot admission and mandatory independent source gate.",
+    "Tests": "NEW copies only: correct synthetic component baseline to legitimate per-kind tuples, add focused regressions for both findings, retain actual unchanged coordinator through new outer. All process/network/DB boundaries forbidden/mocked.",
+    "SQL_roles_permissions_coordinator_fixture_changes": false
+  },
+  "diagnostic_contract": {
+    "source_protocol": {
+      "path": "scripts/privilege_ceiling_control_protocol.py",
+      "sha256": "faf980151efec719fc54963fc0630c056cba50c40f3f1eb7e7d1f0c7fc18f921",
+      "diagnostic_function_line": 95
+    },
+    "frozen_case_contract_source": {
+      "path": "review-output/privilege-ceiling-control-rehearsal/fixtures.json",
+      "sha256": "4ebe8b6cd7b85ff5ad8dbb79d431bb7001cf16dea72e3920138be4b5f2855e68",
+      "content_sha256": "643232e4d068892b49e49122b7ce3b909bd86caa9e770aa923d7df00def1ec32",
+      "cases": 200,
+      "counts_by_kind": {
+        "NATIVE_ACL": 171,
+        "SET_ROLE": 14,
+        "SCHEMA_CREATE": 8,
+        "FUNCTION": 4,
+        "IMMUTABLE_GRANT": 3
+      }
+    },
+    "all_diagnostics": "Keep the exact8-field dictionary. matched is True; sqlstate and kind exactly match this case; selected_column_or_verb_isolation_claimed is False. gate/object must be exact scalar str or the uniquely allowed null, checked before finite tuple membership. Position/frame fields must have exact bool types. Reject unknown kinds/contracts/extra or missing fields, arbitrary or non-scalar identifiers and tuples borrowed from a different case. No raw messages/SQL/frames/credentials/exception strings exported.",
+    "per_case_allowlists": [
+      {
+        "kind": "IMMUTABLE_GRANT",
+        "sqlstate": "P0001",
+        "allowed_gate_object_pairs": [
+          {
+            "gate": null,
+            "object": "platform_private.grant_guard"
+          }
+        ],
+        "source_frame_verified": true,
+        "source_position_verified": false,
+        "source_bound": "Unchanged case contract already pins canonical application5ae, grant_guard body6c8733 and source line7. No new genericP0001 acceptance."
+      },
+      {
+        "kind": "SET_ROLE",
+        "sqlstate": "42501",
+        "allowed_gate_object_pairs": [
+          {
+            "gate": "ROLE",
+            "object": "case.diagnostic.target_role"
+          }
+        ],
+        "source_frame_verified": false,
+        "source_position_verified": "Exact bool; False and True remain permitted as emitted by valid native2-line/4-line diagnostics."
+      },
+      {
+        "kind": "SCHEMA_CREATE",
+        "sqlstate": "42501",
+        "allowed_gate_object_pairs": [
+          {
+            "gate": "SCHEMA_CREATE",
+            "object": "case.diagnostic.schema"
+          }
+        ],
+        "source_frame_verified": false,
+        "source_position_verified": "Exact bool; False or True."
+      },
+      {
+        "kind": "FUNCTION",
+        "sqlstate": "42501",
+        "allowed_gate_object_pairs": [
+          {
+            "gate": "SCHEMA",
+            "object": "case.diagnostic.schema"
+          },
+          {
+            "gate": "FUNCTION",
+            "object": "case.diagnostic.schema + . + case.diagnostic.function"
+          }
+        ],
+        "source_frame_verified": false,
+        "source_position_verified": "Exact bool; False or True."
+      },
+      {
+        "kind": "NATIVE_ACL",
+        "sqlstate": "42501",
+        "allowed_gate_object_pairs": [
+          {
+            "gate": "SCHEMA",
+            "object": "case.diagnostic.schema"
+          },
+          {
+            "gate": "TABLE",
+            "object": "case.diagnostic.schema + . + case.diagnostic.relation"
+          },
+          {
+            "gate": "COLUMN",
+            "object": "case.diagnostic.schema + . + case.diagnostic.relation"
+          }
+        ],
+        "source_frame_verified": false,
+        "source_position_verified": "Exact bool; False or True."
+      }
+    ],
+    "earlier_gate_limit": "A legitimate earlier SCHEMA denial remains admitted for the matching FUNCTION or NATIVE_ACL contract; TABLE/COLUMN remains tied to its exact source relation. Such evidence still does not isolate the chosen verb/column or function EXECUTE. Native frame False is required, and an absent native source position remains legitimate. No new semantic guard or expected diagnostic is introduced.",
+    "informational_role_metadata": "Do not make the ignored redundant role_metadata object into a new approval gate or claim. Existing full native/source16 prerequisites, typed outcomes and no raw metadata export remain unchanged."
+  },
+  "native_prerequisite_count_contract": {
+    "function": "Steps.privilege_ceiling_experiment",
+    "required": "Before the first provider proof, component plan, attestation, helper compilation/load or coordinator dispatch, require catalog check_counts to be a dict with exactly the PASS key; type(check_counts[PASS]) is int and value equals29089. Keep catalog status PASS and all unchanged original grantor/provider/fullNative416-oracle/22-ledger/source requirements.",
+    "reject": "29089.0, bool, string, null, missing key, negative/wrong int, extra keys, non-dict container, non-scalar value. A Python numeric equality alone is not admission.",
+    "ordering": "Existing required resource/pre-component global closure is preserved. On rejected count, no proof/plan/native metadata observer or component runs; controlled outer finally remains eligible and strict."
+  },
+  "required_focused_offline_checks": [
+    "Use actual functions, not a reimplementation. Preserve and reproduce V2 probe admissions from the frozen old function, then prove the new function rejects each original failing payload.",
+    "Correct only new synthetic component baseline: choose a valid tuple from each actual frozen case contract, exact immutable grant_guard/frameTrue/positionFalse, native frameFalse and supported positionFalse. Do not weaken the new validator to preserve old None/None placeholders.",
+    "For every200 case, admit the finite matching source-known alternatives only. Reject gate/object from another relation/schema/role/function, arbitrary strings/canaries, null where forbidden, non-scalar list/dict/bool/int objects, swapped gates, wrong kind/SQLSTATE, malformed/extra fields, immutable missing/False/nonbool frame or positionTrue and native frameTrue/nonbool. All rejects happen after required component closure and before final native observer; safe partial references remain.",
+    "Valid native2-line positionFalse and valid4-line positionTrue paths remain accepted. Valid earlier SCHEMA alternatives and TABLE/COLUMN object association remain accepted with isolationFalse. Generic42501/P0001 or matchedTrue alone never qualifies.",
+    "Actual unchanged frozen coordinator80ca5e through new outer still passes with real finite200/16/40/3 result construction and244 named closed operations, exact full-vs-native8044 digest, same-run/CID/native/source attestation, issuer order and source graph. All processes/DB/network mocked; do not change the frozen7+202 or their20 source mocks.",
+    "At pre-component count gate, valid exactint29089 reaches a fixed first-write sentinel; float29089.0 and all malformed/wrong variants reject before any proof/plan write, helper load/compile or coordinator. Assert no later native/data observer; no arbitrary candidate is retained.",
+    "Retain stopped/malformed/throw/reference-I/O/16MiB growth/persistent evidence/strict all-client closure/secret exclusion/firstSTOP and controlled cleanup tests. Source admission checks exercise actual real pure-prepared whole inventory/catalog16/helpers8/five physical snapshots/pinner; only outer Git/common boundary mocked, explicit isolatedPENDING required.",
+    "Verify exact ResourceMountV2 read-only kernel proof before pgpass, common13/main/innercleanup/finalizer/global-client SQL AST and canonical5ae/Native8044/frozen7+202/32workerACL unchanged after only declared namespaces. No broader runtime/framework checks or permission changes.",
+    "Freeze new exact five/full recursive source archive/validation and actual focused counts, preserve all author/peer/intermediate raw offline outcomes; separate independent review before Root publication/pinning/fresh literal. No source plan or template grants runtime authority."
+  ],
+  "unchanged_finite_contract": {
+    "negative_contrasts": 200,
+    "definer_metadata": 16,
+    "native_validity_controls": 40,
+    "issuer_protocols": 3,
+    "named_operation_closures": 244,
+    "whole_case_94_451_statuses": "NOT_RUN/no promotion",
+    "new_permissions_or_claims": false
+  },
+  "out_of_scope": [
+    "Read13 implementation (V2 plan separately approved, not assigned here)",
+    "Any existing pinned family, active Owner run, HEAD/Git/history/status/progress change",
+    "Docker/DB/network/credentials/resources or actual SQL execution",
+    "Changes to canonical applicationSQL, ACL32, privilege frozen7+202, coordinator80ca5e, diagnostic protocolfaf980, image/mount configuration/timeouts/roles/safety SQL",
+    "Inventing an observed database guard failure, production readiness or clearing historical holds"
+  ],
+  "actual_actions_now": "Read/hash local immutable source/data and write only this new TASK plan JSON. No implementation/test subprocess, repository write or runtime action.",
+  "plain_english": "Two answer checks need to be stricter. A guard answer must name the exact allowed guard and prove its frame; the test count must be a whole number. Make a new copy, keep all old files, then test and review that copy. Nothing runs from this plan."
+}

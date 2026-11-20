@@ -1,0 +1,1 @@
+BEGIN; TRUNCATE TABLE app.customer_profiles; ROLLBACK;

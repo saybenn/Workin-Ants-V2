@@ -1,0 +1,10 @@
+{
+  "schema": "workinants.privilege-admission-v4-author-harness-failure.v1",
+  "recorded_at_utc": "2026-11-20T00:57:56.706617+00:00",
+  "source_sha256": "6816cf5b2c31e65ba440f0378136a09066b41d136fdd82719c798fa57daffb70",
+  "tests_run": 0,
+  "seconds": 36.227,
+  "error": "EXTERNAL_TASK_PATH_REQUIRED",
+  "cause": "The copied pinner had a narrower temporary TASK root, while the immutable tooling archive was correctly still at its original TASK path. This was a synthetic test path-layout mismatch; the production pinner correctly refused it.",
+  "bounded_test_fix": "Use the actual source pinner under its real TASK, substitute only the isolated Root filesystem for current/committed blob fixture checks, and keep every actual pinner validation/real prepared map. Operational source unchanged."
+}

@@ -1,0 +1,190 @@
+{
+  "schema": "workinants.app-write-two-APPWRITE2-01-correction-plan.v1",
+  "recorded_at_utc": "2026-11-20T02:18:34.053329+00:00",
+  "status": "PLAN_ONLY_AWAITING_ROOT_AND_TRACK_ACK_BEFORE_ANY_SOURCE_CHANGE",
+  "author": "/root/catalog_v4_review",
+  "scope": "One confirmed R01 negative-oracle/model defect only. Exactly two original R01/R02 write candidate criteria remain; no owned wrapper.",
+  "author_lineage": "Original packet author; this plan is not independent source approval. Track independently identified APPWRITE2-01.",
+  "preservation": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app-write-two-before-APPWRITE2-01-correction-plan-20261119\\preservation.json",
+    "sha256": "ce7c85ac578211ba693aa6319a28deb6e8819bd43abb8d05a34cd17805a9df8f",
+    "snapshots": 74,
+    "original66": true,
+    "current5_and_all58_ROOT_files_unchanged": true,
+    "old34_green_report_preserved_as_HELD": true,
+    "original_delivery_sha256": "0ac57e97d77e78b9b533ddff9a415715d20dfed81ef333c04113a2a52ef7ea19",
+    "original_fixture_sha256": "6f2cf0568fc81c7f6ee7bb92bec35f91fc6e8f21ab55515417ddc507203653f6",
+    "original_content_sha256": "2a87519e2a06fd1f0cbee7e1d7ee3438be484e30ca78ed6342b9b6a284d62095"
+  },
+  "review_basis": {
+    "independent_report": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app_write_two_independent_source_review_20261119.json",
+      "sha256": "7bbf3b35bd0c1f7ba15ae591d19d8172f37e494b7a74ae6b772d0e7e6d49846d",
+      "decision": "REQUEST_CHANGES_EXACT_SOURCE_HELD_NOT_APPROVED",
+      "only_confirmed_finding": "APPWRITE2-01"
+    },
+    "independent_probe": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app_write_two_independent_insert_revision_probe_20261119.json",
+      "sha256": "a3eb6aa2dae3d583852b61ed0007087e03a1588945705fc034c0506a1a30240d"
+    },
+    "canonical_SQL_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "canonical_source_facts": [
+      "p_app_runtime_insert on app.customer_profiles passes NULL::text as row_allowed row_revision. The emitted Customer INSERT has no RETURNING.",
+      "The removed CustomerProfile/<id>/revision/0 token is distinct from INSERT/revision, which remains present. Initial-revision-zero and principal guards do not create a SELECT/root-revision capability requirement on that INSERT.",
+      "The current mock model==CustomerProfile revision branch invents early INSERT denial. Neither its green34 tests nor a possible later verifier can prove the exact expected early42501. No later stage/SQLSTATE/actual outcome is inferred."
+    ]
+  },
+  "bounded_source_changes_after_ACK": {
+    "paths": [
+      "scripts/app_write_two_control_protocol.py",
+      "scripts/prepare-app-write-two-control-rehearsal.py",
+      "scripts/sql-review/run-app-write-two-control-rehearsal.py",
+      "scripts/check-app-write-two-control-rehearsal.py",
+      "scripts/check-app-write-two-control-coordinator.py"
+    ],
+    "canonical_SQL_policy_schema_roles_grants_business_guards_changes": false,
+    "protocol": "Remove only effect-missing-root-revision from executable case order and its unsupported early42501 expectation. Add two explicit read-support protocols after the genuine R01 commit; read support has no write assertion claim. No broad diagnostic fallback.",
+    "generator": "Generate actual SELECT count SQL on the existing genuine Customer using a finite Customer SELECT grant. All other original business/schedule/fixture/observer SQL stays byte-identical. Old invalid SQL artifact remains in immutable preservation and is omitted from regenerated executable set.",
+    "coordinator": "Fresh actual app Session/PID/xid and separately committed issuer grant per support read; tag read_stage_reached distinctly from write_stage_reached. Require independent actual Customer existence/coherence before both controls, all42 before/after equality except issuer grant, close/globalzero before observations and retained21-field/current-grant controls. Recompute exact typed case/grant ceilings; do not preserve old13/14 artificially.",
+    "mock": "Read the actual canonical policy AST/row_allowed projection for the relevant role/model/verb. INSERT NULL argument means no SELECT/root-revision authorization. SELECT uses its real revision expression. Avoid any blanket Customer-model condition. Keep Work physical changed-field/revision rules separate from policy projection, and preserve all existing valid controls.",
+    "metadata": "Refresh generated artifact/source fingerprints and source-only inventory, new author/freeze/review-request records. Preserve original source-plan7582/RootACK47a5 as design lineage, add exact correction plan+ACK/review provenance. Do not update Root status/progress/claims or old reports."
+  },
+  "paired_read_contrast": {
+    "prerequisite": "The same actual R01 genuine SH004/Customer/history/evidence/two-outbox/Effect transaction has committed once, closed and independently passed exact1 Customer/source/effect coherence. No target row fixture or success seeding. No support read occurs before this checkpoint.",
+    "positive": {
+      "name": "customer-existing-complete-revision-read",
+      "role": "wa_app_runtime",
+      "owner": "customer_buyer_profile",
+      "action": "SH-004.v1",
+      "purpose": "provision",
+      "target_kind": "CustomerProfile",
+      "target_id": "the genuine R01 Customer id",
+      "principal": "same actual reviewed User/security prerequisite",
+      "source_generation": 0,
+      "security_generation": 0,
+      "capabilities": "Every actual canonical role-visible Customer SELECT field plus CustomerProfile/<id>/revision/0; no wildcard and no INSERT/UPDATE capabilities needed.",
+      "query": "Actual emitted SELECT jsonb_build_object(existing_customer,(SELECT count(*) FROM app.customer_profiles WHERE id=<same genuine id>)); before/after markers; COMMIT.",
+      "expected": "Exact int1, code0, acknowledged COMMIT, no diagnostic; positive existing row, not empty-source inference.",
+      "claim": null
+    },
+    "negative": {
+      "name": "customer-existing-missing-revision-read",
+      "authority_difference": "Same semantic owner/action/purpose/root/principal/security/source generation and complete field caps; remove only CustomerProfile/<id>/revision/0. Fresh issuer grant and fresh backend tuple are mandatory for both cases.",
+      "query": "Byte-equivalent SELECT body on the same existing id; only declared case markers differ.",
+      "expected": "Exact int0, code0, acknowledged read COMMIT, no SQL error. This is actual SELECT RLS row-revision filtering, not an INSERT failure or an owner write.",
+      "independent_control": "Privileged exact Customer count remains1/coherent before and after; all42 non-grant hashes identical and no source/effect/Work changes.",
+      "claim": null
+    },
+    "stop_rule": "Any missing target, malformed count/marker, wrong currentness/tuple/issuer/closure or unexpected result stops before subsequent support/Work cases. Never change SQL or permissions to force the old expected denial."
+  },
+  "honest_prospective_counts": {
+    "old_HELD_cases": 13,
+    "old_HELD_restricted_app_ops_including_schedule": 14,
+    "old_HELD_grant_max": 14,
+    "new_cases": 14,
+    "new_restricted_app_ops_including_schedule": 15,
+    "new_grant_max": 15,
+    "new_artifacts_expected": 24,
+    "new_SQL_files_expected": 22,
+    "new_SQL_statements_source_predicted": 129,
+    "count_limit": "Source prediction only: remove one11-statement recipe, add two4-statement read recipes. Implementation must parse/reproduce and record actual counts; no Source/run qualification is inferred.",
+    "scenario_order": [
+      "effect-wrong-root",
+      "effect-wrong-purpose",
+      "effect-missing-result-field",
+      "effect-stale-security",
+      "effect-wrong-principal",
+      "genuine-sh004-effect-insert",
+      "customer-existing-complete-revision-read",
+      "customer-existing-missing-revision-read",
+      "work-wrong-root",
+      "work-wrong-purpose",
+      "work-missing-update-field",
+      "work-missing-revision",
+      "work-stale-security",
+      "pending-work-next-attempt-update"
+    ],
+    "maximum_write_assertions": [
+      {
+        "case_id": "P0C-TABLE-RuntimeEffectReceipt-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.insert",
+        "assertion_sha256": "aa8ceeaf1352a901de192087d3de7f042f1994aee916f838c330109eb3ec667d",
+        "source_assertion": {
+          "id": "positive.wa_app_runtime.insert",
+          "mandatory_for_case": true,
+          "expected_outcome": "ALLOW_COMPLETE_REGISTERED_PATH",
+          "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN",
+          "role": "wa_app_runtime",
+          "declared_operation": "INSERT_REGISTERED_OWNER_ACTION_WITH_ATOMIC_PROOF",
+          "path_review": {
+            "scope": "Only as exact companion of a registered source transaction or approved runtime reservation; no standalone arbitrary root",
+            "constraints": "All command/source/proof/message/terminal guards and per-row field capabilities required"
+          }
+        },
+        "status": "NOT_RUN",
+        "maximum_status_after_actual_review": "PASS"
+      },
+      {
+        "case_id": "P0C-TABLE-RuntimeWorkItem-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.update",
+        "assertion_sha256": "81acec2e8ed2628691be4946952d098d01e928c77227e471c84cb7b1c10c9c9c",
+        "source_assertion": {
+          "id": "positive.wa_app_runtime.update",
+          "mandatory_for_case": true,
+          "expected_outcome": "ALLOW_COMPLETE_REGISTERED_PATH",
+          "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN",
+          "role": "wa_app_runtime",
+          "declared_operation": "UPDATE_REGISTERED_OWNER_FIELDS_WITH_CAS_AND_ATOMIC_PROOF",
+          "path_review": {
+            "scope": "runtime.schedule_work.v1/work.schedule on exact RuntimeWorkItem",
+            "constraints": "App may schedule pending work; no app claim/completion through worker-only checks. UPDATE needs a valid permitted pending scheduling field path, not a no-op counted as worker qualification."
+          }
+        },
+        "status": "NOT_RUN",
+        "maximum_status_after_actual_review": "PASS"
+      }
+    ],
+    "new_read_assertion_promotions": 0,
+    "wholecase_promotions": 0
+  },
+  "regressions_and_offline_checks_after_ACK": [
+    "Actual canonical AST policy projection tripwire: Customer INSERT row_revision is NULL, Customer SELECT projection is revision; INSERT/revision field capability remains required separately. Same actual INSERT method without RETURNING must not be denied merely for missing SELECT/root-revision token. Exercise statement/permission method under a mock transaction followed by rollback; never label a partial INSERT or mock rollback as a business success.",
+    "Restore only the old model==CustomerProfile revision branch from the hash-verified preserved method in a temporary in-memory test variant: the policy-projection tripwire must fail. This prevents the removed bad negative from hiding a regression after the case is deleted.",
+    "Both paired actual coordinator/real CTX Session process mocks derive SELECT outputs from actual stored rows and actual emitted SQL/projection. Full valid-read returns1; same missing-token read returns0; wrong target producing empty valid control, swapped counts, missing field/currentness, wrong marker/returning shape and projection mutations stop. No expected-record factory or manual production-global injection.",
+    "Whole new14-protocol pipeline and one genuine schedule prerequisite produce15 fresh issuer-committed grants, exactly two original write claims, full42 counts/hashes/source/result/work/not-before controls, original source recipes unchanged and no new effects from support reads.",
+    "Rerun focused source/transport suites including all current34 check areas, updated honest counts/indices and the new source-projection/regression/pair controls. Record actual test counts/timing and source hashes version-qualified, not additive with held34.",
+    "Retain all existing generic-diagnostic rejection, wrong root/purpose/field/principal/security/Work revision, wrong result evidence-oracle/no nonexistent DB guard, actual returning-zero/no-op, expiry/closure/partial-evidence/secret/IO/restoration/source-loader/closed-import/malformed-typed-count checks.",
+    "Parse every generated SQL with pinned pglast7.21, actual byte reproduction/full artifact-set/source pin closure and actual real loader/target validator before any helper compilation. Current canonical/June/32 Worker ACL/all other approved source maps remain unchanged.",
+    "After final exact freeze, independent Track re-review plus Root review must close APPWRITE2-01 before normal publication or future owned-runner preparation. No Docker/DB/SQL/network/Git or real resources during source correction."
+  ],
+  "artifact_refresh_boundaries": {
+    "same_new_source_filenames_allowed_only_after_ACK": true,
+    "new_frozen_version_directory": "TASK/app-write-two-author-freeze-v2-APPWRITE2-01-20261119",
+    "old_frozen_version_policy": "Keep original0ac/66 snapshots/34 green logs/peer hold/probe immutable and clearly labeled historical HELD. Do not rewrite their status or fabricate later runtime diagnostics.",
+    "only_obsolete_generated_leaf": "review-output/app-write-two-control-rehearsal/effect-missing-root-revision.sql; after exact backup and absolute-path validation, remove only this author-owned unreferenced leaf if retaining the current namespace. No recursive or unrelated deletion.",
+    "new_generated_leaves": [
+      "customer-existing-complete-revision-read.sql",
+      "customer-existing-missing-revision-read.sql"
+    ],
+    "all_other_business_SQL_bytes": "Compare every retained existing SQL recipe/fixture/observer to frozen source; require byte-identical. Canonical application5ae never changes."
+  },
+  "limits": {
+    "source_changes_started": false,
+    "tests_or_SQL_executed_for_this_plan": false,
+    "current5_and58_bytes_changed": false,
+    "Git_Docker_DB_network_resources_credentials": false,
+    "owned_wrapper": false,
+    "Root_status_or_progress_changed": false,
+    "all_runtime": "NOT_RUN",
+    "Posture": "D",
+    "other28_write_questions_or_contracts_changed": false,
+    "Root_and_Track_plan_ACK_required_before_source_changes": true
+  },
+  "plain_english": "The old practice test put the revision lock on the wrong door. Keep that old packet as held evidence. The repair will check the real read door twice: the complete key sees one existing Customer, and the key missing only the revision tooth sees none. No database rules or real database data change in this plan."
+}

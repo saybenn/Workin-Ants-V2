@@ -1,0 +1,48 @@
+"""New adapter integration checks; every process/network boundary is mocked."""
+from pathlib import Path
+import hashlib,json,runpy,subprocess,unittest
+from unittest.mock import Mock,patch
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+B=runpy.run_path(str(TASK/'check_local_f0_privilege_ceiling_verdict_v3_operation.py'))
+class AdapterTests(unittest.TestCase):
+ setUp=B['PrivilegeOperationTests'].setUp
+ component=B['PrivilegeOperationTests'].component
+ def test_real_frozen_coordinator_main_through_outer_with_every_process_mocked(self):
+  mock=runpy.run_path(str(ROOT/'scripts/sql-review/test_run_privilege_ceiling_control_rehearsal.py'));world=mock['World']();n=self.n;n['OUT'].mkdir();seed=mock['plans'](world,self.directory);module=runpy.run_path(str(ROOT/'scripts/sql-review/run-privilege-ceiling-control-rehearsal.py'))
+  name=world.target['target']['container_name'];n.update(RUN_ID=mock['RUN'],COMMIT=seed['source_commit'],TREE=seed['source_tree'],PACKET=seed['packet_sha256'],TARGETS=[{'name':name,'volume':world.target['target']['volume_name'],'kind':'ok'}],created_containers={name:mock['CID']},finalized={name},inspect_owner=lambda *a,**k:None,closed_backends=lambda *a,**k:None,read_target_manifest=lambda p:json.dumps(world.target).encode(),collect_native=lambda *a,**k:world.native,PRIVILEGE_FIXTURES=mock['PACKET'])
+  n['PRIVILEGE_NATIVE'].update(module=mock['N'],packet=mock['NATIVE_PACKET'],preinstall_observed=True,postinstall_observed=True)
+  n['report'].update(catalog_comparison={'status':'PASS','check_counts':{'PASS':29089}},ledger_comparison={'status':'PASS','checks':[{'status':'PASS'}for _ in range(22)]},qualified_native_snapshot_sha256=n['digest'](world.native));n['report']['steps']['CATALOG-ORACLE']='PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE'
+  (n['OUT']/'native-before.json').write_text(json.dumps(world.native));(n['OUT']/'catalog-comparison.json').write_bytes(Path(seed['native_plan']['native_comparison']['path']).read_bytes());n['MANIFEST']={'packet_files_sha256':seed['packet_files_sha256'],'migration_targets':{'ok':{}},'privilege_ceiling':{}};n['SAFE_FILES'].update({'provider-preinstall-proof.json','privilege-ceiling-native-attestation.json','privilege-ceiling-run-plan.json','privilege-ceiling-component-result.json','privilege-ceiling-native-final.json'});n['load_reviewed_helper']=lambda p:module
+  original=module['Evidence'];memories=[]
+  class Evidence(original):
+   def __init__(self,directory,packet):self.saves=0;super().__init__(directory,packet);world.evidence=self;memories.append(self)
+   def save(self):
+    self.saves+=1
+    if self.value.get('current_stage')=='FINISHED'or str(self.value.get('status','')).startswith('STOPPED'):super().save()
+  with patch.dict(module['main'].__globals__,Evidence=Evidence),patch.object(subprocess,'run',side_effect=world.run),patch.object(subprocess,'check_output',side_effect=world.check_output),patch.object(subprocess,'Popen',side_effect=lambda *a,**k:mock['Process'](world,*a,**k)):
+   n['privilege_ceiling_experiment']()
+  self.assertEqual(len(memories),1);self.assertGreater(memories[0].saves,1000);self.assertEqual(len(memories[0].value['results']),200);self.assertEqual(n['report']['privilege_ceiling']['completed_negative_contrasts'],200);self.assertTrue(all(p.poll()is not None for p in world.processes));self.assertEqual(len(world.new_grants),2);self.assertNotIn(mock['CANARY'],json.dumps(n['report']))
+
+ def test_typed_finite_result_mutants_stop_before_later_native(self):
+  for mutation in('result_count','result_duplicate','result_closed','diagnostic','definer','validity','issuer','operation','boundary','auth','native_promotion','extra'):
+   with self.subTest(mutation=mutation):
+    self.n=B['namespace']();self.n.update(OUT=self.directory/mutation,PRIVATE=self.directory/mutation/'private');self.component();n=self.n;original=n['load_reviewed_helper'](n['PRIVILEGE_COORDINATOR'])['main']
+    def main(argv):
+     code=original(argv);file=Path(argv[argv.index('--evidence-directory')+1])/'privilege-ceiling-results.json';value=json.loads(file.read_bytes())
+     if mutation=='result_count':value['results'].pop()
+     elif mutation=='result_duplicate':value['results'][1]=value['results'][0]
+     elif mutation=='result_closed':value['results'][0]['closed_before_observers']=1
+     elif mutation=='diagnostic':value['results'][0]['diagnostic']['matched']=False
+     elif mutation=='definer':value['definer_metadata'][0]['owner_body_definer_path_match']=False
+     elif mutation=='validity':value['native_controls'][0]['native205_unchanged']=False
+     elif mutation=='issuer':value['issuer_protocols'][0]['same_run_and_actual_logins']=False
+     elif mutation=='operation':value['operations'][0]['closed_before_observers']=False
+     elif mutation=='boundary':value['global_client_boundaries'][0]['confirmed']=False
+     elif mutation=='auth':value['authentication'][0]['wrong_password_exit_code']=True
+     elif mutation=='native_promotion':value['selected_cases'][0]['status']='PASS'
+     else:value['extra']=B['CANARY']
+     file.write_text(json.dumps(value));return code
+    n['load_reviewed_helper']=lambda p:{'main':main};n['collect_native']=Mock(side_effect=AssertionError('NO_NATIVE_AFTER_MALFORMED_VERDICT'))
+    with self.assertRaises(n['Stop']):n['privilege_ceiling_experiment']()
+    n['collect_native'].assert_not_called();self.assertTrue(n['report']['privilege_ceiling']['component_closure_confirmed']);self.assertNotIn(B['CANARY'],json.dumps(n['report']))
+if __name__=='__main__':unittest.main(verbosity=2)

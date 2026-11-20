@@ -1,0 +1,156 @@
+{
+  "schema": "workinants.native4c894-source-workload-and-wait-analysis.v1",
+  "recorded_at_utc": "2026-11-20T01:57:10.910184+00:00",
+  "status": "READ_ONLY_STATIC_SOURCE_ANALYSIS_NO_RUNTIME_OBSERVATION",
+  "scope": "Exact approved74f118 literal and pinned unchanged coordinator/API/Host/Core/Steps; excludes outer setup/full-native/cleanup process totals.",
+  "source_sha256": {
+    "scripts/sql-review/run-native-table-denials-v3.py": "6e74115cc7a77e626c4379c5a5744efdede1257d04b206fc339e62a23fd49cd3",
+    "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e",
+    "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f",
+    "execute_local_f0_native_access_20261119_resource_set_v2.py": "c39d23d8d401cee5c35dea8b76cb572ff2e63ea50849d7515663d509fd3c0353",
+    "local_f0_native_access_operation_steps_resource_set_v2.py": "3978b638fb4b449a6782128367899f87e00ba458de44ea9216ffa653d8d8ec73",
+    "review-output/native-table-denials-v2/packet.json": "8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69",
+    "local-f0-native-access-plan-4c894dba/operation-manifest.json": "74f118130c042bbda5729e59334f1667aa36951f2486af3fe7a156cd32071a67"
+  },
+  "full_success_path_counts": {
+    "cases": 40,
+    "declared_probes": 960,
+    "runnable_probes": 956,
+    "blocked_probes": 4,
+    "issuer_controls": 1,
+    "native_control_sessions": 40,
+    "all_operation_sessions": 998,
+    "native_denial_probes": 908,
+    "RLS_empty_probes": 48,
+    "postgres_API_run_processes": 6951,
+    "other_correct_password_API_run_processes": 8,
+    "wrong_password_subprocesses": 9,
+    "metadata_inspect_processes": 4,
+    "operation_Docker_Popen_processes": 998,
+    "coordinator_total_host_Docker_processes": 7970,
+    "admin_query_breakdown": {
+      "full_native_collectors": 82,
+      "100_trigger_guard_checks": 1996,
+      "42_table_data_fingerprints": 1955,
+      "existing_target_row_observers": 956,
+      "source_native_privilege_projections": 956,
+      "exact_operation_backend_absence": 998,
+      "other_preflight_and_issuer_metadata": 8
+    }
+  },
+  "per_runnable_probe": {
+    "fresh_postgres_admin_processes": 7,
+    "fresh_restricted_operation_processes": 1,
+    "durable_whole_evidence_rewrites": 19,
+    "admin_sequence": [
+      "before_guards",
+      "before_all42_fingerprint",
+      "existing_row",
+      "privilege_projection",
+      "operation_exact_backend_absence",
+      "after_guards",
+      "after_all42_fingerprint"
+    ],
+    "no_connection_pool_or_query_reuse_in_API_run": true
+  },
+  "process_count_formula": "10 preflight postgres +4 setup/postsetup +6*40 case-admin +5*1 issuer-admin +7*956 probe-admin =6951; plus8 other correct-auth +9 wrong-auth +4 metadata +998 operation launches =7970",
+  "evidence_writes": {
+    "successful_full_coordinator_save_calls": 19012,
+    "formula": "3 Evidence/main-input +49 preflight +1 setup-stage +6 setup-operation +7 postsetup +19*40 case-fixed +13 issuer +19*956 runnable-probe +2*4 blocked-probe +1 finish =19012",
+    "every_save": "json.dumps(entire growing value,indent=2), write temporary, flush, os.fsync, atomic replace",
+    "same_record_alias_retention": "operation assigns current=record and appends the same record to operations. Post-closure fingerprint mutates current, so each retained operation receives all42 data-projection rows and fingerprint checks.",
+    "cumulative_cost_class": "Quadratic growing snapshot rewrites; no retry is required for this cost.",
+    "projection_source_shape_only_minimum_bytes_per_retained_probe": 7119,
+    "minimum_cumulative_JSON_text_bytes_from_prior_probe_projections_only": 61745293890,
+    "minimum_cumulative_JSON_text_GiB_from_prior_probe_projections_only": 57.505,
+    "minimum_basis": "For each of956 successful probes, its19 saves retain every earlier successful probe projection; 19*sum(range(956))*7119. The conservative7119-byte template uses only42 source-known names, source-fixed counts and64-character placeholder hashes, with less indentation than actual operations nesting. No synthetic evidence artifact or runtime value is produced.",
+    "actual_file_size_physical_IO_or_latency_measured": false,
+    "cost_excludes": "All other record fields, current alias duplication, controls/setup, facets, authentication, native metadata and outer wrapper saves."
+  },
+  "wait_and_closure_source_bounds": {
+    "API_run_subprocess_seconds": 60,
+    "authentication_wrong_password_seconds": 30,
+    "metadata_inspect_seconds": 30,
+    "capture_queue_seconds": 15,
+    "finish_queue_deadline_seconds": 20,
+    "finish_poll_interval_seconds": 0.1,
+    "process_wait_seconds": 10,
+    "reader_join_each_seconds": 5,
+    "normal_reap_escalation": "one wait10; if timeout/broken pipe terminate+wait10; then kill+wait10",
+    "SQL_sent_limits": {
+      "statement_timeout": "5s per statement",
+      "lock_timeout": "1s",
+      "idle_in_transaction_session_timeout": "30s"
+    },
+    "fixed_sleep_per_probe": false,
+    "20s_finish_deadline_is_not_unconditional_sleep": true,
+    "outer_coordinator_call": "Synchronous module.main in redirect_stdout/redirect_stderr, with global closure boundary on return/throw; no whole-coordinator timeout.",
+    "quiet_stdout": "Coordinator Evidence.stage/save does not print progress; outer redirects all coordinator stdout/stderr until it returns."
+  },
+  "boundedness_limits_separate_from_expected_workload": [
+    {
+      "classification": "NO_TOTAL_WALL_CLOCK_BOUND",
+      "source": [
+        "local_f0_native_access_operation_steps_resource_set_v2.py:830",
+        "scripts/sql-review/run-native-table-denials-v3.py:734"
+      ],
+      "finding": "Finite40/24 loops and per-call timeouts do not impose a whole-run deadline; no elapsed-time or process-call-count watchdog wraps module.main.",
+      "observed_as_current_cause": false
+    },
+    {
+      "classification": "BLOCKING_PIPE_WRITE_NOT_COVERED_BY_FOLLOWING_DEADLINE",
+      "source": [
+        "scripts/sql-review/run-native-table-denials-v3.py:400",
+        "scripts/sql-review/run-native-table-denials-v3.py:403",
+        "scripts/sql-review/run-native-table-denials-v3.py:413",
+        "scripts/sql-review/run-native-table-denials-v3.py:433"
+      ],
+      "finding": "stdin.write/flush are synchronous and have no explicit timeout. capture queue timeout and finish20s deadline begin after send returns; cleanup reap also writes before wait10. A stalled transport could therefore block outside those timers. No stall is observed by this analysis.",
+      "observed_as_current_cause": false
+    },
+    {
+      "classification": "SYNCHRONOUS_EVIDENCE_IO_HAS_NO_EXPLICIT_DEADLINE",
+      "source": [
+        "scripts/sql-review/run-native-table-denials-v3.py:342"
+      ],
+      "finding": "JSON serialization/write/fsync/replace are synchronous and not covered by a timer. Source proves repeated durable work, not current storage latency or a hung call.",
+      "observed_as_current_cause": false
+    }
+  ],
+  "finite_control_flow_findings": {
+    "case_probe_retry_loop": false,
+    "explicit_sleep_or_sql_pg_sleep_found_in_coordinator_or83_packet_SQL": false,
+    "while_loops_only": [
+      "stdout reader until EOF",
+      "stderr reader until EOF",
+      "finish queue loop with monotonic20s deadline"
+    ],
+    "reader_lifetime": "Read loops end on EOF/error; normal close reaps process and bounded joins reject live readers. They do not retry cases/probes.",
+    "first_unexpected": "operation raises, coordinator main catches and returns2; no continuation/retry of later cases.",
+    "Root_callbacks": "Coordinator uses pinned API.run/psql with explicit immutableCID. API.run launches one Docker exec per call. Host.inspect_live/verify_image are pure comparators, not hidden per-probe Docker calls."
+  },
+  "duration_interpretation": {
+    "elapsed_minutes_only_as_reported_by_Root": 85,
+    "illustrative_seconds_per_launch_if_full7970_spanned85_minutes": 0.64,
+    "meaning": "Large sequential breadth plus at least57.5GiB of lower-bound repeated JSON text is sufficient to make a long quiet run plausible. The85-minute report alone cannot distinguish progress from a stalled call; this is not an observed throughput measurement or remaining-time estimate."
+  },
+  "source_lines": {
+    "Core_transport": "execute_local_f0_native_access_20261119_resource_set_v2.py:127",
+    "API_run": "scripts/sql-review/run-first-rehearsal.py:47",
+    "Host_pure_comparators": "scripts/sql-review/run-local-f0-migrate.py:77",
+    "Evidence_save": "scripts/sql-review/run-native-table-denials-v3.py:342",
+    "Session_send_capture_finish_close": "scripts/sql-review/run-native-table-denials-v3.py:400",
+    "operation_six_saves_and_record_append": "scripts/sql-review/run-native-table-denials-v3.py:588",
+    "fingerprint_mutates_current": "scripts/sql-review/run-native-table-denials-v3.py:576",
+    "finite_run_loops": "scripts/sql-review/run-native-table-denials-v3.py:734",
+    "Root_coordinator_boundary_and_redirect": "local_f0_native_access_operation_steps_resource_set_v2.py:831"
+  },
+  "not_done": [
+    "No mutable OUT/evidence/credentials read",
+    "No Docker/resource/API/network/SQL/Git operation",
+    "No test/harness/runtime execution",
+    "No source/plan/approval metadata changes",
+    "No assertion about current progress/stage, current failure cause, verdict, cleanup or remaining time",
+    "No stop/retry/permission-repair recommendation"
+  ]
+}

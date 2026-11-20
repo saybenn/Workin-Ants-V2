@@ -1,0 +1,90 @@
+from pathlib import Path
+import ast,collections,datetime,hashlib,json,os,re,socket,subprocess,sys
+T=Path(__file__).resolve().parent.parent;R=T/'workinants-correction-pass';D=Path(__file__).parent
+calls=[]
+def forbidden(*a,**k):calls.append('FORBIDDEN_BOUNDARY');raise AssertionError('FORBIDDEN_BOUNDARY')
+subprocess.run=forbidden;subprocess.Popen=forbidden;socket.socket=forbidden;os.system=forbidden
+sys.path.insert(0,str(R/'scripts/sql-review'))
+import catalog_manifest as compiler, compare_native_catalog as comparator, prisma_ledger_proof as ledger
+sha=lambda b:hashlib.sha256(b).hexdigest()
+canon=lambda x:json.dumps(x,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)
+digest=lambda x:sha(canon(x).encode())
+def load(p):return json.loads(p.read_bytes())
+def check(ok,label):
+ if not ok:raise AssertionError(label)
+checks={}
+for family,record_name,record_sha,op_count,component_relative,component_sha in [
+ ('owner','local-f0-owner-da5ad66-72934689-execution.json','f9e20b2da4af9ec2bf9981f7ecd0fdca9392d91b8b242be75d72e54eadb7390b',635,'owner-read-component/owner-read-results.json','dbbb70ada0ce147f3803afaa5468bddd3d53edd219a5104f3eb02580dccffd38'),
+ ('lease','local-f0-lease-da5ad66-a560e05b-execution.json','c9e01ae2c1e6aaf0e9d054ac5b689a09bbc65ac2d5ed65893d8f90374cc0edbd',167,'lease-revoke/lease-revoke-results.json','a4cc2e14808ad6926fe687e441a02fb4a684446b40ad315b7e4d330889caa160')]:
+ record_path=R/'context/reconciliation'/record_name;check(sha(record_path.read_bytes())==record_sha,'RECORD_HASH');record=load(record_path)
+ check(len(record['assets_sha256'])==(27 if family=='owner' else 26) and all(sha((R/p).read_bytes())==h for p,h in record['assets_sha256'].items()),'ALL_ADMITTED_ASSETS')
+ base=R/next(p.rsplit('/',1)[0] for p in record['assets_sha256'] if p.endswith('/finite-completed-inventory.json'));E=base/'evidence';M=load(base/'manifest/operation-manifest.json');raw=load(E/'run-evidence.json');component=load(E/component_relative)
+ check(sha((E/component_relative).read_bytes())==component_sha,'COMPONENT_HASH');pins=M['packet_files_sha256'];check(len(pins)==op_count and all(sha((R/p).read_bytes())==h for p,h in pins.items()),'OP_PACKET_CURRENT_BYTES')
+ check(sha(''.join(p+'\0'+pins[p]+'\n' for p in sorted(pins)).encode())==record['operation_packet_sha256']==M['packet_sha256'],'OP_AGGREGATE')
+ for rk,mk,ck in [('run_id','run_id','run_id'),('source_commit','source_commit','source_commit'),('source_tree','source_tree','source_tree')]:check(record[rk]==M[mk]==component[ck],'IDENTITY')
+ check(raw['approved_commit']==record['source_commit'] and raw['approved_tree']==record['source_tree'] and raw['approved_packet_sha256']==record['operation_packet_sha256'] and component['packet_sha256']==M['packet_sha256'],'SOURCE_IDENTITY')
+ check(raw['run_manifest']==M and raw['run_manifest_sha256']==record['operation_manifest_sha256']==sha((base/'manifest/operation-manifest.json').read_bytes()),'MANIFEST_BINDING')
+ check(raw['evidence_complete'] is True and raw['persistence_failure'] is False and raw['unexpected']==[],'OUTER_SUCCESS_EVIDENCE')
+ check(all(x is True for x in record['source_preservation'].values()),'SOURCE_PRESERVATION')
+ target=next(iter(raw['targets']));cid=raw['targets'][target]['container_id'];check(component['container_id']==cid,'COMPONENT_CID')
+ final=raw['targets'][target]['finalization_observation'];check(final=={'auth':'scram-sha-256:postgres','grantor':'postgres','leaf_create':dict.fromkeys(('wa_track_verifier','wa_customer_verifier','wa_private_helper_owner'),False),'remaining_memberships':0,'active_install_connections':0},'ORIGINAL_GRANTOR_FINALIZATION')
+ check(all(x['all_other_client_backends_absent'] is True and x['observation_completed'] is True for x in raw['backend_closures']),'OUTER_BACKEND_CLOSURES')
+ for operation in raw['catalog_operations']:check(operation['exit_code']==0 and operation['client_exited'] is True and operation['sqlstates']==[] and operation['unexpected_stderr'] is False,'CATALOG_OPERATION')
+ migration=raw['migration_operations'];check(len(migration)==1 and migration[0]['operation']=='deploy' and migration[0]['exit_code']==0 and migration[0]['container_id']==cid and migration[0]['source_sql_sha256']=='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad','GENUINE_INSTALL')
+ auth=component['authentication'];check(len(auth)==6 and {x['role'] for x in auth}=={'postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker'} and all(x['correct_password']=='PASS_SCRAM' and x['wrong_password']=='PASS_REJECTED' and type(x['wrong_password_exit_code']) is int and x['wrong_password_exit_code']==2 for x in auth),'COMPONENT_AUTH')
+ native=load(E/'native-before.json');native_sha=digest(native);check(native_sha=='a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6','NATIVE_CANONICAL')
+ nfiles=['native-before.json','native-after-oracle.json','native-after-ledger.json',('owner-read-native-final.json' if family=='owner' else 'lease-revoke-native-after.json')];check(all(sha((E/p).read_bytes())=='e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8' for p in nfiles),'FOUR_NATIVE_FILE_PARITY')
+ src=compiler.build_manifest(R,load(R/'review-output/native-catalog/source-pins.json'));check(src['expected_sha256']=='3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433','REBUILT_EXPECTED')
+ reg=load(E/'ledger-registration.json');lev=load(E/'ledger-evidence.json');oracle=load(E/'oracle-evidence.json');check(oracle['results']['expression_count']==416 and len(oracle['results']['expressions'])==416,'ORACLE_416')
+ cp=comparator.compare_manifest(src,native,bootstrap_grantor='postgres',bootstrap_superuser=True,public_schema_owner='pg_database_owner',public_acl_registration=load(R/'review-output/native-catalog/public-schema-registration.json')['full_acl'],ledger_registration=reg,ledger_evidence=lev,expression_oracle_evidence=oracle,oracle_database='wa_p0c_rehearsal',root=R)
+ lp=ledger.compare_proof(reg,lev,native,bootstrap_grantor='postgres',source_expected_sha256=src['expected_sha256'],root=R)
+ check(cp==load(E/'catalog-comparison.json')==raw['catalog_comparison'] and cp['check_counts']=={'PASS':29089} and cp['findings']==[],'RECOMPUTED_CATALOG')
+ check(lp==raw['ledger_comparison'] and lp['status']=='PASS' and len(lp['checks'])==22,'RECOMPUTED_LEDGER')
+ cleanup=load(base/'independent-cleanup.json');check(cleanup['run_id']==record['run_id'] and cleanup['run_evidence_sha256']==record['raw_evidence_sha256'] and cleanup['status']=='PASS_INDEPENDENT_CLEANUP_CONFIRMATION' and all(v['absent_exact_known_diagnostic'] is True for v in cleanup['exact_name_observations'].values()) and cleanup['private_directory_absent'] is True and all(v is True for v in cleanup['exact_bootstrap_secret_files_absent'].values()),'INDEPENDENT_CLEANUP')
+ text=(E/component_relative).read_text();check(not any(re.search('"'+k+'"\\s*:',text) for k in ['password','secret','handle','pid','xid','stdout','stderr','statement_body']),'NO_RAW_SENSITIVE_FIELDS')
+ facts={'review_kind':'AUTHOR_CONTEXT_PROPOSAL_ONLY_NOT_INDEPENDENT' if family=='owner' else 'INDEPENDENT_ACTUAL_SAFE_EVIDENCE_AUDIT','record_path':str(record_path.relative_to(R)),'record_sha256':record_sha,'asset_count':len(record['assets_sha256']),'assets_sha256':record['assets_sha256'],'OP_packet_file_count':op_count,'OP_packet_sha256':M['packet_sha256'],'current_source_bytes_verified':True,'source_commit':record['source_commit'],'source_tree':record['source_tree'],'run_id':record['run_id'],'container_id':cid,'raw_sha256':record['raw_evidence_sha256'],'component_sha256':component_sha,'catalog_recomputed':{'status':cp['status'],'check_counts':cp['check_counts'],'findings':[]},'oracle_expression_count':416,'ledger_recomputed_checks':22,'four_native_files_identical':True,'native_canonical_sha256':native_sha,'authentication_six_roles_correct_and_wrong_passwords':True,'original_grantor_finalization_verified':True,'outer_backend_closure_count':len(raw['backend_closures']),'cleanup_evidence_sha256':record['independent_cleanup_sha256'],'cleanup_scope':'Independent recorded exact absence evidence checked; this reviewer did not query Docker.','operations_count':len(component['operations']),'result_count':len(component['results'])}
+ if family=='lease':
+  protocol_path=R/'scripts/lease_revoke_control_protocol.py';node=ast.parse(protocol_path.read_text());constants={target.id:ast.literal_eval(x.value) for x in node.body if isinstance(x,ast.Assign) and len(x.targets)==1 and isinstance((target:=x.targets[0]),ast.Name) and target.id in ('CASE_ORDER','DIAGNOSTICS')};order=constants['CASE_ORDER'];diag=constants['DIAGNOSTICS'];check([x['name'] for x in component['results']]==list(order),'LEASE_ORDER_19')
+  check(component['status']=='COMPLETED_FINITE_LEASE_AND_APP_CURRENTNESS_ONLY_CASES_NOT_RUN' and component['current_stage']=='COMPLETE' and component['subsequent_cases_stopped'] is False and component['source_packet_unchanged_after_run'] is True,'LEASE_COMPLETE')
+  ops=component['operations'];counts=collections.Counter(x['stage'] for x in ops);check(len(ops)==327 and counts['ACTUAL_OPERATION']==15 and counts['SEPARATE_ISSUER_COMMIT']==25 and counts['ISSUER_RETENTION']==19,'LEASE_COUNTS')
+  application=(R/'review-output/foundation-application.review.sql').read_text();body=re.search(r'CREATE FUNCTION platform_private.runtime_transition\(\).*?AS\s+(\$[a-z_0-9]*\$)(.*?)\1;',application,re.S)[2]
+  for i,x in enumerate(ops):
+   if x['stage']=='ACTUAL_OPERATION':
+    out=x['outcome'];name=x['name'];check(x['operation_closed'] is True and out['matched'] is True,'LEASE_OPERATION_CLOSED_VERDICT')
+    before='WA_LR_BEFORE_'+name.upper().replace('-','_');after=before.replace('BEFORE','AFTER',1)
+    if name in diag:
+     state,message,function=diag[name];line=[i for i,v in enumerate(body.split('\n'),1) if 'RAISE EXCEPTION '+"'"+message+"'" in v];check(len(line)==1,'SOURCE_LINE')
+     check(out['exit_code']==3 and out['acknowledged'] is False and out['stage_markers']==[before] and out['diagnostic']=={'matched':True,'sqlstate':state,'source_guard':function,'source_body_sha256':sha(body.encode()),'source_body_line':line[0],'classification':'SOURCE_EXACT_GUARD'},'EXACT_DIAGNOSTIC')
+    else:check(out['exit_code']==0 and out['acknowledged'] is True and out['stage_markers']==[before,after] and out['comparisons']=={'row_count_matches':True,'shape_and_values_match':True},'LEASE_POSITIVE')
+   if 'shape_and_values_match' in x:check(x['shape_and_values_match'] is True and x['observation']['fields_match'] is True,'OBSERVATION_SHAPE')
+   if x['stage']=='WORK_COMPLETE_STATE':check(x['observation']['values']=={'work_count':1,'coherent':True},'EXACT_WORK_STATE')
+   if x['stage']=='SEPARATE_ISSUER_COMMIT':check(all(x[k] is True for k in ['issuer_committed','commit_acknowledged','created_at_return_verified','operation_closed']),'ISSUER_COMMIT')
+   if x['stage']=='ISSUER_RETENTION':check(x['exact_fields_and_declared_revocations'] is True and type(x['count']) is int and 1<=x['count']<=25,'GRANT_RETENTION')
+   if x['stage']=='GLOBAL_CLIENT_CLOSURE':check(x['scope']=='ALL_DATABASES_ALL_ROLES_ALL_TAGS' and x['observation_completed'] is True and x['all_other_client_backends_absent'] is True,'GLOBAL_CLOSURE')
+   if x['stage']=='NO_ATTEMPTS_OR_TRACK_EFFECTS':check(x['observation']['values']==dict.fromkeys(('attempt_rows','effect_links','track_subscriptions','track_selections','track_grants','track_history'),0),'NO_TRACK_EFFECT')
+  check(counts['NO_ATTEMPTS_OR_TRACK_EFFECTS']==19 and counts['WORK_COMPLETE_STATE']==47 and counts['NATIVE_CATALOG_PRESERVATION']==20 and counts['GLOBAL_CLIENT_CLOSURE']==20,'LEASE_COMPLETE_OBSERVERS')
+  check([x['count'] for x in ops if x['stage']=='ISSUER_RETENTION'][-1]==25,'ALL_25_GRANTS_RETAINED')
+  for phase,live in [('BEFORE_STALE_ACTION',True),('AFTER_STALE_ACTION',False)]:
+   v=next(x['observation']['values'] for x in ops if x['stage']=='OLD_HOLDER_CONTEXT_'+phase);check(v=={'exact_original_tuple_and_immutable_grant':True,'unrevoked':True,'context_grant_unexpired':True,'renew_route_exact':True,'independent_service_epoch_current':True,'higher_fence_lease_still_live':True,'original_backend_live':live},'STALE_HOLDER_ATTRIBUTION')
+  facts.update(stage_counts=dict(counts),actual_operation_indices=[i for i,x in enumerate(ops) if x['stage']=='ACTUAL_OPERATION'],exact_runtime_transition_diagnostics=9,actual_binder_denials=counts['EXPECTED_BINDER_FAILURE'],issuer_grants_retained=25,old_holder_context_attribution_before_and_after=True,clock_evidence_limit={'actual_guarded_order_completed':True,'retained_expiry_clock_values':False,'final_current':component['current'],'reason':'wait_expired stores actual live/expired/poll/budget comparisons in mutable current; later stage() overwrites them. Final results infer that guarded source traversal completed, but do not retain these actual clock facts independently.','maximum':'No full compound fencing/current-holder/expiry promotion from this artifact alone.'},retained_claim_limits=component['coverage_limits'])
+ else:
+  f=load(R/'review-output/owner-read-control-rehearsal/fixtures.json');ops=component['operations'];cases=f['cases'];check(len(cases)==len(component['results'])==121 and len(ops)==964,'OWNER_COUNT');check([x['case'] for x in component['results']]==[x['name'] for x in cases],'OWNER_ORDER')
+  check(component['status']=='PASS_FINITE_OWNER_READ_SQL_SUBSET_ONLY' and component['unexpected']==[] and component['fixture_owner_bypass_restored'] is True,'OWNER_COMPLETE')
+  base=component['baseline'];check(len(base['tables'])==41 and digest(base['tables'])==base['sha256'],'OWNER_41_TABLE_BASELINE')
+  claim=next(x for x in ops if x['stage']=='CATALOG_READ_PREREQUISITE_CLAIM');worker_tables=json.loads(json.dumps(base['tables']));check(worker_tables['platform.runtime_work_item']['rows_sha256']==claim['old_work_sha256'],'CLAIM_OLD_HASH');worker_tables['platform.runtime_work_item']['rows_sha256']=claim['new_work_sha256'];worker_state_sha=digest(worker_tables)
+  for expected,actual in zip(cases,component['results']):
+   check(actual['operation_closed_before_observation'] is True and actual['complete_result_match'] is True and actual['complete_state_sha256']==(worker_state_sha if expected['actual_login']=='wa_worker' else base['sha256']) and actual['tables_observed']==41 and actual['actual_login']==expected['actual_login'],'OWNER_EXACT_RESULT')
+   if expected['expected'] is not None:check(actual['counts']==expected['expected'] and actual['stage_markers']=={'before':True,'after':True},'OWNER_READ_COUNTS')
+   else:check(actual['expected_guard']['matched'] is True and actual['stage_markers']=={'before':True,'after':False},'OWNER_GUARD')
+  counts=collections.Counter(x['stage'] for x in ops)
+  check(counts['BOUND_OPERATION']==128 and counts['SEPARATE_ISSUER_COMMIT']==128 and counts['GLOBAL_BACKEND_CLOSURE']==294 and counts['IMMUTABLE_ISSUER_RETENTION']==378,'OWNER_OPERATION_COUNTS')
+  for x in ops:
+   if x['stage']=='BOUND_OPERATION':check(all(x[k] is True for k in ['issuer_committed','same_tuple_verified','operation_closed','result_validated']),'OWNER_BOUND')
+   if x['stage']=='IMMUTABLE_ISSUER_RETENTION':check(x['all_21_fields_match'] is True and x['issuer_owned'] is True and x['unrevoked'] is True and (not x['unexpired_required'] or x['current_unexpired_match'] is True),'OWNER_GRANTS')
+   if x['stage']=='GLOBAL_BACKEND_CLOSURE':check(x['other_clients_zero'] is True,'OWNER_GLOBAL')
+   if x['stage'].startswith('WORKER_LIVE_LEASE_'):check(x['live_private_preimage_and_fence_match'] is True and x['attempts_effects_enrollments_zero'] is True,'OWNER_WORKER_LEASE')
+  facts.update(stage_counts=dict(counts),baseline_tables=41,grants_separate_from_41_tables=True,final_grants_retained=component['results'][-1]['grants_retained'],full_table_state_sha256_before_claim=base['sha256'],full_table_state_sha256_after_actual_claim=worker_state_sha,only_actual_claim_changes_work_fingerprint=True,all_121_prepared_counts_and_guards_match=True,worker_prepost_lease_witnesses=24,source_fixture_limits=component['limits'])
+ checks[family]=facts
+check(calls==[],'NO_RUNTIME_BOUNDARY')
+output={'schema':'workinants.owner7293-leasea560-catalog-evidence-checks.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'reviewer':'/root/catalog_v4_review','conflict':'Owner source author: Owner findings are author-context checks/proposal only; Lease code and fixtures authored by Track, independent actual evidence review.','checks':checks,'actual_runtime_process_DB_Docker_Git_network_calls':calls,'audit_invocation_corrections':['A preliminary serialized expected.json comparator invocation lacked runtime source compiler metadata and returned oracle SQL packet mismatch/296 INCOMPLETE. Correct actual compiler.build_manifest invocation above recomputed PASS29089 without source/evidence changes.','Initial Owner audit incorrectly expected one unchanged baseline across the deliberate actual worker claim. Exact approved claim changes only work fingerprint; revised audit reconstructs second41-table baseline from retained old/new work hashes. No actual source/evidence defect.','Earlier prose incorrectly assumed both asset maps had27 entries. Owner has27 and Lease26, all53 hashes verified; no actual drift.','Earlier prose incorrectly carried stale195 Lease literal count. Actual executed OP packet is167 with aggregate244bf; all167 verified.'],'limits':{'no_source_or_status_mutation':True,'no_qualification_totals_change':True,'no_whole_case_promotion':True,'no_451_promotion':True,'posture':'D'}}
+p=D/'evidence-checks.json';b=(json.dumps(output,indent=2)+'\n').encode();p.write_bytes(b);print(json.dumps({'path':str(p),'sha256':sha(b),'families':list(checks)}))

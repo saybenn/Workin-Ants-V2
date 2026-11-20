@@ -1,0 +1,53 @@
+{
+  "schema": "workinants.privilege-owned-resource-mount-v2-independent-verdict-probes.v1",
+  "recorded_at_utc": "2026-11-19T21:49:57.784343+00:00",
+  "source_freeze_sha256": "0bf164666e6c463da4f18dd5a57738d6b621dcf409f46bd761de4007f8d69e5a",
+  "observations": [
+    {
+      "probe": "unlisted_diagnostic_gate_and_object",
+      "accepted": true,
+      "fixed_failure_code": null,
+      "raw_candidate_retained": false
+    },
+    {
+      "probe": "immutable_guard_matched_true_but_source_frame_false",
+      "accepted": true,
+      "fixed_failure_code": null,
+      "raw_candidate_retained": false
+    },
+    {
+      "probe": "diagnostic_gate_and_object_non_scalar",
+      "accepted": true,
+      "fixed_failure_code": null,
+      "raw_candidate_retained": false
+    },
+    {
+      "probe": "nonboolean_source_position_control",
+      "accepted": false,
+      "fixed_failure_code": "PRIVILEGE_CEILING_EXACT_DIAGNOSTIC_REQUIRED",
+      "raw_candidate_retained": false
+    },
+    {
+      "probe": "wrong_native_case_promotion_control",
+      "accepted": false,
+      "fixed_failure_code": "PRIVILEGE_CEILING_NATIVE_CASE_PROMOTION_FORBIDDEN",
+      "raw_candidate_retained": false
+    },
+    {
+      "probe": "invalid_role_metadata_ignored",
+      "accepted": true,
+      "fixed_failure_code": null,
+      "raw_candidate_retained": false
+    },
+    {
+      "probe": "floating_native_catalog_count_reaches_component",
+      "accepted_through_gate": true,
+      "fixed_failure_code": "PEER_COMPONENT_REACHED_AFTER_COUNT",
+      "raw_candidate_retained": false
+    }
+  ],
+  "actual_Docker_database_network_credentials_resources": false,
+  "source_and_repository_mutations": false,
+  "all_subprocess_and_socket_APIs_forbidden_by_fixture": true,
+  "runtime": "NOT_RUN"
+}

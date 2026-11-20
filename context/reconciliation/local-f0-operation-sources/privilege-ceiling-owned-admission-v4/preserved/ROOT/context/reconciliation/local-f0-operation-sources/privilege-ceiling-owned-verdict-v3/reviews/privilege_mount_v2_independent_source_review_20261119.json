@@ -1,0 +1,116 @@
+{
+  "schema": "workinants.privilege-owned-resource-mount-v2-independent-source-review.v1",
+  "recorded_at_utc": "2026-11-19T21:54:39.623006+00:00",
+  "reviewer": "independent agent /root/privilege_mount_v2_review; did not author or alter five/archive/SQL",
+  "decision": "CHANGES_REQUESTED_SOURCE_ONLY_NO_RUNTIME",
+  "source_freeze_sha256": "0bf164666e6c463da4f18dd5a57738d6b621dcf409f46bd761de4007f8d69e5a",
+  "operator_sources_sha256": {
+    "execute_local_f0_privilege_ceiling_resource_mount_v2_20261119.py": "f17526d007fbb122df354f7239bd83c60d5392be1d410262fdf017558e937b1e",
+    "local_f0_privilege_ceiling_resource_mount_v2_operation_steps.py": "73641f264ce9880380e7c7426d6faf199bccb1aef83034a31837a4b48e304227",
+    "prepare_local_f0_privilege_ceiling_resource_mount_v2_plan.py": "6335ea8394759d8cfe7881f42fbe36c5244349c7b7242552636bacf23cf773e7",
+    "check_local_f0_privilege_ceiling_resource_mount_v2_operation.py": "9feddb5f779e63c889b5745a61cdc5df313eda630dd45cb4dde3adffec09675a",
+    "pin_local_f0_privilege_ceiling_resource_mount_v2_plan_20261119.py": "4ca1b08b40cb586119f1122e8cbb2c810ddbdc4afe55059fff1149f3aa79133c"
+  },
+  "source_archive_verified_files": 155,
+  "plan_alignment": "ISSUES_FOUND_IN_REQUIRED_FINITE_VERDICT_ADMISSION",
+  "system_integrity": "UNCHANGED_CANONICAL_SQL_ACL_FINITE_PACKET_AND_ACCEPTED_OWNER_SAFETY_BASIS_VERIFIED",
+  "runtime_readiness": "HELD_PENDING_NEW_VERSION_AND_SEPARATE_REVIEW; NO_PRODUCTION_QUALIFICATION",
+  "findings": [
+    {
+      "id": "PRIV-MOUNT-V2-01",
+      "priority": "P2",
+      "file": "local_f0_privilege_ceiling_resource_mount_v2_operation_steps.py",
+      "line": 958,
+      "function": "verify_privilege_result",
+      "title": "Validate the finite diagnostic tuple and immutable-guard frame before accepting a result",
+      "observed": "Actual verifier accepted unlisted gate/object strings, non-scalar gate/object values, and IMMUTABLE_GRANT matched=True with source_frame_verified=False. Exact object and frame returned by the frozen protocol are not admitted here. The currently valid source-position Boolean and whole-case-promotion negative controls rejected correctly.",
+      "impact": "The outer summary can label malformed or internally contradictory component diagnostics PASS_FINITE_PREPARED_SQL_ONLY. This is a source admission defect demonstrated with process-forbidden in-memory mocks, not evidence of an actual PostgreSQL guard failure.",
+      "required_correction": "Validate exact allowlisted (kind,gate,object) combinations derived from each frozen case diagnostic contract, strict scalar/null types, and expected frame/position semantics. Preserve allowed earlier native SCHEMA/COLUMN gates and selected_column_or_verb_isolation_claimed=False; do not require source positions when legitimate two-line native diagnostics have none. Require IMMUTABLE_GRANT gate=null, object=platform_private.grant_guard, source_frame_verified=True and source_position_verified=False. Native ACL/role/schema/function source_frame_verified must remainFalse.",
+      "regression_requirement": "Real unchanged coordinator must still pass through the new outer. Replace only the NEW test version synthetic component baseline, which currently fabricates null gate/object for every case, with values actually admitted by the frozen protocol. Independently reject each malformed/unlisted/frame contradiction before the final native observer."
+    },
+    {
+      "id": "PRIV-MOUNT-V2-02",
+      "priority": "P3",
+      "file": "local_f0_privilege_ceiling_resource_mount_v2_operation_steps.py",
+      "line": 844,
+      "function": "privilege_ceiling_experiment",
+      "title": "Require the native comparison count to be an exact integer",
+      "observed": "Replacing catalog_comparison.check_counts.PASS with29089.0 passes the pre-component gate and reaches the first post-gate proof writer. The probe deliberately stops there; it does not claim a component or database execution.",
+      "impact": "A malformed JSON comparison count is treated as the required exact29089 integer checks because Python numeric equality equates float and int.",
+      "required_correction": "Require a dict with exactPASS key and type(count)is int and count==29089 before generating the component plan or attestation. Keep the existing29089/22/416/native source requirements.",
+      "regression_requirement": "Valid integer29089 proceeds; float29089.0 and other malformed or wrong counts reject before any component proof write, helper compilation or execution."
+    }
+  ],
+  "independent_checks": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege-mount-v2-independent-checks-20261119-v2\\checks.json",
+    "sha256": "2188b9c344bc1d3f833f59e029644d2b57f3983b03dec66bcc3d1329aa49e678",
+    "unique_test_methods": 83,
+    "suites": [
+      {
+        "file": "check_local_f0_privilege_ceiling_resource_mount_v2_operation.py",
+        "source_sha256": "9feddb5f779e63c889b5745a61cdc5df313eda630dd45cb4dde3adffec09675a",
+        "tests": 57,
+        "seconds": 115.078,
+        "unittest_seconds": 113.969,
+        "exit_code": 0,
+        "status": "PASS",
+        "output_sha256": "73ff4ed0288b77963741f3a883ea32bb7481b4825c5566ed64791122c18a491f"
+      },
+      {
+        "file": "check_privilege_owned_resource_mount_v2_safety_composed_20261119.py",
+        "source_sha256": "fabfc2f88fa196b6360ffb6e2e72dd6aebd42260ba2c4ff37bc57334bb674499",
+        "tests": 24,
+        "seconds": 11.188,
+        "unittest_seconds": 10.054,
+        "exit_code": 0,
+        "status": "PASS",
+        "output_sha256": "0ef964bb5569f46931b7ce4ca860faf658bd2233eeea055f686a0bfac4651e65"
+      },
+      {
+        "file": "check_privilege_owned_resource_mount_v2_adapter_20261119.py",
+        "source_sha256": "3651c25ec34b83fa6a216f37e44d780c91ccec524650d5ff3cf20a68d4670d6a",
+        "tests": 2,
+        "seconds": 49.203,
+        "unittest_seconds": 48.204,
+        "exit_code": 0,
+        "status": "PASS",
+        "output_sha256": "fc5a43b3356e20b0af74f7dd8c84c1ddcff8249b542e44466febe80e79debe5a"
+      }
+    ],
+    "additional_actual_function_probes": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege_mount_v2_independent_verdict_probe_20261119.json",
+      "sha256": "03b597199bf7d9b701ca2a1c9e927c0bd538d11d6561762497d08d7fa23c0880",
+      "count": 7,
+      "results": "Three malformed diagnostic admissions and one malformed count admission demonstrated; two expected rejection controls passed; one informational ignored-role-metadata probe is not a separate blocker."
+    }
+  },
+  "preservation": {
+    "exact_current_five_unchanged": true,
+    "exact_archive155_unchanged": true,
+    "accepted_owner5_archive45_unchanged": true,
+    "finite_privilege7_artifacts202_unchanged": true,
+    "canonical_SQL_and_migration_5ae_and_worker_ACL_f9d_unchanged": true,
+    "reviewer_wrote_only_new_TASK_files": true,
+    "no_Git_Docker_DB_network_actual_credentials_resources": true
+  },
+  "not_a_separate_finding": {
+    "role_metadata": "The ignored role_metadata probe is retained for transparency but no separate requirement or security consequence was established beyond already-required full native and definer metadata qualification. It is not an execution blocker of its own.",
+    "older_held_draft": "The new five derive from a preserved held draft. No old hold, prior failure, runtime outcome or case status is cleared by these offline passes."
+  },
+  "review_harness_history": {
+    "metadata_assertion": "The initial audit assumed the preparer function AST would be unchanged after renaming. The declared allowed_catalog_operations description occurs inside prepare, so its sole exact fixed text replacement was instead verified. No reviewed source changed. The initial reviewer helper is preserved.",
+    "first_suite_capture": "An earlier orchestration run raised its wrapper assertion before saving the child suite output. The complete first subprocess outcome/cause was not retained and is not classified as an application/source failure. The current identical57 suite was rerun and its completePASS output is retained;24 and2 suites then passed.",
+    "exclusive_artifact_probe": "The first count probe reused an already-written exclusive proof filename and stopped with FileExistsError after passing the count gate. Its replacement stops in a fixed first-write spy, preserving source behavior and avoiding repeat artifact writes. Both reviewer helper versions are preserved.",
+    "prior_helpers_sha256": {
+      "peer_review_privilege_mount_v2_20261119_before_metadata_assertion_fix.py.txt": "ecb77648898fc59db4b2db326a6a176992b5c4a2f8126b0dd03a3c1444387182",
+      "peer_review_privilege_mount_v2_20261119_before_output_capture_fix.py.txt": "a6349f2a1711826dbbd582e1ca5fca006bc979b28d78b004898cbee1d7147e5a",
+      "peer_probe_privilege_mount_v2_verdict_20261119_before_exclusive_artifact_probe_fix.py.txt": "597b480e50d7c114eb272c48acc3b6d71bb7a1414b344990e66277316548956c"
+    }
+  },
+  "bounded_next_step": "Prepare a new namespace/source version fixing only the two required admissions and realistic mocks/fingerprints. Preserve V2 exactfive/archive155 and immutable coordinator7+202. Obtain separate review and focused offline closure before commit pin/literal review/any actual attempt.",
+  "runtime": "NOT_RUN",
+  "kernel_mount_proof": "NOT_RUN",
+  "posture": "D",
+  "whole_94_or451_promotion": false,
+  "plain_english": "The pretend tests passed, but two report checks can still accept a bad answer. Keep this version parked. Fix those checks in a new copy, test and review that copy, then consider one fresh local test box."
+}

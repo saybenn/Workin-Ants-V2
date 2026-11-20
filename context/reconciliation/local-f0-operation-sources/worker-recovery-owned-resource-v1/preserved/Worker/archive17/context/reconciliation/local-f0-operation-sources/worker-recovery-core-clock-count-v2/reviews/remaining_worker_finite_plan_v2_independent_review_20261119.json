@@ -1,0 +1,192 @@
+{
+  "schema": "workinants.independent-worker-protected-transitions-finite-plan-review.v1",
+  "reviewer": "/root/install_outer_review",
+  "author": "/root/catalog_v4_review",
+  "recorded_at_utc": "2026-11-19T02:44:47.151259+00:00",
+  "decision": "PLAN_APPROVED",
+  "scope": "EXACT_V2_FINITE_CORE21_PLAN_ONLY; ROOT_ACK_STILL_REQUIRED_BEFORE_AUTHORING; NO_SOURCE_OR_RUNTIME_APPROVAL",
+  "plan": {
+    "path": "remaining-worker-protected-transitions-finite-source-plan-v2-20261119.json",
+    "sha256": "1a6b3bfe380aba7250fd8dfbf900ab260fab5668c0e4352c0624b850a6bd612b"
+  },
+  "actual_source_files_sha256": {
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+    "context/reconciliation/local-f0-assertions.json": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558",
+    "context/reconciliation/local-f0-qualification-status.json": "8fc3d0f4d3dbd1c39569a4a1dc378b8393d7794b8e9144913dfaac7d76a285ce",
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+    "context/reconciliation/foundation-sql-scope-policy.json": "a1c56896b12e15e03eb04bef6d5c9254692cdc3918167e024e54006b6fa38b1b",
+    "context/reconciliation/local-f0-selected-gap-plan-after-f161d454.json": "39b5ca35d79bf4f7272e057801042dd1a826c002451aa28c325c6fd2f08f0257",
+    "context/reconciliation/local-f0-restricted-b8f6b10-f161d454-execution.json": "9a090022c11f150cb133617af11cb9c6afafba1624313673ee3a5237ae637232",
+    "review-output/worker-control-rehearsal/fixtures.json": "6e3f126fd014c91f1c2ac519e77635eef2d2232bca2b609c90023495d626aff2",
+    "review-output/lease-revoke-control-rehearsal/fixtures.json": "fe59a9867093f1cbab01741fa7d4f1fd727090e410374e663bbbd0796903c7e5",
+    "review-output/restore-control-rehearsal/proposal.json": "91834ed47f63820db5bb4cc16d77056577f7831f57eeed923198b630af15aaca",
+    "context/context-map.md": "91ae472067d5336f0b0bf6d73c4a9e86b235df85aa2634adec74e93bf6f0ad6d",
+    "context/architecture.md": "308869aecd19249ac56ca9886dec816afb64d7241de0dbde64ff545cb007ca44",
+    "context/shared/contracts/SH-044.md": "25ec251bb07bc39958c8e1a7d174197856a4dc9e7f0ac9ed7a2fbf5d2a4fe6ad",
+    "context/shared/contracts/SH-055.md": "6933a41fa9134f5d12833eb5e421591a74694a13d11f80fa2721314a02a59a2e",
+    "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md": "9af7a7c3142fba550c13727f0143f9612b180d4ab6fd96975846d562d4ec17d5",
+    "review-output/worker-control-rehearsal/enroll.sql": "a0b06b24cfed2779918833b3fc33c5c1429c6d0791ec3355b41403f55b81cf20",
+    "review-output/worker-control-rehearsal/in-transaction-reverse-probes.sql": "1da46483f71a2e188b7198394f1c95fe2f2dbc321ebb985d8014425c8460931a"
+  },
+  "baseline_status_counts": {
+    "PASS": 211,
+    "PARTIAL": 27,
+    "FAILED": 0,
+    "DEPENDENCY_BLOCKED": 32,
+    "NOT_RUN": 757,
+    "UNRESOLVED_SOURCE": 7
+  },
+  "baseline_case_counts": {
+    "PASS": 2,
+    "PARTIAL": 36,
+    "FAILED": 0,
+    "DEPENDENCY_BLOCKED": 0,
+    "NOT_RUN": 56
+  },
+  "findings": [],
+  "reviewed_source_basis": [
+    {
+      "path": "context/context-map.md",
+      "line": 126,
+      "through": 126,
+      "conclusion": "Canonical Track owner routing loaded; plan consumes current module architecture and Shared contracts."
+    },
+    {
+      "path": "context/architecture.md",
+      "line": 51,
+      "through": 59,
+      "conclusion": "One platform durable mechanism; owner retains business effect identity and recovery; stale fencing cannot commit and unknown outcomes do not release proof."
+    },
+    {
+      "path": "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md",
+      "line": 689,
+      "through": 694,
+      "conclusion": "Existing assignDefaultFreeTrack owner operation uses typed source intent, one base selection and immutable receipts; no duplicate grants or valid paid downgrade."
+    },
+    {
+      "path": "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md",
+      "line": 2172,
+      "through": 2174,
+      "conclusion": "WA-R078 requires current binding and durable replay; finite plan does not activate owner product runtime."
+    },
+    {
+      "path": "review-output/foundation-application.review.sql",
+      "line": 2411,
+      "through": 2436,
+      "conclusion": "Exact fields and row revision required. Current-xid predecessor capability applies only when current revision cap absent. Claim0/reclaim1 predecessor-only caps preserve source-generation comparison; subsequent processing2 uses current work2 and original effect1 cap."
+    },
+    {
+      "path": "review-output/foundation-application.review.sql",
+      "line": 3006,
+      "through": 3042,
+      "conclusion": "32-worker-ACL profile and exact worker capability fields/revision/fence tokens support the10 missing companion SELECTs and command @row UPDATE; native privilege alone does not supply authorization."
+    },
+    {
+      "path": "review-output/foundation-application.review.sql",
+      "line": 3121,
+      "through": 3167,
+      "conclusion": "Actual current grant, registered service/job/action/purpose, fresh fence and secret are mandatory. Exact command/effect/Customer/semantic/fingerprint/inbox identity is checked, and original effect fence<=current work fence is permitted."
+    },
+    {
+      "path": "review-output/foundation-application.review.sql",
+      "line": 3170,
+      "through": 3278,
+      "conclusion": "Worker route scopes every companion row to the bound current job; foreign B row remains hidden despite full foreign capabilities. Existing valid selection forbids duplicate Free INSERT. Reservations have no worker dispatch branch."
+    },
+    {
+      "path": "review-output/foundation-application.review.sql",
+      "line": 4277,
+      "through": 4294,
+      "conclusion": "Pending-to-committed command UPDATE preserves immutable identity/schema and requires exact changed-field caps; no invented operation or codec needed."
+    },
+    {
+      "path": "review-output/foundation-application.review.sql",
+      "line": 4674,
+      "through": 4731,
+      "conclusion": "Existing assignDefaultFreeTrackCustomerResult schema/version/body and SHA256(UTF8 PostgreSQL17 jsonb::text) codec support genuine committed command result; terminal command remains immutable."
+    },
+    {
+      "path": "review-output/foundation-application.review.sql",
+      "line": 4853,
+      "through": 4903,
+      "conclusion": "Actual reclaim increments fence and attempt count once after true expiry. Nonnull relink/terminal mutations reject. Current RuntimeAttempt2 is an ordinary protected audit row, and retained lower-fence committed effect may complete current work."
+    },
+    {
+      "path": "review-output/foundation-application.review.sql",
+      "line": 4934,
+      "through": 4969,
+      "conclusion": "All deferred effect and Track atomic constraints must pass at actual COMMIT; leased linked checkpoint is source-attainable, and its unproven future runtime is not fabricated by fixture seeding."
+    },
+    {
+      "path": "context/reconciliation/local-f0-assertions.json",
+      "line": 32302,
+      "through": 32417,
+      "conclusion": "Core maps exactly to scoped concurrent/recovery/SELECT/command positives and partial compounds; Free-only selection does not promote paid/full compound claims."
+    },
+    {
+      "path": "review-output/worker-control-rehearsal/enroll.sql",
+      "line": 1,
+      "through": 22,
+      "conclusion": "Existing complete group supplies source-owned result schema/body, same-group receipt ID, storage digest, effect, inbox, evidence and ordinary attempt1; planned modifications preserve the established codec and add only genuine pending->committed plus deferred leased checkpoint."
+    }
+  ],
+  "checks": {
+    "plan_sha256_verified": true,
+    "all19_current_source_hashes_match": true,
+    "all17_assertion_links": "Exact current status, expected assertion hash, full source assertion hash, availability and dependency IDs match current source register.",
+    "worker_ACL": {
+      "rows": 32,
+      "sha256": "85495186b4d6ca384a4bc5d9157e3748302bab61a4cb43309648a2e59da3d774",
+      "role_verb_pairs_exact": true
+    },
+    "finite_limits": {
+      "core_scenarios": 21,
+      "maximum_future_exact_PASS_candidate_links": 13,
+      "maximum_future_compound_PARTIAL_candidate_links": 4,
+      "whole_case_promotions": 0
+    },
+    "actual_f161": {
+      "result": "PASS_LOCAL_RESTRICTED_CONTROL_PACKETS_ONLY",
+      "component_worker_results": 15,
+      "worker_result_sha256": "b7db8f04cdcfd53605160cb90589a53e23e2c42ac8890b417c627408e3c1fd15",
+      "reviewed_actual_components": [
+        "actual-app-schedule",
+        "actual-worker-claim",
+        "one-complete-default-free"
+      ],
+      "limit": "Preserved historical first claim/attach/complete and unique subsets; no new planned prerequisite counted as a new pass."
+    },
+    "actual_state_before_recovery": "Two genuine committed business groups B and A, A stays leased with exact linked effect+inbox before real expiry. C is genuine scheduled/claimed only. No privileged seeded recovery checkpoint.",
+    "attempt_audit_count": "Exactly2 attempts at A/B checkpoint, exactly one current RuntimeAttempt2 inserted/committed in protocol16, exactly3 total after recovery. No optional branch and no new business effect.",
+    "negative_attribution": "Complete caps and current Identity/grant/preimage controls; real foreign native targets, exact protected guard diagnostics and full rollback/closure proof. Old-fence scenario explicitly combines source-generation/fence and does not claim stale-handle or Identity revocation coverage.",
+    "concurrency": "Real2-session overlap and reclaim COMMIT-before-old-action evidence required; bounded real clock expiry, no forced expiry/repair/retry or worker loop.",
+    "boundary_preservation": {
+      "current_dependency_blocked_rows_exact": 32,
+      "unique_later_owner_obligations": 23,
+      "frozen_routes": 9,
+      "current_unresolved_source_questions_exact": 7,
+      "missing_harness_reclassified_dependency": false
+    },
+    "deferred_followups": "Full TrackBaseSelection predecessor/direct-reverse matrix, paid selection, worker ceiling, and app reservation terminal result identity remain separate; no SH alias/opaque no-result digest or new permissions.",
+    "SafetySQL_hold": "Plan expressly requires newly reviewed common safety composition and real command-only persistent IO tests. CommonSafetySQL v1 still has a separate primary-preservation finding; PLAN_APPROVED does not clear that execution/source hold."
+  },
+  "independent_binding_probe": {
+    "path": "remaining_worker_finite_plan_v2_independent_binding_probe_20261119.json",
+    "sha256": "8f817efab5f5d6ae14b6f9eb4b3c965f037a81d9ae32800cf28054c8427e6a08"
+  },
+  "limits": {
+    "implementation": "NOT_AUTHORED_BY_REVIEWER",
+    "all_new_protocols": "NOT_RUN",
+    "SQL_execution": "NOT_RUN",
+    "Docker_DB_network_Git": "NOT_USED",
+    "source_changes": false,
+    "status_or_progress_edits": false,
+    "new_owner_ports_grants_or_production_loop": false,
+    "whole94_451_promoted": false,
+    "posture": "D",
+    "Brain_final_acceptance": "PENDING"
+  },
+  "plain_english": "The plan uses two real practice job results, then lets a new worker finish one job with its saved result instead of doing it again. It counts exactly three worker attempt notes. This approves the plan for Root to consider; no new test has passed and no database has run."
+}

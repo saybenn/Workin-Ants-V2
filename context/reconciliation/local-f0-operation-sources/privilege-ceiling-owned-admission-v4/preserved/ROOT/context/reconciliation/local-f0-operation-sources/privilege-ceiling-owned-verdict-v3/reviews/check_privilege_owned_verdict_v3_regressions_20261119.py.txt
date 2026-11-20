@@ -1,0 +1,101 @@
+"""Actual V2/V3 function regressions; all process/network/DB APIs forbidden."""
+from pathlib import Path
+from copy import deepcopy
+import ast,json,runpy,unittest
+from unittest.mock import Mock
+T=Path(__file__).resolve().parent
+B=runpy.run_path(str(T/'check_local_f0_privilege_ceiling_verdict_v3_operation.py'))
+
+def pairs(contract):
+ k=contract['kind']
+ if k=='IMMUTABLE_GRANT':return [(None,'platform_private.grant_guard')]
+ if k=='SET_ROLE':return [('ROLE',contract['target_role'])]
+ if k=='SCHEMA_CREATE':return [('SCHEMA_CREATE',contract['schema'])]
+ if k=='FUNCTION':return [('SCHEMA',contract['schema']),('FUNCTION',contract['schema']+'.'+contract['function'])]
+ return [('SCHEMA',contract['schema']),('TABLE',contract['schema']+'.'+contract['relation']),('COLUMN',contract['schema']+'.'+contract['relation'])]
+
+def diagnostic(case,pair=None,position=False):
+ contract=case['diagnostic'];gate,object_=pairs(contract)[0]if pair is None else pair;k=contract['kind']
+ return {'matched':True,'sqlstate':'P0001'if k=='IMMUTABLE_GRANT'else'42501','kind':k,'gate':gate,'object':object_,'source_position_verified':position,'source_frame_verified':k=='IMMUTABLE_GRANT','selected_column_or_verb_isolation_claimed':False}
+
+class VerdictV3Tests(unittest.TestCase):
+ setUp=B['PrivilegeOperationTests'].setUp
+ component=B['PrivilegeOperationTests'].component
+ def baseline(self):
+  self.component();n=self.n;n['privilege_ceiling_experiment']();raw=(n['OUT']/'privilege-ceiling-run-plan.json').read_bytes()
+  return json.loads((n['OUT']/'privilege-ceiling-component/privilege-ceiling-results.json').read_bytes()),json.loads(raw),raw
+ def old_function(self,name):
+  path=T/'local_f0_privilege_ceiling_resource_mount_v2_operation_steps.py';source=path.read_bytes()
+  import hashlib
+  self.assertEqual(hashlib.sha256(source).hexdigest(),'73641f264ce9880380e7c7426d6faf199bccb1aef83034a31837a4b48e304227')
+  node=next(x for x in ast.parse(source).body if isinstance(x,ast.FunctionDef)and x.name==name);scope=dict(self.n)
+  exec(compile(ast.Module(body=[node],type_ignores=[]),str(path),'exec'),scope);return scope[name],scope
+ def test_all200_case_contracts_admit_only_their_finite_native_and_frame_variants(self):
+  cases=json.loads((B['ROOT']/'review-output/privilege-ceiling-control-rehearsal/fixtures.json').read_bytes())['cases'];count=0
+  for case in cases:
+   for pair in pairs(case['diagnostic']):
+    for position in((False,)if case['diagnostic']['kind']=='IMMUTABLE_GRANT'else(False,True)):
+     with self.subTest(case=case['name'],pair=pair,position=position):self.assertTrue(self.n['privilege_diagnostic_allowed'](diagnostic(case,pair,position),case['diagnostic']));count+=1
+  self.assertEqual(count,1089)
+ def test_all200_diagnostic_contracts_reject_malformed_types_unknown_pairs_and_frame_contradictions(self):
+  cases=json.loads((B['ROOT']/'review-output/privilege-ceiling-control-rehearsal/fixtures.json').read_bytes())['cases'];count=0
+  mutations=[('matched',False),('matched',1),('sqlstate','P9999'),('sqlstate',None),('kind',B['CANARY']),('gate',B['CANARY']),('gate',{}),('gate',[]),('gate',True),('gate',1),('object',B['CANARY']),('object',None),('object',{}),('object',[]),('object',True),('object',1),('source_position_verified',0),('source_position_verified',None),('source_frame_verified',0),('source_frame_verified',None),('selected_column_or_verb_isolation_claimed',True),('selected_column_or_verb_isolation_claimed',0)]
+  for case in cases:
+   variants=mutations+[('source_frame_verified',case['diagnostic']['kind']!='IMMUTABLE_GRANT')]
+   if case['diagnostic']['kind']=='IMMUTABLE_GRANT':variants+=[('source_position_verified',True),('gate','SCHEMA')]
+   else:variants+=[('gate',None)]
+   for key,value in variants:
+    d=diagnostic(case);d[key]=value
+    with self.subTest(case=case['name'],field=key,value_type=type(value).__name__):self.assertFalse(self.n['privilege_diagnostic_allowed'](d,case['diagnostic']));count+=1
+   d=diagnostic(case);d['extra']=B['CANARY'];self.assertFalse(self.n['privilege_diagnostic_allowed'](d,case['diagnostic']));count+=1
+   for key in d:
+    if key=='extra':continue
+    missing=diagnostic(case);missing.pop(key);self.assertFalse(self.n['privilege_diagnostic_allowed'](missing,case['diagnostic']));count+=1
+  self.assertGreater(count,6000);self.assertNotIn(B['CANARY'],json.dumps(self.n['report']))
+ def test_each_case_rejects_source_known_pairs_borrowed_from_other_contracts(self):
+  cases=json.loads((B['ROOT']/'review-output/privilege-ceiling-control-rehearsal/fixtures.json').read_bytes())['cases'];pool={pair for case in cases for pair in pairs(case['diagnostic'])};count=0
+  for case in cases:
+   for pair in pool-set(pairs(case['diagnostic'])):
+    with self.subTest(case=case['name'],foreign_pair=pair):self.assertFalse(self.n['privilege_diagnostic_allowed'](diagnostic(case,pair),case['diagnostic']));count+=1
+  self.assertGreater(count,10000)
+ def test_actual_old_verifier_admissions_reproduce_and_new_verifier_rejects_same_payloads(self):
+  value,plan,raw=self.baseline();old,_=self.old_function('verify_privilege_result')
+  for mode in('unknown_pair','non_scalar_pair','immutable_no_frame'):
+   candidate=deepcopy(value)
+   if mode=='immutable_no_frame':next(r for r in candidate['results']if r['diagnostic']['kind']=='IMMUTABLE_GRANT')['diagnostic']['source_frame_verified']=False
+   elif mode=='unknown_pair':candidate['results'][0]['diagnostic'].update(gate='UNLISTED_GATE',object='UNLISTED_OBJECT')
+   else:candidate['results'][0]['diagnostic'].update(gate={},object=[])
+   with self.subTest(mode=mode):
+    self.assertEqual(old(candidate,plan,raw)['completed_negative_contrasts'],200)
+    with self.assertRaises(self.n['Stop'])as refused:self.n['verify_privilege_result'](candidate,plan,raw)
+    self.assertEqual(refused.exception.code,'PRIVILEGE_CEILING_EXACT_DIAGNOSTIC_REQUIRED')
+  self.assertNotIn(B['CANARY'],json.dumps(self.n['report']))
+ def test_actual_old_float_count_reaches_writer_but_new_gate_rejects_before_proofs_or_helpers(self):
+  self.component();old,scope=self.old_function('privilege_ceiling_experiment');scope['report']['catalog_comparison']['check_counts']={'PASS':29089.0};writes=[]
+  def first_write(*args):writes.append(args[0]);raise self.n['Stop']('FIRST_WRITE_SENTINEL')
+  scope['write_safe']=first_write
+  with self.assertRaises(self.n['Stop'])as stopped:old()
+  self.assertEqual(stopped.exception.code,'FIRST_WRITE_SENTINEL');self.assertEqual(writes,['provider-preinstall-proof.json'])
+  for counts in({'PASS':29089.0},{'PASS':False},{'PASS':True},{'PASS':'29089'},{'PASS':None},{'PASS':-1},{'PASS':29088},{'PASS':29089,'FAIL':0},{},None,[],{'PASS':{}},{'PASS':[]}):
+   self.n['report']['catalog_comparison']['check_counts']=counts;writer=Mock(side_effect=AssertionError('NO_PROOF'));helper=Mock(side_effect=AssertionError('NO_HELPER'));observer=Mock(side_effect=AssertionError('NO_NATIVE'));self.n.update(write_safe=writer,load_reviewed_helper=helper,collect_native=observer)
+   with self.subTest(counts=counts),self.assertRaises(self.n['Stop'])as stopped:self.n['privilege_ceiling_experiment']()
+   self.assertEqual(stopped.exception.code,'PRIVILEGE_CEILING_FULL_NATIVE_ORACLE_LEDGER_PASS_REQUIRED');writer.assert_not_called();helper.assert_not_called();observer.assert_not_called()
+  self.n['report']['catalog_comparison']['check_counts']={'PASS':29089};self.n['write_safe']=first_write;writes.clear()
+  with self.assertRaises(self.n['Stop'])as stopped:self.n['privilege_ceiling_experiment']()
+  self.assertEqual(stopped.exception.code,'FIRST_WRITE_SENTINEL');self.assertEqual(writes,['provider-preinstall-proof.json'])
+ def test_changed_guard_and_tuple_verdicts_stop_after_closure_and_before_final_native(self):
+  for mode in('unknown_pair','non_scalar','immutable_frame','native_frame','immutable_position'):
+   self.n=B['namespace']();self.n.update(OUT=self.directory/mode,PRIVATE=self.directory/mode/'private');self.component();n=self.n;original=n['load_reviewed_helper'](n['PRIVILEGE_COORDINATOR'])['main'];stages=[]
+   def main(argv):
+    code=original(argv);path=Path(argv[argv.index('--evidence-directory')+1])/'privilege-ceiling-results.json';v=json.loads(path.read_bytes());row=next(r for r in v['results']if(r['diagnostic']['kind']=='IMMUTABLE_GRANT')==(mode in('immutable_frame','immutable_position')))
+    if mode=='unknown_pair':row['diagnostic'].update(gate=B['CANARY'],object=B['CANARY'])
+    elif mode=='non_scalar':row['diagnostic'].update(gate={},object=[])
+    elif mode=='immutable_frame':row['diagnostic']['source_frame_verified']=False
+    elif mode=='native_frame':row['diagnostic']['source_frame_verified']=True
+    else:row['diagnostic']['source_position_verified']=True
+    path.write_text(json.dumps(v));return code
+   n['load_reviewed_helper']=lambda p:{'main':main};n['closed_backends']=lambda name,stage:stages.append(stage);n['collect_native']=Mock(side_effect=AssertionError('NO_NATIVE_AFTER_BAD_DIAGNOSTIC'))
+   with self.subTest(mode=mode),self.assertRaises(n['Stop'])as stopped:n['privilege_ceiling_experiment']()
+   self.assertEqual(stopped.exception.code,'PRIVILEGE_CEILING_EXACT_DIAGNOSTIC_REQUIRED');self.assertEqual(stages[-1],'PRIVILEGE_CEILING_POST_COMPONENT');self.assertTrue(n['report']['privilege_ceiling']['component_closure_confirmed']);self.assertEqual(n['report']['privilege_ceiling']['component_report_reference']['read_status'],'RETAINED');n['collect_native'].assert_not_called();self.assertNotIn(B['CANARY'],json.dumps(n['report']))
+
+if __name__=='__main__':unittest.main(verbosity=2)

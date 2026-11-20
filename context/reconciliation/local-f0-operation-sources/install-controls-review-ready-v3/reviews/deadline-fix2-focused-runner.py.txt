@@ -1,0 +1,12 @@
+from pathlib import Path
+import hashlib,io,json,runpy,sys,time,unittest
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sys.dont_write_bytecode=True
+def audit(event,args):
+    if event in ('subprocess.Popen','os.system','os.posix_spawn','socket.connect','socket.bind','socket.getaddrinfo'):raise AssertionError('PROCESS_NETWORK_FORBIDDEN')
+sys.addaudithook(audit)
+suite=unittest.TestSuite();counts={}
+for path in ('scripts/test_install_independent_review_protocol_v1.py','scripts/sql-review/test_watch_install_independent_review_v2.py'):
+    n=runpy.run_path(str(R/path));tests=unittest.defaultTestLoader.loadTestsFromModule(type('OfflineModule',(),n));counts[path]=tests.countTestCases();suite.addTests(tests)
+stream=io.StringIO();start=time.perf_counter();result=unittest.TextTestRunner(stream=stream,verbosity=2).run(suite);record={'schema':'workinants.install-review-ready-deadline-fix2-focused-checks.v1','status':'PASS' if result.wasSuccessful() else 'FAIL','tests':result.testsRun,'counts':counts,'seconds':round(time.perf_counter()-start,3),'source_sha256':{p:hashlib.sha256((R/p).read_bytes()).hexdigest() for p in ('scripts/sql-review/watch-install-independent-review-v2.py','scripts/sql-review/test_watch_install_independent_review_v2.py')},'log':stream.getvalue(),'failures':[{'test':str(t),'detail':s} for t,s in result.failures+result.errors],'runtime':'NOT_RUN','actual_approval':'NOT_ISSUED','actual_process_network':'FORBIDDEN_BY_AUDIT'}
+with (T/'install_review_ready_v3_deadline_fix2_focused_checks_20261119.json').open('x',encoding='utf8') as f:json.dump(record,f,indent=2);f.write('\n')
+print(json.dumps({k:v for k,v in record.items() if k not in ('log','failures')}));print(json.dumps(record['failures'],indent=2));sys.exit(0 if result.wasSuccessful() else 1)

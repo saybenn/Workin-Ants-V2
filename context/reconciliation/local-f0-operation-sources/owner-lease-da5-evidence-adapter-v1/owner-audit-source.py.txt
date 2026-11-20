@@ -1,0 +1,157 @@
+"""Independent retained Owner evidence audit. No DB/Docker/Git/process/network."""
+from pathlib import Path
+from contextlib import ExitStack
+from unittest.mock import patch
+from copy import deepcopy
+import ast,collections,datetime,hashlib,json,os,re,socket,subprocess,sys
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';D=T/'owner7293-independent-evidence-audit-20261119-v2'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+canonical=lambda value:json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)
+digest=lambda value:sha(canonical(value).encode())
+def read(path,wanted=None):
+    raw=path.read_bytes()
+    if wanted is not None:assert sha(raw)==wanted,str(path)
+    return raw
+def load(path,wanted=None):return json.loads(read(path,wanted))
+checks=[]
+def check(value,label):
+    assert value,label
+    checks.append(label)
+def forbidden(*args,**kwargs):raise AssertionError('AUDIT_RUNTIME_BOUNDARY_FORBIDDEN')
+D.mkdir(exist_ok=False)
+with ExitStack()as stack:
+    for name in('run','Popen','call','check_call','check_output'):stack.enter_context(patch.object(subprocess,name,side_effect=forbidden))
+    stack.enter_context(patch.object(socket,'create_connection',side_effect=forbidden));stack.enter_context(patch.object(socket.socket,'connect',side_effect=forbidden));stack.enter_context(patch.object(os,'system',side_effect=forbidden))
+    catalog_dir=T/'owner7293-leasea560-evidence-review-catalog-20261119'
+    load(catalog_dir/'review.json','06b726d92c93f677b0ff8f6c474ecae8725bfed5d9f82129dbf5a4332404743d')
+    proposal=load(catalog_dir/'exact-assertion-mapping-proposal.json','c48230229e42eb91ec6a51392d80e10fffa4fd39d4b7bfcdc7b27f43c80102a3')
+    load(catalog_dir/'evidence-checks.json','b0eeb268da4a6cf4276a155902f9bf2e8981e768a69fa5d0b0fb8dae9665b3ad')
+    read(catalog_dir/'audit_safe_evidence_v3.py','43996e8a33c10f5197164a548d5dfb411f988bdbdb2bd18eb228c900b30fae54')
+    record_path=R/'context/reconciliation/local-f0-owner-da5ad66-72934689-execution.json'
+    record=load(record_path,'f9e20b2da4af9ec2bf9981f7ecd0fdca9392d91b8b242be75d72e54eadb7390b')
+    check(len(record['assets_sha256'])==27,'EXACT27_ASSETS')
+    for path,wanted in record['assets_sha256'].items():read(R/path,wanted)
+    base=R/'context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689';E=base/'evidence'
+    M=load(base/'manifest/operation-manifest.json','d8ea014f725d6daa0e72e8b4e7a3ab22b82d138d81fc9311588b873c1ecda620')
+    pending=load(base/'manifest/operation-manifest-before-operational-review.json','ee65b20e1d16abdf38115b19285a8bff2c9b019ea138e339ee177b3e8dfd2634')
+    check({k for k in set(M)|set(pending)if M.get(k)!=pending.get(k)}=={'review_status'},'LITERAL_APPROVAL_CHANGES_ONLY_REVIEW_STATUS')
+    check(pending['review_status']=='PENDING_OPERATIONAL_REVIEW'and M['review_status']=='APPROVED_LOCAL_F0_OWNER_READ_ATTEMPT','LITERAL_REVIEW_STATES')
+    raw=load(E/'run-evidence.json','c3550a19f089332727e7688324446e0315671e6a65ecf5cf69940c3b2b96e8be')
+    component_path=E/'owner-read-component/owner-read-results.json'
+    C=load(component_path,'dbbb70ada0ce147f3803afaa5468bddd3d53edd219a5104f3eb02580dccffd38')
+    pins=M['packet_files_sha256'];check(len(pins)==635,'OP635_SOURCE_MAP')
+    for path,wanted in pins.items():read(R/path,wanted)
+    check(sha(''.join(path+'\0'+pins[path]+'\n'for path in sorted(pins)).encode())==M['packet_sha256']==record['operation_packet_sha256']=='d501acda503df1c17049a60a011e5d2487c24cb25cfcfd5d1c5178d1b5a710a3','OP_AGGREGATE')
+    expected_ids={'run_id':'72934689-cad5-4bee-beb4-1733224a51fb','source_commit':'da5ad66cfc2bcb8aa64a453d10e29baeedb74a65','source_tree':'6c28cd218487cac448805dee8a407f78056a0e22'}
+    for key,value in expected_ids.items():check(record[key]==M[key]==C[key]==value,'IDENTITY_'+key)
+    check(raw['approved_commit']==M['source_commit']and raw['approved_tree']==M['source_tree']and raw['approved_packet_sha256']==M['packet_sha256']==C['packet_sha256'],'RAW_SOURCE_IDENTITY')
+    check(raw['run_manifest']==M and raw['run_manifest_sha256']==record['operation_manifest_sha256'],'RAW_LITERAL_BINDING')
+    check(raw['status']=='PASS_LOCAL_OWNER_READ_SQL_SUBSET_ONLY'and raw['evidence_complete']is True and raw['persistence_failure']is False and raw['output_complete']is True and raw['unexpected']==[],'RAW_FINISHED_WITH_COMPLETE_EVIDENCE')
+    check(C['status']=='PASS_FINITE_OWNER_READ_SQL_SUBSET_ONLY'and C['current_stage']=='COMPLETE'and C['current_case']is None and C['unexpected']==[]and C['subsequent_cases_stopped']is False and C['source_packet_unchanged_after']is True,'COMPONENT_FINISHED')
+    check(all(raw[key]is True for key in('packet_unchanged_after_run','tool_source_data_unchanged_after_run','external_sources_unchanged_after_run','external_inputs_unchanged_after_run')),'POSTRUN_SOURCE_PRESERVATION')
+    target=M['targets'][0]['name'];cid=raw['targets'][target]['container_id'];check(cid==C['container_id'],'IMMUTABLE_CID_BINDING')
+    final=raw['targets'][target]['finalization_observation']
+    check(final=={'auth':'scram-sha-256:postgres','grantor':'postgres','leaf_create':dict.fromkeys(('wa_track_verifier','wa_customer_verifier','wa_private_helper_owner'),False),'remaining_memberships':0,'active_install_connections':0},'ORIGINAL_GRANTOR_FINALIZATION')
+    check(all(row['observation_completed']is True and row['all_other_client_backends_absent']is True for row in raw['backend_closures']),'ALL_OUTER_BACKEND_CLOSURES')
+    kernel=raw['resource_kernel_checks'];check(len(kernel)>=2 and all(row['confirmed']is True and row['owned_identity']is True and row['integer_exit_zero']is True and row['fixed_token']is True and row['stderr_empty']is True for row in kernel),'BOTH_RUNNING_OWNED_KERNEL_PROOFS')
+    roles={'postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker'}
+    for phase in(raw,C):
+        auth=phase['authentication'];check(len(auth)==6 and {r['role']for r in auth}==roles and all(r['correct_password']=='PASS_SCRAM'and r['wrong_password']=='PASS_REJECTED'and type(r['wrong_password_exit_code'])is int and r['wrong_password_exit_code']==2 for r in auth),'SIX_AUTH_CONTROLS_'+('outer'if phase is raw else'component'))
+        check(all(value is True for value in phase['authentication_comparison'].values()),'TYPED_AUTH_COMPARISONS_'+('outer'if phase is raw else'component'))
+    migration=raw['migration_operations'];check(len(migration)==1 and migration[0]['operation']=='deploy'and migration[0]['exit_code']==0 and migration[0]['container_id']==cid and migration[0]['source_sql_sha256']=='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad','GENUINE_PRISMA_INSTALL')
+    for row in raw['catalog_operations']:check(row['exit_code']==0 and row['client_exited']is True and row['sqlstates']==[]and row['unexpected_stderr']is False,'CATALOG_OPERATION_SUCCESS')
+    sys.path.insert(0,str(R/'scripts/sql-review'))
+    import catalog_manifest,compare_native_catalog,prisma_ledger_proof
+    native=load(E/'native-before.json');source=catalog_manifest.build_manifest(R,load(R/'review-output/native-catalog/source-pins.json'))
+    check(source['expected_sha256']=='3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433','COMPILER_EXPECTED_MANIFEST')
+    native_files=('native-before.json','native-after-oracle.json','native-after-ledger.json','owner-read-native-final.json')
+    check(len({sha(read(E/name))for name in native_files})==1,'FOUR_NATIVE_SNAPSHOTS_BYTE_IDENTICAL')
+    reg=load(E/'ledger-registration.json');lev=load(E/'ledger-evidence.json');oracle=load(E/'oracle-evidence.json')
+    check(oracle['results']['expression_count']==len(oracle['results']['expressions'])==416,'ORACLE416_ACTUAL_RESULTS')
+    comparison=compare_native_catalog.compare_manifest(source,native,bootstrap_grantor='postgres',bootstrap_superuser=True,public_schema_owner='pg_database_owner',public_acl_registration=load(R/'review-output/native-catalog/public-schema-registration.json')['full_acl'],ledger_registration=reg,ledger_evidence=lev,expression_oracle_evidence=oracle,oracle_database='wa_p0c_rehearsal',root=R)
+    ledger=prisma_ledger_proof.compare_proof(reg,lev,native,bootstrap_grantor='postgres',source_expected_sha256=source['expected_sha256'],root=R)
+    check(comparison==load(E/'catalog-comparison.json')==raw['catalog_comparison']and comparison['status']=='PASS'and comparison['check_counts']=={'PASS':29089}and comparison['findings']==[],'INDEPENDENTLY_RECOMPUTED_CATALOG29089')
+    check(ledger==raw['ledger_comparison']and ledger['status']=='PASS'and len(ledger['checks'])==22,'INDEPENDENTLY_RECOMPUTED_LEDGER22')
+    F=load(R/'review-output/owner-read-control-rehearsal/fixtures.json','7f8d292ddc8ca11e12ae91e94ac62cca6cdd09d0c1f8a427ac5eefa414e66aca')
+    check(len(F['source_files_sha256'])==67 and len(F['prepared_files_sha256'])==140 and len(F['cases'])==121,'EXACT_SOURCE67_SQL140_CASE121')
+    for path,wanted in F['source_files_sha256'].items():check(pins.get(path)==wanted and sha(read(R/path))==wanted,'TRANSITIVE_SOURCE_'+path)
+    for path,wanted in F['prepared_files_sha256'].items():check(pins.get('review-output/owner-read-control-rehearsal/'+path)==wanted and sha(read(R/'review-output/owner-read-control-rehearsal'/path))==wanted,'PREPARED_SQL_'+path)
+    check(digest({key:F[key]for key in('source_files_sha256','prepared_files_sha256')})==F['source_only_packet_sha256']==C['reviewed_content_sha256'],'FIXTURE_CONTENT_AGGREGATE')
+    A=load(R/'context/reconciliation/local-f0-assertions.json','7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558')
+    assertions={(case['id'],a['id']):a for case in A['cases']for a in case['assertions']};check(len(assertions)==1034,'FROZEN1034_REQUIREMENTS')
+    cases={c['name']:c for c in F['cases']};results={r['case']:r for r in C['results']};ops=C['operations'];counts=collections.Counter(o['stage']for o in ops)
+    check([r['case']for r in C['results']]==[c['name']for c in F['cases']]and len(ops)==964,'EXACT_CASE_ORDER_AND964_OPERATIONS')
+    check(counts['BOUND_OPERATION']==counts['SEPARATE_ISSUER_COMMIT']==128 and counts['GLOBAL_BACKEND_CLOSURE']==294 and counts['IMMUTABLE_ISSUER_RETENTION']==378,'OPERATION_CARDINALITIES')
+    bound_indices=[i for i,o in enumerate(ops)if o['stage']=='BOUND_OPERATION'];bounds={}
+    for position,i in enumerate(bound_indices):
+        o=ops[i];end=bound_indices[position+1]if position+1<len(bound_indices)else len(ops);segment=ops[i:end];bounds[o['case']]=i
+        check(all(o[k]is True for k in('issuer_committed','same_tuple_verified','operation_closed','result_validated')),'BOUND_TUPLE_AND_CLOSURE_'+o['case'])
+        issuer=[x for x in segment if x['stage']=='SEPARATE_ISSUER_COMMIT'];check(len(issuer)==1 and all(issuer[0][k]is True for k in('issuer_committed','commit_acknowledged','created_at_return_verified','operation_closed')),'SEPARATE_ISSUER_COMMIT_'+o['case'])
+    for o in ops:
+        if o['stage']=='GLOBAL_BACKEND_CLOSURE':check(o['other_clients_zero']is True,'GLOBAL_CLOSURE')
+        if o['stage']=='IMMUTABLE_ISSUER_RETENTION':check(o['all_21_fields_match']is True and o['issuer_owned']is True and o['unrevoked']is True and(not o['unexpired_required']or o['current_unexpired_match']is True),'IMMUTABLE_CURRENT21_FIELD_GRANT')
+    baseline=C['baseline'];check(len(baseline['tables'])==41 and set(baseline['tables'])==set(F['expected_counts'])and digest(baseline['tables'])==baseline['sha256'],'FIRST_COMPLETE41_TABLE_BASELINE')
+    check(all(type(baseline['tables'][name]['count'])is int and baseline['tables'][name]['count']==wanted for name,wanted in F['expected_counts'].items()),'COMPLETE_EXPECTED_COUNTS')
+    claims=[o for o in ops if o['stage']=='CATALOG_READ_PREREQUISITE_CLAIM'];check(len(claims)==1 and claims[0]['actual_claim']is True and claims[0]['live_private_preimage_and_fence_match']is True and claims[0]['attempts_effects_enrollments_zero']is True,'ONE_GENUINE_RESTRICTED_WORKER_CLAIM')
+    claim=claims[0];after_tables=deepcopy(baseline['tables']);check(after_tables['platform.runtime_work_item']['rows_sha256']==claim['old_work_sha256'],'CLAIM_PREVIOUS_WORK_HASH');after_tables['platform.runtime_work_item']['rows_sha256']=claim['new_work_sha256'];after_sha=digest(after_tables)
+    check(after_sha!=baseline['sha256'],'SECOND_POSTCLAIM41_TABLE_BASELINE')
+    application=read(R/'review-output/foundation-application.review.sql','5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad').decode()
+    body=re.search(r'CREATE FUNCTION platform_private\.privacy_guard\(\).*?AS (\$[a-z_0-9]*\$)(.*?)\1;',application,re.S)[2]
+    guard_lines=[i for i,line in enumerate(body.split('\n'),1)if "RAISE EXCEPTION 'request completion requires qualified full owner accounting'"in line];check(len(guard_lines)==1,'PRIVACY_SOURCE_GUARD_LINE')
+    for c in F['cases']:
+        result=results[c['name']];bound=ops[bounds[c['name']]];expected_sha=after_sha if c['actual_login']=='wa_worker'else baseline['sha256']
+        check(result['actual_login']==bound['actual_login']==c['actual_login']and result['operation_closed_before_observation']is True and result['complete_result_match']is True and result['tables_observed']==41 and result['complete_state_sha256']==expected_sha,'EXACT_OBSERVATION_'+c['name'])
+        check(type(result['grants_retained'])is int and 1<=result['grants_retained']<=128,'SEPARATE_GRANT_COUNT_'+c['name'])
+        if c['expected']is not None:check(result['counts']==c['expected']and result['stage_markers']=={'before':True,'after':True}and result['expected_guard']is None and bound['terminal_exit']==0,'POSITIVE_OR_ZERO_ROW_VERDICT_'+c['name'])
+        else:
+            check(bound['terminal_exit']==3 and result['stage_markers']=={'before':True,'after':False},'GUARD_TERMINAL_MARKERS_'+c['name'])
+            guard={'matched':True,'sqlstate':'0A000'if c['name']=='privacy-completion-gate'else'42501','classification':c['name'],'source_frame_verified':c['name']=='privacy-completion-gate','body_sha256':sha(body.encode())if c['name']=='privacy-completion-gate'else None,'body_line':guard_lines[0]if c['name']=='privacy-completion-gate'else None}
+            check(result['expected_guard']==guard,'EXACT_INTENDED_DIAGNOSTIC_'+c['name'])
+    check(C['results'][-1]['grants_retained']==128,'FINAL_ALL128_GRANTS_RETAINED')
+    live=[o for o in ops if o['stage'].startswith('WORKER_LIVE_LEASE_')];check(len(live)==25 and all(o['live_private_preimage_and_fence_match']is True and o['attempts_effects_enrollments_zero']is True for o in live),'WORKER_CURRENT_LEASE_WITNESSES')
+    check(C['fixture_owner_bypass_restored']is True and counts['CONSENT_FIXTURE_OWNER_PROOF_ONLY_RESTORED']==1 and counts['FINALLY_EXACT_TRIGGER_FUNCTION_ACL_PARITY']==1,'DECLARED_TRIGGER_BYPASS_RESTORED')
+    parity=[o for o in ops if o['stage']in('PRE_FIXTURE_CURRENT_NATIVE_PARITY','PRE_CONSENT_OWNER_BYPASS_BASELINE','POST_FIXTURE_EXACT_NATIVE_PARITY','FINAL_EXACT_NATIVE_PARITY','FINALLY_EXACT_TRIGGER_FUNCTION_ACL_PARITY')]
+    check(len(parity)==5 and all(o['native_catalog_match']is True and o['native_sha256']==digest(native)for o in parity),'EXACT_TRIGGER_FUNCTION_ACL_NATIVE_PARITY')
+    cleanup=load(base/'independent-cleanup.json','25c136b7ba9d02d10e41c614d9c03332a646b7580e3cb0aa5549872391b7e9b2')
+    check(cleanup['run_id']==M['run_id']and cleanup['manifest_sha256']==record['operation_manifest_sha256']and cleanup['run_evidence_sha256']==record['raw_evidence_sha256']and cleanup['status']=='PASS_INDEPENDENT_CLEANUP_CONFIRMATION','CLEANUP_IDENTITY')
+    check(set(cleanup['exact_name_observations'])=={target,M['targets'][0]['volume']}and all(v['absent_exact_known_diagnostic']is True for v in cleanup['exact_name_observations'].values())and cleanup['private_directory_absent']is True and cleanup['exact_bootstrap_secret_files_absent']=={'ok-bootstrap-password':True}and cleanup['pinned_manifest_image_retained']is True,'EXACT_RETAINED_CLEANUP_PROOF')
+    check(raw['sanitization']['actual_password_values_found']is False and raw['sanitization']['raw_context_handles_persisted']is False and raw['sanitization']['unrestricted_subprocess_output_persisted']is False,'RETAINED_ORIGINAL_SECRET_SCAN')
+    text=read(component_path).decode();check(not any(re.search('"'+key+'"\\s*:',text)for key in('password','secret','handle','pid','xid','stdout','stderr','statement_body')),'NO_RAW_SENSITIVE_COMPONENT_FIELDS')
+    scope=load(R/'context/reconciliation/foundation-sql-scope-policy.json');selected=[row for row in proposal['rows']if row['family']=='owner'];check(len(selected)==20,'EXACT20_OWNER_LINKS')
+    model_primary={'ProfessionalProfile':['professional-query','professional-result','professional-pure','professional-projection','professional-history'],'CandidateProfile':['candidate-query','candidate-aggregate','candidate-access'],'User':['user-actor'],'UserSecurityProfile':['security-actor'],'TrackPlan':['plan-app'],'TrackEntitlementDefinition':['definition-app'],'TrackPlanEntitlement':['benefit-app'],'ConsentContentRevision':['consent-content'],'ConsentPresentation':['consent-presentation'],'ConsentLog':['consent-proof'],'PrivacyRequest':['privacy-query']}
+    worker_primary={'TrackPlan':'plan-worker','TrackEntitlementDefinition':'definition-worker','TrackPlanEntitlement':'benefit-worker'}
+    approved=[]
+    for row in selected:
+        key=(row['case_id'],row['assertion_id']);a=assertions[key];check(digest(a)==row['exact_assertion_snapshot_sha256']and sha(a['expected_assertion'].encode())==row['expected_assertion_sha256']and a['expected_assertion']==row['expected_assertion'],'FROZEN_ASSERTION_BINDING_'+key[0]+key[1])
+        refs=row['source_case_results'];names=[p['source_case_name']for p in refs]
+        check(all(component_path and C['results'][int(ref['json_pointer'].split('/')[-1])]['case']==ref['source_case_name']and ref['source_case_name']in cases for ref in refs),'EXACT_RESULT_POINTERS_'+key[0]+key[1])
+        primary=[]
+        if a['id'].startswith('positive.'):
+            model=row['case_id'].removeprefix('P0C-TABLE-').removesuffix('-ALLOW');role=a['role'];primary=model_primary[model]if role=='wa_app_runtime'else[worker_primary[model]]
+            check(row['proposed_exact_evidence_classification']=='PASS'and all(name in names and cases[name]['model']==model and results[name]['counts']['root']==1 and results[name]['counts']['foreign']==0 for name in primary),'PERMITTED_READ_COMPLETE_'+model+role)
+            for name in primary:
+                c=cases[name];g=F['grants'][c['grant']];check(g['database_login_role']==role,'ROLE_BINDING_'+name)
+                if role=='wa_app_runtime':
+                    matching=[i for i,s in enumerate(scope['domain_scopes'])if(s['owner'],s['action'],s['purpose'],s['root_kind'])==(g['owner_module_id'],g['action'],g['purpose'],g['target_kind'])and'SELECT'in s['verbs']]
+                    path_review=a['path_review']
+                    if 'scope_registration_indices'in path_review:check(bool(set(matching)&set(path_review['scope_registration_indices'])),'REGISTERED_READ_SCOPE_'+name)
+                    else:check(bool(matching)and all(path_review[k]==g[v]for k,v in(('source_owner','owner_module_id'),('action','action'),('purpose','purpose'),('root_kind','target_kind'))),'EXPLICIT_REGISTERED_READ_SCOPE_'+name)
+                    fields=F['models'][model]['fields'];check(all(model+'/'+g['target_id']+'/SELECT/'+field in g['allowed_fields']for field in fields),'COMPLETE_SOURCE_FIELD_CAPS_'+name)
+                else:check(all(g[k]==scope['worker_scope'][s]for k,s in(('owner_module_id','owner'),('action','action'),('purpose','purpose'),('target_kind','root_kind'))),'REGISTERED_WORKER_SCOPE_'+name)
+        elif a['id']=='vector.READ-PURPOSE-NO-WRITE.adversarial':
+            check(row['proposed_exact_evidence_classification']=='PASS'and set(names)=={'user-actor-write-denied','security-actor-write-denied','plan-app-write-denied'},'FINITE_NONMUTATING_UPDATE_DENIAL')
+            for name in names:
+                g=F['grants'][cases[name]['grant']];check(results[name]['counts']=={'modified':0}and any('/UPDATE/@row'in cap for cap in g['allowed_fields'])and any('/UPDATE/revision'in cap for cap in g['allowed_fields']),'OTHERWISE_MATCHING_UPDATE_CAPS_'+name)
+        elif a['id']=='separate_gate_denial.wa_app_runtime.privacy_completion':check(row['proposed_exact_evidence_classification']=='PASS'and names==['privacy-completion-gate'],'SEPARATE_PRIVACY_GATE_ONLY')
+        else:check(row['proposed_exact_evidence_classification']=='PARTIAL'and a['id']in('vector.READ-PURPOSE-NO-WRITE.positive','vector.CONSENT-CONTENT-SCOPE.adversarial','vector.CONSENT-PRESENTATION-SCOPE.adversarial','vector.CONSENT-SCOPE-CHAIN.adversarial'),'BROADER_VECTOR_REMAINS_PARTIAL')
+        out=deepcopy(row);out['review_kind']='INDEPENDENT_ACTUAL_OWNER_EVIDENCE_ACCEPTED_FINITE_ASSERTION_ONLY';out['independent_primary_cases']=primary;out['actual_bound_operation_pointers']=[{'source_case_name':name,'json_pointer':'/operations/'+str(bounds[name])}for name in names];out['whole_case_promoted']=False;out['status_or_ledger_mutation_by_reviewer']=False;approved.append(out)
+    check(collections.Counter(row['proposed_exact_evidence_classification']for row in approved)=={'PASS':16,'PARTIAL':4},'EXACT16_PASS4_PARTIAL')
+    for path,wanted in record['assets_sha256'].items():read(R/path,wanted)
+    for path,wanted in pins.items():read(R/path,wanted)
+    check(sha(read(R/'context/reconciliation/local-f0-assertions.json'))==proposal['assertions_sha256'],'REQUIREMENTS_UNCHANGED_AFTER_AUDIT')
+    facts={'run_id':M['run_id'],'source_commit':M['source_commit'],'source_tree':M['source_tree'],'OP_packet_sha256':M['packet_sha256'],'OP_files':635,'assets':27,'actual_result_count':121,'actual_operations':964,'bound_and_separate_issuer_commits':128,'immutable21_field_retention_observations':378,'global_client_closures':294,'outer_backend_closures':len(raw['backend_closures']),'two_kernel_checks':len(kernel),'authentication_phases':2,'roles_each_phase':6,'catalog_checks':29089,'oracle_expressions':416,'ledger_checks':22,'native_canonical_sha256':digest(native),'four_native_files_identical':True,'baseline_tables_excluding_grants':41,'first_baseline_sha256':baseline['sha256'],'post_sole_actual_claim_baseline_sha256':after_sha,'final_separate_immutable_grants':128,'worker_lease_witnesses_including_postclaim':len(live),'cleanup_sha256':sha(read(base/'independent-cleanup.json')),'privacy_guard_body_sha256':sha(body.encode()),'privacy_guard_body_line':guard_lines[0]}
+    output={'schema':'workinants.owner7293-independent-evidence-checks.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'reviewer':'/root/privilege_mount_v2_review','independence':'Did not author Owner operational code, coordinator, protocol, generator or fixtures. Catalog proposal was treated as author context, never as independent approval.','status':'PASS_RETAINED_FINITE_ACTUAL_EVIDENCE_AUDIT','facts':facts,'checks_executed':len(checks),'checks':checks,'real_DB_Docker_Git_SQL_network_runtime_actions':False,'source_or_repository_status_changes':False,'Posture':'D'}
+    (D/'checks.json').write_text(json.dumps(output,indent=2)+'\n',encoding='utf8')
+    links={'schema':'workinants.owner7293-independent-approved-assertion-links.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'reviewer':'/root/privilege_mount_v2_review','decision':'APPROVED_EXACT20_FINITE_OWNER_LINKS_ONLY','source_proposal_sha256':sha(read(catalog_dir/'exact-assertion-mapping-proposal.json')),'frozen_assertions_sha256':sha(read(R/'context/reconciliation/local-f0-assertions.json')),'record_sha256':sha(read(record_path)),'component_sha256':sha(read(component_path)),'independent_checks_sha256':sha(read(D/'checks.json')),'approved_counts':{'PASS':16,'PARTIAL':4},'rows':approved,'ledger_or_status_changes_authorized_or_executed_by_this_artifact':False,'whole_case_or_register_promotion':False,'Posture':'D'}
+    (D/'approved-assertion-links.json').write_text(json.dumps(links,indent=2)+'\n',encoding='utf8')
+    print(json.dumps({'status':output['status'],'checks_sha256':sha(read(D/'checks.json')),'approved_links_sha256':sha(read(D/'approved-assertion-links.json')),'facts':facts,'checks':len(checks)}))

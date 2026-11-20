@@ -1,0 +1,147 @@
+"""Close real status integration and update version-qualified progress records."""
+from pathlib import Path
+import datetime, hashlib, json
+
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+def encoded(value):
+    return (json.dumps(value, indent=2, allow_nan=False) + '\n').encode()
+
+def new(path, content):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('xb') as f:
+        f.write(content)
+
+backup = T / '1110-progress-records-before-update-20261119'
+backup.mkdir(exist_ok=False)
+
+def replace_record(relative, content):
+    path = R / relative
+    new(backup / relative, path.read_bytes())
+    path.write_bytes(content)
+
+check = T / 'owner_lease_adapter_integrated_status_actual_checks_20261119.json'
+assert sha(check) == '384f04ee5340322fc3173ef731ad2992f38a5743ba56e9eef9ac9260c9fddd37'
+c = json.loads(check.read_bytes())
+assert c['actual_check_exit_code'] == 0
+status_path = R / 'context/reconciliation/local-f0-qualification-status.json'
+assert sha(status_path) == c['status_file_sha256'] == '95f048b55581f2e237309580df1bef9598ef566bf8f09f7c3c15e567fa338526'
+status = json.loads(status_path.read_bytes())
+owner_validation = 'context/reconciliation/local-f0-owner-lease-evidence-adapter-v1-source-validation.json'
+ov = json.loads((R / owner_validation).read_bytes())
+for p, h in ov['files_sha256'].items():
+    assert sha(R / p) == h
+owner_prefix = 'context/reconciliation/local-f0-operation-sources/owner-lease-da5-evidence-adapter-v1/reviews'
+extra = {}
+for destination, source in [
+    ('Root-integrated-real-status-checks.json', check),
+    ('Root-integrated-real-status-checks.log', T / 'owner_lease_adapter_integrated_status_actual_checks_20261119.log'),
+]:
+    relative = owner_prefix + '/' + destination
+    new(R / relative, source.read_bytes())
+    extra[relative] = sha(source)
+ov['status'] = 'SOURCE_APPROVED_INTEGRATED_REAL_UNMOCKED_STATUS_BUILD_AND_CHECKS_PASS'
+ov['actual_status_integration'] = {'status': 'PASS', 'real_unmocked_status_build_exit_code': 0, 'status_file_sha256': sha(status_path), 'assertion_counts': status['assertion_status_counts'], 'case_counts': status['case_status_counts'], 'new_Native_run_included': False, 'applicable_integrated_check_methods': 13, 'check_elapsed_seconds': c['check_elapsed_seconds'], 'checks': extra}
+ov['additional_review_files_sha256'].update(extra)
+replace_record(owner_validation, encoded(ov))
+
+review_prefix = 'context/reconciliation/local-f0-evidence-reviews/native-1110fa4-4c894dba'
+audits = {}
+for destination, name, digest in [
+    ('independent-closed-evidence-audit.json', 'native_1110_4c894_closed_evidence_independent_audit_20261119.json', '9aa08dc7d26a89a108436eedaa0ecdc5139e74ba99c3a8d58e9ff77417b15649'),
+    ('exact520-proposed-links.json', 'native_1110_4c894_exact_assertion_link_proposals_20261119.json', '0dac36bbcbe7088a35e35044afb3a41b261d3d6b2dca4ace7fcc6f1a93f56468'),
+    ('independent-binding-supplement.json', 'native_1110_4c894_closed_evidence_binding_supplement_20261119.json', '83fd14252d4d2c588deedc5f81d5cd1a4ef9e94349babaf37af6d1de6ae6f14e'),
+]:
+    source = T / name
+    assert sha(source) == digest
+    relative = review_prefix + '/' + destination
+    new(R / relative, source.read_bytes())
+    audits[relative] = digest
+
+source_inventory = json.loads((T / 'four_reviewed_source_admission_preparation_20261119.json').read_bytes())
+sources = {}
+for family, data in source_inventory['source_families'].items():
+    assert sha(R / data['validation']) == data['validation_sha256']
+    sources[family] = {'path': data['validation'], 'sha256': data['validation_sha256'], 'source_status': 'SOURCE_APPROVED', 'runtime': 'NOT_RUN', 'before_execution': 'NORMAL_PUBLICATION_CURRENT_AND_COMMITTED_PIN_FRESH_INDEPENDENT_LITERAL'}
+app_path = 'context/reconciliation/local-f0-app-write-two-control-source-validation.json'
+assert sha(R / app_path) == '36389e123689caa7b6f6cadc147aae5bc29b8a7fe896793b0f7935fee3c711a4'
+source_records = {
+    'Native4c894': ('context/reconciliation/local-f0-native-1110fa4-4c894dba-execution.json', '051967fdccf01ffddcbab671962472583f2672dcda38c77e0e8c14f498eab46a'),
+    'PrivilegeC3c6': ('context/reconciliation/local-f0-privilege-1110fa4-c3c6d297-execution.json', 'baf56516f1c9c98af4805aaad92f3330420ce9df3089bd95122fa1e2f8c53b5c'),
+    'Restore3b8b': ('context/reconciliation/local-f0-restore-1110fa4-3b8b1314-execution.json', 'b1f3974e022b74634477d5b64af72bd79be79906481abd46f4523ff3d601b720'),
+}
+for path, digest in source_records.values():
+    assert sha(R / path) == digest
+progress = {
+    'schema': 'workinants.local-f0-1110-version-qualified-progress.v1', 'recorded_at_utc': now,
+    'authority': 'context/reconciliation/directives/local-f0-standing-authority-2026-11-17.md',
+    'executed_source_commit': '1110fa461c663ff3050ac54b6d9507e1e789b6b4',
+    'executed_source_tree': '6a3b962d2618af8962165883e1129800dabcb632',
+    'records': {name: {'path': path, 'sha256': digest} for name, (path, digest) in source_records.items()},
+    'native': {'actual_result': 'PASS_LOCAL_NATIVE_ACCESS_SUBSET_ONLY', 'closed_operations': 998, 'native_gate_facets': 908, 'existing_row_empty_facets_unlinked': 48, 'blocked_facets_NOT_RUN': 4, 'native_validity_controls': 40, 'raw_whole_cases_NOT_RUN': 40, 'independent_checks': {'catalog': 29089, 'oracle': 416, 'ledger': 22}, 'independent_reviews_sha256': audits, 'mapping': '520_SUPPORTED_DIRECT_DENIAL_LINKS_132_PRIOR_CORROBORATIONS_388_NEW_PASS_CANDIDATES_PENDING_REVIEWED_ADAPTER', 'cleanup': 'EXACT_1C1V_PRIVATE_ABSENT_IMAGE_RETAINED', 'old_stops_complete_cause': 'UNOBSERVED_NOT_EXPLAINED_BY_NEW_SUCCESS'},
+    'privilege': {'stop': 'VERIFY_REVIEWED_INPUTS/EXACT_SOURCE_PACKET_REPRODUCTION', 'behavioral_contrasts': 'NOT_RUN', 'proven_source_defect': 'README_ONLY_OMITTED_FROM_202_GENERATED_FILE_ADMISSION', 'component_closure': 'CONFIRMED', 'wrapper_finally_stage_is_not_closure_failure': True, 'cleanup': 'EXACT_1C1V_PRIVATE_ABSENT_IMAGE_RETAINED', 'replacement': 'OWNED_ADMISSION_V4_SOURCE_APPROVED_RUNTIME_NOT_RUN'},
+    'restore': {'stop': 'RESTORE_BOUND_SOURCE_CUSTOMER/RESTORE_BOUND_OPERATION_NOT_COMMITTED', 'actual_operation_exit_ACK_SQLSTATE': 'UNRETAINED', 'complete_original_cause': 'UNOBSERVED', 'backup_restore_parity_rotation': 'NOT_RUN', 'cleanup': 'EXACT_3C2V_PRIVATE_ABSENT_IMAGE_RETAINED', 'replacement': 'BOUND_EVIDENCE_V3_HEADER_FIX2_SOURCE_APPROVED_RUNTIME_NOT_RUN'},
+    'OwnerLease_status_integration': {'validation': owner_validation, 'validation_sha256': sha(R / owner_validation), 'real_unmocked_build': 'PASS', 'integrated_checks': '13_PASS', 'new_rows': 21, 'new_PASS': 16, 'new_PARTIAL': 5, 'all_238_prior_rows_value_identical': True, 'raw_records_unchanged': True, 'derived_status_sha256': sha(status_path)},
+    'current_actual_assertion_counts': status['assertion_status_counts'], 'current_actual_case_counts': status['case_status_counts'],
+    'reviewed_replacement_operators': sources,
+    'reviewed_AppWrite2_child': {'path': app_path, 'sha256': sha(R / app_path), 'source_status': 'SOURCE_APPROVED_CHILD_ONLY', 'offline_author_methods': 39, 'offline_independent_methods': 41, 'SQL_files': 22, 'parsed_statements': 129, 'cases': 14, 'grants': 15, 'assertion_ceilings': 2, 'owned_wrapper': 'NOT_PREPARED', 'runtime': 'NOT_RUN', 'old0ac_packet': 'HELD_UNCHANGED'},
+    'next_action': 'Publish this exact reviewed checkpoint, prepare/pin/review fresh PrivilegeV4, WorkerOwnedV1, RestoreBoundV3 and INSTALLReviewReadyV3 literals, execute only those bounded plans and continue independent Native388 adapter/SixRead/App-owned/Read13 source work. A checkpoint does not end the standing assignment.',
+    'limits': {'all_451_register': 'NOT_PROMOTED', 'whole94': 'NOT_QUALIFIED', 'Privacy_Track_future_ports': 'NOT_WAIVED', 'canonical_SQL_June_and_worker32': 'UNCHANGED', 'production_hosted_migration_adoption_P0D': 'UNAUTHORIZED', 'Brain_final_acceptance': 'PENDING', 'Posture': 'D'},
+}
+progress_path = 'context/reconciliation/local-f0-1110-version-qualified-progress-20261119.json'
+new(R / progress_path, encoded(progress))
+
+board_path = 'context/reconciliation/local-f0-qualification-board.json'
+board = json.loads((R / board_path).read_bytes())
+board['recorded_local_date'] = '2026-11-19'
+board['current_checkpoint'] = '3.7'
+board['exact_blocker'] = 'Native4c894 completed/cleaned with 908 native gates and 998 closed operations; 388 new direct-denial candidates await separately reviewed parser integration. PrivilegeC3c6 stopped before behavioral contrasts on an omitted README admission; Restore3b8b stopped before backup with complete original Customer cause unobserved. Four reviewed replacements await fresh published pin/literal execution.'
+board['next_action'] = progress['next_action']
+board['repeated_and_why'] = 'Fresh1110 targets repeated authentication/genuine first Prisma/native29089/oracle416/ledger22 as packet prerequisites. New source-specific mocks/actual factory/CLI/PENDING/current+committed tests close the bounded defects; canonical SQL unchanged, so the prior750-predicate/501-check/75-mutation results remain version-qualified without unrelated repetition.'
+board['assertion_status_counts'] = status['assertion_status_counts']
+board['case_status_counts'] = status['case_status_counts']
+for path, _ in source_records.values():
+    if path not in board['historical_evidence']:
+        board['historical_evidence'].append(path)
+board['native_access_latest_attempt'] = source_records['Native4c894'][0]
+board['restore_latest_attempt'] = source_records['Restore3b8b'][0]
+board['privilege_latest_attempt'] = source_records['PrivilegeC3c6'][0]
+board['previous_reviewed_replacement_operators_1110'] = board['current_reviewed_replacement_operators']
+board['current_reviewed_replacement_operators'] = sources
+board['reviewed_AppWrite2_child'] = progress['reviewed_AppWrite2_child']
+board['native_completed_evidence_audits_sha256'] = audits
+board['owner_lease_assertion_integration'] = progress['OwnerLease_status_integration']
+board['latest_version_qualified_progress'] = {'path': progress_path, 'sha256': sha(R / progress_path)}
+steps = {item['id']: item for item in board['steps']}
+steps['3.7'].update(status='PARTIAL_NATIVE_DENIALS_FINITE_OWNER_READS_AND_SOURCE_BOUND_CATALOG', current_limit='Owner/Lease actual evidence merged by reviewed pure parser:227PASS32PARTIAL. Native full finite908gate observations and exact520 mapping independently audited;388newPASS candidate rows not yet integrated. RLS48 remains unlinked; four blocked facets and broader access/leaf/owner criteria stay unexercised.')
+steps['3.7']['additional_versioned_evidence'].append(source_records['Native4c894'][0])
+steps['3.8']['current_limit'] = 'Prior UNIQUE storage and bounded worker controls remain version-qualified. Owner/Lease21new rows include only evidenced SQL/currentness; missing clock facts/compound effect recovery are not inferred. Native40 controls prove only privileged native constraint-fixture validity with rollback/restoration. New WorkerOwned21 runtime NOT_RUN.'
+steps['3.9'].update(status='STOPPED_BEFORE_BACKUP_RESTORE_REPLACEMENT_SOURCE_APPROVED', evidence=source_records['Restore3b8b'][0], current_limit='Restore3b8b stopped at Customer before backup; operation diagnostic was not retained and complete cause stays unobserved. BoundEvidenceV3HeaderFix2 is source-approved only. Real backup/restored parity/authority/rotation NOT_RUN; later Privacy restore generation port remains unavailable.')
+replace_record(board_path, encoded(board))
+
+paragraph = (
+    'Source1110fa461c663ff3050ac54b6d9507e1e789b6b4/tree6a3b962d2618af8962165883e1129800dabcb632 completed the finite Native4c894 run:908 native ACL gates,48 existing-row empty observations,4NOT_RUN facets and998 closed operations. Independent offline recomputation matched native29089/oracle416/ledger22, all205 declared native facts across42 tables and100 restored triggers. Exact1container/1volume/private absence was independently verified and the image retained. The520 supported direct-denial mapping has132 prior PASS corroborations and388 new PASS candidates; those candidates remain outside derived totals until its new parser passes review. No RLS-positive, vector or whole-case promotion follows. PrivilegeC3c6 stopped before200 contrasts because the real202-artifact admission omitted README only; closure/cleanup passed and V4 corrects source admission. Restore3b8b stopped before backup at Customer; its original exit/ACK/SQLSTATE were not retained, so the complete cause remains unobserved. Both exact cleanups passed. Source-approved replacements are PrivilegeAdmissionV4, WorkerOwnedResourceV1, RestoreBoundEvidenceV3HeaderFix2 and INSTALLReviewReadyV3Fix2; all replacement runtime remains NOT_RUN pending publication/current+committed pin/fresh independent literal. INSTALL additionally requires an armed independent sealed-proof reviewer; no actual recovery approval exists. The AppWrite2 child correction closes the old false INSERT-revision mock oracle through a genuine-existing-Customer SELECT1/0 pair;39 author/41 independent offline checks pass,20 retained SQL/two claim ceilings stay exact, and its owned wrapper/runtime remain unprepared/NOT_RUN. Owner/Lease evidence integration passed a real unmocked build plus13 regressions:227PASS/32PARTIAL/736NOT_RUN/32DEPENDENCY_BLOCKED/7UNRESOLVED_SOURCE; cases4PASS/44PARTIAL/46NOT_RUN. Existing238 rows/raw evidence stayed intact, with21 new rows(16PASS5PARTIAL). Canonical5ae/June history/32WorkerACL remain unchanged. Continue fresh reviewed local experiments and remaining bounded source work; keep the451 register unpromoted, PostureD, hosted/adoption/production/P0D unauthorized and Brain final acceptance pending.'
+)
+intro = ('## Local F0 — completed1110 native subset, stopped attempts and reviewed replacements\n\n' + paragraph + '\n\nCurrent evidence: [version-qualified progress](reconciliation/local-f0-1110-version-qualified-progress-20261119.json).\n\n')
+for relative in ['context/progress-tracker.md', 'context/reconciliation/phase0-foundation-report.md', 'context/reconciliation/foundation-sql-draft-review.md']:
+    prior_bytes = (R / relative).read_bytes()
+    prefix_text = intro if relative == 'context/progress-tracker.md' else intro.replace('(reconciliation/local-f0-', '(local-f0-')
+    replace_record(relative, prefix_text.encode() + prior_bytes)
+
+validation_path = 'context/reconciliation/foundation-sql-draft-validation.json'
+validation = json.loads((R / validation_path).read_bytes())
+assert 'local_f0_1110_completed_native_and_reviewed_replacements' not in validation
+validation['local_f0_1110_completed_native_and_reviewed_replacements'] = {'recorded_at_utc': now, 'progress_record': {'path': progress_path, 'sha256': sha(R / progress_path)}, 'actual_source_commit': progress['executed_source_commit'], 'actual_source_tree': progress['executed_source_tree'], 'actual_runtime_records': progress['records'], 'native_evidence_audits_sha256': audits, 'current_actual_derived_assertions': status['assertion_status_counts'], 'current_actual_derived_cases': status['case_status_counts'], 'new_native388_mapping': 'PENDING_REVIEWED_ADAPTER_NOT_INCLUDED_IN_CURRENT_TOTALS', 'replacement_source_validation': sources, 'AppWrite2_child_source_validation': progress['reviewed_AppWrite2_child'], 'all_unexercised_cases': 'NOT_RUN', 'whole451_94_promotion': False, 'Posture': 'D'}
+replace_record(validation_path, encoded(validation))
+
+generated = [owner_validation, progress_path, board_path, validation_path, 'context/progress-tracker.md', 'context/reconciliation/phase0-foundation-report.md', 'context/reconciliation/foundation-sql-draft-review.md']
+inventory = {p: sha(R / p) for p in generated}
+inventory.update(extra)
+inventory.update(audits)
+result = {'schema': 'workinants.1110-results-reviewed-source-progress-checkpoint-inventory.v1', 'recorded_at_utc': now, 'files_sha256': inventory, 'actual_assertion_counts': status['assertion_status_counts'], 'actual_case_counts': status['case_status_counts'], 'Native388_included': False, 'backup_directory': str(backup), 'Posture': 'D'}
+p = T / '1110_results_reviewed_sources_progress_checkpoint_inventory_20261119.json'
+new(p, encoded(result))
+print(json.dumps({'inventory_sha256': sha(p), 'files': len(inventory), 'progress_record_sha256': sha(R / progress_path), 'OwnerLease_validation_sha256': sha(R / owner_validation)}))

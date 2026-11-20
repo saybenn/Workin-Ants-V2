@@ -1,0 +1,1 @@
+SELECT jsonb_build_object('near_expiry',lease_expires_at<=clock_timestamp()+interval '5 seconds','expired',lease_expires_at<=clock_timestamp(),'fence1',fence=1,'attempt1',attempt_count=1,'exact_effect',effect_receipt_id='9c6eecb1-9227-57ae-ad26-af67b16fb2dc') FROM platform.runtime_work_item WHERE id='7ce05560-4c08-5c4b-a975-9d521f2d2864';

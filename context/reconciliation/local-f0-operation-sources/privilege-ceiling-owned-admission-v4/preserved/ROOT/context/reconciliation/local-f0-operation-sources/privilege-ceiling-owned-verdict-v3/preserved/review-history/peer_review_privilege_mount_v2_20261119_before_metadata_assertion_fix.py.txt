@@ -1,0 +1,84 @@
+"""Independent source audit and mocked checks; no Docker/database/network."""
+from pathlib import Path
+import ast, datetime, hashlib, json, os, re, subprocess, sys, time
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+DEST=TASK/'privilege-mount-v2-independent-checks-20261119'
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def read(path,wanted=None):
+    raw=path.read_bytes()
+    if wanted is not None:assert sha(raw)==wanted,str(path)
+    return raw
+def funcs(text):return {n.name:ast.dump(n,include_attributes=False) for n in ast.parse(text).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
+freeze_path=TASK/'privilege_owned_resource_mount_v2_frozen_source_plan_20261119.json'
+freeze=json.loads(read(freeze_path,'0bf164666e6c463da4f18dd5a57738d6b621dcf409f46bd761de4007f8d69e5a'))
+five=freeze['operator_sources_sha256'];assert len(five)==5
+for name,wanted in five.items():read(TASK/name,wanted)
+for name,wanted in freeze['archive_files_sha256'].items():read(ROOT/name,wanted)
+validation_path=ROOT/'context/reconciliation/local-f0-privilege-ceiling-owned-resource-mount-v2-source-validation.json'
+validation=json.loads(read(validation_path,'b3167f9ef190dbc8cf41a8a8262266387be336149b4bb8f34d9afde67af2c9f6'))
+assert validation['operator_sources_sha256']==five
+archive='context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-resource-mount-v2'
+assert {p.relative_to(ROOT).as_posix():sha(p.read_bytes()) for p in (ROOT/archive).rglob('*') if p.is_file()}==freeze['archive_files_sha256']
+old=(
+ 'execute_local_f0_privilege_ceiling_safety_sql_v1_20261119.py',
+ 'local_f0_privilege_ceiling_safety_sql_v1_operation_steps.py',
+ 'prepare_local_f0_privilege_ceiling_safety_sql_v1_plan.py',
+ 'check_local_f0_privilege_ceiling_safety_sql_v1_operation.py',
+ 'pin_local_f0_privilege_ceiling_safety_sql_v1_plan_20261119.py')
+new=tuple(five)
+def renamed(text):
+    for a,b in zip(old,new):text=text.replace(a,b)
+    return text.replace('privilege-ceiling-owned-safety-sql-v1','privilege-ceiling-owned-resource-mount-v2')
+delta={}
+for a,b in zip(old,new):
+    x=renamed(read(TASK/a).decode());y=read(TASK/b).decode();xf=funcs(x);yf=funcs(y)
+    delta[b]={'text_equal_after_namespace':x==y,'changed':[n for n in xf if n in yf and xf[n]!=yf[n]],'added':[n for n in yf if n not in xf],'removed':[n for n in xf if n not in yf]}
+assert delta[new[0]]['text_equal_after_namespace'] and delta[new[4]]['text_equal_after_namespace']
+assert delta[new[1]]['changed']==['inspect_owner'] and delta[new[1]]['added']==['verify_running_secret_tmpfs'] and not delta[new[1]]['removed']
+assert not delta[new[2]]['changed'] and not delta[new[2]]['added'] and not delta[new[2]]['removed']
+owner_validation=json.loads(read(ROOT/'context/reconciliation/local-f0-owner-read-resource-mount-v2-source-validation.json','3f98020c74944b7c8c6705ec16239498cde03513dac6fa435a43263281ffac0b'))
+for name,wanted in owner_validation['operator_sources_sha256'].items():read(TASK/name,wanted)
+for name,wanted in owner_validation['archive_files_sha256'].items():read(ROOT/name,wanted)
+owner_text=read(TASK/'local_f0_owner_read_operation_steps_resource_mount_v2.py').decode().replace('OWNER_READ','PRIVILEGE_CEILING').replace('OWNER_SECRET','PRIVILEGE_SECRET')
+steps=read(TASK/new[1]).decode()
+for name in ('inspect_owner','verify_running_secret_tmpfs'):assert funcs(owner_text)[name]==funcs(steps)[name]
+owner_ast=ast.parse(owner_text);step_ast=ast.parse(steps)
+def literal(tree,name):
+    node=next(n for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id==name for t in n.targets))
+    return ast.literal_eval(node.value)
+for name in ('PRIVILEGE_SECRET_TMPFS_TOKEN','PRIVILEGE_SECRET_TMPFS_SCRIPT'):assert literal(owner_ast,name)==literal(step_ast,name)
+common=('_required_safety_evidence_complete','_required_safety_save','_required_safety_event','_required_safety_failure','_required_safety_first_exception','_required_safety_barrier','_required_safety_text','_required_safety_decode','_required_safety_sql','_required_zero_backends','closed_backends','_RequiredSafetyBoundary','finalize')
+owner_core=funcs(read(TASK/'execute_local_f0_owner_read_20261119_resource_mount_v2.py').decode());new_core=funcs(read(TASK/new[0]).decode())
+for name in common:assert owner_core[name]==new_core[name],name
+finite=json.loads(read(TASK/'privilege_ceiling_frozen_source_plan_20261119.json','2a37e7c46ba2ecd4b2aafb56b011c83399c3bfbee212cec6f1195d87f124e3b4'))
+for name,wanted in {**finite['source_files_sha256'],**finite['artifacts_sha256']}.items():read(ROOT/name,wanted)
+assert len(finite['source_files_sha256'])==7 and len(finite['artifacts_sha256'])==202
+unchanged={
+ 'review-output/foundation-application.review.sql':'5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad',
+ 'prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql':'5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad',
+ 'context/reconciliation/foundation-sql-draft-access.json':'f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea'}
+for name,wanted in unchanged.items():read(ROOT/name,wanted)
+DEST.mkdir(exist_ok=False)
+env=os.environ.copy();env.update(PYTHONUTF8='1',PYTHONPATH=str(TASK/'offline-python'),TMP=str(TASK/'test-tmp'),TEMP=str(TASK/'test-tmp'),TMPDIR=str(TASK/'test-tmp'))
+suites=[]
+for filename,expected in (
+ ('check_local_f0_privilege_ceiling_resource_mount_v2_operation.py',57),
+ ('check_privilege_owned_resource_mount_v2_safety_composed_20261119.py',24),
+ ('check_privilege_owned_resource_mount_v2_adapter_20261119.py',2)):
+    started=time.monotonic();process=subprocess.run([sys.executable,'-B',str(TASK/filename)],cwd=TASK,env=env,capture_output=True,text=True,timeout=240,shell=False)
+    elapsed=round(time.monotonic()-started,3)
+    output=process.stdout+process.stderr
+    matches=re.findall(r'Ran (\d+) tests? in ([0-9.]+)s',output)
+    count=int(matches[-1][0]) if matches else None
+    assert 'Traceback' not in output and process.returncode==0 and count==expected and re.search(r'\nOK\s*$',output),filename+' rejected'
+    (DEST/(filename+'.test-output.txt')).write_text(output,encoding='utf8')
+    suite={'file':filename,'source_sha256':sha(read(TASK/filename)),'tests':count,'seconds':elapsed,'unittest_seconds':float(matches[-1][1]),'exit_code':process.returncode,'status':'PASS','output_sha256':sha((DEST/(filename+'.test-output.txt')).read_bytes())}
+    suites.append(suite);print(json.dumps(suite),flush=True)
+for name,wanted in five.items():read(TASK/name,wanted)
+for name,wanted in freeze['archive_files_sha256'].items():read(ROOT/name,wanted)
+record={'schema':'workinants.privilege-owned-resource-mount-v2-independent-source-checks.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'source_freeze_sha256':sha(read(freeze_path)),'operator_sources_sha256':five,'archived_files_verified':len(freeze['archive_files_sha256']),'old_to_new_namespace_AST_delta':delta,'accepted_owner_source_and_archive_verified':True,'accepted_owner13_safety_functions_identical':list(common),'accepted_owner_resource_functions_and_fixed_kernel_script_identical_after_identifiers':True,'finite_privilege_sources':7,'finite_privilege_artifacts':202,'finite_packet_unchanged':True,'canonical_and_acl_unchanged':unchanged,'suites':suites,'unique_test_methods':sum(s['tests'] for s in suites),'runtime':'NOT_RUN','actual_Docker_database_network_credentials_resources':False,'source_and_repository_mutations':False,'limits':'Mocked composition and source qualification only; genuine PostgreSQL/kernel/resource results require a separately reviewed exact literal attempt.'}
+path=DEST/'checks.json'
+with path.open('x',encoding='utf8',newline='\n') as stream:stream.write(json.dumps(record,indent=2)+'\n')
+print(json.dumps({'path':str(path),'sha256':sha(path.read_bytes()),'unique_tests':record['unique_test_methods']}),flush=True)

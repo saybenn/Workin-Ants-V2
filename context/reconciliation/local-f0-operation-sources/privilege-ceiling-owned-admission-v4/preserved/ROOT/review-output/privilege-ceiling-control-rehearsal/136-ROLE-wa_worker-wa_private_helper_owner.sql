@@ -1,0 +1,1 @@
+BEGIN; SET LOCAL ROLE wa_private_helper_owner; ROLLBACK;

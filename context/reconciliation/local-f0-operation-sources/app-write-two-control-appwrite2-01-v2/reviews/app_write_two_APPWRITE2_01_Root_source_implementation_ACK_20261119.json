@@ -1,0 +1,32 @@
+{
+  "schema": "workinants.app-write-two-APPWRITE2-01-root-source-plan-ACK.v1",
+  "recorded_at_utc": "2026-11-20T02:23:45.456594+00:00",
+  "decision": "ACK_BOUNDED_SOURCE_IMPLEMENTATION_ONLY",
+  "reviewer": "/root",
+  "plan_sha256": "fd23aaa9d066e8422b13a2aa1ef5a1d4b3fb0fd6a9d84f66f336d9ea01de02c3",
+  "independent_plan_review_sha256": "b0023fd2cfbf8d188313850cb45e915b44b31d4f8b1a51e7e7b2b28710a00e80",
+  "preservation_sha256": "ce7c85ac578211ba693aa6319a28deb6e8819bd43abb8d05a34cd17805a9df8f",
+  "canonical_policy_AST_independently_verified": {
+    "Customer_INSERT_row_revision": "CAST(NULL AS text)",
+    "Customer_SELECT_row_revision": "CAST(revision AS text)",
+    "INSERT_revision_field_capability_remains_separate": true
+  },
+  "bounded_requirements": [
+    "Remove only the unsupported early INSERT42501 recipe and invented model-wide mock revision condition.",
+    "After genuine R01 commit, exact same existing Customer read with full capabilities returns typed1; only root revision token removed returns typed0.",
+    "Both reads use fresh app tuple and separately COMMITted issuer grant; retain currentness/21-field/closure and independent count1/full42 coherence.",
+    "Read support sets read stage, has claim:null, changes no business rows and does not attribute its new xid to existing source rows.",
+    "Derive mock revision projection from canonical policy AST; restoring the old method must fail the new regression.",
+    "Measure case/grant/artifact/parser counts; preserve both original write claim ceilings, all retained business SQL and canonical5ae/32ACL.",
+    "Preserve held0ac57/66 snapshots/34 green checks and independent hold; new exact freeze needs independent code review before publication."
+  ],
+  "active_Native260_unchanged": true,
+  "proposed_changes_intersect_active_packet": false,
+  "limits": {
+    "runtime": "NOT_RUN",
+    "owned_runner": "NOT_AUTHORIZED_BY_THIS_ACK",
+    "Git_Docker_DB_network": "NOT_INVOKED",
+    "old_packet_remains": "HELD",
+    "Posture": "D"
+  }
+}

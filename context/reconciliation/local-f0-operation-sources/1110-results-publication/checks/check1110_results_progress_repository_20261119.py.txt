@@ -1,0 +1,52 @@
+"""Run the two applicable read-only repository checks and retain exact logs."""
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+import datetime
+import hashlib
+import json
+import subprocess
+import sys
+import time
+
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def perform(name):
+    began = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    start = time.monotonic()
+    result = subprocess.run(
+        [sys.executable, '-B', 'scripts/' + name + '.py'],
+        cwd=R, capture_output=True, text=True, encoding='utf-8', timeout=300,
+    )
+    elapsed = round(time.monotonic() - start, 3)
+    output = result.stdout + result.stderr
+    log = T / ('1110-results-' + name + '-20261119.log')
+    with log.open('x', encoding='utf-8') as handle:
+        handle.write(output)
+    return {
+        'name': name, 'started_at_utc': began,
+        'elapsed_seconds': elapsed, 'exit_code': result.returncode,
+        'log': log.name, 'log_sha256': sha(log),
+        'script_sha256': sha(R / ('scripts/' + name + '.py')),
+        'summary_tail': output[-1800:],
+    }
+
+with ThreadPoolExecutor(max_workers=2) as pool:
+    rows = list(pool.map(perform, ['check-context', 'check-database-candidate']))
+passed = all(row['exit_code'] == 0 for row in rows)
+record = {
+    'schema': 'workinants.1110-results-progress-repository-checks.v1',
+    'recorded_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    'checks': rows, 'status': 'PASS' if passed else 'FAILED',
+    'DB_or_Docker_contacted': False,
+    'prior_inline_orchestrator': 'SYNTAX_REJECTED_BEFORE_ANY_CHECK_OR_OUTPUT_WRITE',
+    'Posture': 'D',
+}
+path = T / '1110_results_progress_repository_checks_20261119.json'
+with path.open('x', encoding='utf-8') as handle:
+    json.dump(record, handle, indent=2, allow_nan=False)
+print(json.dumps({'record_sha256': sha(path), **record}))
+raise SystemExit(0 if passed else 2)

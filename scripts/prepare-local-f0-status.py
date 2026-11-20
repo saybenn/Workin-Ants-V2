@@ -9,6 +9,7 @@ from local_f0_migration_evidence import validate_claim, EvidenceFailure
 from local_f0_catalog_evidence import validate_claim as validate_catalog_claim, EvidenceFailure as CatalogEvidenceFailure
 from local_f0_restricted_evidence import validate_claim as validate_restricted_claim, EvidenceFailure as RestrictedEvidenceFailure
 from local_f0_native_prefix_evidence import validate_claim as validate_native_prefix_claim, EvidenceFailure as NativePrefixEvidenceFailure
+from local_f0_owner_lease_evidence import validate_claim as validate_owner_lease_claim, EvidenceFailure as OwnerLeaseEvidenceFailure
 ROOT=Path(__file__).resolve().parents[1]
 REC=ROOT/'context/reconciliation'
 SMALL_PASSES={(f'P0C-TABLE-{model}-ALLOW','positive.wa_app_runtime.insert') for model in ('CustomerProfile','CustomerProfileLifecycleEvent','RuntimeCommandReceipt','OwnerMutationEvidence','RuntimeOutboxMessage')}|{
@@ -24,6 +25,8 @@ SMALL_PASSES={(f'P0C-TABLE-{model}-ALLOW','positive.wa_app_runtime.insert') for 
     ('P0C-INSTALL-02','vector.FUNCTION-ACL-FAILURE-CLEANUP.positive'),
 }
 EVIDENCE_RECORDS={
+    'context/reconciliation/local-f0-lease-da5ad66-a560e05b-qualified-evidence.json':('33a356710320b9ec5381085354b3ed0199e146685d12364c618e27cd7e9772bc','DERIVED_REVIEWED_LEASE8_FINITE_ASSERTIONS_ONLY'),
+    'context/reconciliation/local-f0-owner-da5ad66-72934689-qualified-evidence.json':('0effdedc5c26449d81eb49fa3581f54d57c13eb6e7ac889ce355fc3518f63c24','DERIVED_REVIEWED_OWNER20_FINITE_ASSERTIONS_ONLY'),
     'context/reconciliation/local-f0-small-rehearsal-0623028-execution.json':('269812ab154775e0cea58c3305ffbef141c2c0978590f8000c18c79cb2f0d28b','PASS_FIRST01_THROUGH_FIRST10_SUBSET_ONLY'),
     'context/reconciliation/local-f0-migration-6b8910d-execution.json':('e657bd4de3c288acbd86faa7ae9514f59e76566e1bba170a6ef19f7770c91158','PASS_GENUINE_FIRST_NOOP_FAILURE_REVIEWED_RESOLVE_SAME_CHECKSUM_RETRY'),
     'context/reconciliation/local-f0-catalog-b9703d7-23bd8979-execution.json':('bbf604e3eb2c7a066f2287a2f2f2ab825582d366dc5330394170b33a0fd22de8','PASS_LOCAL_NATIVE_CATALOG_SUBSET_ONLY'),
@@ -80,6 +83,12 @@ def build():
                 elif execution.get('actual_result')=='PASS_LOCAL_RESTRICTED_CONTROL_PACKETS_ONLY':
                     try:validate_restricted_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer)
                     except RestrictedEvidenceFailure as error:raise AssertionError(str(error)) from None
+                elif row['evidence_path'] in (
+                    'context/reconciliation/local-f0-owner-da5ad66-72934689-qualified-evidence.json',
+                    'context/reconciliation/local-f0-lease-da5ad66-a560e05b-qualified-evidence.json',
+                ):
+                    try:validate_owner_lease_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer)
+                    except OwnerLeaseEvidenceFailure as error:raise AssertionError(str(error)) from None
                 elif row['evidence_path']=='context/reconciliation/local-f0-native-access-0a29cf6-495976eb-execution.json':
                     # A stopped run can qualify only its independently audited
                     # completed facets, with every original boundary intact.

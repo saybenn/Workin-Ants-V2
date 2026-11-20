@@ -1,0 +1,70 @@
+"""Exclusive bounded SOURCE derivation; no process, Git, DB or network."""
+from pathlib import Path
+import ast,hashlib,json,shutil
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+PLAN='privilege_owned_verdict_v3_source_correction_plan_20261119.json'
+OLD=('execute_local_f0_privilege_ceiling_resource_mount_v2_20261119.py','local_f0_privilege_ceiling_resource_mount_v2_operation_steps.py','prepare_local_f0_privilege_ceiling_resource_mount_v2_plan.py','check_local_f0_privilege_ceiling_resource_mount_v2_operation.py','pin_local_f0_privilege_ceiling_resource_mount_v2_plan_20261119.py')
+NEW=('execute_local_f0_privilege_ceiling_verdict_v3_20261119.py','local_f0_privilege_ceiling_verdict_v3_operation_steps.py','prepare_local_f0_privilege_ceiling_verdict_v3_plan.py','check_local_f0_privilege_ceiling_verdict_v3_operation.py','pin_local_f0_privilege_ceiling_verdict_v3_plan_20261119.py')
+ARCHIVE='context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-verdict-v3'
+VALIDATION='context/reconciliation/local-f0-privilege-ceiling-owned-verdict-v3-source-validation.json'
+def rename(s):
+ for a,b in zip(OLD,NEW):s=s.replace(a,b)
+ return s.replace('privilege-ceiling-owned-resource-mount-v2','privilege-ceiling-owned-verdict-v3')
+
+HELPER='''def privilege_diagnostic_allowed(value,contract):
+    """Admit only the frozen case's bounded diagnostic projection."""
+    fields={'matched','sqlstate','kind','gate','object','source_position_verified','source_frame_verified','selected_column_or_verb_isolation_claimed'}
+    shapes={'IMMUTABLE_GRANT':{'kind','application_sha256','body_line','body_sha256'},'SET_ROLE':{'kind','target_role'},'SCHEMA_CREATE':{'kind','schema'},'FUNCTION':{'kind','schema','function'},'NATIVE_ACL':{'kind','schema','relation'}}
+    if type(value)is not dict or set(value)!=fields or type(contract)is not dict:return False
+    kind=contract.get('kind')
+    if type(kind)is not str or kind not in shapes or set(contract)!=shapes[kind]:return False
+    if value['matched']is not True or value['kind']!=kind or value['selected_column_or_verb_isolation_claimed']is not False:return False
+    if type(value['source_position_verified'])is not bool or type(value['source_frame_verified'])is not bool:return False
+    if type(value['object'])is not str or not(value['gate']is None or type(value['gate'])is str):return False
+    if kind=='IMMUTABLE_GRANT':
+        return value['sqlstate']=='P0001'and value['gate']is None and value['object']=='platform_private.grant_guard'and value['source_frame_verified']is True and value['source_position_verified']is False
+    if value['sqlstate']!='42501'or value['source_frame_verified']is not False:return False
+    if any(type(contract[k])is not str for k in shapes[kind]-{'kind'}):return False
+    if kind=='SET_ROLE':allowed={('ROLE',contract['target_role'])}
+    elif kind=='SCHEMA_CREATE':allowed={('SCHEMA_CREATE',contract['schema'])}
+    elif kind=='FUNCTION':allowed={('SCHEMA',contract['schema']),('FUNCTION',contract['schema']+'.'+contract['function'])}
+    else:allowed={('SCHEMA',contract['schema']),('TABLE',contract['schema']+'.'+contract['relation']),('COLUMN',contract['schema']+'.'+contract['relation'])}
+    return (value['gate'],value['object'])in allowed
+'''
+
+def build():
+ assert sha((T/PLAN).read_bytes())=='88e3f912ca8238a1b73e4c3c28f4703fd11d5b7f0f4690bf8ef7175f5ce153e1'
+ assert sha((T/'root_privilege_v3_and_read13_v2_plan_ack_20261119.json').read_bytes())=='16fb7d50d06e060ba8be605a187d279e96cd997bfbb2468df3ce286c961a3374'
+ plan=json.loads((T/PLAN).read_bytes());old=plan['immutable_V2_baseline']
+ for n,h in old['operator_sources_sha256'].items():assert sha((T/n).read_bytes())==h,n
+ for n,h in old['archive_files_sha256'].items():assert sha((R/n).read_bytes())==h,n
+ for n,h in old['independent_raw_test_and_harness_history_sha256'].items():assert sha((T/n).read_bytes())==h,n
+ frozen=json.loads((T/'privilege_ceiling_frozen_source_plan_20261119.json').read_bytes())
+ for n,h in {**frozen['source_files_sha256'],**frozen['artifacts_sha256']}.items():assert sha((R/n).read_bytes())==h,n
+ p=T/'privilege-owned-verdict-v3-before-author-20261119';p.mkdir(exist_ok=False)
+ for n,h in old['operator_sources_sha256'].items():(p/(n+'.txt')).write_bytes((T/n).read_bytes())
+ for n,h in old['archive_files_sha256'].items():
+  dest=p/'V2archive'/n.split('privilege-ceiling-owned-resource-mount-v2/',1)[1];dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes((R/n).read_bytes())
+ for n,h in old['independent_raw_test_and_harness_history_sha256'].items():
+  dest=p/'review-history'/n;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes((T/n).read_bytes())
+ for n in(PLAN,'root_privilege_v3_and_read13_v2_plan_ack_20261119.json','privilege_owned_resource_mount_v2_frozen_source_plan_20261119.json','privilege_owned_resource_mount_v2_source_author_review_20261119.json','privilege_mount_v2_independent_source_review_20261119.json','privilege_mount_v2_independent_verdict_probe_20261119.json'):(p/n).write_bytes((T/n).read_bytes())
+ (p/'V2-current-validation.json').write_bytes((R/old['current_validation']['path']).read_bytes())
+ files={x.relative_to(p).as_posix():sha(x.read_bytes())for x in p.rglob('*')if x.is_file()};(p/'manifest.json').write_text(json.dumps({'schema':'workinants.privilege-verdict-v3-before-author-preservation.v1','files_sha256':files},indent=2)+'\n',encoding='utf8')
+ texts={b:rename((T/a).read_text())for a,b in zip(OLD,NEW)}
+ s=texts[NEW[1]]
+ oldcount="    need(report['catalog_comparison']['status']=='PASS'and report['catalog_comparison']['check_counts']=={'PASS':29089}"
+ newcount="    counts=report['catalog_comparison']['check_counts']\n    need(report['catalog_comparison']['status']=='PASS'and type(counts)is dict and set(counts)=={'PASS'}and type(counts['PASS'])is int and counts['PASS']==29089 "
+ assert s.count(oldcount)==1;s=s.replace(oldcount,newcount)
+ lines=s.splitlines();found=[i for i,line in enumerate(lines)if line.strip().startswith("diagnostic=row['diagnostic'];need(")];assert len(found)==1
+ lines[found[0]]="        need(privilege_diagnostic_allowed(row['diagnostic'],case['diagnostic']),'PRIVILEGE_CEILING_EXACT_DIAGNOSTIC_REQUIRED')"
+ texts[NEW[1]]='\n'.join(lines)+'\n\n'+HELPER
+ s=texts[NEW[3]];oldbase="'kind':kind,'gate':None,'object':None,";newbase="'kind':kind,'gate':(None if kind=='IMMUTABLE_GRANT'else'ROLE'if kind=='SET_ROLE'else'SCHEMA_CREATE'if kind=='SCHEMA_CREATE'else'SCHEMA'),'object':('platform_private.grant_guard'if kind=='IMMUTABLE_GRANT'else c['diagnostic']['target_role']if kind=='SET_ROLE'else c['diagnostic']['schema']),"
+ assert s.count(oldbase)==1;texts[NEW[3]]=s.replace(oldbase,newbase)
+ for n,s in texts.items():
+  compile(s,str(T/n),'exec')
+  with(T/n).open('x',encoding='utf8',newline='\n')as out:out.write(s)
+ # New composed and real-coordinator test copies bind new source names only.
+ for oldtest,newtest in [('check_privilege_owned_resource_mount_v2_adapter_20261119.py','check_privilege_owned_verdict_v3_adapter_20261119.py'),('check_privilege_owned_resource_mount_v2_safety_composed_20261119.py','check_privilege_owned_verdict_v3_safety_composed_20261119.py')]:
+  with(T/newtest).open('x',encoding='utf8',newline='\n')as out:out.write(rename((T/oldtest).read_text()))
+ print(json.dumps({'sources':{n:sha((T/n).read_bytes())for n in NEW},'preserved_files':len(files),'preservation_sha256':sha((p/'manifest.json').read_bytes())}))
+if __name__=='__main__':build()

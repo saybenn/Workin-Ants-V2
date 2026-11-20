@@ -1,0 +1,33 @@
+"""Stage only NEW unfrozen Worker owned source and PENDING metadata."""
+from pathlib import Path
+import hashlib,json,runpy
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';c=runpy.run_path(str(T/'build_worker_owned_resource_v1_20261119.py'));H=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
+def stage():
+ d=R/c['ARCHIVE'];d.mkdir(exist_ok=True)
+ for n in c['NEW']:(d/(n+'.txt')).write_bytes((T/n).read_bytes())
+ pres=T/'worker-owned-resource-v1-before-author-20261119';m=json.loads((pres/'manifest.json').read_bytes())
+ for n,h in m['files_sha256'].items():
+  assert H(pres/n)==h;out=d/'preserved'/n;out.parent.mkdir(parents=True,exist_ok=True);out.write_bytes((pres/n).read_bytes())
+ interim=T/'worker-owned-v1-before-strict-producer-tests-20261119'
+ if interim.is_dir():
+  for p in interim.rglob('*'):
+   if p.is_file():
+    out=d/'draft-history-before-strict-producer-tests'/p.relative_to(interim);out.parent.mkdir(parents=True,exist_ok=True);out.write_bytes(p.read_bytes())
+ (d/'preserved/manifest.json').write_bytes((pres/'manifest.json').read_bytes());reviews=d/'reviews';reviews.mkdir(exist_ok=True)
+ for n in('worker_owned_resource_v1_implementation_authority_20261119.json','worker_recovery_owned_resource_v1_source_plan_20261119.json','worker_recovery_owned_resource_v1_independent_source_plan_review_20261119.json','build_worker_owned_resource_v1_20261119.py','stage_worker_owned_resource_v1_20261119.py','worker_owned_resource_v1_adapter.py.txt','worker_owned_resource_v1_source_author_review_20261119.json','check_worker_owned_resource_v1_integration_20261119.py','check_worker_owned_resource_v1_actual_transport_20261119.py','check_worker_owned_resource_v1_contracts_20261119.py','worker_owned_v1_operation_contract.py.txt','worker_owned_v1_MOCK_ONLY_component_result_20261119.json','worker_owned_v1_source_derivation_20261119.json','worker_owned_v1_offline_checks_20261119.json','worker_owned_v1_final_outer_checks_20261119.txt','worker_owned_v1_final_initializer_checks_20261119.txt','worker_owned_v1_final_transport_checks_20261119.txt','worker_owned_v1_final_contract_checks_20261119.txt','worker_owned_v1_draft_full_suite_20261119.txt'):
+  if(T/n).is_file():(reviews/(n+'.txt'if n.endswith('.py')else n)).write_bytes((T/n).read_bytes())
+ (reviews/'image-proof-independent-source.json').write_bytes((R/'context/reconciliation/local-f0-operation-sources/owner-read-resource-mount-v2/reviews/image-proof-independent-source.json').read_bytes())
+ initial=T/'worker-owned-v1-initializer-first-harness-20261119'
+ if initial.is_dir():
+  for p in initial.rglob('*'):
+   if p.is_file():
+    out=d/'draft-history-first-initializer-harness'/p.relative_to(initial);out.parent.mkdir(parents=True,exist_ok=True);out.write_bytes(p.read_bytes())
+ maps={p.relative_to(R).as_posix():H(p)for p in d.rglob('*')if p.is_file()}
+ worker=json.loads((R/c['WORKER_VALIDATION']).read_bytes());plan=json.loads((T/'worker_recovery_owned_resource_v1_source_plan_20261119.json').read_bytes())
+ value={'schema':'workinants.worker-recovery-owned-operator-source-validation.v1','status':'DRAFT_SOURCE_PREPARED_INDEPENDENT_REVIEW_REQUIRED','source_version':'worker-recovery-owned-resource-v1','operator_sources_sha256':{n:H(T/n)for n in c['NEW']},'archive_files_sha256':maps,'independent_safety_sql_review':{'decision':'PENDING_ROOT_AND_INDEPENDENT_REVIEW','scope':'NEW_OWNED_WORKER_FAMILY_NOT_APPROVED'},'plan_sha256':H(T/'worker_recovery_owned_resource_v1_source_plan_20261119.json'),'independent_plan_review_sha256':H(T/'worker_recovery_owned_resource_v1_independent_source_plan_review_20261119.json'),'authority_record_sha256':H(T/'worker_owned_resource_v1_implementation_authority_20261119.json'),'accepted_Worker_validation':plan['approved_worker_packet']['validation'],'accepted_Owner_validation':{'path':plan['accepted_resource_and_safety_basis']['validation_path'],'sha256':plan['accepted_resource_and_safety_basis']['validation_sha256']},'preservation_manifest_sha256':H(pres/'manifest.json'),'limits':{'runtime':'NOT_RUN','posture':'D','maximum_links_after_actual_review':'13PASS4PARTIAL','canonical_SQL_packet40_32ACL_and_all_old_sources_unchanged':True,'no_Git_Docker_DB_SQL_network_credentials_resources':True}}
+ if (T/'worker_owned_resource_v1_source_author_review_20261119.json').is_file():
+  value['status']='AUTHOR_SOURCE77_OFFLINE_PASS_INDEPENDENT_REVIEW_REQUIRED'
+  value['author_source_review']={'path':c['ARCHIVE']+'/reviews/worker_owned_resource_v1_source_author_review_20261119.json','sha256':H(T/'worker_owned_resource_v1_source_author_review_20261119.json')}
+  value['offline_author_checks']={'tests':77,'outcome':'PASS_MOCK_ONLY','runtime':'NOT_RUN','record_path':c['ARCHIVE']+'/reviews/worker_owned_v1_offline_checks_20261119.json','record_sha256':H(T/'worker_owned_v1_offline_checks_20261119.json')}
+ p=R/c['VALIDATION'];p.write_text(json.dumps(value,indent=2)+'\n',encoding='utf8');print(json.dumps({'archive_files':len(maps),'source_validation_sha256':H(p)}))
+if __name__=='__main__':stage()

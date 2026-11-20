@@ -1,0 +1,36 @@
+test_actual_prepare_map_has_all202_generated_bytes_and_same_source_digests (<run_path>.PrivilegeAdmissionV4ClosureTests.test_actual_prepare_map_has_all202_generated_bytes_and_same_source_digests) ... ok
+test_exact_old604_map_reproduces_missing_README_without_factory_supplement (<run_path>.PrivilegeAdmissionV4ClosureTests.test_exact_old604_map_reproduces_missing_README_without_factory_supplement) ... ok
+test_generation_helper_rejects_missing_rehashed_or_wrong_type_artifacts (<run_path>.PrivilegeAdmissionV4ClosureTests.test_generation_helper_rejects_missing_rehashed_or_wrong_type_artifacts) ... ok
+test_isolated_pending_gate_precedes_new_pure_project_compilation (<run_path>.PrivilegeAdmissionV4ClosureTests.test_isolated_pending_gate_precedes_new_pure_project_compilation) ... ok
+test_real_coordinator_SQL_projection_composition_uses_actual_preparation_map (<run_path>.PrivilegeAdmissionV4ClosureTests.test_real_coordinator_SQL_projection_composition_uses_actual_preparation_map) ... ok
+test_real_initialized_complete_entry_reaches_only_first_resource_boundary (<run_path>.PrivilegeAdmissionV4ClosureTests.test_real_initialized_complete_entry_reaches_only_first_resource_boundary) ... FAIL
+test_real_initialized_entry_refuses_missing_README_before_resources_and_helpers (<run_path>.PrivilegeAdmissionV4ClosureTests.test_real_initialized_entry_refuses_missing_README_before_resources_and_helpers) ... ERROR
+test_real_unchanged_load_inputs_accepts_only_the_actual_prepare_map (<run_path>.PrivilegeAdmissionV4ClosureTests.test_real_unchanged_load_inputs_accepts_only_the_actual_prepare_map) ... ok
+test_remove_actual_preparer_full_artifact_union_is_detected (<run_path>.PrivilegeAdmissionV4ClosureTests.test_remove_actual_preparer_full_artifact_union_is_detected) ... ok
+test_removed_README_rehashed_actual_map_is_still_rejected_by_real_loader (<run_path>.PrivilegeAdmissionV4ClosureTests.test_removed_README_rehashed_actual_map_is_still_rejected_by_real_loader) ... ok
+
+======================================================================
+ERROR: test_real_initialized_entry_refuses_missing_README_before_resources_and_helpers (<run_path>.PrivilegeAdmissionV4ClosureTests.test_real_initialized_entry_refuses_missing_README_before_resources_and_helpers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_privilege_owned_admission_v4_closure_20261119.py", line 151, in test_real_initialized_entry_refuses_missing_README_before_resources_and_helpers
+    n,calls,compiled=self.actual_entry(missing=True);self.assertEqual(n['report']['primary_failure']['code'],'PRIVILEGE_GENERATED_ARTIFACT_NOT_ADMITTED');self.assertEqual(compiled,[]);self.assertFalse(any(c[:2]in(['container','create'],['volume','create'],['image','inspect'],['context','inspect'])for c in calls));self.assertTrue(n['report']['cleanup_actions_confirmed'])
+                                                                                                                                                                                                                                                                                                                                           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'cleanup_actions_confirmed'
+
+======================================================================
+FAIL: test_real_initialized_complete_entry_reaches_only_first_resource_boundary (<run_path>.PrivilegeAdmissionV4ClosureTests.test_real_initialized_complete_entry_reaches_only_first_resource_boundary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_privilege_owned_admission_v4_closure_20261119.py", line 157, in test_real_initialized_complete_entry_reaches_only_first_resource_boundary
+    n,calls,compiled=self.actual_entry();self.assertEqual(n['report']['primary_failure']['code'],'OFFLINE_RESOURCE_STAGE_REACHED');self.assertEqual(n['report']['privilege_generated_artifact_closure']['generated_artifacts'],202);self.assertTrue(compiled);self.assertFalse(any(c[:2]in(['container','create'],['volume','create'],['image','inspect'])for c in calls))
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'SECRET_MOUNT_PLAN_MISMATCH' != 'OFFLINE_RESOURCE_STAGE_REACHED'
+- SECRET_MOUNT_PLAN_MISMATCH
++ OFFLINE_RESOURCE_STAGE_REACHED
+
+
+----------------------------------------------------------------------
+Ran 10 tests in 138.474s
+
+FAILED (failures=1, errors=1)

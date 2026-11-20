@@ -1,0 +1,29 @@
+{
+  "schema": "workinants.app-write-two-independent-insert-revision-probe.v1",
+  "recorded_at_utc": "2026-11-20T02:10:56.114430+00:00",
+  "status": "CONFIRMED_SOURCE_ORACLE_MISMATCH_NO_DATABASE_EXECUTED",
+  "fixture_sha256": "6f2cf0568fc81c7f6ee7bb92bec35f91fc6e8f21ab55515417ddc507203653f6",
+  "canonical_application_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+  "canonical_Customer_INSERT_policy_row_revision_argument": "NULL::text",
+  "Customer_INSERT_RETURNING": false,
+  "missing_token": "CustomerProfile/cdfa190f-3235-5c98-b217-bf27a5d03d66/revision/0",
+  "INSERT_revision_field_cap_present": true,
+  "all_canonical_INSERT_field_caps_present": true,
+  "frozen_mock_result": false,
+  "same_mock_with_only_NULL_revision_projection_result": true,
+  "frozen_case_expected_diagnostic": {
+    "sqlstate": "42501",
+    "message": "new row violates row-level security policy for table \"customer_profiles\"",
+    "function": null
+  },
+  "frozen_mock_source": "scripts/check-app-write-two-control-coordinator.py:73",
+  "canonical_source": [
+    "review-output/foundation-application.review.sql:3411",
+    "review-output/foundation-application.review.sql:2411",
+    "review-output/foundation-application.review.sql:3834"
+  ],
+  "finding": "The mock enforces SELECT/root revision authorization on Customer INSERT, although canonical INSERT passes NULL and performs no RETURNING. It manufactures the intended early customer_profiles RLS42501 for effect-missing-root-revision. Later source/commit verifiers are separate and cannot justify this exact early gate.",
+  "actual_terminal_diagnostic_or_runtime_cause": "NOT_OBSERVED_NOT_INFERRED",
+  "all_process_SQL_network_boundaries": "FORBIDDEN_NOT_INVOKED",
+  "source_or_packet_edits": false
+}

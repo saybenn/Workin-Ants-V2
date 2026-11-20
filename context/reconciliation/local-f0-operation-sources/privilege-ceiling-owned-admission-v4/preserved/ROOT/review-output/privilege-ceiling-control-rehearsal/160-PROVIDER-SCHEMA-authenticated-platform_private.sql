@@ -1,0 +1,1 @@
+BEGIN; SELECT 1 FROM platform_private.identity_service_authorization LIMIT 1; ROLLBACK;

@@ -1,0 +1,128 @@
+"""Archive reviewed child SQL packet and historical held source; no runtime grant."""
+from pathlib import Path
+import datetime, hashlib, json
+from pglast import parse_sql
+
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+sha = lambda b: hashlib.sha256(b).hexdigest()
+def read(path, expected=None):
+    raw = path.read_bytes()
+    if expected is not None:
+        assert sha(raw) == expected, path
+    return raw
+def encoded(value):
+    return (json.dumps(value, indent=2, allow_nan=False) + '\n').encode()
+
+delivery_path = T / 'app_write_two_control_frozen_source_plan_v2_APPWRITE2_01_20261119.json'
+delivery_raw = read(delivery_path, '9c4e0640241b4518fcfd5195e9c811435067b14adf824fa68bc70c3054ca828c')
+d = json.loads(delivery_raw)
+peer_path = T / 'app_write_two_APPWRITE2_01_independent_code_review_v2_20261119.json'
+peer_raw = read(peer_path, '7a74b9d8c499d31e7dd2c435253af8766e7231a5088b66c244083260a0d0926a')
+peer = json.loads(peer_raw)
+assert peer['findings'] == [] and peer['finding_status'] == 'CLOSED_FOR_EXACT_9c4e_REPLACEMENT_ONLY'
+assert peer['decision'] == 'SOURCE_APPROVED_EXACT_FIVE_AND_PACKET_NO_RUNTIME_OR_OWNED_WRAPPER'
+assert peer['reviewed_exact_five_sha256'] == d['new_five_sha256']
+for path, digest in d['full_current_ROOT_inventory_sha256'].items():
+    read(R / path, digest)
+assert len(d['full_current_ROOT_inventory_sha256']) == 59
+artifact_root = R / 'review-output/app-write-two-control-rehearsal'
+assert {p.relative_to(artifact_root).as_posix() for p in artifact_root.rglob('*') if p.is_file()} == set(d['artifact_files_sha256'])
+sql = {name: read(artifact_root / name, digest) for name, digest in d['artifact_files_sha256'].items() if name.endswith('.sql')}
+assert len(sql) == 22 and sum(len(parse_sql(raw.decode('utf-8'))) for raw in sql.values()) == 129
+fixture = json.loads(read(artifact_root / 'fixtures.json', d['fixture_sha256']))
+assert len(fixture['cases']) == 14 and fixture['source_only_packet_sha256'] == d['content_sha256']
+assert len([case for case in fixture['cases'] if case['claim'] is not None]) == 2
+old_path = T / 'app_write_two_control_frozen_source_plan_v1_20261119.json'
+old_raw = read(old_path, '0ac57e97d77e78b9b533ddff9a415715d20dfed81ef333c04113a2a52ef7ea19')
+old = json.loads(old_raw)
+old_freeze_path = Path(old['freeze']['path'])
+old_freeze = json.loads(read(old_freeze_path, old['freeze']['sha256']))
+old_fixture = json.loads(read(old_freeze_path.parent / 'ROOT/review-output/app-write-two-control-rehearsal/fixtures.json', old_freeze['files_sha256']['ROOT/review-output/app-write-two-control-rehearsal/fixtures.json']))
+assert fixture['claim_ceilings'] == old_fixture['claim_ceilings']
+retained = {name: digest for name, digest in old_fixture['prepared_files_sha256'].items() if name.endswith('.sql') and name != 'effect-missing-root-revision.sql'}
+assert len(retained) == 20
+for name, digest in retained.items():
+    assert d['artifact_files_sha256'][name] == digest
+read(R / 'review-output/foundation-application.review.sql', '5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad')
+read(R / 'context/reconciliation/foundation-sql-draft-access.json', 'f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea')
+prefix = 'context/reconciliation/local-f0-operation-sources/app-write-two-control-appwrite2-01-v2'
+archive = R / prefix
+validation = R / 'context/reconciliation/local-f0-app-write-two-control-source-validation.json'
+assert not archive.exists() and not validation.exists()
+copies = {}
+def add(relative, raw):
+    assert relative not in copies and b'\0' not in raw
+    raw.decode('utf-8-sig')
+    copies[relative] = raw
+for path, digest in d['new_five_sha256'].items():
+    add('source-five/' + Path(path).name + '.txt', read(R / path, digest))
+for label, data in [('replacement-delivery.json', delivery_raw), ('independent-code-review.json', peer_raw), ('historical-held-v1/delivery.json', old_raw)]:
+    add(label, data)
+for version, frozen_path, frozen_digest in [
+    ('replacement-v2', Path(d['freeze']['path']), d['freeze']['sha256']),
+    ('historical-held-v1', old_freeze_path, old['freeze']['sha256']),
+]:
+    raw = read(frozen_path, frozen_digest)
+    frozen = json.loads(raw)
+    add(version + '/freeze-manifest.json', raw)
+    for name, digest in frozen['files_sha256'].items():
+        source = frozen_path.parent / name
+        target = version + '/frozen/' + name
+        if source.suffix in ('.py', '.js', '.mjs', '.ps1'):
+            target += '.txt'
+        add(target, read(source, digest))
+for name in [
+    'app_write_two_independent_source_review_20261119.json',
+    'app_write_two_independent_insert_revision_probe_20261119.json',
+    'app-write-two-APPWRITE2-01-source-correction-plan-20261119.json',
+    'app_write_two_APPWRITE2_01_independent_correction_plan_review_20261119.json',
+    'app_write_two_APPWRITE2_01_Root_source_implementation_ACK_20261119.json',
+]:
+    add('reviews/' + name, read(T / name))
+for label, source_path, digest in [
+    ('replacement-author-review.json', Path(d['author_report']['path']), d['author_report']['sha256']),
+    ('independent-39-checks.json', Path(peer['independent_check_result_path']), peer['independent_check_result_sha256']),
+]:
+    add('reviews/' + label, read(source_path, digest))
+root_review = {
+    'schema': 'workinants.app-write-two-replacement-root-source-integration-review.v1',
+    'recorded_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    'decision': 'SOURCE_APPROVED_CHILD_SQL_PACKET_ONLY', 'reviewer': '/root',
+    'independent_code_review_sha256': sha(peer_raw), 'replacement_delivery_sha256': sha(delivery_raw),
+    'Root_actual_offline_verification': {'current_files': 59, 'SQL_files': 22, 'parsed_statements': 129, 'retained_SQL_exact': 20, 'original_two_claim_ceilings_exact': True, 'both_frozen_history_versions_rehashed': True},
+    'limits': {'actual_runtime': 'NOT_RUN', 'owned_wrapper': 'NOT_PREPARED', 'two_assertion_candidates': 'NOT_QUALIFIED', 'historical0ac': 'HELD_UNCHANGED', 'Posture': 'D'},
+}
+add('reviews/Root-source-integration-review.json', encoded(root_review))
+add('reviews/Root-archive-source-helper.py.txt', read(Path(__file__)))
+archive_hashes = {}
+for relative, raw in copies.items():
+    target = archive / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with target.open('xb') as f:
+        f.write(raw)
+    archive_hashes[target.relative_to(R).as_posix()] = sha(raw)
+record = {
+    'schema': 'workinants.app-write-two-reviewed-child-source-validation.v1',
+    'recorded_at_utc': root_review['recorded_at_utc'],
+    'status': 'SOURCE_APPROVED_CHILD_PACKET_ONLY_OWNED_WRAPPER_AND_RUNTIME_NOT_PREPARED',
+    'source_version': 'APPWRITE2-01-v2', 'source_root': prefix,
+    'root_sources_sha256': d['new_five_sha256'],
+    'source_and_artifact_inventory_sha256': d['full_current_ROOT_inventory_sha256'],
+    'generated_artifacts_sha256': {'review-output/app-write-two-control-rehearsal/' + p: h for p, h in d['artifact_files_sha256'].items()},
+    'fixture_sha256': d['fixture_sha256'], 'source_only_packet_sha256': d['content_sha256'],
+    'archive_files_sha256': archive_hashes,
+    'independent_source_review': {'status': 'SOURCE_APPROVED', 'path': prefix + '/independent-code-review.json', 'sha256': sha(peer_raw)},
+    'Root_source_review': {'decision': 'SOURCE_APPROVED', 'path': prefix + '/reviews/Root-source-integration-review.json', 'sha256': sha(encoded(root_review))},
+    'offline_results': {'author_methods': 39, 'independent_methods': 41, 'version_qualified_not_additive': True, 'Root_parse_and_integrity_checks': root_review['Root_actual_offline_verification']},
+    'finite_source_limits': {'cases': 14, 'grants_including_actual_schedule_prerequisite': 15, 'artifacts': 24, 'SQL_files': 22, 'SQL_statements': 129, 'claim_ceilings': fixture['claim_ceilings']},
+    'limits': {'runtime': 'NOT_RUN', 'no_new_assertion_or_wholecase_promotion': True, 'no_other28_write_questions_resolved': True, 'canonical_SQL_June_and_worker32_unchanged': True, 'Posture': 'D'},
+}
+with validation.open('xb') as f:
+    f.write(encoded(record))
+inventory = {**record['root_sources_sha256'], **record['generated_artifacts_sha256'], **archive_hashes, validation.relative_to(R).as_posix(): sha(read(validation))}
+receipt = {'schema': 'workinants.app-write-two-reviewed-child-committable-inventory.v1', 'recorded_at_utc': root_review['recorded_at_utc'], 'files_sha256': inventory, 'file_count': len(inventory), 'archive_files': len(archive_hashes), 'validation_sha256': sha(read(validation)), 'runtime': 'NOT_RUN', 'Posture': 'D'}
+p = T / 'app_write_two_reviewed_child_source_committable_inventory_20261119.json'
+with p.open('xb') as f:
+    f.write(encoded(receipt))
+print(json.dumps({'inventory_sha256': sha(read(p)), 'files': len(inventory), 'archive_files': len(archive_hashes), 'validation_sha256': receipt['validation_sha256']}))

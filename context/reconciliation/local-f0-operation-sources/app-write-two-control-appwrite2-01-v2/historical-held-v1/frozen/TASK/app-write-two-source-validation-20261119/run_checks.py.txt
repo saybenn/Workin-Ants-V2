@@ -1,0 +1,10 @@
+from pathlib import Path
+import hashlib,json,os,re,subprocess,sys,time
+R=Path(__file__).resolve().parent.parent/'workinants-correction-pass';OUT=Path(__file__).resolve().parent
+checks=[]
+for name in ('check-app-write-two-control-rehearsal.py','check-app-write-two-control-coordinator.py'):
+ p=R/'scripts'/name;before=hashlib.sha256(p.read_bytes()).hexdigest();start=time.monotonic();result=subprocess.run([sys.executable,'-B',str(p)],cwd=R,text=True,capture_output=True,timeout=240);elapsed=time.monotonic()-start
+ log=(result.stdout+result.stderr).encode('utf8');(OUT/(name+'.log')).write_bytes(log);found=re.search(r'Ran ([0-9]+) tests? in ([0-9.]+)s',result.stdout+result.stderr)
+ checks.append({'check':name,'source_sha256':before,'source_unchanged':before==hashlib.sha256(p.read_bytes()).hexdigest(),'exit_code':result.returncode,'tests_run':int(found[1]) if found else None,'reported_seconds':float(found[2]) if found else None,'process_seconds':round(elapsed,3),'log_sha256':hashlib.sha256(log).hexdigest()})
+value={'schema':'workinants.app-write-two-offline-checks.v1','source_only':True,'database_contacted':False,'checks':checks,'status':'PASS' if all(c['exit_code']==0 and c['source_unchanged'] for c in checks) else 'FAIL'}
+raw=(json.dumps(value,indent=2)+'\n').encode();(OUT/'summary.json').write_bytes(raw);print(json.dumps({'status':value['status'],'tests':sum(c['tests_run'] or 0 for c in checks),'report':str(OUT/'summary.json'),'sha256':hashlib.sha256(raw).hexdigest()}));raise SystemExit(0 if value['status']=='PASS' else 1)

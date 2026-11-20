@@ -1,0 +1,149 @@
+{
+  "schema": "workinants.install-review-ready-v3-independent-source-review.v1",
+  "recorded_at_utc": "2026-11-20T00:36:29.396640+00:00",
+  "reviewer": "/root/catalog_v4_review",
+  "decision": "HELD_CHANGES_REQUESTED",
+  "lineage_disclosure": "I authored earlier watcher/save design proposal bb4f and the original stopped-run watcher. I did not implement the new15 reviewed files; author is /root/install_outer_review. This is an independent implementation review with that design lineage explicitly disclosed.",
+  "scope": "Exact frozen new10 Root sources plus5 physical external operator sources,100 retained snapshots,42-file source archive, generated packet/source graph, unchanged protocol/SQL and actual process-boundary mocks. No operational approval or runtime.",
+  "source_delivery": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install_review_ready_v3_frozen_source_plan_20261119.json",
+    "sha256": "ba03f6635a529595b0dfad08258cfa3ce5c8a274661bc5af76a1317c5005e577"
+  },
+  "author_report": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install_review_ready_v3_source_author_review_20261119.json",
+    "sha256": "84a1a0c50ce4af398b5358471ab5b31d1327ee9f9dcb26ecd6e192da042cae20"
+  },
+  "freeze": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install-review-ready-v3-author-freeze-20261119\\freeze-manifest.json",
+    "sha256": "02338af5261d26b1461ebc3988a40b2630636d53ca27fad93c2fe4905083d407",
+    "snapshots": 100,
+    "all_original_and_snapshot_hashes_match_before_and_after": true
+  },
+  "root_sources_sha256": {
+    "scripts/check-install-control-rehearsal-v3.py": "0236c0637fc9a8ccf6e5cf3d97637de6d35a122f4c4a4f4532df79786ac5ebd9",
+    "scripts/install_independent_review_protocol_v1.py": "39b4707398aee1a4fa56c706c545a820e3db1fa1b637fae820a1aa057963b994",
+    "scripts/prepare-install-control-rehearsal-v3.py": "145fb7715e7d9204532dd8dd9075241ba78bdfdbcc6b911ad665e6bcd59514af",
+    "scripts/sql-review/install-controls-coordinator-v3.md": "fa0bd2318d6798be3a65fa1f860dc40ea02004b8278653e56ea9268311710008",
+    "scripts/sql-review/install_ledger_proof_v3.py": "44211b9a783271dd336c03df9104686980e528575181365583aca214ca44dc05",
+    "scripts/sql-review/run-install-control-rehearsal-v3.py": "c8bc77fecf378c023015ea0d26ca7f0cfef5ec83d238eacc91c73402e1071eba",
+    "scripts/sql-review/test_install_ledger_proof_v3.py": "bd34a3fa2c724988661e8cddccf1f9272ad53035d98fe5e02fee3a7407fcff8a",
+    "scripts/sql-review/test_watch_install_independent_review_v2.py": "0f330272c9bb2a182524b108bf530de0606f3e04d8d843f3a91feeb9c28d0d4a",
+    "scripts/sql-review/watch-install-independent-review-v2.py": "26b16dcf2dda60c9b1b2b12f0ae1e8d80e0f16445e1ed49f5921ebd9357151b9",
+    "scripts/test_install_independent_review_protocol_v1.py": "5ed1f4c958b128d415f5c46f1b7b465b77b9cc603569b46276fe031d5f67108e"
+  },
+  "external_five_sha256": {
+    "check_local_f0_install_controls_operation_review_ready_v3.py": "aaf3c945b192153c9089d5b7f1dc7a266ba10eb7226ea3319a6be02810ae01cc",
+    "execute_local_f0_install_controls_20261119_review_ready_v3.py": "26066e0bcef7f5abe0430d15729bbf5c6fe6c1d85ab2857418cfdc242ac1a3c9",
+    "local_f0_install_controls_operation_steps_review_ready_v3.py": "876e8317d7bf13374d97009db270fc94108cf75c9fcd82d0a651fca580e036d1",
+    "pin_local_f0_install_controls_plan_20261119_review_ready_v3.py": "32a5076fca42e5ac6b6413650c97d5c924e6af65aa7983c9a3c000c4fce7555f",
+    "prepare_local_f0_install_controls_plan_review_ready_v3.py": "658bb92405fe300a17de874adaf9b85ad9308a51b44fbb2a3cd4d50179da9ce0"
+  },
+  "generated_fixtures_sha256": "4e18fc32e1bb32dc465cd7d254c5f9a86a9d8118950ef4459bc0bb8a1abac9ad",
+  "validation_sha256": "7f2ef17333bdfed3a82666e1bf29971028f0fc226eb6cf27f5876ba507450dea",
+  "four_source_gates": {
+    "independent_source_review": {
+      "decision": "PENDING"
+    },
+    "independent_ledger_source_review": {
+      "decision": "PENDING"
+    },
+    "independent_safety_sql_review": {
+      "decision": "PENDING"
+    },
+    "independent_review_publication_source_review": {
+      "decision": "PENDING"
+    }
+  },
+  "findings": [
+    {
+      "id": "INSTALL-REVIEW-READY-DEADLINE-01",
+      "priority": "P2",
+      "status": "CONFIRMED_SOURCE_HOLD",
+      "path": "scripts/sql-review/watch-install-independent-review-v2.py",
+      "source_sha256": "26b16dcf2dda60c9b1b2b12f0ae1e8d80e0f16445e1ed49f5921ebd9357151b9",
+      "function": "wait_ready",
+      "lines": [
+        56,
+        57,
+        58,
+        59,
+        60
+      ],
+      "problem": "last_absent is sampled after the failed ready lstat returns. A deschedule/delayed absence response can therefore advance the retained absence time beyond real ready publication and the coordinator timer start. The returned220-second deadline ceases to be conservative.",
+      "reproduction": {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install-review-ready-v3-independent-catalog-20261119\\late-absence-deadline-probe.json",
+        "sha256": "9c95f9e14f51e7d02a4ccc979d4cb6362c9804d0893d73a0df4da9cf7f2f028f",
+        "method": "Actual wait_ready and exact synthetic immutable transport fixtures. Only lstat timing, monotonic and sleep projected; no process/DB/network.",
+        "ready_absent_at": 0,
+        "ready_published_and_coordinator_timer_started_at": 1,
+        "delayed_absence_return_at": 30,
+        "returned_local_deadline": 250,
+        "actual_coordinator_deadline": 241,
+        "difference_seconds": 9,
+        "all_read_handles_closed": true,
+        "actual_approval_created": false
+      },
+      "impact": "Wrong reviewer time budget and potential late ineffective approval attempt. The unchanged actual coordinator checks its own240-second deadline before and after approval validation, so this finding does not establish a late-recovery bypass.",
+      "required_bounded_correction": "Capture monotonic before each ready absence observation, retaining only that pre-lstat time. Seed initial retained absence from a pre-observation timestamp too, rather than after a potentially delayed multi-path freshness scan. Never refresh the budget after delayed absence, immutable reads or explicit approval.",
+      "required_regression": "Actual wait_ready late-absence/deschedule test with ready publication during delay must return an early conservative deadline or stop, never a deadline later than coordinator hold. Preserve normal exact protocol, explicit approval, closed handles and unchanged coordinator240 defense.",
+      "root_response": "Root accepted finding, held source approval and directed minimal author correction/new preserved freeze before focused re-review."
+    }
+  ],
+  "independent_checks": {
+    "report": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install-review-ready-v3-independent-catalog-20261119\\focused-checks.json",
+    "sha256": "90390e3c724a6b5f02d61a21a11a26bb3eafb4c48ede00926bd0261d129b4399",
+    "status": "PASS",
+    "tests": 78,
+    "seconds": 77.317,
+    "counts": {
+      "test_install_independent_review_protocol_v1.py": 10,
+      "test_watch_install_independent_review_v2.py": 16,
+      "test_install_ledger_proof_v3.py": 15,
+      "check_install_review_ready_v3_source_preservation_20261119.py": 8,
+      "actual_outer_Tests": 2,
+      "actual_outer_ReviewReadySourceGateTests": 3,
+      "actual_new_Core_Steps_SafetySQL": 24
+    },
+    "qualification": "Exact final frozen source methods. Not additive to author147/56/2 or other repeated runs. Passing suite does not close the independent timing finding.",
+    "actual_process_network_attempts": [],
+    "actual_Root_writes": "FORBIDDEN_BY_AUDIT",
+    "active_Native_OUT_reads": "NONE"
+  },
+  "independent_windows_probe": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install-review-ready-v3-independent-catalog-20261119\\independent-windows-destination-race.json",
+    "sha256": "96c1e086766fc8f1638f680d4ad0ecab0b714fdb5b59900557b054dcf07a4086",
+    "result": "PASS_NONOVERWRITING_ATOMIC_DESTINATION_RACE",
+    "actual_facts": {
+      "race_observed": true,
+      "destination_existing_at_atomic_rename": true,
+      "publisher_refused": true,
+      "fixed_failure": {
+        "class": "FileExistsError",
+        "winerror": 183
+      },
+      "competitor_bytes_preserved": true,
+      "publisher_temp_bytes_preserved": true,
+      "reader_handles_open": 0,
+      "hardlink_created": false
+    },
+    "scratch_absent_after": true
+  },
+  "reviewed_controls_without_other_confirmed_blocker": [
+    "Immutable ready12 fields published LAST only after proof and completed actual child serialized bytes snapshot; same run/source/tree/packet/CID/hash references are checked.",
+    "No mutable result JSON polling/reads during writer activity. Waiting coordinator remains quiescent until explicit approval or unchanged240-second timeout.",
+    "Watch default never approves; explicit separate seven-field decision uses unchanged protocol6c1474, fresh immutable reload and all handles closed.",
+    "Bounded regular nonsymlink single-link reads, duplicate/nonfinite/canonical checks, same file identity/stability and caps; Windows atomic fresh rename refuses competitor destination and does not use a hardlink window.",
+    "Outer closed identity and child plan/CID admission precede coordinator evidence/bootstrap; complete whole-source verifier/pinner/five snapshots and four distinct review gates exercised in isolated mocked clones.",
+    "First save failure retains only fixed phase/exception class/allowlisted winerror, preserves primary failure and sticky evidence-incomplete status. Actual owning finalizer/observe/sql/closed_backends/main/cleanup command-only mocks preserve eligible safety work under persistent IO.",
+    "All11 generated SQL byte-identical to old V2; canonical5ae,32workerACL, original protocol6c1474, old5Root sources/packets and accepted normal SQL/main/cleanup/finalizer AST remain preserved. LedgerV3 differs only namespace bindings."
+  ],
+  "limits": [
+    "Source-only. No actual approval, INSTALL retry, Docker/database/SQL/Git/network/resource/credential operation by reviewer.",
+    "Current review gates remain PENDING and were not self-updated. Root sole publisher/runtime executor.",
+    "Original INSTALL7923 complete cause remains UNOBSERVED. Held-reader/rename scratch observations establish mechanisms only.",
+    "Actual hardlink creation remains unobserved due retained author sandbox rejection; strict nlink2 rejection is projected metadata. No claim that hardlink creation test passed.",
+    "Historical author test/setup/AST failures retained in frozen source records; repeated/version-qualified counts not summed.",
+    "No whole94/451/register promotion, hosted change, migration adoption, production readiness or PostureD progression."
+  ],
+  "plain_english": "The new ticket handoff avoids opening a page while it is being saved. One timer still starts too late if a missing-page check is delayed. The main test has its own stop timer, so late recovery stays blocked. Fix the watcher timer and review the new frozen version before running it."
+}

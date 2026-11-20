@@ -1,0 +1,102 @@
+"""Generate only R01/R02 source artifacts. No process, network or database API."""
+import argparse
+from copy import deepcopy
+import json
+from pathlib import Path
+import uuid
+from app_write_two_control_protocol import APPLICATION_SHA,PLAN_SHA,ACK_SHA,CLAIMS,FIXTURE_TABLES,CASE_NAMES,need,sha,digest,canonical,quote,marker,operation_sql
+
+ROOT=Path(__file__).resolve().parents[1]
+OUT=ROOT/'review-output/app-write-two-control-rehearsal'
+NEW=('scripts/app_write_two_control_protocol.py','scripts/prepare-app-write-two-control-rehearsal.py','scripts/sql-review/run-app-write-two-control-rehearsal.py','scripts/check-app-write-two-control-rehearsal.py','scripts/check-app-write-two-control-coordinator.py')
+HELPERS=('scripts/sql-review/run-scoped-read-companion-rehearsal.py','scripts/scoped_read_companion_protocol.py','scripts/sql-review/run-context-control-rehearsal.py','scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/run-local-f0-migrate.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/prepare-local-f0-history.py','scripts/sql-review/collect_native_catalog.sql')
+CUSTOMER='scripts/prepare-customer-control-rehearsal.py'
+CUSTOMER_SHA='6d67c52ab7c3cc95082c5c82cf007910fcb75a7721d832d3236fe213e3bba174'
+INPUTS=('review-output/foundation-application.review.sql','context/reconciliation/foundation-sql-draft-models.json','context/reconciliation/foundation-sql-draft-access.json','context/reconciliation/foundation-sql-scope-policy.json','context/reconciliation/local-f0-assertions.json','context/context-map.md','scripts/contract_schema.py','contracts/shared/SH-004.v1.schema.json','contracts/shared/types.v1.schema.json','contracts/database-review/foundation-payloads.v1.schema.json','contracts/database-review/owner-mutation-evidence.v1.schema.json')
+INPUTS+=('AGENTS.md','context/reconciliation/platform-architecture-rulings.md','context/shared/shared-operations.md','context/shared/contracts/SH-004.md','context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-module-architecture.md','context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-implementation-plan.md','context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md','context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-implementation-plan.md','prisma/migrations/20260602021702_phase_2_database_truth_layer/migration.sql','tests/contracts/shared/consumer-expectations.json')
+NS=uuid.UUID('cf3ae049-fb27-4c7b-8dfb-cdb0c18153b8')
+def uid(name):return str(uuid.uuid5(NS,name))
+def insert(table,values):return 'INSERT INTO '+table+' ('+','.join(values)+') VALUES ('+','.join(values.values())+');'
+
+def build(root=ROOT):
+ root=Path(root);blobs={name:(root/name).read_bytes() for name in sorted(set(NEW+HELPERS+INPUTS+(CUSTOMER,)))};pins={name:sha(raw) for name,raw in blobs.items()}
+ need(pins['review-output/foundation-application.review.sql']==APPLICATION_SHA and pins[CUSTOMER]==CUSTOMER_SHA,'CANONICAL_CUSTOMER_SOURCE_DRIFT')
+ helper={'__name__':'_app_write_two_customer_recipe','__file__':str(root/CUSTOMER)};exec(compile(blobs[CUSTOMER],str(root/CUSTOMER),'exec'),helper)
+ # Bind every parsed schema to the already verified bytes; do not scan the
+ # shared directory or reread a mutable schema through Registry.__init__.
+ registry=helper['FixtureRegistry'].__new__(helper['FixtureRegistry']);registry.root=root;registry.documents={}
+ for relative in INPUTS:
+  if relative.startswith('contracts/'):
+   document=json.loads(blobs[relative]);registry.documents[document['$id']]=document
+ for relative in INPUTS:
+  if relative.startswith('contracts/shared/'):
+   document=json.loads(blobs[relative]);registry.preflight(document,document)
+ models={r['model']:r for r in json.loads(blobs['context/reconciliation/foundation-sql-draft-models.json'])};acl=json.loads(blobs['context/reconciliation/foundation-sql-draft-access.json']);worker=[r for r in acl if r['role']=='wa_worker'];need(len(worker)==32,'WORKER32_CEILING')
+ source,source_sql,source_observe=helper['create_case']('app-write-two-genuine-sh004','valid',acl,registry)
+ ids={**source['ids'],'effect':uid('genuine-sh004-effect'),'work':uid('genuine-pending-work'),'other-user':uid('other-user'),'wrong-root':uid('wrong-root')};u=ids['user'];q=ids['RuntimeCommandReceipt'];c=ids['CustomerProfile'];effect=ids['effect'];work=ids['work']
+ def cap(model,key,verb,revision=None):
+  rows=[r for r in acl if (r['role'],r['model'],r['operation'])==('wa_app_runtime',model,verb)];need(len(rows)==1,'CLOSED_APP_ROLE_VERB');fields=[model+'/'+key+'/'+verb+'/'+f for f in rows[0]['fields']]
+  if revision is not None:fields.append(model+'/'+key+'/revision/'+str(revision))
+  return fields
+ grant={**source['grant'],'template_id':'effect','service_principal':None};grant['allowed_fields']=sorted(set(grant['allowed_fields']+cap('RuntimeEffectReceipt',effect,'INSERT')+cap('RuntimeEffectReceipt',effect,'SELECT',0)))
+ schedule={**grant,'template_id':'schedule','owner_module_id':'platform_integration_owner','action':'runtime.schedule_work.v1','purpose':'work.schedule','target_kind':'RuntimeWorkItem','target_id':work,'allowed_fields':sorted(set(cap('RuntimeWorkItem',work,'INSERT')+cap('RuntimeWorkItem',work,'SELECT',0)))}
+ update={**schedule,'template_id':'update','allowed_fields':sorted(set(cap('RuntimeWorkItem',work,'SELECT',0)+['RuntimeWorkItem/'+work+'/UPDATE/'+f for f in ('@row','nextAttemptAt')]))}
+ grants={'effect':grant,'schedule':schedule,'update':update};files={};cases=[]
+ statements=[line for line in source_sql.splitlines() if line.startswith('INSERT INTO ')];need(len(statements)==6,'EXACT_GENUINE_CUSTOMER_SIX_STATEMENTS')
+ effect_sql="WITH changed AS (INSERT INTO platform.runtime_effect_receipt (id,command_receipt_id,owner_module_id,operation,subject_scope,semantic_effect_key,fingerprint,state,source_revision,fence,result_schema_id,result_hash,committed_at) SELECT "+quote(effect)+",id,owner_module_id,operation,subject_scope,semantic_key,fingerprint,'committed',source_revision,0,result_schema_id,result_digest,clock_timestamp() FROM platform.runtime_command_receipt WHERE id="+quote(q)+" AND state='committed' AND result_schema_id='SH-004.v1#/$defs/response' AND result_digest IS NOT NULL RETURNING id) SELECT jsonb_build_object('inserted',count(*)) FROM changed;"
+ effect_body='\n'.join(statements+[effect_sql,'SET CONSTRAINTS ALL IMMEDIATE;'])
+ update_body="WITH changed AS (UPDATE platform.runtime_work_item SET next_attempt_at=clock_timestamp()+interval '120 seconds' WHERE id="+quote(work)+" AND state='pending' AND fence=0 AND attempt_count=0 AND next_attempt_at IS NULL AND lease_token_hash IS NULL AND lease_expires_at IS NULL AND effect_receipt_id IS NULL RETURNING next_attempt_at) SELECT jsonb_build_object('changed',count(*),'server_not_before_future',coalesce(bool_and(next_attempt_at>clock_timestamp() AND next_attempt_at<=clock_timestamp()+interval '120 seconds'),false)) FROM changed;\nSET CONSTRAINTS ALL IMMEDIATE;"
+ def spec(message,function=None):return {'sqlstate':'42501','message':message,'function':function}
+ def case(name,base,kind='normal',changes=None,remove=None,diagnostic=None,positive=False):
+  g=deepcopy(grants[base]);g['template_id']=name
+  if changes:g.update(changes)
+  if remove:g['allowed_fields']=[f for f in g['allowed_fields'] if f!=remove]
+  grants[name]=g;body=effect_body if base=='effect' else update_body;filename=name+'.sql';files[filename]=operation_sql(name,body)
+  expected=[] if kind=='binder-denial' else [marker(name,'BEFORE')]
+  if diagnostic is None and kind!='binder-denial':expected += [({'inserted':1} if base=='effect' else {'changed':1 if positive else 0,'server_not_before_future':bool(positive)}),marker(name,'AFTER')]
+  allowed=[]
+  if positive:allowed=['app.customer_profiles','app.customer_profile_lifecycle_event','platform.runtime_command_receipt','platform.owner_mutation_evidence','platform.runtime_outbox_message','platform.runtime_effect_receipt'] if base=='effect' else ['platform.runtime_work_item']
+  claims=CLAIMS[0 if base=='effect' else 1] if positive else None
+  cases.append({'name':name,'status':'NOT_RUN','kind':kind,'grant':name,'sql':filename,'diagnostic':diagnostic,'expected_records':expected,'allowed_changed_tables':allowed,'claim':claims,'phase':base,'positive':positive})
+ case('effect-wrong-root','effect',changes={'target_id':ids['wrong-root']},diagnostic=spec('new row violates row-level security policy for table "customer_profiles"'))
+ case('effect-wrong-purpose','effect',changes={'purpose':'owner:queryOwnerFacts'},diagnostic=spec('new row violates row-level security policy for table "runtime_command_receipt"'))
+ case('effect-missing-result-field','effect',remove='RuntimeEffectReceipt/'+effect+'/INSERT/resultHash',diagnostic=spec('new row violates row-level security policy for table "runtime_effect_receipt"'))
+ case('effect-missing-root-revision','effect',remove='CustomerProfile/'+c+'/revision/0',diagnostic=spec('new row violates row-level security policy for table "customer_profiles"'))
+ case('effect-stale-security','effect','binder-denial',changes={'security_generation':'1'},diagnostic=spec('invalid, stale or unsupported context','bind_request_context'))
+ case('effect-wrong-principal','effect',changes={'principal_user_id':ids['other-user']},diagnostic=spec('foreign Customer principal','guard_customerprofile'))
+ case('genuine-sh004-effect-insert','effect',positive=True)
+ for name,changes,remove,diag,kind in [('work-wrong-root',{'target_id':ids['wrong-root']},None,None,'normal'),('work-wrong-purpose',{'purpose':'owner:queryOwnerFacts'},None,None,'normal'),('work-missing-update-field',None,'RuntimeWorkItem/'+work+'/UPDATE/nextAttemptAt',spec('field or CAS scope denied','guard_runtimeworkitem'),'normal'),('work-missing-revision',None,'RuntimeWorkItem/'+work+'/revision/0',None,'normal'),('work-stale-security',{'security_generation':'1'},None,spec('invalid, stale or unsupported context','bind_request_context'),'binder-denial'),('pending-work-next-attempt-update',None,None,None,'normal')]:case(name,'update',kind,changes,remove,diag,name=='pending-work-next-attempt-update')
+ need(tuple(x['name'] for x in cases)==CASE_NAMES,'EXACT13_CASES')
+ files['schedule.sql']=operation_sql('genuine-pending-schedule',"WITH changed AS (INSERT INTO platform.runtime_work_item (id,outbox_message_id,handler_name,semantic_work_key,state,fence,attempt_count) VALUES ("+','.join([quote(work),quote(ids['free']),"'assignDefaultFreeTrack.v1'",quote(source['fixture_values']['free_command']['semanticKey']),"'pending'",'0','0'])+") RETURNING id) SELECT jsonb_build_object('scheduled',count(*)) FROM changed;\nSET CONSTRAINTS ALL IMMEDIATE;")
+ seed=['BEGIN;']+['ALTER TABLE '+t+' DISABLE TRIGGER owner_commit;' for t in FIXTURE_TABLES]
+ for user in (u,ids['other-user']):
+  seed += [insert('app.users',{'id':quote(user),'is_public':'false','revision':'0','privacy_generation':'0','created_at':'clock_timestamp()','updated_at':'clock_timestamp()','mutation_transaction_id':'pg_current_xact_id()::text'}),insert('app.user_security_profiles',{'id':quote(uid(user+'/security')),'user_id':quote(user),'revision':'0','security_generation':'0','created_at':'clock_timestamp()','updated_at':'clock_timestamp()','mutation_transaction_id':'pg_current_xact_id()::text'})]
+ restore=['ALTER TABLE '+t+' ENABLE TRIGGER owner_commit;' for t in reversed(FIXTURE_TABLES)]
+ files['independent-user-fixtures.sql']='\n'.join(seed+['SET CONSTRAINTS ALL IMMEDIATE;']+restore+['COMMIT;'])+'\n';files['exact-fixture-restore.sql']='\n'.join(['BEGIN;']+restore+['COMMIT;'])+'\n';files['source-customer-observe.sql']=source_observe
+ files['user-coherence-observe.sql']="SELECT jsonb_build_object('users',count(*),'coherent',coalesce(bool_and(u.revision=0 AND u.privacy_generation=0 AND s.revision=0 AND s.security_generation=0),false)) FROM app.users u JOIN app.user_security_profiles s ON s.user_id=u.id WHERE u.id IN ("+quote(u)+','+quote(ids['other-user'])+');\n'
+ effect_checks="e.command_receipt_id=q.id AND e.owner_module_id=q.owner_module_id AND e.operation=q.operation AND e.subject_scope=q.subject_scope AND e.semantic_effect_key=q.semantic_key AND e.fingerprint=q.fingerprint AND e.state='committed' AND e.source_revision=q.source_revision AND e.fence=0 AND e.result_schema_id=q.result_schema_id AND e.result_schema_id='SH-004.v1#/$defs/response' AND e.result_hash=q.result_digest AND q.result_digest=encode(sha256(convert_to(q.result_body::text,'UTF8')),'hex') AND e.mutation_transaction_id=q.mutation_transaction_id AND e.committed_at>=q.created_at AND e.committed_at<=clock_timestamp()"
+ files['effect-coherence-observe.sql']="SELECT jsonb_build_object('effects',count(*),'actual_sh004_result_and_source_match',coalesce(bool_and("+effect_checks+"),false)) FROM platform.runtime_effect_receipt e JOIN platform.runtime_command_receipt q ON q.id=e.command_receipt_id WHERE e.id="+quote(effect)+';\n'
+ workchecks="w.outbox_message_id="+quote(ids['free'])+"::uuid AND w.handler_name='assignDefaultFreeTrack.v1' AND w.semantic_work_key="+quote(source['fixture_values']['free_command']['semanticKey'])+" AND w.state='pending' AND w.fence=0 AND w.attempt_count=0 AND w.lease_token_hash IS NULL AND w.lease_expires_at IS NULL AND w.effect_receipt_id IS NULL"
+ files['work-coherence-observe.sql']="SELECT jsonb_build_object('work',count(*),'pending_zero_fence_attempt_null_lease_effect',coalesce(bool_and("+workchecks+"),false),'not_before_null',coalesce(bool_and(w.next_attempt_at IS NULL),false),'not_before_future',coalesce(bool_and(w.next_attempt_at>clock_timestamp() AND w.next_attempt_at<=clock_timestamp()+interval '120 seconds'),false),'identity_sha256',encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(w)-'next_attempt_at'-'mutation_transaction_id' ORDER BY w.id),'[]'::jsonb)::text,'UTF8')),'hex')) FROM platform.runtime_work_item w WHERE w.id="+quote(work)+';\n'
+ tables=sorted({m['object'] for m in models.values()}|{'platform_private.identity_service_authorization','platform_private.identity_service_receipt'});need(len(tables)==42,'EXACT42_MODELS')
+ def table_state(table):return "(SELECT jsonb_build_object('count',count(*),'rows_sha256',encode(sha256(convert_to(COALESCE(jsonb_agg(to_jsonb(x) ORDER BY to_jsonb(x)::text COLLATE \"C\"),'[]'::jsonb)::text,'UTF8')),'hex')) FROM "+table+' x)'
+ files['complete-state-observe.sql']='SELECT jsonb_build_object('+','.join(quote(t)+','+table_state(t) for t in tables)+');\n'
+ setup=dict.fromkeys(tables,0);setup.update({'app.users':2,'app.user_security_profiles':2});committed=deepcopy(setup)
+ for table in ('app.customer_profiles','app.customer_profile_lifecycle_event','platform.runtime_command_receipt','platform.owner_mutation_evidence','platform.runtime_effect_receipt'):committed[table]=1
+ committed['platform.runtime_outbox_message']=2;scheduled={**committed,'platform.runtime_work_item':1}
+ assertions=json.loads(blobs['context/reconciliation/local-f0-assertions.json']);claim_rows=[]
+ for claim in CLAIMS:
+  case_id,assertion_id=claim.split('|');case_row=next(row for row in assertions['cases'] if row['id']==case_id);row=next(row for row in case_row['assertions'] if row['id']==assertion_id);claim_rows.append({'case_id':case_id,'assertion_id':assertion_id,'assertion_sha256':digest(row),'source_assertion':row,'status':'NOT_RUN','maximum_status_after_actual_review':'PASS'})
+ limits=['Exactly two app-write criteria; all protocols remain NOT_RUN until a separately reviewed actual packet and evidence audit. No whole-case/94/451 promotion.','Synthetic User/security fixtures are prerequisites only; exactly two owner_commit bypasses and full native identity/restoration before all claimed writes. No Customer/Effect/Work guard bypass.','R01 is actual SH-004 provision with accepted synthetic-intent fingerprint convention, own SH-004 response and PostgreSQL jsonb::text digest. It does not qualify production request encoding or another operation.','App Effect has no canonical result-link guard: supplied actual command/result/schema coherence is observed for this positive recipe only. Wrong-result offline mutations reject evidence; no database negative-verdict, app immutability or fencing claim.','R02 changes only next_attempt_at on one genuine pending app-scheduled Work. No worker, dispatch, claim, enrollment, renewal or completion.','All other 28 app writes, later-owner contracts, Privacy completion, hosted operations and migrations remain unauthorized/unqualified.']
+ files['README.md']='R01/R02 bounded source packet\n\nRuntime: NOT_RUN. Posture D.\n\n'+'\n\n'.join(limits)+'\n'
+ packet={'schema':'workinants.app-write-two-fixtures.v1','status':'NOT_RUN','database_posture':'D','database_contacted':False,'sql_executed':False,'source_plan_sha256':PLAN_SHA,'root_ACK_sha256':ACK_SHA,'selected_control_ids':[c.split('|')[0] for c in CLAIMS],'claim_ceilings':claim_rows,'source_files_sha256':pins,'models':models,'worker_acl_rows':worker,'worker_acl_sha256':digest(worker),'ids':ids,'source_customer':source,'grants':grants,'cases':cases,'setup_expected_counts':setup,'committed_expected_counts':committed,'scheduled_expected_counts':scheduled,'fixture_tables':list(FIXTURE_TABLES),'finite_caps':{'case_count':13,'business_claims':2,'genuine_customer_groups':1,'scheduled_work':1,'grant_instances_max':14,'simultaneous_app_sessions_max':1,'worker_loop':False},'scope_limits':limits,'prepared_files_sha256':{name:sha(raw.encode()) for name,raw in sorted(files.items())}}
+ packet['source_only_packet_sha256']=digest({k:packet[k] for k in ('source_files_sha256','prepared_files_sha256')});files['fixtures.json']=json.dumps(packet,indent=2,ensure_ascii=False)+'\n';return files,packet
+
+def main(argv=None):
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--prepare',action='store_true');args=parser.parse_args(argv);files,packet=build()
+ if args.prepare:
+  OUT.mkdir(parents=True,exist_ok=False)
+  for name,value in files.items():
+   with (OUT/name).open('x',encoding='utf8',newline='\n') as stream:stream.write(value)
+ print(json.dumps({'status':'PREPARED_NOT_RUN' if args.prepare else 'PLAN_ONLY_NOT_RUN','cases':len(packet['cases']),'claim_ceiling':2,'files':len(files),'database_contacted':False}));return 0
+if __name__=='__main__':raise SystemExit(main())

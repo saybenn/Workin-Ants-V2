@@ -1,0 +1,128 @@
+{
+  "schema": "workinants.app-write-two-independent-source-review.v1",
+  "recorded_at_utc": "2026-11-20T02:15:15.289218+00:00",
+  "reviewer": "/root/review_track_ports",
+  "author": "/root/catalog_v4_review",
+  "decision": "REQUEST_CHANGES_EXACT_SOURCE_HELD_NOT_APPROVED",
+  "scope": "Exact R01/R02 five and23 prepared artifacts; no owned wrapper, runtime, publication or assertion-status approval.",
+  "authorship_disclosure": "Reviewer did not author these new five or packet. Reviewer previously authored parts of inherited frozen CTX Session/helper5ec53d01 and external operators; this is independent review of the new catalog-authored code with that lineage disclosed.",
+  "reviewed_delivery_sha256": "0ac57e97d77e78b9b533ddff9a415715d20dfed81ef333c04113a2a52ef7ea19",
+  "reviewed_freeze_sha256": "1d5b66be18a87fdbd6fe1b1c7aba9c6a6a4617947dd697793fabf4677bce3dc8",
+  "reviewed_author_report_sha256": "c4ca5e777e94189f329dcb77865cbffd1fc29cdf7ac0c8b6beb81c8a61ecb8c8",
+  "reviewed_new_five_sha256": {
+    "scripts/app_write_two_control_protocol.py": "3517d30ad3927241f5301032c4d3a559b0d6cd4a985fd0ef1f39b230c818b543",
+    "scripts/prepare-app-write-two-control-rehearsal.py": "97675652dfc77b7fca8607c19806eea7fd50b7bed5a1e3bef7cfd202f7460d17",
+    "scripts/sql-review/run-app-write-two-control-rehearsal.py": "32b3c03da81bea498fca5a5bb93bd9fa38d23681d8d596e8271ac96d297364e6",
+    "scripts/check-app-write-two-control-rehearsal.py": "db0ff4e17c385357dba3c4520b9d27a1b6d3dbe3218a37e1e9633a1cf744b974",
+    "scripts/check-app-write-two-control-coordinator.py": "ad3a24aaf7ac70a66926c2ba1353bf94b1eebb23abff97a1df35b4798220b04c"
+  },
+  "fixture_sha256": "6f2cf0568fc81c7f6ee7bb92bec35f91fc6e8f21ab55515417ddc507203653f6",
+  "content_sha256": "2a87519e2a06fd1f0cbee7e1d7ee3438be484e30ca78ed6342b9b6a284d62095",
+  "integrity": {
+    "frozen_snapshots_exact": 66,
+    "current_ROOT_source_and_artifact_files_exact": 58,
+    "source_files": 35,
+    "prepared_artifacts": 23,
+    "original_current_and_preserved_inputs_exact": 96,
+    "SQL_scripts_independently_parsed": 21,
+    "SQL_statements_independently_parsed": 132,
+    "canonical_application_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "worker_acl_rows_unchanged": 32,
+    "source_or_artifact_edits_by_reviewer": false
+  },
+  "findings": [
+    {
+      "id": "APPWRITE2-01",
+      "priority": "P1",
+      "title": "Mock invents Customer INSERT revision authorization and masks an invalid negative oracle",
+      "case": "effect-missing-root-revision",
+      "impact": "Exact13 pipeline expects an unsupported early42501 on negative4 before the positive R01 group; exact source cannot be approved.",
+      "locations": [
+        "scripts/check-app-write-two-control-coordinator.py:73",
+        "scripts/prepare-app-write-two-control-rehearsal.py:58",
+        "review-output/foundation-application.review.sql:3411",
+        "review-output/foundation-application.review.sql:3413",
+        "review-output/foundation-application.review.sql:2411",
+        "review-output/foundation-application.review.sql:3834"
+      ],
+      "source_facts": [
+        "Canonical Customer INSERT policy passes NULL::text for row_revision; emitted Customer INSERT has no RETURNING.",
+        "INSERT/revision field capability and all other INSERT field caps remain present; only CustomerProfile/<id>/revision/0 is removed. That token belongs to SELECT/root-revision authorization.",
+        "Mock Transport.allowed enforces revision whenever verb==SELECT OR model==CustomerProfile, therefore incorrectly on INSERT too. It manufactures the early new-row-RLS42501 customer_profiles verdict.",
+        "Canonical guard_customerprofile INSERT checks zero initial revision and principal owner, not a root-revision capability. Its current-context helper checks actual issuer tuple/security currentness, not Customer SELECT revision caps."
+      ],
+      "independent_proof": {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app_write_two_independent_insert_revision_probe_20261119.json",
+        "sha256": "a3eb6aa2dae3d583852b61ed0007087e03a1588945705fc034c0506a1a30240d",
+        "frozen_mock_result": false,
+        "same_frozen_mock_with_only_actual_NULL_revision_projection_result": true,
+        "no_database_or_source_mutation": true
+      },
+      "why_34_passes_do_not_close_it": "The supplied tests use that stronger mock gate. Passing them does not prove the frozen expected canonical early diagnostic.",
+      "later_deferred_outcome": "NOT_RUN; no particular later failure stage, SQLSTATE, output or current runtime cause inferred.",
+      "author_acknowledgment": "Author acknowledged exact mismatch and kept frozen sources unchanged pending Root scope.",
+      "required_boundary": "Align the contrast and oracle to a real canonical gate under a preserved bounded source correction. No canonical SQL/policy change or generic error acceptance to preserve the old expectation."
+    }
+  ],
+  "Root_requested_paired_read_precision": {
+    "claim_limit": "Supporting negative/currentness control only, not a third business claim or a Customer API/write qualification.",
+    "placement": "After genuine R01 commit and independent source/coherence proof that the exact Customer exists at revision0; never against an absent or uncommitted row.",
+    "context": "Use exact customer_buyer_profile / SH-004.v1 / CustomerProfile root and a registered SELECT-capable purpose (the existing provision route permits SELECT). Keep root id, principal, security/source generations, role and all field caps identical in the pair; no new alias or owner port.",
+    "only_cap_difference": "Positive has every canonical CustomerProfile SELECT field cap plus CustomerProfile/<actual-id>/revision/0; negative removes only that revision token and retains SELECT/revision field cap. Even count(*) must satisfy the policy full SELECT field list.",
+    "query_and_results": "Same exact-id SELECT count(*) must return typed1 for the valid full-read/root-revision context and typed0 when only root-revision authorization is absent. This is RLS emptiness, not an INSERT42501 or genericP0001/P0002 proof.",
+    "binding_currentness": "Each actual wa_app_runtime tuple and fresh issuer grant must be captured/bound correctly, issuer COMMIT independently complete, bind acknowledged, actual xid unchanged, all21 grant fields retained/unrevoked, and just-used grant unexpired before/after. Independent existing-row/currentness witnesses and valid1 control exclude absent-row, stale-identity, wrong-root/purpose or missing-bind explanations for0.",
+    "closure_and_state": "Actual operation close plus independent global all-client0 before full42 observers; every non-grant table count/hash unchanged by the reads, all100 native guard identities unchanged.",
+    "finite_counts": "Derive and record actual final protocol/support/transaction/grant counts; do not preserve hardcoded13/14 if a new positive support operation changes them. Two R01/R02 business ceilings remain exact.",
+    "deferred_limit": "Do not guess which later source verifier rejects the old malformed insert or broaden the expected diagnostic."
+  },
+  "reviewed_areas_without_additional_confirmed_blocker": {
+    "R01": "Canonical app effect INSERT caps/policy; real SH004 six-row source/history/evidence/two-outbox group plus one effect in same actual app transaction. INSERT SELECT copies actual command result_digest and own registered SH004 response schema. PostgreSQL jsonb::text storage digest and complete42 source/effect coherence are checked.",
+    "result_limit": "App effect has no canonical result-link/fencing SQL guard. Code explicitly treats wrong-result mutation as offline coherence rejection, not database-guard, immutability or fencing proof.",
+    "R02": "Real app-scheduled pending Work from actual committed source outbox; exact runtime.schedule_work.v1/work.schedule and full read/revision0 caps, UPDATE@row+nextAttemptAt only. Actual changed1/server-future COMMIT, all remaining identity/state/fence0/attempt0/null-lease/effect fields preserved by hash and observers.",
+    "fixture": "Only User/UserSecurity owner_commit2 bypassed in isolated prerequisite transaction with deferred flush before restoration. Customer/Effect/Work and physical guards stay enabled. Only exact two O/D flags may normalize against complete native identity before controlled restoration; foreign drift blocks it.",
+    "entry": "Closed typed15-field run plan, full current source/SQL hash admission before helpers, real frozen CTX closed transitive helper loader, real Host.validate_manifest without fallback, same run/source/CID Native29089 and attestation bindings. Runtime SQL/collector reads hash and execute the same bytes.",
+    "failure_paths": "Separate issuer COMMIT/returned created_at and all21 field retention; real Session queue/Popen mocks; typed marker/count/source-bound diagnostics; prefix preservation, expired-grant, close/global-zero, IO and controlled-restoration/foreign-client refusal tests reviewed. No repair or generic42501/P0001 success.",
+    "scope": "Only two selected positive write criteria are candidates. Runtime/all94/451/other28 writes/Track/worker/inbox/completion/hosted/product qualification remain unpromoted."
+  },
+  "independent_checks": [
+    {
+      "file": "scripts/check-app-write-two-control-rehearsal.py",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "status": "PASS",
+      "seconds": 1.219,
+      "log_sha256": "fba3d2de4dbc8034e4c104ec84f113a6598ac26030d4c9056b90e2cb84b76806",
+      "real_process_SQL_network": "FORBIDDEN_OR_MOCKED"
+    },
+    {
+      "file": "scripts/check-app-write-two-control-coordinator.py",
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "status": "PASS",
+      "seconds": 91.078,
+      "log_sha256": "976d3fbe55d84f90c6eacd2a817c6f240faba96ac7f5d43d25b3094f33ce26cf",
+      "real_process_SQL_network": "FORBIDDEN_OR_MOCKED"
+    }
+  ],
+  "check_result_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app_write_two_independent_track_offline_checks_20261119.json",
+  "check_result_sha256": "b117ca4781abc51c5f7cdc31ed440ba602725ce6db64eed5acc8fca990459d1b",
+  "skill": "C:/Users/elijr/.agents/skills/review/SKILL.md",
+  "layers": {
+    "plan_alignment": "ISSUE_APPWRITE2_01",
+    "architecture_and_source_oracle": "ISSUE_APPWRITE2_01",
+    "failure_handling": "REVIEWED_NO_OTHER_CONFIRMED_BLOCKER_WITH_SOURCE_ONLY_LIMIT",
+    "production_readiness": "NOT_APPROVED_NOT_IN_SCOPE"
+  },
+  "limits": {
+    "Posture": "D",
+    "all_runtime": "NOT_RUN",
+    "owned_runner": "NOT_PRESENT_NOT_REVIEWED",
+    "source_approval": false,
+    "real_Git_Docker_DB_SQL_network_credentials": "NOT_USED_BOUNDARIES_MOCKED_ONLY",
+    "active_Native4c894_OUT_read": false,
+    "source_gate_status_plan_edits": false
+  },
+  "plain_English": "The two main write recipes fit the rules, but one practice test checks the wrong rule. Its pretend database rejects an insert that the real insert policy does not reject for that reason, so this exact packet stays held."
+}

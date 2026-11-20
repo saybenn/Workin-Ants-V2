@@ -1,0 +1,1 @@
+SELECT jsonb_build_object('users',count(*),'coherent',coalesce(bool_and(u.revision=0 AND u.privacy_generation=0 AND s.revision=0 AND s.security_generation=0),false)) FROM app.users u JOIN app.user_security_profiles s ON s.user_id=u.id WHERE u.id IN ('8136b2ae-cea6-5c8d-a04e-9bd70784c943','0c0ba942-ce1f-5fd4-aa1f-466be695de97');

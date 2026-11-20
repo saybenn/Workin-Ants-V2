@@ -22,6 +22,20 @@ class StatusTests(unittest.TestCase):
             return True
         boundary=patch.dict(build.__globals__,validate_native_prefix_claim=admitted_native_boundary)
         boundary.start();self.addCleanup(boundary.stop)
+        # The new adapter has a real-data/closed28 tamper suite. Isolate its
+        # boundary here while exercising the existing legacy mutations.
+        from local_f0_owner_lease_evidence import CLOSED_CLAIMS, FAMILIES
+        self.owner_lease_calls=[]
+        def admitted_owner_lease_boundary(case_id,assertion_id,status,execution,root,json_pointer=None):
+            self.assertIn((case_id,assertion_id),CLOSED_CLAIMS)
+            family,index,cap=CLOSED_CLAIMS[(case_id,assertion_id)]
+            self.assertEqual(status,cap)
+            self.assertEqual(json_pointer,'/claims/'+str(index))
+            self.assertEqual(execution['actual_result'],FAMILIES[family]['actual_result'])
+            self.owner_lease_calls.append((case_id,assertion_id,status))
+            return True
+        new_boundary=patch.dict(build.__globals__,validate_owner_lease_claim=admitted_owner_lease_boundary)
+        new_boundary.start();self.addCleanup(new_boundary.stop)
     def test_recorded_subset_does_not_promote_compound_cases(self):
         namespace=build.__globals__;restricted=namespace['validate_restricted_claim'];migration=namespace['validate_claim'];native=namespace['validate_native_prefix_claim']
         restricted_calls=[];migration_calls=[];native_calls=[]
@@ -36,12 +50,13 @@ class StatusTests(unittest.TestCase):
             return native(*args,**kwargs)
         with patch.dict(namespace,validate_restricted_claim=restricted_dispatch,validate_claim=migration_dispatch,validate_native_prefix_claim=native_dispatch):result=build()
         self.assertEqual(result['selected_cases'],94)
-        self.assertEqual(result['assertion_status_counts'],{'PASS':211,'PARTIAL':27,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':757,'UNRESOLVED_SOURCE':7})
-        self.assertEqual({c['id'] for c in result['cases'] if c['status']=='PASS'},{'P0C-UNIQUE-01','P0C-TABLE-DatabaseActionGrant-ALLOW'})
+        self.assertEqual(result['assertion_status_counts'],{'PASS':227,'PARTIAL':32,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':736,'UNRESOLVED_SOURCE':7})
+        self.assertEqual({c['id'] for c in result['cases'] if c['status']=='PASS'},{'P0C-UNIQUE-01','P0C-TABLE-DatabaseActionGrant-ALLOW','P0C-TABLE-ProfessionalProfile-ALLOW','P0C-TABLE-CandidateProfile-ALLOW'})
         self.assertEqual(len(restricted_calls),70)
         self.assertEqual(len(migration_calls),7)
         self.assertNotIn('PASS_LOCAL_RESTRICTED_CONTROL_PACKETS_ONLY',migration_calls)
         self.assertEqual(len(native_calls),132)
+        self.assertEqual(len(self.owner_lease_calls),21)
         self.assertTrue(all(row[2]=='STOPPED_ATTEMPT_PRESERVED' for row in native_calls))
         self.assertNotIn('STOPPED_ATTEMPT_PRESERVED',migration_calls)
         catalog=next(c for c in result['cases'] if c['id']=='P0C-CATALOG-01')
@@ -152,9 +167,9 @@ class StatusTests(unittest.TestCase):
     def test_parses_exact_hashed_bytes_without_second_file_read(self):
         original=Path.read_text
         def second_read_trap(path,*args,**kwargs):
-            if path.name in ('local-f0-small-rehearsal-0623028-execution.json','local-f0-migration-6b8910d-execution.json','local-f0-catalog-b9703d7-23bd8979-execution.json','local-f0-restricted-b8f6b10-f161d454-execution.json','local-f0-native-access-0a29cf6-495976eb-execution.json'):raise RuntimeError('UNVERIFIED_SECOND_READ')
+            if path.name in ('local-f0-small-rehearsal-0623028-execution.json','local-f0-migration-6b8910d-execution.json','local-f0-catalog-b9703d7-23bd8979-execution.json','local-f0-restricted-b8f6b10-f161d454-execution.json','local-f0-native-access-0a29cf6-495976eb-execution.json','local-f0-owner-da5ad66-72934689-qualified-evidence.json','local-f0-lease-da5ad66-a560e05b-qualified-evidence.json'):raise RuntimeError('UNVERIFIED_SECOND_READ')
             return original(path,*args,**kwargs)
         with patch.object(Path,'read_text',second_read_trap):result=build()
-        self.assertEqual(result['assertion_status_counts']['PASS'],211)
+        self.assertEqual(result['assertion_status_counts']['PASS'],227)
 
 if __name__=='__main__':unittest.main(verbosity=2)
