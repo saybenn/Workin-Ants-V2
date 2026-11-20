@@ -1,0 +1,176 @@
+{
+  "schema": "workinants.restore-bound-evidence-v3-independent-source-review.v1",
+  "recorded_at_utc": "2026-11-20T01:43:16.428242+00:00",
+  "reviewer": "/root/privilege_mount_v2_review",
+  "decision": "SOURCE_HELD_ONE_DIAGNOSTIC_ATTRIBUTION_FINDING",
+  "independence": "Reviewer independently reviewed accepted RestoreResourceMountV2, did not author its operational code or the new BoundEvidenceV3 implementation. Prior accepted SafetySQL/Restore layers are pinned inputs, not reapproved runtime authority.",
+  "exact_delivery_sha256": "e7c89ff976dbf8b5c13f25f21699ecfd3b0ee53a684f15f7fb0c2947e25f50b0",
+  "exact_author_review_sha256": "095c5c808309e5c03db7ba463a82d6580355f9c44434ef3436dfa1dbcbf020fa",
+  "exact_freeze_manifest_sha256": "3d3a64c31991a7b9c1f241c9e16ad3814d2dcb697f5347a3fe863b22637616fe",
+  "exact_five_sha256": {
+    "check_local_f0_restore_operation_bound_evidence_v3.py": "7a22cb764b317c7d1a72678e3ae8bf2cc931f1cd38e55eeae7467442e0f46db6",
+    "execute_local_f0_restore_20261119_bound_evidence_v3.py": "a2d2f7e3af1974911483ad88063e34089b530ae16a0c8506ca172f0f4536814d",
+    "local_f0_restore_operation_steps_bound_evidence_v3.py": "cbc5485b76bc8d1d84b9fb1bb0cbbd8a490c7d4ae4f3e08d2ed1c11920223944",
+    "pin_local_f0_restore_plan_20261119_bound_evidence_v3.py": "d0fe6c41783b5f98c84bc582f122336e7db6ed1dbf99ea1eb26a58e9ce2634b7",
+    "prepare_local_f0_restore_plan_bound_evidence_v3.py": "2030cbd86e230711ae352e02e2a464eeea68525c06a8f0ca6737926e6ea6897d"
+  },
+  "exact_validation_sha256": "64df274a191d5c8059247f91d745ff7b47b6adcfdd41e720404cc4761821a199",
+  "validation_gate_unchanged": {
+    "independent_bound_evidence_review": "PENDING"
+  },
+  "findings": [
+    {
+      "id": "RESTORE-BOUND-V3-01",
+      "priority": "P2",
+      "classification": "DIAGNOSTIC_ATTRIBUTION_CONTRACT_NOT_ENFORCED",
+      "source": "local_f0_restore_operation_steps_bound_evidence_v3.py",
+      "function": "bound_diagnostic",
+      "line": 836,
+      "title": "Count severity/header occurrences instead of matching physical lines",
+      "detail": "The new parser counts lines containing ERROR:/FATAL: and fullmatches the selected line with an unrestricted message tail. Two verbose headers on one line therefore count as one; a second malformed severity line without colon is excluded. Both actual-function probes retain42501 and single_header=True, despite the mandatory Root e4d829 rule requiring null for malformed/multiple headers.",
+      "required_contract": {
+        "path": "restore_bound_evidence_v3_root_plan_clarification_20261119.json",
+        "sha256": "e4d82968913a84cc87d02fd76a9568b6608aeb585a9a1a8c815f997b4fe51715",
+        "rule": "Only one exact ERROR/FATAL header with a fixed13 state exports the state. Unknown/malformed/multiple headers export null and a fixed redaction class."
+      },
+      "reproductions": [
+        {
+          "probe": "two_headers_same_line",
+          "synthetic_input": "ERROR:  42501: fixed ERROR:  22012: second\n",
+          "synthetic_input_sha256": "108748659f543829130641f5c0c681323d1b9f573dd928fa6848027ae4599622",
+          "actual_projection": {
+            "classification": "UNEXPECTED_NOT_GUARD_PROOF",
+            "redaction": "SOURCE_BOUND_METADATA",
+            "single_header": true,
+            "sqlstate": "42501",
+            "source_binding_confirmed": true,
+            "source_metadata": {
+              "classification": "UNRECOGNIZED",
+              "frame_classification": "NOT_RETAINED"
+            }
+          },
+          "required_projection": {
+            "sqlstate": null,
+            "single_header": false,
+            "source_binding_confirmed": false,
+            "redaction": "FIXED_MALFORMED_OR_MULTIPLE_HEADER_CLASS"
+          }
+        },
+        {
+          "probe": "valid_plus_malformed_severity",
+          "synthetic_input": "ERROR:  42501: fixed\nERROR malformed\n",
+          "synthetic_input_sha256": "0c3bf9af15848e15089d9a0b082177309fdb25c5fbf696c885713468819d5191",
+          "actual_projection": {
+            "classification": "UNEXPECTED_NOT_GUARD_PROOF",
+            "redaction": "SOURCE_BOUND_METADATA",
+            "single_header": true,
+            "sqlstate": "42501",
+            "source_binding_confirmed": true,
+            "source_metadata": {
+              "classification": "UNRECOGNIZED",
+              "frame_classification": "NOT_RETAINED"
+            }
+          },
+          "required_projection": {
+            "sqlstate": null,
+            "single_header": false,
+            "source_binding_confirmed": false,
+            "redaction": "FIXED_MALFORMED_OR_MULTIPLE_HEADER_CLASS"
+          }
+        }
+      ],
+      "impact": "Retained unexpected-failure attribution can incorrectly claim one known SQLSTATE/source-confirmed diagnostic from malformed or multiple severity/header input. This matters to the bounded correction purpose of trustworthy partial evidence.",
+      "limits": "No permission escalation, SQL change, binder-verdict bypass or actual historical database cause is demonstrated. Existing exact binder predicate and positive commit/result checks remain independent.",
+      "bounded_correction": "Change only the new header classifier and focused regressions in a separately preserved replacement freeze. Detect all severity/header candidates, including inline second verbose headers and malformed severity lines, require exactly one valid header, and return null/fixed redaction on ambiguity. Keep fixed13 set, closed source metadata/frame/body/line projection, source before/after hashing, operation verdict, Session/finalizer/global-zero/persistent-IO paths and cleanup unchanged. Do not edit this freeze."
+    }
+  ],
+  "independent_checks": {
+    "scope": "Independent environment-free focused methods only; all actual process/network boundaries mocked or forbidden.",
+    "checks": [
+      {
+        "suite": "focused",
+        "tests_run": 21,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 7.707,
+        "status": "PASS"
+      },
+      {
+        "suite": "source_gates",
+        "tests_run": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 47.845,
+        "status": "PASS"
+      }
+    ],
+    "unique_methods": 27,
+    "full101_repeated": false,
+    "no_actual_SQL_Docker_database_Git_network_or_credentials": true
+  },
+  "source_and_preservation": {
+    "snapshot_files": 192,
+    "original_files_matching_snapshots": 192,
+    "archive_files": 80,
+    "additional_preservation_files": 159,
+    "independent_gate": {
+      "decision": "PENDING"
+    },
+    "AST_scope": {
+      "execute_local_f0_restore_20261119_bound_evidence_v3.py": {
+        "new_functions": [],
+        "removed_functions": [],
+        "changed_functions": [],
+        "fulltext_namespace_only": true
+      },
+      "local_f0_restore_operation_steps_bound_evidence_v3.py": {
+        "new_functions": [
+          "bound_diagnostic",
+          "bound_outcome",
+          "bound_source_metadata"
+        ],
+        "removed_functions": [],
+        "changed_functions": [
+          "bound_operation",
+          "verify_common_packet"
+        ],
+        "fulltext_namespace_only": false
+      },
+      "prepare_local_f0_restore_plan_bound_evidence_v3.py": {
+        "new_functions": [],
+        "removed_functions": [],
+        "changed_functions": [],
+        "fulltext_namespace_only": true
+      },
+      "pin_local_f0_restore_plan_20261119_bound_evidence_v3.py": {
+        "new_functions": [],
+        "removed_functions": [],
+        "changed_functions": [
+          "validate_filesystem"
+        ],
+        "fulltext_namespace_only": false
+      }
+    },
+    "no_active_runtime_evidence_read": true,
+    "no_original_files_modified": true
+  },
+  "positive_source_observations": [
+    "All192 frozen snapshots and original source inputs match before and after tests; archive80 and159 additional preservation references match. Canonical source SQL5ae, proposal91834/content2752, recipe67/artifact25 and old resource/common layers remain unchanged.",
+    "Normalized Core and Prep are fulltext namespace-only; Steps changes exactly bound_operation and verify_common_packet plus three same-file pure diagnostic/outcome helpers. Pinner changes validate_filesystem only after namespace normalization.",
+    "The actual bound-operation source wraps construction/capture/issuance/finish and close/global-zero in finally. Actual WorkerSession/process-boundary tests demonstrate close before global-zero, first-failure retention, no matched verdict on closure failure, and global-zero attempts under persistent IO/output failure.",
+    "New partial outcome records retain typed exit/ack/count/marker/JSON comparisons before assertions; raw operation rows, credentials, handles, stderr, statement bodies and exception strings are excluded. Metadata uses closed built-in enums/types/key sets, admitted column/frame declarations and source hashes rechecked before/after the existing helper.",
+    "Actual owning main under process-boundary mocks retains failure, stops later work, attempts original-grantor finalization and exact3-container/2-volume/private-secret/archive cleanup despite persistent evidence IO. This is offline composition evidence only.",
+    "New namespace-specific SOURCE_APPROVED/exact-five/peer-byte gate blocks PENDING in Steps and pinner; initialized Core/launch/whole-source and simulated current+committed checks pass without actual Git or resource calls."
+  ],
+  "coverage_limits": [
+    "27 independent methods:21 focused in7.707s and6 source-gate checks in47.845s. Author results are history and not counted as independent results.",
+    "Full101 prior layer suite not repeated because preserved code/functions/source maps are unchanged. No new runtime behavior was exercised.",
+    "Additional exploratory malformed-input projections are preserved in independent-header-probes.json. The actionable finding is bounded to the two reproduced malformed/multiple severity/header cases above; zero-line-number syntax is not a separate required finding.",
+    "The original3b8 complete failure cause, exit/ack/SQLSTATE remain UNOBSERVED. Nothing here reconstructs discarded values or attributes its cause.",
+    "No actual Docker, SQL, database, network, Git, resource or credential actions; no source/gate/repository edits and no active Native OUT read. Posture D; unexercised runtime NOT_RUN."
+  ],
+  "Root_next_step": "Retain this exact source as HELD; author a minimal separately frozen header-classifier/regression replacement and obtain fresh exact-source review. No runtime approval.",
+  "plain_english": "The new recorder closes safely and saves useful small facts, but it can mistake two error labels for one. Fix that small label check before trusting the new packet. No database test ran."
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "workinants.privilege-metadata-v6-Root-source-closure.v1",
+  "recorded_at_utc": "2026-11-20T08:58:37.551566+00:00",
+  "reviewer": "/root",
+  "decision": "SOURCE_APPROVED",
+  "scope": "EXACT_METADATA_V6_CHILD_AND_FIVE_OWNED_ONLY",
+  "operator_sources_sha256": {
+    "execute_local_f0_privilege_ceiling_metadata_v6_20261120.py": "18c966276ff39ff8ae329685c45457601120da870940f943f36189505d5b7aa5",
+    "local_f0_privilege_ceiling_metadata_v6_operation_steps.py": "f404690a9478b5497a386f77a3e5508d10a9a4f92e75aa6a6cae88f69a1c9ad4",
+    "prepare_local_f0_privilege_ceiling_metadata_v6_plan.py": "4fae630c796f72df66f3773ef130f5bf94fb0b39c65262d69225dea5807e6d72",
+    "check_local_f0_privilege_ceiling_metadata_v6_operation.py": "f9c343337dd3394566afb825b526331b77493e412292189c7fc8acf443a42252",
+    "pin_local_f0_privilege_ceiling_metadata_v6_plan_20261120.py": "9e351f0b8579cc1ae7a90c5eff3e19c72289479ea45de20be3160b08ffc4bbe0"
+  },
+  "child_source7_sha256": {
+    "context/reconciliation/privilege-ceiling-approved-source-plan.json": "3298704adfe2110a4a333945c37de4432e851e918598dfc966e665473aa7e066",
+    "scripts/privilege_ceiling_control_protocol.py": "faf980151efec719fc54963fc0630c056cba50c40f3f1eb7e7d1f0c7fc18f921",
+    "scripts/prepare-privilege-ceiling-control-rehearsal.py": "05263b8611d099795f0887054d6c07a02044adec48474ec1c9ba6872b1daf981",
+    "scripts/sql-review/test_privilege_ceiling_control_protocol.py": "ace30fd0fa750de6c1574ffdf26a6a5f5a88330460020196d64999e253fb77d8",
+    "scripts/sql-review/run-privilege-ceiling-control-rehearsal-metadata-v6.py": "55595f4a5013c186062d23ee190f1bf04476993e050ed2c4fa746bb0d5b55bed",
+    "scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_metadata_v6.py": "2f76a596575bf4dab39167f0d71c07de91da134366f6cd5dc4fafde9861a722a",
+    "scripts/sql-review/PRIVILEGE-CEILING-CONTROL-REHEARSAL-METADATA-V6.md": "cf88cd109bef7a94545478a845541fdf25cedd891ccc9e329956e34a5e5c0eb8"
+  },
+  "coordinator_sha256": "55595f4a5013c186062d23ee190f1bf04476993e050ed2c4fa746bb0d5b55bed",
+  "independent_review_sha256": "1aa55cc97c1c27d59d117c1585994dc34404c49b57ea3f2ae3aed701d712b68e",
+  "independent_gate_addendum_sha256": "7308661a0c37c2fd41282123b7be6718cb54d0aa77ee2d240d9812b2c52a07d5",
+  "accepted_basis": {
+    "independent_tests": "19focusedPASS:12child54.495s+7owned72.675s; exact200AST/projections, receipts, fullsource/finite/entry gates. PrimaryPG17docs/REL_17_11independentlyreopened.",
+    "author_tests": "12affectedPASS58.458s+95owningPASS162.107s; priorfailedtestharnessrunsretained.",
+    "privilege_semantics": "Separate schema/table/column requirements for actual clauses, mandatory TABLEDELETE/TRUNCATE, any-column SELECT only for source-proven empty read sets, separate UPDATEwrites/reads; no unrelated table projection for max-schema provider functions.",
+    "metadata_receipts": "Fixed bounded prethrow facts, actualint onlywhenobserved, closedSQLSTATEclassifier, strictCRLF/control parsing, no rawrows/SQL/stderr/passwords/handles. Metadata connection closure precedes independent global closure/future actors; IO and primaryfailuresticky.",
+    "unchanged": "All200SQL/roles/grants/16definers/3issuerprotocols/244outcomes/40validity205facts100guards/canonical5ae/worker32; frozenfiveexact.",
+    "historical_limits": "Actual old56a87queryexit/SQLSTATE/stderr/fullcause remain NOT_RETAINED/UNOBSERVED. UnsupportedDELETE projection is proven source analysis consistent with stop, not invented olddiagnostic.",
+    "aux_inventory_aggregate": "3b61 auxiliary recipe remains UNINTERPRETED; exact inventorySHA5e17+all65individualfilehashes/archive60 were independently verified. New Root inventory uses explicit path-NUL-SHA-newline recipe."
+  },
+  "runtime": "NOT_RUN_FOR_METADATA_V6",
+  "literal_approval": false,
+  "Posture": "D"
+}

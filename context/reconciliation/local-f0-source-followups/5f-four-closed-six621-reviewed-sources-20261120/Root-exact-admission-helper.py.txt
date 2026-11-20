@@ -1,0 +1,54 @@
+"""Admit only hash-bound reviewed sources and closed sanitized evidence."""
+from pathlib import Path
+import datetime,hashlib,io,json,re,subprocess,sys
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';PARENT='5f189aa6262bd5ecbffda0940e404038993fce05'
+FOLLOW='context/reconciliation/local-f0-source-followups/5f-four-closed-six621-reviewed-sources-20261120'
+ADMISSION='context/reconciliation/local-f0-5f-closed-four-six621-admission-20261120.json'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+def git(*args):return subprocess.check_output(['git','-c','core.longpaths=true',*args],cwd=R)
+assert git('rev-parse','HEAD').decode().strip()==PARENT and not git('diff','--cached','--name-only').strip()
+if '--stage'in sys.argv:
+ record=json.loads((R/ADMISSION).read_bytes());files={**record['admitted_files_sha256'],ADMISSION:sha((R/ADMISSION).read_bytes())}
+ for n,h in files.items():assert sha((R/n).read_bytes())==h
+ path=T/'5f_closed_four_six621_exact_stage_paths_20261120.nul';put(path,('\0'.join(sorted(files))+'\0').encode());git('add','--pathspec-from-file='+str(path),'--pathspec-file-nul')
+ staged=set(git('diff','--cached','--name-only','-z').decode().split('\0'))-{''};assert staged.issubset(files)
+ data=subprocess.check_output(['git','-c','core.longpaths=true','cat-file','--batch'],cwd=R,input=''.join(':'+n+'\n'for n in sorted(files)).encode());stream=io.BytesIO(data)
+ for n in sorted(files):
+  head=stream.readline().decode().split();assert len(head)==3 and head[1]=='blob';raw=stream.read(int(head[2]));assert stream.read(1)==b'\n'and sha(raw)==files[n]
+ assert not stream.read()
+ for n in set(files)-staged:assert sha(git('show',PARENT+':'+n))==files[n]
+ proof={'schema':'workinants.5f-closed-four-six621-staged-byte-proof.v1','parent':PARENT,'files_sha256':files,'admitted_files':len(files),'changed_staged_files':len(staged),'same_parent_files':len(files)-len(staged),'all_staged_blobs_match':True,'unfinished_work_staged':False,'Posture':'D'}
+ p=T/'5f_closed_four_six621_exact_staged_byte_proof_20261120.json';put(p,enc(proof));print(json.dumps({'admitted_files':len(files),'staged_changes':len(staged),'proof_sha256':sha(p.read_bytes())}));raise SystemExit(0)
+files={};families={}
+for label,name,expected in [('V6','privilege_metadata_v6_source_approved_committable_inventory_20261120.json','a1474fbd2adfcb7b0ee3ed03f891b16bbe9e84af5a9eea9584bd04cfb2fb7b87'),('RestoreV4Fix3','restore_v4_fix3_source_approved_committable_inventory_20261120.json','b6ec64a500f19fc95448ae99c7581f911c6bc42fdf5a920c74a3ba33b3ab689c'),('Six621','six_c662_actual653_final_committable_inventory_20261120.json',None),('Progress','5f_four_closed_six621_progress_inventory_20261120.json',None)]:
+ b=(T/name).read_bytes()
+ if expected:assert sha(b)==expected
+ v=json.loads(b);m=v['files_sha256'];assert not set(files).intersection(m);files.update(m);families[label]={'inventory':name,'sha256':sha(b),'files':len(m)}
+for name in ('local-f0-six-read-5f189aa-c662f807-execution.json','local-f0-worker-5f189aa-b42c35d5-execution.json','local-f0-app-write-two-5f189aa-5710703b-execution.json','local-f0-install-5f189aa-4b35e08b-execution.json'):
+ p=R/'context/reconciliation'/name;b=p.read_bytes();v=json.loads(b);assert not set(files).intersection(v['assets_sha256']);files.update(v['assets_sha256']);files[p.relative_to(R).as_posix()]=sha(b)
+copies={'previous-publication-full-proof.json':'5f189aa_publication_full_commit_verification_20261120.json','original-checkouts-preserved.json':'7ef5091_original_checkout_preservation_recheck_20261120.json','V6-reviewed-final-inventory.json':'privilege_metadata_v6_source_approved_committable_inventory_20261120.json','V6-actual-pure-prepare-validate.json':'privilege_metadata_v6_actual_approved_prepare_validate_20261120.json','Restore-reviewed-final-inventory.json':'restore_v4_fix3_source_approved_committable_inventory_20261120.json','Restore-actual-pure-prepare-validate.json':'restore_v4_fix3_actual_approved_prepare_validate_20261120.json','Six-actual653-final-inventory.json':'six_c662_actual653_final_committable_inventory_20261120.json','Root-progress-update-helper.py.txt':'record_5f_four_closed_six621_reviewed_sources_progress_20261120.py','Root-exact-admission-helper.py.txt':Path(__file__).name,'PENDING-App-independent14-source-audit.json':'app571_fourteen_oracle_source_audit_20261120.json','PENDING-App-new10-source-plan.json':'app571_guard_observation_v2_source_plan_20261120.json','PENDING-App-Root-plan-ACK.json':'app571_guard_observation_v2_Root_independent_plan_ACK_20261120.json','PENDING-INSTALL-independent-evidence-audit.json':'install_4b35_independent_closed_evidence_audit_20261120.json','PENDING-INSTALL-mapping-proposal.json':'install_4b35_exact_assertion_mapping_proposal_20261120.json','PENDING-INSTALL-Root-bounded-parser-ACK.json':'install_4b35_Root_bounded_mapping_adapter_ACK_20261120.json','PENDING-Read13-concrete-v5-plan.json':'read13_concrete_fixture_recipe_source_supplement_v5_20261120.json','PENDING-Read13-independent-plan-review.json':'read13_concrete_v5_independent_key_plan_delta_review_final_20261120.json','PENDING-Read13-Root-implementation-ACK.json':'read13_concrete_v5_Root_bounded_implementation_ACK_20261120.json','repository-context-check.log.txt':'5f_closed_four_six621_context_check_20261120.log'}
+context=(T/copies['repository-context-check.log.txt']).read_bytes();assert b'Structural checks PASSED'in context
+for n,source in copies.items():b=(T/source).read_bytes();put(R/FOLLOW/n,b);files[FOLLOW+'/'+n]=sha(b)
+json_count=0;sizes={}
+patterns=(rb'\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})\b',rb'\b(?:sk|rk)_live_[A-Za-z0-9]{20,}\b',rb'\bxox[baprs]-[A-Za-z0-9-]{25,}\b',rb'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----\r?\n(?:[A-Za-z0-9+/=]{40,}\r?\n){2,}')
+for n,h in files.items():
+ p=R/n;assert p.is_file()and not p.is_symlink()and not{'private','.env','.pgpass'}.intersection(p.parts);b=p.read_bytes();assert sha(b)==h and len(b)<50*1024*1024 and b'\0'not in b;txt=b.decode('utf-8-sig');sizes[n]=len(b)
+ if n.endswith('.json'):
+  def pairs(rows):
+   v={}
+   for k,x in rows:assert k not in v;v[k]=x
+   return v
+  json.loads(txt,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(ValueError('NONFINITE_JSON')));json_count+=1
+ assert not any(re.search(pattern,b)for pattern in patterns),('HIGH_CONFIDENCE_SECRET_PATTERN',n)
+assert sha((R/'vercel.json').read_bytes())=='81a4eed381a1ebdb732441b2aa90c1933824338a9822859ead828bfdbabdc02f'and json.loads((R/'vercel.json').read_bytes())['git']['deploymentEnabled']['codex/p0c-candidate-corrections-2026-10-31']is False
+common=Path(git('rev-parse','--git-common-dir').decode().strip());common=common if common.is_absolute()else(R/common).resolve();assert not[p for p in(common/'hooks').iterdir()if p.is_file()and not p.name.endswith('.sample')]
+hooks=subprocess.run(['git','config','--get','core.hooksPath'],cwd=R,capture_output=True);assert hooks.returncode==1 and not hooks.stdout;assert not git('ls-tree','-r','--name-only','HEAD','--','.github/workflows').strip()
+check={'schema':'workinants.5f-closed-four-six621-outgoing-check.v1','status':'PASS','files':len(files),'strict_JSON_files':json_count,'bytes':sum(sizes.values()),'largest_bytes':max(sizes.values()),'UTF8_NUL_free':True,'high_confidence_secret_pattern_findings':False,'reviewed_sanitized_runtime_assets':176,'Vercel_branch_deployment_disabled':True,'active_hooks_or_GitHub_workflows':False,'canonical_SQL_access_history_requirement_register_unchanged':True,'unreviewed_App_Read13_code_admitted':False,'Posture':'D'}
+n=FOLLOW+'/outgoing-content-check.json';put(R/n,enc(check));files[n]=sha((R/n).read_bytes())
+rows=[x for x in git('status','--porcelain=v1','-z','--untracked-files=all').decode().split('\0')if x];excluded=sorted(x[3:]for x in rows if x[3:]not in files);changed=set(git('diff','--name-only','-z').decode().split('\0'))-{''}
+record={'schema':'workinants.5f-closed-four-six621-checkpoint-admission.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'parent':PARENT,'admitted_files_sha256':dict(sorted(files.items())),'source_families':families,'actual_runs':'All4 closed and independently cleaned; exact176sanitized assets preserved. App stopped; its full cause unobserved. Worker/INSTALL mapping not yet admitted.','qualification':'653rows/621PASS32PARTIAL342NOT_RUN32DEPENDENCY_BLOCKED7UNRESOLVED_SOURCE0FAILED;94cases4PASS79PARTIAL11NOT_RUN; only6newreadPASS','preserved_unstaged_paths':excluded,'reviewed_tracked_changes':sorted(changed.intersection(files)),'excluded_tracked_WIP':sorted(changed-set(files)),'normal_authenticated_fast_forward_only':True,'Posture':'D','continue_after_checkpoint':True}
+put(R/ADMISSION,enc(record));out=T/'5f_closed_four_six621_admission_prepared_20261120.json';put(out,enc({'admission':ADMISSION,'sha256':sha((R/ADMISSION).read_bytes()),'files_excluding_admission':len(files),'preserved_unstaged_paths':len(excluded),'Git_mutation':False,'Posture':'D'}));print(out.read_text())

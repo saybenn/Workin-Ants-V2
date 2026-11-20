@@ -1,0 +1,96 @@
+{
+  "schema": "workinants.six-c662-evidence-adapter-independent-code-review.v1",
+  "recorded_at_utc": "2026-11-20T08:21:16.988829+00:00",
+  "reviewer": "/root/catalog_v4_review",
+  "decision": "SOURCE_APPROVAL_WITHHELD",
+  "authorship_disclosure": "Reviewer authored earlier SixRead generator/coordinator and Owner lineage, but did not author this new parser, additive dispatcher or the separate runtime audit0bac. This is nonauthor adapter code review; it does not reapprove the reviewer own older runtime code.",
+  "bindings": {
+    "delivery_sha256": "7b96fb9feb4a541e26b24906812ca8664bab3ee482ef7ed60fb163a061ca8955",
+    "author_review_sha256": "686f2560f1ea7e42120845cc6ac5a967e95c548de3b6d0a46fae82fb2bf0b723",
+    "freeze_sha256": "8a9f2846bc02a63d0153caff5abd7701e33bfaa2934ca22fc1865d40141f8c09",
+    "source_files_sha256": {
+      "scripts/local_f0_scoped_read_evidence.py": "c2a6389376311cc37cf3e73a007ca8185a85ccf19cdc10baa085ce80cbf913c7",
+      "scripts/check-local-f0-scoped-read-evidence.py": "697782c4ab4f51df2d7c3bb9e80eb15ee557827c934a02b4e12c0a1ac659335c",
+      "scripts/prepare-local-f0-status.py": "a46a52c26052ccc0141664a1030311b6884fd95637a0dd01e800561fd603b649",
+      "context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json": "07b49506e56918515816949e628569f89ba12066d2b7ecc2ecf60977bf92fe7f",
+      "context/reconciliation/local-f0-scoped-read-evidence-adapter-v1-source-validation.json": "1233f2babf6e7d9401a03e54ba5682aff5b9eb86ce1cf3e2efb99a61ccf05432"
+    },
+    "Root_files": 27,
+    "archive_files": 22,
+    "closed_inputs": 403
+  },
+  "findings": [
+    {
+      "id": "SCOPED6-FINAL-READ-INTEGRITY-01",
+      "priority": "P2",
+      "title": "Final byte barrier can finalize after an in-place evidence mutation during its own read",
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\scripts\\local_f0_scoped_read_evidence.py",
+      "source_sha256": "c2a6389376311cc37cf3e73a007ca8185a85ccf19cdc10baa085ce80cbf913c7",
+      "function": "_read / QualificationBatch.verify_unchanged",
+      "line": 478,
+      "detail": "The reader hashes the bytes returned by its single read and compares only dev/inode/size/mtime/nlink before/after. A same-inode, same-size update with restoredmtime after that read is not detected; the final capture compares stale original bytes with the original snapshot.",
+      "actual_private_probe": {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\six_adapter_final_read_integrity_independent_probe_20261120.json",
+        "sha256": "c7347dd49d218db248d036acc779e481e301e04efc3b8730ca58737a64badfd6",
+        "script": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\probe_six_adapter_final_read_integrity_20261120.py",
+        "script_sha256": "60699d0b14ac42ad6f69193b533fbb310df181c910184ef369f9c9c23a6bf0b5",
+        "actual_APIs": "prepare_batch + all6 validate_claim + verify_unchanged + require_finalized",
+        "PINS_semantic_factories_or_expected_hashes_modified": false,
+        "mutated_private_field": "derived claims[0].status PASS to FAIL; same byte length",
+        "same_inode_size_mtime_nlink": true,
+        "returned_final_barrier": true,
+        "returned_finalized": true,
+        "private_disk_hash_matches_pinned_after_return": false,
+        "all_readers_closed": true
+      },
+      "required_bounded_correction": "Harden the closed bounded reader with a fresh bounded byte/hash recheck after the original reader closes and coherent path/handle checks as appropriate; refuse drift without retry/waiver, keep all403 final admission and sticky failure. Add this exact actual-method final-read same-size+restoredmtime mutation, verify finalize/output refusal and absence of raw data leakage. Merely rereading once at the batch boundary is insufficient because that read itself is affected.",
+      "limits": "This is a concrete in-flight read integrity counterexample, not a request for perpetual filesystem atomicity. It is an adapter source-contract defect, not a failure or reinterpretation of the closed actual Six run."
+    }
+  ],
+  "independent_checks": {
+    "focused_methods": 12,
+    "status": "PASS",
+    "seconds": 86.44,
+    "log_sha256": "728d064c600ff27a2ed4011ccf3444beb53f295c8f5de3b0727a0f8342b89c49",
+    "qualification": "The existing12 pass, but they do not cancel the additional counterexample. Current same-size test mutates before final read and does not cover mutation inside that final read.",
+    "private_counterexample": "CONFIRMED",
+    "all_OS_process_socket_boundaries_in_checks": "BLOCKED_OR_MOCKED",
+    "real_Root_full653_builder": "NOT_RUN_ROOT_ONLY_AFTER_SOURCE_APPROVAL"
+  },
+  "static_review_positive_scope": {
+    "pure_stdlib_data_reader": true,
+    "arbitrary_archived_code_execution_or_process_SQL_network_calls": "NONE_IN_ADAPTER",
+    "only_literal403_closed_paths": "VERIFIED",
+    "strict_relative_path_symlink_singlelink_and_size_checks": "PRESENT_WITH_INTEGRITY_GAP_ABOVE",
+    "duplicate_nonfinite_and_finite_float_metadata": "Covered by existing parser/tests; exact required counts/types use explicit guards or canonical exact shape",
+    "no_mutable_proof_dictionary_returned": "Private immutable bytes + serialized canonical execution; no public proof getter",
+    "claims": "Exactly six PASS app-runtime SELECT identities, fixed pointers, all-six seen, duplicates/unlisted/status/forged existing dictionaries sticky reject",
+    "semantic_binding": "Exact run/source/tree/packet/CID, raw and child/source354/assets43, 71results/586operations, original grantor/auth/HBA, full fixed native parity, oracle416/ledger22, final complete42 state and exact cleanup checked against closed data and independent audit",
+    "promotion_limits": "No owner-write/API/worker/generic-vector/whole-case blanket claims",
+    "dispatcher": "Additive exact record pin/path branch before legacy migration fallback; final batch verification occurs before build returns or main writes status"
+  },
+  "preservation": {
+    "all27_Root_and_frozen_copies": true,
+    "all14_author_files": true,
+    "all403_input_hashes": true,
+    "old_ledger_status_checker_native_module_sha256": {
+      "context/reconciliation/local-f0-assertion-evidence.json": "3c13e345ba907d5944bb12806ad7abeb5a6d673cac00bc8e3c769e19bb04c047",
+      "context/reconciliation/local-f0-qualification-status.json": "87f3737ff002bc73833d5a3f5e31601a11c97f412e54d3f85b1e7be7cc10d64d",
+      "scripts/check-local-f0-status.py": "38f5ca5b5609397938676cff5b46351cc618c3fee27d11ef99655b2e0150feb3",
+      "scripts/local_f0_native_complete_evidence.py": "50dfe9c1ae661785e408ad9707473028c6bc9b4d2ee308bdaad1844905668b76"
+    },
+    "Native_PINS303_AUDIT3": "PASS_ALL_CURRENT_HASHES",
+    "Root_gates_stay_PENDING": true,
+    "real_ledger_status_not_written": true
+  },
+  "prohibited_actions": {
+    "Git_mutation": false,
+    "Docker_DB_SQL_network": false,
+    "source_or_gate_edits": false,
+    "real_status_or_ledger_write": false,
+    "actual_recovery_approval": false
+  },
+  "Posture": "D",
+  "next": "Keep adapter source on HOLD, preserve current baseline/probe/version; author minimum reader correction, then same-reviewer focused recheck before Root full653-row build/checker reconciliation and ledger integration.",
+  "plain_english": "The reader can accept an old copy while the saved file changes under it. It needs another safe check before saying the proof is final. The real project scoreboard was not changed."
+}

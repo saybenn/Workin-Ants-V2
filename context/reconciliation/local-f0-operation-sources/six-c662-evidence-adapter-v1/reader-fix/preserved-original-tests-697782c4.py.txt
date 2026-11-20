@@ -1,0 +1,192 @@
+"""Focused real closed-data tests for the bounded six-SELECT evidence adapter.
+
+Every mutation is private. No Docker/database/network/Git or real status write.
+The full old647-row unmocked builder remains a separate Root check after review.
+"""
+import ast
+import collections
+from copy import deepcopy
+import hashlib
+import importlib.util
+import io
+import json
+import math
+import os
+from pathlib import Path
+import runpy
+import socket
+import subprocess
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+import local_f0_scoped_read_evidence as E
+
+ROOT=Path(__file__).resolve().parents[1]
+TASK=ROOT.parent
+def data(value):return (json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+def blocked(*args,**kwargs):raise AssertionError('PROCESS_OR_NETWORK_NOT_ALLOWED')
+
+class ScopedReadEvidenceTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.original_pins=dict(E.PINS)
+        cls.original={name:(ROOT/name).read_bytes()for name in E.PINS}
+        cls.execution=json.loads(cls.original[E.DERIVED])
+        cls.temp=tempfile.TemporaryDirectory(prefix='scoped6-adapter-',dir=TASK/'test-tmp')
+        cls.root=Path(cls.temp.name)/'root'
+        for name,raw in cls.original.items():
+            path=cls.root/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
+        cls.boundaries=[patch.object(subprocess,'run',blocked),patch.object(subprocess,'Popen',blocked),patch.object(socket,'socket',blocked),patch.object(socket,'create_connection',blocked)]
+        for boundary in cls.boundaries:boundary.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        for boundary in reversed(cls.boundaries):boundary.stop()
+        E.PINS=cls.original_pins
+        cls.temp.cleanup()
+
+    def setUp(self):
+        E.PINS=dict(self.original_pins)
+        for name,raw in self.original.items():
+            path=self.root/name
+            if not path.exists()or path.read_bytes()!=raw:
+                if path.is_symlink():path.unlink()
+                path.write_bytes(raw)
+
+    def prepare(self):return E.prepare_batch(self.root)
+    def finish(self,batch):
+        for key,index in E.CLOSED_CLAIMS.items():batch.validate_claim(*key,'PASS',deepcopy(self.execution),self.root,json_pointer='/claims/'+str(index))
+        batch.verify_unchanged();return batch.require_finalized()
+
+    def semantic(self,relative,mutate):
+        blobs=dict(self.original);value=json.loads(blobs[relative]);mutate(value);blobs[relative]=data(value)
+        record=json.loads(blobs[E.RECORD])
+        if relative in record['assets_sha256']:
+            record['assets_sha256'][relative]=E.sh(blobs[relative]);blobs[E.RECORD]=data(record)
+        E.PINS={name:E.sh(raw)for name,raw in blobs.items()}
+        return blobs
+
+    def test_01_exact_six_and_final_barrier(self):
+        batch=self.prepare()
+        with self.assertRaises(E.EvidenceFailure):batch.require_finalized()
+        self.assertTrue(self.finish(batch))
+        with self.assertRaises(E.EvidenceFailure):batch.validate_claim(*next(iter(E.CLOSED_CLAIMS)),'PASS',self.execution,json_pointer='/claims/0')
+
+    def test_02_standalone_is_fresh(self):
+        key=next(iter(E.CLOSED_CLAIMS));self.assertTrue(E.validate_claim(*key,'PASS',self.execution,self.root,json_pointer='/claims/0'))
+        path=self.root/E.RECORD;path.write_bytes(path.read_bytes()+b' ')
+        with self.assertRaises(E.EvidenceFailure):E.validate_claim(*key,'PASS',self.execution,self.root,json_pointer='/claims/0')
+
+    def test_03_unknown_status_pointer_identity_and_forged_dictionary(self):
+        key=next(iter(E.CLOSED_CLAIMS))
+        for status in('PARTIAL','NOT_RUN','FAILED',True,1):
+            with self.subTest(status=status),self.assertRaises(E.EvidenceFailure):E.validate_claim(*key,status,self.execution,self.root,json_pointer='/claims/0')
+        for key2 in [('P0C-TABLE-User-ALLOW',key[1]),(key[0],'vector.SCOPED-READ.positive'),(key[0],'positive.wa_app_runtime.insert')]:
+            with self.subTest(claim=key2),self.assertRaises(E.EvidenceFailure):E.validate_claim(*key2,'PASS',self.execution,self.root,json_pointer='/claims/0')
+        for pointer in('/claims/00','/claims/1','/claims/0/status','/claims/-1','/claims/~0','/results/0',None):
+            with self.subTest(pointer=pointer),self.assertRaises(E.EvidenceFailure):E.validate_claim(*key,'PASS',self.execution,self.root,json_pointer=pointer)
+        batch=self.prepare();forged=deepcopy(self.execution);forged['source_tree']='0'*40
+        with self.assertRaises(E.EvidenceFailure):batch.validate_claim(*key,'PASS',forged,self.root,json_pointer='/claims/0')
+        with self.assertRaises(E.EvidenceFailure):batch.verify_unchanged()
+
+    def test_04_duplicate_missing_and_omitted_finalization(self):
+        key=next(iter(E.CLOSED_CLAIMS));batch=self.prepare();batch.validate_claim(*key,'PASS',self.execution,self.root,json_pointer='/claims/0')
+        with self.assertRaises(E.EvidenceFailure):batch.validate_claim(*key,'PASS',self.execution,self.root,json_pointer='/claims/0')
+        with self.assertRaises(E.EvidenceFailure):batch.verify_unchanged()
+        batch=self.prepare();batch.validate_claim(*key,'PASS',self.execution,self.root,json_pointer='/claims/0')
+        with self.assertRaises(E.EvidenceFailure):batch.verify_unchanged()
+        batch=self.prepare()
+        for key,index in E.CLOSED_CLAIMS.items():batch.validate_claim(*key,'PASS',self.execution,self.root,json_pointer='/claims/'+str(index))
+        with self.assertRaises(E.EvidenceFailure):batch.require_finalized()
+
+    def test_05_drift_first_middle_last_and_immediately_before_final(self):
+        for at in(0,2,5,6):
+            with self.subTest(at=at):
+                path=self.root/E.RECORD;path.write_bytes(self.original[E.RECORD]);batch=self.prepare()
+                for count,(key,index)in enumerate(E.CLOSED_CLAIMS.items()):
+                    if count==at:path.write_bytes(self.original[E.RECORD]+b' ')
+                    batch.validate_claim(*key,'PASS',self.execution,self.root,json_pointer='/claims/'+str(index))
+                if at==6:path.write_bytes(self.original[E.RECORD]+b' ')
+                with self.assertRaises(E.EvidenceFailure):batch.verify_unchanged()
+                with self.assertRaises(E.EvidenceFailure):batch.require_finalized()
+        path.write_bytes(self.original[E.RECORD])
+
+    def test_06_same_size_mtime_preserved_source_and_asset_changes(self):
+        for name in('review-output/scoped-read-companion-rehearsal/agegateattempt-positive-root.sql',E.BASE+'/evidence/scoped-read-component/scoped-read-companion-results.json'):
+            batch=self.prepare();path=self.root/name;old=path.read_bytes();metadata=path.stat();path.write_bytes((b'X'if old[:1]!=b'X'else b'Y')+old[1:]);os.utime(path,ns=(metadata.st_atime_ns,metadata.st_mtime_ns))
+            for key,index in E.CLOSED_CLAIMS.items():batch.validate_claim(*key,'PASS',self.execution,self.root,json_pointer='/claims/'+str(index))
+            with self.assertRaises(E.EvidenceFailure):batch.verify_unchanged()
+            path.write_bytes(old)
+
+    def test_07_strict_json_and_safe_failure_canaries(self):
+        for raw in(b'{"x":1,"x":2}',b'{"x":NaN}',b'{"x":Infinity}',b'{"x":1e999}',b'not-json-SECRET-CANARY'):
+            with self.subTest(raw=raw[:20]),self.assertRaises(Exception):E.doc(raw)
+        self.assertEqual(E.doc(b'{"elapsed":1.461}'),{'elapsed':1.461})
+        name=E.BASE+'/evidence/scoped-read-component/scoped-read-companion-results.json'
+        blobs=self.semantic(name,lambda x:x['unexpected'].append('SECRET-CANARY-NOT-RETAINED'))
+        with self.assertRaises(E.EvidenceFailure)as caught:E.validate_bundle(blobs)
+        self.assertNotIn('SECRET-CANARY',str(caught.exception))
+
+    def test_08_rehashed_child_semantic_mutants_reject(self):
+        name=E.BASE+'/evidence/scoped-read-component/scoped-read-companion-results.json'
+        mutations=[lambda x:x.update(status='IN_PROGRESS'),lambda x:x.update(current_case='extra'),lambda x:x.update(container_id='0'*64),lambda x:x.update(run_id='0'*36),lambda x:x.update(source_commit='0'*40),lambda x:x.update(fixture_owner_bypass_restored=False),lambda x:x.update(evidence_complete=False),lambda x:x.update(source_packet_unchanged_after=False),lambda x:x['authentication'][0].update(wrong_password_exit_code=True),lambda x:x['authentication_comparison'].update(scram_identity=False),lambda x:x['effective_hba_selections'][0].update(rule_number=True),lambda x:x['results'][0].update(tables_observed=42.0),lambda x:x['results'][0].update(issued_grants=True),lambda x:x['results'][0]['counts'].update(root=True),lambda x:x['results'][0]['stage_markers'].update(after=False),lambda x:x['results'][0].update(actual_login='postgres'),lambda x:x['results'][0].update(operation_closed_before_observers=False),lambda x:x['operations'][0].update(other_clients_zero=False),lambda x:x['operations'][12].update(same_tuple_verified=False),lambda x:x['operations'][13].update(commit_acknowledged=False),lambda x:x['operations'][14].update(current_unexpired_match=False),lambda x:x['operations'][19].update(owner_and_physical_enabled=False),lambda x:x['operations'].reverse()]
+        for index,mutate in enumerate(mutations):
+            with self.subTest(index=index),self.assertRaises(E.EvidenceFailure):E.validate_bundle(self.semantic(name,mutate))
+        def bad_diagnostic(x):next(v for v in x['results']if v['diagnostic'])['diagnostic'].update(sqlstate='P0001')
+        with self.assertRaises(E.EvidenceFailure):E.validate_bundle(self.semantic(name,bad_diagnostic))
+
+    def test_09_rehashed_wrapper_native_derived_mutants_reject(self):
+        name=E.BASE+'/evidence/run-evidence.json'
+        mutations=[lambda x:x.update(evidence_complete=False),lambda x:x['migration_operations'].append(deepcopy(x['migration_operations'][0])),lambda x:x['targets']['wa-p0c-c662f807-scopedreads']['finalization_observation'].update(remaining_memberships=True),lambda x:x['ledger_comparison']['checks'][0].update(status='FAIL'),lambda x:x['scoped_read']['post_proof'].update(second_deploy=True),lambda x:x['scoped_read']['post_proof'].update(native_checks=29089.0),lambda x:x['cleanup_summary'].update(private_directory_absent=False)]
+        for index,mutate in enumerate(mutations):
+            with self.subTest(index=index),self.assertRaises(E.EvidenceFailure):E.validate_bundle(self.semantic(name,mutate))
+        for mutate in [lambda x:x['claims'].append(deepcopy(x['claims'][0])),lambda x:x['claims'].pop(),lambda x:x['claims'][0].update(status='PARTIAL'),lambda x:x['claims'][0].update(whole_case_promoted=True),lambda x:x['claims'][0]['component'].update(json_pointer='/results/1')]:
+            with self.assertRaises(E.EvidenceFailure):E.validate_bundle(self.semantic(E.DERIVED,mutate))
+        with self.assertRaises(E.EvidenceFailure):E.validate_bundle(self.semantic(E.BASE+'/evidence/native-before.json',lambda x:x['roles'][0].update(superuser=True)))
+
+    def test_10_closed_file_handles_paths_links_and_exact_read_graph(self):
+        handles=[];seen=[];original=Path.open
+        def opening(path,*args,**kwargs):
+            relative=path.relative_to(self.root).as_posix();self.assertIn(relative,E.PINS);seen.append(relative);reader=original(path,*args,**kwargs);handles.append(reader);return reader
+        with patch.object(Path,'open',opening):self.assertTrue(self.finish(self.prepare()))
+        self.assertEqual(collections.Counter(seen),collections.Counter({name:2 for name in E.PINS}));self.assertTrue(all(h.closed for h in handles))
+        for name in('../escape','C:/absolute','a\\b','/absolute'):
+            with self.assertRaises(E.EvidenceFailure):E._read(self.root,name,'0'*64)
+        name=E.RECORD;path=self.root/name;link=path.with_name('hard-link-test.json')
+        try:os.link(path,link)
+        except OSError:pass
+        else:
+            try:
+                with self.assertRaises(E.EvidenceFailure):E._read(self.root,name,E.PINS[name])
+            finally:link.unlink()
+
+    def six_ledger(self):
+        claims=self.execution['claims'];rows=[]
+        for index,c in enumerate(claims):rows.append({'case_id':c['case_id'],'assertion_id':c['assertion_id'],'status':'PASS','expected_assertion_sha256':c['expected_assertion_sha256'],'evidence_path':E.DERIVED,'evidence_sha256':self.original_pins[E.DERIVED],'json_pointer':'/claims/'+str(index),'run_id':E.RUN,'source_commit':E.COMMIT,'source_tree':E.TREE,'packet_sha256':E.PACKET,'application_sql_sha256':'5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'})
+        return {'executions':[],'assertions':rows}
+
+    def test_11_actual_six_only_builder_dispatch_and_output_barrier(self):
+        # Actual builder/real parser, private source fixture containing only the
+        # six new rows. Old647 validators are outside this focused dispatcher test.
+        rec=self.root/'context/reconciliation';ledger=rec/'local-f0-assertion-evidence.json';ledger.write_bytes(data(self.six_ledger()))
+        inventory=json.loads((rec/'local-f0-assertions.json').read_bytes())
+        for name in inventory['source_provenance']['files_sha256']:
+            path=self.root/name
+            if not path.exists():path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes((ROOT/name).read_bytes())
+        builder=self.root/'scripts/prepare-local-f0-status.py';builder.write_bytes((ROOT/'scripts/prepare-local-f0-status.py').read_bytes());output=rec/'local-f0-qualification-status.json'
+        with patch('sys.stdout',io.StringIO()):runpy.run_path(str(builder),run_name='__main__')
+        value=json.loads(output.read_bytes());self.assertEqual(value['assertion_status_counts']['PASS'],6);output.unlink()
+        original=E.QualificationBatch.verify_unchanged
+        def changed(batch):
+            path=self.root/E.RECORD;path.write_bytes(path.read_bytes()+b' ');return original(batch)
+        with patch.object(E.QualificationBatch,'verify_unchanged',changed),patch('sys.stdout',io.StringIO()),self.assertRaises(AssertionError):runpy.run_path(str(builder),run_name='__main__')
+        self.assertFalse(output.exists())
+
+    def test_12_no_project_execution_boundaries_in_adapter(self):
+        tree=ast.parse((ROOT/'scripts/local_f0_scoped_read_evidence.py').read_bytes())
+        imports={x.name.split('.')[0]for n in ast.walk(tree)if isinstance(n,ast.Import)for x in n.names}|{n.module.split('.')[0]for n in ast.walk(tree)if isinstance(n,ast.ImportFrom)}
+        self.assertLessEqual(imports,{'pathlib','types','collections','hashlib','json','math','re','stat'})
+        self.assertFalse(any(isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id in {'exec','eval','compile','__import__'}for n in ast.walk(tree)))
+
+if __name__=='__main__':unittest.main()

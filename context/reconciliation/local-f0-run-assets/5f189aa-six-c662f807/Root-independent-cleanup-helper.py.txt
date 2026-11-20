@@ -1,0 +1,53 @@
+"""Independent exact-resource absence check after known executor exit; read only."""
+from pathlib import Path
+import datetime, hashlib, json, subprocess
+TASK = Path(__file__).resolve().parent
+ROOT = TASK / 'workinants-correction-pass'
+sha = lambda raw: hashlib.sha256(raw).hexdigest()
+p = TASK / 'local-f0-scoped-reads-resource-v1-plan-c662f807/operation-manifest.json'
+raw = p.read_bytes()
+wanted = 'b9500e3827dd3261ea4c4cfad3eb8a371cae2f73d3e71251aa2175e3dba3e689'
+assert sha(raw) == wanted
+m = json.loads(raw)
+assert m['source_commit'] == '5f189aa6262bd5ecbffda0940e404038993fce05'
+assert m['source_tree'] == 'fd736f36633b28267602759c0da0d368bd625ef6'
+out = Path(m['evidence_directory'])
+assert out.is_relative_to(TASK) and not out.is_relative_to(ROOT)
+e = (out / 'run-evidence.json').read_bytes()
+r = json.loads(e)
+assert r['run_id'] == m['run_id'] and r['status'] != 'IN_PROGRESS' and r.get('finished_at')
+def docker(*args):
+    return subprocess.run(['docker', '--context', 'desktop-linux', *args], capture_output=True, text=True, timeout=30, shell=False)
+def absent(path):
+    try:
+        path.lstat()
+    except FileNotFoundError:
+        return True
+    return False
+c = docker('context', 'inspect', 'desktop-linux')
+assert c.returncode == 0
+c = json.loads(c.stdout)
+assert len(c) == 1 and c[0]['Name'] == 'desktop-linux'
+endpoint = c[0]['Endpoints']['docker']['Host']
+assert endpoint == 'npipe:////./pipe/dockerDesktopLinuxEngine'
+s = docker('version', '--format', '{{json .Server}}')
+assert s.returncode == 0
+s = json.loads(s.stdout)
+assert s['Os'] == 'linux' and s['Arch'] == 'amd64'
+names = [('container', t['name']) for t in m['targets']] + [('volume', t['volume']) for t in m['targets']]
+assert names == [('container', 'wa-p0c-c662f807-scopedreads'), ('volume', 'wa-p0c-c662f807-scopedreads-data')]
+observations = {}
+for kind, name in names:
+    d = docker(kind, 'inspect', name)
+    expected = 'Error response from daemon: No such container: ' + name if kind == 'container' else 'Error response from daemon: get ' + name + ': no such volume'
+    observations[name] = {'kind': kind, 'absent_exact_known_diagnostic': d.returncode == 1 and d.stdout.strip() == '[]' and d.stderr.strip() == expected, 'raw_output_retained': False}
+image = docker('image', 'inspect', m['image'])
+v = json.loads(image.stdout) if image.returncode == 0 else []
+retained = len(v) == 1 and v[0].get('Os') == 'linux' and v[0].get('Architecture') == 'amd64' and v[0].get('Id') == 'sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1'
+ok = all(v['absent_exact_known_diagnostic'] for v in observations.values()) and absent(out / 'private') and retained
+proof = {'schema': 'workinants.5f-sixc662-independent-physical-cleanup.v1', 'recorded_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'status': 'PASS_INDEPENDENT_PHYSICAL_CLEANUP' if ok else 'UNCONFIRMED_PHYSICAL_CLEANUP', 'run_id': m['run_id'], 'manifest_sha256': wanted, 'run_evidence_sha256': sha(e), 'source_commit': m['source_commit'], 'source_tree': m['source_tree'], 'packet_sha256': m['packet_sha256'], 'actual_wrapper_status': r['status'], 'endpoint': endpoint, 'server': {k: s[k] for k in ('Os', 'Arch', 'Version')}, 'exact_name_observations': observations, 'private_directory_absent': absent(out / 'private'), 'pinned_image_retained': retained, 'wrapper_cleanup_claim': r.get('cleanup_actions_confirmed', False), 'wrapper_evidence_complete': r.get('evidence_complete'), 'no_resource_mutation_or_SQL': True, 'Posture': 'D'}
+p = TASK / 'six_read_5f_c662f807_independent_cleanup_20261120.json'
+with p.open('xb') as handle:
+    handle.write((json.dumps(proof, indent=2) + '\n').encode())
+print(json.dumps({'path': str(p), 'sha256': sha(p.read_bytes()), 'status': proof['status'], 'run_evidence_sha256': sha(e)}))
+raise SystemExit(0 if ok else 2)

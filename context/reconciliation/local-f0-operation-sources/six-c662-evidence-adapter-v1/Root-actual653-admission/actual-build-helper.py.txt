@@ -1,0 +1,42 @@
+"""Root admits six reviewed links and invokes the real unmodified builder CLI."""
+from pathlib import Path
+import datetime,hashlib,json,os,subprocess,sys,time
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+work=T/'six-c662-Root-real653-build-20261120';assert not work.exists();work.mkdir()
+lp=R/'context/reconciliation/local-f0-assertion-evidence.json';sp=R/'context/reconciliation/local-f0-qualification-status.json';oldb=lp.read_bytes();oldstatus=sp.read_bytes()
+assert sha(oldb)=='3c13e345ba907d5944bb12806ad7abeb5a6d673cac00bc8e3c769e19bb04c047'and sha(oldstatus)=='87f3737ff002bc73833d5a3f5e31601a11c97f412e54d3f85b1e7be7cc10d64d'
+put(work/'before647-ledger.json',oldb);put(work/'before615-status.json',oldstatus);put(work/'before-checker.py.txt',(R/'scripts/check-local-f0-status.py').read_bytes())
+gate=json.loads((R/'context/reconciliation/local-f0-scoped-read-evidence-adapter-v1-source-validation.json').read_bytes());assert gate['independent_adapter_source_review']['decision']==gate['Root_source_review']['decision']=='SOURCE_APPROVED'
+assert gate['independent_adapter_source_review']['sha256']=='440d5e6169069353ef51a8aaf4578105b34a05c1592ff16e4ba7adf7032acff6'
+assert sha((R/'scripts/local_f0_scoped_read_evidence.py').read_bytes())=='dc67a3a0ed60a27296cd4d007a8a8de212d17bb1c6d2ea066693c706f9e615fa'and sha((R/'scripts/prepare-local-f0-status.py').read_bytes())=='a46a52c26052ccc0141664a1030311b6884fd95637a0dd01e800561fd603b649'
+candidate=(T/'six-c662-evidence-adapter-v1-author-20261120/proposed-assertion-evidence.json').read_bytes();assert sha(candidate)=='ef0fbf8b5dc0344b5a60c857e8067c03b047d9634102263768c83ba3f8b3e1e3'
+old=json.loads(oldb);new=json.loads(candidate);before=json.loads(oldstatus)
+assert len(old['assertions'])==647 and len(new['assertions'])==653 and new['scope']==old['scope']and new['assertions'][:647]==old['assertions']and new['executions'][:len(old['executions'])]==old['executions']and len(new['executions'])==len(old['executions'])+1
+for a,b in zip(old['assertions'],new['assertions']):assert enc(a)==enc(b)
+models=('AgeGateAttempt','AgeGateBlock','AccessAuditLog','UserRole','AuditEvent','AuthProviderAccount');keys={(f'P0C-TABLE-{m}-ALLOW','positive.wa_app_runtime.select')for m in models}
+assert {(r['case_id'],r['assertion_id'])for r in new['assertions'][647:]}==keys and all(r['status']=='PASS'for r in new['assertions'][647:])
+assert len({(r['case_id'],r['assertion_id'])for r in new['assertions']})==653
+lp.write_bytes(candidate);started=time.monotonic();command=[sys.executable,'scripts/prepare-local-f0-status.py'];result=subprocess.run(command,cwd=R,capture_output=True,text=True,encoding='utf8',errors='strict',timeout=1200,shell=False);seconds=round(time.monotonic()-started,3)
+proof={'schema':'workinants.six-c662-Root-real653-build.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'actual_command':command,'cwd':str(R),'no_factory_or_parser_or_source_mocking':True,'exit_code':result.returncode,'seconds':seconds,'old647_each_serialized_row_and_old_executions_preserved':True,'candidate653_sha256':sha(candidate),'new_only6_claim_keys':sorted(keys),'source_gate_peer_sha256':gate['independent_adapter_source_review']['sha256'],'stderr_present':bool(result.stderr),'unrestricted_stderr_retained':False,'Posture':'D'}
+ok=False
+try:
+ assert result.returncode==0
+ actualb=sp.read_bytes();actual=json.loads(actualb);stdout=json.loads(result.stdout)
+ for k in stdout:assert stdout[k]==actual[k]
+ oldflat={(c['id'],a['id']):a['status']for c in before['cases']for a in c['assertions']};newflat={(c['id'],a['id']):a['status']for c in actual['cases']for a in c['assertions']}
+ assert set(oldflat)==set(newflat)and {k for k in oldflat if oldflat[k]!=newflat[k]}==keys and all(oldflat[k]=='NOT_RUN'and newflat[k]=='PASS'for k in keys)
+ assert actual['selected_cases']==94 and sum(actual['assertion_status_counts'].values())==1034
+ expected={**before['assertion_status_counts'],'PASS':before['assertion_status_counts']['PASS']+6,'NOT_RUN':before['assertion_status_counts']['NOT_RUN']-6};assert actual['assertion_status_counts']==expected
+ assert lp.read_bytes()==candidate
+ proof.update(status='PASS_ACTUAL_UNMOCKED653_BUILDER_EXACT6_ADMISSION',actual_assertion_status_counts=actual['assertion_status_counts'],actual_case_status_counts=actual['case_status_counts'],actual_status_sha256=sha(actualb),actual_result_canonical_sha256=sha(json.dumps(actual,sort_keys=True,separators=(',',':'),allow_nan=False).encode()),ledger_sha256=sha(lp.read_bytes()),only6_assertion_status_changes=True,old_case_set_preserved=True)
+ put(work/'actual-derived-status.json',actualb);put(work/'actual-builder-stdout-summary.json',enc(stdout));ok=True
+except Exception:
+ proof['status']='ROOT_ACTUAL653_BUILD_REJECTED_OR_UNVERIFIED_OLD_LEDGER_STATUS_RESTORED'
+ if sp.exists():put(work/'rejected-derived-status-observed-bytes.json.txt',sp.read_bytes())
+ lp.write_bytes(oldb);sp.write_bytes(oldstatus)
+put(work/'actual-build-proof.json',enc(proof));print(json.dumps({k:v for k,v in proof.items()if k in ['status','exit_code','seconds','actual_assertion_status_counts','actual_case_status_counts','actual_status_sha256','ledger_sha256','Posture']}),flush=True)
+raise SystemExit(0 if ok else 1)

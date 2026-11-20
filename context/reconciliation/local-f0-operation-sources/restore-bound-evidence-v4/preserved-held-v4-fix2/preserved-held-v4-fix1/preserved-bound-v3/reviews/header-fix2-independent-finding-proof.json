@@ -1,0 +1,64 @@
+{
+  "id": "RESTORE-BOUND-V3-01",
+  "priority": "P2",
+  "classification": "DIAGNOSTIC_ATTRIBUTION_CONTRACT_NOT_ENFORCED",
+  "source": "local_f0_restore_operation_steps_bound_evidence_v3.py",
+  "function": "bound_diagnostic",
+  "line": 836,
+  "title": "Count severity/header occurrences instead of matching physical lines",
+  "detail": "The new parser counts lines containing ERROR:/FATAL: and fullmatches the selected line with an unrestricted message tail. Two verbose headers on one line therefore count as one; a second malformed severity line without colon is excluded. Both actual-function probes retain42501 and single_header=True, despite the mandatory Root e4d829 rule requiring null for malformed/multiple headers.",
+  "required_contract": {
+    "path": "restore_bound_evidence_v3_root_plan_clarification_20261119.json",
+    "sha256": "e4d82968913a84cc87d02fd76a9568b6608aeb585a9a1a8c815f997b4fe51715",
+    "rule": "Only one exact ERROR/FATAL header with a fixed13 state exports the state. Unknown/malformed/multiple headers export null and a fixed redaction class."
+  },
+  "reproductions": [
+    {
+      "probe": "two_headers_same_line",
+      "synthetic_input": "ERROR:  42501: fixed ERROR:  22012: second\n",
+      "synthetic_input_sha256": "108748659f543829130641f5c0c681323d1b9f573dd928fa6848027ae4599622",
+      "actual_projection": {
+        "classification": "UNEXPECTED_NOT_GUARD_PROOF",
+        "redaction": "SOURCE_BOUND_METADATA",
+        "single_header": true,
+        "sqlstate": "42501",
+        "source_binding_confirmed": true,
+        "source_metadata": {
+          "classification": "UNRECOGNIZED",
+          "frame_classification": "NOT_RETAINED"
+        }
+      },
+      "required_projection": {
+        "sqlstate": null,
+        "single_header": false,
+        "source_binding_confirmed": false,
+        "redaction": "FIXED_MALFORMED_OR_MULTIPLE_HEADER_CLASS"
+      }
+    },
+    {
+      "probe": "valid_plus_malformed_severity",
+      "synthetic_input": "ERROR:  42501: fixed\nERROR malformed\n",
+      "synthetic_input_sha256": "0c3bf9af15848e15089d9a0b082177309fdb25c5fbf696c885713468819d5191",
+      "actual_projection": {
+        "classification": "UNEXPECTED_NOT_GUARD_PROOF",
+        "redaction": "SOURCE_BOUND_METADATA",
+        "single_header": true,
+        "sqlstate": "42501",
+        "source_binding_confirmed": true,
+        "source_metadata": {
+          "classification": "UNRECOGNIZED",
+          "frame_classification": "NOT_RETAINED"
+        }
+      },
+      "required_projection": {
+        "sqlstate": null,
+        "single_header": false,
+        "source_binding_confirmed": false,
+        "redaction": "FIXED_MALFORMED_OR_MULTIPLE_HEADER_CLASS"
+      }
+    }
+  ],
+  "impact": "Retained unexpected-failure attribution can incorrectly claim one known SQLSTATE/source-confirmed diagnostic from malformed or multiple severity/header input. This matters to the bounded correction purpose of trustworthy partial evidence.",
+  "limits": "No permission escalation, SQL change, binder-verdict bypass or actual historical database cause is demonstrated. Existing exact binder predicate and positive commit/result checks remain independent.",
+  "bounded_correction": "Change only the new header classifier and focused regressions in a separately preserved replacement freeze. Detect all severity/header candidates, including inline second verbose headers and malformed severity lines, require exactly one valid header, and return null/fixed redaction on ambiguity. Keep fixed13 set, closed source metadata/frame/body/line projection, source before/after hashing, operation verdict, Session/finalizer/global-zero/persistent-IO paths and cleanup unchanged. Do not edit this freeze."
+}

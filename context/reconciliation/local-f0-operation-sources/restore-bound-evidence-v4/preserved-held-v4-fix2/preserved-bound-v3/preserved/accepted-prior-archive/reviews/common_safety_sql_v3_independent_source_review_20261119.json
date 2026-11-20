@@ -1,0 +1,182 @@
+{
+  "schema": "workinants.independent-common-safety-sql-source-review.v3",
+  "reviewer": "/root/install_outer_review",
+  "author": "/root/review_track_ports",
+  "recorded_at_utc": "2026-11-19T02:57:29.359010+00:00",
+  "decision": "SOURCE_APPROVED",
+  "scope": "EXACT_FOUR_THIRD_FREEZE_COMMON_SAFETY_SQL_TEMPLATE_SOURCES_ONLY; NO_DERIVED_FAMILY_OR_RUNTIME_APPROVAL",
+  "source_files_sha256": {
+    "check_common_safety_sql_v1_composed_20261119.py": "2735ba4caa78df885f27535ec4b0b5f3058ca5aa8e7e8c34b951dc4e0906f7c4",
+    "common_safety_sql_v1_helpers.py.txt": "a3cf85cfd4802d9eb293fc957672b1ba7f842e49b6b15985cd81be6cbe1ee537",
+    "common_safety_sql_v1_install_eligibility.py.txt": "7118431c80fc5954ba314f1ed3634d5f3398dc2b35749dff5360ee52162052e7",
+    "common_safety_sql_v1_recipe_origins_20261119.json": "92d4eb01d78febbfdb13352aa08139471f0c0e8511f71dffdb4365ae7e388d99"
+  },
+  "author_report_sha256": "89c41eeaffbc0f2674c53b15d8684683ba06d8b69026ddb37f35d94dadff34fe",
+  "freeze_manifest_sha256": "b6b0dc09d45bf19b81d9554bcdcf66edb842901c56108d09109f474a5e37950f",
+  "approved_plan_sha256": "607eb22341ed9b47a39caae66ab44cd199ef0202946c1b0f18e8cab74ddf2a87",
+  "findings": [],
+  "closed_findings": [
+    {
+      "id": "REQUIRED_FINALIZER_RAW_SYMLINK_GATE_MISSING",
+      "prior_review_sha256": "a3ae25f50e2c4e7f848738d1e9d72d391bb6a3b290b79eabcac9730e40374e42",
+      "prior_alias_projection_sha256": "1e2f66c45666d8af4dc6bc084174e0cdb2350290b2416fe2cb9a7026d69f65f3",
+      "status": "CLOSED_FOR_EXACT_THIRD_FREEZE",
+      "evidence": "Hardcoded raw finalizer path is lstat-checked as regular and nonlink before unchanged resolving read_pinned and exact afd6 bytes. Independent real composed finalizers on all5 profiles reject realistic alias before resolve/finalizer dispatch, retain strict post-observation and preserve original primary. Restoring only the prior source-text admission function dispatches the same alias and proves regression sensitivity."
+    },
+    {
+      "id": "SAFETY_SQL_SECONDARY_FINALIZER_OVERWRITES_PRIMARY",
+      "prior_review_sha256": "839c783d0658107e50b9e1038c925bcd1e633dd7ff5a4ad1b921ada376ef6887",
+      "prior_ordinary_exit3_probe_sha256": "9c65b562c91dd25a6dc6fb16826cc588f91ad7d0067249af84c2d60e5fab9320",
+      "status": "CLOSURE_PRESERVED_FROM_SECOND_FREEZE",
+      "evidence": "Primary and finalize AST unchanged from reviewed954. Focused ordinary exit3+clean/dirty poststate and source failure/malformed poststate checks pass across all5 profiles; no error is qualified and earlier original primary remains exact."
+    },
+    {
+      "id": "INSTALL_OUTER_PERSISTENT_IO_BLOCKS_SAFETY_SQL",
+      "prior_probe_sha256": "8f63d715ef4ea5c372203e9ef4dd72ed05e32bf9783912367b3f57c2c49916d9",
+      "status": "COMMON_TEMPLATE_CLOSURE_PRESERVED",
+      "evidence": "IO adapters/executor/eligibility/global closure AST unchanged. Actual pre-finalizer-post commands across3 targets/all5 profiles pass persistent IO and remain incomplete/non-PASS. Original frozen INSTALL7 is not retrospectively source-approved."
+    }
+  ],
+  "source_line_evidence": [
+    {
+      "file": "common_safety_sql_v1_helpers.py.txt",
+      "line": 1,
+      "through": 1,
+      "detail": "Only added dependency is stdlib stat under task-specific private alias."
+    },
+    {
+      "file": "common_safety_sql_v1_helpers.py.txt",
+      "line": 33,
+      "through": 45,
+      "detail": "Raw fixed source path regular/nonlink gate precedes same-byte admission and hard-pinned finalizer hash; missing/drifted/unadmitted source still fails."
+    },
+    {
+      "file": "common_safety_sql_v1_helpers.py.txt",
+      "line": 18,
+      "through": 19,
+      "detail": "Existing original primary is retained; subsequent Stop is recorded as secondary."
+    },
+    {
+      "file": "common_safety_sql_v1_helpers.py.txt",
+      "line": 125,
+      "through": 148,
+      "detail": "Strict preobserver gates REVOKE; safe validated poststate retained as observed/unqualified before first failure rethrow; success requires exact independent post-state and sticky evidence barrier."
+    },
+    {
+      "file": "common_safety_sql_v1_helpers.py.txt",
+      "line": 73,
+      "through": 106,
+      "detail": "Closed selectors, postgres and owned CID,120second command boundary, strict typed JSON facts and public non-PASS barrier remain unchanged."
+    },
+    {
+      "file": "common_safety_sql_v1_install_eligibility.py.txt",
+      "line": 1,
+      "through": 15,
+      "detail": "Exact no-source-role state makes no finalizer claim; exact4 roles use required closure and original source finalizer or independent child cleanup observation. Byte-identical to previous reviewed candidate."
+    },
+    {
+      "file": "check_common_safety_sql_v1_composed_20261119.py",
+      "line": 230,
+      "through": 252,
+      "detail": "Realistic alias projection, restored-old-admission mutant, missing/nonregular failure and exact regular approved-byte success tests."
+    }
+  ],
+  "checks": {
+    "all_four_frozen_and_current_source_hashes_match": true,
+    "bounded_AST_delta": {
+      "changed_definitions": [
+        "_required_safety_text"
+      ],
+      "added_import": "stat as _required_safety_stat",
+      "other_helper_definitions_unchanged": true,
+      "eligibility_bytes_unchanged": true
+    },
+    "selector_SQL_and_origin_graph": "Byte/hash unchanged excluding current helper hash and review-status metadata. Earlier independent17 original caller checks retained.",
+    "focused_independent_suite": {
+      "tests": 6,
+      "passed": 6,
+      "seconds": 2.859,
+      "names": [
+        "test_realistic_raw_alias_to_same_approved_bytes_is_rejected_before_finalizer_command",
+        "test_fixed_finalizer_missing_nonregular_and_regular_paths_keep_exact_source_gate",
+        "test_ordinary_finalizer_exit3_retains_clean_or_dirty_safe_poststate_as_unqualified_all_profiles",
+        "test_source_failure_retains_only_validated_post_and_preserves_recorded_primary_all_profiles",
+        "test_real_finalizers_all_five_profiles_execute_pre_revoke_post_under_persistent_io",
+        "test_all_frozen30_and_install_extra2_stay_exact"
+      ]
+    },
+    "independent_actual_raw_alias_and_old_mutant_all_five_profiles": [
+      {
+        "profile": "lease",
+        "raw_link_rejected_before_resolve": true,
+        "real_pre_and_post_observers_ran": true,
+        "finalizer_dispatches_with_new_guard": 0,
+        "original_primary_preserved": true,
+        "poststate_retained_unqualified": true,
+        "restoring_only_old_source_text_admission_dispatches_finalizer": true
+      },
+      {
+        "profile": "restore",
+        "raw_link_rejected_before_resolve": true,
+        "real_pre_and_post_observers_ran": true,
+        "finalizer_dispatches_with_new_guard": 0,
+        "original_primary_preserved": true,
+        "poststate_retained_unqualified": true,
+        "restoring_only_old_source_text_admission_dispatches_finalizer": true
+      },
+      {
+        "profile": "native",
+        "raw_link_rejected_before_resolve": true,
+        "real_pre_and_post_observers_ran": true,
+        "finalizer_dispatches_with_new_guard": 0,
+        "original_primary_preserved": true,
+        "poststate_retained_unqualified": true,
+        "restoring_only_old_source_text_admission_dispatches_finalizer": true
+      },
+      {
+        "profile": "owner",
+        "raw_link_rejected_before_resolve": true,
+        "real_pre_and_post_observers_ran": true,
+        "finalizer_dispatches_with_new_guard": 0,
+        "original_primary_preserved": true,
+        "poststate_retained_unqualified": true,
+        "restoring_only_old_source_text_admission_dispatches_finalizer": true
+      },
+      {
+        "profile": "install",
+        "raw_link_rejected_before_resolve": true,
+        "real_pre_and_post_observers_ran": true,
+        "finalizer_dispatches_with_new_guard": 0,
+        "original_primary_preserved": true,
+        "poststate_retained_unqualified": true,
+        "restoring_only_old_source_text_admission_dispatches_finalizer": true
+      }
+    ],
+    "prior_bounded_matrix": {
+      "path": "common_safety_sql_v2_independent_bounded_probe_20261119.json",
+      "sha256": "ad7947a426c5411e26469b68037acee2c0350c15af185b9c6147482bb441ba21",
+      "methods_passed": 13,
+      "all3CIDs_all5profiles_actual_command_composition_passed": true,
+      "applicability": "Unchanged paths reused; source gate delta and ordinary/source failure interactions rerun."
+    },
+    "old30_and_INSTALLextra2_preservation_test": "PASS",
+    "audit_process_or_network_attempts": 0
+  },
+  "independent_probe": {
+    "path": "common_safety_sql_v3_independent_bounded_probe_20261119.json",
+    "sha256": "4df06fc0f1fba610d449d2ff0bc6584d806702ec0d48ca5a565880f04c7f7714"
+  },
+  "required_next": "Root may decide whether to derive the new versioned families from these exact templates. Every derived family still requires full source inventories/physical snapshots/explicit independent_safety_sql_review gates, composed call-site review and fresh committed source/literal review. This common approval grants no actual runtime or recovery approval.",
+  "limits": {
+    "Docker_DB_SQL_runtime": "NOT_RUN",
+    "network_Git": "FORBIDDEN_NOT_USED",
+    "source_edits_by_reviewer": false,
+    "actual_OS_symlink_creation": "NOT_CREATED; platform1314 limitation preserved and explicit realistic metadata/resolution model used",
+    "source_approval_of_existing_INSTALL7_or_new25": false,
+    "actual_recovery_approval_created": false,
+    "old_reports_and_historical_cleanup": "PRESERVED; no historical cleanup failure inferred",
+    "whole94_451_or_production": "NOT_PROMOTED",
+    "posture": "D"
+  },
+  "plain_english": "The safety code now keeps working if writing fails, keeps the first problem label, and checks a file before following a shortcut. The common template passes this source review. New copied runners still need their own reviews before anything runs."
+}

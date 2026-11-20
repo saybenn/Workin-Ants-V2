@@ -1,0 +1,66 @@
+class EnvelopeNormalizationTests(unittest.TestCase):
+    setUp=BoundEvidenceTests.setUp
+    invoke=BoundEvidenceTests.invoke
+    proof=BoundEvidenceTests.proof
+    safe=BoundEvidenceTests.safe
+    def normalize(self,text):
+        facts={};value=self.n['normalize_bound_envelope'](text,facts);return value,facts
+    def transactions(self,text):
+        from pglast import parse_sql,ast as pgast
+        return [row.stmt.kind.name for row in parse_sql(text) if isinstance(row.stmt,pgast.TransactionStmt)]
+    def test_actual_three_admitted_sources_have_one_final_commit_and_same_business_AST(self):
+        from pglast import parse_sql,ast as pgast
+        for name,mode in (('source-customer.sql','TERMINAL_COMMIT_RETAINED'),('schedule.sql','TERMINAL_COMMIT_RETAINED'),('app-read.sql','NO_WRAPPER_APPEND_COMMIT')):
+            source=self.n['source_text'](name);normalized,facts=self.normalize(source)
+            self.assertEqual(self.transactions(normalized),['TRANS_STMT_COMMIT']);self.assertEqual(facts['mode'],mode)
+            business=lambda sql:[str(row.stmt) for row in parse_sql(sql) if not isinstance(row.stmt,pgast.TransactionStmt)]
+            self.assertEqual(business(source),business(normalized));self.assertTrue(facts['business_bytes_preserved'])
+            self.assertEqual(normalized,source if mode=='TERMINAL_COMMIT_RETAINED' else source+'\nCOMMIT;')
+    def test_no_wrapper_terminal_and_outer_BEGIN_modes_preserve_literal_business_bytes(self):
+        body="-- COMMIT;\nSELECT 'BEGIN; COMMIT; ROLLBACK;', $$COMMIT;$$, \"COMMIT;\";\n"
+        for source,mode in ((body,'NO_WRAPPER_APPEND_COMMIT'),(body+'COMMIT;','TERMINAL_COMMIT_RETAINED'),('BEGIN;\n'+body+'COMMIT;','OUTER_BEGIN_REMOVED')):
+            normalized,facts=self.normalize(source);self.assertIn(body,normalized);self.assertEqual(facts['mode'],mode);self.assertEqual(facts['emitted_commit_count'],1);self.assertEqual(self.transactions(normalized),['TRANS_STMT_COMMIT'])
+    def test_nested_comments_escaped_strings_and_dollar_bodies_are_not_controls(self):
+        vectors=["/* BEGIN; /* COMMIT; */ ROLLBACK; */ SELECT 'it''s; COMMIT;';",r"SELECT E'one\'; COMMIT; still string';",'DO $body$ BEGIN PERFORM 1; END; $body$;','SELECT \'-- COMMIT;\', "BEGIN;"; -- ROLLBACK;']
+        for source in vectors:
+            normalized,facts=self.normalize(source);self.assertTrue(normalized.startswith(source));self.assertEqual(facts['source_begin_count'],0);self.assertEqual(facts['source_commit_count'],0);self.assertEqual(self.transactions(normalized),['TRANS_STMT_COMMIT'])
+    def test_unsupported_middle_chained_prepared_rollback_and_ambiguous_envelopes_refuse(self):
+        vectors=['BEGIN; SELECT 1;','SELECT 1; COMMIT; COMMIT;','SELECT 1; COMMIT; SELECT 2;','SELECT 1; BEGIN; COMMIT;','BEGIN; BEGIN; SELECT 1; COMMIT;','SELECT 1; ROLLBACK;','SELECT 1; COMMIT AND CHAIN;','BEGIN WORK; SELECT 1; COMMIT;','START TRANSACTION; SELECT 1; COMMIT;','SELECT 1; END;','SELECT 1; ABORT;','SELECT 1; SAVEPOINT a; COMMIT;','SELECT 1; RELEASE a; COMMIT;',"PREPARE TRANSACTION 'x';",'SET TRANSACTION READ ONLY; SELECT 1; COMMIT;','SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY; SELECT 1; COMMIT;','COMMIT;','SELECT 1','SELECT 1;;','/* unclosed','SELECT $$unclosed;','SELECT \'unclosed;','\\echo unsafe\nSELECT 1;','SELECT 1; commit;','SELECT 1; COMMIT; -- unsupported terminal trivia']
+        for source in vectors:
+            facts={}
+            with self.assertRaises(self.n['Stop']):self.n['normalize_bound_envelope'](source,facts)
+            self.assertNotIn(source,json.dumps(facts));self.assertEqual(facts['mode'],'UNCONFIRMED');self.assertFalse(facts['business_bytes_preserved'])
+    def test_type_size_control_and_depth_bounds_keep_only_fixed_safe_metadata(self):
+        for source in (None,True,[],CANARY+'\x00;',CANARY*40000,'/*'*33+'x'+'*/'*33+'SELECT 1;'):
+            facts={}
+            with self.assertRaises(self.n['Stop']):self.n['normalize_bound_envelope'](source,facts)
+            self.assertNotIn(CANARY,json.dumps(facts))
+    def test_actual_customer_schedule_and_read_real_Session_emit_one_commit_each(self):
+        self.invoke()
+        self.n['bound_operation'](self.n['SOURCE'],'schedule',self.n['source_text']('schedule.sql'),expected_lines=['WA_CTX01_SCHEDULE_READY'])
+        self.n['bound_operation'](self.n['SOURCE'],'app',self.n['source_text']('app-read.sql'),expected_json={'visible_exact_root':1})
+        self.assertTrue(self.world.source_customer_committed);self.assertTrue(self.world.source_schedule_committed)
+        self.assertFalse(any(row[0]=='extra_commit_warning' for row in self.world.events))
+        self.assertEqual([row['transaction_envelope']['mode'] for row in self.n['report']['restore']['bound_operations']],['TERMINAL_COMMIT_RETAINED','TERMINAL_COMMIT_RETAINED','NO_WRAPPER_APPEND_COMMIT'])
+        for row in self.n['report']['restore']['bound_operations']:
+            self.assertTrue(row['matched']);self.assertTrue(row['operation_closed']);self.assertTrue(row['outcome']['stderr_empty']);self.assertEqual(row['outcome']['completion_comparisons'],{'exit_zero':True,'acknowledged':True,'stderr_empty':True})
+        self.safe()
+    def test_actual_optional_outer_BEGIN_does_not_open_a_second_transaction(self):
+        source=self.n['source_text']('source-customer.sql')
+        self.n['bound_operation'](self.n['SOURCE'],'source_customer','BEGIN;\n'+source,expected_lines=['WA_CUSTOMER_CONTROL_READY_TO_COMMIT'])
+        self.assertEqual(self.proof()['transaction_envelope']['mode'],'OUTER_BEGIN_REMOVED');self.assertTrue(self.proof()['matched']);self.assertFalse(any(row[0]=='extra_commit_warning' for row in self.world.events));self.safe()
+    def test_restoring_exact_old_method_reproduces_exit0_ACK_true_warning_STOP(self):
+        path=T/'local_f0_restore_operation_steps_bound_evidence_v3.py';raw=path.read_bytes();self.assertEqual(sha(raw),'dd909a5698e41b95d7fad339e3307330c39ac9d4568333cb453b6a99e1aa9a42')
+        node=next(row for row in ast.parse(raw).body if isinstance(row,ast.FunctionDef) and row.name=='bound_operation');exec(compile(ast.Module(body=[node],type_ignores=[]),'RESTORED_EXACT_V3_BOUND_OPERATION','exec'),self.n)
+        with self.assertRaises(self.n['Stop']) as error:self.invoke()
+        self.assertEqual(error.exception.code,'RESTORE_BOUND_OPERATION_NOT_COMMITTED');self.assertTrue(self.world.source_customer_committed)
+        outcome=self.proof()['outcome'];self.assertEqual(outcome['exit_code'],0);self.assertTrue(outcome['acknowledgement']);self.assertFalse(outcome['stderr_empty']);self.assertTrue(self.proof()['operation_closed']);self.assertFalse(self.proof()['matched']);self.assertIn(('extra_commit_warning','wa_app_runtime'),self.world.events)
+        with self.assertRaises(AssertionError):self.assertTrue(self.proof()['matched'])
+        self.safe()
+    def test_unexpected_secret_warning_keeps_fixed_empty_false_and_stops_later_case(self):
+        self.world.warning='WARNING: '+CANARY+'\n';later=Mock()
+        with self.assertRaises(self.n['Stop']):self.invoke();later()
+        later.assert_not_called();self.assertFalse(self.proof()['outcome']['stderr_empty']);self.assertFalse(self.proof()['matched']);self.assertTrue(self.proof()['operation_closed']);self.safe()
+    def test_invalid_envelope_never_finishes_business_and_always_closes(self):
+        with self.assertRaises(self.n['Stop']):self.n['bound_operation'](self.n['SOURCE'],'source_customer','SELECT 1; COMMIT; COMMIT;')
+        self.assertFalse(any(row[0]=='bound_finish' for row in self.world.events));self.assertTrue(self.proof()['operation_closed']);self.assertFalse(self.proof()['matched']);self.assertEqual(self.world.events[-1],('global_zero',));self.safe()

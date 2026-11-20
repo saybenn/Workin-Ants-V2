@@ -1,0 +1,51 @@
+{
+  "schema": "workinants.restore980a-commit-boundary-source-correction-plan.v1",
+  "status": "ROOT_PLAN_PENDING_SEPARATE_REVIEW_BEFORE_IMPLEMENTATION",
+  "author": "/root",
+  "source_commit": "c820e39622843d9fc3b565cee6578a340970fba2",
+  "source_tree": "c004c3488cba127833d4a5052853c67d7d50c98f",
+  "closed_attempt": {
+    "run_id": "980a38cb-ec8e-4006-a3e3-60e7b6717492",
+    "approved_manifest_sha256": "f10a79edcb1efa03b499c5509e4544296785df0e6008b4e3624edc19722f9ed1",
+    "raw_sha256": "334c78715aca97d5d0d9a260a5867944fb45e495313d436233f054c4d7b2e156",
+    "cleanup_sha256": "8b1a24d0e28c59f3280fbc199be63ba91c7ca770146d8f717b52e5884ef2f364",
+    "outcome": "FINISH_EXIT0_ACK_TRUE_EXPECTED_MARKER_TRUE_BUT_NONEMPTY_UNLISTED_STDERR",
+    "backend_closure": "CONFIRMED",
+    "complete_expected_Customer_state": "NOT_OBSERVED",
+    "original_complete_cause": "UNOBSERVED_STDERR_DISCARDED",
+    "backup_restore_parity_rotation": "NOT_RUN",
+    "no_rollback_or_positive_qualification_inferred_from_wrapper_label": true
+  },
+  "proven_source_defect": {
+    "steps_path": "local_f0_restore_operation_steps_bound_evidence_v3.py",
+    "steps_sha256": "dd909a5698e41b95d7fad339e3307330c39ac9d4568333cb453b6a99e1aa9a42",
+    "line": 893,
+    "source_customer": "review-output/restore-control-rehearsal/source-customer.sql",
+    "source_customer_sha256": "9110445ab6d188d9796d2d495b9e9574874bbc018658a0fed82267378ec71ba6",
+    "source_BEGIN_count": 0,
+    "source_terminal_COMMIT_count": 1,
+    "constructed_tail_COMMIT_count": 2,
+    "analysis": "The no-BEGIN branch appends COMMIT even when the pinned source already ends in COMMIT. The extra transaction command is a proven construction defect consistent with exit0/ACK/marker plus non-error stderr; the actual warning contents were not retained."
+  },
+  "bounded_change": [
+    "Prepare a NEW bound-evidence-v4 five/archive/validation namespace preserving current V3HeaderFix2 and all attempts. In bound_operation normalize the reviewed positive source transaction envelope to exactly one final COMMIT: remove one reviewed outer BEGIN when present, retain an already single terminal COMMIT, append one only when no transaction wrapper is present. Reject ambiguous/multiple/intermediate/ROLLBACK envelope shapes; no ignoring stderr or weakening successful-exit/ACK/marker/complete-state/closure requirements.",
+    "Retain fixed Boolean stderr-empty/completion comparisons and bounded normalization outcome (fixed enum and small counts), plus existing exact source diagnostic allowlist. No raw warnings, statements, exception dictionaries, credentials or handles. An unlisted or malformed response still stops the attempt."
+  ],
+  "required_offline_regressions": [
+    "Use actual pinned source-customer.sql and scheduling/read sources through the real Bound operation method. The transport mock models transaction state and emits a PostgreSQL warning on a second COMMIT; it must reproduce the old source construction stop and detect restoring it.",
+    "Already-open restricted transaction plus no-wrapper source gets one COMMIT; source with BEGIN/COMMIT gets only the redundant BEGIN removed; COMMIT-only source gets no extra COMMIT. Parse normalized SQL and assert the real emitted transaction boundaries, unchanged business statements and actual same captured PID/xid/separate issuer COMMIT.",
+    "Unexpected/secret warnings, malformed output, unrelated diagnostics, incorrect markers/counts/state, active operation backend and persistent/transient evidence I/O still stop, preserve bounded partial evidence and execute eligible required closure/restoration/finalization/exact cleanup.",
+    "Actual pure preparation/full closed source loader/current+committed pinner/PENDING refusals and complete real outer composition with every Docker/database/process boundary mocked. Native29089/oracle416/ledger22 come from exact immutable closed mock inputs and actual comparators, never handmade PASS dictionaries or replaced production factories.",
+    "Independent non-author review plus Root closure, focused checks, normal publication, fresh current+committed pin/literal before a fresh actual retry. No identical V3 rerun."
+  ],
+  "preservation": {
+    "canonical_application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "worker_ACL_rows": 32,
+    "original67_sources_25_recipe_artifacts": "UNCHANGED",
+    "physical_backup_mounts_quarantine_identity_rotation_exact_cleanup": "UNCHANGED",
+    "source_policy_permission_or_business_SQL_changes": false,
+    "all_historical_reports": "PRESERVE_UNCHANGED",
+    "Posture": "D",
+    "runtime_from_this_plan": "NOT_RUN"
+  }
+}

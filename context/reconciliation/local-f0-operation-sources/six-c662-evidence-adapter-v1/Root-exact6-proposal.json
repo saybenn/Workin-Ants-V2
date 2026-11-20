@@ -1,0 +1,100 @@
+{
+  "schema": "workinants.six-c662-Root-closed-evidence-exact6-proposal.v1",
+  "recorded_at_utc": "2026-11-20T07:35:27.884758+00:00",
+  "status": "PROPOSED_PENDING_INDEPENDENT_EVIDENCE_AUDIT_AND_REVIEWED_ADAPTER",
+  "Root_author": "/root",
+  "record": "context/reconciliation/local-f0-six-read-5f189aa-c662f807-execution.json",
+  "record_sha256": "acac8f669272f99e2903adad529366b0e156b18fe39de8c90982e921ffc1b7f8",
+  "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+  "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+  "packet_sha256": "3c5d2bccc05b994a761dd8db98714f315e7b10319b38bfb1f3aff0e68a50cef0",
+  "closed_packet_files": 354,
+  "exact_assets": 43,
+  "closed_source_and_assets_hashes_verified": true,
+  "observations": {
+    "protocols": 71,
+    "operations": 586,
+    "separate_issuer_COMMITs": 71,
+    "global_closures": 152,
+    "trigger_restoration_observations": 74,
+    "retained_grant_observations": 213,
+    "strict_auth_roles": 6,
+    "fixture_rows": 16,
+    "fixture_tables": 8,
+    "exact_owner_commit_setup_bypasses": 8,
+    "native_checks_before_and_readonly_after": 29089,
+    "oracle_expressions_before_and_readonly_after": 416,
+    "ledger_checks_before_and_readonly_after": 22,
+    "second_deploy": false,
+    "run_cleanup": "PASS_INDEPENDENT_PHYSICAL_CLEANUP"
+  },
+  "claims": [
+    {
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "proposed_status": "PASS",
+      "actual_positive_protocol": "agegateattempt-positive-root",
+      "completed_finite_protocols": 11,
+      "limits": "Only permitted SQL SELECT, not owner API, writes, worker behavior, whole case or blanket adversarial vector."
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "proposed_status": "PASS",
+      "actual_positive_protocol": "agegateblock-positive-root",
+      "completed_finite_protocols": 11,
+      "limits": "Only permitted SQL SELECT, not owner API, writes, worker behavior, whole case or blanket adversarial vector."
+    },
+    {
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "proposed_status": "PASS",
+      "actual_positive_protocol": "accessauditlog-positive-root",
+      "completed_finite_protocols": 11,
+      "limits": "Only permitted SQL SELECT, not owner API, writes, worker behavior, whole case or blanket adversarial vector."
+    },
+    {
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "proposed_status": "PASS",
+      "actual_positive_protocol": "userrole-positive-root",
+      "completed_finite_protocols": 14,
+      "limits": "Only permitted SQL SELECT, not owner API, writes, worker behavior, whole case or blanket adversarial vector."
+    },
+    {
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "proposed_status": "PASS",
+      "actual_positive_protocol": "auditevent-positive-root",
+      "completed_finite_protocols": 11,
+      "limits": "Only permitted SQL SELECT, not owner API, writes, worker behavior, whole case or blanket adversarial vector."
+    },
+    {
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "proposed_status": "PASS",
+      "actual_positive_protocol": "authprovideraccount-positive-root",
+      "completed_finite_protocols": 13,
+      "limits": "Only permitted SQL SELECT, not owner API, writes, worker behavior, whole case or blanket adversarial vector."
+    }
+  ],
+  "existing_ledger_sha256": "3c13e345ba907d5944bb12806ad7abeb5a6d673cac00bc8e3c769e19bb04c047",
+  "existing_status_sha256": "87f3737ff002bc73833d5a3f5e31601a11c97f412e54d3f85b1e7be7cc10d64d",
+  "planned_adapter": {
+    "new_module": "scripts/local_f0_scoped_read_evidence.py",
+    "record": "context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json",
+    "interface": "prepare_batch(root): closed exact bytes only; six known claims with exact pointer/type/record binding; sticky failure; final fresh full-byte barrier before build returns. No project compile/process/Git/network/SQL.",
+    "existing_builder_change": "Only add exact qualified record/import/dispatch and batch final barrier. Keep existing647 evidence entries/provenance and old adapters unchanged.",
+    "tests": "Exact6 succeeds; all other claims/status/pointers/identities reject; duplicate/malformed JSON, source/assets drift, mid-batch/final drift, missing claim, secret canaries and external-process attempts reject. Actual real builder once after independent source review.",
+    "scope_ceiling": "At most six newly evidenced PASS assertions. No whole-case promotion unless the unchanged aggregator independently has all required assertions."
+  },
+  "counts_unchanged": true,
+  "runtime_or_Git_mutated": false,
+  "Posture": "D"
+}

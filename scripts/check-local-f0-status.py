@@ -55,6 +55,24 @@ class StatusTests(unittest.TestCase):
         def complete_boundary(root):test.assertEqual(root,ROOT);return ClosedNativeBoundary()
         boundary520=patch.dict(build.__globals__,prepare_native_complete_batch=complete_boundary)
         boundary520.start();self.addCleanup(boundary520.stop)
+        # The six-read adapter has its separate real403-input/race suite and
+        # an actual unmocked653-row CLI build. Isolate only this dispatcher
+        # boundary while checking the legacy mutations below.
+        six_path='context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json'
+        six_derived=json.loads((ROOT/six_path).read_bytes())
+        six_expected={(row['case_id'],row['assertion_id']):row['json_pointer'] for row in ledger['assertions'] if row['evidence_path']==six_path}
+        self.assertEqual(len(six_expected),6);self.scoped_read_calls=[]
+        class ClosedScopedBoundary:
+            def __init__(self):self.seen=set();self.finalized=False
+            def validate_claim(self,case,assertion,status,execution,root,json_pointer=None):
+                key=(case,assertion);test.assertIn(key,six_expected);test.assertEqual(status,'PASS')
+                test.assertEqual(root,ROOT);test.assertEqual(json_pointer,six_expected[key]);test.assertEqual(execution,six_derived)
+                self.seen.add(key);test.scoped_read_calls.append(key);return True
+            def verify_unchanged(self):test.assertEqual(self.seen,set(six_expected));self.finalized=True;return True
+            def require_finalized(self):test.assertTrue(self.finalized);return True
+        def scoped_boundary(root):test.assertEqual(root,ROOT);return ClosedScopedBoundary()
+        boundary6=patch.dict(build.__globals__,prepare_scoped_read_batch=scoped_boundary)
+        boundary6.start();self.addCleanup(boundary6.stop)
     def test_recorded_subset_does_not_promote_compound_cases(self):
         namespace=build.__globals__;restricted=namespace['validate_restricted_claim'];migration=namespace['validate_claim'];native=namespace['validate_native_prefix_claim']
         restricted_calls=[];migration_calls=[];native_calls=[]
@@ -69,7 +87,8 @@ class StatusTests(unittest.TestCase):
             return native(*args,**kwargs)
         with patch.dict(namespace,validate_restricted_claim=restricted_dispatch,validate_claim=migration_dispatch,validate_native_prefix_claim=native_dispatch):result=build()
         self.assertEqual(result['selected_cases'],94)
-        self.assertEqual(result['assertion_status_counts'],{'PASS':615,'PARTIAL':32,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':348,'UNRESOLVED_SOURCE':7})
+        self.assertEqual(result['assertion_status_counts'],{'PASS':621,'PARTIAL':32,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':342,'UNRESOLVED_SOURCE':7})
+        self.assertEqual(result['case_status_counts'],{'PASS':4,'PARTIAL':79,'FAILED':0,'DEPENDENCY_BLOCKED':0,'NOT_RUN':11})
         self.assertEqual({c['id'] for c in result['cases'] if c['status']=='PASS'},{'P0C-UNIQUE-01','P0C-TABLE-DatabaseActionGrant-ALLOW','P0C-TABLE-ProfessionalProfile-ALLOW','P0C-TABLE-CandidateProfile-ALLOW'})
         self.assertEqual(len(restricted_calls),70)
         self.assertEqual(len(migration_calls),7)
@@ -77,6 +96,7 @@ class StatusTests(unittest.TestCase):
         self.assertEqual(len(native_calls),132)
         self.assertEqual(len(self.owner_lease_calls),21)
         self.assertEqual(len(self.native_complete_calls),388)
+        self.assertEqual(len(self.scoped_read_calls),6)
         self.assertTrue(all(row[2]=='STOPPED_ATTEMPT_PRESERVED' for row in native_calls))
         self.assertNotIn('STOPPED_ATTEMPT_PRESERVED',migration_calls)
         catalog=next(c for c in result['cases'] if c['id']=='P0C-CATALOG-01')
@@ -190,6 +210,6 @@ class StatusTests(unittest.TestCase):
             if path.name in ('local-f0-small-rehearsal-0623028-execution.json','local-f0-migration-6b8910d-execution.json','local-f0-catalog-b9703d7-23bd8979-execution.json','local-f0-restricted-b8f6b10-f161d454-execution.json','local-f0-native-access-0a29cf6-495976eb-execution.json','local-f0-owner-da5ad66-72934689-qualified-evidence.json','local-f0-lease-da5ad66-a560e05b-qualified-evidence.json','local-f0-native-1110fa4-4c894dba-qualified-evidence.json'):raise RuntimeError('UNVERIFIED_SECOND_READ')
             return original(path,*args,**kwargs)
         with patch.object(Path,'read_text',second_read_trap):result=build()
-        self.assertEqual(result['assertion_status_counts']['PASS'],615)
+        self.assertEqual(result['assertion_status_counts']['PASS'],621)
 
 if __name__=='__main__':unittest.main(verbosity=2)

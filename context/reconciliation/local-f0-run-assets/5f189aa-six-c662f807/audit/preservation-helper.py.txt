@@ -1,0 +1,66 @@
+"""Preserve known-closed sanitized Six results; assertion admission remains separate."""
+from pathlib import Path
+import collections,datetime,hashlib,json,subprocess
+T=Path(__file__).resolve().parent; R=T/'workinants-correction-pass'
+H='5f189aa6262bd5ecbffda0940e404038993fce05'; TREE='fd736f36633b28267602759c0da0d368bd625ef6'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def enc(v):return(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+    p.parent.mkdir(parents=True,exist_ok=True)
+    with p.open('xb')as f:f.write(b)
+assert subprocess.check_output(['git','-c','core.longpaths=true','rev-parse','HEAD'],cwd=R).decode().strip()==H
+mp=T/'local-f0-scoped-reads-resource-v1-plan-c662f807/operation-manifest.json'; mb=mp.read_bytes()
+assert sha(mb)=='b9500e3827dd3261ea4c4cfad3eb8a371cae2f73d3e71251aa2175e3dba3e689'
+m=json.loads(mb); out=Path(m['evidence_directory'])
+assert out==T/'local-f0-scoped-reads-resource-v1-c662f807' and not(out/'private').exists()
+rb=(out/'run-evidence.json').read_bytes(); assert sha(rb)=='87305f5dd4bc87de248c7ae999bfb1dc218a29a7fd0e6c45e03db1eb1fa649f3'; r=json.loads(rb)
+assert r['status']=='PASS_LOCAL_SCOPED_READ_SQL_SUBSET_ONLY' and r['finished_at'] and r['approved_commit']==H and r['approved_tree']==TREE
+assert r['evidence_complete']is True and r['persistence_failure']is False and r['unexpected']==[] and r['cleanup_actions_confirmed']is True
+cb=(out/'scoped-read-component/scoped-read-companion-results.json').read_bytes(); assert sha(cb)=='0da12d353efc4ae71474cb2f9637ce0870ea0813e456637d22fc8861e45b7dde'; c=json.loads(cb)
+assert c['status']=='PASS_FINITE_SCOPED_READ_COMPANION_SQL_SUBSET_ONLY' and c['current_stage']=='COMPLETE' and c['current_case']is None
+assert c['unexpected']==[] and c['evidence_complete']is True and c['fixture_owner_bypass_restored']is True and c['source_packet_unchanged_after']is True
+assert len(c['results'])==71 and len(c['operations'])==586 and len(c['authentication'])==6
+assert all(x['status']=='PASS_FINITE_SCOPED_READ_ONLY' and x['actual_login']=='wa_app_runtime' and x['operation_closed_before_observers']is True for x in c['results'])
+assert all(x['correct_password']=='PASS_SCRAM' and x['wrong_password']=='PASS_REJECTED' and x['wrong_password_exit_code']==2 for x in c['authentication'])
+stages=collections.Counter(x['stage']for x in c['operations'])
+assert stages=={'GLOBAL_BACKEND_CLOSURE':152,'PRE_FIXTURE_NATIVE_PARITY':1,'EXACT_EIGHT_TRIGGER_RESTORATION':74,'SYNTHETIC_EXISTING_ROWS_ONLY':1,'POST_FIXTURE_NATIVE_PARITY':1,'BOUND_OPERATION':71,'SEPARATE_ISSUER_COMMIT':71,'IMMUTABLE_ISSUER_RETENTION':213,'FINAL_NATIVE_PARITY':1,'FINALLY_FULL_NATIVE_PARITY':1}
+assert all(x['other_clients_zero']is True for x in c['operations']if x['stage']=='GLOBAL_BACKEND_CLOSURE')
+assert all(x['owner_and_physical_enabled']is True for x in c['operations']if x['stage']=='EXACT_EIGHT_TRIGGER_RESTORATION')
+assert all(x['status']=='NOT_RUN'for x in c['selected_controls']) and len(c['selected_controls'])==6
+canonical=sha(json.dumps(c,sort_keys=True,separators=(',',':')).encode())
+assert canonical=='37cc9c987c8c644a78ee4b8814a80c5a445d87dbb03e0a6a1cba9754789c32ed' and r['scoped_read']['component_report_sha256']==canonical
+assert r['scoped_read']['component_report_reference']['sha256']==sha(cb) and r['scoped_read']['component_closure_confirmed']is True
+post=r['scoped_read']['post_proof']; assert post['status']=='PASS_READ_ONLY_SOURCE_BOUND_SUBSET' and post['second_deploy']is False
+assert(post['native_checks'],post['oracle_expressions'],post['ledger_checks'],post['independent_tables'])==(29089,416,22,42)
+assert post['before_state_sha256']==post['after_state_sha256']==post['child_final_state_sha256']
+assert r['sanitization']['actual_password_values_found']is False and r['sanitization']['unrestricted_subprocess_output_persisted']is False and r['sanitization']['raw_context_handles_persisted']is False
+for k in ('packet_unchanged_after_run','tool_source_data_unchanged_after_run','external_sources_unchanged_after_run','external_inputs_unchanged_after_run'):assert r[k]is True
+cleanup=T/'six_read_5f_c662f807_independent_cleanup_20261120.json'; cleanb=cleanup.read_bytes()
+assert sha(cleanb)=='f01e5406fa4be4f02539b35cecc5f608ee3f61bfd36452f4aa7fec20f7e37405' and json.loads(cleanb)['status']=='PASS_INDEPENDENT_PHYSICAL_CLEANUP'
+asset=R/'context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807'; assert not asset.exists(); copies={}
+for p in out.rglob('*'):
+    if not p.is_file():continue
+    rel=p.relative_to(out); assert'private'not in rel.parts and not p.is_symlink() and(p.suffix=='.json'or rel.as_posix()=='set-private-acl.ps1')
+    target=asset/'evidence'/rel
+    if p.suffix=='.ps1':target=target.with_name(target.name+'.txt')
+    copies[target]=p.read_bytes()
+for p in mp.parent.iterdir():
+    if p.is_file() and p.suffix=='.json':copies[asset/'manifest'/p.name]=p.read_bytes()
+for kind,binding in m['migration_targets'].items():
+    b=Path(binding['manifest_path']).read_bytes();assert sha(b)==binding['manifest_sha256'];copies[asset/'manifest'/('migration-'+kind+'.json')]=b
+extra={'independent-cleanup.json':cleanup.name,'independent-literal-review.json':'six_read_c662f807_independent_operational_literal_review_20261120.json','independent-literal-review-bundle.json':'six_read_c662f807_independent_literal_review_bundle_20261120.json','Root-literal-approval.json':'six_read_c662f807_Root_literal_approval_receipt_20261120.json','Root-independent-cleanup-helper.py.txt':'verify_5f_six_c662f807_completed_cleanup_20261120.py'}
+for name,original in extra.items():copies[asset/name]=(T/original).read_bytes()
+facts={'schema':'workinants.six-c662-observed-unadmitted-results.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'observed':{'completed_protocols':71,'child_operations':586,'protocol_counts_by_selected_case':dict(collections.Counter(x['case_id']for x in c['results'])),'child_operation_counts_by_stage':dict(stages),'actual_query_login':'wa_app_runtime','query_backends_closed_before_observers':True,'fixture_rows':16,'fixture_tables':8,'reviewed_owner_commit_setup_bypasses':8,'fixture_bypasses_restored':True,'all_child_authentication_roles_correct_and_wrong_password':6,'same_target_read_only_after_proof':post,'physical_cleanup_independently_confirmed':True},'digest_recipe_clarification':{'component_report_sha256':'SHA256 of json.dumps(parsed_child,sort_keys=True,separators=(comma,colon)).encode UTF8, using default ensure_ascii=True','canonical_child_sha256':canonical,'literal_closed_child_file_sha256':sha(cb),'different_serializations_expected':True},'qualification':'NOT_ADMITTED_PENDING_INDEPENDENT_CLOSED_EVIDENCE_AUDIT_AND_REVIEWED_ASSERTION_ADAPTER','maximum_new_claims':[{'case_id':x['id'],'assertion_id':'positive.wa_app_runtime.select'}for x in c['selected_controls']],'limits':['No whole-case or blanket adversarial-vector promotion.','No owner writes, SH/API, worker operation or Track enrollment qualification.','No additional migration deployment claimed.','Selected94/451 remain distinct; posture D.'],'Posture':'D'}
+copies[asset/'audit/Root-observed-unadmitted-results.json']=enc(facts);copies[asset/'audit/preservation-helper.py.txt']=Path(__file__).read_bytes()
+for p,b in copies.items():
+    assert len(b)<50*1024*1024 and b'\0'not in b;b.decode('utf-8-sig')
+    if p.suffix=='.json':json.loads(b)
+    put(p,b)
+assets={p.relative_to(R).as_posix():sha(b)for p,b in copies.items()}
+record={'schema':'workinants.local-f0-5f-six-version-qualified-execution-record.v1','recorded_at_utc':facts['recorded_at_utc'],'run_id':m['run_id'],'source_commit':H,'source_tree':TREE,'operation_packet_sha256':m['packet_sha256'],'operation_manifest_sha256':sha(mb),'known_executor_exit':{'session':69045,'exit_code':0},'started_at_utc':r['started_at'],'finished_at_utc':r['finished_at'],'actual_wrapper_status':r['status'],'actual_steps':r['steps'],'raw_evidence_sha256':sha(rb),'raw_child_file_sha256':sha(cb),'raw_child_canonical_sha256':canonical,'raw_reports_unchanged':True,'independent_cleanup_sha256':sha(cleanb),'facts':facts,'assets_sha256':assets,'source_preservation':{k:v for k,v in r.items()if k.endswith('_unchanged_after_run')},'qualification_status':'NOT_ADMITTED_PENDING_INDEPENDENT_EVIDENCE_AUDIT_AND_REVIEWED_ASSERTION_ADAPTER','Posture':'D'}
+p=R/'context/reconciliation/local-f0-six-read-5f189aa-c662f807-execution.json';put(p,enc(record));recordsha=sha(p.read_bytes())
+receipt={'schema':'workinants.5f-six-c662-closed-attempt-preserved.v1','record':p.relative_to(R).as_posix(),'record_sha256':recordsha,'asset_count':len(assets),'assets_sha256':assets,'runtime_or_Git_mutated':False,'Posture':'D'}
+p=T/'5f_six_c662_closed_attempt_preserved_inventory_20261120.json';put(p,enc(receipt))
+state={'schema':'workinants.local-f0-active-continuation.v11','recorded_at_utc':facts['recorded_at_utc'],'source_commit':H,'source_tree':TREE,'runtime_active':False,'known_last_runtime':{'session':69045,'exit_code':0,'closed':True,'run_id':m['run_id'],'record':receipt['record'],'record_sha256':recordsha,'cleanup_sha256':sha(cleanb)},'qualification_counts_unchanged':{'PASS':615,'PARTIAL':32,'NOT_RUN':348,'DEPENDENCY_BLOCKED':32,'UNRESOLVED_SOURCE':7,'FAILED':0},'unexecuted_pinned_plans':['local-f0-worker-recovery-plan-b42c35d5','local-f0-app-write-two-owned-resource-v1-plan-5710703b','local-f0-install-controls-plan-4b35e08b'],'active_source_work':['PrivilegeMetadataV6 author offline suites','RestoreV4Fix3 independent review','Read13 author implementation'],'next':['Independent Six closed evidence audit and reviewed exact6 assertion adapter.','Fresh exact literal reviews then controlled Worker/App/INSTALL runs on source5f.','Continue source corrections/review; do not end after publication.'],'Posture':'D'}
+sp=T/'local_f0_active_state_5f189aa_SIX_CLOSED_CLEANED_RESTORE_FIX3_REVIEW_20261120.json';put(sp,enc(state))
+print(json.dumps({'record':receipt['record'],'record_sha256':recordsha,'assets':len(assets),'inventory_sha256':sha(p.read_bytes()),'active_state_sha256':sha(sp.read_bytes()),'runtime_active':False,'counts_unchanged':True}))

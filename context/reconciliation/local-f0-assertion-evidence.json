@@ -116,6 +116,18 @@
       "manual_whole_case_promotions": 0,
       "case_aggregation": "UNCHANGED_ALL_MANDATORY_ASSERTIONS_RULE",
       "posture": "D"
+    },
+    {
+      "run_id": "c662f807-c784-41ef-b937-ff2cce9bfd37",
+      "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+      "purpose": "INDEPENDENTLY_AUDITED_SCOPED6_SQL_SELECT_ASSERTIONS_ONLY",
+      "source_execution_record_sha256": "acac8f669272f99e2903adad529366b0e156b18fe39de8c90982e921ffc1b7f8",
+      "derived_evidence_record": "context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json",
+      "derived_evidence_sha256": "07b49506e56918515816949e628569f89ba12066d2b7ecc2ecf60977bf92fe7f",
+      "new_unique_PASS_links": 6,
+      "manual_whole_case_promotions": 0,
+      "case_aggregation": "UNCHANGED_ALL_MANDATORY_ASSERTIONS_RULE",
+      "posture": "D"
     }
   ],
   "assertions": [
@@ -237,7 +249,7 @@
       "evidence_path": "context/reconciliation/local-f0-small-rehearsal-0623028-execution.json",
       "evidence_sha256": "269812ab154775e0cea58c3305ffbef141c2c0978590f8000c18c79cb2f0d28b",
       "json_pointer": "/coordinator",
-      "qualification_scope": "All reviewed small rehearsal FIRST01–10 steps and three intended cases passed; does not qualify remaining compound BOOT vectors."
+      "qualification_scope": "All reviewed small rehearsal FIRST01\u201310 steps and three intended cases passed; does not qualify remaining compound BOOT vectors."
     },
     {
       "case_id": "P0C-BOOT-01",
@@ -252,7 +264,7 @@
       "evidence_path": "context/reconciliation/local-f0-small-rehearsal-0623028-execution.json",
       "evidence_sha256": "269812ab154775e0cea58c3305ffbef141c2c0978590f8000c18c79cb2f0d28b",
       "json_pointer": "/coordinator",
-      "qualification_scope": "All reviewed small rehearsal FIRST01–10 steps and three intended cases passed; does not qualify remaining compound BOOT vectors."
+      "qualification_scope": "All reviewed small rehearsal FIRST01\u201310 steps and three intended cases passed; does not qualify remaining compound BOOT vectors."
     },
     {
       "case_id": "P0C-ATOMIC-01",
@@ -10685,6 +10697,96 @@
       "evidence_sha256": "1586330d18837b060f8968f85747151c4239271ef1c3cb3caad276773ddb1538",
       "json_pointer": "/claims/519",
       "qualification_scope": "Exact audited native SCHEMA denial only; no isolated-column, owner/business-write, RLS-empty, vector or whole-case claim."
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "status": "PASS",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+      "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+      "packet_sha256": "3c5d2bccc05b994a761dd8db98714f315e7b10319b38bfb1f3aff0e68a50cef0",
+      "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "run_id": "c662f807-c784-41ef-b937-ff2cce9bfd37",
+      "evidence_path": "context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json",
+      "evidence_sha256": "07b49506e56918515816949e628569f89ba12066d2b7ecc2ecf60977bf92fe7f",
+      "json_pointer": "/claims/0",
+      "qualification_scope": "Exact restricted local SQL SELECT on scoped authorized target. No owner creation/write, SH/API, worker, generic vector or whole-case claim."
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "status": "PASS",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+      "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+      "packet_sha256": "3c5d2bccc05b994a761dd8db98714f315e7b10319b38bfb1f3aff0e68a50cef0",
+      "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "run_id": "c662f807-c784-41ef-b937-ff2cce9bfd37",
+      "evidence_path": "context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json",
+      "evidence_sha256": "07b49506e56918515816949e628569f89ba12066d2b7ecc2ecf60977bf92fe7f",
+      "json_pointer": "/claims/1",
+      "qualification_scope": "Exact restricted local SQL SELECT on scoped authorized target. No owner creation/write, SH/API, worker, generic vector or whole-case claim."
+    },
+    {
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "status": "PASS",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+      "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+      "packet_sha256": "3c5d2bccc05b994a761dd8db98714f315e7b10319b38bfb1f3aff0e68a50cef0",
+      "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "run_id": "c662f807-c784-41ef-b937-ff2cce9bfd37",
+      "evidence_path": "context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json",
+      "evidence_sha256": "07b49506e56918515816949e628569f89ba12066d2b7ecc2ecf60977bf92fe7f",
+      "json_pointer": "/claims/2",
+      "qualification_scope": "Exact restricted local SQL SELECT on scoped authorized target. No owner creation/write, SH/API, worker, generic vector or whole-case claim."
+    },
+    {
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "status": "PASS",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+      "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+      "packet_sha256": "3c5d2bccc05b994a761dd8db98714f315e7b10319b38bfb1f3aff0e68a50cef0",
+      "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "run_id": "c662f807-c784-41ef-b937-ff2cce9bfd37",
+      "evidence_path": "context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json",
+      "evidence_sha256": "07b49506e56918515816949e628569f89ba12066d2b7ecc2ecf60977bf92fe7f",
+      "json_pointer": "/claims/3",
+      "qualification_scope": "Exact restricted local SQL SELECT on scoped authorized target. No owner creation/write, SH/API, worker, generic vector or whole-case claim."
+    },
+    {
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "status": "PASS",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+      "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+      "packet_sha256": "3c5d2bccc05b994a761dd8db98714f315e7b10319b38bfb1f3aff0e68a50cef0",
+      "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "run_id": "c662f807-c784-41ef-b937-ff2cce9bfd37",
+      "evidence_path": "context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json",
+      "evidence_sha256": "07b49506e56918515816949e628569f89ba12066d2b7ecc2ecf60977bf92fe7f",
+      "json_pointer": "/claims/4",
+      "qualification_scope": "Exact restricted local SQL SELECT on scoped authorized target. No owner creation/write, SH/API, worker, generic vector or whole-case claim."
+    },
+    {
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "status": "PASS",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+      "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+      "packet_sha256": "3c5d2bccc05b994a761dd8db98714f315e7b10319b38bfb1f3aff0e68a50cef0",
+      "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "run_id": "c662f807-c784-41ef-b937-ff2cce9bfd37",
+      "evidence_path": "context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json",
+      "evidence_sha256": "07b49506e56918515816949e628569f89ba12066d2b7ecc2ecf60977bf92fe7f",
+      "json_pointer": "/claims/5",
+      "qualification_scope": "Exact restricted local SQL SELECT on scoped authorized target. No owner creation/write, SH/API, worker, generic vector or whole-case claim."
     }
   ]
 }

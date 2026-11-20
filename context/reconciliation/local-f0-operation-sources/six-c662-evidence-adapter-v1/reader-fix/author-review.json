@@ -1,0 +1,65 @@
+{
+  "schema": "workinants.six-c662-reader-fix-author-review.v1",
+  "recorded_at_UTC": "2026-11-20T08:59:01.512630+00:00",
+  "author": "/root/privilege_mount_v2_review",
+  "decision": "AUTHOR_VALIDATION_COMPLETE_PENDING_SAME_CATALOG_REVIEW",
+  "finding": "SCOPED6-FINAL-READ-INTEGRITY-01",
+  "HOLD_sha256": "9b5a7f1e47be05ed94857bc26d67baa68b0c753e17c57d2bd350acbfdcb8d554",
+  "counterexample_sha256": "c7347dd49d218db248d036acc779e481e301e04efc3b8730ca58737a64badfd6",
+  "Root_ACK_sha256": "77288c3cecc2385cb599fea327229d88832adf56b67bf85df3b7f1b21f4c4de5",
+  "source_files_sha256": {
+    "scripts/local_f0_scoped_read_evidence.py": "dc67a3a0ed60a27296cd4d007a8a8de212d17bb1c6d2ea066693c706f9e615fa",
+    "scripts/check-local-f0-scoped-read-evidence.py": "635fd23f00bbc754220d9300b1dec04dcc8b212508cd3c3e09455b0c175eda10",
+    "scripts/prepare-local-f0-status.py": "a46a52c26052ccc0141664a1030311b6884fd95637a0dd01e800561fd603b649",
+    "context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json": "07b49506e56918515816949e628569f89ba12066d2b7ecc2ecf60977bf92fe7f"
+  },
+  "exact_scope": {
+    "schema": "workinants.six-c662-reader-fix-exact-scope.v1",
+    "old_module_sha256": "c2a6389376311cc37cf3e73a007ca8185a85ccf19cdc10baa085ce80cbf913c7",
+    "new_module_sha256": "dc67a3a0ed60a27296cd4d007a8a8de212d17bb1c6d2ea066693c706f9e615fa",
+    "only_runtime_function_changed": "_read",
+    "only_import_added": "os",
+    "full_original_module_bytes_reproduced_by_reverting_only_those_two_deltas": true,
+    "PINS403_and_six_claims_unchanged": true,
+    "batch_final_barrier_sticky_types_semantics_and_dispatcher_unchanged": true,
+    "old_ledger_status_checker_native_unchanged": {
+      "context/reconciliation/local-f0-assertion-evidence.json": "3c13e345ba907d5944bb12806ad7abeb5a6d673cac00bc8e3c769e19bb04c047",
+      "context/reconciliation/local-f0-qualification-status.json": "87f3737ff002bc73833d5a3f5e31601a11c97f412e54d3f85b1e7be7cc10d64d",
+      "scripts/check-local-f0-status.py": "38f5ca5b5609397938676cff5b46351cc618c3fee27d11ef99655b2e0150feb3",
+      "scripts/local_f0_native_complete_evidence.py": "50dfe9c1ae661785e408ad9707473028c6bc9b4d2ee308bdaad1844905668b76"
+    },
+    "builder_unchanged_sha256": "a46a52c26052ccc0141664a1030311b6884fd95637a0dd01e800561fd603b649",
+    "original_before_preservation_sha256": "0d942a895514c44de0d5c4a0b738c81089f7d10d2be7b44fd3f92baaff388255",
+    "reader_guarantee": "Bounded in-flight identity/closed byte/hash verification; no perpetual filesystem atomicity claim."
+  },
+  "actual_offline_checks": {
+    "unique_methods": 16,
+    "result": "PASS",
+    "seconds": 260.619,
+    "runner_seconds": 261.378,
+    "log_sha256": "0c1b7bd5db629d40f3a10a7fb695a5bf3ef0127597c2002e0044259f83f96041",
+    "actual_API_private_inflight_race_rejected": true,
+    "restoring_ONLY_original_reader_reproduces_counterexample": true,
+    "metadata_stable_fresh_closed_byte_check": true,
+    "Windows_path_vs_handle_ctime_valid_reads": true,
+    "descriptor_identity_mismatch_rejected": true,
+    "every_reader_closed_and_only403_paths": true,
+    "actual_private_Six_only_CLI_final_read_race_writes_no_output": true,
+    "Root_real_full653_builder": "NOT_RUN_ROOT_ONLY_AFTER_SOURCE_APPROVAL"
+  },
+  "preserved_history": {
+    "old_ROOT_frozen27": true,
+    "all403_input_bytes": true,
+    "original_author_failed_history": true,
+    "old_Catalog_baseline12PASS86_440s_retained_not_counted_again": true,
+    "HOLD_and_actual_probe_preserved": true
+  },
+  "limits": [
+    "The fix closes the proven in-flight read integrity counterexample. It does not claim perpetual atomicity after the final check.",
+    "Windowsctime is compared path-to-path and descriptor-to-descriptor, never assumed identical across those APIs. Identity/size/mtime/mode/link compare across APIs and both bytes/hash reads must agree.",
+    "No qualification/runtime/status/ledger change. Same Catalog reviewer closure and Root review remain mandatory.",
+    "All403 pins/sixclaims/native303+Audit3/strict types/finiteJSON/batch/finalbarrier/old647/status615/checker/builder unchanged."
+  ],
+  "gates": "PENDING",
+  "Posture": "D"
+}

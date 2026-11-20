@@ -1,0 +1,126 @@
+{
+  "author_conflict": {
+    "V6_plan_or_implementation_authored_by_reviewer": false,
+    "disclosure": "Reviewer previously reviewed Privilege V2/V3, authored admission-completeness V4 PLAN only (another agent implemented), and independently reviewed V5 literal. Reviewer did not author V5 person-subject code, V6 plan or V6 code. Accepted prior layers are inputs, not reapproved by this plan decision."
+  },
+  "closed_source_record": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\context\\reconciliation\\local-f0-privilege-7ef5091-56a87aac-execution.json",
+    "sha256": "5ae35bd95320f46d2c15454482f11f28c326ab068859c39779ec61d88c6cc1e4"
+  },
+  "decision": "SOURCE_PLAN_APPROVED_FOR_BOUNDED_IMPLEMENTATION_REQUIRES_ROOT_ACK",
+  "evidence": {
+    "primary_source_facts": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege_metadata_v6_independent_primary_source_facts_20261120.json",
+      "sha256": "7dbd0ed06f03b85caf1afe8f1ed58ed1991b55fdf59732433473192809bfd9a4"
+    },
+    "probe": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege_metadata_v6_independent_plan_probe_results_20261120.json",
+      "sha256": "10bf91104a21352d516d917246c3739ac84485f88c0e6130a55deee23b46d530"
+    },
+    "reviewer_harness_history": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege_metadata_v6_independent_plan_probe_history_20261120.json",
+      "sha256": "d8387d5a5cc1847daff6615c05ad5a2910f2bb12cb05327449195bc14782839b"
+    }
+  },
+  "findings": [],
+  "independent_actual_checks": {
+    "all200_case_requirement_AST_and_SHA_matches": true,
+    "census": {
+      "COLUMN_REFERENCING_SELECT": 2,
+      "EXACT_SOURCE_IMMUTABLE_GUARD_UNCHANGED": 3,
+      "FUNCTION_EXECUTE_WITH_SCHEMA": 4,
+      "LITERAL_UPDATE_WITH_PREDICATE_SELECT": 63,
+      "LITERAL_VALUES_INSERT": 43,
+      "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT": 41,
+      "MANDATORY_TABLE_TRUNCATE": 4,
+      "PROVIDER_SCHEMA_ONLY_FUNCTION_CALL": 9,
+      "PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN": 9,
+      "ROLE_SET": 14,
+      "SCHEMA_CREATE": 8
+    },
+    "closed_assets": 31,
+    "current_P_diagnostic_AST_sha256": "8d7bfa0f72293b362cfd88d5542165bf07cab320441cd2e67c9d055277453407",
+    "generated_artifacts": 202,
+    "independent_cleanup_artifact_hash_verified": "0a561aba444c8fce07e994bb64c987a5a7f20291789ebb7a09d3e5400806d339",
+    "logical_contract_combinations": 48,
+    "old_V5_archive": 815,
+    "old_unsupported_column_DELETE_shapes": 41,
+    "physical_V5_five": 5,
+    "probe_duration_seconds": 2.015174,
+    "raw_child_direct_read": {
+      "current_case": "GRANT-wa_app_runtime-DELETE",
+      "current_fields": [
+        "closed_before_observers",
+        "name",
+        "role",
+        "source_template_sha256"
+      ],
+      "current_operation_receipt_present": false,
+      "current_stage": "PRIVILEGE_METADATA",
+      "failure_code": "UNEXPECTED_PRIVILEGE_CONTROL_FAILURE",
+      "issuer_protocols": 2,
+      "operations": 76,
+      "results": 33,
+      "sha256": "82ecc9ac9b14378bddb95f011b8678570f275b0f940fe53b387bd405a3c7b17e"
+    },
+    "source7": 7,
+    "unique_before_after_pinned_inputs": 1062
+  },
+  "limits": {
+    "Docker_DB_SQL_Git_calls": 0,
+    "Posture": "D",
+    "V6_source_or_runtime_tested": false,
+    "actual_original_query_exit_SQLSTATE_stderr": "NOT_RETAINED",
+    "complete_original_cause": "UNOBSERVED",
+    "existing33_prefix_or_whole_case_promoted": false,
+    "network": "Only the explicitly authorized official PG17 docs/tagged PostgreSQL source read; no Git/network service calls.",
+    "new_cases_or_permissions": false
+  },
+  "mandatory_implementation_clarifications": [
+    {
+      "blocking_plan_finding": false,
+      "cases": [
+        "ISSUER-ConsentContentRevision-INSERT",
+        "ISSUER-ConsentPresentation-INSERT",
+        "ISSUER-RuntimeCommandReceipt-INSERT",
+        "ISSUER-RuntimeOutboxMessage-INSERT",
+        "ISSUER-OwnerMutationEvidence-INSERT"
+      ],
+      "id": "CLARIFY_VALUES_EXPRESSIONS",
+      "requirement": "Literal VALUES means no relation reads, not A_Const-only. Five exact INSERTs contain encode(sha256(convert_to(...))) over constants/casts. Bind their existing SQL hashes and exact expression shape; admit no arbitrary function/read clauses, add no invented table SELECT or helper EXECUTE qualification."
+    },
+    {
+      "blocking_plan_finding": false,
+      "id": "PRESERVE_EXACT31",
+      "requirement": "Use the exact31-entry assets_sha256 in the pinned Root record as authoritative, including every31 old asset. The plan preservation sentence says30; treat this as stale prose, never as authority to omit a file."
+    },
+    {
+      "blocking_plan_finding": false,
+      "id": "CLOSED_SOURCE_ADMISSION",
+      "requirement": "The new coordinator SELF/test/doc and every new dependency must be admitted explicitly. Do not add a pglast or arbitrary live-path import to the closed runtime. This review uses pglast solely as an offline syntax parser; frozen7/202 and existing loader/security boundaries stay unchanged."
+    },
+    {
+      "blocking_plan_finding": false,
+      "id": "CODE_REVIEW_STILL_REQUIRED",
+      "requirement": "Code review must freeze exact diagnostic SQLSTATE allowlist, output/exit bounds, strict typed fields and no-result/default distinction; exercise source-sensitive old-restoration, invalid-column-verb, exact200 map, first-cause/global-closure/IO/redaction and actual full-factory/pinner/PENDING composition tests. No generic canned dictionary/factory may mask the changed SQL."
+    }
+  ],
+  "plain_english": "The plan checks the right keys for each locked door. The plan is ready for Root to approve coding. The new code still needs its own review, and this does not allow another database run.",
+  "plan": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege_metadata_v6_bounded_source_correction_plan_20261120.json",
+    "sha256": "efc4949ed202f8d8b83f13f13ff957c7c9a629aeb95592e31fb29f9c8065e580"
+  },
+  "recorded_at_UTC": "2026-11-20T06:51:48.271728+00:00",
+  "review_conclusions": [
+    "The 41 DELETE requirements retain mandatory table DELETE and separately check SELECT on predicate columns. UPDATE63 keeps target UPDATE distinct from read SELECT; literal VALUES43 adds no invented table SELECT.",
+    "SELECT count(id)2 requires id SELECT via table/column fallback; SELECT1 FROM table9 uses table-or-any-actual-column SELECT and cannot vacuously allow an empty read set.",
+    "TRUNCATE4 remains table-only. Provider function9 is schema-only; no unrelated table witness authority or deeper EXECUTE/body verdict is introduced.",
+    "SET_ROLE14, SCHEMA_CREATE8, helper EXECUTE4 and exact immutable guard3 remain bounded. Twenty immutable-field UPDATE cases retain their actual NATIVE_ACL contracts rather than becoming trigger verdicts.",
+    "The proposed fixed metadata receipt precedes failure, separates result-received from default booleans, preserves first failure and sticky IO, reaps before required global closure, stops subsequent actors/observers on uncertainty and admits no raw diagnostic text.",
+    "Frozen P.diagnostic AST can remain unchanged because the metadata adapter can present its existing safe fields with corrected component semantics. Any actual need to change that protocol is a new review issue, not implicit permission.",
+    "New namespace five/child/archives and pending non-author code-review gates preserve old frozen inputs; plan approval grants no literal/runtime approval."
+  ],
+  "reviewer": "/root/privilege_mount_v2_review",
+  "schema": "workinants.privilege-metadata-v6-independent-source-plan-review.v1",
+  "scope": "Exact metadata-correction PLAN only; no source implementation, runtime approval, status qualification, permission repair or retry."
+}

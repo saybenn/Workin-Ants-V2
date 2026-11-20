@@ -1,0 +1,40 @@
+{
+  "schema": "workinants.privilege-metadata-v6-owned-static-delta-audit.v1",
+  "recorded_at_utc": "2026-11-20T07:49:52.709261+00:00",
+  "rows": [
+    {
+      "old": "execute_local_f0_privilege_ceiling_person_subject_v5_20261119.py",
+      "new": "execute_local_f0_privilege_ceiling_metadata_v6_20261120.py",
+      "existing_functions_changed": [],
+      "functions_added": []
+    },
+    {
+      "old": "local_f0_privilege_ceiling_person_subject_v5_operation_steps.py",
+      "new": "local_f0_privilege_ceiling_metadata_v6_operation_steps.py",
+      "existing_functions_changed": [
+        "admit_privilege_ceiling_sources",
+        "verify_privilege_result"
+      ],
+      "functions_added": [
+        "privilege_metadata_receipt_allowed"
+      ]
+    },
+    {
+      "old": "prepare_local_f0_privilege_ceiling_person_subject_v5_plan.py",
+      "new": "prepare_local_f0_privilege_ceiling_metadata_v6_plan.py",
+      "existing_functions_changed": [
+        "prepare"
+      ],
+      "functions_added": []
+    },
+    {
+      "old": "pin_local_f0_privilege_ceiling_person_subject_v5_plan_20261119.py",
+      "new": "pin_local_f0_privilege_ceiling_metadata_v6_plan_20261120.py",
+      "existing_functions_changed": [],
+      "functions_added": []
+    }
+  ],
+  "intended_changes": "Steps admission requires new child test/doc before compile; result validator requires exact successful typed metadata receipt for197 cases and none for3 immutable cases. Pure preparer adds both required data files to actual source inventory. Pinner adds them to required data closure; its functions unchanged. Core namespace-only.",
+  "runtime": "NOT_RUN",
+  "source_gates": "PENDING"
+}

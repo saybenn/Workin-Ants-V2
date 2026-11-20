@@ -1,0 +1,33 @@
+class CustomNamespaceFix3Tests(unittest.TestCase):
+    setUp=BoundEvidenceTests.setUp
+    def matrix(self):
+        path=R/'context/reconciliation/local-f0-operation-sources/restore-bound-evidence-v4/reviews/fix3/45-custom-probe.json';raw=path.read_bytes();self.assertEqual(sha(raw),'78af420710aca8854b9380114a57716edc2816beb28f79e449bf1efd3f9b293c');rows=json.loads(raw)['custom_namespace_vectors'];self.assertEqual(len(rows),45);return rows
+    def test_all45_parse_valid_custom_names_are_admitted_with_exact_bytes(self):
+        from pglast import parse_sql,ast as pgast
+        formerly_rejected=0
+        for row in self.matrix():
+            tree=parse_sql(row['sql']);self.assertTrue(any(isinstance(x.stmt,pgast.VariableSetStmt) for x in tree));self.assertEqual(row['expected'],'ADMITTED_EXACT_BUSINESS');facts={};self.assertEqual(self.n['normalize_bound_envelope'](row['sql'],facts),row['sql']);self.assertTrue(facts['business_bytes_preserved']);self.assertEqual(facts['emitted_commit_count'],1)
+            formerly_rejected+=row['actual']=='REJECTED'
+        self.assertEqual(formerly_rejected,19)
+    def test_restoring_only_Fix2_predicate_rejects19_and_preserves6_old13_new_history(self):
+        from copy import deepcopy
+        root=R/'context/reconciliation/local-f0-operation-sources/restore-bound-evidence-v4'
+        old_path=root/'preserved-held-v4-fix2/local_f0_restore_operation_steps_bound_evidence_v4.py.txt';old_raw=old_path.read_bytes();self.assertEqual(sha(old_raw),'a185177d3990866dfdf9fdfc32196698e4c7f558c09877c67efec488c21344ea')
+        def function(raw):return next(x for x in ast.parse(raw).body if isinstance(x,ast.FunctionDef) and x.name=='normalize_bound_envelope')
+        def classifier(node):return next(x for x in node.body if isinstance(x,ast.FunctionDef) and x.name=='transaction_control')
+        current=function(STEPS.read_bytes());old=function(old_raw);restored=deepcopy(current);self.assertIsInstance(classifier(old).body[-1],ast.Return);classifier(restored).body[-1].value=deepcopy(classifier(old).body[-1].value);scope=dict(self.n);exec(compile(ast.fix_missing_locations(ast.Module(body=[restored],type_ignores=[])),'RESTORED_ONLY_FIX2_TRANSACTION_PREDICATE','exec'),scope)
+        first_raw=(root/'preserved-held-v4-fix1/local_f0_restore_operation_steps_bound_evidence_v4.py.txt').read_bytes();self.assertEqual(sha(first_raw),'0640945a621b6914b9076b8d248a4f2f0c4c485fd42f7227dee67dacaf3cdcd8');first=dict(self.n);exec(compile(ast.Module(body=[function(first_raw)],type_ignores=[]),'EXACT_FIRST_HELD_NORMALIZER','exec'),first)
+        rejected=[];old6=[]
+        for row in self.matrix():
+            try:scope['normalize_bound_envelope'](row['sql'],{})
+            except self.n['Stop']:rejected.append(row['sql'])
+            try:first['normalize_bound_envelope'](row['sql'],{})
+            except self.n['Stop']:old6.append(row['sql'])
+        self.assertEqual(len(rejected),19);self.assertEqual(len(old6),6);self.assertTrue(set(old6)<=set(rejected));self.assertEqual(len(set(rejected)-set(old6)),13)
+        def require_business_admission(normalizer,source):
+            try:actual=normalizer(source,{})
+            except self.n['Stop']:self.fail('OLD_PREDICATE_FALSE_REJECTS_VALID_CUSTOM_NAME')
+            self.assertEqual(actual,source)
+        for source in rejected:
+            self.assertEqual(self.n['normalize_bound_envelope'](source,{}),source)
+            with self.assertRaises(AssertionError):require_business_admission(scope['normalize_bound_envelope'],source)

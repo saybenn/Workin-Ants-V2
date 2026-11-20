@@ -1,0 +1,122 @@
+{
+  "schema": "workinants.worker-v2-b42c-independent-literal-probe.v1",
+  "status": "PASS_READONLY_LITERAL_BINDINGS",
+  "source": {
+    "commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+    "tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+    "packet_sha256": "13985c51d69a30f776bfa9c653bd507ae6f2634639b4d11151d67e5e239f0882",
+    "packet_files": 601,
+    "external5_sha256": {
+      "execute_local_f0_worker_recovery_guard_observation_v2_20261119.py": "dd7e851d83ac794ef4403ce73489b8a4e86df7f1293dbcb7eb04a2f1c78559c4",
+      "local_f0_worker_recovery_guard_observation_v2_operation_steps.py": "654319c0676ae37dd7a23ae2c4bc253ddcc5c58850d959d3bf5c450d45e0e071",
+      "prepare_local_f0_worker_recovery_guard_observation_v2_plan.py": "b245e93aa35d16c80221f9b496f0fa0681cd4b193af7706087e432f73e142d99",
+      "check_local_f0_worker_recovery_guard_observation_v2_operation.py": "4cf6878555f3888ce4b317e7a14c74f67d0a7e45ecc13e0ef9d47f1ef6e0bb5f",
+      "pin_local_f0_worker_recovery_guard_observation_v2_plan_20261119.py": "ccd22bb3f11e0b104b59430d372870800f2c16d4c0fae9aa88da4a7c1157d25f"
+    }
+  },
+  "pending_literal": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-worker-recovery-plan-b42c35d5\\operation-manifest.json",
+    "sha256": "98fdf2198a16d04bda5dfbd5a1ff96cc35703938d9f9acc8850e20840fabf6d1",
+    "run_id": "b42c35d5-f574-444e-b480-67670c56c7c5"
+  },
+  "current601_and_actual_committed601_verified": true,
+  "Git_read_only_calls": [
+    [
+      "git",
+      "cat-file",
+      "--batch"
+    ],
+    [
+      "git",
+      "rev-parse",
+      "5f189aa6262bd5ecbffda0940e404038993fce05^{tree}"
+    ],
+    [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ]
+  ],
+  "current_HEAD": "5f189aa6262bd5ecbffda0940e404038993fce05",
+  "source_review_sha256": "e4a141ca4992e27ef0d88a9a37d86b31006d01aee1e473435e14e0747d4bd616",
+  "owned_archive_files": 352,
+  "child_archive_files": 77,
+  "source_snapshot7_and_TAR7_verified": true,
+  "source_archive_sha256": "f68cbb28f05dbdcaeee6131b1ea78bbcc6f5d8fd11d14bd8acdd1e1ce64f7093",
+  "tool_archive": {
+    "sha256": "481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb",
+    "bytes": 113900903,
+    "regular_members": 10300,
+    "all_member_SHA256_and_closed_set_match": true,
+    "seconds": 4.094
+  },
+  "scope": {
+    "cases": 21,
+    "SQL_artifacts": 40,
+    "source_files": 59,
+    "finite_caps": {
+      "case_count": 21,
+      "jobs": 3,
+      "business_groups": 2,
+      "audit_attempts": 3,
+      "grant_instances_max": 80,
+      "clock_wait_seconds_max": 150,
+      "simultaneous_worker_sessions_max": 2,
+      "worker_loop": false
+    },
+    "selected_controls": [
+      "P0C-TABLE-OwnerMutationEvidence-ALLOW",
+      "P0C-TABLE-RuntimeAttempt-ALLOW",
+      "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+      "P0C-TABLE-RuntimeEffectReceipt-ALLOW",
+      "P0C-TABLE-RuntimeInboxReceipt-ALLOW",
+      "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+      "P0C-TABLE-TrackBaseSelection-ALLOW",
+      "P0C-TABLE-TrackEnrollmentReceipt-ALLOW",
+      "P0C-TABLE-TrackEntitlementGrant-ALLOW",
+      "P0C-TABLE-TrackSubscription-ALLOW",
+      "P0C-TRACK-01"
+    ],
+    "case_names": [
+      "genuine-effect-committed-work-still-leased",
+      "current-worker-read-TrackSubscription",
+      "current-worker-read-TrackEntitlementGrant",
+      "current-worker-read-RuntimeCommandReceipt",
+      "current-worker-read-RuntimeOutboxMessage",
+      "current-worker-read-RuntimeEffectReceipt",
+      "current-worker-read-RuntimeAttempt",
+      "current-worker-read-RuntimeInboxReceipt",
+      "current-worker-read-OwnerMutationEvidence",
+      "current-worker-read-TrackBaseSelection",
+      "current-worker-read-TrackEnrollmentReceipt",
+      "copied-readable-hash-is-not-preimage",
+      "nonnull-effect-relink-denied",
+      "null-pointer-foreign-same-fence-effect-denied",
+      "real-higher-fence-reclaim-with-retained-effect",
+      "fresh-holder-recognizes-original-lower-fence-effect",
+      "valid-current-Free-selection-survives-duplicate-attempt",
+      "fresh-processing-old-fence-denied",
+      "fresh-processing-old-preimage-denied",
+      "terminal-work-trigger-denial-rolls-back-completion",
+      "original-effect-completes-once-without-reenrollment"
+    ]
+  },
+  "pending_refusal": {
+    "actual_launch_exit": 1,
+    "source_Stop_codes": [
+      "WORKER_RECOVERY_EXACT_OPERATION_NOT_REVIEWED"
+    ],
+    "outer_Steps_compiled": 1,
+    "project_helpers_compiled": 0,
+    "OUT_private_absent": true,
+    "manifest_unchanged": true,
+    "qualification": "Operational PENDING is checked in outer Steps.main after exactly hash-verified outer Steps compile, before project helper compile or OUT creation."
+  },
+  "seconds": 9.094,
+  "limits": [
+    "Only explicit read-only local Git commands; no Git mutation/network",
+    "No Docker/database/SQL/resource/credential action",
+    "No source/manifest/gate/progress mutations",
+    "Endpoint/server/image/resource-name live preflight remains Root responsibility and must be fresh before status flip/execution"
+  ]
+}

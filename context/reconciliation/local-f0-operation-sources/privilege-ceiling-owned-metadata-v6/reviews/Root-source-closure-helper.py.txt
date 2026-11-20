@@ -1,0 +1,37 @@
+"""Root source closure after separate V6 review; no runtime or SQL mutation."""
+from pathlib import Path
+import ast,datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+peerp=T/'privilege_metadata_v6_independent_source_review_20261120.json';pb=peerp.read_bytes();assert sha(pb)=='1aa55cc97c1c27d59d117c1585994dc34404c49b57ea3f2ae3aed701d712b68e';peer=json.loads(pb)
+assert peer['decision']=='SOURCE_APPROVED_BOUNDED_METADATA_V6_ONLY'and peer['findings']==[]
+addp=T/'privilege_metadata_v6_independent_gate_observation_addendum_20261120.json';ab=addp.read_bytes();assert sha(ab)=='7308661a0c37c2fd41282123b7be6718cb54d0aa77ee2d240d9812b2c52a07d5'
+dp=T/'privilege_metadata_v6_frozen_author_delivery_20261120.json';db=dp.read_bytes();assert sha(db)=='c42cf17003e7fef832ec713d6862635b64320f78a040d137a2b18e8c1cf13bd7'
+cp=R/'context/reconciliation/privilege-ceiling-metadata-v6-source-validation.json';cb=cp.read_bytes();assert sha(cb)=='9844836c415f7110ab927a2284ca0b19d7f1d8cc12343c9d09b8c7ebd18bb66e';c=json.loads(cb)
+op=R/'context/reconciliation/local-f0-privilege-ceiling-owned-metadata-v6-source-validation.json';ob=op.read_bytes();assert sha(ob)=='c15330ea185798275e5a2bce5c2a369fa34c532e5b0cbca96b1d9ee347c8a065';o=json.loads(ob)
+assert c['review_gate']=='PENDING'and o['independent_safety_sql_review']['decision']=='PENDING'
+archive=R/'context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-metadata-v6';oldmap=o['archive_files_sha256'];assert len(oldmap)==60 and {p.relative_to(R).as_posix():sha(p.read_bytes())for p in archive.rglob('*')if p.is_file()}==oldmap
+five=o['operator_sources_sha256'];assert len(five)==5
+for name,h in five.items():assert sha((T/name).read_bytes())==h and (archive/(name+'.txt')).read_bytes()==(T/name).read_bytes();ast.parse((T/name).read_bytes())
+for name,h in c['source7_sha256'].items():assert sha((R/name).read_bytes())==h
+assert c['coordinator_sha256']=='55595f4a5013c186062d23ee190f1bf04476993e050ed2c4fa746bb0d5b55bed'
+assert o['offline_author_checks']['final_child_affected_PASS']==12 and o['offline_author_checks']['final_owned_PASS']==95
+root={'schema':'workinants.privilege-metadata-v6-Root-source-closure.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'reviewer':'/root','decision':'SOURCE_APPROVED','scope':'EXACT_METADATA_V6_CHILD_AND_FIVE_OWNED_ONLY','operator_sources_sha256':five,'child_source7_sha256':c['source7_sha256'],'coordinator_sha256':c['coordinator_sha256'],'independent_review_sha256':sha(pb),'independent_gate_addendum_sha256':sha(ab),'accepted_basis':{'independent_tests':'19focusedPASS:12child54.495s+7owned72.675s; exact200AST/projections, receipts, fullsource/finite/entry gates. PrimaryPG17docs/REL_17_11independentlyreopened.','author_tests':'12affectedPASS58.458s+95owningPASS162.107s; priorfailedtestharnessrunsretained.','privilege_semantics':'Separate schema/table/column requirements for actual clauses, mandatory TABLEDELETE/TRUNCATE, any-column SELECT only for source-proven empty read sets, separate UPDATEwrites/reads; no unrelated table projection for max-schema provider functions.','metadata_receipts':'Fixed bounded prethrow facts, actualint onlywhenobserved, closedSQLSTATEclassifier, strictCRLF/control parsing, no rawrows/SQL/stderr/passwords/handles. Metadata connection closure precedes independent global closure/future actors; IO and primaryfailuresticky.','unchanged':'All200SQL/roles/grants/16definers/3issuerprotocols/244outcomes/40validity205facts100guards/canonical5ae/worker32; frozenfiveexact.','historical_limits':'Actual old56a87queryexit/SQLSTATE/stderr/fullcause remain NOT_RETAINED/UNOBSERVED. UnsupportedDELETE projection is proven source analysis consistent with stop, not invented olddiagnostic.','aux_inventory_aggregate':'3b61 auxiliary recipe remains UNINTERPRETED; exact inventorySHA5e17+all65individualfilehashes/archive60 were independently verified. New Root inventory uses explicit path-NUL-SHA-newline recipe.'},'runtime':'NOT_RUN_FOR_METADATA_V6','literal_approval':False,'Posture':'D'}
+rr=archive/'reviews/Root-metadata-v6-source-closure-20261120.json';put(rr,enc(root))
+copies={'child-validation-before-Root-closure.json':cb,'owned-validation-before-Root-closure.json':ob,'Catalog-metadata-v6-independent-source-review.json':pb,'Catalog-metadata-v6-gate-addendum.json':ab,'author-frozen-delivery.json':db,'Root-source-closure-helper.py.txt':Path(__file__).read_bytes()}
+for name,b in copies.items():put(archive/'reviews'/name,b)
+indp=archive/'reviews/Catalog-metadata-v6-independent-source-review.json';ind={'decision':'SOURCE_APPROVED','path':indp.relative_to(R).as_posix(),'sha256':sha(pb),'scope':'SOURCE_APPROVED_BOUNDED_METADATA_V6_ONLY','operator_sources_sha256':five,'coordinator_sha256':c['coordinator_sha256'],'gate_addendum':{'path':(archive/'reviews/Catalog-metadata-v6-gate-addendum.json').relative_to(R).as_posix(),'sha256':sha(ab)}}
+rootref={'decision':'SOURCE_APPROVED','path':rr.relative_to(R).as_posix(),'sha256':sha(rr.read_bytes()),'operator_sources_sha256':five,'coordinator_sha256':c['coordinator_sha256']}
+c.update(review_gate='SOURCE_APPROVED',status='SOURCE_APPROVED_BOUNDED_METADATA_V6_RUNTIME_NOT_RUN',independent_source_review=ind,Root_source_review=rootref)
+cp.write_bytes(enc(c));newmap={p.relative_to(R).as_posix():sha(p.read_bytes())for p in archive.rglob('*')if p.is_file()};assert len(newmap)==67 and all(newmap[k]==h for k,h in oldmap.items())
+o['archive_files_sha256']=newmap;o['independent_safety_sql_review']=ind;o['Root_source_review']=rootref;o['corrected_child_validation']['sha256']=sha(cp.read_bytes());o['status']='SOURCE_APPROVED_EXACT_METADATA_V6_RUNTIME_NOT_RUN';op.write_bytes(enc(o))
+files={**newmap,cp.relative_to(R).as_posix():sha(cp.read_bytes()),op.relative_to(R).as_posix():sha(op.read_bytes())}
+for name in c['source7_sha256']:
+ if name in ('scripts/sql-review/run-privilege-ceiling-control-rehearsal-metadata-v6.py','scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_metadata_v6.py','scripts/sql-review/PRIVILEGE-CEILING-CONTROL-REHEARSAL-METADATA-V6.md'):files[name]=sha((R/name).read_bytes())
+assert len(files)==72
+inventory={'schema':'workinants.metadata-v6-source-approved-committable-inventory.v1','recorded_at_utc':root['recorded_at_utc'],'files_sha256':files,'file_count':len(files),'files_aggregate_sha256':sha(''.join(k+'\0'+files[k]+'\n'for k in sorted(files)).encode()),'aggregate_recipe':'SHA256(UTF8(concat(sorted path + NUL + lowercaseSHA256 + newline)))','archive_files':67,'child_validation_sha256':sha(cp.read_bytes()),'owned_validation_sha256':sha(op.read_bytes()),'source_code_unchanged':True,'runtime':'NOT_RUN','Posture':'D'}
+p=T/'privilege_metadata_v6_source_approved_committable_inventory_20261120.json';put(p,enc(inventory))
+print(json.dumps({'inventory_sha256':sha(p.read_bytes()),'files':len(files),'archive_files':67,'child_validation_sha256':inventory['child_validation_sha256'],'owned_validation_sha256':inventory['owned_validation_sha256'],'source_code_unchanged':True,'runtime':'NOT_RUN'}))

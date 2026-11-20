@@ -1,0 +1,113 @@
+{
+  "schema": "workinants.six-final-read-integrity-same-independent-reviewer-closure.v1",
+  "recorded_at_utc": "2026-11-20T09:06:47.047540+00:00",
+  "reviewer": "/root/catalog_v4_review",
+  "decision": "SOURCE_APPROVED_SCOPED6_FINAL_READ_INTEGRITY_FINDING_CLOSED",
+  "finding": "SCOPED6-FINAL-READ-INTEGRITY-01",
+  "finding_status": "CLOSED",
+  "findings": [],
+  "original_HOLD_sha256": "9b5a7f1e47be05ed94857bc26d67baa68b0c753e17c57d2bd350acbfdcb8d554",
+  "original_counterexample_sha256": "c7347dd49d218db248d036acc779e481e301e04efc3b8730ca58737a64badfd6",
+  "fixed_delivery_sha256": "aa14023df3ab37b893811ef6820467dc0e4e3cb4dbcbb494ae9ccbd11ce51c90",
+  "fixed_freeze_sha256": "d09746775a60d3249c0e06dd6f33f0e56024858abbc551e2edd5b0f386eca7bc",
+  "source_files_sha256": {
+    "scripts/local_f0_scoped_read_evidence.py": "dc67a3a0ed60a27296cd4d007a8a8de212d17bb1c6d2ea066693c706f9e615fa",
+    "scripts/check-local-f0-scoped-read-evidence.py": "635fd23f00bbc754220d9300b1dec04dcc8b212508cd3c3e09455b0c175eda10",
+    "scripts/prepare-local-f0-status.py": "a46a52c26052ccc0141664a1030311b6884fd95637a0dd01e800561fd603b649",
+    "context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json": "07b49506e56918515816949e628569f89ba12066d2b7ecc2ecf60977bf92fe7f",
+    "context/reconciliation/local-f0-scoped-read-evidence-adapter-v1-source-validation.json": "96389781ca4b261112587032fa5899464c82150c40dbcaae0772a92d13131eeb"
+  },
+  "exact_delta": {
+    "only_runtime_function_changed": "_read",
+    "only_import_added": "os",
+    "reverting_only_two_deltas_reproduces_full_original_bytes": "c2a6389376311cc37cf3e73a007ca8185a85ccf19cdc10baa085ce80cbf913c7",
+    "all403_pins_six_claims_types_semantics_batch_final_barrier_dispatcher_derived_unchanged": true
+  },
+  "independent_checks": [
+    {
+      "kind": "four_new_focused_methods",
+      "session": 82219,
+      "exit_code": 0,
+      "passed": 4,
+      "seconds": 74.564,
+      "log": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\six_adapter_reader_fix_independent_focused4_20261120.log",
+      "log_sha256": "0e26c6f3d28a42dd549093dd4a673b3589c0bdc22d17483dea79a9d7942e365c",
+      "scope": "Actual API race/old-reader-only tripwire, metadata-stable fresh bytes, valid Windows cross-ctime/descriptor mismatch, actual private CLI race produces no output."
+    },
+    {
+      "kind": "original_same_reviewer_actual_API_counterexample",
+      "probe": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\six_adapter_reader_fix_same_reviewer_actual_probe_20261120.json",
+      "probe_sha256": "a482c83d0391467301905fb58cae91be06c252ddb98b5b986d1c692dff933d6c",
+      "fixed": {
+        "reader": "FIXED_EXACT_CURRENT_READER",
+        "actual_API": "prepare_batch + all6 validate_claim + verify_unchanged + require_finalized",
+        "mutation_during_final_read": true,
+        "same_inode_size_mtime_device_nlink": true,
+        "disk_matches_pinned_after_return": false,
+        "private_claim_status_after": "FAIL",
+        "barrier_returned_true": false,
+        "finalized_returned_true": false,
+        "safe_failure": "FILE_CHANGED_DURING_READ",
+        "sticky_unfinalized": true,
+        "readers_closed": true,
+        "factory_PINS_expected_hashes_unchanged": true
+      },
+      "old_reader_only_restoration": {
+        "reader": "ONLY_OLD_READER_RESTORED",
+        "actual_API": "prepare_batch + all6 validate_claim + verify_unchanged + require_finalized",
+        "mutation_during_final_read": true,
+        "same_inode_size_mtime_device_nlink": true,
+        "disk_matches_pinned_after_return": false,
+        "private_claim_status_after": "FAIL",
+        "barrier_returned_true": true,
+        "finalized_returned_true": true,
+        "safe_failure": null,
+        "sticky_unfinalized": false,
+        "readers_closed": true,
+        "factory_PINS_expected_hashes_unchanged": true
+      },
+      "factory_PINS_proof_hashes_unchanged": true
+    },
+    {
+      "kind": "source_scope_and_preservation",
+      "Root44_current_and_frozen_copies": true,
+      "closed_archive39": true,
+      "author_files491": true,
+      "closed_inputs403": true,
+      "old_frozen27": true,
+      "Native303_Audit3": true,
+      "old_HOLD_probe_baseline_preserved": true,
+      "unchanged_hashes": {
+        "context/reconciliation/local-f0-assertion-evidence.json": "3c13e345ba907d5944bb12806ad7abeb5a6d673cac00bc8e3c769e19bb04c047",
+        "context/reconciliation/local-f0-qualification-status.json": "87f3737ff002bc73833d5a3f5e31601a11c97f412e54d3f85b1e7be7cc10d64d",
+        "scripts/check-local-f0-status.py": "38f5ca5b5609397938676cff5b46351cc618c3fee27d11ef99655b2e0150feb3",
+        "scripts/local_f0_native_complete_evidence.py": "50dfe9c1ae661785e408ad9707473028c6bc9b4d2ee308bdaad1844905668b76",
+        "scripts/prepare-local-f0-status.py": "a46a52c26052ccc0141664a1030311b6884fd95637a0dd01e800561fd603b649",
+        "context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json": "07b49506e56918515816949e628569f89ba12066d2b7ecc2ecf60977bf92fe7f"
+      }
+    }
+  ],
+  "reviewed_reader_contract": [
+    "Typed bounded regular/single-link lstat, path confinement and symlink rejection; source-derived hash cap remains8MiB per file.",
+    "Path/open/after-handle six identity fields must agree. Ctime is stable path-to-path and descriptor-to-descriptor; cross-API ctime equality is deliberately not assumed on Windows.",
+    "Both reads use cap+1 and verify exact length/expected hash. The second read opens only after the first handle closes and must match the first bytes plus original path version. This rejects the demonstrated stale returned buffer even with stable projected metadata.",
+    "A failed final read leaves the batch sticky-unfinalized; no private builder status file is emitted. The old reader alone restores the exact counterexample, establishing regression sensitivity."
+  ],
+  "scope_and_limits": {
+    "maximum_SQL_SELECT_assertion_links": 6,
+    "owner_write_API_worker_or_generic_vector_claim": false,
+    "whole_case_94_451_promotion": false,
+    "perpetual_filesystem_atomicity_claim": false,
+    "real653_Row_Root_builder": "NOT_RUN_BY_REVIEWER",
+    "real_ledger_status_checker_gate_writes": false,
+    "runtime_services_resources_Git_SQL_network": false,
+    "Posture": "D"
+  },
+  "lineage_disclosure": "Same reviewer who found the original race. I authored historical Six/Owner harness inputs but did not author this new pure adapter or its reader correction; their bounded source delta is independently reviewed here.",
+  "gates_observed_unmodified": {
+    "independent_adapter_source_review": "PENDING",
+    "Root_source_review": "PENDING"
+  },
+  "next": "Root may reconcile source metadata and run the actual full653-row builder/checker under its separate authority. This review itself changes no qualification record.",
+  "plain_english": "The reader now looks twice after closing the first file. The old trick is rejected, and the project scoreboard cannot be saved from that stale proof. Only the six already reviewed SQL reads can be counted later."
+}

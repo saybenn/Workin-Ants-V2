@@ -1,0 +1,161 @@
+{
+  "schema": "workinants.privilege-metadata-v6-independent-code-review.v1",
+  "recorded_at_utc": "2026-11-20T08:33:43.941474+00:00",
+  "reviewer": "/root/catalog_v4_review",
+  "decision": "SOURCE_APPROVED_BOUNDED_METADATA_V6_ONLY",
+  "lineage_disclosure": "I authored historical Owner-family and selected other harness components; I did not author this Privilege V6 coordinator, descriptors, owned five, tests, or plan. This review covers the new bounded delta and its actual composed entry; it does not independently rerun every unchanged historical test.",
+  "findings": [],
+  "delivery_sha256": "c42cf17003e7fef832ec713d6862635b64320f78a040d137a2b18e8c1cf13bd7",
+  "new_child3_sha256": {
+    "scripts/sql-review/run-privilege-ceiling-control-rehearsal-metadata-v6.py": "55595f4a5013c186062d23ee190f1bf04476993e050ed2c4fa746bb0d5b55bed",
+    "scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_metadata_v6.py": "2f76a596575bf4dab39167f0d71c07de91da134366f6cd5dc4fafde9861a722a",
+    "scripts/sql-review/PRIVILEGE-CEILING-CONTROL-REHEARSAL-METADATA-V6.md": "cf88cd109bef7a94545478a845541fdf25cedd891ccc9e329956e34a5e5c0eb8"
+  },
+  "new_external5_sha256": {
+    "execute_local_f0_privilege_ceiling_metadata_v6_20261120.py": "18c966276ff39ff8ae329685c45457601120da870940f943f36189505d5b7aa5",
+    "local_f0_privilege_ceiling_metadata_v6_operation_steps.py": "f404690a9478b5497a386f77a3e5508d10a9a4f92e75aa6a6cae88f69a1c9ad4",
+    "prepare_local_f0_privilege_ceiling_metadata_v6_plan.py": "4fae630c796f72df66f3773ef130f5bf94fb0b39c65262d69225dea5807e6d72",
+    "check_local_f0_privilege_ceiling_metadata_v6_operation.py": "f9c343337dd3394566afb825b526331b77493e412292189c7fc8acf443a42252",
+    "pin_local_f0_privilege_ceiling_metadata_v6_plan_20261120.py": "9e351f0b8579cc1ae7a90c5eff3e19c72289479ea45de20be3160b08ffc4bbe0"
+  },
+  "Root_inventory_sha256": "5e17c540bd837665e445809fcbc91a31cbeebaf076457d7eb27470ca82845e47",
+  "auxiliary_inventory_aggregate": {
+    "recorded_sha256": "3b61c3909d2f7c4d049abc9c9a0243ee2b1bc6d2e44bff58b3f526c710b6b510",
+    "recipe": "UNINTERPRETED_NOT_RECOMPUTED",
+    "binding": "Exact inventory JSON SHA and each of65 file bytes independently verified. Root instructed that unknown auxiliary recipe is not a source finding; runtime pinner recomputes its exact admission map."
+  },
+  "closed_inventory": {
+    "Root_current": 65,
+    "closed_archive": 60,
+    "old_current_and_preserved": 1067,
+    "Native_PINS": 303,
+    "Native_AUDIT_PINS": 3,
+    "legacy_ledger_status_checker_unchanged": true
+  },
+  "source_deltas": {
+    "existing_top_child_changed": [
+      "load_inputs",
+      "runner_type"
+    ],
+    "existing_Runner_methods_changed": [
+      "failure_metadata",
+      "metadata"
+    ],
+    "new_pure_functions": [
+      "metadata_boolean_shape",
+      "metadata_diagnostic_projection",
+      "metadata_query_spec",
+      "metadata_sqlstate",
+      "validate_metadata_descriptors"
+    ],
+    "all_other_existing_child_definitions_AST_equal": true,
+    "Core_AST_equal_after_exact_steps_filename_normalization": true,
+    "imports_equal_no_runtime_parser_dependency": true
+  },
+  "independent_SQL_AST_proof": {
+    "cases": 200,
+    "statements": 765,
+    "profile_counts": {
+      "COLUMN_REFERENCING_SELECT": 2,
+      "EXACT_SOURCE_IMMUTABLE_GUARD_UNCHANGED": 3,
+      "FUNCTION_EXECUTE_WITH_SCHEMA": 4,
+      "LITERAL_UPDATE_WITH_PREDICATE_SELECT": 63,
+      "LITERAL_VALUES_INSERT": 43,
+      "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT": 41,
+      "MANDATORY_TABLE_TRUNCATE": 4,
+      "PROVIDER_SCHEMA_ONLY_FUNCTION_CALL": 9,
+      "PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN": 9,
+      "ROLE_SET": 14,
+      "SCHEMA_CREATE": 8
+    },
+    "relation_statement_verbs": {
+      "DELETE": 41,
+      "INSERT": 43,
+      "SELECT": 11,
+      "TRUNCATE": 4,
+      "UPDATE": 63
+    },
+    "each_role_diagnostic_SQL_hash_and_actual_relation_write_read_columns_match": true
+  },
+  "independent_tests": [
+    {
+      "log": "privilege_v6_independent_focused_20261120.log",
+      "sha256": "7b548b5f3baa5892e16f7eeabfbfce4daafcff078f19e4824699cf60f8170398",
+      "tests": 12,
+      "passed": 12,
+      "seconds": 54.495,
+      "session": 85390,
+      "exit_code": 0,
+      "scope": "Ten new metadata tests, real loader, full200/16/40/3/244 process-only mocked protocol."
+    },
+    {
+      "log": "privilege_v6_independent_owned_focused_20261120.log",
+      "sha256": "9fd6d6ca73e091c2bf9b00eb47f127e13f38d178cdb35769b733f632b4022c7f",
+      "tests": 7,
+      "passed": 7,
+      "seconds": 72.675,
+      "session": 13631,
+      "exit_code": 0,
+      "scope": "Typed receipt mutants, actual202 preparation, initialized entry missing README/PENDING/full source gate, actual child composition, unconditional parent closure."
+    }
+  ],
+  "primary_basis": [
+    {
+      "url": "https://www.postgresql.org/docs/17/functions-info.html",
+      "section": "9.27.2",
+      "independently_read": true,
+      "supports": "Column/any-column helpers admit SELECT INSERT UPDATE REFERENCES only; table helper separately admits DELETE/TRUNCATE. Table grants also satisfy their corresponding column inquiries."
+    },
+    {
+      "url": "https://www.postgresql.org/docs/17/sql-insert.html",
+      "independently_read": true,
+      "supports": "Listed INSERT columns need INSERT; RETURNING/query references require corresponding SELECT. Frozen VALUES constants have no such relation reads."
+    },
+    {
+      "url": "https://www.postgresql.org/docs/17/sql-update.html",
+      "independently_read": true,
+      "supports": "Changed columns require UPDATE; expression/predicate references separately require SELECT."
+    },
+    {
+      "url": "https://www.postgresql.org/docs/17/sql-delete.html",
+      "independently_read": true,
+      "supports": "DELETE is a table privilege; read predicates separately require SELECT."
+    },
+    {
+      "url": "https://www.postgresql.org/docs/17/ddl-priv.html",
+      "independently_read": true,
+      "supports": "DELETE/TRUNCATE are table privileges; schema USAGE is a separate lookup boundary."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/executor/execMain.c",
+      "lines": "622-735",
+      "independently_read": true,
+      "supports": "Relation privileges are subtracted first. Only remaining SELECT/INSERT/UPDATE fall back to columns. Empty selectedCols uses ANY-column SELECT; actual read columns and inserted/updated column sets are checked separately. Failures may report a table-level ACL error. This proves no particular first-failure ordering for a live run."
+    }
+  ],
+  "reviewed_contracts": [
+    "All200 frozen SQL hashes and role/diagnostic descriptors are bound before metadata. DELETE/TRUNCATE never request invalid column privilege types; UPDATE writes and actual RHS/WHERE/RETURNING reads are distinct.",
+    "Nine provider function probes collect schema-only metadata; no unrelated-table lookup or unsupported deeper function/table qualification. SELECT1 uses actual any-column SELECT. Five fixed digest INSERTs introduce no relation read claim.",
+    "Twenty issuer immutable-field updates remain NATIVE_ACL tests; only three exact revoke cases use the grant_guard diagnostic. Native ACL/SQLSTATE alone never substitutes for the unchanged strict source diagnostic.",
+    "Metadata receipt is fixed and typed: query hash, bounded exit/enums/Boolean comparisons and one allowlisted SQLSTATE only. Strict success requires empty stderr and exact Boolean source comparison. No raw text, SQL, rows, exception strings, credentials or handles are retained.",
+    "Metadata return/throw/malformed/timeout/persistence failure attempts independent global closure before any actor. Original failure is preserved, evidence I/O is sticky, and failure stops later cases. Parent global closure is unconditional across child parse/reference/error paths.",
+    "Prepared/current/snapshot source closure admits new child test/doc before compile. Actual Core initialization and source gate run without factory proof injection; PENDING blocks runtime. Existing image, mount, authentication, native/oracle/ledger, finalizer and cleanup contracts remain unchanged."
+  ],
+  "source_gates_observed_unmodified": {
+    "context/reconciliation/privilege-ceiling-metadata-v6-source-validation.json": null,
+    "context/reconciliation/local-f0-privilege-ceiling-owned-metadata-v6-source-validation.json": null
+  },
+  "runtime": "NOT_RUN",
+  "Posture": "D",
+  "limits": {
+    "runtime_or_negative_cases_qualified": false,
+    "old56a87_complete_cause": "UNOBSERVED",
+    "old56a87_metadata_SQLSTATE_exit": "UNOBSERVED",
+    "selected_verb_or_column_isolation": false,
+    "whole_case_or_94_451_promotion": false,
+    "new_permissions_or_business_SQL": false,
+    "live_services_or_resource_actions": false
+  },
+  "permissions_used": "Local reads/new TASK report plus explicit Root exception to independently read official PG17 docs/REL_17_11 primary source only. No Git, Docker, DB, SQL execution, credential or resource action.",
+  "plain_english": "The checker now asks the right permission questions, and all focused pretend-database checks passed. It gives nobody extra powers. Real database results still need a separately approved run."
+}

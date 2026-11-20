@@ -1,0 +1,180 @@
+{
+  "schema": "workinants.local-f0-5f-six-version-qualified-execution-record.v1",
+  "recorded_at_utc": "2026-11-20T07:28:38.285650+00:00",
+  "run_id": "c662f807-c784-41ef-b937-ff2cce9bfd37",
+  "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+  "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+  "operation_packet_sha256": "3c5d2bccc05b994a761dd8db98714f315e7b10319b38bfb1f3aff0e68a50cef0",
+  "operation_manifest_sha256": "b9500e3827dd3261ea4c4cfad3eb8a371cae2f73d3e71251aa2175e3dba3e689",
+  "known_executor_exit": {
+    "session": 69045,
+    "exit_code": 0
+  },
+  "started_at_utc": "2026-11-20T07:10:54.580447+00:00",
+  "finished_at_utc": "2026-11-20T07:17:25.490336+00:00",
+  "actual_wrapper_status": "PASS_LOCAL_SCOPED_READ_SQL_SUBSET_ONLY",
+  "actual_steps": {
+    "CATALOG-SETUP": "PASS",
+    "CATALOG-AUTH": "PASS",
+    "CATALOG-TOOLS": "PASS",
+    "CATALOG-INSTALL": "PASS",
+    "CATALOG-ACL-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+    "CATALOG-TEXT-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+    "CATALOG-NATIVE": "PASS_OBSERVED_NOT_QUALIFIED",
+    "CATALOG-ORACLE": "PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE",
+    "CATALOG-LEDGER": "PASS_SOURCE_BOUND_NATIVE_SUBSET",
+    "CATALOG-COMPARE": "PASS_SOURCE_BOUND_NATIVE_CATALOG_ONLY",
+    "CATALOG-SANITIZED_EXPORT": "NOT_RUN",
+    "CATALOG-CLEANUP": "PASS",
+    "SCOPED-READ-REVIEW": "PASS_SOURCE_ADMISSION_ONLY",
+    "SCOPED-READ-COMPONENT": "PASS_FINITE_PREPARED_SQL_ONLY"
+  },
+  "raw_evidence_sha256": "87305f5dd4bc87de248c7ae999bfb1dc218a29a7fd0e6c45e03db1eb1fa649f3",
+  "raw_child_file_sha256": "0da12d353efc4ae71474cb2f9637ce0870ea0813e456637d22fc8861e45b7dde",
+  "raw_child_canonical_sha256": "37cc9c987c8c644a78ee4b8814a80c5a445d87dbb03e0a6a1cba9754789c32ed",
+  "raw_reports_unchanged": true,
+  "independent_cleanup_sha256": "f01e5406fa4be4f02539b35cecc5f608ee3f61bfd36452f4aa7fec20f7e37405",
+  "facts": {
+    "schema": "workinants.six-c662-observed-unadmitted-results.v1",
+    "recorded_at_utc": "2026-11-20T07:28:38.285650+00:00",
+    "observed": {
+      "completed_protocols": 71,
+      "child_operations": 586,
+      "protocol_counts_by_selected_case": {
+        "P0C-TABLE-AgeGateAttempt-ALLOW": 11,
+        "P0C-TABLE-AgeGateBlock-ALLOW": 11,
+        "P0C-TABLE-AccessAuditLog-ALLOW": 11,
+        "P0C-TABLE-UserRole-ALLOW": 14,
+        "P0C-TABLE-AuditEvent-ALLOW": 11,
+        "P0C-TABLE-AuthProviderAccount-ALLOW": 13
+      },
+      "child_operation_counts_by_stage": {
+        "GLOBAL_BACKEND_CLOSURE": 152,
+        "PRE_FIXTURE_NATIVE_PARITY": 1,
+        "EXACT_EIGHT_TRIGGER_RESTORATION": 74,
+        "SYNTHETIC_EXISTING_ROWS_ONLY": 1,
+        "POST_FIXTURE_NATIVE_PARITY": 1,
+        "BOUND_OPERATION": 71,
+        "SEPARATE_ISSUER_COMMIT": 71,
+        "IMMUTABLE_ISSUER_RETENTION": 213,
+        "FINAL_NATIVE_PARITY": 1,
+        "FINALLY_FULL_NATIVE_PARITY": 1
+      },
+      "actual_query_login": "wa_app_runtime",
+      "query_backends_closed_before_observers": true,
+      "fixture_rows": 16,
+      "fixture_tables": 8,
+      "reviewed_owner_commit_setup_bypasses": 8,
+      "fixture_bypasses_restored": true,
+      "all_child_authentication_roles_correct_and_wrong_password": 6,
+      "same_target_read_only_after_proof": {
+        "status": "PASS_READ_ONLY_SOURCE_BOUND_SUBSET",
+        "same_first_install_registration_sha256": "54a03a1fa568c69a66ae1400d8284c561cc11c6d5598d7641853c8f3f8420f5e",
+        "same_installer_attestation_sha256": "4357b5de3c892ca6e975fba2a4f4a5397bdd000f2c9bafd778c8b10822bd9b7e",
+        "native_sha256": "a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6",
+        "native_checks": 29089,
+        "oracle_expressions": 416,
+        "ledger_checks": 22,
+        "independent_tables": 42,
+        "before_state_sha256": "9ecd94789ce7ec16323a17e9d0c6f1e1848559ec8dfcacd9ab3b2c8012a04581",
+        "after_state_sha256": "9ecd94789ce7ec16323a17e9d0c6f1e1848559ec8dfcacd9ab3b2c8012a04581",
+        "child_final_state_sha256": "9ecd94789ce7ec16323a17e9d0c6f1e1848559ec8dfcacd9ab3b2c8012a04581",
+        "second_deploy": false
+      },
+      "physical_cleanup_independently_confirmed": true
+    },
+    "digest_recipe_clarification": {
+      "component_report_sha256": "SHA256 of json.dumps(parsed_child,sort_keys=True,separators=(comma,colon)).encode UTF8, using default ensure_ascii=True",
+      "canonical_child_sha256": "37cc9c987c8c644a78ee4b8814a80c5a445d87dbb03e0a6a1cba9754789c32ed",
+      "literal_closed_child_file_sha256": "0da12d353efc4ae71474cb2f9637ce0870ea0813e456637d22fc8861e45b7dde",
+      "different_serializations_expected": true
+    },
+    "qualification": "NOT_ADMITTED_PENDING_INDEPENDENT_CLOSED_EVIDENCE_AUDIT_AND_REVIEWED_ASSERTION_ADAPTER",
+    "maximum_new_claims": [
+      {
+        "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select"
+      },
+      {
+        "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select"
+      },
+      {
+        "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select"
+      },
+      {
+        "case_id": "P0C-TABLE-UserRole-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select"
+      },
+      {
+        "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select"
+      },
+      {
+        "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select"
+      }
+    ],
+    "limits": [
+      "No whole-case or blanket adversarial-vector promotion.",
+      "No owner writes, SH/API, worker operation or Track enrollment qualification.",
+      "No additional migration deployment claimed.",
+      "Selected94/451 remain distinct; posture D."
+    ],
+    "Posture": "D"
+  },
+  "assets_sha256": {
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/acl-preflight.json": "b1dffe67c99d83c46073c8db1f5e14bbda1b5dc0ed053be56d56a67a6018f3c8",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/catalog-comparison.json": "34d94ba869e1dc969bec09d70d2c74430e9d3af5f9d93bc39dcff67e9a983c0e",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/ledger-evidence.json": "5ca1352b53d2400b3d47bc375acd936d2620b5377f73e44e9c83be8e245c5c0e",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/ledger-observation.json": "5a3d33491366fb9587bcc4a167efa4e38bda170b7b3291c022f28676dbdd94b3",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/ledger-registration.json": "65bf8ffccdb04a8acc86efe4b8284b970b8603fb80099e4f76fe05f87e7781e6",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/native-after-ledger.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/native-after-oracle.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/native-before.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/oracle-closure.json": "89067a06862e197fd49f3aed1e3f18bfc93d6a6c2035f9cdfc85a57036257ab9",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/oracle-evidence.json": "c3e91a70099256f5edbce4678193c7d228bdcbbc7cd60c2c711887b773011bc3",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/oracle-preflight.json": "e64b96e2f73e7a6d369d61c09301dc7c986c08bcd1cf95af06c6ab9756bcbe66",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/oracle-results.json": "d7f91fb358b73d3f36acde73ec730c41259009c1e0f06931ded2a7d44510f995",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/post-catalog-comparison.json": "34d94ba869e1dc969bec09d70d2c74430e9d3af5f9d93bc39dcff67e9a983c0e",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/post-ledger-evidence.json": "5ca1352b53d2400b3d47bc375acd936d2620b5377f73e44e9c83be8e245c5c0e",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/post-ledger-observation.json": "5a3d33491366fb9587bcc4a167efa4e38bda170b7b3291c022f28676dbdd94b3",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/post-native-after-ledger.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/post-native-after-oracle.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/post-native-before.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/post-oracle-closure.json": "89067a06862e197fd49f3aed1e3f18bfc93d6a6c2035f9cdfc85a57036257ab9",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/post-oracle-evidence.json": "c3e91a70099256f5edbce4678193c7d228bdcbbc7cd60c2c711887b773011bc3",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/post-oracle-preflight.json": "e64b96e2f73e7a6d369d61c09301dc7c986c08bcd1cf95af06c6ab9756bcbe66",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/post-oracle-results.json": "d7f91fb358b73d3f36acde73ec730c41259009c1e0f06931ded2a7d44510f995",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/post-state-after.json": "be37aa9e3b557ec4048b75db3f4665282c621e299e2481900a3b7f06605057b6",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/post-state-before.json": "be37aa9e3b557ec4048b75db3f4665282c621e299e2481900a3b7f06605057b6",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/run-evidence.json": "87305f5dd4bc87de248c7ae999bfb1dc218a29a7fd0e6c45e03db1eb1fa649f3",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/scoped-read-component-result.json": "0f708f55935f5e710b6836841ed207d3fa83107f1fa020b22b095290a9efe1dd",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/scoped-read-native-attestation.json": "4fb109053610a3e5edae4559ce82eb81dc20312bf78f476d2cedd0dfa9c5d3e7",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/scoped-read-run-plan.json": "4551a22df568d14d522e6c7b89d3e072bb6c46a31ae1d94e105480b8c27a0452",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/set-private-acl.ps1.txt": "d5ef58e51c12b4371601557f027a44e9ca206b81444724f8aab65365bf9c057f",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/text-preflight.json": "176676da1274c55ec6f8800089b61d1c5249c44ed52b3ecfbcf2c8edf6a3cda1",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/evidence/scoped-read-component/scoped-read-companion-results.json": "0da12d353efc4ae71474cb2f9637ce0870ea0813e456637d22fc8861e45b7dde",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/manifest/ok-migration-manifest.json": "b4d90b7d84bbb28b2bb96da36ac87e49d08b26b91c3462a652e71c9d5a4ca4fd",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/manifest/operation-manifest-before-operational-review.json": "e856ea94dab5c92288425354417018f4defc21eaee0b8300b99187c28436ec73",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/manifest/operation-manifest-before-source-pin.json": "71274f9397a91b32a662049d9f856e25d7e5913d448939d4fef447496db0df56",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/manifest/operation-manifest.json": "b9500e3827dd3261ea4c4cfad3eb8a371cae2f73d3e71251aa2175e3dba3e689",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/manifest/migration-ok.json": "b4d90b7d84bbb28b2bb96da36ac87e49d08b26b91c3462a652e71c9d5a4ca4fd",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/independent-cleanup.json": "f01e5406fa4be4f02539b35cecc5f608ee3f61bfd36452f4aa7fec20f7e37405",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/independent-literal-review.json": "6a8e36f5c2f43313766af6e1f8ddd166174ce5784ca2fb03389a084e12ea3ae4",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/independent-literal-review-bundle.json": "ce0fec6879ce9b1022a9ef2d6ad5a3f3db67dace60be2b6fdd5a2f1fabdbb1ac",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/Root-literal-approval.json": "2beaebc45a96006205e9d36f19488aacbc7f84660f055d011efe35f8bcc6d4e3",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/Root-independent-cleanup-helper.py.txt": "6528bec352518babab8a6947a66912eae4fc126590ad1ff7b32ae40a2305ce82",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/audit/Root-observed-unadmitted-results.json": "97002a99ea3934ddd7794ac3d291266fd1c898d7433a8439dd956a797c3b25bc",
+    "context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/audit/preservation-helper.py.txt": "4a036d909fda8391a00674392e38aef3145a53b4210d872bdb4740f98f0b76a8"
+  },
+  "source_preservation": {
+    "packet_unchanged_after_run": true,
+    "tool_source_data_unchanged_after_run": true,
+    "external_sources_unchanged_after_run": true,
+    "external_inputs_unchanged_after_run": true
+  },
+  "qualification_status": "NOT_ADMITTED_PENDING_INDEPENDENT_EVIDENCE_AUDIT_AND_REVIEWED_ASSERTION_ADAPTER",
+  "Posture": "D"
+}

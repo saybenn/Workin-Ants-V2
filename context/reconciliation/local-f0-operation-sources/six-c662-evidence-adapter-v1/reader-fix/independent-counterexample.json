@@ -1,0 +1,23 @@
+{
+  "schema": "workinants.six-adapter-independent-final-read-integrity-probe.v1",
+  "source_sha256": "c2a6389376311cc37cf3e73a007ca8185a85ccf19cdc10baa085ce80cbf913c7",
+  "actual_API": "prepare_batch + all6 validate_claim + verify_unchanged + require_finalized",
+  "private_mutation_only": true,
+  "expected_pinned_sha256": "07b49506e56918515816949e628569f89ba12066d2b7ecc2ecf60977bf92fe7f",
+  "private_disk_after_sha256": "1975705d232644e94761873ef953d9e2e925231ba480c32918fdc6d7baac4edc",
+  "mutation_during_final_read": true,
+  "returned_barrier": true,
+  "returned_finalized": true,
+  "same_inode": true,
+  "same_device": true,
+  "same_size": true,
+  "same_mtime_ns": true,
+  "same_nlink": true,
+  "disk_matches_pinned_after_return": false,
+  "private_claim_status_after": "FAIL",
+  "readers_closed": true,
+  "source_root_files_unchanged": true,
+  "actual_Docker_DB_SQL_Git_network": false,
+  "real_ledger_status_gate_writes": false,
+  "interpretation": "Final barrier accepts while the derived evidence changes in place during that read, preserving inode/size/mtime. This is an in-flight read integrity counterexample, not a perpetual-filesystem-atomicity claim."
+}

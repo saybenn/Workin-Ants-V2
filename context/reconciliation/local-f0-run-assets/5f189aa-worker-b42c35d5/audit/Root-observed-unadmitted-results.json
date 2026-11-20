@@ -1,0 +1,231 @@
+{
+  "schema": "workinants.worker-b42-observed-unadmitted-results.v1",
+  "recorded_at_utc": "2026-11-20T07:53:16.469339+00:00",
+  "observed": {
+    "completed_protocols": 21,
+    "protocol_names": [
+      "genuine-effect-committed-work-still-leased",
+      "current-worker-read-TrackSubscription",
+      "current-worker-read-TrackEntitlementGrant",
+      "current-worker-read-RuntimeCommandReceipt",
+      "current-worker-read-RuntimeOutboxMessage",
+      "current-worker-read-RuntimeEffectReceipt",
+      "current-worker-read-RuntimeAttempt",
+      "current-worker-read-RuntimeInboxReceipt",
+      "current-worker-read-OwnerMutationEvidence",
+      "current-worker-read-TrackBaseSelection",
+      "current-worker-read-TrackEnrollmentReceipt",
+      "copied-readable-hash-is-not-preimage",
+      "nonnull-effect-relink-denied",
+      "null-pointer-foreign-same-fence-effect-denied",
+      "real-higher-fence-reclaim-with-retained-effect",
+      "fresh-holder-recognizes-original-lower-fence-effect",
+      "valid-current-Free-selection-survives-duplicate-attempt",
+      "fresh-processing-old-fence-denied",
+      "fresh-processing-old-preimage-denied",
+      "terminal-work-trigger-denial-rolls-back-completion",
+      "original-effect-completes-once-without-reenrollment"
+    ],
+    "operations": 295,
+    "operation_counts_by_stage": {
+      "RESOURCE_PREFLIGHT": 1,
+      "GLOBAL_BACKEND_CLOSURE": 87,
+      "PRE_FIXTURE_FULL_NATIVE": 1,
+      "SYNTHETIC_USER_CATALOG_ONLY": 1,
+      "POST_FIXTURE_FULL_NATIVE": 1,
+      "RESTRICTED_TRANSACTION": 31,
+      "SEPARATE_ISSUER_COMMIT": 33,
+      "IMMUTABLE_ISSUER_RETENTION": 88,
+      "INDEPENDENT_SYNTHETIC_SERVICE_BOOTSTRAP": 1,
+      "PRE_CHECKPOINT_FULL_NATIVE": 1,
+      "LIVE_HOLDER_CONTROL": 43,
+      "GENUINE_LEASED_CHECKPOINT_NATIVE": 1,
+      "GENUINE_LEASED_CHECKPOINT": 1,
+      "ACTUAL_HASH_READ": 1,
+      "EXACT_TWO_RECLAIM_CLIENTS": 1,
+      "ACTUAL_RECLAIM_ORDERING": 1,
+      "FINAL_FULL_NATIVE_PARITY": 1,
+      "FINALLY_FULL_NATIVE_PARITY": 1
+    },
+    "all21_connections_closed_complete42_record_sequences_match": true,
+    "restricted_transactions_with_fixed_observation_receipts": 31,
+    "all31_fixed_comparisons_match": true,
+    "separate_issuer_commits": 33,
+    "currentness_retention_observations": 88,
+    "live_holder_controls": 43,
+    "global_closure_observations": 87,
+    "correct_and_wrong_password_roles": 6,
+    "after_read_only_same_install_proof": {
+      "native_checks": 29089,
+      "oracle_expressions": 416,
+      "private_ledger_checks": 22,
+      "full42_data_unchanged": true,
+      "same_first_install_attestation": true,
+      "second_install_attempted": false
+    },
+    "physical_cleanup_independently_confirmed": true,
+    "case17_intended_early_guard": {
+      "matched": true,
+      "sqlstate": "P0001",
+      "classification": "valid-current-Free-selection-survives-duplicate-attempt",
+      "source_body_sha256": "1fec48baf827823dcb077f79c507120e91cbf8179d77fb550fbf8be635d9f865",
+      "source_body_line": 7,
+      "native_location": "exec_stmt_raise@pl_exec.c"
+    }
+  },
+  "historical_comparison": {
+    "c820_6282_stopped_case17_full_original_diagnostic": "NOT_RETAINED_UNOBSERVED",
+    "current_case17": "Observed exact source-backed fixed Track binding P0001 at body line7; not a claim of the later RLS guard. Existing current Free selection remains intact through complete-state checks.",
+    "no_old_report_rewritten": true
+  },
+  "digest_recipe": {
+    "literal_child_file_sha256": "63796f3b48ad4b55e455230de3f58c6f24016e81c76e01cce5fe9c581c2c3295",
+    "canonical_parsed_child_sha256": "8915c50eb005dee04b1241247c1b084c5fc0c5a5e9da51ca6fcc36377f2beccd",
+    "canonical_recipe": "SHA256(json.dumps(parsed,sort_keys=True,separators=(comma,colon)).encode UTF8), default ensure_ascii=True."
+  },
+  "qualification": "NOT_ADMITTED_PENDING_INDEPENDENT_EVIDENCE_AUDIT_AND_REVIEWED_ASSERTION_ADAPTER",
+  "candidate_assertion_ceilings_from_frozen_source": [
+    {
+      "case_id": "P0C-TABLE-TrackSubscription-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "a6fa5ebc458f7fdd9c47f92b203add0bab2695f8294a5cd3e999667d139b82f2",
+      "maximum_after_actual_evidence_and_review": "PASS",
+      "status": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementGrant-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "fa27da2ff4eed955ebc3d68ecda14ab2d4225b3b1a7d3f1891470b8120fbf98c",
+      "maximum_after_actual_evidence_and_review": "PASS",
+      "status": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "ded4c97825f56317e93032a643be07727b6d86ccf6eb6b7103aa9156c32f6d2c",
+      "maximum_after_actual_evidence_and_review": "PASS",
+      "status": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+      "assertion_id": "positive.wa_worker.update",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "a2a49dadabe1b0ad46f03851fde4f4b8456075d305a88b5238d6bac9e59ffd2a",
+      "maximum_after_actual_evidence_and_review": "PASS",
+      "status": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "ded4c97825f56317e93032a643be07727b6d86ccf6eb6b7103aa9156c32f6d2c",
+      "maximum_after_actual_evidence_and_review": "PASS",
+      "status": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeEffectReceipt-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "ded4c97825f56317e93032a643be07727b6d86ccf6eb6b7103aa9156c32f6d2c",
+      "maximum_after_actual_evidence_and_review": "PASS",
+      "status": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeAttempt-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "ded4c97825f56317e93032a643be07727b6d86ccf6eb6b7103aa9156c32f6d2c",
+      "maximum_after_actual_evidence_and_review": "PASS",
+      "status": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeInboxReceipt-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "ded4c97825f56317e93032a643be07727b6d86ccf6eb6b7103aa9156c32f6d2c",
+      "maximum_after_actual_evidence_and_review": "PASS",
+      "status": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-OwnerMutationEvidence-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "ded4c97825f56317e93032a643be07727b6d86ccf6eb6b7103aa9156c32f6d2c",
+      "maximum_after_actual_evidence_and_review": "PASS",
+      "status": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-TrackBaseSelection-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "5088366ac64fccbdd822d3f449706de774343545337ef1949eb00f74a1913357",
+      "maximum_after_actual_evidence_and_review": "PASS",
+      "status": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEnrollmentReceipt-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "ec84fa997dd0d305dfd212c3dc5e89b962f107c158a8d929c0d3eee7ac1ec97f",
+      "maximum_after_actual_evidence_and_review": "PASS",
+      "status": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "control.preserve_valid_selection",
+      "expected_assertion_sha256": "fcc59cf00a5b4882b1b10701c6d6a9cc770ad2e5edd2dfe5ef10ec10ca114468",
+      "complete_source_assertion_sha256": "99f43554db65beb91d46063b03a861a090e5260dac723366c5e657a969346016",
+      "maximum_after_actual_evidence_and_review": "PARTIAL",
+      "status": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "control.lease_transitions",
+      "expected_assertion_sha256": "df9e9f2c60b682774fdd018332716e082e50412579b2df0db9d78c1b98a2b929",
+      "complete_source_assertion_sha256": "24a94f52d75792ebdeb4ff4a09d200b883c92ad3e77a08b093b9dfa7bfe73a3a",
+      "maximum_after_actual_evidence_and_review": "PARTIAL",
+      "status": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "control.concurrent_fence",
+      "expected_assertion_sha256": "62bbedc11d137fc78e0173ee84039a04db8c2e7f99fa4c1186c60d72868736f0",
+      "complete_source_assertion_sha256": "70fa72a0cb056b98f9e727b3642e2294bb23620e18fa92ed9458abfffb3995f8",
+      "maximum_after_actual_evidence_and_review": "PASS",
+      "status": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "vector.LEASE-ATTACH.adversarial",
+      "expected_assertion_sha256": "ff9f55cfcae17010e4bb2e3746e991851085727e3fa27bb5cb3481cc842b4cc2",
+      "complete_source_assertion_sha256": "dc674216603b425a515a4f49235ea3dc6e7fa57f1e89c6fc055596f37d1b1f18",
+      "maximum_after_actual_evidence_and_review": "PARTIAL",
+      "status": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "vector.LEASE-RECOVERY.positive",
+      "expected_assertion_sha256": "74fca856225d96ba81572ab58913202f07a2e705f04bdef191b11aecba12679f",
+      "complete_source_assertion_sha256": "9072d3a2c0d59809d7d53951d240adbd9cd766ef69fd7ec9dce4e59d188c3291",
+      "maximum_after_actual_evidence_and_review": "PASS",
+      "status": "NOT_RUN"
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "vector.LEASE-RECOVERY.adversarial",
+      "expected_assertion_sha256": "409ea4629efc4a62c5079f803a05c1d24cfc8d47d8324ab0942e9b95864d05f8",
+      "complete_source_assertion_sha256": "a417945f84f353622b06bf46f262e8ce94cf5ee15ffea18ca08c9ef5d643fcad",
+      "maximum_after_actual_evidence_and_review": "PARTIAL",
+      "status": "NOT_RUN"
+    }
+  ],
+  "limits": [
+    "At most reviewed finite source ceilings; existing source proposals do not automatically qualify assertions.",
+    "No production worker loop, owner APIs, whole selected94/451 or hosted adoption.",
+    "Case17 qualifies its observed intended source guard, not a later denied statement it never reaches."
+  ],
+  "Posture": "D"
+}

@@ -1,0 +1,134 @@
+{
+  "schema": "workinants.remaining-safety-sql-root-source-review.v1",
+  "recorded_at_utc": "2026-11-19T21:03:00.404326+00:00",
+  "reviewer": "root",
+  "author": "review_track_ports",
+  "author_report_sha256": "6fa63cde4f9a91f3c0cb96030b3c28f915db85c780eefa98568dc77a66b372c8",
+  "independent_peer_report_sha256": "4b9f4e1e5113623ab5e71e500732a7602be92a8d0878605a240793407d652093",
+  "families": {
+    "lease": {
+      "operator_sources_sha256": {
+        "check_local_f0_lease_revoke_operation_safety_sql_v1.py": "66301cd989e8db2365974706d4d7c1b71f539ab6565a20d3fa9d5d3c3272e682",
+        "execute_local_f0_lease_revoke_20261119_safety_sql_v1.py": "0ec8a5ceb39787d272731cf276b6e5eaa062cbd6202e60065ae5b967b86adb81",
+        "local_f0_lease_revoke_operation_steps_safety_sql_v1.py": "8676f6082c254d4ec1a7de6b079d5ab5b8b7bc7ec0348334a4eb4b03d3e43e7f",
+        "pin_local_f0_lease_revoke_plan_20261119_safety_sql_v1.py": "b0d5a5546baaba82473e3cb0c6ec448ac2b76574f8632ca67dbe51b056dc399a",
+        "prepare_local_f0_lease_revoke_plan_safety_sql_v1.py": "67077bf6fd7c9bb33652787ce4150294cff67cd13fa0fc20d6f5bf5978087bec"
+      },
+      "common_AST_exact": true,
+      "ordinary_AST_unchanged": true,
+      "Steps_shadow_removed": true,
+      "changed_Steps_functions": [
+        "auth_control",
+        "catalog_experiment",
+        "lease_experiment",
+        "run_catalog_query",
+        "verify_common_packet"
+      ],
+      "archive_and_physical_five_verified": true,
+      "source_decision": "SOURCE_APPROVED"
+    },
+    "native": {
+      "operator_sources_sha256": {
+        "check_native_access_operation_safety_sql_v1.py": "415baef53ea13d12273b4879aadffe9683d0eb42d5c32e4a62d6b49e0f81843d",
+        "execute_local_f0_native_access_20261119_safety_sql_v1.py": "82ff221e2b740ffeac248474c84bfab80253c34e3234a6a2cf584e6162397574",
+        "local_f0_native_access_operation_steps_safety_sql_v1.py": "991210f073adecb1ca0b9dda208f56fba218feb56ab3d6c18db16b437ad8072a",
+        "pin_native_access_plan_20261119_safety_sql_v1.py": "173da2a5a166f67beba5c0d38cfa1a15d57dff6b5f5fb868c26cb0cf4dab85c9",
+        "prepare_local_f0_native_access_plan_safety_sql_v1.py": "3276f27248c81fcb128c0f3f9654a97e398e54dd4007f92e0da2cb8aca49ca18"
+      },
+      "common_AST_exact": true,
+      "ordinary_AST_unchanged": true,
+      "Steps_shadow_removed": true,
+      "changed_Steps_functions": [
+        "catalog_experiment",
+        "native_access_experiment",
+        "provider_authentication",
+        "run_catalog_query",
+        "verify_common_packet"
+      ],
+      "archive_and_physical_five_verified": true,
+      "source_decision": "SOURCE_APPROVED"
+    },
+    "install": {
+      "operator_sources_sha256": {
+        "check_local_f0_install_controls_operation_safety_sql_v1.py": "01f485846d752077415de795b163ad197a912eb23667c6944600e0199a49de64",
+        "execute_local_f0_install_controls_20261119_safety_sql_v1.py": "5c71ead1bbb7ced7d45a36f258cc271f9a8c19275f94bc55875d3526c0c02b87",
+        "local_f0_install_controls_operation_steps_safety_sql_v1.py": "d56aee699dba89eb6fc94be38a7d8419f9b437e1e5c1c0ad142a3595af451f3f",
+        "pin_local_f0_install_controls_plan_20261119_safety_sql_v1.py": "3bc39a1efc3ae27e7c5a8fefd83a53fa6b067e4132f981d8cf56fb6eab77d2ca",
+        "prepare_local_f0_install_controls_plan_safety_sql_v1.py": "22caf5e6dc0c722b0c4e5ddb5887f32adcaa4e3d433b0bf552a5507429af0435"
+      },
+      "common_AST_exact": true,
+      "ordinary_AST_unchanged": true,
+      "Steps_shadow_removed": true,
+      "changed_Steps_functions": [
+        "ensure_original_cleanup",
+        "install_coordinator_experiment",
+        "run_catalog_query",
+        "verify_common_packet"
+      ],
+      "archive_and_physical_five_verified": true,
+      "source_decision": "SOURCE_APPROVED"
+    },
+    "restore": {
+      "operator_sources_sha256": {
+        "check_local_f0_restore_operation_safety_sql_v1.py": "085f756f7ffa3f8567381ebdceb1e01efa963e74f0a35f242767d73a46daaf9c",
+        "execute_local_f0_restore_20261119_safety_sql_v1.py": "8041399106d33d4687f1f357709c7b657f2e55adb29e588822896c941b1b8a81",
+        "local_f0_restore_operation_steps_safety_sql_v1.py": "2a55669c8a589599c5549f2826a9aba4b2c99f3df2cc593fcab6d7517ab38508",
+        "pin_local_f0_restore_plan_20261119_safety_sql_v1.py": "ceb85b4b84c061d9aaabc9753a501317f7e3020ca2375bb1383002fa5439ed30",
+        "prepare_local_f0_restore_plan_safety_sql_v1.py": "eca3dbd63b87a89583345f0e04ed3c4656a7653558a5fb855d29dde8439747d9"
+      },
+      "common_AST_exact": true,
+      "ordinary_AST_unchanged": true,
+      "Steps_shadow_removed": true,
+      "changed_Steps_functions": [
+        "auth_control",
+        "catalog_experiment",
+        "run_catalog_query",
+        "verify_common_packet"
+      ],
+      "archive_and_physical_five_verified": true,
+      "source_decision": "SAFETY_COMPOSITION_APPROVED_RESOURCE_ORACLE_EXECUTION_HELD"
+    }
+  },
+  "Root_actual_checks": {
+    "actual_all_family_composition": {
+      "tests": 27,
+      "seconds": 13.838,
+      "status": "PASS"
+    },
+    "lease_real_whole_verifier_five_snapshots": {
+      "tests": 1,
+      "seconds": 8.527,
+      "status": "PASS"
+    },
+    "native_real_whole_verifier_five_snapshots": {
+      "tests": 1,
+      "seconds": 7.373,
+      "status": "PASS"
+    },
+    "INSTALL_real_whole_verifier_four_histories_five_snapshots": {
+      "tests": 1,
+      "seconds": 10.081,
+      "status": "PASS"
+    }
+  },
+  "separate_peer_checks": "All224 owning unique +27 actual composition PASS; initial INSTALL runpy builtins-context checker error preserved and standard-script context34 recheck PASS; no source edits. Root does not claim a second full224 rerun.",
+  "assessed": [
+    "Fixed same-file postgres/owned-CID required safety selectors proceed despite evidence IO; ordinary SQL still fails fast and public evidence barrier prevents later behavior/PASS.",
+    "Actual bounded auth/catalog/install/component finally boundaries preserve original operation errors; cleanup/secondary errors remain separate and strict source/active/role/type checks still gate REVOKE.",
+    "INSTALL eligibility and independent child cleanup observation are exact accepted same-file recipes; no duplicate original-grantor finalizer.",
+    "All source/pinner SafetySQL gates, closed full source inventory and physical five snapshots reviewed; no current author-pending literal or old fcef plan is executable.",
+    "Lease/Native/INSTALL resource paths do not contain the same Owner inspect_owner third-tmpfs Mounts predicate; their exact canonical host inspector and live preflight remain required.",
+    "Restore Steps883 has an analogous tmpfs-in-Mounts requirement. This is a separate unexecuted resource question; its execution stays held and the bounded safety-composition review does not waive it."
+  ],
+  "limits": {
+    "runtime": "NOT_RUN",
+    "Root_Source_SQL_or_roles_changed": false,
+    "old30_and_INSTALLextra2_preserved": true,
+    "canonical5ae_and32_workerACL_unchanged": true,
+    "Owner44ac_stop_and_cleanup_preserved": true,
+    "Restore_requires_new_resource_contract_review": true,
+    "fresh_published_packet_and_literal_reviews_required": true,
+    "posture": "D"
+  },
+  "findings": []
+}

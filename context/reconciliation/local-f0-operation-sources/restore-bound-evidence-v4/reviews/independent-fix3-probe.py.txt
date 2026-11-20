@@ -1,0 +1,66 @@
+"""Bounded independent Fix2 classifier review; no real process/network execution."""
+from pathlib import Path
+import ast,hashlib,io,json,runpy,sys,time,unittest
+from pglast import parse_sql,ast as pgast
+T=Path(__file__).resolve().parent;F=T/'restore-bound-evidence-v4-author-freeze-fix3-20261120/files'
+D=T/'restore-v4-fix3-independent-private-review-20261120';sha=lambda raw:hashlib.sha256(raw).hexdigest()
+def encoded(v):return(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def audit(event,args):
+    if event in {'subprocess.Popen','os.system','os.posix_spawn','os.spawn','socket.connect','socket.connect_ex','socket.bind','socket.getaddrinfo'}:raise AssertionError('ACTUAL_PROCESS_NETWORK_FORBIDDEN')
+sys.addaudithook(audit)
+assert not D.exists();D.mkdir();task=D/'task';task.mkdir();root=task/'workinants-correction-pass';root.mkdir()
+mf=F.parent/'freeze-manifest.json';assert sha(mf.read_bytes())=='53170093b7657809cc75401a53716cb7abe602158bc0f46cd4eb1cfaa078c0ef';m=json.loads(mf.read_bytes())
+for name,wanted in m['snapshots_sha256'].items():
+    raw=(F/name).read_bytes();assert sha(raw)==wanted
+    if name.startswith('ROOT/')or name.startswith('TASK/')and name.endswith('.py'):
+        dest=root/name[5:]if name.startswith('ROOT/')else task/name[5:];dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw)
+old=root/'context/reconciliation/local-f0-operation-sources/restore-bound-evidence-v4/preserved-bound-v3/local_f0_restore_operation_steps_bound_evidence_v3.py.txt'
+assert sha(old.read_bytes())=='dd909a5698e41b95d7fad339e3307330c39ac9d4568333cb453b6a99e1aa9a42';(task/'local_f0_restore_operation_steps_bound_evidence_v3.py').write_bytes(old.read_bytes())
+context=task/'pure-helper-context.json';context.write_bytes(encoded({'purpose':'LOCAL_F0_RESTORE_REHEARSAL','evidence_directory':str(task/'never-created-evidence'),'source_commit':'a'*40,'source_tree':'b'*40,'packet_sha256':'c'*64,'run_id':'550e8400-e29b-41d4-a716-446655440000','targets':[{'name':'wa-p0c-550e8400-restore-source','volume':'wa-p0c-550e8400-restore-source-data','kind':'ok'}]}))
+prod=runpy.run_path(str(task/'execute_local_f0_restore_20261119_bound_evidence_v4.py'))['launch'].__globals__;prod['initialize'](context);exec(compile((task/'local_f0_restore_operation_steps_bound_evidence_v4.py').read_bytes(),'EXACT_FROZEN_FIX2_STEPS','exec'),prod)
+original_path=root/'context/reconciliation/local-f0-operation-sources/restore-bound-evidence-v4/reviews/fix2/74-vector-probe.json';assert sha(original_path.read_bytes())=='832e93e7659bb4132687c41bf1fadc1662c5184ab922f6a0f66f8d2630a7fa81'
+rejects=accepts=0
+for row in json.loads(original_path.read_bytes())['vectors']:
+    parse_sql(row['sql']);facts={}
+    if row['expected_contract']=='REJECT':
+        try:prod['normalize_bound_envelope'](row['sql'],facts)
+        except prod['Stop']as error:assert error.code=='RESTORE_ENVELOPE_UNSUPPORTED_TRANSACTION';rejects+=1
+        else:raise AssertionError('ORIGINAL_REQUIRED_REJECTION_MISSING')
+    else:assert prod['normalize_bound_envelope'](row['sql'],facts)==row['sql'];accepts+=1
+assert (rejects,accepts)==(68,6)
+vectors=[]
+def observe(sql,family):
+    try:parsed=parse_sql(sql)
+    except Exception:raise AssertionError('INDEPENDENT_VECTOR_NOT_PG_VALID')from None
+    variables=[{'kind':row.stmt.kind.name,'name':row.stmt.name,'local':row.stmt.is_local}for row in parsed if isinstance(row.stmt,pgast.VariableSetStmt)]
+    facts={}
+    try:normalized=prod['normalize_bound_envelope'](sql,facts);outcome='ADMITTED';assert normalized==sql
+    except prod['Stop']as error:outcome='REJECTED';facts['stop_code']=error.code
+    vectors.append({'sql':sql,'family':family,'parse':'VALID','variable_statements':variables,'expected':'ADMITTED_EXACT_BUSINESS','actual':outcome,'facts':facts})
+for scope in ('','LOCAL ','SESSION '):
+    for prefix in ('transaction','TrAnSaCtIoN','"transaction"','"TRANSACTION"'):
+        for leaf in ('custom','transaction_isolation','"transaction_read_only"'):
+            observe('SET '+scope+prefix+'.'+leaf+" = 'on'; SELECT 1; COMMIT;",'DOTTED_TRANSACTION_NAMESPACE')
+observe("SET LOCAL transaction /* namespace */ . /* leaf */ custom = 'on'; SELECT 1; COMMIT;",'COMMENT_SEPARATED_DOTTED_NAMESPACE')
+for sql in ('SET LOCAL "transaction.custom" = \'on\'; SELECT 1; COMMIT;','SET LOCAL "TRANSACTION.CUSTOM" = \'on\'; SELECT 1; COMMIT;','RESET transaction.custom; SELECT 1; COMMIT;','RESET "transaction".custom; SELECT 1; COMMIT;','RESET "ALL"; SELECT 1; COMMIT;','RESET "all".custom; SELECT 1; COMMIT;','SET LOCAL transaction_isolation.custom = \'on\'; SELECT 1; COMMIT;','SET LOCAL custom.transaction_isolation = \'on\'; SELECT 1; COMMIT;'):
+    observe(sql,'NAMESPACE_AND_QUOTED_KEYWORD_NEGATIVE_CONTROL')
+bad=[v for v in vectors if v['actual']=='REJECTED'];assert len(bad)==0
+probe={'schema':'workinants.restore-v4-fix3-independent-classifier-probe.v1','five_sha256':m['five_sha256'],'steps_sha256':m['five_sha256']['local_f0_restore_operation_steps_bound_evidence_v4.py'],'original74':{'rejected':rejects,'accepted_exact':accepts,'immutable_input_sha256':sha(original_path.read_bytes())},'custom_namespace_vectors':vectors,'incorrect_rejections':len(bad),'scope':'Actual production helper only, pglast offline parse/AST oracle. No SQL/process/network execution. No pinned-three-source or actual runtime failure inferred.'}
+pp=T/'restore_v4_fix3_independent_classifier_probe_20261120.json'
+with pp.open('xb')as stream:stream.write(encoded(probe))
+n=runpy.run_path(str(task/'check_restore_bound_evidence_v4_focused_20261120.py'))
+methods=[('TransactionOptionsFix2Tests',name)for name in (
+ 'test_exact_independent74_parse_valid_vectors_follow_closed_contract','test_SET_scopes_comments_and_casefolded_quoted_GUC_names_reject','test_RESET_six_aliases_and_explicit_RESET_ALL_contract','test_restoring_only_old_classifier_admits_the_same58_unsupported_forms','test_legitimate_SET_RESET_and_transaction_words_keep_exact_business_bytes','test_actual_bound_transaction_option_stops_before_finish_and_closes')]
+methods += [('CustomNamespaceFix3Tests','test_all45_parse_valid_custom_names_are_admitted_with_exact_bytes'),('CustomNamespaceFix3Tests','test_restoring_only_Fix2_predicate_rejects19_and_preserves6_old13_new_history')]
+methods += [('EnvelopeNormalizationTests','test_actual_three_admitted_sources_have_one_final_commit_and_same_business_AST'),('EnvelopeNormalizationTests','test_actual_customer_schedule_and_read_real_Session_emit_one_commit_each')]
+rows=[]
+class Results(unittest.TextTestResult):
+    def startTest(self,test):self.began=time.monotonic();super().startTest(test)
+    def stopTest(self,test):rows.append({'method':test.id(),'seconds':round(time.monotonic()-self.began,3),'status':'FAIL'if any(t is test for t,_ in self.failures+self.errors)else'PASS'});super().stopTest(test)
+log=io.StringIO();started=time.monotonic();result=unittest.TextTestRunner(stream=log,resultclass=Results,verbosity=0).run(unittest.TestSuite(n[cls](name)for cls,name in methods))
+out={'schema':'workinants.restore-v4-fix3-independent-selected-checks.v1','status':'PASS'if result.wasSuccessful()else'FAIL','tests_run':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'seconds':round(time.monotonic()-started,3),'methods':rows,'classifier_probe_path':str(pp),'classifier_probe_sha256':sha(pp.read_bytes()),'original_findings':'BOTH_CLOSED_EXACT74_AND45_AND_OLD_PREDICATE_RESTORATION','custom_false_rejections':len(bad),'freeze_manifest_sha256':sha(mf.read_bytes()),'five_sha256':m['five_sha256'],'limits':['Focused actual-function and WorkerSession process-mock checks only; no physical/runtime qualification','Whole catalog/entry/source-gate suites not repeated for this single-predicate change; old real-entry evidence version-qualified','All actual OS process/network/database operations forbidden or mocked','Source/gates unchanged']}
+if not result.wasSuccessful():
+    lp=D/'reviewer-check-failure.txt';lp.write_text(log.getvalue(),encoding='utf8',newline='\n');out['failure_log_sha256']=sha(lp.read_bytes())
+op=T/'restore_v4_fix3_independent_selected_checks_20261120.json'
+with op.open('xb')as stream:stream.write(encoded(out))
+print(json.dumps({'path':str(op),'sha256':sha(op.read_bytes()),**out},indent=2));sys.exit(0 if result.wasSuccessful()else 1)

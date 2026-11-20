@@ -1,0 +1,63 @@
+"""Freeze bounded adapter source with PENDING review gates. Never writes ledger/status."""
+import ast,datetime,hashlib,json
+from pathlib import Path
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';D=T/'six-c662-evidence-adapter-v1-author-20261120'
+A='context/reconciliation/local-f0-operation-sources/six-c662-evidence-adapter-v1';V='context/reconciliation/local-f0-scoped-read-evidence-adapter-v1-source-validation.json'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def encoded(v):return (json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def exclusive(path,raw):
+ path.parent.mkdir(exist_ok=True,parents=True)
+ with path.open('xb')as f:f.write(raw)
+before=json.loads((D/'before-author-preservation.json').read_bytes());builder_path='scripts/prepare-local-f0-status.py';checker='scripts/check-local-f0-status.py';ledger='context/reconciliation/local-f0-assertion-evidence.json';status='context/reconciliation/local-f0-qualification-status.json'
+for n,h in before['preserved_files_sha256'].items():
+ if n!=builder_path:assert sha((R/n).read_bytes())==h
+for n,h in before['native303_plus_audit3_unchanged'].items():assert sha((R/n).read_bytes())==h
+old=(D/'preserved/prepare-local-f0-status.py').read_bytes();current=(R/builder_path).read_bytes();text=current.decode()
+derived='context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json';derived_sha=sha((R/derived).read_bytes())
+blocks=[
+ 'from local_f0_scoped_read_evidence import prepare_batch as prepare_scoped_read_batch, EvidenceFailure as ScopedReadEvidenceFailure\n',
+ '    '+repr(derived)+':('+repr(derived_sha)+',\'DERIVED_REVIEWED_SCOPED6_SQL_READ_ASSERTIONS_ONLY\'),\n',
+ "    scoped_read_batch=None\n    if any(row.get('evidence_path')=="+repr(derived)+" for row in ledger['assertions']):\n        try:scoped_read_batch=prepare_scoped_read_batch(ROOT)\n        except ScopedReadEvidenceFailure as error:raise AssertionError(str(error)) from None\n",
+ "                elif row['evidence_path']=="+repr(derived)+":\n                    try:scoped_read_batch.validate_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer)\n                    except ScopedReadEvidenceFailure as error:raise AssertionError(str(error)) from None\n",
+ "    if scoped_read_batch is not None:\n        try:scoped_read_batch.verify_unchanged();scoped_read_batch.require_finalized()\n        except ScopedReadEvidenceFailure as error:raise AssertionError(str(error)) from None\n"]
+for block in blocks:assert text.count(block)==1;text=text.replace(block,'',1)
+assert text.encode()==old
+module_path='scripts/local_f0_scoped_read_evidence.py';test_path='scripts/check-local-f0-scoped-read-evidence.py'
+mod=(R/module_path).read_bytes();test=(R/test_path).read_bytes();tree=ast.parse(mod);assert not any(isinstance(x,ast.Call)and isinstance(x.func,ast.Name)and x.func.id in('exec','eval','compile','__import__')for x in ast.walk(tree))
+maps={}
+for x in tree.body:
+ if isinstance(x,ast.Assign):
+  for target in x.targets:
+   if isinstance(target,ast.Name)and target.id in('PINS','AUDIT_PINS','CLOSED_CLAIMS'):maps[target.id]=ast.literal_eval(x.value)
+assert len(maps['PINS'])==403 and len(maps['AUDIT_PINS'])==4 and len(maps['CLOSED_CLAIMS'])==6
+for n,h in maps['PINS'].items():assert sha((R/n).read_bytes())==h
+log=(D/'focused-checks-initial.log').read_text(encoding='utf-8-sig');assert 'Ran 12 tests in 88.117s'in log and '\nOK'in log and 'FAILED'not in log
+proposed=(D/'proposed-assertion-evidence.json').read_bytes();proposed_doc=json.loads(proposed);old_doc=json.loads((R/ledger).read_bytes());assert len(old_doc['assertions'])==647 and len(proposed_doc['assertions'])==653 and proposed_doc['assertions'][:647]==old_doc['assertions']and proposed_doc['executions'][:-1]==old_doc['executions']
+scope={'schema':'workinants.six-c662-evidence-adapter-v1-actual-scope-proof.v1','builder_before_sha256':sha(old),'builder_after_sha256':sha(current),'exact_additive_blocks':5,'removing_only_those5_blocks_reproduces_original_builder_bytes':True,'legacy_aggregation_and_all_previous_dispatchers_unchanged':True,'parser_imports_only_standard_library':True,'no_project_source_compile_import_or_process_SQL_network_in_parser':True,'capture_graph':403,'claims':6,'derived_sha256':derived_sha,'old647_rows_and_old_execution_entries_preserved_in_TASK_proposal':True,'actual_ledger_status_checker_unchanged':before['preserved_files_sha256'],'native303_AUDIT3_unchanged':True,'existing_checker_limit':'Current checker expectations615/348 and oldcase set stay unchanged until Root independently reviews code, runs real proposed653-row build and approves narrow count/dispatcher adaptation. No guessed totals or checker edits here.'}
+exclusive(D/'actual-scope-proof.json',encoded(scope))
+sources={module_path:sha(mod),test_path:sha(test),builder_path:sha(current),derived:derived_sha}
+for n in(module_path,test_path,builder_path):exclusive(R/(A+'/source/'+Path(n).name+'.txt'),(R/n).read_bytes())
+copies={
+ 'author-source-plan.json':D/'source-plan.json',
+ 'author-initial-authoring-receipt.json':D/'initial-authoring-receipt.json',
+ 'author-actual-scope-proof.json':D/'actual-scope-proof.json',
+ 'author-focused-checks.log':D/'focused-checks-initial.log',
+ 'authoring-helper.py.txt':T/'author_six_c662_evidence_adapter_v1_20261120.py',
+ 'freeze-helper.py.txt':Path(__file__).resolve()}
+for n,p in copies.items():exclusive(R/(A+'/'+n),p.read_bytes())
+for p in(D/'initial-golden-failure').iterdir():exclusive(R/(A+'/initial-author-failure/'+p.name),p.read_bytes())
+source_report={'schema':'workinants.six-c662-evidence-adapter-v1-author-source-review.v1','recorded_at_UTC':datetime.datetime.now(datetime.timezone.utc).isoformat(),'author':'/root/privilege_mount_v2_review','decision':'AUTHOR_VALIDATION_COMPLETE_REQUIRES_SEPARATE_NONAUTHOR_AND_ROOT_SOURCE_REVIEW','source_files_sha256':sources,'independent_actual_evidence_audit':{'path':A+'/independent-actual-audit.json','sha256':'0bacaf1de96ed87f6f0c7c61b553b5c6d49b2d4c8ee879a682f9a56b0b4af4e6','scope':'Runtime source author was InstallOuter, peerTrack. Reviewer did not author Six runtime; this audit preceded parser authorship and is not a source approval of this parser.'},'actual_offline_results':{'focused_unique_methods':12,'seconds':88.117,'result':'PASS','all_process_socket_boundaries_blocked':True,'private_Six_only_actual_builder_dispatch':'PASS; six legitimate obligations only, no old647 validator factory replaced','private_builder_final_drift_output_not_written':True,'real_Root_full653_row_unmocked_builder':'NOT_RUN_ROOT_ONLY_AFTER_INDEPENDENT_SOURCE_REVIEW','existing_checker13':'NOT_RUN_UNCHANGED_EXPECTATIONS_REQUIRE_ROOT_COUNT_DISPATCH_REVIEW_AFTER_ACTUAL_BUILD','unrelated750_501_75_or_database_tests':'NOT_RUN_UNCHANGED_CANONICAL_SQL'},'failed_author_history':{'initial_golden':'FAILED_NOT_A_PASS: JSON_TYPES rejected immutable finite audit duration; fixed and regression tests rejectNaN/Infinity/1e999 while count/exit/bool types remain exact.','first_module_sha256':'dd8ee2504dfcbdbff7b050ffe48cd8302e474e4984dfa3eb205f41c72c48fa91','history_path':A+'/initial-author-failure/history.json','later_snapshot_race_disclosed_and_original_reconstructed_hash_exact':True},'interface':'prepare_batch(root) captures403 closed byte blobs, closes readers and uses only those bytes; six exact supported claims/pointers, strict structured identity, no mutable proof dictionary returned, duplicate/unsupported/status/omission failure sticky; mandatory verify_unchanged+require_finalized rereads all403 bytes before build returns. Standalone validate_claim always fresh admission and final barrier. Finite floats allowed as audit metadata only; all required integer/Boolean fields are explicitly typed or canonical-shape exact.','semantic_tests':'Rehashed private child/wrapper/native/derived fixtures test real semantic checks after updating only their private hash admission and rawrecord asset reference; no fabricated expected-result factory. Includes markers, terminal/guard diagnostics, closure/issuer/currentness/native/count bool-float/source identity/finalizer/ledger/cleanup/claim pointer limits.','proposed_ledger_TASK_only':{'path':str(D/'proposed-assertion-evidence.json'),'sha256':sha(proposed),'rows':653,'new_PASS_links':6,'all647_prior_rows_value_identical_and_full_original_bytes_preserved':True,'no_real_ledger_or_status_write':True},'scope_proof_sha256':sha((D/'actual-scope-proof.json').read_bytes()),'posture':'D','qualification_counts':'REAL615/32/348/32/7/0_UNCHANGED','manual_whole_case_or_vector_owner_write_SH_API_worker_promotions':0,'source_review_gates':'PENDING','limits':'Runtime evidence supports only exact six restricted SQL SELECT assertions. Privileged16-row fixture setup is not owner creation. Source review, Root real full build and checker reconciliation remain prerequisites to integrating the proposed ledger.'}
+exclusive(D/'author-review.json',encoded(source_report));exclusive(R/A/'author-source-review.json',encoded(source_report))
+archive={p.relative_to(R).as_posix():sha(p.read_bytes())for p in(R/A).rglob('*')if p.is_file()}
+validation={'schema':'workinants.six-c662-evidence-adapter-v1-source-validation.v1','status':'SOURCE_FROZEN_AUTHOR_TESTED_PENDING_NONAUTHOR_REVIEW','source_files_sha256':sources,'archive_files_sha256':archive,'independent_actual_evidence_audit':source_report['independent_actual_evidence_audit'],'independent_adapter_source_review':{'decision':'PENDING'},'Root_source_review':{'decision':'PENDING'},'focused_tests':source_report['actual_offline_results'],'qualification_counts_unchanged':True,'ledger_and_status_not_modified':True,'Posture':'D'}
+exclusive(R/V,encoded(validation));sources[V]=sha((R/V).read_bytes());root_map={**sources,**archive}
+for n,h in before['preserved_files_sha256'].items():
+ if n!=builder_path:assert sha((R/n).read_bytes())==h
+for n,h in before['native303_plus_audit3_unchanged'].items():assert sha((R/n).read_bytes())==h
+freeze=D/'freeze';freeze.mkdir()
+for n,h in root_map.items():assert sha((R/n).read_bytes())==h;exclusive(freeze/'ROOT'/n,(R/n).read_bytes())
+author_files={p.relative_to(D).as_posix():sha(p.read_bytes())for p in D.rglob('*')if p.is_file()and not p.is_relative_to(freeze)}
+manifest={'schema':'workinants.six-c662-adapter-v1-author-freeze.v1','ROOT_files_sha256':root_map,'author_files_sha256':author_files,'closed_qualifier_inputs_sha256':maps['PINS'],'preservation_sha256':sha((D/'before-author-preservation.json').read_bytes()),'author_review_sha256':sha((D/'author-review.json').read_bytes()),'source_gates':'PENDING','real_ledger_status_checker_unchanged':True,'runtime':'NOT_RUN_BY_ADAPTER_AUTHOR'}
+exclusive(D/'freeze-manifest.json',encoded(manifest))
+delivery={'schema':'workinants.six-c662-evidence-adapter-v1-frozen-author-delivery.v1','decision':'READY_FOR_SEPARATE_SOURCE_REVIEW_NOT_APPROVED','author_review':{'path':str(D/'author-review.json'),'sha256':sha((D/'author-review.json').read_bytes())},'freeze':{'path':str(D/'freeze-manifest.json'),'sha256':sha((D/'freeze-manifest.json').read_bytes())},'source_files_sha256':sources,'archive_files':len(archive),'ROOT_files':len(root_map),'qualified_input_files':403,'proposed_TASK_ledger_sha256':sha(proposed),'focused_results':'12PASS88.117s','initial_failure_preserved':True,'real_ledger_status_not_written':True,'all_source_review_gates':'PENDING','Root_full_build_and_checker_reconciliation':'REQUIRED_AFTER_SEPARATE_CODE_REVIEW','plain_english':'The new reader checks only six saved read results and refuses changed proof. All twelve checks passed. The project scoreboard is untouched; another person must review this code before Root adds the six results.'}
+delivery_path=T/'six_c662_evidence_adapter_v1_frozen_author_delivery_20261120.json';exclusive(delivery_path,encoded(delivery));print(json.dumps({'delivery':str(delivery_path),'sha256':sha(delivery_path.read_bytes()),'author_review_sha256':sha((D/'author-review.json').read_bytes()),'freeze_manifest_sha256':sha((D/'freeze-manifest.json').read_bytes()),'ROOT_files':len(root_map),'archive_files':len(archive),'source_validation_sha256':sources[V]}))

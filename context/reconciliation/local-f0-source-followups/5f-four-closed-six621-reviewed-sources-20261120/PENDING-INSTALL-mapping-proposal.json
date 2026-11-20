@@ -1,0 +1,1028 @@
+{
+  "schema": "workinants.install4b35-exact-assertion-mapping-proposal.v1",
+  "status": "PROPOSED_PENDING_ROOT_BOUNDED_MAPPING_ACK_NO_IMPLEMENTATION",
+  "audit": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install_4b35_independent_closed_evidence_audit_20261120.json",
+    "sha256": "d84de9505b73d88026f6fc44945a934d1dd87caf060fab7b62c6ee3e68c741e0"
+  },
+  "source_record": {
+    "path": "context/reconciliation/local-f0-install-5f189aa-4b35e08b-execution.json",
+    "sha256": "d6dd830478302d34772f618b4f9e62f23db586180cb7c1e868b1abc3a9d22861"
+  },
+  "run_id": "4b35e08b-3ecb-4ae6-9574-565bcdd51c1f",
+  "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+  "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+  "packet_sha256": "4d98713bb4b9810cea2be5c1fbf4139979b4476222fc7f0bdfad9b10bde64393",
+  "base_ledger": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install-4b35-closed-evidence-audit-20261120\\local-f0-assertion-evidence.base647.json",
+    "sha256": "3c13e345ba907d5944bb12806ad7abeb5a6d673cac00bc8e3c769e19bb04c047",
+    "rows": 647
+  },
+  "base_status_sha256": "87f3737ff002bc73833d5a3f5e31601a11c97f412e54d3f85b1e7be7cc10d64d",
+  "Root_Six_rebase_rule": "Root may legitimately advance to653/621 via separate approved Six integration. Rebase only these disjoint INSTALL/CATALOG actions onto actual accepted shared ledger; preserve all Six rows and all existing PASS provenance. Never restore647 or write any Root ledger/status from this audit.",
+  "actions": {
+    "CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE": 12,
+    "PROPOSE_PARTIAL_TO_PASS_WITH_PRIOR_PROVENANCE_RETAINED": 2,
+    "PROPOSE_NEW_PASS_AFTER_ROOT_ACK": 2,
+    "PROPOSE_NEW_PARTIAL_WITH_EXPLICIT_MISSING_PHASE": 1
+  },
+  "rows": [
+    {
+      "case_id": "P0C-INSTALL-01",
+      "assertion_id": "control.empty_deploy",
+      "mandatory_for_case": true,
+      "expected_assertion": "Actual pinned Prisma deploy applies the single integrated history from empty application state as wa_migrator; bootstrap/finalization stay separate.",
+      "vector_expected": null,
+      "expected_assertion_sha256": "b5782f7d7052c9010c5d3261d28c2277c1fb18aad12d930ecc7f95e1f65bdd8d",
+      "complete_source_assertion_sha256": "7685cbf782a0db55265b126fdcadcc3eeaee787f76f1f8095b7a297f44c61b39",
+      "source_packet_definition": {
+        "path": "review-output/install-control-rehearsal-v4/fixtures.json",
+        "sha256": "d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a",
+        "json_pointer": "/source_assertions/P0C-INSTALL-01/assertions/0"
+      },
+      "proposed_status": "PASS",
+      "proposed_action": "CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE",
+      "previous_evidence": {
+        "case_id": "P0C-INSTALL-01",
+        "assertion_id": "control.empty_deploy",
+        "status": "PASS",
+        "expected_assertion_sha256": "b5782f7d7052c9010c5d3261d28c2277c1fb18aad12d930ecc7f95e1f65bdd8d",
+        "source_commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
+        "source_tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
+        "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+        "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+        "evidence_path": "context/reconciliation/local-f0-migration-6b8910d-execution.json",
+        "evidence_sha256": "e657bd4de3c288acbd86faa7ae9514f59e76566e1bba170a6ef19f7770c91158",
+        "json_pointer": "/operator_raw_safe_report/targets/wa-p0c-196c3d8a-migrate-ok/ledger_observations/0",
+        "qualification_scope": "Actual pinned Prisma deploy applied the one immutable integrated migration from the recorded empty baseline as wa_migrator; bootstrap/finalization used separate original-grantor connections."
+      },
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/canonical/finite_result",
+          "required_piece": "Source-gated actual canonical first installation completion from the empty prebootstrap baseline."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/canonical/ledger",
+          "required_piece": "One genuine applied canonical-checksum finished step1 row."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": null
+    },
+    {
+      "case_id": "P0C-INSTALL-01",
+      "assertion_id": "control.private_ledger",
+      "mandatory_for_case": true,
+      "expected_assertion": "Actual public._prisma_migrations is migrator-owned/private; successful migration name, file checksum, finished state and applied-step evidence match the reviewed history.",
+      "vector_expected": null,
+      "expected_assertion_sha256": "3b6451de84c55481a914642694b664e9e8f6712f47af555b8b123be359141159",
+      "complete_source_assertion_sha256": "8d1640bfd3f4c54b307a60b53b02bd401b2dd415bbd11a435b943e8b8c5adbdc",
+      "source_packet_definition": {
+        "path": "review-output/install-control-rehearsal-v4/fixtures.json",
+        "sha256": "d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a",
+        "json_pointer": "/source_assertions/P0C-INSTALL-01/assertions/1"
+      },
+      "proposed_status": "PASS",
+      "proposed_action": "CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE",
+      "previous_evidence": {
+        "case_id": "P0C-INSTALL-01",
+        "assertion_id": "control.private_ledger",
+        "status": "PASS",
+        "expected_assertion_sha256": "3b6451de84c55481a914642694b664e9e8f6712f47af555b8b123be359141159",
+        "source_commit": "b9703d77792fa328392cf698a23e9c07c0adc6b1",
+        "source_tree": "2a40c3a1fc4d7f49daeae9d4554e4b026880d3d8",
+        "packet_sha256": "8ec1bd586b527bbf47167c8b1da44c9e008541dc2f5707e8d142e471f2329f1c",
+        "run_id": "23bd8979-53ba-43af-ad77-8bba1900f163",
+        "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "evidence_path": "context/reconciliation/local-f0-catalog-b9703d7-23bd8979-execution.json",
+        "evidence_sha256": "bbf604e3eb2c7a066f2287a2f2f2ab825582d366dc5330394170b33a0fd22de8",
+        "json_pointer": "/sanitized_report/ledger_comparison",
+        "limit": "Exact independently audited native metadata/positive subset only. No adversarial leaf DML/role-assumption or whole-case promotion."
+      },
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/native/canonical/ledger_checks",
+          "required_piece": "Full22 private-ledger metadata/checksum/history checks."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": null
+    },
+    {
+      "case_id": "P0C-INSTALL-01",
+      "assertion_id": "control.second_deploy",
+      "mandatory_for_case": true,
+      "expected_assertion": "A genuine second Prisma deployment has no pending migration, unchanged applied checksums and no duplicate objects or application DDL changes.",
+      "vector_expected": null,
+      "expected_assertion_sha256": "2f9b2cb42e8cccaa057768d6cfb70a782cb0bf3ac91e2cac8c644a2e568f6694",
+      "complete_source_assertion_sha256": "f59f49c668ebd2dd6b8f067d36a6fe2e92d2d6de3117af184d304975914e3bb0",
+      "source_packet_definition": {
+        "path": "review-output/install-control-rehearsal-v4/fixtures.json",
+        "sha256": "d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a",
+        "json_pointer": "/source_assertions/P0C-INSTALL-01/assertions/2"
+      },
+      "proposed_status": "PASS",
+      "proposed_action": "CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE",
+      "previous_evidence": {
+        "case_id": "P0C-INSTALL-01",
+        "assertion_id": "control.second_deploy",
+        "status": "PASS",
+        "expected_assertion_sha256": "2f9b2cb42e8cccaa057768d6cfb70a782cb0bf3ac91e2cac8c644a2e568f6694",
+        "source_commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
+        "source_tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
+        "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+        "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+        "evidence_path": "context/reconciliation/local-f0-migration-6b8910d-execution.json",
+        "evidence_sha256": "e657bd4de3c288acbd86faa7ae9514f59e76566e1bba170a6ef19f7770c91158",
+        "json_pointer": "/operator_raw_safe_report/targets/wa-p0c-196c3d8a-migrate-ok/second_deploy_schema_comparison",
+        "qualification_scope": "Genuine second deploy reported no pending; applied checksum and safe ledger projection unchanged, normalized schema fingerprint identical. This is not full native catalog parity."
+      },
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/canonical/cli_canonical_deploy",
+          "required_piece": "Final recorded genuine deploy is no-pending second deploy; earlier CLI labels are overwritten."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/canonical/finite_result",
+          "required_piece": "Completion requires unchanged first/second ledger and schema hashes in frozen source."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": null
+    },
+    {
+      "case_id": "P0C-INSTALL-01",
+      "assertion_id": "control.success_cleanup",
+      "mandatory_for_case": true,
+      "expected_assertion": "After successful install connection closes, original grantor finalizes; temporary memberships and leaf CREATE privileges are independently zero.",
+      "vector_expected": null,
+      "expected_assertion_sha256": "1b3504f1997726a33d30d944e1bc3c2709e64ee0da9a572d5b46ed47d491661d",
+      "complete_source_assertion_sha256": "8b055fdf10ec927a0ef5cd29a857fc7df0a862009bf99b12d2709a8752f5e3ac",
+      "source_packet_definition": {
+        "path": "review-output/install-control-rehearsal-v4/fixtures.json",
+        "sha256": "d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a",
+        "json_pointer": "/source_assertions/P0C-INSTALL-01/assertions/3"
+      },
+      "proposed_status": "PASS",
+      "proposed_action": "CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE",
+      "previous_evidence": {
+        "case_id": "P0C-INSTALL-01",
+        "assertion_id": "control.success_cleanup",
+        "status": "PASS",
+        "expected_assertion_sha256": "1b3504f1997726a33d30d944e1bc3c2709e64ee0da9a572d5b46ed47d491661d",
+        "source_commit": "0623028e68190d21174fa4038c0611d5f9b26f2f",
+        "source_tree": "389fe7785a1a1b7b32579cccd36c867f6760fd33",
+        "packet_sha256": "94cefd73a512bdd64d26a1cbc3726f9bb435ad79f37fb3d0aee7e607c86f1fb2",
+        "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "run_id": "03b7fc86-49b8-4d3e-87b1-19319fe6105f",
+        "evidence_path": "context/reconciliation/local-f0-small-rehearsal-0623028-execution.json",
+        "evidence_sha256": "269812ab154775e0cea58c3305ffbef141c2c0978590f8000c18c79cb2f0d28b",
+        "json_pointer": "/operator_raw_safe_report",
+        "qualification_scope": "Original grantor finalization after restricted migrator directSQL COMMIT and independent authority checks; no genuine Prisma ledger/deploy claim."
+      },
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/canonical/original_cleanup",
+          "required_piece": "Separate postgres original grantor after install closure; zero temporary memberships/leafCREATE/all other clients."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": null
+    },
+    {
+      "case_id": "P0C-INSTALL-01",
+      "assertion_id": "vector.INSTALL-CLEANUP.positive",
+      "mandatory_for_case": true,
+      "expected_assertion": "Bootstrap/application succeeds, then ORIGINAL grantor runs finalize in a separate connection",
+      "vector_expected": "Both outcomes leave zero helper/verifier memberships on schema owner and zero CREATE on platform_private for leaf roles; runtime credentials stay inactive until verified",
+      "expected_assertion_sha256": "890d97d5a62a67e70125ba2254f9de20decac3358fd4eabbaa1c944aa5a61a73",
+      "complete_source_assertion_sha256": "040a9f63c25ded30a603f436dfd0ff153d26a15de3e039604a932d85aa934cc8",
+      "source_packet_definition": {
+        "path": "review-output/install-control-rehearsal-v4/fixtures.json",
+        "sha256": "d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a",
+        "json_pointer": "/source_assertions/P0C-INSTALL-01/assertions/4"
+      },
+      "proposed_status": "PASS",
+      "proposed_action": "PROPOSE_PARTIAL_TO_PASS_WITH_PRIOR_PROVENANCE_RETAINED",
+      "previous_evidence": {
+        "case_id": "P0C-INSTALL-01",
+        "assertion_id": "vector.INSTALL-CLEANUP.positive",
+        "status": "PARTIAL",
+        "expected_assertion_sha256": "890d97d5a62a67e70125ba2254f9de20decac3358fd4eabbaa1c944aa5a61a73",
+        "source_commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
+        "source_tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
+        "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+        "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+        "evidence_path": "context/reconciliation/local-f0-migration-6b8910d-execution.json",
+        "evidence_sha256": "e657bd4de3c288acbd86faa7ae9514f59e76566e1bba170a6ef19f7770c91158",
+        "json_pointer": "/operator_raw_safe_report/targets/wa-p0c-196c3d8a-migrate-ok/finalization_observation",
+        "qualification_scope": "Successful actual restricted installation and separate original-grantor zero-membership/leaf-CREATE checks observed. Credentials were provisioned for preflight before verification; the registered activation hold itself was not exercised."
+      },
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/canonical/original_cleanup",
+          "required_piece": "Original grantor cleanup after committed canonical source."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/canonical/BEFORE_INSTALL_RUNTIME_INACTIVE",
+          "required_piece": "Four actual NULL verifiers before install."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/canonical/AFTER_VERIFIED_CLEANUP_STILL_INACTIVE",
+          "required_piece": "Four NULL verifiers after cleanup, before controlled activation."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/canonical/activation_gate_held",
+          "required_piece": "Pure gate denied activation without password SQL before cleanup; completed source path asserts exact phase."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": null
+    },
+    {
+      "case_id": "P0C-INSTALL-01",
+      "assertion_id": "vector.INSTALL-CLEANUP.adversarial",
+      "mandatory_for_case": true,
+      "expected_assertion": "Inject application rollback, then the same grantor finalizes; wrong grantor cannot clean up",
+      "vector_expected": "Both outcomes leave zero helper/verifier memberships on schema owner and zero CREATE on platform_private for leaf roles; runtime credentials stay inactive until verified",
+      "expected_assertion_sha256": "fed82f44a002d06e3615dcb59fbc29d3a3d89241075750439527184c789e4bb8",
+      "complete_source_assertion_sha256": "e3cd50c0cc39a438cbbd836d19492acd82f0cfc69c3e30441bf064e80b2b0351",
+      "source_packet_definition": {
+        "path": "review-output/install-control-rehearsal-v4/fixtures.json",
+        "sha256": "d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a",
+        "json_pointer": "/source_assertions/P0C-INSTALL-01/assertions/5"
+      },
+      "proposed_status": "PASS",
+      "proposed_action": "PROPOSE_NEW_PASS_AFTER_ROOT_ACK",
+      "previous_evidence": null,
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/rollback-proof-for-review.json",
+          "sha256": "3a33a7a3e808e4029f74ac2f1eafccfffb422d392a90c39b5ab7665c03537070",
+          "json_pointer": "/application_inventory",
+          "required_piece": "Division variant zero all app objects before recovery."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/late_function_grant/inventory",
+          "required_piece": "Late function-grant failed target zero objects."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/late_function_grant/original_cleanup",
+          "required_piece": "Original grantor cleanup after failed application transaction."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/canonical/wrong_grantor",
+          "required_piece": "Actual migrator finalization denied at exact source P0001/body/line6 while canonical install authority still temporary; failure-target wrong-finalizer attempt not claimed."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": null
+    },
+    {
+      "case_id": "P0C-INSTALL-01",
+      "assertion_id": "vector.FUNCTION-ACL-AUTHORITY.positive",
+      "mandatory_for_case": true,
+      "expected_assertion": "Install as actual wa_migrator, SET LOCAL ROLE wa_schema_owner; exact function grants and managed-role revocations precede every transfer to NOINHERIT leaf owners",
+      "vector_expected": "Install commits with expected ACL; original grantor then removes every temporary membership and CREATE privilege",
+      "expected_assertion_sha256": "5a9eb59284dc1fb7c13e86ffac4352efa9d6d2963707668df921b318c15fe5eb",
+      "complete_source_assertion_sha256": "bada13e369f4e8bf1c9c5834bc498e69a40be1a007afcbd417dd4e8e7913f747",
+      "source_packet_definition": {
+        "path": "review-output/install-control-rehearsal-v4/fixtures.json",
+        "sha256": "d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a",
+        "json_pointer": "/source_assertions/P0C-INSTALL-01/assertions/6"
+      },
+      "proposed_status": "PASS",
+      "proposed_action": "CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE",
+      "previous_evidence": {
+        "case_id": "P0C-INSTALL-01",
+        "assertion_id": "vector.FUNCTION-ACL-AUTHORITY.positive",
+        "status": "PASS",
+        "expected_assertion_sha256": "5a9eb59284dc1fb7c13e86ffac4352efa9d6d2963707668df921b318c15fe5eb",
+        "source_commit": "b8f6b1039c743706f70278dd8b598cab6cbcd9db",
+        "source_tree": "b0dd6288af19b0ae2d524e0332245922f5b25ca2",
+        "packet_sha256": "d2582c07eb74f3c010e8b42cbecad9abd81a8380d37cde1a855b1fdfde6e31fa",
+        "run_id": "f161d454-13dd-453f-a9ee-6e92f95ea8d6",
+        "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "evidence_path": "context/reconciliation/local-f0-restricted-b8f6b10-f161d454-execution.json",
+        "evidence_sha256": "9a090022c11f150cb133617af11cb9c6afafba1624313673ee3a5237ae637232",
+        "json_pointer": "/sanitized_report",
+        "qualification_scope": "One actual guarded wa_migrator deploy of canonical5ae source; required SET LOCAL ROLE and grant/revoke-before-owner-transfer source order; original grantor finalizes. Full native comparison independently reproduces every signature/owner/ACL and all leaf flags.",
+        "qualification_limit": "Negative moved-after-transfer variant NOT_RUN."
+      },
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/native/canonical",
+          "required_piece": "Source-bound full canonical function owners/ACL/leaf flags; source order is grant+revoke before ownership transfer."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/canonical/original_cleanup",
+          "required_piece": "Postcommit original-grantor removal of all temporary authority."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": null
+    },
+    {
+      "case_id": "P0C-INSTALL-01",
+      "assertion_id": "vector.FUNCTION-ACL-AUTHORITY.adversarial",
+      "mandatory_for_case": true,
+      "expected_assertion": "Move a grant/revocation after transfer without SET ROLE actual owner",
+      "vector_expected": "Install commits with expected ACL; original grantor then removes every temporary membership and CREATE privilege",
+      "expected_assertion_sha256": "9526e82d14062db50b08b7dcf8843f8e0b935df9fa3b80ffc82d6ddc81f6365e",
+      "complete_source_assertion_sha256": "3f4edd3f8f57c21f5f9ae4a859a088a423030b5bfbe131bfc41cfda6535aaac7",
+      "source_packet_definition": {
+        "path": "review-output/install-control-rehearsal-v4/fixtures.json",
+        "sha256": "d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a",
+        "json_pointer": "/source_assertions/P0C-INSTALL-01/assertions/7"
+      },
+      "proposed_status": "PASS",
+      "proposed_action": "PROPOSE_NEW_PASS_AFTER_ROOT_ACK",
+      "previous_evidence": null,
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/late_function_grant/failure_verdict",
+          "required_piece": "One exact existing bind_request_context EXECUTE grant moved after its leaf owner transfer; actual function-specific42501 plus secondary25P02, no P3018 claim."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/late_function_grant/inventory",
+          "required_piece": "Application rollback complete; no successful commit of the faulty variant claimed."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": null
+    },
+    {
+      "case_id": "P0C-INSTALL-02",
+      "assertion_id": "control.intended_failure",
+      "mandatory_for_case": true,
+      "expected_assertion": "Prisma applies a recorded immutable failure-history snapshot; the intended injected database failure is distinguished from connection/parser/permission failures.",
+      "vector_expected": null,
+      "expected_assertion_sha256": "2ed1d709c1543392e59b9de65fd63df6aa57c440c45c800d67f23601aedd2245",
+      "complete_source_assertion_sha256": "fd965ff2ec4a83f4275c506ec9a9bcfd8d55be153d43f6f83383c62fb402b981",
+      "source_packet_definition": {
+        "path": "review-output/install-control-rehearsal-v4/fixtures.json",
+        "sha256": "d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a",
+        "json_pointer": "/source_assertions/P0C-INSTALL-02/assertions/0"
+      },
+      "proposed_status": "PASS",
+      "proposed_action": "PROPOSE_PARTIAL_TO_PASS_WITH_PRIOR_PROVENANCE_RETAINED",
+      "previous_evidence": {
+        "case_id": "P0C-INSTALL-02",
+        "assertion_id": "control.intended_failure",
+        "status": "PARTIAL",
+        "expected_assertion_sha256": "2ed1d709c1543392e59b9de65fd63df6aa57c440c45c800d67f23601aedd2245",
+        "source_commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
+        "source_tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
+        "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+        "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+        "evidence_path": "context/reconciliation/local-f0-migration-6b8910d-execution.json",
+        "evidence_sha256": "e657bd4de3c288acbd86faa7ae9514f59e76566e1bba170a6ef19f7770c91158",
+        "json_pointer": "/operator_raw_safe_report/targets/wa-p0c-196c3d8a-migrate-fail/failure_diagnostic_proof",
+        "qualification_scope": "Planned temporary SET-membership fault produced actual source-guard42501 plus secondary25P02/NULL masked persistence. The registered criterion excludes permission failures; a separate failing SQL-history variant remains unexercised. No expected-text/hash change."
+      },
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/rollback-proof-for-review.json",
+          "sha256": "3a33a7a3e808e4029f74ac2f1eafccfffb422d392a90c39b5ab7665c03537070",
+          "json_pointer": "/failure",
+          "required_piece": "Actual22012 intentional SQL division failure separated from permission/connection/parser errors by exact server delta and immutable SQL hash."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-install-failure-proof.json",
+          "sha256": "7f4120006699b024a790604e740281befc53a1a9deb1f816fcb7a376c2088ab4",
+          "json_pointer": "/failed_cli",
+          "required_piece": "Genuine Prisma failed attempt; CLI primary masking retained as observed, not P3018 invented."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": null
+    },
+    {
+      "case_id": "P0C-INSTALL-02",
+      "assertion_id": "control.failed_ledger",
+      "mandatory_for_case": true,
+      "expected_assertion": "The genuine Prisma ledger retains its failed migration record/checksum while all transactional application objects roll back.",
+      "vector_expected": null,
+      "expected_assertion_sha256": "7f459922ed5ed631655df4b5ff41ca6bbcc8d2b6126cd9db532a119ff5878ad9",
+      "complete_source_assertion_sha256": "83981134150b9538e15abce45fb1e7ef7b24b7c960056df3763f08812ee8fd6a",
+      "source_packet_definition": {
+        "path": "review-output/install-control-rehearsal-v4/fixtures.json",
+        "sha256": "d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a",
+        "json_pointer": "/source_assertions/P0C-INSTALL-02/assertions/1"
+      },
+      "proposed_status": "PASS",
+      "proposed_action": "CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE",
+      "previous_evidence": {
+        "case_id": "P0C-INSTALL-02",
+        "assertion_id": "control.failed_ledger",
+        "status": "PASS",
+        "expected_assertion_sha256": "7f459922ed5ed631655df4b5ff41ca6bbcc8d2b6126cd9db532a119ff5878ad9",
+        "source_commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
+        "source_tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
+        "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+        "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+        "evidence_path": "context/reconciliation/local-f0-migration-6b8910d-execution.json",
+        "evidence_sha256": "e657bd4de3c288acbd86faa7ae9514f59e76566e1bba170a6ef19f7770c91158",
+        "json_pointer": "/operator_raw_safe_report/targets/wa-p0c-196c3d8a-migrate-fail/ledger_observations/0",
+        "qualification_scope": "Actual unfinished zero-step canonical-checksum failed row retained with zero transactional application objects after closure/finalization; original row retained through standard resolve and recovery."
+      },
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/rollback-proof-for-review.json",
+          "sha256": "3a33a7a3e808e4029f74ac2f1eafccfffb422d392a90c39b5ab7665c03537070",
+          "json_pointer": "/failed_ledger",
+          "required_piece": "Unfinished zero-step failed faulty checksum row remains at rollback."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/division_failure/ledger",
+          "required_piece": "Same immutable row retained with only allowed rolled_back mark, plus one canonical applied row after reviewed recovery."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": null
+    },
+    {
+      "case_id": "P0C-INSTALL-02",
+      "assertion_id": "control.failed_cleanup",
+      "mandatory_for_case": true,
+      "expected_assertion": "Original grantor cleanup runs after failure; no active install connection, temporary membership or leaf CREATE remains.",
+      "vector_expected": null,
+      "expected_assertion_sha256": "7faac541926dc4affb60f132be2e401bb6698c3d3f47114960e6514127fb884f",
+      "complete_source_assertion_sha256": "bbf6f9b9f31d01cc0de61fdf31fda881213b63fccdbbcc8f6c8defbd829e1b18",
+      "source_packet_definition": {
+        "path": "review-output/install-control-rehearsal-v4/fixtures.json",
+        "sha256": "d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a",
+        "json_pointer": "/source_assertions/P0C-INSTALL-02/assertions/2"
+      },
+      "proposed_status": "PASS",
+      "proposed_action": "CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE",
+      "previous_evidence": {
+        "case_id": "P0C-INSTALL-02",
+        "assertion_id": "control.failed_cleanup",
+        "status": "PASS",
+        "expected_assertion_sha256": "7faac541926dc4affb60f132be2e401bb6698c3d3f47114960e6514127fb884f",
+        "source_commit": "0623028e68190d21174fa4038c0611d5f9b26f2f",
+        "source_tree": "389fe7785a1a1b7b32579cccd36c867f6760fd33",
+        "packet_sha256": "94cefd73a512bdd64d26a1cbc3726f9bb435ad79f37fb3d0aee7e607c86f1fb2",
+        "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "run_id": "03b7fc86-49b8-4d3e-87b1-19319fe6105f",
+        "evidence_path": "context/reconciliation/local-f0-small-rehearsal-0623028-execution.json",
+        "evidence_sha256": "269812ab154775e0cea58c3305ffbef141c2c0978590f8000c18c79cb2f0d28b",
+        "json_pointer": "/operator_raw_safe_report",
+        "qualification_scope": "Original grantor finalization after deliberate22012 directSQL rollback and backend closure; no genuine Prisma failed-ledger/recovery claim."
+      },
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/division_failure/original_cleanup",
+          "required_piece": "Original grantor after failed connection exits."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/late_function_grant/original_cleanup",
+          "required_piece": "Second independent failed branch original cleanup/all clients zero."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": null
+    },
+    {
+      "case_id": "P0C-INSTALL-02",
+      "assertion_id": "control.recovery",
+      "mandatory_for_case": true,
+      "expected_assertion": "Only after exact rollback/catalog verification, use the reviewed pinned migration recovery command; retain failure history, deploy reviewed valid bytes and prove the recovered ledger and second no-op deploy.",
+      "vector_expected": null,
+      "expected_assertion_sha256": "c02a1b5ca4d7f5baf8531ffd315f401aa12a0f41565d47ed936f67d1f5948240",
+      "complete_source_assertion_sha256": "b1d6c7cb0457d61fbfbc32000a512fa0fecbea7974eefebe3ee226ee7f9ee6e7",
+      "source_packet_definition": {
+        "path": "review-output/install-control-rehearsal-v4/fixtures.json",
+        "sha256": "d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a",
+        "json_pointer": "/source_assertions/P0C-INSTALL-02/assertions/3"
+      },
+      "proposed_status": "PASS",
+      "proposed_action": "CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE",
+      "previous_evidence": {
+        "case_id": "P0C-INSTALL-02",
+        "assertion_id": "control.recovery",
+        "status": "PASS",
+        "expected_assertion_sha256": "c02a1b5ca4d7f5baf8531ffd315f401aa12a0f41565d47ed936f67d1f5948240",
+        "source_commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
+        "source_tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
+        "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+        "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+        "evidence_path": "context/reconciliation/local-f0-migration-6b8910d-execution.json",
+        "evidence_sha256": "e657bd4de3c288acbd86faa7ae9514f59e76566e1bba170a6ef19f7770c91158",
+        "json_pointer": "/operator_raw_safe_report/recovery_review",
+        "qualification_scope": "Exact rollback/server proof reviewed before standard resolve; original grantor restored only exact temporary SET links, identical SQL/checksum retried, failed row retained rolled back plus one finished row, recovered no-op proved."
+      },
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/Catalog-explicit-actual-approval-receipt.json",
+          "sha256": "a6282b896379d346d867a632c2c9369899eb3687822795bdcedb74a6c131b75f",
+          "json_pointer": "/approval",
+          "required_piece": "Distinct actual sealed Catalog approval under original unextended220-second deadline."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/division_failure/cli_division_failure_resolve-rolled-back",
+          "required_piece": "Pinned standard resolve for failed immutable history on sameCID."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/division_failure/recovery_result",
+          "required_piece": "Canonical retry and genuine second no-op, failure row retained."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/native/division_failure",
+          "required_piece": "Recovered full29090 native/416oracle/23private-ledger checks."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": null
+    },
+    {
+      "case_id": "P0C-INSTALL-02",
+      "assertion_id": "control.immutable_applied_history",
+      "mandatory_for_case": true,
+      "expected_assertion": "Never edit an applied migration/checksum, mark absent objects applied, reset, db push or directly manipulate the ledger.",
+      "vector_expected": null,
+      "expected_assertion_sha256": "cc051f9d1b2bfc1bfee980f592d19dd1a5b92bbc4e1511606537956e10aad145",
+      "complete_source_assertion_sha256": "c999bea8a6268bfaa7f6872ff60c8d11431d96e0474624368a0a150279325cce",
+      "source_packet_definition": {
+        "path": "review-output/install-control-rehearsal-v4/fixtures.json",
+        "sha256": "d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a",
+        "json_pointer": "/source_assertions/P0C-INSTALL-02/assertions/4"
+      },
+      "proposed_status": "PASS",
+      "proposed_action": "CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE",
+      "previous_evidence": {
+        "case_id": "P0C-INSTALL-02",
+        "assertion_id": "control.immutable_applied_history",
+        "status": "PASS",
+        "expected_assertion_sha256": "cc051f9d1b2bfc1bfee980f592d19dd1a5b92bbc4e1511606537956e10aad145",
+        "source_commit": "6b8910dca9e647bf41733e9f9c5fd6fd5515141f",
+        "source_tree": "c27194d4593f8c030e6d07e8a6b67a76faf2a540",
+        "packet_sha256": "d06b1ed973c57a6a0ef531be45370ea34a161c4a322d08ad2912a869761b2cb8",
+        "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "run_id": "196c3d8a-5772-4327-a72f-b760be420203",
+        "evidence_path": "context/reconciliation/local-f0-migration-6b8910d-execution.json",
+        "evidence_sha256": "e657bd4de3c288acbd86faa7ae9514f59e76566e1bba170a6ef19f7770c91158",
+        "json_pointer": "/operator_raw_safe_report/source_verification",
+        "qualification_scope": "Same sole migration bytes/checksum and 45-file packet preserved; only guarded deploy/resolve-rolled-back commands used, no mark-applied/reset/dbpush/manual ledger mutation. Historical June bytes preserved."
+      },
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-install-failure-proof.json",
+          "sha256": "7f4120006699b024a790604e740281befc53a1a9deb1f816fcb7a376c2088ab4",
+          "json_pointer": "/retained_ledger",
+          "required_piece": "Failed checksum kept; only standard rolled-back marking allowed, separately reviewed immutable canonical history applied."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/all_source_and_external_inputs_preserved_after_run",
+          "required_piece": "No applied canonical checksum/source rewrite or direct ledger manipulation; source only permits guarded deploy/resolve."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": null
+    },
+    {
+      "case_id": "P0C-INSTALL-02",
+      "assertion_id": "vector.FUNCTION-ACL-FAILURE-CLEANUP.positive",
+      "mandatory_for_case": true,
+      "expected_assertion": "Original grantor finalizes after application ROLLBACK as well as COMMIT",
+      "vector_expected": "No application objects survive failed application transaction; zero temporary memberships/leaf CREATE after separate finalization",
+      "expected_assertion_sha256": "fcb6085889f1e1cf21278a1999cf90a037e964b8ce067b2004a88fa9a79d6369",
+      "complete_source_assertion_sha256": "e048e0bf82294f1f6fc6dffaa435bf988bfebd929d0d373d843b24f39a6803ff",
+      "source_packet_definition": {
+        "path": "review-output/install-control-rehearsal-v4/fixtures.json",
+        "sha256": "d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a",
+        "json_pointer": "/source_assertions/P0C-INSTALL-02/assertions/5"
+      },
+      "proposed_status": "PASS",
+      "proposed_action": "CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE",
+      "previous_evidence": {
+        "case_id": "P0C-INSTALL-02",
+        "assertion_id": "vector.FUNCTION-ACL-FAILURE-CLEANUP.positive",
+        "status": "PASS",
+        "expected_assertion_sha256": "fcb6085889f1e1cf21278a1999cf90a037e964b8ce067b2004a88fa9a79d6369",
+        "source_commit": "0623028e68190d21174fa4038c0611d5f9b26f2f",
+        "source_tree": "389fe7785a1a1b7b32579cccd36c867f6760fd33",
+        "packet_sha256": "94cefd73a512bdd64d26a1cbc3726f9bb435ad79f37fb3d0aee7e607c86f1fb2",
+        "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "run_id": "03b7fc86-49b8-4d3e-87b1-19319fe6105f",
+        "evidence_path": "context/reconciliation/local-f0-small-rehearsal-0623028-execution.json",
+        "evidence_sha256": "269812ab154775e0cea58c3305ffbef141c2c0978590f8000c18c79cb2f0d28b",
+        "json_pointer": "/operator_raw_safe_report",
+        "qualification_scope": "Actual application rollback: zero application objects, removed temporary memberships and leaf CREATE; does not qualify runtime-before-cleanup negative."
+      },
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/rollback-proof-for-review.json",
+          "sha256": "3a33a7a3e808e4029f74ac2f1eafccfffb422d392a90c39b5ab7665c03537070",
+          "json_pointer": "/original_grantor_finalized",
+          "required_piece": "Original grantor finalized after application rollback."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/canonical/original_cleanup",
+          "required_piece": "Original grantor also finalized after successful commit."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/late_function_grant/inventory",
+          "required_piece": "Late application failure leaves no app objects."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": null
+    },
+    {
+      "case_id": "P0C-INSTALL-02",
+      "assertion_id": "vector.FUNCTION-ACL-FAILURE-CLEANUP.adversarial",
+      "mandatory_for_case": true,
+      "expected_assertion": "Inject a failure after function setup but before application COMMIT; attempt runtime activation before independent cleanup verification",
+      "vector_expected": "No application objects survive failed application transaction; zero temporary memberships/leaf CREATE after separate finalization",
+      "expected_assertion_sha256": "34db5106a123525087e33083c3917fb0cf0065d6c20f3d2060b2e8de5e8c60e9",
+      "complete_source_assertion_sha256": "14d3d0aaa9959a0fd854caa73f98f67ea0ed70857725217ecc8e469dfb4363c2",
+      "source_packet_definition": {
+        "path": "review-output/install-control-rehearsal-v4/fixtures.json",
+        "sha256": "d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a",
+        "json_pointer": "/source_assertions/P0C-INSTALL-02/assertions/6"
+      },
+      "proposed_status": "PARTIAL",
+      "proposed_action": "PROPOSE_NEW_PARTIAL_WITH_EXPLICIT_MISSING_PHASE",
+      "previous_evidence": null,
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/late_function_grant/failure_verdict",
+          "required_piece": "After-function setup/before-COMMIT failure actually reached intended guard."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/late_function_grant/activation_gate_held",
+          "required_piece": "Gate was held before install and again after failed-install cleanup; no distinct postfailure/precleanup attempt was exercised."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json",
+          "sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+          "json_pointer": "/targets/late_function_grant/FAILED_INSTALL_REMAINS_INACTIVE",
+          "required_piece": "Failed target remains NULL-verifier/inactive; four candidate startups rejected."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": "Specific activation-gate attempt after failed deploy and before finalization/cleanup verification was NOT_RUN; preinstall and postcleanup denials do not invent that phase."
+    },
+    {
+      "case_id": "P0C-CATALOG-01",
+      "assertion_id": "control.all_acl_levels",
+      "mandatory_for_case": true,
+      "expected_assertion": "Schema/table/COLUMN/sequence/function/type/default privileges match, including the private Prisma-ledger exception.",
+      "vector_expected": null,
+      "expected_assertion_sha256": "b9f72da266f62f91e17b50a62d2c2b0dd78e0bf68dea208925d8173e6ec47de9",
+      "complete_source_assertion_sha256": "eb6bff26ba0ea7e39f125cf57e9bc921fe5239cf03474d2c797c3cfef91f965b",
+      "source_packet_definition": {
+        "path": "context/reconciliation/local-f0-assertions.json",
+        "sha256": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558"
+      },
+      "proposed_status": "PASS",
+      "proposed_action": "CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE",
+      "previous_evidence": {
+        "case_id": "P0C-CATALOG-01",
+        "assertion_id": "control.all_acl_levels",
+        "status": "PASS",
+        "expected_assertion_sha256": "b9f72da266f62f91e17b50a62d2c2b0dd78e0bf68dea208925d8173e6ec47de9",
+        "source_commit": "b9703d77792fa328392cf698a23e9c07c0adc6b1",
+        "source_tree": "2a40c3a1fc4d7f49daeae9d4554e4b026880d3d8",
+        "packet_sha256": "8ec1bd586b527bbf47167c8b1da44c9e008541dc2f5707e8d142e471f2329f1c",
+        "run_id": "23bd8979-53ba-43af-ad77-8bba1900f163",
+        "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "evidence_path": "context/reconciliation/local-f0-catalog-b9703d7-23bd8979-execution.json",
+        "evidence_sha256": "bbf604e3eb2c7a066f2287a2f2f2ab825582d366dc5330394170b33a0fd22de8",
+        "json_pointer": "/sanitized_report/catalog_comparison",
+        "limit": "Exact independently audited native metadata/positive subset only. No adversarial leaf DML/role-assumption or whole-case promotion."
+      },
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/native/canonical",
+          "required_piece": "Full schema/table/column/function/type/default/private-ledger source comparison on canonical target."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/native/division_failure",
+          "required_piece": "Recovered source comparison includes retained failed private ledger."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": null
+    },
+    {
+      "case_id": "P0C-CATALOG-01",
+      "assertion_id": "control.visibility",
+      "mandatory_for_case": true,
+      "expected_assertion": "Unknown/missing catalog visibility is a gap. Normalize only documented representation/OID differences, never delete semantic mismatches.",
+      "vector_expected": null,
+      "expected_assertion_sha256": "4239bf941657c965aa02a1d77140f2011c908e4e04697e4a3af98ca806eda326",
+      "complete_source_assertion_sha256": "d7e5b2a6ace4769cb10c7ae57d808d1a97f009cfa279a590e95b1ea55e06d499",
+      "source_packet_definition": {
+        "path": "context/reconciliation/local-f0-assertions.json",
+        "sha256": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558"
+      },
+      "proposed_status": "PASS",
+      "proposed_action": "CORROBORATE_EXISTING_PASS_KEEP_OLD_PROVENANCE",
+      "previous_evidence": {
+        "case_id": "P0C-CATALOG-01",
+        "assertion_id": "control.visibility",
+        "status": "PASS",
+        "expected_assertion_sha256": "4239bf941657c965aa02a1d77140f2011c908e4e04697e4a3af98ca806eda326",
+        "source_commit": "b9703d77792fa328392cf698a23e9c07c0adc6b1",
+        "source_tree": "2a40c3a1fc4d7f49daeae9d4554e4b026880d3d8",
+        "packet_sha256": "8ec1bd586b527bbf47167c8b1da44c9e008541dc2f5707e8d142e471f2329f1c",
+        "run_id": "23bd8979-53ba-43af-ad77-8bba1900f163",
+        "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "evidence_path": "context/reconciliation/local-f0-catalog-b9703d7-23bd8979-execution.json",
+        "evidence_sha256": "bbf604e3eb2c7a066f2287a2f2f2ab825582d366dc5330394170b33a0fd22de8",
+        "json_pointer": "/sanitized_report/catalog_comparison",
+        "limit": "Exact independently audited native metadata/positive subset only. No adversarial leaf DML/role-assumption or whole-case promotion."
+      },
+      "evidence_pieces": [
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-semantic-parity.json",
+          "sha256": "79736c166f527a15931a19de28a6c87b005e878adbae01448fab5d7e45eb39d8",
+          "json_pointer": "/counts",
+          "required_piece": "Only312 source-validated internal trigger.name differences omitted, all20 other fields/100external/26sections exact; raw snapshots remain distinct."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json",
+          "sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+          "json_pointer": "/install/full_native",
+          "required_piece": "Separate outer canonical/recovered native/oracle/private-ledger completion; child PENDING tags preserved."
+        },
+        {
+          "path": "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json",
+          "sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+          "json_pointer": "/exact_name_observations",
+          "required_piece": "Independent six exact created resources absent and private secrets removed."
+        }
+      ],
+      "scope_ceiling": "Exact observed finite local INSTALL control branch only; no broad vector matrix, owner/API/RLS, production/hosted adoption or manual whole-case promotion.",
+      "missing_required_piece": null
+    }
+  ],
+  "implementation_ceiling_after_ACK": "Only two new PASS, two existing PARTIAL-to-PASS upgrades with complete old evidence retained as history, and one new explicitly PARTIAL row; twelve old PASS remain unchanged corroborations. Root may narrow this proposal.",
+  "whole_case_or_generic_vector_promotion": false,
+  "case_aggregation": "NOT_RUN; only unchanged all-mandatory aggregation after separately reviewed parser and actual Root build may derive case statuses.",
+  "further_unexercised_claims": "NOT_RUN; no unrelated bootstrap/Customer/RLS/owner/API/worker links inferred from catalog metadata or setup.",
+  "parser_implementation": "NOT_STARTED_REQUIRES_ROOT_BOUNDED_ACK",
+  "Posture": "D",
+  "plain_english": "The toy installations and planned failures have useful proof. Most checks already passed before. Four checks may now earn PASS, while one failure test still misses a particular timing step and stays PARTIAL. The project scoreboard has not been changed by this audit."
+}

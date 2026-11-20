@@ -1,0 +1,60 @@
+class TransactionOptionsFix2Tests(unittest.TestCase):
+    setUp=BoundEvidenceTests.setUp
+    proof=BoundEvidenceTests.proof
+    safe=BoundEvidenceTests.safe
+    SETTINGS=('transaction_isolation','transaction_read_only','transaction_deferrable','default_transaction_isolation','default_transaction_read_only','default_transaction_deferrable')
+    def vectors(self):
+        path=R/'context/reconciliation/local-f0-operation-sources/restore-bound-evidence-v4/reviews/fix2/74-vector-probe.json';raw=path.read_bytes();self.assertEqual(sha(raw),'832e93e7659bb4132687c41bf1fadc1662c5184ab922f6a0f66f8d2630a7fa81');vectors=json.loads(raw)['vectors'];self.assertEqual(len(vectors),74);return vectors
+    def reject(self,source):
+        from pglast import parse_sql
+        parse_sql(source);facts={}
+        with self.assertRaises(self.n['Stop']) as error:self.n['normalize_bound_envelope'](source,facts)
+        self.assertEqual(error.exception.code,'RESTORE_ENVELOPE_UNSUPPORTED_TRANSACTION');self.assertEqual(facts['mode'],'UNCONFIRMED');self.assertFalse(facts['business_bytes_preserved'])
+    def test_exact_independent74_parse_valid_vectors_follow_closed_contract(self):
+        from pglast import parse_sql
+        rejects=accepts=0
+        for row in self.vectors():
+            parse_sql(row['sql'])
+            if row['expected_contract']=='REJECT':self.reject(row['sql']);rejects+=1
+            else:
+                self.assertEqual(row['expected_contract'],'ACCEPT');facts={};normalized=self.n['normalize_bound_envelope'](row['sql'],facts);self.assertEqual(normalized,row['sql']);self.assertTrue(facts['business_bytes_preserved']);accepts+=1
+        self.assertEqual((rejects,accepts),(68,6))
+    def test_SET_scopes_comments_and_casefolded_quoted_GUC_names_reject(self):
+        for name in self.SETTINGS:
+            value="'serializable'" if name.endswith('isolation') else 'on'
+            for scope in ('','LOCAL ','SESSION '):
+                for variable in (name.upper(),'"'+name.upper()+'"'):
+                    self.reject('SET /* scope */ '+scope+'/* variable */ '+variable+' = '+value+'; SELECT 1; COMMIT;')
+    def test_RESET_six_aliases_and_explicit_RESET_ALL_contract(self):
+        for name in self.SETTINGS:
+            for variable in (name,'"'+name+'"','"'+name.upper()+'"'):
+                self.reject('RESET /* variable */ '+variable+'; SELECT 1; COMMIT;')
+        for source in ('RESET ALL; SELECT 1; COMMIT;','RESET /* all settings includes transaction defaults */ ALL; SELECT 1; COMMIT;'):self.reject(source)
+    def test_restoring_only_old_classifier_admits_the_same58_unsupported_forms(self):
+        from copy import deepcopy
+        path=R/'context/reconciliation/local-f0-operation-sources/restore-bound-evidence-v4/preserved-held-v4-fix1/local_f0_restore_operation_steps_bound_evidence_v4.py.txt';raw=path.read_bytes();self.assertEqual(sha(raw),'0640945a621b6914b9076b8d248a4f2f0c4c485fd42f7227dee67dacaf3cdcd8')
+        def function(raw):return next(x for x in ast.parse(raw).body if isinstance(x,ast.FunctionDef) and x.name=='normalize_bound_envelope')
+        def control_loop(node):return next(x for x in ast.walk(node) if isinstance(x,ast.For) and isinstance(x.iter,ast.Call) and isinstance(x.iter.func,ast.Name) and x.iter.func.id=='enumerate' and x.iter.args and isinstance(x.iter.args[0],ast.Name) and x.iter.args[0].id=='statements')
+        old=function(raw);current=function(STEPS.read_bytes());restored=deepcopy(current);control_loop(restored).body[0].test=deepcopy(control_loop(old).body[0].test);scope=dict(self.n);exec(compile(ast.fix_missing_locations(ast.Module(body=[restored],type_ignores=[])),'RESTORED_ONLY_HELD_CLASSIFIER','exec'),scope)
+        admitted=[]
+        for row in self.vectors():
+            if row['expected_contract']!='REJECT':continue
+            try:scope['normalize_bound_envelope'](row['sql'],{})
+            except self.n['Stop']:continue
+            admitted.append(row['sql'])
+        self.assertEqual(len(admitted),58)
+        for source in admitted:
+            self.reject(source)
+            with self.assertRaises(AssertionError):
+                with self.assertRaises(self.n['Stop']):scope['normalize_bound_envelope'](source,{})
+    def test_legitimate_SET_RESET_and_transaction_words_keep_exact_business_bytes(self):
+        from pglast import parse_sql
+        sources=['SET LOCAL search_path = public; SELECT 1; COMMIT;','SET LOCAL "search_path" = public; SELECT 1; COMMIT;','SET SESSION search_path TO pg_catalog; SELECT 1; COMMIT;','RESET search_path; SELECT 1; COMMIT;','RESET "search_path"; SELECT 1; COMMIT;','SET LOCAL custom.transaction_isolation = \'on\'; SELECT 1; COMMIT;','SET LOCAL transaction_isolation.custom = \'on\'; SELECT 1; COMMIT;','RESET custom.transaction_isolation; SELECT 1; COMMIT;','SELECT "transaction_isolation", \'RESET ALL;\', $$SET SESSION TRANSACTION READ ONLY;$$; COMMIT;','/* RESET ALL; SET LOCAL TRANSACTION */ SELECT 1; COMMIT;','SET LOCAL search_path = "transaction_isolation"; SELECT 1; COMMIT;']
+        for source in sources:
+            parse_sql(source);facts={};self.assertEqual(self.n['normalize_bound_envelope'](source,facts),source);self.assertTrue(facts['business_bytes_preserved']);self.assertEqual(facts['source_commit_count'],1)
+        self.safe()
+    def test_actual_bound_transaction_option_stops_before_finish_and_closes(self):
+        later=Mock()
+        with self.assertRaises(self.n['Stop']) as error:
+            self.n['bound_operation'](self.n['SOURCE'],'source_customer','SET LOCAL "transaction_isolation" = \'serializable\'; SELECT 1; COMMIT;');later()
+        self.assertEqual(error.exception.code,'RESTORE_ENVELOPE_UNSUPPORTED_TRANSACTION');later.assert_not_called();self.assertFalse(any(row[0]=='bound_finish' for row in self.world.events));self.assertTrue(self.proof()['operation_closed']);self.assertFalse(self.proof()['matched']);self.assertEqual(self.proof()['transaction_envelope']['mode'],'UNCONFIRMED');self.safe()

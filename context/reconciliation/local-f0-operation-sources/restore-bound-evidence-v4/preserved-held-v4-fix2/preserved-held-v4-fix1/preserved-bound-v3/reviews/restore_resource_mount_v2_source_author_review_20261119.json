@@ -1,0 +1,169 @@
+{
+  "schema": "workinants.restore-resource-mount-v2-source-author-review.v1",
+  "author": "/root/install_outer_review",
+  "recorded_at_utc": "2026-11-19T22:29:43.743705+00:00",
+  "decision": "AUTHOR_SOURCE_PREPARED_PENDING_ROOT_AND_INDEPENDENT_PEER_REVIEW",
+  "approved_plan_sha256": "0338969cfaa30cffa08f39e4cd86c8ad0c1b56bad86e03a07a9c46410015efc3",
+  "Root_plan_ACK_sha256": "d323304ef2b1d7c2e003f694cdba42aa8211309c6001d1055cd02efb8aa4d1a5",
+  "operator_sources_sha256": {
+    "execute_local_f0_restore_20261119_resource_mount_v2.py": "b94ac751379d6b6ff204c5fe2324cc1593355f2ec65a316e62de7ee74a8d876d",
+    "local_f0_restore_operation_steps_resource_mount_v2.py": "1a0eb4881497b43eb8c05f7d296c722dbd8eda90c3b3844c51e2552022fd6c3e",
+    "prepare_local_f0_restore_plan_resource_mount_v2.py": "df1aa97ca6cd0026503dbf42cf1d8c9e3ae62290d07f7858360e7d36a201d2b2",
+    "check_local_f0_restore_operation_resource_mount_v2.py": "cb8d20a01c6086527a963333995f012dca830c1b9f0f4818811ea8d9cb961bbf",
+    "pin_local_f0_restore_plan_20261119_resource_mount_v2.py": "01eb4ddcf000bee96136a50e62fcc146aa5c8acba34b5051ccef98c3a96dfdff"
+  },
+  "source_delta": {
+    "execute_local_f0_restore_20261119_resource_mount_v2.py": {
+      "changed_definitions": [
+        "create_resources"
+      ],
+      "added_definitions": [],
+      "removed_definitions": [],
+      "exact_text_after_namespace": false
+    },
+    "local_f0_restore_operation_steps_resource_mount_v2.py": {
+      "changed_definitions": [
+        "inspect_restore"
+      ],
+      "added_definitions": [
+        "verify_running_restore_secret_tmpfs"
+      ],
+      "removed_definitions": [],
+      "exact_text_after_namespace": false
+    },
+    "prepare_local_f0_restore_plan_resource_mount_v2.py": {
+      "changed_definitions": [],
+      "added_definitions": [],
+      "removed_definitions": [],
+      "exact_text_after_namespace": true
+    },
+    "check_local_f0_restore_operation_resource_mount_v2.py": {
+      "changed_definitions": [
+        "RestoreOperationTests"
+      ],
+      "added_definitions": [],
+      "removed_definitions": [],
+      "exact_text_after_namespace": false
+    },
+    "pin_local_f0_restore_plan_20261119_resource_mount_v2.py": {
+      "changed_definitions": [],
+      "added_definitions": [],
+      "removed_definitions": [],
+      "exact_text_after_namespace": false
+    }
+  },
+  "Core_hooks": "Exactly inspect_restore(name,source,running=False) before start and inspect_restore(name,source) immediately after start; source is a literal string in code. Removing exactly these two calls restores original Core.create_resources AST. All other Core/transport/common/SQL/cleanup AST unchanged after namespace.",
+  "Steps_delta": "Only inspect_restore changed plus verify_running_restore_secret_tmpfs/fixed script/token added. All AuthV5/source fixtures/backup/stage_restore/create_extra_container/PGDATA/config/HBA/rotation/identity/parity/finite probes/main unchanged.",
+  "own_profiles": {
+    "source": "Default two API mounts: sourcePGDATA RW+exactbootstrapRO bind; optional exact RW secret tmpfs API row; exact HostConfig and running kernel before firstpgpass.",
+    "staging": "Exactly restoredPGDATA RW+protectedarchiveRO bind; no secret tmpfs and no kernel secret probe. No tools/backup mount.",
+    "target": "Default one API mount: restoredPGDATA RW; optional exact RW secret tmpfs API row; no bootstrap/archive/source-data mount. Independent post-start proof before target firstpgpass.",
+    "stopped_source": "Configuration-only; no exec.",
+    "data_vs_secrets": "Existing restored PGDATA postgres UID/GID/integrity/WAL/manifest verification is separate and unchanged; new fixed secret-folder stat requires directory700:0:0."
+  },
+  "actual_checks": [
+    {
+      "suite": "check_local_f0_restore_operation_resource_mount_v2.py",
+      "tests": 64,
+      "seconds": 28.219,
+      "outcome": "PASS",
+      "record_sha256": "9f3515f2e4920518d821c4c909eeefb2e45a8110835ddde597e8d89ebddd4eed"
+    },
+    {
+      "suite": "check_restore_resource_mount_v2_resources_20261119.py",
+      "tests": 10,
+      "seconds": 1.125,
+      "outcome": "PASS",
+      "record_sha256": "9f3515f2e4920518d821c4c909eeefb2e45a8110835ddde597e8d89ebddd4eed"
+    },
+    {
+      "suite": "check_restore_resource_mount_v2_safety_composed_20261119.py",
+      "tests": 23,
+      "seconds": 8.485,
+      "outcome": "PASS",
+      "record_sha256": "9f3515f2e4920518d821c4c909eeefb2e45a8110835ddde597e8d89ebddd4eed"
+    },
+    {
+      "suite": "check_restore_resource_mount_v2_source_gates_20261119.py",
+      "tests": 4,
+      "seconds": 24.188,
+      "outcome": "PASS_AFTER_TEST_FIXTURE_CORRECTION",
+      "record_sha256": "d13b4f0086107d872acf138e271473d47ad449cdfcdc8464bb9feafdca6e2fb8"
+    }
+  ],
+  "unique_tests_passing_after_fixture_correction": 101,
+  "single_combined_run_all_PASS": false,
+  "historical_failed_fixture_run": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_resource_mount_v2_author_checks_run1_20261119.json",
+    "sha256": "9f3515f2e4920518d821c4c909eeefb2e45a8110835ddde597e8d89ebddd4eed",
+    "preserved": true,
+    "detail": "97 checks passed; three of four new source-gate tests had FileNotFound because their isolated clone lacked current validation/archive files that the real pinner separately admits. The actual initializer+whole-verifier gate test passed. Corrected only the exclusive test clone setup; production five unchanged. No failed result is relabeled PASS."
+  },
+  "focused_recheck": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_resource_mount_v2_author_source_gate_recheck_run2_20261119.json",
+    "sha256": "d13b4f0086107d872acf138e271473d47ad449cdfcdc8464bb9feafdca6e2fb8",
+    "tests": 4,
+    "outcome": "PASS",
+    "production_source_change_for_recheck": false
+  },
+  "source_gate_coverage": {
+    "actual_initialized_globals_3C2V": "PASS through actual initializer and whole verifier, not hand-supplied resource globals.",
+    "actual_full_whole_verifier": "Fresh real source preparation and clone, catalog16/helpers5/proposal67/prepared25/seven-file history/physicalfive checked; only common read-only Git/review boundary mocked.",
+    "actual_pinner": "Actual filesystem and current full graph plus simulated committed byte reads; final literal remains PENDING. Four FROZEN external sources plus independent physical self snapshot fifth retained. Missing fifth or committed mismatch blocks pin.",
+    "explicit_PENDING": "Isolated synthetic pending review blocks actual pinner and actual runtime common gate before any process. Actual new Root validation remains PENDING.",
+    "tool_basis": "Pinned10300/tool archive/historical canonical7b7/helper33fe unchanged."
+  },
+  "resource_coverage": {
+    "default_API_omission_and_old_inspector_mutant": true,
+    "closed_three_profiles_identity_mount_options_and_own_proposal_no_links": true,
+    "both_source_and_target_fixed_kernel_script_model_and_transport_types": true,
+    "actual_Core_creation_command_boundary_order": true,
+    "actual_stage_restore_and_extra_container_command_boundary_order": true,
+    "separate_source_target_kernel_records_and_target_cannot_reuse_source": true,
+    "staging_and_stopped_source_noexec": true,
+    "actual_PGDATA_staging_checks_preserved_separate_from_secret_stat": true,
+    "first_Stop_and_cleanup_under_persistent_IO": true,
+    "raw_proc_stat_exception_or_credentials_retained": false
+  },
+  "safety_composition": "Actual new Core and Steps function bytes used; accepted common helper template not injected. Original sql/observe/psql_args/finalizer/cleanup and own main paths exercised under command-only safety boundary mocks.",
+  "preservation": {
+    "record_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_resource_mount_v2_author_preservation_and_scope_20261119.json",
+    "sha256": "f2689cd1b6e5b9ba017f28648ef8c06f8d3878e1f8000e5d69fdad017048fc1a",
+    "before_manifest_sha256": "966c635421f80250a2a82d8b40ce4c7ef1aa25713e504ea0607db11f3c751801",
+    "old65_TASK_files_unchanged": true,
+    "old884_pinned_Root_files_unchanged": true,
+    "INSTALL_extra2_unchanged": true,
+    "all_old_Restore_and_fcef_and_other_held_literals_untouched": true,
+    "canonical_SQL_32workerACL_and_existing_runtime_metadata_untouched": true
+  },
+  "new_author_package": {
+    "Root_source_root": "context/reconciliation/local-f0-operation-sources/restore-physical-resource-mount-v2",
+    "Root_validation": "context/reconciliation/local-f0-restore-resource-mount-v2-source-validation.json",
+    "review_gate": "PENDING_ROOT_AND_INDEPENDENT_REVIEW",
+    "legacy_layer_reviews": "Explicitly historical only; not new resource approval.",
+    "new_only_metadata_written": true,
+    "final_fingerprints": "Recorded in separate final freeze after this author report and preserved check records are added to the archive; final whole/pinner rechecks follow metadata closure."
+  },
+  "support_test_sources_sha256": {
+    "check_restore_resource_mount_v2_resources_20261119.py": "0d9482d1cd5d7c66955a51b2cff9fbb7cb783f2ae0c9a5ccb567706e4819d1a7",
+    "check_restore_resource_mount_v2_source_gates_20261119.py": "160f1679b620750ba5d02c5e418d4a9321c9de21bdd3bc1a11298f9ab20d0fbc",
+    "check_restore_resource_mount_v2_safety_composed_20261119.py": "0181b2c8168c2d492bf3b968aae60d67c9a3452b13b085a2aca91b7a5fb71225",
+    "run_restore_resource_mount_v2_author_checks_20261119.py": "26d660357f7200822aa94035aff97cd53e93771e7268b466da56312868034f3b",
+    "restore_resource_mount_v2_inspection.py.txt": "468800e710f77fc0a3081e61ee2c83d7c3a070ec63694878a1a363844620db5b",
+    "refresh_restore_resource_mount_v2_author_archive_20261119.py": "5e1a5dd087c83f09485b8caa65008ef81a7f2538217a66539b6db822762906fd"
+  },
+  "limits": {
+    "source_approval": "PENDING; author cannot independently approve own five.",
+    "real_Docker_DB_SQL_shell_kernel_network_Git": "FORBIDDEN_NOT_RUN",
+    "runtime": "NOT_RUN",
+    "temporary_synthetic_source_and_command_mock_fixtures_only": true,
+    "new_actual_resources_credentials_backup_or_operational_literal_created": false,
+    "existing_pinned_files_or_old_source_or_validation_modified": false,
+    "only_new_five_TASK_helpers_tests_archive_PENDING_validation_and_reports_written": true,
+    "Owner_API_omission_observed_Restore_failure_inferred": false,
+    "Posture": "D",
+    "privacy_dependency": "P0F_PRIVACY_RESTORE_GENERATION_PORT remains blocked; no waiver/promotion.",
+    "whole94_451_or_production_qualified": false
+  },
+  "plain_english": "The new Restore files check each kind of box correctly. Both database boxes must pass their own secret-folder check; the unpacking box has none. The restored data checks stay separate. All101 unique offline checks now pass across the preserved runs. Another reviewer must approve the exact new files before any real run."
+}

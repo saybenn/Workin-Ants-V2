@@ -1,0 +1,115 @@
+"""Independent closed Six evidence/source audit; files/JSON only, no project execution."""
+from pathlib import Path
+import collections, datetime, hashlib, json, re, time
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+BASE='context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807'
+RECORD='context/reconciliation/local-f0-six-read-5f189aa-c662f807-execution.json'
+RUN='c662f807-c784-41ef-b937-ff2cce9bfd37';COMMIT='5f189aa6262bd5ecbffda0940e404038993fce05';TREE='fd736f36633b28267602759c0da0d368bd625ef6'
+PACKET='3c5d2bccc05b994a761dd8db98714f315e7b10319b38bfb1f3aff0e68a50cef0';NATIVE='a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6'
+MODELS=('AgeGateAttempt','AgeGateBlock','AccessAuditLog','UserRole','AuditEvent','AuthProviderAccount')
+checks=0
+def sh(b):return hashlib.sha256(b).hexdigest()
+def canonical(v):return json.dumps(v,sort_keys=True,separators=(',',':'),allow_nan=False)
+def need(v,c):
+ global checks
+ checks+=1
+ if not v:raise AssertionError(c)
+def same(a,b,c):need(canonical(a)==canonical(b),c)
+def doc(raw):
+ def pairs(items):
+  d={}
+  for k,v in items:need(k not in d,'DUPLICATE_JSON');d[k]=v
+  return d
+ return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(AssertionError('NONFINITE_JSON')))
+def identity(v,packet_key):
+ same([v['run_id'],v['source_commit'],v['source_tree'],v[packet_key]],[RUN,COMMIT,TREE,PACKET],'IDENTITY')
+def expected_operations(cases):
+ glob={'stage':'GLOBAL_BACKEND_CLOSURE','other_clients_zero':True};trigger={'stage':'EXACT_EIGHT_TRIGGER_RESTORATION','owner_and_physical_enabled':True}
+ def native(stage):return {'stage':stage,'native_catalog_match':True,'native_sha256':NATIVE}
+ out=[glob,glob,native('PRE_FIXTURE_NATIVE_PARITY'),glob,trigger,glob,{'stage':'SYNTHETIC_EXISTING_ROWS_ONLY','actual_login':'postgres','commit_acknowledged':True,'operation_closed':True},glob,trigger,glob,native('POST_FIXTURE_NATIVE_PARITY'),glob]
+ for index,c in enumerate(cases,1):
+  actor={'stage':'BOUND_OPERATION','case':c['name'],'actual_login':'wa_app_runtime','issuer_committed':True,'same_tuple_verified':True,'bind_stage_marker':True,'query_stage_reached':c['kind']=='read','operation_closed':True,'terminal_exit':0 if c['kind']=='read'else 3,'result_validated':True}
+  issuer={'stage':'SEPARATE_ISSUER_COMMIT','issuer_committed':True,'created_at_return_verified':True,'commit_acknowledged':True,'operation_closed':True}
+  current={'stage':'IMMUTABLE_ISSUER_RETENTION','instances':1,'all_21_fields_match':True,'issuer_owned':True,'unrevoked':True,'unexpired_required':True,'current_unexpired_match':True}
+  out.extend([actor,issuer,current,glob,current,glob,{**current,'instances':index,'unexpired_required':False,'current_unexpired_match':None},trigger])
+ out.extend([glob,native('FINAL_NATIVE_PARITY'),glob,trigger,glob,native('FINALLY_FULL_NATIVE_PARITY')]);return out
+def check_bundle(blobs):
+ def j(n):return doc(blobs[n])
+ def asset(n):return j(BASE+'/'+n)
+ record=j(RECORD);identity(record,'operation_packet_sha256');need(record['known_executor_exit']['exit_code']==0 and type(record['known_executor_exit']['exit_code'])is int,'KNOWN_EXIT0')
+ m=asset('manifest/operation-manifest.json');identity(m,'packet_sha256');pins=m['packet_files_sha256'];need(len(pins)==354,'SOURCE354')
+ need(sh(''.join(n+'\0'+pins[n]+'\n'for n in sorted(pins)).encode())==PACKET,'SOURCE_AGGREGATE')
+ need(len(record['assets_sha256'])==43 and all(sh(blobs[n])==h for n,h in {**pins,**record['assets_sha256']}.items()),'FULL_SOURCE_AND43_ASSET_HASHES')
+ need(m['review_status']=='APPROVED_LOCAL_F0_SCOPED_READ_COMPANION_OWNED_RESOURCE_V1_ATTEMPT','APPROVED_EXACT_LITERAL')
+ raw=asset('evidence/run-evidence.json');c=asset('evidence/scoped-read-component/scoped-read-companion-results.json');identity(c,'packet_sha256')
+ same([raw['run_id'],raw['approved_commit'],raw['approved_tree'],raw['approved_packet_sha256']],[RUN,COMMIT,TREE,PACKET],'WRAPPER_IDENTITY')
+ need(raw['status']=='PASS_LOCAL_SCOPED_READ_SQL_SUBSET_ONLY'and raw['unexpected']==[]and raw['evidence_complete']is True and raw['output_complete']is True and raw['persistence_failure']is False,'COMPLETE_WRAPPER')
+ need(c['status']=='PASS_FINITE_SCOPED_READ_COMPANION_SQL_SUBSET_ONLY'and c['current_stage']=='COMPLETE'and c['current_case']is None and c['unexpected']==[]and c['subsequent_cases_stopped']is False and c['evidence_complete']is True and c['fixture_owner_bypass_restored']is True and c['source_packet_unchanged_after']is True,'COMPLETE_CHILD')
+ same(c['sanitization'],{'context_secrets_or_hashes_found':False,'raw_stderr_statement_bodies_or_handles_retained':False},'SANITIZATION')
+ f=j('review-output/scoped-read-companion-rehearsal/fixtures.json');need(len(f['cases'])==len(c['results'])==71 and collections.Counter(x['kind']for x in f['cases'])=={'read':65,'binder-denial':6},'FINITE71')
+ need(len(f['grants'])==71 and len(f['fixture_tables'])==8 and len(f['expected_counts'])==42 and sum(f['expected_counts'].values())==16,'FINITE_FIXTURES')
+ need(len(f['worker_acl_ceiling_rows'])==32 and len(f['prepared_files_sha256'])==76 and len(f['source_files_sha256'])==23,'SOURCES_SQL_ACL')
+ for n,h in f['source_files_sha256'].items():need(pins.get(n)==h,'SOURCE_INPUT_PIN')
+ for n,h in f['prepared_files_sha256'].items():need(pins.get('review-output/scoped-read-companion-rehearsal/'+n)==h,'SQL_PIN')
+ same(c['limits'],f['scope_limits'],'SCOPE_LIMITS');same(c['selected_controls'],[{'id':x,'status':'NOT_RUN'}for x in f['selected_control_ids']],'NO_CASE_PROMOTION')
+ roles=['postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker']
+ auth=[{'role':x,'transport':'TCP_127.0.0.1_5432','correct_password':'PASS_SCRAM','wrong_password':'PASS_REJECTED','wrong_password_exit_code':2}for x in roles]
+ same(c['authentication'],auth,'CHILD_AUTH_SIX');same(raw['authentication'],auth,'PARENT_AUTH_SIX')
+ need(len(c['effective_hba_selections'])==12,'HBA12')
+ for row,(address,role)in zip(c['effective_hba_selections'],((address,role)for address in('127.0.0.1','::1')for role in roles)):
+  need(set(row)=={'role','address','rule_number','method'}and row['role']==role and row['address']==address and row['method']=='scram-sha-256'and type(row['rule_number'])is int and row['rule_number']>0,'STRICT_HBA')
+ need(c['current_auth_role']=='wa_worker'and all(type(v)is bool and v for v in c['authentication_comparison'].values())and set(c['authentication_comparison'])=={'json_parsed','object','fields','string_fields','login','scram_identity','database','client_loopback','server_loopback'},'ACTUAL_METHOD_LOGIN_LOOPBACK')
+ native=asset('evidence/native-before.json');need(sh(canonical(native).encode())==NATIVE and len(native['relations'])==42,'FULL_NATIVE_FIXED_SOURCE_IDENTITY')
+ for n in ('native-after-oracle.json','native-after-ledger.json','post-native-before.json','post-native-after-oracle.json','post-native-after-ledger.json'):same(asset('evidence/'+n),native,'FULL_NATIVE_BEFORE_AFTER_PARITY')
+ app=blobs['review-output/foundation-application.review.sql'].decode();need(sh(app.encode())=='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad','CANONICAL_APPLICATION')
+ bodies=list(re.finditer(r'CREATE FUNCTION platform_private\.bind_request_context\(secret text\).*?AS\s+(\$[a-z_0-9]*\$)(.*?)\1;',app,re.S));need(len(bodies)==1,'BINDER_DECLARATION');body=bodies[0][2]
+ need(sh(body.encode())=='9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009'and [i for i,line in enumerate(body.split('\n'),1)if "RAISE EXCEPTION 'invalid, stale or unsupported context'"in line]==[7],'BINDER_EXACT_BODY_LINE')
+ for index,(case,row)in enumerate(zip(f['cases'],c['results']),1):
+  expected={'case':case['name'],'case_id':case['case_id'],'assertion_id':'positive.wa_app_runtime.select','actual_login':'wa_app_runtime','operation_closed_before_observers':True,'tables_observed':42,'complete_state_sha256':row['complete_state_sha256'],'issued_grants':index,'status':'PASS_FINITE_SCOPED_READ_ONLY','diagnostic':None,'query_stage_reached':case['kind']=='read','counts':case['expected']if case['kind']=='read'else None}
+  need(type(row['complete_state_sha256'])is str and re.fullmatch('[0-9a-f]{64}',row['complete_state_sha256']),'STATE_SHA')
+  if case['kind']=='read':expected['stage_markers']={'before':True,'after':True};need(all(type(v)is int and v>=0 for v in row['counts'].values()),'TYPED_COUNTS')
+  else:expected['diagnostic']={'matched':True,'sqlstate':'42501','classification':'EXACT_PRINCIPAL_CURRENTNESS_BINDER_GUARD','source_body_sha256':sh(body.encode()),'source_body_line':7,'native_location':'exec_stmt_raise@pl_exec.c'}
+  same(row,expected,'EXACT71_RESULT_FIELDS_AND_VERDICT')
+ same(c['operations'],expected_operations(f['cases']),'EXACT586_OPERATION_TYPES_ORDER_BINDING_CLOSURE_RETENTION')
+ same(c['baseline']['tables'],{k:v for k,v in c['baseline']['tables'].items()},'BASELINE_OBJECT')
+ need(len(c['baseline']['tables'])==42 and sh(json.dumps(c['baseline']['tables'],sort_keys=True,separators=(',',':'),ensure_ascii=False).encode())==c['baseline']['sha256'],'BASELINE42_SHA')
+ for table,count in f['expected_counts'].items():
+  b=c['baseline']['tables'][table];need(set(b)=={'count','rows_sha256'}and type(b['count'])is int and b['count']==count and re.fullmatch('[0-9a-f]{64}',b['rows_sha256']),'BASELINE42_COUNTS')
+ post=asset('evidence/post-state-before.json');same(post,asset('evidence/post-state-after.json'),'POST_READONLY_STATE_PARITY')
+ need(len(post)==42 and sh(canonical(post).encode())==c['results'][-1]['complete_state_sha256'],'POST_CHILD_FINAL_STATE_BINDING')
+ for table,count in f['expected_counts'].items():
+  if table!='platform.database_action_grant':same(post[table],c['baseline']['tables'][table],'NON_GRANT_DATA_UNCHANGED')
+  else:need(type(post[table]['count'])is int and post[table]['count']==71,'ONLY71_RETAINED_GRANTS')
+ for n in ('catalog-comparison.json','post-catalog-comparison.json'):
+  x=asset('evidence/'+n);need(x['status']=='PASS'and x['findings']==[]and set(x['check_counts'])=={'PASS'}and type(x['check_counts']['PASS'])is int and x['check_counts']['PASS']==29089 and x['native_snapshot_sha256']==NATIVE,'NATIVE29089')
+ for n in ('oracle-results.json','post-oracle-results.json'):
+  x=asset('evidence/'+n);need(type(x['expression_count'])is int and x['expression_count']==416 and len(x['expressions'])==416 and type(x['server_version_num'])is int and x['server_version_num']==170011,'ORACLE416')
+ same(raw['ledger_comparison']['status'],'PASS','LEDGER_PASS');need(len(raw['ledger_comparison']['checks'])==22 and all(x['status']=='PASS'and x['expected_sha256']==x['actual_sha256']for x in raw['ledger_comparison']['checks']),'LEDGER22')
+ migration=raw['migration_operations'];need(len(migration)==1 and migration[0]['operation']=='deploy'and migration[0]['stage']=='CATALOG_GENUINE_INITIAL_DEPLOY'and type(migration[0]['exit_code'])is int and migration[0]['exit_code']==0 and migration[0]['run_id']==RUN and migration[0]['container_id']==c['container_id'],'GENUINE_SINGLE_INSTALL')
+ target=raw['targets']['wa-p0c-c662f807-scopedreads'];need(target['container_id']==c['container_id']and target['finalization']=='PASS','SAME_TARGET_FINALIZED')
+ same(target['finalization_observation'],{'auth':'scram-sha-256:postgres','grantor':'postgres','leaf_create':{'wa_track_verifier':False,'wa_customer_verifier':False,'wa_private_helper_owner':False},'remaining_memberships':0,'active_install_connections':0},'ORIGINAL_GRANTOR_FINALIZATION')
+ proof=raw['scoped_read']['post_proof'];need(proof['second_deploy']is False and proof['native_sha256']==NATIVE and proof['before_state_sha256']==proof['after_state_sha256']==proof['child_final_state_sha256']==c['results'][-1]['complete_state_sha256'],'READONLY_SAME_INSTALL_AFTER')
+ att=asset('evidence/scoped-read-native-attestation.json');identity(att,'packet_sha256');need(att['container_id']==c['container_id']and att['original_grantor_finalized']is True and att['operation_backends_absent']is True and att['native_snapshot_sha256']==NATIVE,'NATIVE_ATTESTATION_IDENTITY')
+ need(raw['scoped_read']['component_closure_confirmed']is True and raw['scoped_read']['component_closure_attempted']is True and raw['scoped_read']['component_report_sha256']==sh(canonical(c).encode())and record['raw_child_canonical_sha256']==sh(canonical(c).encode()),'CHILD_CLOSED_BYTES_AND_CANONICAL_SERIALIZATION')
+ for key in('packet_unchanged_after_run','tool_source_data_unchanged_after_run','external_sources_unchanged_after_run','external_inputs_unchanged_after_run'):need(raw[key]is True,'PRESERVED_SOURCE')
+ need(all(all(type(x[k])is bool and x[k]for k in x if k!='phase')for x in raw['resource_kernel_checks'])and len(raw['resource_kernel_checks'])==2,'OWN_CID_TMPFS_KERNEL_TWO')
+ cleanup=asset('independent-cleanup.json');identity(cleanup,'packet_sha256');need(cleanup['status']=='PASS_INDEPENDENT_PHYSICAL_CLEANUP'and cleanup['private_directory_absent']is True and cleanup['pinned_image_retained']is True and all(x['absent_exact_known_diagnostic']is True for x in cleanup['exact_name_observations'].values()),'INDEPENDENT_PHYSICAL_CLEANUP')
+ need(raw['cleanup_actions_confirmed']is True and raw['cleanup_summary']['private_directory_absent']is True and all(v is False for v in raw['cleanup_summary']['resource_presence_after'].values())and raw['cleanup_summary']['image_removed']is False and raw['cleanup_summary']['unrelated_resources_changed']is False,'EXACT_TEST_OWNED_CLEANUP')
+ inventory=j('context/reconciliation/local-f0-assertions.json');claims=[]
+ for index,model in enumerate(MODELS):
+  cid='P0C-TABLE-'+model+'-ALLOW';case=next(x for x in inventory['cases']if x['id']==cid);item=next(x for x in case['assertions']if x['id']=='positive.wa_app_runtime.select')
+  need(item['availability']=='CANDIDATE_LOCAL_SQL_PATH'and item['dependency_ids']==[]and item['role']=='wa_app_runtime'and item['declared_operation']=='SELECT_EXACT_AUTHORIZED_TARGET','EXACT_SQL_SELECT_REQUIREMENT')
+  chosen=[(i,x)for i,x in enumerate(c['results'])if x['case_id']==cid and x['case'].endswith('-positive-root')];need(len(chosen)==1,'EXACT_POSITIVE_PER_MODEL');i,positive=chosen[0];same(positive['counts'],{'root':1,'foreign':0},'POSITIVE_AUTHORIZED_TARGET_ONLY')
+  claims.append({'case_id':cid,'assertion_id':item['id'],'status':'PASS','expected_assertion_sha256':sh(item['expected_assertion'].encode()),'complete_source_assertion_sha256':sh(canonical(item).encode()),'positive_protocol':positive['case'],'positive_result_pointer':'/results/'+str(i),'model_protocols':sum(x['case_id']==cid for x in c['results']),'whole_case_promoted':False})
+ return claims
+def main():
+ started=time.perf_counter();rp=R/RECORD;need(sh(rp.read_bytes())=='acac8f669272f99e2903adad529366b0e156b18fe39de8c90982e921ffc1b7f8','RAW_RECORD_HASH');record=doc(rp.read_bytes());m=doc((R/(BASE+'/manifest/operation-manifest.json')).read_bytes());pins={**m['packet_files_sha256'],**record['assets_sha256'],RECORD:sh(rp.read_bytes())};blobs={n:(R/n).read_bytes()for n in pins}
+ need(all(sh(blobs[n])==h for n,h in pins.items()),'CAPTURED_CLOSED_BYTES');claims=check_bundle(blobs)
+ proposal=doc((T/'six_c662_Root_closed_evidence_exact6_proposal_20261120.json').read_bytes());need(sh((T/'six_c662_Root_closed_evidence_exact6_proposal_20261120.json').read_bytes())=='60de534fae2be06a2c0a30dfb056e96b38af47feef96f6fb7749cca6d0f77e72','ROOT_PROPOSAL_HASH')
+ for c,p in zip(claims,proposal['claims']):same([c['case_id'],c['assertion_id'],c['status'],c['expected_assertion_sha256'],c['positive_protocol'],c['model_protocols']],[p['case_id'],p['assertion_id'],p['proposed_status'],p['expected_assertion_sha256'],p['actual_positive_protocol'],p['completed_finite_protocols']],'EXACT6_PROPOSAL_MATCH')
+ need(all((R/n).read_bytes()==b for n,b in blobs.items()),'CLOSED_INPUTS_UNCHANGED_AFTER_AUDIT')
+ out={'schema':'workinants.six-c662-independent-closed-evidence-audit.v1','recorded_at_UTC':datetime.datetime.now(datetime.timezone.utc).isoformat(),'reviewer':'/root/privilege_mount_v2_review','authored_Six_source':False,'prior_lineage':'Independent source PLAN and operational literal reviews only. This runtime evidence audit precedes separate parser authorship; parser source approval must come from other reviewers.','decision':'PASS_EXACT6_RESTRICTED_SQL_SELECT_ASSERTION_LINKS_ONLY','findings':[],'raw_record':{'path':RECORD,'sha256':pins[RECORD]},'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'source_files':354,'assets':43,'captured_unique_files':len(blobs),'claims':claims,'observations':{'protocols':71,'read_queries':65,'binder_denials':6,'operations':586,'global_zero':152,'trigger_restoration_observations':74,'issuer_COMMITs':71,'retention_observations':213,'fixture_rows':16,'owner_commit_setup_bypasses':8,'full_native_comparisons_before_after':29089,'oracle':416,'private_ledger':22,'original_grantor_finalization':True,'single_install_sameCID_readonly_after':True,'cleanup':'PASS_INDEPENDENT_PHYSICAL_CLEANUP'},'checks':checks,'seconds':round(time.perf_counter()-started,3),'limits':['At most six exact positive.wa_app_runtime.select assertions; no generic vector, whole case, owner write, SH/API or worker mapping.','Sixteen privileged preseed writes are fixture facts, never owner creation proof.','The target legacy application field remains NOT_RUN; one genuine Prisma deployment and independently bound native/oracle/ledger evidence establish only the reviewed local SQL prerequisite.','71 complete-state digests and 42-table count/hash/coherence checks qualify the scoped source path; no raw row identities, credentials, handles or discarded stderr reconstructed.','No new runtime invoked; no ledger/status promotion during this audit. Posture D and Brain acceptance remain.']}
+ path=T/'six_c662_independent_closed_evidence_audit_20261120.json'
+ with path.open('x',encoding='utf8',newline='\n')as f:json.dump(out,f,indent=2,allow_nan=False);f.write('\n')
+ print(json.dumps({'decision':out['decision'],'path':str(path),'sha256':sh(path.read_bytes()),'checks':checks,'seconds':out['seconds']}))
+if __name__=='__main__':main()

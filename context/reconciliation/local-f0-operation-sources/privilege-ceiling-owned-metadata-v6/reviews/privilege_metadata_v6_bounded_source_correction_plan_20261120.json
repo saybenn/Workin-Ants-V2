@@ -1,0 +1,4332 @@
+{
+  "schema": "workinants.privilege-metadata-v6-bounded-source-correction-plan.v1",
+  "recorded_at_utc": "2026-11-20T06:33:09.919434+00:00",
+  "status": "SOURCE_PLAN_ONLY_REQUIRES_SEPARATE_PLAN_REVIEW_AND_ROOT_ACK",
+  "author": "/root/restricted_controls_operator",
+  "lineage": "I authored the prior PersonV5 source correction and parts of the earlier owned runner; this plan is author analysis, not independent source approval.",
+  "authority_and_limits": {
+    "Root_latest_assignment": "Diagnose the closed 56a87aac metadata stop and propose a bounded correction; no implementation yet.",
+    "TASK_nonexecutable_receipt_only": true,
+    "code_SQL_generator_packet_gate_status_Git_Docker_DB_network_credentials_resources_changed": false,
+    "projection_or_process_mock_tests_run": false,
+    "Posture": "D",
+    "future_execution_requires": "Separate source plan review/Root ACK, implementation, independent exact source review, publication/current+committed pin, fresh literal review and fresh explicit execution authority."
+  },
+  "paused_write28_plan": {
+    "path": "remaining28_app_write_bounded_static_partial_source_plan_20261120.json",
+    "sha256": "167fe447634aedd9ce2ae4ddaa9399b5a85138d10694fb70e36c473c2ca4cad7",
+    "status": "PARTIAL_PAUSED_NO_IMPLEMENTATION"
+  },
+  "observed_closed_run": {
+    "run_id": "56a87aac",
+    "source_commit": "7ef509191423135f29d618e147250ea163523ac9",
+    "source_tree": "0aae299d97abd14e4a6dcdfe2cdd85dda0df8f09",
+    "operation_packet_sha256": "08f369d64d8556046dda3aaa423528441a64327f611c9d6683490ae0fba4713d",
+    "Root_record": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\context\\reconciliation\\local-f0-privilege-7ef5091-56a87aac-execution.json",
+      "sha256": "5ae35bd95320f46d2c15454482f11f28c326ab068859c39779ec61d88c6cc1e4"
+    },
+    "child": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-privilege-ceiling-56a87aac\\privilege-ceiling-component\\privilege-ceiling-results.json",
+      "sha256": "82ecc9ac9b14378bddb95f011b8678570f275b0f940fe53b387bd405a3c7b17e"
+    },
+    "wrapper_raw_sha256": "8f940ab8c82c425a22a30381029ffbbcf8b725ab79d6eb9cecdfc5b821b9e3e5",
+    "status": "STOPPED_PARTIAL_EVIDENCE_PRESERVED",
+    "current_stage": "PRIVILEGE_METADATA",
+    "current_case": "GRANT-wa_app_runtime-DELETE",
+    "safe_failure": {
+      "stage": "PRIVILEGE_METADATA",
+      "code": "UNEXPECTED_PRIVILEGE_CONTROL_FAILURE"
+    },
+    "completed_negative_results": 33,
+    "operation_records": 76,
+    "current_record_fields": [
+      "closed_before_observers",
+      "name",
+      "role",
+      "source_template_sha256"
+    ],
+    "current_case_has_operation_receipt": false,
+    "current_case_has_SQLSTATE": false,
+    "historical_complete_cause": "UNOBSERVED",
+    "actual_person_binding_and_first_one_way_revoke": "PASS_AS_RETAINED_CLOSED_RUN_ONLY",
+    "independent_cleanup": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege_7ef_56a87aac_independent_cleanup_20261120.json",
+      "sha256": "0a561aba444c8fce07e994bb64c987a5a7f20291789ebb7a09d3e5400806d339",
+      "status": "PASS_INDEPENDENT_PHYSICAL_CLEANUP"
+    },
+    "limits": [
+      "No missing metadata-query SQLSTATE, exit, stderr or exception cause is reconstructed.",
+      "current.closed_before_observers=false is an unfilled pre-actor default; it is not proof of an open operation backend.",
+      "33 completed results do not promote a prefix, all200, selected94 or the451 register.",
+      "No old runtime is retroactively relabeled; the previous person defect is separately exercised in this run."
+    ]
+  },
+  "proven_source_analysis": [
+    {
+      "id": "META01",
+      "source": "scripts/sql-review/run-privilege-ceiling-control-rehearsal.py:294",
+      "finding": "Column metadata uses the statement verb for every referenced column. DELETE is not an admitted has_column_privilege privilege type; the frozen failing case requests it for id.",
+      "scope": "All41 frozen DELETE shapes have the same invalid projection.",
+      "relation_to_stop": "Proven source defect consistent with the observed metadata-stage stop; its complete historical cause remains unobserved."
+    },
+    {
+      "id": "META02",
+      "source": "scripts/sql-review/run-privilege-ceiling-control-rehearsal.py:292",
+      "finding": "The shared referenced_columns union does not distinguish written columns from WHERE/read columns. The63 UPDATE shapes need separate UPDATE target-column and SELECT predicate-column requirements.",
+      "scope": "39 issuer PK updates,2 runtime id updates,2 private security_generation updates,20 immutable-column updates; UserRole reads both user_id and role but writes user_id only.",
+      "relation_to_stop": "Static correctness requirement for the bounded metadata correction; no new runtime failure is claimed."
+    },
+    {
+      "id": "META03",
+      "source": "scripts/sql-review/run-privilege-ceiling-control-rehearsal.py:301",
+      "finding": "Table-only DELETE cannot use read-column SELECT as a fallback for mandatory table DELETE. Missing required privilege must combine each actual operation component, not require every component to be missing.",
+      "scope": "DELETE table privilege is mandatory even when all referenced SELECT columns are allowed; UPDATE/INSERT support their respective table-or-column write fallback plus any actual SELECT requirements."
+    },
+    {
+      "id": "META04",
+      "source": "scripts/prepare-privilege-ceiling-control-rehearsal.py:99",
+      "finding": "Nine provider function statements deliberately exercise an earlier schema-only reachability ceiling; their packet diagnostic relation is a schema witness, not an actual table read. Do not project unrelated table SELECT as function authority.",
+      "scope": "Keep their existing maximum SCHEMA only; do not invent a deeper helper/owner result or EXECUTE qualification."
+    },
+    {
+      "id": "META05",
+      "source": "scripts/sql-review/run-privilege-ceiling-control-rehearsal.py:350",
+      "finding": "metadata() runs before the negative actor try/finally. Inherited json()->raw()->first-rehearsal.run discards the process receipt before SQL_STEP_FAILED escapes; only a generic top-level failure remains.",
+      "scope": "The new metadata query boundary must retain fixed receipt/comparison flags before throwing and must independently attempt global client closure, without starting an actor or later case after metadata failure."
+    }
+  ],
+  "primary_source_basis": {
+    "Root_verified_reference": "https://www.postgresql.org/docs/17/functions-info.html",
+    "Root_verified_fact": "COLUMN privileges are SELECT/INSERT/UPDATE/REFERENCES; table privileges additionally include DELETE/TRUNCATE/TRIGGER/MAINTAIN.",
+    "required_independent_review_references": [
+      "https://www.postgresql.org/docs/17/sql-insert.html",
+      "https://www.postgresql.org/docs/17/sql-update.html",
+      "https://www.postgresql.org/docs/17/sql-delete.html",
+      "https://www.postgresql.org/docs/17/ddl-priv.html"
+    ],
+    "network_used_by_plan_author": false,
+    "review_requirement": "Independently confirm the SELECT-with-no-column rule and PostgreSQL17 per-column fallback/ACL ordering from primary docs/source before code approval; never infer a specific native error ordering merely from a missing permission."
+  },
+  "frozen_inputs": {
+    "source7_sha256": {
+      "context/reconciliation/privilege-ceiling-approved-source-plan.json": "3298704adfe2110a4a333945c37de4432e851e918598dfc966e665473aa7e066",
+      "scripts/privilege_ceiling_control_protocol.py": "faf980151efec719fc54963fc0630c056cba50c40f3f1eb7e7d1f0c7fc18f921",
+      "scripts/prepare-privilege-ceiling-control-rehearsal.py": "05263b8611d099795f0887054d6c07a02044adec48474ec1c9ba6872b1daf981",
+      "scripts/sql-review/run-privilege-ceiling-control-rehearsal.py": "016b122e950a0fad641a3e8a3b57ee25f581e03a7ce28bfb48a01d8ce8705e39",
+      "scripts/sql-review/test_privilege_ceiling_control_protocol.py": "ace30fd0fa750de6c1574ffdf26a6a5f5a88330460020196d64999e253fb77d8",
+      "scripts/sql-review/test_run_privilege_ceiling_control_rehearsal.py": "89c08b9b93e6326fc118c217e6cf60bb953fd69efc65161cbe5b9843c6498e55",
+      "scripts/sql-review/PRIVILEGE-CEILING-CONTROL-REHEARSAL.md": "381815101a98b7313fd753adcb51fada3474485e9b66ce1b136b690ac492432d"
+    },
+    "source7_matches_approved": true,
+    "artifacts202_sha256": {
+      "review-output/privilege-ceiling-control-rehearsal/001-ISSUER-ConsentLog-INSERT.sql": "371ac79d0459777a6c01b915c79630f36dca14ecbce762e47d41a2f94aaf2efc",
+      "review-output/privilege-ceiling-control-rehearsal/002-ISSUER-ConsentLog-UPDATE.sql": "9cb4a932bef174f37357001b87e2aa0bc7d8388379afb7d1f2c99a444d972cb7",
+      "review-output/privilege-ceiling-control-rehearsal/003-ISSUER-ConsentLog-DELETE.sql": "7ec1da0ecb0ad8e3f6b54c7be52cfd5e68ed624a30ebab2582104c4a0c66b15b",
+      "review-output/privilege-ceiling-control-rehearsal/004-ISSUER-PrivacyRequest-INSERT.sql": "3537088e960358df7ff43f7c543033b8134c1def195a5bfa3726ec59c9c96b17",
+      "review-output/privilege-ceiling-control-rehearsal/005-ISSUER-PrivacyRequest-UPDATE.sql": "977d70c8aebf5beca2b029eb2fe1ecdf7f4a4279fe5f064f8c04bb422b3b1535",
+      "review-output/privilege-ceiling-control-rehearsal/006-ISSUER-PrivacyRequest-DELETE.sql": "fd83f552e0299c6330928a43753804f340ea5a98db6d680f4fd18d6166044e48",
+      "review-output/privilege-ceiling-control-rehearsal/007-ISSUER-AgeGateAttempt-INSERT.sql": "2bd6a830ea3b5227e69567124b8c10126c886cebfbde1a920f91ce57ca6770b0",
+      "review-output/privilege-ceiling-control-rehearsal/008-ISSUER-AgeGateAttempt-UPDATE.sql": "10ed9183d2dbf3297fc4492f63a5b7324a569eae38567564c3d4e05ee08cabe4",
+      "review-output/privilege-ceiling-control-rehearsal/009-ISSUER-AgeGateAttempt-DELETE.sql": "42f8cd55bcd6709efc2b34a387dcd46a001d776efb438c53801edd098ac7abf5",
+      "review-output/privilege-ceiling-control-rehearsal/010-ISSUER-AgeGateBlock-INSERT.sql": "98d6b5b97b55d703349dbd52bb00ab80159188c0f46138951c172408f4bf5872",
+      "review-output/privilege-ceiling-control-rehearsal/011-ISSUER-AgeGateBlock-UPDATE.sql": "ba1b20b71759d8dbab373dbeec6bd57d29830b3f4de95ab8817660f198a96c4f",
+      "review-output/privilege-ceiling-control-rehearsal/012-ISSUER-AgeGateBlock-DELETE.sql": "0214e0fe7f999bff3cfa77ed8fa12bf11956493e132ff5b502e10f336eb71cab",
+      "review-output/privilege-ceiling-control-rehearsal/013-ISSUER-AccessAuditLog-INSERT.sql": "d52596d7724ffbdbcc5554e6401480b3a8238bc0bc4b534096100245bd2a40b0",
+      "review-output/privilege-ceiling-control-rehearsal/014-ISSUER-AccessAuditLog-UPDATE.sql": "ab61f168057e46ff0e8358c699034bcc9b95854413be5e166d4933d46cf5b798",
+      "review-output/privilege-ceiling-control-rehearsal/015-ISSUER-AccessAuditLog-DELETE.sql": "0fd94c4c1b441b1da983fccbea390c23dfadbbc6a31c012d7d8fc53103b98332",
+      "review-output/privilege-ceiling-control-rehearsal/016-ISSUER-User-INSERT.sql": "3d79577cfb60a28b55f7caacb74dc0cb22dc5985fc96b3720617dcfa9db49ff9",
+      "review-output/privilege-ceiling-control-rehearsal/017-ISSUER-User-UPDATE.sql": "e8aec05767fe14d76980ff41a09938f89d3cb0321c968c3a2a51bae2f3200c77",
+      "review-output/privilege-ceiling-control-rehearsal/018-ISSUER-User-DELETE.sql": "0797eda71f808180eb79577c399fb7daa9d825d272518e703522fbe4924486bf",
+      "review-output/privilege-ceiling-control-rehearsal/019-ISSUER-UserRole-INSERT.sql": "0f27044c6b1ce5ce8eb4b87b8452b0d073e37d78eaefd8e97d3ff189703af402",
+      "review-output/privilege-ceiling-control-rehearsal/020-ISSUER-UserRole-UPDATE.sql": "2fa69fb4b1cb9337b5025598c900f6ed531308d3530c3732325ccd7963cdd893",
+      "review-output/privilege-ceiling-control-rehearsal/021-ISSUER-UserRole-DELETE.sql": "61889d6a85a57ab4e0fae60285e369809607f3c3108e5a40ac33daecd0a7b67a",
+      "review-output/privilege-ceiling-control-rehearsal/022-ISSUER-ProfessionalProfile-INSERT.sql": "fc55712ad79026fda919cdab90cc3ade6677dfc05ba00af445c5292e62afe016",
+      "review-output/privilege-ceiling-control-rehearsal/023-ISSUER-ProfessionalProfile-UPDATE.sql": "d423be6c9018865ae967c636cddede55d797e3ffe190678dfcb3509a75e71789",
+      "review-output/privilege-ceiling-control-rehearsal/024-ISSUER-ProfessionalProfile-DELETE.sql": "f805731d520dbb9fcad7b41e1399b5aeb069bac3bb4b10c63048763e733dfc9f",
+      "review-output/privilege-ceiling-control-rehearsal/025-ISSUER-CustomerProfile-INSERT.sql": "52e8ed7cf3c94b407d02afefa5a3592865ea2d1c5eed6b1bb4652ac00b5f7fab",
+      "review-output/privilege-ceiling-control-rehearsal/026-ISSUER-CustomerProfile-UPDATE.sql": "5828f885d9799392c3d9bd2c226f8595275c9e2d07f542da8c8e0b3f373b1018",
+      "review-output/privilege-ceiling-control-rehearsal/027-ISSUER-CustomerProfile-DELETE.sql": "b41fd8816349589112c98d8ac18c103fd3fa2279c3a95ae9272ea8d3dcd079ca",
+      "review-output/privilege-ceiling-control-rehearsal/028-ISSUER-CandidateProfile-INSERT.sql": "9e7de54d422d5c07f8222997da15cce5bc57a88180a0d4f629ed7f835dc1e254",
+      "review-output/privilege-ceiling-control-rehearsal/029-ISSUER-CandidateProfile-UPDATE.sql": "02cc04956ffa6b453b8917e8038097f8f1a0f3fc1a09b638ad1180b745c8271b",
+      "review-output/privilege-ceiling-control-rehearsal/030-ISSUER-CandidateProfile-DELETE.sql": "9ebf19acfec59fb39d67d3a8c83cbf936e3c4c82cbd39a209d2732f59f361843",
+      "review-output/privilege-ceiling-control-rehearsal/031-ISSUER-AuditEvent-INSERT.sql": "bbb63ced216fa583da37d5e8b53f8967dce973078ad6466fbcfb190e1efaeca2",
+      "review-output/privilege-ceiling-control-rehearsal/032-ISSUER-AuditEvent-UPDATE.sql": "6accdc2c78f30baf12c26e799b5a8e0259c2ff75069b99be139b1e63d2a3ab2c",
+      "review-output/privilege-ceiling-control-rehearsal/033-ISSUER-AuditEvent-DELETE.sql": "71aa72b48fbaf3c58f5398d709683e394b2cd85a6631c287dd7a40140aa0f05a",
+      "review-output/privilege-ceiling-control-rehearsal/034-ISSUER-UserSecurityProfile-INSERT.sql": "c7aa1cca1d36fe903dcf340cb3d8bed4a1f2e949e74f0612f6325414f2ff153d",
+      "review-output/privilege-ceiling-control-rehearsal/035-ISSUER-UserSecurityProfile-UPDATE.sql": "f9ac0f784e9315f9dbb2aee813272a6c5d325577f7a197b72942e7545f75a22d",
+      "review-output/privilege-ceiling-control-rehearsal/036-ISSUER-UserSecurityProfile-DELETE.sql": "c2a53c65ffe40602e15b6f02e621c1a6304d6a51c1c299db47c887bcb2f3d819",
+      "review-output/privilege-ceiling-control-rehearsal/037-ISSUER-AuthProviderAccount-INSERT.sql": "8064aa16bcdb20ce53e58addef78f1deb8a81f6734071079f1448d6c68ab045d",
+      "review-output/privilege-ceiling-control-rehearsal/038-ISSUER-AuthProviderAccount-UPDATE.sql": "45cbe2b31bc6425c49274002eba4ecf42ba25d49f4d1238ebc25094a1b24bb84",
+      "review-output/privilege-ceiling-control-rehearsal/039-ISSUER-AuthProviderAccount-DELETE.sql": "396741cc9864f6fb3c447f745e94551bc7a6eee25e7410a18ab4ac70bbe22f51",
+      "review-output/privilege-ceiling-control-rehearsal/040-ISSUER-TrackPlan-INSERT.sql": "c2c5cec4c52ebfa4a1710bc74b40a9e22fd907c79347eb4fb85bb30002889064",
+      "review-output/privilege-ceiling-control-rehearsal/041-ISSUER-TrackPlan-UPDATE.sql": "5a8506ab74af52aaca2c852cbae508c2ac4ddf7025db66850a63ec1bc1610cd9",
+      "review-output/privilege-ceiling-control-rehearsal/042-ISSUER-TrackPlan-DELETE.sql": "f2c5aaff4acbd34d1c0f7732b8e2d446705cd4bcae5804a5cbaccdff7ddeb704",
+      "review-output/privilege-ceiling-control-rehearsal/043-ISSUER-TrackEntitlementDefinition-INSERT.sql": "983fd0bed19c85c126c141ac439af2b4e9358f27eee48bc9fd94253aa8544668",
+      "review-output/privilege-ceiling-control-rehearsal/044-ISSUER-TrackEntitlementDefinition-UPDATE.sql": "0ad75e995541563a8a108853a7168ed9415d772bffc8faa8120ef419b6577c61",
+      "review-output/privilege-ceiling-control-rehearsal/045-ISSUER-TrackEntitlementDefinition-DELETE.sql": "fc80be1022065b3191093775aaaef51c418ce5493accbfcaabcd5cef56daf5c0",
+      "review-output/privilege-ceiling-control-rehearsal/046-ISSUER-TrackPlanEntitlement-INSERT.sql": "162e34ac43f8c40d769bf46b0fe2293251620f2f7fa7914c3297c575595c4920",
+      "review-output/privilege-ceiling-control-rehearsal/047-ISSUER-TrackPlanEntitlement-UPDATE.sql": "77fea03d8e240cecd5f5542f5ca3932135e647d4228bfe90cbb79fd239bccb8b",
+      "review-output/privilege-ceiling-control-rehearsal/048-ISSUER-TrackPlanEntitlement-DELETE.sql": "a08374c2fb708d8c7310f1d48e1e53f1dd2447bceba1bdd2f6149c06637b7646",
+      "review-output/privilege-ceiling-control-rehearsal/049-ISSUER-TrackSubscription-INSERT.sql": "d0ae57e7f04616f50d792fd741045157d861ae6ceca89d2cd332cd1849c9f7da",
+      "review-output/privilege-ceiling-control-rehearsal/050-ISSUER-TrackSubscription-UPDATE.sql": "46f306d0a2419c607c355c0ee8ce9982eea7cfb19fcce105e7e09c811ac07a43",
+      "review-output/privilege-ceiling-control-rehearsal/051-ISSUER-TrackSubscription-DELETE.sql": "b8b1d5e3a2c7a3460f280863a7837e819c15be85a9580da2bb450588353037c0",
+      "review-output/privilege-ceiling-control-rehearsal/052-ISSUER-TrackEntitlementGrant-INSERT.sql": "7beb2aa63bf2502967ee9b249673de7d3432c7b55f8df6cd28851cdf80e548f6",
+      "review-output/privilege-ceiling-control-rehearsal/053-ISSUER-TrackEntitlementGrant-UPDATE.sql": "96d66f3502153bf708a519e8e59c95e0ddc0069ff5faf7f6b4c0cb844acd1ac3",
+      "review-output/privilege-ceiling-control-rehearsal/054-ISSUER-TrackEntitlementGrant-DELETE.sql": "d56da0b7e527c97a976f9af4d0f5278434773985e24c3119e71c15336e5c7347",
+      "review-output/privilege-ceiling-control-rehearsal/055-ISSUER-TrackUsageEvent-INSERT.sql": "3fb88040ecf55624319653642ebf2be1707cf7a462260b8758cba6850b4a6c98",
+      "review-output/privilege-ceiling-control-rehearsal/056-ISSUER-TrackUsageEvent-UPDATE.sql": "86febdf7075dde63e0ce176ddba82d7575a8628e308c3754f9ec20df46863111",
+      "review-output/privilege-ceiling-control-rehearsal/057-ISSUER-TrackUsageEvent-DELETE.sql": "a9dab612d70a502ffe1a543f530fd6cbdc09551348a1fe0b1578fc237f527962",
+      "review-output/privilege-ceiling-control-rehearsal/058-ISSUER-TrackUsageCounter-INSERT.sql": "cbe686e2953c2e8df41bdc9b3f9c5d53e95cdccd5b84b86de1145e0cb2cb8efd",
+      "review-output/privilege-ceiling-control-rehearsal/059-ISSUER-TrackUsageCounter-UPDATE.sql": "f3988abe81935c43bd7e326c4235bb6b146aeaf4d96507b7218b66af1c7d4a01",
+      "review-output/privilege-ceiling-control-rehearsal/060-ISSUER-TrackUsageCounter-DELETE.sql": "aa4cea60973293a32e354cfa145a7b2f4424aea350a2a775fea4b7b596178c54",
+      "review-output/privilege-ceiling-control-rehearsal/061-ISSUER-TrackSubscriptionEvent-INSERT.sql": "2ff788150abea2996b4fd5ea1c4c684aa5a3fd91d9d0faf02716f7c05db8e132",
+      "review-output/privilege-ceiling-control-rehearsal/062-ISSUER-TrackSubscriptionEvent-UPDATE.sql": "6844136f5900f80f06901fbb01e78d5de379c3c68fdf17988ce2f7aea3b734e1",
+      "review-output/privilege-ceiling-control-rehearsal/063-ISSUER-TrackSubscriptionEvent-DELETE.sql": "630c3e71e3815c8d3fec80465d7ca4516b3f86b870ec025e66c5b5655c37d919",
+      "review-output/privilege-ceiling-control-rehearsal/064-ISSUER-ConsentContentRevision-INSERT.sql": "3b38bd2b0f60e1e825b12ad232f8ef5a43fd098a6d8ae5bddd31a246ccb3a841",
+      "review-output/privilege-ceiling-control-rehearsal/065-ISSUER-ConsentContentRevision-UPDATE.sql": "ce9507ea0b533ca0272f569d554f8a83756a7251a363667b5b86c77c9572247c",
+      "review-output/privilege-ceiling-control-rehearsal/066-ISSUER-ConsentContentRevision-DELETE.sql": "06dd379118cd6aca522c8b3645fb41595b8ed0ade1ddd356690178cd472cbbc8",
+      "review-output/privilege-ceiling-control-rehearsal/067-ISSUER-ConsentPresentation-INSERT.sql": "bccdf3cb494b70918ee037e690c96db53ecf8fbbd41e8b557ddfc4f83b57ca2c",
+      "review-output/privilege-ceiling-control-rehearsal/068-ISSUER-ConsentPresentation-UPDATE.sql": "3fac6a8927b688e8dc03f39d9021d8d06accaf53083a4bb69eb141196c29ef18",
+      "review-output/privilege-ceiling-control-rehearsal/069-ISSUER-ConsentPresentation-DELETE.sql": "767fbe0b8181e6e2d905bea1957438ef9066d5bb308b44616089959208ae42ad",
+      "review-output/privilege-ceiling-control-rehearsal/070-ISSUER-ConsentDisposition-INSERT.sql": "70646b04616ffb1aeac09f132a3550cda20825ba9e132ab0fbaf9ab0008239dc",
+      "review-output/privilege-ceiling-control-rehearsal/071-ISSUER-ConsentDisposition-UPDATE.sql": "064b394d21c615f15f534fcb425119039c5a844cad4894d36913583f0539a6f2",
+      "review-output/privilege-ceiling-control-rehearsal/072-ISSUER-ConsentDisposition-DELETE.sql": "25b9dccebba09b761d262d64218ff8117e97af4be8f134106862982824131b3d",
+      "review-output/privilege-ceiling-control-rehearsal/073-ISSUER-RuntimeCommandReceipt-INSERT.sql": "d4e37bbfc0fbd210f7d768dad3ca1c2d1543e05163db33d753f96bbef1cab6d3",
+      "review-output/privilege-ceiling-control-rehearsal/074-ISSUER-RuntimeCommandReceipt-UPDATE.sql": "46e107644c7e958e8b9b9e4cd3b37c0d3d39a8b70f62c921c245f1e1d6c1c94a",
+      "review-output/privilege-ceiling-control-rehearsal/075-ISSUER-RuntimeCommandReceipt-DELETE.sql": "9979d5c7d61d545954ee06d13be162b0bc4b1f59b498404f0cd73521a386ba31",
+      "review-output/privilege-ceiling-control-rehearsal/076-ISSUER-RuntimeOutboxMessage-INSERT.sql": "5bc30fd6549b4c69a3746458caf5507603e8c73bb33730708e04298e5e23f2fd",
+      "review-output/privilege-ceiling-control-rehearsal/077-ISSUER-RuntimeOutboxMessage-UPDATE.sql": "10deabe335b8d79a29936b8133c8c29b905036af72ce7cfe681aad1dde1d18f5",
+      "review-output/privilege-ceiling-control-rehearsal/078-ISSUER-RuntimeOutboxMessage-DELETE.sql": "86d6cbdacbf8d8125520e78647d0a91162b9d0edbec6ce1afe737ae4c19a35dc",
+      "review-output/privilege-ceiling-control-rehearsal/079-ISSUER-RuntimeEffectReceipt-INSERT.sql": "d0a2192b480167c44f686abad93d52775ce0623e7179b649217069e57cdf3f70",
+      "review-output/privilege-ceiling-control-rehearsal/080-ISSUER-RuntimeEffectReceipt-UPDATE.sql": "b873f5a06ef189b457034b76eb2d4a8335e1e0e6872959eb50ecf8cb69db02e3",
+      "review-output/privilege-ceiling-control-rehearsal/081-ISSUER-RuntimeEffectReceipt-DELETE.sql": "b391e7a6ff341058ad3fee4141ae96982341e95c68d5658303471a570ab95a7f",
+      "review-output/privilege-ceiling-control-rehearsal/082-ISSUER-RuntimeWorkItem-INSERT.sql": "fc57b2669db776fb18773bd4c6f4bf0ed45597f7f565d495faf5925532af6661",
+      "review-output/privilege-ceiling-control-rehearsal/083-ISSUER-RuntimeWorkItem-UPDATE.sql": "2acbeb07d4bef0e3c2f12a15136bc7a3b2d36ea85da23f1d8afc49a5e414fb1a",
+      "review-output/privilege-ceiling-control-rehearsal/084-ISSUER-RuntimeWorkItem-DELETE.sql": "b6910a84454753946a6a6cb67785a438d45a5925331f8c5c4caefcb58e980526",
+      "review-output/privilege-ceiling-control-rehearsal/085-ISSUER-RuntimeAttempt-INSERT.sql": "a78b0165d30824acb619504d9d963773c3ca3f6fb39a959db8d037aecd5a759d",
+      "review-output/privilege-ceiling-control-rehearsal/086-ISSUER-RuntimeAttempt-UPDATE.sql": "b66c9896fa820eae75d65c4796533fb6e1f79f27b6852ce0a2f39c50809e4783",
+      "review-output/privilege-ceiling-control-rehearsal/087-ISSUER-RuntimeAttempt-DELETE.sql": "3f9b42de5f56cf43ef57a8cebfbdcaf6e60102217157f4addc44cf146cc5dfe7",
+      "review-output/privilege-ceiling-control-rehearsal/088-ISSUER-RuntimeInboxReceipt-INSERT.sql": "02ecfbc46cdd841335cc340b90375e17be3ceddde0afab5b9923662d573302c1",
+      "review-output/privilege-ceiling-control-rehearsal/089-ISSUER-RuntimeInboxReceipt-UPDATE.sql": "39b41f853cf0f5ab560049fbb41275545f87e4b12ef1cfcafd79cc2172cd0ce9",
+      "review-output/privilege-ceiling-control-rehearsal/090-ISSUER-RuntimeInboxReceipt-DELETE.sql": "be6871adf8adacaf77b7c2dd01a9010d1e116f978ba5f09f5a79592403eb9eb8",
+      "review-output/privilege-ceiling-control-rehearsal/091-ISSUER-RuntimeReservation-INSERT.sql": "bebc3845c6e555993417d83390bd41bb243cba2812b2121388c6baa95db2968c",
+      "review-output/privilege-ceiling-control-rehearsal/092-ISSUER-RuntimeReservation-UPDATE.sql": "e5e30cd97dc0b43d0acb062627319022b7357c5c5fcc94ebd43ac37b3b4ff548",
+      "review-output/privilege-ceiling-control-rehearsal/093-ISSUER-RuntimeReservation-DELETE.sql": "af021ab67675f86d2d5fee500540093deb98f5a6084d5d8abe2b7145b72b3d87",
+      "review-output/privilege-ceiling-control-rehearsal/094-ISSUER-OwnerMutationEvidence-INSERT.sql": "09f6d1e2bc8ee35543cd75b2d60d7c931cd8476217f304d12fae63d48866f2b7",
+      "review-output/privilege-ceiling-control-rehearsal/095-ISSUER-OwnerMutationEvidence-UPDATE.sql": "be3534f269c63f68da8a88e5e0cdb12c80b22d6d9bd53cff34a222c27840d253",
+      "review-output/privilege-ceiling-control-rehearsal/096-ISSUER-OwnerMutationEvidence-DELETE.sql": "d3cc790cebf5686f2789ce745c0efa22d6f7c98022889bd7c73a55613d2c7c45",
+      "review-output/privilege-ceiling-control-rehearsal/097-ISSUER-CustomerProfileLifecycleEvent-INSERT.sql": "e04a002ad2c34be1e34031827ed389359bef1b7d08fecade0a25fdad88bcb4d8",
+      "review-output/privilege-ceiling-control-rehearsal/098-ISSUER-CustomerProfileLifecycleEvent-UPDATE.sql": "49118a0b4033a0dbdd82bef35d9ddbca5581d5fed6fc81e72e468ac64ab1673e",
+      "review-output/privilege-ceiling-control-rehearsal/099-ISSUER-CustomerProfileLifecycleEvent-DELETE.sql": "ffb15c530e56a24c93af2294e378d312170e305f809517151d745262f370ed9e",
+      "review-output/privilege-ceiling-control-rehearsal/100-ISSUER-TrackBaseSelection-INSERT.sql": "7cff715239af850577f47fac1957c8f7b3e07e4c572ba9bd3ab5bc9c088451c2",
+      "review-output/privilege-ceiling-control-rehearsal/101-ISSUER-TrackBaseSelection-UPDATE.sql": "3db26696bc39e9d8dfbdcaafe3114b8e6c9124e2ee2e508f4305fb57c17040a3",
+      "review-output/privilege-ceiling-control-rehearsal/102-ISSUER-TrackBaseSelection-DELETE.sql": "499b31f2f416eae72974e8f44c874b35109e83c1b9aaa002b57eee9ae7de94c0",
+      "review-output/privilege-ceiling-control-rehearsal/103-ISSUER-TrackEnrollmentReceipt-INSERT.sql": "26a26b68d25a1fdfe55721d936c56a7ce095a07813a73f4465bb7bff716249c6",
+      "review-output/privilege-ceiling-control-rehearsal/104-ISSUER-TrackEnrollmentReceipt-UPDATE.sql": "199d45fd30d9118c5dc4f81ed0653236be5c63d32094c00c2cdabf1cb90a732d",
+      "review-output/privilege-ceiling-control-rehearsal/105-ISSUER-TrackEnrollmentReceipt-DELETE.sql": "2e3a02213b7e45dfacffb812c4ba66a24bb0153456e3fdd0b0da4f1ee58fd60d",
+      "review-output/privilege-ceiling-control-rehearsal/106-ISSUER-TrackUsageReservation-INSERT.sql": "7ad9885e1a020d0fbb6b8716a4c82e6afbb376173f4781702be3e443ed499805",
+      "review-output/privilege-ceiling-control-rehearsal/107-ISSUER-TrackUsageReservation-UPDATE.sql": "41235f772213f7a9db126139ffc40a581f329c9a1c6809ad023004761c21cce1",
+      "review-output/privilege-ceiling-control-rehearsal/108-ISSUER-TrackUsageReservation-DELETE.sql": "aaced57a3e726f304f77768cbdc2bcb66ac6e06a813ea154bc89eba113c840e4",
+      "review-output/privilege-ceiling-control-rehearsal/109-ISSUER-PrivacyTargetInstruction-INSERT.sql": "6b8741a896be5bf7c6aed3021adbc219424848b5c2b41bd0da5073d2a5c253f3",
+      "review-output/privilege-ceiling-control-rehearsal/110-ISSUER-PrivacyTargetInstruction-UPDATE.sql": "7f66a4cef105257ebd6453db285c6d4a29dcd7f6aadce2887ea8dd524d53df0e",
+      "review-output/privilege-ceiling-control-rehearsal/111-ISSUER-PrivacyTargetInstruction-DELETE.sql": "419e6b5d6af2cbf0d56966a5ce3b9375d44556fe6cafa11a37eb93c2cc839593",
+      "review-output/privilege-ceiling-control-rehearsal/112-ISSUER-PrivacyOwnerReceipt-INSERT.sql": "3974ff5824a32464abec619e1b32c1c4207daf38bfc0dd4e2d90401cc4073a08",
+      "review-output/privilege-ceiling-control-rehearsal/113-ISSUER-PrivacyOwnerReceipt-UPDATE.sql": "a086a2b292e25e4f29f4233a2cd6b5dc71152862c34d3f411d2a0a6915896649",
+      "review-output/privilege-ceiling-control-rehearsal/114-ISSUER-PrivacyOwnerReceipt-DELETE.sql": "661397a2b839e7178aa3cd7bc80cd8ede685695f776d09046bf7239604a1423f",
+      "review-output/privilege-ceiling-control-rehearsal/115-ISSUER-PrivacyRestoreMarker-INSERT.sql": "b40ffdf4aae1fa1571e0a52d709d07778236912b7891daeb81304de89536d8e9",
+      "review-output/privilege-ceiling-control-rehearsal/116-ISSUER-PrivacyRestoreMarker-UPDATE.sql": "9e6221ae72f13ca44a409a7fca60d55e7c1e7228dc9708de19fe6265c217c238",
+      "review-output/privilege-ceiling-control-rehearsal/117-ISSUER-PrivacyRestoreMarker-DELETE.sql": "f4ceeae70e56c247307ea6425fcae1b86ed2eb3501d6aa6a533840016e4bc115",
+      "review-output/privilege-ceiling-control-rehearsal/118-ROLE-wa_app_runtime-wa_context_issuer.sql": "88dc3dd98878527f8ed6f6bd5d3562ee0bca9689496c5a3a5ed02f824a80ae5c",
+      "review-output/privilege-ceiling-control-rehearsal/119-ROLE-wa_app_runtime-wa_private_helper_owner.sql": "4f4aa72d8e1b5921ef94d3b5ac65f26ff34e4a682a29bff7dd2031af795bb6f4",
+      "review-output/privilege-ceiling-control-rehearsal/120-ROLE-wa_app_runtime-wa_customer_verifier.sql": "0534592a9753597999ee48f3ad7e69b69069d5a5c23d7d0810eadc7556091712",
+      "review-output/privilege-ceiling-control-rehearsal/121-ROLE-wa_app_runtime-wa_track_verifier.sql": "c68cd1f3ea2072acc8506dda8f6ccfdbfc131aa43b57ee510c7c07b5f457d81a",
+      "review-output/privilege-ceiling-control-rehearsal/122-ROLE-wa_app_runtime-wa_schema_owner.sql": "7058a182d963d009a5b1ccd9f354813854be6a49ab664486cf811936cc0df59d",
+      "review-output/privilege-ceiling-control-rehearsal/123-ROLE-wa_app_runtime-wa_migrator.sql": "302aa0e3a673db8312077f3feb7797c1e6a26ad370a8aac0ac0a310b02931f68",
+      "review-output/privilege-ceiling-control-rehearsal/124-ROLE-wa_app_runtime-wa_identity_service_authority.sql": "01bb0a150029375bceeddd934315e3f99d760bbb9f40511cf5c73f3c0d272980",
+      "review-output/privilege-ceiling-control-rehearsal/125-GRANT-wa_app_runtime-SELECT.sql": "01625e359233b87c5cb8122da5e9f0c9eef35628516c87a25e8fac3081898169",
+      "review-output/privilege-ceiling-control-rehearsal/126-GRANT-wa_app_runtime-INSERT.sql": "1c81564d8693c5b5dca82e1d3ea21b1ddf06e25c1ce7a379918ab6aa34d6cbb4",
+      "review-output/privilege-ceiling-control-rehearsal/127-GRANT-wa_app_runtime-UPDATE.sql": "49882236b6c0c87ab02a63986c3d0efe54cc28b1cff4131a400c04b9915cdb69",
+      "review-output/privilege-ceiling-control-rehearsal/128-GRANT-wa_app_runtime-DELETE.sql": "5a2c9da2ef52decbbd40d4ea6edaca9e56e81e60f986ce09ec42695d4fc987b2",
+      "review-output/privilege-ceiling-control-rehearsal/129-CREATE-wa_app_runtime-app.sql": "7f501d14dbcc0400ed3d78a9842092ffc313d46c8fb85fad0a7f1f0beb7fb310",
+      "review-output/privilege-ceiling-control-rehearsal/130-CREATE-wa_app_runtime-platform.sql": "c629879fb15b7fdaecfb41b8a3f28d43685fd50c5e069e38d3dbcf7f59fbb2d2",
+      "review-output/privilege-ceiling-control-rehearsal/131-CREATE-wa_app_runtime-platform_private.sql": "e4bc54bfbf715687bfbf2632d32c386bbc70e9aaf5774a06a0cc71c24029847d",
+      "review-output/privilege-ceiling-control-rehearsal/132-CREATE-wa_app_runtime-public.sql": "58db35534306fba3866397199cf5c8fa92c2b441ec3020a932d92552352d0c14",
+      "review-output/privilege-ceiling-control-rehearsal/133-TRUNCATE-wa_app_runtime-platform.database_action_grant.sql": "2c284168a0a1afedfdf88f03b26077c62372041b8479fc99865e02c778f39a31",
+      "review-output/privilege-ceiling-control-rehearsal/134-TRUNCATE-wa_app_runtime-app.customer_profiles.sql": "2a39eeaae604941b8ecdb88cf31c730c0599cc291fb824664a62342b4a5c856e",
+      "review-output/privilege-ceiling-control-rehearsal/135-ROLE-wa_worker-wa_context_issuer.sql": "88dc3dd98878527f8ed6f6bd5d3562ee0bca9689496c5a3a5ed02f824a80ae5c",
+      "review-output/privilege-ceiling-control-rehearsal/136-ROLE-wa_worker-wa_private_helper_owner.sql": "4f4aa72d8e1b5921ef94d3b5ac65f26ff34e4a682a29bff7dd2031af795bb6f4",
+      "review-output/privilege-ceiling-control-rehearsal/137-ROLE-wa_worker-wa_customer_verifier.sql": "0534592a9753597999ee48f3ad7e69b69069d5a5c23d7d0810eadc7556091712",
+      "review-output/privilege-ceiling-control-rehearsal/138-ROLE-wa_worker-wa_track_verifier.sql": "c68cd1f3ea2072acc8506dda8f6ccfdbfc131aa43b57ee510c7c07b5f457d81a",
+      "review-output/privilege-ceiling-control-rehearsal/139-ROLE-wa_worker-wa_schema_owner.sql": "7058a182d963d009a5b1ccd9f354813854be6a49ab664486cf811936cc0df59d",
+      "review-output/privilege-ceiling-control-rehearsal/140-ROLE-wa_worker-wa_migrator.sql": "302aa0e3a673db8312077f3feb7797c1e6a26ad370a8aac0ac0a310b02931f68",
+      "review-output/privilege-ceiling-control-rehearsal/141-ROLE-wa_worker-wa_identity_service_authority.sql": "01bb0a150029375bceeddd934315e3f99d760bbb9f40511cf5c73f3c0d272980",
+      "review-output/privilege-ceiling-control-rehearsal/142-GRANT-wa_worker-SELECT.sql": "01625e359233b87c5cb8122da5e9f0c9eef35628516c87a25e8fac3081898169",
+      "review-output/privilege-ceiling-control-rehearsal/143-GRANT-wa_worker-INSERT.sql": "1c81564d8693c5b5dca82e1d3ea21b1ddf06e25c1ce7a379918ab6aa34d6cbb4",
+      "review-output/privilege-ceiling-control-rehearsal/144-GRANT-wa_worker-UPDATE.sql": "49882236b6c0c87ab02a63986c3d0efe54cc28b1cff4131a400c04b9915cdb69",
+      "review-output/privilege-ceiling-control-rehearsal/145-GRANT-wa_worker-DELETE.sql": "5a2c9da2ef52decbbd40d4ea6edaca9e56e81e60f986ce09ec42695d4fc987b2",
+      "review-output/privilege-ceiling-control-rehearsal/146-CREATE-wa_worker-app.sql": "7f501d14dbcc0400ed3d78a9842092ffc313d46c8fb85fad0a7f1f0beb7fb310",
+      "review-output/privilege-ceiling-control-rehearsal/147-CREATE-wa_worker-platform.sql": "c629879fb15b7fdaecfb41b8a3f28d43685fd50c5e069e38d3dbcf7f59fbb2d2",
+      "review-output/privilege-ceiling-control-rehearsal/148-CREATE-wa_worker-platform_private.sql": "e4bc54bfbf715687bfbf2632d32c386bbc70e9aaf5774a06a0cc71c24029847d",
+      "review-output/privilege-ceiling-control-rehearsal/149-CREATE-wa_worker-public.sql": "58db35534306fba3866397199cf5c8fa92c2b441ec3020a932d92552352d0c14",
+      "review-output/privilege-ceiling-control-rehearsal/150-TRUNCATE-wa_worker-platform.database_action_grant.sql": "2c284168a0a1afedfdf88f03b26077c62372041b8479fc99865e02c778f39a31",
+      "review-output/privilege-ceiling-control-rehearsal/151-TRUNCATE-wa_worker-app.customer_profiles.sql": "2a39eeaae604941b8ecdb88cf31c730c0599cc291fb824664a62342b4a5c856e",
+      "review-output/privilege-ceiling-control-rehearsal/152-PROVIDER-SCHEMA-anon-app.sql": "6e89f7a24ba6613fe78b2665e815116bd11b50bc8b9e53e278c650ee5db4ab55",
+      "review-output/privilege-ceiling-control-rehearsal/153-PROVIDER-SCHEMA-anon-platform.sql": "9d3e1ff873a76576797a79c182dde3365128bdbc0a9eb02c489a4a9fba851cb4",
+      "review-output/privilege-ceiling-control-rehearsal/154-PROVIDER-SCHEMA-anon-platform_private.sql": "98b6dbfa5a9ed661e3a9cd016a0f76d651231264dad23bae387e8699299e6597",
+      "review-output/privilege-ceiling-control-rehearsal/155-PROVIDER-EXEC-anon-helper.sql": "1b956dd7350a75015640322aea14bdb695472fc447809a634b832f744953eaf8",
+      "review-output/privilege-ceiling-control-rehearsal/156-PROVIDER-EXEC-anon-customer.sql": "31b52e01291d016564d173645d728da09f90170ce7d6d2c3a9bb4d9344afad85",
+      "review-output/privilege-ceiling-control-rehearsal/157-PROVIDER-EXEC-anon-track.sql": "efcdc26695c125d5bfe3e35b9574f12e67a5d4b8387474be402a8dc70fe11ef1",
+      "review-output/privilege-ceiling-control-rehearsal/158-PROVIDER-SCHEMA-authenticated-app.sql": "6e89f7a24ba6613fe78b2665e815116bd11b50bc8b9e53e278c650ee5db4ab55",
+      "review-output/privilege-ceiling-control-rehearsal/159-PROVIDER-SCHEMA-authenticated-platform.sql": "9d3e1ff873a76576797a79c182dde3365128bdbc0a9eb02c489a4a9fba851cb4",
+      "review-output/privilege-ceiling-control-rehearsal/160-PROVIDER-SCHEMA-authenticated-platform_private.sql": "98b6dbfa5a9ed661e3a9cd016a0f76d651231264dad23bae387e8699299e6597",
+      "review-output/privilege-ceiling-control-rehearsal/161-PROVIDER-EXEC-authenticated-helper.sql": "1b956dd7350a75015640322aea14bdb695472fc447809a634b832f744953eaf8",
+      "review-output/privilege-ceiling-control-rehearsal/162-PROVIDER-EXEC-authenticated-customer.sql": "31b52e01291d016564d173645d728da09f90170ce7d6d2c3a9bb4d9344afad85",
+      "review-output/privilege-ceiling-control-rehearsal/163-PROVIDER-EXEC-authenticated-track.sql": "efcdc26695c125d5bfe3e35b9574f12e67a5d4b8387474be402a8dc70fe11ef1",
+      "review-output/privilege-ceiling-control-rehearsal/164-PROVIDER-SCHEMA-service_role-app.sql": "6e89f7a24ba6613fe78b2665e815116bd11b50bc8b9e53e278c650ee5db4ab55",
+      "review-output/privilege-ceiling-control-rehearsal/165-PROVIDER-SCHEMA-service_role-platform.sql": "9d3e1ff873a76576797a79c182dde3365128bdbc0a9eb02c489a4a9fba851cb4",
+      "review-output/privilege-ceiling-control-rehearsal/166-PROVIDER-SCHEMA-service_role-platform_private.sql": "98b6dbfa5a9ed661e3a9cd016a0f76d651231264dad23bae387e8699299e6597",
+      "review-output/privilege-ceiling-control-rehearsal/167-PROVIDER-EXEC-service_role-helper.sql": "1b956dd7350a75015640322aea14bdb695472fc447809a634b832f744953eaf8",
+      "review-output/privilege-ceiling-control-rehearsal/168-PROVIDER-EXEC-service_role-customer.sql": "31b52e01291d016564d173645d728da09f90170ce7d6d2c3a9bb4d9344afad85",
+      "review-output/privilege-ceiling-control-rehearsal/169-PROVIDER-EXEC-service_role-track.sql": "efcdc26695c125d5bfe3e35b9574f12e67a5d4b8387474be402a8dc70fe11ef1",
+      "review-output/privilege-ceiling-control-rehearsal/170-ISSUER-PRIVATE-identity_service_authorization-INSERT.sql": "28da4cc07642af47da2d8925c3ca947162e4c5656d77f79d1f3914ba201b861a",
+      "review-output/privilege-ceiling-control-rehearsal/171-ISSUER-PRIVATE-identity_service_authorization-UPDATE.sql": "bcb3bf495f277e8cf4e0d0d31ac1cb2fafcc0a564e92bb46853da96a2bb0d76a",
+      "review-output/privilege-ceiling-control-rehearsal/172-ISSUER-PRIVATE-identity_service_receipt-INSERT.sql": "89e80e6a040354f6efbd708e4b67be44f30d5354db689690ec5c4ded9ec7dd50",
+      "review-output/privilege-ceiling-control-rehearsal/173-ISSUER-PRIVATE-identity_service_receipt-UPDATE.sql": "94f6752bd9a9ee4ad7d3aef6470706acac82bfb7a5d013ab38deb66b78327486",
+      "review-output/privilege-ceiling-control-rehearsal/174-ISSUER-IMMUTABLE-id.sql": "25992126b222ae03f7616236402ce11780507c18fbebc2e22ea676c9a1fa5c49",
+      "review-output/privilege-ceiling-control-rehearsal/175-ISSUER-IMMUTABLE-token_hash.sql": "d1fd0c6628929e7a2344d30709529504d6d191ac0b293d7a04a46efa204e5414",
+      "review-output/privilege-ceiling-control-rehearsal/176-ISSUER-IMMUTABLE-issuer_service.sql": "d3243aea79fc50683bd126080d372de1006ad5186f51680a9e2c26a7512fdb89",
+      "review-output/privilege-ceiling-control-rehearsal/177-ISSUER-IMMUTABLE-principal_user_id.sql": "39d71308549c27fa1651a177f6d4d907ed31e6d193d583001f000a2aa5d86371",
+      "review-output/privilege-ceiling-control-rehearsal/178-ISSUER-IMMUTABLE-service_principal.sql": "1591a65c8560cc45a935b3c702d71eaf115e33164bb7731253216322a3d09f22",
+      "review-output/privilege-ceiling-control-rehearsal/179-ISSUER-IMMUTABLE-database_login_role.sql": "080151b2ca9af13de3657855d9f6b5c63af3905e186d239d321f6b04a3f481ab",
+      "review-output/privilege-ceiling-control-rehearsal/180-ISSUER-IMMUTABLE-owner_module_id.sql": "3ea6f64de627c32c762f0ba30c548f6dbde0bf590dc41e6d56c414148a95e371",
+      "review-output/privilege-ceiling-control-rehearsal/181-ISSUER-IMMUTABLE-action.sql": "a1545fd3bc0c62b26037639d6acddaad773f79ebd04fabcf713870baf2996368",
+      "review-output/privilege-ceiling-control-rehearsal/182-ISSUER-IMMUTABLE-purpose.sql": "d295640e18375cedc749df08a1231a3316ca79f4e636d5837570e3ed113e1712",
+      "review-output/privilege-ceiling-control-rehearsal/183-ISSUER-IMMUTABLE-target_kind.sql": "ef4065fa6db53c2ea4ad0f2343934d016628d3072b4b98df630d54d6d76736c7",
+      "review-output/privilege-ceiling-control-rehearsal/184-ISSUER-IMMUTABLE-target_id.sql": "a7ee079b2c0577590663805071ee4fa38cf9d0d411be1fb224ad052310ced333",
+      "review-output/privilege-ceiling-control-rehearsal/185-ISSUER-IMMUTABLE-allowed_fields.sql": "d5adea00c3b40705147e93dd72ec220a1f3d3a9aefa0a4f68ab38906a966107a",
+      "review-output/privilege-ceiling-control-rehearsal/186-ISSUER-IMMUTABLE-policy_version.sql": "cef0930872f364e09db8a8aad301902c0c0f28a7e954464310a692059c5e9b49",
+      "review-output/privilege-ceiling-control-rehearsal/187-ISSUER-IMMUTABLE-security_generation.sql": "2c737b557284d1d65dbb2a358760b3d7fe333622076b5badbb2b7edf67fb4fc7",
+      "review-output/privilege-ceiling-control-rehearsal/188-ISSUER-IMMUTABLE-source_generation.sql": "b0c5265281c23d3ee72d6bdbf99e02149d7d950fd6e82c64a1a4601e7810cf69",
+      "review-output/privilege-ceiling-control-rehearsal/189-ISSUER-IMMUTABLE-backend_pid.sql": "4ec7fdbde39314786492bebf9b70d29d688a4253c3a3192558f016ececc441bf",
+      "review-output/privilege-ceiling-control-rehearsal/190-ISSUER-IMMUTABLE-transaction_id.sql": "1a401abc423bdf584ec001959489476a00391c9b000a9c78e41d1ffb6a890e2b",
+      "review-output/privilege-ceiling-control-rehearsal/191-ISSUER-IMMUTABLE-expires_at.sql": "b0e5f48e78b8e126644d35c83132c5914c0ca417620decf0cabbfd9a4e487ba3",
+      "review-output/privilege-ceiling-control-rehearsal/192-ISSUER-IMMUTABLE-created_at.sql": "4498a663126e4456dc1e4f8ada621c7a3b03a36e8da872a833ff0d724aa7a195",
+      "review-output/privilege-ceiling-control-rehearsal/193-ISSUER-IMMUTABLE-mutation_transaction_id.sql": "6ed7ce85f33b4dc3a7c76f31a450c9ca509439c4839673b08047b579a3db198f",
+      "review-output/privilege-ceiling-control-rehearsal/194-HELPER-wa_app_runtime-bound_grant.sql": "02a3c7a795523cf3f53a64ee76e7ce43d93ace801f3f2e6fd004c920e19b21a5",
+      "review-output/privilege-ceiling-control-rehearsal/195-HELPER-wa_worker-bound_grant.sql": "02a3c7a795523cf3f53a64ee76e7ce43d93ace801f3f2e6fd004c920e19b21a5",
+      "review-output/privilege-ceiling-control-rehearsal/196-HELPER-wa_worker-worker_source_row_valid.sql": "8d7ade5914875af7a50299522f7b68200340b8fcdb7e92f0cd3bd00f72a8baf9",
+      "review-output/privilege-ceiling-control-rehearsal/197-HELPER-wa_worker-worker_source_claim_valid.sql": "d23c6cf7f0f9cb1533251953bdca6a4167be850eddd0129ad60373296f0a92e3",
+      "review-output/privilege-ceiling-control-rehearsal/198-ISSUER-UNREVOKED-NULL-REVOKE.sql": "653570f7a22df134cbaa3436c16cdd55bee27a192b01f16a3d1146560ee3424a",
+      "review-output/privilege-ceiling-control-rehearsal/199-ISSUER-REPEAT-REVOKE.sql": "cdf9c39995a259a1759ffa484cef039a6d076751d36bc7a55e3cd6b3510c7ea7",
+      "review-output/privilege-ceiling-control-rehearsal/200-ISSUER-UNREVOKE.sql": "653570f7a22df134cbaa3436c16cdd55bee27a192b01f16a3d1146560ee3424a",
+      "review-output/privilege-ceiling-control-rehearsal/fixtures.json": "4ebe8b6cd7b85ff5ad8dbb79d431bb7001cf16dea72e3920138be4b5f2855e68",
+      "review-output/privilege-ceiling-control-rehearsal/README.md": "5837f26cd959ee0addca42f319b3d67f8d8ee09828657dd793c6caeadbd416ec"
+    },
+    "artifacts202_matches_approved": true,
+    "fixtures_sha256": "4ebe8b6cd7b85ff5ad8dbb79d431bb7001cf16dea72e3920138be4b5f2855e68",
+    "finite_content_sha256": "643232e4d068892b49e49122b7ce3b909bd86caa9e770aa923d7df00def1ec32",
+    "owned_V5_five_sha256": {
+      "execute_local_f0_privilege_ceiling_person_subject_v5_20261119.py": "a2c6cbb3120c1b202411e2dd549d066b0080fdbc8a315633c2febf0a9bde7f8e",
+      "local_f0_privilege_ceiling_person_subject_v5_operation_steps.py": "9b4fea0ac8b628d3073eb87ea0c4dff27d68614bfddc4012af6432e9689f2f68",
+      "prepare_local_f0_privilege_ceiling_person_subject_v5_plan.py": "5736bdd401d143523ed7cb67f643b3b180844377f02c7920a881329f35afc3b7",
+      "check_local_f0_privilege_ceiling_person_subject_v5_operation.py": "7cdd3f5b96a9ee07345bdc5b4e62c662abaa4640a70f58be3098d52a085fb9ac",
+      "pin_local_f0_privilege_ceiling_person_subject_v5_plan_20261119.py": "4b2b2ba327d2504acdbca2e23dc030f3975a8064890d4d069cbe353dba0c94dd"
+    },
+    "owned_V5_five_matches_frozen": true,
+    "canonical_application_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "access_source_sha256": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "old_source_archive815": "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-person-subject-v5",
+    "preservation_required_before_implementation": "Preserve complete old V5 five/archive815, source7+202, all closed30 assets and Root records, frozen PersonV5 author/peer records and approved validations before creating any replacement; verify recursive maps against Root authoritative preservation inventory."
+  },
+  "static_case_census": {
+    "count": 200,
+    "profiles": {
+      "COLUMN_REFERENCING_SELECT": 2,
+      "EXACT_SOURCE_IMMUTABLE_GUARD_UNCHANGED": 3,
+      "FUNCTION_EXECUTE_WITH_SCHEMA": 4,
+      "LITERAL_UPDATE_WITH_PREDICATE_SELECT": 63,
+      "LITERAL_VALUES_INSERT": 43,
+      "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT": 41,
+      "MANDATORY_TABLE_TRUNCATE": 4,
+      "PROVIDER_SCHEMA_ONLY_FUNCTION_CALL": 9,
+      "PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN": 9,
+      "ROLE_SET": 14,
+      "SCHEMA_CREATE": 8
+    },
+    "interpretation": "A static source inventory only; neither emitted metadata SQL nor any process/database was executed."
+  },
+  "all200_case_requirement_map": [
+    {
+      "case": "ISSUER-ConsentLog-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "001-ISSUER-ConsentLog-INSERT.sql",
+      "source_sql_sha256": "371ac79d0459777a6c01b915c79630f36dca14ecbce762e47d41a2f94aaf2efc",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.consent_logs",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "user_id",
+          "type",
+          "version",
+          "accepted_at",
+          "ip_hash",
+          "user_agent",
+          "created_at",
+          "acceptance_key",
+          "fingerprint",
+          "action_owner",
+          "action",
+          "context_kind",
+          "context_id",
+          "context_owner",
+          "presentation_hash",
+          "content_revision_id",
+          "presentation_id",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-ConsentLog-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "002-ISSUER-ConsentLog-UPDATE.sql",
+      "source_sql_sha256": "9cb4a932bef174f37357001b87e2aa0bc7d8388379afb7d1f2c99a444d972cb7",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.consent_logs",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-ConsentLog-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "003-ISSUER-ConsentLog-DELETE.sql",
+      "source_sql_sha256": "7ec1da0ecb0ad8e3f6b54c7be52cfd5e68ed624a30ebab2582104c4a0c66b15b",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.consent_logs",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-PrivacyRequest-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "004-ISSUER-PrivacyRequest-INSERT.sql",
+      "source_sql_sha256": "3537088e960358df7ff43f7c543033b8134c1def195a5bfa3726ec59c9c96b17",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.privacy_requests",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "user_id",
+          "type",
+          "status",
+          "requested_at",
+          "verified_at",
+          "due_at",
+          "completed_at",
+          "rejection_reason",
+          "admin_note",
+          "created_at",
+          "updated_at",
+          "revision",
+          "privacy_generation",
+          "instruction_generation",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-PrivacyRequest-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "005-ISSUER-PrivacyRequest-UPDATE.sql",
+      "source_sql_sha256": "977d70c8aebf5beca2b029eb2fe1ecdf7f4a4279fe5f064f8c04bb422b3b1535",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.privacy_requests",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-PrivacyRequest-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "006-ISSUER-PrivacyRequest-DELETE.sql",
+      "source_sql_sha256": "fd83f552e0299c6330928a43753804f340ea5a98db6d680f4fd18d6166044e48",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.privacy_requests",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-AgeGateAttempt-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "007-ISSUER-AgeGateAttempt-INSERT.sql",
+      "source_sql_sha256": "2bd6a830ea3b5227e69567124b8c10126c886cebfbde1a920f91ce57ca6770b0",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.age_gate_attempts",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "user_id",
+          "ip_hash",
+          "device_hash",
+          "region",
+          "result",
+          "birth_year",
+          "age_band",
+          "blocked_until",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-AgeGateAttempt-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "008-ISSUER-AgeGateAttempt-UPDATE.sql",
+      "source_sql_sha256": "10ed9183d2dbf3297fc4492f63a5b7324a569eae38567564c3d4e05ee08cabe4",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.age_gate_attempts",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-AgeGateAttempt-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "009-ISSUER-AgeGateAttempt-DELETE.sql",
+      "source_sql_sha256": "42f8cd55bcd6709efc2b34a387dcd46a001d776efb438c53801edd098ac7abf5",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.age_gate_attempts",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-AgeGateBlock-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "010-ISSUER-AgeGateBlock-INSERT.sql",
+      "source_sql_sha256": "98d6b5b97b55d703349dbd52bb00ab80159188c0f46138951c172408f4bf5872",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.age_gate_blocks",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "ip_hash",
+          "device_hash",
+          "reason",
+          "blocked_until",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-AgeGateBlock-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "011-ISSUER-AgeGateBlock-UPDATE.sql",
+      "source_sql_sha256": "ba1b20b71759d8dbab373dbeec6bd57d29830b3f4de95ab8817660f198a96c4f",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.age_gate_blocks",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-AgeGateBlock-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "012-ISSUER-AgeGateBlock-DELETE.sql",
+      "source_sql_sha256": "0214e0fe7f999bff3cfa77ed8fa12bf11956493e132ff5b502e10f336eb71cab",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.age_gate_blocks",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-AccessAuditLog-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "013-ISSUER-AccessAuditLog-INSERT.sql",
+      "source_sql_sha256": "d52596d7724ffbdbcc5554e6401480b3a8238bc0bc4b534096100245bd2a40b0",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.access_audit_logs",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "actor_user_id",
+          "target_type",
+          "target_id",
+          "action",
+          "sensitivity",
+          "access_decision",
+          "request_id",
+          "ip_hash",
+          "user_agent",
+          "previous_hash",
+          "entry_hash",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-AccessAuditLog-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "014-ISSUER-AccessAuditLog-UPDATE.sql",
+      "source_sql_sha256": "ab61f168057e46ff0e8358c699034bcc9b95854413be5e166d4933d46cf5b798",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.access_audit_logs",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-AccessAuditLog-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "015-ISSUER-AccessAuditLog-DELETE.sql",
+      "source_sql_sha256": "0fd94c4c1b441b1da983fccbea390c23dfadbbc6a31c012d7d8fc53103b98332",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.access_audit_logs",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-User-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "016-ISSUER-User-INSERT.sql",
+      "source_sql_sha256": "3d79577cfb60a28b55f7caacb74dc0cb22dc5985fc96b3720617dcfa9db49ff9",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.users",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "email",
+          "handle",
+          "display_name",
+          "avatar_url",
+          "bio",
+          "city",
+          "state",
+          "country",
+          "is_public",
+          "created_at",
+          "updated_at",
+          "privacy_erased_at",
+          "privacy_erasure_status",
+          "revision",
+          "privacy_generation",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-User-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "017-ISSUER-User-UPDATE.sql",
+      "source_sql_sha256": "e8aec05767fe14d76980ff41a09938f89d3cb0321c968c3a2a51bae2f3200c77",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.users",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-User-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "018-ISSUER-User-DELETE.sql",
+      "source_sql_sha256": "0797eda71f808180eb79577c399fb7daa9d825d272518e703522fbe4924486bf",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.users",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-UserRole-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "019-ISSUER-UserRole-INSERT.sql",
+      "source_sql_sha256": "0f27044c6b1ce5ce8eb4b87b8452b0d073e37d78eaefd8e97d3ff189703af402",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.user_roles",
+        "operation": "INSERT",
+        "write_columns": [
+          "user_id",
+          "role",
+          "created_at",
+          "revision",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-UserRole-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "020-ISSUER-UserRole-UPDATE.sql",
+      "source_sql_sha256": "2fa69fb4b1cb9337b5025598c900f6ed531308d3530c3732325ccd7963cdd893",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.user_roles",
+        "operation": "UPDATE",
+        "write_columns": [
+          "user_id"
+        ],
+        "read_columns": [
+          "user_id",
+          "role"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-UserRole-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "021-ISSUER-UserRole-DELETE.sql",
+      "source_sql_sha256": "61889d6a85a57ab4e0fae60285e369809607f3c3108e5a40ac33daecd0a7b67a",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.user_roles",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "user_id",
+          "role"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-ProfessionalProfile-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "022-ISSUER-ProfessionalProfile-INSERT.sql",
+      "source_sql_sha256": "fc55712ad79026fda919cdab90cc3ade6677dfc05ba00af445c5292e62afe016",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.professional_profiles",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "user_id",
+          "slug",
+          "headline",
+          "bio",
+          "website_url",
+          "city",
+          "state",
+          "country",
+          "status",
+          "rating_average",
+          "rating_count",
+          "stripe_account_id",
+          "stripe_ready",
+          "onboarding_complete_at",
+          "default_currency",
+          "created_at",
+          "updated_at",
+          "suspended_for_moderation_at",
+          "trust_score",
+          "verified_at",
+          "verification_expires_at",
+          "revision",
+          "privacy_generation",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-ProfessionalProfile-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "023-ISSUER-ProfessionalProfile-UPDATE.sql",
+      "source_sql_sha256": "d423be6c9018865ae967c636cddede55d797e3ffe190678dfcb3509a75e71789",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.professional_profiles",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-ProfessionalProfile-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "024-ISSUER-ProfessionalProfile-DELETE.sql",
+      "source_sql_sha256": "f805731d520dbb9fcad7b41e1399b5aeb069bac3bb4b10c63048763e733dfc9f",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.professional_profiles",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-CustomerProfile-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "025-ISSUER-CustomerProfile-INSERT.sql",
+      "source_sql_sha256": "52e8ed7cf3c94b407d02afefa5a3592865ea2d1c5eed6b1bb4652ac00b5f7fab",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.customer_profiles",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "user_id",
+          "status",
+          "display_name",
+          "avatar_media_id",
+          "city",
+          "state",
+          "country",
+          "created_at",
+          "updated_at",
+          "archived_at",
+          "revision",
+          "privacy_generation",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-CustomerProfile-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "026-ISSUER-CustomerProfile-UPDATE.sql",
+      "source_sql_sha256": "5828f885d9799392c3d9bd2c226f8595275c9e2d07f542da8c8e0b3f373b1018",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.customer_profiles",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-CustomerProfile-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "027-ISSUER-CustomerProfile-DELETE.sql",
+      "source_sql_sha256": "b41fd8816349589112c98d8ac18c103fd3fa2279c3a95ae9272ea8d3dcd079ca",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.customer_profiles",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-CandidateProfile-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "028-ISSUER-CandidateProfile-INSERT.sql",
+      "source_sql_sha256": "9e7de54d422d5c07f8222997da15cce5bc57a88180a0d4f629ed7f835dc1e254",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.candidate_profiles",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "user_id",
+          "headline",
+          "portfolio_url",
+          "availability",
+          "city",
+          "state",
+          "country",
+          "status",
+          "is_visible",
+          "created_at",
+          "updated_at",
+          "trust_score",
+          "verified_at",
+          "verification_expires_at",
+          "revision",
+          "privacy_generation",
+          "discovery_preference_revision",
+          "discovery_enabled_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-CandidateProfile-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "029-ISSUER-CandidateProfile-UPDATE.sql",
+      "source_sql_sha256": "02cc04956ffa6b453b8917e8038097f8f1a0f3fc1a09b638ad1180b745c8271b",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.candidate_profiles",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-CandidateProfile-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "030-ISSUER-CandidateProfile-DELETE.sql",
+      "source_sql_sha256": "9ebf19acfec59fb39d67d3a8c83cbf936e3c4c82cbd39a209d2732f59f361843",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.candidate_profiles",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-AuditEvent-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "031-ISSUER-AuditEvent-INSERT.sql",
+      "source_sql_sha256": "bbb63ced216fa583da37d5e8b53f8967dce973078ad6466fbcfb190e1efaeca2",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.audit_events",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "actor_user_id",
+          "entity_type",
+          "entity_id",
+          "action",
+          "metadata",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-AuditEvent-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "032-ISSUER-AuditEvent-UPDATE.sql",
+      "source_sql_sha256": "6accdc2c78f30baf12c26e799b5a8e0259c2ff75069b99be139b1e63d2a3ab2c",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.audit_events",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-AuditEvent-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "033-ISSUER-AuditEvent-DELETE.sql",
+      "source_sql_sha256": "71aa72b48fbaf3c58f5398d709683e394b2cd85a6631c287dd7a40140aa0f05a",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.audit_events",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-UserSecurityProfile-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "034-ISSUER-UserSecurityProfile-INSERT.sql",
+      "source_sql_sha256": "c7aa1cca1d36fe903dcf340cb3d8bed4a1f2e949e74f0612f6325414f2ff153d",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.user_security_profiles",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "user_id",
+          "security_tier",
+          "phone_number_encrypted",
+          "phone_number_hash",
+          "phone_verified_at",
+          "phone_last_changed_at",
+          "passkeys_enabled",
+          "sms_mfa_enabled",
+          "backup_password_configured",
+          "sensitive_action_mfa_required",
+          "last_step_up_at",
+          "last_sensitive_action_at",
+          "locked_until",
+          "lock_reason",
+          "created_at",
+          "updated_at",
+          "revision",
+          "security_generation",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-UserSecurityProfile-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "035-ISSUER-UserSecurityProfile-UPDATE.sql",
+      "source_sql_sha256": "f9ac0f784e9315f9dbb2aee813272a6c5d325577f7a197b72942e7545f75a22d",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.user_security_profiles",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-UserSecurityProfile-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "036-ISSUER-UserSecurityProfile-DELETE.sql",
+      "source_sql_sha256": "c2a53c65ffe40602e15b6f02e621c1a6304d6a51c1c299db47c887bcb2f3d819",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.user_security_profiles",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-AuthProviderAccount-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "037-ISSUER-AuthProviderAccount-INSERT.sql",
+      "source_sql_sha256": "8064aa16bcdb20ce53e58addef78f1deb8a81f6734071079f1448d6c68ab045d",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.auth_provider_accounts",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "user_id",
+          "security_profile_id",
+          "provider_type",
+          "provider_user_id",
+          "provider_account_id",
+          "email",
+          "email_verified_at",
+          "status",
+          "linked_at",
+          "last_used_at",
+          "revoked_at",
+          "created_at",
+          "updated_at",
+          "revision",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-AuthProviderAccount-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "038-ISSUER-AuthProviderAccount-UPDATE.sql",
+      "source_sql_sha256": "45cbe2b31bc6425c49274002eba4ecf42ba25d49f4d1238ebc25094a1b24bb84",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.auth_provider_accounts",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-AuthProviderAccount-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "039-ISSUER-AuthProviderAccount-DELETE.sql",
+      "source_sql_sha256": "396741cc9864f6fb3c447f745e94551bc7a6eee25e7410a18ab4ac70bbe22f51",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.auth_provider_accounts",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackPlan-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "040-ISSUER-TrackPlan-INSERT.sql",
+      "source_sql_sha256": "c2c5cec4c52ebfa4a1710bc74b40a9e22fd907c79347eb4fb85bb30002889064",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.track_plans",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "track",
+          "key",
+          "name",
+          "status",
+          "billing_model",
+          "monthly_price_cents",
+          "currency",
+          "description",
+          "display_order",
+          "metadata",
+          "created_at",
+          "updated_at",
+          "revision",
+          "version",
+          "content_hash",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-TrackPlan-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "041-ISSUER-TrackPlan-UPDATE.sql",
+      "source_sql_sha256": "5a8506ab74af52aaca2c852cbae508c2ac4ddf7025db66850a63ec1bc1610cd9",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_plans",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackPlan-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "042-ISSUER-TrackPlan-DELETE.sql",
+      "source_sql_sha256": "f2c5aaff4acbd34d1c0f7732b8e2d446705cd4bcae5804a5cbaccdff7ddeb704",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_plans",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackEntitlementDefinition-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "043-ISSUER-TrackEntitlementDefinition-INSERT.sql",
+      "source_sql_sha256": "983fd0bed19c85c126c141ac439af2b4e9358f27eee48bc9fd94253aa8544668",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.track_entitlement_definitions",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "key",
+          "label",
+          "description",
+          "value_type",
+          "track",
+          "is_active",
+          "created_at",
+          "updated_at",
+          "revision",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-TrackEntitlementDefinition-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "044-ISSUER-TrackEntitlementDefinition-UPDATE.sql",
+      "source_sql_sha256": "0ad75e995541563a8a108853a7168ed9415d772bffc8faa8120ef419b6577c61",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_entitlement_definitions",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackEntitlementDefinition-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "045-ISSUER-TrackEntitlementDefinition-DELETE.sql",
+      "source_sql_sha256": "fc80be1022065b3191093775aaaef51c418ce5493accbfcaabcd5cef56daf5c0",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_entitlement_definitions",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackPlanEntitlement-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "046-ISSUER-TrackPlanEntitlement-INSERT.sql",
+      "source_sql_sha256": "162e34ac43f8c40d769bf46b0fe2293251620f2f7fa7914c3297c575595c4920",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.track_plan_entitlements",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "plan_id",
+          "entitlement_id",
+          "value_type",
+          "boolean_value",
+          "int_value",
+          "decimal_value",
+          "string_value",
+          "json_value",
+          "usage_period",
+          "created_at",
+          "updated_at",
+          "revision",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-TrackPlanEntitlement-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "047-ISSUER-TrackPlanEntitlement-UPDATE.sql",
+      "source_sql_sha256": "77fea03d8e240cecd5f5542f5ca3932135e647d4228bfe90cbb79fd239bccb8b",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_plan_entitlements",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackPlanEntitlement-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "048-ISSUER-TrackPlanEntitlement-DELETE.sql",
+      "source_sql_sha256": "a08374c2fb708d8c7310f1d48e1e53f1dd2447bceba1bdd2f6149c06637b7646",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_plan_entitlements",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackSubscription-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "049-ISSUER-TrackSubscription-INSERT.sql",
+      "source_sql_sha256": "d0ae57e7f04616f50d792fd741045157d861ae6ceca89d2cd332cd1849c9f7da",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.track_subscriptions",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "user_id",
+          "plan_id",
+          "track",
+          "customer_profile_id",
+          "candidate_profile_id",
+          "professional_profile_id",
+          "status",
+          "provider",
+          "provider_customer_id",
+          "provider_subscription_id",
+          "provider_price_id",
+          "current_period_start",
+          "current_period_end",
+          "trial_ends_at",
+          "cancelled_at",
+          "ended_at",
+          "created_at",
+          "updated_at",
+          "revision",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-TrackSubscription-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "050-ISSUER-TrackSubscription-UPDATE.sql",
+      "source_sql_sha256": "46f306d0a2419c607c355c0ee8ce9982eea7cfb19fcce105e7e09c811ac07a43",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_subscriptions",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackSubscription-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "051-ISSUER-TrackSubscription-DELETE.sql",
+      "source_sql_sha256": "b8b1d5e3a2c7a3460f280863a7837e819c15be85a9580da2bb450588353037c0",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_subscriptions",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackEntitlementGrant-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "052-ISSUER-TrackEntitlementGrant-INSERT.sql",
+      "source_sql_sha256": "7beb2aa63bf2502967ee9b249673de7d3432c7b55f8df6cd28851cdf80e548f6",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.track_entitlement_grants",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "user_id",
+          "subscription_id",
+          "entitlement_id",
+          "track",
+          "customer_profile_id",
+          "candidate_profile_id",
+          "professional_profile_id",
+          "status",
+          "value_type",
+          "boolean_value",
+          "int_value",
+          "decimal_value",
+          "string_value",
+          "json_value",
+          "starts_at",
+          "expires_at",
+          "revoked_at",
+          "revoke_reason",
+          "source_plan_id",
+          "source_event_id",
+          "created_at",
+          "updated_at",
+          "revision",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-TrackEntitlementGrant-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "053-ISSUER-TrackEntitlementGrant-UPDATE.sql",
+      "source_sql_sha256": "96d66f3502153bf708a519e8e59c95e0ddc0069ff5faf7f6b4c0cb844acd1ac3",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_entitlement_grants",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackEntitlementGrant-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "054-ISSUER-TrackEntitlementGrant-DELETE.sql",
+      "source_sql_sha256": "d56da0b7e527c97a976f9af4d0f5278434773985e24c3119e71c15336e5c7347",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_entitlement_grants",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackUsageEvent-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "055-ISSUER-TrackUsageEvent-INSERT.sql",
+      "source_sql_sha256": "3fb88040ecf55624319653642ebf2be1707cf7a462260b8758cba6850b4a6c98",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.track_usage_events",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "user_id",
+          "subscription_id",
+          "entitlement_grant_id",
+          "entitlement_id",
+          "track",
+          "type",
+          "customer_profile_id",
+          "candidate_profile_id",
+          "professional_profile_id",
+          "target_type",
+          "target_id",
+          "quantity",
+          "occurred_at",
+          "metadata",
+          "semantic_effect_key",
+          "source_revision",
+          "source_owner",
+          "source_id",
+          "accepted_at",
+          "period_start",
+          "period_end",
+          "effect_receipt_id",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-TrackUsageEvent-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "056-ISSUER-TrackUsageEvent-UPDATE.sql",
+      "source_sql_sha256": "86febdf7075dde63e0ce176ddba82d7575a8628e308c3754f9ec20df46863111",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_usage_events",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackUsageEvent-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "057-ISSUER-TrackUsageEvent-DELETE.sql",
+      "source_sql_sha256": "a9dab612d70a502ffe1a543f530fd6cbdc09551348a1fe0b1578fc237f527962",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_usage_events",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackUsageCounter-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "058-ISSUER-TrackUsageCounter-INSERT.sql",
+      "source_sql_sha256": "cbe686e2953c2e8df41bdc9b3f9c5d53e95cdccd5b84b86de1145e0cb2cb8efd",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.track_usage_counters",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "user_id",
+          "subscription_id",
+          "entitlement_grant_id",
+          "entitlement_id",
+          "track",
+          "period",
+          "customer_profile_id",
+          "candidate_profile_id",
+          "professional_profile_id",
+          "period_start",
+          "period_end",
+          "used_quantity",
+          "limit_quantity",
+          "updated_at",
+          "created_at",
+          "revision",
+          "source_revision",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-TrackUsageCounter-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "059-ISSUER-TrackUsageCounter-UPDATE.sql",
+      "source_sql_sha256": "f3988abe81935c43bd7e326c4235bb6b146aeaf4d96507b7218b66af1c7d4a01",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_usage_counters",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackUsageCounter-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "060-ISSUER-TrackUsageCounter-DELETE.sql",
+      "source_sql_sha256": "aa4cea60973293a32e354cfa145a7b2f4424aea350a2a775fea4b7b596178c54",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_usage_counters",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackSubscriptionEvent-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "061-ISSUER-TrackSubscriptionEvent-INSERT.sql",
+      "source_sql_sha256": "2ff788150abea2996b4fd5ea1c4c684aa5a3fd91d9d0faf02716f7c05db8e132",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.track_subscription_events",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "subscription_id",
+          "plan_id",
+          "user_id",
+          "name",
+          "from_status",
+          "to_status",
+          "provider",
+          "provider_event_id",
+          "metadata",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-TrackSubscriptionEvent-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "062-ISSUER-TrackSubscriptionEvent-UPDATE.sql",
+      "source_sql_sha256": "6844136f5900f80f06901fbb01e78d5de379c3c68fdf17988ce2f7aea3b734e1",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_subscription_events",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackSubscriptionEvent-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "063-ISSUER-TrackSubscriptionEvent-DELETE.sql",
+      "source_sql_sha256": "630c3e71e3815c8d3fec80465d7ca4516b3f86b870ec025e66c5b5655c37d919",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_subscription_events",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-ConsentContentRevision-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "064-ISSUER-ConsentContentRevision-INSERT.sql",
+      "source_sql_sha256": "3b38bd2b0f60e1e825b12ad232f8ef5a43fd098a6d8ae5bddd31a246ccb3a841",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.consent_content_revision",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "type",
+          "version",
+          "locale",
+          "jurisdiction_scope",
+          "content_text",
+          "content_hash",
+          "review_state",
+          "legal_approval_ref",
+          "effective_from",
+          "effective_until",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-ConsentContentRevision-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "065-ISSUER-ConsentContentRevision-UPDATE.sql",
+      "source_sql_sha256": "ce9507ea0b533ca0272f569d554f8a83756a7251a363667b5b86c77c9572247c",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.consent_content_revision",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-ConsentContentRevision-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "066-ISSUER-ConsentContentRevision-DELETE.sql",
+      "source_sql_sha256": "06dd379118cd6aca522c8b3645fb41595b8ed0ade1ddd356690178cd472cbbc8",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.consent_content_revision",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-ConsentPresentation-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "067-ISSUER-ConsentPresentation-INSERT.sql",
+      "source_sql_sha256": "bccdf3cb494b70918ee037e690c96db53ecf8fbbd41e8b557ddfc4f83b57ca2c",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.consent_presentation",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "content_revision_id",
+          "user_id",
+          "action_owner",
+          "action",
+          "render_version",
+          "rendered_text",
+          "rendered_hash",
+          "context_owner",
+          "context_kind",
+          "context_id",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-ConsentPresentation-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "068-ISSUER-ConsentPresentation-UPDATE.sql",
+      "source_sql_sha256": "3fac6a8927b688e8dc03f39d9021d8d06accaf53083a4bb69eb141196c29ef18",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.consent_presentation",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-ConsentPresentation-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "069-ISSUER-ConsentPresentation-DELETE.sql",
+      "source_sql_sha256": "767fbe0b8181e6e2d905bea1957438ef9066d5bb308b44616089959208ae42ad",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.consent_presentation",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-ConsentDisposition-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "070-ISSUER-ConsentDisposition-INSERT.sql",
+      "source_sql_sha256": "70646b04616ffb1aeac09f132a3550cda20825ba9e132ab0fbaf9ab0008239dc",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.consent_disposition",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "proof_id",
+          "user_id",
+          "presentation_id",
+          "kind",
+          "semantic_key",
+          "fingerprint",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-ConsentDisposition-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "071-ISSUER-ConsentDisposition-UPDATE.sql",
+      "source_sql_sha256": "064b394d21c615f15f534fcb425119039c5a844cad4894d36913583f0539a6f2",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.consent_disposition",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-ConsentDisposition-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "072-ISSUER-ConsentDisposition-DELETE.sql",
+      "source_sql_sha256": "25b9dccebba09b761d262d64218ff8117e97af4be8f134106862982824131b3d",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.consent_disposition",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeCommandReceipt-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "073-ISSUER-RuntimeCommandReceipt-INSERT.sql",
+      "source_sql_sha256": "d4e37bbfc0fbd210f7d768dad3ca1c2d1543e05163db33d753f96bbef1cab6d3",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "platform.runtime_command_receipt",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "owner_module_id",
+          "operation",
+          "subject_scope",
+          "semantic_key",
+          "fingerprint",
+          "state",
+          "source_revision",
+          "result_schema_id",
+          "result_schema_version",
+          "result_digest",
+          "result_body",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeCommandReceipt-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "074-ISSUER-RuntimeCommandReceipt-UPDATE.sql",
+      "source_sql_sha256": "46e107644c7e958e8b9b9e4cd3b37c0d3d39a8b70f62c921c245f1e1d6c1c94a",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.runtime_command_receipt",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeCommandReceipt-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "075-ISSUER-RuntimeCommandReceipt-DELETE.sql",
+      "source_sql_sha256": "9979d5c7d61d545954ee06d13be162b0bc4b1f59b498404f0cd73521a386ba31",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.runtime_command_receipt",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeOutboxMessage-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "076-ISSUER-RuntimeOutboxMessage-INSERT.sql",
+      "source_sql_sha256": "5bc30fd6549b4c69a3746458caf5507603e8c73bb33730708e04298e5e23f2fd",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "platform.runtime_outbox_message",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "command_receipt_id",
+          "kind",
+          "producer_owner",
+          "aggregate_kind",
+          "aggregate_id",
+          "source_revision",
+          "source_generation",
+          "ordinal",
+          "name",
+          "schema_version",
+          "payload_schema_id",
+          "payload_hash",
+          "payload",
+          "correlation_id",
+          "causation_id",
+          "correction_of_id",
+          "occurred_at",
+          "effective_at",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeOutboxMessage-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "077-ISSUER-RuntimeOutboxMessage-UPDATE.sql",
+      "source_sql_sha256": "10deabe335b8d79a29936b8133c8c29b905036af72ce7cfe681aad1dde1d18f5",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.runtime_outbox_message",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeOutboxMessage-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "078-ISSUER-RuntimeOutboxMessage-DELETE.sql",
+      "source_sql_sha256": "86d6cbdacbf8d8125520e78647d0a91162b9d0edbec6ce1afe737ae4c19a35dc",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.runtime_outbox_message",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeEffectReceipt-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "079-ISSUER-RuntimeEffectReceipt-INSERT.sql",
+      "source_sql_sha256": "d0a2192b480167c44f686abad93d52775ce0623e7179b649217069e57cdf3f70",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "platform.runtime_effect_receipt",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "command_receipt_id",
+          "owner_module_id",
+          "operation",
+          "subject_scope",
+          "semantic_effect_key",
+          "fingerprint",
+          "state",
+          "source_revision",
+          "fence",
+          "result_schema_id",
+          "result_hash",
+          "committed_at",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeEffectReceipt-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "080-ISSUER-RuntimeEffectReceipt-UPDATE.sql",
+      "source_sql_sha256": "b873f5a06ef189b457034b76eb2d4a8335e1e0e6872959eb50ecf8cb69db02e3",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.runtime_effect_receipt",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeEffectReceipt-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "081-ISSUER-RuntimeEffectReceipt-DELETE.sql",
+      "source_sql_sha256": "b391e7a6ff341058ad3fee4141ae96982341e95c68d5658303471a570ab95a7f",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.runtime_effect_receipt",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeWorkItem-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "082-ISSUER-RuntimeWorkItem-INSERT.sql",
+      "source_sql_sha256": "fc57b2669db776fb18773bd4c6f4bf0ed45597f7f565d495faf5925532af6661",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "platform.runtime_work_item",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "outbox_message_id",
+          "handler_name",
+          "semantic_work_key",
+          "state",
+          "fence",
+          "lease_token_hash",
+          "lease_expires_at",
+          "attempt_count",
+          "next_attempt_at",
+          "effect_receipt_id",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeWorkItem-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "083-ISSUER-RuntimeWorkItem-UPDATE.sql",
+      "source_sql_sha256": "2acbeb07d4bef0e3c2f12a15136bc7a3b2d36ea85da23f1d8afc49a5e414fb1a",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.runtime_work_item",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeWorkItem-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "084-ISSUER-RuntimeWorkItem-DELETE.sql",
+      "source_sql_sha256": "b6910a84454753946a6a6cb67785a438d45a5925331f8c5c4caefcb58e980526",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.runtime_work_item",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeAttempt-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "085-ISSUER-RuntimeAttempt-INSERT.sql",
+      "source_sql_sha256": "a78b0165d30824acb619504d9d963773c3ca3f6fb39a959db8d037aecd5a759d",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "platform.runtime_attempt",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "work_item_id",
+          "attempt_number",
+          "fence",
+          "worker_id",
+          "result",
+          "reason_code",
+          "started_at",
+          "finished_at",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeAttempt-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "086-ISSUER-RuntimeAttempt-UPDATE.sql",
+      "source_sql_sha256": "b66c9896fa820eae75d65c4796533fb6e1f79f27b6852ce0a2f39c50809e4783",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.runtime_attempt",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeAttempt-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "087-ISSUER-RuntimeAttempt-DELETE.sql",
+      "source_sql_sha256": "3f9b42de5f56cf43ef57a8cebfbdcaf6e60102217157f4addc44cf146cc5dfe7",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.runtime_attempt",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeInboxReceipt-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "088-ISSUER-RuntimeInboxReceipt-INSERT.sql",
+      "source_sql_sha256": "02ecfbc46cdd841335cc340b90375e17be3ceddde0afab5b9923662d573302c1",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "platform.runtime_inbox_receipt",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "outbox_message_id",
+          "consumer_owner",
+          "handler_name",
+          "payload_hash",
+          "effect_receipt_id",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeInboxReceipt-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "089-ISSUER-RuntimeInboxReceipt-UPDATE.sql",
+      "source_sql_sha256": "39b41f853cf0f5ab560049fbb41275545f87e4b12ef1cfcafd79cc2172cd0ce9",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.runtime_inbox_receipt",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeInboxReceipt-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "090-ISSUER-RuntimeInboxReceipt-DELETE.sql",
+      "source_sql_sha256": "be6871adf8adacaf77b7c2dd01a9010d1e116f978ba5f09f5a79592403eb9eb8",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.runtime_inbox_receipt",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeReservation-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "091-ISSUER-RuntimeReservation-INSERT.sql",
+      "source_sql_sha256": "bebc3845c6e555993417d83390bd41bb243cba2812b2121388c6baa95db2968c",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "platform.runtime_reservation",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "command_receipt_id",
+          "owner_module_id",
+          "resource_kind",
+          "resource_key",
+          "semantic_key",
+          "quantity",
+          "state",
+          "fence",
+          "effect_receipt_id",
+          "expires_at",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeReservation-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "092-ISSUER-RuntimeReservation-UPDATE.sql",
+      "source_sql_sha256": "e5e30cd97dc0b43d0acb062627319022b7357c5c5fcc94ebd43ac37b3b4ff548",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.runtime_reservation",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-RuntimeReservation-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "093-ISSUER-RuntimeReservation-DELETE.sql",
+      "source_sql_sha256": "af021ab67675f86d2d5fee500540093deb98f5a6084d5d8abe2b7145b72b3d87",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.runtime_reservation",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-OwnerMutationEvidence-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "094-ISSUER-OwnerMutationEvidence-INSERT.sql",
+      "source_sql_sha256": "09f6d1e2bc8ee35543cd75b2d60d7c931cd8476217f304d12fae63d48866f2b7",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "platform.owner_mutation_evidence",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "command_receipt_id",
+          "owner_module_id",
+          "aggregate_kind",
+          "aggregate_id",
+          "previous_revision",
+          "committed_revision",
+          "action",
+          "decision_ref",
+          "evidence_schema_id",
+          "evidence_schema_version",
+          "evidence_digest",
+          "created_at",
+          "evidence_body",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-OwnerMutationEvidence-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "095-ISSUER-OwnerMutationEvidence-UPDATE.sql",
+      "source_sql_sha256": "be3534f269c63f68da8a88e5e0cdb12c80b22d6d9bd53cff34a222c27840d253",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.owner_mutation_evidence",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-OwnerMutationEvidence-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "096-ISSUER-OwnerMutationEvidence-DELETE.sql",
+      "source_sql_sha256": "d3cc790cebf5686f2789ce745c0efa22d6f7c98022889bd7c73a55613d2c7c45",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.owner_mutation_evidence",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-CustomerProfileLifecycleEvent-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "097-ISSUER-CustomerProfileLifecycleEvent-INSERT.sql",
+      "source_sql_sha256": "e04a002ad2c34be1e34031827ed389359bef1b7d08fecade0a25fdad88bcb4d8",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.customer_profile_lifecycle_event",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "customer_profile_id",
+          "command_receipt_id",
+          "source_revision",
+          "from_status",
+          "to_status",
+          "name",
+          "actor_user_id",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-CustomerProfileLifecycleEvent-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "098-ISSUER-CustomerProfileLifecycleEvent-UPDATE.sql",
+      "source_sql_sha256": "49118a0b4033a0dbdd82bef35d9ddbca5581d5fed6fc81e72e468ac64ab1673e",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.customer_profile_lifecycle_event",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-CustomerProfileLifecycleEvent-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "099-ISSUER-CustomerProfileLifecycleEvent-DELETE.sql",
+      "source_sql_sha256": "ffb15c530e56a24c93af2294e378d312170e305f809517151d745262f370ed9e",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.customer_profile_lifecycle_event",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackBaseSelection-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "100-ISSUER-TrackBaseSelection-INSERT.sql",
+      "source_sql_sha256": "7cff715239af850577f47fac1957c8f7b3e07e4c572ba9bd3ab5bc9c088451c2",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.track_base_selection",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "user_id",
+          "track",
+          "customer_profile_id",
+          "candidate_profile_id",
+          "professional_profile_id",
+          "subscription_id",
+          "revision",
+          "source_generation",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-TrackBaseSelection-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "101-ISSUER-TrackBaseSelection-UPDATE.sql",
+      "source_sql_sha256": "3db26696bc39e9d8dfbdcaafe3114b8e6c9124e2ee2e508f4305fb57c17040a3",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_base_selection",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackBaseSelection-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "102-ISSUER-TrackBaseSelection-DELETE.sql",
+      "source_sql_sha256": "499b31f2f416eae72974e8f44c874b35109e83c1b9aaa002b57eee9ae7de94c0",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_base_selection",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackEnrollmentReceipt-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "103-ISSUER-TrackEnrollmentReceipt-INSERT.sql",
+      "source_sql_sha256": "26a26b68d25a1fdfe55721d936c56a7ce095a07813a73f4465bb7bff716249c6",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.track_enrollment_receipt",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "user_id",
+          "track",
+          "profile_id",
+          "source_owner",
+          "source_creation_revision",
+          "selection_id",
+          "selection_revision",
+          "semantic_key",
+          "fingerprint",
+          "result_code",
+          "effect_receipt_id",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-TrackEnrollmentReceipt-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "104-ISSUER-TrackEnrollmentReceipt-UPDATE.sql",
+      "source_sql_sha256": "199d45fd30d9118c5dc4f81ed0653236be5c63d32094c00c2cdabf1cb90a732d",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_enrollment_receipt",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackEnrollmentReceipt-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "105-ISSUER-TrackEnrollmentReceipt-DELETE.sql",
+      "source_sql_sha256": "2e3a02213b7e45dfacffb812c4ba66a24bb0153456e3fdd0b0da4f1ee58fd60d",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_enrollment_receipt",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackUsageReservation-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "106-ISSUER-TrackUsageReservation-INSERT.sql",
+      "source_sql_sha256": "7ad9885e1a020d0fbb6b8716a4c82e6afbb376173f4781702be3e443ed499805",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.track_usage_reservation",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "user_id",
+          "entitlement_id",
+          "period_start",
+          "period_end",
+          "quantity",
+          "semantic_key",
+          "reservation_id",
+          "accepted_source_owner",
+          "accepted_source_id",
+          "accepted_at",
+          "created_at",
+          "revision",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-TrackUsageReservation-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "107-ISSUER-TrackUsageReservation-UPDATE.sql",
+      "source_sql_sha256": "41235f772213f7a9db126139ffc40a581f329c9a1c6809ad023004761c21cce1",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_usage_reservation",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-TrackUsageReservation-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "108-ISSUER-TrackUsageReservation-DELETE.sql",
+      "source_sql_sha256": "aaced57a3e726f304f77768cbdc2bcb66ac6e06a813ea154bc89eba113c840e4",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.track_usage_reservation",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-PrivacyTargetInstruction-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "109-ISSUER-PrivacyTargetInstruction-INSERT.sql",
+      "source_sql_sha256": "6b8741a896be5bf7c6aed3021adbc219424848b5c2b41bd0da5073d2a5c253f3",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.privacy_target_instruction",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "privacy_request_id",
+          "owner_module_id",
+          "target_kind",
+          "source_id",
+          "source_revision",
+          "action",
+          "generation",
+          "field_map_version",
+          "executor_version",
+          "descriptor_hash",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-PrivacyTargetInstruction-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "110-ISSUER-PrivacyTargetInstruction-UPDATE.sql",
+      "source_sql_sha256": "7f66a4cef105257ebd6453db285c6d4a29dcd7f6aadce2887ea8dd524d53df0e",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.privacy_target_instruction",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-PrivacyTargetInstruction-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "111-ISSUER-PrivacyTargetInstruction-DELETE.sql",
+      "source_sql_sha256": "419e6b5d6af2cbf0d56966a5ce3b9375d44556fe6cafa11a37eb93c2cc839593",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.privacy_target_instruction",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-PrivacyOwnerReceipt-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "112-ISSUER-PrivacyOwnerReceipt-INSERT.sql",
+      "source_sql_sha256": "3974ff5824a32464abec619e1b32c1c4207daf38bfc0dd4e2d90401cc4073a08",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.privacy_owner_receipt",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "instruction_id",
+          "generation",
+          "disposition",
+          "execution_receipt_ref",
+          "legal_basis_ref",
+          "artifact_digest",
+          "artifact_version",
+          "result_schema_version",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-PrivacyOwnerReceipt-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "113-ISSUER-PrivacyOwnerReceipt-UPDATE.sql",
+      "source_sql_sha256": "a086a2b292e25e4f29f4233a2cd6b5dc71152862c34d3f411d2a0a6915896649",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.privacy_owner_receipt",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-PrivacyOwnerReceipt-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "114-ISSUER-PrivacyOwnerReceipt-DELETE.sql",
+      "source_sql_sha256": "661397a2b839e7178aa3cd7bc80cd8ede685695f776d09046bf7239604a1423f",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.privacy_owner_receipt",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-PrivacyRestoreMarker-INSERT",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "115-ISSUER-PrivacyRestoreMarker-INSERT.sql",
+      "source_sql_sha256": "b40ffdf4aae1fa1571e0a52d709d07778236912b7891daeb81304de89536d8e9",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "app.privacy_restore_marker",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "owner_module_id",
+          "target_kind",
+          "source_id",
+          "generation",
+          "action",
+          "source_receipt_id",
+          "restore_point_ref",
+          "applied_at",
+          "created_at",
+          "revision",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-PrivacyRestoreMarker-UPDATE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "116-ISSUER-PrivacyRestoreMarker-UPDATE.sql",
+      "source_sql_sha256": "9e6221ae72f13ca44a409a7fca60d55e7c1e7228dc9708de19fe6265c217c238",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.privacy_restore_marker",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-PrivacyRestoreMarker-DELETE",
+      "family": "ISSUER_BUSINESS_DML",
+      "source_file": "117-ISSUER-PrivacyRestoreMarker-DELETE.sql",
+      "source_sql_sha256": "f4ceeae70e56c247307ea6425fcae1b86ed2eb3501d6aa6a533840016e4bc115",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "app.privacy_restore_marker",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ROLE-wa_app_runtime-wa_context_issuer",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "118-ROLE-wa_app_runtime-wa_context_issuer.sql",
+      "source_sql_sha256": "88dc3dd98878527f8ed6f6bd5d3562ee0bca9689496c5a3a5ed02f824a80ae5c",
+      "profile": "ROLE_SET",
+      "requirement": {
+        "target": "wa_context_issuer"
+      }
+    },
+    {
+      "case": "ROLE-wa_app_runtime-wa_private_helper_owner",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "119-ROLE-wa_app_runtime-wa_private_helper_owner.sql",
+      "source_sql_sha256": "4f4aa72d8e1b5921ef94d3b5ac65f26ff34e4a682a29bff7dd2031af795bb6f4",
+      "profile": "ROLE_SET",
+      "requirement": {
+        "target": "wa_private_helper_owner"
+      }
+    },
+    {
+      "case": "ROLE-wa_app_runtime-wa_customer_verifier",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "120-ROLE-wa_app_runtime-wa_customer_verifier.sql",
+      "source_sql_sha256": "0534592a9753597999ee48f3ad7e69b69069d5a5c23d7d0810eadc7556091712",
+      "profile": "ROLE_SET",
+      "requirement": {
+        "target": "wa_customer_verifier"
+      }
+    },
+    {
+      "case": "ROLE-wa_app_runtime-wa_track_verifier",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "121-ROLE-wa_app_runtime-wa_track_verifier.sql",
+      "source_sql_sha256": "c68cd1f3ea2072acc8506dda8f6ccfdbfc131aa43b57ee510c7c07b5f457d81a",
+      "profile": "ROLE_SET",
+      "requirement": {
+        "target": "wa_track_verifier"
+      }
+    },
+    {
+      "case": "ROLE-wa_app_runtime-wa_schema_owner",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "122-ROLE-wa_app_runtime-wa_schema_owner.sql",
+      "source_sql_sha256": "7058a182d963d009a5b1ccd9f354813854be6a49ab664486cf811936cc0df59d",
+      "profile": "ROLE_SET",
+      "requirement": {
+        "target": "wa_schema_owner"
+      }
+    },
+    {
+      "case": "ROLE-wa_app_runtime-wa_migrator",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "123-ROLE-wa_app_runtime-wa_migrator.sql",
+      "source_sql_sha256": "302aa0e3a673db8312077f3feb7797c1e6a26ad370a8aac0ac0a310b02931f68",
+      "profile": "ROLE_SET",
+      "requirement": {
+        "target": "wa_migrator"
+      }
+    },
+    {
+      "case": "ROLE-wa_app_runtime-wa_identity_service_authority",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "124-ROLE-wa_app_runtime-wa_identity_service_authority.sql",
+      "source_sql_sha256": "01bb0a150029375bceeddd934315e3f99d760bbb9f40511cf5c73f3c0d272980",
+      "profile": "ROLE_SET",
+      "requirement": {
+        "target": "wa_identity_service_authority"
+      }
+    },
+    {
+      "case": "GRANT-wa_app_runtime-SELECT",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "125-GRANT-wa_app_runtime-SELECT.sql",
+      "source_sql_sha256": "01625e359233b87c5cb8122da5e9f0c9eef35628516c87a25e8fac3081898169",
+      "profile": "COLUMN_REFERENCING_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "SELECT",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "GRANT-wa_app_runtime-INSERT",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "126-GRANT-wa_app_runtime-INSERT.sql",
+      "source_sql_sha256": "1c81564d8693c5b5dca82e1d3ea21b1ddf06e25c1ce7a379918ab6aa34d6cbb4",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "token_hash",
+          "issuer_service",
+          "principal_user_id",
+          "service_principal",
+          "database_login_role",
+          "owner_module_id",
+          "action",
+          "purpose",
+          "target_kind",
+          "target_id",
+          "allowed_fields",
+          "policy_version",
+          "security_generation",
+          "source_generation",
+          "backend_pid",
+          "transaction_id",
+          "expires_at",
+          "revoked_at",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "GRANT-wa_app_runtime-UPDATE",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "127-GRANT-wa_app_runtime-UPDATE.sql",
+      "source_sql_sha256": "49882236b6c0c87ab02a63986c3d0efe54cc28b1cff4131a400c04b9915cdb69",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "GRANT-wa_app_runtime-DELETE",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "128-GRANT-wa_app_runtime-DELETE.sql",
+      "source_sql_sha256": "5a2c9da2ef52decbbd40d4ea6edaca9e56e81e60f986ce09ec42695d4fc987b2",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "CREATE-wa_app_runtime-app",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "129-CREATE-wa_app_runtime-app.sql",
+      "source_sql_sha256": "7f501d14dbcc0400ed3d78a9842092ffc313d46c8fb85fad0a7f1f0beb7fb310",
+      "profile": "SCHEMA_CREATE",
+      "requirement": {
+        "schema": "app"
+      }
+    },
+    {
+      "case": "CREATE-wa_app_runtime-platform",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "130-CREATE-wa_app_runtime-platform.sql",
+      "source_sql_sha256": "c629879fb15b7fdaecfb41b8a3f28d43685fd50c5e069e38d3dbcf7f59fbb2d2",
+      "profile": "SCHEMA_CREATE",
+      "requirement": {
+        "schema": "platform"
+      }
+    },
+    {
+      "case": "CREATE-wa_app_runtime-platform_private",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "131-CREATE-wa_app_runtime-platform_private.sql",
+      "source_sql_sha256": "e4bc54bfbf715687bfbf2632d32c386bbc70e9aaf5774a06a0cc71c24029847d",
+      "profile": "SCHEMA_CREATE",
+      "requirement": {
+        "schema": "platform_private"
+      }
+    },
+    {
+      "case": "CREATE-wa_app_runtime-public",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "132-CREATE-wa_app_runtime-public.sql",
+      "source_sql_sha256": "58db35534306fba3866397199cf5c8fa92c2b441ec3020a932d92552352d0c14",
+      "profile": "SCHEMA_CREATE",
+      "requirement": {
+        "schema": "public"
+      }
+    },
+    {
+      "case": "TRUNCATE-wa_app_runtime-platform.database_action_grant",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "133-TRUNCATE-wa_app_runtime-platform.database_action_grant.sql",
+      "source_sql_sha256": "2c284168a0a1afedfdf88f03b26077c62372041b8479fc99865e02c778f39a31",
+      "profile": "MANDATORY_TABLE_TRUNCATE",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "TRUNCATE",
+        "write_columns": [],
+        "read_columns": [],
+        "mandatory_table_privileges": [
+          "TRUNCATE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "TRUNCATE-wa_app_runtime-app.customer_profiles",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "134-TRUNCATE-wa_app_runtime-app.customer_profiles.sql",
+      "source_sql_sha256": "2a39eeaae604941b8ecdb88cf31c730c0599cc291fb824664a62342b4a5c856e",
+      "profile": "MANDATORY_TABLE_TRUNCATE",
+      "requirement": {
+        "table": "app.customer_profiles",
+        "operation": "TRUNCATE",
+        "write_columns": [],
+        "read_columns": [],
+        "mandatory_table_privileges": [
+          "TRUNCATE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ROLE-wa_worker-wa_context_issuer",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "135-ROLE-wa_worker-wa_context_issuer.sql",
+      "source_sql_sha256": "88dc3dd98878527f8ed6f6bd5d3562ee0bca9689496c5a3a5ed02f824a80ae5c",
+      "profile": "ROLE_SET",
+      "requirement": {
+        "target": "wa_context_issuer"
+      }
+    },
+    {
+      "case": "ROLE-wa_worker-wa_private_helper_owner",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "136-ROLE-wa_worker-wa_private_helper_owner.sql",
+      "source_sql_sha256": "4f4aa72d8e1b5921ef94d3b5ac65f26ff34e4a682a29bff7dd2031af795bb6f4",
+      "profile": "ROLE_SET",
+      "requirement": {
+        "target": "wa_private_helper_owner"
+      }
+    },
+    {
+      "case": "ROLE-wa_worker-wa_customer_verifier",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "137-ROLE-wa_worker-wa_customer_verifier.sql",
+      "source_sql_sha256": "0534592a9753597999ee48f3ad7e69b69069d5a5c23d7d0810eadc7556091712",
+      "profile": "ROLE_SET",
+      "requirement": {
+        "target": "wa_customer_verifier"
+      }
+    },
+    {
+      "case": "ROLE-wa_worker-wa_track_verifier",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "138-ROLE-wa_worker-wa_track_verifier.sql",
+      "source_sql_sha256": "c68cd1f3ea2072acc8506dda8f6ccfdbfc131aa43b57ee510c7c07b5f457d81a",
+      "profile": "ROLE_SET",
+      "requirement": {
+        "target": "wa_track_verifier"
+      }
+    },
+    {
+      "case": "ROLE-wa_worker-wa_schema_owner",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "139-ROLE-wa_worker-wa_schema_owner.sql",
+      "source_sql_sha256": "7058a182d963d009a5b1ccd9f354813854be6a49ab664486cf811936cc0df59d",
+      "profile": "ROLE_SET",
+      "requirement": {
+        "target": "wa_schema_owner"
+      }
+    },
+    {
+      "case": "ROLE-wa_worker-wa_migrator",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "140-ROLE-wa_worker-wa_migrator.sql",
+      "source_sql_sha256": "302aa0e3a673db8312077f3feb7797c1e6a26ad370a8aac0ac0a310b02931f68",
+      "profile": "ROLE_SET",
+      "requirement": {
+        "target": "wa_migrator"
+      }
+    },
+    {
+      "case": "ROLE-wa_worker-wa_identity_service_authority",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "141-ROLE-wa_worker-wa_identity_service_authority.sql",
+      "source_sql_sha256": "01bb0a150029375bceeddd934315e3f99d760bbb9f40511cf5c73f3c0d272980",
+      "profile": "ROLE_SET",
+      "requirement": {
+        "target": "wa_identity_service_authority"
+      }
+    },
+    {
+      "case": "GRANT-wa_worker-SELECT",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "142-GRANT-wa_worker-SELECT.sql",
+      "source_sql_sha256": "01625e359233b87c5cb8122da5e9f0c9eef35628516c87a25e8fac3081898169",
+      "profile": "COLUMN_REFERENCING_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "SELECT",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "GRANT-wa_worker-INSERT",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "143-GRANT-wa_worker-INSERT.sql",
+      "source_sql_sha256": "1c81564d8693c5b5dca82e1d3ea21b1ddf06e25c1ce7a379918ab6aa34d6cbb4",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "token_hash",
+          "issuer_service",
+          "principal_user_id",
+          "service_principal",
+          "database_login_role",
+          "owner_module_id",
+          "action",
+          "purpose",
+          "target_kind",
+          "target_id",
+          "allowed_fields",
+          "policy_version",
+          "security_generation",
+          "source_generation",
+          "backend_pid",
+          "transaction_id",
+          "expires_at",
+          "revoked_at",
+          "created_at",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "GRANT-wa_worker-UPDATE",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "144-GRANT-wa_worker-UPDATE.sql",
+      "source_sql_sha256": "49882236b6c0c87ab02a63986c3d0efe54cc28b1cff4131a400c04b9915cdb69",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "GRANT-wa_worker-DELETE",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "145-GRANT-wa_worker-DELETE.sql",
+      "source_sql_sha256": "5a2c9da2ef52decbbd40d4ea6edaca9e56e81e60f986ce09ec42695d4fc987b2",
+      "profile": "MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "DELETE",
+        "write_columns": [],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [
+          "DELETE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "CREATE-wa_worker-app",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "146-CREATE-wa_worker-app.sql",
+      "source_sql_sha256": "7f501d14dbcc0400ed3d78a9842092ffc313d46c8fb85fad0a7f1f0beb7fb310",
+      "profile": "SCHEMA_CREATE",
+      "requirement": {
+        "schema": "app"
+      }
+    },
+    {
+      "case": "CREATE-wa_worker-platform",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "147-CREATE-wa_worker-platform.sql",
+      "source_sql_sha256": "c629879fb15b7fdaecfb41b8a3f28d43685fd50c5e069e38d3dbcf7f59fbb2d2",
+      "profile": "SCHEMA_CREATE",
+      "requirement": {
+        "schema": "platform"
+      }
+    },
+    {
+      "case": "CREATE-wa_worker-platform_private",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "148-CREATE-wa_worker-platform_private.sql",
+      "source_sql_sha256": "e4bc54bfbf715687bfbf2632d32c386bbc70e9aaf5774a06a0cc71c24029847d",
+      "profile": "SCHEMA_CREATE",
+      "requirement": {
+        "schema": "platform_private"
+      }
+    },
+    {
+      "case": "CREATE-wa_worker-public",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "149-CREATE-wa_worker-public.sql",
+      "source_sql_sha256": "58db35534306fba3866397199cf5c8fa92c2b441ec3020a932d92552352d0c14",
+      "profile": "SCHEMA_CREATE",
+      "requirement": {
+        "schema": "public"
+      }
+    },
+    {
+      "case": "TRUNCATE-wa_worker-platform.database_action_grant",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "150-TRUNCATE-wa_worker-platform.database_action_grant.sql",
+      "source_sql_sha256": "2c284168a0a1afedfdf88f03b26077c62372041b8479fc99865e02c778f39a31",
+      "profile": "MANDATORY_TABLE_TRUNCATE",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "TRUNCATE",
+        "write_columns": [],
+        "read_columns": [],
+        "mandatory_table_privileges": [
+          "TRUNCATE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "TRUNCATE-wa_worker-app.customer_profiles",
+      "family": "RUNTIME_ESCALATION",
+      "source_file": "151-TRUNCATE-wa_worker-app.customer_profiles.sql",
+      "source_sql_sha256": "2a39eeaae604941b8ecdb88cf31c730c0599cc291fb824664a62342b4a5c856e",
+      "profile": "MANDATORY_TABLE_TRUNCATE",
+      "requirement": {
+        "table": "app.customer_profiles",
+        "operation": "TRUNCATE",
+        "write_columns": [],
+        "read_columns": [],
+        "mandatory_table_privileges": [
+          "TRUNCATE"
+        ],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "PROVIDER-SCHEMA-anon-app",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "152-PROVIDER-SCHEMA-anon-app.sql",
+      "source_sql_sha256": "6e89f7a24ba6613fe78b2665e815116bd11b50bc8b9e53e278c650ee5db4ab55",
+      "profile": "PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN",
+      "requirement": {
+        "table": "app.users",
+        "SELECT_any_actual_column": true
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-SCHEMA-anon-platform",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "153-PROVIDER-SCHEMA-anon-platform.sql",
+      "source_sql_sha256": "9d3e1ff873a76576797a79c182dde3365128bdbc0a9eb02c489a4a9fba851cb4",
+      "profile": "PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "SELECT_any_actual_column": true
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-SCHEMA-anon-platform_private",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "154-PROVIDER-SCHEMA-anon-platform_private.sql",
+      "source_sql_sha256": "98b6dbfa5a9ed661e3a9cd016a0f76d651231264dad23bae387e8699299e6597",
+      "profile": "PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN",
+      "requirement": {
+        "table": "platform_private.identity_service_authorization",
+        "SELECT_any_actual_column": true
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-EXEC-anon-helper",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "155-PROVIDER-EXEC-anon-helper.sql",
+      "source_sql_sha256": "1b956dd7350a75015640322aea14bdb695472fc447809a634b832f744953eaf8",
+      "profile": "PROVIDER_SCHEMA_ONLY_FUNCTION_CALL",
+      "requirement": {
+        "actual_function_name": "platform_private.bind_request_context"
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-EXEC-anon-customer",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "156-PROVIDER-EXEC-anon-customer.sql",
+      "source_sql_sha256": "31b52e01291d016564d173645d728da09f90170ce7d6d2c3a9bb4d9344afad85",
+      "profile": "PROVIDER_SCHEMA_ONLY_FUNCTION_CALL",
+      "requirement": {
+        "actual_function_name": "platform_private.customer_current_for_track"
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-EXEC-anon-track",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "157-PROVIDER-EXEC-anon-track.sql",
+      "source_sql_sha256": "efcdc26695c125d5bfe3e35b9574f12e67a5d4b8387474be402a8dc70fe11ef1",
+      "profile": "PROVIDER_SCHEMA_ONLY_FUNCTION_CALL",
+      "requirement": {
+        "actual_function_name": "platform_private.worker_lease_valid"
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-SCHEMA-authenticated-app",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "158-PROVIDER-SCHEMA-authenticated-app.sql",
+      "source_sql_sha256": "6e89f7a24ba6613fe78b2665e815116bd11b50bc8b9e53e278c650ee5db4ab55",
+      "profile": "PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN",
+      "requirement": {
+        "table": "app.users",
+        "SELECT_any_actual_column": true
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-SCHEMA-authenticated-platform",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "159-PROVIDER-SCHEMA-authenticated-platform.sql",
+      "source_sql_sha256": "9d3e1ff873a76576797a79c182dde3365128bdbc0a9eb02c489a4a9fba851cb4",
+      "profile": "PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "SELECT_any_actual_column": true
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-SCHEMA-authenticated-platform_private",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "160-PROVIDER-SCHEMA-authenticated-platform_private.sql",
+      "source_sql_sha256": "98b6dbfa5a9ed661e3a9cd016a0f76d651231264dad23bae387e8699299e6597",
+      "profile": "PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN",
+      "requirement": {
+        "table": "platform_private.identity_service_authorization",
+        "SELECT_any_actual_column": true
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-EXEC-authenticated-helper",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "161-PROVIDER-EXEC-authenticated-helper.sql",
+      "source_sql_sha256": "1b956dd7350a75015640322aea14bdb695472fc447809a634b832f744953eaf8",
+      "profile": "PROVIDER_SCHEMA_ONLY_FUNCTION_CALL",
+      "requirement": {
+        "actual_function_name": "platform_private.bind_request_context"
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-EXEC-authenticated-customer",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "162-PROVIDER-EXEC-authenticated-customer.sql",
+      "source_sql_sha256": "31b52e01291d016564d173645d728da09f90170ce7d6d2c3a9bb4d9344afad85",
+      "profile": "PROVIDER_SCHEMA_ONLY_FUNCTION_CALL",
+      "requirement": {
+        "actual_function_name": "platform_private.customer_current_for_track"
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-EXEC-authenticated-track",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "163-PROVIDER-EXEC-authenticated-track.sql",
+      "source_sql_sha256": "efcdc26695c125d5bfe3e35b9574f12e67a5d4b8387474be402a8dc70fe11ef1",
+      "profile": "PROVIDER_SCHEMA_ONLY_FUNCTION_CALL",
+      "requirement": {
+        "actual_function_name": "platform_private.worker_lease_valid"
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-SCHEMA-service_role-app",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "164-PROVIDER-SCHEMA-service_role-app.sql",
+      "source_sql_sha256": "6e89f7a24ba6613fe78b2665e815116bd11b50bc8b9e53e278c650ee5db4ab55",
+      "profile": "PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN",
+      "requirement": {
+        "table": "app.users",
+        "SELECT_any_actual_column": true
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-SCHEMA-service_role-platform",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "165-PROVIDER-SCHEMA-service_role-platform.sql",
+      "source_sql_sha256": "9d3e1ff873a76576797a79c182dde3365128bdbc0a9eb02c489a4a9fba851cb4",
+      "profile": "PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "SELECT_any_actual_column": true
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-SCHEMA-service_role-platform_private",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "166-PROVIDER-SCHEMA-service_role-platform_private.sql",
+      "source_sql_sha256": "98b6dbfa5a9ed661e3a9cd016a0f76d651231264dad23bae387e8699299e6597",
+      "profile": "PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN",
+      "requirement": {
+        "table": "platform_private.identity_service_authorization",
+        "SELECT_any_actual_column": true
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-EXEC-service_role-helper",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "167-PROVIDER-EXEC-service_role-helper.sql",
+      "source_sql_sha256": "1b956dd7350a75015640322aea14bdb695472fc447809a634b832f744953eaf8",
+      "profile": "PROVIDER_SCHEMA_ONLY_FUNCTION_CALL",
+      "requirement": {
+        "actual_function_name": "platform_private.bind_request_context"
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-EXEC-service_role-customer",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "168-PROVIDER-EXEC-service_role-customer.sql",
+      "source_sql_sha256": "31b52e01291d016564d173645d728da09f90170ce7d6d2c3a9bb4d9344afad85",
+      "profile": "PROVIDER_SCHEMA_ONLY_FUNCTION_CALL",
+      "requirement": {
+        "actual_function_name": "platform_private.customer_current_for_track"
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "PROVIDER-EXEC-service_role-track",
+      "family": "PROVIDER_REACHABILITY",
+      "source_file": "169-PROVIDER-EXEC-service_role-track.sql",
+      "source_sql_sha256": "efcdc26695c125d5bfe3e35b9574f12e67a5d4b8387474be402a8dc70fe11ef1",
+      "profile": "PROVIDER_SCHEMA_ONLY_FUNCTION_CALL",
+      "requirement": {
+        "actual_function_name": "platform_private.worker_lease_valid"
+      },
+      "limit": "The registered maximum is the earlier SCHEMA denial only. Never substitute SELECT on a dummy relation for function EXECUTE, or qualify a deeper FUNCTION/TABLE denial."
+    },
+    {
+      "case": "ISSUER-PRIVATE-identity_service_authorization-INSERT",
+      "family": "ISSUER_IDENTITY_SOURCE_CEILING",
+      "source_file": "170-ISSUER-PRIVATE-identity_service_authorization-INSERT.sql",
+      "source_sql_sha256": "28da4cc07642af47da2d8925c3ca947162e4c5656d77f79d1f3914ba201b861a",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "platform_private.identity_service_authorization",
+        "operation": "INSERT",
+        "write_columns": [
+          "service_principal",
+          "security_generation",
+          "revoked_at",
+          "identity_receipt_id",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-PRIVATE-identity_service_authorization-UPDATE",
+      "family": "ISSUER_IDENTITY_SOURCE_CEILING",
+      "source_file": "171-ISSUER-PRIVATE-identity_service_authorization-UPDATE.sql",
+      "source_sql_sha256": "bcb3bf495f277e8cf4e0d0d31ac1cb2fafcc0a564e92bb46853da96a2bb0d76a",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform_private.identity_service_authorization",
+        "operation": "UPDATE",
+        "write_columns": [
+          "security_generation"
+        ],
+        "read_columns": [
+          "service_principal"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-PRIVATE-identity_service_receipt-INSERT",
+      "family": "ISSUER_IDENTITY_SOURCE_CEILING",
+      "source_file": "172-ISSUER-PRIVATE-identity_service_receipt-INSERT.sql",
+      "source_sql_sha256": "89e80e6a040354f6efbd708e4b67be44f30d5354db689690ec5c4ded9ec7dd50",
+      "profile": "LITERAL_VALUES_INSERT",
+      "requirement": {
+        "table": "platform_private.identity_service_receipt",
+        "operation": "INSERT",
+        "write_columns": [
+          "id",
+          "service_principal",
+          "previous_generation",
+          "previous_receipt_id",
+          "security_generation",
+          "transition",
+          "revoked_at",
+          "identity_authorization_ref",
+          "mutation_transaction_id"
+        ],
+        "read_columns": [],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": false
+      }
+    },
+    {
+      "case": "ISSUER-PRIVATE-identity_service_receipt-UPDATE",
+      "family": "ISSUER_IDENTITY_SOURCE_CEILING",
+      "source_file": "173-ISSUER-PRIVATE-identity_service_receipt-UPDATE.sql",
+      "source_sql_sha256": "94f6752bd9a9ee4ad7d3aef6470706acac82bfb7a5d013ab38deb66b78327486",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform_private.identity_service_receipt",
+        "operation": "UPDATE",
+        "write_columns": [
+          "security_generation"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-id",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "174-ISSUER-IMMUTABLE-id.sql",
+      "source_sql_sha256": "25992126b222ae03f7616236402ce11780507c18fbebc2e22ea676c9a1fa5c49",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-token_hash",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "175-ISSUER-IMMUTABLE-token_hash.sql",
+      "source_sql_sha256": "d1fd0c6628929e7a2344d30709529504d6d191ac0b293d7a04a46efa204e5414",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "token_hash"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-issuer_service",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "176-ISSUER-IMMUTABLE-issuer_service.sql",
+      "source_sql_sha256": "d3243aea79fc50683bd126080d372de1006ad5186f51680a9e2c26a7512fdb89",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "issuer_service"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-principal_user_id",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "177-ISSUER-IMMUTABLE-principal_user_id.sql",
+      "source_sql_sha256": "39d71308549c27fa1651a177f6d4d907ed31e6d193d583001f000a2aa5d86371",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "principal_user_id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-service_principal",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "178-ISSUER-IMMUTABLE-service_principal.sql",
+      "source_sql_sha256": "1591a65c8560cc45a935b3c702d71eaf115e33164bb7731253216322a3d09f22",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "service_principal"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-database_login_role",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "179-ISSUER-IMMUTABLE-database_login_role.sql",
+      "source_sql_sha256": "080151b2ca9af13de3657855d9f6b5c63af3905e186d239d321f6b04a3f481ab",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "database_login_role"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-owner_module_id",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "180-ISSUER-IMMUTABLE-owner_module_id.sql",
+      "source_sql_sha256": "3ea6f64de627c32c762f0ba30c548f6dbde0bf590dc41e6d56c414148a95e371",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "owner_module_id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-action",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "181-ISSUER-IMMUTABLE-action.sql",
+      "source_sql_sha256": "a1545fd3bc0c62b26037639d6acddaad773f79ebd04fabcf713870baf2996368",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "action"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-purpose",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "182-ISSUER-IMMUTABLE-purpose.sql",
+      "source_sql_sha256": "d295640e18375cedc749df08a1231a3316ca79f4e636d5837570e3ed113e1712",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "purpose"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-target_kind",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "183-ISSUER-IMMUTABLE-target_kind.sql",
+      "source_sql_sha256": "ef4065fa6db53c2ea4ad0f2343934d016628d3072b4b98df630d54d6d76736c7",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "target_kind"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-target_id",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "184-ISSUER-IMMUTABLE-target_id.sql",
+      "source_sql_sha256": "a7ee079b2c0577590663805071ee4fa38cf9d0d411be1fb224ad052310ced333",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "target_id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-allowed_fields",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "185-ISSUER-IMMUTABLE-allowed_fields.sql",
+      "source_sql_sha256": "d5adea00c3b40705147e93dd72ec220a1f3d3a9aefa0a4f68ab38906a966107a",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "allowed_fields"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-policy_version",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "186-ISSUER-IMMUTABLE-policy_version.sql",
+      "source_sql_sha256": "cef0930872f364e09db8a8aad301902c0c0f28a7e954464310a692059c5e9b49",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "policy_version"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-security_generation",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "187-ISSUER-IMMUTABLE-security_generation.sql",
+      "source_sql_sha256": "2c737b557284d1d65dbb2a358760b3d7fe333622076b5badbb2b7edf67fb4fc7",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "security_generation"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-source_generation",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "188-ISSUER-IMMUTABLE-source_generation.sql",
+      "source_sql_sha256": "b0c5265281c23d3ee72d6bdbf99e02149d7d950fd6e82c64a1a4601e7810cf69",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "source_generation"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-backend_pid",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "189-ISSUER-IMMUTABLE-backend_pid.sql",
+      "source_sql_sha256": "4ec7fdbde39314786492bebf9b70d29d688a4253c3a3192558f016ececc441bf",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "backend_pid"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-transaction_id",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "190-ISSUER-IMMUTABLE-transaction_id.sql",
+      "source_sql_sha256": "1a401abc423bdf584ec001959489476a00391c9b000a9c78e41d1ffb6a890e2b",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "transaction_id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-expires_at",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "191-ISSUER-IMMUTABLE-expires_at.sql",
+      "source_sql_sha256": "b0e5f48e78b8e126644d35c83132c5914c0ca417620decf0cabbfd9a4e487ba3",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "expires_at"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-created_at",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "192-ISSUER-IMMUTABLE-created_at.sql",
+      "source_sql_sha256": "4498a663126e4456dc1e4f8ada621c7a3b03a36e8da872a833ff0d724aa7a195",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "created_at"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "ISSUER-IMMUTABLE-mutation_transaction_id",
+      "family": "ISSUER_COLUMN_CEILING",
+      "source_file": "193-ISSUER-IMMUTABLE-mutation_transaction_id.sql",
+      "source_sql_sha256": "6ed7ce85f33b4dc3a7c76f31a450c9ca509439c4839673b08047b579a3db198f",
+      "profile": "LITERAL_UPDATE_WITH_PREDICATE_SELECT",
+      "requirement": {
+        "table": "platform.database_action_grant",
+        "operation": "UPDATE",
+        "write_columns": [
+          "mutation_transaction_id"
+        ],
+        "read_columns": [
+          "id"
+        ],
+        "mandatory_table_privileges": [],
+        "RETURNING_literal_1_adds_no_column_read": true
+      }
+    },
+    {
+      "case": "HELPER-wa_app_runtime-bound_grant",
+      "family": "HELPER_RESULT_CEILING",
+      "source_file": "194-HELPER-wa_app_runtime-bound_grant.sql",
+      "source_sql_sha256": "02a3c7a795523cf3f53a64ee76e7ce43d93ace801f3f2e6fd004c920e19b21a5",
+      "profile": "FUNCTION_EXECUTE_WITH_SCHEMA",
+      "requirement": {
+        "function": "platform_private.bound_grant"
+      }
+    },
+    {
+      "case": "HELPER-wa_worker-bound_grant",
+      "family": "HELPER_RESULT_CEILING",
+      "source_file": "195-HELPER-wa_worker-bound_grant.sql",
+      "source_sql_sha256": "02a3c7a795523cf3f53a64ee76e7ce43d93ace801f3f2e6fd004c920e19b21a5",
+      "profile": "FUNCTION_EXECUTE_WITH_SCHEMA",
+      "requirement": {
+        "function": "platform_private.bound_grant"
+      }
+    },
+    {
+      "case": "HELPER-wa_worker-worker_source_row_valid",
+      "family": "HELPER_RESULT_CEILING",
+      "source_file": "196-HELPER-wa_worker-worker_source_row_valid.sql",
+      "source_sql_sha256": "8d7ade5914875af7a50299522f7b68200340b8fcdb7e92f0cd3bd00f72a8baf9",
+      "profile": "FUNCTION_EXECUTE_WITH_SCHEMA",
+      "requirement": {
+        "function": "platform_private.worker_source_row_valid"
+      }
+    },
+    {
+      "case": "HELPER-wa_worker-worker_source_claim_valid",
+      "family": "HELPER_RESULT_CEILING",
+      "source_file": "197-HELPER-wa_worker-worker_source_claim_valid.sql",
+      "source_sql_sha256": "d23c6cf7f0f9cb1533251953bdca6a4167be850eddd0129ad60373296f0a92e3",
+      "profile": "FUNCTION_EXECUTE_WITH_SCHEMA",
+      "requirement": {
+        "function": "platform_private.worker_source_claim_valid"
+      }
+    },
+    {
+      "case": "ISSUER-UNREVOKED-NULL-REVOKE",
+      "family": "ISSUER_UNREVOKED_GUARD",
+      "source_file": "198-ISSUER-UNREVOKED-NULL-REVOKE.sql",
+      "source_sql_sha256": "653570f7a22df134cbaa3436c16cdd55bee27a192b01f16a3d1146560ee3424a",
+      "profile": "EXACT_SOURCE_IMMUTABLE_GUARD_UNCHANGED",
+      "requirement": {
+        "source_frame_required": true
+      }
+    },
+    {
+      "case": "ISSUER-REPEAT-REVOKE",
+      "family": "ISSUER_GRANT_GUARD",
+      "source_file": "199-ISSUER-REPEAT-REVOKE.sql",
+      "source_sql_sha256": "cdf9c39995a259a1759ffa484cef039a6d076751d36bc7a55e3cd6b3510c7ea7",
+      "profile": "EXACT_SOURCE_IMMUTABLE_GUARD_UNCHANGED",
+      "requirement": {
+        "source_frame_required": true
+      }
+    },
+    {
+      "case": "ISSUER-UNREVOKE",
+      "family": "ISSUER_GRANT_GUARD",
+      "source_file": "200-ISSUER-UNREVOKE.sql",
+      "source_sql_sha256": "653570f7a22df134cbaa3436c16cdd55bee27a192b01f16a3d1146560ee3424a",
+      "profile": "EXACT_SOURCE_IMMUTABLE_GUARD_UNCHANGED",
+      "requirement": {
+        "source_frame_required": true
+      }
+    }
+  ],
+  "proposed_exact_semantics": {
+    "admission": "Within a NEW coordinator only, derive a finite descriptor keyed by each existing case name and exact SQL SHA; reject unknown/missing/duplicate/changed clauses at pure load_inputs before any process. Values-only runtime placeholders must not change the reviewed privilege shape. No general SQL permission inference or executing a parser against a database.",
+    "INSERT": "Literal VALUES only in all43 current cases: table INSERT OR INSERT on every explicit target column. No SELECT requirement is invented because these exact statements have no RETURNING, SELECT source, FROM or ON CONFLICT. Any new clause rejects admission.",
+    "UPDATE": "(table UPDATE OR UPDATE on every SET target column) AND (table SELECT OR SELECT on every actual WHERE/RHS/RETURNING referenced column). All current RHS values and RETURNING 1 are literal. Read and written sets remain separate even when they overlap.",
+    "DELETE": "Mandatory table DELETE AND (table SELECT OR SELECT on every actual WHERE/USING/RETURNING referenced column). All41 exact cases have no USING and RETURNING 1; predicates read id, except UserRole reads user_id and role. A true id SELECT must never substitute for false DELETE.",
+    "SELECT": "The2 count(id)/WHERE id cases require table SELECT OR SELECT on id. The9 provider SELECT 1 FROM table cases have no column reference and require SELECT on the relation or at least one actual source-known column; use a valid has_any_column_privilege(...,SELECT) or a source-enumerated column OR, independently reviewed. Empty read set must not become an automatic allow.",
+    "TRUNCATE": "All4 require table TRUNCATE only; do not call has_column_privilege with TRUNCATE.",
+    "provider_function": "All9 exact calls retain only their intended schema USAGE comparison and SCHEMA denial maximum, matched to the actual source-known function call shape. No unrelated table privileges, deeper function result, NULL argument validity or private helper behavior claim.",
+    "other_profiles": "Keep SET_ROLE14, schema CREATE8, helper EXECUTE4 and immutable guard3 contracts/SQL unchanged; preserve source-definer16 checks and legitimate earlier schema denials.",
+    "typed_comparison": "Query only valid privilege types; expected booleans come from the already full-source-compared native nonowner ACL and exact known column/function inventory. Strict bool fields/exact keys and source association are mandatory. Keep ownership/membership prerequisite unchanged.",
+    "diagnostic_projection": "Preserve frozen P.diagnostic AST and exact42501/P0001 checks. Present missing_referenced_columns as only actual required read/write columns whose relevant privilege is missing; required_permission_missing is any unmet required table/write/read component, with separate safe fixed component flags retained. No arbitrary columns, code-only acceptance, false verb/column isolation, or permission repair. Retain selected_column_or_verb_isolation_claimed=False.",
+    "all_complete_state_limits": "Keep fullnative29089 integer-only/oracle416/ledger22 gates,40 rollback validity controls,205 complete source facts/100guards, person/revoke/service protocols,200 negatives/16definers/3issuer/244 closures and typed outerV3 tuple/frame/position contract. No fullcase promotion."
+  },
+  "metadata_failure_observability_plan": {
+    "transport": "Add a narrow metadata-only JSON query boundary inside the NEW coordinator using the exact admitted api.psql argv, role postgres, same CID and unchanged existing60-second timeout. Keep source-bound SQL only in RAM and retain its SHA256, never text. Do not modify shared first-rehearsal/Native/CTX sources.",
+    "fixed_retained_fields": [
+      "phase=PRIVILEGE_METADATA_QUERY",
+      "known case/role/source-template SHA/query SHA",
+      "process_result_received strictbool",
+      "process_exit_class fixedenum",
+      "bounded exit_code only when strictint",
+      "stdout_bounded strictbool",
+      "stderr_bounded strictbool",
+      "JSON parsed/shape/field-type/source-comparison fixedbooleans",
+      "single-header SQLSTATE allowlist outcome",
+      "global closure attempted/confirmed strictbool",
+      "first failure fixedclassification; no exception string"
+    ],
+    "SQLSTATE_policy": "A pure strict single ERROR/FATAL header parser, total output cap and printable-control/multiheader checks; retain only exact five-character source-reviewed allowlisted states, e.g.22023/42501/42703/42P01/42883/42601/42804/22P02/57014/57P01, otherwise fixed UNREGISTERED_OR_MALFORMED diagnostic class. The list and exact output cap require separate source review. Do not claim22023 was observed in56a87aac.",
+    "excluded": [
+      "raw stdout/stderr",
+      "primary message",
+      "DETAIL/HINT/CONTEXT/LINE/statement body",
+      "probe dictionaries or result rows",
+      "PID/xid/handles",
+      "passwords/URIs",
+      "exception text or repr"
+    ],
+    "ordering": "Before throwing, retain the fixed receipt/strict comparison outcomes through sticky best-effort persistence. Metadata process termination must precede closure observations. Always attempt an independent all-other-client global closure after metadata query return/throw/malformed/IO failure. Preserve the original failure before any closure failure. Unconfirmed closure blocks every later actor, case, catalog/fingerprint observer and verdict. Never report operation-backend closed for an actor that was never created.",
+    "IO": "Persistence errors latch evidence_complete=False and STOP; error recording may not prevent process reap/global closure/outer eligible finalizers or exact cleanup. The initial failure remains primary. The outer accepted CommonSafetySQL cleanup contracts remain unchanged.",
+    "verdict": "Diagnostic metadata can only explain a STOP; it never establishes a negative verdict, full native PASS, authentication success or case promotion."
+  },
+  "proposed_new_namespace_not_created": {
+    "Root_child": [
+      "scripts/sql-review/run-privilege-ceiling-control-rehearsal-metadata-v6.py",
+      "scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_metadata_v6.py",
+      "scripts/sql-review/PRIVILEGE-CEILING-CONTROL-REHEARSAL-METADATA-V6.md"
+    ],
+    "TASK_owned_five": [
+      "execute_local_f0_privilege_ceiling_metadata_v6_20261120.py",
+      "local_f0_privilege_ceiling_metadata_v6_operation_steps.py",
+      "prepare_local_f0_privilege_ceiling_metadata_v6_plan.py",
+      "check_local_f0_privilege_ceiling_metadata_v6_operation.py",
+      "pin_local_f0_privilege_ceiling_metadata_v6_plan_20261120.py"
+    ],
+    "Root_new_archive": "context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-metadata-v6",
+    "Root_new_validations": [
+      "context/reconciliation/privilege-ceiling-metadata-v6-source-validation.json",
+      "context/reconciliation/local-f0-privilege-ceiling-owned-metadata-v6-source-validation.json"
+    ],
+    "minimal_owned_delta": "Only namespace/source-validation/archive/snapshot constants and exact new coordinator/test/doc hashes; finite200 tuples/counts/kernel mount/CommonSafetySQL/cleanup/finalizer/image/resources unchanged. No aliases or global mutations. New validation gates PENDING.",
+    "no_new_packet": "Frozen generator/protocol/202 artifacts and all200 negative SQL bytes stay exact; new coor SELF/source required membership bind the new path while loading the same unchanged source packet. If exact source admission cannot accept this without a frozen input edit, stop and report the concrete binding issue before edits."
+  },
+  "required_future_offline_checks_after_ACK": [
+    "Actual frozen200 descriptor census: no unknown shape; exact source SHA percase and literal-only placeholder constraints; old unsupported DELETE cast/projection restoration must fail source-aware mocks.",
+    "Actual emitted SQL boundary mock rejects every unsupported has_column_privilege verb instead of returning a generic fabricated map. Old V5 DELETE projection reproduces the source error in a wholly mocked process, without claiming historical SQLSTATE.",
+    "DELETE matrix: tablefalse/SELECTtrue still missing DELETE; tabletrue/SELECTfalse still missing read; bothtrue cannot qualify a permission-denial negative; tablefalse/readfalse preserves truthful earlier-gate limits. Composite UserRole both predicate columns included.",
+    "UPDATE matrix: one/multiple write cols vs read cols, table fallback vs each-column fallback, SELECT id does not imply UPDATE id or viceversa, UserRole role read but not written, private security_generation write vs PK read,20 immutable field targets.",
+    "INSERT matrix: all explicit target columns, table or every written-column fallback; no false SELECT requirement for exact43 literal statements; added RETURNING/read/ONCONFLICT clauses fail exact source admission.",
+    "SELECT id/count and no-column SELECT1 FROM any-column rule; unsupported/empty/unknown source column sets fail; all9 provider function contrasts remain SCHEMA only and do not acquire unrelated table authority.",
+    "All200 actual protocol messages: exact native diagnostics/frame/position and finite allowed tuples, expected legitimate earlier SCHEMA; generic P0001/42501/irrelevant object/unknown column rejects; V3 immutable frameTrue/native frameFalse and typed native29089 preserved.",
+    "Metadata result/nonzero/throw/timeout/malformed/doubleheader/duplicate keys/nonbool/oversize/canary matrix: fixed receipt saved before STOP, no raw output/SQL/messages/secrets retained, global closure on all paths, later actor/cases/observers absent; persistence failure remains sticky incomplete and cleanup still progresses.",
+    "Real NEW Core.initialize/launch, unchanged Common current+committed admission, all actual packet inputs+202 reproduction, actual load_inputs/CTX/Session transport composition with every process/DB/network boundary mocked; no plans() source supplementation, factory monkeypatch or manufactured runtime attestation.",
+    "Real pure preparer and pinner against the actual complete pending inventory/five physical snapshots; explicit isolated synthetic PENDING review tests; missing snapshot/helper/source or old coordinator tuple rejects before compile/process; no Git writes.",
+    "AST/fulltext normalized owned namespace diff; frozen protocol diagnostic equality; exact old source7+202/five/archive815/records/Canonical5ae/worker32 fingerprints before/after; source tests/parser/repro only as actual delta justifies. Independent nonauthor review required before Root gate closure."
+  ],
+  "claims_and_non_goals": {
+    "new_runtime_results": "NOT_RUN",
+    "source_qualification": "NOT_APPROVED_YET",
+    "whole_case_or94_or451_promotion": false,
+    "hosted_P0D_production_owner_API_provider_adapter_worker_loop": false,
+    "new_permissions_schema_canonical_SQL_guards": false,
+    "future_small_retry": "May still stop with better safe metadata; improved observation is not a passing verdict."
+  },
+  "plain_english": "The checker asked the database a question that does not exist: can this person DELETE one column? DELETE needs permission for the whole table. It can also need permission to read the columns used to find the row. The new plan checks those two things separately and writes down a few safe clues if its own check breaks. It changes no locks, keys or database rules."
+}

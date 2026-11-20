@@ -1,0 +1,66 @@
+"""Preserve completed finite INSTALL run and reconcile historical placeholders."""
+from pathlib import Path
+import datetime,hashlib,json,subprocess
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+H='5f189aa6262bd5ecbffda0940e404038993fce05';TREE='fd736f36633b28267602759c0da0d368bd625ef6';sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+assert subprocess.check_output(['git','-c','core.longpaths=true','rev-parse','HEAD'],cwd=R).decode().strip()==H
+mp=T/'local-f0-install-controls-plan-4b35e08b/operation-manifest.json';mb=mp.read_bytes();assert sha(mb)=='6874c050f98c0419bba9e76a28a2db0bf7c0046ba55361006e28bdd4990f2abc';m=json.loads(mb)
+out=Path(m['evidence_directory']);assert out==T/'local-f0-install-controls-20261119-4b35e08b'and not(out/'private').exists()
+rb=(out/'run-evidence.json').read_bytes();assert sha(rb)=='56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff';r=json.loads(rb)
+assert r['status']=='PASS_FINITE_INSTALL_PROTOCOLS_AND_NATIVE_SUBSET_ONLY'and r['finished_at']and r['evidence_complete']is True and r['persistence_failure']is False and r['unexpected']==[]and r['approved_commit']==H and r['approved_tree']==TREE
+cb=(out/'install-controls/install-controls-results.json').read_bytes();assert sha(cb)=='6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a';c=json.loads(cb)
+assert c['status']=='PASS_FINITE_INSTALL_PROTOCOLS_PENDING_FULL_NATIVE_COMPARISON'and c['subsequent_cases_stopped']is False and c['source_commit']==H and c['source_tree']==TREE
+assert set(c['targets'])=={'canonical','division_failure','late_function_grant'};targets=c['targets']
+assert r['install']['protocols']=='PASS_SOURCE_BOUND_FINITE_PROTOCOLS_ONLY'and r['install']['full_native']=='PASS_CANONICAL_AND_RECOVERED_SOURCE_BOUND_NATIVE_ONLY'
+expected_cleanup={'original_grantor':'postgres','temporary_memberships':0,'leaf_create':False,'other_clients':0}
+expected_zero={'scope':'ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES','observation_completed':True,'all_other_clients_absent':True}
+for kind,t in targets.items():
+ assert t['original_cleanup']==expected_cleanup and t['activation_gate_held']=={'permit':False,'database_password_sql_executed':False}and t['BEFORE_INSTALL_RUNTIME_INACTIVE']=={'flags_exact':True,'runtime_roles':4,'all_null_verifiers':True}
+ assert all(v==expected_zero for k,v in t.items()if k.startswith('closure_'))
+ for role in('postgres','wa_migrator'):assert t['auth_'+role]=={'role':role,'correct_password':'PASS_SCRAM','wrong_password':'PASS_REJECTED','actual_connection_closed':True}
+ if kind!='late_function_grant':
+  assert t['AFTER_VERIFIED_CLEANUP_STILL_INACTIVE']=={'flags_exact':True,'runtime_roles':4,'all_null_verifiers':True}
+  for role in('wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker'):assert t['auth_'+role]=={'role':role,'correct_password':'PASS_SCRAM','wrong_password':'PASS_REJECTED','actual_connection_closed':True}
+ else:
+  for role in('wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker'):assert t['auth_'+role]=={'role':role,'correct_password':'PASS_REJECTED_INACTIVE','wrong_password':'NOT_RUN','actual_connection_closed':True}
+for kind,state,primary in [('division_failure','22012','division_22012'),('late_function_grant','42501','function_42501')]:
+ t=targets[kind];f=t['failure_verdict'];assert f['primary_sqlstate']==state and f['classification']=='SERVER_PRIMARY_WITH_SECONDARY_25P02_NULL_LOGS'and f['delta']=={'registered':2,'division_22012':1 if primary=='division_22012'else 0,'function_42501':1 if primary=='function_42501'else 0,'secondary_25p02':1,'other_migrator_error':0,'malformed':0,'forbidden_body':0}
+ assert f['P3018_claimed']is False and f['actual_database_failure_observed']is True and f['rollback_observed']is True and t['FAILED_INSTALL_REMAINS_INACTIVE']=={'flags_exact':True,'runtime_roles':4,'all_null_verifiers':True}
+assert targets['canonical']['finite_result']['genuine_second_deploy']=='PASS_UNCHANGED_PRIVATE_LEDGER'
+assert targets['division_failure']['recovery_result']['standard_resolve']=='PASS_AFTER_INDEPENDENT_REVIEW'and targets['division_failure']['recovery_result']['failed_row_retained_unchanged']is True and targets['division_failure']['recovery_result']['canonical_retry_and_noop']=='PASS_FINITE_PROTOCOL'
+approvalb=(out/'install-controls/independent-recovery-approval.json').read_bytes();assert sha(approvalb)=='684f202b963cee9a802bc0afea14343b2d7314638bcc90d0f0cf36cb0f92ca42';approval=json.loads(approvalb)
+assert set(approval)=={'schema','decision','run_id','container_id','source_sql_sha256','proof_sha256','reviewer'}and approval==targets['division_failure']['independent_recovery_review']and approval['reviewer']=='/root/catalog_v4_review'and approval['decision']=='APPROVED_STANDARD_RESOLVE_ROLLED_BACK'and approval['run_id']==m['run_id']and approval['proof_sha256']=='3a33a7a3e808e4029f74ac2f1eafccfffb422d392a90c39b5ab7665c03537070'
+native=r['install']['native']
+for kind,checks,ledger in [('canonical',29089,22),('division_failure',29090,23)]:
+ n=native[kind];assert n['full_comparison']=='PASS'and n['catalog_check_counts']=={'PASS':checks}and n['oracle_expressions']==416 and len(n['ledger_checks'])==ledger and all(x['status']=='PASS'for x in n['ledger_checks'])
+parityb=(out/'install-semantic-parity.json').read_bytes();assert sha(parityb)=='79736c166f527a15931a19de28a6c87b005e878adbae01448fab5d7e45eb39d8';parity=json.loads(parityb)
+assert parity==r['install']['semantic_parity']and parity['status']=='PASS_SOURCE_DERIVED_SEMANTIC_PARITY_ONLY'and len(set(parity['semantic_view_sha256'].values()))==1 and len(set(parity['raw_snapshot_native_sha256'].values()))==2 and parity['counts']=={'trigger_rows':412,'internal_rows':312,'external_rows':100,'other_sections':26,'generated_names_differed':312}and parity['raw_snapshots_rewritten']is False and parity['only_validated_internal_name_equality_omitted']is True
+for key in('packet_unchanged_after_run','tool_source_data_unchanged_after_run','external_input_archives_and_fresh_history_unchanged_after_run','external_sources_unchanged_after_run','all_source_and_external_inputs_preserved_after_run'):assert r[key]is True
+cleanp=T/'install_5f_4b35e08b_independent_cleanup_20261120.json';cleanb=cleanp.read_bytes();assert sha(cleanb)=='aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7'and json.loads(cleanb)['status']=='PASS_INDEPENDENT_PHYSICAL_CLEANUP'
+asset=R/'context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b';assert not asset.exists();copies={}
+for p in out.rglob('*'):
+ if not p.is_file():continue
+ rel=p.relative_to(out);assert'private'not in rel.parts and not p.is_symlink()and(p.suffix=='.json'or rel.as_posix()=='set-private-acl.ps1')
+ target=asset/'evidence'/rel
+ if p.suffix=='.ps1':target=target.with_name(target.name+'.txt')
+ copies[target]=p.read_bytes()
+for p in mp.parent.iterdir():
+ if p.is_file()and p.suffix=='.json':copies[asset/'manifest'/p.name]=p.read_bytes()
+for kind,binding in m['install']['histories'].items():
+ b=Path(binding['manifest']['path']).read_bytes();assert sha(b)==binding['manifest']['sha256'];copies[asset/'manifest'/('migration-'+kind+'.json')]=b
+extras={'independent-cleanup.json':cleanp.name,'independent-literal-review.json':'install_owned_parity_v4_4b35e08b_independent_operational_literal_review_20261120.json','Root-literal-approval.json':'install_owned_parity_v4_4b35e08b_Root_literal_approval_receipt_20261120.json','Root-active-watch-ACK.json':'install_v4_4b35e08b_Root_active_watch_ACK_20261120.json','Catalog-fresh-peer-ARMACK.json':'install_v4_4b35e08b_Catalog_fresh_peer_ARMACK_20261120.json','actual-READY-watch-stdout.json':'install_v4_4b35e08b_actual_READY_watch_stdout_receipt_20261120.json','Catalog-actual-sealed-evidence-review.json':'install_v4_4b35e08b_Catalog_actual_sealed_evidence_review_20261120.json','Catalog-explicit-actual-approval-receipt.json':'install_v4_4b35e08b_Catalog_explicit_actual_approval_receipt_20261120.json','Root-independent-cleanup-helper.py.txt':'verify_5f_install_4b35e08b_completed_cleanup_20261120.py'}
+for name,source in extras.items():copies[asset/name]=(T/source).read_bytes()
+facts={'schema':'workinants.install4b35-observed-unadmitted-finite-native-results.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'observed':{'targets':3,'canonical_finite_result':targets['canonical']['finite_result'],'division_failure_verdict':targets['division_failure']['failure_verdict'],'division_recovery_result':targets['division_failure']['recovery_result'],'late_function_grant_verdict':targets['late_function_grant']['failure_verdict'],'original_grantor_cleanup_all3':expected_cleanup,'runtime_activation':'FourrolesremainNULLbeforeinstall/aftercleanup; activatedonlyafterverifiedcanonicalandrecoveredsuccess; failedlatevariantremainsinactive.','correct_and_wrong_password_active_roles':{'canonical':6,'recovered_division':6,'failed_late_variant_only_postgres_migrator':2},'late_variant_four_runtime_candidate_startups_rejected_inactive':True,'child_global_closures':{k:sum(n.startswith('closure_')for n in v)for k,v in targets.items()},'parent_global_closures':len(r['backend_closures']),'actual_independent_approval':approval,'approved_under_original220_deadline_remaining_seconds':62.672,'canonical_native_catalog_checks':29089,'recovered_native_catalog_checks':29090,'oracle_expressions_each':416,'private_ledger_checks':{'canonical':22,'recovered':23},'source_derived_semantic_parity':parity,'physical_cleanup_independently_confirmed':True},'raw_placeholder_reconciliation':{'inherited_generic_steps':'CATALOG-AUTH, CATALOG-INSTALL, INSTALL-CANONICAL-NATIVE and INSTALL-RECOVERED-NATIVE remain NOT_RUN placeholders in raw steps. Generic old bootstrap catalog paths were not invoked.','actual_component_and_outer_proofs':'Actual role controls/install/finalization/recovery are in closed child targets. Parent install.protocols/full_native/native and complete canonical/recovered artifacts prove executed comparisons. Child full_native_pending fields remain raw history; parent fulfilled the separate native checks.','no_raw_reports_rewritten':True},'qualification':'NOT_ADMITTED_PENDING_INDEPENDENT_CLOSED_EVIDENCE_AUDIT_AND_REVIEWED_ASSERTION_PARSER','limits':['No whole94/451, ownerAPI, production readiness or hosted adoption.','Latefailedtarget applicationobjects absent; full installed-catalog comparison applies only canonical/recovered targets.','Observed CLI masking is labeled actual primary plus secondary25P02/NULLlogs; P3018 was not observed/claimed.','Source-derived parity omits only validated generated internal-trigger name equality after all other source checks; raw native snapshots remain distinct and unmodified.'],'Posture':'D'}
+copies[asset/'audit/Root-observed-unadmitted-results.json']=enc(facts);copies[asset/'audit/preservation-helper.py.txt']=Path(__file__).read_bytes()
+for p,b in copies.items():
+ assert len(b)<50*1024*1024 and b'\0'not in b;b.decode('utf-8-sig')
+ if p.suffix=='.json':json.loads(b)
+ put(p,b)
+assets={p.relative_to(R).as_posix():sha(b)for p,b in copies.items()}
+record={'schema':'workinants.local-f0-5f-install-version-qualified-execution-record.v1','recorded_at_utc':facts['recorded_at_utc'],'run_id':m['run_id'],'source_commit':H,'source_tree':TREE,'operation_packet_sha256':m['packet_sha256'],'operation_manifest_sha256':sha(mb),'known_executor_exit':{'session':82099,'exit_code':0},'known_watcher_exit':{'session':7811,'exit_code':0},'started_at_utc':r['started_at'],'finished_at_utc':r['finished_at'],'actual_wrapper_status':r['status'],'actual_steps':r['steps'],'raw_evidence_sha256':sha(rb),'raw_child_file_sha256':sha(cb),'raw_reports_unchanged':True,'independent_cleanup_sha256':sha(cleanb),'facts':facts,'assets_sha256':assets,'source_preservation':{k:v for k,v in r.items()if k.endswith('_unchanged_after_run')or k=='all_source_and_external_inputs_preserved_after_run'},'qualification_status':'NOT_ADMITTED_PENDING_INDEPENDENT_EVIDENCE_AUDIT_AND_REVIEWED_ASSERTION_PARSER','Posture':'D'}
+p=R/'context/reconciliation/local-f0-install-5f189aa-4b35e08b-execution.json';put(p,enc(record));recordsha=sha(p.read_bytes());receipt={'schema':'workinants.5f-install4b35-closed-attempt-preserved.v1','record':p.relative_to(R).as_posix(),'record_sha256':recordsha,'asset_count':len(assets),'assets_sha256':assets,'runtime_or_Git_mutated':False,'Posture':'D'}
+p=T/'5f_install_4b35_closed_attempt_preserved_inventory_20261120.json';put(p,enc(receipt));print(json.dumps({'record':receipt['record'],'record_sha256':recordsha,'assets':len(assets),'inventory_sha256':sha(p.read_bytes()),'counts_unchanged':True}))

@@ -1,0 +1,254 @@
+{
+  "schema": "workinants.local-f0-5f-install-version-qualified-execution-record.v1",
+  "recorded_at_utc": "2026-11-20T09:06:20.222247+00:00",
+  "run_id": "4b35e08b-3ecb-4ae6-9574-565bcdd51c1f",
+  "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+  "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+  "operation_packet_sha256": "4d98713bb4b9810cea2be5c1fbf4139979b4476222fc7f0bdfad9b10bde64393",
+  "operation_manifest_sha256": "6874c050f98c0419bba9e76a28a2db0bf7c0046ba55361006e28bdd4990f2abc",
+  "known_executor_exit": {
+    "session": 82099,
+    "exit_code": 0
+  },
+  "known_watcher_exit": {
+    "session": 7811,
+    "exit_code": 0
+  },
+  "started_at_utc": "2026-11-20T08:39:59.318706+00:00",
+  "finished_at_utc": "2026-11-20T08:49:46.671665+00:00",
+  "actual_wrapper_status": "PASS_FINITE_INSTALL_PROTOCOLS_AND_NATIVE_SUBSET_ONLY",
+  "actual_steps": {
+    "CATALOG-SETUP": "PASS",
+    "CATALOG-AUTH": "NOT_RUN",
+    "CATALOG-TOOLS": "PASS",
+    "CATALOG-INSTALL": "NOT_RUN",
+    "INSTALL-COORDINATOR": "PASS_FINITE_PENDING_FULL_NATIVE",
+    "INSTALL-CANONICAL-NATIVE": "NOT_RUN",
+    "INSTALL-RECOVERED-NATIVE": "NOT_RUN",
+    "CATALOG-ACL-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+    "CATALOG-TEXT-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+    "CATALOG-NATIVE": "PASS_OBSERVED_NOT_QUALIFIED",
+    "CATALOG-ORACLE": "PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE",
+    "CATALOG-LEDGER": "PASS_SOURCE_BOUND_NATIVE_SUBSET",
+    "CATALOG-COMPARE": "PASS_SOURCE_BOUND_NATIVE_CATALOG_ONLY",
+    "CATALOG-SANITIZED_EXPORT": "NOT_RUN",
+    "CATALOG-CLEANUP": "PASS",
+    "INSTALL-CREDENTIALS": "PASS_PRIVATE_CANDIDATES_ONLY"
+  },
+  "raw_evidence_sha256": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+  "raw_child_file_sha256": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+  "raw_reports_unchanged": true,
+  "independent_cleanup_sha256": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+  "facts": {
+    "schema": "workinants.install4b35-observed-unadmitted-finite-native-results.v1",
+    "recorded_at_utc": "2026-11-20T09:06:20.222247+00:00",
+    "observed": {
+      "targets": 3,
+      "canonical_finite_result": {
+        "success_cleanup_and_runtime_activation": "PASS_FINITE_PROTOCOL",
+        "genuine_second_deploy": "PASS_UNCHANGED_PRIVATE_LEDGER",
+        "full_schema_and_acl_parity": "PENDING_OUTER_OPERATOR_FULL_NATIVE_COMPARISON"
+      },
+      "division_failure_verdict": {
+        "variant": "division_failure",
+        "primary_sqlstate": "22012",
+        "classification": "SERVER_PRIMARY_WITH_SECONDARY_25P02_NULL_LOGS",
+        "delta": {
+          "registered": 2,
+          "division_22012": 1,
+          "function_42501": 0,
+          "secondary_25p02": 1,
+          "other_migrator_error": 0,
+          "malformed": 0,
+          "forbidden_body": 0
+        },
+        "failed_row_immutable_sha256": "a7c6adb3afd32fbb614501b603b0bfd86dedc936f4d607bac3dd045b9c1af290",
+        "P3018_claimed": false,
+        "actual_database_failure_observed": true,
+        "rollback_observed": true,
+        "recovery_approved": false
+      },
+      "division_recovery_result": {
+        "standard_resolve": "PASS_AFTER_INDEPENDENT_REVIEW",
+        "failed_row_retained_unchanged": true,
+        "canonical_retry_and_noop": "PASS_FINITE_PROTOCOL",
+        "full_schema_and_acl_parity": "PENDING_OUTER_OPERATOR_FULL_NATIVE_COMPARISON"
+      },
+      "late_function_grant_verdict": {
+        "variant": "late_function_grant",
+        "primary_sqlstate": "42501",
+        "classification": "SERVER_PRIMARY_WITH_SECONDARY_25P02_NULL_LOGS",
+        "delta": {
+          "registered": 2,
+          "division_22012": 0,
+          "function_42501": 1,
+          "secondary_25p02": 1,
+          "other_migrator_error": 0,
+          "malformed": 0,
+          "forbidden_body": 0
+        },
+        "failed_row_immutable_sha256": "50f6dbabdabb15e4a4155be80a9f7f63a0c4cda27685c074cb9a0839f4a67319",
+        "P3018_claimed": false,
+        "actual_database_failure_observed": true,
+        "rollback_observed": true,
+        "recovery_approved": false
+      },
+      "original_grantor_cleanup_all3": {
+        "original_grantor": "postgres",
+        "temporary_memberships": 0,
+        "leaf_create": false,
+        "other_clients": 0
+      },
+      "runtime_activation": "FourrolesremainNULLbeforeinstall/aftercleanup; activatedonlyafterverifiedcanonicalandrecoveredsuccess; failedlatevariantremainsinactive.",
+      "correct_and_wrong_password_active_roles": {
+        "canonical": 6,
+        "recovered_division": 6,
+        "failed_late_variant_only_postgres_migrator": 2
+      },
+      "late_variant_four_runtime_candidate_startups_rejected_inactive": true,
+      "child_global_closures": {
+        "canonical": 29,
+        "division_failure": 32,
+        "late_function_grant": 22
+      },
+      "parent_global_closures": 24,
+      "actual_independent_approval": {
+        "container_id": "75304b130a5b995a6443bdd8fee77d0687020e3df81f27cf13d1a788090bc542",
+        "decision": "APPROVED_STANDARD_RESOLVE_ROLLED_BACK",
+        "proof_sha256": "3a33a7a3e808e4029f74ac2f1eafccfffb422d392a90c39b5ab7665c03537070",
+        "reviewer": "/root/catalog_v4_review",
+        "run_id": "4b35e08b-3ecb-4ae6-9574-565bcdd51c1f",
+        "schema": "workinants.install-independent-rollback-review.v1",
+        "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+      },
+      "approved_under_original220_deadline_remaining_seconds": 62.672,
+      "canonical_native_catalog_checks": 29089,
+      "recovered_native_catalog_checks": 29090,
+      "oracle_expressions_each": 416,
+      "private_ledger_checks": {
+        "canonical": 22,
+        "recovered": 23
+      },
+      "source_derived_semantic_parity": {
+        "format": "workinants.install-source-semantic-parity.v1",
+        "status": "PASS_SOURCE_DERIVED_SEMANTIC_PARITY_ONLY",
+        "raw_snapshot_native_sha256": {
+          "canonical": "a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6",
+          "division_failure": "91b6a849f368759f783df1247dcbf89ecc06b1e302220f7c23bf6f2a13049ae9"
+        },
+        "semantic_view_sha256": {
+          "canonical": "534d6edf382bf324664d272e66e28e16d3da79ab9411693c722bec9bff4aae06",
+          "division_failure": "534d6edf382bf324664d272e66e28e16d3da79ab9411693c722bec9bff4aae06"
+        },
+        "counts": {
+          "trigger_rows": 412,
+          "internal_rows": 312,
+          "external_rows": 100,
+          "other_sections": 26,
+          "generated_names_differed": 312
+        },
+        "individual_source_comparisons": {
+          "canonical": {
+            "catalog_PASS_checks": 29089,
+            "ledger_PASS_checks": 22,
+            "oracle_expressions": 416
+          },
+          "division_failure": {
+            "catalog_PASS_checks": 29090,
+            "ledger_PASS_checks": 23,
+            "oracle_expressions": 416
+          }
+        },
+        "raw_snapshots_rewritten": false,
+        "only_validated_internal_name_equality_omitted": true
+      },
+      "physical_cleanup_independently_confirmed": true
+    },
+    "raw_placeholder_reconciliation": {
+      "inherited_generic_steps": "CATALOG-AUTH, CATALOG-INSTALL, INSTALL-CANONICAL-NATIVE and INSTALL-RECOVERED-NATIVE remain NOT_RUN placeholders in raw steps. Generic old bootstrap catalog paths were not invoked.",
+      "actual_component_and_outer_proofs": "Actual role controls/install/finalization/recovery are in closed child targets. Parent install.protocols/full_native/native and complete canonical/recovered artifacts prove executed comparisons. Child full_native_pending fields remain raw history; parent fulfilled the separate native checks.",
+      "no_raw_reports_rewritten": true
+    },
+    "qualification": "NOT_ADMITTED_PENDING_INDEPENDENT_CLOSED_EVIDENCE_AUDIT_AND_REVIEWED_ASSERTION_PARSER",
+    "limits": [
+      "No whole94/451, ownerAPI, production readiness or hosted adoption.",
+      "Latefailedtarget applicationobjects absent; full installed-catalog comparison applies only canonical/recovered targets.",
+      "Observed CLI masking is labeled actual primary plus secondary25P02/NULLlogs; P3018 was not observed/claimed.",
+      "Source-derived parity omits only validated generated internal-trigger name equality after all other source checks; raw native snapshots remain distinct and unmodified."
+    ],
+    "Posture": "D"
+  },
+  "assets_sha256": {
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/canonical-acl-preflight.json": "b1dffe67c99d83c46073c8db1f5e14bbda1b5dc0ed053be56d56a67a6018f3c8",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/canonical-catalog-comparison.json": "34d94ba869e1dc969bec09d70d2c74430e9d3af5f9d93bc39dcff67e9a983c0e",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/canonical-ledger-comparison.json": "6d7100daa4fed2ae0f151923b1fe77f2dbdbc016e1501a0695b0e00280c6901f",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/canonical-ledger-evidence.json": "95b8330a05d8c9d3ca6e80be98356019470aec4376f37e5925288796321b6884",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/canonical-ledger-observation.json": "5a3d33491366fb9587bcc4a167efa4e38bda170b7b3291c022f28676dbdd94b3",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/canonical-ledger-registration.json": "df245471a08fa5a7cf3e619d097ddb3cc09412304c7a9b5950eb7588b29b66a7",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/canonical-native-after-ledger.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/canonical-native-after-oracle.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/canonical-native-before.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/canonical-oracle-closure.json": "89067a06862e197fd49f3aed1e3f18bfc93d6a6c2035f9cdfc85a57036257ab9",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/canonical-oracle-evidence.json": "c3e91a70099256f5edbce4678193c7d228bdcbbc7cd60c2c711887b773011bc3",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/canonical-oracle-preflight.json": "e64b96e2f73e7a6d369d61c09301dc7c986c08bcd1cf95af06c6ab9756bcbe66",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/canonical-oracle-results.json": "d7f91fb358b73d3f36acde73ec730c41259009c1e0f06931ded2a7d44510f995",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/canonical-text-preflight.json": "176676da1274c55ec6f8800089b61d1c5249c44ed52b3ecfbcf2c8edf6a3cda1",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/independent-review-outer-identity.json": "504e550b16dfe6b226504a53e38441012c27ccec506ebc1a2f212b88fedeeaf4",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-coordinator-run-plan.json": "6d35a97f19b8c954e33ac1deec098100745ff0b7433f9370bcf224b3a752130b",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-native-summary.json": "100c6afc7b18ed66e35b38f3f124790fd5b0c6db6afaf9494adc4b0caf46ee73",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-semantic-parity.json": "79736c166f527a15931a19de28a6c87b005e878adbae01448fab5d7e45eb39d8",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-acl-preflight.json": "b1dffe67c99d83c46073c8db1f5e14bbda1b5dc0ed053be56d56a67a6018f3c8",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-catalog-comparison.json": "f7daa67ff3ec72667dd2b6073d66a6541b9c5231796807c1a2d8e5663217611c",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-install-failure-proof.json": "7f4120006699b024a790604e740281befc53a1a9deb1f816fcb7a376c2088ab4",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-ledger-comparison.json": "696836a8d536eb8129bf4764eb10465327ba3092cdc6256bff4642bd37fc5d03",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-ledger-evidence.json": "46a7a35edc3d095c3bbbd5466559cb1df777962400c985755278f86218e5906e",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-ledger-observation.json": "2652266dfce9e40c1ac0ebd135b28d2dbdf26b7d3395c7556b64b19f85287301",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-ledger-registration.json": "3664716976ac19aa9721fbf1c60339eb18af93b99907dd6bca9427cffe855d23",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-native-after-ledger.json": "24c5d8392ab622e1a0f27c5bca84c8dfa8c64fd9f372d8125ee37616a3178a72",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-native-after-oracle.json": "24c5d8392ab622e1a0f27c5bca84c8dfa8c64fd9f372d8125ee37616a3178a72",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-native-before.json": "24c5d8392ab622e1a0f27c5bca84c8dfa8c64fd9f372d8125ee37616a3178a72",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-oracle-closure.json": "89067a06862e197fd49f3aed1e3f18bfc93d6a6c2035f9cdfc85a57036257ab9",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-oracle-evidence.json": "a37b829fd6b917c983fc90692c41c0bd31d4c62b388fac265ac7f23e006ecd76",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-oracle-preflight.json": "e64b96e2f73e7a6d369d61c09301dc7c986c08bcd1cf95af06c6ab9756bcbe66",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-oracle-results.json": "d7f91fb358b73d3f36acde73ec730c41259009c1e0f06931ded2a7d44510f995",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/recovered-text-preflight.json": "176676da1274c55ec6f8800089b61d1c5249c44ed52b3ecfbcf2c8edf6a3cda1",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/run-evidence.json": "56f1e1dccc2b5fcd987f0d9a79eb237e3adf6afb24bd8880a35b1afcf200afff",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/set-private-acl.ps1.txt": "d5ef58e51c12b4371601557f027a44e9ca206b81444724f8aab65365bf9c057f",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/independent-recovery-approval.json": "684f202b963cee9a802bc0afea14343b2d7314638bcc90d0f0cf36cb0f92ca42",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/independent-review-child-snapshot.json": "d75505d506de65f50e6d0ac721b95d752baa2ae595142f3293bd3bc646049e9d",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/independent-review-ready.json": "a97ff5aea4f756d0c4456d6404458115e31a109d3c1009e1cd0a3c080078cc2b",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json": "6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/rollback-proof-for-review.json": "3a33a7a3e808e4029f74ac2f1eafccfffb422d392a90c39b5ab7665c03537070",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/manifest/canonical-migration-manifest.json": "bb0b3b935df4684c43c25807327791aee6e998e67042fcdeb47dd44cb24f27f0",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/manifest/division_failure-migration-manifest.json": "5a2c130e6be657a97ec46c626bcaff2e6b1258f6cd79ac97468eaee6276d91f0",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/manifest/division_recovery-migration-manifest.json": "718e08e80343ad468fbbc62f51838576962bae3c78406ef07589b8826a71cc88",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/manifest/late_function_grant-migration-manifest.json": "bcce1379f0ab6534921ab14ba4abbdfdde6194790cbc861fed8c24fb5b476159",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/manifest/operation-manifest-before-operational-review.json": "06b268cef84654b6ba46c6ec98839d08674b9df4183140bfdec04cf2c24852e0",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/manifest/operation-manifest-before-source-pin.json": "4ec755708963ce8e878fce2a39c8e344bc2c83222b98c0f589e129611b6b055b",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/manifest/operation-manifest.json": "6874c050f98c0419bba9e76a28a2db0bf7c0046ba55361006e28bdd4990f2abc",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/manifest/migration-canonical.json": "bb0b3b935df4684c43c25807327791aee6e998e67042fcdeb47dd44cb24f27f0",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/manifest/migration-division_failure.json": "5a2c130e6be657a97ec46c626bcaff2e6b1258f6cd79ac97468eaee6276d91f0",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/manifest/migration-division_recovery.json": "718e08e80343ad468fbbc62f51838576962bae3c78406ef07589b8826a71cc88",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/manifest/migration-late_function_grant.json": "bcce1379f0ab6534921ab14ba4abbdfdde6194790cbc861fed8c24fb5b476159",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-cleanup.json": "aacf413cde73f95f9a529c2ca3adea3bb36ec64a28cefc74566406ea75c9a3d7",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/independent-literal-review.json": "5b1046010d74fa573006ed123f818f9c9e706cfbbc9f1f58376228fd4046fa48",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/Root-literal-approval.json": "6fd9722c6bb714badc0846d5abfbdebd1add49a53a2ff2767399fccc7eba22cc",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/Root-active-watch-ACK.json": "cfe7b705ec33ffaca74ed0e660bd91da569174d47c1bf2fe43a585604ba86ac9",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/Catalog-fresh-peer-ARMACK.json": "f4a5145f43544f5ab2be3583987dfc43932883753918046d95eb860865e4aa28",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/actual-READY-watch-stdout.json": "9cf72a3c99612173514c501f66776091b1afe3184304ad8a3d9e82801790c747",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/Catalog-actual-sealed-evidence-review.json": "0d6e10e829a3ca8b8a9f5c09d96469082b2dfccad92651202da3e7d3023b85e1",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/Catalog-explicit-actual-approval-receipt.json": "a6282b896379d346d867a632c2c9369899eb3687822795bdcedb74a6c131b75f",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/Root-independent-cleanup-helper.py.txt": "4d09f72147e6ae4923882eae367718e83a2c007126ce37096644a754835d5718",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/audit/Root-observed-unadmitted-results.json": "f10b252414a29de09e353824ca3a1d2e070f2725c3e93dd4a2acf64142a8b68c",
+    "context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/audit/preservation-helper.py.txt": "1b7d5fd5c785a8c88eb6a5353dead6359a5c9e2636ccfdd20d9eadd178c854ca"
+  },
+  "source_preservation": {
+    "packet_unchanged_after_run": true,
+    "tool_source_data_unchanged_after_run": true,
+    "external_input_archives_and_fresh_history_unchanged_after_run": true,
+    "external_sources_unchanged_after_run": true,
+    "all_source_and_external_inputs_preserved_after_run": true
+  },
+  "qualification_status": "NOT_ADMITTED_PENDING_INDEPENDENT_EVIDENCE_AUDIT_AND_REVIEWED_ASSERTION_PARSER",
+  "Posture": "D"
+}

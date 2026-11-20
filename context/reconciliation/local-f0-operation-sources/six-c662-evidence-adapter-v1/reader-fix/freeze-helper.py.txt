@@ -1,0 +1,60 @@
+"""Freeze minimum reader fix after required tests; gates remain PENDING."""
+import ast,datetime,hashlib,json,re
+from pathlib import Path
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';D=T/'six-c662-evidence-adapter-v1-reader-fix-author-20261120'
+A='context/reconciliation/local-f0-operation-sources/six-c662-evidence-adapter-v1';V='context/reconciliation/local-f0-scoped-read-evidence-adapter-v1-source-validation.json'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def encoded(v):return (json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def new(path,raw):
+    path.parent.mkdir(parents=True,exist_ok=True)
+    with path.open('xb')as stream:stream.write(raw)
+before=json.loads((D/'before-author-preservation.json').read_bytes());old_root=D/'preserved-v1/ROOT'
+module='scripts/local_f0_scoped_read_evidence.py';tests='scripts/check-local-f0-scoped-read-evidence.py';builder='scripts/prepare-local-f0-status.py';derived='context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json'
+old=(old_root/module).read_bytes();current=(R/module).read_bytes();old_tree=ast.parse(old);new_tree=ast.parse(current)
+old_read=next(n for n in old_tree.body if isinstance(n,ast.FunctionDef)and n.name=='_read');new_read=next(n for n in new_tree.body if isinstance(n,ast.FunctionDef)and n.name=='_read')
+normalized=current.decode().replace('import os\n','',1).replace(ast.get_source_segment(current.decode(),new_read),ast.get_source_segment(old.decode(),old_read),1)
+assert normalized.encode()==old and sha(old)=='c2a6389376311cc37cf3e73a007ca8185a85ccf19cdc10baa085ce80cbf913c7'
+for n,h in before['protected_ledger_status_checker_native_sha256'].items():assert sha((R/n).read_bytes())==h
+native_maps={}
+for node in ast.parse((R/'scripts/local_f0_native_complete_evidence.py').read_bytes()).body:
+    if isinstance(node,ast.Assign):
+        for target in node.targets:
+            if isinstance(target,ast.Name)and target.id in('PINS','AUDIT_PINS'):native_maps[target.id]=ast.literal_eval(node.value)
+assert len(native_maps['PINS'])==303 and len(native_maps['AUDIT_PINS'])==3
+for n,h in {**native_maps['PINS'],**native_maps['AUDIT_PINS']}.items():assert sha((R/n).read_bytes())==h
+assert sha((R/builder).read_bytes())==before['old_builder_sha256']
+assert (R/derived).read_bytes()==(old_root/derived).read_bytes()
+maps={}
+for node in new_tree.body:
+    if isinstance(node,ast.Assign):
+        for target in node.targets:
+            if isinstance(target,ast.Name)and target.id in('PINS','AUDIT_PINS','CLOSED_CLAIMS'):maps[target.id]=ast.literal_eval(node.value)
+assert len(maps['PINS'])==403 and maps['PINS']==before['old_input403_sha256']and len(maps['CLOSED_CLAIMS'])==6
+for n,h in maps['PINS'].items():assert sha((R/n).read_bytes())==h
+old_claims=next(ast.literal_eval(n.value)for n in old_tree.body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='CLOSED_CLAIMS'for t in n.targets));assert old_claims==maps['CLOSED_CLAIMS']
+result=json.loads((D/'focused-reader-fix-result.json').read_bytes());log=(D/'focused-reader-fix.log').read_text(encoding='utf8');assert result['exit_code']==0 and '\nOK\n'in log and 'Ran 16 tests in 'in log and sha((D/'focused-reader-fix.log').read_bytes())==result['log_sha256']
+unit_seconds=float(re.search(r'Ran 16 tests in ([0-9.]+)s',log)[1])
+old_validation=(old_root/V).read_bytes();assert sha(old_validation)=='1233f2babf6e7d9401a03e54ba5682aff5b9eb86ce1cf3e2efb99a61ccf05432'
+new(R/(A+'/reader-fix/preserved-old-source-validation-1233f2ba.json'),old_validation)
+new(R/(A+'/reader-fix/preserved-original-tests-697782c4.py.txt'),(old_root/tests).read_bytes())
+new(R/(A+'/reader-fix/focused16-result.json'),(D/'focused-reader-fix-result.json').read_bytes());new(R/(A+'/reader-fix/focused16.log'),(D/'focused-reader-fix.log').read_bytes())
+new(R/(A+'/reader-fix/test-runner.py.txt'),(D/'run-focused-tests.py').read_bytes());new(R/(A+'/reader-fix/freeze-helper.py.txt'),Path(__file__).read_bytes())
+scope={'schema':'workinants.six-c662-reader-fix-exact-scope.v1','old_module_sha256':sha(old),'new_module_sha256':sha(current),'only_runtime_function_changed':'_read','only_import_added':'os','full_original_module_bytes_reproduced_by_reverting_only_those_two_deltas':True,'PINS403_and_six_claims_unchanged':True,'batch_final_barrier_sticky_types_semantics_and_dispatcher_unchanged':True,'old_ledger_status_checker_native_unchanged':before['protected_ledger_status_checker_native_sha256'],'builder_unchanged_sha256':before['old_builder_sha256'],'original_before_preservation_sha256':sha((D/'before-author-preservation.json').read_bytes()),'reader_guarantee':'Bounded in-flight identity/closed byte/hash verification; no perpetual filesystem atomicity claim.'}
+new(D/'actual-scope-proof.json',encoded(scope));new(R/(A+'/reader-fix/actual-scope-proof.json'),encoded(scope))
+for relative in(module,tests):
+    mirror=R/(A+'/source/'+Path(relative).name+'.txt');assert mirror.read_bytes()==(old_root/relative).read_bytes();mirror.write_bytes((R/relative).read_bytes())
+source_map={n:sha((R/n).read_bytes())for n in(module,tests,builder,derived)}
+report={'schema':'workinants.six-c662-reader-fix-author-review.v1','recorded_at_UTC':datetime.datetime.now(datetime.timezone.utc).isoformat(),'author':'/root/privilege_mount_v2_review','decision':'AUTHOR_VALIDATION_COMPLETE_PENDING_SAME_CATALOG_REVIEW','finding':'SCOPED6-FINAL-READ-INTEGRITY-01','HOLD_sha256':before['HOLD_sha256'],'counterexample_sha256':before['probe_sha256'],'Root_ACK_sha256':before['ACK_sha256'],'source_files_sha256':source_map,'exact_scope':scope,'actual_offline_checks':{'unique_methods':16,'result':'PASS','seconds':unit_seconds,'runner_seconds':result['seconds'],'log_sha256':result['log_sha256'],'actual_API_private_inflight_race_rejected':True,'restoring_ONLY_original_reader_reproduces_counterexample':True,'metadata_stable_fresh_closed_byte_check':True,'Windows_path_vs_handle_ctime_valid_reads':True,'descriptor_identity_mismatch_rejected':True,'every_reader_closed_and_only403_paths':True,'actual_private_Six_only_CLI_final_read_race_writes_no_output':True,'Root_real_full653_builder':'NOT_RUN_ROOT_ONLY_AFTER_SOURCE_APPROVAL'},'preserved_history':{'old_ROOT_frozen27':True,'all403_input_bytes':True,'original_author_failed_history':True,'old_Catalog_baseline12PASS86_440s_retained_not_counted_again':True,'HOLD_and_actual_probe_preserved':True},'limits':['The fix closes the proven in-flight read integrity counterexample. It does not claim perpetual atomicity after the final check.','Windowsctime is compared path-to-path and descriptor-to-descriptor, never assumed identical across those APIs. Identity/size/mtime/mode/link compare across APIs and both bytes/hash reads must agree.','No qualification/runtime/status/ledger change. Same Catalog reviewer closure and Root review remain mandatory.','All403 pins/sixclaims/native303+Audit3/strict types/finiteJSON/batch/finalbarrier/old647/status615/checker/builder unchanged.'], 'gates':'PENDING','Posture':'D'}
+new(D/'author-review.json',encoded(report));new(R/(A+'/reader-fix/author-review.json'),encoded(report))
+archive={p.relative_to(R).as_posix():sha(p.read_bytes())for p in(R/A).rglob('*')if p.is_file()}
+validation={'schema':'workinants.six-c662-evidence-adapter-v1-source-validation.v1','status':'READER_FIX_AUTHOR_TESTED_PENDING_SAME_CATALOG_REVIEW','source_files_sha256':source_map,'archive_files_sha256':archive,'independent_actual_evidence_audit':json.loads(old_validation)['independent_actual_evidence_audit'],'prior_source_HOLD':{'path':A+'/reader-fix/independent-HOLD.json','sha256':before['HOLD_sha256']},'independent_adapter_source_review':{'decision':'PENDING','required_same_reviewer':'/root/catalog_v4_review'},'Root_source_review':{'decision':'PENDING'},'reader_fix_author_review':{'path':A+'/reader-fix/author-review.json','sha256':sha(encoded(report))},'focused_tests':report['actual_offline_checks'],'qualification_counts_unchanged':True,'ledger_and_status_not_modified':True,'Posture':'D'}
+(R/V).write_bytes(encoded(validation));source_map[V]=sha((R/V).read_bytes());root_map={**source_map,**archive}
+freeze=D/'freeze';freeze.mkdir()
+for n,h in root_map.items():assert sha((R/n).read_bytes())==h;new(freeze/'ROOT'/n,(R/n).read_bytes())
+for n,h in maps['PINS'].items():assert sha((R/n).read_bytes())==h
+for n,h in before['protected_ledger_status_checker_native_sha256'].items():assert sha((R/n).read_bytes())==h
+for n,h in {**native_maps['PINS'],**native_maps['AUDIT_PINS']}.items():assert sha((R/n).read_bytes())==h
+manifest={'schema':'workinants.six-c662-reader-fix-author-freeze.v1','ROOT_files_sha256':root_map,'closed_qualifier_inputs_sha256':maps['PINS'],'source_files_sha256':source_map,'old_frozen27_preserved_in_TASK':before['old_ROOT27_sha256'],'author_review_sha256':sha((D/'author-review.json').read_bytes()),'scope_sha256':sha((D/'actual-scope-proof.json').read_bytes()),'before_preservation_sha256':sha((D/'before-author-preservation.json').read_bytes()),'author_files_sha256':{p.relative_to(D).as_posix():sha(p.read_bytes())for p in D.rglob('*')if p.is_file()and not p.is_relative_to(freeze)},'all_gates':'PENDING'}
+new(D/'freeze-manifest.json',encoded(manifest))
+delivery={'schema':'workinants.six-c662-final-read-integrity-fix-frozen-delivery.v1','decision':'READY_FOR_SAME_CATALOG_SOURCE_REREVIEW_NOT_APPROVED','author_review':{'path':str(D/'author-review.json'),'sha256':sha((D/'author-review.json').read_bytes())},'freeze':{'path':str(D/'freeze-manifest.json'),'sha256':sha((D/'freeze-manifest.json').read_bytes())},'source_files_sha256':source_map,'ROOT_files':len(root_map),'archive_files':len(archive),'closed_qualifier_inputs':403,'source_claims':6,'focused16':result,'old_frozen27_403_history_HOLD_probe_and_baseline_preserved':True,'only_reader_plus_importos_runtime_change':True,'Root_real_builder_and_ledger_status':'NOT_RUN_NOT_CHANGED','all_gates':'PENDING','same_reviewer_required':'/root/catalog_v4_review','bounded_atomicity_limit':scope['reader_guarantee'],'Posture':'D'}
+out=T/'six_c662_final_read_integrity_fix_frozen_delivery_20261120.json';new(out,encoded(delivery));print(json.dumps({'delivery':str(out),'sha256':sha(out.read_bytes()),'author_review_sha256':sha((D/'author-review.json').read_bytes()),'freeze_sha256':sha((D/'freeze-manifest.json').read_bytes()),'ROOT_files':len(root_map),'archive_files':len(archive),'source_validation_sha256':source_map[V]}))

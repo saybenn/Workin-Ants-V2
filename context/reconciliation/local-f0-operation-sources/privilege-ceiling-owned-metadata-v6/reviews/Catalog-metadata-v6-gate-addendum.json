@@ -1,0 +1,22 @@
+{
+  "schema": "workinants.privilege-metadata-v6-independent-gate-observation-addendum.v1",
+  "review_sha256": "1aa55cc97c1c27d59d117c1585994dc34404c49b57ea3f2ae3aed701d712b68e",
+  "recorded_at_utc": "2026-11-20T08:36:10.299863+00:00",
+  "clarification": "The original review captured null from a generic source_reviews lookup; exact frozen JSON bytes were verified. This addendum identifies the actual two PENDING fields explicitly. No source decision, gate, file or runtime state was changed.",
+  "gates": {
+    "context/reconciliation/privilege-ceiling-metadata-v6-source-validation.json": {
+      "sha256": "9844836c415f7110ab927a2284ca0b19d7f1d8cc12343c9d09b8c7ebd18bb66e",
+      "field": "review_gate",
+      "observed": "PENDING"
+    },
+    "context/reconciliation/local-f0-privilege-ceiling-owned-metadata-v6-source-validation.json": {
+      "sha256": "c15330ea185798275e5a2bce5c2a369fa34c532e5b0cbca96b1d9ee347c8a065",
+      "field": "independent_safety_sql_review",
+      "observed": {
+        "decision": "PENDING",
+        "scope": "EXACT_METADATA_V6_CODE_AND_OWNED_INTEGRATION_REQUIRES_NONAUTHOR_REVIEW"
+      }
+    }
+  },
+  "runtime": "NOT_RUN"
+}

@@ -1,0 +1,62 @@
+{
+  "schema": "workinants.app571-observed-stop-and-origin-reconciliation.v1",
+  "recorded_at_utc": "2026-11-20T08:09:43.940068+00:00",
+  "observed": {
+    "child_status": "STOPPED_PARTIAL_EVIDENCE_PRESERVED",
+    "first_case": "effect-wrong-root",
+    "child_failure_stage": "FINITE_APP_WRITE_PROTOCOL",
+    "child_failure_code": "INTENDED_SOURCE_GUARD_REQUIRED",
+    "completed_scenarios": 0,
+    "child_operations": 23,
+    "operation_counts_by_stage": {
+      "RESOURCE_PREFLIGHT": 1,
+      "GLOBAL_BACKEND_CLOSURE": 11,
+      "PRE_FIXTURE_FULL_NATIVE": 1,
+      "COMPLETE42_STATE": 3,
+      "SYNTHETIC_USER_PREREQUISITES_ONLY": 1,
+      "POST_FIXTURE_ALL_GUARDS_RESTORED": 1,
+      "RESTRICTED_APP_TRANSACTION": 1,
+      "SEPARATE_ISSUER_COMMIT": 1,
+      "IMMUTABLE_ISSUER_RETENTION": 2,
+      "FINALLY_FULL_NATIVE_PARITY": 1
+    },
+    "actual_operation_record": {
+      "stage": "RESTRICTED_APP_TRANSACTION",
+      "case": "effect-wrong-root",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_reached": true,
+      "write_stage_reached": true,
+      "read_stage_reached": false,
+      "operation_closed": true
+    },
+    "all_operation_backends_closed_before_final_native_observation": true,
+    "fixture_guards_restored_and_final_native_parity": true,
+    "authentication_roles_correct_and_wrong_password": 6,
+    "wrapper_component_closure_confirmed": true,
+    "physical_cleanup_independently_confirmed": true
+  },
+  "unobserved": {
+    "actual_client_exit_ACK_response_sequence_SQLSTATE_diagnostic": "NOT_RETAINED",
+    "complete_original_cause": "UNOBSERVED",
+    "post_failure_complete42_application_data_state": "NOT_OBSERVED",
+    "positive_effect_insert_and_pending_work_update": "NOT_RUN",
+    "remaining13_cases": "NOT_RUN",
+    "parent_after_read_only_native_oracle_ledger_proof": "NOT_RUN"
+  },
+  "source_and_wrapper_origin_reconciliation": {
+    "outer_code": "APP_WRITE_TWO_TYPED_SUCCESS_FIELDS",
+    "outer_reported_stage": "REQUIRED_GLOBAL_BACKEND_CLOSURE",
+    "true_retained_child_origin": "FINITE_APP_WRITE_PROTOCOL/effect-wrong-root/INTENDED_SOURCE_GUARD_REQUIRED",
+    "source_path": "local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+    "source_sha256": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+    "line": 900,
+    "proven_fact": "Success-only typed condition requires current_case is None before status handling. Every other listed field type matches; the stopped child correctly retains current_case effect-wrong-root. This condition masks the retained child failure with a secondary success-schema label.",
+    "global_backend_closure_failed": false,
+    "first_source_oracle": "42501 plus exact customer_profiles INSERT RLS diagnostic; actual diagnostic was not retained. Earlier source guard hypothesis requires separate source analysis/review and new fixed safe observations; do not invent actual missing values."
+  },
+  "qualification": "STOPPED_ATTEMPT_PRESERVED_NO_ASSERTION_PROMOTION",
+  "next": "Independent source diagnosis and bounded reviewed correction; preserve current packet and all raw reports. Continue independent INSTALL work. No identical retry or permission repair.",
+  "Posture": "D"
+}

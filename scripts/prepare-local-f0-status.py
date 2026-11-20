@@ -11,6 +11,7 @@ from local_f0_restricted_evidence import validate_claim as validate_restricted_c
 from local_f0_native_prefix_evidence import validate_claim as validate_native_prefix_claim, EvidenceFailure as NativePrefixEvidenceFailure
 from local_f0_owner_lease_evidence import validate_claim as validate_owner_lease_claim, EvidenceFailure as OwnerLeaseEvidenceFailure
 from local_f0_native_complete_evidence import prepare_batch as prepare_native_complete_batch, EvidenceFailure as NativeCompleteEvidenceFailure
+from local_f0_scoped_read_evidence import prepare_batch as prepare_scoped_read_batch, EvidenceFailure as ScopedReadEvidenceFailure
 ROOT=Path(__file__).resolve().parents[1]
 REC=ROOT/'context/reconciliation'
 SMALL_PASSES={(f'P0C-TABLE-{model}-ALLOW','positive.wa_app_runtime.insert') for model in ('CustomerProfile','CustomerProfileLifecycleEvent','RuntimeCommandReceipt','OwnerMutationEvidence','RuntimeOutboxMessage')}|{
@@ -26,6 +27,7 @@ SMALL_PASSES={(f'P0C-TABLE-{model}-ALLOW','positive.wa_app_runtime.insert') for 
     ('P0C-INSTALL-02','vector.FUNCTION-ACL-FAILURE-CLEANUP.positive'),
 }
 EVIDENCE_RECORDS={
+    'context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json':('07b49506e56918515816949e628569f89ba12066d2b7ecc2ecf60977bf92fe7f','DERIVED_REVIEWED_SCOPED6_SQL_READ_ASSERTIONS_ONLY'),
     'context/reconciliation/local-f0-native-1110fa4-4c894dba-qualified-evidence.json':('1586330d18837b060f8968f85747151c4239271ef1c3cb3caad276773ddb1538','DERIVED_REVIEWED_NATIVE520_DENIAL_ASSERTIONS_ONLY'),
     'context/reconciliation/local-f0-lease-da5ad66-a560e05b-qualified-evidence.json':('33a356710320b9ec5381085354b3ed0199e146685d12364c618e27cd7e9772bc','DERIVED_REVIEWED_LEASE8_FINITE_ASSERTIONS_ONLY'),
     'context/reconciliation/local-f0-owner-da5ad66-72934689-qualified-evidence.json':('0effdedc5c26449d81eb49fa3581f54d57c13eb6e7ac889ce355fc3518f63c24','DERIVED_REVIEWED_OWNER20_FINITE_ASSERTIONS_ONLY'),
@@ -39,6 +41,10 @@ EVIDENCE_RECORDS={
 def build():
     inventory=json.loads((REC/'local-f0-assertions.json').read_text(encoding='utf8'))
     ledger=json.loads((REC/'local-f0-assertion-evidence.json').read_text(encoding='utf8'))
+    scoped_read_batch=None
+    if any(row.get('evidence_path')=='context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json' for row in ledger['assertions']):
+        try:scoped_read_batch=prepare_scoped_read_batch(ROOT)
+        except ScopedReadEvidenceFailure as error:raise AssertionError(str(error)) from None
     native_complete_batch=None
     if any(row.get('evidence_path')=='context/reconciliation/local-f0-native-1110fa4-4c894dba-qualified-evidence.json' for row in ledger['assertions']):
         try:native_complete_batch=prepare_native_complete_batch(ROOT)
@@ -89,6 +95,9 @@ def build():
                 elif execution.get('actual_result')=='PASS_LOCAL_RESTRICTED_CONTROL_PACKETS_ONLY':
                     try:validate_restricted_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer)
                     except RestrictedEvidenceFailure as error:raise AssertionError(str(error)) from None
+                elif row['evidence_path']=='context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json':
+                    try:scoped_read_batch.validate_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer)
+                    except ScopedReadEvidenceFailure as error:raise AssertionError(str(error)) from None
                 elif row['evidence_path']=='context/reconciliation/local-f0-native-1110fa4-4c894dba-qualified-evidence.json':
                     try:native_complete_batch.validate_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer)
                     except NativeCompleteEvidenceFailure as error:raise AssertionError(str(error)) from None
@@ -119,6 +128,9 @@ def build():
     if native_complete_batch is not None:
         try:native_complete_batch.verify_unchanged();native_complete_batch.require_finalized()
         except NativeCompleteEvidenceFailure as error:raise AssertionError(str(error)) from None
+    if scoped_read_batch is not None:
+        try:scoped_read_batch.verify_unchanged();scoped_read_batch.require_finalized()
+        except ScopedReadEvidenceFailure as error:raise AssertionError(str(error)) from None
     return {'scope':'ACTUAL_ASSERTION_EVIDENCE_OVER_EXACT_EXISTING94_IDS','database_posture':'D','Brain_acceptance':'PENDING','counts_are_obligations_not_experiments':True,'assertion_status_counts':totals,'case_status_counts':{s:sum(c['status']==s for c in cases) for s in ('PASS','PARTIAL','FAILED','DEPENDENCY_BLOCKED','NOT_RUN')},'selected_cases':94,'executions':ledger['executions'],'cases':cases}
 
 if __name__=='__main__':

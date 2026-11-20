@@ -1,0 +1,141 @@
+"""Actual Restore SafetySQL composition; only subprocess transport is simulated.
+
+The reviewed template is not injected. Every safety/SQL/observer/finalizer/main
+function below comes from the five current derived family files themselves.
+"""
+import ast
+import copy
+import hashlib
+import inspect
+import io
+import json
+import runpy
+import subprocess
+import tempfile
+import textwrap
+import unittest
+from contextlib import redirect_stdout
+from pathlib import Path
+from unittest.mock import patch
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+BASE=runpy.run_path(str(TASK/'check_common_safety_sql_v1_composed_20261119.py'))
+COMMON=BASE['SafetySQLTests']
+World=BASE['World'];Raw=BASE['Raw'];CANARY=BASE['CANARY']
+PRESERVED=TASK
+PRES={'families_sha256':{family:{new:'' for new in cfg['filename_mapping'].values()} for family,cfg in json.loads((TASK/'safety_sql_v1_derivation_inventory_20261119.json').read_bytes())['families'].items()}}
+
+PRES['families_sha256']['restore']={'execute_local_f0_restore_20261119_resource_mount_v2.py': '', 'local_f0_restore_operation_steps_resource_mount_v2.py': '', 'prepare_local_f0_restore_plan_resource_mount_v2.py': '', 'check_local_f0_restore_operation_resource_mount_v2.py': '', 'pin_local_f0_restore_plan_20261119_resource_mount_v2.py': ''}
+
+fixture=textwrap.dedent(inspect.getsource(COMMON.fixture))
+fixture=fixture.replace("family='install'","family='restore'")
+start=fixture.index("n['OPERATOR_FILES']=(core,);helper=")
+end=fixture.index('world=World(n)',start)
+fixture=fixture[:start]+"n['OPERATOR_FILES']=(core,);\n    "+fixture[end:]
+exec(compile(fixture,str(Path(__file__)),'exec'),globals())
+
+class RestoreResourceMountV2SafetyCompositionTests(unittest.TestCase):
+    setUp=COMMON.setUp
+    fixture=fixture
+    writes_fail=COMMON.writes_fail
+    selectors=COMMON.selectors
+    safe=COMMON.safe
+
+    def test_Core_delta_is_only_two_source_hooks_and_Steps_other_semantics_are_exact(self):
+        old_core = ast.parse((TASK/'execute_local_f0_restore_20261119_safety_sql_v1.py').read_bytes())
+        new_core = ast.parse((TASK/'execute_local_f0_restore_20261119_resource_mount_v2.py').read_bytes())
+        old = next(n for n in old_core.body if isinstance(n, ast.FunctionDef) and n.name == 'create_resources')
+        new = copy.deepcopy(next(n for n in new_core.body if isinstance(n, ast.FunctionDef) and n.name == 'create_resources'))
+        hooks = []
+        for node in ast.walk(new):
+            for field, value in ast.iter_fields(node):
+                if isinstance(value, list):
+                    kept = []
+                    for item in value:
+                        if isinstance(item, ast.Expr) and isinstance(item.value, ast.Call) and isinstance(item.value.func, ast.Name) and item.value.func.id == 'inspect_restore':
+                            hooks.append(ast.dump(item.value, include_attributes=False))
+                        else:
+                            kept.append(item)
+                    setattr(node, field, kept)
+        self.assertEqual(len(hooks), 2)
+        self.assertTrue(all("Constant(value='source')" in h for h in hooks))
+        self.assertEqual(ast.dump(old, include_attributes=False), ast.dump(new, include_attributes=False))
+        before = (TASK/'local_f0_restore_operation_steps_safety_sql_v1.py').read_text()
+        mappings = {
+            'execute_local_f0_restore_20261119_safety_sql_v1.py':'execute_local_f0_restore_20261119_resource_mount_v2.py',
+            'local_f0_restore_operation_steps_safety_sql_v1.py':'local_f0_restore_operation_steps_resource_mount_v2.py',
+            'prepare_local_f0_restore_plan_safety_sql_v1.py':'prepare_local_f0_restore_plan_resource_mount_v2.py',
+            'check_local_f0_restore_operation_safety_sql_v1.py':'check_local_f0_restore_operation_resource_mount_v2.py',
+            'pin_local_f0_restore_plan_20261119_safety_sql_v1.py':'pin_local_f0_restore_plan_20261119_resource_mount_v2.py',
+            'restore-physical-safety-sql-v1':'restore-physical-resource-mount-v2',
+            'local-f0-restore-safety-sql-v1-source-validation.json':'local-f0-restore-resource-mount-v2-source-validation.json'}
+        for a,b in mappings.items(): before=before.replace(a,b)
+        left={n.name:n for n in ast.parse(before).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
+        right={n.name:n for n in ast.parse((TASK/'local_f0_restore_operation_steps_resource_mount_v2.py').read_bytes()).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
+        self.assertEqual(set(right)-set(left),{'verify_running_restore_secret_tmpfs'})
+        self.assertEqual(set(left)-set(right),set())
+        self.assertEqual({name for name in left if ast.dump(left[name],include_attributes=False)!=ast.dump(right[name],include_attributes=False)},{'inspect_restore'})
+        owner=ast.parse((TASK/'local_f0_owner_read_operation_steps_resource_mount_v2.py').read_bytes())
+        restore=ast.parse((TASK/'local_f0_restore_operation_steps_resource_mount_v2.py').read_bytes())
+        def script(tree,name): return next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id==name for t in n.targets))
+        self.assertEqual(script(restore,'RESTORE_SECRET_TMPFS_SCRIPT'),script(owner,'OWNER_SECRET_TMPFS_SCRIPT').replace('WA_OWNER_SECRET_TMPFS_V2_OK','WA_RESTORE_SECRET_TMPFS_V2_OK'))
+
+    def test_actual_functions_are_embedded_not_template_injected(self):
+        n,w,p,*_=self.fixture()
+        core=TASK/'execute_local_f0_restore_20261119_resource_mount_v2.py'
+        steps=TASK/'local_f0_restore_operation_steps_resource_mount_v2.py'
+        for key in ('finalize','closed_backends','_required_zero_backends','_required_safety_sql','sql','observe'):
+            self.assertEqual(Path(n[key].__code__.co_filename),core)
+        self.assertEqual(Path(n['main'].__code__.co_filename),steps)
+        self.assertNotIn('closed_backends',{x.name for x in ast.parse(steps.read_bytes()).body if isinstance(x,ast.FunctionDef)})
+
+    def test_actual_catalog_operation_closes_after_ordinary_postwrite_failure(self):
+        n,w,p,*_=self.fixture();self.writes_fail(n,w,mode='post')
+        with self.assertRaises(OSError),redirect_stdout(io.StringIO()):
+            n['run_catalog_query']('first','SELECT 1;','ACTUAL_CATALOG_QUERY')
+        self.assertEqual(self.selectors(w),['NORMAL','GLOBAL_BACKENDS'])
+        self.assertFalse(n['_required_safety_evidence_complete']());self.safe(n)
+
+    def test_actual_restore_finalizer_and_original_sql_recipe_are_exact(self):
+        n,w,p,*_=self.fixture();old=TASK/'execute_local_f0_restore_20261119_safety_sql_v1.py'
+        before=ast.parse(old.read_bytes());after=ast.parse((TASK/'execute_local_f0_restore_20261119_resource_mount_v2.py').read_bytes())
+        for key in ('sql','observe','psql_args','cleanup'):
+            self.assertEqual(ast.dump(next(x for x in before.body if isinstance(x,ast.FunctionDef) and x.name==key),include_attributes=False),ast.dump(next(x for x in after.body if isinstance(x,ast.FunctionDef) and x.name==key),include_attributes=False))
+        with redirect_stdout(io.StringIO()):n['finalize']('first')
+        self.assertEqual(self.selectors(w),['FINALIZATION_BACKENDS','ORIGINAL_GRANTOR_FINALIZATION','FINALIZATION_RESULT'])
+        self.assertEqual(w.trace[1]['sql_sha256'],hashlib.sha256(p.read_bytes()).hexdigest())
+
+# Reuse the reviewed adversarial vectors, but with the actual Restore fixture
+# above and a single explicit Restore profile. No helper bodies are recompiled.
+selected=(
+ 'test_real_finalizers_all_five_profiles_execute_pre_revoke_post_under_persistent_io',
+ 'test_pre_post_write_and_event_failure_each_preserve_actual_safety_order',
+ 'test_global_closure_real_sql_still_runs_then_public_barrier_blocks_normal_continuation',
+ 'test_normal_sql_and_observe_are_unchanged_and_still_stop_before_command',
+ 'test_invalid_or_active_precondition_never_dispatches_original_finalizer',
+ 'test_nonzero_unknown_or_malformed_command_response_blocks_revoke',
+ 'test_missing_drifted_unadmitted_or_symlink_source_blocks_finalizer_and_still_observes_post',
+ 'test_source_recipe_preservation_and_foreign_profile_target_selector_are_closed',
+ 'test_first_command_stop_survives_post_observer_stop',
+ 'test_original_operation_stop_survives_nested_closure_persistence_error',
+ 'test_actual_owning_mains_only_command_mock_still_finalize_and_remove_all_owned_resources',
+ 'test_clean_success_all_profiles_and_no_io_error_permits_normal_continuation',
+ 'test_timeout_and_command_stop_preserve_first_failure_and_never_qualify_cleanup',
+ 'test_post_observer_strict_identity_shape_and_authority_never_get_promoted',
+ 'test_existing_original_primary_survives_later_finalizer_and_post_failures_all_profiles',
+ 'test_ordinary_finalizer_exit3_retains_clean_or_dirty_safe_poststate_as_unqualified_all_profiles',
+ 'test_source_failure_retains_only_validated_post_and_preserves_recorded_primary_all_profiles',
+ 'test_existing_primary_survives_nested_closure_failure_all_profiles',
+ 'test_fixed_finalizer_missing_nonregular_and_regular_paths_keep_exact_source_gate',
+)
+for key in selected:
+    source=textwrap.dedent(inspect.getsource(getattr(COMMON,key)))
+    source=source.replace("('lease','restore','native','owner','install')","('restore',)").replace("self.fixture('lease')","self.fixture('restore')")
+    source=source.replace("n['record_failure'](error.exception.stage,error.exception.code,primary=True)","n['_required_safety_first_exception'](error.exception)")
+    namespace={};exec(compile(source,str(Path(__file__)),'exec'),globals(),namespace)
+    setattr(RestoreResourceMountV2SafetyCompositionTests,key,namespace[key])
+
+del COMMON
+
+if __name__=='__main__':unittest.main(verbosity=2)

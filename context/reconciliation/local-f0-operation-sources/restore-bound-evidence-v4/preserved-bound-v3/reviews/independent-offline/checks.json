@@ -1,0 +1,110 @@
+{
+  "schema": "workinants.restore-resource-mount-v2-independent-checks.v1",
+  "recorded_at_utc": "2026-11-19T22:38:20.973207+00:00",
+  "request_sha256": "bf8207e2d73a244e51ab91fb0ea2c7f0558a8dd74f010d962466b476bc897a4a",
+  "operator_sources_sha256": {
+    "execute_local_f0_restore_20261119_resource_mount_v2.py": "b94ac751379d6b6ff204c5fe2324cc1593355f2ec65a316e62de7ee74a8d876d",
+    "local_f0_restore_operation_steps_resource_mount_v2.py": "1a0eb4881497b43eb8c05f7d296c722dbd8eda90c3b3844c51e2552022fd6c3e",
+    "prepare_local_f0_restore_plan_resource_mount_v2.py": "df1aa97ca6cd0026503dbf42cf1d8c9e3ae62290d07f7858360e7d36a201d2b2",
+    "check_local_f0_restore_operation_resource_mount_v2.py": "cb8d20a01c6086527a963333995f012dca830c1b9f0f4818811ea8d9cb961bbf",
+    "pin_local_f0_restore_plan_20261119_resource_mount_v2.py": "01eb4ddcf000bee96136a50e62fcc146aa5c8acba34b5051ccef98c3a96dfdff"
+  },
+  "archive52_verified": true,
+  "freeze71_members_verified": true,
+  "old65_TASK884_Root_and_INSTALL2_verified_unchanged": true,
+  "preserved33_copies_verified": true,
+  "source_delta": {
+    "execute_local_f0_restore_20261119_resource_mount_v2.py": {
+      "exact_text_after_namespace": false,
+      "changed": [
+        "create_resources"
+      ],
+      "added": [],
+      "removed": []
+    },
+    "local_f0_restore_operation_steps_resource_mount_v2.py": {
+      "exact_text_after_namespace": false,
+      "changed": [
+        "inspect_restore"
+      ],
+      "added": [
+        "verify_running_restore_secret_tmpfs"
+      ],
+      "removed": []
+    },
+    "prepare_local_f0_restore_plan_resource_mount_v2.py": {
+      "exact_text_after_namespace": true,
+      "changed": [],
+      "added": [],
+      "removed": []
+    },
+    "check_local_f0_restore_operation_resource_mount_v2.py": {
+      "exact_text_after_namespace": false,
+      "changed": [
+        "RestoreOperationTests"
+      ],
+      "added": [],
+      "removed": []
+    },
+    "pin_local_f0_restore_plan_20261119_resource_mount_v2.py": {
+      "exact_text_after_namespace": false,
+      "changed": [],
+      "added": [],
+      "removed": []
+    }
+  },
+  "Core_exact_two_literal_source_hooks_only": [
+    "Call(func=Name(id='inspect_restore', ctx=Load()), args=[Name(id='name', ctx=Load()), Constant(value='source')], keywords=[keyword(arg='running', value=Constant(value=False))])",
+    "Call(func=Name(id='inspect_restore', ctx=Load()), args=[Name(id='name', ctx=Load()), Constant(value='source')], keywords=[])"
+  ],
+  "Steps_all_other_module_nodes_exact": true,
+  "pinner_only_namespace_and_frozen_four_hash_updates": true,
+  "actual_sequential_suites": [
+    {
+      "file": "check_restore_resource_mount_v2_resources_20261119.py",
+      "source_sha256": "0d9482d1cd5d7c66955a51b2cff9fbb7cb783f2ae0c9a5ccb567706e4819d1a7",
+      "tests": 10,
+      "seconds": 1.485,
+      "unittest_seconds": 0.948,
+      "exit_code": 0,
+      "status": "PASS",
+      "output_sha256": "64a2006b753ae62298e9084e021c531507f2de05f0d55c51f18407eff791fcad"
+    },
+    {
+      "file": "check_local_f0_restore_operation_resource_mount_v2.py",
+      "source_sha256": "cb8d20a01c6086527a963333995f012dca830c1b9f0f4818811ea8d9cb961bbf",
+      "tests": 64,
+      "seconds": 29.282,
+      "unittest_seconds": 28.658,
+      "exit_code": 0,
+      "status": "PASS",
+      "output_sha256": "853eec117e167a38b9f042ff3e6502341a3f6509510a05c1ccb5925288054048"
+    },
+    {
+      "file": "check_restore_resource_mount_v2_safety_composed_20261119.py",
+      "source_sha256": "0181b2c8168c2d492bf3b968aae60d67c9a3452b13b085a2aca91b7a5fb71225",
+      "tests": 23,
+      "seconds": 6.219,
+      "unittest_seconds": 5.535,
+      "exit_code": 0,
+      "status": "PASS",
+      "output_sha256": "d3e5d0ef7472ad0a6d1adee03542668cac1c4846ae1d07ed5ae0858973c12f54"
+    },
+    {
+      "file": "check_restore_resource_mount_v2_source_gates_20261119.py",
+      "source_sha256": "160f1679b620750ba5d02c5e418d4a9321c9de21bdd3bc1a11298f9ab20d0fbc",
+      "tests": 4,
+      "seconds": 27.0,
+      "unittest_seconds": 26.389,
+      "exit_code": 0,
+      "status": "PASS",
+      "output_sha256": "fc8ce7c7703dd53347ea030a93dd42840e5cc068ae3687ae0fc1f6977bb80265"
+    }
+  ],
+  "unique_test_methods": 101,
+  "canonical_SQL_migration_worker_ACL_unchanged": true,
+  "actual_Git_Docker_database_SQL_shell_kernel_network_credentials_resources": false,
+  "reviewer_source_repository_or_approval_metadata_edits": false,
+  "runtime": "NOT_RUN",
+  "Posture": "D"
+}

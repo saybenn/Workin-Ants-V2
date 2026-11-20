@@ -1,0 +1,13 @@
+"""Run only the reviewed namespace's offline unit suite when Root clears CPU."""
+from pathlib import Path
+import hashlib,json,os,subprocess,sys,time
+D=Path(__file__).resolve().parent;T=D.parent;R=T/'workinants-correction-pass'
+log=D/'focused-reader-fix.log';receipt=D/'focused-reader-fix-result.json'
+assert not log.exists()and not receipt.exists()
+env=os.environ.copy();env.update(PYTHONUTF8='1',PYTHONPATH=str(R/'scripts'),TMP=str(T/'test-tmp'),TEMP=str(T/'test-tmp'),TMPDIR=str(T/'test-tmp'))
+started=time.perf_counter()
+with log.open('xb')as stream:
+    result=subprocess.run([sys.executable,'-B',str(R/'scripts/check-local-f0-scoped-read-evidence.py'),'-v'],cwd=R,env=env,stdout=stream,stderr=subprocess.STDOUT,shell=False)
+raw=log.read_bytes();value={'schema':'workinants.six-c662-reader-fix-focused-result.v1','exit_code':result.returncode,'seconds':round(time.perf_counter()-started,3),'log_sha256':hashlib.sha256(raw).hexdigest(),'log':str(log),'scope':'Offline private403 evidence tests only; subprocess/socket/Docker/database boundaries inside tested code blocked. No realRoot builder or ledger/status write.'}
+with receipt.open('x',encoding='utf8')as stream:json.dump(value,stream,indent=2);stream.write('\n')
+print(json.dumps(value));sys.exit(result.returncode)

@@ -1,0 +1,10 @@
+{
+  "first_golden": "FAILED_AUTHOR_PARSER_NOT_A_PASS",
+  "fixed_code": "JSON_TYPES",
+  "cause": "Generic walker rejected the immutable audit finite elapsed-seconds float. Corrected to allow finite JSON floats while explicit count/exit/claim type checks remain exact. Added regression rejects NaN/Infinity and1e999 overflow.",
+  "original_initial_module_sha256": "dd8ee2504dfcbdbff7b050ffe48cd8302e474e4984dfa3eb205f41c72c48fa91",
+  "later_snapshot_copy_sha256": "00c74cdd0ca524e5dbaef85aa3704c20d7cd9bca342ceaf05b5c8d55cc27a2a5",
+  "snapshot_race_disclosure": "The PowerShell snapshot copy remained running while the first parser fix applied, so its copied bytes were later. Original failed module reconstructed by reversing only that fix, independently matches exact initial authoring receiptdd8ee250. Both retained.",
+  "copy_session61809": "CLOSED exit0, no output; no runtime/service/status operation.",
+  "reader_command_syntax_error": "One exploratory read command had a Python ternary spacing SyntaxError; corrected read-only command. Not a source/runtime finding or test pass."
+}

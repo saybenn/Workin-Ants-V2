@@ -1,0 +1,48 @@
+"""Independent PRIVATE-only actual-method final-reader mutation probe.
+
+No project source edits, no actual process/network/SQL or qualification write.
+"""
+from pathlib import Path
+from unittest.mock import patch
+import ast,hashlib,importlib.util,json,os,socket,subprocess,tempfile
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';OUT=T/'six_adapter_final_read_integrity_independent_probe_20261120.json'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+assert not OUT.exists()
+path=R/'scripts/local_f0_scoped_read_evidence.py';raw=path.read_bytes();assert sha(raw)=='c2a6389376311cc37cf3e73a007ca8185a85ccf19cdc10baa085ce80cbf913c7'
+spec=importlib.util.spec_from_file_location('_independent_six_reader_probe',path);E=importlib.util.module_from_spec(spec);spec.loader.exec_module(E)
+guard=lambda *a,**k:(_ for _ in()).throw(AssertionError('PROCESS_NETWORK_FORBIDDEN'))
+temp_parent=T/'test-tmp';temp_parent.mkdir(exist_ok=True)
+temporary=tempfile.TemporaryDirectory(prefix='independent-six-final-reader-',dir=temp_parent);base=Path(temporary.name).resolve();assert base.parent==temp_parent.resolve();root=base/'root';root.mkdir()
+try:
+    original={name:(R/name).read_bytes() for name in E.PINS}
+    for name,body in original.items():
+        assert sha(body)==E.PINS[name];dest=root/name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(body)
+    execution=E.doc(original[E.DERIVED]);target=root/E.DERIVED;before=target.stat();old=original[E.DERIVED];changed=old.replace(b'"status": "PASS"',b'"status": "FAIL"',1);assert changed!=old and len(changed)==len(old)
+    mutated=False;handles=[];original_open=Path.open
+    class Reader:
+        def __init__(self,path,reader):self.path=path;self.reader=reader;handles.append(reader)
+        def __enter__(self):self.reader.__enter__();return self
+        def __exit__(self,*args):return self.reader.__exit__(*args)
+        def __getattr__(self,name):return getattr(self.reader,name)
+        def read(self,size=-1):
+            global mutated
+            result=self.reader.read(size)
+            if not mutated:
+                metadata=self.path.stat()
+                with original_open(self.path,'wb') as writer:writer.write(changed);writer.flush();os.fsync(writer.fileno())
+                os.utime(self.path,ns=(metadata.st_atime_ns,metadata.st_mtime_ns));mutated=True
+            return result
+    def opening(path,*args,**kwargs):
+        reader=original_open(path,*args,**kwargs);mode=args[0]if args else kwargs.get('mode','r')
+        return Reader(path,reader) if path==target and mode=='rb' else reader
+    with patch.object(subprocess,'run',guard),patch.object(subprocess,'Popen',guard),patch.object(socket,'socket',guard),patch.object(socket,'create_connection',guard):
+        batch=E.prepare_batch(root)
+        for key,index in E.CLOSED_CLAIMS.items():assert batch.validate_claim(*key,'PASS',execution,root,json_pointer='/claims/'+str(index)) is True
+        with patch.object(Path,'open',opening):barrier=batch.verify_unchanged()
+        finalized=batch.require_finalized()
+    after=target.stat();after_body=target.read_bytes()
+    value={'schema':'workinants.six-adapter-independent-final-read-integrity-probe.v1','source_sha256':sha(raw),'actual_API':'prepare_batch + all6 validate_claim + verify_unchanged + require_finalized','private_mutation_only':True,'expected_pinned_sha256':E.PINS[E.DERIVED],'private_disk_after_sha256':sha(after_body),'mutation_during_final_read':mutated,'returned_barrier':barrier,'returned_finalized':finalized,'same_inode':before.st_ino==after.st_ino,'same_device':before.st_dev==after.st_dev,'same_size':before.st_size==after.st_size,'same_mtime_ns':before.st_mtime_ns==after.st_mtime_ns,'same_nlink':before.st_nlink==after.st_nlink,'disk_matches_pinned_after_return':sha(after_body)==E.PINS[E.DERIVED],'private_claim_status_after':json.loads(after_body)['claims'][0]['status'],'readers_closed':all(h.closed for h in handles),'source_root_files_unchanged':all(sha((R/name).read_bytes())==wanted for name,wanted in E.PINS.items()),'actual_Docker_DB_SQL_Git_network':False,'real_ledger_status_gate_writes':False,'interpretation':'Final barrier accepts while the derived evidence changes in place during that read, preserving inode/size/mtime. This is an in-flight read integrity counterexample, not a perpetual-filesystem-atomicity claim.'}
+    with OUT.open('xb') as stream:stream.write((json.dumps(value,indent=2)+'\n').encode())
+    print(json.dumps({'probe':str(OUT),'sha256':sha(OUT.read_bytes()),'barrier':barrier,'finalized':finalized,'disk_matches_pinned':value['disk_matches_pinned_after_return']}))
+finally:
+    assert base.resolve().parent==temp_parent.resolve();temporary.cleanup()

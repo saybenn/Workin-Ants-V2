@@ -1,0 +1,15 @@
+{
+  "schema": "workinants.six-c662-reader-fix-source-plan.v1",
+  "authority_ACK_sha256": "77288c3cecc2385cb599fea327229d88832adf56b67bf85df3b7f1b21f4c4de5",
+  "HOLD_sha256": "9b5a7f1e47be05ed94857bc26d67baa68b0c753e17c57d2bd350acbfdcb8d554",
+  "finding": "SCOPED6-FINAL-READ-INTEGRITY-01",
+  "original_parser_sha256": "c2a6389376311cc37cf3e73a007ca8185a85ccf19cdc10baa085ce80cbf913c7",
+  "allowed_runtime_code_delta": "Only _read plus stdlib os import. All403 literal pins, six claims, JSON/types, semantic checks, private batch state, exact seen-six, sticky failure, final barrier and dispatcher stay unchanged.",
+  "reader": "Two bounded reads, each with confined nonsymlink regular single-link path lstat, strict typed size/metadata, descriptor fstat at open and after read, and path lstat after handle closure. Compare identity/mode/size/mtime/nlink across representations; compare ctime only path-to-path and handle-to-handle. The second fresh closed-path read must match original identity/path-ctime and original bytes plus the pinned hash. No reader escapes, no retry/waiver.",
+  "atomicity_limit": "Bounded in-flight integrity checks, following reviewed AppFix2. This does not promise perpetual filesystem atomicity after the final check.",
+  "regressions": "Actual prepare_batch/all6claims/verify_unchanged/require_finalized on a private403-file clone with PASS-to-FAIL mutation during final read, same inode/size/mtime/nlink, unchanged PINS/factories. New reader rejects and stays unfinalized; restoring only original _read reproduces acceptance. Also exercise metadata-stable fresh byte recheck, valid Windows path/handle ctime differences, descriptor identity drift, closed handles/exact403 graph, and existing full12 source semantics/dispatcher tests.",
+  "preservation": "Original frozen27,403 input bytes, old author histories, HOLD/probe/ACK and baseline12PASS86.440s preserved before edit. Old647 ledger/status615/checker/Native303+AUDIT3 unchanged.",
+  "source_gates": "PENDING until SAME Catalog reviewer closes finding and Root reviews. No actual runtime, real Root builder, ledger/status write, Git, Docker, DB or network.",
+  "CPU_schedule": "Focused tests held during actual INSTALL; only static source/test writing until Root closed/cleanup notification.",
+  "Posture": "D"
+}

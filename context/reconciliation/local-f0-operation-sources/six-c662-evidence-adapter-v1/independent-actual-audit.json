@@ -1,0 +1,114 @@
+{
+  "schema": "workinants.six-c662-independent-closed-evidence-audit.v1",
+  "recorded_at_UTC": "2026-11-20T07:52:23.485414+00:00",
+  "reviewer": "/root/privilege_mount_v2_review",
+  "authored_Six_source": false,
+  "prior_lineage": "Independent source PLAN and operational literal reviews only. This runtime evidence audit precedes separate parser authorship; parser source approval must come from other reviewers.",
+  "decision": "PASS_EXACT6_RESTRICTED_SQL_SELECT_ASSERTION_LINKS_ONLY",
+  "findings": [],
+  "raw_record": {
+    "path": "context/reconciliation/local-f0-six-read-5f189aa-c662f807-execution.json",
+    "sha256": "acac8f669272f99e2903adad529366b0e156b18fe39de8c90982e921ffc1b7f8"
+  },
+  "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+  "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+  "packet_sha256": "3c5d2bccc05b994a761dd8db98714f315e7b10319b38bfb1f3aff0e68a50cef0",
+  "source_files": 354,
+  "assets": 43,
+  "captured_unique_files": 398,
+  "claims": [
+    {
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "status": "PASS",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "95e74e63c99bdee7f73fc7a23cc87ceced519732a30ee405db7ed31dfb18fb18",
+      "positive_protocol": "agegateattempt-positive-root",
+      "positive_result_pointer": "/results/0",
+      "model_protocols": 11,
+      "whole_case_promoted": false
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "status": "PASS",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "64e4865d70db14ebb4868cea83a12abdc5b9c5b4ed876d9643d3ff40fdfdfe56",
+      "positive_protocol": "agegateblock-positive-root",
+      "positive_result_pointer": "/results/11",
+      "model_protocols": 11,
+      "whole_case_promoted": false
+    },
+    {
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "status": "PASS",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "aeabae70b7094fb92098ab6b4888532fcd177af64db755536ed8f68373f495c5",
+      "positive_protocol": "accessauditlog-positive-root",
+      "positive_result_pointer": "/results/22",
+      "model_protocols": 11,
+      "whole_case_promoted": false
+    },
+    {
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "status": "PASS",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "b124ba1265a1a4ed54d060303c33fcea1d4ef6c4bbb78d6e8ea9d229136b695a",
+      "positive_protocol": "userrole-positive-root",
+      "positive_result_pointer": "/results/33",
+      "model_protocols": 14,
+      "whole_case_promoted": false
+    },
+    {
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "status": "PASS",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "ec1ae2465e8631fdad1108a81db250d325c211d03abdccfbe41886f9e4790f7b",
+      "positive_protocol": "auditevent-positive-root",
+      "positive_result_pointer": "/results/47",
+      "model_protocols": 11,
+      "whole_case_promoted": false
+    },
+    {
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select",
+      "status": "PASS",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "135cc578b9d75002d5486e0c175d2a26f6aa0585332f80b7dd1506dd8c840d50",
+      "positive_protocol": "authprovideraccount-positive-root",
+      "positive_result_pointer": "/results/58",
+      "model_protocols": 13,
+      "whole_case_promoted": false
+    }
+  ],
+  "observations": {
+    "protocols": 71,
+    "read_queries": 65,
+    "binder_denials": 6,
+    "operations": 586,
+    "global_zero": 152,
+    "trigger_restoration_observations": 74,
+    "issuer_COMMITs": 71,
+    "retention_observations": 213,
+    "fixture_rows": 16,
+    "owner_commit_setup_bypasses": 8,
+    "full_native_comparisons_before_after": 29089,
+    "oracle": 416,
+    "private_ledger": 22,
+    "original_grantor_finalization": true,
+    "single_install_sameCID_readonly_after": true,
+    "cleanup": "PASS_INDEPENDENT_PHYSICAL_CLEANUP"
+  },
+  "checks": 367095,
+  "seconds": 1.461,
+  "limits": [
+    "At most six exact positive.wa_app_runtime.select assertions; no generic vector, whole case, owner write, SH/API or worker mapping.",
+    "Sixteen privileged preseed writes are fixture facts, never owner creation proof.",
+    "The target legacy application field remains NOT_RUN; one genuine Prisma deployment and independently bound native/oracle/ledger evidence establish only the reviewed local SQL prerequisite.",
+    "71 complete-state digests and 42-table count/hash/coherence checks qualify the scoped source path; no raw row identities, credentials, handles or discarded stderr reconstructed.",
+    "No new runtime invoked; no ledger/status promotion during this audit. Posture D and Brain acceptance remain."
+  ]
+}

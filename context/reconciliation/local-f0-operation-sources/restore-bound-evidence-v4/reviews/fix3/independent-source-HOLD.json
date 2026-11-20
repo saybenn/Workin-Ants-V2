@@ -1,0 +1,187 @@
+{
+  "schema": "workinants.restore-bound-evidence-v4-fix2.independent-source-review.v1",
+  "recorded_at_utc": "2026-11-20T07:01:18.606059+00:00",
+  "reviewer": "/root/install_outer_review",
+  "decision": "SOURCE_APPROVAL_WITHHELD",
+  "scope": "Exact Fix2 five; original transaction-options finding closed, one small dotted-namespace finding remains. No source gate or runtime approval.",
+  "authorship_disclosure": {
+    "Fix2_author": "/root/catalog_v4_review",
+    "reviewer_authored_Fix2": false,
+    "lineage": "Reviewer authored inherited BoundEvidenceV3 and some accepted common/Owner/Six sources. This is a nonauthor review of Catalog Fix2 delta; prior base source approvals are not self-reapproved."
+  },
+  "bindings": {
+    "five_sha256": {
+      "execute_local_f0_restore_20261119_bound_evidence_v4.py": "187108844d74827427a2ccfd2299d67c466c8ff474df4124c138bf34f92ccc36",
+      "local_f0_restore_operation_steps_bound_evidence_v4.py": "a185177d3990866dfdf9fdfc32196698e4c7f558c09877c67efec488c21344ea",
+      "prepare_local_f0_restore_plan_bound_evidence_v4.py": "ac714d7e1966199c6036b5bba78e9f41160f30d8366eaddbd31b9ee39fa01752",
+      "check_local_f0_restore_operation_bound_evidence_v4.py": "e2e754d3e64610825367987c9c13c2564186ce1dbbe19c153034b38f7904a6f3",
+      "pin_local_f0_restore_plan_20261119_bound_evidence_v4.py": "34ae69373277b8374d52757455d9f577fd066ce84a0583e00d83b4e0d045c68a"
+    },
+    "delivery": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_bound_evidence_v4_frozen_source_plan_fix2_20261120.json",
+      "sha256": "27ee3bbf01edc244a62b69e4f9304cb8fe04c69deffce733f50ce7dcbe75e368"
+    },
+    "author_review": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_bound_evidence_v4_source_author_review_fix2_20261120.json",
+      "sha256": "9bb79ce34cb7d4b6f9475db04046d1ad82fd138345f60b856a952e8d3ec67df2"
+    },
+    "freeze453": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore-bound-evidence-v4-author-freeze-fix2-20261120\\freeze-manifest.json",
+      "sha256": "04ee4701f12ffa6118b189e54123de734d2a36d71b46623de8cf8faa4c985578",
+      "all453_hashes_verified": true
+    },
+    "validation": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\context\\reconciliation\\local-f0-restore-bound-evidence-v4-source-validation.json",
+      "sha256": "6bd02ec1cef344739a8f6f6929e76658bc3d18830e5a7054b6813f32a95b1f66",
+      "archive270_exact_tree_and_hashes_verified": true,
+      "source_reviews": {
+        "author": "PENDING",
+        "offline": "PENDING",
+        "independent": "PENDING",
+        "Root": "PENDING"
+      }
+    },
+    "Root_fix2_ACK_sha256": "6961dc75736afd7c3ae3fb47c465e520159eeab1d130cf0b6d61a79d6a2de55b",
+    "prior_HELD_review_sha256": "23698acc74ce85e0095b339ff1de115c90c7235f3c4d2a055642e8843dce26e6"
+  },
+  "original_finding_resolution": {
+    "id": "RESTORE-V4-TRANSACTION-OPTIONS-01",
+    "decision": "CLOSED_EXACT_FIX2",
+    "independent74": {
+      "rejected": 68,
+      "accepted_exact": 6,
+      "immutable_input_sha256": "832e93e7659bb4132687c41bf1fadc1662c5184ab922f6a0f66f8d2630a7fa81"
+    },
+    "restored_only_old_if_predicate": "Independent selected test reproduces58 unsupported admissions with fixed lexer/helpers retained; current rejects every one.",
+    "additional_checks": "Independent six new methods pass36 case/quote/scope/comment SET cases,20 RESET/RESET ALL cases and11 original business controls. Exact literal names casefold consistently, dotted parameters join into full names, quoted tokens stay in bounded memory only.",
+    "actual_bound_safety": "Unsupported genuine option rejects before finish; no later case, actual Session.close and independent global closure preserved."
+  },
+  "findings": [
+    {
+      "id": "RESTORE-V4-CUSTOM-GUC-NAMESPACE-02",
+      "priority": "P2",
+      "decision": "SOURCE_APPROVAL_WITHHELD",
+      "title": "Transaction keyword prefix incorrectly rejects an ordinary dotted GUC namespace",
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_restore_operation_steps_bound_evidence_v4.py",
+      "sha256": "a185177d3990866dfdf9fdfc32196698e4c7f558c09877c67efec488c21344ea",
+      "line": 957,
+      "function": "normalize_bound_envelope.transaction_control",
+      "explanation": "tail[0]==TRANSACTION is treated as a transaction-option statement even when the next token is a dot in a custom GUC parameter. Quoting the same namespace bypasses this false-positive branch and reaches correct exact-name parameter matching.",
+      "counterexample": {
+        "unquoted": "SET LOCAL transaction.custom = 'on'; SELECT 1; COMMIT;",
+        "quoted_equivalent": "SET LOCAL \"transaction\".custom = 'on'; SELECT 1; COMMIT;",
+        "offline_pglast_AST": "Both VAR_SET_VALUE, name=transaction.custom, is_local=True",
+        "actual_unquoted": "REJECTED RESTORE_ENVELOPE_UNSUPPORTED_TRANSACTION",
+        "actual_quoted": "ADMITTED unchanged business bytes",
+        "probe_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_v4_fix2_independent_classifier_probe_20261120.json",
+        "probe_sha256": "78af420710aca8854b9380114a57716edc2816beb28f79e449bf1efd3f9b293c",
+        "valid_business_vectors": 45,
+        "incorrect_rejections": 19,
+        "correctly_admitted_controls": 26
+      },
+      "version_qualification": {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_v4_fix2_custom_namespace_version_qualification_20261120.json",
+        "sha256": "3968145d18113648e71d0667dba297bacf8c7c75c097e6498937e682ba85d499",
+        "held064_incorrect_bare_rejections": 6,
+        "Fix2a185_incorrect_rejections": 19,
+        "newly_rejected_scoped_or_commented": 13,
+        "not_all_originated_in_Fix2": true
+      },
+      "contract_basis": "Root ACK6961 preserves ordinary unrelated SET/RESET targets, quoted identifiers and business bytes without a broad SET ban; Fix2 delivery further declares dotted custom parameter names stay distinct. Review task explicitly requested namespace/custom-name checking.",
+      "impact_and_limits": "Valid ordinary custom setting statements can be refused as transaction-control forms. None of the three pinned positive Restore programs contains these toy custom settings. No actual runtime failure, permission bug or historical warning cause inferred.",
+      "bounded_fix_requirement": "Distinguish a standalone TRANSACTION control keyword from TRANSACTION used as the first component of a dotted setting name. Preserve all68 required original rejections, six exact alias names, RESET/RESET ALL policy, comments/case/quoted equivalence and ordinary search_path/custom settings. Add these parse-checked business-equivalence cases and a restoration tripwire; no SQL/source fixture/role/timeout/physical behavior change."
+    }
+  ],
+  "actual_checks": {
+    "record_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_v4_fix2_independent_selected_checks_20261120.json",
+    "record_sha256": "f1d0a8dd1c42520a292c57a8d4139a22b2aca98eddf93110b78fba85427a43fd",
+    "script_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_v4_fix2_independent_probe_20261120.py",
+    "script_sha256": "1f10948e04181b4813647b6931e38d7b6b5619ec04a8347b4d58efbecc1d7b0d",
+    "tests_run": 8,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 1.234,
+    "methods": [
+      {
+        "method": "<run_path>.TransactionOptionsFix2Tests.test_exact_independent74_parse_valid_vectors_follow_closed_contract",
+        "seconds": 0.234,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.TransactionOptionsFix2Tests.test_SET_scopes_comments_and_casefolded_quoted_GUC_names_reject",
+        "seconds": 0.078,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.TransactionOptionsFix2Tests.test_RESET_six_aliases_and_explicit_RESET_ALL_contract",
+        "seconds": 0.11,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.TransactionOptionsFix2Tests.test_restoring_only_old_classifier_admits_the_same58_unsupported_forms",
+        "seconds": 0.172,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.TransactionOptionsFix2Tests.test_legitimate_SET_RESET_and_transaction_words_keep_exact_business_bytes",
+        "seconds": 0.078,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.TransactionOptionsFix2Tests.test_actual_bound_transaction_option_stops_before_finish_and_closes",
+        "seconds": 0.14,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.EnvelopeNormalizationTests.test_actual_three_admitted_sources_have_one_final_commit_and_same_business_AST",
+        "seconds": 0.11,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.EnvelopeNormalizationTests.test_actual_customer_schedule_and_read_real_Session_emit_one_commit_each",
+        "seconds": 0.312,
+        "status": "PASS"
+      }
+    ],
+    "interpretation": "Expected-behavior methods pass while separate actual helper probe exposes19 incorrectly rejected business forms.",
+    "source_programs": "Actual source-customer/schedule/app-read retain identical business bytes/parsed AST and exactly one terminal COMMIT; actual frozen WorkerSessions execute source forms through modeled process queues.",
+    "not_repeated": "No full catalog/main/source-gate/heavy physical-composition suites repeated after the new bounded HOLD. Author48/9.180+58.384+42.117 is author-only; prior independent17/38.953 remains exact held-version history.",
+    "no_heavy_CPU_queued": true
+  },
+  "source_delta": {
+    "only_changed_runtime_function": "normalize_bound_envelope",
+    "Core_Preparer_Checker_byte_identical": true,
+    "Pin_change": "Only FROZEN Step hash; text otherwise byte-exact and all pinner function AST unchanged.",
+    "all_other_Steps_functions_AST_identical": true,
+    "new_runtime_parser_dependency": false,
+    "strict_stderr_exit_ACK_markers_state_source_diagnostics_closure": "Unchanged",
+    "quoted_identifier_representation": "Doubled quote decoded only for in-memory parameter name comparison; no raw body/secret/handle export."
+  },
+  "preservation": {
+    "new453_frozen_bindings": true,
+    "prior312_physical_bindings": true,
+    "before_fix464_physical_bindings": true,
+    "before_fix_preservation_sha256": "c801840c3eefae738a2fe8f0f2d2d18dab41ed014031572f7a13c7657e2fe858",
+    "original137_and_current1410_match": true,
+    "old67sources25artifacts_match": true,
+    "current_five_and_archive270_match": true,
+    "old129_copy_and_old_reports_probes_checks": "Preserved under prior312 and before-fix464; no overwrites.",
+    "canonical5ae_workerACL32_role_resource_scope": "Unchanged",
+    "current_four_gates": "PENDING"
+  },
+  "historical_and_physical_limits": {
+    "980a_complete_old_warning_and_cause": "UNOBSERVED",
+    "original_double_COMMIT": "Proven construction defect; previous source-derived mock warning not actual discarded stderr.",
+    "actual_customer_or_physical_restore_success": "NOT_QUALIFIED_BY_THIS_REVIEW",
+    "last_full_entry_mock": "Prior independent held V4 source only through four source operations before deliberate first physical-backup boundary failure and cleanup; no physical backup/parity/rotation success inferred."
+  },
+  "limits": {
+    "real_Git_Docker_DB_SQL_network_resources_credentials": false,
+    "runtime_or_literal_or_assertion_approval": false,
+    "source_gate_or_progress_or_repo_changes": false,
+    "writes": "Exclusive TASK JSON/scripts/private mocked copy only",
+    "Posture": "D"
+  },
+  "next_step": "Preserve this Fix2 source and report; Root may scope a one-predicate refinement with focused regression/new freeze and same-reviewer re-review.",
+  "plain_english": "The checker now catches the old bad commands, but it mistakes a custom setting named transaction.custom for a transaction command. Keep this version on hold until it can tell those two things apart."
+}

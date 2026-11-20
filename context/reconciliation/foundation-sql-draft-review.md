@@ -1,3 +1,17 @@
+## Local F0 continuation — four closed attempts and six admitted reads (2026-11-20)
+
+Source5f189aa6262bd5ecbffda0940e404038993fce05/treefd736f36633b28267602759c0da0d368bd625ef6 completed finite Six71, Worker21 and INSTALL protocols; App stopped at its first effect-wrong-root case. All four attempts and176sanitized assets are preserved, with independent exact resource/private cleanup and retained pinned image. No runtime is active. The App original SQLSTATE/diagnostic/full cause remains unobserved; source analysis proves an earlier command BEFORE-guard oracle and a separate parent stopped-origin masking defect. Its new correction remains under source review.
+
+Exactly six positive application SELECT assertions from Six were independently audited and admitted through the reviewed fixed closed-byte reader, an actual unmocked653-row builder and13 integrated regressions. Totals are621PASS/32PARTIAL/342NOT_RUN/32DEPENDENCY_BLOCKED/7UNRESOLVED_SOURCE/0FAILED across1034assertions;94cases remain4PASS/79PARTIAL/11NOT_RUN. All647old evidence rows and provenance are preserved. Worker and INSTALL mapping remains unadmitted. INSTALL genuine failure/independently reviewed resolve/retry and canonical/recovered full native comparisons passed;312internal FK generated names are the only normalized catalog difference. The failed-install/pre-finalization activation interval was not observed and stays partial. No P3018 or whole-case proof is invented.
+
+PrivilegeMetadataV6 and RestoreV4Fix3 are separately source-approved, with focused author/independent checks and actual pure prepare/full filesystem validation of468/713source files. Both physical runtime attempts remainNOT_RUN pending normal publication, committed pin and fresh independent literal. AppV2 and Read13 unfinished source work is preserved and excluded from this reviewed checkpoint. Continue the standing local correction/review/execution loop after publication. Canonical5aeSQL, June migration, A–D,32workerACL,1034requirements and451register are unchanged; PostureD, hosted/adoption/production/P0D boundaries and Brain final acceptance remain.
+
+Plain English: Three small test lists finished. One stopped, and its hidden error is still unknown. Six read checks now have proof. The toy databases and keys are gone. The next reviewed tools still need a fresh real test; unfinished work stays unfinished.
+
+Current detailed evidence: `context/reconciliation/local-f0-5f-four-closed-six621-progress-20261120.json`, SHA-256 `4992f19dcac37c2afa906bb5469e81c45fa24f07ffec327828a6adeebfe6290c`. Earlier sections below remain version-qualified history.
+
+---
+
 ## Local F0 continuation — closed privilege prefix and reviewed replacements (2026-11-20)
 
 Published source7ef509191423135f29d618e147250ea163523ac9/tree0aae299d97abd14e4a6dcdfe2cdd85dda0df8f09 executed fresh PrivilegeV5 run56a87aac with packet08f369d64d8556046dda3aaa423528441a64327f611c9d6683490ae0fba4713d. The corrected person binding passed both actual twelve-Boolean caller-path comparisons; the first one-way revoke and33privilege contrasts also completed. The next DELETE case stopped in PRIVILEGE_METADATA before its negative body. Actual metadata-query exit/SQLSTATE/error text and the complete original cause were not retained. Source analysis separately proves an unsupported column-privilege DELETE argument, consistent with the stop; a bounded corrected projection/error-evidence plan is being prepared.

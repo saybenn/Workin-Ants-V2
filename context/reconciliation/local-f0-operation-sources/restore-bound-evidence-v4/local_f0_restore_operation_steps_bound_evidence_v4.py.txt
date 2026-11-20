@@ -1,0 +1,1645 @@
+import runpy
+import tarfile
+
+def validate_archive(path,expected):
+    seen=set()
+    with tarfile.open(path,'r:gz') as archive:
+        for member in archive:
+            need(member.isfile() and not member.name.startswith('/') and all(p not in ('','.','..') for p in member.name.split('/')) and member.name not in seen,'UNSAFE_ARCHIVE_MEMBER')
+            need(member.name in expected,'UNLISTED_ARCHIVE_MEMBER')
+            need(hashlib.sha256(archive.extractfile(member).read()).hexdigest()==expected[member.name],'ARCHIVE_MEMBER_HASH_DRIFT')
+            seen.add(member.name)
+    need(seen==set(expected),'ARCHIVE_FILE_SET_MISMATCH')
+
+def read_target_manifest(plan):
+    raw=Path(plan['manifest_path']).read_bytes()
+    need(hashlib.sha256(raw).hexdigest()==plan['manifest_sha256'],'TARGET_PLAN_DRIFT')
+    return raw
+
+
+def verify_common_packet():
+    need(MANIFEST['review_status']=='APPROVED_LOCAL_F0_RESTORE_ATTEMPT','OPERATION_NOT_REVIEWED')
+    validation=unique_json(read_pinned('context/reconciliation/local-f0-restore-bound-evidence-v4-source-validation.json'))
+    bound_review=validation.get('independent_bound_evidence_review');need(type(bound_review) is dict and bound_review.get('decision')=='SOURCE_APPROVED','BOUND_EVIDENCE_REVIEW_REQUIRED')
+    expected_five={name:hashlib.sha256((TASK/name).read_bytes()).hexdigest() for name in (*EXTERNAL_FILES,'pin_local_f0_restore_plan_20261119_bound_evidence_v4.py')}
+    need(validation.get('all_five_sources_sha256')==expected_five and bound_review.get('exact_five_sha256')==expected_five,'BOUND_EVIDENCE_EXACT_FIVE_REVIEW_REQUIRED')
+    peer_path=bound_review.get('path');peer_sha=bound_review.get('sha256');need(type(peer_path) is str and peer_path.startswith('context/reconciliation/local-f0-operation-sources/restore-bound-evidence-v4/reviews/') and type(peer_sha) is str and re.fullmatch('[0-9a-f]{64}',peer_sha) and hashlib.sha256(read_pinned(peer_path)).hexdigest()==peer_sha,'BOUND_EVIDENCE_REVIEW_BYTES_REQUIRED')
+    review=validation.get('independent_safety_sql_review')
+    need(type(review) is dict and review.get('decision')=='SOURCE_APPROVED','SAFETY_SQL_REVIEW_REQUIRED')
+    need(MANIFEST['wrapper_sha256']==hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'WRAPPER_SOURCE_MISMATCH')
+    need(command(['git','-c','core.longpaths=true','rev-parse','HEAD']).stdout.strip()==COMMIT and command(['git','-c','core.longpaths=true','rev-parse','HEAD^{tree}']).stdout.strip()==TREE,'SOURCE_CHECKPOINT_MISMATCH')
+    hashes=MANIFEST['packet_files_sha256']
+    required={'review-output/foundation-bootstrap.review.sql','review-output/foundation-bootstrap-finalize.review.sql','review-output/foundation-application.review.sql','scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/prepare-local-f0-history.py','scripts/sql-review/run-local-f0-migrate.py','prisma.local-f0.config.mjs','scripts/sql-review/local-f0-migrate-guard.mjs','scripts/sql-review/local-f0-migrate-runner.mjs','scripts/sql-review/migration_server_diagnostics.py'}
+    need(required<=set(hashes),'REQUIRED_PACKET_FILES_MISSING')
+    for path,expected in hashes.items():
+        need(not Path(path).is_absolute() and '..' not in Path(path).parts,'UNSAFE_PACKET_PATH')
+        need(hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==expected,'PACKET_FILE_DRIFT',{'path':path})
+        blob=subprocess.run(['git','-c','core.longpaths=true','show',COMMIT+':'+path],cwd=ROOT,capture_output=True,timeout=30)
+        need(blob.returncode==0 and hashlib.sha256(blob.stdout).hexdigest()==expected,'COMMITTED_PACKET_MISMATCH',{'path':path})
+    aggregate=hashlib.sha256(''.join(p+'\0'+hashes[p]+'\n' for p in sorted(hashes)).encode()).hexdigest()
+    need(aggregate==PACKET,'PACKET_AGGREGATE_MISMATCH')
+    need(MANIFEST['image']==IMAGE and MANIFEST['database']==DB and MANIFEST['run_label']==LABEL,'TARGET_MANIFEST_MISMATCH')
+    need(MANIFEST['server_diagnostics']=={'prefix':'WA_F0_DIAG|%e|%u|%d|','verbosity':'terse','lc_messages':'C','log_min_messages':'warning','log_statement':'none','log_min_error_statement':'panic','module_sha256':hashes['scripts/sql-review/migration_server_diagnostics.py'],'raw_log_retention':False},'SERVER_DIAGNOSTIC_PLAN_MISMATCH')
+    need(hashlib.sha256(Path(MANIFEST['tool_archive']).read_bytes()).hexdigest()==MANIFEST['tool_archive_sha256'],'TOOL_ARCHIVE_DRIFT')
+    verified_tools=None
+    for kind,plan in MANIFEST['migration_targets'].items():
+        raw=read_target_manifest(plan)
+        migration=json.loads(raw);target=next(t for t in TARGETS if t['kind']==kind)
+        if verified_tools is None:
+            validate_archive(MANIFEST['tool_archive'],migration['tools']['files_sha256']);verified_tools=migration['tools']['files_sha256']
+        else:need(verified_tools==migration['tools']['files_sha256'],'TARGET_TOOL_CLOSURES_DIFFER')
+        need(migration['run_id']==RUN_ID and migration['target']['container_name']==target['name'] and migration['target']['volume_name']==target['volume'],'TARGET_PLAN_IDENTITY')
+        need(migration['target']['bootstrap_secret_host_path']==str(PRIVATE/(kind+'-bootstrap-password')),'SECRET_MOUNT_PLAN_MISMATCH')
+        snapshot=Path(plan['source_snapshot'])
+        current={p.relative_to(snapshot).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in snapshot.rglob('*') if p.is_file()}
+        need(current==plan['source_files_sha256'],'SOURCE_SNAPSHOT_DRIFT')
+        need(hashlib.sha256(Path(plan['source_archive']).read_bytes()).hexdigest()==plan['source_archive_sha256'],'SOURCE_ARCHIVE_DRIFT')
+        validate_archive(plan['source_archive'],current)
+        for path in ('prisma.local-f0.config.mjs','scripts/sql-review/local-f0-migrate-guard.mjs','scripts/sql-review/local-f0-migrate-runner.mjs','prisma/review/foundation-candidate.prisma','prisma/foundation/migrations/migration_lock.toml','prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql'):
+            need(current[path]==hashes[path],'SOURCE_SNAPSHOT_NOT_COMMITTED_PACKET',{'path':path})
+    report['source_verification']={'commit':COMMIT,'tree':TREE,'packet_sha256':aggregate,'files_sha256':hashes,'file_count':len(hashes)}
+    report['run_manifest']=MANIFEST;report['run_manifest_sha256']=hashlib.sha256(MANIFEST_PATH.read_bytes()).hexdigest()
+    event('SOURCE_VERIFICATION','PASS',files=len(hashes),packet_sha256=aggregate)
+
+def bootstrap_all():
+    for target in TARGETS:
+        name=target['name']
+        settings=observe(name,"SELECT jsonb_build_object('login',session_user,'auth',system_user,'safe',current_setting('log_statement')='none' AND current_setting('log_min_error_statement')='panic' AND current_setting('password_encryption')='scram-sha-256' AND current_setting('server_version') LIKE '17.11%','diagnostics_safe',current_setting('log_error_verbosity')='terse' AND current_setting('log_line_prefix')='WA_F0_DIAG|%e|%u|%d|' AND current_setting('lc_messages')='C' AND current_setting('log_min_messages')='warning' AND current_setting('log_destination')='stderr' AND current_setting('logging_collector')='off' AND current_setting('debug_print_parse')='off' AND current_setting('debug_print_rewritten')='off' AND current_setting('debug_print_plan')='off','superuser',(SELECT rolsuper FROM pg_roles WHERE rolname=session_user));",'BOOTSTRAP_SETTINGS')
+        need(settings=={'login':'postgres','auth':'scram-sha-256:postgres','safe':True,'diagnostics_safe':True,'superuser':True},'UNSAFE_BOOTSTRAP_SETTINGS')
+        report['targets'][name]['server_settings']=settings
+        before=observe(name,"SELECT jsonb_build_object('public_owner',(SELECT pg_get_userbyid(nspowner) FROM pg_namespace WHERE nspname='public'),'public_acl',(SELECT jsonb_agg(jsonb_build_object('role',CASE WHEN x.grantee=0 THEN 'PUBLIC' ELSE pg_get_userbyid(x.grantee) END,'privilege',x.privilege_type,'grantor',pg_get_userbyid(x.grantor),'grant_option',x.is_grantable) ORDER BY x.grantee,x.privilege_type) FROM pg_namespace n CROSS JOIN LATERAL aclexplode(coalesce(n.nspacl,acldefault('n',n.nspowner))) x WHERE n.nspname='public'),'application_roles',(SELECT count(*) FROM pg_roles WHERE rolname LIKE 'wa_%'),'event_triggers',(SELECT count(*) FROM pg_event_trigger));",'FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE')
+        expected=[{'role':'pg_database_owner','privilege':p,'grantor':'pg_database_owner','grant_option':False} for p in ('CREATE','USAGE')]+[{'role':'PUBLIC','privilege':'USAGE','grantor':'pg_database_owner','grant_option':False}]
+        need(before['public_owner']=='pg_database_owner' and before['application_roles']==before['event_triggers']==0 and sorted(before['public_acl'],key=lambda r:(r['role'],r['privilege']))==sorted(expected,key=lambda r:(r['role'],r['privilege'])),'FRESH_PUBLIC_BASELINE_NOT_EXPECTED')
+        report['targets'][name]['pre_bootstrap_public_baseline']=before
+        bootstrap_attempted.add(name);report['targets'][name]['bootstrap']='ATTEMPTED';save()
+        sql(name,'postgres',read_pinned('review-output/foundation-bootstrap.review.sql').decode('utf8'),'BOOTSTRAP')
+        bootstrapped.add(name);report['targets'][name]['bootstrap']='PASS'
+        statements=[f'ALTER DATABASE {DB} SET log_statement=none;',f'ALTER DATABASE {DB} SET log_min_error_statement=panic;',f'REVOKE CONNECT,TEMP ON DATABASE {DB} FROM PUBLIC;',f'GRANT CONNECT ON DATABASE {DB} TO '+','.join(ROLES)+';']
+        statements+=['ALTER ROLE '+role+" PASSWORD '"+passwords[name][role]+"';" for role in ROLES if role!='postgres']
+        sql(name,'postgres','\n'.join(statements),'CREDENTIAL_PROVISION')
+        source_authentication_preflight(name)
+        baseline=observe(name,"SELECT jsonb_build_object('public_owner',(SELECT pg_get_userbyid(nspowner) FROM pg_namespace WHERE nspname='public'),'public_acl',(SELECT nspacl::text FROM pg_namespace WHERE nspname='public'),'event_triggers',(SELECT count(*) FROM pg_event_trigger),'public_relations',(SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public'),'application_relations',(SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname IN ('app','platform','platform_private')));",'EMPTY_APPLICATION_BASELINE')
+        need(baseline['event_triggers']==baseline['public_relations']==baseline['application_relations']==0,'NONEMPTY_MIGRATION_BASELINE')
+        report['targets'][name]['baseline']=baseline;event('AUTHENTICATION_PREFLIGHT','PASS',target=name,roles=6)
+    report['steps']['CATALOG-AUTH']='PASS';save()
+
+def provision_migration_tools():
+    for target in TARGETS:
+        name=target['name'];identity=created_containers[name];plan=MANIFEST['migration_targets'][target['kind']]
+        expected=json.loads(read_target_manifest(plan))['tools']['files_sha256']
+        need(docker(['exec',identity,'mkdir','-p','/run/wa-f0-tools','/run/wa-f0-source']).returncode==0,'TOOL_DIRECTORIES_FAILED')
+        need(docker(['cp',MANIFEST['tool_archive'],identity+':/run/wa-f0-tools.tar.gz'],timeout=120).returncode==0,'TOOL_COPY_FAILED')
+        need(docker(['exec',identity,'tar','-xzf','/run/wa-f0-tools.tar.gz','-C','/run/wa-f0-tools'],timeout=120).returncode==0,'TOOL_EXTRACT_FAILED')
+        need(docker(['exec',identity,'rm','--','/run/wa-f0-tools.tar.gz']).returncode==0,'TOOL_ARCHIVE_REMOVAL_FAILED')
+        # This archive is prepared/reviewed from the exact immutable file map.
+        need(hashlib.sha256(Path(plan['source_archive']).read_bytes()).hexdigest()==plan['source_archive_sha256'],'SOURCE_ARCHIVE_DRIFT')
+        need(docker(['cp',plan['source_archive'],identity+':/run/wa-f0-source.tar.gz'],timeout=120).returncode==0,'SOURCE_COPY_FAILED')
+        need(docker(['exec',identity,'tar','-xzf','/run/wa-f0-source.tar.gz','-C','/run/wa-f0-source'],timeout=60).returncode==0,'SOURCE_EXTRACT_FAILED')
+        need(docker(['exec',identity,'rm','--','/run/wa-f0-source.tar.gz']).returncode==0,'SOURCE_ARCHIVE_REMOVAL_FAILED')
+        migrator_url='postgresql://wa_migrator:'+passwords[name]['wa_migrator']+'@127.0.0.1:5432/'+DB+'?schema=public&sslmode=disable'
+        r=docker(['exec','-i',identity,'sh','-ceu','umask 077; cat > /run/wa-secrets/wa-local-f0-migrator-url; chmod 600 /run/wa-secrets/wa-local-f0-migrator-url; stat -c "%a:%u:%g" /run/wa-secrets/wa-local-f0-migrator-url'],input=migrator_url)
+        need(r.returncode==0 and r.stdout.strip()=='600:0:0','MIGRATOR_URL_OWNER_MODE')
+        # Trusted image utility verifies copied binaries before first execution.
+        names=['node/bin/node','schema-engine','node_modules/prisma/build/index.js','node_modules/prisma/build/cli.js','node_modules/prisma/config.js']
+        actual=docker(['exec',identity,'/usr/bin/sha256sum','--',*['/run/wa-f0-tools/'+p for p in names]])
+        need(actual.returncode==0,'TOOL_PREEXEC_HASH_FAILED')
+        parsed={line.split('  ',1)[1].removeprefix('/run/wa-f0-tools/'):line.split('  ',1)[0] for line in actual.stdout.splitlines()}
+        need(parsed=={p:expected[p] for p in names},'TOOL_PREEXEC_HASH_MISMATCH')
+        node=docker(['exec',identity,'/run/wa-f0-tools/node/bin/node','--version'])
+        engine=docker(['exec',identity,'/run/wa-f0-tools/schema-engine','--version'])
+        need(node.returncode==0 and node.stdout.strip()=='v24.22.1' and engine.returncode==0 and re.search(r'\bd1b3f377ca835d73fd50954a5e22128b9ebdd6b8\b',engine.stdout),'LINUX_TOOL_COMPATIBILITY_FAILED')
+        report['targets'][name]['linux_tool_compatibility']={'node':'v24.22.1','engine_commit':'d1b3f377ca835d73fd50954a5e22128b9ebdd6b8','preexec_hashes_verified':True};event('LINUX_TOOL_COMPATIBILITY','PASS',target=name)
+    report['steps']['CATALOG-TOOLS']='PASS';save()
+
+def migrate(target,operation,label,proof=None):
+    name=target['name'];plan=MANIFEST['migration_targets'][target['kind']]
+    manifest_raw=read_target_manifest(plan)
+    module=load_reviewed_helper('scripts/sql-review/run-local-f0-migrate.py')
+    report['stage']=label;save()
+    def created_identity_process(arguments,**options):
+        result=subprocess.run(arguments,**options)
+        if arguments==['docker','--context','desktop-linux','inspect',name] and result.returncode==0:
+            objects=json.loads(result.stdout)
+            need(len(objects)==1 and objects[0]['Id']==created_containers[name],'CREATED_CONTAINER_IDENTITY_CHANGED')
+        return result
+    try:value=module['coordinate'](manifest_raw,operation,None if proof is None else proof.read_bytes(),process=created_identity_process)
+    except module['HeldFailure'] as error:
+        comparison=module['mount_failure_comparison'](error)
+        if comparison is not None:report['resource_guard_comparison']=comparison;save()
+        raise Stop('MIGRATION_GUARD_REFUSED',{'code':error.code,**({'mount_comparison':comparison} if comparison is not None else {})}) from None
+    except subprocess.TimeoutExpired:raise Stop('MIGRATION_PROCESS_TIMEOUT_CLOSURE_UNCONFIRMED') from None
+    except Exception:raise Stop('MIGRATION_RESPONSE_OR_PROCESS_UNCONFIRMED') from None
+    report.setdefault('migration_operations',[]).append({'target':name,'stage':label,**value});save()
+    return value
+
+def migrate_success(target,operation,label,proof=None):
+    value=migrate(target,operation,label,proof)
+    need(value['status']=='CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS' and type(value['exit_code']) is int and value['exit_code']==0,'PRISMA_COMPLETED_STATUS_REQUIRED')
+    return value
+
+
+
+# New catalog-only pipeline. The common definitions above are preserved; only
+# verify_packet was renamed to allow this additional pre-creation verification.
+import contextlib
+import io
+import math
+from types import ModuleType
+
+GENERATOR = 'scripts/prepare-native-catalog-review.py'
+GENERATOR_SHA = 'cef4f4f191e478593a679e9b86c7eee410531b01501a896c0b6f0e1bc1ac4fa2'
+EXPECTED_SHA = '3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433'
+MIGRATION = '20261117000100_f0_local_initial'
+APPLICATION_SHA = '5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+CATALOG = {}
+ASSET_NAMES = {'source-pins.json','expected.json','expression-oracle-plan.json','expression-oracle.sql','public-schema-registration.json','README.md'}
+TOOL_DATA = {'node_modules/@prisma/engines-version/package.json','node_modules/prisma/package.json'}
+NATIVE_LISTS = {'schemas','roles','memberships','relations','columns','types','enums','constraints','indexes','functions','triggers','policies','nonowner_acl','owner_acl','generated_type_acl','default_acl','default_acl_outside_registered_schemas','extensions','public_owned_relations','public_schema_acl','public_wa_schema_acl'}
+BOOL_KEYS = {'read_only','collector_is_superuser','rolsuper','rolinherit','rolcreaterole','rolcreatedb','rolcanlogin','rolreplication','rolbypassrls','admin','inherit','set','rls','force_rls','nullable','collation_is_type_default','storage_is_type_default','is_local','deferrable','initially_deferred','validated','no_inherit','has_index','unique','primary','valid','ready','live','immediate','clustered','nulls_not_distinct','included','opclass_default','descending','nulls_first','returns_set','security_definer','strict','leakproof','variadic','support_function','internal','constraint','function_release_builtin','has_constraint_relation','has_constraint_index','permissive','grant_option','history_ids_unique','checksum_format_valid','id_is_uuid_v4','started','finished','rolled_back','time_order_valid','no_options','default_tablespace','not_partition','no_inheritance','no_index_acl','no_expressions','no_predicate','no_referenced_relation','no_expression'}
+INT_KEYS = {'server_version_num','rolconnlimit','ordinal','typmod','array_dimensions','inherited_count','key_count','total_count','position','default_count','type_bits','argument_count','object_subid','referenced_subid','triggers_count','policies_count','rules_count','steps'}
+META_KEYS = NATIVE_LISTS | BOOL_KEYS | INT_KEYS | {'format','collected_as','public_schema_owner','object','owner','name','rolvaliduntil','rolconfig','role','member','grantor','kind','persistence','replica_identity','table_name','type','identity','generated','compression','default_sha256','category','element','relation','labels','columns','references','referenced_columns','match','update_action','delete_action','expression_sha256','definition_sha256','referenced_unique_index','index_name','access_method','keys','predicate_sha256','column','opclass','language','return_type','volatility','parallel','cost','rows','settings','defaults_sha256','body_sha256','parameters','mode','enabled','function','function_identity','arguments_sha256','when_sha256','constraint_name','constraint_table','referenced_table','constraint_index','dependencies','direction','class','dependency_type','command','roles','using_sha256','with_check_sha256','grantee','privilege','creator','schema','entries','database','isolation','session_user','history','logs_state','name_sha256','checksum_sha256'}
+SAFE_FILES = {'text-preflight.json','acl-preflight.json','native-before.json','native-after-oracle.json','native-after-ledger.json','oracle-preflight.json','oracle-results.json','oracle-closure.json','oracle-evidence.json','ledger-registration.json','ledger-observation.json','ledger-evidence.json','catalog-comparison.json'}
+ACL_FIELDS='grantee grantor privilege grant_option'
+NATIVE_ROWS={
+ 'schemas':'object owner','roles':'name rolsuper rolinherit rolcreaterole rolcreatedb rolcanlogin rolreplication rolbypassrls rolconnlimit rolvaliduntil rolconfig',
+ 'memberships':'role member grantor admin inherit set','relations':'object kind owner persistence rls force_rls replica_identity',
+ 'columns':'table_name name ordinal type typmod array_dimensions nullable identity generated collation_is_type_default storage_is_type_default compression is_local inherited_count default_sha256',
+ 'types':'object owner kind category element relation','enums':'object owner labels',
+ 'constraints':'table_name name kind deferrable initially_deferred validated no_inherit columns references referenced_columns match update_action delete_action expression_sha256 definition_sha256 has_index referenced_unique_index index_name',
+ 'indexes':'object table_name owner access_method unique primary valid ready live immediate clustered replica_identity nulls_not_distinct key_count keys predicate_sha256 definition_sha256',
+ 'functions':'object name owner language return_type returns_set security_definer strict leakproof volatility parallel kind cost rows settings variadic support_function default_count defaults_sha256 body_sha256 parameters',
+ 'triggers':'table_name name internal type_bits enabled constraint deferrable initially_deferred function function_identity function_release_builtin argument_count arguments_sha256 when_sha256 constraint_name constraint_table has_constraint_relation referenced_table has_constraint_index constraint_index dependencies',
+ 'policies':'table_name name command permissive roles using_sha256 with_check_sha256',
+ 'nonowner_acl':'kind object column '+ACL_FIELDS,'owner_acl':'kind object column '+ACL_FIELDS,'generated_type_acl':'object '+ACL_FIELDS,
+ 'default_acl':'creator schema kind entries','default_acl_outside_registered_schemas':'creator schema kind','extensions':'name version schema owner',
+ 'public_owned_relations':'object kind owner rls force_rls nonowner_acl','public_schema_acl':ACL_FIELDS,'public_wa_schema_acl':ACL_FIELDS,
+}
+META_KEYS.add('version')
+META_KEYS.update(('table_acl','column_acl'))
+
+
+def canonical(value):
+    return json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)
+
+
+def digest(value):
+    return hashlib.sha256(canonical(value).encode('utf8')).hexdigest()
+
+
+def exact(value,expected,code):
+    need(canonical(value)==canonical(expected),code)
+
+
+def unique_json(raw):
+    def pairs(items):
+        value={}
+        for key,item in items:
+            need(key not in value,'DUPLICATE_CATALOG_JSON_FIELD');value[key]=item
+        return value
+    def bad_constant(_):raise Stop('NONFINITE_CATALOG_JSON')
+    return json.loads(raw,object_pairs_hook=pairs,parse_constant=bad_constant)
+
+
+def read_pinned(relative):
+    need(type(relative) is str and not relative.startswith('/') and '\\' not in relative and all(x not in ('','.','..') for x in relative.split('/')),'UNSAFE_CATALOG_PACKET_PATH')
+    pins=MANIFEST['packet_files_sha256']
+    need(type(pins) is dict and relative in pins and type(pins[relative]) is str and re.fullmatch('[0-9a-f]{64}',pins[relative]),'CATALOG_PACKET_SOURCE_PIN_REQUIRED')
+    path=(ROOT/relative).resolve();need(path.is_relative_to(ROOT.resolve()),'CATALOG_PACKET_PATH_ESCAPE')
+    raw=path.read_bytes()
+    need(hashlib.sha256(raw).hexdigest()==pins[relative],'CATALOG_PACKET_SOURCE_DRIFT')
+    return raw
+
+
+def verify_tool_data():
+    expected=MANIFEST['catalog']['tool_source_files_sha256']
+    need(type(expected) is dict and set(expected)==TOOL_DATA,'TOOL_SOURCE_DATA_SET')
+    closure=unique_json(read_pinned('context/reconciliation/local-f0-tooling/prisma-tools-closure.json'))
+    plan=MANIFEST['migration_targets']['ok']
+    raw=read_target_manifest(plan)
+    tools=unique_json(raw)['tools']['files_sha256']
+    for relative,value in expected.items():
+        need(type(value) is str and re.fullmatch('[0-9a-f]{64}',value),'TOOL_SOURCE_DATA_HASH')
+        need(value==closure['tools_files_sha256'][relative]==tools[relative],'TOOL_SOURCE_DATA_CLOSURE_MISMATCH')
+        need(hashlib.sha256((ROOT/relative).read_bytes()).hexdigest()==value,'TOOL_SOURCE_DATA_DRIFT')
+
+
+def verify_catalog_packet():
+    verify_common_packet()
+    need(MANIFEST['packet_files_sha256'].get('scripts/sql-review/catalog-text-preflight.sql')=='f1cab9adf94fe5aa2452f34213eea43cf4ecfe35c9ce5f5289486b7d4f859823','TEXT_PREFLIGHT_SOURCE_REQUIRED')
+    need(MANIFEST['packet_files_sha256'].get('scripts/sql-review/catalog-acl-preflight.sql')=='7018c8f415923533dc461b212a0df0f9a0f4144457e410c4505c9322df4647f4','ACL_PREFLIGHT_SOURCE_REQUIRED')
+    need(len(TARGETS)==1 and TARGETS[0]['kind']=='ok' and set(MANIFEST['migration_targets'])=={'ok'},'ONE_CATALOG_TARGET_REQUIRED')
+    name='wa-p0c-'+RUN_ID[:8]+'-restore-source'
+    exact(TARGETS,[{'name':name,'volume':name+'-data','kind':'ok'}],'CATALOG_RESOURCE_NAMES')
+    cfg=MANIFEST['catalog']
+    exact(sorted(cfg),sorted(('generator','artifact_root','assets','source_expected_sha256','public_schema_owner','bootstrap_grantor','tool_source_files_sha256','ledger_expectation')),'CATALOG_CONFIGURATION_FIELDS')
+    need(cfg['generator']==GENERATOR and cfg['artifact_root']=='review-output/native-catalog' and cfg['source_expected_sha256']==EXPECTED_SHA and cfg['public_schema_owner']=='pg_database_owner' and cfg['bootstrap_grantor']=='postgres','CATALOG_CONFIGURATION_IDENTITY')
+    exact(cfg['ledger_expectation'],[{'path':'prisma/foundation/migrations/'+MIGRATION+'/migration.sql','migration_name':MIGRATION,'sha256':APPLICATION_SHA,'state':'applied','count':1}],'ONE_CANONICAL_APPLIED_HISTORY_REQUIRED')
+    verify_tool_data()
+    generator=read_pinned(GENERATOR)
+    need(hashlib.sha256(generator).hexdigest()==GENERATOR_SHA,'CATALOG_GENERATOR_NOT_REVIEWED')
+    namespace=ModuleType('_reviewed_catalog_generator');namespace.__file__=str(ROOT/GENERATOR)
+    output=io.StringIO()
+    with contextlib.redirect_stdout(output),contextlib.redirect_stderr(output):
+        exec(compile(generator,str(ROOT/GENERATOR),'exec'),namespace.__dict__)
+    need(not output.getvalue(),'CATALOG_GENERATOR_IMPORT_OUTPUT')
+    assets=cfg['assets'];need(type(assets) is dict and set(assets)==ASSET_NAMES,'CATALOG_ASSET_SET')
+    actual={}
+    for key,value in assets.items():
+        exact(value,{'path':cfg['artifact_root']+'/'+key,'sha256':MANIFEST['packet_files_sha256'][cfg['artifact_root']+'/'+key]},'CATALOG_ASSET_BINDING')
+        actual[key]=read_pinned(value['path'])
+    pins=unique_json(actual['source-pins.json'])
+    need(set(pins)==set(namespace.REQUIRED_FILES) and len(pins)==16,'CLOSED_CATALOG_SOURCES_REQUIRED')
+    for relative,value in pins.items():need(MANIFEST['packet_files_sha256'][relative]==value,'CATALOG_SOURCE_PIN_NOT_IN_PACKET')
+    with contextlib.redirect_stdout(output),contextlib.redirect_stderr(output):
+        reproduced,summary=namespace.prepare(ROOT,pins)
+        tools=namespace.load_catalog_tools(ROOT,pins)
+        runtime_manifest=tools['catalog_manifest'].build_manifest(ROOT,pins)
+        runtime_plan=tools['catalog_expression_oracle'].build_plan(runtime_manifest,ROOT)
+    need(not output.getvalue(),'CATALOG_PREPARATION_OUTPUT')
+    need(reproduced==actual and summary['status']=='NOT_RUN' and summary['source_expected_sha256']==EXPECTED_SHA,'CATALOG_ASSET_REPRODUCTION')
+    need(namespace.encoded(runtime_manifest)==actual['expected.json'] and namespace.encoded(runtime_plan)==actual['expression-oracle-plan.json'],'CATALOG_RUNTIME_SOURCE_REPRODUCTION')
+    # emit_sql uses source declaration order; sorted JSON is a review artifact,
+    # not a replacement for the freshly compiled source object's insertion order.
+    CATALOG.update(generator=namespace,tools=tools,pins=pins,expected=runtime_manifest,plan=runtime_plan,oracle_sql=actual['expression-oracle.sql'].decode('utf8'),public=unique_json(actual['public-schema-registration.json']))
+    CATALOG['strings'],CATALOG['generated_names']=metadata_allowlist(CATALOG['expected'],tools)
+    report['catalog_preparation']={'status':'SOURCE_REPRODUCED_NOT_RUN','assets_sha256':{k:hashlib.sha256(v).hexdigest() for k,v in sorted(actual.items())},'source_expected_sha256':EXPECTED_SHA,'closed_source_files':16}
+    save()
+
+
+def metadata_allowlist(manifest,tools):
+    allowed={'',' ','postgres','pg_database_owner','PUBLIC','public','pg_catalog','plpgsql','sql','internal','btree','1.0','repeatable read','NULL','EMPTY','NONEMPTY','O','r','p','v','m','S','f','b','c','e','u','x','t','d','n','a','s','i','w','C','A','E','U','*','TABLE','SEQUENCE','FUNCTION','TYPE','SCHEMA','SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER','MAINTAIN','EXECUTE','USAGE','CREATE','trigger_to','to_trigger','function','relation','constraint','unsupported','workinants.native-catalog.v1','workinants.prisma-ledger-native.v1',DB}
+    def add(value):
+        if type(value) is str:
+            if len(value)<=1024 and not any(ord(x)<32 for x in value):allowed.add(value)
+        elif type(value) is dict:
+            for key,item in value.items():add(key);add(item)
+        elif type(value) is list:
+            for item in value:add(item)
+    expected=manifest['expected']
+    for key in ('roles','schemas','tables','enums','functions','explicit_indexes','policies','triggers','memberships','nonowner_acl','default_acl'):add(expected[key])
+    add(tools['pg17_catalog_rules'].generated_types(expected))
+    add(tools['prisma_ledger_proof'].schema_expectation())
+    add(tools['pg17_catalog_rules'].PINNED_TRIGGER_FUNCTIONS)
+    for name in tools['pg17_catalog_rules'].PINNED_TRIGGER_FUNCTIONS:add(name.removesuffix('()'))
+    for typ in ('uuid','text','timestamptz','timestamp','int2','int4','int8','bool','numeric','float4','float8','jsonb','array','enum','bpchar','varchar'):
+        allowed.add('pg_catalog.'+typ+'_ops')
+    generated=[]
+    for table,info in expected['tables'].items():
+        ns,base=table.split('.')
+        for con in info['constraints']:
+            if con['name']:
+                add(con['name']);add(ns+'.'+con['name']);add(table+'/'+con['name'])
+            elif con['kind'] in ('PRIMARY','UNIQUE','FOREIGN','CHECK'):
+                label={'PRIMARY':'pkey','UNIQUE':'key','FOREIGN':'fkey','CHECK':'check'}[con['kind']]
+                columns=con['columns']
+                names=[None] if label=='pkey' else ['_'.join(columns)] if columns else [None]
+                if label=='check':
+                    names=[None]+sorted(tools['compare_native_catalog']._column_refs(con['expression']['ast'])) if con['expression'] else [None]
+                generated.extend((ns,base,column,label,table) for column in names)
+        for column in info['columns'].values():
+            value=column['type'];add(value['name']+'[]'*value['array_dimensions'])
+    for identity,fn in expected['functions'].items():
+        add(identity);add(fn['name']);add(fn['return_type']['name']+'[]'*fn['return_type']['array_dimensions'])
+        for setting in fn['settings_ast']:
+            add(setting['name']+'='+', '.join(str(tools['catalog_manifest'].literal(v)) for v in setting.get('args',[])))
+    return allowed,generated
+
+
+def generated_identifier(value):
+    if re.fullmatch(r'(?:RI_ConstraintTrigger_[ac]_|Unique_ConstraintTrigger_)[0-9]{1,12}',value):return True
+    if '/' in value:
+        table,value=value.split('/',1);namespace=table.split('.')[0]
+    else:
+        table=None
+        if '.' in value:namespace,value=value.split('.',1)
+        else:namespace=None
+    match=re.search(r'_(pkey|key|check|fkey)([0-9]{0,3})$',value)
+    if not match or len(value)>63:return False
+    for ns,base,column,label,relation in CATALOG['generated_names']:
+        if label!=match[1] or namespace not in (None,ns) or table not in (None,relation):continue
+        suffix=label+match[2];one,two=len(base),len(column) if column else 0
+        available=63-len(suffix)-(2 if column else 1)
+        while one+two>available:
+            if one>two:one-=1
+            else:two-=1
+        candidate=base[:one]+('_'+column[:two] if column else '')+'_'+suffix
+        if value==candidate:return True
+    return False
+
+
+def filter_metadata(value,key=None,depth=0):
+    need(depth<=20,'CATALOG_METADATA_DEPTH')
+    if key in BOOL_KEYS:need(type(value) is bool,'CATALOG_METADATA_BOOLEAN');return
+    if key in INT_KEYS:need(type(value) is int and -1<=value<=2147483647,'CATALOG_METADATA_INTEGER');return
+    if value is None:return
+    if key and key.endswith('_sha256'):
+        need(type(value) is str and re.fullmatch('[0-9a-f]{64}',value),'CATALOG_METADATA_HASH');return
+    if type(value) is dict:
+        need(set(value)<=META_KEYS,'CATALOG_METADATA_FIELD')
+        for name,item in value.items():filter_metadata(item,name,depth+1)
+    elif type(value) is list:
+        need(len(value)<=20000,'CATALOG_METADATA_LIMIT')
+        for item in value:filter_metadata(item,None,depth+1)
+    elif type(value) is str:
+        if key in ('owner','role','member','grantor','grantee','creator','collected_as','session_user','public_schema_owner'):
+            need(value in set(CATALOG['expected']['expected']['roles'])|{'postgres','PUBLIC','pg_database_owner'},'CATALOG_METADATA_ROLE')
+        if key in ('table_name','references','constraint_table','referenced_table','relation'):
+            need(value in CATALOG['expected']['expected']['tables'],'CATALOG_METADATA_RELATION')
+        need(value in CATALOG['strings'] or generated_identifier(value),'CATALOG_METADATA_STRING')
+    elif type(value) is bool:pass
+    elif type(value) in (int,float):
+        need(key in ('cost','rows') and math.isfinite(value) and 0<=value<=1000000,'CATALOG_METADATA_NUMBER')
+    else:raise Stop('CATALOG_METADATA_TYPE')
+
+
+# Diagnostics describe rejected strings only by fixed paths and hashes. They do
+# not expand metadata_allowlist/filter_metadata or authorize a native snapshot.
+METADATA_DIAGNOSTIC_ENTRY_LIMIT=256
+METADATA_DIAGNOSTIC_NODE_LIMIT=262144
+
+def metadata_vocabulary_diagnostics(value):
+    import unicodedata
+    hints=[];stats={'visited_nodes':0,'unknown_strings_seen':0,'unregistered_fields_omitted':0,'traversal_complete':True}
+    def length_class(size):
+        if size==0:return 'EMPTY'
+        if size==1:return 'ONE'
+        if size<=63:return 'TWO_TO_63'
+        if size<=255:return '64_TO_255'
+        if size<=1024:return '256_TO_1024'
+        return 'OVER_1024'
+    def walk(item,path,key=None,depth=0):
+        if stats['visited_nodes']>=METADATA_DIAGNOSTIC_NODE_LIMIT or depth>20:
+            stats['traversal_complete']=False;return
+        stats['visited_nodes']+=1
+        if type(item) is dict:
+            # Never place an unregistered dictionary key or its subtree in a path.
+            registered=sorted(name for name in item if type(name) is str and name in META_KEYS)
+            omitted=len(item)-len(registered)
+            stats['unregistered_fields_omitted']+=omitted
+            if omitted:stats['traversal_complete']=False
+            for name in registered:walk(item[name],path+[name],name,depth+1)
+        elif type(item) is list:
+            if len(item)>20000:stats['traversal_complete']=False
+            for index,child in enumerate(item[:20000]):
+                if stats['visited_nodes']>=METADATA_DIAGNOSTIC_NODE_LIMIT:
+                    stats['traversal_complete']=False;break
+                walk(child,path+[index],None,depth+1)
+        elif type(item) is str:
+            if key and key.endswith('_sha256') and re.fullmatch('[0-9a-f]{64}',item):return
+            if item in CATALOG['strings'] or generated_identifier(item):return
+            stats['unknown_strings_seen']+=1
+            if len(hints)<METADATA_DIAGNOSTIC_ENTRY_LIMIT:
+                hints.append({'path':path,'value_sha256':hashlib.sha256(item.encode('utf8')).hexdigest(),
+                              'length_class':length_class(len(item)),
+                              'has_control_characters':any(unicodedata.category(char) in ('Cc','Cf','Cs') for char in item)})
+        elif item is not None and type(item) not in (bool,int,float):stats['traversal_complete']=False
+    walk(value,[])
+    return {'format':'workinants.catalog-metadata-refusal-diagnostics.v1','qualification':'NOT_QUALIFIED',
+            **stats,'entry_limit':METADATA_DIAGNOSTIC_ENTRY_LIMIT,'node_limit':METADATA_DIAGNOSTIC_NODE_LIMIT,
+            'entries_truncated':stats['unknown_strings_seen']>len(hints),'unknown_strings':hints}
+
+
+def row_shapes(value,spec):
+    for category,fields in spec.items():
+        rows=value[category];need(type(rows) is list,'CATALOG_COMPONENT_ARRAY')
+        for row in rows:
+            need(type(row) is dict and set(row)==set(fields.split()),'CATALOG_COMPONENT_FIELDS')
+    nested=[(row['keys'],'position column included expression_sha256 opclass opclass_default collation_is_type_default descending nulls_first') for row in value.get('indexes',[]) if 'table_name' in row]
+    nested += [(row['keys'],'position column included opclass opclass_default collation_is_type_default descending nulls_first') for row in value.get('indexes',[]) if 'table_name' not in row]
+    nested += [(row['parameters'],'name mode type') for row in value.get('functions',[])]
+    nested += [(row['dependencies'],'direction class object dependency_type object_subid referenced_subid') for row in value.get('triggers',[])]
+    nested += [(row['entries'],ACL_FIELDS) for row in value.get('default_acl',[])]
+    nested += [(row['nonowner_acl'],ACL_FIELDS) for row in value.get('public_owned_relations',[])]
+    for rows,fields in nested:
+        need(type(rows) is list and all(type(row) is dict and set(row)==set(fields.split()) for row in rows),'CATALOG_NESTED_FIELDS')
+
+
+def write_safe(name,value):
+    need(name in SAFE_FILES,'UNREGISTERED_SAFE_ARTIFACT')
+    raw=(json.dumps(value,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode('utf8')
+    path=OUT/name
+    with path.open('xb') as handle:handle.write(raw)
+    return {'artifact':name,'artifact_sha256':hashlib.sha256(raw).hexdigest()}
+
+
+def safe_rejection(stage,value,raw_sha,vocabulary_review=None):
+    info={'stage':stage,'status':'REJECTED_NOT_QUALIFIED','raw_sha256':raw_sha}
+    if type(value) is dict:
+        if value.get('format') in ('workinants.native-catalog.v1','workinants.prisma-ledger-native.v1'):info['format']=value['format']
+        info['known_component_counts']={key:len(value[key]) for key in sorted(NATIVE_LISTS|{'history'}) if type(value.get(key)) is list}
+        if type(value.get('server_version_num')) is int:info['server_version_num']=value['server_version_num']
+        for key in ('read_only','collector_is_superuser'):
+            if type(value.get(key)) is bool:info[key]=value[key]
+        if value.get('collected_as') in {'postgres'}:info['collected_as']='postgres'
+    if vocabulary_review is not None and (vocabulary_review['unknown_strings_seen'] or not vocabulary_review['traversal_complete']):info['metadata_vocabulary_review']=vocabulary_review
+    report.setdefault('rejected_observations',[]).append(info);save()
+
+
+
+
+
+
+def run_catalog_query(name, text, stage):
+    report['stage'] = stage
+    save()
+    source_sha = hashlib.sha256(text.encode('utf8')).hexdigest()
+    with _RequiredSafetyBoundary('CLOSE', name, stage):
+        try:
+            result = command(psql_args(name, 'postgres'), text, timeout=180)
+        except subprocess.TimeoutExpired:
+            raise Stop('CATALOG_QUERY_TIMEOUT_CLOSURE_UNCONFIRMED') from None
+        except BaseException:
+            raise Stop('CATALOG_QUERY_PROCESS_UNCONFIRMED') from None
+        need(type(result.returncode) is int and 0 <= result.returncode <= 255, 'CATALOG_QUERY_EXIT_UNCONFIRMED')
+        states = sorted(set(re.findall('(?:ERROR|FATAL):\\s+([0-9A-Z]{5}):', result.stderr)))[:8]
+        report.setdefault('catalog_operations', []).append({'stage': stage, 'input_sha256': source_sha, 'exit_code': result.returncode, 'client_exited': True, 'sqlstates': states, 'unexpected_stderr': bool(result.stderr.strip()), 'raw_output_discarded': True})
+        save()
+    report['stage'] = stage
+    save()
+    return result
+
+
+
+def successful_query(result):
+    need(result.returncode==0,'CATALOG_SQL_FAILED')
+    need(not result.stderr.strip(),'CATALOG_UNEXPECTED_STDERR')
+
+
+def records(stdout):
+    need(type(stdout) is str and len(stdout.encode('utf8'))<=16*1024*1024,'CATALOG_OUTPUT_LIMIT')
+    try:return [unique_json(line) for line in stdout.splitlines() if line.strip()]
+    except Stop:raise
+    except BaseException:raise Stop('CATALOG_JSON_OUTPUT_REJECTED') from None
+
+
+def collect_native(name,stage,filename):
+    text=read_pinned('scripts/sql-review/collect_native_catalog.sql').decode('utf8')
+    result=run_catalog_query(name,text,stage)
+    value=None;vocabulary_review=None;raw_sha=hashlib.sha256(result.stdout.encode('utf8')).hexdigest()
+    try:
+        parsed=records(result.stdout);need(len(parsed)==1,'ONE_NATIVE_RECORD_REQUIRED');value=parsed[0]
+        need(type(value) is dict and set(value)==NATIVE_LISTS|{'format','server_version_num','read_only','collected_as','collector_is_superuser','public_schema_owner'},'NATIVE_TOP_LEVEL_FIELDS')
+        vocabulary_review=metadata_vocabulary_diagnostics(value)
+        row_shapes(value,NATIVE_ROWS)
+        filter_metadata(value)
+        exact({k:value[k] for k in ('format','server_version_num','read_only','collected_as','collector_is_superuser')},{'format':'workinants.native-catalog.v1','server_version_num':170011,'read_only':True,'collected_as':'postgres','collector_is_superuser':True},'NATIVE_COLLECTOR_IDENTITY')
+    except BaseException:
+        safe_rejection(stage,value,raw_sha,vocabulary_review);raise
+    reference=write_safe(filename,value)
+    report.setdefault('native_snapshots',[]).append({'stage':stage,'status':'OBSERVED_NOT_QUALIFIED','native_sha256':digest(value),**reference});save()
+    successful_query(result)
+    return value
+
+
+def observe_public_baseline(name):
+    before=report['targets'][name]['pre_bootstrap_public_baseline'];recipe=CATALOG['public']
+    need(type(before) is dict and set(before)=={'public_owner','public_acl','application_roles','event_triggers'},'PUBLIC_PREBOOTSTRAP_FIELDS')
+    exact({k:before[k] for k in ('public_owner','application_roles','event_triggers')},{'public_owner':recipe['owner'],'application_roles':0,'event_triggers':0},'PUBLIC_PREBOOTSTRAP_IDENTITY')
+    converted=[]
+    for row in before['public_acl']:
+        need(type(row) is dict and set(row)=={'role','grantor','privilege','grant_option'},'PUBLIC_PREBOOTSTRAP_ACL_FIELDS')
+        converted.append({'grantee':row['role'],'grantor':row['grantor'],'privilege':row['privilege'],'grant_option':row['grant_option']})
+    exact(sorted(converted,key=canonical),sorted(recipe['baseline_acl'],key=canonical),'PUBLIC_PREBOOTSTRAP_ACL_NOT_PREDECLARED')
+    report['public_baseline_verification']={'predeclared_owner_and_three_acl_rows_match':True,'learned_post_install_baseline':False};save()
+
+
+def oracle_records(stdout):
+    need(type(stdout) is str and len(stdout.encode('utf8'))<=16*1024*1024,'CATALOG_OUTPUT_LIMIT')
+    safe=[]
+    formats=('workinants.expression-oracle-preflight.v1','workinants.expression-oracle-results.v1','workinants.expression-oracle-closure.v1')
+    plan=CATALOG['plan'];expected=CATALOG['expected'];oracle=CATALOG['tools']['catalog_expression_oracle']
+    # Retain a valid preflight even when a later output line is malformed.
+    for index,line in enumerate(line for line in stdout.splitlines() if line.strip()):
+        need(index<3,'ORACLE_RECORD_COUNT')
+        try:value=unique_json(line)
+        except Stop:raise
+        except BaseException:raise Stop('CATALOG_JSON_OUTPUT_REJECTED') from None
+        need(type(value) is dict and value.get('format')==formats[index],'ORACLE_RECORD_ORDER')
+        if index==0:
+            need(set(value)=={'format','plan_sha256','outcomes'},'ORACLE_PREFLIGHT_FIELDS')
+            exact(value['plan_sha256'],plan['plan_sha256'],'ORACLE_PLAN_BINDING')
+            required=set(oracle._prerequisites(expected,DB,'postgres'))
+            need(type(value['outcomes']) is dict and set(value['outcomes'])==required and all(type(x) is bool for x in value['outcomes'].values()),'ORACLE_PREFLIGHT_OUTCOMES')
+        elif index==1:
+            need(set(value)=={'format','source_expected_sha256','source_inputs_aggregate_sha256','plan_sha256','server_version_num','expression_count','expressions'},'ORACLE_RESULT_FIELDS')
+            exact({k:value[k] for k in ('source_expected_sha256','source_inputs_aggregate_sha256','plan_sha256','server_version_num','expression_count')},{'source_expected_sha256':EXPECTED_SHA,'source_inputs_aggregate_sha256':expected['inputs_aggregate_sha256'],'plan_sha256':plan['plan_sha256'],'server_version_num':170011,'expression_count':416},'ORACLE_RESULT_BINDING')
+            wanted={(r['category'],r['subject'],r['field'],r['source_expression_sha256']) for r in plan['expressions']};seen=set()
+            need(type(value['expressions']) is list and len(value['expressions'])==416,'ORACLE_EXPRESSION_COUNT')
+            for row in value['expressions']:
+                need(type(row) is dict and set(row)=={'category','subject','field','source_expression_sha256','value_sha256'},'ORACLE_EXPRESSION_FIELDS')
+                identity=tuple(row[k] for k in ('category','subject','field','source_expression_sha256'))
+                need(identity in wanted and identity not in seen and type(row['value_sha256']) is str and re.fullmatch('[0-9a-f]{64}',row['value_sha256']),'ORACLE_EXPRESSION_IDENTITY')
+                seen.add(identity)
+            need(seen==wanted,'ORACLE_EXPRESSION_COVERAGE')
+        else:
+            need(set(value)=={'format','plan_sha256','all_oracle_tables_absent','all_oracle_functions_absent'},'ORACLE_CLOSURE_FIELDS')
+            exact(value,{'format':formats[index],'plan_sha256':plan['plan_sha256'],'all_oracle_tables_absent':True,'all_oracle_functions_absent':True},'ORACLE_TEMP_ABSENCE')
+        write_safe(('oracle-preflight.json','oracle-results.json','oracle-closure.json')[index],value)
+        report.setdefault('oracle_records',[]).append({'index':index,'status':'OBSERVED_NOT_QUALIFIED','sha256':digest(value)});save()
+        safe.append(value)
+    return safe
+
+
+def acl_compatibility_preflight(name):
+    text=read_pinned('scripts/sql-review/catalog-acl-preflight.sql').decode('utf8')
+    result=run_catalog_query(name,text,'CATALOG_ACL_COMPATIBILITY')
+    successful_query(result)
+    parsed=records(result.stdout)
+    expected={'format':'workinants.catalog-acl-preflight.v1','server_version_num':170011,'read_only':True,'collected_as':'postgres','collector_is_superuser':True,'old_zero_dimensional_acl_rejected_exactly':True,'null_acl_has_zero_rows':True,'empty_acl_guard_has_zero_rows':True,'sequence_default_has_exact_owner_privileges':True}
+    need(len(parsed)==1 and type(parsed[0]) is dict and set(parsed[0])==set(expected),'ACL_PREFLIGHT_FIELDS')
+    for key,value in expected.items():need(type(parsed[0][key]) is type(value) and parsed[0][key]==value,'ACL_PREFLIGHT_COMPARISON')
+    write_safe('acl-preflight.json',parsed[0])
+    report['acl_compatibility_preflight']=parsed[0]
+    report['steps']['CATALOG-ACL-COMPAT']='PASS_NEW_SOURCE_COMPATIBILITY_CONTROL';save()
+
+
+def text_compatibility_preflight(name):
+    text=read_pinned('scripts/sql-review/catalog-text-preflight.sql').decode('utf8')
+    result=run_catalog_query(name,text,'CATALOG_TEXT_COMPATIBILITY')
+    successful_query(result)
+    parsed=records(result.stdout)
+    expected={'format':'workinants.catalog-text-preflight.v1','server_version_num':170011,'read_only':True,'collected_as':'postgres','collector_is_superuser':True,'identifier_limit_is_63':True,'old_projection_type_is_name':True,'old_projection_truncates_long_value':True,'corrected_projection_type_is_text':True,'corrected_projection_preserves_long_value':True}
+    need(len(parsed)==1 and type(parsed[0]) is dict and set(parsed[0])==set(expected),'TEXT_PREFLIGHT_FIELDS')
+    for key,value in expected.items():need(type(parsed[0][key]) is type(value) and parsed[0][key]==value,'TEXT_PREFLIGHT_COMPARISON')
+    write_safe('text-preflight.json',parsed[0])
+    report['text_compatibility_preflight']=parsed[0]
+    report['steps']['CATALOG-TEXT-COMPAT']='PASS_NEW_SOURCE_COMPATIBILITY_CONTROL';save()
+
+
+def catalog_experiment():
+    target = TARGETS[0]
+    name = target['name']
+    tools = CATALOG['tools']
+    manifest = CATALOG['expected']
+    recipe = CATALOG['public']
+    observe_public_baseline(name)
+    with _RequiredSafetyBoundary('FINALIZE', name):
+        installed = migrate_success(target, 'deploy', 'CATALOG_GENUINE_INITIAL_DEPLOY')
+    exact({k: installed[k] for k in ('schema', 'operation', 'run_id', 'container_id', 'source_sql_sha256')}, {'schema': 'workinants.local-f0-migrate-result.v2', 'operation': 'deploy', 'run_id': RUN_ID, 'container_id': created_containers[name], 'source_sql_sha256': APPLICATION_SHA}, 'CATALOG_GENUINE_INSTALL_BINDING')
+    need(type(installed['attestation_sha256']) is str and re.fullmatch('[0-9a-f]{64}', installed['attestation_sha256']), 'CATALOG_TARGET_ATTESTATION')
+    report['steps']['CATALOG-INSTALL'] = 'PASS'
+    save()
+    verify_tool_data()
+    registration = tools['prisma_ledger_proof'].build_registration(MANIFEST['catalog']['ledger_expectation'], run_id=RUN_ID, target_attestation_sha256=installed['attestation_sha256'], source_expected_sha256=EXPECTED_SHA, root=ROOT, database=DB)
+    write_safe('ledger-registration.json', registration)
+    report['ledger_registration_sha256'] = digest(registration)
+    save()
+    acl_compatibility_preflight(name)
+    text_compatibility_preflight(name)
+    native = collect_native(name, 'NATIVE_BEFORE_ORACLE', 'native-before.json')
+    report['steps']['CATALOG-NATIVE'] = 'PASS_OBSERVED_NOT_QUALIFIED'
+    save()
+    result = run_catalog_query(name, CATALOG['oracle_sql'], 'EXPRESSION_ORACLE')
+    parts = oracle_records(result.stdout)
+    successful_query(result)
+    need(len(parts) == 3 and all((x is True for x in parts[0]['outcomes'].values())), 'ORACLE_ALL_THREE_RECORDS_REQUIRED')
+    second = collect_native(name, 'NATIVE_AFTER_ORACLE', 'native-after-oracle.json')
+    exact(digest(second), digest(native), 'ORACLE_CHANGED_NATIVE_CATALOG')
+    oracle_evidence = {'format': 'workinants.reviewed-expression-oracle-evidence.v1', 'database': DB, 'oracle_sql_sha256': hashlib.sha256(CATALOG['oracle_sql'].encode()).hexdigest(), 'preflight': parts[0], 'results': parts[1], 'closure': parts[2], 'connection_closed_before_observation': True, 'pre_oracle_catalog_sha256': digest(native), 'post_rollback_catalog_sha256': digest(second)}
+    tools['catalog_expression_oracle'].validate_evidence(manifest, native, oracle_evidence, database=DB, grantor='postgres', root=ROOT)
+    write_safe('oracle-evidence.json', oracle_evidence)
+    report['steps']['CATALOG-ORACLE'] = 'PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE'
+    save()
+    result = run_catalog_query(name, read_pinned('scripts/sql-review/collect_prisma_ledger.sql').decode(), 'PRISMA_LEDGER_NATIVE')
+    parsed = records(result.stdout)
+    value = parsed[0] if len(parsed) == 1 else None
+    try:
+        need(type(value) is dict, 'ONE_LEDGER_RECORD_REQUIRED')
+        need(set(value) == set(tools['prisma_ledger_proof'].schema_expectation()) | {'format', 'server_version_num', 'database', 'read_only', 'isolation', 'collected_as', 'session_user', 'collector_is_superuser', 'history', 'history_ids_unique'}, 'LEDGER_TOP_LEVEL_FIELDS')
+        spec = tools['prisma_ledger_proof'].schema_expectation()
+        shapes = {key: ' '.join(rows[0]) for key, rows in spec.items() if type(rows) is list and rows}
+        shapes.update({'column_acl': 'column ' + ACL_FIELDS, 'history': 'name_sha256 checksum_sha256 checksum_format_valid id_is_uuid_v4 started finished rolled_back time_order_valid steps logs_state'})
+        row_shapes(value, shapes)
+        filter_metadata(value)
+    except BaseException:
+        safe_rejection('PRISMA_LEDGER_NATIVE', value, hashlib.sha256(result.stdout.encode()).hexdigest())
+        raise
+    write_safe('ledger-observation.json', value)
+    report['ledger_observation_sha256'] = digest(value)
+    save()
+    successful_query(result)
+    third = collect_native(name, 'NATIVE_AFTER_LEDGER', 'native-after-ledger.json')
+    exact(digest(third), digest(native), 'LEDGER_COLLECTION_CHANGED_NATIVE_CATALOG')
+    ledger_evidence = {'format': 'workinants.prisma-ledger-evidence.v1', 'registration_sha256': digest(registration), 'collector_sql_sha256': MANIFEST['packet_files_sha256']['scripts/sql-review/collect_prisma_ledger.sql'], 'run_id': RUN_ID, 'target_attestation_sha256': installed['attestation_sha256'], 'native_catalog_before_sha256': digest(second), 'native_catalog_after_sha256': digest(third), 'observation': value}
+    write_safe('ledger-evidence.json', ledger_evidence)
+    ledger_result = tools['prisma_ledger_proof'].compare_proof(registration, ledger_evidence, native, bootstrap_grantor='postgres', source_expected_sha256=EXPECTED_SHA, root=ROOT)
+    report['ledger_comparison'] = ledger_result
+    save()
+    need(ledger_result['status'] == 'PASS', 'NATIVE_LEDGER_COMPARISON_NOT_PASS')
+    report['steps']['CATALOG-LEDGER'] = 'PASS_SOURCE_BOUND_NATIVE_SUBSET'
+    save()
+    comparison = tools['compare_native_catalog'].compare_manifest(manifest, native, bootstrap_grantor='postgres', bootstrap_superuser=True, public_schema_owner='pg_database_owner', public_acl_registration=recipe['full_acl'], ledger_registration=registration, ledger_evidence=ledger_evidence, expression_oracle_evidence=oracle_evidence, oracle_database=DB, root=ROOT)
+    write_safe('catalog-comparison.json', comparison)
+    report['catalog_comparison'] = comparison
+    save()
+    need(comparison['status'] == 'PASS', 'NATIVE_CATALOG_COMPARISON_NOT_PASS')
+    report['qualified_native_snapshot_sha256'] = digest(native)
+    report['steps']['CATALOG-COMPARE'] = 'PASS_SOURCE_BOUND_NATIVE_CATALOG_ONLY'
+    event('NATIVE_CATALOG_REHEARSAL', 'PASS_SUBSET_ONLY')
+
+
+
+
+
+# Restore-specific operations follow; no old operator is changed.
+import builtins
+import copy
+from pathlib import PureWindowsPath
+import types
+
+RESTORE_PACKET='review-output/restore-control-rehearsal'
+RESTORE_PROPOSAL_SHA='91834ed47f63820db5bb4cc16d77056577f7831f57eeed923198b630af15aaca'
+RESTORE_CONTENT_SHA='2752ff8019c7d2c59a029e0595e5c42de6cc3e0c16d3ce18dffa75b1be70c1f1'
+EXTERNAL_FILES=('execute_local_f0_restore_20261119_bound_evidence_v4.py','local_f0_restore_operation_steps_bound_evidence_v4.py','prepare_local_f0_restore_plan_bound_evidence_v4.py','check_local_f0_restore_operation_bound_evidence_v4.py')
+HELPER_FILES=('scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/sql-review/run-local-f0-migrate.py','scripts/prepare-local-f0-history.py','scripts/sql-review/run-worker-control-rehearsal.py')
+BACKUP_ROOT='/run/wa-restore-backup'
+DATA_ROOT='/var/lib/postgresql/data'
+ARCHIVE_NAME='restore01-base.tar'
+BACKUP_PREFLIGHT_FIELDS={'version_170011','direct_postgres','primary','wal_level_replica','two_wal_senders','temporary_slot_available','full_page_writes','no_senders','no_other_clients','no_external_tablespaces','only_expected_databases','no_recovery_or_archive_transport','no_preload','no_subscriptions','no_foreign_servers','safe_logging'}
+RESTORE_STEPS=('RESTORE-REVIEW','RESTORE-SOURCE','RESTORE-QUIESCENCE','RESTORE-BACKUP','RESTORE-VERIFY','RESTORE-STAGE','RESTORE-PARITY','RESTORE-CREDENTIALS','RESTORE-IDENTITY','RESTORE-DIAGNOSTICS','RESTORE-REQUARANTINE','RESTORE-CLEANUP')
+HELPERS={}
+GRANTS=[]
+
+
+def load_reviewed_helper(relative):
+    """Closed runpy chain: compile exact pinned bytes, never disk re-execution."""
+    need(relative in HELPER_FILES,'UNREGISTERED_RESTORE_HELPER')
+    if relative in HELPERS:
+        need(HELPERS[relative] is not None,'CYCLIC_RESTORE_HELPER');return HELPERS[relative]
+    # Every transitive helper is verified before the first helper executes.
+    raw={path:read_pinned(path) for path in HELPER_FILES}
+    HELPERS[relative]=None
+    def run_path(value,**options):
+        need(not options,'RESTORE_HELPER_RUNPY_OPTIONS')
+        path=Path(value).resolve();need(path.is_relative_to(ROOT),'RESTORE_HELPER_PATH')
+        return load_reviewed_helper(path.relative_to(ROOT).as_posix())
+    native_import=builtins.__import__
+    def restricted_import(name,globals=None,locals=None,fromlist=(),level=0):
+        if name=='runpy' and level==0:return types.SimpleNamespace(run_path=run_path)
+        return native_import(name,globals,locals,fromlist,level)
+    namespace={'__name__':'reviewed_restore_'+Path(relative).stem.replace('-','_'),'__file__':str(ROOT/relative),
+        '__builtins__':{**vars(builtins),'__import__':restricted_import}}
+    output,errors=io.StringIO(),io.StringIO()
+    try:
+        with contextlib.redirect_stdout(output),contextlib.redirect_stderr(errors):exec(compile(raw[relative],str(ROOT/relative),'exec'),namespace)
+    except BaseException:raise Stop('RESTORE_HELPER_LOAD_REFUSED') from None
+    need(not output.getvalue() and not errors.getvalue(),'RESTORE_HELPER_OUTPUT_REFUSED')
+    HELPERS[relative]=namespace
+    return namespace
+
+
+def source_text(name):
+    need(type(name) is str and Path(name).name==name and name in PROPOSAL['prepared_files_sha256'],'RESTORE_SQL_FILE_NAME')
+    return read_pinned(RESTORE_PACKET+'/'+name).decode('utf8')
+
+
+def verify_restore_packet():
+    global PROPOSAL,WORKER,RESOURCE_CONTAINERS,RESOURCE_VOLUMES,SOURCE,RESTORED,STAGING,ARCHIVE
+    need(re.fullmatch('[0-9a-f]{40}',COMMIT) and re.fullmatch('[0-9a-f]{40}',TREE) and re.fullmatch('[0-9a-f]{64}',PACKET),'RESTORE_SOURCE_NOT_PINNED')
+    need(uuid.UUID(RUN_ID).version==4,'RESTORE_RUN_UUID4')
+    cfg=MANIFEST['restore'];need(type(cfg) is dict and set(cfg)=={'proposal_sha256','content_sha256','restored','staging','archive_path','external_files_sha256'},'RESTORE_PLAN_FIELDS')
+    need(cfg['proposal_sha256']==RESTORE_PROPOSAL_SHA and cfg['content_sha256']==RESTORE_CONTENT_SHA,'RESTORE_APPROVED_PROPOSAL')
+    external=cfg['external_files_sha256'];need(type(external) is dict and set(external)==set(EXTERNAL_FILES),'RESTORE_EXTERNAL_CLOSED_SET')
+    for name,expected in external.items():need(hashlib.sha256((TASK/name).read_bytes()).hexdigest()==expected,'RESTORE_EXTERNAL_SOURCE_DRIFT')
+    SOURCE=TARGETS[0]['name'];RESTORED='wa-p0c-'+RUN_ID[:8]+'-restore-target';STAGING='wa-p0c-'+RUN_ID[:8]+'-restore-staging'
+    need(cfg['restored']=={'name':RESTORED,'volume':RESTORED+'-data'} and cfg['staging']=={'name':STAGING},'RESTORE_RESOURCE_IDENTITIES')
+    ARCHIVE=PRIVATE/ARCHIVE_NAME;need(cfg['archive_path']==str(ARCHIVE),'RESTORE_PRIVATE_ARCHIVE_PATH')
+    RESOURCE_CONTAINERS=(SOURCE,STAGING,RESTORED);RESOURCE_VOLUMES=(TARGETS[0]['volume'],RESTORED+'-data')
+    # Admit the entire executable chain before even native catalog helpers compile.
+    declared=MANIFEST.get('restore_runtime_helpers_sha256')
+    need(type(declared) is dict and set(declared)==set(HELPER_FILES),'RESTORE_CLOSED_RUNTIME_HELPERS_REQUIRED')
+    for name in HELPER_FILES:
+        need(MANIFEST['packet_files_sha256'].get(name)==declared[name] and type(declared[name]) is str and re.fullmatch('[0-9a-f]{64}',declared[name]),'RESTORE_RUNTIME_HELPER_BINDING')
+        read_pinned(name)
+    verify_catalog_packet()
+    raw=read_pinned(RESTORE_PACKET+'/proposal.json');need(hashlib.sha256(raw).hexdigest()==RESTORE_PROPOSAL_SHA,'RESTORE_PROPOSAL_DRIFT')
+    PROPOSAL=unique_json(raw.decode('utf8'))
+    need(PROPOSAL['status']=='NOT_RUN' and PROPOSAL['selected_control_ids']==['P0C-RESTORE-01'] and PROPOSAL['source_only_packet_sha256']==RESTORE_CONTENT_SHA,'RESTORE_SCOPE')
+    need(digest({key:PROPOSAL[key] for key in ('source_files_sha256','prepared_files_sha256')})==RESTORE_CONTENT_SHA,'RESTORE_CONTENT_DRIFT')
+    for relative,expected in PROPOSAL['source_files_sha256'].items():need(MANIFEST['packet_files_sha256'].get(relative)==expected,'RESTORE_INPUT_NOT_IN_PACKET')
+    for name,expected in PROPOSAL['prepared_files_sha256'].items():need(MANIFEST['packet_files_sha256'].get(RESTORE_PACKET+'/'+name)==expected,'RESTORE_ARTIFACT_NOT_IN_PACKET')
+    for name in HELPER_FILES:read_pinned(name)
+    WORKER=load_reviewed_helper('scripts/sql-review/run-worker-control-rehearsal.py')
+    for key in ('Session','grant_sql','binder_diagnostic','remove_redundant_begin'):need(callable(WORKER.get(key)),'RESTORE_SESSION_HELPER_API')
+    SAFE_FILES.update({'restore-native-before.json','restore-native-after.json','source-before-backup.json','source-after-backup.json','source-parity-before.json','source-parity-after.json','restore-parity-initial.json'}|{'restore-native-case-'+str(i)+'.json' for i in range(5)}|{'restore-case-'+str(i)+'-parity.json' for i in range(5)})
+    report['steps'].update({key:'NOT_RUN' for key in RESTORE_STEPS})
+    report['restore']={'proposal_sha256':RESTORE_PROPOSAL_SHA,'content_sha256':RESTORE_CONTENT_SHA,'selected_case':{'id':'P0C-RESTORE-01','status':'NOT_RUN'},
+        'mandatory_assertions':[{'id':row['id'],'status':'NOT_RUN','dependency_ids':row['dependency_ids']} for row in PROPOSAL['source_assertion_definition']['assertions']],
+        'service_activation':False,'privacy_reapplication':'NOT_RUN_DEPENDENCY_BLOCKED','owner_adapters_qualified':False,'physical_artifact_exported':False}
+    event('RESTORE-REVIEW','PASS_SOURCE_ADMISSION_ONLY')
+
+
+def raw_sql(name,role,text,passfile='/run/wa-secrets/pgpass'):
+    need(name in created_containers and role in ROLES and passfile in ('/run/wa-secrets/pgpass','/run/wa-secrets/source-old.pgpass','/run/wa-secrets/wrong.pgpass'),'RESTORE_SQL_TARGET_ROLE')
+    args=psql_args(name,role);args[args.index('PGPASSFILE=/run/wa-secrets/pgpass')]='PGPASSFILE='+passfile
+    result=command(args,text,timeout=60)
+    need(type(result.returncode) is int and result.returncode==0 and not result.stderr.strip(),'RESTORE_ONEOFF_SQL_REFUSED')
+    return result.stdout.strip()
+
+
+def session(name,role):
+    def argv(actual_role,identity):
+        need(identity==created_containers[name] and actual_role==role,'RESTORE_SESSION_IMMUTABLE_TARGET')
+        args=psql_args(name,role);args[args.index('SHOW_CONTEXT=never')]='SHOW_CONTEXT=errors';return args
+    return WORKER['Session'](role,created_containers[name],{'psql':argv},lambda actual_role,text:raw_sql(name,actual_role,text))
+
+
+def committed(name,role,text,markers=()):
+    report['stage']='RESTORE_COMMIT_'+role.upper();save()
+    record={'role':role,'operation_closed':False,'commit_acknowledged':False}
+    report['restore'].setdefault('transactions',[]).append(record);save()
+    active=session(name,role)
+    try:
+        active.capture()
+        code,lines,ack,errors=active.finish(WORKER['remove_redundant_begin'](text))
+        record.update(exit_code=code if type(code) is int else None,commit_acknowledged=type(code) is int and code==0 and ack is True and not errors.strip() and lines==list(markers));save()
+        need(type(code) is int and code==0 and ack is True and not errors.strip() and lines==list(markers),'RESTORE_COMMIT_NOT_PROVEN')
+    finally:
+        active.close();record['operation_closed']=True;save()
+    event('RESTORE_COMMITTED','PASS_CLOSED',role=role)
+
+
+def private_timestamp(value):
+    need(type(value) is str and re.fullmatch(r'[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})',value),'RESTORE_PRIVATE_TIMESTAMP_FORMAT')
+    try:stamp=datetime.datetime.fromisoformat(value.replace('Z','+00:00'))
+    except ValueError:raise Stop('RESTORE_PRIVATE_TIMESTAMP_FORMAT') from None
+    need(stamp.tzinfo is not None,'RESTORE_PRIVATE_TIMESTAMP_FORMAT');return stamp
+
+
+def generation_number(value):
+    # The reviewed source fixture encodes generations as decimal strings, while
+    # grant_sql emits bigint literals. Admit only that exact numeric spelling.
+    need((type(value) is int and 0<=value<=9223372036854775807) or
+         (type(value) is str and re.fullmatch(r'0|[1-9][0-9]{0,18}',value) and int(value)<=9223372036854775807),
+         'RESTORE_GENERATION_NUMBER')
+    return int(value)
+
+
+def issue(name,grant,backend):
+    value=copy.deepcopy(grant);value['id']=str(uuid.uuid4());secret=secrets.token_hex(32);all_secrets.append(secret)
+    value['security_generation']=generation_number(value['security_generation']);value['source_generation']=generation_number(value['source_generation'])
+    token_hash=hashlib.sha256(bytes.fromhex(secret)).hexdigest();statement=WORKER['grant_sql'](value,backend,token_hash)
+    need(statement.endswith(';\nCOMMIT;') and statement.count('\nCOMMIT;')==1,'RESTORE_ISSUER_STATEMENT_SHAPE')
+    statement=statement[:-len(';\nCOMMIT;')]+" RETURNING jsonb_build_object('created_at',created_at,'expires_at',expires_at);\nCOMMIT;"
+    active=session(name,'wa_context_issuer');proof={'issuer_login':'wa_context_issuer','target_login':value['database_login_role'],'commit_acknowledged':False,'operation_closed':False,'all_21_claims_verified':False}
+    report['restore'].setdefault('issuer_operations',[]).append(proof);save()
+    try:
+        issuer=active.capture()
+        need(issuer['login']==issuer['current_user']=='wa_context_issuer' and re.fullmatch('[1-9][0-9]{0,19}',issuer['xid']),'RESTORE_ACTUAL_ISSUER_TUPLE')
+        clock_rows,clock_ack,clock_errors=active.call("SELECT jsonb_build_object('clock',clock_timestamp());")
+        need(clock_ack is True and clock_errors=='' and len(clock_rows)==1,'RESTORE_ISSUER_CLOCK_REQUIRED')
+        clock=unique_json(clock_rows[0]);need(type(clock) is dict and set(clock)=={'clock'},'RESTORE_ISSUER_CLOCK_REQUIRED');anchor=private_timestamp(clock['clock'])
+        code,lines,ack,errors=active.finish(statement)
+        proof['commit_acknowledged']=type(code) is int and code==0 and ack is True and errors=='';save()
+        need(proof['commit_acknowledged'] and len(lines)==1,'RESTORE_ISSUER_COMMIT_NOT_PROVEN')
+        returned=unique_json(lines[0]);need(type(returned) is dict and set(returned)=={'created_at','expires_at'},'RESTORE_ISSUER_RETURNING_FIELDS')
+        created,expires=(private_timestamp(returned[key]) for key in ('created_at','expires_at'))
+        need(anchor<=created<anchor+datetime.timedelta(seconds=30) and created<expires<=created+datetime.timedelta(seconds=300),'RESTORE_ISSUER_CURRENT_TIMESTAMP_WINDOW')
+    finally:
+        active.close();proof['operation_closed']=True;save()
+    expected={'id':value['id'],'token_hash':token_hash,'issuer_service':'wa_context_issuer','principal_user_id':value.get('principal_user_id'),'service_principal':value.get('service_principal'),'database_login_role':value['database_login_role'],'owner_module_id':value['owner_module_id'],'action':value['action'],'purpose':value['purpose'],'target_kind':value['target_kind'],'target_id':value['target_id'],'allowed_fields':value['allowed_fields'],'policy_version':value.get('policy_version','worker-control-fixture.v1'),'security_generation':value['security_generation'],'source_generation':value['source_generation'],'backend_pid':int(backend['pid']),'transaction_id':backend['xid'],'expires_at':returned['expires_at'],'revoked_at':None,'created_at':returned['created_at'],'mutation_transaction_id':issuer['xid']}
+    need(len(expected)==21,'RESTORE_GRANT_EXACT_FIELD_SET')
+    record={'id':value['id'],'secret':secret,'backend':backend,'grant':value,'expected':expected}
+    record['row_sha256']=grant_row_facts(name,record,require_unexpired=True,issuer=True)
+    proof['all_21_claims_verified']=True;GRANTS.append(record);save();return record
+
+
+RESTORE_BOUND_STATES=frozenset(('0A000','22012','23503','23505','23514','25P02','25P03','42501','42703','57014','57P05','P0001','P0002'))
+RESTORE_BOUND_DECLARATION='review-output/first-rehearsal/diagnostic-identifiers.json'
+RESTORE_BOUND_DECLARATION_SHA='204b7c9f5888fd253c338286cc5446e1a346fb02073930124ccaf097f6bd9bb2'
+RESTORE_BOUND_SOURCE='review-output/foundation-application.review.sql'
+RESTORE_BOUND_SOURCE_SHA='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+
+def bound_source_metadata(value,declared):
+    classes={'UNRECOGNIZED','NO_SINGLE_ERROR','RECORD_FIELD_MISSING_REDACTED','RECORD_FIELD_MISSING'};frames={'NOT_RETAINED','SOURCE_BOUND_FRAME','REDACTED_CONTEXT'}
+    need(type(value) is dict and all(type(k) is str for k in value) and type(value.get('classification')) is str and type(value.get('frame_classification')) is str and value['classification'] in classes and value['frame_classification'] in frames,'RESTORE_BOUND_METADATA_SHAPE')
+    keys={'classification','frame_classification'}
+    if value['classification']=='RECORD_FIELD_MISSING':keys|={'record_alias','column','source_sha256'}
+    if value['frame_classification']=='SOURCE_BOUND_FRAME':keys|={'frame'}
+    need(set(value)==keys,'RESTORE_BOUND_METADATA_FIELDS');safe={key:value[key] for key in ('classification','frame_classification')}
+    if 'column' in keys:
+        need(type(value['record_alias']) is str and value['record_alias'] in ('new','old') and type(value['column']) is str and value['column'] in declared['columns'] and type(value['source_sha256']) is str and value['source_sha256']==RESTORE_BOUND_SOURCE_SHA,'RESTORE_BOUND_METADATA_COLUMN')
+        safe.update(record_alias=value['record_alias'],column=value['column'],source_sha256=RESTORE_BOUND_SOURCE_SHA)
+    if 'frame' in keys:
+        frame=value['frame'];need(type(frame) is dict and all(type(k) is str for k in frame) and set(frame)=={'schema','function','body_line','body_sha256','source_sha256'} and type(frame['schema']) is str and type(frame['function']) is str and type(frame['body_sha256']) is str and type(frame['source_sha256']) is str,'RESTORE_BOUND_METADATA_FRAME')
+        function=declared['no_argument_plpgsql_functions'].get(frame['schema']+'.'+frame['function']);need(type(function) is dict and frame['schema']==function['schema'] and frame['function']==function['function'] and frame['body_sha256']==function['body_sha256'] and frame['source_sha256']==RESTORE_BOUND_SOURCE_SHA and type(frame['body_line']) is int and 1<=frame['body_line']<=function['max_body_line'],'RESTORE_BOUND_METADATA_SOURCE_FRAME')
+        safe['frame']={'schema':function['schema'],'function':function['function'],'body_line':frame['body_line'],'body_sha256':function['body_sha256'],'source_sha256':RESTORE_BOUND_SOURCE_SHA}
+    return safe
+
+def bound_diagnostic(errors):
+    safe={'classification':'UNEXPECTED_NOT_GUARD_PROOF','redaction':'UNCONFIRMED','single_header':False,'sqlstate':None,'source_binding_confirmed':False,'source_metadata':None}
+    if type(errors) is not str:safe['redaction']='INVALID_TYPE';return safe
+    try:bounded=len(errors.encode('utf8'))<=65536 and len(errors.splitlines())<=256 and not any(ord(c)<32 and c not in '\r\n\t' or ord(c)==127 for c in errors)
+    except (UnicodeError,ValueError):bounded=False
+    if not bounded:safe['redaction']='BOUNDED_REDACTION';return safe
+    if errors=='':safe.update(redaction='EMPTY',source_binding_confirmed=True);return safe
+    severity_occurrences=re.findall(r'ERROR|FATAL',errors)
+    candidates=[line for line in errors.splitlines() if 'ERROR' in line or 'FATAL' in line]
+    match=re.fullmatch(r'(?:psql:<stdin>:[0-9]{1,10}: )?(?:ERROR|FATAL):[ \t]+([0-9A-Z]{5}):[ \t]+(.*)',candidates[0]) if len(severity_occurrences)==len(candidates)==1 else None
+    if match is None:safe['redaction']='NO_SINGLE_EXACT_HEADER';return safe
+    safe['single_header']=True
+    if match[1] not in RESTORE_BOUND_STATES:safe['redaction']='UNKNOWN_SQLSTATE';return safe
+    safe['sqlstate']=match[1]
+    try:
+        declaration=read_pinned(RESTORE_BOUND_DECLARATION);source=read_pinned(RESTORE_BOUND_SOURCE)
+        need(hashlib.sha256(declaration).hexdigest()==RESTORE_BOUND_DECLARATION_SHA and hashlib.sha256(source).hexdigest()==RESTORE_BOUND_SOURCE_SHA,'RESTORE_BOUND_DIAGNOSTIC_SOURCE')
+        declared=unique_json(declaration);need(declared['source']==RESTORE_BOUND_SOURCE and declared['source_sha256']==RESTORE_BOUND_SOURCE_SHA,'RESTORE_BOUND_DIAGNOSTIC_DECLARATION')
+        helper=load_reviewed_helper('scripts/sql-review/run-first-rehearsal.py');metadata=helper['source_metadata'](errors)
+        need(read_pinned(RESTORE_BOUND_DECLARATION)==declaration and read_pinned(RESTORE_BOUND_SOURCE)==source,'RESTORE_BOUND_DIAGNOSTIC_DRIFT')
+        safe['source_metadata']=bound_source_metadata(metadata,declared);safe.update(redaction='SOURCE_BOUND_METADATA',source_binding_confirmed=True)
+    except BaseException:safe.update(redaction='SOURCE_METADATA_UNCONFIRMED',source_metadata=None,source_binding_confirmed=False)
+    return safe
+
+def bound_outcome(code,lines,ack,errors,expected_lines=None,expected_json=None):
+    code_ok=type(code) is int and 0<=code<=255;ack_ok=type(ack) is bool
+    lines_ok=type(lines) is list and len(lines)<=256 and all(type(line) is str and len(line)<=65536 for line in lines)
+    if lines_ok:
+        try:lines_ok=sum(len(line.encode('utf8')) for line in lines)<=65536
+        except UnicodeError:lines_ok=False
+    expected=list(expected_lines or []);markers=[marker in lines for marker in expected] if lines_ok else [False for _ in expected]
+    safe={'exit_code':code if code_ok else None,'acknowledgement':ack if ack_ok else None,'fields_typed':code_ok and ack_ok and lines_ok and type(errors) is str,'output_bounded':lines_ok,'line_count':len(lines) if lines_ok else None,'expected_count':1 if expected_json is not None else len(expected),'marker_presence':markers,'marker_order_matches':lines==expected if lines_ok and expected_json is None else None,'json_shape_matches':None,'json_matches':None,'stderr_empty':type(errors) is str and errors=='','completion_comparisons':{'exit_zero':code_ok and code==0,'acknowledged':ack is True,'stderr_empty':type(errors) is str and errors==''},'diagnostic':bound_diagnostic(errors)}
+    if expected_json is not None:
+        safe.update(json_shape_matches=False,json_matches=False)
+        if lines_ok and len(lines)==1:
+            try:
+                actual=unique_json(lines[0]);safe['json_shape_matches']=type(actual) is dict and set(actual)==set(expected_json) and all(type(actual[k]) is type(expected_json[k]) for k in expected_json);safe['json_matches']=canonical(actual)==canonical(expected_json)
+            except BaseException:pass
+    return safe
+
+def normalize_bound_envelope(text,comparison):
+    """Normalize only the top-level transaction envelope of admitted SQL.
+
+    This bounded lexical pass does not parse or rewrite business statements.
+    Runtime needs no parser package. Unsupported/ambiguous syntax refuses.
+    """
+    need(type(comparison) is dict and not comparison,'RESTORE_ENVELOPE_COMPARISON_SHAPE')
+    comparison.update(mode='UNCONFIRMED',source_bounded=False,lexically_closed=False,
+        source_statements=None,source_begin_count=None,source_commit_count=None,
+        business_statements=None,emitted_commit_count=None,business_bytes_preserved=False)
+    need(type(text) is str,'RESTORE_ENVELOPE_TEXT_TYPE')
+    try:bounded=len(text.encode('utf8'))<=1048576
+    except UnicodeError:bounded=False
+    comparison['source_bounded']=bounded
+    need(bounded and text and all((ord(c)>=32 and ord(c)!=127) or c in '\r\n\t' for c in text),'RESTORE_ENVELOPE_TEXT_BOUND')
+    statements=[];tokens=[];first=None;i=0;length=len(text);token_count=0
+    def token(value,start):
+        nonlocal first,token_count
+        if first is None:first=start
+        token_count+=1;need(token_count<=65536,'RESTORE_ENVELOPE_TOKEN_BOUND');tokens.append(value)
+    def quoted(start,quote,escape=False):
+        pos=start+1
+        while pos<length:
+            if escape and text[pos]=='\\':
+                need(pos+1<length,'RESTORE_ENVELOPE_UNCLOSED_QUOTE');pos+=2;continue
+            if text[pos]==quote:
+                if pos+1<length and text[pos+1]==quote:pos+=2;continue
+                return pos+1
+            pos+=1
+        raise Stop('RESTORE_ENVELOPE_UNCLOSED_QUOTE')
+    while i<length:
+        char=text[i]
+        if char.isspace():i+=1;continue
+        if text.startswith('--',i):
+            end=text.find('\n',i+2);i=length if end<0 else end+1;continue
+        if text.startswith('/*',i):
+            depth=1;i+=2
+            while i<length and depth:
+                if text.startswith('/*',i):depth+=1;need(depth<=32,'RESTORE_ENVELOPE_COMMENT_DEPTH');i+=2
+                elif text.startswith('*/',i):depth-=1;i+=2
+                else:i+=1
+            need(depth==0,'RESTORE_ENVELOPE_UNCLOSED_COMMENT');continue
+        if char in ("'",'"'):
+            escape=char=="'" and i>0 and text[i-1] in 'eE' and (i<2 or not (text[i-2].isalnum() or text[i-2] in '_$'))
+            end=quoted(i,char,escape)
+            token('LITERAL' if char=="'" else ('QUOTED_IDENTIFIER',text[i+1:end-1].replace('""','"')),i);i=end;continue
+        if char=='$':
+            tag=re.match(r'\$(?:[A-Za-z_][A-Za-z_0-9]{0,62})?\$',text[i:])
+            need(tag is not None,'RESTORE_ENVELOPE_UNSUPPORTED_DOLLAR')
+            delimiter=tag[0];end=text.find(delimiter,i+len(delimiter));need(end>=0,'RESTORE_ENVELOPE_UNCLOSED_DOLLAR')
+            token('DOLLAR_BODY',i);i=end+len(delimiter);continue
+        if char==';':
+            need(first is not None and tokens,'RESTORE_ENVELOPE_EMPTY_STATEMENT')
+            statements.append((first,i+1,tuple(tokens)));need(len(statements)<=256,'RESTORE_ENVELOPE_STATEMENT_BOUND')
+            first=None;tokens=[];i+=1;continue
+        need(char!='\\','RESTORE_ENVELOPE_CLIENT_META_COMMAND')
+        if char.isalpha() or char=='_':
+            end=i+1
+            while end<length and (text[end].isalnum() or text[end] in '_$'):end+=1
+            token(text[i:end].upper(),i);i=end;continue
+        token(char,i);i+=1
+    need(first is None and not tokens and statements,'RESTORE_ENVELOPE_UNTERMINATED_STATEMENT')
+    comparison.update(lexically_closed=True,source_statements=len(statements))
+    transaction_settings=frozenset(('transaction_isolation','transaction_read_only','transaction_deferrable',
+        'default_transaction_isolation','default_transaction_read_only','default_transaction_deferrable'))
+    def identifier(value):
+        if type(value) is str:return value.casefold()
+        if type(value) is tuple and len(value)==2 and value[0]=='QUOTED_IDENTIFIER':return value[1].casefold()
+        return None
+    def parameter(words):
+        if not words:return None
+        name=identifier(words[0]);index=1
+        while name is not None and index<len(words) and words[index]=='.':
+            if index+1>=len(words):return None
+            part=identifier(words[index+1])
+            if part is None:return None
+            name+='.'+part;index+=2
+        return name
+    def transaction_control(words):
+        if words[0] in ('BEGIN','COMMIT','END','ABORT','ROLLBACK','START','SAVEPOINT','RELEASE','PREPARE'):return True
+        if words[0]=='RESET':
+            # RESET ALL also resets the transaction defaults, so this closed
+            # envelope refuses it. Other RESET targets remain business SQL.
+            return words[1:2]==('ALL',) or parameter(words[1:]) in transaction_settings
+        if words[0]!='SET':return False
+        tail=words[1:]
+        if tail[:4]==('SESSION','CHARACTERISTICS','AS','TRANSACTION'):return True
+        if tail and tail[0] in ('LOCAL','SESSION'):tail=tail[1:]
+        return bool(tail and ((tail[0]=='TRANSACTION' and parameter(tail)=='transaction') or tail[:4]==('SESSION','CHARACTERISTICS','AS','TRANSACTION') or parameter(tail) in transaction_settings))
+    controls=[]
+    for index,(start,end,words) in enumerate(statements):
+        if transaction_control(words):
+            controls.append((index,start,end,words))
+    begins=[row for row in controls if row[3]==('BEGIN',)];commits=[row for row in controls if row[3]==('COMMIT',)]
+    comparison.update(source_begin_count=len(begins),source_commit_count=len(commits))
+    need(len(controls)==len(begins)+len(commits) and len(begins)<=1 and len(commits)<=1,'RESTORE_ENVELOPE_UNSUPPORTED_TRANSACTION')
+    need(not begins or begins[0][0]==0,'RESTORE_ENVELOPE_INTERMEDIATE_BEGIN')
+    need(not commits or commits[0][0]==len(statements)-1,'RESTORE_ENVELOPE_INTERMEDIATE_COMMIT')
+    need(not begins or commits,'RESTORE_ENVELOPE_INCOMPLETE_WRAPPER')
+    business=[row for index,row in enumerate(statements) if all(index!=control[0] for control in controls)]
+    need(business,'RESTORE_ENVELOPE_BUSINESS_REQUIRED')
+    if begins:
+        _,start,end,_=begins[0];normalized=text[:start]+text[end:];mode='OUTER_BEGIN_REMOVED'
+    elif commits:normalized=text;mode='TERMINAL_COMMIT_RETAINED'
+    else:normalized=text+'\nCOMMIT;';mode='NO_WRAPPER_APPEND_COMMIT'
+    # The pinned Session requires the literal terminal spelling. Refuse
+    # unsupported trailing trivia/case instead of relocating source bytes.
+    need(normalized.rstrip().endswith('COMMIT;'),'RESTORE_ENVELOPE_TERMINAL_SHAPE')
+    comparison.update(mode=mode,business_statements=len(business),emitted_commit_count=1,business_bytes_preserved=True)
+    return normalized
+
+
+def bound_operation(name,grant_name,text,expected_lines=None,expected_json=None,old=None,negative=False):
+    need(grant_name in PROPOSAL['grants'],'RESTORE_GRANT_TEMPLATE_NAME')
+    stage='RESTORE_BOUND_'+grant_name.upper().replace('-','_');report['stage']=stage
+    role=PROPOSAL['grants'][grant_name]['database_login_role']
+    proof={'grant_template':grant_name,'login':role,'stage':stage,'source_sql_sha256':RESTORE_BOUND_SOURCE_SHA,'negative':negative is True,'phase':'INITIALIZED','outcome':None,'session_returned':False,'session_close_confirmed':False,'global_zero_confirmed':False,'closure_confirmed':False,'operation_closed':False,'matched':False}
+    report['restore'].setdefault('bound_operations',[]).append(proof);active=None;record=None;failure=None
+    try:
+        save();grant=PROPOSAL['grants'][grant_name] if old is None else old['grant'];need(grant['database_login_role']==role and role in ROLES,'RESTORE_BOUND_SOURCE_LOGIN');active=session(name,role);proof.update(session_returned=True,phase='CAPTURE');backend=active.capture()
+        proof['phase']='ISSUE'
+        if old is None:record=issue(name,grant,backend)
+        else:
+            need((backend['pid'],backend['xid'])!=(old['backend']['pid'],old['backend']['xid']),'RESTORE_OLD_TUPLE_NOT_DISTINCT');record=old
+        bound='SELECT platform_private.bind_request_context('+WORKER['quote'](record['secret'])+');'
+        if negative:
+            proof['phase']='NEGATIVE_BIND';lines,ack,errors=active.call(bound);code=active.process.wait(timeout=10)
+            proof['outcome']=bound_outcome(code,lines,ack,errors,expected_lines=[]);save();need(proof['outcome']['fields_typed'] and proof['outcome']['output_bounded'],'RESTORE_BOUND_OUTPUT_UNCONFIRMED')
+            diagnostic=WORKER['binder_diagnostic'](errors,read_pinned('review-output/foundation-application.review.sql').decode('utf8'))
+            report['restore'].setdefault('probe_operations',[]).append({'negative':True,'exit_code':code if type(code) is int else None,'acknowledgement':ack if type(ack) is bool else None,'source_frame_verified':diagnostic.get('source_frame_verified') is True,'matched':diagnostic.get('matched') is True});save()
+            need(type(code) is int and code==3 and ack is False and lines==[] and diagnostic.get('matched') is True and diagnostic.get('source_frame_verified') is True,'RESTORE_EXACT_BINDER_DENIAL_NOT_PROVEN')
+            need(proof['outcome']['diagnostic']['source_binding_confirmed'],'RESTORE_BOUND_DIAGNOSTIC_UNCONFIRMED')
+        else:
+            proof['phase']='SAME_XID';rows,ack,errors=active.call("SELECT pg_current_xact_id()::text="+WORKER['quote'](backend['xid'])+';')
+            proof['same_xid']=bound_outcome(None,rows,ack,errors,expected_lines=['t']);save()
+            need(rows==['t'] and ack is True and not errors.strip(),'RESTORE_SAME_XID_NOT_PROVEN')
+            proof['transaction_envelope']={};tail=normalize_bound_envelope(text,proof['transaction_envelope']);save()
+            proof['phase']='FINISH';code,lines,ack,errors=active.finish(bound+'\n'+tail)
+            proof['outcome']=bound_outcome(code,lines,ack,errors,expected_lines,expected_json);save();need(proof['outcome']['fields_typed'] and proof['outcome']['output_bounded'],'RESTORE_BOUND_OUTPUT_UNCONFIRMED')
+            need(type(code) is int and code==0 and ack is True and errors=='','RESTORE_BOUND_OPERATION_NOT_COMMITTED')
+            need(proof['outcome']['diagnostic']['source_binding_confirmed'],'RESTORE_BOUND_DIAGNOSTIC_UNCONFIRMED')
+            if expected_json is not None:
+                need(len(lines)==1,'RESTORE_READ_RECORD_COUNT');exact(unique_json(lines[0]),expected_json,'RESTORE_READ_RESULT')
+            else:need(lines==list(expected_lines or []),'RESTORE_SOURCE_MARKERS')
+        proof['phase']='VERDICT_MATCHED'
+    except BaseException as error:
+        failure=error if isinstance(error,Stop) else Stop('RESTORE_BOUND_RESPONSE_UNCONFIRMED');_required_safety_first_exception(failure)
+    finally:
+        if active is not None:
+            try:active.close();proof['session_close_confirmed']=True
+            except BaseException as error:
+                secondary=error if isinstance(error,Stop) else Stop('RESTORE_BOUND_CLOSE_UNCONFIRMED');_required_safety_first_exception(secondary)
+                if failure is None:failure=secondary
+        try:
+            closure=_required_zero_backends(name,'RESTORE_BOUND_CLOSURE');proof['global_zero_confirmed']=closure.get('all_other_client_backends_absent') is True
+        except BaseException as error:
+            secondary=error if isinstance(error,Stop) else Stop('RESTORE_BOUND_GLOBAL_CLOSURE_UNCONFIRMED');_required_safety_first_exception(secondary)
+            if failure is None:failure=secondary
+        proof['closure_confirmed']=proof['session_close_confirmed'] and proof['global_zero_confirmed'];proof['operation_closed']=proof['closure_confirmed'];_required_safety_save()
+    if failure is not None:raise failure from None
+    need(proof['operation_closed'],'RESTORE_BOUND_CLOSURE_UNCONFIRMED');_required_safety_barrier();proof['matched']=True;save();return record
+
+
+def fixed_json(name,file):
+    result=run_catalog_query(name,source_text(file),'RESTORE_'+file.removesuffix('.sql').replace('-','_').upper())
+    successful_query(result);rows=records(result.stdout);need(len(rows)==1 and type(rows[0]) is dict,'RESTORE_FIXED_OBSERVER_RECORD');return rows[0]
+
+
+def fixture_observers(name):
+    for row in PROPOSAL['mandatory_fixture_observers']:exact(fixed_json(name,row['file']),row['expected'],'RESTORE_FIXTURE_OBSERVER_MISMATCH')
+
+
+def typed_data(value,counts):
+    need(type(value) is dict and set(value)==set(counts),'RESTORE_DATA_TABLE_SET')
+    for table,count in counts.items():
+        row=value[table];need(type(row) is dict and set(row)=={'count','rows_sha256'} and type(row['count']) is int and row['count']==count and type(row['rows_sha256']) is str and re.fullmatch('[0-9a-f]{64}',row['rows_sha256']),'RESTORE_DATA_HASH_COUNT')
+    return value
+
+
+def baselines(name,native_file):
+    all_data=typed_data(fixed_json(name,'all-data-fingerprint.sql'),PROPOSAL['source_and_initial_restore_counts'])
+    business={key:value for key,value in all_data.items() if key in PROPOSAL['business_tables']}
+    actual_business=fixed_json(name,'business-data-fingerprint.sql');exact(actual_business,business,'RESTORE_BUSINESS_AGGREGATE')
+    # Guard native heap/8columns/ACL before any direct ledger fingerprint.
+    result=run_catalog_query(name,read_pinned('scripts/sql-review/collect_prisma_ledger.sql').decode('utf8'),'RESTORE_LEDGER_SHAPE')
+    successful_query(result);ledger_rows=records(result.stdout);need(len(ledger_rows)==1,'RESTORE_LEDGER_SHAPE_RECORD')
+    need(digest(ledger_rows[0])==report['ledger_observation_sha256'],'RESTORE_SOURCE_QUALIFIED_LEDGER_SHAPE_PARITY')
+    # Full approved ledger comparison was already source-qualified. Shape/count
+    # must be byte-equivalent on restored native snapshot before fingerprint.
+    ledger=fixed_json(name,'ledger-fingerprint.sql');need(set(ledger)=={'count','rows_sha256','exact_applied'} and ledger['count']==1 and type(ledger['count']) is int and ledger['exact_applied'] is True and re.fullmatch('[0-9a-f]{64}',ledger['rows_sha256']),'RESTORE_LEDGER_FINGERPRINT')
+    authority=fixed_json(name,'authority-fingerprint.sql')
+    need(set(authority)=={'role_attributes_sha256','memberships_sha256','database_authority_sha256','all_six_have_scram','temporary_memberships','permanent_migrator_edge','leaf_create_false'} and authority['all_six_have_scram'] is True and type(authority['temporary_memberships']) is int and authority['temporary_memberships']==0 and authority['permanent_migrator_edge'] is True and authority['leaf_create_false'] is True,'RESTORE_AUTHORITY_STATE')
+    for key in ('role_attributes_sha256','memberships_sha256','database_authority_sha256'):need(re.fullmatch('[0-9a-f]{64}',authority[key]),'RESTORE_AUTHORITY_HASH')
+    native=collect_native(name,'RESTORE_NATIVE_'+native_file,native_file);need(digest(native)==report['qualified_native_snapshot_sha256'],'RESTORE_NATIVE_SOURCE_PARITY')
+    result={'all_data':all_data,'business':business,'ledger':ledger,'authority':authority,'native_sha256':digest(native),'ledger_shape_sha256':digest(ledger_rows[0])}
+    filename={'source-before-backup.json':'source-parity-before.json','source-after-backup.json':'source-parity-after.json','restore-native-before.json':'restore-parity-initial.json'}[native_file]
+    reference=write_safe(filename,result);report['restore'].setdefault('parity_snapshots',[]).append(reference);save()
+    return result
+
+
+RESTORE_SECRET_TMPFS_TOKEN = 'WA_RESTORE_SECRET_TMPFS_V2_OK'
+RESTORE_SECRET_TMPFS_SCRIPT = r'''set -f
+export LC_ALL=C
+count=0
+while IFS=' ' read -r source target filesystem options dump pass extra; do
+  [ "$target" = /run/wa-secrets ] || continue
+  count=$((count+1))
+  [ -n "$source" ] && [ "$filesystem" = tmpfs ] && [ -z "$extra" ] || exit 21
+  case "$options" in ''|,*|*,|*,,*) exit 22;; esac
+  seen_rw=0; seen_noexec=0; seen_nosuid=0; seen_nodev=0
+  saved_ifs=$IFS; IFS=,; set -- $options; IFS=$saved_ifs
+  for option do
+    case "$option" in
+      rw) seen_rw=$((seen_rw+1));;
+      noexec) seen_noexec=$((seen_noexec+1));;
+      nosuid) seen_nosuid=$((seen_nosuid+1));;
+      nodev) seen_nodev=$((seen_nodev+1));;
+      ro|exec|suid|dev) exit 23;;
+    esac
+  done
+  [ "$seen_rw" -eq 1 ] && [ "$seen_noexec" -eq 1 ] && [ "$seen_nosuid" -eq 1 ] && [ "$seen_nodev" -eq 1 ] || exit 24
+done < /proc/mounts
+[ "$count" -eq 1 ] || exit 25
+[ "$(stat -c '%F:%a:%u:%g' -- /run/wa-secrets)" = 'directory:700:0:0' ] || exit 26
+printf '%s\n' 'WA_RESTORE_SECRET_TMPFS_V2_OK'
+'''
+
+
+def verify_running_restore_secret_tmpfs(name, kind, identity):
+    report['stage'] = 'RESTORE_RUNNING_SECRET_TMPFS'
+    safe_kind = kind if kind in ('source', 'target') else 'UNADMITTED'
+    record = {'kind': safe_kind, 'phase': 'RUNNING_KERNEL_TMPFS',
+              'owned_identity': False, 'attempted': False, 'command_returned': False,
+              'integer_exit_zero': False, 'fixed_token': False,
+              'stderr_empty': False, 'confirmed': False}
+    report.setdefault('restore_resource_kernel_checks', []).append(record)
+    save()
+    expected = {'source': SOURCE, 'target': RESTORED}
+    record['owned_identity'] = (type(kind) is str and kind in expected
+        and name == expected[kind] and name in RESOURCE_CONTAINERS
+        and name in created_containers and created_containers[name] == identity
+        and type(identity) is str and re.fullmatch('[0-9a-f]{64}', identity) is not None)
+    save()
+    need(record['owned_identity'], 'RESTORE_TMPFS_OWNED_CID_REQUIRED')
+    record['attempted'] = True
+    save()
+    try:
+        result = docker(['exec', '-i', identity, 'sh', '-ceu', RESTORE_SECRET_TMPFS_SCRIPT], timeout=30)
+        code = getattr(result, 'returncode', None)
+        stdout = getattr(result, 'stdout', None)
+        stderr = getattr(result, 'stderr', None)
+        record.update(command_returned=True, integer_exit_zero=type(code) is int and code == 0,
+                      fixed_token=type(stdout) is str and stdout == RESTORE_SECRET_TMPFS_TOKEN + '\n',
+                      stderr_empty=type(stderr) is str and stderr == '')
+        record['confirmed'] = all(record[key] is True for key in
+            ('owned_identity', 'attempted', 'command_returned', 'integer_exit_zero', 'fixed_token', 'stderr_empty'))
+    except BaseException:
+        record['confirmed'] = False
+    finally:
+        save()
+    need(record['confirmed'], 'RESTORE_SECRET_TMPFS_KERNEL_UNCONFIRMED')
+
+
+def inspect_restore(name, kind, running=True):
+    report['stage'] = 'RESTORE_RESOURCE_RUNNING_INSPECTION' if running is True else 'RESTORE_RESOURCE_NOT_RUNNING_INSPECTION'
+    safe_kind = kind if kind in ('source', 'staging', 'target') else 'UNADMITTED'
+    record = {'kind': safe_kind, 'phase': 'RUNNING' if running is True else 'NOT_RUNNING',
+              'comparisons': {}, 'mount_counts': {'data': 0, 'bind': 0, 'tmpfs_api': 0},
+              'kernel_required': running is True and kind in ('source', 'target'), 'confirmed': False}
+    report.setdefault('restore_resource_inspection_checks', []).append(record)
+    save()
+
+    def check(key, condition, code):
+        record['comparisons'][key] = condition is True
+        save()
+        need(record['comparisons'][key], code)
+
+    names = {'source': SOURCE, 'staging': STAGING, 'target': RESTORED}
+    check('closed_profile', type(kind) is str and kind in names and name == names[kind]
+          and name in RESOURCE_CONTAINERS and type(running) is bool, 'RESTORE_RESOURCE_PROFILE')
+    value = inspect_container(name)
+    check('container_shape', type(value) is dict and type(value.get('Config')) is dict
+          and type(value.get('HostConfig')) is dict and type(value.get('State')) is dict
+          and type(value.get('NetworkSettings')) is dict and type(value.get('Mounts')) is list,
+          'RESTORE_CONTAINER_SHAPE')
+    labels = value['Config'].get('Labels')
+    check('created_identity', name in created_containers and type(value.get('Id')) is str
+          and re.fullmatch('[0-9a-f]{64}', value['Id']) is not None
+          and value['Id'] == created_containers[name] and value.get('Name') == '/' + name
+          and type(labels) is dict and owned(labels), 'RESTORE_CREATED_CONTAINER_IDENTITY')
+    host = value['HostConfig']
+    required = {'NetworkMode', 'PortBindings', 'Privileged', 'PidMode', 'IpcMode', 'Devices', 'CapAdd', 'Links'}
+    check('isolation', required <= set(host) and value['Config'].get('Image') == IMAGE
+          and value.get('Image') == report['image']['image_id'] and value.get('Platform') == 'linux'
+          and value['State'].get('Running') is running and host['NetworkMode'] == 'none'
+          and host['PortBindings'] in (None, {}) and host['Privileged'] is False
+          and host['PidMode'] == '' and host['IpcMode'] in ('', 'private')
+          and not host['Devices'] and not host['CapAdd'] and host['Links'] in (None, []),
+          'RESTORE_CONTAINER_ISOLATION')
+    ports = value['NetworkSettings'].get('Ports')
+    check('no_published_ports', ports is None or type(ports) is dict and all(item is None for item in ports.values()),
+          'RESTORE_NO_PUBLISHED_PORTS')
+    volume = TARGETS[0]['volume'] if kind == 'source' else RESTORED + '-data'
+    expected_bind = str(PRIVATE / 'ok-bootstrap-password') if kind == 'source' else str(ARCHIVE)
+    windows = PureWindowsPath(expected_bind)
+    desktop = '/run/desktop/mnt/host/' + windows.drive[0].lower() + '/' + '/'.join(windows.parts[1:])
+    mounts = value['Mounts']
+    base_count = 1 if kind == 'target' else 2
+    check('bounded_mount_list', base_count <= len(mounts) <= base_count + (kind != 'staging'), 'RESTORE_MOUNT_SET')
+    for mount in mounts:
+        check('mount_row_shape', type(mount) is dict and {'Type', 'Destination', 'RW'} <= set(mount),
+              'RESTORE_MOUNT_ROW_SHAPE')
+        if mount['Type'] == 'volume':
+            check('data_mount', mount.get('Name') == volume and mount['Destination'] == DATA_ROOT
+                  and mount['RW'] is True, 'RESTORE_DATA_MOUNT')
+            record['mount_counts']['data'] += 1
+        elif mount['Type'] == 'bind':
+            check('private_bind', kind in ('source', 'staging') and mount.get('Source') in (expected_bind, desktop)
+                  and mount['RW'] is False and mount['Destination'] ==
+                  ('/run/bootstrap-password' if kind == 'source' else '/run/restore01-base.tar'),
+                  'RESTORE_EXACT_PRIVATE_BIND')
+            record['mount_counts']['bind'] += 1
+        elif mount['Type'] == 'tmpfs':
+            check('optional_tmpfs_api', kind != 'staging' and mount['Destination'] == '/run/wa-secrets'
+                  and mount['RW'] is True, 'RESTORE_TMPFS_MOUNT')
+            record['mount_counts']['tmpfs_api'] += 1
+        else:
+            check('known_mount_type', False, 'RESTORE_EXTRA_MOUNT')
+        save()
+    counts = record['mount_counts']
+    check('logical_mount_set', counts['data'] == 1 and counts['bind'] == (kind != 'target')
+          and (counts['tmpfs_api'] == 0 if kind == 'staging' else counts['tmpfs_api'] in (0, 1)),
+          'RESTORE_MOUNT_SET')
+    tmpfs = host.get('Tmpfs')
+    if kind == 'staging':
+        check('no_staging_tmpfs', tmpfs is None or type(tmpfs) is dict and not tmpfs, 'RESTORE_TMPFS_SET')
+    else:
+        check('host_tmpfs_key', type(tmpfs) is dict and set(tmpfs) == {'/run/wa-secrets'}, 'RESTORE_TMPFS_SET')
+        options = tmpfs['/run/wa-secrets']
+        tokens = options.split(',') if type(options) is str else []
+        check('exact_tmpfs_options', len(tokens) == len(set(tokens)) == 5 and set(tokens) in
+              ({'rw', 'nosuid', 'noexec', 'nodev', 'mode=0700'}, {'rw', 'nosuid', 'noexec', 'nodev', 'mode=700'}),
+              'RESTORE_TMPFS_PRIVATE_OPTIONS')
+    observed = inspect_volume(volume)
+    check('volume_identity', type(observed) is dict and observed.get('Name') == volume
+          and observed.get('CreatedAt') == created_volumes[volume]
+          and type(observed.get('Labels')) is dict and owned(observed['Labels'])
+          and observed.get('Driver') == 'local' and not observed.get('Options')
+          and observed.get('Scope') == 'local', 'RESTORE_OWNED_VOLUME_IDENTITY')
+    if running and kind != 'staging':
+        verify_running_restore_secret_tmpfs(name, kind, value['Id'])
+    record['confirmed'] = True
+    save()
+    return value
+
+
+
+def private_input(name,path,text):
+    need(path in ('/run/wa-secrets/pgpass','/run/wa-secrets/replication.pgpass','/run/wa-secrets/source-old.pgpass','/run/wa-secrets/wrong.pgpass'),'RESTORE_PRIVATE_FILE_ALLOWLIST')
+    result=docker(['exec','-i',created_containers[name],'sh','-ceu','umask 077; cat > '+path+'; chmod 600 '+path+'; stat -c "%a:%u:%g" '+path],input=text)
+    need(result.returncode==0 and result.stdout.strip()=='600:0:0','RESTORE_PRIVATE_FILE_PERMISSIONS')
+
+
+def write_hba(name,file):
+    uid,gid=report['restore']['postgres_os_identity']
+    result=docker(['exec','-i',created_containers[name],'sh','-ceu','cat > '+DATA_ROOT+'/pg_hba.conf; chown '+str(uid)+':'+str(gid)+' '+DATA_ROOT+'/pg_hba.conf; chmod 600 '+DATA_ROOT+'/pg_hba.conf'],input=source_text(file))
+    need(result.returncode==0,'RESTORE_HBA_WRITE')
+
+
+def verify_hba(name,file):
+    text=source_text(file)
+    query="SELECT pg_read_file(current_setting('hba_file'))="+WORKER['quote'](text)+" AND NOT EXISTS(SELECT 1 FROM pg_hba_file_rules WHERE error IS NOT NULL);"
+    need(raw_sql(name,'postgres',query)=='t','RESTORE_HBA_PARSED_EXACT_FILE')
+
+
+def reload_hba(name,file):
+    previous=raw_sql(name,'postgres','SELECT pg_conf_load_time()::text;')
+    need(re.fullmatch(r'[0-9T:+. \-]{1,64}',previous),'RESTORE_CONFIG_TIME')
+    write_hba(name,file);need(raw_sql(name,'postgres','SELECT pg_reload_conf();')=='t','RESTORE_HBA_RELOAD')
+    loaded=False
+    for _ in range(30):
+        if raw_sql(name,'postgres','SELECT pg_conf_load_time()>'+WORKER['quote'](previous)+'::timestamptz;')=='t':loaded=True;break
+        time.sleep(.1)
+    need(loaded,'RESTORE_HBA_RELOAD_CLOSURE');verify_hba(name,file)
+
+
+def auth_denial_comparison(result,role,file,expected,args):
+    """Compare only the pinned frontend grammar; never return observed text."""
+    fields=('result_fields_typed','exit_two','stdout_empty','text_bounded','controls_absent','endpoint_exact','single_fatal','expected_primary','sqlstate_compatible','selected_file_warning_exact','line_count_exact','transport_exact')
+    checks=dict.fromkeys(fields,False)
+    checks.update(sqlstate_category='UNOBSERVED',password_file_basename={'/run/wa-secrets/pgpass':'pgpass','/run/wa-secrets/wrong.pgpass':'wrong.pgpass','/run/wa-secrets/source-old.pgpass':'source-old.pgpass'}.get(file,'UNOBSERVED'))
+    code=getattr(result,'returncode',None);stdout=getattr(result,'stdout',None);stderr=getattr(result,'stderr',None)
+    checks['result_fields_typed']=type(code) is int and 0<=code<=255 and type(stdout) is str and type(stderr) is str
+    checks['exit_two']=type(code) is int and code==2
+    checks['stdout_empty']=type(stdout) is str and stdout==''
+    if type(args) is list and all(type(value) is str for value in args):
+        def argument(flag,value):
+            return args.count(flag)==1 and args.index(flag)+1<len(args) and args[args.index(flag)+1]==value
+        checks['transport_exact']=all(argument(flag,value) for flag,value in (('-h','127.0.0.1'),('-p','5432'),('-U',role),('-d',DB))) and args.count('-X')==args.count('-w')==1 and args.count('PGPASSFILE='+file)==1 and sum(value.startswith('PGPASSFILE=') for value in args)==1 and args.count('PGSSLMODE=disable')==args.count('PGGSSENCMODE=disable')==1 and not any(value.startswith('PGPASSWORD=') for value in args)
+    if type(stderr) is not str:return checks
+    try:checks['text_bounded']=len(stderr.encode('utf8'))<=4096
+    except UnicodeError:return checks
+    if not checks['text_bounded']:return checks
+    normalized=stderr.replace('\r\n','\n')
+    checks['controls_absent']=all(c in ('\n','\t') or 32<=ord(c)<=126 for c in normalized)
+    if not checks['controls_absent']:return checks
+    lines=(normalized[:-1] if normalized.endswith('\n') else normalized).split('\n')
+    checks['line_count_exact']=len(lines)==(2 if expected=='password' else 1)
+    endpoint='psql: error: connection to server at "127.0.0.1", port 5432 failed: '
+    checks['endpoint_exact']=lines[0].startswith(endpoint+'FATAL:')
+    checks['single_fatal']=sum('FATAL:' in line for line in lines)==1
+    primary='password authentication failed for user "'+role+'"' if expected=='password' else 'pg_hba.conf rejects connection for host "127.0.0.1", user "'+role+'", database "'+DB+'", no encryption'
+    state='28P01' if expected=='password' else '28000'
+    frame=re.fullmatch(r'FATAL:[ \t]+(?:([0-9A-Z]{5}):[ \t]+)?(.*)',lines[0][len(endpoint):]) if checks['endpoint_exact'] else None
+    if frame is not None:
+        checks['expected_primary']=frame[2]==primary
+        if frame[1] is None:
+            checks['sqlstate_category']='ABSENT_EXACT_PRIMARY' if checks['expected_primary'] else 'MALFORMED'
+            checks['sqlstate_compatible']=checks['expected_primary']
+        else:
+            checks['sqlstate_category']='EXPECTED' if frame[1]==state else 'MISMATCH'
+            checks['sqlstate_compatible']=frame[1]==state
+    elif checks['endpoint_exact']:checks['sqlstate_category']='MALFORMED'
+    if expected=='password':
+        checks['selected_file_warning_exact']=len(lines)==2 and lines[1]=='password retrieved from file "'+file+'"'
+    else:
+        checks['selected_file_warning_exact']=len(lines)==1
+    return checks
+
+
+def auth_control(name, role, file, expected):
+    need(name in created_containers and role in ROLES and (file in ('/run/wa-secrets/pgpass', '/run/wa-secrets/source-old.pgpass', '/run/wa-secrets/wrong.pgpass')) and (expected in ('correct', 'password', 'hba')), 'RESTORE_AUTH_CONTROL_SCOPE')
+    report['stage'] = 'RESTORE_AUTH_' + role.upper() + '_' + expected.upper()
+    proof = {'role': role, 'expected': expected, 'matched': False, 'client_exited': False, 'operation_closed': False}
+    report['restore'].setdefault('authentication', []).append(proof)
+    save()
+    args = psql_args(name, role)
+    args[args.index('PGPASSFILE=/run/wa-secrets/pgpass')] = 'PGPASSFILE=' + file
+    query = "SELECT jsonb_build_object('session_user',session_user,'current_user',current_user,'database',current_database(),'system_user',system_user);"
+    failure = None
+    try:
+        result = command(args, query, timeout=30)
+        if expected == 'correct':
+            need(type(result.returncode) is int and 0 <= result.returncode <= 255, 'RESTORE_AUTH_EXIT_UNCONFIRMED')
+            proof.update(client_exited=True, exit_code=result.returncode)
+            save()
+            need(result.returncode == 0 and result.stderr == '', 'RESTORE_SCRAM_POSITIVE')
+            exact(unique_json(result.stdout), {'session_user': role, 'current_user': role, 'database': DB, 'system_user': 'scram-sha-256:' + role}, 'RESTORE_SCRAM_ACTUAL_IDENTITY')
+        else:
+            comparison = auth_denial_comparison(result, role, file, expected, args)
+            code = getattr(result, 'returncode', None)
+            closed = type(code) is int and 0 <= code <= 255
+            proof.update(comparison=comparison, client_exited=closed, exit_code=code if closed else None)
+            save()
+            need(closed, 'RESTORE_AUTH_EXIT_UNCONFIRMED')
+            need(all((value is True for key, value in comparison.items() if key not in ('sqlstate_category', 'password_file_basename'))), 'RESTORE_AUTH_EXACT_DENIAL')
+        proof['matched'] = True
+        save()
+    except BaseException as error:
+        failure = error
+        _required_safety_first_exception(error)
+    finally:
+        try:
+            _required_zero_backends(name, 'RESTORE_AUTH_CLOSURE')
+        except BaseException as error:
+            _required_safety_first_exception(error)
+            if failure is None:
+                failure = error
+        else:
+            proof['operation_closed'] = True
+            _required_safety_save()
+    if failure is not None:
+        raise failure
+    _required_safety_barrier()
+
+
+
+
+def source_authentication_preflight(name):
+    wrong={role:secrets.token_hex(32) for role in ROLES};all_secrets.extend(wrong.values())
+    private_input(name,'/run/wa-secrets/wrong.pgpass',''.join('127.0.0.1:5432:'+DB+':'+role+':'+value+'\n' for role,value in wrong.items()))
+    for role in ROLES:
+        auth_control(name,role,'/run/wa-secrets/pgpass','correct')
+        auth_control(name,role,'/run/wa-secrets/wrong.pgpass','password')
+    report['targets'][name]['authentication_preflight']={'status':'PASS','roles':6,'correct_password':6,'wrong_password_rejected':6,'wrong_password_transport':'private_tmpfs_file_no_password_env'};save()
+
+
+def source_fixtures():
+    inspect_restore(SOURCE,'source')
+    result=docker(['exec',created_containers[SOURCE],'sh','-ceu','id -u postgres; id -g postgres'])
+    values=result.stdout.splitlines();need(result.returncode==0 and len(values)==2 and all(re.fullmatch('[1-9][0-9]{0,5}',x) for x in values),'RESTORE_POSTGRES_OS_IDENTITY')
+    report['restore']['postgres_os_identity']=[int(x) for x in values];save()
+    zero={key:0 for key in PROPOSAL['tables']};typed_data(fixed_json(SOURCE,'all-data-fingerprint.sql'),zero)
+    # The frozen source SQL contains only the two declared fixture bypasses.
+    setup=source_text('trusted-identity-fixtures.sql');need(setup.count('DISABLE TRIGGER owner_commit')==setup.count('ENABLE TRIGGER owner_commit')==2 and 'DISABLE TRIGGER ALL' not in setup,'RESTORE_FIXTURE_BYPASS_SET')
+    try:committed(SOURCE,'postgres',setup)
+    finally:
+        transactions=report['restore'].get('transactions',[])
+        if transactions and transactions[-1]['operation_closed'] is True:
+            exact(fixed_json(SOURCE,'fixture-trigger-restore-observe.sql'),PROPOSAL['fixture_trigger_contract']['observer_expected'],'RESTORE_FIXTURE_RESTORATION')
+    customer=PROPOSAL['source_customer'];bound_operation(SOURCE,'source_customer',source_text('source-customer.sql'),expected_lines=customer['stage_marker_oracle']['expected_completed_markers'])
+    committed(SOURCE,'wa_identity_service_authority',source_text('identity-bootstrap.sql'))
+    bound_operation(SOURCE,'schedule',source_text('schedule.sql'),expected_lines=['WA_CTX01_SCHEDULE_READY'])
+    old_app=bound_operation(SOURCE,'app',source_text('app-read.sql'),expected_json={'visible_exact_root':1})
+    bound_operation(SOURCE,'worker',source_text('worker-read.sql'),expected_json={'visible_exact_root':1})
+    fixture_observers(SOURCE);exact(fixed_json(SOURCE,'identity-bootstrap-observe.sql'),PROPOSAL['identity_simulation']['observers'][0]['expected'],'RESTORE_SOURCE_IDENTITY')
+    report['steps']['RESTORE-SOURCE']='PASS_SYNTHETIC_SQL_SUBSET_ONLY';save();return old_app
+
+
+def retention(name,record,expected_hash=None):
+    q=WORKER['quote'];identity=q(record['id']);user=q(PROPOSAL['source_customer']['ids']['user'])
+    query="SELECT jsonb_build_object('count',count(*),'row_sha256',encode(sha256(convert_to(COALESCE(jsonb_agg(to_jsonb(g) ORDER BY g.id),'[]'::jsonb)::text,'UTF8')),'hex'),'unrevoked',COALESCE(bool_and(g.revoked_at IS NULL),false),'unexpired',COALESCE(bool_and(g.expires_at>clock_timestamp()),false),'user_generation_zero',EXISTS(SELECT 1 FROM app.user_security_profiles WHERE user_id="+user+" AND security_generation=0)) FROM platform.database_action_grant g WHERE g.id="+identity+';'
+    value=unique_json(raw_sql(name,'postgres',query))
+    need(set(value)=={'count','row_sha256','unrevoked','unexpired','user_generation_zero'} and type(value['count']) is int and value['count']==1 and value['unrevoked'] is True and value['unexpired'] is True and value['user_generation_zero'] is True and re.fullmatch('[0-9a-f]{64}',value['row_sha256']),'RESTORE_OLD_GRANT_RETENTION_CURRENTNESS')
+    if expected_hash is not None:need(value['row_sha256']==expected_hash,'RESTORE_OLD_GRANT_MUTATION')
+    return value['row_sha256']
+
+
+def grant_row_facts(name,record,require_unexpired=False,issuer=False):
+    expected=record['expected'];need(type(expected) is dict and len(expected)==21,'RESTORE_ISSUED_EXPECTATIONS_REQUIRED');checks=[]
+    for field,value in expected.items():
+        need(field in {'id','token_hash','issuer_service','principal_user_id','service_principal','database_login_role','owner_module_id','action','purpose','target_kind','target_id','allowed_fields','policy_version','security_generation','source_generation','backend_pid','transaction_id','expires_at','revoked_at','created_at','mutation_transaction_id'},'RESTORE_GRANT_EXPECTED_FIELD')
+        if value is None:sqlvalue='NULL'
+        elif field=='allowed_fields':sqlvalue='ARRAY['+','.join(WORKER['quote'](item) for item in value)+']::text[]'
+        elif field in ('backend_pid','security_generation','source_generation'):
+            need(type(value) is int and value>=0,'RESTORE_GRANT_EXPECTED_INTEGER');sqlvalue=str(value)
+        else:sqlvalue=WORKER['quote'](value)+('::timestamptz' if field in ('created_at','expires_at') else '::uuid' if field in ('id','principal_user_id') else '')
+        checks.append('g.'+field+' IS NOT DISTINCT FROM ('+sqlvalue+')')
+    query="BEGIN READ ONLY; SET LOCAL TimeZone='UTC'; SELECT jsonb_build_object('count',count(*),'row_sha256',encode(sha256(convert_to(COALESCE(jsonb_agg(to_jsonb(g) ORDER BY g.id),'[]'::jsonb)::text,'UTF8')),'hex'),'issuer_owned',COALESCE(bool_and(g.issuer_service='wa_context_issuer'),false),'unrevoked',COALESCE(bool_and(g.revoked_at IS NULL),false),'unexpired',COALESCE(bool_and(g.expires_at>clock_timestamp()),false),'exact_fields',COALESCE(bool_and("+' AND '.join(checks)+"),false)) FROM platform.database_action_grant g WHERE g.id="+WORKER['quote'](record['id'])+'; COMMIT;'
+    value=unique_json(raw_sql(name,'wa_context_issuer' if issuer else 'postgres',query))
+    need(type(value) is dict and set(value)=={'count','row_sha256','issuer_owned','unrevoked','unexpired','exact_fields'} and type(value['count']) is int and value['count']==1 and value['issuer_owned'] is True and value['unrevoked'] is True and value['exact_fields'] is True and type(value['unexpired']) is bool and type(value['row_sha256']) is str and re.fullmatch('[0-9a-f]{64}',value['row_sha256']) and (not require_unexpired or value['unexpired']),'RESTORE_ISSUED_GRANT_FACTS')
+    return value['row_sha256']
+
+
+def retained_grants(name):
+    for record in GRANTS:need(grant_row_facts(name,record)==record['row_sha256'],'RESTORE_ISSUED_GRANT_MUTATION')
+
+
+def backup_preflight(value):
+    need(type(value) is dict and set(value)==BACKUP_PREFLIGHT_FIELDS|{'system_identifier_sha256'} and all(value[field] is True for field in BACKUP_PREFLIGHT_FIELDS) and type(value['system_identifier_sha256']) is str and re.fullmatch('[0-9a-f]{64}',value['system_identifier_sha256']),'RESTORE_BACKUP_PREFLIGHT')
+    return value['system_identifier_sha256']
+
+
+def quiesce():
+    reload_hba(SOURCE,'source-backup.pg_hba.conf')
+    for role in ROLES[1:]:auth_control(SOURCE,role,'/run/wa-secrets/pgpass','hba')
+    pre=fixed_json(SOURCE,'backup-preflight.sql');report['restore']['source_system_identifier_sha256']=backup_preflight(pre)
+    report['steps']['RESTORE-QUIESCENCE']='PASS_POSTGRES_ONLY';save()
+
+
+def guarded_tool(name,args,label,timeout=300,quiet=True):
+    report['stage']=label;save();result=docker(['exec',created_containers[name],*args],timeout=timeout)
+    need(type(result.returncode) is int and 0<=result.returncode<=255,'RESTORE_TOOL_EXIT_UNCONFIRMED')
+    report['restore'].setdefault('tools',[]).append({'operation':label,'exit_code':result.returncode,'client_exited':True,'raw_output_discarded':True});save()
+    need(result.returncode==0 and (not quiet or not result.stdout.strip()) and not result.stderr.strip(),'RESTORE_TOOL_FAILED_OR_UNEXPECTED_OUTPUT')
+    return result.stdout
+
+
+def backup_archive():
+    inspect_restore(SOURCE,'source')
+    for tool in ('pg_basebackup','pg_verifybackup','pg_waldump'):
+        value=guarded_tool(SOURCE,[tool,'--version'],'RESTORE_TOOL_VERSION',quiet=False)
+        need(re.fullmatch(re.escape(tool)+r' \(PostgreSQL\) 17\.11(?: [^\r\n]*)?\r?\n?',value),'RESTORE_PINNED_TOOL_VERSION')
+    private_input(SOURCE,'/run/wa-secrets/replication.pgpass','127.0.0.1:5432:replication:postgres:'+passwords[SOURCE]['postgres']+'\n')
+    guarded_tool(SOURCE,['sh','-ceu','umask 077; mkdir -m 700 '+BACKUP_ROOT],'RESTORE_BACKUP_PRIVATE_DIRECTORY')
+    command_args=PROPOSAL['backup_client']['argv']
+    result=docker(['exec','-e','PGPASSFILE=/run/wa-secrets/replication.pgpass',created_containers[SOURCE],*command_args],timeout=300)
+    need(result.returncode==0 and not result.stdout.strip() and not result.stderr.strip(),'RESTORE_BASEBACKUP_NOT_PROVEN')
+    guarded_tool(SOURCE,PROPOSAL['backup_verify']['argv'],'RESTORE_SOURCE_VERIFYBACKUP')
+    script='umask 077; cd '+BACKUP_ROOT+'/base; find . -mindepth 1 -maxdepth 1 -printf "%P\\0" | tar --null --verbatim-files-from -T - -cf '+BACKUP_ROOT+'/backup.tar; chmod 600 '+BACKUP_ROOT+'/backup.tar; stat -c "%a:%u:%g:%h" '+BACKUP_ROOT+'/backup.tar'
+    result=docker(['exec',created_containers[SOURCE],'sh','-ceu',script]);need(result.returncode==0 and result.stdout.strip()=='600:0:0:1','RESTORE_PRIVATE_ARCHIVE_MODE')
+    need(not ARCHIVE.exists(),'RESTORE_PRIVATE_ARCHIVE_ALREADY_EXISTS');secret_paths.append(ARCHIVE)
+    need(docker(['cp',created_containers[SOURCE]+':'+BACKUP_ROOT+'/backup.tar',str(ARCHIVE)],timeout=120).returncode==0,'RESTORE_PRIVATE_ARCHIVE_COPY')
+    verify_archive_dacl()
+    metadata=validate_backup_archive(ARCHIVE)
+    report['restore']['backup_artifact']=metadata;report['steps']['RESTORE-BACKUP']='PASS_REAL_PROTECTED_SYNTHETIC_ARTIFACT';report['steps']['RESTORE-VERIFY']='PASS_SOURCE_FILE_WAL_MANIFEST_VERIFY';save()
+    return metadata
+
+
+def verify_archive_dacl():
+    script="""$ErrorActionPreference='Stop'
+$target=[System.IO.Path]::GetFullPath($args[0])
+$item=Get-Item -LiteralPath $target -Force
+if ($item.PSIsContainer -or ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) { throw 'Not a regular private artifact' }
+$sid=[System.Security.Principal.WindowsIdentity]::GetCurrent().User
+$acl=[System.IO.File]::GetAccessControl($target)
+$rules=$acl.GetAccessRules($true,$true,[System.Security.Principal.SecurityIdentifier])
+if ($rules.Count -ne 1 -or $rules[0].IdentityReference.Value -ne $sid.Value -or $rules[0].AccessControlType -ne 'Allow' -or $acl.GetOwner([System.Security.Principal.SecurityIdentifier]).Value -ne $sid.Value) { throw 'Private artifact DACL mismatch' }
+Write-Output 'PRIVATE_ARCHIVE_OWNER_ONLY'
+"""
+    helper=OUT/'verify-archive-dacl.ps1'
+    need(not helper.exists(),'RESTORE_ARCHIVE_DACL_HELPER_EXISTS');helper.write_text(script,encoding='utf8',newline='\n')
+    result=command(['powershell.exe','-NoProfile','-NonInteractive','-File',str(helper),str(ARCHIVE)])
+    need(result.returncode==0 and result.stdout.strip()=='PRIVATE_ARCHIVE_OWNER_ONLY','RESTORE_ARCHIVE_OWNER_DACL')
+
+
+def validate_backup_archive(path):
+    need(path==ARCHIVE and path.is_file() and not path.is_symlink() and path.stat().st_nlink==1,'RESTORE_PRIVATE_ARCHIVE_FILE')
+    total=0;count=0;seen=set();required={};metadata={}
+    # Stream file hashes/counts only; protected contents never enter evidence.
+    archive_sha=hashlib.sha256(path.read_bytes()).hexdigest()
+    with tarfile.open(path,'r:') as archive:
+        for member in archive:
+            parts=member.name.rstrip('/').split('/')
+            need(member.name not in seen and not member.name.startswith('/') and all(re.fullmatch('[A-Za-z0-9_.-]+',part) and part not in ('.','..') for part in parts) and (member.isfile() or member.isdir()) and not member.issym() and not member.islnk(),'RESTORE_UNSAFE_BACKUP_MEMBER')
+            need(member.name not in ('standby.signal','recovery.signal','recovery.conf','postmaster.pid'),'RESTORE_BACKUP_RECOVERY_SIGNAL')
+            seen.add(member.name)
+            if member.isfile():
+                count+=1;total+=member.size
+                if member.name in ('PG_VERSION','backup_manifest','postgresql.auto.conf','pg_hba.conf','global/pg_control'):
+                    need(member.size<=16777216,'RESTORE_BACKUP_METADATA_LIMIT');required[member.name]=archive.extractfile(member).read()
+    need(set(required)=={'PG_VERSION','backup_manifest','postgresql.auto.conf','pg_hba.conf','global/pg_control'} and required['PG_VERSION']==b'17\n' and len(required['global/pg_control'])==8192,'RESTORE_BACKUP_REQUIRED_FILES')
+    need(all(not line.strip() or line.lstrip().startswith(b'#') for line in required['postgresql.auto.conf'].splitlines()),'RESTORE_BACKUP_AUTO_CONF_NOT_INERT')
+    need(required['pg_hba.conf']==source_text('source-backup.pg_hba.conf').encode(),'RESTORE_BACKUP_SOURCE_HBA')
+    need(any(name.startswith('pg_wal/') and re.fullmatch('[0-9A-F]{24}',name.split('/')[-1]) for name in seen),'RESTORE_BACKUP_REQUIRED_WAL')
+    metadata={'archive_sha256':archive_sha,'manifest_sha256':hashlib.sha256(required['backup_manifest']).hexdigest(),'regular_file_count':count,'regular_file_bytes':total,'archive_bytes':path.stat().st_size,'raw_exported':False}
+    return metadata
+
+
+def create_extra_volume():
+    volume=RESTORED+'-data';containers,volumes=inventory();need(RESTORED not in containers and STAGING not in containers and volume not in volumes,'RESTORE_LATE_RESOURCE_CONFLICT')
+    attempted_volumes.add(volume);need(docker(['volume','create','--label','workinants.rehearsal='+LABEL,'--label','workinants.rehearsal.run='+RUN_ID,volume]).returncode==0,'RESTORE_VOLUME_CREATE')
+    v=inspect_volume(volume);need(v is not None and owned(v.get('Labels') or {}) and v['Driver']=='local' and not v.get('Options') and v['Scope']=='local','RESTORE_VOLUME_IDENTITY');created_volumes[volume]=v['CreatedAt'];save()
+
+
+def create_extra_container(name,staging):
+    args=['container','create','--name',name,'--label','workinants.rehearsal='+LABEL,'--label','workinants.rehearsal.run='+RUN_ID,'--network','none','--platform','linux/amd64','--mount','type=volume,src='+RESTORED+'-data,dst='+DATA_ROOT]
+    if staging:args+=['--mount','type=bind,src='+str(ARCHIVE)+',dst=/run/restore01-base.tar,readonly','--entrypoint','sh',IMAGE,'-ceu','sleep 900']
+    else:args+=['--tmpfs','/run/wa-secrets:rw,nosuid,noexec,nodev,mode=0700',IMAGE,'postgres','-c','password_encryption=scram-sha-256','-c','log_statement=none','-c','log_min_error_statement=panic','-c','log_error_verbosity=terse','-c','log_line_prefix=WA_F0_DIAG|%e|%u|%d|','-c','lc_messages=C','-c','log_min_messages=warning']
+    attempted_containers.add(name);need(docker(args).returncode==0,'RESTORE_CONTAINER_CREATE')
+    value=inspect_container(name);need(value is not None and owned(value['Config']['Labels']),'RESTORE_CONTAINER_OWNERSHIP');created_containers[name]=value['Id'];report['targets'][name]={'container_id':value['Id'],'volume':RESTORED+'-data','restored_no_bootstrap':not staging};save()
+    inspect_restore(name,'staging' if staging else 'target',running=False)
+    need(docker(['container','start',created_containers[name]]).returncode==0,'RESTORE_CONTAINER_START')
+    inspect_restore(name,'staging' if staging else 'target')
+
+
+def stage_restore(metadata):
+    need(validate_backup_archive(ARCHIVE)==metadata,'RESTORE_ARCHIVE_CHANGED_BEFORE_STAGE')
+    need(docker(['container','stop','--time','30',created_containers[SOURCE]],timeout=45).returncode==0,'RESTORE_SOURCE_STOP')
+    inspect_restore(SOURCE,'source',running=False);create_extra_volume();create_extra_container(STAGING,True)
+    need(guarded_tool(STAGING,['find',DATA_ROOT,'-mindepth','1','-print','-quit'],'RESTORE_EMPTY_TARGET')=='','RESTORE_TARGET_NOT_EMPTY')
+    observed=guarded_tool(STAGING,['sha256sum','/run/restore01-base.tar'],'RESTORE_STAGE_ARCHIVE_HASH',quiet=False)
+    need(observed.strip()==metadata['archive_sha256']+'  /run/restore01-base.tar','RESTORE_STAGED_ARCHIVE_HASH')
+    guarded_tool(STAGING,['tar','--no-same-owner','-xf','/run/restore01-base.tar','-C',DATA_ROOT],'RESTORE_STAGE_EXTRACT')
+    guarded_tool(STAGING,['pg_verifybackup','--exit-on-error','--quiet',DATA_ROOT],'RESTORE_STAGE_VERIFYBACKUP')
+    uid,gid=report['restore']['postgres_os_identity']
+    guarded_tool(STAGING,['sh','-ceu','test "$(cat '+DATA_ROOT+'/PG_VERSION)" = 17; test -f '+DATA_ROOT+'/global/pg_control; test ! -e '+DATA_ROOT+'/standby.signal; test ! -e '+DATA_ROOT+'/recovery.signal; chown -R '+str(uid)+':'+str(gid)+' '+DATA_ROOT+'; chmod 700 '+DATA_ROOT],'RESTORE_STAGE_STORAGE_READY')
+    # Write the first explicit post-verification config delta before DB startup.
+    result=docker(['exec','-i',created_containers[STAGING],'sh','-ceu','cat > '+DATA_ROOT+'/pg_hba.conf; chown '+str(uid)+':'+str(gid)+' '+DATA_ROOT+'/pg_hba.conf; chmod 600 '+DATA_ROOT+'/pg_hba.conf'],input=source_text('quarantine-admin.pg_hba.conf'));need(result.returncode==0,'RESTORE_STAGE_ADMIN_HBA')
+    inspect_restore(STAGING,'staging');need(docker(['container','rm','-f',created_containers[STAGING]]).returncode==0,'RESTORE_STAGE_CONTAINER_REMOVE');need(inspect_container(STAGING) is None,'RESTORE_STAGE_CONTAINER_ABSENCE')
+    create_extra_container(RESTORED,False)
+    private_input(RESTORED,'/run/wa-secrets/pgpass','127.0.0.1:5432:'+DB+':postgres:'+passwords[SOURCE]['postgres']+'\n')
+    ready=False
+    for _ in range(60):
+        if docker(['exec',created_containers[RESTORED],'pg_isready','-h','127.0.0.1','-p','5432','-U','postgres','-d',DB]).returncode==0:ready=True;break
+        time.sleep(1)
+    need(ready,'RESTORE_STARTUP_TIMEOUT');verify_hba(RESTORED,'quarantine-admin.pg_hba.conf')
+    actual=unique_json(raw_sql(RESTORED,'postgres',"SELECT jsonb_build_object('version',current_setting('server_version_num')::int,'safe',current_setting('log_statement')='none' AND current_setting('log_min_error_statement')='panic' AND current_setting('log_error_verbosity')='terse' AND current_setting('lc_messages')='C','auth',system_user,'primary',NOT pg_is_in_recovery(),'system_identifier_sha256',(SELECT encode(sha256(convert_to(system_identifier::text,'UTF8')),'hex') FROM pg_control_system()));"))
+    exact(actual,{'version':170011,'safe':True,'auth':'scram-sha-256:postgres','primary':True,'system_identifier_sha256':report['restore']['source_system_identifier_sha256']},'RESTORE_INITIAL_ADMIN_IDENTITY');report['steps']['RESTORE-STAGE']='PASS_PHYSICAL_STARTUP_ADMIN_ONLY';save()
+
+
+def rotate_credentials():
+    passwords[RESTORED]={role:secrets.token_hex(32) for role in ROLES};all_secrets.extend(passwords[RESTORED].values())
+    statements='\n'.join('ALTER ROLE '+role+' PASSWORD '+WORKER['quote'](value)+';' for role,value in passwords[RESTORED].items())
+    need(raw_sql(RESTORED,'postgres',statements)=='','RESTORE_PASSWORD_ROTATION')
+    def content(values):return ''.join('127.0.0.1:5432:'+DB+':'+role+':'+value+'\n' for role,value in values.items())
+    private_input(RESTORED,'/run/wa-secrets/pgpass',content(passwords[RESTORED]));private_input(RESTORED,'/run/wa-secrets/source-old.pgpass',content(passwords[SOURCE]))
+    wrong={role:secrets.token_hex(32) for role in ROLES};all_secrets.extend(wrong.values());private_input(RESTORED,'/run/wa-secrets/wrong.pgpass',content(wrong))
+    auth_control(RESTORED,'postgres','/run/wa-secrets/pgpass','correct');auth_control(RESTORED,'postgres','/run/wa-secrets/source-old.pgpass','password')
+    report['steps']['RESTORE-CREDENTIALS']='PASS_POSTGRES_ROTATION_BEFORE_MANAGEMENT';save()
+
+
+def identity_recovery():
+    reload_hba(RESTORED,'quarantine-identity.pg_hba.conf')
+    for index,phase in ((1,'revoke'),(2,'recover')):
+        committed(RESTORED,'wa_identity_service_authority',source_text('identity-'+phase+'.sql'),['WA_RESTORE01_IDENTITY_READY'])
+        row=PROPOSAL['identity_simulation']['observers'][index];exact(fixed_json(RESTORED,row['sql']),row['expected'],'RESTORE_IDENTITY_RECOVERY_SIMULATION')
+    report['steps']['RESTORE-IDENTITY']='PASS_SYNTHETIC_SQL_CURRENTNESS_ONLY';save()
+
+
+def after_probe(index,baseline,old,old_hash):
+    retained_grants(RESTORED)
+    fixture_observers(RESTORED)
+    exact(fixed_json(RESTORED,'business-data-fingerprint.sql'),baseline['business'],'RESTORE_PROBE_BUSINESS_DRIFT')
+    exact(fixed_json(RESTORED,'ledger-fingerprint.sql'),baseline['ledger'],'RESTORE_PROBE_LEDGER_DRIFT')
+    exact(fixed_json(RESTORED,'authority-fingerprint.sql'),baseline['authority'],'RESTORE_PROBE_AUTHORITY_DRIFT')
+    observed=PROPOSAL['quarantined_simulation_probes'][index]['mandatory_after_closed_case']
+    counts=copy.deepcopy(PROPOSAL['source_and_initial_restore_counts']);counts['platform.database_action_grant']=observed['database_action_grant_count'];counts['platform_private.identity_service_receipt']=3
+    all_data=typed_data(fixed_json(RESTORED,'all-data-fingerprint.sql'),counts)
+    final=PROPOSAL['identity_simulation']['observers'][2];exact(fixed_json(RESTORED,final['sql']),final['expected'],'RESTORE_PROBE_IDENTITY_STATE')
+    need(digest(collect_native(RESTORED,'RESTORE_PROBE_NATIVE','restore-native-case-'+str(index)+'.json'))==baseline['native_sha256'],'RESTORE_PROBE_NATIVE_DRIFT')
+    if index<=1:retention(RESTORED,old,old_hash)
+    reference=write_safe('restore-case-'+str(index)+'-parity.json',{'all_data':all_data,'business_sha256':digest(baseline['business']),'ledger_sha256':digest(baseline['ledger']),'authority_sha256':digest(baseline['authority']),'native_sha256':baseline['native_sha256'],'issued_grant_rows_immutable':True})
+    report['restore'].setdefault('probes',[]).append({'index':index,'status':'PASS_QUARANTINED_SIMULATION_ONLY','closed_before_observers':True,'state_counts_and_hashes_match':True,**reference});save()
+
+
+def diagnostic_probes(baseline,old,old_hash):
+    reload_hba(RESTORED,'quarantine-diagnostic.pg_hba.conf')
+    for role in ROLES:
+        for file,expected in (('pgpass','correct'),('wrong.pgpass','password'),('source-old.pgpass','password')):auth_control(RESTORED,role,'/run/wa-secrets/'+file,expected)
+    for index,probe in enumerate(PROPOSAL['quarantined_simulation_probes']):
+        if index==1:
+            retention(RESTORED,old,old_hash);bound_operation(RESTORED,'app','',old=old,negative=True)
+        elif index==2:bound_operation(RESTORED,probe['grant_template'],'',negative=True)
+        else:bound_operation(RESTORED,probe['grant_template'],source_text(probe['sql']),expected_json=probe['expected'])
+        after_probe(index,baseline,old,old_hash)
+    report['steps']['RESTORE-DIAGNOSTICS']='PASS_FIVE_FINITE_SIMULATIONS_ONLY';save()
+    reload_hba(RESTORED,'quarantine-admin.pg_hba.conf')
+    for role in ROLES[1:]:auth_control(RESTORED,role,'/run/wa-secrets/pgpass','hba')
+    fixture_observers(RESTORED);exact(fixed_json(RESTORED,'business-data-fingerprint.sql'),baseline['business'],'RESTORE_FINAL_BUSINESS')
+    retained_grants(RESTORED)
+    exact(fixed_json(RESTORED,'ledger-fingerprint.sql'),baseline['ledger'],'RESTORE_FINAL_LEDGER');exact(fixed_json(RESTORED,'authority-fingerprint.sql'),baseline['authority'],'RESTORE_FINAL_AUTHORITY')
+    need(digest(collect_native(RESTORED,'RESTORE_FINAL_NATIVE','restore-native-after.json'))==baseline['native_sha256'],'RESTORE_FINAL_NATIVE')
+    report['steps']['RESTORE-REQUARANTINE']='PASS_ADMIN_ONLY_NO_ACTIVATION';save()
+
+
+def restore_experiment():
+    old=source_fixtures();quiesce();retained_grants(SOURCE);before=baselines(SOURCE,'source-before-backup.json');old_hash=retention(SOURCE,old)
+    metadata=backup_archive();after=baselines(SOURCE,'source-after-backup.json');exact(after,before,'RESTORE_BACKUP_SOURCE_DRIFT')
+    quiescent=fixed_json(SOURCE,'backup-preflight.sql');need(backup_preflight(quiescent)==report['restore']['source_system_identifier_sha256'],'RESTORE_SOURCE_AFTER_BACKUP_NOT_QUIESCENT')
+    stage_restore(metadata);initial=baselines(RESTORED,'restore-native-before.json');exact(initial,before,'RESTORE_INITIAL_FULL_PARITY');fixture_observers(RESTORED);retained_grants(RESTORED);retention(RESTORED,old,old_hash)
+    report['restore']['initial_parity']={'all_42_tables':True,'ledger_full_digest':True,'native_catalog':True,'role_membership_database_authority':True,'physical_system_identifier':True};report['steps']['RESTORE-PARITY']='PASS_BEFORE_TRANSITIONS';save()
+    rotate_credentials();identity_recovery();diagnostic_probes(before,old,old_hash)
+    need(validate_backup_archive(ARCHIVE)==metadata,'RESTORE_PRIVATE_ARCHIVE_FINAL_HASH')
+
+
+def verify_external_input_preservation():
+    need(hashlib.sha256(Path(MANIFEST['tool_archive']).read_bytes()).hexdigest()==MANIFEST['tool_archive_sha256'],'RESTORE_TOOL_ARCHIVE_POSTRUN_DRIFT')
+    for plan in MANIFEST['migration_targets'].values():
+        need(hashlib.sha256(Path(plan['manifest_path']).read_bytes()).hexdigest()==plan['manifest_sha256'],'RESTORE_NESTED_PLAN_POSTRUN_DRIFT')
+        need(hashlib.sha256(Path(plan['source_archive']).read_bytes()).hexdigest()==plan['source_archive_sha256'],'RESTORE_SOURCE_ARCHIVE_POSTRUN_DRIFT')
+        snapshot=Path(plan['source_snapshot'])
+        actual={path.relative_to(snapshot).as_posix():hashlib.sha256(path.read_bytes()).hexdigest() for path in snapshot.rglob('*') if path.is_file()}
+        need(actual==plan['source_files_sha256'],'RESTORE_SOURCE_SNAPSHOT_POSTRUN_DRIFT')
+
+
+def main():
+    need(MANIFEST['review_status']=='APPROVED_LOCAL_F0_RESTORE_ATTEMPT','EXACT_OPERATION_NOT_REVIEWED');need(not OUT.exists(),'FRESH_EVIDENCE_DIRECTORY_REQUIRED')
+    OUT.mkdir(exist_ok=False)
+    report.setdefault('evidence_complete',True);report.setdefault('persistence_failure',False)
+    try:
+        need(best_effort_save(),'EVIDENCE_WRITE_UNCONFIRMED')
+        verify_restore_packet();preflight();ensure_image();create_resources();bootstrap_all();provision_migration_tools();catalog_experiment();restore_experiment()
+        report['status']='PASS_LOCAL_PHYSICAL_RESTORE_SUBSET_ONLY_FULL_CASE_NOT_RUN'
+    except BaseException as error:
+        safe={'stage':error.stage if isinstance(error,Stop) else report['stage'],'code':error.code if isinstance(error,Stop) else 'TIMEOUT_CLOSURE_UNCONFIRMED' if isinstance(error,subprocess.TimeoutExpired) else 'INTERRUPTED' if isinstance(error,KeyboardInterrupt) else 'UNEXPECTED_RESTORE_WRAPPER_FAILURE'}
+        record_failure(safe['stage'],safe['code'],primary=True)
+        best_effort_event('STOP','NO_LATER_STEPS',failure=safe)
+    finally:
+        for name in sorted(bootstrap_attempted-finalization_attempted):
+            try:finalize(name)
+            except BaseException:record_failure('FINALLY_FINALIZATION','FINALIZATION_UNCONFIRMED')
+        try:secret_scan()
+        except BaseException:record_failure('SANITIZATION','SECRET_SCAN_UNCONFIRMED')
+        try:cleanup();report['steps']['RESTORE-CLEANUP']='PASS_EXACT_OWNED_RESOURCE_AND_ARCHIVE_ABSENCE'
+        except BaseException:record_failure('CLEANUP','CLEANUP_UNCONFIRMED')
+        # Each existing preservation branch runs even when another branch or
+        # its bookkeeping fails. No source, tool or archive is repaired/retried.
+        try:
+            hashes=report.get('source_verification',{}).get('files_sha256',{})
+            need(hashes and all(hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==value for path,value in hashes.items()),'SOURCE_PACKET_DRIFT_OR_UNVERIFIED')
+            report['packet_unchanged_after_run']=True
+        except BaseException:
+            report['packet_unchanged_after_run']=False;record_failure('SOURCE_PRESERVATION','SOURCE_DRIFT_OR_UNVERIFIED_PACKET')
+        try:verify_tool_data();report['tool_source_data_unchanged_after_run']=True
+        except BaseException:
+            report['tool_source_data_unchanged_after_run']=False;record_failure('TOOL_SOURCE_PRESERVATION','TOOL_SOURCE_DRIFT_OR_UNVERIFIED')
+        try:verify_external_input_preservation();report['external_input_archives_and_fresh_history_unchanged_after_run']=True
+        except BaseException:
+            report['external_input_archives_and_fresh_history_unchanged_after_run']=False;record_failure('EXTERNAL_INPUT_PRESERVATION','ARCHIVE_OR_FRESH_SOURCE_HISTORY_DRIFT_OR_UNVERIFIED')
+        try:
+            need(all(hashlib.sha256((TASK/path).read_bytes()).hexdigest()==value for path,value in MANIFEST['restore']['external_files_sha256'].items()),'OPERATOR_SOURCE_DRIFT')
+            report['external_sources_unchanged_after_run']=True
+        except BaseException:
+            report['external_sources_unchanged_after_run']=False;record_failure('EXTERNAL_SOURCE_PRESERVATION','EXTERNAL_SOURCE_DRIFT_OR_UNVERIFIED_PACKET')
+        report['all_source_and_external_inputs_preserved_after_run']=all(report.get(key) is True for key in ('packet_unchanged_after_run','tool_source_data_unchanged_after_run','external_input_archives_and_fresh_history_unchanged_after_run','external_sources_unchanged_after_run'))
+    return finish_report('PASS_LOCAL_PHYSICAL_RESTORE_SUBSET_ONLY_FULL_CASE_NOT_RUN')

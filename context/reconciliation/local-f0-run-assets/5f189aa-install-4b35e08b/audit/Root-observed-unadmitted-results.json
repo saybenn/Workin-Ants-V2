@@ -1,0 +1,139 @@
+{
+  "schema": "workinants.install4b35-observed-unadmitted-finite-native-results.v1",
+  "recorded_at_utc": "2026-11-20T09:06:20.222247+00:00",
+  "observed": {
+    "targets": 3,
+    "canonical_finite_result": {
+      "success_cleanup_and_runtime_activation": "PASS_FINITE_PROTOCOL",
+      "genuine_second_deploy": "PASS_UNCHANGED_PRIVATE_LEDGER",
+      "full_schema_and_acl_parity": "PENDING_OUTER_OPERATOR_FULL_NATIVE_COMPARISON"
+    },
+    "division_failure_verdict": {
+      "variant": "division_failure",
+      "primary_sqlstate": "22012",
+      "classification": "SERVER_PRIMARY_WITH_SECONDARY_25P02_NULL_LOGS",
+      "delta": {
+        "registered": 2,
+        "division_22012": 1,
+        "function_42501": 0,
+        "secondary_25p02": 1,
+        "other_migrator_error": 0,
+        "malformed": 0,
+        "forbidden_body": 0
+      },
+      "failed_row_immutable_sha256": "a7c6adb3afd32fbb614501b603b0bfd86dedc936f4d607bac3dd045b9c1af290",
+      "P3018_claimed": false,
+      "actual_database_failure_observed": true,
+      "rollback_observed": true,
+      "recovery_approved": false
+    },
+    "division_recovery_result": {
+      "standard_resolve": "PASS_AFTER_INDEPENDENT_REVIEW",
+      "failed_row_retained_unchanged": true,
+      "canonical_retry_and_noop": "PASS_FINITE_PROTOCOL",
+      "full_schema_and_acl_parity": "PENDING_OUTER_OPERATOR_FULL_NATIVE_COMPARISON"
+    },
+    "late_function_grant_verdict": {
+      "variant": "late_function_grant",
+      "primary_sqlstate": "42501",
+      "classification": "SERVER_PRIMARY_WITH_SECONDARY_25P02_NULL_LOGS",
+      "delta": {
+        "registered": 2,
+        "division_22012": 0,
+        "function_42501": 1,
+        "secondary_25p02": 1,
+        "other_migrator_error": 0,
+        "malformed": 0,
+        "forbidden_body": 0
+      },
+      "failed_row_immutable_sha256": "50f6dbabdabb15e4a4155be80a9f7f63a0c4cda27685c074cb9a0839f4a67319",
+      "P3018_claimed": false,
+      "actual_database_failure_observed": true,
+      "rollback_observed": true,
+      "recovery_approved": false
+    },
+    "original_grantor_cleanup_all3": {
+      "original_grantor": "postgres",
+      "temporary_memberships": 0,
+      "leaf_create": false,
+      "other_clients": 0
+    },
+    "runtime_activation": "FourrolesremainNULLbeforeinstall/aftercleanup; activatedonlyafterverifiedcanonicalandrecoveredsuccess; failedlatevariantremainsinactive.",
+    "correct_and_wrong_password_active_roles": {
+      "canonical": 6,
+      "recovered_division": 6,
+      "failed_late_variant_only_postgres_migrator": 2
+    },
+    "late_variant_four_runtime_candidate_startups_rejected_inactive": true,
+    "child_global_closures": {
+      "canonical": 29,
+      "division_failure": 32,
+      "late_function_grant": 22
+    },
+    "parent_global_closures": 24,
+    "actual_independent_approval": {
+      "container_id": "75304b130a5b995a6443bdd8fee77d0687020e3df81f27cf13d1a788090bc542",
+      "decision": "APPROVED_STANDARD_RESOLVE_ROLLED_BACK",
+      "proof_sha256": "3a33a7a3e808e4029f74ac2f1eafccfffb422d392a90c39b5ab7665c03537070",
+      "reviewer": "/root/catalog_v4_review",
+      "run_id": "4b35e08b-3ecb-4ae6-9574-565bcdd51c1f",
+      "schema": "workinants.install-independent-rollback-review.v1",
+      "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+    },
+    "approved_under_original220_deadline_remaining_seconds": 62.672,
+    "canonical_native_catalog_checks": 29089,
+    "recovered_native_catalog_checks": 29090,
+    "oracle_expressions_each": 416,
+    "private_ledger_checks": {
+      "canonical": 22,
+      "recovered": 23
+    },
+    "source_derived_semantic_parity": {
+      "format": "workinants.install-source-semantic-parity.v1",
+      "status": "PASS_SOURCE_DERIVED_SEMANTIC_PARITY_ONLY",
+      "raw_snapshot_native_sha256": {
+        "canonical": "a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6",
+        "division_failure": "91b6a849f368759f783df1247dcbf89ecc06b1e302220f7c23bf6f2a13049ae9"
+      },
+      "semantic_view_sha256": {
+        "canonical": "534d6edf382bf324664d272e66e28e16d3da79ab9411693c722bec9bff4aae06",
+        "division_failure": "534d6edf382bf324664d272e66e28e16d3da79ab9411693c722bec9bff4aae06"
+      },
+      "counts": {
+        "trigger_rows": 412,
+        "internal_rows": 312,
+        "external_rows": 100,
+        "other_sections": 26,
+        "generated_names_differed": 312
+      },
+      "individual_source_comparisons": {
+        "canonical": {
+          "catalog_PASS_checks": 29089,
+          "ledger_PASS_checks": 22,
+          "oracle_expressions": 416
+        },
+        "division_failure": {
+          "catalog_PASS_checks": 29090,
+          "ledger_PASS_checks": 23,
+          "oracle_expressions": 416
+        }
+      },
+      "raw_snapshots_rewritten": false,
+      "only_validated_internal_name_equality_omitted": true
+    },
+    "physical_cleanup_independently_confirmed": true
+  },
+  "raw_placeholder_reconciliation": {
+    "inherited_generic_steps": "CATALOG-AUTH, CATALOG-INSTALL, INSTALL-CANONICAL-NATIVE and INSTALL-RECOVERED-NATIVE remain NOT_RUN placeholders in raw steps. Generic old bootstrap catalog paths were not invoked.",
+    "actual_component_and_outer_proofs": "Actual role controls/install/finalization/recovery are in closed child targets. Parent install.protocols/full_native/native and complete canonical/recovered artifacts prove executed comparisons. Child full_native_pending fields remain raw history; parent fulfilled the separate native checks.",
+    "no_raw_reports_rewritten": true
+  },
+  "qualification": "NOT_ADMITTED_PENDING_INDEPENDENT_CLOSED_EVIDENCE_AUDIT_AND_REVIEWED_ASSERTION_PARSER",
+  "limits": [
+    "No whole94/451, ownerAPI, production readiness or hosted adoption.",
+    "Latefailedtarget applicationobjects absent; full installed-catalog comparison applies only canonical/recovered targets.",
+    "Observed CLI masking is labeled actual primary plus secondary25P02/NULLlogs; P3018 was not observed/claimed.",
+    "Source-derived parity omits only validated generated internal-trigger name equality after all other source checks; raw native snapshots remain distinct and unmodified."
+  ],
+  "Posture": "D"
+}

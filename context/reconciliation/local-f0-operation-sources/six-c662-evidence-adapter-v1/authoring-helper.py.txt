@@ -1,0 +1,223 @@
+"""Bounded source authoring helper. Writes only the new adapter namespace and additive builder edit."""
+import ast, hashlib, json
+from pathlib import Path
+from pprint import pformat
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';D=T/'six-c662-evidence-adapter-v1-author-20261120'
+A='context/reconciliation/local-f0-operation-sources/six-c662-evidence-adapter-v1'
+DERIVED='context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json'
+RECORD='context/reconciliation/local-f0-six-read-5f189aa-c662f807-execution.json'
+BASE='context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def encoded(v):return (json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def exclusive(path,raw):
+ path.parent.mkdir(parents=True,exist_ok=True)
+ with path.open('xb')as f:f.write(raw)
+before=json.loads((D/'before-author-preservation.json').read_bytes())
+for n,h in before['preserved_files_sha256'].items():assert sha((R/n).read_bytes())==h
+audit_path=T/'six_c662_independent_closed_evidence_audit_20261120.json';audit=json.loads(audit_path.read_bytes());assert sha(audit_path.read_bytes())=='0bacaf1de96ed87f6f0c7c61b553b5c6d49b2d4c8ee879a682f9a56b0b4af4e6'
+assert audit['decision']=='PASS_EXACT6_RESTRICTED_SQL_SELECT_ASSERTION_LINKS_ONLY'and audit['findings']==[]
+plan={'schema':'workinants.six-c662-evidence-adapter-v1-author-source-plan.v1','scope':'Exactly six closed positive.wa_app_runtime.select claims; no other assertions or runtime scope.',
+ 'authority':'Root delegated audit then bounded pure adapter; Root+separate non-author SOURCE reviews required before integration/publication/count changes.',
+ 'independent_actual_audit_sha256':sha(audit_path.read_bytes()),'root_proposal_sha256':'60de534fae2be06a2c0a30dfb056e96b38af47feef96f6fb7749cca6d0f77e72',
+ 'design':'Capture/hash exactly the same closed bytes once (354 source+43 assets+raw record+derived+four audit files), close every reader, validate only captured bytes; immutable private buffers, no project code execution/import/compile/process/socket/SQL. Strict JSON/types/path/size/regular single-link files. Exact closed claims and pointers, no mutable proof objects exposed. Sticky failure, duplicate rejection, seen exact six, mandatory final fresh all-byte reread before build returns; standalone calls fresh.',
+ 'existing_file_delta':'Only additive import/record/conditional batch/dispatcher/final barrier in prepare-local-f0-status.py. Existing validators/aggregation and Native303/AUDIT3 remain unchanged.',
+ 'tests':'Focused real-data exact6/standalone/omission/duplicate/unsupported/status/pointer/identity/source/asset/duringclaim/final/same-size-mtime/strictJSON/canary/closed readers/no outside input or services; meaningful private-fixture rehashed semantic mutations; builder source/additive scope and failure-before-output. Real status builder is Root-only after independent review.',
+ 'preservation':before['preserved_files_sha256'],'ledger_status_writes':'FORBIDDEN; proposed appended6 ledger bytes TASK only; preserve all647 rows and existing615/32/348/32/7/0 counts.',
+ 'source_gates':'PENDING until distinct non-author code and Root review; evidence audit decision is not parser source approval.', 'Posture':'D'}
+exclusive(D/'source-plan.json',encoded(plan))
+archive=R/A;assert not archive.exists();archive.mkdir()
+copies={'independent-actual-audit.json':audit_path,'independent-actual-audit-source.py.txt':T/'six_c662_independent_closed_evidence_audit_20261120.py','Root-exact6-proposal.json':T/'six_c662_Root_closed_evidence_exact6_proposal_20261120.json','Root-proposal-audit-source.py.txt':T/'audit_six_c662_for_exact6_proposal_20261120.py'}
+audit_pins={}
+for name,path in copies.items():
+ b=path.read_bytes();exclusive(archive/name,b);audit_pins[A+'/'+name]=sha(b)
+exclusive(archive/'before-author-preservation.json',(D/'before-author-preservation.json').read_bytes())
+for path in(D/'preserved').iterdir():exclusive(archive/'preserved'/path.name,path.read_bytes())
+record=json.loads((R/RECORD).read_bytes());assert sha((R/RECORD).read_bytes())=='acac8f669272f99e2903adad529366b0e156b18fe39de8c90982e921ffc1b7f8'
+m=json.loads((R/(BASE+'/manifest/operation-manifest.json')).read_bytes());source_pins=m['packet_files_sha256'];pins={**source_pins,**record['assets_sha256'],RECORD:sha((R/RECORD).read_bytes())}
+child_path=BASE+'/evidence/scoped-read-component/scoped-read-companion-results.json';f=json.loads((R/'review-output/scoped-read-companion-rehearsal/fixtures.json').read_bytes())
+claims=[]
+for index,row in enumerate(audit['claims']):
+ case=next(x for x in f['cases']if x['name']==row['positive_protocol']);claims.append({**row,'component':{'path':child_path,'sha256':pins[child_path],'json_pointer':row['positive_result_pointer']},'source_statement_sha256':f['prepared_files_sha256'][case['sql']],'independent_mapping':{'path':A+'/independent-actual-audit.json','sha256':audit_pins[A+'/independent-actual-audit.json'],'json_pointer':'/claims/'+str(index)}})
+derived={'schema':'workinants.six-c662-derived-qualified-evidence.v1','derivation':'EXPLICIT_DERIVED_WRAPPER_NOT_RAW_RUNTIME_EVIDENCE','actual_result':'DERIVED_REVIEWED_SCOPED6_SQL_READ_ASSERTIONS_ONLY','run_id':m['run_id'],'source_commit':m['source_commit'],'source_tree':m['source_tree'],'packet_sha256':m['packet_sha256'],
+ 'source_record':{'path':RECORD,'sha256':pins[RECORD],'packet_alias_from':'operation_packet_sha256'},'independent_audit_files_sha256':audit_pins,'claims':claims,
+ 'limits':{'Posture':'D','whole_case_promoted':False,'generic_vector_claimed':False,'owner_write_SH_API_worker_claimed':False,'privileged_fixture_seed_is_owner_creation_proof':False,'maximum_claims':6}}
+exclusive(R/DERIVED,encoded(derived));pins.update(audit_pins);pins[DERIVED]=sha((R/DERIVED).read_bytes());assert len(pins)==403
+audit_source=(T/'six_c662_independent_closed_evidence_audit_20261120.py').read_text(encoding='utf8');tree=ast.parse(audit_source)
+names={'expected_operations','check_bundle'};semantics='\n\n'.join(ast.get_source_segment(audit_source,x)for x in tree.body if isinstance(x,ast.FunctionDef)and x.name in names)
+prefix='''"""Pure qualification of exactly six independently audited local SQL SELECT assertions.
+
+Reads only the literal closed graph. It never runs project source, a process,
+SQL or a network operation. Results remain provisional until the final fresh
+all-byte barrier; no cached mutable proof is exposed to callers.
+"""
+from pathlib import Path
+from types import MappingProxyType
+import collections
+import hashlib
+import json
+import re
+import stat
+
+'''
+prefix+='ARCHIVE='+repr(A)+'\nDERIVED='+repr(DERIVED)+'\nRECORD='+repr(RECORD)+'\nBASE='+repr(BASE)+'\n'
+for name in('RUN','COMMIT','TREE','PACKET','NATIVE','MODELS'):
+ node=next(v for x in tree.body if isinstance(x,ast.Assign)for target in x.targets if isinstance(target,ast.Name)and target.id==name for v in[x.value]) if name=='MODELS' else None
+ if name=='MODELS':value=ast.literal_eval(node)
+ else:
+  values={'RUN':m['run_id'],'COMMIT':m['source_commit'],'TREE':m['source_tree'],'PACKET':m['packet_sha256'],'NATIVE':'a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6'};value=values[name]
+ prefix+=name+'='+repr(value)+'\n'
+prefix+='PINS='+pformat(pins,sort_dicts=True,width=120)+'\nAUDIT_PINS='+pformat(audit_pins,sort_dicts=True,width=120)+'\n'
+prefix+='CLOSED_CLAIMS='+pformat({(c['case_id'],c['assertion_id']):i for i,c in enumerate(claims)},sort_dicts=False)+'\n'
+helpers='''
+class EvidenceFailure(Exception):
+    """Fixed, secret-safe rejection code only."""
+
+def need(value,code):
+    if not value:raise EvidenceFailure(code)
+
+def sh(raw):return hashlib.sha256(raw).hexdigest()
+
+def _typed_json(value,depth=0,budget=None):
+    if budget is None:budget=[2000000]
+    budget[0]-=1
+    need(depth<=48 and budget[0]>=0,'JSON_BOUNDS')
+    kind=type(value)
+    if kind is dict:
+        need(all(type(k)is str for k in value),'JSON_KEYS')
+        for x in value.values():_typed_json(x,depth+1,budget)
+    elif kind is list:
+        for x in value:_typed_json(x,depth+1,budget)
+    else:need(value is None or kind in(str,int,bool),'JSON_TYPES')
+
+def canonical(value):
+    _typed_json(value)
+    return json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False)
+
+def same(actual,expected,code):need(canonical(actual)==canonical(expected),code)
+
+def doc(raw):
+    need(type(raw)is bytes and len(raw)<=8*1024*1024,'JSON_BYTES_LIMIT')
+    def pairs(items):
+        value={}
+        for k,v in items:need(k not in value,'DUPLICATE_JSON');value[k]=v
+        return value
+    value=json.loads(raw.decode('utf8'),object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(EvidenceFailure('NONFINITE_JSON')))
+    _typed_json(value)
+    return value
+
+def identity(value,packet_key):
+    same([value['run_id'],value['source_commit'],value['source_tree'],value[packet_key]],[RUN,COMMIT,TREE,PACKET],'IDENTITY')
+
+def _read(root,relative,wanted):
+    need(type(relative)is str and relative and not Path(relative).is_absolute()and ':'not in relative and '\\\\'not in relative and all(x not in('','.','..')for x in relative.split('/')),'RELATIVE_PATH')
+    path=root/relative
+    need(not any(x.is_symlink()for x in(path,*path.parents)if x.is_relative_to(root)),'SYMLINK')
+    need(path.resolve(strict=True).is_relative_to(root),'PATH_ESCAPE')
+    before=path.stat();need(stat.S_ISREG(before.st_mode)and before.st_nlink==1 and 0<=before.st_size<=8*1024*1024,'REGULAR_SINGLE_LINK_BOUNDED_FILE')
+    with path.open('rb')as reader:raw=reader.read(8*1024*1024+1)
+    after=path.stat();need(not path.is_symlink()and (before.st_dev,before.st_ino,before.st_size,before.st_mtime_ns,before.st_nlink)==(after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns,after.st_nlink),'FILE_CHANGED_DURING_READ')
+    need(len(raw)==before.st_size and sh(raw)==wanted,'FILE_BYTES')
+    return raw
+
+def _capture(root):
+    blobs={n:_read(root,n,h)for n,h in PINS.items()}
+    need(sum(map(len,blobs.values()))<=64*1024*1024,'BUNDLE_SIZE')
+    return blobs
+
+'''
+suffix='''
+
+def validate_bundle(blobs):
+    need(type(blobs)is dict and set(blobs)==set(PINS),'EXACT_CLOSED_GRAPH')
+    need(all(type(v)is bytes and sh(v)==PINS[n]for n,v in blobs.items()),'CAPTURED_HASHES')
+    expected_claims=check_bundle(blobs)
+    derived=doc(blobs[DERIVED]);identity(derived,'packet_sha256')
+    same(set(derived),set(('schema','derivation','actual_result','run_id','source_commit','source_tree','packet_sha256','source_record','independent_audit_files_sha256','claims','limits')),'DERIVED_FIELDS')
+    need(derived['schema']=='workinants.six-c662-derived-qualified-evidence.v1'and derived['derivation']=='EXPLICIT_DERIVED_WRAPPER_NOT_RAW_RUNTIME_EVIDENCE'and derived['actual_result']=='DERIVED_REVIEWED_SCOPED6_SQL_READ_ASSERTIONS_ONLY','DERIVED_KIND')
+    same(derived['source_record'],{'path':RECORD,'sha256':PINS[RECORD],'packet_alias_from':'operation_packet_sha256'},'SOURCE_RECORD_ALIAS')
+    same(derived['independent_audit_files_sha256'],AUDIT_PINS,'EXACT_AUDIT_GRAPH')
+    audit=doc(blobs[ARCHIVE+'/independent-actual-audit.json']);need(audit['decision']=='PASS_EXACT6_RESTRICTED_SQL_SELECT_ASSERTION_LINKS_ONLY'and audit['findings']==[],'INDEPENDENT_EVIDENCE_AUDIT')
+    proposal=doc(blobs[ARCHIVE+'/Root-exact6-proposal.json'])
+    same(audit['claims'],expected_claims,'INDEPENDENT_AUDITED_CLAIMS')
+    need(len(derived['claims'])==len(proposal['claims'])==len(expected_claims)==6,'EXACT_SIX_CLAIMS')
+    fixture=doc(blobs['review-output/scoped-read-companion-rehearsal/fixtures.json'])
+    child_path=BASE+'/evidence/scoped-read-component/scoped-read-companion-results.json'
+    for index,(claim,expected,proposal_row)in enumerate(zip(derived['claims'],expected_claims,proposal['claims'])):
+        case=next(c for c in fixture['cases']if c['name']==expected['positive_protocol'])
+        same(claim,{**expected,'component':{'path':child_path,'sha256':PINS[child_path],'json_pointer':expected['positive_result_pointer']},'source_statement_sha256':fixture['prepared_files_sha256'][case['sql']],'independent_mapping':{'path':ARCHIVE+'/independent-actual-audit.json','sha256':AUDIT_PINS[ARCHIVE+'/independent-actual-audit.json'],'json_pointer':'/claims/'+str(index)}},'EXACT_CLAIM_LINK')
+        same([claim['case_id'],claim['assertion_id'],claim['status'],claim['expected_assertion_sha256'],claim['positive_protocol'],claim['model_protocols']],[proposal_row['case_id'],proposal_row['assertion_id'],proposal_row['proposed_status'],proposal_row['expected_assertion_sha256'],proposal_row['actual_positive_protocol'],proposal_row['completed_finite_protocols']],'ROOT_EXACT6_PROPOSAL')
+    same(derived['limits'],{'Posture':'D','whole_case_promoted':False,'generic_vector_claimed':False,'owner_write_SH_API_worker_claimed':False,'privileged_fixture_seed_is_owner_creation_proof':False,'maximum_claims':6},'FINITE_LIMITS')
+    return canonical(derived)
+
+class QualificationBatch:
+    """Immutable private byte capture, sticky rejection and final all-file barrier."""
+    def __init__(self,root,_single=None):
+        path=Path(root);need(not path.is_symlink(),'ROOT_SYMLINK')
+        self.__root=path.resolve(strict=True)
+        blobs=_capture(self.__root)
+        self.__execution=validate_bundle(blobs)
+        self.__snapshot=MappingProxyType(blobs)
+        self.__expected=frozenset(CLOSED_CLAIMS)
+        if _single is not None:
+            need(_single in CLOSED_CLAIMS,'UNSUPPORTED_CLAIM');self.__expected=frozenset((_single,))
+        self.__seen=set();self.__failed=False;self.__finalized=False
+
+    def validate_claim(self,case_id,assertion_id,status,execution,root=None,json_pointer=None):
+        try:
+            need(not self.__failed and not self.__finalized,'BATCH_CLOSED')
+            need(all(type(v)is str for v in(case_id,assertion_id,status,json_pointer))and status=='PASS','CLAIM_FIELDS')
+            key=(case_id,assertion_id);need(key in self.__expected,'UNSUPPORTED_CLAIM')
+            need(key not in self.__seen,'DUPLICATE_CLAIM')
+            need(json_pointer=='/claims/'+str(CLOSED_CLAIMS[key]),'CLAIM_POINTER')
+            if root is not None:need(Path(root).resolve(strict=True)==self.__root,'BATCH_ROOT')
+            need(type(execution)is dict and canonical(execution)==self.__execution,'EXACT_DERIVED_RECORD')
+            self.__seen.add(key);return True
+        except EvidenceFailure:self.__failed=True;raise
+        except Exception:self.__failed=True;raise EvidenceFailure('SCOPED_READ_EVIDENCE_REJECTED')from None
+
+    def verify_unchanged(self):
+        try:
+            need(not self.__failed and not self.__finalized,'BATCH_CLOSED')
+            need(self.__seen==self.__expected,'INCOMPLETE_BATCH')
+            again=_capture(self.__root)
+            need(all(again[n]==self.__snapshot[n]for n in PINS),'FINAL_BYTE_DRIFT')
+            self.__snapshot=None;self.__finalized=True;return True
+        except EvidenceFailure:self.__failed=True;raise
+        except Exception:self.__failed=True;raise EvidenceFailure('SCOPED_READ_EVIDENCE_REJECTED')from None
+
+    def require_finalized(self):
+        need(not self.__failed and self.__finalized,'FINAL_BYTE_BARRIER_REQUIRED');return True
+
+def prepare_batch(root):
+    try:return QualificationBatch(root)
+    except EvidenceFailure:raise
+    except Exception:raise EvidenceFailure('SCOPED_READ_EVIDENCE_REJECTED')from None
+
+def validate_claim(case_id,assertion_id,status,execution,root,json_pointer=None):
+    try:
+        need(all(type(v)is str for v in(case_id,assertion_id,status,json_pointer))and status=='PASS','CLAIM_FIELDS')
+        key=(case_id,assertion_id);need(key in CLOSED_CLAIMS,'UNSUPPORTED_CLAIM')
+        batch=QualificationBatch(root,_single=key)
+        batch.validate_claim(case_id,assertion_id,status,execution,root,json_pointer=json_pointer)
+        batch.verify_unchanged();return batch.require_finalized()
+    except EvidenceFailure:raise
+    except Exception:raise EvidenceFailure('SCOPED_READ_EVIDENCE_REJECTED')from None
+'''
+# Sets do not belong to JSON. Compare derived field names as sorted lists.
+suffix=suffix.replace("same(set(derived),set(('schema','derivation','actual_result','run_id','source_commit','source_tree','packet_sha256','source_record','independent_audit_files_sha256','claims','limits')),'DERIVED_FIELDS')","same(sorted(derived),sorted(('schema','derivation','actual_result','run_id','source_commit','source_tree','packet_sha256','source_record','independent_audit_files_sha256','claims','limits')),'DERIVED_FIELDS')")
+module=(prefix+helpers+semantics+suffix).encode();ast.parse(module);exclusive(R/'scripts/local_f0_scoped_read_evidence.py',module)
+builder=R/'scripts/prepare-local-f0-status.py';old=builder.read_bytes();text=old.decode();import_line='from local_f0_scoped_read_evidence import prepare_batch as prepare_scoped_read_batch, EvidenceFailure as ScopedReadEvidenceFailure\n'
+needle='ROOT=Path(__file__).resolve().parents[1]\n';assert text.count(needle)==1;text=text.replace(needle,import_line+needle)
+needle='EVIDENCE_RECORDS={\n';text=text.replace(needle,needle+'    '+repr(DERIVED)+':('+repr(pins[DERIVED])+',\'DERIVED_REVIEWED_SCOPED6_SQL_READ_ASSERTIONS_ONLY\'),\n',1)
+needle='    native_complete_batch=None\n';block="    scoped_read_batch=None\n    if any(row.get('evidence_path')=="+repr(DERIVED)+" for row in ledger['assertions']):\n        try:scoped_read_batch=prepare_scoped_read_batch(ROOT)\n        except ScopedReadEvidenceFailure as error:raise AssertionError(str(error)) from None\n"
+assert text.count(needle)==1;text=text.replace(needle,block+needle)
+needle="                elif row['evidence_path']=='context/reconciliation/local-f0-native-1110fa4-4c894dba-qualified-evidence.json':\n";block="                elif row['evidence_path']=="+repr(DERIVED)+":\n                    try:scoped_read_batch.validate_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer)\n                    except ScopedReadEvidenceFailure as error:raise AssertionError(str(error)) from None\n"
+assert text.count(needle)==1;text=text.replace(needle,block+needle)
+needle="    return {'scope':'ACTUAL_ASSERTION_EVIDENCE_OVER_EXACT_EXISTING94_IDS'";block="    if scoped_read_batch is not None:\n        try:scoped_read_batch.verify_unchanged();scoped_read_batch.require_finalized()\n        except ScopedReadEvidenceFailure as error:raise AssertionError(str(error)) from None\n"
+assert text.count(needle)==1;text=text.replace(needle,block+needle)
+ast.parse(text);builder.write_bytes(text.encode())
+for n,h in before['preserved_files_sha256'].items():
+ if n!='scripts/prepare-local-f0-status.py':assert sha((R/n).read_bytes())==h
+for n,h in before['native303_plus_audit3_unchanged'].items():assert sha((R/n).read_bytes())==h
+receipt={'plan_sha256':sha((D/'source-plan.json').read_bytes()),'parser_sha256':sha(module),'builder_before':sha(old),'builder_after':sha(builder.read_bytes()),'derived_record_sha256':pins[DERIVED],'captured_files':len(pins),'existing_ledger_status_checker_unchanged':True,'Native303_AUDIT3_unchanged':True,'source_review':'PENDING','runtime':'NOT_RUN'}
+exclusive(D/'initial-authoring-receipt.json',encoded(receipt));print(json.dumps(receipt))

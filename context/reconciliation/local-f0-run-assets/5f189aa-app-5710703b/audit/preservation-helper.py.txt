@@ -1,0 +1,51 @@
+"""Preserve stopped App attempt, distinguish child origin from outer classification."""
+from pathlib import Path
+import collections,datetime,hashlib,json,subprocess
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+H='5f189aa6262bd5ecbffda0940e404038993fce05';TREE='fd736f36633b28267602759c0da0d368bd625ef6';sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+assert subprocess.check_output(['git','-c','core.longpaths=true','rev-parse','HEAD'],cwd=R).decode().strip()==H
+mp=T/'local-f0-app-write-two-owned-resource-v1-plan-5710703b/operation-manifest.json';mb=mp.read_bytes();assert sha(mb)=='62e4cb3be6a4a77cbd9c480801cf835407d45a56f936a75b26914857fcbf94f8';m=json.loads(mb)
+out=Path(m['evidence_directory']);assert out==T/'local-f0-app-write-two-owned-resource-v1-5710703b'and not(out/'private').exists()
+rb=(out/'run-evidence.json').read_bytes();assert sha(rb)=='a7d86541552728900d2b1bc0fd70b334ce7f2b6b7cfd6833be5ae180990e4014';r=json.loads(rb)
+assert r['status']=='STOPPED_ATTEMPT_PRESERVED'and r['finished_at']and r['evidence_complete']is True and r['approved_commit']==H and r['approved_tree']==TREE
+assert r['unexpected']==[{'stage':'REQUIRED_GLOBAL_BACKEND_CLOSURE','code':'APP_WRITE_TWO_TYPED_SUCCESS_FIELDS'}]and r['app_write_two']['component_closure_confirmed']is True and r['cleanup_actions_confirmed']is True
+cb=(out/'app-write-two-component/app-write-two-results.json').read_bytes();assert sha(cb)=='5045356f72d6425031f4ae7e9855c12dffa5cff2d1098028ff4b971fffbd7bd5';c=json.loads(cb)
+assert c['status']=='STOPPED_PARTIAL_EVIDENCE_PRESERVED'and c['current_stage']=='FINITE_APP_WRITE_PROTOCOL'and c['current_case']=='effect-wrong-root'and c['unexpected']==[{'stage':'FINITE_APP_WRITE_PROTOCOL','case':'effect-wrong-root','code':'INTENDED_SOURCE_GUARD_REQUIRED'}]
+assert c['results']==[]and len(c['operations'])==23 and c['subsequent_cases_stopped']is True and c['fixture_owner_bypass_restored']is True and c['evidence_complete']is True
+transactions=[x for x in c['operations']if x['stage']=='RESTRICTED_APP_TRANSACTION'];assert transactions==[{'stage':'RESTRICTED_APP_TRANSACTION','case':'effect-wrong-root','actual_login':'wa_app_runtime','issuer_committed':True,'same_tuple_verified':True,'bind_stage_reached':True,'write_stage_reached':True,'read_stage_reached':False,'operation_closed':True}]
+assert c['operations'][-1]=={'stage':'FINALLY_FULL_NATIVE_PARITY','native_catalog_match':True,'native_sha256':'a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6'}
+assert all(x['other_clients_zero']is True for x in c['operations']if x['stage']=='GLOBAL_BACKEND_CLOSURE')
+strings=('schema','status','current_stage','run_id','container_id','source_commit','source_tree','packet_sha256','reviewed_packet_sha256','reviewed_content_sha256','database_posture','current_auth_role');lists=('selected_controls','results','operations','authentication','unexpected','limits','effective_hba_selections');booleans=('subsequent_cases_stopped','cleanup_required','fixture_owner_bypass_restored','evidence_complete','source_packet_unchanged_after')
+assert all(type(c[k])is str for k in strings)and all(type(c[k])is list for k in lists)and all(type(c[k])is bool for k in booleans)and all(type(c[k])is dict for k in('authentication_comparison','sanitization'))and c['current_case']is not None
+assert len(c['authentication'])==6 and all(x['correct_password']=='PASS_SCRAM'and x['wrong_password']=='PASS_REJECTED'for x in c['authentication'])
+for key in('packet_unchanged_after_run','tool_source_data_unchanged_after_run','external_sources_unchanged_after_run','external_inputs_unchanged_after_run'):assert r[key]is True
+cleanp=T/'app_owned_5f_5710703b_independent_cleanup_20261120.json';cleanb=cleanp.read_bytes();assert sha(cleanb)=='0e90594cbdefc2dd2a64ecf629cf29027f5dbfbd4e4470b8cbe8c2761b616c0c'and json.loads(cleanb)['status']=='PASS_INDEPENDENT_PHYSICAL_CLEANUP'
+asset=R/'context/reconciliation/local-f0-run-assets/5f189aa-app-5710703b';assert not asset.exists();copies={}
+for p in out.rglob('*'):
+ if not p.is_file():continue
+ rel=p.relative_to(out);assert'private'not in rel.parts and not p.is_symlink()and(p.suffix=='.json'or rel.as_posix()=='set-private-acl.ps1')
+ target=asset/'evidence'/rel
+ if p.suffix=='.ps1':target=target.with_name(target.name+'.txt')
+ copies[target]=p.read_bytes()
+for p in mp.parent.iterdir():
+ if p.is_file()and p.suffix=='.json':copies[asset/'manifest'/p.name]=p.read_bytes()
+for kind,binding in m['migration_targets'].items():
+ b=Path(binding['manifest_path']).read_bytes();assert sha(b)==binding['manifest_sha256'];copies[asset/'manifest'/('migration-'+kind+'.json')]=b
+extras={'independent-cleanup.json':cleanp.name,'independent-literal-review.json':'app_owned_fix2_5710703b_independent_operational_literal_review_20261120.json','Root-literal-approval.json':'app_owned_fix2_5710703b_Root_literal_approval_receipt_20261120.json','Root-cleanup-helper.py.txt':'verify_5f_app_5710703b_completed_cleanup_20261120.py'}
+for name,source in extras.items():copies[asset/name]=(T/source).read_bytes()
+facts={'schema':'workinants.app571-observed-stop-and-origin-reconciliation.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'observed':{'child_status':c['status'],'first_case':c['current_case'],'child_failure_stage':c['current_stage'],'child_failure_code':'INTENDED_SOURCE_GUARD_REQUIRED','completed_scenarios':0,'child_operations':23,'operation_counts_by_stage':dict(collections.Counter(x['stage']for x in c['operations'])),'actual_operation_record':transactions[0],'all_operation_backends_closed_before_final_native_observation':True,'fixture_guards_restored_and_final_native_parity':True,'authentication_roles_correct_and_wrong_password':6,'wrapper_component_closure_confirmed':True,'physical_cleanup_independently_confirmed':True},'unobserved':{'actual_client_exit_ACK_response_sequence_SQLSTATE_diagnostic':'NOT_RETAINED','complete_original_cause':'UNOBSERVED','post_failure_complete42_application_data_state':'NOT_OBSERVED','positive_effect_insert_and_pending_work_update':'NOT_RUN','remaining13_cases':'NOT_RUN','parent_after_read_only_native_oracle_ledger_proof':'NOT_RUN'},'source_and_wrapper_origin_reconciliation':{'outer_code':'APP_WRITE_TWO_TYPED_SUCCESS_FIELDS','outer_reported_stage':'REQUIRED_GLOBAL_BACKEND_CLOSURE','true_retained_child_origin':'FINITE_APP_WRITE_PROTOCOL/effect-wrong-root/INTENDED_SOURCE_GUARD_REQUIRED','source_path':'local_f0_app_write_two_owned_resource_v1_operation_steps.py','source_sha256':m['steps_sha256'],'line':900,'proven_fact':'Success-only typed condition requires current_case is None before status handling. Every other listed field type matches; the stopped child correctly retains current_case effect-wrong-root. This condition masks the retained child failure with a secondary success-schema label.','global_backend_closure_failed':False,'first_source_oracle':'42501 plus exact customer_profiles INSERT RLS diagnostic; actual diagnostic was not retained. Earlier source guard hypothesis requires separate source analysis/review and new fixed safe observations; do not invent actual missing values.'},'qualification':'STOPPED_ATTEMPT_PRESERVED_NO_ASSERTION_PROMOTION','next':'Independent source diagnosis and bounded reviewed correction; preserve current packet and all raw reports. Continue independent INSTALL work. No identical retry or permission repair.','Posture':'D'}
+copies[asset/'audit/observed-stop-and-origin-reconciliation.json']=enc(facts);copies[asset/'audit/preservation-helper.py.txt']=Path(__file__).read_bytes()
+for p,b in copies.items():
+ assert len(b)<50*1024*1024 and b'\0'not in b;b.decode('utf-8-sig')
+ if p.suffix=='.json':json.loads(b)
+ put(p,b)
+assets={p.relative_to(R).as_posix():sha(b)for p,b in copies.items()}
+record={'schema':'workinants.local-f0-5f-app-version-qualified-stopped-execution-record.v1','recorded_at_utc':facts['recorded_at_utc'],'run_id':m['run_id'],'source_commit':H,'source_tree':TREE,'operation_packet_sha256':m['packet_sha256'],'operation_manifest_sha256':sha(mb),'known_executor_exit':{'session':80160,'exit_code':1},'started_at_utc':r['started_at'],'finished_at_utc':r['finished_at'],'actual_wrapper_status':r['status'],'actual_steps':r['steps'],'raw_evidence_sha256':sha(rb),'raw_child_file_sha256':sha(cb),'raw_reports_unchanged':True,'independent_cleanup_sha256':sha(cleanb),'facts':facts,'assets_sha256':assets,'source_preservation':{k:v for k,v in r.items()if k.endswith('_unchanged_after_run')},'qualification_status':'STOPPED_ATTEMPT_PRESERVED_NO_ASSERTION_PROMOTION','Posture':'D'}
+p=R/'context/reconciliation/local-f0-app-write-two-5f189aa-5710703b-execution.json';put(p,enc(record));recordsha=sha(p.read_bytes())
+receipt={'schema':'workinants.5f-app571-stopped-attempt-preserved.v1','record':p.relative_to(R).as_posix(),'record_sha256':recordsha,'asset_count':len(assets),'assets_sha256':assets,'runtime_or_Git_mutated':False,'Posture':'D'}
+p=T/'5f_app_571_stopped_attempt_preserved_inventory_20261120.json';put(p,enc(receipt))
+print(json.dumps({'record':receipt['record'],'record_sha256':recordsha,'assets':len(assets),'inventory_sha256':sha(p.read_bytes()),'counts_unchanged':True}))

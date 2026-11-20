@@ -1,0 +1,90 @@
+{
+  "schema": "workinants.six-c662-observed-unadmitted-results.v1",
+  "recorded_at_utc": "2026-11-20T07:28:38.285650+00:00",
+  "observed": {
+    "completed_protocols": 71,
+    "child_operations": 586,
+    "protocol_counts_by_selected_case": {
+      "P0C-TABLE-AgeGateAttempt-ALLOW": 11,
+      "P0C-TABLE-AgeGateBlock-ALLOW": 11,
+      "P0C-TABLE-AccessAuditLog-ALLOW": 11,
+      "P0C-TABLE-UserRole-ALLOW": 14,
+      "P0C-TABLE-AuditEvent-ALLOW": 11,
+      "P0C-TABLE-AuthProviderAccount-ALLOW": 13
+    },
+    "child_operation_counts_by_stage": {
+      "GLOBAL_BACKEND_CLOSURE": 152,
+      "PRE_FIXTURE_NATIVE_PARITY": 1,
+      "EXACT_EIGHT_TRIGGER_RESTORATION": 74,
+      "SYNTHETIC_EXISTING_ROWS_ONLY": 1,
+      "POST_FIXTURE_NATIVE_PARITY": 1,
+      "BOUND_OPERATION": 71,
+      "SEPARATE_ISSUER_COMMIT": 71,
+      "IMMUTABLE_ISSUER_RETENTION": 213,
+      "FINAL_NATIVE_PARITY": 1,
+      "FINALLY_FULL_NATIVE_PARITY": 1
+    },
+    "actual_query_login": "wa_app_runtime",
+    "query_backends_closed_before_observers": true,
+    "fixture_rows": 16,
+    "fixture_tables": 8,
+    "reviewed_owner_commit_setup_bypasses": 8,
+    "fixture_bypasses_restored": true,
+    "all_child_authentication_roles_correct_and_wrong_password": 6,
+    "same_target_read_only_after_proof": {
+      "status": "PASS_READ_ONLY_SOURCE_BOUND_SUBSET",
+      "same_first_install_registration_sha256": "54a03a1fa568c69a66ae1400d8284c561cc11c6d5598d7641853c8f3f8420f5e",
+      "same_installer_attestation_sha256": "4357b5de3c892ca6e975fba2a4f4a5397bdd000f2c9bafd778c8b10822bd9b7e",
+      "native_sha256": "a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6",
+      "native_checks": 29089,
+      "oracle_expressions": 416,
+      "ledger_checks": 22,
+      "independent_tables": 42,
+      "before_state_sha256": "9ecd94789ce7ec16323a17e9d0c6f1e1848559ec8dfcacd9ab3b2c8012a04581",
+      "after_state_sha256": "9ecd94789ce7ec16323a17e9d0c6f1e1848559ec8dfcacd9ab3b2c8012a04581",
+      "child_final_state_sha256": "9ecd94789ce7ec16323a17e9d0c6f1e1848559ec8dfcacd9ab3b2c8012a04581",
+      "second_deploy": false
+    },
+    "physical_cleanup_independently_confirmed": true
+  },
+  "digest_recipe_clarification": {
+    "component_report_sha256": "SHA256 of json.dumps(parsed_child,sort_keys=True,separators=(comma,colon)).encode UTF8, using default ensure_ascii=True",
+    "canonical_child_sha256": "37cc9c987c8c644a78ee4b8814a80c5a445d87dbb03e0a6a1cba9754789c32ed",
+    "literal_closed_child_file_sha256": "0da12d353efc4ae71474cb2f9637ce0870ea0813e456637d22fc8861e45b7dde",
+    "different_serializations_expected": true
+  },
+  "qualification": "NOT_ADMITTED_PENDING_INDEPENDENT_CLOSED_EVIDENCE_AUDIT_AND_REVIEWED_ASSERTION_ADAPTER",
+  "maximum_new_claims": [
+    {
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select"
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select"
+    },
+    {
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select"
+    },
+    {
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select"
+    },
+    {
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select"
+    },
+    {
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.select"
+    }
+  ],
+  "limits": [
+    "No whole-case or blanket adversarial-vector promotion.",
+    "No owner writes, SH/API, worker operation or Track enrollment qualification.",
+    "No additional migration deployment claimed.",
+    "Selected94/451 remain distinct; posture D."
+  ],
+  "Posture": "D"
+}

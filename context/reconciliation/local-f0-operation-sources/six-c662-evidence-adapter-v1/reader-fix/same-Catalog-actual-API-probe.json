@@ -1,0 +1,40 @@
+{
+  "schema": "workinants.six-reader-fix-same-independent-reviewer-actual-probe.v1",
+  "reviewer": "/root/catalog_v4_review",
+  "original_HOLD_sha256": "9b5a7f1e47be05ed94857bc26d67baa68b0c753e17c57d2bd350acbfdcb8d554",
+  "original_probe_sha256": "c7347dd49d218db248d036acc779e481e301e04efc3b8730ca58737a64badfd6",
+  "fixed_source_sha256": "dc67a3a0ed60a27296cd4d007a8a8de212d17bb1c6d2ea066693c706f9e615fa",
+  "old_module_sha256": "c2a6389376311cc37cf3e73a007ca8185a85ccf19cdc10baa085ce80cbf913c7",
+  "fixed": {
+    "reader": "FIXED_EXACT_CURRENT_READER",
+    "actual_API": "prepare_batch + all6 validate_claim + verify_unchanged + require_finalized",
+    "mutation_during_final_read": true,
+    "same_inode_size_mtime_device_nlink": true,
+    "disk_matches_pinned_after_return": false,
+    "private_claim_status_after": "FAIL",
+    "barrier_returned_true": false,
+    "finalized_returned_true": false,
+    "safe_failure": "FILE_CHANGED_DURING_READ",
+    "sticky_unfinalized": true,
+    "readers_closed": true,
+    "factory_PINS_expected_hashes_unchanged": true
+  },
+  "old_reader_only_restoration": {
+    "reader": "ONLY_OLD_READER_RESTORED",
+    "actual_API": "prepare_batch + all6 validate_claim + verify_unchanged + require_finalized",
+    "mutation_during_final_read": true,
+    "same_inode_size_mtime_device_nlink": true,
+    "disk_matches_pinned_after_return": false,
+    "private_claim_status_after": "FAIL",
+    "barrier_returned_true": true,
+    "finalized_returned_true": true,
+    "safe_failure": null,
+    "sticky_unfinalized": false,
+    "readers_closed": true,
+    "factory_PINS_expected_hashes_unchanged": true
+  },
+  "source403_unchanged": true,
+  "actual_Docker_DB_SQL_Git_network": false,
+  "real_ledger_status_gate_writes": false,
+  "qualification": "SCOPED6_FINAL_READ_INTEGRITY_COUNTEREXAMPLE_CLOSED_BOUNDED_INFLIGHT_ONLY"
+}

@@ -1,0 +1,43 @@
+"""Root closed-evidence audit/proposal; no assertion ledger mutation."""
+from pathlib import Path
+import hashlib,json,datetime,collections
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+recordp=R/'context/reconciliation/local-f0-six-read-5f189aa-c662f807-execution.json';raw=recordp.read_bytes();assert sha(raw)=='acac8f669272f99e2903adad529366b0e156b18fe39de8c90982e921ffc1b7f8';record=json.loads(raw)
+assets=record['assets_sha256']
+for name,h in assets.items():assert sha((R/name).read_bytes())==h
+B='context/reconciliation/local-f0-run-assets/5f189aa-six-c662f807/'
+load=lambda name:json.loads((R/(B+name)).read_bytes())
+m=load('manifest/operation-manifest.json');r=load('evidence/run-evidence.json');c=load('evidence/scoped-read-component/scoped-read-companion-results.json')
+pins=m['packet_files_sha256'];assert len(pins)==354
+for name,h in pins.items():assert sha((R/name).read_bytes())==h
+assert sha(''.join(name+'\0'+pins[name]+'\n'for name in sorted(pins)).encode())==m['packet_sha256']=='3c5d2bccc05b994a761dd8db98714f315e7b10319b38bfb1f3aff0e68a50cef0'
+fp='review-output/scoped-read-companion-rehearsal/fixtures.json';assert fp in pins;f=json.loads((R/fp).read_bytes())
+assert len(f['cases'])==len(c['results'])==71 and len(c['operations'])==586 and len(f['expected_counts'])==42 and sum(f['expected_counts'].values())==16
+roles=['postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker']
+assert c['authentication']==[{'role':role,'transport':'TCP_127.0.0.1_5432','correct_password':'PASS_SCRAM','wrong_password':'PASS_REJECTED','wrong_password_exit_code':2}for role in roles]
+for row,(address,role)in zip(c['effective_hba_selections'],((a,role)for a in('127.0.0.1','::1')for role in roles)):
+ assert row['address']==address and row['role']==role and row['method']=='scram-sha-256' and type(row['rule_number'])is int and row['rule_number']>0
+assert len(c['effective_hba_selections'])==12
+for index,(case,row)in enumerate(zip(f['cases'],c['results']),1):
+ assert row['case']==case['name']and row['case_id']==case['case_id']and row['assertion_id']==case['assertion_id']=='positive.wa_app_runtime.select'
+ assert row['actual_login']=='wa_app_runtime' and row['operation_closed_before_observers']is True and row['tables_observed']==42 and row['issued_grants']==index and row['status']=='PASS_FINITE_SCOPED_READ_ONLY'
+ if case['kind']=='read':assert row['counts']==case['expected']and all(type(x)is int for x in row['counts'].values())and row['query_stage_reached']is True and row['stage_markers']=={'before':True,'after':True}and row['diagnostic']is None
+ else:assert row['counts']is None and row['query_stage_reached']is False and row['diagnostic']=={'matched':True,'sqlstate':'42501','classification':'EXACT_PRINCIPAL_CURRENTNESS_BINDER_GUARD','source_body_sha256':'9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009','source_body_line':7,'native_location':'exec_stmt_raise@pl_exec.c'}
+ops=c['operations'];bound=[x for x in ops if x['stage']=='BOUND_OPERATION'];issuer=[x for x in ops if x['stage']=='SEPARATE_ISSUER_COMMIT'];ret=[x for x in ops if x['stage']=='IMMUTABLE_ISSUER_RETENTION']
+assert len(bound)==len(issuer)==71 and len(ret)==213
+for case,x in zip(f['cases'],bound):assert x=={'stage':'BOUND_OPERATION','case':case['name'],'actual_login':'wa_app_runtime','issuer_committed':True,'same_tuple_verified':True,'bind_stage_marker':True,'query_stage_reached':case['kind']=='read','operation_closed':True,'terminal_exit':0 if case['kind']=='read'else 3,'result_validated':True}
+assert all(x=={'stage':'SEPARATE_ISSUER_COMMIT','issuer_committed':True,'created_at_return_verified':True,'commit_acknowledged':True,'operation_closed':True}for x in issuer)
+assert all(x['all_21_fields_match']is True and x['issuer_owned']is True and x['unrevoked']is True for x in ret)
+assert r['scoped_read']['post_proof']['before_state_sha256']==r['scoped_read']['post_proof']['after_state_sha256']==r['scoped_read']['post_proof']['child_final_state_sha256']
+inventory=json.loads((R/'context/reconciliation/local-f0-assertions.json').read_bytes());ledgerraw=(R/'context/reconciliation/local-f0-assertion-evidence.json').read_bytes();statusraw=(R/'context/reconciliation/local-f0-qualification-status.json').read_bytes()
+assert sha(ledgerraw)=='3c13e345ba907d5944bb12806ad7abeb5a6d673cac00bc8e3c769e19bb04c047'and sha(statusraw)=='87f3737ff002bc73833d5a3f5e31601a11c97f412e54d3f85b1e7be7cc10d64d'
+claims=[]
+for cid in f['selected_control_ids']:
+ case=next(x for x in inventory['cases']if x['id']==cid);a=next(x for x in case['assertions']if x['id']=='positive.wa_app_runtime.select');assert a['availability']=='CANDIDATE_LOCAL_SQL_PATH'and a['dependency_ids']==[]and a['role']=='wa_app_runtime'and a['declared_operation']=='SELECT_EXACT_AUTHORIZED_TARGET'
+ group=[x for x in c['results']if x['case_id']==cid];positive=[x for x in group if x['case'].endswith('-positive-root')];assert len(positive)==1 and positive[0]['counts']=={'root':1,'foreign':0}
+ claims.append({'case_id':cid,'assertion_id':a['id'],'expected_assertion_sha256':sha(a['expected_assertion'].encode()),'proposed_status':'PASS','actual_positive_protocol':positive[0]['case'],'completed_finite_protocols':len(group),'limits':'Only permitted SQL SELECT, not owner API, writes, worker behavior, whole case or blanket adversarial vector.'})
+assert len(claims)==6
+proposal={'schema':'workinants.six-c662-Root-closed-evidence-exact6-proposal.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PROPOSED_PENDING_INDEPENDENT_EVIDENCE_AUDIT_AND_REVIEWED_ADAPTER','Root_author':'/root','record':recordp.relative_to(R).as_posix(),'record_sha256':sha(raw),'source_commit':record['source_commit'],'source_tree':record['source_tree'],'packet_sha256':record['operation_packet_sha256'],'closed_packet_files':354,'exact_assets':len(assets),'closed_source_and_assets_hashes_verified':True,'observations':{'protocols':71,'operations':586,'separate_issuer_COMMITs':71,'global_closures':152,'trigger_restoration_observations':74,'retained_grant_observations':213,'strict_auth_roles':6,'fixture_rows':16,'fixture_tables':8,'exact_owner_commit_setup_bypasses':8,'native_checks_before_and_readonly_after':29089,'oracle_expressions_before_and_readonly_after':416,'ledger_checks_before_and_readonly_after':22,'second_deploy':False,'run_cleanup':'PASS_INDEPENDENT_PHYSICAL_CLEANUP'},'claims':claims,'existing_ledger_sha256':sha(ledgerraw),'existing_status_sha256':sha(statusraw),'planned_adapter':{'new_module':'scripts/local_f0_scoped_read_evidence.py','record':'context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json','interface':'prepare_batch(root): closed exact bytes only; six known claims with exact pointer/type/record binding; sticky failure; final fresh full-byte barrier before build returns. No project compile/process/Git/network/SQL.','existing_builder_change':'Only add exact qualified record/import/dispatch and batch final barrier. Keep existing647 evidence entries/provenance and old adapters unchanged.','tests':'Exact6 succeeds; all other claims/status/pointers/identities reject; duplicate/malformed JSON, source/assets drift, mid-batch/final drift, missing claim, secret canaries and external-process attempts reject. Actual real builder once after independent source review.','scope_ceiling':'At most six newly evidenced PASS assertions. No whole-case promotion unless the unchanged aggregator independently has all required assertions.'},'counts_unchanged':True,'runtime_or_Git_mutated':False,'Posture':'D'}
+p=T/'six_c662_Root_closed_evidence_exact6_proposal_20261120.json';b=(json.dumps(proposal,indent=2)+'\n').encode()
+with p.open('xb')as stream:stream.write(b)
+print(json.dumps({'proposal_sha256':sha(b),'new_claims_proposed':6,'counts_unchanged':True,'actual_runtime':'CLOSED_CLEANED','assets_verified':len(assets),'source_files_verified':len(pins)}))

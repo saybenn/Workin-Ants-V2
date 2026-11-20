@@ -1,0 +1,44 @@
+{
+  "schema": "workinants.restore-resource-mount-v2-independent-root-plan-review.v1",
+  "reviewer": "/root",
+  "author": "/root/install_outer_review",
+  "recorded_at_utc": "2026-11-19T22:03:24.040292+00:00",
+  "decision": "SOURCE_PLAN_APPROVED_AND_ROOT_ACK_NEW_SOURCE_PREPARATION_ONLY",
+  "plan_sha256": "0338969cfaa30cffa08f39e4cd86c8ad0c1b56bad86e03a07a9c46410015efc3",
+  "findings": [],
+  "source_inspected": {
+    "Core_create_resources_source_hooks_missing_now": true,
+    "Steps_inspect_restore_old_strict_API_tmpfs_predicate": true,
+    "Steps_create_extra_container_existing_pre_and_post_hooks": true,
+    "Steps_stage_restore_stopped_source_staging_removal_target_private_input_order": true,
+    "current_five_and_held_validation_hashes_match": true
+  },
+  "approval_scope": {
+    "new_source_five_and_new_archive_and_PENDING_validation": {
+      "five_names": [
+        "execute_local_f0_restore_20261119_resource_mount_v2.py",
+        "local_f0_restore_operation_steps_resource_mount_v2.py",
+        "prepare_local_f0_restore_plan_resource_mount_v2.py",
+        "check_local_f0_restore_operation_resource_mount_v2.py",
+        "pin_local_f0_restore_plan_20261119_resource_mount_v2.py"
+      ],
+      "Root_archive": "context/reconciliation/local-f0-operation-sources/restore-physical-resource-mount-v2",
+      "Root_validation": "context/reconciliation/local-f0-restore-resource-mount-v2-source-validation.json",
+      "source_preparation_only": "No fresh operational literal, target, volume, credentials, backup or database action during this source implementation.",
+      "mandatory_fresh_review_gate": "New validation starts PENDING_ROOT_AND_INDEPENDENT_REVIEW for the new exact five through the existing mandatory independent_safety_sql_review gate, with old layer reviews explicitly historical. No old SOURCE_APPROVED field may silently approve new resource bytes."
+    },
+    "Core_behavior_delta": "Exactly two literal source inspect_restore calls around successful start before readiness/pgpass; preserve all remaining AST after namespace",
+    "Steps_behavior_delta": "Closed source/staging/target own mount profiles plus fixed read-only ownedCID proc/stat secret tmpfs observer; no staging/stopped exec",
+    "safety_contract": "Source2/optional3, staging2/no tmpfs, restored1/optional2 API mounts; strictHostConfig five-token/tmpfs; two independent running kernel proofs; preserve original actualPGDATA owner/integrity checks",
+    "implementation_tests": "Actual Core+extra-container+stage_restore composition; defaultAPIomission regression and oldmutant; malformedidentity/mount/transport/type/proc/stat cases; actual full source/pinner/PENDING gates and prior64/SafetySQL tests",
+    "historical_claim": "Owner API omission observed; Restore related oracle defect source-only, never invent actualRestore failure"
+  },
+  "limits": {
+    "separate_new_exact_source_independent_review_required": true,
+    "no_fresh_literal_or_run_prepared": true,
+    "existing_pinned_source_and_runtime_HEAD_frozen": true,
+    "canonical_SQL_32_worker_ACL_AuthV5_restore_data_backup_rotation_and_cleanup_unchanged": true,
+    "runtime_or_tests_executed_by_this_plan_review": false,
+    "Posture": "D"
+  }
+}

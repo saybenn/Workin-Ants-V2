@@ -1,0 +1,110 @@
+def normalize_bound_envelope(text,comparison):
+    """Normalize only the top-level transaction envelope of admitted SQL.
+
+    This bounded lexical pass does not parse or rewrite business statements.
+    Runtime needs no parser package. Unsupported/ambiguous syntax refuses.
+    """
+    need(type(comparison) is dict and not comparison,'RESTORE_ENVELOPE_COMPARISON_SHAPE')
+    comparison.update(mode='UNCONFIRMED',source_bounded=False,lexically_closed=False,
+        source_statements=None,source_begin_count=None,source_commit_count=None,
+        business_statements=None,emitted_commit_count=None,business_bytes_preserved=False)
+    need(type(text) is str,'RESTORE_ENVELOPE_TEXT_TYPE')
+    try:bounded=len(text.encode('utf8'))<=1048576
+    except UnicodeError:bounded=False
+    comparison['source_bounded']=bounded
+    need(bounded and text and all((ord(c)>=32 and ord(c)!=127) or c in '\r\n\t' for c in text),'RESTORE_ENVELOPE_TEXT_BOUND')
+    statements=[];tokens=[];first=None;i=0;length=len(text);token_count=0
+    def token(value,start):
+        nonlocal first,token_count
+        if first is None:first=start
+        token_count+=1;need(token_count<=65536,'RESTORE_ENVELOPE_TOKEN_BOUND');tokens.append(value)
+    def quoted(start,quote,escape=False):
+        pos=start+1
+        while pos<length:
+            if escape and text[pos]=='\\':
+                need(pos+1<length,'RESTORE_ENVELOPE_UNCLOSED_QUOTE');pos+=2;continue
+            if text[pos]==quote:
+                if pos+1<length and text[pos+1]==quote:pos+=2;continue
+                return pos+1
+            pos+=1
+        raise Stop('RESTORE_ENVELOPE_UNCLOSED_QUOTE')
+    while i<length:
+        char=text[i]
+        if char.isspace():i+=1;continue
+        if text.startswith('--',i):
+            end=text.find('\n',i+2);i=length if end<0 else end+1;continue
+        if text.startswith('/*',i):
+            depth=1;i+=2
+            while i<length and depth:
+                if text.startswith('/*',i):depth+=1;need(depth<=32,'RESTORE_ENVELOPE_COMMENT_DEPTH');i+=2
+                elif text.startswith('*/',i):depth-=1;i+=2
+                else:i+=1
+            need(depth==0,'RESTORE_ENVELOPE_UNCLOSED_COMMENT');continue
+        if char in ("'",'"'):
+            escape=char=="'" and i>0 and text[i-1] in 'eE' and (i<2 or not (text[i-2].isalnum() or text[i-2] in '_$'))
+            end=quoted(i,char,escape)
+            token('LITERAL' if char=="'" else ('QUOTED_IDENTIFIER',text[i+1:end-1].replace('""','"')),i);i=end;continue
+        if char=='$':
+            tag=re.match(r'\$(?:[A-Za-z_][A-Za-z_0-9]{0,62})?\$',text[i:])
+            need(tag is not None,'RESTORE_ENVELOPE_UNSUPPORTED_DOLLAR')
+            delimiter=tag[0];end=text.find(delimiter,i+len(delimiter));need(end>=0,'RESTORE_ENVELOPE_UNCLOSED_DOLLAR')
+            token('DOLLAR_BODY',i);i=end+len(delimiter);continue
+        if char==';':
+            need(first is not None and tokens,'RESTORE_ENVELOPE_EMPTY_STATEMENT')
+            statements.append((first,i+1,tuple(tokens)));need(len(statements)<=256,'RESTORE_ENVELOPE_STATEMENT_BOUND')
+            first=None;tokens=[];i+=1;continue
+        need(char!='\\','RESTORE_ENVELOPE_CLIENT_META_COMMAND')
+        if char.isalpha() or char=='_':
+            end=i+1
+            while end<length and (text[end].isalnum() or text[end] in '_$'):end+=1
+            token(text[i:end].upper(),i);i=end;continue
+        token(char,i);i+=1
+    need(first is None and not tokens and statements,'RESTORE_ENVELOPE_UNTERMINATED_STATEMENT')
+    comparison.update(lexically_closed=True,source_statements=len(statements))
+    transaction_settings=frozenset(('transaction_isolation','transaction_read_only','transaction_deferrable',
+        'default_transaction_isolation','default_transaction_read_only','default_transaction_deferrable'))
+    def identifier(value):
+        if type(value) is str:return value.casefold()
+        if type(value) is tuple and len(value)==2 and value[0]=='QUOTED_IDENTIFIER':return value[1].casefold()
+        return None
+    def parameter(words):
+        if not words:return None
+        name=identifier(words[0]);index=1
+        while name is not None and index<len(words) and words[index]=='.':
+            if index+1>=len(words):return None
+            part=identifier(words[index+1])
+            if part is None:return None
+            name+='.'+part;index+=2
+        return name
+    def transaction_control(words):
+        if words[0] in ('BEGIN','COMMIT','END','ABORT','ROLLBACK','START','SAVEPOINT','RELEASE','PREPARE'):return True
+        if words[0]=='RESET':
+            # RESET ALL also resets the transaction defaults, so this closed
+            # envelope refuses it. Other RESET targets remain business SQL.
+            return words[1:2]==('ALL',) or parameter(words[1:]) in transaction_settings
+        if words[0]!='SET':return False
+        tail=words[1:]
+        if tail[:4]==('SESSION','CHARACTERISTICS','AS','TRANSACTION'):return True
+        if tail and tail[0] in ('LOCAL','SESSION'):tail=tail[1:]
+        return bool(tail and ((tail[0]=='TRANSACTION' and parameter(tail)=='transaction') or tail[:4]==('SESSION','CHARACTERISTICS','AS','TRANSACTION') or parameter(tail) in transaction_settings))
+    controls=[]
+    for index,(start,end,words) in enumerate(statements):
+        if transaction_control(words):
+            controls.append((index,start,end,words))
+    begins=[row for row in controls if row[3]==('BEGIN',)];commits=[row for row in controls if row[3]==('COMMIT',)]
+    comparison.update(source_begin_count=len(begins),source_commit_count=len(commits))
+    need(len(controls)==len(begins)+len(commits) and len(begins)<=1 and len(commits)<=1,'RESTORE_ENVELOPE_UNSUPPORTED_TRANSACTION')
+    need(not begins or begins[0][0]==0,'RESTORE_ENVELOPE_INTERMEDIATE_BEGIN')
+    need(not commits or commits[0][0]==len(statements)-1,'RESTORE_ENVELOPE_INTERMEDIATE_COMMIT')
+    need(not begins or commits,'RESTORE_ENVELOPE_INCOMPLETE_WRAPPER')
+    business=[row for index,row in enumerate(statements) if all(index!=control[0] for control in controls)]
+    need(business,'RESTORE_ENVELOPE_BUSINESS_REQUIRED')
+    if begins:
+        _,start,end,_=begins[0];normalized=text[:start]+text[end:];mode='OUTER_BEGIN_REMOVED'
+    elif commits:normalized=text;mode='TERMINAL_COMMIT_RETAINED'
+    else:normalized=text+'\nCOMMIT;';mode='NO_WRAPPER_APPEND_COMMIT'
+    # The pinned Session requires the literal terminal spelling. Refuse
+    # unsupported trailing trivia/case instead of relocating source bytes.
+    need(normalized.rstrip().endswith('COMMIT;'),'RESTORE_ENVELOPE_TERMINAL_SHAPE')
+    comparison.update(mode=mode,business_statements=len(business),emitted_commit_count=1,business_bytes_preserved=True)
+    return normalized

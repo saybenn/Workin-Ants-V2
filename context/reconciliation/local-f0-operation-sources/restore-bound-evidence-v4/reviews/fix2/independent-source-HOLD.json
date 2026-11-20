@@ -1,0 +1,342 @@
+{
+  "schema": "workinants.restore-bound-evidence-v4.independent-source-review.v1",
+  "recorded_at_utc": "2026-11-20T06:38:01.287904+00:00",
+  "reviewer": "/root/install_outer_review",
+  "decision": "SOURCE_APPROVAL_WITHHELD",
+  "scope": "Exact frozen new five, bounded transaction-envelope correction and real source/entry composition. One helper-contract finding; no code edits or gate changes.",
+  "authorship_disclosure": {
+    "new_V4_author": "/root/catalog_v4_review",
+    "reviewer_authored_V4": false,
+    "prior_lineage": "Reviewer authored inherited BoundEvidenceV3 and some accepted common/Owner/Six inputs. Their prior approvals remain version-qualified; this report is a nonauthor review of Catalog V4 delta and does not independently self-reapprove its own unchanged bases."
+  },
+  "bindings": {
+    "five_sha256": {
+      "execute_local_f0_restore_20261119_bound_evidence_v4.py": "187108844d74827427a2ccfd2299d67c466c8ff474df4124c138bf34f92ccc36",
+      "local_f0_restore_operation_steps_bound_evidence_v4.py": "0640945a621b6914b9076b8d248a4f2f0c4c485fd42f7227dee67dacaf3cdcd8",
+      "prepare_local_f0_restore_plan_bound_evidence_v4.py": "ac714d7e1966199c6036b5bba78e9f41160f30d8366eaddbd31b9ee39fa01752",
+      "check_local_f0_restore_operation_bound_evidence_v4.py": "e2e754d3e64610825367987c9c13c2564186ce1dbbe19c153034b38f7904a6f3",
+      "pin_local_f0_restore_plan_20261119_bound_evidence_v4.py": "ff85f78e0aba7cf52de31ecdf5274faa2bf8898fbf2cc73d2abc5421ed6d81e4"
+    },
+    "delivery": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_bound_evidence_v4_frozen_source_plan_20261120.json",
+      "sha256": "6935ff067a38c4eecda590a630c5b2c99237f45afe74ab9297abbc28d72759d8"
+    },
+    "author_report": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_bound_evidence_v4_source_author_review_20261120.json",
+      "sha256": "b033737deb21874bcaede77654f5dc61b63935df0087dbad0aea63893081eb7e"
+    },
+    "freeze": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore-bound-evidence-v4-author-freeze-20261120\\freeze-manifest.json",
+      "sha256": "7e29837b6973b82fcda74fa916e6aad961b38a1aa66052a9d282671577478619",
+      "all312_snapshots_verified": true
+    },
+    "validation": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\context\\reconciliation\\local-f0-restore-bound-evidence-v4-source-validation.json",
+      "sha256": "2b1a871644ba5bf704798da3f663d7851c55f3f1e30ac3e492533cc9f220ed3a",
+      "archive129_exact_tree_hashes": true,
+      "four_source_reviews": {
+        "author": "PENDING",
+        "offline": "PENDING",
+        "independent": "PENDING",
+        "Root": "PENDING"
+      }
+    },
+    "Root_plan_sha256": "0206011e81e463dab2cb365ac3b20753a34fbf19e01fd728da409abfaafcabd4",
+    "independent_plan_sha256": "a7fb9bbf5017214693d885944ef2d1c903361a582cbd20fe3a4802a186a6633e",
+    "Root_ACK_sha256": "13ad95baee2df9164a88d34c694ed269407a0cb45f841ab0cd5244a7d8411b36"
+  },
+  "findings": [
+    {
+      "id": "RESTORE-V4-TRANSACTION-OPTIONS-01",
+      "priority": "P2",
+      "decision": "SOURCE_APPROVAL_WITHHELD",
+      "title": "Closed transaction-envelope classifier admits scoped transaction settings and their GUC aliases as business",
+      "source_evidence": [
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_restore_operation_steps_bound_evidence_v4.py",
+          "sha256": "0640945a621b6914b9076b8d248a4f2f0c4c485fd42f7227dee67dacaf3cdcd8",
+          "function": "normalize_bound_envelope",
+          "line": 933,
+          "detail": "Control predicate checks only SET TRANSACTION and SET SESSION CHARACTERISTICS AS prefixes, so LOCAL/SESSION scope variants and transaction-setting parameter aliases are missed."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_restore_operation_steps_bound_evidence_v4.py",
+          "sha256": "0640945a621b6914b9076b8d248a4f2f0c4c485fd42f7227dee67dacaf3cdcd8",
+          "function": "normalize_bound_envelope",
+          "line": 941,
+          "detail": "Unrecognized settings are included in business statements."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_restore_operation_steps_bound_evidence_v4.py",
+          "sha256": "0640945a621b6914b9076b8d248a4f2f0c4c485fd42f7227dee67dacaf3cdcd8",
+          "function": "normalize_bound_envelope",
+          "line": 950,
+          "detail": "Unsupported transaction-option shapes are returned with a confirmed normal envelope mode and business_bytes_preserved true."
+        }
+      ],
+      "proof": {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_v4_independent_transaction_classifier_probe_20261120.json",
+        "sha256": "832e93e7659bb4132687c41bf1fadc1662c5184ab922f6a0f66f8d2630a7fa81",
+        "method": "Actual frozen Core.initialize, complete frozen Steps definitions and real normalize_bound_envelope; pglast is an offline independent syntax/AST oracle only. No SQL or process execution.",
+        "vectors": 74,
+        "all_Postgres_parse_valid": true,
+        "required_reject_but_admitted": 58,
+        "families": {
+          "SET_BARE_TRANSACTION": {
+            "REJECTED": 5
+          },
+          "SET_BARE_SESSION_CHARACTERISTICS": {
+            "REJECTED": 5
+          },
+          "SET_BARE_TRANSACTION_GUC_IDENTIFIER": {
+            "ADMITTED": 6
+          },
+          "SET_BARE_TRANSACTION_GUC_QUOTED": {
+            "ADMITTED": 6
+          },
+          "SET_LOCAL_TRANSACTION": {
+            "ADMITTED": 5
+          },
+          "SET_LOCAL_SESSION_CHARACTERISTICS": {
+            "ADMITTED": 5
+          },
+          "SET_LOCAL_TRANSACTION_GUC_IDENTIFIER": {
+            "ADMITTED": 6
+          },
+          "SET_LOCAL_TRANSACTION_GUC_QUOTED": {
+            "ADMITTED": 6
+          },
+          "SET_SESSION_TRANSACTION": {
+            "ADMITTED": 5
+          },
+          "SET_SESSION_SESSION_CHARACTERISTICS": {
+            "ADMITTED": 5
+          },
+          "SET_SESSION_TRANSACTION_GUC_IDENTIFIER": {
+            "ADMITTED": 6
+          },
+          "SET_SESSION_TRANSACTION_GUC_QUOTED": {
+            "ADMITTED": 6
+          },
+          "COMMENTS_IN_CONTROL": {
+            "ADMITTED": 2
+          },
+          "BUSINESS_NEGATIVE_CONTROL": {
+            "ADMITTED": 6
+          }
+        },
+        "representative_inputs": [
+          "SET LOCAL TRANSACTION READ ONLY; SELECT 1; COMMIT;",
+          "SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE; SELECT 1; COMMIT;",
+          "SET LOCAL SESSION CHARACTERISTICS AS TRANSACTION DEFERRABLE; SELECT 1; COMMIT;",
+          "SET SESSION SESSION CHARACTERISTICS AS TRANSACTION READ WRITE; SELECT 1; COMMIT;",
+          "SET LOCAL \"transaction_isolation\" = 'serializable'; SELECT 1; COMMIT;"
+        ],
+        "GUC_alias_names": [
+          "transaction_isolation",
+          "transaction_read_only",
+          "transaction_deferrable",
+          "default_transaction_isolation",
+          "default_transaction_read_only",
+          "default_transaction_deferrable"
+        ],
+        "negative_controls": "Six intended business/quoted-word cases remain admitted, including unquoted/quoted SET LOCAL search_path and transaction-looking strings, quoted identifier, comments and dollar body."
+      },
+      "contract_basis": "Root plan020601 and independent precisiona7fb9 require only no wrapper, one bare terminal COMMIT, or one leading bare BEGIN plus one terminal COMMIT, with transaction-option/ambiguous variants rejected. Root independently confirmed this helper-contract gap is within scope.",
+      "impact_and_limits": "The helper does not enforce its closed supported transaction-envelope contract for these forms. The three admitted pinned positive programs contain no discovered forms; no policy/permission bypass, actual runtime failure or historical warning cause is inferred.",
+      "bounded_correction_requirements": [
+        "Recognize valid optional LOCAL/SESSION SET scopes and SESSION CHARACTERISTICS forms, with comment-separated tokens handled by the lexical scanner.",
+        "Reject the exact six transaction-characteristic GUC aliases, including valid quoted identifier forms and bare/LOCAL/SESSION scopes; do not broadly reject SET or quoted identifiers.",
+        "Preserve pinned SET LOCAL search_path, quoted transaction words, business bytes, all three original source files, diagnostics/source gates/strict stderr/closure and all physical behavior.",
+        "Add actual-function pglast-checked regressions from the admitted vectors, plus restoration of only this old classifier as a failing control; publish a new immutable source freeze for same-reviewer re-review."
+      ]
+    }
+  ],
+  "actual_independent_checks": {
+    "record": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_v4_independent_selected_checks_20261120.json",
+    "sha256": "fe5a93f3ea73b472831e7026c0501d55bc696a1d1a412cf04ddceb3e6720c08b",
+    "script": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_v4_independent_probe_v2_20261120.py",
+    "script_sha256": "16b04a04cd991d6b25f0821095d567d725af792965035887bed3a2359a2cde61",
+    "tests_run": 17,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 38.953,
+    "methods": [
+      {
+        "method": "<run_path>.EnvelopeNormalizationTests.test_actual_three_admitted_sources_have_one_final_commit_and_same_business_AST",
+        "seconds": 0.25,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.EnvelopeNormalizationTests.test_no_wrapper_terminal_and_outer_BEGIN_modes_preserve_literal_business_bytes",
+        "seconds": 0.11,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.EnvelopeNormalizationTests.test_nested_comments_escaped_strings_and_dollar_bodies_are_not_controls",
+        "seconds": 0.125,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.EnvelopeNormalizationTests.test_unsupported_middle_chained_prepared_rollback_and_ambiguous_envelopes_refuse",
+        "seconds": 0.093,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.EnvelopeNormalizationTests.test_type_size_control_and_depth_bounds_keep_only_fixed_safe_metadata",
+        "seconds": 0.11,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.EnvelopeNormalizationTests.test_actual_customer_schedule_and_read_real_Session_emit_one_commit_each",
+        "seconds": 0.328,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.EnvelopeNormalizationTests.test_actual_optional_outer_BEGIN_does_not_open_a_second_transaction",
+        "seconds": 0.172,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.EnvelopeNormalizationTests.test_restoring_exact_old_method_reproduces_exit0_ACK_true_warning_STOP",
+        "seconds": 0.234,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.EnvelopeNormalizationTests.test_unexpected_secret_warning_keeps_fixed_empty_false_and_stops_later_case",
+        "seconds": 0.141,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.EnvelopeNormalizationTests.test_invalid_envelope_never_finishes_business_and_always_closes",
+        "seconds": 0.156,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.BoundEvidenceTests.test_exact_negative_binder_predicate_stays_required",
+        "seconds": 0.281,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.BoundEvidenceTests.test_persistent_evidence_io_still_attempts_global_and_never_passes",
+        "seconds": 0.078,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.BoundEvidenceTests.test_mid_finish_save_failure_preserves_partial_outcome_and_closes_actual_session",
+        "seconds": 0.11,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.BoundEvidenceTests.test_first_operation_stop_survives_secondary_global_failure",
+        "seconds": 0.312,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.RestoreBoundEvidenceSourceGateTests.test_actual_initializer_and_whole_verifier_populate_all_resource_globals",
+        "seconds": 6.266,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.RestoreBoundEvidenceSourceGateTests.test_explicit_PENDING_new_review_blocks_actual_pinner_and_runtime_before_process",
+        "seconds": 6.219,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.RealEntryCompositionTests.test_actual_prepare_pin_launch_native_comparators_Sessions_and_cleanup",
+        "seconds": 23.953,
+        "status": "PASS"
+      }
+    ],
+    "qualification": "Seventeen selected expected-behavior tests passed; these do not cancel the separate58 classifier counterexamples. Author42/35+6+1 counts remain author-only and are not added to this run.",
+    "actual_source_programs": "Customer and schedule each retain their existing final COMMIT; app-read gets one appended; leading bare BEGIN removed; business bytes and independent parsed business AST preserved.",
+    "source_derived_transaction_mock": "Actual frozen WorkerSession with PID/xid capture, separate issuer COMMIT, same-xid, finish and close. Offline pglast transaction state independently emits warning on a second COMMIT. Restoring exact dd909 old method reproduces exit0/ACK/marker with nonempty stderr, matchedfalse and closuretrue; no business rollback inferred.",
+    "strict_safety_vectors": "Malformed/ambiguous envelope refuses before business finish; exact negative binder remains required; secret warning stops without raw export; persistent/mid-finish evidence IO still closes sessions and required global backend selector; original first failure survives secondary closure failure.",
+    "source_gates": "Actual whole verifier populated source/staging/target3 and volume2 globals, physical source snapshots and helpers. PENDING gate refused real pinner/runtime before processes.",
+    "real_entry": "Actual prepare/current+modeled-committed pin/Core.initialize/launch/main/catalog native29089/oracle416/ledger22 and four restricted source operations, process boundaries only mocked. Exactly one modeled deploy, real comparators on closed immutable980a offline data. Deliberate first pg_conf_load_time process failure before physical backup caused STOP and exact modeled source1C1V/private cleanup.",
+    "physical_backup_restore_parity_quarantine_rotation_success": "NOT_EXERCISED; no full physical success inferred."
+  },
+  "source_delta": {
+    "namespace_normalization_used_only": "bound_evidence_v3\u2192bound_evidence_v4 and bound-evidence-v3\u2192bound-evidence-v4 in string literals/source names",
+    "AST_declaration_comparison": {
+      "execute_local_f0_restore_20261119": {
+        "changed": [],
+        "added": [],
+        "removed": [],
+        "identical_declarations": 43
+      },
+      "local_f0_restore_operation_steps": {
+        "changed": [
+          "bound_operation",
+          "bound_outcome"
+        ],
+        "added": [
+          "normalize_bound_envelope"
+        ],
+        "removed": [],
+        "identical_declarations": 74
+      },
+      "prepare_local_f0_restore_plan": {
+        "changed": [],
+        "added": [],
+        "removed": [],
+        "identical_declarations": 7
+      },
+      "pin_local_f0_restore_plan_20261119": {
+        "changed": [],
+        "added": [],
+        "removed": [],
+        "identical_declarations": 15
+      }
+    },
+    "unchanged_business_SQL_roles_permissions_timeouts_and_other_semantics": true,
+    "production_runtime_parser_dependency_added": false,
+    "safe_metadata": "Only fixed envelope mode/count/Boolean and stderr/completion comparisons added before assertions; strict exit/ACK/stderr/markers/state/operation closure remain."
+  },
+  "preservation": {
+    "all312_frozen_source_bindings": true,
+    "five_current_source_hashes_match": true,
+    "all_original137_physical_snapshots_match": true,
+    "all1410_current_protected_paths_match": true,
+    "completed_preservation_sha256": "5e365c112ffe42a9583e3440d0f4c97566cfc257a8dc3cbb81118d1331448cc4",
+    "original67_sources25_recipe_artifacts_match": true,
+    "canonical5ae_and_workerACL32": "Preserved through exact source67/recipe25 and protected1410 bindings; no SQL/ACL edits.",
+    "old_V3_five_archive_validation_and_historical_reports": "Unchanged; old cause remains UNOBSERVED.",
+    "documented_Root_metadata_exception": "Root approved inventorya80aded and validationf1d217ea; original c5d/67 retained in Fix2 freeze388. Five bytes unchanged.",
+    "post_review_additional_exceptions_needed": false,
+    "new_archive129_and_four_PENDING_gates_untouched": true
+  },
+  "historical_boundary": {
+    "old_actual980a_record_sha256": "e1f7a02c3e0d8607629bffa7930d736454971e704d0c9f8c6ba2f65a95333a98",
+    "raw_sha256": "334c78715aca97d5d0d9a260a5867944fb45e495313d436233f054c4d7b2e156",
+    "complete_old_warning_and_cause": "UNOBSERVED",
+    "source_double_COMMIT": "Proven source defect consistent with old stop; modeled warning is not the actual discarded warning.",
+    "old_complete_Customer_state_and_physical_restore": "NOT_OBSERVED_NOT_QUALIFIED"
+  },
+  "reviewer_setup_history": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_v4_independent_probe_setup_stop_20261120.json",
+    "sha256": "f12e0e6a246ffac2b153dcc8962ac8bf3cc6ca43f14ef591687817e6d62ebe2b",
+    "qualification": "Initial reviewer clone helper context used OUT outside its private TASK; actual initializer refused before tests. Preserved and corrected only in a new reviewer clone, no product source change."
+  },
+  "limits": {
+    "source_only": true,
+    "real_Git_Docker_DB_SQL_network_resources_credentials": false,
+    "source_metadata_progress_or_repo_writes": false,
+    "writes": "Exclusive TASK reviewer scripts/JSON and private mocked copies only",
+    "factory_or_handmade_proof_injection_in_full_entry": false,
+    "private_gate_projection_and_historical_fixture": {
+      "private_source_gate_only": true,
+      "historical980a_OFFLINE_MOCK_ONLY": true,
+      "baseline_original_sha256": "fbc188db9086b408b2e17573f93284cfe3599385e840a9960be8f329d2513b8b",
+      "baseline_only_tool_and_nested_path_fields_rebound": true,
+      "tool_metadata_sha256": {
+        "node_modules/@prisma/engines-version/package.json": "2dd9793255d6bbb5c399a624ecbfb6323d39233860863d172946b7f750f528bd",
+        "node_modules/prisma/package.json": "6cdfef6df08d9a37f28908855797fe8bfc97a2d3d886a8d5cbe2e502d6848151"
+      }
+    },
+    "actual_runtime_or_assertion_or_literal_approval": false,
+    "Posture": "D"
+  },
+  "next_step": "Root may authorize the narrow classifier correction in a new freeze; preserve this exact withheld source history and request independent re-review before any source approval or fresh operational literal.",
+  "plain_english": "The runner now uses one finish command, but its checker misses some other ways to change transaction settings. Keep this version on hold while that small check is fixed. The pretend tests did not prove a real backup or restore."
+}

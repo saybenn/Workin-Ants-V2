@@ -1,0 +1,33 @@
+"""Record the real Root build and narrow integrated regression; no runtime."""
+from pathlib import Path
+import datetime,hashlib,json,re
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';W=T/'six-c662-Root-real653-build-20261120'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+proofb=(W/'actual-build-proof.json').read_bytes();proof=json.loads(proofb)
+assert proof['status']=='PASS_ACTUAL_UNMOCKED653_BUILDER_EXACT6_ADMISSION'and proof['exit_code']==0 and proof['only6_assertion_status_changes']is True
+for name,h in [('local-f0-assertion-evidence.json',proof['ledger_sha256']),('local-f0-qualification-status.json',proof['actual_status_sha256'])]:assert sha((R/'context/reconciliation'/name).read_bytes())==h
+log=(W/'Root-status13-regression.log').read_bytes();text=log.decode('utf-8-sig')
+assert re.search(r'Ran 13 tests in [0-9.]+s',text)and re.search(r'\bOK\s*$',text)and not re.search(r'FAILED|ERROR:|FAIL:',text)
+vp=R/'context/reconciliation/local-f0-scoped-read-evidence-adapter-v1-source-validation.json';old=vp.read_bytes();assert sha(old)=='acce03eea3e80b45a92f7da31fe262faa51fd1276b19e9520425e937ed4c7acc';v=json.loads(old)
+assert v['Root_source_review']['decision']==v['independent_adapter_source_review']['decision']=='SOURCE_APPROVED'
+for n,h in {**v['source_files_sha256'],**v['archive_files_sha256']}.items():assert sha((R/n).read_bytes())==h
+A=R/'context/reconciliation/local-f0-operation-sources/six-c662-evidence-adapter-v1';D=A/'Root-actual653-admission'
+copies={'validation-before-actual-admission.json':old,'actual-build-proof.json':proofb,'actual-builder-stdout-summary.json':(W/'actual-builder-stdout-summary.json').read_bytes(),'actual-build-helper.py.txt':(T/'admit_six_exact6_and_run_real653_builder_20261120.py').read_bytes(),'integrated13-regression.log':log,'check-local-f0-status.py.txt':(R/'scripts/check-local-f0-status.py').read_bytes(),'Root-admission-helper.py.txt':Path(__file__).read_bytes()}
+for n,b in copies.items():put(D/n,b)
+actual={'schema':'workinants.six-c662-actual653-Root-admission.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS_EXACT6_ADMITTED_AFTER_REAL_BUILDER_AND_INTEGRATED_REGRESSION','actual_build_sha256':sha(proofb),'actual_builder_seconds':proof['seconds'],'actual_ledger_sha256':proof['ledger_sha256'],'actual_status_sha256':proof['actual_status_sha256'],'assertion_status_counts':proof['actual_assertion_status_counts'],'case_status_counts':proof['actual_case_status_counts'],'only6_NOT_RUN_to_PASS':True,'old647_rows_and_executions_preserved':True,'integrated_regression':{'known_exit_code':0,'tests':13,'log_sha256':sha(log),'scope':'Existing legacy evidence mutations and exact closed6 dispatcher expectations; actual adapter code/403 inputs separately tested and independently reviewed. Native520 and Six6 boundaries isolated only in this regression. Real full653 CLI above used no mocks.'},'unchanged_claim_limits':'Six positive application SELECTs only; no whole case, worker, owner write or API promotion. Native/SQL/access policy/history/register unchanged.','Posture':'D'}
+put(D/'actual-admission.json',enc(actual))
+v['status']='SOURCE_APPROVED_AND_EXACT6_ADMITTED_AFTER_ACTUAL_UNMOCKED653_BUILD'
+v['at_source_review_qualification_counts_unchanged']=v.pop('qualification_counts_unchanged');v['at_source_review_ledger_and_status_not_modified']=v.pop('ledger_and_status_not_modified')
+v['focused_tests']['Root_real_full653_builder']='PASS_ACTUAL_UNMOCKED_191.656_SECONDS'
+v['actual_Root_admission']={'path':(D/'actual-admission.json').relative_to(R).as_posix(),'sha256':sha((D/'actual-admission.json').read_bytes()),'only6_new_PASS':True,'assertion_status_counts':proof['actual_assertion_status_counts'],'case_status_counts':proof['actual_case_status_counts']}
+v['source_files_sha256']['scripts/check-local-f0-status.py']=sha((R/'scripts/check-local-f0-status.py').read_bytes())
+v['archive_files_sha256']={p.relative_to(R).as_posix():sha(p.read_bytes())for p in A.rglob('*')if p.is_file()}
+vp.write_bytes(enc(v));files={**v['source_files_sha256'],**v['archive_files_sha256'],vp.relative_to(R).as_posix():sha(vp.read_bytes())}
+for n in ('local-f0-assertion-evidence.json','local-f0-qualification-status.json'):
+ p=R/'context/reconciliation'/n;files[p.relative_to(R).as_posix()]=sha(p.read_bytes())
+inventory={'schema':'workinants.six-c662-actual653-admitted-final-inventory.v1','files_sha256':dict(sorted(files.items())),'files':len(files),'actual_admission_sha256':sha((D/'actual-admission.json').read_bytes()),'old647_preserved':True,'Posture':'D'}
+p=T/'six_c662_actual653_final_committable_inventory_20261120.json';put(p,enc(inventory));print(json.dumps({'inventory_sha256':sha(p.read_bytes()),'files':len(files),'source_validation_sha256':sha(vp.read_bytes()),'actual_admission_sha256':inventory['actual_admission_sha256']}))
